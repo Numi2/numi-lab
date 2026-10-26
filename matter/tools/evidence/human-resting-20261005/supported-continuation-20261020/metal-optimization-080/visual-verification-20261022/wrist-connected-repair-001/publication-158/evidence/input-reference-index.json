@@ -1,0 +1,42 @@
+{
+  "inputs": [
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-037-local-refinement-006-prep/run-001/refined-candidate.npz",
+      "path": "evidence/inputs/0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc-refined-candidate.npz",
+      "purpose": "affine-lineage source candidate; exact input to connected-star-569 lineage rebuild",
+      "sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc"
+    },
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-108/evidence/outward-surface-resume-264/pass-001/candidate.npz",
+      "path": "evidence/inputs/5a7239e62cbc0cf461440a48a8c4747d7d733eec630d63cf9e08682009593cc6-outward-surface-candidate.npz",
+      "purpose": "affine-lineage source candidate; exact input to connected-star-569 lineage rebuild",
+      "sha256": "5a7239e62cbc0cf461440a48a8c4747d7d733eec630d63cf9e08682009593cc6"
+    },
+    {
+      "path": "evidence/surface-clearance-546/local-witness-retention-567/refined036-eight-region-recovery-001/report.json",
+      "purpose": "failed partition recovery; no candidate composed, no geometry audit run",
+      "sha256": "d153516e6dc732d54e248867488ccf868a97c29e55803383a671374333a5e84d"
+    }
+  ],
+  "published_inputs": [
+    {
+      "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/surface-clearance-546/topology/round-039-root-policy-v6/lineage/candidate.npz",
+      "publication": 157,
+      "sha256": "f43c5131832897cab3099356d6f87f09b021aadc24b27f197011e46dbb95cb47"
+    },
+    {
+      "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-155/evidence/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/candidate.npz",
+      "publication": 155,
+      "sha256": "2ef23b2788175409169138e07abce9d751b253fede2cb53ee49c911268c7f046"
+    },
+    {
+      "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/surface-clearance-546/local-witness-retention-567/refined036-001/candidate.npz",
+      "publication": 157,
+      "sha256": "58fd39a062d120150aa0710af034127943a623107612ccb7c784de2df0754bfc"
+    }
+  ],
+  "schema": "p158-input-reference-index-v1"
+}

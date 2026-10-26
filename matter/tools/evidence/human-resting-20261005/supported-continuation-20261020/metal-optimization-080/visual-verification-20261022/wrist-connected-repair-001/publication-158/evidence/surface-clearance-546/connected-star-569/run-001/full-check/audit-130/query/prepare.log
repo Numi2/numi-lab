@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/run-001/full-check/audit-130/query/points-world.npz",
+  "input_sha256": "84e5b74a45ff27a4f1437e087f79e3024bcf7f3e78ce7ace69fff8bea2a043e6",
+  "field": "points_world_f32",
+  "query_count": 20889,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/run-001/full-check/audit-130/query/points.csv",
+  "output_sha256": "b0f3a715e9cd7873058dec21e3fbc8289d16c0278ad52c1b7cea81548ec2991a",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

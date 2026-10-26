@@ -1,0 +1,11 @@
+test_boundary_and_all_points (test_star_candidates569.StarTests.test_boundary_and_all_points) ... ok
+test_concave_triangulation_area (test_star_candidates569.StarTests.test_concave_triangulation_area) ... ok
+test_convex_catalan (test_star_candidates569.StarTests.test_convex_catalan) ... ok
+test_external_edge_reject (test_star_candidates569.StarTests.test_external_edge_reject) ... ok
+test_open_and_branches_reject (test_star_candidates569.StarTests.test_open_and_branches_reject) ... ok
+test_ring_orientation (test_star_candidates569.StarTests.test_ring_orientation) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.006s
+
+OK

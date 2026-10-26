@@ -1,0 +1,183 @@
+{
+  "accepted_physical_steps": 0,
+  "base558_counts": {
+    "contained_pairs": 1245,
+    "surface_pairs": 5044
+  },
+  "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/conditioned-connected-refinement-558/refine-all-001/candidate.npz",
+  "base_candidate_sha256": "2ef23b2788175409169138e07abce9d751b253fede2cb53ee49c911268c7f046",
+  "geometry_audits_run": false,
+  "native_admission": false,
+  "prepared_sensitivity_fit": "round-037-joint562-v2-trust1-edge01 remains unlaunched",
+  "previous_region_estimate": {
+    "limitation": "Prior estimate was endpoint per-face/per-node composition with an LP pair set, not exact self certification for a recombined subset.",
+    "partition_claimed": {
+      "LP_self_pair_rows": 22723,
+      "changed_node_count": 5634,
+      "region_count": 12
+    },
+    "selected_regions": [
+      {
+        "cleared": 46,
+        "contained_delta": -8,
+        "introduced": 40,
+        "max_depth_change_mm": 0,
+        "nodes": 436,
+        "region": 3,
+        "squared_depth_delta_m2": -1.1452e-05,
+        "surface_delta": -6
+      },
+      {
+        "cleared": 26,
+        "contained_delta": -4,
+        "introduced": 17,
+        "max_depth_change_mm": 0,
+        "nodes": 40,
+        "region": 0,
+        "squared_depth_delta_m2": -1.385e-05,
+        "surface_delta": -9
+      },
+      {
+        "cleared": 50,
+        "contained_delta": -8,
+        "introduced": 46,
+        "max_depth_change_mm": 0,
+        "nodes": 699,
+        "region": 5,
+        "squared_depth_delta_m2": -3.7306e-05,
+        "surface_delta": -4
+      },
+      {
+        "cleared": 53,
+        "contained_delta": -4,
+        "introduced": 47,
+        "max_depth_change_mm": -0.2407,
+        "nodes": 490,
+        "region": 4,
+        "squared_depth_delta_m2": -4.3725e-05,
+        "surface_delta": -6
+      },
+      {
+        "cleared": 10,
+        "contained_delta": -4,
+        "introduced": 8,
+        "max_depth_change_mm": 0,
+        "nodes": 98,
+        "region": 9,
+        "squared_depth_delta_m2": -1.1961e-09,
+        "surface_delta": -2
+      },
+      {
+        "cleared": 26,
+        "contained_delta": -3,
+        "introduced": 24,
+        "max_depth_change_mm": 0,
+        "nodes": 244,
+        "region": 2,
+        "squared_depth_delta_m2": -6.1254e-05,
+        "surface_delta": -2
+      },
+      {
+        "cleared": 0,
+        "contained_delta": -1,
+        "introduced": 0,
+        "max_depth_change_mm": 0,
+        "nodes": 28,
+        "region": 10,
+        "squared_depth_delta_m2": -2.7283e-06,
+        "surface_delta": 0
+      },
+      {
+        "cleared": 0,
+        "contained_delta": -1,
+        "introduced": 0,
+        "max_depth_change_mm": 0,
+        "nodes": 18,
+        "region": 11,
+        "squared_depth_delta_m2": -7.8745e-06,
+        "surface_delta": 0
+      }
+    ],
+    "status": "UNVERIFIED_PRIOR_ANALYSIS; region membership arrays/receipt not found"
+  },
+  "recovery_attempt": {
+    "candidate_pair_rows": 25336,
+    "changed_point_rows": 5634,
+    "components_sorted_by_min_node": [
+      {
+        "min_node": 4376,
+        "nodes": 1271
+      },
+      {
+        "min_node": 5642,
+        "nodes": 436
+      },
+      {
+        "min_node": 5884,
+        "nodes": 485
+      },
+      {
+        "min_node": 6985,
+        "nodes": 699
+      },
+      {
+        "min_node": 7255,
+        "nodes": 929
+      },
+      {
+        "min_node": 7278,
+        "nodes": 44
+      },
+      {
+        "min_node": 7280,
+        "nodes": 457
+      },
+      {
+        "min_node": 7589,
+        "nodes": 1165
+      },
+      {
+        "min_node": 8836,
+        "nodes": 87
+      },
+      {
+        "min_node": 12105,
+        "nodes": 28
+      },
+      {
+        "min_node": 12222,
+        "nodes": 18
+      },
+      {
+        "min_node": 14819,
+        "nodes": 2
+      },
+      {
+        "min_node": 15655,
+        "nodes": 1
+      },
+      {
+        "min_node": 17177,
+        "nodes": 11
+      },
+      {
+        "min_node": 18397,
+        "nodes": 1
+      }
+    ],
+    "conclusion": "This obvious partition does not reproduce the prior 12-region labels/sizes. Per instruction, no region labels were transferred, no subset candidate was composed, and no geometry check was launched.",
+    "method": "connected components over changed point rows, joining changed vertices within every source_O_faces triangle, then linking changed vertices across local_witness_cluster_222_pair_face_rows",
+    "pair_rows_that_joined_distinct_changed_nodes": 9663,
+    "result_component_count": 15,
+    "source_O_faces": 47783
+  },
+  "refined036_retained_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/refined036-001/candidate.npz",
+  "refined036_retained_candidate_sha256": "58fd39a062d120150aa0710af034127943a623107612ccb7c784de2df0754bfc",
+  "retained036_counts": {
+    "contained_pairs": 1183,
+    "self_pairs": 0,
+    "surface_pairs": 5077
+  },
+  "retained036_full_check": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/refined036-001/full-check/report.json",
+  "status": "PARTITION_NOT_RECOVERED_NO_CANDIDATE_COMPOSED"
+}

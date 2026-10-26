@@ -1,0 +1,5 @@
+{"banks": 185, "pairs": 1992, "parity_sample_faces": 16, "seconds": 1.7013866249471903, "stage": "prepared"}
+{"centers": 1000, "pairs": 1992, "round": 1, "seconds": 2.349569708108902, "stage": "round_started"}
+{"accepted": 0, "centers_examined": 752, "exact_triangle_calls": 6, "rejections": {"exact_no_bankwise_reduction": 1, "mixed_material": 1, "non_disk_star": 744, "quality_angle_loss_bound": 1}, "round": 1, "seconds": 4.488130707992241, "stage": "scan_progress"}
+{"accepted": 0, "centers_examined": 944, "exact_triangle_calls": 6, "rejections": {"exact_no_bankwise_reduction": 1, "mixed_material": 2, "non_disk_star": 928, "quality_angle_loss_bound": 1}, "round": 1, "seconds": 5.430930000031367, "stage": "scan_progress"}
+{"accepted": 0, "after_pairs": 1992, "before_pairs": 1992, "seconds": 6.370673707919195, "stage": "complete"}

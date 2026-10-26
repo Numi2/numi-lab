@@ -1,0 +1,92 @@
+{
+  "global_claims": {
+    "accepted_physical_steps": 0,
+    "candidate_selected": false,
+    "clinical_or_completed_anatomy_claim": false,
+    "native_admission": false,
+    "physical_admission": false
+  },
+  "regional_patch_571_no_progress": {
+    "accepted_operations": 0,
+    "after_pairs": 1992,
+    "before_pairs": 1992,
+    "candidate_selected": false,
+    "exact_triangle_calls": 11,
+    "input_candidate_sha256": "b32314463656719f475198f59f9c2cb07dddc2daa85e2cbaf7b42524bfa25637",
+    "reduction": 0,
+    "status": "NO_PASSING_CONNECTED_REGIONAL_PATCH"
+  },
+  "schema": "p158-candidate-summary-v1",
+  "selected_main_baseline": {
+    "candidate_sha256": "f43c5131832897cab3099356d6f87f09b021aadc24b27f197011e46dbb95cb47",
+    "publication": 157,
+    "surface_pairs": 2086
+  },
+  "temporary_unselected_constructions": [
+    {
+      "accepted_operations": 22,
+      "anchor_rows": 237,
+      "candidate_selected": false,
+      "candidate_sha256": "c64704f0af3ae6fa57e2658da7dd33ca1d7ae4a390c305bbbb11e1d753a3edea",
+      "complete_banks": 185,
+      "construction_progress": true,
+      "contained_pairs": 0,
+      "full_check_report_path": "evidence/surface-clearance-546/connected-star-569/run-001/full-check/report.json",
+      "full_check_report_sha256": "397162c76997f0a0645a96f8d7cf54b30dda8e8ef4b57b59ce297e723f4be834",
+      "input_candidate_sha256": "f43c5131832897cab3099356d6f87f09b021aadc24b27f197011e46dbb95cb47",
+      "input_reference": "P157 root-policy-v6 round-039 lineage candidate",
+      "name": "connected-star-569/run-001",
+      "self_pairs": 0,
+      "surface_pairs": 2034
+    },
+    {
+      "accepted_operations": 5,
+      "anchor_rows": 237,
+      "candidate_selected": false,
+      "candidate_sha256": "2705611fcdf04df010f09259f410fc0f56e514558f1767135025e65a642563c8",
+      "complete_banks": 185,
+      "construction_progress": true,
+      "contained_pairs": 0,
+      "full_check_report_path": "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/report.json",
+      "full_check_report_sha256": "089598011899a24076ef9dae092f3e8f6da3b2bc03d804f02ff09c9a16e6770e",
+      "input_candidate_sha256": "c64704f0af3ae6fa57e2658da7dd33ca1d7ae4a390c305bbbb11e1d753a3edea",
+      "name": "topology/round-041-after-star569",
+      "self_pairs": 0,
+      "surface_pairs": 2024
+    },
+    {
+      "accepted_operations": 1,
+      "anchor_rows": 237,
+      "candidate_selected": false,
+      "candidate_sha256": "2ff67f12d55a5a6157820880b8e125a5c0a0e4963195fe7cf0e13783dc2201fd",
+      "complete_banks": 185,
+      "construction_progress": true,
+      "contained_pairs": 0,
+      "full_check_report_path": "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/report.json",
+      "full_check_report_sha256": "5bda538a5f4bc8e038e046180e82ebbb23312e57f60a996061c3a15c800ad203",
+      "input_candidate_sha256": "2705611fcdf04df010f09259f410fc0f56e514558f1767135025e65a642563c8",
+      "name": "connected-patch-570/run-002",
+      "self_pairs": 0,
+      "surface_pair_reduction": 8,
+      "surface_pairs": 2016
+    },
+    {
+      "accepted_operations": 10,
+      "anchor_rows": 237,
+      "candidate_selected": false,
+      "candidate_sha256": "b32314463656719f475198f59f9c2cb07dddc2daa85e2cbaf7b42524bfa25637",
+      "complete_banks": 185,
+      "construction_progress": true,
+      "contained_pairs": 0,
+      "coordinates_unchanged": true,
+      "full_check_report_path": "evidence/surface-clearance-546/connected-star-573/run-001/full-check/report.json",
+      "full_check_report_sha256": "23269b2743ac94938a92531c2f3dbd9f6c4142d1ab7338f334e79a950328e536",
+      "input_candidate_sha256": "2ff67f12d55a5a6157820880b8e125a5c0a0e4963195fe7cf0e13783dc2201fd",
+      "name": "connected-star-573/run-001",
+      "point_ids_unchanged": true,
+      "self_pairs": 0,
+      "surface_pair_reduction": 24,
+      "surface_pairs": 1992
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "excluded_scopes": [
+    "connected-star-575 and any active continuation after round 573",
+    "any later regional-patch-571 continuation not present in frozen run-001",
+    "active or future geometry work outside explicitly listed snapshots"
+  ],
+  "included_frozen_scopes": [
+    "connected-star-569/run-001",
+    "same-count-star-payload-568",
+    "topology/round-041-after-star569",
+    "connected-patch-570/run-001 and run-002",
+    "connected-star-573/run-001",
+    "changed-triangle-quality-572",
+    "regional-patch-571/run-001",
+    "local-witness-retention-567/refined036-eight-region-recovery-001 failed diagnostic"
+  ],
+  "publication": "P158",
+  "publication_parent": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+  "push_authorization": "Inherited user authorization to publish scoped increments; no push has occurred in this staging step.",
+  "schema": "p158-scope-decision-v1",
+  "status": "READY_FOR_PUBLICATION_REVIEW"
+}

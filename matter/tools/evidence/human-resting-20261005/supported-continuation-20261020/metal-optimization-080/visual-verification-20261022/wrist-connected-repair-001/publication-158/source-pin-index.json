@@ -1,0 +1,1252 @@
+{
+  "additional_exact_source_snapshots": [
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-093/canonical/matter/tools/human_skin_fat_bone_audit.py",
+      "path": "evidence/source-snapshots/37c040a442f1fdf312745c1cc1fb6c543383f1cd0782db46c81ca1eadf0d8324-human_skin_fat_bone_audit.py",
+      "sha256": "37c040a442f1fdf312745c1cc1fb6c543383f1cd0782db46c81ca1eadf0d8324"
+    },
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-358/same_parent_flips_358.py",
+      "path": "evidence/source-snapshots/a08e1f7e6392854f72ffab09af6f2b1f2afe885b1a84f586afe71160ff3ccbee-same_parent_flips_358.py",
+      "sha256": "a08e1f7e6392854f72ffab09af6f2b1f2afe885b1a84f586afe71160ff3ccbee"
+    },
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-408/exact_global_incremental_flip_search_409.py",
+      "path": "evidence/source-snapshots/64f05be466d672266d4265185c895fecc70113d476f69e7a1c6dc3af8ec514a8-exact_global_incremental_flip_search_409.py",
+      "sha256": "64f05be466d672266d4265185c895fecc70113d476f69e7a1c6dc3af8ec514a8"
+    },
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-408/incremental_exact_flip_check_408.py",
+      "path": "evidence/source-snapshots/01026156cccd5c1742e2edcaa6288f64f888731424dfb6337831412701020711-incremental_exact_flip_check_408.py",
+      "sha256": "01026156cccd5c1742e2edcaa6288f64f888731424dfb6337831412701020711"
+    },
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology-policy-root-v6/run_after_star041.py",
+      "path": "evidence/source-snapshots/fa60aa8abd731356c20a58a3ad1f4f93c41a14f4fd2307cca8db255b51bfab98-run_after_star041.py",
+      "sha256": "fa60aa8abd731356c20a58a3ad1f4f93c41a14f4fd2307cca8db255b51bfab98"
+    }
+  ],
+  "pins": [
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-408/incremental_exact_flip_check_408.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/source-snapshots/01026156cccd5c1742e2edcaa6288f64f888731424dfb6337831412701020711-incremental_exact_flip_check_408.py"
+        ]
+      },
+      "sha256": "01026156cccd5c1742e2edcaa6288f64f888731424dfb6337831412701020711"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-037-local-refinement-006-prep/run-001/refined-candidate.npz"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/lineage/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/lineage/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/lineage/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/lineage/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/inputs/0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc-refined-candidate.npz"
+        ]
+      },
+      "sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/full-check-stage.launch.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/full-check-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/full-check-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/full-check-stage.launch.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 11275,
+            "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-156/evidence/source-snapshots/0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a-run_candidate_checks545.py",
+            "publication": 156
+          },
+          {
+            "bytes": 11275,
+            "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-155/source-snapshots/0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a-run_candidate_checks545.py",
+            "publication": 155
+          }
+        ]
+      },
+      "sha256": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/run-001/full-check/audit-159/report.json"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/topology/round-041-after-star569/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-569/run-001/full-check/audit-159/report.json"
+        ]
+      },
+      "sha256": "0f5c2d372e489d3ad95843594e5b9642c8000e7e29b4010987c5698226304bf1"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/cached_counter569_v2.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/same-count-star-payload-568/cached_counter569_v2.py"
+        ]
+      },
+      "sha256": "1a19339d5f6004d36c38d0b22a29a5b6a644f911d3091194ee59396216f30e6e"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/repair_focused_clearance_541.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 28159,
+            "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/source-snapshots/26930be05518834f02724948cffa5ff74719f070a4ac4e4917b0965f42a412aa-repair_focused_clearance_541.py",
+            "publication": 157
+          },
+          {
+            "bytes": 28159,
+            "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/surface-clearance-546/topology/round-037-v3-from2102/sources/repair_focused_clearance_541.py",
+            "publication": 157
+          }
+        ]
+      },
+      "sha256": "26930be05518834f02724948cffa5ff74719f070a4ac4e4917b0965f42a412aa"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-041-after-star569/lineage/candidate.npz"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/topology/round-041-after-star569/lineage/candidate.npz",
+          "evidence/surface-clearance-546/topology/round-041-after-star569/round-002/candidate.npz",
+          "evidence/surface-clearance-546/topology/round-041-after-star569/round-003/candidate.npz"
+        ]
+      },
+      "sha256": "2705611fcdf04df010f09259f410fc0f56e514558f1767135025e65a642563c8"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology-policy-root-v6/quality_policy025_variant.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 3526,
+            "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/surface-clearance-546/topology-policy-root-v5/quality_policy025_variant.py",
+            "publication": 157
+          },
+          {
+            "bytes": 3526,
+            "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/surface-clearance-546/topology-policy-root-v6/quality_policy025_variant.py",
+            "publication": 157
+          }
+        ]
+      },
+      "sha256": "2ce11405c178379325d98fe76171010015eac5bc46b2c12d9813676afcd9970a"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-patch-570/run-002/lineage/candidate.npz"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-patch-570/run-002/lineage/candidate.npz",
+          "evidence/surface-clearance-546/connected-patch-570/run-002/search/candidate.npz"
+        ]
+      },
+      "sha256": "2ff67f12d55a5a6157820880b8e125a5c0a0e4963195fe7cf0e13783dc2201fd"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/run-001/full-check/audit-130/summary.json"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/topology/round-041-after-star569/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-569/run-001/full-check/audit-130/summary.json"
+        ]
+      },
+      "sha256": "367450563673030a119202f65d711b6aa3eb93fdcfa3b370522f8b0740963d14"
+    },
+    {
+      "original_paths": [
+        "bank_reader_and_summary"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/source-snapshots/37c040a442f1fdf312745c1cc1fb6c543383f1cd0782db46c81ca1eadf0d8324-human_skin_fat_bone_audit.py"
+        ]
+      },
+      "sha256": "37c040a442f1fdf312745c1cc1fb6c543383f1cd0782db46c81ca1eadf0d8324"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/regional-patch-571/regional_candidates571.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/unit-tests.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py"
+        ]
+      },
+      "sha256": "48d53b5516bc4e604a8c8bbfb7b100039e2646b3efcc2298010ed957fc9c3cfc"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-573/run-001/final/state.json"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-573/run-001/final/state.json"
+        ]
+      },
+      "sha256": "4a013dbc7e94419d103589dc0ef99865e19cc49fb739b3f27fe726c35be3c68f"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-573/search_stars573.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-573/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-573/search_stars573.py"
+        ]
+      },
+      "sha256": "4c2f1cc361561fc6518eeaf9dc5d32083c5fe4f04306a88c7c5c823a97241d79"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/regional-patch-571/run_regional_round571.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/regional-patch-571/run_regional_round571.py"
+        ]
+      },
+      "sha256": "5154723ed906fc5d3e548852467ab5d08fdd6c0c081666e5d142ec11a6d9cde7"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 5152,
+            "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-156/evidence/source-snapshots/52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9-audit_connected_outer_geometry_130.py",
+            "publication": 156
+          },
+          {
+            "bytes": 5152,
+            "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-155/source-snapshots/52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9-audit_connected_outer_geometry_130.py",
+            "publication": 155
+          }
+        ]
+      },
+      "sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-039-root-policy-v6/full-check/audit-130/summary.json"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-569/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 594,
+            "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/surface-clearance-546/topology/round-039-root-policy-v6/full-check/audit-130/summary.json",
+            "publication": 157
+          }
+        ]
+      },
+      "sha256": "536ecbd13955d78b6c7427590a119a2d54bb8319958c543ca9313bb7cb9bc7bc"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/publication-108/evidence/outward-surface-resume-264/pass-001/candidate.npz"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/lineage/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/lineage/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/lineage/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/lineage/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/inputs/5a7239e62cbc0cf461440a48a8c4747d7d733eec630d63cf9e08682009593cc6-outward-surface-candidate.npz"
+        ]
+      },
+      "sha256": "5a7239e62cbc0cf461440a48a8c4747d7d733eec630d63cf9e08682009593cc6"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 202611,
+            "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-156/evidence/source-snapshots/5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2-propose_joint_clearance_witnesses_408.py",
+            "publication": 156
+          },
+          {
+            "bytes": 202611,
+            "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-155/source-snapshots/5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2-propose_joint_clearance_witnesses_408.py",
+            "publication": 155
+          }
+        ]
+      },
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-patch-570/patch_candidates570.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-001/unit-tests.launch.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/unit-tests.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-patch-570/patch_candidates570.py"
+        ]
+      },
+      "sha256": "5e309fd361ac99de50f1d3f9aeca8d5f5711a406969525c09a1a80481bf0861d"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-408/exact_global_incremental_flip_search_409.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/source-snapshots/64f05be466d672266d4265185c895fecc70113d476f69e7a1c6dc3af8ec514a8-exact_global_incremental_flip_search_409.py"
+        ]
+      },
+      "sha256": "64f05be466d672266d4265185c895fecc70113d476f69e7a1c6dc3af8ec514a8"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/changed-triangle-quality-572/changed_triangle_masks572.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-573/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/unit-tests.launch.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/unit-tests.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/changed-triangle-quality-572/changed_triangle_masks572.py"
+        ]
+      },
+      "sha256": "6f046d1960e3626368ae210e9685d4d33276c149797fae7691de6ace85e948cf"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 775287,
+            "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/inputs/70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31-endpoint-candidate.npz",
+            "publication": 157
+          }
+        ]
+      },
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-573/run_star_round573.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-573/run-001/search-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-573/run_star_round573.py"
+        ]
+      },
+      "sha256": "73e8c2b0e2d6ad51fad2594c158c072947151d023857f014edba2340e33cebe6"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-patch-570/run-002/full-check/audit-130/summary.json"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-573/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/audit-130/summary.json"
+        ]
+      },
+      "sha256": "76a3bb11022ff4b04c599033e035f077335fbaa3fc828670bf570d3690241fb7"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/test_star_candidates569.py",
+        "evidence/surface-clearance-546/connected-star-569/test_star_candidates569.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-569/run-001/unit-tests.launch.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/unit-tests.launch.json",
+        "tests/pure-tests.receipt.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-569/test_star_candidates569.py"
+        ]
+      },
+      "sha256": "78498d0a90896b7cda0f28f819ff391d0b3c7c5b52055f9200eac463239d0b2f"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/affine-ancestry-refresh-566/rebuild_affine_rows566.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/lineage-stage.launch.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/lineage/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/lineage-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/lineage/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/lineage-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/lineage/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/lineage-stage.launch.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/lineage/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 2729,
+            "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-156/evidence/surface-clearance-546/affine-ancestry-refresh-566/rebuild_affine_rows566.py",
+            "publication": 156
+          }
+        ]
+      },
+      "sha256": "79a808bb3fa0e0cb6216e9fe91752335cec214e7958a5bd08222519b407ebb65"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-patch-570/search_patches570.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-patch-570/search_patches570.py"
+        ]
+      },
+      "sha256": "7cd5734458e6d388263235b1279ddc01f342064943782871a57815d6d1c908b5"
+    },
+    {
+      "original_paths": [
+        "evidence/surface-clearance-546/same-count-star-payload-568/test_cached_counter569_v2.py"
+      ],
+      "receipt_paths": [
+        "tests/pure-tests.receipt.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/same-count-star-payload-568/test_cached_counter569_v2.py"
+        ]
+      },
+      "sha256": "7feaaed2bdf00b05f42df3010b30631c795b5bb5d2776670e5ae3d6c9c587f21"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/star_candidates569.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-001/unit-tests.launch.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/unit-tests.launch.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/unit-tests.launch.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/unit-tests.launch.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/unit-tests.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-569/star_candidates569.py"
+        ]
+      },
+      "sha256": "81b33966ba0c2182c86d2a6d66862064105cf48e91c2efe0cfcc0ef6359d1b2c"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-patch-570/run_patch_round570_v2.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-patch-570/run_patch_round570_v2.py"
+        ]
+      },
+      "sha256": "834cde54e90d8a5bdc9f032fa6b9b6dd1045bb1c83d86b7f2979772817b29cb1"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/run_star_round569.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-569/run-001/search-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-569/run_star_round569.py"
+        ]
+      },
+      "sha256": "843fe8e1f45490e3de8d68344ca50bb34c625843b40a61f89a7b3fe7e3693fb4"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-041-after-star569/full-check/audit-130/summary.json"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/audit-130/summary.json"
+        ]
+      },
+      "sha256": "8f0df731bcb489bce470e4a6f9d0b6e9afd5daf3298b7224d245e6ecb60c40fc"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-041-after-star569/final/state.json"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/topology/round-041-after-star569/final/state.json"
+        ]
+      },
+      "sha256": "903bbab509b64f60fe7bd2b41797d0aa95c3b6d67107609166b073b988c0d3cc"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py"
+        ]
+      },
+      "sha256": "91e60eda6c6ed4a39fb3d9cc226af87743101b22da9c32c5229030ac6cd4cd8a"
+    },
+    {
+      "original_paths": [
+        "flip_operator_358"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/source-snapshots/a08e1f7e6392854f72ffab09af6f2b1f2afe885b1a84f586afe71160ff3ccbee-same_parent_flips_358.py"
+        ]
+      },
+      "sha256": "a08e1f7e6392854f72ffab09af6f2b1f2afe885b1a84f586afe71160ff3ccbee"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-041-after-star569/full-check/audit-159/report.json"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/audit-159/report.json"
+        ]
+      },
+      "sha256": "a8577c4be9856765bdc9736737ed6825ae0d74a52705f27187e9912cddd8a767"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/frozen-v4/diagnose_reference_degeneracy_557.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/lineage/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/lineage/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/lineage/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/lineage/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 30256,
+            "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-156/evidence/source-snapshots/aecbb82aca291172de54b1529ca217100c935380afed03c057c868d7bcec5798-diagnose_reference_degeneracy_557.py",
+            "publication": 156
+          }
+        ]
+      },
+      "sha256": "aecbb82aca291172de54b1529ca217100c935380afed03c057c868d7bcec5798"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-573/run-001/lineage/candidate.npz"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-573/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-573/run-001/lineage/candidate.npz",
+          "evidence/surface-clearance-546/regional-patch-571/run-001/search/candidate.npz"
+        ]
+      },
+      "sha256": "b32314463656719f475198f59f9c2cb07dddc2daa85e2cbaf7b42524bfa25637"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/cached_counter569.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-569/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-569/cached_counter569.py"
+        ]
+      },
+      "sha256": "bdf5ce92ba7b75356ce22a89f1e6869e63687cd4b45c4e1e7690105b3987a30d"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-patch-570/test_patch_candidates570.py",
+        "evidence/surface-clearance-546/connected-patch-570/test_patch_candidates570.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-001/unit-tests.launch.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/unit-tests.launch.json",
+        "tests/pure-tests.receipt.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-patch-570/test_patch_candidates570.py"
+        ]
+      },
+      "sha256": "be44fea7fb75dde460425fee0ca540723669c80b85d573aa5bda7262dfcedb49"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-039-root-policy-v6/final/state.json"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-569/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 937,
+            "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/surface-clearance-546/topology/round-039-root-policy-v6/final/state.json",
+            "publication": 157
+          }
+        ]
+      },
+      "sha256": "be85caca0b51bc8637856ccf021814c429da56464c6dba37be14c3cf02da3c59"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/run-001/lineage/candidate.npz"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-569/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-569/run-001/lineage/candidate.npz"
+        ]
+      },
+      "sha256": "c64704f0af3ae6fa57e2658da7dd33ca1d7ae4a390c305bbbb11e1d753a3edea"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/run-001/final/state.json"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/topology/round-041-after-star569/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-569/run-001/final/state.json"
+        ]
+      },
+      "sha256": "c8585ece933e5f5f45ce90e9bbd25887fe33c3abc16863f09228c76be05a2624"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-370/select_bone_reducing_flips_370.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 35070,
+            "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/source-snapshots/c8650b8c311ca8f386ebf1713b5fc285b7bded860cfa878192472704ac1336d5-select_bone_reducing_flips_370.py",
+            "publication": 157
+          },
+          {
+            "bytes": 35070,
+            "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/surface-clearance-546/topology/round-037-v3-from2102/sources/select_bone_reducing_flips_370.py",
+            "publication": 157
+          }
+        ]
+      },
+      "sha256": "c8650b8c311ca8f386ebf1713b5fc285b7bded860cfa878192472704ac1336d5"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/changed-triangle-quality-572/test_changed_triangle_masks572.py",
+        "evidence/surface-clearance-546/changed-triangle-quality-572/test_changed_triangle_masks572.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-573/run-001/unit-tests.launch.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/unit-tests.launch.json",
+        "tests/pure-tests.receipt.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/changed-triangle-quality-572/test_changed_triangle_masks572.py"
+        ]
+      },
+      "sha256": "cb270f7e5281fae48b9753082576cbc555fd79e1bb306aef07fce877b23ec256"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-039-root-policy-v6/full-check/audit-159/report.json"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-569/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 186303,
+            "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/surface-clearance-546/topology/round-039-root-policy-v6/full-check/audit-159/report.json",
+            "publication": 157
+          }
+        ]
+      },
+      "sha256": "cd8d6b0126d2179e30fc3fbcb93a065a67811cff4b154051fde947f87e07f5b6"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/regional-patch-571/search_regional571.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/regional-patch-571/search_regional571.py"
+        ]
+      },
+      "sha256": "d131c7105fb46bd1a5ed199a4816d7190394af7203c08338924575b455296796"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/final-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/final-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/final-stage.launch.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/final-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 13692,
+            "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-156/evidence/source-snapshots/db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781-finalize_existing_checks546.py",
+            "publication": 156
+          },
+          {
+            "bytes": 13692,
+            "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-155/source-snapshots/db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781-finalize_existing_checks546.py",
+            "publication": 155
+          }
+        ]
+      },
+      "sha256": "db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781"
+    },
+    {
+      "original_paths": [
+        "evidence/surface-clearance-546/same-count-star-payload-568/test_same_count_patch_payload568.py"
+      ],
+      "receipt_paths": [
+        "tests/pure-tests.receipt.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/same-count-star-payload-568/test_same_count_patch_payload568.py"
+        ]
+      },
+      "sha256": "dd79db6b843f1f7e7f44864f295125be786d2ee99c8b42054f0e514a1f49765f"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+        "surface_audit_159"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 4925,
+            "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-156/evidence/source-snapshots/de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1-audit_skin_bone_surfaces_159.py",
+            "publication": 156
+          },
+          {
+            "bytes": 4925,
+            "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-155/source-snapshots/de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1-audit_skin_bone_surfaces_159.py",
+            "publication": 155
+          }
+        ]
+      },
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/search_stars569.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-569/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-569/search_stars569.py"
+        ]
+      },
+      "sha256": "e23cf4787c4ad3706492855b4ebbb22aeea9aa3a79899053ef35e970d6b884af"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-patch-570/run-002/final/state.json"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-573/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-patch-570/run-002/final/state.json"
+        ]
+      },
+      "sha256": "e5d0e45084887de8d2d4b9ed86525117d4cff19ee4f325300f1a3aa3d403bb17"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-patch-570/run-002/full-check/audit-159/report.json"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-573/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/audit-159/report.json"
+        ]
+      },
+      "sha256": "e7e99a59972a1fef1d47919f18ef09b4a1d03dd1354cf3cb9a437905f69ee859"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-405/cross_seam_search_405.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/lineage/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/lineage/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/lineage/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/lineage/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 18093,
+            "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-156/evidence/source-snapshots/e995a2f460e60cb62fb24b80af400678757f62a2b0c1b51141bf0ef387993967-cross_seam_search_405.py",
+            "publication": 156
+          }
+        ]
+      },
+      "sha256": "e995a2f460e60cb62fb24b80af400678757f62a2b0c1b51141bf0ef387993967"
+    },
+    {
+      "original_paths": [
+        "exact_predicate_315"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 63212,
+            "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/source-snapshots/f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d-cardiac_cavity_intersections.py",
+            "publication": 157
+          },
+          {
+            "bytes": 63212,
+            "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-156/evidence/source-snapshots/f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d-cardiac_cavity_intersections.py",
+            "publication": 156
+          },
+          {
+            "bytes": 63212,
+            "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-155/source-snapshots/f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d-cardiac_cavity_intersections.py",
+            "publication": 155
+          }
+        ]
+      },
+      "sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-039-root-policy-v6/lineage/candidate.npz"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-569/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 6663562,
+            "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/surface-clearance-546/topology/round-039-root-policy-v6/lineage/candidate.npz",
+            "publication": 157
+          },
+          {
+            "bytes": 6663562,
+            "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/surface-clearance-546/topology/round-040-root-policy-v6/round-001/candidate.npz",
+            "publication": 157
+          }
+        ]
+      },
+      "sha256": "f43c5131832897cab3099356d6f87f09b021aadc24b27f197011e46dbb95cb47"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/run-002/lineage/report.json",
+        "evidence/surface-clearance-546/connected-patch-570/run-002/search/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/lineage/report.json",
+        "evidence/surface-clearance-546/connected-star-569/run-001/search/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/lineage/report.json",
+        "evidence/surface-clearance-546/connected-star-573/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/run-001/search/report.json",
+        "evidence/surface-clearance-546/topology/round-041-after-star569/lineage/report.json"
+      ],
+      "resolution": {
+        "kind": "published-prior",
+        "references": [
+          {
+            "bytes": 19068,
+            "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+            "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-156/evidence/source-snapshots/f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764-two_parent_patch_flips_402.py",
+            "publication": 156
+          }
+        ]
+      },
+      "sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/regional-patch-571/test_regional_candidates571.py",
+        "evidence/surface-clearance-546/regional-patch-571/test_regional_candidates571.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/regional-patch-571/run-001/unit-tests.launch.json",
+        "tests/pure-tests.receipt.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p158",
+        "paths": [
+          "evidence/surface-clearance-546/regional-patch-571/test_regional_candidates571.py"
+        ]
+      },
+      "sha256": "f8c2860969bf49739d4782656fb819800697959fd1bb95861871efafd3325671"
+    }
+  ],
+  "schema": "p158-source-pin-index-v1",
+  "source_pin_count": 59,
+  "source_pin_gaps": []
+}

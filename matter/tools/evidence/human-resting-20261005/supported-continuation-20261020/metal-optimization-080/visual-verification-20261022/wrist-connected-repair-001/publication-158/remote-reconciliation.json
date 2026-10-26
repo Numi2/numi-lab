@@ -1,0 +1,39 @@
+{
+  "cached_origin_main_note": "Cached local origin/main pointed to stale unrelated commit 8b8c68af; it was not used or updated.",
+  "expected_parent": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+  "fresh_server_main": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+  "parent_chain": [
+    "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+    "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+    "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa"
+  ],
+  "publications": [
+    {
+      "manifest_sha256": "e433efcf63074501724d9dc4236f4e35dec3af83ed4fc0ae79ca47a2f65bd61a",
+      "member_count": 299,
+      "mismatches": 0,
+      "publication": 155,
+      "tree_file_count": 300,
+      "verified_members": 299
+    },
+    {
+      "manifest_sha256": "494792624ce2ad17567e00b452d688a669fc47ff71a865ba21f188437f441ac6",
+      "member_count": 317,
+      "mismatches": 0,
+      "publication": 156,
+      "tree_file_count": 318,
+      "verified_members": 317
+    },
+    {
+      "manifest_sha256": "30a9f136a388b8e738d5e5419f8acbf84e700e65d92eab62b9cfed0b7f607de5",
+      "member_count": 322,
+      "mismatches": 0,
+      "publication": 157,
+      "tree_file_count": 323,
+      "verified_members": 322
+    }
+  ],
+  "schema": "p158-remote-reconciliation-v1",
+  "verification_method": "read GitHub main through git ls-remote; read the exact commit tree via git cat-file; compare every publication-manifest member SHA-256, size, and mode. No fetch, ref update, worktree edit, or index write.",
+  "verified_at_utc": "2026-10-26T23:47:44.329964+00:00"
+}

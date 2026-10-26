@@ -1,0 +1,35 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/search_stars569.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-039-root-policy-v6/final/state.json",
+    "--payload-helper",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py",
+    "--output",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/run-001/search",
+    "--seconds",
+    "160",
+    "--rounds",
+    "6",
+    "--max-centers",
+    "1000",
+    "--max-degree",
+    "9",
+    "--max-candidates-per-center",
+    "128"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/cached_counter569.py": "bdf5ce92ba7b75356ce22a89f1e6869e63687cd4b45c4e1e7690105b3987a30d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/run_star_round569.py": "843fe8e1f45490e3de8d68344ca50bb34c625843b40a61f89a7b3fe7e3693fb4",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/search_stars569.py": "e23cf4787c4ad3706492855b4ebbb22aeea9aa3a79899053ef35e970d6b884af",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/star_candidates569.py": "81b33966ba0c2182c86d2a6d66862064105cf48e91c2efe0cfcc0ef6359d1b2c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py": "91e60eda6c6ed4a39fb3d9cc226af87743101b22da9c32c5229030ac6cd4cd8a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-039-root-policy-v6/final/state.json": "be85caca0b51bc8637856ccf021814c429da56464c6dba37be14c3cf02da3c59"
+  }
+}

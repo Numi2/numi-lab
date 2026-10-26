@@ -1,0 +1,158 @@
+{
+  "accepted_physical_steps": 0,
+  "branch_checkpoints": [
+    {
+      "accepted_operations": 22,
+      "anchor_rows": 237,
+      "candidate_selected": false,
+      "candidate_sha256": "c64704f0af3ae6fa57e2658da7dd33ca1d7ae4a390c305bbbb11e1d753a3edea",
+      "complete_banks": 185,
+      "construction_progress": true,
+      "contained_pairs": 0,
+      "full_check_report_path": "evidence/surface-clearance-546/connected-star-569/run-001/full-check/report.json",
+      "full_check_report_sha256": "397162c76997f0a0645a96f8d7cf54b30dda8e8ef4b57b59ce297e723f4be834",
+      "input_candidate_sha256": "f43c5131832897cab3099356d6f87f09b021aadc24b27f197011e46dbb95cb47",
+      "input_reference": "P157 root-policy-v6 round-039 lineage candidate",
+      "name": "connected-star-569/run-001",
+      "self_pairs": 0,
+      "surface_pairs": 2034
+    },
+    {
+      "accepted_operations": 5,
+      "anchor_rows": 237,
+      "candidate_selected": false,
+      "candidate_sha256": "2705611fcdf04df010f09259f410fc0f56e514558f1767135025e65a642563c8",
+      "complete_banks": 185,
+      "construction_progress": true,
+      "contained_pairs": 0,
+      "full_check_report_path": "evidence/surface-clearance-546/topology/round-041-after-star569/full-check/report.json",
+      "full_check_report_sha256": "089598011899a24076ef9dae092f3e8f6da3b2bc03d804f02ff09c9a16e6770e",
+      "input_candidate_sha256": "c64704f0af3ae6fa57e2658da7dd33ca1d7ae4a390c305bbbb11e1d753a3edea",
+      "name": "topology/round-041-after-star569",
+      "self_pairs": 0,
+      "surface_pairs": 2024
+    },
+    {
+      "accepted_operations": 1,
+      "anchor_rows": 237,
+      "candidate_selected": false,
+      "candidate_sha256": "2ff67f12d55a5a6157820880b8e125a5c0a0e4963195fe7cf0e13783dc2201fd",
+      "complete_banks": 185,
+      "construction_progress": true,
+      "contained_pairs": 0,
+      "full_check_report_path": "evidence/surface-clearance-546/connected-patch-570/run-002/full-check/report.json",
+      "full_check_report_sha256": "5bda538a5f4bc8e038e046180e82ebbb23312e57f60a996061c3a15c800ad203",
+      "input_candidate_sha256": "2705611fcdf04df010f09259f410fc0f56e514558f1767135025e65a642563c8",
+      "name": "connected-patch-570/run-002",
+      "self_pairs": 0,
+      "surface_pair_reduction": 8,
+      "surface_pairs": 2016
+    },
+    {
+      "accepted_operations": 10,
+      "anchor_rows": 237,
+      "candidate_selected": false,
+      "candidate_sha256": "b32314463656719f475198f59f9c2cb07dddc2daa85e2cbaf7b42524bfa25637",
+      "complete_banks": 185,
+      "construction_progress": true,
+      "contained_pairs": 0,
+      "coordinates_unchanged": true,
+      "full_check_report_path": "evidence/surface-clearance-546/connected-star-573/run-001/full-check/report.json",
+      "full_check_report_sha256": "23269b2743ac94938a92531c2f3dbd9f6c4142d1ab7338f334e79a950328e536",
+      "input_candidate_sha256": "2ff67f12d55a5a6157820880b8e125a5c0a0e4963195fe7cf0e13783dc2201fd",
+      "name": "connected-star-573/run-001",
+      "point_ids_unchanged": true,
+      "self_pairs": 0,
+      "surface_pair_reduction": 24,
+      "surface_pairs": 1992
+    }
+  ],
+  "candidate_selected": false,
+  "native_admission": false,
+  "prior_publication_manifests": [
+    {
+      "commit": "1a133993bda6943d6435a3cb01e3dd0d0225302b",
+      "member_count": 299,
+      "publication": 155,
+      "remote_tree_manifest_sha256": "e433efcf63074501724d9dc4236f4e35dec3af83ed4fc0ae79ca47a2f65bd61a",
+      "tree_file_count": 300
+    },
+    {
+      "commit": "2da5aff01612e5c49ec55e83b0e7d677eaad1f22",
+      "member_count": 317,
+      "publication": 156,
+      "remote_tree_manifest_sha256": "494792624ce2ad17567e00b452d688a669fc47ff71a865ba21f188437f441ac6",
+      "tree_file_count": 318
+    },
+    {
+      "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+      "member_count": 322,
+      "publication": 157,
+      "remote_tree_manifest_sha256": "30a9f136a388b8e738d5e5419f8acbf84e700e65d92eab62b9cfed0b7f607de5",
+      "tree_file_count": 323
+    }
+  ],
+  "pure_tests": {
+    "argv": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "evidence/surface-clearance-546/connected-star-569/test_star_candidates569.py",
+      "evidence/surface-clearance-546/same-count-star-payload-568/test_cached_counter569_v2.py",
+      "evidence/surface-clearance-546/same-count-star-payload-568/test_same_count_patch_payload568.py",
+      "evidence/surface-clearance-546/connected-patch-570/test_patch_candidates570.py",
+      "evidence/surface-clearance-546/changed-triangle-quality-572/test_changed_triangle_masks572.py",
+      "evidence/surface-clearance-546/regional-patch-571/test_regional_candidates571.py"
+    ],
+    "cwd": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-158",
+    "exit_code": 0,
+    "finished_utc": "2026-10-26T23:44:18.263825+00:00",
+    "scope": "pure unit tests only; no geometry audit or native execution",
+    "source_pins": {
+      "evidence/surface-clearance-546/changed-triangle-quality-572/test_changed_triangle_masks572.py": "cb270f7e5281fae48b9753082576cbc555fd79e1bb306aef07fce877b23ec256",
+      "evidence/surface-clearance-546/connected-patch-570/test_patch_candidates570.py": "be44fea7fb75dde460425fee0ca540723669c80b85d573aa5bda7262dfcedb49",
+      "evidence/surface-clearance-546/connected-star-569/test_star_candidates569.py": "78498d0a90896b7cda0f28f819ff391d0b3c7c5b52055f9200eac463239d0b2f",
+      "evidence/surface-clearance-546/regional-patch-571/test_regional_candidates571.py": "f8c2860969bf49739d4782656fb819800697959fd1bb95861871efafd3325671",
+      "evidence/surface-clearance-546/same-count-star-payload-568/test_cached_counter569_v2.py": "7feaaed2bdf00b05f42df3010b30631c795b5bb5d2776670e5ae3d6c9c587f21",
+      "evidence/surface-clearance-546/same-count-star-payload-568/test_same_count_patch_payload568.py": "dd79db6b843f1f7e7f44864f295125be786d2ee99c8b42054f0e514a1f49765f"
+    },
+    "started_utc": "2026-10-26T23:44:17.668710+00:00",
+    "status": "PASS",
+    "stdout_sha256": "6a4c857372dc5b7218c7e31753efd4be65980046a1e7006637a4b203a7be5794"
+  },
+  "push_performed": false,
+  "remote_reconciliation_path": "remote-reconciliation.json",
+  "remote_reconciliation_sha256": "4194a622591382a86fa9b9eac9358e189f51185753166423571f27dff329d489",
+  "schema": "p158-verification-receipt-v1",
+  "server_parent": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+  "shared_checkout_before_manifest": {
+    "baseline_head_expected": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "baseline_index_sha256_expected": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "branch": "numi-human-aortic-contact-perf",
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "repository": "/Users/n/numi-human-aortic-contact-opt-20261019",
+    "status_bytes": 10012302,
+    "status_entries": 40915,
+    "status_sha256": "e2083290b035940af653c5c2800d1e537acf9fa13e90ff94cfb566cfbd3a8ee8"
+  },
+  "shared_checkout_before_push": {
+    "branch": "numi-human-aortic-contact-perf",
+    "expected_head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "expected_index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "repository": "/Users/n/numi-human-aortic-contact-opt-20261019",
+    "status_bytes": 10012302,
+    "status_entries": 40915,
+    "status_sha256": "e2083290b035940af653c5c2800d1e537acf9fa13e90ff94cfb566cfbd3a8ee8"
+  },
+  "source_pin_count": 59,
+  "source_pin_gaps": [],
+  "status": "PASS_PREPUBLISH"
+}
