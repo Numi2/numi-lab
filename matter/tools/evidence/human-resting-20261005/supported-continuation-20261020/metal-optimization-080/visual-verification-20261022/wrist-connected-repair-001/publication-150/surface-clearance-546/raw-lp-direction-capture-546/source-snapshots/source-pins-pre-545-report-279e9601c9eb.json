@@ -1,0 +1,36 @@
+{
+  "accepted_physical_steps": 0,
+  "adapter_files": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-direction-capture-546/capture_raw_lp_directions546.py": "8e217745e490659ddfbd3ba015ecd3d9d89324115be826dd3cfbc54d974c6c8a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-direction-capture-546/test_capture_raw_lp_directions546.py": "e8950dd06cb9b22951804bd5a06c90aa1a848ebb0ee50107f92c22dfeffd7eb0"
+  },
+  "capture_contract": {
+    "basis_capture_point": "frozen run_barycentric_surface_fit546 full_basis hook, retaining base Float32 points, full output scope, typed anchors, and free control-parent rows",
+    "candidate_payload": "copy all base candidate NPZ arrays, replacing points_world_m only",
+    "delta_units": "millimeters",
+    "downstream_quality_projector": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/project_patch_quality545.py",
+    "expected_delta_shape": "3 * output_scope_count",
+    "f32_emission": "(base_scope_points.astype(float64) + delta_mm.reshape(N,3)/1000).astype(float32)",
+    "failed_solver": "recorded without writing candidate",
+    "outside_scope_and_anchor_checks": "exact Float32 bitwise equality; nonzero raw delta on anchor rows is rejected",
+    "solver_capture_point": "immediately after successful return from pinned component_lp_active545.solve_by_components"
+  },
+  "entrypoint": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-direction-capture-546/capture_raw_lp_directions546.py",
+  "frozen_source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/component_lp_active545.py": "37c8a7e22f240be1a669e0f29712b0dfb068861fd89c9b6b2a8955c8ffdf39ed",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/run_barycentric_surface_fit546.py": "16699bbe0162397edbac8ade4c9d7d8e29196221f492a45f9fa77ca762b9c45b"
+  },
+  "geometry_audits_run": false,
+  "launch_contract": "Set the capture output environment variable to a new directory and invoke this wrapper with the same argv that would be passed to run_barycentric_surface_fit546.py; all original fit owners/gates/output selection remain unchanged.",
+  "native_admission": false,
+  "purpose": "Capture successful solve_by_components delta vectors before frozen 546 owner area-alpha backtracking, then write base-archive copies with only points_world_m replaced by emitted Float32 raw directions for existing 545 quality projection.",
+  "required_output_environment_variable": "NUMI_RAW_LP_DIRECTION_CAPTURE_DIR_546",
+  "status": "INERT_RAW_LP_DIRECTION_CAPTURE_WRAPPER_READY_NO_FIT_RUN",
+  "test_receipt": {
+    "fit_run": false,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-direction-capture-546/test-capture-raw-lp.log",
+    "py_compile": "passed",
+    "result": "............                                                             [100%]\n12 passed in 0.05s\n",
+    "sha256": "b33632f1430ce0b5613db6927aa9428be40f9ba4c14734049ef9438acb7ebe3a"
+  }
+}

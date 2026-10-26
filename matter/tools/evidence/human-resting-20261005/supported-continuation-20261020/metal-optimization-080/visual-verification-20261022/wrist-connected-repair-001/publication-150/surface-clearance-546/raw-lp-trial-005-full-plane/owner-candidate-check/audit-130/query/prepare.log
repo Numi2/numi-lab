@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-005-full-plane/owner-candidate-check/audit-130/query/points-world.npz",
+  "input_sha256": "6c63c9e5fe75d4ba155f57bf589cf48329ecbe9de77859e6f2559cf60d329161",
+  "field": "points_world_f32",
+  "query_count": 20889,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-005-full-plane/owner-candidate-check/audit-130/query/points.csv",
+  "output_sha256": "ef00380f35ebbb997e1a86dd3dfbb8861ebdd92a6a560ca7e33280f449e2e628",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "trial": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-003-full-plane",
+    "context": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-002-full-plane/constraints/constraint-context.json",
+    "status": "FAILED",
+    "self_pairs": 76,
+    "contained_pairs": null,
+    "surface_pairs": null,
+    "candidate_sha256": "46d6df456fe01a0686584f54a42ca8bbf2dfdb8cc6a3a27db5aa1f7d40a537ad",
+    "native_admission": false,
+    "accepted_physical_steps": 0
+  },
+  {
+    "trial": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-004-full-plane",
+    "context": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-003-full-plane/constraints/constraint-context.json",
+    "status": "FAILED",
+    "self_pairs": 10,
+    "contained_pairs": null,
+    "surface_pairs": null,
+    "candidate_sha256": "ec7bcb5c8eb0b6d41efb906160a551346a6569ccd300e4831c1f0a6a38e14604",
+    "native_admission": false,
+    "accepted_physical_steps": 0
+  },
+  {
+    "trial": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-005-full-plane",
+    "context": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-004-full-plane/constraints/constraint-context.json",
+    "status": "FAILED",
+    "self_pairs": 7,
+    "contained_pairs": null,
+    "surface_pairs": null,
+    "candidate_sha256": "9746ccc86daee484eef032d41e6a8befabf216d48105e7db7d86a5c8400c9e2a",
+    "native_admission": false,
+    "accepted_physical_steps": 0
+  }
+]

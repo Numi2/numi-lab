@@ -1,0 +1,46 @@
+{
+  "anchors": {
+    "count": 237,
+    "rows_sha256": "7d797264c8e64568d7b7360324430382f1b654faa6627f24425f959db0e9f1d8"
+  },
+  "arithmetic_script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/area-quality-548/baseline_22027_arithmetic.py",
+  "arithmetic_script_sha256": "1e65fd99bd308dc29a0c1f8cc33fe34db1553218d7bfd0339ea7f2f59b3d1f73",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-007-wide-chain-025/round-004/candidate.npz",
+  "candidate_sha256": "eadcd3838ec5bf4f2d72d45ba5d19c775e9fef4361f92ebea6f49e18d4bfe3a5",
+  "candidate_written": false,
+  "conditioner548_path": "/Users/numi/Work/numi-human-connected-surface-069/D/area-quality-548/condition_area_quality_548.py",
+  "conditioner548_sha256": "dcc5ad2d6aa138f3a727171b1369d87ae4c5b7c2d52f67d8491a1252e9e65beb",
+  "coordinate_array_sha256": "e0df93339b61765cece781ce6894d968bafc47a4e6bd7cbc91a66d6852573e6a",
+  "current_face_array_sha256": "700bca86dcc97de9bfd738eaed02b41efc11a7ff88dfa4169ea50c27321dd38a",
+  "face_22027": {
+    "area_ratio": 0.10080366896990633,
+    "current_double_area_m2": 1.5472628057818786e-08,
+    "fixed037_double_area_m2": 1.5349270731840115e-07,
+    "minimum_angle_deg": 4.995613284664213,
+    "normal_cosine": 0.9913675834572412
+  },
+  "face_node_rows": [
+    17266,
+    9765,
+    20308
+  ],
+  "face_row": 22027,
+  "fixed037_reference_points_sha256": "3f5dfa158c4fca581bc31cde9d0ccca9e0b5c8383915243366d92050d3f3d7ee",
+  "fixed037_topology_equal": true,
+  "flip_eligibility": "NOT_ASSESSED_BY_THIS_ARTIFACT",
+  "flip_replay": "NOT_RUN",
+  "heavy_geometry_audit_or_fit_run": false,
+  "interpretation": "Arithmetic-only snapshot of the pinned baseline face. No 402/405 quad replay, candidate flip, exact self/bone audit, or fitter was run. The prior no-eligible-flip assessment has no retained result in this folder; this artifact does not reproduce it.",
+  "operation_performed": "baseline face arithmetic only; no operation applied",
+  "quality_owner541_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/repair_focused_clearance_541.py",
+  "quality_owner541_sha256": "26930be05518834f02724948cffa5ff74719f070a4ac4e4917b0965f42a412aa",
+  "schema": "numi.human.area_quality_548.baseline_22027_arithmetic.v1",
+  "status": "PINNED_BASELINE_ARITHMETIC_ONLY",
+  "whole_mesh_fixed037": {
+    "face_count": 41733,
+    "faces_below_area_ratio_0_10": 0,
+    "minimum_angle_deg": 0.020717298653127096,
+    "minimum_area_ratio": 0.10009356948026137,
+    "minimum_normal_cosine": -0.9997004909754209
+  }
+}

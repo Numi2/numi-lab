@@ -1,0 +1,20 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/run_bounded_full_plane_cut_generation546.py",
+    "--previous-trial",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-002-full-plane",
+    "--prior-context",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-001/constraints/constraint-context.json",
+    "--start",
+    "3",
+    "--rounds",
+    "3"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/run_bounded_full_plane_cut_generation546.py": "5865f460ab53ae0e9a92bf5353d1be835084b0dff2b08ec711c3dfb91f7e7fb3"
+  }
+}

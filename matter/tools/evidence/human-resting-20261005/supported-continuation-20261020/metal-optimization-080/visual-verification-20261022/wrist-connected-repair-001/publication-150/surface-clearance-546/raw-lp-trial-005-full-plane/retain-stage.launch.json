@@ -1,0 +1,12 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-005-full-plane/retain_projected_iterate.py"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-005-full-plane/retain_projected_iterate.py": "0c4c9789a776f4b5aef18985a785f4136eba0672b8fc112f26df513c6a8a8f58"
+  }
+}

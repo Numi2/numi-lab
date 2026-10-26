@@ -1,0 +1,168 @@
+{
+  "parent_patch": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-005-full-plane/raw-directions/raw-direction-001",
+  "parent_patch_sha256": "9c56e5e0d66b001f92dab46cca112efe3d0e0e1e6d5daa1e369e4064fe21ab11",
+  "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-007-wide-chain-025/round-004/candidate.npz",
+  "base_sha256": "eadcd3838ec5bf4f2d72d45ba5d19c775e9fef4361f92ebea6f49e18d4bfe3a5",
+  "source_sha256": "ac230cf06743aab449e9cd34d96b06ece27c35f6c36cbefdd0129311cffdb7c2",
+  "history": [
+    {
+      "iteration": 0,
+      "minimum_oriented_ratio": -0.2816875067552256,
+      "area_faces": [
+        8456,
+        8907,
+        11069,
+        11895,
+        12402,
+        12416,
+        12546,
+        13899,
+        13904,
+        14305,
+        14310,
+        14372,
+        14886,
+        14945,
+        15400,
+        17367,
+        19001,
+        19140,
+        20997,
+        26542,
+        26628,
+        26712,
+        26973,
+        27034,
+        27081,
+        27113,
+        29383,
+        31046,
+        31167,
+        32648,
+        32679,
+        33998,
+        34153,
+        34547,
+        34730,
+        34739,
+        41517,
+        41562,
+        41564
+      ],
+      "magnitude_faces": [
+        8851,
+        12324,
+        18057,
+        18705,
+        19001,
+        26502,
+        26712,
+        27061,
+        34132,
+        34136,
+        34557,
+        40715,
+        40716,
+        41561
+      ],
+      "edge_count": 855
+    },
+    {
+      "iteration": 1,
+      "minimum_oriented_ratio": -0.10827703476759616,
+      "area_faces": [
+        14945,
+        17251,
+        22152,
+        26973,
+        27034,
+        32679,
+        33940,
+        41517,
+        41561,
+        41564
+      ],
+      "magnitude_faces": [
+        11844,
+        31165,
+        34557,
+        41561
+      ],
+      "edge_count": 72
+    },
+    {
+      "iteration": 2,
+      "minimum_oriented_ratio": 0.09631403938787426,
+      "area_faces": [
+        27034
+      ],
+      "magnitude_faces": [],
+      "edge_count": 24
+    },
+    {
+      "iteration": 3,
+      "minimum_oriented_ratio": 0.08888614002996646,
+      "area_faces": [
+        17251,
+        26973
+      ],
+      "magnitude_faces": [],
+      "edge_count": 14
+    },
+    {
+      "iteration": 4,
+      "minimum_oriented_ratio": 0.1056621226747339,
+      "area_faces": [],
+      "magnitude_faces": [],
+      "edge_count": 5
+    },
+    {
+      "iteration": 5,
+      "minimum_oriented_ratio": 0.1056621226747339,
+      "area_faces": [],
+      "magnitude_faces": [],
+      "edge_count": 4
+    },
+    {
+      "iteration": 6,
+      "minimum_oriented_ratio": 0.1056621226747339,
+      "area_faces": [],
+      "magnitude_faces": [],
+      "edge_count": 2
+    },
+    {
+      "iteration": 7,
+      "minimum_oriented_ratio": 0.1056621226747339,
+      "area_faces": [],
+      "magnitude_faces": [],
+      "edge_count": 1
+    },
+    {
+      "iteration": 8,
+      "minimum_oriented_ratio": 0.1056621226747339,
+      "area_faces": [],
+      "magnitude_faces": [],
+      "edge_count": 1
+    },
+    {
+      "iteration": 9,
+      "minimum_oriented_ratio": 0.1056621226747339,
+      "area_faces": [],
+      "magnitude_faces": [],
+      "edge_count": 1
+    },
+    {
+      "iteration": 10,
+      "minimum_oriented_ratio": 0.1056621226747339,
+      "area_faces": [],
+      "magnitude_faces": [],
+      "edge_count": 0
+    }
+  ],
+  "target_nodes_bitwise_unchanged": true,
+  "all_fixed_nodes_bitwise_unchanged": true,
+  "candidate_sha256": "7a39fbdfcbbbbb5f7fa0743fee3e7cc37b0bee3c52ce3e357062b7b0b699da31",
+  "construction_only": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

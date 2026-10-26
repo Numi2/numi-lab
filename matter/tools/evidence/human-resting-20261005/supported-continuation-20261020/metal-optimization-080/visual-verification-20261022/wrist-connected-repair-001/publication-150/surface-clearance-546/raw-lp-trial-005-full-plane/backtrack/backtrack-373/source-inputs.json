@@ -1,0 +1,11 @@
+{
+  "start": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-007-wide-chain-025/round-004/candidate.npz",
+  "start_sha256": "eadcd3838ec5bf4f2d72d45ba5d19c775e9fef4361f92ebea6f49e18d4bfe3a5",
+  "trial": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-005-full-plane/projected-actual-gates/candidate.npz",
+  "trial_sha256": "9746ccc86daee484eef032d41e6a8befabf216d48105e7db7d86a5c8400c9e2a",
+  "helper_sha256": "522152a4df248d230ddc66652e3071a2283c29ca73bccc52efbe1789e2ee2b9e",
+  "source_point_summary_sha256": "9432674df45bc47eb0d968bf30e115dec7d2f35ba9d03b072f22ad68b91728c4",
+  "source_surface_report_sha256": "ddf1211aa7ca01ef8f1c907c89eb082ab700f00299db09b74fa6426bafc270f1",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

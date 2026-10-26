@@ -1,0 +1,28 @@
+{
+  "omitted_payloads": [
+    {
+      "bytes": 42449307,
+      "reason": "Large raw solver output for an earlier failed cut-generation trial; the exact emitted candidate, self-audit, and through-005 failure record are included.",
+      "sha256": "451575815b699afbf83b07656718d7f40b397e00e05499823a5d3037e6aac2a8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-003-full-plane/fit/report.json"
+    },
+    {
+      "bytes": 42425412,
+      "reason": "Large raw solver output for an earlier failed cut-generation trial; the exact emitted candidate, self-audit, and through-005 failure record are included.",
+      "sha256": "26c3619c2d9177ee74dd39ce8b98e6e7c94510fdb70026d0b0ab12081b63fb4f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-003-full-plane/fit-stage.log"
+    },
+    {
+      "bytes": 42527496,
+      "reason": "Large raw solver output for an earlier failed cut-generation trial; the exact emitted candidate, self-audit, and through-005 failure record are included.",
+      "sha256": "8504f4cde21dc3906fd0ee509324fbbc0eef668e77e68392b49af4ef0c5b772e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-004-full-plane/fit/report.json"
+    },
+    {
+      "bytes": 42503601,
+      "reason": "Large raw solver output for an earlier failed cut-generation trial; the exact emitted candidate, self-audit, and through-005 failure record are included.",
+      "sha256": "8aaa28134edc3c8335db9834a5b3b5317ca01be50cca6bea7c03683d973f496e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-lp-trial-004-full-plane/fit-stage.log"
+    }
+  ]
+}

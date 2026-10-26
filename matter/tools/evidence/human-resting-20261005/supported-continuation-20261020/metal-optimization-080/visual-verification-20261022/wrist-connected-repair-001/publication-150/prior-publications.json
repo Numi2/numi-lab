@@ -1,0 +1,14 @@
+{
+  "P148_2409_baseline_candidate": {
+    "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-148/surface-clearance-546/topology/round-007-wide-chain-025/round-004/candidate.npz",
+    "sha256": "eadcd3838ec5bf4f2d72d45ba5d19c775e9fef4361f92ebea6f49e18d4bfe3a5"
+  },
+  "P148_commit": "a17f689a8d25a5c6e8d7c09cfe9865548148ec9d",
+  "P149_commit": "943a3f73e04da968fde212bed3504c9718e7faf1",
+  "P149_latest_2395_candidate": {
+    "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-149/surface-clearance-546/topology/round-009-from2397-chain-025/round-002/candidate.npz",
+    "sha256": "ec3abc4da2bb84620c84d23457202dbdd54bea27f7478ac543124b6ded6938e6"
+  },
+  "note": "P148/P149 unchanged upstream candidate and large input files remain at their exact committed paths; P150 does not duplicate those payloads.",
+  "server_parent_main": "943a3f73e04da968fde212bed3504c9718e7faf1"
+}
