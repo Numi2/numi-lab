@@ -1,0 +1,33 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline_sha256": "2f52328e1105dad576717eae872391324a1172ceec3f74f23fae591891078c6e",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/saved-reuse/full-amplitude/pass-004/candidate.npz",
+  "candidate_sha256": "c07da65241a998ac0d64856ff83fcc4054cc9d7a9a2b06f2181080d3bb705fd5",
+  "commands": [],
+  "error": "fresh edge-gradient gate failed",
+  "full_f32_area_gate": {
+    "area_floor": 0.1,
+    "bad_current_oriented_face_count": 0,
+    "bad_current_oriented_face_rows_first_64": [],
+    "bad_current_oriented_face_rows_truncated": false,
+    "bad_fixed_037_reference_face_count": 0,
+    "bad_fixed_037_reference_face_rows_first_64": [],
+    "bad_fixed_037_reference_face_rows_truncated": false,
+    "faces_checked": 41733,
+    "minimum_current_oriented_ratio": 0.13888492009894668,
+    "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+    "pass": true
+  },
+  "native_admission": false,
+  "seconds": 0.4538511671125889,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-quality-patch-538/run-001/candidate.npz": "2f52328e1105dad576717eae872391324a1172ceec3f74f23fae591891078c6e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/run_candidate_checks.py": "087778eca7286a1f342f507a33b153314500d05065d80579e165446e5c16dc3f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/saved-reuse/full-amplitude/pass-004/candidate.npz": "c07da65241a998ac0d64856ff83fcc4054cc9d7a9a2b06f2181080d3bb705fd5",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+  },
+  "status": "FAILED"
+}

@@ -1,0 +1,91 @@
+--- a/apps/NumiHumanCoarseTissuePreparation.hpp
++++ b/apps/NumiHumanCoarseTissuePreparation.hpp
+@@ -66,6 +66,9 @@
+     // Optional exact parent ancestry maps for a bounded/reduced patch. Empty
+     // maps mean identity indexing in this RegisteredSurface.
+     std::vector<std::uint32_t> sourceVertexIndices, sourceFaceIndices;
++    // Complete registered-face ancestry; legacy sourceFaceIndices may be dominant only.
++    std::uint32_t sourceFaceAncestryParentCount=0;
++    std::vector<std::uint32_t> sourceFaceAncestryOffsets, sourceFaceAncestryRows;
+     // Optional node-to-source-surface embedding. These arrays retain the exact
+     // detailed source triangle and barycentric point for each coarse node;
+     // sourceVertexIndices remains an identity label and is never a fallback.
+@@ -93,6 +96,30 @@
+         error="source embedding barycentric coordinates do not sum to one";return false;
+     }
+     return true;
++}
++
++inline bool validateRegisteredFaceAncestry(const RegisteredSurface& surface,std::string& error) {
++    const bool hasOffsets=!surface.sourceFaceAncestryOffsets.empty(),hasRows=!surface.sourceFaceAncestryRows.empty();
++    if(!hasOffsets&&!hasRows){
++        if(surface.sourceFaceAncestryParentCount){error="registered face ancestry parent count is set without CSR rows";return false;}
++        error.clear();return true;
++    }
++    const auto& offsets=surface.sourceFaceAncestryOffsets;const auto& rows=surface.sourceFaceAncestryRows;
++    if(!hasOffsets||!hasRows||!surface.sourceFaceAncestryParentCount||offsets.size()!=surface.faces.size()+1u||
++       offsets.front()!=0u||offsets.back()!=rows.size()){
++        error="registered face ancestry CSR arrays or parent face count are incomplete";return false;
++    }
++    for(std::size_t face=0;face<surface.faces.size();++face){
++        const auto begin=offsets[face],end=offsets[face+1u];
++        if(begin>=end||end>rows.size()){
++            error="registered face ancestry CSR has an empty or out-of-range face row="+std::to_string(face);return false;
++        }
++        for(std::uint32_t entry=begin;entry<end;++entry)
++            if(rows[entry]>=surface.sourceFaceAncestryParentCount||(entry>begin&&rows[entry]<=rows[entry-1u])){
++                error="registered face ancestry CSR has invalid, repeated, or unsorted parent row="+std::to_string(face);return false;
++            }
++    }
++    error.clear();return true;
+ }
+ 
+ inline bool validateRegisteredSourceEmbedding(const RegisteredSurface& surface,
+@@ -179,6 +206,8 @@
+     double volumeM3=0, massDebitKg=0, densityKgM3=0, massResidualKg=0;
+     GeometryAudit audit;
+     std::vector<std::uint32_t> nodeSourceVertex, tetSourceFace;
++    std::uint32_t sourceFaceAncestryParentCount=0;
++    std::vector<std::uint32_t> sourceFaceAncestryOffsets, sourceFaceAncestryRows;
+     // Populated only when an explicit parent-refined topology was supplied.
+     // Each array is aligned with this material partition's tetrahedron order.
+     std::vector<std::uint32_t> tetChildIndex, tetParentTetrahedron;
+@@ -634,6 +663,7 @@
+        (!s.sourceEmbeddingResidualWorldM.empty()&&s.sourceEmbeddingResidualWorldM.size()!=n)||
+        (!s.donorBodyIndices.empty()&&(s.donorBodyIndices.size()!=n||!std::all_of(s.donorBodyIndices.begin(),s.donorBodyIndices.end(),[](auto b){return b!=NM_INVALID_INDEX;})))||(!s.worldToDonorLocalLinear.empty()&&s.worldToDonorLocalLinear.size()!=n)||
+        (!s.outwardWorldNormals.empty()&&s.outwardWorldNormals.size()!=n)) return fail("registered source identity/ancestry or geometry is incomplete");
++    if(!validateRegisteredFaceAncestry(s,error))return false;
+     if(!validateRegisteredSourceEmbedding(s,0u,error))return false;
+     V3 lo=s.worldPoints[0],hi=lo,origin{};
+     for(std::size_t i=0;i<n;i++)for(int k=0;k<3;k++){
+@@ -841,9 +871,18 @@
+     for(const auto& [edge,faces]:edgeFaces){if(faces.size()>2)return fail("regional shell source contains a nonmanifold edge");if(faces.size()==2){adjacency[faces[0]].push_back(faces[1]);adjacency[faces[1]].push_back(faces[0]);}}
+     std::vector<char> selected(source.faces.size());std::vector<std::uint32_t> queue{seedFace};selected[seedFace]=1;
+     for(std::size_t cursor=0;cursor<queue.size()&&queue.size()<maxFaces;cursor++)for(auto next:adjacency[queue[cursor]])if(!selected[next]&&queue.size()<maxFaces){selected[next]=1;queue.push_back(next);}
+-    std::vector<std::uint32_t> remap(source.worldPoints.size(),NM_INVALID_INDEX);patch=source;patch.worldPoints.clear();patch.donorLocalPoints.clear();patch.faces.clear();patch.sourceVertexIndices.clear();patch.sourceFaceIndices.clear();patch.sourceEmbeddingFaceIndices.clear();patch.sourceEmbeddingBarycentric.clear();patch.sourceEmbeddingResidualWorldM.clear();patch.donorBodyIndices.clear();patch.worldToDonorLocalLinear.clear();patch.outwardWorldNormals.clear();patch.name=source.name+" bounded mechanical region";
++    std::vector<std::uint32_t> remap(source.worldPoints.size(),NM_INVALID_INDEX);patch=source;patch.worldPoints.clear();patch.donorLocalPoints.clear();patch.faces.clear();patch.sourceVertexIndices.clear();patch.sourceFaceIndices.clear();patch.sourceFaceAncestryOffsets.clear();patch.sourceFaceAncestryRows.clear();patch.sourceEmbeddingFaceIndices.clear();patch.sourceEmbeddingBarycentric.clear();patch.sourceEmbeddingResidualWorldM.clear();patch.donorBodyIndices.clear();patch.worldToDonorLocalLinear.clear();patch.outwardWorldNormals.clear();patch.name=source.name+" bounded mechanical region";
+     auto addVertex=[&](std::uint32_t old){if(remap[old]!=NM_INVALID_INDEX)return remap[old];auto now=static_cast<std::uint32_t>(patch.worldPoints.size());remap[old]=now;patch.worldPoints.push_back(source.worldPoints[old]);patch.donorLocalPoints.push_back(source.donorLocalPoints[old]);patch.sourceVertexIndices.push_back(source.sourceVertexIndices.empty()?old:source.sourceVertexIndices[old]);if(!source.sourceEmbeddingFaceIndices.empty()){patch.sourceEmbeddingFaceIndices.push_back(source.sourceEmbeddingFaceIndices[old]);patch.sourceEmbeddingBarycentric.push_back(source.sourceEmbeddingBarycentric[old]);if(!source.sourceEmbeddingResidualWorldM.empty())patch.sourceEmbeddingResidualWorldM.push_back(source.sourceEmbeddingResidualWorldM[old]);}if(!source.donorBodyIndices.empty())patch.donorBodyIndices.push_back(source.donorBodyIndices[old]);if(!source.worldToDonorLocalLinear.empty())patch.worldToDonorLocalLinear.push_back(source.worldToDonorLocalLinear[old]);if(!source.outwardWorldNormals.empty())patch.outwardWorldNormals.push_back(source.outwardWorldNormals[old]);return now;};
+-    for(std::uint32_t fi=0;fi<selected.size();fi++)if(selected[fi]){auto f=source.faces[fi];patch.faces.push_back({addVertex(f[0]),addVertex(f[1]),addVertex(f[2])});patch.sourceFaceIndices.push_back(source.sourceFaceIndices.empty()?fi:source.sourceFaceIndices[fi]);}
++    if(!source.sourceFaceAncestryOffsets.empty())patch.sourceFaceAncestryOffsets.push_back(0u);
++    for(std::uint32_t fi=0;fi<selected.size();fi++)if(selected[fi]){
++        auto f=source.faces[fi];patch.faces.push_back({addVertex(f[0]),addVertex(f[1]),addVertex(f[2])});
++        patch.sourceFaceIndices.push_back(source.sourceFaceIndices.empty()?fi:source.sourceFaceIndices[fi]);
++        if(!source.sourceFaceAncestryOffsets.empty()){
++            const auto begin=source.sourceFaceAncestryOffsets[fi],end=source.sourceFaceAncestryOffsets[fi+1u];
++            patch.sourceFaceAncestryRows.insert(patch.sourceFaceAncestryRows.end(),source.sourceFaceAncestryRows.begin()+begin,source.sourceFaceAncestryRows.begin()+end);
++            patch.sourceFaceAncestryOffsets.push_back(static_cast<std::uint32_t>(patch.sourceFaceAncestryRows.size()));
++        }
++    }
+     if(patch.faces.size()<4||patch.faces.size()>maxFaces)return fail("regional mechanical patch is outside its requested face budget");
+     GeometryAudit audit;if(!auditClosedSurface(patch,audit,error,true))return false;
+     if(patch.donorBodyIndices.empty()&&patch.sourceBodyIndex==NM_INVALID_INDEX)return fail("regional skin patch lacks registered donor body identities");
+@@ -1142,6 +1181,9 @@
+     out.report.tetSourceFace.clear();out.report.tetSourceFace.reserve(requestedTetCount);o.tetrahedra.reserve(requestedTetCount);
+     out.report.tetChildIndex.clear();out.report.tetParentTetrahedron.clear();out.report.tetParentSurfaceFace.clear();
+     out.report.tetParentMaterialIndex.clear();out.report.tetSourceFaceIdentity.clear();
++    out.report.sourceFaceAncestryParentCount=source.sourceFaceAncestryParentCount;
++    out.report.sourceFaceAncestryOffsets=source.sourceFaceAncestryOffsets;
++    out.report.sourceFaceAncestryRows=source.sourceFaceAncestryRows;
+     out.report.tetParentAncestryOffsets.clear();out.report.tetParentAncestryTetrahedra.clear();
+     out.report.tetParentAncestryVolumeFractions.clear();
+     if(explicitTetrahedra){

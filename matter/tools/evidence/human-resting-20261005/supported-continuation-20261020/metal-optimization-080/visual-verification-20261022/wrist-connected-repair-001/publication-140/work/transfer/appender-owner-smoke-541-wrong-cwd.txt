@@ -1,0 +1,4 @@
+libc++abi: terminating due to uncaught exception of type std::runtime_error: fixture material parse failed
+positive_volume_float32_sliver=REJECTED source_witness=PASS
+precomputed_layers=PASS exactfit_reused=PASS nan_summary_rejected=PASS reversed_winding_rejected=PASS local_prism_orientation_rejected=PASS transactionally
+exit_code=134

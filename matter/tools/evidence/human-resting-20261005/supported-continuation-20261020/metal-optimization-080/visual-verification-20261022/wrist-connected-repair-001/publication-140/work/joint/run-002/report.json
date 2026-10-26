@@ -1,0 +1,13 @@
+{
+  "candidate_sha256": "ba25a57ef79414b5e04aa779b72103fdb77fbd4de6284438eb3724fbd8b3c2e6",
+  "topology_parent_sha256": "a1fce94c3dc57b79f16f94b117e7d49e83a0ff7219de73ce6e7abcec17f22dae",
+  "coordinate_parent_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/coordinate-004/run-005/backtrack-373/pass-003/candidate.npz",
+  "coordinate_parent_sha256": "c034946da707403900019838686d5a57e838b3aca03f1604aad7efbbfc71f957",
+  "coordinate_base_sha256": "e8717f9257f05b1e0e7e93c20ee6ab3e81e1a5be40e7c84996e7e6215d0b69f3",
+  "coordinate_changed_fields": [
+    "points_world_m"
+  ],
+  "only_coordinates_replaced": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

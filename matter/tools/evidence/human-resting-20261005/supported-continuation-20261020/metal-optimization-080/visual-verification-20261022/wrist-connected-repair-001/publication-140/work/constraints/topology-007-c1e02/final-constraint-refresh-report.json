@@ -1,0 +1,97 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/run-001/candidate.npz",
+  "candidate_sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+  "current_topology": {
+    "all185_crossing_faces_have_valid_ancestry": true,
+    "crossing_faces": 1492,
+    "crossing_faces_with_multi_parent_csr": 207,
+    "faces": 41733,
+    "topology_parent": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/run-007-filtered/candidate.npz",
+    "topology_parent_sha256": "a1fce94c3dc57b79f16f94b117e7d49e83a0ff7219de73ce6e7abcec17f22dae"
+  },
+  "exact_audits_rerun": false,
+  "fixed037_area_gate": {
+    "area_owner_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+    "area_owner_sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "config_regression_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/fixed037-area-reference-regression.json",
+    "config_regression_sha256": "b52662ff7e7b1e76630d9b06494450ca50d047fd29f8b85fdba8162ade789ffe",
+    "minimum_current_oriented_ratio": 0.948552182889305,
+    "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+    "pass": true,
+    "reference_faces_key": "area_reference_037_source_O_faces",
+    "reference_points_key": "area_reference_037_points_world_m_f64"
+  },
+  "fixed_bone_constraints": {
+    "313_row_cache_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/fixed-guard-refresh-001/run-002/fixed-guards/fixed-guard-313-rows.npz",
+    "313_row_cache_sha256": "096ae43ed996c838e5b886e994cb6018217a7f88de62ccc52fb0144540975018",
+    "313_row_certificate": {
+      "max_rhs_mm": -2.0136226170502924e-06,
+      "minimum_zero_step_slack_mm": 2.0136226170502924e-06,
+      "rows": 12138,
+      "zero_step_violations_2e-8mm": 0
+    },
+    "active_current_crossings_excluded": 0,
+    "mapped_from_prior_guard_records": 2023,
+    "refresh_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/fixed-guard-refresh-001/run-002/refresh-report.json",
+    "refresh_report_sha256": "60e155cf111f930bc2ef04d12c25c78e8654186e9a39d250820e440308d96a2d",
+    "typed_guard_pairs": 2023,
+    "unmapped_prior_guard_faces": 89,
+    "validator_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/fixed-guard-refresh-001/run-002/fixed-guards/validation.json",
+    "validator_sha256": "d696c49c678ed92aa7babb8ab935fbf4fa511ee30da95b3e7a03f1dce198cef2"
+  },
+  "geometry_evidence": {
+    "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/check-001-full/audit-130/summary.json",
+    "audit130_sha256": "1be729eebf68d78b4d8bc5a707a762bca079a469f230f21aea59b7b5dca24f12",
+    "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/check-001-full/audit-159/report.json",
+    "audit159_sha256": "1c97d856712f34ca4fce684bb6ca6914d4df0b21da7c9c1a17dfbe9fbffa683c",
+    "complete": true,
+    "contained_point_pairs": 251,
+    "exact_self_triangle_pairs": 0,
+    "skin_bone_triangle_pairs": 2895,
+    "typed_bank_count": 185
+  },
+  "native_admission": false,
+  "refresh_failure_record": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/fixed-guard-refresh-001/run-001/refresh-failure.json",
+    "sha256": "f1e84145ba59968f2448592f55f034a70be4c2a9612eed1b31333dbe53d48d1a"
+  },
+  "reproducibility": {
+    "seed_builder_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/seed-refresh-001/prepare_026_topology007.py",
+    "seed_builder_sha256": "79ca506a14f89b49bd490acc03a2915d2f410ddfe7cff0332431bd4d9b21a42c",
+    "verifier_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/verify_final_constraints_541.py",
+    "verifier_sha256": "2698b92a5f9694b3611ec16620748beae2c5afddc1ae822782e25c1182755c31"
+  },
+  "retained_failed_prior_trial": {
+    "026_max_violation_mm": 5.162793893631612e-05,
+    "026_violated_rows": 113,
+    "313_violated_rows": 3,
+    "certificate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/coordinate-004/run-005/emitted-row-certificate.json",
+    "certificate_sha256": "9767419e0a2b23b6d02fdff1b45ce6c30275e282a53af350c287cd7304fe9db6",
+    "classification": "preserved failed F32 row certificate from older topology; not evidence against selected c1e zero-step refresh",
+    "status": "DIAGNOSTIC_ROW_CERTIFICATE"
+  },
+  "schema": "numi.focused-clearance-541.final-current-constraints.v1",
+  "self_constraints": {
+    "dropped_pair_identity_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/seed-refresh-001/dropped-seed-pair-identities.json",
+    "dropped_pair_identity_sha256": "bce535fe103cc3271b2bb643bd9b8bd100cf84420fb97f49a6b44d6fb5a3aadc",
+    "historical_pairs_dropped": 4825,
+    "historical_pairs_mapped": 22965,
+    "pair_count": 23032,
+    "row_cache_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/seed-refresh-001/self-seed-026-rows.npz",
+    "row_cache_sha256": "1582837c25b596824aafb203073b6285e213a9becfa26655c1aed3d444b35164",
+    "row_certificate": {
+      "max_rhs_mm": -2.8351904682462e-05,
+      "minimum_zero_step_slack_mm": 2.8351904682462e-05,
+      "rows": 129072,
+      "zero_step_violations_2e-8mm": 0
+    },
+    "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/seed-refresh-001/merged-self-pair-seeds.npy",
+    "seed_pairs_sha256": "a8c3b4a6125c26ded752ac953631de608ea0c58b80cd9525b1c59d04f2f2548b",
+    "seed_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/seed-refresh-001/seed-refresh-report.json",
+    "seed_report_sha256": "da2de28f08326a63500949411ee6aeb4a423840df324feac01ce1dd54f35a6f2",
+    "trial_pairs_dropped": 11,
+    "trial_pairs_mapped": 67
+  },
+  "status": "PASS_ZERO_STEP_026_313_AND_FIXED037_CONFIG"
+}

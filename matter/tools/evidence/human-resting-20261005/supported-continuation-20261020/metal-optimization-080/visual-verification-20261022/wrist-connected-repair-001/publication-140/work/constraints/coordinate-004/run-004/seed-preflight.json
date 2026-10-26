@@ -1,0 +1,47 @@
+{
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/saved-reuse/run-004-focused/candidate.npz",
+  "candidate_sha256": "e8717f9257f05b1e0e7e93c20ee6ab3e81e1a5be40e7c84996e7e6215d0b69f3",
+  "construction_only": true,
+  "limitations": [
+    "Only identical unordered vertex triangles map; changed faces are dropped.",
+    "All 026 rows are rebuilt on the current base before runner use.",
+    "Exact self-surface audit remains mandatory after every emitted proposal.",
+    "No physical/native admission is claimed."
+  ],
+  "merged_unique_pair_count": 23630,
+  "native_admission": false,
+  "output_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/coordinate-004/run-004/merged-self-pair-seeds.npy",
+  "output_pairs_sha256": "b41936a65077f925f326d9b28bdcc7b8efbc890456804cd80c62aedee0bcfa29",
+  "pair_owner_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/204/source/fit/self_separation_026.py",
+  "pair_owner_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+  "rebuilt_linear_row_count": 132494,
+  "rebuilt_record_count": 23630,
+  "schema": "numi.human.continuation-self-seeds.v1",
+  "seed_sources": [
+    {
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/finite-triangle-backtrack-512/all-pairs-001/backtrack-373/pass-008/candidate.npz",
+      "candidate_sha256": "c1c0b63ee448703ef3240dbcc251e650022d7f76f475bc75db9cae040d1e3a6c",
+      "kind": "prior_026_self_seed_pairs_mapped_by_exact_triangle_vertex_identity",
+      "mapped_pairs_before_union": 23552,
+      "pairs_dropped_changed_or_unmapped_faces": 4238,
+      "pairs_with_both_faces_exactly_mapped": 23552,
+      "seed_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/refresh-515/run-001/connected-continuation-prep491/run-001/self-seeds/report.json",
+      "seed_report_sha256": "d8efc009be3c6e664722ca1385c091aaad9dd56b6aa9b5ec9bc0ab4509c6fa7b",
+      "source_pair_count": 27790
+    },
+    {
+      "kind": "new_exact_trial_self_pairs_mapped_to_base_by_exact_triangle_vertex_identity",
+      "pair_count": 78,
+      "trial_audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/saved-reuse/full-amplitude/edge-clipped-exact-001/audit-130/summary.json",
+      "trial_audit130_sha256": "f266d71767c9218e8e7baa060c57396c121d7fff80f39075cb60ea6cbc9d9ace",
+      "trial_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/saved-reuse/full-amplitude/edge-clipped-001/candidate.npz",
+      "trial_candidate_sha256": "9683079e64870d9af8819b6e702790027d2bccfdc573beef2e19c45003718786",
+      "trial_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/saved-reuse/full-amplitude/edge-clipped-exact-001/audit-130/surface-self-pairs.npy",
+      "trial_pairs_sha256": "051418cee8cf9652e9347fdd12571d7bedb3b7aa125ae18981f3226787c43a7c"
+    }
+  ],
+  "status": "PASS_REBUILT_CONSTRUCTION_SEEDS_ONLY",
+  "union_pair_count": 23630,
+  "zero_step_feasible": true,
+  "zero_step_max_rhs_mm": -3.465275415307986e-05
+}

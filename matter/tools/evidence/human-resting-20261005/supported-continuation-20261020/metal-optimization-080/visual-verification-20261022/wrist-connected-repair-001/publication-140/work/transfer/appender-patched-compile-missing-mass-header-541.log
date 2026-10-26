@@ -1,0 +1,9 @@
+In file included from /Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/human_skin_fat_from_layers_precomputed.cpp:1:
+/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/NumiHumanCoarseTissuePreparation.hpp:222:17: error: unknown type name 'NumiHumanTissueMassContribution'; did you mean 'NumiHumanTissueMassPartition'?
+  222 |     std::vector<NumiHumanTissueMassContribution> donorMassContributions;
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                 NumiHumanTissueMassPartition
+/Users/n/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanTissueMass.hpp:23:8: note: 'NumiHumanTissueMassPartition' declared here
+   23 | struct NumiHumanTissueMassPartition {
+      |        ^
+1 error generated.

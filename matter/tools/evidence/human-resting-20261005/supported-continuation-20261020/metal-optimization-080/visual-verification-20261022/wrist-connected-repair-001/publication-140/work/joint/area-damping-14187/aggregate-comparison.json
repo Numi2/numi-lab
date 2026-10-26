@@ -1,0 +1,25 @@
+{
+  "baseline538": {
+    "sha256": "a822a293020ec892f0ea9606e75d95fc711b21ab7b63879eb57e1b5934795c91",
+    "inside_pairs": 267,
+    "maximum_depth_m": 0.0018326399158158089,
+    "squared_depth_m2": 2.247385316552355e-05
+  },
+  "topology007": {
+    "sha256": "8a02298c09f69b912fec691b08a3b4c3381351321e5d23ea697b806ea9f3b9ab",
+    "inside_pairs": 267,
+    "maximum_depth_m": 0.0018326399158158089,
+    "squared_depth_m2": 2.247385316552355e-05
+  },
+  "combined": {
+    "sha256": "1be729eebf68d78b4d8bc5a707a762bca079a469f230f21aea59b7b5dca24f12",
+    "inside_pairs": 251,
+    "maximum_depth_m": 0.0018326399158158089,
+    "squared_depth_m2": 1.9438219454503204e-05
+  },
+  "change_vs538": {
+    "surface_pairs": -86,
+    "contained_pairs": -16,
+    "squared_depth_fraction": -0.13507402084824593
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "reason": "A strict remap of an edge-clipped prior trial face failed because source face 11831 had no exact match in selected topology007. No row was silently reused or admitted.",
+  "recovery": "The successful run-002 rebuilt fixed guards from current selected topology and exact current audits; current self-pairs were zero. Historical and trial 026 seed pairs were independently remapped by exact node-triangle identity, with 4825 historical and 11 trial pairs explicitly recorded as dropped in ../seed-refresh-001/dropped-seed-pair-identities.json.",
+  "run_001_retained_files": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/fixed-guard-refresh-001/run-001/self-guards/current-self-pairs.npy",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/fixed-guard-refresh-001/run-001/self-guards/current-self-rows.npz"
+  ],
+  "selected_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/run-001/candidate.npz",
+  "selected_candidate_sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+  "status": "FAILED_STRICT_FACE_ANCESTRY_MAPPING"
+}

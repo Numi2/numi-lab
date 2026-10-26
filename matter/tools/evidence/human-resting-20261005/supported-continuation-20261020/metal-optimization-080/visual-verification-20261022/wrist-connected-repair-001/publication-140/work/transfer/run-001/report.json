@@ -1,0 +1,34 @@
+{
+  "ancestry_npz": "registered_surface_face_ancestry.npz",
+  "ancestry_npz_sha256": "a66836c02e0fa64310c1447bb2acafbd3f820c96511012156c4c94ee8d06d9d1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/run-003-filtered/candidate.npz",
+  "candidate_sha256": "8dd096a2fcb8f9b24571fb4c1ffcab0bd3e1bd1c37537916255bd832e4265e65",
+  "face_count": 41733,
+  "face_source_ancestry": {
+    "empty_row_count": 0,
+    "entry_count": 41739,
+    "maximum_row_width": 2,
+    "multi_parent_row_count": 6,
+    "row_count": 41733
+  },
+  "immediate_parent_face_ancestry": {
+    "empty_row_count": 0,
+    "entry_count": 42164,
+    "maximum_row_width": 3,
+    "multi_parent_row_count": 425,
+    "row_count": 41733
+  },
+  "layers_or_volume_cells_present": false,
+  "limitations": [
+    "face-parent CSR is a topological union, not a conservative mass-transfer fraction",
+    "this candidate contains no O/I/D layers or volume-cell/mass ancestry",
+    "no FEM cells or physical transfer are prepared by this extractor"
+  ],
+  "material_or_mass_weights_present": false,
+  "multi_parent_single_label_sentinel_count": 425,
+  "point_count": 20889,
+  "provenance": "Exact CSR rows copied without selecting a single parent or inventing fractions.",
+  "schema": "numi.human.registered-surface-face-ancestry.541.v1",
+  "single_parent_barycentric_rows_checked": 41308,
+  "status": "ANCESTRY_VALIDATED_LAYER_INPUT_REQUIRED"
+}

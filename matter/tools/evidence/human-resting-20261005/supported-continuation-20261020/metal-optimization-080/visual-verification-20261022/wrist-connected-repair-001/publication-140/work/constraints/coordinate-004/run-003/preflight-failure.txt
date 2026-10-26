@@ -1,0 +1,1 @@
+PREFLIGHT_FAILED_BEFORE_ROWS: one or more 159 banks have result=null; aggregate count must skip empty banks.

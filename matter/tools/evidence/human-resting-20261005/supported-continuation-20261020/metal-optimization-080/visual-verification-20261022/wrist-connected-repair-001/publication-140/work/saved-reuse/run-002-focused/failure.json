@@ -1,0 +1,6 @@
+{
+  "status": "FAILED_PREPARATION",
+  "reason": "423 context computes edge lengths in stored Float32; builder used Float64 edge lengths",
+  "source_sha256": "28c9c1a1145003d92b19bd9b4a014e8f1d64abda3d764f3e18f2fd249ae84343",
+  "geometry_audits_run": false
+}

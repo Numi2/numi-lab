@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+export NUMI_GRADED_FIXED_GUARD_BASE_CANDIDATE_SHA256_447='e8717f9257f05b1e0e7e93c20ee6ab3e81e1a5be40e7c84996e7e6215d0b69f3'
+export NUMI_GRADED_FIXED_GUARD_NPZ_PATH_447='/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/coordinate-004/run-001/fixed-guards/fixed-skin-bone-guards.npz'
+export NUMI_GRADED_FIXED_GUARD_NPZ_SHA256_447='244a4dcab6361f7735305c8dc0cb337b646de2a163e9f1390c3f59de7a64ab7c'
+export NUMI_GRADED_FIXED_GUARD_REPORT_PATH_447='/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/coordinate-004/run-001/fixed-guards/report.json'
+export NUMI_GRADED_FIXED_GUARD_REPORT_SHA256_447='953a33195e5dbb97cc55463d19d1e8eb5b00c484d39e797ad347d68df8b4565c'
+export NUMI_GRADED_LOCAL_STEP_CONTEXT_423='/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/coordinate-004/run-005/context.npz'
+export NUMI_GRADED_LOCAL_STEP_CONTEXT_SHA256_423='a5f55cb6298d4ed16f01e62762cd2c6acaf52d245fc10da23eaee546cc9efdfd'
+export NUMI_GRADED_LOCAL_STEP_KAPPA_423='0.1'
+export NUMI_GRADED_SELF_SEED_CACHE_431='/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/coordinate-004/run-005/seed-rows.npz'
+export NUMI_GRADED_SELF_SEED_PATH_431='/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/coordinate-004/run-005/merged-self-pair-seeds.npy'
+export NUMI_GRADED_SELF_SEED_PREFLIGHT_PATH_431='/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/coordinate-004/run-005/seed-preflight.json'
+export NUMI_GRADED_SELF_SEED_PREFLIGHT_SHA256_431='fa30f494c3e3c205393b378ebc688c410f34b3c7510c2f2b3d6d806c0b88989b'
+export NUMI_GRADED_SELF_SEED_REPORT_431='/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/coordinate-004/run-005/seed-scale-report.json'
+export NUMI_GRADED_SELF_SEED_SHA256_431='b41936a65077f925f326d9b28bdcc7b8efbc890456804cd80c62aedee0bcfa29'
+exec '/Users/n/numi-human-prep-venv-20261005/bin/python' '/Users/numi/Work/numi-human-connected-surface-069/publication-137/sources/typed-point-regression-524/run_local_witness_backtracking_524.py' '/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/coordinate-004/run-005/backtrack-config.json'

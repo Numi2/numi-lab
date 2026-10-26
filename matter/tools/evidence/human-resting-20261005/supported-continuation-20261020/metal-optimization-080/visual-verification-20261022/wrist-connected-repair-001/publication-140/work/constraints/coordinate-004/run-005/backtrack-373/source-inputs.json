@@ -1,0 +1,11 @@
+{
+  "start": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/saved-reuse/run-004-focused/candidate.npz",
+  "start_sha256": "e8717f9257f05b1e0e7e93c20ee6ab3e81e1a5be40e7c84996e7e6215d0b69f3",
+  "trial": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/saved-reuse/full-amplitude/edge-clipped-001/candidate.npz",
+  "trial_sha256": "9683079e64870d9af8819b6e702790027d2bccfdc573beef2e19c45003718786",
+  "helper_sha256": "522152a4df248d230ddc66652e3071a2283c29ca73bccc52efbe1789e2ee2b9e",
+  "source_point_summary_sha256": "bb761138b0cae2ddf608cdf1374b082c276d6795ec73c4e8c51dc2ab271d73a6",
+  "source_surface_report_sha256": "c5a0c959adf3e6615ed14378a7e2099b431b9adce5df9250a064c66fe6947005",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

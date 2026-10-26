@@ -1,0 +1,26 @@
+{
+  "exit_code": 0,
+  "binary_sha256": "eaeb360fc00ccc83632ec191a88e3249a17610a83c0474b6584a343379176446",
+  "test_source_sha256": "6840ca25c349167743edb340013701852ae32f3b11fb0931817c1cd5bba33cff",
+  "log_sha256": "113ff33227204fea025e3217b394f5cbf43eb375f9d02179b3b0ce928c876993",
+  "dependency_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/human_skin_fat_from_layers_precomputed.cpp": {
+      "sha256": "6840ca25c349167743edb340013701852ae32f3b11fb0931817c1cd5bba33cff",
+      "bytes": 22151
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/src/core/ConstraintIR.cpp": {
+      "sha256": "20bd90f77ddb77bd464306b3b438c9100e51435e9db068b032a00d9cffb74d04",
+      "bytes": 95567
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/src/core/OpenSimSpatialTransform.cpp": {
+      "sha256": "d37c8251466833b9e8a896c3263d56d48a5fdec7ba0fe460a91fe352eeb50e50",
+      "bytes": 25043
+    },
+    "/Users/n/numi-human-aortic-contact-opt-20261019/src/core/OpenSimFunction.cpp": {
+      "sha256": "6f1a30927f894e944e2aca1327fbc0eb9a7c261875a45377cf4c447ebf8c6796",
+      "bytes": 10852
+    }
+  },
+  "shared_owner_source_modified": false,
+  "geometry_qualification": false
+}

@@ -1,0 +1,13 @@
+{
+  "baseline": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-quality-patch-538/run-001/candidate.npz",
+  "baseline_sha256": "2f52328e1105dad576717eae872391324a1172ceec3f74f23fae591891078c6e",
+  "saved_proposal": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/connected-local-fit-529/current-scaled-001/candidate.npz",
+  "saved_proposal_sha256": "84832ab3222b7d9eb851a9e7d6b966c66e9e8c13994292c90b23e588218e2963",
+  "alpha": 0.125,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/saved-reuse/run-001/candidate.npz",
+  "candidate_sha256": "14583251590145e47d007fb8f0ae3a5b12185b82a7f45997ab628f058748e7f4",
+  "geometry_admitted": false,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "note": "Saved coordinate-proposal reuse; all topology and noncoordinate arrays from538. Fresh arithmetic/exact checks and regenerated construction guard verification required."
+}

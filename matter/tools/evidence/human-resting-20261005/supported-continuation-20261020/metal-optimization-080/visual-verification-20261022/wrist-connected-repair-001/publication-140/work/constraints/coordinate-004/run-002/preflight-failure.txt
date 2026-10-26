@@ -1,0 +1,1 @@
+PREFLIGHT_FAILED_BEFORE_ROWS: expected top-level 159 complete_surface_audit; actual schema uses complete=true with 185 per-bank result.count fields.

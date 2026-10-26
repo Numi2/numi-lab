@@ -1,0 +1,62 @@
+{
+  "status": "PASS",
+  "scope": "Isolated software fixture compile and run against the patched header copy; no native geometry or physical admission claim.",
+  "patched_header": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/NumiHumanCoarseTissuePreparation.hpp",
+    "sha256": "b23809ba2a68a5c8b465a0eb20e126f49f676f7fedcae3ee84e3608fe45451cc",
+    "base_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-070/canonical/apps/NumiHumanCoarseTissuePreparation.hpp",
+    "base_sha256": "27b3069cc96719ff86057b1f74b8c9ce1e47464d4f359d94bddd9abe4b3cb70c",
+    "patch_sha256": "682ce47a8b01dd49f6077d5c88d4376d57413777def24eaa61e9a5b6b2aa8f7f"
+  },
+  "test_source": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/human_skin_fat_from_layers_precomputed.cpp",
+    "sha256": "6840ca25c349167743edb340013701852ae32f3b11fb0931817c1cd5bba33cff"
+  },
+  "mass_header": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-070/canonical/include/metalrobo/NumiHumanTissueMass.hpp",
+    "sha256": "9b78d4363ef0f1d9a4d99d40eba0df78b37636e78d59c8a14efe4d5985bca761",
+    "include_order": "canonical/include precedes R include to match the frozen appender source ABI"
+  },
+  "fixture": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/fixtures/material_column_silicone.nmatter",
+    "sha256": "d3094476cefa1a28ca8b5f35b28e2586d5a44ce63f268e57e96812de32de4a5f"
+  },
+  "command_file": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/appender-patched-build-command-541.txt",
+  "command_file_sha256": "c81ee804717c409f05e90eddcaf6323123a66c4176209dee5c8b0414696ed239",
+  "compiler": "Apple clang 21.0.0 (clang-2100.3.34.2), arm64-apple-darwin27.0.0",
+  "binary": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/human_skin_fat_from_layers_precomputed_patched_541",
+    "sha256": "eaeb360fc00ccc83632ec191a88e3249a17610a83c0474b6584a343379176446"
+  },
+  "run": {
+    "exit_code": 0,
+    "log_path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/appender-patched-run-541.log",
+    "log_sha256": "113ff33227204fea025e3217b394f5cbf43eb375f9d02179b3b0ce928c876993",
+    "verified_lines": [
+      "multi_parent_surface_ancestry=PASS complete_rows_preserved=PASS",
+      "precomputed_layers=PASS exactfit_reused=PASS nan_summary_rejected=PASS reversed_winding_rejected=PASS local_prism_orientation_rejected=PASS transactionally",
+      "variable_fields=PASS ... invalid_count_nan_range_tiny_inversion_singular_map=REJECTED"
+    ]
+  },
+  "first_attempts": [
+    {
+      "log": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/appender-patched-compile-missing-mass-header-541.log",
+      "result": "Compile failed because the R include path selected a newer mass header lacking NumiHumanTissueMassContribution; no binary was run."
+    },
+    {
+      "log": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/appender-patched-link-missing-opensim-function-541.log",
+      "result": "Link failed on OpenSim function definitions; retry added existing OpenSimFunction.cpp."
+    }
+  ],
+  "python_tests": {
+    "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q test_prepare_face_ancestry_541.py",
+    "result": "3 passed in 0.40s",
+    "log": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/python-tests-541.log",
+    "log_sha256": "067947b41af67502f259a392086e1139ed163f09545488f2f4c27142bd17f819"
+  },
+  "standalone_cpp_validator": {
+    "result": "face ancestry CSR sorted/range/parent-count checks: PASS",
+    "log": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/face-ancestry-check-541.log",
+    "log_sha256": "5ae73192822c9bc0a4a6e4b6e40cd7b8bc11e2abcd9e7df859948353b21cbf9f"
+  }
+}

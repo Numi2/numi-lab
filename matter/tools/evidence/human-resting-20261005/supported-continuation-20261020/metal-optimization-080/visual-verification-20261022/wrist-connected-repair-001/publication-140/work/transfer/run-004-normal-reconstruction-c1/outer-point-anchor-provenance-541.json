@@ -1,0 +1,70 @@
+{
+  "anchor_lineage": {
+    "legacy_coarse_boundary": {
+      "R0_kind0_matches": 236,
+      "R0_source_id_matches": 0,
+      "count": 237,
+      "current_node_source_row_matches": 0,
+      "one_hot_to_R0": true,
+      "output_rows_sha256": "c942dbef76646f130098b16a9b1ed995ec72fc0acaeb8b2d5ff4b8b00b015c96",
+      "row_dtype": "int32",
+      "source_id_dtype": "int32",
+      "source_ids_sha256": "3dd624e6b22f7c4486444b034e7f54879b6f0ec8887bbb34824d6f1b04198b27",
+      "unique_output_rows": 237
+    },
+    "typed_018": {
+      "R0_kind0_matches": 237,
+      "R0_source_id_matches": 237,
+      "count": 237,
+      "current_node_source_row_matches": 237,
+      "one_hot_to_R0": true,
+      "output_rows_sha256": "669daf3a13c54c0d25510ba94e7dd59275ca8e00c1e928321156f06d0a52758f",
+      "row_dtype": "int32",
+      "source_id_dtype": "int64",
+      "source_ids_sha256": "024360f18b68c0cce8f9117d4a12e45ec6b6fee5562d2f2710de23fccad4b7d9",
+      "unique_output_rows": 237
+    }
+  },
+  "interpretation": "Only current typed _018 anchor rows are used by the 127 reconstruction. Historical coarse_boundary_anchor_rows/source_nodes are retained as distinct evidence and rejected as stale for this current domain.",
+  "outer_sets": {
+    "current_outer_preserved_bitwise": true,
+    "current_vs_original_146_max_abs_coordinate_delta_m": 0.01108643115566832,
+    "force_or_outer_lock_added": false,
+    "original_128_outer_equals_146_outer_bitwise": true,
+    "reconstruction_outer_equals_current_candidate_f32_promoted": true,
+    "source_146_outer_preserved_bitwise": true
+  },
+  "output": {
+    "bytes": 1060966,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/run-004-normal-reconstruction-c1/outer-point-reference-541.npz",
+    "sha256": "eab898a0d45ed571a42aa20b4b6c2c5393a661fd64aee0e2200b51437a217a58"
+  },
+  "physical_or_native_admission": false,
+  "pins": {
+    "R0": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+    },
+    "current_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/run-001/candidate.npz",
+      "sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939"
+    },
+    "normal_reconstruction": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/run-004-normal-reconstruction-c1/skin-fat-layers-541-normal-reconstructed.npz",
+      "sha256": "b5d7a149fa6c519de471bbb32de8878f2244a93198960b2a96665d6d6ba7cdea"
+    },
+    "source_128_layers": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/coupled-layer-trial-128/run-004-full146-baseline-offset/layer-candidate.npz",
+      "sha256": "301328142aae18bef98b1dfd9fff974533728aa5e084317d53fcda9dad5b7950"
+    },
+    "source_146_outer": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-002-corrected-metadata/candidate.npz",
+      "sha256": "4a393af65cc12181e00f2b578f73ad209f87e5f2107f4808e9ce083f46a2b3da"
+    },
+    "transferred_layers": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/run-003-final-joint/skin-fat-layers-541.npz",
+      "sha256": "edebcefc563bdca06e600b140673c7d40c5c7297c9b8da1b105f35db4e6c7de7"
+    }
+  },
+  "status": "OUTER_POINT_AND_ANCHOR_PROVENANCE_VERIFIED"
+}

@@ -1,0 +1,1 @@
+PREFLIGHT_FAILED_BEFORE_SEED_ROW_BUILD: context budget used Float64 edge length; pinned 423 expects Float32 edge length arithmetic.

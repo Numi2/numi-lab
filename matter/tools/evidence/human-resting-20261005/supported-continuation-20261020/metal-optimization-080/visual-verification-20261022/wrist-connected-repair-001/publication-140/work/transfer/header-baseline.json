@@ -1,0 +1,7 @@
+{
+  "isolated_patch_base": "/Users/numi/Work/numi-human-connected-surface-069/publication-070/canonical/apps/NumiHumanCoarseTissuePreparation.hpp",
+  "isolated_patch_base_sha256": "27b3069cc96719ff86057b1f74b8c9ce1e47464d4f359d94bddd9abe4b3cb70c",
+  "patched_copy": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/NumiHumanCoarseTissuePreparation.hpp",
+  "patched_copy_sha256": "b23809ba2a68a5c8b465a0eb20e126f49f676f7fedcae3ee84e3608fe45451cc",
+  "change_scope": "Only optional full registered-face ancestry CSR fields, fail-closed row validation, bounded face-patch row propagation, and report retention. No change was applied to the shared R tree."
+}

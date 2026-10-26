@@ -1,0 +1,8 @@
+{
+  "candidate_sha256": "d73a08f7ac967e1401e7baff03066d72d4407eed6eddf9a6c82b6f96524cda96",
+  "topology_parent_sha256": "a1fce94c3dc57b79f16f94b117e7d49e83a0ff7219de73ce6e7abcec17f22dae",
+  "coordinate_parent_sha256": "e8717f9257f05b1e0e7e93c20ee6ab3e81e1a5be40e7c84996e7e6215d0b69f3",
+  "only_coordinates_replaced": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

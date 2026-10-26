@@ -1,0 +1,16 @@
+{
+  "candidate_sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+  "surface_crossing_pairs": 2895,
+  "contained_node_bank_pairs": 251,
+  "self_intersections": 0,
+  "full_geometry_report_sha256": "0c1bfc92a8f13f0b9a03253a4bdab223d2b7aa2cf8a11d794551b8592300f074",
+  "current_anchor_arithmetic_report_sha256": "c4fcf41847d866412545fbcd375ea6191c488bbdf8bb6c4bf1900fd6ba6eb6c1",
+  "fresh_constraint_report_sha256": "b68d5f7e8845bd9463751e5043fb5a24521924bc7ed285062d4cec34db56da63",
+  "python_tests": 38,
+  "isolated_cpp_appender_fixture": "PASS",
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "skin_fat_geometry_qualification": "FAILED; retained offsets and whole-body normal reconstruction both fail valid-cell gates",
+  "shared_git_HEAD": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "source_assembly": "mixed-source reference; not a measured individual"
+}

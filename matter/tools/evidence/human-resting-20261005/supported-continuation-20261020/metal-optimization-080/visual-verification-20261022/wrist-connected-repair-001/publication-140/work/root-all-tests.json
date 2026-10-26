@@ -1,0 +1,28 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/test_fixed037_area_config_541.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/test_prepare_reused_coordinates.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/test_run_candidate_checks.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/test_filter_self_safe_batch_542.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/test_filter_self_safe_followup_543.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/test_focused_clearance_541.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/test_focused_clearance_followup.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/test_prepare_face_ancestry_541.py"
+  ],
+  "returncode": 0,
+  "log_sha256": "e8646af0b52520414b6c28b5aed09639c446b39856d9411bdba97ff9f4265c0a",
+  "sources": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/topology-007-c1e02/test_fixed037_area_config_541.py": "bf1838106a53c80a47e4f2bc2ec80fa4512aefd7e19022fa51fb52d627e2569c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/test_prepare_reused_coordinates.py": "bd710fc62df7929d1aea520a707635ebad4aace552dda62aead9c617a7ab9bf2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/test_run_candidate_checks.py": "531328fe8e1bd15906d81bf5dd2ac54858c8e8d3fada1b27c9a3635d3b9801c3",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/test_filter_self_safe_batch_542.py": "cc82ae1183fc7ce93f6dea0e856598222fba1146c5a7005abfa1c88fa201b42b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/test_filter_self_safe_followup_543.py": "231e0f2cac474537d8059e006aaf8a83c9e9decdd28a82e3fb6d7207bdda0371",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/test_focused_clearance_541.py": "bbf14df6d9bd0cc003a4d8f625dc29be1cbb0c4b4ba697d435d888e967987512",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/test_focused_clearance_followup.py": "62ae35ec0be0f43835d54acff185b935c39e859478fd4b7b38819cc99e3fb1d0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/transfer/test_prepare_face_ancestry_541.py": "a06e6a351cb83dca93751548f832f3a85913635cb0d0799e388790aac1149ed0"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "parent_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-quality-patch-538/run-001/candidate.npz",
+  "parent_sha256": "2f52328e1105dad576717eae872391324a1172ceec3f74f23fae591891078c6e",
+  "input_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/saved-reuse/full-amplitude/pass-004/candidate.npz",
+  "input_sha256": "c07da65241a998ac0d64856ff83fcc4054cc9d7a9a2b06f2181080d3bb705fd5",
+  "bad_edge_rows": 1,
+  "edge_bound_alpha": 0.65595968298786,
+  "applied_alpha": 0.6553037233048722,
+  "minimum_original_slack_mm": -0.087218793963345,
+  "fresh_edge_receipt": {
+    "enabled": true,
+    "max_component_gradient": 0.5,
+    "unique_mesh_edges": 62622,
+    "active_edges": 5015,
+    "inequality_rows": 30090,
+    "semantics": "componentwise |d_i-d_j| <= cap * reference_edge_length; nonsupport displacement is zero",
+    "maximum_reference_edge_length_mm": 13.669386651098343,
+    "minimum_reference_edge_length_mm": 0.015526502286570276
+  },
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/saved-reuse/full-amplitude/edge-clipped-001/candidate.npz",
+  "candidate_sha256": "9683079e64870d9af8819b6e702790027d2bccfdc573beef2e19c45003718786",
+  "requires_fresh_f32_verification": true,
+  "native_admission": false
+}

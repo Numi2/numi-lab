@@ -1,0 +1,7 @@
+Undefined symbols for architecture arm64:
+  "metalrobo::compileOpenSimFunction(metalrobo::OpenSimFunctionDefinition const&)", referenced from:
+      metalrobo::compileOpenSimSpatialTransform(metalrobo::OpenSimSpatialTransformDefinition const&) in OpenSimSpatialTransform-e8471f.o
+  "metalrobo::evaluateOpenSimFunction(metalrobo::CompiledOpenSimFunction const&, double)", referenced from:
+      metalrobo::evaluateOpenSimSpatialTransform(metalrobo::CompiledOpenSimSpatialTransform const&, std::__1::vector<double, std::__1::allocator<double>> const&, std::__1::vector<double, std::__1::allocator<double>> const&) in OpenSimSpatialTransform-e8471f.o
+ld: symbol(s) not found for architecture arm64
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)

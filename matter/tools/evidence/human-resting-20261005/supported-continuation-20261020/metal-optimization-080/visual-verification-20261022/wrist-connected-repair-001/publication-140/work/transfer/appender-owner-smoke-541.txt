@@ -1,0 +1,11 @@
+cwd=/Users/n/numi-human-aortic-contact-opt-20261019
+binary=/Users/n/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-verify-026/human_skin_fat_from_layers_precomputed
+binary_sha256=
+current_owner_header_sha256=93cb05b7108a0b3b36c64dde4177872ec3603c07ba33b23556c67b5cdaa88805
+source_test=/Users/n/numi-human-aortic-contact-opt-20261019/tests/human_skin_fat_from_layers_precomputed.cpp
+2c07252ca5c9812267919e2af28a3c4c9b30bc7f454d62b8c178c64eaa4a8b2a  /Users/n/numi-human-aortic-contact-opt-20261019/tests/human_skin_fat_from_layers_precomputed.cpp
+scope=existing in-memory octa fixture; not actual 541 transfer
+positive_volume_float32_sliver=REJECTED source_witness=PASS
+precomputed_layers=PASS exactfit_reused=PASS nan_summary_rejected=PASS reversed_winding_rejected=PASS local_prism_orientation_rejected=PASS transactionally
+compile_bind_world=PASS nodes=18 tets=48 compact_faces=16 tags=18 mass_kg=59.1038 physics_fp=11867750444583980455 compiled_fp=11479780326214345954 invalid_source=REJECTED
+variable_fields=PASS skin_minmax_m=.0018,.0034 fat_minmax_m=.003,.019 skin_volume_m3=0.0103735 fat_volume_m3=0.0433572 unique_mass_residual_kg=6.56166e-15 shared_nodes=18 tets=48 donor_rotation_map_error_m=1.11024e-16 scalar_constant_field=bitwise_equal invalid_count_nan_range_tiny_inversion_singular_map=REJECTED

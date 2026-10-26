@@ -1,0 +1,30 @@
+{
+  "accepted_physical_steps": 0,
+  "area_owner_sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+  "candidate_sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+  "config_fragment": {
+    "area_reference_faces_key": "area_reference_037_source_O_faces",
+    "area_reference_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/joint/area-damping-14187/run-001/candidate.npz",
+    "area_reference_points_key": "area_reference_037_points_world_m_f64",
+    "area_reference_sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+    "maximum_exact_audits": 8
+  },
+  "native_admission": false,
+  "old_wrong_config": {
+    "candidate_sha256": "c034946da707403900019838686d5a57e838b3aca03f1604aad7efbbfc71f957",
+    "correct_fixed_037_magnitude_ratio": 0.08472889776536627,
+    "correct_gate_pass": false,
+    "failing_fixed037_face_rows": [
+      14187
+    ],
+    "wrong_base_magnitude_ratio": 0.19244532819370672
+  },
+  "runner_sha256": "7aea149ba26acf4b86e04d60843955a141ba3a7889d004b9d5f1cbf33cd83a07",
+  "schema": "numi.focused-clearance-541.fixed037-area-reference-regression.v1",
+  "selected_candidate_gate": {
+    "minimum_current_oriented_ratio": 0.948552182889305,
+    "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+    "pass": true
+  },
+  "status": "PASS_FIXED037_REFERENCE_CONFIG_REGRESSION"
+}

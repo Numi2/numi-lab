@@ -1,0 +1,7 @@
+{
+  "host": "SSH numi",
+  "kernel": "Darwin numi.local 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:06:15 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T8152 arm64",
+  "cpu": "Apple M6",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A425",
+  "execution": "offline anatomy construction; no native GPU simulation or visual inspection"
+}
