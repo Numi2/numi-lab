@@ -1,0 +1,6 @@
+{
+  "status": "VERIFIER_ASSUMPTION_CORRECTED",
+  "cause": "Sorted union of point and face nodes interleaves existing point identity columns; original coarse prefix unchanged, entire point span verified by exact column matching instead",
+  "candidate_emitted": false,
+  "solver_invoked": false
+}

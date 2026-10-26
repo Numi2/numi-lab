@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "unittest",
+    "-v",
+    "test_surface_witness_basis_408"
+  ],
+  "cwd": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408",
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "test_cli_requires_fine_point (test_surface_witness_basis_408.Tests.test_cli_requires_fine_point) ... ok\ntest_existing_output_constraints_stay_on_output (test_surface_witness_basis_408.Tests.test_existing_output_constraints_stay_on_output) ... ok\ntest_interleaved_prior_point_column (test_surface_witness_basis_408.Tests.test_interleaved_prior_point_column) ... ok\ntest_invalid_point_rows (test_surface_witness_basis_408.Tests.test_invalid_point_rows) ... ok\ntest_invalid_surface_rows (test_surface_witness_basis_408.Tests.test_invalid_surface_rows) ... ok\ntest_no_surface_keeps_point_path (test_surface_witness_basis_408.Tests.test_no_surface_keeps_point_path) ... ok\ntest_same_as_explicit_union (test_surface_witness_basis_408.Tests.test_same_as_explicit_union) ... ok\ntest_union_and_parent_span (test_surface_witness_basis_408.Tests.test_union_and_parent_span) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 0.185s\n\nOK\n",
+  "self_test": {
+    "command": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+      "--self-test"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"status\": \"PASS\",\n  \"self_test\": \"lexicographic normalized clearance slacks; report candidate pins; sparse row dimensions and anchor elimination; empty target parity; strict F32 area selector; bounded area-SCP RHS/FD; opt-in emitted-clearance proxy deferral; stage-1 timeout primal fallback; raw LP serialization; source/trust box; fixed-037 area reference\"\n}\n",
+    "stderr": ""
+  },
+  "native_admission": false
+}

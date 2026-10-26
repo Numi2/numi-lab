@@ -1,0 +1,50 @@
+{
+  "status": "PASS_ACTUAL_FIRST_SCP_PARITY_AND_CONSTRAINED_ENRICHMENT",
+  "argv_path": "/Users/numi/Work/numi-human-connected-surface-069/D/fine-point-basis-enrichment-406/root-launch-argv-406.json",
+  "argv_sha256": "44d302fde15e8100edb8352f6902bbe97de591a79c87aa226b4a22724c01f8a3",
+  "default_408_matches_405_point": true,
+  "enriched_output_space_constraints_identical": true,
+  "parent_span_preserved": true,
+  "output_dimension": 20619,
+  "enriched_coordinate_count": 17991,
+  "added_fine_nodes": 1130,
+  "fixed_output_rows": 30,
+  "solver_invoked": false,
+  "candidate_emitted": false,
+  "native_admission": false,
+  "inputs": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/fine-point-basis-enrichment-405/propose_joint_clearance_witnesses_405.py": "1e1e915bed2a43dfb7fcdb7b2932a4dcf4658a9686c7dd385d599e0bef21ee97",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py": "e9548ddcfc3a7e6be0e8156ef7333d40c6f1273b00e8ed8a892ee494f035f160",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/surface_witness_basis_408.py": "2ef6a4323705f35dd72ac9fbef8ead3c6b27b2a4f396000c863a81336dd89605"
+  },
+  "matrix_receipts": {
+    "A": {
+      "shape": [
+        255753,
+        20619
+      ],
+      "data": "63046d2cf45c527ad58bbb8926769bda2c4d307eae5b5ea984ed4e95fec3c66b",
+      "indices": "eb2d1517fbfc948141946078fbfc323e25664d26bf4726c11880bda1d0aca686",
+      "indptr": "1a3afda606445529da429f5ef2cd30d2173132bad6834f4ef59832994bcc6131"
+    },
+    "C": {
+      "shape": [
+        3788,
+        20619
+      ],
+      "data": "2d9f7796cc6ed2221325b2f9136c2ca9b10970469252fd71e524c5cdcf79ab22",
+      "indices": "341779d93c5d56bd37ae84a2e1b6670c62c9fa2c64fb3976a40d34c9999b30d1",
+      "indptr": "9e2cb45d295ec7f34c18e63067cac584270c122ea17d81df3b725cbb9a167fee"
+    },
+    "output_map": {
+      "shape": [
+        20619,
+        17991
+      ],
+      "data": "a4daa347430d963c543328c23e41972f37cf544ea8b11c384279d5ae9032e77d",
+      "indices": "f6861b6276f4b35dc5b60914aa9c5706b384342b2378d6b48f48429d44f842db",
+      "indptr": "cc5c5bddaf00c8c28b1d1f79f71e6b648a5a5d16fa6a047598a48a8103485492"
+    }
+  },
+  "prior_point_enriched_coordinate_count": 14601
+}

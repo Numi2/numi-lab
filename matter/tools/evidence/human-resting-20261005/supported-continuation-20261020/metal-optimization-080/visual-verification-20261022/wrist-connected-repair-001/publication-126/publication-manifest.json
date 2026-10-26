@@ -1,0 +1,108 @@
+{
+  "base_commit": "07d377ba526b1694233ea28a4d7e37b6a615ef77",
+  "canonical_changes": [],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "e1e0a5b10598b0d9cd64485e3bd3e98cf232a06a50a5b8e8483d586cf39917a0",
+      "bytes": 2460
+    },
+    {
+      "path": "build_archive_126.py",
+      "sha256": "c550beebe7a32da0b86b3ec2d7c3e691e309a14b6698d20c398564a5c1745c96",
+      "bytes": 2872
+    },
+    {
+      "path": "evidence/406-root-independent-construction-verification.json",
+      "sha256": "73ed3d1650977edf81b1097767ff23762bed40da0fbd6de08f5132ffa277dec4",
+      "bytes": 2713
+    },
+    {
+      "path": "evidence/actual-404-assembly-parity.json",
+      "sha256": "c04e9600920eb719c00ee6340b611d91fc4a03700647eed954242a0ce839ba41",
+      "bytes": 2273
+    },
+    {
+      "path": "evidence/archive-manifest-topology405-406.json",
+      "sha256": "42219e819ed288da1c47a7c81cc8628fc70ef9bba4cc9534bea688068d40c1e3",
+      "bytes": 95325
+    },
+    {
+      "path": "evidence/connected-clearance-topology405-406.tar.xz",
+      "sha256": "db66d642d1b324b095249e4ccb14b4c3fe420c4fbeee5d04d5039c86f7de8727",
+      "bytes": 29329536
+    },
+    {
+      "path": "evidence/failed-prefix-assumption.json",
+      "sha256": "9f60871c0394a8e62aeffc91df8c03daa561e7c14bab6a5756395b11530df869",
+      "bytes": 295
+    },
+    {
+      "path": "evidence/publication125-recovery.json",
+      "sha256": "c8fb1c70838e1e8c2ba906dbca13a75ffc093061c9e9ab667764aa0185972bae",
+      "bytes": 371
+    },
+    {
+      "path": "evidence/test-receipt-408.json",
+      "sha256": "aa97238b9075b78989bd35c45b7966e4b54121803da75b1e5e0d1e897b420177",
+      "bytes": 1987
+    },
+    {
+      "path": "evidence/topology405-corrected-comparison.json",
+      "sha256": "081b879ed2bba8a1d867c772efff5068fb06ad416cb3fa0576fb8ca9d9d73084",
+      "bytes": 1303544
+    },
+    {
+      "path": "evidence/topology405-root-independent-construction-verification.json",
+      "sha256": "850f32d334b53bad9457702894e0fba5c109dd418c65f57c678137c1ed4ce3e8",
+      "bytes": 2748
+    },
+    {
+      "path": "evidence/topology405-selection-preflight.json",
+      "sha256": "23b03937170eb91675df61ed383c9b1b6dd3dd03b370606fe78b8ffb189b332e",
+      "bytes": 24120
+    },
+    {
+      "path": "sources/root_verify_checkpoint_406.py",
+      "sha256": "8689e3eaad68d4005bd60e754e050b163d158c62c5c64ff950598f237ba384b6",
+      "bytes": 3241
+    },
+    {
+      "path": "sources/root_verify_topology_405.py",
+      "sha256": "0097d72acda78d745b4fd0e8c3d67ef8dd52e29f554a2356f7c3491044b7b70f",
+      "bytes": 4394
+    },
+    {
+      "path": "sources/surface-witness-basis-408/audit_actual_basis_408.py",
+      "sha256": "35d3790569a5d3a2a4283cabcb963c1e27c55da9e91ddfe1947530c928e96c6d",
+      "bytes": 4271
+    },
+    {
+      "path": "sources/surface-witness-basis-408/fine_point_basis_405.py",
+      "sha256": "e11e7f1305b5f824c23f12b6d447c5a019b4a69fe04a47f1cbe106d8096766f7",
+      "bytes": 2722
+    },
+    {
+      "path": "sources/surface-witness-basis-408/precision_phase_one_integration_396.py",
+      "sha256": "46de947e4a6302d9f70695f12061ac1107f59b2dfaa7b8f0c431c68b95e72e68",
+      "bytes": 13432
+    },
+    {
+      "path": "sources/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+      "sha256": "e9548ddcfc3a7e6be0e8156ef7333d40c6f1273b00e8ed8a892ee494f035f160",
+      "bytes": 202166
+    },
+    {
+      "path": "sources/surface-witness-basis-408/surface_witness_basis_408.py",
+      "sha256": "2ef6a4323705f35dd72ac9fbef8ead3c6b27b2a4f396000c863a81336dd89605",
+      "bytes": 1456
+    },
+    {
+      "path": "sources/surface-witness-basis-408/test_surface_witness_basis_408.py",
+      "sha256": "b00927a67782f60507bbb193ff8d01bcc699c1cd33aafcda43701956e6ac41ae",
+      "bytes": 3045
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

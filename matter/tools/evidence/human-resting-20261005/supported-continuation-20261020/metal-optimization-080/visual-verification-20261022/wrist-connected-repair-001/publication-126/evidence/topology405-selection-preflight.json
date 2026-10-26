@@ -1,0 +1,1083 @@
+{
+  "arrays": {
+    "added_count": 3,
+    "changed_count": 8,
+    "changed_or_added_or_deleted": [
+      {
+        "change": "modified",
+        "in_dtype": "int64",
+        "in_sha256": "8135cf5c8d3b36c7a05dfe3db8eae7b2ac499fae4564bf00f6359d43eb1041d9",
+        "in_shape": [
+          41733,
+          3
+        ],
+        "key": "area_reference_037_source_O_faces",
+        "out_dtype": "int64",
+        "out_sha256": "ca497b20d90d0390e034bed0bacb348cf70f2ff05da23a52d978826cd8a800c8",
+        "out_shape": [
+          41733,
+          3
+        ]
+      },
+      {
+        "change": "added",
+        "key": "refinement_face_parent_ancestry_face_rows",
+        "out_dtype": "int64",
+        "out_sha256": "ea5f27c8777532f2b249f6f068d10355fe7bae2e664e59c70651d332d9db74cd",
+        "out_shape": [
+          41739
+        ]
+      },
+      {
+        "change": "added",
+        "key": "refinement_face_parent_ancestry_indptr",
+        "out_dtype": "int64",
+        "out_sha256": "bb52725fcffa82f133f94adf23efee0728b2b6fafa752366431f8e9f03c52b13",
+        "out_shape": [
+          41734
+        ]
+      },
+      {
+        "change": "added",
+        "key": "refinement_face_parent_ancestry_semantics",
+        "out_dtype": "<U114",
+        "out_sha256": "f24d55d00dae5223f0489cda167f8c2ebd7ef66bcb294d6d21636abdaac04cc5",
+        "out_shape": [
+          1
+        ]
+      },
+      {
+        "change": "modified",
+        "in_dtype": "float64",
+        "in_sha256": "d60e47ef9d00e5bb56d459a0195acfdc61d10a6715b6674469ebbd43dd199fd7",
+        "in_shape": [
+          41733,
+          3,
+          3
+        ],
+        "key": "refinement_face_parent_barycentric",
+        "out_dtype": "float64",
+        "out_sha256": "65b5e2699851e7e28df95b80f1d1717ab97f3ab6bc477e58d468084de3546bf0",
+        "out_shape": [
+          41733,
+          3,
+          3
+        ]
+      },
+      {
+        "change": "modified",
+        "in_dtype": "<U80",
+        "in_sha256": "b8934bc4cb17b3eb265f2ca0052c78916489dbc8fdcdb5696416dbc7fda5184d",
+        "in_shape": [
+          1
+        ],
+        "key": "refinement_face_parent_barycentric_semantics",
+        "out_dtype": "<U76",
+        "out_sha256": "48a05be6c4b95fb41d387362a4bc7744ff3e7dd7dbbc227fe07122689ee28c6c",
+        "out_shape": [
+          1
+        ]
+      },
+      {
+        "change": "modified",
+        "in_dtype": "int64",
+        "in_sha256": "a0d11eca4e638d26e39be76466d1a4def052af640e51b12aadf40e914f35fceb",
+        "in_shape": [
+          41733
+        ],
+        "key": "refinement_face_parent_face_row",
+        "out_dtype": "int64",
+        "out_sha256": "df97a50b71c52be1767b8dc4905f98b2c46b26da6cd66e5fbbde6f35636e46f9",
+        "out_shape": [
+          41733
+        ]
+      },
+      {
+        "change": "modified",
+        "in_dtype": "int64",
+        "in_sha256": "8135cf5c8d3b36c7a05dfe3db8eae7b2ac499fae4564bf00f6359d43eb1041d9",
+        "in_shape": [
+          41733,
+          3
+        ],
+        "key": "source_O_faces",
+        "out_dtype": "int64",
+        "out_sha256": "ca497b20d90d0390e034bed0bacb348cf70f2ff05da23a52d978826cd8a800c8",
+        "out_shape": [
+          41733,
+          3
+        ]
+      }
+    ],
+    "deleted_count": 0,
+    "input_count": 167,
+    "output_count": 170
+  },
+  "candidate_input_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/fine-point-basis-enrichment-405/run-001/candidate.npz",
+  "candidate_input_sha256": "52ddadb6f6fbfd528ffd4fc72672a00aba8d40ad36914d17e92ed3b19d20c94a",
+  "candidate_output_path": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-405/run-011-replay-405-four-flips/candidate.npz",
+  "candidate_output_sha256": "6c115d5beef83989bed2af6309771b8d34cece7e30eaaf3f99f397ee3a304fda",
+  "changed_row_lineage": {
+    "direct_parent_and_kind_arrays": {
+      "parent_coarse_face_row": {
+        "13167": -1,
+        "13168": -1,
+        "14855": -1,
+        "14860": -1,
+        "20891": -1,
+        "20896": -1,
+        "20924": -1,
+        "20925": -1
+      },
+      "parent_fine_detail_face_row": {
+        "13167": 5178,
+        "13168": 5178,
+        "14855": 6103,
+        "14860": 6103,
+        "20891": 9570,
+        "20896": 9570,
+        "20924": 9570,
+        "20925": 9570
+      },
+      "parent_fine_subface_row": {
+        "13167": 5178,
+        "13168": 5178,
+        "14855": 6103,
+        "14860": 6103,
+        "20891": 9572,
+        "20896": 9572,
+        "20924": 9572,
+        "20925": 9572
+      },
+      "parent_source_face_marker": {
+        "13167": 5178,
+        "13168": 5178,
+        "14855": 6103,
+        "14860": 6103,
+        "20891": 9570,
+        "20896": 9570,
+        "20924": 9570,
+        "20925": 9570
+      },
+      "refinement_face_parent_face_row": {
+        "13167": -1,
+        "13168": -1,
+        "14855": 13701,
+        "14860": 13701,
+        "20891": -1,
+        "20896": -1,
+        "20924": -1,
+        "20925": -1
+      }
+    },
+    "fine_subface_ancestry_unions": {
+      "13167": [
+        5178
+      ],
+      "13168": [
+        5178
+      ],
+      "14855": [
+        6103
+      ],
+      "14860": [
+        6103
+      ],
+      "20891": [
+        9572
+      ],
+      "20896": [
+        9572
+      ],
+      "20924": [
+        9572
+      ],
+      "20925": [
+        9572
+      ]
+    },
+    "immediate_parent_ancestry_unions": {
+      "13167": [
+        12463,
+        12464
+      ],
+      "13168": [
+        12463,
+        12464
+      ],
+      "14855": [
+        13701
+      ],
+      "14860": [
+        13701
+      ],
+      "20891": [
+        18628,
+        18633
+      ],
+      "20896": [
+        18628,
+        18633
+      ],
+      "20924": [
+        18661,
+        18662
+      ],
+      "20925": [
+        18661,
+        18662
+      ]
+    },
+    "immediate_parent_union_matches_operation_records": true,
+    "material_named_arrays_present": [],
+    "reported_unions_match_csr": true,
+    "scope_note": "This is surface ancestry/provenance, not tetrahedral material assignment. Candidate contains no material-ID array; retain the changed-parent union as a multi-parent source patch.",
+    "source_ancestry_unions": {
+      "13167": [
+        5178
+      ],
+      "13168": [
+        5178
+      ],
+      "14855": [
+        6103
+      ],
+      "14860": [
+        6103
+      ],
+      "20891": [
+        9570
+      ],
+      "20896": [
+        9570
+      ],
+      "20924": [
+        9570
+      ],
+      "20925": [
+        9570
+      ]
+    },
+    "source_marker_kind_values": {
+      "face_kind": {
+        "13167": 2,
+        "13168": 2,
+        "14855": 2,
+        "14860": 2,
+        "20891": 2,
+        "20896": 2,
+        "20924": 2,
+        "20925": 2
+      },
+      "parent_source_face_marker": {
+        "13167": 5178,
+        "13168": 5178,
+        "14855": 6103,
+        "14860": 6103,
+        "20891": 9570,
+        "20896": 9570,
+        "20924": 9570,
+        "20925": 9570
+      }
+    }
+  },
+  "coordinate_and_reference_identity": {
+    "all_face_rows_same_count": true,
+    "area_037_faces_bitwise_unchanged_from_input": false,
+    "area_037_faces_exactly_match_output_surface": true,
+    "area_037_points_bitwise_unchanged": true,
+    "area_037_reference_semantics": "matched accepted-037 area-reference points prolonged through the same immediate Q map and child-face topology; area constraints only",
+    "area_037_source_sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+    "points_bitwise_unchanged": true
+  },
+  "four_operations": [
+    {
+      "actual_parent_unions_by_output_row": [
+        [
+          12463,
+          12464
+        ],
+        [
+          12463,
+          12464
+        ]
+      ],
+      "edge": [
+        9615,
+        16634
+      ],
+      "expected_old_faces_match_input": true,
+      "immediate_parent_union": [
+        12463,
+        12464
+      ],
+      "multi_parent_nan_barycentric_rows": [
+        13167,
+        13168
+      ],
+      "new_diagonal": [
+        14691,
+        14694
+      ],
+      "new_faces_match_output": true,
+      "old_face_rows": [
+        13167,
+        13168
+      ],
+      "parent_union_matches": true,
+      "single_parent_face_rows": [
+        -1,
+        -1
+      ],
+      "source_detail_face_row": 5178,
+      "source_subface_row": 5178
+    },
+    {
+      "actual_parent_unions_by_output_row": [
+        [
+          13701
+        ],
+        [
+          13701
+        ]
+      ],
+      "edge": [
+        11596,
+        20001
+      ],
+      "expected_old_faces_match_input": true,
+      "immediate_parent_union": [
+        13701
+      ],
+      "multi_parent_nan_barycentric_rows": [],
+      "new_diagonal": [
+        18865,
+        18869
+      ],
+      "new_faces_match_output": true,
+      "old_face_rows": [
+        14855,
+        14860
+      ],
+      "parent_union_matches": true,
+      "single_parent_face_rows": [
+        13701,
+        13701
+      ],
+      "source_detail_face_row": 6103,
+      "source_subface_row": 6103
+    },
+    {
+      "actual_parent_unions_by_output_row": [
+        [
+          18628,
+          18633
+        ],
+        [
+          18628,
+          18633
+        ]
+      ],
+      "edge": [
+        12647,
+        14856
+      ],
+      "expected_old_faces_match_input": true,
+      "immediate_parent_union": [
+        18628,
+        18633
+      ],
+      "multi_parent_nan_barycentric_rows": [
+        20891,
+        20896
+      ],
+      "new_diagonal": [
+        17186,
+        17187
+      ],
+      "new_faces_match_output": true,
+      "old_face_rows": [
+        20891,
+        20896
+      ],
+      "parent_union_matches": true,
+      "single_parent_face_rows": [
+        -1,
+        -1
+      ],
+      "source_detail_face_row": 9570,
+      "source_subface_row": 9572
+    },
+    {
+      "actual_parent_unions_by_output_row": [
+        [
+          18661,
+          18662
+        ],
+        [
+          18661,
+          18662
+        ]
+      ],
+      "edge": [
+        11659,
+        12649
+      ],
+      "expected_old_faces_match_input": true,
+      "immediate_parent_union": [
+        18661,
+        18662
+      ],
+      "multi_parent_nan_barycentric_rows": [
+        20924,
+        20925
+      ],
+      "new_diagonal": [
+        9076,
+        9748
+      ],
+      "new_faces_match_output": true,
+      "old_face_rows": [
+        20924,
+        20925
+      ],
+      "parent_union_matches": true,
+      "single_parent_face_rows": [
+        -1,
+        -1
+      ],
+      "source_detail_face_row": 9570,
+      "source_subface_row": 9572
+    }
+  ],
+  "material_parent_mapping_scope": {
+    "available_provenance": "parent_source_face_marker, parent_fine_detail_face_row, parent_fine_subface_row, immediate-parent CSR union, and face_kind",
+    "conclusion": "Candidate is an outer-surface topology asset and has no volume-cell or material-ID array. Its parent provenance was verified; this is not a material assignment check.",
+    "material_id_arrays_present": []
+  },
+  "next_fit_selection": {
+    "baseline_candidate_sha256": "6c115d5beef83989bed2af6309771b8d34cece7e30eaaf3f99f397ee3a304fda",
+    "full130_summary_path": "/Users/numi/Work/numi-human-connected-surface-069/D/postfit-backtrack-405-topology-full-audits/run-001/audit-130/summary.json",
+    "full130_summary_sha256": "bb81b34a092a468f456920fb0630afe576861390f960cffa5e1395b7f1eb3402",
+    "full159_bank_count": 185,
+    "full159_complete": true,
+    "full159_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/postfit-backtrack-405-topology-full-audits/run-001/audit-159/report.json",
+    "full159_report_sha256": "ec081def995f7fd59050e0c5f9e858b13177f3b53f416a81727c4b0b7c9238f0",
+    "full159_status": "COMPLETE_TYPED_BANK_SURFACE_CROSSING_AUDIT",
+    "reuse_old_self_pair_seeds_from_preflip_topology": false,
+    "seed_self_pairs_from_full_audit_path": "/Users/numi/Work/numi-human-connected-surface-069/D/postfit-backtrack-405-topology-full-audits/run-001/audit-130/surface-self-pairs.npy",
+    "seed_self_pairs_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "self_pair_seed_shape": [
+      0,
+      2
+    ],
+    "use_as_new_point_and_face_baseline": true,
+    "use_current_topology_face_pair_ids": true
+  },
+  "replay_manifest_sha256": "0bff5b9ea140de0f55d989b35a74a022d357e66f8dc172b573cfeebad964ce7c",
+  "replay_report_sha256": "97d3b316003bceb7edf992809490a6fa0f05841326c6f7c4a4e280f61c11547a",
+  "scope_limit": "Selection preflight only. Full audit is separately retained at the pinned paths. Does not admit geometry, contact, material, or native behavior.",
+  "status": "SELECTION_PREFLIGHT_COMPLETE",
+  "surface_topology": {
+    "all_boundary_edges_have_manifold_degree2": true,
+    "boundary": {
+      "directed_boundary_edges_exactly_preserved": true,
+      "locked_outer_edge_count_from_replay": 47,
+      "locked_outer_edges_preserved_from_replay": true,
+      "output_boundary_edge_rows_sorted": [
+        [
+          1023,
+          1024
+        ],
+        [
+          1023,
+          1026
+        ],
+        [
+          1024,
+          1025
+        ],
+        [
+          1025,
+          1067
+        ],
+        [
+          1026,
+          1068
+        ],
+        [
+          1065,
+          1069
+        ],
+        [
+          1065,
+          1106
+        ],
+        [
+          1067,
+          1109
+        ],
+        [
+          1068,
+          1069
+        ],
+        [
+          1104,
+          1109
+        ],
+        [
+          1104,
+          2272
+        ],
+        [
+          1105,
+          1138
+        ],
+        [
+          1105,
+          2272
+        ],
+        [
+          1106,
+          1141
+        ],
+        [
+          1138,
+          1139
+        ],
+        [
+          1139,
+          1140
+        ],
+        [
+          1140,
+          1168
+        ],
+        [
+          1141,
+          1142
+        ],
+        [
+          1142,
+          1169
+        ],
+        [
+          1168,
+          1195
+        ],
+        [
+          1169,
+          1170
+        ],
+        [
+          1170,
+          1171
+        ],
+        [
+          1171,
+          1196
+        ],
+        [
+          1195,
+          1196
+        ],
+        [
+          1335,
+          1362
+        ],
+        [
+          1335,
+          1363
+        ],
+        [
+          1362,
+          2273
+        ],
+        [
+          1363,
+          1364
+        ],
+        [
+          1364,
+          1365
+        ],
+        [
+          1365,
+          2274
+        ],
+        [
+          1396,
+          1397
+        ],
+        [
+          1396,
+          2273
+        ],
+        [
+          1397,
+          2275
+        ],
+        [
+          1398,
+          1400
+        ],
+        [
+          1398,
+          2274
+        ],
+        [
+          1400,
+          1440
+        ],
+        [
+          1440,
+          1441
+        ],
+        [
+          1441,
+          1485
+        ],
+        [
+          1483,
+          1484
+        ],
+        [
+          1483,
+          2276
+        ],
+        [
+          1484,
+          1531
+        ],
+        [
+          1485,
+          1486
+        ],
+        [
+          1486,
+          1532
+        ],
+        [
+          1531,
+          1532
+        ],
+        [
+          2275,
+          2276
+        ]
+      ],
+      "output_boundary_vertex_rows": [
+        1023,
+        1024,
+        1025,
+        1026,
+        1065,
+        1067,
+        1068,
+        1069,
+        1104,
+        1105,
+        1106,
+        1109,
+        1138,
+        1139,
+        1140,
+        1141,
+        1142,
+        1168,
+        1169,
+        1170,
+        1171,
+        1195,
+        1196,
+        1335,
+        1362,
+        1363,
+        1364,
+        1365,
+        1396,
+        1397,
+        1398,
+        1400,
+        1440,
+        1441,
+        1483,
+        1484,
+        1485,
+        1486,
+        1531,
+        1532,
+        2272,
+        2273,
+        2274,
+        2275,
+        2276
+      ],
+      "selection_policy": "Preserve all 45 open-boundary vertices bitwise in subsequent fits, in addition to the 237 typed anchors; the surface has two boundary loops and is not closed.",
+      "typed_anchor_subset_of_boundary_vertices": false,
+      "untyped_boundary_vertex_rows": [
+        1023,
+        1024,
+        1025,
+        1026,
+        1065,
+        1067,
+        1068,
+        1069,
+        1104,
+        1105,
+        1106,
+        1109,
+        1138,
+        1139,
+        1140,
+        1141,
+        1142,
+        1168,
+        1169,
+        1170,
+        1171,
+        1195,
+        1196,
+        1335,
+        1362,
+        1363,
+        1364,
+        1365,
+        1396,
+        1397,
+        1398,
+        1400,
+        1440,
+        1441,
+        1483,
+        1484,
+        1485,
+        1486,
+        1531,
+        1532,
+        2272,
+        2273,
+        2274,
+        2275,
+        2276
+      ]
+    },
+    "boundary_edge_count_preserved": true,
+    "boundary_edge_set_exactly_preserved": true,
+    "changed_face_rows": [
+      13167,
+      13168,
+      14855,
+      14860,
+      20891,
+      20896,
+      20924,
+      20925
+    ],
+    "face_count": 41733,
+    "input": {
+      "boundary_component_count": 2,
+      "boundary_degree_bad_vertices": [],
+      "boundary_edge_count": 45,
+      "boundary_vertex_count": 45,
+      "duplicate_faces": 0,
+      "edge_count": 62622,
+      "internal_orientation_conflict_count": 0,
+      "nonmanifold_edge_count": 0,
+      "nonmanifold_edge_examples": []
+    },
+    "internal_edges_oppositely_oriented": true,
+    "no_duplicate_faces": true,
+    "no_nonmanifold_edges": true,
+    "output": {
+      "boundary_component_count": 2,
+      "boundary_degree_bad_vertices": [],
+      "boundary_edge_count": 45,
+      "boundary_vertex_count": 45,
+      "duplicate_faces": 0,
+      "edge_count": 62622,
+      "internal_orientation_conflict_count": 0,
+      "nonmanifold_edge_count": 0,
+      "nonmanifold_edge_examples": []
+    },
+    "point_count": 20889,
+    "source_face_topology_sha256": "ca497b20d90d0390e034bed0bacb348cf70f2ff05da23a52d978826cd8a800c8"
+  },
+  "topology_plan": {
+    "all_rows_kept": true,
+    "baseline_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-405/run-011-replay-405-four-flips/candidate.npz",
+    "baseline_candidate_sha256": "6c115d5beef83989bed2af6309771b8d34cece7e30eaaf3f99f397ee3a304fda",
+    "baseline_source_O_faces_sha256": "ca497b20d90d0390e034bed0bacb348cf70f2ff05da23a52d978826cd8a800c8",
+    "changed_face_rows": [
+      13167,
+      13168,
+      14855,
+      14860,
+      20891,
+      20896,
+      20924,
+      20925
+    ],
+    "downstream_guard": "Use the 405 four-flip NPZ as the new point/face/037 baseline. Do not seed with any pre-flip face-pair IDs; load the matched full 159 crossing report and the matched full 130 empty self-pair array.",
+    "face_row_ids_stable": true,
+    "immediate_parent_ancestry_unions": {
+      "13167": [
+        12463,
+        12464
+      ],
+      "13168": [
+        12463,
+        12464
+      ],
+      "14855": [
+        13701
+      ],
+      "14860": [
+        13701
+      ],
+      "20891": [
+        18628,
+        18633
+      ],
+      "20896": [
+        18628,
+        18633
+      ],
+      "20924": [
+        18661,
+        18662
+      ],
+      "20925": [
+        18661,
+        18662
+      ]
+    },
+    "multi_parent_semantics": "Rows with immediate parent union size >1 deliberately carry refinement_face_parent_face_row=-1 and NaN refinement_face_parent_barycentric; use the CSR ancestry union, not a fabricated single-parent barycentric map.",
+    "operation_count": 4,
+    "operations": [
+      {
+        "actual_parent_unions_by_output_row": [
+          [
+            12463,
+            12464
+          ],
+          [
+            12463,
+            12464
+          ]
+        ],
+        "edge": [
+          9615,
+          16634
+        ],
+        "expected_old_faces_match_input": true,
+        "immediate_parent_union": [
+          12463,
+          12464
+        ],
+        "multi_parent_nan_barycentric_rows": [
+          13167,
+          13168
+        ],
+        "new_diagonal": [
+          14691,
+          14694
+        ],
+        "new_faces_match_output": true,
+        "old_face_rows": [
+          13167,
+          13168
+        ],
+        "parent_union_matches": true,
+        "single_parent_face_rows": [
+          -1,
+          -1
+        ],
+        "source_detail_face_row": 5178,
+        "source_subface_row": 5178
+      },
+      {
+        "actual_parent_unions_by_output_row": [
+          [
+            13701
+          ],
+          [
+            13701
+          ]
+        ],
+        "edge": [
+          11596,
+          20001
+        ],
+        "expected_old_faces_match_input": true,
+        "immediate_parent_union": [
+          13701
+        ],
+        "multi_parent_nan_barycentric_rows": [],
+        "new_diagonal": [
+          18865,
+          18869
+        ],
+        "new_faces_match_output": true,
+        "old_face_rows": [
+          14855,
+          14860
+        ],
+        "parent_union_matches": true,
+        "single_parent_face_rows": [
+          13701,
+          13701
+        ],
+        "source_detail_face_row": 6103,
+        "source_subface_row": 6103
+      },
+      {
+        "actual_parent_unions_by_output_row": [
+          [
+            18628,
+            18633
+          ],
+          [
+            18628,
+            18633
+          ]
+        ],
+        "edge": [
+          12647,
+          14856
+        ],
+        "expected_old_faces_match_input": true,
+        "immediate_parent_union": [
+          18628,
+          18633
+        ],
+        "multi_parent_nan_barycentric_rows": [
+          20891,
+          20896
+        ],
+        "new_diagonal": [
+          17186,
+          17187
+        ],
+        "new_faces_match_output": true,
+        "old_face_rows": [
+          20891,
+          20896
+        ],
+        "parent_union_matches": true,
+        "single_parent_face_rows": [
+          -1,
+          -1
+        ],
+        "source_detail_face_row": 9570,
+        "source_subface_row": 9572
+      },
+      {
+        "actual_parent_unions_by_output_row": [
+          [
+            18661,
+            18662
+          ],
+          [
+            18661,
+            18662
+          ]
+        ],
+        "edge": [
+          11659,
+          12649
+        ],
+        "expected_old_faces_match_input": true,
+        "immediate_parent_union": [
+          18661,
+          18662
+        ],
+        "multi_parent_nan_barycentric_rows": [
+          20924,
+          20925
+        ],
+        "new_diagonal": [
+          9076,
+          9748
+        ],
+        "new_faces_match_output": true,
+        "old_face_rows": [
+          20924,
+          20925
+        ],
+        "parent_union_matches": true,
+        "single_parent_face_rows": [
+          -1,
+          -1
+        ],
+        "source_detail_face_row": 9570,
+        "source_subface_row": 9572
+      }
+    ],
+    "point_row_ids_stable": true,
+    "source_detail_ancestry_unions": {
+      "13167": [
+        5178
+      ],
+      "13168": [
+        5178
+      ],
+      "14855": [
+        6103
+      ],
+      "14860": [
+        6103
+      ],
+      "20891": [
+        9570
+      ],
+      "20896": [
+        9570
+      ],
+      "20924": [
+        9570
+      ],
+      "20925": [
+        9570
+      ]
+    },
+    "source_subface_ancestry_unions": {
+      "13167": [
+        5178
+      ],
+      "13168": [
+        5178
+      ],
+      "14855": [
+        6103
+      ],
+      "14860": [
+        6103
+      ],
+      "20891": [
+        9572
+      ],
+      "20896": [
+        9572
+      ],
+      "20924": [
+        9572
+      ],
+      "20925": [
+        9572
+      ]
+    }
+  },
+  "typed_anchors": {
+    "all_rows_in_bounds": true,
+    "boundary_vertices_subset_of_typed_anchors": false,
+    "coordinates_bitwise_unchanged": true,
+    "count": 237,
+    "output_rows_sha256": "669daf3a13c54c0d25510ba94e7dd59275ca8e00c1e928321156f06d0a52758f",
+    "output_rows_unchanged": true,
+    "source_ids_sha256": "024360f18b68c0cce8f9117d4a12e45ec6b6fee5562d2f2710de23fccad4b7d9",
+    "source_ids_unchanged": true,
+    "unique": true
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "status": "ROOT_INDEPENDENT_CONSTRUCTION_CHECK_PASS",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-405/run-011-replay-405-four-flips/candidate.npz",
+  "candidate_sha256": "6c115d5beef83989bed2af6309771b8d34cece7e30eaaf3f99f397ee3a304fda",
+  "changed_existing_arrays": [
+    "source_O_faces",
+    "refinement_face_parent_face_row",
+    "refinement_face_parent_barycentric",
+    "refinement_face_parent_barycentric_semantics",
+    "area_reference_037_source_O_faces"
+  ],
+  "unchanged_array_count": 162,
+  "changed_face_rows": [
+    13167,
+    13168,
+    14855,
+    14860,
+    20891,
+    20896,
+    20924,
+    20925
+  ],
+  "points_bitwise_unchanged_from_unshrunk405": true,
+  "typed_anchors_unchanged": 237,
+  "boundary_edges_unchanged": 45,
+  "manifold": true,
+  "no_duplicate_faces": true,
+  "matched037_faces": true,
+  "parent_union_csr_valid": true,
+  "area": {
+    "faces_checked": 41733,
+    "minimum_current_oriented_ratio": 0.9999999999999994,
+    "minimum_fixed_037_reference_magnitude_ratio": 0.10003977287040827,
+    "bad_current_oriented_face_count": 0,
+    "bad_current_oriented_face_rows_first_64": [],
+    "bad_current_oriented_face_rows_truncated": false,
+    "bad_fixed_037_reference_face_count": 0,
+    "bad_fixed_037_reference_face_rows_first_64": [],
+    "bad_fixed_037_reference_face_rows_truncated": false,
+    "area_floor": 0.1,
+    "pass": true
+  },
+  "max_source_displacement_mm": 11.638834424595908,
+  "self_pairs": 0,
+  "surface_pairs": 3324,
+  "inside_pairs": 438,
+  "introduced_inside_pairs_vs404": [],
+  "removed_inside_pairs_vs404": [
+    [
+      18791,
+      114,
+      117
+    ],
+    [
+      18871,
+      64,
+      98
+    ],
+    [
+      18963,
+      59,
+      95
+    ],
+    [
+      19338,
+      65,
+      99
+    ],
+    [
+      19707,
+      124,
+      123
+    ],
+    [
+      19711,
+      115,
+      118
+    ],
+    [
+      19954,
+      65,
+      99
+    ],
+    [
+      19967,
+      65,
+      99
+    ],
+    [
+      20006,
+      65,
+      99
+    ],
+    [
+      20020,
+      65,
+      99
+    ],
+    [
+      20366,
+      124,
+      123
+    ],
+    [
+      20417,
+      124,
+      123
+    ],
+    [
+      20532,
+      115,
+      118
+    ],
+    [
+      20698,
+      109,
+      114
+    ],
+    [
+      20762,
+      109,
+      114
+    ],
+    [
+      20774,
+      109,
+      114
+    ],
+    [
+      20801,
+      114,
+      117
+    ],
+    [
+      20887,
+      114,
+      117
+    ]
+  ],
+  "point_summary_sha256": "bb81b34a092a468f456920fb0630afe576861390f960cffa5e1395b7f1eb3402",
+  "surface_report_sha256": "ec081def995f7fd59050e0c5f9e858b13177f3b53f416a81727c4b0b7c9238f0",
+  "accepted_physical_steps": 0,
+  "native_admission": false,
+  "physical_transfer_pending": true
+}
