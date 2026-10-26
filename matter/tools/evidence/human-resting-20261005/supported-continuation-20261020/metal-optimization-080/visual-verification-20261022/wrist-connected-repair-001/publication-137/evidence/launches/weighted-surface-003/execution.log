@@ -1,0 +1,9 @@
+waiting_for_human_geometry_slot pid=42446
+acquired_human_geometry_slot pid=42446
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/absolute-deficit-surface-weighting-520/run_absolute_deficit_520.py", line 172, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/absolute-deficit-surface-weighting-520/run_absolute_deficit_520.py", line 62, in main
+    raise FileNotFoundError("508 pinned source is missing")
+FileNotFoundError: 508 pinned source is missing

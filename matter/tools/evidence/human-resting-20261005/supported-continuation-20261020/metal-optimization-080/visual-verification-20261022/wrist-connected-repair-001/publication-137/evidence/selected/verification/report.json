@@ -1,0 +1,28 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/typed-point-regression-524/weighted-surface-004-recheck/check/backtrack-373/pass-008/candidate.npz",
+  "candidate_sha256": "f4e150e1d39565645fe117d1298a9127fd1cf4813b01c09ccea3fc648843caf8",
+  "classification": "construction-only combined verification",
+  "edge_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-construction-verification-522/weighted-004-test-001/edge-gradient-check.json",
+  "independent_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-construction-verification-522/weighted-004-test-001/independent-verifier-494.json",
+  "native_admission": false,
+  "passed": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/area-local-backtrack-514/check_408_edge_gradient_514.py": "d2066c05a43cbcddcc31fad1891b6fc0a5e66b336ec890a00ab9e3b8fdbb6717",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/independent-verifier-494/verify_construction_candidate_494.py": "257c2c3835995c2639b973cc4e6ab8b6f42abfb7f55a2096d9417661303cd722",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/typed-point-regression-524/weighted-surface-004-recheck/check/backtrack-373/pass-008/candidate.npz": "f4e150e1d39565645fe117d1298a9127fd1cf4813b01c09ccea3fc648843caf8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/typed-point-regression-524/weighted-surface-004-recheck/check/backtrack-373/selected-result.json": "806a06df7beecf615927172320f46c5202186732359429d3ff9b9f42d193469e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/typed-point-regression-524/weighted-surface-004-recheck/check/backtrack-config.json": "0745d67cfa30fe4c7061d431c2bc63d09aa090a7dd65685fb2006024a71f9e7d",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/finite-triangle-fit-511/weighted-surface-004/candidate.npz": "910f6affd380a9671d30752e6eaa82d974ca00d0c9b8f3f0e567ea88289d4e52",
+    "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/finite-triangle-fit-511/weighted-surface-004/report.json": "4de1d9498f6be6e76d5e4c44a86fcf69bc347a8906f7fdcb5c96976a85dc0089",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+  },
+  "source_pins_unchanged": true,
+  "tool_returncodes": [
+    0,
+    0
+  ],
+  "unresolved_contained_pairs": 266,
+  "unresolved_surface_pairs": 3083
+}

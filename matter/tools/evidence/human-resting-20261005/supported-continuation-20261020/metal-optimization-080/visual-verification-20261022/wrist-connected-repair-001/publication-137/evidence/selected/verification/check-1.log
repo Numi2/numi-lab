@@ -1,0 +1,12 @@
+{
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/combined-construction-verification-522/weighted-004-test-001/edge-gradient-check.json",
+  "rows": [
+    {
+      "label": "selected",
+      "min_slack_mm": 0.0035584599827534393,
+      "violated_rows": 0,
+      "max_ratio": 0.1762312497671812,
+      "pass": true
+    }
+  ]
+}

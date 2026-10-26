@@ -1,0 +1,11 @@
+{
+  "all_pair_mode": true,
+  "delegated_entry_520": "/Users/numi/Work/numi-human-connected-surface-069/D/D/absolute-deficit-surface-weighting-520/run_absolute_deficit_520.py",
+  "delegated_entry_520_sha256": "ed8f875fb20f37c8326047f131476ce9e364851afe557d21958617a894d15feb",
+  "entry_521": "/Users/numi/Work/numi-human-connected-surface-069/D/D/absolute-deficit-surface-weighting-520/run_absolute_deficit_521.py",
+  "finite_triangle_helper": "/Users/numi/Work/numi-human-connected-surface-069/D/D/anchor-compatible-finite-triangle-513/anchor_finite_triangle_513.py",
+  "finite_triangle_helper_sha256": "a6aacc460e71e85ccee2efd9a9183237eb5a832daa2c32a6990ab5003ba18241",
+  "fit_started": false,
+  "global_surface_clearance_certified": false,
+  "status": "CLI_PREFLIGHT_PASSED_NO_FIT"
+}

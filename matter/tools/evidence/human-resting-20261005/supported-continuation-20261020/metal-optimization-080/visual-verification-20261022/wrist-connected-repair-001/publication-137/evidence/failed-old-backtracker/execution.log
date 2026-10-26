@@ -1,0 +1,8 @@
+{"iteration": 1, "candidate_sha256": "9c2310482a7587aa762d06dc1c7ae6caf3649a1c795866888f071383710ab072", "emitted_points_sha256": "a6a373fc8ae55209f711e7113229a10b802b5ec2a32269b739fccc8fabf0a16e", "minimum_allface_oriented_area_ratio": 0.7645448466932117, "minimum_fixed_reference_area_magnitude_ratio": 0.10003977287040829, "bad_area_faces": 0, "anchors_bitwise_unchanged": true, "nonzero_step_nodes": 2899, "nonzero_construction_scale_nodes": 20652, "maximum_step_m": 0.00025001298729111944, "maximum_source_displacement_mm": 11.982839027694256, "source_cap_pass": true, "native_admission": false, "accepted_physical_steps": 0, "point_summary_sha256": "a04fefc3305bfa6ebd86a85398a39e9c04338ddef437fbfc32e7bbf0194cc340", "exact_self_pairs": 75}
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/no-progress-backtracker-373/run_local_witness_backtracking_373.py", line 149, in <module>
+    regressed_rows,bad=point_damping.regressed_point_faces(before,after,F,len(X))
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/point-regression-witnesses-254.py", line 5, in regressed_point_faces
+    raise ValueError("point-regression damping requires zero-inside reference")
+ValueError: point-regression damping requires zero-inside reference

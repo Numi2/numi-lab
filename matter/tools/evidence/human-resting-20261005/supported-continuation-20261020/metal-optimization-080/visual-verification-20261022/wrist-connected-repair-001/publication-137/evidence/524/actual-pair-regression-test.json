@@ -1,0 +1,29 @@
+{
+  "status": "PASS_ACTUAL_NONZERO_BASELINE_DAMPING",
+  "before_pairs": 283,
+  "after_pairs": 257,
+  "regressed_nodes": 18,
+  "incident_faces": 87,
+  "node_rows": [
+    18697,
+    18698,
+    19157,
+    19169,
+    19226,
+    19239,
+    19246,
+    19415,
+    19478,
+    19735,
+    19830,
+    19858,
+    19868,
+    20394,
+    20483,
+    20533,
+    20747,
+    20791
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

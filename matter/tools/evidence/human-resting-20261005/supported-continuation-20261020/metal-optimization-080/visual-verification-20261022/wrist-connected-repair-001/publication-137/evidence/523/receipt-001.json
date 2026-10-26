@@ -1,0 +1,25 @@
+{
+  "classification": "algebraically equivalent LP variable scaling; no objective-policy change",
+  "fit_or_geometry_job_started": false,
+  "frozen_408_sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+  "frozen_470_path": "D/D/soft-target-nonregression-470/soft_target_nonregression_470.py",
+  "frozen_470_sha256": "990e126932186e33c0a5363a6ac34fa967e211f4bc55977567582e2b89b8bb79",
+  "global_clearance_certified": false,
+  "hard_rows_and_output_bounds_unchanged": true,
+  "helper_path": "D/D/distance-slack-scaling-523/distance_slack_scaling_523.py",
+  "helper_sha256": "7087e763caec3bc7f3ff43c891f7e2c80b6a0341eb2bbb44f914d432e48e2d59",
+  "native_admission": false,
+  "normalized_slack_output": "s_i=t_i/h_map_i before frozen 470 certification and stage-2 budget reporting",
+  "schema": "numi.distance_slack_scaling_523.receipt.v1",
+  "stage1_and_stage2_objective_equivalent": true,
+  "test_cases": [
+    "470 solver objective, delta, normalized slack, and certificate parity for dependent rows, exact C@M cancellation, and h=1e-6",
+    "tiny h=1e-14/1e-9 exact primal/objective mapping through scaled LP columns",
+    "direct matrix/objective/bound variable transform",
+    "runtime 470 install hook and marker/certificate acceptance"
+  ],
+  "test_path": "D/D/distance-slack-scaling-523/test_distance_slack_scaling_523.py",
+  "test_result": "4 distance-slack scaling 523 tests passed",
+  "test_sha256": "1eacf8b76fa16e68115635bf9dcb7fd90c001d805eef5022c81b02bbf5307c62",
+  "transformation": "t_i = h_map_i * s_i; C_map*q + t >= h_map; objective sum((w_i/h_map_i)*t_i)"
+}

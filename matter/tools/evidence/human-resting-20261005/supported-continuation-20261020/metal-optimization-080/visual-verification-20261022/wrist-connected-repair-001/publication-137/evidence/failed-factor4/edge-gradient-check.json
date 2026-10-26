@@ -1,0 +1,1050 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-013/candidate.npz",
+  "baseline_sha256": "aef14b798367c7a8e76aeb605942453022eefe68670019044d59b9a58f3444a1",
+  "candidate_checks": [
+    {
+      "accepted_physical_steps": 0,
+      "active_edges": 24025,
+      "anchors_bitwise_unchanged": true,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/extrapolated-trial-519/factor4-001/check/backtrack-373/pass-014/candidate.npz",
+      "candidate_result_path": "/Users/numi/Work/numi-human-connected-surface-069/D/extrapolated-trial-519/factor4-001/check/backtrack-373/pass-014/result.json",
+      "candidate_result_sha256": "8dfead7159a1287be6d278b6a9d4634cc7ea32914642faccbdc9e950938643c4",
+      "candidate_sha256": "e87f9fcb15154520532696a268f21dd647c1017e86672073dce83bd19cb4adf8",
+      "candidate_status": null,
+      "component_gradient_bound": 0.5,
+      "first_32_violated_rows": [
+        14606,
+        45144,
+        45146,
+        51001,
+        60743,
+        89856,
+        90456,
+        92035,
+        92038,
+        108150,
+        116068,
+        119231,
+        120339,
+        125719,
+        130188,
+        130680,
+        131914,
+        133602,
+        134136,
+        136286,
+        136319,
+        138333
+      ],
+      "inequality_rows": 144150,
+      "label": "pass-014",
+      "maximum_component_difference_mm": 1.1548995971679688,
+      "maximum_componentwise_edge_gradient_ratio": 0.5542262930771442,
+      "maximum_edge_length_mm": 133.06276565364837,
+      "maximum_violation_mm": 0.00908010042413293,
+      "minimum_edge_length_mm": 0.010803136330326535,
+      "minimum_slack_mm": -0.00908010042413293,
+      "native_admission": false,
+      "outside_support_changed_nodes": 0,
+      "predicate_pass": false,
+      "slack_tolerance_mm": 1e-07,
+      "support_nodes": 7661,
+      "violated_row_details": [
+        {
+          "absolute_component_difference_mm": 1.1305809020996094,
+          "allowed_absolute_component_difference_mm": 1.1305193764009138,
+          "axis": "y",
+          "edge_index_in_sorted_active_edges": 2434,
+          "edge_length_mm": 2.2610387528018276,
+          "edge_nodes": [
+            7058,
+            7059
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 6.152569869555258e-05,
+          "normalized_row_slack_mm": -4.350523876484047e-05,
+          "row_id": 14606,
+          "row_sign": 1,
+          "signed_component_difference_mm": -1.1305809020996094
+        },
+        {
+          "absolute_component_difference_mm": 0.30541419982910156,
+          "allowed_absolute_component_difference_mm": 0.3053890581739525,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 7524,
+          "edge_length_mm": 0.610778116347905,
+          "edge_nodes": [
+            9883,
+            12944
+          ],
+          "endpoint_count_in_support": 1,
+          "excess_over_bound_mm": 2.5141655149052422e-05,
+          "normalized_row_slack_mm": -2.5141655149052422e-05,
+          "row_id": 45144,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.30541419982910156
+        },
+        {
+          "absolute_component_difference_mm": 0.30541419982910156,
+          "allowed_absolute_component_difference_mm": 0.3053890581739525,
+          "axis": "y",
+          "edge_index_in_sorted_active_edges": 7524,
+          "edge_length_mm": 0.610778116347905,
+          "edge_nodes": [
+            9883,
+            12944
+          ],
+          "endpoint_count_in_support": 1,
+          "excess_over_bound_mm": 2.5141655149052422e-05,
+          "normalized_row_slack_mm": -2.5141655149052422e-05,
+          "row_id": 45146,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.30541419982910156
+        },
+        {
+          "absolute_component_difference_mm": 0.4366636276245117,
+          "allowed_absolute_component_difference_mm": 0.4366228156477033,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 8500,
+          "edge_length_mm": 0.8732456312954066,
+          "edge_nodes": [
+            10372,
+            12333
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.08119768084414e-05,
+          "normalized_row_slack_mm": -2.88584255548896e-05,
+          "row_id": 51001,
+          "row_sign": -1,
+          "signed_component_difference_mm": -0.4366636276245117
+        },
+        {
+          "absolute_component_difference_mm": 0.3971904516220093,
+          "allowed_absolute_component_difference_mm": 0.3843492504544908,
+          "axis": "z",
+          "edge_index_in_sorted_active_edges": 10123,
+          "edge_length_mm": 0.7686985009089816,
+          "edge_nodes": [
+            10990,
+            13425
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 0.012841201167518468,
+          "normalized_row_slack_mm": -0.00908010042413293,
+          "row_id": 60743,
+          "row_sign": -1,
+          "signed_component_difference_mm": -0.3971904516220093
+        },
+        {
+          "absolute_component_difference_mm": 0.1875162124633789,
+          "allowed_absolute_component_difference_mm": 0.187475264139038,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 14976,
+          "edge_length_mm": 0.374950528278076,
+          "edge_nodes": [
+            13617,
+            16648
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.0948324340900344e-05,
+          "normalized_row_slack_mm": -2.8954837819672452e-05,
+          "row_id": 89856,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.1875162124633789
+        },
+        {
+          "absolute_component_difference_mm": 0.03764033317565918,
+          "allowed_absolute_component_difference_mm": 0.03747939181474879,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 15076,
+          "edge_length_mm": 0.07495878362949758,
+          "edge_nodes": [
+            13666,
+            19927
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 0.00016094136091038963,
+          "normalized_row_slack_mm": -0.00011380272767312974,
+          "row_id": 90456,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.03764033317565918
+        },
+        {
+          "absolute_component_difference_mm": 0.9891986846923828,
+          "allowed_absolute_component_difference_mm": 0.9891822168308101,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 15339,
+          "edge_length_mm": 1.9783644336616202,
+          "edge_nodes": [
+            13817,
+            18421
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 1.6467861572722065e-05,
+          "normalized_row_slack_mm": -1.1644536589749954e-05,
+          "row_id": 92035,
+          "row_sign": -1,
+          "signed_component_difference_mm": -0.9891986846923828
+        },
+        {
+          "absolute_component_difference_mm": 0.9891986846923828,
+          "allowed_absolute_component_difference_mm": 0.9891822168308101,
+          "axis": "z",
+          "edge_index_in_sorted_active_edges": 15339,
+          "edge_length_mm": 1.9783644336616202,
+          "edge_nodes": [
+            13817,
+            18421
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 1.6467861572722065e-05,
+          "normalized_row_slack_mm": -1.1644536589749954e-05,
+          "row_id": 92038,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.9891986846923828
+        },
+        {
+          "absolute_component_difference_mm": 0.10880827903747559,
+          "allowed_absolute_component_difference_mm": 0.1087910496724941,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 18025,
+          "edge_length_mm": 0.2175820993449882,
+          "edge_nodes": [
+            15377,
+            19606
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 1.7229364981483086e-05,
+          "normalized_row_slack_mm": -1.2183000813945077e-05,
+          "row_id": 108150,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.10880827903747559
+        },
+        {
+          "absolute_component_difference_mm": 0.116005539894104,
+          "allowed_absolute_component_difference_mm": 0.11595602555451508,
+          "axis": "z",
+          "edge_index_in_sorted_active_edges": 19344,
+          "edge_length_mm": 0.23191205110903015,
+          "edge_nodes": [
+            16498,
+            19765
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.9514339588926926e-05,
+          "normalized_row_slack_mm": -3.501192528930497e-05,
+          "row_id": 116068,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.116005539894104
+        },
+        {
+          "absolute_component_difference_mm": 0.2950504422187805,
+          "allowed_absolute_component_difference_mm": 0.2938901957552513,
+          "axis": "z",
+          "edge_index_in_sorted_active_edges": 19871,
+          "edge_length_mm": 0.5877803915105027,
+          "edge_nodes": [
+            16981,
+            19485
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 0.001160246463529191,
+          "normalized_row_slack_mm": -0.0008204181422092061,
+          "row_id": 119231,
+          "row_sign": -1,
+          "signed_component_difference_mm": -0.2950504422187805
+        },
+        {
+          "absolute_component_difference_mm": 0.04124641418457031,
+          "allowed_absolute_component_difference_mm": 0.03972128125175341,
+          "axis": "y",
+          "edge_index_in_sorted_active_edges": 20056,
+          "edge_length_mm": 0.07944256250350681,
+          "edge_nodes": [
+            17075,
+            19498
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 0.0015251329328169055,
+          "normalized_row_slack_mm": -0.001078431839005762,
+          "row_id": 120339,
+          "row_sign": -1,
+          "signed_component_difference_mm": -0.04124641418457031
+        },
+        {
+          "absolute_component_difference_mm": 0.18918514251708984,
+          "allowed_absolute_component_difference_mm": 0.18918131272966646,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 20953,
+          "edge_length_mm": 0.3783626254593329,
+          "edge_nodes": [
+            17968,
+            20706
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 3.829787423387243e-06,
+          "normalized_row_slack_mm": -2.70806865759754e-06,
+          "row_id": 125719,
+          "row_sign": -1,
+          "signed_component_difference_mm": -0.18918514251708984
+        },
+        {
+          "absolute_component_difference_mm": 0.08153915405273438,
+          "allowed_absolute_component_difference_mm": 0.08149799970106675,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 21698,
+          "edge_length_mm": 0.1629959994021335,
+          "edge_nodes": [
+            18630,
+            20637
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.1154351667627154e-05,
+          "normalized_row_slack_mm": -2.910052113951067e-05,
+          "row_id": 130188,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.08153915405273438
+        },
+        {
+          "absolute_component_difference_mm": 0.08812546730041504,
+          "allowed_absolute_component_difference_mm": 0.08297851930993998,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 21780,
+          "edge_length_mm": 0.16595703861987995,
+          "edge_nodes": [
+            18668,
+            20228
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 0.005146947990475062,
+          "normalized_row_slack_mm": -0.003639441826479385,
+          "row_id": 130680,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.08812546730041504
+        },
+        {
+          "absolute_component_difference_mm": 0.06073713302612305,
+          "allowed_absolute_component_difference_mm": 0.06072162724501816,
+          "axis": "z",
+          "edge_index_in_sorted_active_edges": 21985,
+          "edge_length_mm": 0.12144325449003632,
+          "edge_nodes": [
+            18762,
+            20401
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 1.5505781104888094e-05,
+          "normalized_row_slack_mm": -1.0964242966864102e-05,
+          "row_id": 131914,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.06073713302612305
+        },
+        {
+          "absolute_component_difference_mm": 0.21255016326904297,
+          "allowed_absolute_component_difference_mm": 0.21253430943121607,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 22267,
+          "edge_length_mm": 0.42506861886243213,
+          "edge_nodes": [
+            18886,
+            19698
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 1.5853837826901307e-05,
+          "normalized_row_slack_mm": -1.1210356235219487e-05,
+          "row_id": 133602,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.21255016326904297
+        },
+        {
+          "absolute_component_difference_mm": 0.020205974578857422,
+          "allowed_absolute_component_difference_mm": 0.018228993130830134,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 22356,
+          "edge_length_mm": 0.03645798626166027,
+          "edge_nodes": [
+            18928,
+            20710
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 0.001976981448027288,
+          "normalized_row_slack_mm": -0.0013979369881800957,
+          "row_id": 134136,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.020205974578857422
+        },
+        {
+          "absolute_component_difference_mm": 0.5004405975341797,
+          "allowed_absolute_component_difference_mm": 0.5003594352750104,
+          "axis": "y",
+          "edge_index_in_sorted_active_edges": 22714,
+          "edge_length_mm": 1.0007188705500207,
+          "edge_nodes": [
+            19092,
+            20322
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 8.116225916932063e-05,
+          "normalized_row_slack_mm": -5.739038383506534e-05,
+          "row_id": 136286,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.5004405975341797
+        },
+        {
+          "absolute_component_difference_mm": 0.4622042179107666,
+          "allowed_absolute_component_difference_mm": 0.46219355836591713,
+          "axis": "z",
+          "edge_index_in_sorted_active_edges": 22719,
+          "edge_length_mm": 0.9243871167318343,
+          "edge_nodes": [
+            19094,
+            20323
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 1.0659544849467295e-05,
+          "normalized_row_slack_mm": -7.5374364474356526e-06,
+          "row_id": 136319,
+          "row_sign": -1,
+          "signed_component_difference_mm": -0.4622042179107666
+        },
+        {
+          "absolute_component_difference_mm": 0.21964311599731445,
+          "allowed_absolute_component_difference_mm": 0.21871226642808989,
+          "axis": "y",
+          "edge_index_in_sorted_active_edges": 23055,
+          "edge_length_mm": 0.43742453285617977,
+          "edge_nodes": [
+            19244,
+            20875
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 0.0009308495692245677,
+          "normalized_row_slack_mm": -0.0006582100426632542,
+          "row_id": 138333,
+          "row_sign": -1,
+          "signed_component_difference_mm": -0.21964311599731445
+        }
+      ],
+      "violated_rows": 22
+    },
+    {
+      "accepted_physical_steps": 0,
+      "active_edges": 24025,
+      "anchors_bitwise_unchanged": true,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/extrapolated-trial-519/factor4-001/check/backtrack-373/pass-016/candidate.npz",
+      "candidate_result_path": "/Users/numi/Work/numi-human-connected-surface-069/D/extrapolated-trial-519/factor4-001/check/backtrack-373/pass-016/result.json",
+      "candidate_result_sha256": "ac7036f27eb47fc854310e4676716a84025e27611fab66f6187afebaa6d424e3",
+      "candidate_sha256": "a92cc66fd6173fff784c65dd7987dc5c0b31f0351ae68c530a0fdd32ae983813",
+      "candidate_status": null,
+      "component_gradient_bound": 0.5,
+      "first_32_violated_rows": [
+        14606,
+        45144,
+        45146,
+        51001,
+        89856,
+        90456,
+        116068,
+        119231,
+        130188,
+        131914
+      ],
+      "inequality_rows": 144150,
+      "label": "pass-016",
+      "maximum_component_difference_mm": 1.1548995971679688,
+      "maximum_componentwise_edge_gradient_ratio": 0.5315681912515541,
+      "maximum_edge_length_mm": 133.06276565364837,
+      "maximum_violation_mm": 0.0016732361225762112,
+      "minimum_edge_length_mm": 0.010803136330326535,
+      "minimum_slack_mm": -0.0016732361225762112,
+      "native_admission": false,
+      "outside_support_changed_nodes": 0,
+      "predicate_pass": false,
+      "slack_tolerance_mm": 1e-07,
+      "support_nodes": 7661,
+      "violated_row_details": [
+        {
+          "absolute_component_difference_mm": 1.1305809020996094,
+          "allowed_absolute_component_difference_mm": 1.1305193764009138,
+          "axis": "y",
+          "edge_index_in_sorted_active_edges": 2434,
+          "edge_length_mm": 2.2610387528018276,
+          "edge_nodes": [
+            7058,
+            7059
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 6.152569869555258e-05,
+          "normalized_row_slack_mm": -4.350523876484047e-05,
+          "row_id": 14606,
+          "row_sign": 1,
+          "signed_component_difference_mm": -1.1305809020996094
+        },
+        {
+          "absolute_component_difference_mm": 0.30541419982910156,
+          "allowed_absolute_component_difference_mm": 0.3053890581739525,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 7524,
+          "edge_length_mm": 0.610778116347905,
+          "edge_nodes": [
+            9883,
+            12944
+          ],
+          "endpoint_count_in_support": 1,
+          "excess_over_bound_mm": 2.5141655149052422e-05,
+          "normalized_row_slack_mm": -2.5141655149052422e-05,
+          "row_id": 45144,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.30541419982910156
+        },
+        {
+          "absolute_component_difference_mm": 0.30541419982910156,
+          "allowed_absolute_component_difference_mm": 0.3053890581739525,
+          "axis": "y",
+          "edge_index_in_sorted_active_edges": 7524,
+          "edge_length_mm": 0.610778116347905,
+          "edge_nodes": [
+            9883,
+            12944
+          ],
+          "endpoint_count_in_support": 1,
+          "excess_over_bound_mm": 2.5141655149052422e-05,
+          "normalized_row_slack_mm": -2.5141655149052422e-05,
+          "row_id": 45146,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.30541419982910156
+        },
+        {
+          "absolute_component_difference_mm": 0.4366636276245117,
+          "allowed_absolute_component_difference_mm": 0.4366228156477033,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 8500,
+          "edge_length_mm": 0.8732456312954066,
+          "edge_nodes": [
+            10372,
+            12333
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.08119768084414e-05,
+          "normalized_row_slack_mm": -2.88584255548896e-05,
+          "row_id": 51001,
+          "row_sign": -1,
+          "signed_component_difference_mm": -0.4366636276245117
+        },
+        {
+          "absolute_component_difference_mm": 0.1875162124633789,
+          "allowed_absolute_component_difference_mm": 0.187475264139038,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 14976,
+          "edge_length_mm": 0.374950528278076,
+          "edge_nodes": [
+            13617,
+            16648
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.0948324340900344e-05,
+          "normalized_row_slack_mm": -2.8954837819672452e-05,
+          "row_id": 89856,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.1875162124633789
+        },
+        {
+          "absolute_component_difference_mm": 0.03984570503234863,
+          "allowed_absolute_component_difference_mm": 0.03747939181474879,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 15076,
+          "edge_length_mm": 0.07495878362949758,
+          "edge_nodes": [
+            13666,
+            19927
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 0.0023663132175998428,
+          "normalized_row_slack_mm": -0.0016732361225762077,
+          "row_id": 90456,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.03984570503234863
+        },
+        {
+          "absolute_component_difference_mm": 0.116005539894104,
+          "allowed_absolute_component_difference_mm": 0.11595602555451508,
+          "axis": "z",
+          "edge_index_in_sorted_active_edges": 19344,
+          "edge_length_mm": 0.23191205110903015,
+          "edge_nodes": [
+            16498,
+            19765
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.9514339588926926e-05,
+          "normalized_row_slack_mm": -3.501192528930497e-05,
+          "row_id": 116068,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.116005539894104
+        },
+        {
+          "absolute_component_difference_mm": 0.2950504422187805,
+          "allowed_absolute_component_difference_mm": 0.2938901957552513,
+          "axis": "z",
+          "edge_index_in_sorted_active_edges": 19871,
+          "edge_length_mm": 0.5877803915105027,
+          "edge_nodes": [
+            16981,
+            19485
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 0.001160246463529191,
+          "normalized_row_slack_mm": -0.0008204181422092061,
+          "row_id": 119231,
+          "row_sign": -1,
+          "signed_component_difference_mm": -0.2950504422187805
+        },
+        {
+          "absolute_component_difference_mm": 0.08153915405273438,
+          "allowed_absolute_component_difference_mm": 0.08149799970106675,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 21698,
+          "edge_length_mm": 0.1629959994021335,
+          "edge_nodes": [
+            18630,
+            20637
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.1154351667627154e-05,
+          "normalized_row_slack_mm": -2.910052113951067e-05,
+          "row_id": 130188,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.08153915405273438
+        },
+        {
+          "absolute_component_difference_mm": 0.06073713302612305,
+          "allowed_absolute_component_difference_mm": 0.06072162724501816,
+          "axis": "z",
+          "edge_index_in_sorted_active_edges": 21985,
+          "edge_length_mm": 0.12144325449003632,
+          "edge_nodes": [
+            18762,
+            20401
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 1.5505781104888094e-05,
+          "normalized_row_slack_mm": -1.0964242966864102e-05,
+          "row_id": 131914,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.06073713302612305
+        }
+      ],
+      "violated_rows": 10
+    },
+    {
+      "accepted_physical_steps": 0,
+      "active_edges": 24025,
+      "anchors_bitwise_unchanged": true,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/extrapolated-trial-519/factor4-001/check/backtrack-373/pass-017/candidate.npz",
+      "candidate_result_path": "/Users/numi/Work/numi-human-connected-surface-069/D/extrapolated-trial-519/factor4-001/check/backtrack-373/pass-017/result.json",
+      "candidate_result_sha256": "60257e1fce7b1d9b5aa32f41042606f84005bfdc59f4f4aa0bd786e5c6f7cfc2",
+      "candidate_sha256": "766ef1dbdad7ea35763a7394c65ad57523d86890c466b96bc9e2eb021c263573",
+      "candidate_status": null,
+      "component_gradient_bound": 0.5,
+      "first_32_violated_rows": [
+        14606,
+        45144,
+        45146,
+        51001,
+        89856,
+        90456,
+        116068,
+        130188,
+        131914
+      ],
+      "inequality_rows": 144150,
+      "label": "pass-017",
+      "maximum_component_difference_mm": 1.1548995971679688,
+      "maximum_componentwise_edge_gradient_ratio": 0.5570134898604542,
+      "maximum_edge_length_mm": 133.06276565364837,
+      "maximum_violation_mm": 0.0030219352749248224,
+      "minimum_edge_length_mm": 0.010803136330326535,
+      "minimum_slack_mm": -0.0030219352749248224,
+      "native_admission": false,
+      "outside_support_changed_nodes": 0,
+      "predicate_pass": false,
+      "slack_tolerance_mm": 1e-07,
+      "support_nodes": 7661,
+      "violated_row_details": [
+        {
+          "absolute_component_difference_mm": 1.1305809020996094,
+          "allowed_absolute_component_difference_mm": 1.1305193764009138,
+          "axis": "y",
+          "edge_index_in_sorted_active_edges": 2434,
+          "edge_length_mm": 2.2610387528018276,
+          "edge_nodes": [
+            7058,
+            7059
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 6.152569869555258e-05,
+          "normalized_row_slack_mm": -4.350523876484047e-05,
+          "row_id": 14606,
+          "row_sign": 1,
+          "signed_component_difference_mm": -1.1305809020996094
+        },
+        {
+          "absolute_component_difference_mm": 0.30541419982910156,
+          "allowed_absolute_component_difference_mm": 0.3053890581739525,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 7524,
+          "edge_length_mm": 0.610778116347905,
+          "edge_nodes": [
+            9883,
+            12944
+          ],
+          "endpoint_count_in_support": 1,
+          "excess_over_bound_mm": 2.5141655149052422e-05,
+          "normalized_row_slack_mm": -2.5141655149052422e-05,
+          "row_id": 45144,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.30541419982910156
+        },
+        {
+          "absolute_component_difference_mm": 0.30541419982910156,
+          "allowed_absolute_component_difference_mm": 0.3053890581739525,
+          "axis": "y",
+          "edge_index_in_sorted_active_edges": 7524,
+          "edge_length_mm": 0.610778116347905,
+          "edge_nodes": [
+            9883,
+            12944
+          ],
+          "endpoint_count_in_support": 1,
+          "excess_over_bound_mm": 2.5141655149052422e-05,
+          "normalized_row_slack_mm": -2.5141655149052422e-05,
+          "row_id": 45146,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.30541419982910156
+        },
+        {
+          "absolute_component_difference_mm": 0.4366636276245117,
+          "allowed_absolute_component_difference_mm": 0.4366228156477033,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 8500,
+          "edge_length_mm": 0.8732456312954066,
+          "edge_nodes": [
+            10372,
+            12333
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.08119768084414e-05,
+          "normalized_row_slack_mm": -2.88584255548896e-05,
+          "row_id": 51001,
+          "row_sign": -1,
+          "signed_component_difference_mm": -0.4366636276245117
+        },
+        {
+          "absolute_component_difference_mm": 0.1875162124633789,
+          "allowed_absolute_component_difference_mm": 0.187475264139038,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 14976,
+          "edge_length_mm": 0.374950528278076,
+          "edge_nodes": [
+            13617,
+            16648
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.0948324340900344e-05,
+          "normalized_row_slack_mm": -2.8954837819672452e-05,
+          "row_id": 89856,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.1875162124633789
+        },
+        {
+          "absolute_component_difference_mm": 0.04175305366516113,
+          "allowed_absolute_component_difference_mm": 0.03747939181474879,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 15076,
+          "edge_length_mm": 0.07495878362949758,
+          "edge_nodes": [
+            13666,
+            19927
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 0.004273661850412343,
+          "normalized_row_slack_mm": -0.003021935274924819,
+          "row_id": 90456,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.04175305366516113
+        },
+        {
+          "absolute_component_difference_mm": 0.116005539894104,
+          "allowed_absolute_component_difference_mm": 0.11595602555451508,
+          "axis": "z",
+          "edge_index_in_sorted_active_edges": 19344,
+          "edge_length_mm": 0.23191205110903015,
+          "edge_nodes": [
+            16498,
+            19765
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.9514339588926926e-05,
+          "normalized_row_slack_mm": -3.501192528930497e-05,
+          "row_id": 116068,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.116005539894104
+        },
+        {
+          "absolute_component_difference_mm": 0.08153915405273438,
+          "allowed_absolute_component_difference_mm": 0.08149799970106675,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 21698,
+          "edge_length_mm": 0.1629959994021335,
+          "edge_nodes": [
+            18630,
+            20637
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.1154351667627154e-05,
+          "normalized_row_slack_mm": -2.910052113951067e-05,
+          "row_id": 130188,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.08153915405273438
+        },
+        {
+          "absolute_component_difference_mm": 0.06073713302612305,
+          "allowed_absolute_component_difference_mm": 0.06072162724501816,
+          "axis": "z",
+          "edge_index_in_sorted_active_edges": 21985,
+          "edge_length_mm": 0.12144325449003632,
+          "edge_nodes": [
+            18762,
+            20401
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 1.5505781104888094e-05,
+          "normalized_row_slack_mm": -1.0964242966864102e-05,
+          "row_id": 131914,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.06073713302612305
+        }
+      ],
+      "violated_rows": 9
+    },
+    {
+      "accepted_physical_steps": 0,
+      "active_edges": 24025,
+      "anchors_bitwise_unchanged": true,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/extrapolated-trial-519/factor4-001/check/backtrack-373/pass-018/candidate.npz",
+      "candidate_result_path": "/Users/numi/Work/numi-human-connected-surface-069/D/extrapolated-trial-519/factor4-001/check/backtrack-373/pass-018/result.json",
+      "candidate_result_sha256": "d20afddf66e2db5ce4b051df61d8df79336ea4f887fd6d08ed5452ddd8decf38",
+      "candidate_sha256": "21f6898732c056395d4e839bcee10569f7de3af4e64b962522dbcd39b3ba61e0",
+      "candidate_status": "CONSTRUCTION_PROGRESS_ONLY",
+      "component_gradient_bound": 0.5,
+      "first_32_violated_rows": [
+        14606,
+        45144,
+        45146,
+        51001,
+        89856,
+        90456,
+        116068,
+        130188,
+        131914
+      ],
+      "inequality_rows": 144150,
+      "label": "selected",
+      "maximum_component_difference_mm": 1.1548995971679688,
+      "maximum_componentwise_edge_gradient_ratio": 0.5411101782298916,
+      "maximum_edge_length_mm": 133.06276565364837,
+      "maximum_violation_mm": 0.00297178035085717,
+      "minimum_edge_length_mm": 0.010803136330326535,
+      "minimum_slack_mm": -0.00297178035085717,
+      "native_admission": false,
+      "outside_support_changed_nodes": 0,
+      "predicate_pass": false,
+      "slack_tolerance_mm": 1e-07,
+      "support_nodes": 7661,
+      "violated_row_details": [
+        {
+          "absolute_component_difference_mm": 1.1305809020996094,
+          "allowed_absolute_component_difference_mm": 1.1305193764009138,
+          "axis": "y",
+          "edge_index_in_sorted_active_edges": 2434,
+          "edge_length_mm": 2.2610387528018276,
+          "edge_nodes": [
+            7058,
+            7059
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 6.152569869555258e-05,
+          "normalized_row_slack_mm": -4.350523876484047e-05,
+          "row_id": 14606,
+          "row_sign": 1,
+          "signed_component_difference_mm": -1.1305809020996094
+        },
+        {
+          "absolute_component_difference_mm": 0.30541419982910156,
+          "allowed_absolute_component_difference_mm": 0.3053890581739525,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 7524,
+          "edge_length_mm": 0.610778116347905,
+          "edge_nodes": [
+            9883,
+            12944
+          ],
+          "endpoint_count_in_support": 1,
+          "excess_over_bound_mm": 2.5141655149052422e-05,
+          "normalized_row_slack_mm": -2.5141655149052422e-05,
+          "row_id": 45144,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.30541419982910156
+        },
+        {
+          "absolute_component_difference_mm": 0.30541419982910156,
+          "allowed_absolute_component_difference_mm": 0.3053890581739525,
+          "axis": "y",
+          "edge_index_in_sorted_active_edges": 7524,
+          "edge_length_mm": 0.610778116347905,
+          "edge_nodes": [
+            9883,
+            12944
+          ],
+          "endpoint_count_in_support": 1,
+          "excess_over_bound_mm": 2.5141655149052422e-05,
+          "normalized_row_slack_mm": -2.5141655149052422e-05,
+          "row_id": 45146,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.30541419982910156
+        },
+        {
+          "absolute_component_difference_mm": 0.4366636276245117,
+          "allowed_absolute_component_difference_mm": 0.4366228156477033,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 8500,
+          "edge_length_mm": 0.8732456312954066,
+          "edge_nodes": [
+            10372,
+            12333
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.08119768084414e-05,
+          "normalized_row_slack_mm": -2.88584255548896e-05,
+          "row_id": 51001,
+          "row_sign": -1,
+          "signed_component_difference_mm": -0.4366636276245117
+        },
+        {
+          "absolute_component_difference_mm": 0.1875162124633789,
+          "allowed_absolute_component_difference_mm": 0.187475264139038,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 14976,
+          "edge_length_mm": 0.374950528278076,
+          "edge_nodes": [
+            13617,
+            16648
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.0948324340900344e-05,
+          "normalized_row_slack_mm": -2.8954837819672452e-05,
+          "row_id": 89856,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.1875162124633789
+        },
+        {
+          "absolute_component_difference_mm": 0.04056096076965332,
+          "allowed_absolute_component_difference_mm": 0.03747939181474879,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 15076,
+          "edge_length_mm": 0.07495878362949758,
+          "edge_nodes": [
+            13666,
+            19927
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 0.0030815689549045303,
+          "normalized_row_slack_mm": -0.002178998304706938,
+          "row_id": 90456,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.04056096076965332
+        },
+        {
+          "absolute_component_difference_mm": 0.116005539894104,
+          "allowed_absolute_component_difference_mm": 0.11595602555451508,
+          "axis": "z",
+          "edge_index_in_sorted_active_edges": 19344,
+          "edge_length_mm": 0.23191205110903015,
+          "edge_nodes": [
+            16498,
+            19765
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.9514339588926926e-05,
+          "normalized_row_slack_mm": -3.501192528930497e-05,
+          "row_id": 116068,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.116005539894104
+        },
+        {
+          "absolute_component_difference_mm": 0.08153915405273438,
+          "allowed_absolute_component_difference_mm": 0.08149799970106675,
+          "axis": "x",
+          "edge_index_in_sorted_active_edges": 21698,
+          "edge_length_mm": 0.1629959994021335,
+          "edge_nodes": [
+            18630,
+            20637
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 4.1154351667627154e-05,
+          "normalized_row_slack_mm": -2.910052113951067e-05,
+          "row_id": 130188,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.08153915405273438
+        },
+        {
+          "absolute_component_difference_mm": 0.06492435932159424,
+          "allowed_absolute_component_difference_mm": 0.06072162724501816,
+          "axis": "z",
+          "edge_index_in_sorted_active_edges": 21985,
+          "edge_length_mm": 0.12144325449003632,
+          "edge_nodes": [
+            18762,
+            20401
+          ],
+          "endpoint_count_in_support": 2,
+          "excess_over_bound_mm": 0.0042027320765760795,
+          "normalized_row_slack_mm": -0.00297178035085717,
+          "row_id": 131914,
+          "row_sign": 1,
+          "signed_component_difference_mm": -0.06492435932159424
+        }
+      ],
+      "violated_rows": 9
+    }
+  ],
+  "checker_script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/area-local-backtrack-514/check_408_edge_gradient_514.py",
+  "checker_script_sha256": "d2066c05a43cbcddcc31fad1891b6fc0a5e66b336ec890a00ab9e3b8fdbb6717",
+  "classification": "arithmetic-only frozen 408 edge-gradient predicate",
+  "config_path": "/Users/numi/Work/numi-human-connected-surface-069/D/extrapolated-trial-519/factor4-001/check/backtrack-config.json",
+  "config_sha256": "232eec594de00402281a5093233df8e46fb2061b1f7f62570d49e683681b4f4b",
+  "edge_build_receipt": {
+    "active_edges": 24025,
+    "enabled": true,
+    "inequality_rows": 144150,
+    "max_component_gradient": 0.5,
+    "maximum_reference_edge_length_mm": 133.06276565364837,
+    "minimum_reference_edge_length_mm": 0.010803136330326535,
+    "semantics": "componentwise |d_i-d_j| <= cap * reference_edge_length; nonsupport displacement is zero",
+    "unique_mesh_edges": 62622
+  },
+  "edge_owner_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+  "edge_owner_sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+  "face_count": 41733,
+  "native_admission": false,
+  "no_geometry_audit_run": true,
+  "selected_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/extrapolated-trial-519/factor4-001/check/backtrack-373/pass-018/candidate.npz",
+  "selected_result_path": "/Users/numi/Work/numi-human-connected-surface-069/D/extrapolated-trial-519/factor4-001/check/backtrack-373/selected-result.json",
+  "selected_result_sha256": "d20afddf66e2db5ce4b051df61d8df79336ea4f887fd6d08ed5452ddd8decf38",
+  "selected_status": "CONSTRUCTION_PROGRESS_ONLY",
+  "support_nodes": 7661,
+  "support_source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/extrapolated-trial-519/factor4-001/proposal/candidate.npz",
+  "support_source_sha256": "ec5aede5185a39f6fb03ae4fa5f7b2e2e675182d44d7bbc498927bcf33192222"
+}
