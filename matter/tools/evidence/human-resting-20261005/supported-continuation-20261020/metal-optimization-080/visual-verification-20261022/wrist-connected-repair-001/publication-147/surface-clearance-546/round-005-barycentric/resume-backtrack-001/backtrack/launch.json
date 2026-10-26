@@ -1,0 +1,44 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/typed-point-regression-524/run_local_witness_backtracking_524.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/resume-backtrack-001/backtrack/backtrack-config.json"
+  ],
+  "pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/state.json": "82cb6cc3b3c042568c6a07c28cf2e2020a0fdba9cd7799cf1a40ebf0277893b8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/round-002/candidate.npz": "bc5827cc505ac17aebb9c939b432640dbebbdf5d3139bfd8cfe093ac084d987e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/fit/candidate.npz": "1646b3a1acce0ec33cd8e55aabdf948b255a74a3c6c5b5bb8bc9bf72e28551bc",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/fit/report.json": "ae28579984664fe85eae69d429806bef0a85103f266c83001efc23ae2915b8a6",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/resume-backtrack-001/backtrack/backtrack-config.json": "0d1044bfd2483a7748b5522da82ac43b8a1acf0b05e35953fa7acd5b8ad23b46",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/resume-backtrack-001/backtrack/context.npz": "f19d5864f910c74a656b841c05b2cee6346baaf84024e9e2c947a7633a4576d4",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/typed-point-regression-524/run_local_witness_backtracking_524.py": "7aea149ba26acf4b86e04d60843955a141ba3a7889d004b9d5f1cbf33cd83a07",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/graded-cut-step-447/graded_cut_step_447.py": "522152a4df248d230ddc66652e3071a2283c29ca73bccc52efbe1789e2ee2b9e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/resume-backtrack-001/seed-preflight-compatible.json": "8d6882b85b31749f60d059d6611724e1b96df809f6999907e30c2d9a1209ea92",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/prep-multiparent-001/constraints/self-seeds/merged-self-pair-seeds.npy": "dadcc87d10f47d2c9057b174ff14f45ddb737bb66d1182a4845ce42baac6fdec",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/prep-multiparent-001/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz": "cf78c87c0b94b228baf3085c0c7647728ad252ceff355b15826655aa2b8834f9",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/prep-multiparent-001/constraints/refresh-541/fixed-guards/report.json": "37f9452574bb7bc3db99f55b440352e8038a020236ff806e8dce29f439b71b75",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_checked_batch_context545.py": "ca1074c583144ac86c6b44e9c382ab7fc04ab32749eede794fb5fd31dc0d8f21"
+  },
+  "env": {
+    "NUMI_GRADED_LOCAL_STEP_CONTEXT_423": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/resume-backtrack-001/backtrack/context.npz",
+    "NUMI_GRADED_LOCAL_STEP_CONTEXT_SHA256_423": "f19d5864f910c74a656b841c05b2cee6346baaf84024e9e2c947a7633a4576d4",
+    "NUMI_GRADED_LOCAL_STEP_KAPPA_423": ".1",
+    "NUMI_GRADED_SELF_SEED_PATH_431": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/prep-multiparent-001/constraints/self-seeds/merged-self-pair-seeds.npy",
+    "NUMI_GRADED_SELF_SEED_SHA256_431": "dadcc87d10f47d2c9057b174ff14f45ddb737bb66d1182a4845ce42baac6fdec",
+    "NUMI_GRADED_SELF_SEED_PREFLIGHT_PATH_431": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/resume-backtrack-001/seed-preflight-compatible.json",
+    "NUMI_GRADED_SELF_SEED_PREFLIGHT_SHA256_431": "8d6882b85b31749f60d059d6611724e1b96df809f6999907e30c2d9a1209ea92",
+    "NUMI_GRADED_SELF_SEED_CACHE_431": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/resume-backtrack-001/backtrack/seed-rows.npz",
+    "NUMI_GRADED_SELF_SEED_REPORT_431": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/resume-backtrack-001/backtrack/seed-scale-report.json",
+    "NUMI_GRADED_FIXED_GUARD_NPZ_PATH_447": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/prep-multiparent-001/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+    "NUMI_GRADED_FIXED_GUARD_NPZ_SHA256_447": "cf78c87c0b94b228baf3085c0c7647728ad252ceff355b15826655aa2b8834f9",
+    "NUMI_GRADED_FIXED_GUARD_REPORT_PATH_447": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/prep-multiparent-001/constraints/refresh-541/fixed-guards/report.json",
+    "NUMI_GRADED_FIXED_GUARD_REPORT_SHA256_447": "37f9452574bb7bc3db99f55b440352e8038a020236ff806e8dce29f439b71b75",
+    "NUMI_GRADED_FIXED_GUARD_BASE_CANDIDATE_SHA256_447": "bc5827cc505ac17aebb9c939b432640dbebbdf5d3139bfd8cfe093ac084d987e"
+  },
+  "base_sha256": "bc5827cc505ac17aebb9c939b432640dbebbdf5d3139bfd8cfe093ac084d987e",
+  "fit_sha256": "1646b3a1acce0ec33cd8e55aabdf948b255a74a3c6c5b5bb8bc9bf72e28551bc",
+  "typed_anchors_unchanged": 237,
+  "changed_within_support": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

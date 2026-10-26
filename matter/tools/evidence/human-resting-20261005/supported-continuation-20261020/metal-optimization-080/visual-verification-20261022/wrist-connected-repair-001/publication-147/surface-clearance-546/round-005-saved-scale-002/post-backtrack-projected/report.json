@@ -1,0 +1,29 @@
+{
+  "parent_patch": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-saved-scale-002/post-backtrack-patch",
+  "parent_patch_sha256": "359d4c117f4f0ebc920e1edbfb69f19d68bb1e3a13ea5b09581bedee00ddaec4",
+  "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/round-002/candidate.npz",
+  "base_sha256": "bc5827cc505ac17aebb9c939b432640dbebbdf5d3139bfd8cfe093ac084d987e",
+  "source_sha256": "ac230cf06743aab449e9cd34d96b06ece27c35f6c36cbefdd0129311cffdb7c2",
+  "history": [
+    {
+      "iteration": 0,
+      "minimum_oriented_ratio": 0.16971339851313988,
+      "area_faces": [],
+      "magnitude_faces": [],
+      "edge_count": 1
+    },
+    {
+      "iteration": 1,
+      "minimum_oriented_ratio": 0.16971339851313988,
+      "area_faces": [],
+      "magnitude_faces": [],
+      "edge_count": 0
+    }
+  ],
+  "target_nodes_bitwise_unchanged": true,
+  "all_fixed_nodes_bitwise_unchanged": true,
+  "candidate_sha256": "211e0e6c422761633ea5e81c5eaf8ee91797a4cf9c5444bf37e4c6bd1f126b38",
+  "construction_only": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

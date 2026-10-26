@@ -1,0 +1,8 @@
+{
+  "accepted_physical_steps": 0,
+  "context_sha256": "29606ed7c2f51a941b589408d55cd840b5a120df86a4528694d8e690372a6916",
+  "native_admission": false,
+  "prepared_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/prep-multiparent-targets-002",
+  "prepared_report_sha256": "ffa2de9ea8e19caabb2c7e395a9ad1c8784815eef7c1268ceba1db39f0b20a60",
+  "state_sha256": "82cb6cc3b3c042568c6a07c28cf2e2020a0fdba9cd7799cf1a40ebf0277893b8"
+}

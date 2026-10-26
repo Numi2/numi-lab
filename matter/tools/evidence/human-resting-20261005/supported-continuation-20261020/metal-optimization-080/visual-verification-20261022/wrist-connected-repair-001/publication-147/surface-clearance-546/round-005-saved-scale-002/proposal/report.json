@@ -1,0 +1,16 @@
+{
+  "accepted_physical_steps": 0,
+  "arithmetic_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-saved-scale-002/arithmetic/report.json",
+  "arithmetic_report_sha256": "e6b685170d419b602e22d591769cab847f16676dce029b7a175dc404cb52b5c9",
+  "candidate_sha256": "3bbe61dbe6aedfe9e77d469d9bcd5785e6e71a84ab2ec016fe45dbf965c54654",
+  "inputs": {
+    "base_candidate_sha256": "bc5827cc505ac17aebb9c939b432640dbebbdf5d3139bfd8cfe093ac084d987e"
+  },
+  "method": "Reuse saved accepted SCP displacement at multiplier2 followed by existing545 local area/edge quality projection; not a new LP solution",
+  "native_admission": false,
+  "parent_fit_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/fit/report.json",
+  "parent_fit_report_sha256": "ae28579984664fe85eae69d429806bef0a85103f266c83001efc23ae2915b8a6",
+  "quality_projection_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-saved-scale-002/projected/report.json",
+  "quality_projection_report_sha256": "599a6e5a7d5a53551a104a350d48c44a7bb52aa259ff8a411b520bd7b7175b39",
+  "status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED"
+}

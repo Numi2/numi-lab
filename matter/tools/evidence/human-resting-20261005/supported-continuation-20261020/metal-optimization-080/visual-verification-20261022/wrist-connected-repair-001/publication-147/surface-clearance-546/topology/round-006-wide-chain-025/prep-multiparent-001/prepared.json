@@ -1,0 +1,8 @@
+{
+  "accepted_physical_steps": 0,
+  "context": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/prep-multiparent-001/constraint-context.json",
+  "native_admission": false,
+  "state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/state.json",
+  "status": "FRESH_CONSTRAINTS_DEPTH_SURFACE_TARGETS_PREPARED",
+  "topology_aware_constraint_refresh": true
+}

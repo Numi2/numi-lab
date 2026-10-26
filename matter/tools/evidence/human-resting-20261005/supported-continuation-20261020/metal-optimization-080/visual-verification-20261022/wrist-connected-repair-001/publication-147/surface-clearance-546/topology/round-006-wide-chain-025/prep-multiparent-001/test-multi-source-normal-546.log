@@ -1,0 +1,12 @@
+test_area_weighted_union_normal_and_complete_provenance (test_multi_source_outward_normal_546.MultiSourceOutwardNormal546Tests.test_area_weighted_union_normal_and_complete_provenance) ... ok
+test_real_four_multi_source_faces_use_all_typed_parents (test_multi_source_outward_normal_546.MultiSourceOutwardNormal546Tests.test_real_four_multi_source_faces_use_all_typed_parents) ... ok
+test_rejects_detail_union_outside_source_union (test_multi_source_outward_normal_546.MultiSourceOutwardNormal546Tests.test_rejects_detail_union_outside_source_union) ... ok
+test_rejects_non_sentinel_scalar_parent (test_multi_source_outward_normal_546.MultiSourceOutwardNormal546Tests.test_rejects_non_sentinel_scalar_parent) ... ok
+test_rejects_opposing_or_cancelled_parent_normals (test_multi_source_outward_normal_546.MultiSourceOutwardNormal546Tests.test_rejects_opposing_or_cancelled_parent_normals) ... ok
+test_rejects_unregistered_subface_id (test_multi_source_outward_normal_546.MultiSourceOutwardNormal546Tests.test_rejects_unregistered_subface_id) ... ok
+test_single_parent_dispatch_uses_original_500_function (test_multi_source_outward_normal_546.MultiSourceOutwardNormal546Tests.test_single_parent_dispatch_uses_original_500_function) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.116s
+
+OK

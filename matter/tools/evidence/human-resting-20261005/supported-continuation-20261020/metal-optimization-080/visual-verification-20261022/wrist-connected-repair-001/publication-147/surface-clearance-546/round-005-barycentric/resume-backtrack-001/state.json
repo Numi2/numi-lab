@@ -1,0 +1,10 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/resume-backtrack-001/backtrack/backtrack-373/pass-003/candidate.npz",
+  "candidate_sha256": "8313655dbbfe4d65352415b5683278b04fd4d9ed8be9265396f0efa1ef257f3f",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/resume-backtrack-001/backtrack/backtrack-373/pass-003/audit-130/summary.json",
+  "point_summary_sha256": "65d8331fc28ac22c5d95bf218fcd6600ec37be133eeaa84f97012ba5f52b8062",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/resume-backtrack-001/backtrack/backtrack-373/pass-003/audit-159/report.json",
+  "surface_report_sha256": "07812c63b2e79d82842838b332b131c7c52d6d6c42aa86aaa105d203798b3f41"
+}

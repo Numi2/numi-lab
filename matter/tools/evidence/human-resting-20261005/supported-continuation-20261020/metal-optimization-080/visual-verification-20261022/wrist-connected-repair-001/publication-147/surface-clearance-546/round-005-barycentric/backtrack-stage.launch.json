@@ -1,0 +1,25 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_checked_batch_context545.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/state.json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/fit",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/prep-multiparent-targets-002/constraint-context.json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-barycentric/backtrack"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/component_lp_active545.py": "37c8a7e22f240be1a669e0f29712b0dfb068861fd89c9b6b2a8955c8ffdf39ed",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_checked_batch_context545.py": "ca1074c583144ac86c6b44e9c382ab7fc04ab32749eede794fb5fd31dc0d8f21",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continue_surface_round546.py": "b2fb1407bcbcf8d44cb7138ff2cb9dc6ce43f9a6fcddb64ed6624df672123d17",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py": "e407ea4c34a89e48f49cd6352a12ecc713cc48bb51f5bb9a26ffa936a8a9a49e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py": "f82c38c4a2250bc2629d7120bf5327870bd330808a401b98e2be61ff6dffb54f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py": "c01a6221f8684829cc4dca39cc5596c9387ccebdacdc6b7b5b6a79dda0fe875e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py": "9e0af1656af88f4050f7ad575c4140bc453598d9e27b0ac448cee17672da0872",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/run_barycentric_surface_fit546.py": "16699bbe0162397edbac8ade4c9d7d8e29196221f492a45f9fa77ca762b9c45b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/surface_objective_546.py": "dd6f70afab9cb51f3658d8f4fc9d65a13a6f70517e536a9e81c4c2a098750516"
+  }
+}

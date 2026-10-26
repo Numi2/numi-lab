@@ -1,0 +1,11 @@
+{
+  "start": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/round-002/candidate.npz",
+  "start_sha256": "bc5827cc505ac17aebb9c939b432640dbebbdf5d3139bfd8cfe093ac084d987e",
+  "trial": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-005-saved-scale-002/proposal/candidate.npz",
+  "trial_sha256": "3bbe61dbe6aedfe9e77d469d9bcd5785e6e71a84ab2ec016fe45dbf965c54654",
+  "helper_sha256": "522152a4df248d230ddc66652e3071a2283c29ca73bccc52efbe1789e2ee2b9e",
+  "source_point_summary_sha256": "2b16e5cc18c9ef28f3f42657ec86ee6247feec2e2f5ceb3b92ad9f0ff130168a",
+  "source_surface_report_sha256": "bec12939762ac5c69e44d06da3d060473b8d47d8f7d1696e96a58327bf2fe8b5",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

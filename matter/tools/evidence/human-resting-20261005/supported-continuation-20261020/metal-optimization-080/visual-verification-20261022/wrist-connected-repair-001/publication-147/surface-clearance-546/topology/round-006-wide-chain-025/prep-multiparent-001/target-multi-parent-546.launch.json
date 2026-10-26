@@ -1,0 +1,20 @@
+{
+  "status": "LAUNCH_READY_PINNED_500_MULTI_PARENT_EXTENSION",
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_targets_multi_source_546.py",
+    "--candidate", "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/round-002/candidate.npz",
+    "--surface-report", "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/final-check/audit-159/report.json",
+    "--query-receipt", "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/final-check/audit-130/query/query-receipt.json",
+    "--output-dir", "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/prep-multiparent-001/surface-targets-multi-parent-546",
+    "--clearance-m", "0.00005", "--direction-mode", "outward-nearest"
+  ],
+  "source_pins": {
+    "target_builder_500": "454501303db7c6420ff3744729c62c723c208aaf9348a53534137c62b7e6afbf",
+    "multi_source_wrapper_546": "dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68",
+    "candidate": "bc5827cc505ac17aebb9c939b432640dbebbdf5d3139bfd8cfe093ac084d987e",
+    "surface_report": "bec12939762ac5c69e44d06da3d060473b8d47d8f7d1696e96a58327bf2fe8b5",
+    "query_receipt": "abb88c6438880ea66e5464b2e68d90f9cb29f3d91b56641759e383470cf95302"
+  },
+  "slot_contract": "run through /tmp/numi-human-geometry-slot.py; no other work"
+}

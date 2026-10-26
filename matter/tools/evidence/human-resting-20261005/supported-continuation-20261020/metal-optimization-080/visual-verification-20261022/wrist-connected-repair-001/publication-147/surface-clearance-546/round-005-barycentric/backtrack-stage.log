@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_checked_batch_context545.py", line 72, in <module>
+    if __name__=="__main__":main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_checked_batch_context545.py", line 53, in main
+    seeds,packed,cache,seed_report,meta=helper.cuts431._load_seed_rows(f,context)
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/graded-cut-step-431/graded_cut_step_431.py", line 132, in _load_seed_rows
+    pairs,points_mm,path,report_path,meta=_seed_inputs(faces,context)
+                                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/graded-cut-step-431/graded_cut_step_431.py", line 76, in _seed_inputs
+    raise ValueError("431 seed preflight receipt does not authenticate the selected full seed cache")
+ValueError: 431 seed preflight receipt does not authenticate the selected full seed cache

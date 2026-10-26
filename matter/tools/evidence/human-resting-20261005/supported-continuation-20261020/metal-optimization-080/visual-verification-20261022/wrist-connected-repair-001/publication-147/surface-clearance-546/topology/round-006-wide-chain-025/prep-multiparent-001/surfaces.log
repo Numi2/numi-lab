@@ -1,0 +1,15 @@
+waiting_for_human_geometry_slot pid=60586
+acquired_human_geometry_slot pid=60586
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/prep-multiparent-001/surface-targets/report.json",
+  "report_sha256": "972023ccdcc5d77f02cefdf1748f0c9d2b81c8a3c90378e09896e0bda8fcc83e",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/round-006-wide-chain-025/prep-multiparent-001/surface-targets/targets.npz",
+  "npz_sha256": "59da868649f7c8aa15d35ea14183539029dda3397a15d85847f989a4326424c8",
+  "rows": 2513,
+  "pairs": 2513,
+  "targets": 2501,
+  "failures": {
+    "NEAREST_COMPLETE_BANK_TRIANGLE_FAILED": 12
+  },
+  "elapsed_seconds": 21.291718332795426
+}
