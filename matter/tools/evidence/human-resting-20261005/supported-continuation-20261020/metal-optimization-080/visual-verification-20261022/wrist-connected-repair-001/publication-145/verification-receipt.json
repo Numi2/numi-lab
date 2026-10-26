@@ -1,0 +1,181 @@
+{
+  "baseline_reference": {
+    "candidate_sha256": "c693c4194ad903444c2206a22406b43e1237446e30eeab23a15323f4bdfa6fb8",
+    "publication_144_commit": "d742ee40c5d67dc47d45c5ad32c3a9d1a8528317",
+    "publication_144_prefix": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-144",
+    "state_sha256": "c2e174b50fad0fb4a9e86d4899a1cb25bd3ffcd5c95aba60d1d267341cca690e",
+    "surface_pairs": 2719
+  },
+  "checkout_preserved": true,
+  "construction_gates": {
+    "area_floor": 0.1,
+    "edge_gradient_cap": 0.5,
+    "maximum_source_displacement_mm": 11.99157474221245,
+    "maximum_step_mm": 0.4374979924136399,
+    "minimum_current_area_ratio": 0.28778493957867335,
+    "minimum_edge_slack_mm": 0.0026413412860153275,
+    "minimum_fixed_reference_area_ratio": 0.10009356948026137,
+    "source_cap_mm": 12.0
+  },
+  "failed_setup": {
+    "cause": "owner path hash lookup failed for missing surface-clearance-546/contained-clearance-545/component_lp_active545.py",
+    "log_path": "surface-clearance-546/round-002.log",
+    "log_sha256": "26fbd9cff0b24aeaf66ac472af534553fd8f911450ddc3b99d4791ac7f912baa"
+  },
+  "generated_utc": "2026-10-26T18:05:38.828239+00:00",
+  "measurement_limits": {
+    "accepted_physical_steps": 0,
+    "clinical_or_biological_admission": false,
+    "construction_only": true,
+    "edge_solid_clearance_certified": false,
+    "native_admission": false,
+    "physical_admission": false,
+    "visual_inspection": false
+  },
+  "negative_topology023": {
+    "candidate_emitted": false,
+    "elapsed_seconds": 322,
+    "geometry_admitted": false,
+    "published_source_reference": "publication-144/surface-clearance-546/round-001/topology/topology-bone-aware-023.py",
+    "receipt_path": "surface-clearance-546/round-001/topology-bone-aware-023/attempt-001-termination.json",
+    "receipt_sha256": "a2d88da853daf9b7ea58e7e928769700cba9c658951479bc607b808851a7f352",
+    "source_sha256": "9627040c4cf2919dc253ed39256027b1d3772602472ab94dd11991fc42962b48",
+    "status": "STOPPED_AT_BOUNDED_SLOT_BUDGET_NO_PROPOSAL_OUTPUT"
+  },
+  "parent_publication_commit": "d742ee40c5d67dc47d45c5ad32c3a9d1a8528317",
+  "publication": 145,
+  "publication_ready": true,
+  "publication_status": "READY_FOR_PUBLISH",
+  "round_002_retry_history": {
+    "candidate_sha256": "00227f4838c0d0fcabc3e570222300880f87111d0a869f1bd439a9e66291b3e5",
+    "contained_pairs": 0,
+    "failed_setup_log_sha256": "26fbd9cff0b24aeaf66ac472af534553fd8f911450ddc3b99d4791ac7f912baa",
+    "final_report_sha256": "925d2fd677aeb683c2205d22c6d0b6f600b75d608847fe25da18a45d8b62ede6",
+    "self_pairs": 0,
+    "surface_pairs": 2672
+  },
+  "selected_artifact_hashes": {
+    "arithmetic_report": "dd833a83df7571719b9032726f95ce97f3e82b026279bd8c38aa5f6ccdf4a428",
+    "orchestration": "318b39fd927d3510e08b472909e3d9158aa1cc634acd752b3001708c2ce439b1",
+    "point_summary": "47b65c61f7761e8479954d92b496de2272b0beaeb44b7f6f7cc48758224aa687",
+    "progress": "6c21ec047235efed13efb280de59366eaabba8c70f2959336a177bd8850ffa86",
+    "state": "3ac2cc568a8885ce224790fd0f9fe05368337de5f1b1b95b73267c1c5650182e",
+    "surface_report": "6c2887bc1a7660fcc1814badca7351a394864483617a21ed2c15d3a1d1548730"
+  },
+  "selected_candidate": {
+    "accepted_physical_steps": 0,
+    "anchor_rows": 237,
+    "baseline_candidate_sha256": "0e36d64f836e7adb80c13dcd7d214856862f01c5f93fe0497434ac1b8178d038",
+    "complete_banks": 185,
+    "construction_progress": true,
+    "contained_pairs": 0,
+    "exact_report_path": "surface-clearance-546/topology/round-002-024-002/check/report.json",
+    "exact_report_sha256": "5f0a97ecce3e69cb8637cbf5390cdba49a8856327b7cf05caf3c02696f6027a6",
+    "native_admission": false,
+    "path": "surface-clearance-546/topology/round-002-024-002/candidate.npz",
+    "self_pairs": 0,
+    "sha256": "fad9b5e10bac48cfecf4fcded4b1c020e2eb2a14de8778990bf9d6226534b0f5",
+    "state_path": "surface-clearance-546/topology/round-002-024-002/state.json",
+    "state_sha256": "2be585968b66cf18f0d5faf760731d6086d36b61994fcadabd553566dcd8e0a7",
+    "surface_delta_from_024_001": -54,
+    "surface_delta_from_publication_144": -133,
+    "surface_pairs": 2586
+  },
+  "shared_checkout_after": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "shared_checkout_before": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "source_provenance": {
+    "fit_wrapper_path": "surface-clearance-546/run_surface_only_full_coordinate_fit546.py",
+    "fit_wrapper_prior_publication_144_sha256": "9899e952efc24ef26cd82462fbe534d7abe3db7d3176be08c7486d9059c93446",
+    "fit_wrapper_sha256": "9899e952efc24ef26cd82462fbe534d7abe3db7d3176be08c7486d9059c93446",
+    "future_work_excluded": [
+      "topology/topology-bone-aware-025.py",
+      "topology/chain_exact_flip_batches_025.py"
+    ],
+    "in_flight_orchestrator_revision_excluded": true,
+    "orchestrator_prior_snapshot_sha256": "caf85682f66fd61262680b963268614292a4409b1c52f7882ab4e658f2e9b71b",
+    "orchestrator_test_sha256": "c431b8c70b8fa911ff6e505d6d4891fb6e5afa5989c2f10edc4dfae2d25bc1bc",
+    "round002_orchestrator_path": "surface-clearance-546/continue_surface_round546.py",
+    "round002_orchestrator_sha256": "409a901ecd322fa73f65b3d2e2029010292a936e3129ec43ced893d426a847e3",
+    "surface_helper_sha256": "dd6f70afab9cb51f3658d8f4fc9d65a13a6f70517e536a9e81c4c2a098750516",
+    "surface_test_sha256": "9e68410470d9d5f199e703096e152232cdb43ccf54d1dcaace3cf1dcd141e02c",
+    "topology024_launch_sha256": "df6b454755b1485363fde1e47e12205a5780d2df2a6e738a5b3c86f66dac3dcb",
+    "topology024_retry_launch_sha256": "99bbcb284c50841e7201428b27b6e12e132500a4d21246e4eb522fb9497d9dbe",
+    "topology024_sha256": "c06af4ab321099706dbed1a5ae20694586dd7739d209b0902f656f8ace318945",
+    "topology024_snapshot_path": "surface-clearance-546/source-snapshots/topology-bone-aware-024-c06af4ab321099706dbed1a5ae20694586dd7739d209b0902f656f8ace318945.py"
+  },
+  "test_receipt": {
+    "log_path": "surface-clearance-546/root-nine-tests.log",
+    "log_sha256": "3f2a7d474201c0ea38d8bf1671a9f35e691f355933bdef622342047561fb3da4",
+    "reported": "9 passed in 0.05s",
+    "rerun_by_publisher": false,
+    "source_paths": {
+      "helper": "surface-clearance-546/surface_objective_546.py",
+      "orchestrator": "surface-clearance-546/test_continue_surface_round546.py",
+      "surface_objective": "surface-clearance-546/test_surface_objective_546.py"
+    },
+    "source_sha256": {
+      "helper": "dd6f70afab9cb51f3658d8f4fc9d65a13a6f70517e536a9e81c4c2a098750516",
+      "orchestrator": "c431b8c70b8fa911ff6e505d6d4891fb6e5afa5989c2f10edc4dfae2d25bc1bc",
+      "surface_objective": "9e68410470d9d5f199e703096e152232cdb43ccf54d1dcaace3cf1dcd141e02c"
+    }
+  },
+  "topology_023_negative": {
+    "candidate_emitted": false,
+    "elapsed_seconds": 322,
+    "geometry_admitted": false,
+    "receipt_path": "surface-clearance-546/round-001/topology-bone-aware-023/attempt-001-termination.json",
+    "receipt_sha256": "a2d88da853daf9b7ea58e7e928769700cba9c658951479bc607b808851a7f352",
+    "source_reference": "publication-144/surface-clearance-546/round-001/topology/topology-bone-aware-023.py",
+    "source_sha256": "9627040c4cf2919dc253ed39256027b1d3772602472ab94dd11991fc42962b48",
+    "status": "STOPPED_AT_BOUNDED_SLOT_BUDGET_NO_PROPOSAL_OUTPUT"
+  },
+  "topology_024_001": {
+    "candidate_sha256": "0e36d64f836e7adb80c13dcd7d214856862f01c5f93fe0497434ac1b8178d038",
+    "contained_pairs": 0,
+    "full_check_report_sha256": "293d83ed13ab599ed206acf33b591b171e0957ab1c64b044434fa7232e47cda5",
+    "proposal_report_sha256": "c5781c255774e4f5b531425ee16ddfbb41eb884643524585bfa2aca60c530538",
+    "self_pairs": 0,
+    "state_sha256": "2b7c6f3d58eab343b280b065c233931fdd549bb0d17823df8ee3feeca6b4b812",
+    "surface_pairs": 2640
+  },
+  "topology_024_002": {
+    "accepted_physical_steps": 0,
+    "anchor_rows": 237,
+    "candidate_sha256": "fad9b5e10bac48cfecf4fcded4b1c020e2eb2a14de8778990bf9d6226534b0f5",
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "full_check_report_sha256": "5f0a97ecce3e69cb8637cbf5390cdba49a8856327b7cf05caf3c02696f6027a6",
+    "native_admission": false,
+    "point_summary_sha256": "dcbfc51199298e42aaf9c96e3571b0544a02c53d4f2c64ad5d0f9a9fbfc37b15",
+    "proposal_report_sha256": "beef367a18e9ee50846cb8009f95bf1a16476a693bf0b02ae15ab10755b47323",
+    "self_pairs": 0,
+    "state_sha256": "2be585968b66cf18f0d5faf760731d6086d36b61994fcadabd553566dcd8e0a7",
+    "surface_pairs": 2586,
+    "typed_surface_report_sha256": "d788c307b8b590386b241d7415363b245d9517013d31808ef6daf3b198996944"
+  },
+  "topology_024_002_cli": {
+    "initial_execution_sha256": "40ea29bb7677284833a1071345ae3b87772da3bb6778a25fe62c4f552e540236",
+    "initial_launch_path": "surface-clearance-546/topology/round-002-024-002.launch.json",
+    "initial_launch_sha256": "df6b454755b1485363fde1e47e12205a5780d2df2a6e738a5b3c86f66dac3dcb",
+    "initial_returncode": 2,
+    "raw_failure_log_sha256": "18f28cb37133db8f4c534dd444e0721b28ce28c94b1a91c8b13736968aaaf2eb",
+    "retry_execution_sha256": "0fa7c853b58d82ffaf21913cb279f8ab87ec8faf171839055351ce1786ae008c",
+    "retry_launch_sha256": "99bbcb284c50841e7201428b27b6e12e132500a4d21246e4eb522fb9497d9dbe",
+    "retry_log_sha256": "a524000b90514068ba129fb662a0e4d2f4cc1ab746ce4debf7bcec65d92b5c5e",
+    "retry_returncode": 0
+  }
+}

@@ -1,0 +1,17 @@
+waiting_for_human_geometry_slot pid=58882
+acquired_human_geometry_slot pid=58882
+usage: topology-bone-aware-024.py [-h] [--candidate CANDIDATE]
+                                  [--audit159 AUDIT159] [--audit130 AUDIT130]
+                                  [--self-pairs130 SELF_PAIRS130]
+                                  --expected-candidate-sha256 EXPECTED_CANDIDATE_SHA256
+                                  --expected-audit159-sha256 EXPECTED_AUDIT159_SHA256
+                                  --expected-audit130-sha256 EXPECTED_AUDIT130_SHA256
+                                  --expected-self-pairs-sha256 EXPECTED_SELF_PAIRS_SHA256
+                                  --output-dir OUTPUT_DIR
+                                  [--max-candidates MAX_CANDIDATES]
+                                  [--max-accept MAX_ACCEPT]
+                                  [--prefilter-factor PREFILTER_FACTOR]
+                                  [--progress-every PROGRESS_EVERY]
+                                  [--exclude-self-pairs EXCLUDE_SELF_PAIRS]
+                                  [--expected-exclusion-pairs-sha256 EXPECTED_EXCLUSION_PAIRS_SHA256]
+topology-bone-aware-024.py: error: unrecognized arguments: --max-edge-validations 384

@@ -1,0 +1,36 @@
+{
+  "candidate_emitted": false,
+  "geometry_admitted": false,
+  "input_audit130": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-001/backtrack/backtrack-373/pass-005/audit-130/summary.json",
+    "self_pair_count": 0,
+    "sha256": "76287359b3916e18b206ae839ae1b056e10a70f68b0cb637961e0b5661c7ff8a"
+  },
+  "input_audit159": {
+    "complete_banks": 185,
+    "pair_count": 2719,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-001/backtrack/backtrack-373/pass-005/audit-159/report.json",
+    "sha256": "022f84289dc33f5c554b06f2eac580e9fb89827fea4690e68b4e857fcc1bcd19"
+  },
+  "input_candidate": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-001/backtrack/backtrack-373/pass-005/candidate.npz",
+    "sha256": "c693c4194ad903444c2206a22406b43e1237446e30eeab23a15323f4bdfa6fb8"
+  },
+  "input_self_pairs_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+  "last_stage_observable": "No candidate/report/progress file was emitted before termination. A macOS sample showed the Python process active in CPython vectorcall/NumPy dispatcher and garbage-collection paths; this did not resolve its Python-level stage. The long interval likely includes broad edge candidate generation and/or exact 185-bank scoring, but stage is unverified.",
+  "next_revision": "Prefilter edges by exact baseline crossing counts before invoking 405/541; cache detail CSR rows; use a 541-equivalent fast two-face quality screen; write JSONL progress during prefilter, scoring, and self checks.",
+  "output_directory": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-001/topology-bone-aware-023/run-001",
+  "output_directory_created": false,
+  "process": {
+    "last_observed_cpu_percent": 100.0,
+    "last_observed_elapsed_seconds": 322,
+    "last_observed_rss_bytes": 642777088,
+    "pid": 57688,
+    "reason": "root bounded proposal slot to approximately five minutes; no progress checkpoint existed",
+    "termination_signal": "SIGTERM"
+  },
+  "scored_operations_persisted": false,
+  "source_script": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-001/topology/topology-bone-aware-023.py",
+  "source_script_sha256": "9627040c4cf2919dc253ed39256027b1d3772602472ab94dd11991fc42962b48",
+  "status": "STOPPED_AT_BOUNDED_SLOT_BUDGET_NO_PROPOSAL_OUTPUT"
+}

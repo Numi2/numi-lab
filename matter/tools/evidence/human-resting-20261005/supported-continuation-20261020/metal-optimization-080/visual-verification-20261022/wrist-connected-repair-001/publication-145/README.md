@@ -1,0 +1,11 @@
+# Publication 145: surface-clearance 546 progress through topology 024
+
+This package records the completed round-002 surface-clearance retry and two fully checked connected-flip proposals. The selected candidate is topology/round-002-024-002/candidate.npz (SHA-256 fad9b5e10bac48cfecf4fcded4b1c020e2eb2a14de8778990bf9d6226534b0f5), with exact final check topology/round-002-024-002/check/report.json (SHA-256 5f0a97ecce3e69cb8637cbf5390cdba49a8856327b7cf05caf3c02696f6027a6). It records COMPLETE_EXACT_CONSTRUCTION_CHECKS, 0 contained pairs, 0 self pairs, 2,586 surface crossings across 185 complete typed banks, and 237 anchor rows.
+
+The progress sequence is 2,719 surface crossings at the publication-144 baseline, 2,672 after round-002-retry, 2,640 after topology 024-001, and 2,586 after topology 024-002. The selected state is 133 fewer crossings than publication 144. Both topology proposal reports and full checks remain in this package, along with the initial failed CLI invocation and successful retry logs for 024-002.
+
+The final check marks construction progress true; native admission is false and accepted physical steps are zero. The outer-node point audit is diagnostic and does not certify edge or solid clearance. No closed-skin, FEM, physical-transfer, visual, biological, clinical, or anatomy-completion claim follows. Exact prior checks are hash-pinned and reused rather than rerun where the reports say so.
+
+The earlier topology-023 attempt emitted no candidate and was stopped after 322 seconds at its bounded slot limit; its exact negative receipt remains included. The first round-002 orchestration setup failure and the successful retry remain included as well. The root test log reports 9 passed in 0.05 seconds across the surface-objective and orchestrator suites; both test sources and the helper are included. This is software-test evidence only.
+
+The package contains the new round-002 and 024 evidence, relevant exact source snapshots, and the 023 failure receipt. It does not duplicate publication 144 or copy the in-flight topology-025 chain/guard adapter work. Manifest hashes every staged member except itself. Publication readiness is true for this confirmed cutoff.

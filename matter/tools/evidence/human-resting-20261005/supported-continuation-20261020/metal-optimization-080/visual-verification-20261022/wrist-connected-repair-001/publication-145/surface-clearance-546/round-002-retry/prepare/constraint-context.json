@@ -1,0 +1,7 @@
+{
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-001/backtrack/backtrack-373/pass-005/candidate.npz",
+  "guard_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-002-retry/prepare/constraints/fixed-guards/fixed-skin-bone-guards.npz",
+  "guard_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-002-retry/prepare/constraints/fixed-guards/report.json",
+  "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-002-retry/prepare/constraints/merged-self-pair-seeds.npy",
+  "seed_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-002-retry/prepare/constraints/seed-preflight.json"
+}
