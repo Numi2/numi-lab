@@ -1,0 +1,140 @@
+{
+  "496_helper_sha256": "92c7e6a3bbd53611c3dca55ffec59189ff83614ecdb9bc415309782a176ab5e4",
+  "496_wrapper_sha256": "2283e8ba40d228d64add6139e83b50a0b48aba07c34aa89a35e9a4da9b508d80",
+  "accepted_physical_steps": 0,
+  "base_path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-011/candidate.npz",
+  "base_sha256": "742315227c1d8225aac9307af828251a73a98a9c40b4f59fe791aeef5da1ba0f",
+  "blocker_face_rows": [
+    32434,
+    11844,
+    40017
+  ],
+  "classification": "construction-only LP bounds; coordinates remain identical to base; no runtime-anchor or physical claim",
+  "construction_proof_494_path": "/Users/numi/Work/numi-human-connected-surface-069/D/area-blocker-backtrack-498/run-001/backtrack-373/root-independent-construction-verification-494.json",
+  "construction_proof_494_sha256": "99dfa7876c0609fd32119d1b045fb46ad05d539538eb1f7bafe81b8ef83eb650",
+  "fit_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/area-blocker-fit-497/run-001/candidate.npz",
+  "fit_report_sha256": "e02e37c380d616b7cc179a82c1e52c48fcd5c8a29692c0038dfb1a22ddb3516f",
+  "fit_sha256": "403a1748200caae3b5dfd66f0fed6f44d85f7eaa18d072c1e501ac8f36e72c87",
+  "fit_zero_vertices_bitwise_equal_base": true,
+  "native_admission": false,
+  "restricted_scalar_bound_indices": [
+    669,
+    670,
+    671,
+    723,
+    724,
+    725,
+    741,
+    742,
+    743,
+    744,
+    745,
+    746,
+    2298,
+    2299,
+    2300,
+    6831,
+    6832,
+    6833,
+    9762,
+    9763,
+    9764,
+    16119,
+    16120,
+    16121,
+    18006,
+    18007,
+    18008
+  ],
+  "restricted_vertex_rows": [
+    7280,
+    7575,
+    7587,
+    7588,
+    10112,
+    13430,
+    15333,
+    18958,
+    19587
+  ],
+  "selected_path": "/Users/numi/Work/numi-human-connected-surface-069/D/area-blocker-backtrack-498/run-001/backtrack-373/pass-011/candidate.npz",
+  "selected_sha256": "4d78f40485c7a41c4945deb61ace4fc0184c7bbdf88eb7b505cd162d427098f4",
+  "selected_zero_vertices_bitwise_equal_base": true,
+  "status": "PASS_ZERO_BOUND_COORDINATE_INDEPENDENT_CHECK",
+  "typed_runtime_anchor_count": 237,
+  "vertex_rows": [
+    {
+      "base_f32_row_sha256": "6fa9d1641bab80b96db7d8fbc2794f402354efe123d9c01dd57e49e0b20feeb0",
+      "fit_matches_base_bitwise": true,
+      "in_support": true,
+      "is_runtime_anchor": false,
+      "node_row": 7280,
+      "selected_matches_base_bitwise": true
+    },
+    {
+      "base_f32_row_sha256": "c0aeb507997746e79ce7bd5a36774d58cb80fabff0b13bd2c251999ca1ad756f",
+      "fit_matches_base_bitwise": true,
+      "in_support": true,
+      "is_runtime_anchor": false,
+      "node_row": 7575,
+      "selected_matches_base_bitwise": true
+    },
+    {
+      "base_f32_row_sha256": "56cb9bf3b0c3b4fcbce5c3da418f26f50ae8043f77112ef67ccd3bc10275891e",
+      "fit_matches_base_bitwise": true,
+      "in_support": true,
+      "is_runtime_anchor": false,
+      "node_row": 7587,
+      "selected_matches_base_bitwise": true
+    },
+    {
+      "base_f32_row_sha256": "bcb6205d8b1a86cb5e83d829c5c2b99593b768ba47579f3f51b5c7a9f2ef57af",
+      "fit_matches_base_bitwise": true,
+      "in_support": true,
+      "is_runtime_anchor": false,
+      "node_row": 7588,
+      "selected_matches_base_bitwise": true
+    },
+    {
+      "base_f32_row_sha256": "2bcc6f780dcb04505ee0ae2feee46c9a300dd41e40b86a7c7598c6e40d43eae0",
+      "fit_matches_base_bitwise": true,
+      "in_support": true,
+      "is_runtime_anchor": false,
+      "node_row": 10112,
+      "selected_matches_base_bitwise": true
+    },
+    {
+      "base_f32_row_sha256": "7b3a3899beb84059a2af2f93efecb6fc158b22e0e008960957c4d068e9ebd6ae",
+      "fit_matches_base_bitwise": true,
+      "in_support": true,
+      "is_runtime_anchor": false,
+      "node_row": 13430,
+      "selected_matches_base_bitwise": true
+    },
+    {
+      "base_f32_row_sha256": "61933bdcc02944b36c9844dd5913b6eb49682b9c1d4dbd1ca4d649eeab47ef7e",
+      "fit_matches_base_bitwise": true,
+      "in_support": true,
+      "is_runtime_anchor": false,
+      "node_row": 15333,
+      "selected_matches_base_bitwise": true
+    },
+    {
+      "base_f32_row_sha256": "b78a4fe049928fcd4e4b882b67562ed98098b80f6553435a261ccc6ed1559d50",
+      "fit_matches_base_bitwise": true,
+      "in_support": true,
+      "is_runtime_anchor": false,
+      "node_row": 18958,
+      "selected_matches_base_bitwise": true
+    },
+    {
+      "base_f32_row_sha256": "e89d3a2cc2213df8743c23db702a43c65ec1b118b2f1db99047a0cc13d458c93",
+      "fit_matches_base_bitwise": true,
+      "in_support": true,
+      "is_runtime_anchor": false,
+      "node_row": 19587,
+      "selected_matches_base_bitwise": true
+    }
+  ],
+  "zero_bound_vertices_intersect_runtime_anchors": []
+}

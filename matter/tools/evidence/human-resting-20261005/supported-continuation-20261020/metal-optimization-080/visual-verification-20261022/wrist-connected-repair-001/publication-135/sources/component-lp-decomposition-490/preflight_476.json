@@ -1,0 +1,58 @@
+{
+  "matched_validation": {
+    "config_path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-490/matched_inputs_476.json",
+    "config_sha256": "83bc24633911f84554183dd558a358b919d4ffeaf4be3a5f83ff16686208eff8",
+    "inputs": {
+      "audit159": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-011/audit-159/report.json",
+        "sha256": "5d4e7995c08245a197e5e12df688fafa95473dfd27b34aa12456085d79b589eb"
+      },
+      "candidate": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/outward-plane-backtrack-461/run-001/backtrack-373/pass-011/candidate.npz",
+        "sha256": "742315227c1d8225aac9307af828251a73a98a9c40b4f59fe791aeef5da1ba0f"
+      },
+      "face_target_npz": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep476/run-001/surface-targets-335/targets.npz",
+        "sha256": "e9c05ed4bb92fcd3197e43988b3d904df70bb81e58fa6880145e616d200e9694"
+      },
+      "point_target_npz": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-continuation-prep476/run-001/point-targets-390/nearest-union-exits.npz",
+        "sha256": "f43022866e3dd64e947554dece63ca17ca7d19dbd34332b3df622ec606c3becf"
+      }
+    },
+    "schema": "numi.human.matched_inputs_component_fit_475.v1",
+    "source_pins": {
+      "decomposition475": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-475/component_lp_decomposition_475.py",
+        "sha256": "af0b6a6bf40757a403a8b7c359233694241d34e1e016b6dd3a37d7c98789c46d"
+      },
+      "objective458": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/fixed_bone_outward_plane_458.py",
+        "sha256": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0"
+      },
+      "owner408": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+        "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+      },
+      "runner458": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/run_grouped_fit_458.py",
+        "sha256": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93"
+      }
+    }
+  },
+  "source_lock": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-475/component_lp_decomposition_475.py": "af0b6a6bf40757a403a8b7c359233694241d34e1e016b6dd3a37d7c98789c46d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-475/run_grouped_fit_475.py": "7312e292b8711a8d6b0914d3519b7db762fe446cf897d59bd0d00be3476c76b1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-485/component_lp_decomposition_485.py": "b8632e0734ff0163e854b9c0c5fbfe33c6d12c7b17cbb7935c5028c8df78ef74",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-485/run_matched_component_fit_485.py": "3e504da05965405506382338da3b71c81442f40d8c0eb7b16c612b9375633a5f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/fixed_bone_outward_plane_458.py": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/run_grouped_fit_458.py": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/soft-target-nonregression-470/soft_target_nonregression_470.py": "990e126932186e33c0a5363a6ac34fa967e211f4bc55977567582e2b89b8bb79",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-fixed-boundary-314/emit_introduced_skin_bone_barriers_314.py": "3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d"
+  },
+  "status": "PASS_MATCHED_INPUTS_AND_SOURCE_LOCK"
+}

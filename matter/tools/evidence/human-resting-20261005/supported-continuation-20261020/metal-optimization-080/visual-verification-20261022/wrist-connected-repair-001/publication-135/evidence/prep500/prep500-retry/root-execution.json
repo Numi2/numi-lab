@@ -1,0 +1,20 @@
+{
+  "returncode": 0,
+  "seconds": 41.82007158291526,
+  "pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-003/refresh/prep500-retry/prep-argv.json": "a48c967cef064ece53696c88cc625b4a902aee818dd8e5939dccc72b231e1c65",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/run_prepare_417_with_surface_owner_500.py": "726a0e9ae7de490f097cf2e1c02114a0042cb7b4509a2b2e726089b6a991a4d8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_nearest_union_targets_500.py": "454501303db7c6420ff3744729c62c723c208aaf9348a53534137c62b7e6afbf",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-013/candidate.npz": "aef14b798367c7a8e76aeb605942453022eefe68670019044d59b9a58f3444a1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-013/audit-130/summary.json": "bd2877c7dfe51dcaebc7e38b1c9c14038f4d4c05f119388cd504b91e194b717e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/check/backtrack-373/pass-013/audit-159/report.json": "e2a83c363f05ddbcbdf063a160be8669989f1f1d4706e093078ba297f34f91a3",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/refresh/connected-continuation-prep491/run-001/self-seeds/report.json": "f15ed5c72f66d0ec1cbacea1bc857068b98aef67cb9e725ea09cf76e096d3421",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-002/refresh/connected-continuation-prep491/run-001/self-seeds/merged-self-pair-seeds.npy": "cdb0c251b38b5077e501b5c218194bb0ce1ae7170eede2bbb3dbf375977829fc",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-003/refresh/failed-trials.json": "e9725ee3542682171177840620342e769bab56f735ef009a7fc701f67d9363e7",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-003/refresh/point-depth-refresh491/run-001/point-depth-rows.npz": "c7b3a7c01cb42ecc5793ccb7745e4243931bfea36d6de0cc847aef28aeaf7c7f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/refreshed-connected-continuation-492/run-001/iteration-003/refresh/point-depth-refresh491/run-001/365-compatible-report.json": "fe6402a860445aaf6505819a856a9a965d4699fffd30d0d552862e38faf039f6"
+  },
+  "pins_unchanged": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

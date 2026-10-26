@@ -1,0 +1,36 @@
+{
+  "accepted_physical_steps": 0,
+  "all_185_validation_bypassed": false,
+  "classification": "construction-target-retry-only; full-185 and exact crossing-count checks remain in pinned 417",
+  "failure": null,
+  "native_admission": false,
+  "original_335_path": "/Users/numi/Work/numi-human-connected-surface-069/barycentric-connected-clearance-170/source-outward-proposal-300/build_outward_nearest_union_targets_335.py",
+  "pins": {
+    "original335": "1c3468b6e6285afed77e8ae7ca463abb797f6a22d562ccf878734c39161947c9",
+    "owner026": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+    "owner357": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+    "owner390": "15be65c3f3863998a2fb709e70e22a20402ab1580e84960aeb1a3f2301c70b00",
+    "owner500": "454501303db7c6420ff3744729c62c723c208aaf9348a53534137c62b7e6afbf",
+    "prep417": "c873b6d39590fe1d1baeafc1c65109b3179c292baa747f676f325de10357e7a8"
+  },
+  "prep417_path": "/Users/numi/Work/numi-human-connected-surface-069/D/prepare_connected_continuation_inputs_417.py",
+  "replacement_335_path": "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_nearest_union_targets_500.py",
+  "schema": "numi.human.prep417-surface-owner-override-501.v1",
+  "source_pins_after": {
+    "original335": "1c3468b6e6285afed77e8ae7ca463abb797f6a22d562ccf878734c39161947c9",
+    "owner026": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+    "owner357": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+    "owner390": "15be65c3f3863998a2fb709e70e22a20402ab1580e84960aeb1a3f2301c70b00",
+    "owner500": "454501303db7c6420ff3744729c62c723c208aaf9348a53534137c62b7e6afbf",
+    "prep417": "c873b6d39590fe1d1baeafc1c65109b3179c292baa747f676f325de10357e7a8"
+  },
+  "source_pins_before": {
+    "original335": "1c3468b6e6285afed77e8ae7ca463abb797f6a22d562ccf878734c39161947c9",
+    "owner026": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+    "owner357": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+    "owner390": "15be65c3f3863998a2fb709e70e22a20402ab1580e84960aeb1a3f2301c70b00",
+    "owner500": "454501303db7c6420ff3744729c62c723c208aaf9348a53534137c62b7e6afbf",
+    "prep417": "c873b6d39590fe1d1baeafc1c65109b3179c292baa747f676f325de10357e7a8"
+  },
+  "source_pins_unchanged": true
+}
