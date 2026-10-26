@@ -1,0 +1,8 @@
+{
+  "classification": "failed test-order-dependent attempt retained for audit",
+  "failure": "the shared module-level 408 owner was mutated by the 470 test before the default parity test when run alphabetically",
+  "effect": "fixture contamination; this does not indicate a solver failure",
+  "corrective_change": "the 470 test now loads and mutates a fresh 408 owner module",
+  "core_helper_changed": false,
+  "fit_launched": false
+}

@@ -1,0 +1,142 @@
+{
+  "publication": 134,
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "cbc80479d7c0260f1ead20a9422741a8f0c581a9d8bfd22cba6b732315b4b685",
+      "bytes": 1250
+    },
+    {
+      "path": "evidence/482/candidate.npz",
+      "sha256": "3eb89167f2ae4ac7ed217e6ff1634b7b5cfec1c8577a22e5863089796d25b117",
+      "bytes": 6367618
+    },
+    {
+      "path": "evidence/482/report.json",
+      "sha256": "8bd68c52d5f14927d36c987a16aa8f34bd1153f7b01c42cf71c2ff09849b87bb",
+      "bytes": 247984
+    },
+    {
+      "path": "evidence/482/root-independent-construction-verification.json",
+      "sha256": "ff9fe5d02398b998b82245047d5536f93f9138d2676c4fc85afb60f7b66eab20",
+      "bytes": 10914
+    },
+    {
+      "path": "evidence/482/selected-result.json",
+      "sha256": "531ac9f6e172ad00ce7f1b98d861d5dc6fc5e9a0e8740bf27c17362f831f5a61",
+      "bytes": 4942
+    },
+    {
+      "path": "evidence/482/summary.json",
+      "sha256": "7a0182ac15bc4d57b0476643b538a3f18d62029d9de69bd3c21ad952b75cb95d",
+      "bytes": 260709
+    },
+    {
+      "path": "evidence/482/verify482root.py",
+      "sha256": "c7675c113ba2400d1874b962a54d681faf18b910d2b3fec2afaf85163fd8c865",
+      "bytes": 22484
+    },
+    {
+      "path": "evidence/487/candidate.npz",
+      "sha256": "660ce283bdd98483594be831d1be68dcf350da0b1b70a45837e1f9fa34c66de0",
+      "bytes": 6367575
+    },
+    {
+      "path": "evidence/487/report.json",
+      "sha256": "9f0830352ec055c5405f5fc1a54e6938922f0d14c30ffcdad60e72cdb819c711",
+      "bytes": 247274
+    },
+    {
+      "path": "evidence/487/root-independent-construction-verification.json",
+      "sha256": "9918badd5cac19d9b9e0fa8b23dde9d6bd4d20261f868144a85e3a28b42ffc0d",
+      "bytes": 10845
+    },
+    {
+      "path": "evidence/487/selected-result.json",
+      "sha256": "44cbada71d3297e7f4ba36e3a8936829efe0715e0d364689457800474803b8a5",
+      "bytes": 5433
+    },
+    {
+      "path": "evidence/487/summary.json",
+      "sha256": "8c14b81380f5db758c62cc6f32653b6f1844b50ae8df61837db6f9af03812843",
+      "bytes": 253101
+    },
+    {
+      "path": "evidence/487/verify487root.py",
+      "sha256": "02d9f9612a840f2a4017d2c35c74bfde123360cbc91f9e6933814bee74c2bd52",
+      "bytes": 22476
+    },
+    {
+      "path": "evidence/fit481-launch/argv.json",
+      "sha256": "63fd50b4f7528dd9fab72440aa4ea1a3954ec66b8ca7ceaefd09b22f2d7ceaec",
+      "bytes": 3791
+    },
+    {
+      "path": "evidence/fit481-launch/execution.json",
+      "sha256": "315267e6901f2e18419e6fb833704e56af790d267067d7bff999ad0331c81099",
+      "bytes": 149
+    },
+    {
+      "path": "evidence/fit481-launch/preflight.json",
+      "sha256": "626e86d58157aec18db08fcd419139e46000c0ca4d5b85fa3d9aef40cef5a467",
+      "bytes": 3429
+    },
+    {
+      "path": "evidence/fit481-report.json",
+      "sha256": "dfe7c80f245dcca0d91b5a49c70658a85980a27887f6eb709e5b20c53d482bb5",
+      "bytes": 44317788
+    },
+    {
+      "path": "evidence/fit486-launch/argv.json",
+      "sha256": "662cd5f5245f8d59e2495ad689e0452272711436cf48b1acd5dee3fab1094ca1",
+      "bytes": 3831
+    },
+    {
+      "path": "evidence/fit486-launch/execution.json",
+      "sha256": "7283338f09b50c32ada29da61a8b655adaecd942296e5e6648563ee19e6c1215",
+      "bytes": 150
+    },
+    {
+      "path": "evidence/fit486-launch/preflight.json",
+      "sha256": "bd77d1cb9a6d409b83617c4d2f3604fd362be96df069b9119c5af191104b71f4",
+      "bytes": 3443
+    },
+    {
+      "path": "evidence/fit486-report.json",
+      "sha256": "ab859e3893131388b2e8f7a7bf541372b3bdf0645c852b91f36d777bdfd22c14",
+      "bytes": 44340816
+    },
+    {
+      "path": "sources/485/component_lp_decomposition_485.py",
+      "sha256": "b8632e0734ff0163e854b9c0c5fbfe33c6d12c7b17cbb7935c5028c8df78ef74",
+      "bytes": 20948
+    },
+    {
+      "path": "sources/485/failed-test-order-dependent-attempt001.json",
+      "sha256": "5c4d67911bb215148b38fd09d8fa934d86d79fd26b89876d28aadc8241b33668",
+      "bytes": 435
+    },
+    {
+      "path": "sources/485/failed-test-order-dependent-attempt001.py",
+      "sha256": "e6aa17b3382aa8c1ca9c97d3dd78cbff1685ab51914d2ead18f2b1b5903ddf9c",
+      "bytes": 4844
+    },
+    {
+      "path": "sources/485/root-test-receipt.json",
+      "sha256": "dbde2716fbcb9788c04a7f5c2d65579c9fb7b776b7deb593e913d8e9d1347f97",
+      "bytes": 1385
+    },
+    {
+      "path": "sources/485/run_matched_component_fit_485.py",
+      "sha256": "3e504da05965405506382338da3b71c81442f40d8c0eb7b16c612b9375633a5f",
+      "bytes": 7772
+    },
+    {
+      "path": "sources/485/test_component_lp_decomposition_485.py",
+      "sha256": "bb4edb30928b5a941d26c37c329b40cf90adb1225851c33e2747c3837dacfd07",
+      "bytes": 4905
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

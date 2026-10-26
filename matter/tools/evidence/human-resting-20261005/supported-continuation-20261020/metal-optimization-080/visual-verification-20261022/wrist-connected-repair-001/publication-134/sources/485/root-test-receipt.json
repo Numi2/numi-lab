@@ -1,0 +1,17 @@
+{
+  "tests_passed": [
+    "test_470_marker_allows_soft_regression_but_preserves_hard_cap_and_slack",
+    "test_default_matches_475_hard_soft_nonregression_behavior",
+    "test_malformed_projected_dimensions_fail_closed",
+    "test_real_matched_461_source_and_input_preflight",
+    "test_soft_regression_opt_in_fails_without_exact_470_marker"
+  ],
+  "pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-485/test_component_lp_decomposition_485.py": "bb4edb30928b5a941d26c37c329b40cf90adb1225851c33e2747c3837dacfd07",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-485/failed-test-order-dependent-attempt001.py": "e6aa17b3382aa8c1ca9c97d3dd78cbff1685ab51914d2ead18f2b1b5903ddf9c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-485/run_matched_component_fit_485.py": "3e504da05965405506382338da3b71c81442f40d8c0eb7b16c612b9375633a5f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-485/failed-test-order-dependent-attempt001.json": "5c4d67911bb215148b38fd09d8fa934d86d79fd26b89876d28aadc8241b33668",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-485/component_lp_decomposition_485.py": "b8632e0734ff0163e854b9c0c5fbfe33c6d12c7b17cbb7935c5028c8df78ef74"
+  },
+  "native_admission": false
+}
