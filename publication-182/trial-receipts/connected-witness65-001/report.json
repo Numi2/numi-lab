@@ -1,0 +1,137 @@
+{
+  "baseline_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "search_report_sha256": "facd0462718b42cb669e05500c7c3697223ccb06bfbef818f97dd9965cd6e319",
+  "support_nodes": 57,
+  "affected_faces": 180,
+  "depth_rows": 22,
+  "results": [
+    {
+      "alpha": 1.0,
+      "solver": {
+        "success": true,
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "nit": 256,
+        "objective": 4.385496579327119,
+        "wall_seconds": 0.004189249826595187,
+        "lp_method": "highs",
+        "minimum_normalized_linear_slack": -1.3877787807814457e-17,
+        "raw_target_l1_mm": 0.0,
+        "residual_to_raw_target_l1_mm": 4.385496579327119
+      },
+      "area_pass": true,
+      "linear_slack": -1.0059356669256392e-05,
+      "edge_slack_mm": -1.0059356669256392e-05,
+      "max_step_mm": 0.828085203264802,
+      "max_source_mm": 11.999981854019131,
+      "changed_count": 7,
+      "status": "CHEAP_GATE_PASS_ONLY",
+      "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/connected-witness65-001/candidate-alpha-1.0.npz",
+      "candidate_sha256": "6149504b6d9eb17bacc7e730081702e97f02d974604b441bbf07f386a6a0bb62",
+      "changed_rows": [
+        18856,
+        19469,
+        21088,
+        21089,
+        21091,
+        21167,
+        21168
+      ]
+    },
+    {
+      "alpha": 0.75,
+      "solver": {
+        "success": true,
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "nit": 249,
+        "objective": 2.9168810240594714,
+        "wall_seconds": 0.0034836670383810997,
+        "lp_method": "highs",
+        "minimum_normalized_linear_slack": -1.3877787807814457e-17,
+        "raw_target_l1_mm": 0.0,
+        "residual_to_raw_target_l1_mm": 2.916881024059472
+      },
+      "area_pass": true,
+      "linear_slack": -1.0059356669228636e-05,
+      "edge_slack_mm": -1.0059356669228636e-05,
+      "max_step_mm": 0.6210648545734121,
+      "max_source_mm": 11.999981854019131,
+      "changed_count": 6,
+      "status": "CHEAP_GATE_PASS_ONLY",
+      "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/connected-witness65-001/candidate-alpha-0.75.npz",
+      "candidate_sha256": "47b3ba75687ef8e11e39a7a4fb1b13788362bcdb5da7449ff8004729a5c1dbd7",
+      "changed_rows": [
+        19469,
+        21088,
+        21089,
+        21091,
+        21167,
+        21168
+      ]
+    },
+    {
+      "alpha": 0.5,
+      "solver": {
+        "success": true,
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "nit": 252,
+        "objective": 1.6931727624743411,
+        "wall_seconds": 0.0033777919597923756,
+        "lp_method": "highs",
+        "minimum_normalized_linear_slack": 0.0,
+        "raw_target_l1_mm": 0.0,
+        "residual_to_raw_target_l1_mm": 1.6931727624743411
+      },
+      "area_pass": true,
+      "linear_slack": 0.0,
+      "edge_slack_mm": 6.315226936698393e-06,
+      "max_step_mm": 0.4140445058902754,
+      "max_source_mm": 11.999981854019131,
+      "changed_count": 4,
+      "status": "CHEAP_GATE_PASS_ONLY",
+      "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/connected-witness65-001/candidate-alpha-0.5.npz",
+      "candidate_sha256": "be0b5d0e4505de99899f738f4e69706651ddaa6aed78bebe8c0689344107ddcd",
+      "changed_rows": [
+        19469,
+        21089,
+        21091,
+        21167
+      ]
+    },
+    {
+      "alpha": 0.25,
+      "solver": {
+        "success": true,
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "nit": 257,
+        "objective": 0.8105263113975525,
+        "wall_seconds": 0.0036583750043064356,
+        "lp_method": "highs",
+        "minimum_normalized_linear_slack": 0.0,
+        "raw_target_l1_mm": 0.0,
+        "residual_to_raw_target_l1_mm": 0.8105263113975525
+      },
+      "area_pass": true,
+      "linear_slack": 0.0,
+      "edge_slack_mm": 0.04813795272964189,
+      "max_step_mm": 0.20702034869964317,
+      "max_source_mm": 11.999981854019131,
+      "changed_count": 3,
+      "status": "CHEAP_GATE_PASS_ONLY",
+      "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/connected-witness65-001/candidate-alpha-0.25.npz",
+      "candidate_sha256": "ee8773250f89af5533e60b67d8f1465b4f747995f3a6ff5bce2b112a312f7de2",
+      "changed_rows": [
+        19469,
+        21089,
+        21167
+      ]
+    }
+  ],
+  "elapsed_s": 3.389417374972254,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "limitations": "No exact postfit self, 185-bone, solid containment, transfer or native audit."
+}

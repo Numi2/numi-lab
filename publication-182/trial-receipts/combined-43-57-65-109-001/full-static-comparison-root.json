@@ -1,0 +1,204 @@
+{
+  "status": "FULL_STATIC_AUDITS_ONLY",
+  "base_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "candidate_sha256": "2ac30b0453e718144c7f06437eb21fb461386a8be16b0e3ca93c7e2ce48de5cb",
+  "raw_pairs_before": 997,
+  "raw_pairs_after": 989,
+  "parent_pairs_before": 661,
+  "parent_pairs_after": 655,
+  "bank_changes": [
+    {
+      "bank": [
+        43,
+        16
+      ],
+      "raw_before": 253,
+      "raw_after": 249,
+      "parent_before": 151,
+      "parent_after": 149,
+      "removed_parent_pairs": [
+        [
+          19372,
+          154
+        ],
+        [
+          19372,
+          156
+        ],
+        [
+          19372,
+          167
+        ],
+        [
+          19372,
+          168
+        ],
+        [
+          19372,
+          169
+        ],
+        [
+          19377,
+          151
+        ]
+      ],
+      "added_parent_pairs": [
+        [
+          19373,
+          156
+        ],
+        [
+          19373,
+          167
+        ],
+        [
+          19373,
+          168
+        ],
+        [
+          19378,
+          152
+        ]
+      ]
+    },
+    {
+      "bank": [
+        57,
+        89
+      ],
+      "raw_before": 74,
+      "raw_after": 73,
+      "parent_before": 60,
+      "parent_after": 59,
+      "removed_parent_pairs": [
+        [
+          13135,
+          195
+        ],
+        [
+          13135,
+          311
+        ]
+      ],
+      "added_parent_pairs": [
+        [
+          13135,
+          465
+        ]
+      ]
+    },
+    {
+      "bank": [
+        65,
+        99
+      ],
+      "raw_before": 150,
+      "raw_after": 148,
+      "parent_before": 86,
+      "parent_after": 84,
+      "removed_parent_pairs": [
+        [
+          14272,
+          101
+        ],
+        [
+          14272,
+          102
+        ],
+        [
+          14272,
+          103
+        ],
+        [
+          14272,
+          111
+        ],
+        [
+          14272,
+          113
+        ]
+      ],
+      "added_parent_pairs": [
+        [
+          14285,
+          101
+        ],
+        [
+          14285,
+          111
+        ],
+        [
+          14285,
+          113
+        ]
+      ]
+    },
+    {
+      "bank": [
+        109,
+        114
+      ],
+      "raw_before": 188,
+      "raw_after": 187,
+      "parent_before": 120,
+      "parent_after": 119,
+      "removed_parent_pairs": [
+        [
+          34753,
+          192
+        ],
+        [
+          34753,
+          263
+        ],
+        [
+          34794,
+          190
+        ]
+      ],
+      "added_parent_pairs": [
+        [
+          34753,
+          138
+        ],
+        [
+          34753,
+          139
+        ]
+      ]
+    }
+  ],
+  "changed_nodes": [
+    18856,
+    19063,
+    19209,
+    19469,
+    20921,
+    20979,
+    21056,
+    21057,
+    21088,
+    21089,
+    21091,
+    21128,
+    21133,
+    21151,
+    21167,
+    21168
+  ],
+  "max_displacement_mm": 1.6820915697067873,
+  "changed_incident_faces": 61,
+  "min_area_ratio_to_baseline": 0.33420326417154606,
+  "max_area_ratio_to_baseline": 2.701970915141936,
+  "minimum_normal_cosine_to_baseline": 0.6185361035048202,
+  "anchors_unchanged": true,
+  "metadata_arrays_unchanged": true,
+  "inside_before": 127,
+  "inside_after": 126,
+  "inside_added": 0,
+  "inside_removed": 1,
+  "self_pairs": 0,
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0,
+  "limits": "sampled containment is not solid containment; parent pairs are ancestor identities and raw child counts change under refinement; no physical skin/fat transfer or motion/native validation"
+}

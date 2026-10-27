@@ -1,0 +1,7 @@
+{
+  "candidate_sha256": "cbe84f9cc4a2d7dbae9b2e00f620248781debfb19ceab3435323830093c5ba3e",
+  "boundary_edge_count": 45,
+  "nonmanifold_edge_count": 0,
+  "skin_closed": false,
+  "note": "Counts only edge incidence; do not establish full manifoldness or physical admission."
+}

@@ -1,0 +1,7 @@
+{
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "boundary_edge_count": 45,
+  "nonmanifold_edge_count": 0,
+  "skin_closed": false,
+  "note": "No face connectivity changed relative to the independently counted candidate; incidence is not a full manifold or physical certificate."
+}

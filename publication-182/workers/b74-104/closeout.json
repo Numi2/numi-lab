@@ -1,0 +1,53 @@
+{
+  "status": "BOUNDED_TRIAL_COMPLETE_NO_PASS",
+  "bank_body": 74,
+  "stable_bone_id": 104,
+  "baseline_candidate_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "baseline_raw_child_pairs": 25,
+  "comparable_original_parent_pairs": 19,
+  "shared_original_fine_face_ancestry": 10342,
+  "shared_pre_refinement_input_face_row": 22189,
+  "full_audits_run": false,
+  "physical_steps": 0,
+  "geometry_admitted": false,
+  "next_specific_method": "Use local interior remeshing on source face ancestry 10342 / input face 22189: preserve the six current face-boundary nodes and their typed identities, add one or more interior Steiner nodes with explicit source-face barycentric ancestry, place them by a constrained fit to the pinned bone-104 exterior, and retriangulate only this face patch. Exact witnesses all lie strictly inside the original face; its boundary points classify outside, so a fixed-boundary interior degree of freedom is the next bounded method. Evaluate all new patch triangles against bone 104 and neighboring surface faces before any global audit.",
+  "artifacts": {
+    "baseline-witnesses.json": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/baseline-witnesses.json",
+      "sha256": "7ad253bf0b8ce9140e2319786745c92706c0e15772e4af0de09d062e29485543",
+      "bytes": 71750
+    },
+    "local-geometry.json": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/local-geometry.json",
+      "sha256": "9910011544592aa8a4a4a51a558b19e2fd1749b86199cff28eaf2949a6775bd6",
+      "bytes": 5990
+    },
+    "trial-report.json": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/trial-report.json",
+      "sha256": "cbabc31c1df88900c10c2bac2b281572f67f51452f3b2ce856a91af894306367",
+      "bytes": 19644
+    },
+    "centroid-exit-report.json": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/centroid-exit-report.json",
+      "sha256": "d2cc7d8486d16687c4ed45546ea72c664c93884af043e41c597f684f416aa742",
+      "bytes": 18454
+    },
+    "preflight.py": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/preflight.py",
+      "sha256": "ccb17d1a44cd0f792788f7b957b9f1127c989ae0aaf9bc0f5bd407a6540c10ee",
+      "bytes": 4796
+    },
+    "run_trial.py": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/run_trial.py",
+      "sha256": "6bcacd33d394fe3789b9966ebf1bf67168fa32ab4bab4d1f96922b9d7f64c1f0",
+      "bytes": 8670
+    },
+    "centroid_exit_trial.py": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/centroid_exit_trial.py",
+      "sha256": "4e3a583555e3f957c27d4390d92e446877e9e20b658b96d2c08b8ac4bb6d1834",
+      "bytes": 8924
+    }
+  },
+  "trial_candidate_created": false,
+  "failure_summary": "Nearest-bone radial moves left at least 24 raw pairs and, at greater displacement, retained an inside face centroid. Centroid-exit midpoint solve also retained 24 raw pairs, created new adjacent-face crossings (rows 22591/22592), and required up to 13.205 mm movement. No candidate passed local exact crossing and point-location preflight."
+}

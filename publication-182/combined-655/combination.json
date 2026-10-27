@@ -1,0 +1,107 @@
+{
+  "status": "COMBINED_CONSTRUCTION_ONLY",
+  "candidate_sha256": "cbe84f9cc4a2d7dbae9b2e00f620248781debfb19ceab3435323830093c5ba3e",
+  "baseline_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "components": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/sat57-tangent-001/candidate.npz",
+      "sha256": "dbcb8e481581ef870809a16f620baaa6d1bc2ebe9c5d35820df0ec37bf374e4f",
+      "changed_nodes": [
+        20921,
+        21056,
+        21057
+      ],
+      "incident_face_count": 12
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/outward-face-43-16-001/candidate.npz",
+      "sha256": "c0b419e07e8aba502d0b38861c1273e411fd7ac1a853e2a13df76b1bf091b90e",
+      "changed_nodes": [
+        19063,
+        21128,
+        21133
+      ],
+      "incident_face_count": 12
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/outward-face-109-114-001/candidate.npz",
+      "sha256": "3c0dadb34c0e2c4968c890af0676dca2258a7c76f9db7908649ff5cbd5dd8a96",
+      "changed_nodes": [
+        19209,
+        20979,
+        21151
+      ],
+      "incident_face_count": 13
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/connected65-blend075-screen-001/candidate.npz",
+      "sha256": "b31a10055b69a4ee632813f18df647589b1f40b37b1240fecf95a2c750892a17",
+      "changed_nodes": [
+        4784,
+        8988,
+        9628,
+        10506,
+        11583,
+        12367,
+        12368,
+        14172,
+        14714,
+        14718,
+        14719,
+        15375,
+        15911,
+        15912,
+        16717,
+        16718,
+        16720,
+        16721,
+        16722,
+        16723,
+        18566,
+        18569,
+        18572,
+        18573,
+        18856,
+        18857,
+        18858,
+        18859,
+        18860,
+        19468,
+        19469,
+        19475,
+        19684,
+        19685,
+        19962,
+        19963,
+        19964,
+        19967,
+        19968,
+        19969,
+        19970,
+        19973,
+        19974,
+        19975,
+        19976,
+        19977,
+        19978,
+        19979,
+        21086,
+        21087,
+        21088,
+        21089,
+        21090,
+        21091,
+        21167,
+        21168,
+        21201
+      ],
+      "incident_face_count": 180
+    }
+  ],
+  "shared_changed_nodes": 0,
+  "shared_incident_faces": 0,
+  "anchor_changes": 0,
+  "physical_steps": 0,
+  "admitted": false,
+  "limitations": "Full combined exact surface and bone checks required. No physical transfer or native qualification."
+}

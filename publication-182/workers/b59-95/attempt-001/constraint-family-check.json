@@ -1,0 +1,85 @@
+{
+  "accepted_physical_steps": 0,
+  "active_point_depth_rows": 119,
+  "affected_faces": 1209,
+  "baseline_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "candidate_emitted": false,
+  "constraints": [
+    {
+      "constraint_rows": 119,
+      "iterations": 1571,
+      "matrix_nnz": 357,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "name": "depth_only",
+      "objective": 9.047538042068481,
+      "status": 0,
+      "success": true,
+      "wall_seconds": 0.008304750081151724
+    },
+    {
+      "constraint_rows": 1328,
+      "iterations": 2224,
+      "matrix_nnz": 9807,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "name": "depth_plus_area",
+      "objective": 9.047538042068481,
+      "status": 0,
+      "success": true,
+      "wall_seconds": 0.01727025001309812
+    },
+    {
+      "constraint_rows": 10463,
+      "iterations": 0,
+      "matrix_nnz": 19257,
+      "message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)",
+      "name": "depth_plus_edge",
+      "objective": null,
+      "status": 2,
+      "success": false,
+      "wall_seconds": 0.004235791973769665
+    },
+    {
+      "constraint_rows": 11672,
+      "iterations": 0,
+      "matrix_nnz": 28707,
+      "message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)",
+      "name": "full_depth_area_edge",
+      "objective": null,
+      "status": 2,
+      "success": false,
+      "wall_seconds": 0.0055483749601989985
+    }
+  ],
+  "current_child_face_count": 24,
+  "depth_rows_sha256": "f5d787cd8d0931bedf6e26ecfecd70fedd69a86271570248b3ad14bb225a1a48",
+  "interpretation": "Constraint-family diagnostic only; relaxed systems are not candidates and do not establish geometric clearance.",
+  "native_admission": false,
+  "original_audit159_sha256": "115c7fafd5bff00ad9e7f8f50e3919214664051269e3697c98762bb7bcfef8c5",
+  "original_candidate_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+  "original_cross_pair_count": 33,
+  "original_crossing_skin_faces": [
+    12135,
+    12151,
+    12152,
+    12175,
+    12176,
+    12179
+  ],
+  "schema": "numi.human.skin_bone_bank59_95_constraint_family_check.v1",
+  "seed_nodes_from_crossing_children_and_targets": 21,
+  "support_nodes": 510,
+  "support_rings": 5,
+  "target_rows": [
+    20911,
+    20912,
+    21125,
+    21196
+  ],
+  "target_step_mm": [
+    2.4878510602490924,
+    1.87141066777741,
+    1.2707787245893905,
+    0.2242973350446026
+  ],
+  "targets_sha256": "b15fe5f77806aeea1f1a73c2c8018f3ba204a01a553e120518ad9da91ba99a1b"
+}

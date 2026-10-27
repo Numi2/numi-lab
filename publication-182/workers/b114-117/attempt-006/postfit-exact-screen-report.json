@@ -1,0 +1,138 @@
+{
+  "schema": "numi.human.connected-surface-bank114-117-postfit-screen.v1",
+  "status": "STOP_NO_CLEAN_CROSSING_REDUCTION",
+  "baseline_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz",
+  "baseline_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b114-117/attempt-005/candidate-connected-fit-001.npz",
+  "candidate_sha256": "474b258eede865dd3564064b05e0a1687fcce9103418c393c6833da2cb70f477",
+  "physical_steps": 0,
+  "geometry_admitted": false,
+  "native_admission": false,
+  "selected_moved_rows": [
+    21112
+  ],
+  "limitations": "Construction candidate only; exact containment, all-bank crossing, full self, native transfer, physical replay, and qualification remain separate gates.",
+  "candidate_noncoordinate_array_bytes_identical": true,
+  "candidate_face_identity_preserved": true,
+  "candidate_changed_rows": [
+    21112
+  ],
+  "typed_anchors_bytewise_identical": true,
+  "zero_delta_emission_control": "PASS_BITWISE",
+  "target_archive_sha256": "8a19223a0278980e3f571b2702afa7361203afe05a0909effcd578014d7542f0",
+  "target_report_sha256": "405f3960c107451cbd7cc29be2b96d51ae960d2c9e53b1b213a1179bf822e883",
+  "target_row": 21112,
+  "target_endpoint_step_mm": 0.4472875894457724,
+  "target_endpoint_outside_all185": true,
+  "target_distance_receipt": {
+    "target_count": 1,
+    "passing_targets": 1,
+    "all_passing_endpoints_exactly_outside_185": true,
+    "minimum_source_cosine": 0.05,
+    "minimum_depth_cosine": 0.05,
+    "physical_steps": 0
+  },
+  "postfit_source_normal_alignment": {
+    "status": "PASS",
+    "coarse_outward_sign": -1,
+    "target_row_count": 1,
+    "agreement_count": 1,
+    "disagreement_count": 0,
+    "rows": [
+      {
+        "query_row": 21112,
+        "status": "PASS",
+        "incident_faces": [
+          41141,
+          41142,
+          41144,
+          41153,
+          41154,
+          41155
+        ],
+        "current_area_sum_m2": 3.5464918758901326e-05,
+        "resultant_over_area_sum": 0.9826548959836902,
+        "current_outward_normal_world_unit": [
+          -0.08388201376136149,
+          -0.9021724301998209,
+          -0.42314148219559866
+        ],
+        "registered_source_outward_normal_world_unit": [
+          0.8238389890930198,
+          0.021872479709781352,
+          -0.5664017255283887
+        ],
+        "current_source_outward_dot": 0.15083004406371053,
+        "coarse_outward_sign": -1
+      }
+    ],
+    "witnesses": []
+  },
+  "incremental_159": {
+    "typed_bank_count": 185,
+    "changed_triangle_count": 6,
+    "raw_before": 997,
+    "raw_after": 999,
+    "parent_before": 661,
+    "parent_after": 661,
+    "target_bank_parent_before": 42,
+    "target_bank_parent_after": 42,
+    "target_bank_removed_parent_witnesses": [
+      [
+        40544,
+        281
+      ],
+      [
+        40544,
+        282
+      ]
+    ],
+    "target_bank_added_parent_witnesses": [
+      [
+        40537,
+        267
+      ],
+      [
+        40537,
+        281
+      ]
+    ],
+    "banks_changed": [
+      {
+        "bank": [
+          114,
+          117
+        ],
+        "raw_before": 58,
+        "raw_after": 60,
+        "parent_before": 42,
+        "parent_after": 42,
+        "removed_parent": 2,
+        "added_parent": 2,
+        "added_parent_witnesses": [
+          [
+            40537,
+            267
+          ],
+          [
+            40537,
+            281
+          ]
+        ]
+      }
+    ]
+  },
+  "added_parent_witnesses": {
+    "(114, 117)": [
+      [
+        40537,
+        267
+      ],
+      [
+        40537,
+        281
+      ]
+    ]
+  },
+  "elapsed_s": 1.1723062079399824
+}

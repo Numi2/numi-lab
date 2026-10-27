@@ -1,0 +1,466 @@
+{
+  "status": "SCREEN_PASS_ONLY",
+  "results": [
+    {
+      "beta": 0.0,
+      "area_pass": true,
+      "edge_slack_mm": -1.0059356669228636e-05,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 995,
+      "parent_total": 659,
+      "raw_delta": {
+        "65/99": -2
+      },
+      "parent_delta": {
+        "65/99": -2
+      },
+      "self_pairs": 0,
+      "new_normal_conflicts": [],
+      "status": "SCREEN_PASS_ONLY"
+    },
+    {
+      "beta": 0.03125,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 995,
+      "parent_total": 659,
+      "raw_delta": {
+        "65/99": -2
+      },
+      "parent_delta": {
+        "65/99": -2
+      },
+      "self_pairs": 0,
+      "new_normal_conflicts": [],
+      "status": "SCREEN_PASS_ONLY"
+    },
+    {
+      "beta": 0.0625,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 995,
+      "parent_total": 659,
+      "raw_delta": {
+        "65/99": -2
+      },
+      "parent_delta": {
+        "65/99": -2
+      },
+      "self_pairs": 0,
+      "new_normal_conflicts": [],
+      "status": "SCREEN_PASS_ONLY"
+    },
+    {
+      "beta": 0.09375,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 995,
+      "parent_total": 659,
+      "raw_delta": {
+        "65/99": -2
+      },
+      "parent_delta": {
+        "65/99": -2
+      },
+      "self_pairs": 0,
+      "new_normal_conflicts": [],
+      "status": "SCREEN_PASS_ONLY"
+    },
+    {
+      "beta": 0.125,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 995,
+      "parent_total": 659,
+      "raw_delta": {
+        "65/99": -2
+      },
+      "parent_delta": {
+        "65/99": -2
+      },
+      "self_pairs": 0,
+      "new_normal_conflicts": [],
+      "status": "SCREEN_PASS_ONLY"
+    },
+    {
+      "beta": 0.15625,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 995,
+      "parent_total": 659,
+      "raw_delta": {
+        "65/99": -2
+      },
+      "parent_delta": {
+        "65/99": -2
+      },
+      "self_pairs": 0,
+      "new_normal_conflicts": [],
+      "status": "SCREEN_PASS_ONLY"
+    },
+    {
+      "beta": 0.1875,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 995,
+      "parent_total": 659,
+      "raw_delta": {
+        "65/99": -2
+      },
+      "parent_delta": {
+        "65/99": -2
+      },
+      "self_pairs": 0,
+      "new_normal_conflicts": [],
+      "status": "SCREEN_PASS_ONLY"
+    },
+    {
+      "beta": 0.21875,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 995,
+      "parent_total": 659,
+      "raw_delta": {
+        "65/99": -2
+      },
+      "parent_delta": {
+        "65/99": -2
+      },
+      "self_pairs": 0,
+      "new_normal_conflicts": [],
+      "status": "SCREEN_PASS_ONLY"
+    },
+    {
+      "beta": 0.25,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 995,
+      "parent_total": 659,
+      "raw_delta": {
+        "65/99": -2
+      },
+      "parent_delta": {
+        "65/99": -2
+      },
+      "self_pairs": 0,
+      "new_normal_conflicts": [],
+      "status": "SCREEN_PASS_ONLY"
+    },
+    {
+      "beta": 0.28125,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 995,
+      "parent_total": 659,
+      "raw_delta": {
+        "65/99": -2
+      },
+      "parent_delta": {
+        "65/99": -2
+      },
+      "self_pairs": 0,
+      "new_normal_conflicts": [],
+      "status": "SCREEN_PASS_ONLY"
+    },
+    {
+      "beta": 0.3125,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 995,
+      "parent_total": 659,
+      "raw_delta": {
+        "65/99": -2
+      },
+      "parent_delta": {
+        "65/99": -2
+      },
+      "self_pairs": 0,
+      "new_normal_conflicts": [],
+      "status": "SCREEN_PASS_ONLY"
+    },
+    {
+      "beta": 0.34375,
+      "area_pass": true,
+      "edge_slack_mm": -9.64441726929166e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 995,
+      "parent_total": 659,
+      "raw_delta": {
+        "65/99": -2
+      },
+      "parent_delta": {
+        "65/99": -2
+      },
+      "self_pairs": 0,
+      "new_normal_conflicts": [],
+      "status": "SCREEN_PASS_ONLY"
+    },
+    {
+      "beta": 0.375,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.40625,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.4375,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.46875,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.5,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.53125,
+      "area_pass": true,
+      "edge_slack_mm": -9.64441726929166e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.5625,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.59375,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.625,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.65625,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.6875,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.71875,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.75,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.78125,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.8125,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.84375,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.875,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.90625,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269277783e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.9375,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 0.96875,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "beta": 1.0,
+      "area_pass": true,
+      "edge_slack_mm": -9.644417269263905e-06,
+      "source_max_mm": 11.999981854019131,
+      "raw_total": 997,
+      "parent_total": 661,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    }
+  ],
+  "selected": {
+    "beta": 0.34375,
+    "area_pass": true,
+    "edge_slack_mm": -9.64441726929166e-06,
+    "source_max_mm": 11.999981854019131,
+    "raw_total": 995,
+    "parent_total": 659,
+    "raw_delta": {
+      "65/99": -2
+    },
+    "parent_delta": {
+      "65/99": -2
+    },
+    "self_pairs": 0,
+    "new_normal_conflicts": [],
+    "status": "SCREEN_PASS_ONLY"
+  },
+  "baseline_candidate_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "sparse_sha256": "47b3ba75687ef8e11e39a7a4fb1b13788362bcdb5da7449ff8004729a5c1dbd7",
+  "smooth_sha256": "ccd4a6e5bb5a5fd05262112a6641cb6d9b8e668b127f0e95f711d92361d24aa0",
+  "full_six_159_parity": true,
+  "candidate_sha256": "b31a10055b69a4ee632813f18df647589b1f40b37b1240fecf95a2c750892a17",
+  "elapsed_s": 9.97396008297801,
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0,
+  "limitations": "Incremental screen only; full exact 130/159, containment, skin/fat transfer, native qualification still required."
+}

@@ -1,0 +1,48 @@
+{
+  "status": "NO_SAFE_IMPROVEMENT",
+  "results": [
+    {
+      "alpha": 1.0,
+      "sha256": "b4dfa7ba9fe3ebba1644250b6f834234e7c94f0696f7636e2c577f43f4984473",
+      "area_pass": true,
+      "edge_slack_mm": 0.11979191961756255,
+      "source_max_mm": 11.999987459616364,
+      "raw_total": 996,
+      "parent_total": 660,
+      "raw_delta": {
+        "109/114": -1
+      },
+      "parent_delta": {
+        "109/114": -1
+      },
+      "self_pairs": 45,
+      "new_normal_conflicts": [],
+      "status": "SELF_OR_NORMAL_REJECT"
+    },
+    {
+      "alpha": 0.75,
+      "sha256": "f1f26bab35ef25a02c2165735425ac8d80fd270d412dc420ef38e0024b1de883",
+      "area_pass": true,
+      "edge_slack_mm": 0.12213140192499664,
+      "source_max_mm": 11.999987459616364,
+      "raw_total": 996,
+      "parent_total": 660,
+      "raw_delta": {
+        "109/114": -1
+      },
+      "parent_delta": {
+        "109/114": -1
+      },
+      "self_pairs": 20,
+      "new_normal_conflicts": [],
+      "status": "SELF_OR_NORMAL_REJECT"
+    }
+  ],
+  "baseline_candidate_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "full_six_159_parity": true,
+  "candidate_sha256": null,
+  "elapsed_s": 1.5616577919572592,
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0,
+  "limitations": "Incremental screen only; full exact 130/159, containment, skin/fat transfer, native qualification still required."
+}

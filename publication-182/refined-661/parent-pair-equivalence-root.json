@@ -1,0 +1,81 @@
+{
+  "candidate_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "inside_by_bank": [
+    {
+      "body": 43,
+      "count": 43,
+      "max_nearest_surface_depth_mm": 1.7782188299526764,
+      "stable_bone_id": 16
+    },
+    {
+      "body": 57,
+      "count": 4,
+      "max_nearest_surface_depth_mm": 2.0504255892813474,
+      "stable_bone_id": 89
+    },
+    {
+      "body": 59,
+      "count": 4,
+      "max_nearest_surface_depth_mm": 2.4378640107272553,
+      "stable_bone_id": 95
+    },
+    {
+      "body": 61,
+      "count": 2,
+      "max_nearest_surface_depth_mm": 0.7216801225549325,
+      "stable_bone_id": 97
+    },
+    {
+      "body": 64,
+      "count": 1,
+      "max_nearest_surface_depth_mm": 2.8236461198332248,
+      "stable_bone_id": 98
+    },
+    {
+      "body": 65,
+      "count": 30,
+      "max_nearest_surface_depth_mm": 2.0752720811574465,
+      "stable_bone_id": 99
+    },
+    {
+      "body": 109,
+      "count": 24,
+      "max_nearest_surface_depth_mm": 2.5005930134763417,
+      "stable_bone_id": 114
+    },
+    {
+      "body": 114,
+      "count": 4,
+      "max_nearest_surface_depth_mm": 2.224657080615995,
+      "stable_bone_id": 117
+    },
+    {
+      "body": 115,
+      "count": 4,
+      "max_nearest_surface_depth_mm": 1.4170420122881031,
+      "stable_bone_id": 118
+    },
+    {
+      "body": 124,
+      "count": 11,
+      "max_nearest_surface_depth_mm": 2.065179236551967,
+      "stable_bone_id": 123
+    }
+  ],
+  "inside_node_bank_pairs": 127,
+  "inside_nodes": 127,
+  "limitations": "Topology refinement only, not a crossing repair; point containment is sampled, no tissue, physical, or native admission.",
+  "parent_identities_added": [],
+  "parent_identities_removed": [],
+  "parent_pairs_after": 661,
+  "parent_pairs_before": 661,
+  "raw_child_pairs": 997,
+  "self_pairs": 0,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-130/summary.json": "2bcd8e1516fb4016a79109565758d4e7c1b19cd3d39ac0b37157e9a6ac3751bd",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-159/report.json": "8b0a7557a8b79a3a5e6b8c2cb75cf94047a2b207c86532a77765c8d1c65d1723",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/full-check-545/audit-159/report.json": "115c7fafd5bff00ad9e7f8f50e3919214664051269e3697c98762bb7bcfef8c5"
+  },
+  "status": "UNADMITTED_REFINEMENT_COMPARISON"
+}

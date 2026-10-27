@@ -1,0 +1,17 @@
+# Numi Human P182: hand crossing construction evidence
+
+This is a static construction checkpoint, not a native scene update or a physically admitted skin/fat model. It builds on the P181 construction evidence at commit 37a7b007120ff5a9875e54835e9b6d240c8b56c5. The unchanged refined 661 baseline is d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8; the combined candidate is cbe84f9cc4a2d7dbae9b2e00f620248781debfb19ceab3435323830093c5ba3e.
+
+Using exact Float32 world positions and all 185 typed bone banks, comparable parent-face/bone-triangle identities decreased 661 to 655: 43/16 151→149, 65/99 86→84, 109/114 120→119, and 57/89 60→59. Several original pair identities were replaced by new ones; see the comparison receipt. The refined child count was 997→989; it is not directly comparable to the pre-refinement raw count. Complete exact surface self-audit was zero. Sampled inside node/bank identities went 127→126, with no additions; this is not a closed-solid containment certificate. The refinement reveals inside points that the earlier coarser samples did not capture.
+
+The combined motion changed 66 nodes, with maximum 1.6821 mm; 237 typed anchors and non-coordinate arrays are unchanged. Over 217 incident faces, the area ratio to the fixed refined baseline ranges 0.569–1.794 and the minimum normal cosine is 0.729. A preceding sparse 65 fit had a worse 0.334–2.702 range and 0.619 cosine; its receipt is retained for comparison. These metrics do not establish a natural anatomical shape.
+
+There is no whole-body motion, skin/fat volumetric transfer, mass, accepted physical step, native viewer, or physiological validation in this checkpoint. The current candidate has 45 boundary edges and zero nonmanifold edges; this does not certify a closed body. Rejected and incomplete bank-specific trials are retained as diagnostic evidence, not promoted repairs. The scripts are evidence snapshots using pinned SSH Numi paths and earlier owner tools; they are not a standalone public interface.
+
+## Five-patch continuation
+
+The later static candidate `7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af` adds the 124/123 connected fit. The complete 185-bank audit and parent comparison report 661→653 parent identities, including 124/123 58→56; refined raw pairs are 997→985. Exact surface self pairs remain zero. Sampled inside points are 127→125 with no newly inside identities. The candidate changes 133 nodes and 422 incident faces, with a maximum 1.6821 mm move; the area-ratio and minimum-normal-cosine extrema remain 0.569–1.794 and 0.729. Exact removed and added parent identities are in the receipt. This remains construction-only, and 45 boundary edges remain.
+
+## Source attribution
+
+The existing scene manifest identifies the exterior shell as BodyParts3D FJ2810 and MyoSim as the registration/musculoskeletal source. BodyParts3D, © The Database Center for Life Science, licensed under CC Attribution 4.0 International: https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html ; license: https://creativecommons.org/licenses/by/4.0/ . The shell has been registered, retopologized, refined and locally displaced as documented in the receipts. The scene manifest declares MyoSim Apache-2.0; its original source identity and license remain with the pinned scene/source manifests. This is a mixed-source reference assembly, not measurements of one person.

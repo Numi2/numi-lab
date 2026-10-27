@@ -1,0 +1,1902 @@
+{
+  "585_owner_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/edge_only_refinement585_generation002.py",
+  "585_owner_sha256": "2b15380a43a0a022d4d0d183233ac1107e64e076180e9403f43f124300b62b87",
+  "accepted_physical_steps": 0,
+  "area_reference_037_input_sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+  "baseline_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz",
+  "baseline_candidate_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+  "baseline_state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/final-absolute-546/state.json",
+  "baseline_state_sha256": "fcee9ee45bc2319a7c5699974727139b13b06996031bd115a0e4ef2abaa68519",
+  "build_report": {
+    "adapter": "connected_refinement_adapter546_generation002",
+    "adapter_sha256": "6603e244496dfbbeb76f7cfbaa56c80f39b1a18e6cccb50727406148ba885fe4",
+    "added_face_centroids": 0,
+    "affected_parent_face_count": 320,
+    "area_reference_037_sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+    "area_reference_faces_match_candidate_exactly": true,
+    "area_reference_uses_same_Q": true,
+    "boundary_components_after": 2,
+    "boundary_components_before": 2,
+    "boundary_edges_after": 45,
+    "boundary_edges_before": 45,
+    "candidate_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+    "child_barycentric_reconstruction_tolerance_m": 9.5367431640625e-07,
+    "composed_QP_nnz": 33646,
+    "composed_QP_shape": [
+      21212,
+      13518
+    ],
+    "construction_face_selection": {
+      "excluded_crossed_face_rows": [],
+      "frozen_face_rows": [],
+      "original_validated_crossed_face_rows": null,
+      "selected_crossed_face_rows": null
+    },
+    "containment_or_clearance_claim": false,
+    "crossing_bank_triangle_pair_count": 661,
+    "crossing_report_sha256": "115c7fafd5bff00ad9e7f8f50e3919214664051269e3697c98762bb7bcfef8c5",
+    "edge_only_refinement585_sha256": "2b15380a43a0a022d4d0d183233ac1107e64e076180e9403f43f124300b62b87",
+    "existing_node_coordinates_moved": false,
+    "existing_prior_input_parent_namespace_preserved_under": "prior_input_parent_546_generation_002__",
+    "face_ancestry_parent_row_stats": {
+      "face_fine_detail_ancestry_indptr": {
+        "parent_rows_with_empty_ancestry": 6852,
+        "parent_rows_with_multi_parent_union": 186
+      },
+      "face_fine_subface_ancestry_indptr": {
+        "parent_rows_with_empty_ancestry": 6846,
+        "parent_rows_with_multi_parent_union": 192
+      },
+      "face_source_ancestry_indptr": {
+        "parent_rows_with_empty_ancestry": 0,
+        "parent_rows_with_multi_parent_union": 192
+      }
+    },
+    "face_centroid_count": 0,
+    "geometry_admitted": false,
+    "geometry_moved": false,
+    "historical_maps_preserved": [],
+    "historical_namespace_migrations": {
+      "prior_input_parent__": "prior_input_parent_546_generation_002__"
+    },
+    "historical_prior_keys_preserved": [
+      "prior_input_006__refinement_boundary_semantics",
+      "prior_input_006__refinement_face_parent_barycentric",
+      "prior_input_006__refinement_face_parent_barycentric_semantics",
+      "prior_input_006__refinement_face_parent_face_row",
+      "prior_input_006__refinement_input_candidate_sha256",
+      "prior_input_006__refinement_input_face_report_sha256",
+      "prior_input_006__refinement_node_kind",
+      "prior_input_006__refinement_node_kind_semantics",
+      "prior_input_006__refinement_node_parent_edge_rows",
+      "prior_input_006__refinement_node_parent_edge_weights",
+      "prior_input_006__refinement_node_parent_face_barycentric",
+      "prior_input_006__refinement_node_parent_face_indptr",
+      "prior_input_006__refinement_node_parent_face_rows",
+      "prior_input_006__source_prolongation_indptr",
+      "prior_input_006__source_prolongation_node_rows",
+      "prior_input_006__source_prolongation_semantics",
+      "prior_input_006__source_prolongation_weights",
+      "prior_input_parent_546__input_refinement_face_parent_ancestry_face_rows",
+      "prior_input_parent_546__input_refinement_face_parent_ancestry_indptr",
+      "prior_input_parent_546__input_refinement_face_parent_ancestry_semantics",
+      "prior_input_parent_546__refinement_boundary_semantics",
+      "prior_input_parent_546__refinement_face_parent_barycentric",
+      "prior_input_parent_546__refinement_face_parent_barycentric_semantics",
+      "prior_input_parent_546__refinement_face_parent_face_row",
+      "prior_input_parent_546__refinement_input_candidate_sha256",
+      "prior_input_parent_546__refinement_input_face_report_sha256",
+      "prior_input_parent_546__refinement_node_kind",
+      "prior_input_parent_546__refinement_node_kind_semantics",
+      "prior_input_parent_546__refinement_node_parent_edge_rows",
+      "prior_input_parent_546__refinement_node_parent_edge_weights",
+      "prior_input_parent_546__refinement_node_parent_face_barycentric",
+      "prior_input_parent_546__refinement_node_parent_face_indptr",
+      "prior_input_parent_546__refinement_node_parent_face_rows",
+      "prior_input_parent_546__source_prolongation_indptr",
+      "prior_input_parent_546__source_prolongation_node_rows",
+      "prior_input_parent_546__source_prolongation_semantics",
+      "prior_input_parent_546__source_prolongation_weights",
+      "prior_input_parent__refinement_boundary_semantics",
+      "prior_input_parent__refinement_face_parent_barycentric",
+      "prior_input_parent__refinement_face_parent_barycentric_semantics",
+      "prior_input_parent__refinement_face_parent_face_row",
+      "prior_input_parent__refinement_input_candidate_sha256",
+      "prior_input_parent__refinement_input_face_report_sha256",
+      "prior_input_parent__refinement_node_kind",
+      "prior_input_parent__refinement_node_kind_semantics",
+      "prior_input_parent__refinement_node_parent_edge_rows",
+      "prior_input_parent__refinement_node_parent_edge_weights",
+      "prior_input_parent__refinement_node_parent_face_barycentric",
+      "prior_input_parent__refinement_node_parent_face_indptr",
+      "prior_input_parent__refinement_node_parent_face_rows",
+      "prior_input_parent__source_prolongation_indptr",
+      "prior_input_parent__source_prolongation_node_rows",
+      "prior_input_parent__source_prolongation_semantics",
+      "prior_input_parent__source_prolongation_weights",
+      "prior_run028__refinement_boundary_semantics",
+      "prior_run028__refinement_face_parent_barycentric",
+      "prior_run028__refinement_face_parent_barycentric_semantics",
+      "prior_run028__refinement_face_parent_face_row",
+      "prior_run028__refinement_input_candidate_sha256",
+      "prior_run028__refinement_input_face_report_sha256",
+      "prior_run028__refinement_node_kind",
+      "prior_run028__refinement_node_kind_semantics",
+      "prior_run028__refinement_node_parent_edge_rows",
+      "prior_run028__refinement_node_parent_edge_weights",
+      "prior_run028__refinement_node_parent_face_barycentric",
+      "prior_run028__refinement_node_parent_face_indptr",
+      "prior_run028__refinement_node_parent_face_rows",
+      "prior_run028__source_prolongation_indptr",
+      "prior_run028__source_prolongation_node_rows",
+      "prior_run028__source_prolongation_semantics",
+      "prior_run028__source_prolongation_weights"
+    ],
+    "historical_prior_keys_preserved_count": 71,
+    "immediate_Q_nnz": 21529,
+    "immediate_Q_shape": [
+      21212,
+      20895
+    ],
+    "max_child_barycentric_parent_reconstruction_error_m": 5.960464477539063e-08,
+    "max_parent_area_relative_drift_037_reference": 5.899787176661164e-05,
+    "max_parent_area_relative_drift_current_geometry": 0.0013211780723379305,
+    "new_face_count": 42379,
+    "new_faces_inherit_full_parent_union": true,
+    "new_immediate_parent_csr_singleton_child_to_input_face": true,
+    "new_immediate_parent_namespace": "prior_input_parent__",
+    "new_node_count": 21212,
+    "new_nodes_created_by_affine_subdivision": true,
+    "old_face_count": 41745,
+    "old_input_immediate_parent_csr_archive_prefix": "prior_input_parent_546_generation_002__input_",
+    "old_input_immediate_parent_csr_archived": true,
+    "old_node_count": 20895,
+    "old_point_prefix_bitwise_unchanged": true,
+    "p037_refiner_sha256": "d3a6e0c31e34f2165d853ffaf411ad67faaa1d307a3af1a6c79ba41a129f4f31",
+    "p084_owner_sha256": "eab8deda28164964051a6fa6ff346b8d94bc8bede04e896411dfdd02d46594f6",
+    "parent_P_shape": [
+      20895,
+      13518
+    ],
+    "physical_steps": 0,
+    "pinned_037_refiner_sha256": "d3a6e0c31e34f2165d853ffaf411ad67faaa1d307a3af1a6c79ba41a129f4f31",
+    "pinned_084_owner_sha256": "eab8deda28164964051a6fa6ff346b8d94bc8bede04e896411dfdd02d46594f6",
+    "pinned_270_sha256": "70e391867c4aa5680dacdcba1244ec15962a5dc74dc9d67c31467cdaffb608db",
+    "pinned_546_adapter_sha256": "6603e244496dfbbeb76f7cfbaa56c80f39b1a18e6cccb50727406148ba885fe4",
+    "protected_faces_proven_unchanged": [],
+    "refinement_method": "conforming edge-only affine midpoint bisection; no face-centroid nodes",
+    "scope_limit": "conforming affine subdivision and ancestry only; no bone clearance, mass transfer, material, native runtime, or physical admission",
+    "selected_edge_count": 317,
+    "selected_edge_subset_policy": {
+      "bank_pairs": [
+        [
+          43,
+          16
+        ],
+        [
+          109,
+          114
+        ],
+        [
+          65,
+          99
+        ],
+        [
+          57,
+          89
+        ],
+        [
+          124,
+          123
+        ],
+        [
+          114,
+          117
+        ],
+        [
+          115,
+          118
+        ],
+        [
+          59,
+          95
+        ],
+        [
+          64,
+          98
+        ],
+        [
+          61,
+          97
+        ],
+        [
+          74,
+          104
+        ]
+      ],
+      "edge_selection": "union of all three undirected edges on every unique exact crossed skin face for the eleven requested banks; 585 conformity splits all incident faces",
+      "mode": "all_shared_edges_of_requested_eleven_bank_crossed_faces",
+      "other_174_banks_retained_in_full_report_for_lineage": "full 185-bank source report passed unchanged to pinned 585/546 owner",
+      "selected_bank_pairs": 661,
+      "selected_edges": 317,
+      "selected_skin_faces": 152
+    },
+    "status": "REFINEMENT_CONSTRUCTION_READY",
+    "unique_crossed_parent_face_count": 152
+  },
+  "frozen_546_consumer_compatibility": "requires task-local refresh_guards_multi_parent_generation002.py; frozen consumer hardcodes prior_input_parent_546__",
+  "generation002_refresh_consumer_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/refresh_guards_multi_parent_generation002.py",
+  "generation002_refresh_consumer_sha256": "90bafb6a51e9d7a2dd9b49570fcd977423616e18e992c2d4a4306feea5bd5eab",
+  "geometry_admitted": false,
+  "geometry_audit_run": false,
+  "immediate_input_parent_snapshot_preserved_under_generation002": true,
+  "input_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/connected_refinement_adapter546_generation002.py": {
+      "bytes": 22382,
+      "sha256": "6603e244496dfbbeb76f7cfbaa56c80f39b1a18e6cccb50727406148ba885fe4"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/edge_only_refinement585_generation002.py": {
+      "bytes": 22324,
+      "sha256": "2b15380a43a0a022d4d0d183233ac1107e64e076180e9403f43f124300b62b87"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/refresh_guards_multi_parent_generation002.py": {
+      "bytes": 17329,
+      "sha256": "90bafb6a51e9d7a2dd9b49570fcd977423616e18e992c2d4a4306feea5bd5eab"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/audit-130-absolute-001/summary.json": {
+      "bytes": 594,
+      "sha256": "f00db46e65866f338f96121ac6b3e73b336d59b3c97d14f51147bcf5995ebea1"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz": {
+      "bytes": 6947110,
+      "sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/final-absolute-546/state.json": {
+      "bytes": 1079,
+      "sha256": "fcee9ee45bc2319a7c5699974727139b13b06996031bd115a0e4ef2abaa68519"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/full-check-545/audit-159/report.json": {
+      "bytes": 101072,
+      "sha256": "115c7fafd5bff00ad9e7f8f50e3919214664051269e3697c98762bb7bcfef8c5"
+    }
+  },
+  "limitations": [
+    "No point-inside, surface-self, 185-bank bone crossing, arithmetic, mass, volume, solver, or native gate was run on this refined candidate.",
+    "The 661 point/face counts and clearance report do not transfer to this new topology; fresh audits and target/constraint preparation are required."
+  ],
+  "lineage_generation": "prior_input_parent_546_generation_002__",
+  "native_admission": false,
+  "older_generation_546_history_preserved_bytewise": true,
+  "output_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz",
+  "output_candidate_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "point_summary_metrics": {
+    "inside_node_bank_pairs": 0,
+    "inside_nodes": 0,
+    "points": 20895,
+    "self_pairs": 0
+  },
+  "point_summary_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/audit-130-absolute-001/summary.json",
+  "point_summary_sha256": "f00db46e65866f338f96121ac6b3e73b336d59b3c97d14f51147bcf5995ebea1",
+  "schema": "numi.human.edge_refinement_661_elevenbank.v1",
+  "script_sha256": "5fea3ba3e6a1e48379db75173805bb5d69a5edb2b19cfcdfc9f0fb54d95f1b91",
+  "selected_banks": [
+    {
+      "body": 43,
+      "pair_count": 151,
+      "patches": [
+        {
+          "face_count": 48,
+          "face_rows": [
+            18988,
+            18990,
+            18995,
+            18997,
+            18998,
+            18999,
+            19004,
+            19071,
+            19072,
+            19073,
+            19076,
+            19077,
+            19080,
+            19091,
+            19101,
+            19102,
+            19108,
+            19113,
+            19123,
+            19131,
+            19132,
+            19136,
+            19149,
+            19150,
+            19153,
+            19154,
+            19333,
+            19334,
+            19335,
+            19341,
+            19346,
+            19347,
+            19348,
+            19372,
+            19373,
+            19377,
+            19378,
+            19380,
+            19387,
+            19442,
+            19443,
+            19444,
+            19464,
+            19465,
+            19466,
+            19470,
+            19471,
+            19475
+          ],
+          "node_count": 48
+        }
+      ],
+      "stable_bone_id": 16,
+      "unique_skin_face_count": 48
+    },
+    {
+      "body": 109,
+      "pair_count": 120,
+      "patches": [
+        {
+          "face_count": 14,
+          "face_rows": [
+            34035,
+            34041,
+            34042,
+            34043,
+            34046,
+            34047,
+            34048,
+            34055,
+            34078,
+            34082,
+            34083,
+            34084,
+            34085,
+            34176
+          ],
+          "node_count": 16
+        },
+        {
+          "face_count": 11,
+          "face_rows": [
+            34132,
+            34155,
+            34156,
+            34157,
+            34158,
+            34167,
+            34194,
+            34195,
+            34202,
+            34203,
+            34204
+          ],
+          "node_count": 13
+        },
+        {
+          "face_count": 4,
+          "face_rows": [
+            34753,
+            34794,
+            34831,
+            34836
+          ],
+          "node_count": 6
+        }
+      ],
+      "stable_bone_id": 114,
+      "unique_skin_face_count": 29
+    },
+    {
+      "body": 65,
+      "pair_count": 86,
+      "patches": [
+        {
+          "face_count": 31,
+          "face_rows": [
+            13981,
+            13982,
+            13983,
+            13989,
+            13990,
+            13996,
+            13997,
+            14012,
+            14024,
+            14026,
+            14036,
+            14037,
+            14043,
+            14053,
+            14054,
+            14056,
+            14062,
+            14081,
+            14083,
+            14089,
+            14096,
+            14097,
+            14250,
+            14251,
+            14272,
+            14285,
+            14891,
+            14907,
+            14920,
+            14922,
+            14941
+          ],
+          "node_count": 33
+        }
+      ],
+      "stable_bone_id": 99,
+      "unique_skin_face_count": 31
+    },
+    {
+      "body": 57,
+      "pair_count": 60,
+      "patches": [
+        {
+          "face_count": 3,
+          "face_rows": [
+            11038,
+            11040,
+            11041
+          ],
+          "node_count": 5
+        },
+        {
+          "face_count": 3,
+          "face_rows": [
+            13135,
+            13136,
+            13137
+          ],
+          "node_count": 5
+        }
+      ],
+      "stable_bone_id": 89,
+      "unique_skin_face_count": 6
+    },
+    {
+      "body": 124,
+      "pair_count": 58,
+      "patches": [
+        {
+          "face_count": 9,
+          "face_rows": [
+            26471,
+            26472,
+            26479,
+            26480,
+            26481,
+            26486,
+            26925,
+            26926,
+            26927
+          ],
+          "node_count": 11
+        },
+        {
+          "face_count": 4,
+          "face_rows": [
+            26503,
+            26586,
+            26606,
+            26617
+          ],
+          "node_count": 6
+        }
+      ],
+      "stable_bone_id": 123,
+      "unique_skin_face_count": 13
+    },
+    {
+      "body": 114,
+      "pair_count": 42,
+      "patches": [
+        {
+          "face_count": 7,
+          "face_rows": [
+            40537,
+            40544,
+            40545,
+            40572,
+            41479,
+            41480,
+            41481
+          ],
+          "node_count": 9
+        }
+      ],
+      "stable_bone_id": 117,
+      "unique_skin_face_count": 7
+    },
+    {
+      "body": 115,
+      "pair_count": 34,
+      "patches": [
+        {
+          "face_count": 5,
+          "face_rows": [
+            29373,
+            29383,
+            30897,
+            30979,
+            30980
+          ],
+          "node_count": 7
+        }
+      ],
+      "stable_bone_id": 118,
+      "unique_skin_face_count": 5
+    },
+    {
+      "body": 59,
+      "pair_count": 33,
+      "patches": [
+        {
+          "face_count": 6,
+          "face_rows": [
+            12135,
+            12151,
+            12152,
+            12175,
+            12176,
+            12179
+          ],
+          "node_count": 8
+        }
+      ],
+      "stable_bone_id": 95,
+      "unique_skin_face_count": 6
+    },
+    {
+      "body": 64,
+      "pair_count": 32,
+      "patches": [
+        {
+          "face_count": 3,
+          "face_rows": [
+            17342,
+            17361,
+            17368
+          ],
+          "node_count": 5
+        }
+      ],
+      "stable_bone_id": 98,
+      "unique_skin_face_count": 3
+    },
+    {
+      "body": 61,
+      "pair_count": 26,
+      "patches": [
+        {
+          "face_count": 3,
+          "face_rows": [
+            8834,
+            8835,
+            8841
+          ],
+          "node_count": 5
+        }
+      ],
+      "stable_bone_id": 97,
+      "unique_skin_face_count": 3
+    },
+    {
+      "body": 74,
+      "pair_count": 19,
+      "patches": [
+        {
+          "face_count": 1,
+          "face_rows": [
+            22189
+          ],
+          "node_count": 3
+        }
+      ],
+      "stable_bone_id": 104,
+      "unique_skin_face_count": 1
+    }
+  ],
+  "selected_edges": [
+    [
+      9106,
+      18488
+    ],
+    [
+      9106,
+      18489
+    ],
+    [
+      9106,
+      18491
+    ],
+    [
+      9106,
+      18492
+    ],
+    [
+      9106,
+      18496
+    ],
+    [
+      9106,
+      20171
+    ],
+    [
+      9106,
+      20215
+    ],
+    [
+      9106,
+      20218
+    ],
+    [
+      9721,
+      18587
+    ],
+    [
+      9721,
+      18590
+    ],
+    [
+      9721,
+      18591
+    ],
+    [
+      9721,
+      20157
+    ],
+    [
+      9721,
+      20185
+    ],
+    [
+      10442,
+      16555
+    ],
+    [
+      10442,
+      19462
+    ],
+    [
+      12266,
+      16555
+    ],
+    [
+      12266,
+      18966
+    ],
+    [
+      12266,
+      19462
+    ],
+    [
+      12266,
+      19823
+    ],
+    [
+      12694,
+      19092
+    ],
+    [
+      12694,
+      19094
+    ],
+    [
+      12782,
+      19104
+    ],
+    [
+      12782,
+      19390
+    ],
+    [
+      13168,
+      19195
+    ],
+    [
+      13168,
+      19197
+    ],
+    [
+      13168,
+      20696
+    ],
+    [
+      13609,
+      18437
+    ],
+    [
+      13609,
+      20891
+    ],
+    [
+      13609,
+      20892
+    ],
+    [
+      14282,
+      18489
+    ],
+    [
+      14282,
+      19379
+    ],
+    [
+      14282,
+      20196
+    ],
+    [
+      14282,
+      20217
+    ],
+    [
+      14283,
+      18490
+    ],
+    [
+      14283,
+      19702
+    ],
+    [
+      14283,
+      20172
+    ],
+    [
+      14283,
+      20179
+    ],
+    [
+      14285,
+      18491
+    ],
+    [
+      14285,
+      20215
+    ],
+    [
+      14285,
+      20218
+    ],
+    [
+      14303,
+      18763
+    ],
+    [
+      14303,
+      19387
+    ],
+    [
+      14303,
+      20352
+    ],
+    [
+      14303,
+      20353
+    ],
+    [
+      14303,
+      20415
+    ],
+    [
+      14366,
+      19145
+    ],
+    [
+      14366,
+      19538
+    ],
+    [
+      14366,
+      20516
+    ],
+    [
+      14623,
+      19450
+    ],
+    [
+      14623,
+      19735
+    ],
+    [
+      14715,
+      16713
+    ],
+    [
+      14715,
+      18864
+    ],
+    [
+      14715,
+      19470
+    ],
+    [
+      14715,
+      19932
+    ],
+    [
+      14795,
+      16987
+    ],
+    [
+      14795,
+      19484
+    ],
+    [
+      14795,
+      19487
+    ],
+    [
+      14795,
+      19692
+    ],
+    [
+      14824,
+      18590
+    ],
+    [
+      14824,
+      19051
+    ],
+    [
+      14824,
+      19496
+    ],
+    [
+      14824,
+      20159
+    ],
+    [
+      14825,
+      20182
+    ],
+    [
+      14825,
+      20184
+    ],
+    [
+      14825,
+      20189
+    ],
+    [
+      15070,
+      17966
+    ],
+    [
+      15070,
+      19553
+    ],
+    [
+      15070,
+      20676
+    ],
+    [
+      15070,
+      20699
+    ],
+    [
+      15073,
+      19191
+    ],
+    [
+      15073,
+      19555
+    ],
+    [
+      15073,
+      19556
+    ],
+    [
+      15073,
+      20677
+    ],
+    [
+      15073,
+      20684
+    ],
+    [
+      15074,
+      19195
+    ],
+    [
+      15074,
+      19558
+    ],
+    [
+      15074,
+      20696
+    ],
+    [
+      15074,
+      20703
+    ],
+    [
+      15074,
+      20704
+    ],
+    [
+      15605,
+      18789
+    ],
+    [
+      15605,
+      19223
+    ],
+    [
+      15605,
+      19641
+    ],
+    [
+      15605,
+      20797
+    ],
+    [
+      15665,
+      18834
+    ],
+    [
+      15665,
+      19209
+    ],
+    [
+      15665,
+      19667
+    ],
+    [
+      15665,
+      20755
+    ],
+    [
+      15904,
+      19823
+    ],
+    [
+      15904,
+      19830
+    ],
+    [
+      15914,
+      19343
+    ],
+    [
+      15914,
+      19686
+    ],
+    [
+      15914,
+      19945
+    ],
+    [
+      15914,
+      19950
+    ],
+    [
+      15972,
+      19704
+    ],
+    [
+      15972,
+      19705
+    ],
+    [
+      15972,
+      20198
+    ],
+    [
+      15972,
+      20204
+    ],
+    [
+      16343,
+      18945
+    ],
+    [
+      16343,
+      19450
+    ],
+    [
+      16343,
+      19735
+    ],
+    [
+      16555,
+      19462
+    ],
+    [
+      16707,
+      18570
+    ],
+    [
+      16707,
+      19470
+    ],
+    [
+      16707,
+      19932
+    ],
+    [
+      16707,
+      19933
+    ],
+    [
+      16707,
+      19934
+    ],
+    [
+      16710,
+      18460
+    ],
+    [
+      16710,
+      19341
+    ],
+    [
+      16710,
+      19343
+    ],
+    [
+      16710,
+      19941
+    ],
+    [
+      16710,
+      19942
+    ],
+    [
+      16710,
+      19945
+    ],
+    [
+      16713,
+      18864
+    ],
+    [
+      16713,
+      19686
+    ],
+    [
+      16713,
+      19949
+    ],
+    [
+      16713,
+      19950
+    ],
+    [
+      16756,
+      18725
+    ],
+    [
+      16756,
+      19613
+    ],
+    [
+      16756,
+      20021
+    ],
+    [
+      16987,
+      19484
+    ],
+    [
+      16987,
+      19487
+    ],
+    [
+      17069,
+      18590
+    ],
+    [
+      17069,
+      19496
+    ],
+    [
+      17069,
+      20157
+    ],
+    [
+      17073,
+      18492
+    ],
+    [
+      17073,
+      20171
+    ],
+    [
+      17073,
+      20172
+    ],
+    [
+      17076,
+      18591
+    ],
+    [
+      17076,
+      20182
+    ],
+    [
+      17076,
+      20185
+    ],
+    [
+      17076,
+      20189
+    ],
+    [
+      17093,
+      18897
+    ],
+    [
+      17093,
+      19379
+    ],
+    [
+      17093,
+      19704
+    ],
+    [
+      17093,
+      20196
+    ],
+    [
+      17093,
+      20198
+    ],
+    [
+      17401,
+      18500
+    ],
+    [
+      17401,
+      19387
+    ],
+    [
+      17401,
+      20353
+    ],
+    [
+      17401,
+      20354
+    ],
+    [
+      17960,
+      18641
+    ],
+    [
+      17960,
+      19553
+    ],
+    [
+      17960,
+      19555
+    ],
+    [
+      17960,
+      20676
+    ],
+    [
+      17960,
+      20677
+    ],
+    [
+      17961,
+      19194
+    ],
+    [
+      17961,
+      19556
+    ],
+    [
+      17961,
+      19724
+    ],
+    [
+      17961,
+      20684
+    ],
+    [
+      17965,
+      18930
+    ],
+    [
+      17965,
+      19197
+    ],
+    [
+      17965,
+      19723
+    ],
+    [
+      17965,
+      20696
+    ],
+    [
+      17966,
+      18642
+    ],
+    [
+      17966,
+      19553
+    ],
+    [
+      17966,
+      19558
+    ],
+    [
+      17966,
+      20699
+    ],
+    [
+      17966,
+      20704
+    ],
+    [
+      18422,
+      19414
+    ],
+    [
+      18422,
+      20791
+    ],
+    [
+      18422,
+      20863
+    ],
+    [
+      18437,
+      19890
+    ],
+    [
+      18437,
+      20891
+    ],
+    [
+      18460,
+      19343
+    ],
+    [
+      18460,
+      19941
+    ],
+    [
+      18488,
+      20171
+    ],
+    [
+      18488,
+      20215
+    ],
+    [
+      18489,
+      18496
+    ],
+    [
+      18489,
+      20196
+    ],
+    [
+      18489,
+      20217
+    ],
+    [
+      18490,
+      18492
+    ],
+    [
+      18490,
+      20172
+    ],
+    [
+      18490,
+      20179
+    ],
+    [
+      18491,
+      20215
+    ],
+    [
+      18491,
+      20218
+    ],
+    [
+      18492,
+      20171
+    ],
+    [
+      18492,
+      20172
+    ],
+    [
+      18496,
+      20217
+    ],
+    [
+      18496,
+      20218
+    ],
+    [
+      18500,
+      20353
+    ],
+    [
+      18500,
+      20354
+    ],
+    [
+      18501,
+      19390
+    ],
+    [
+      18501,
+      20373
+    ],
+    [
+      18565,
+      18571
+    ],
+    [
+      18565,
+      18572
+    ],
+    [
+      18565,
+      19972
+    ],
+    [
+      18570,
+      18571
+    ],
+    [
+      18570,
+      19933
+    ],
+    [
+      18570,
+      19934
+    ],
+    [
+      18571,
+      19934
+    ],
+    [
+      18571,
+      19972
+    ],
+    [
+      18572,
+      18573
+    ],
+    [
+      18572,
+      19972
+    ],
+    [
+      18572,
+      19979
+    ],
+    [
+      18573,
+      19469
+    ],
+    [
+      18573,
+      19967
+    ],
+    [
+      18573,
+      19979
+    ],
+    [
+      18587,
+      20157
+    ],
+    [
+      18587,
+      20185
+    ],
+    [
+      18590,
+      19496
+    ],
+    [
+      18590,
+      20157
+    ],
+    [
+      18591,
+      20185
+    ],
+    [
+      18591,
+      20189
+    ],
+    [
+      18641,
+      20676
+    ],
+    [
+      18641,
+      20677
+    ],
+    [
+      18642,
+      20704
+    ],
+    [
+      18706,
+      20889
+    ],
+    [
+      18706,
+      20893
+    ],
+    [
+      18725,
+      19613
+    ],
+    [
+      18725,
+      19942
+    ],
+    [
+      18725,
+      20013
+    ],
+    [
+      18763,
+      18766
+    ],
+    [
+      18763,
+      20352
+    ],
+    [
+      18763,
+      20415
+    ],
+    [
+      18766,
+      19625
+    ],
+    [
+      18766,
+      20415
+    ],
+    [
+      18789,
+      19414
+    ],
+    [
+      18789,
+      19641
+    ],
+    [
+      18789,
+      20791
+    ],
+    [
+      18799,
+      19405
+    ],
+    [
+      18799,
+      20516
+    ],
+    [
+      18834,
+      19667
+    ],
+    [
+      18834,
+      20758
+    ],
+    [
+      18864,
+      19932
+    ],
+    [
+      18864,
+      19949
+    ],
+    [
+      18897,
+      19379
+    ],
+    [
+      18897,
+      20198
+    ],
+    [
+      18930,
+      19723
+    ],
+    [
+      18945,
+      19450
+    ],
+    [
+      18966,
+      19462
+    ],
+    [
+      18966,
+      19823
+    ],
+    [
+      18966,
+      19830
+    ],
+    [
+      19051,
+      20159
+    ],
+    [
+      19061,
+      19063
+    ],
+    [
+      19061,
+      19064
+    ],
+    [
+      19061,
+      20203
+    ],
+    [
+      19063,
+      19064
+    ],
+    [
+      19063,
+      19705
+    ],
+    [
+      19063,
+      20203
+    ],
+    [
+      19063,
+      20204
+    ],
+    [
+      19064,
+      20204
+    ],
+    [
+      19092,
+      19094
+    ],
+    [
+      19104,
+      19390
+    ],
+    [
+      19104,
+      20378
+    ],
+    [
+      19145,
+      19405
+    ],
+    [
+      19145,
+      19538
+    ],
+    [
+      19145,
+      20516
+    ],
+    [
+      19145,
+      20523
+    ],
+    [
+      19191,
+      19555
+    ],
+    [
+      19191,
+      20684
+    ],
+    [
+      19194,
+      19724
+    ],
+    [
+      19194,
+      20684
+    ],
+    [
+      19195,
+      20696
+    ],
+    [
+      19195,
+      20703
+    ],
+    [
+      19197,
+      19723
+    ],
+    [
+      19197,
+      20696
+    ],
+    [
+      19209,
+      19667
+    ],
+    [
+      19209,
+      20755
+    ],
+    [
+      19223,
+      19641
+    ],
+    [
+      19223,
+      20797
+    ],
+    [
+      19341,
+      19941
+    ],
+    [
+      19341,
+      19942
+    ],
+    [
+      19341,
+      20013
+    ],
+    [
+      19343,
+      19945
+    ],
+    [
+      19379,
+      20196
+    ],
+    [
+      19387,
+      20352
+    ],
+    [
+      19387,
+      20353
+    ],
+    [
+      19390,
+      20373
+    ],
+    [
+      19390,
+      20378
+    ],
+    [
+      19405,
+      20516
+    ],
+    [
+      19414,
+      20791
+    ],
+    [
+      19450,
+      19735
+    ],
+    [
+      19469,
+      19967
+    ],
+    [
+      19469,
+      19979
+    ],
+    [
+      19470,
+      19932
+    ],
+    [
+      19470,
+      19933
+    ],
+    [
+      19484,
+      19692
+    ],
+    [
+      19496,
+      20159
+    ],
+    [
+      19538,
+      20523
+    ],
+    [
+      19553,
+      20676
+    ],
+    [
+      19555,
+      20677
+    ],
+    [
+      19556,
+      20684
+    ],
+    [
+      19558,
+      20703
+    ],
+    [
+      19558,
+      20704
+    ],
+    [
+      19613,
+      20013
+    ],
+    [
+      19613,
+      20021
+    ],
+    [
+      19625,
+      20415
+    ],
+    [
+      19641,
+      20791
+    ],
+    [
+      19667,
+      20758
+    ],
+    [
+      19686,
+      19949
+    ],
+    [
+      19686,
+      19950
+    ],
+    [
+      19702,
+      19703
+    ],
+    [
+      19702,
+      20179
+    ],
+    [
+      19703,
+      20179
+    ],
+    [
+      19703,
+      20182
+    ],
+    [
+      19703,
+      20184
+    ],
+    [
+      19704,
+      20198
+    ],
+    [
+      19705,
+      20198
+    ],
+    [
+      19705,
+      20204
+    ],
+    [
+      19762,
+      20890
+    ],
+    [
+      19762,
+      20893
+    ],
+    [
+      19823,
+      19830
+    ],
+    [
+      19890,
+      20891
+    ],
+    [
+      19934,
+      19972
+    ],
+    [
+      19942,
+      20013
+    ],
+    [
+      19945,
+      19950
+    ],
+    [
+      19972,
+      19979
+    ],
+    [
+      20157,
+      20185
+    ],
+    [
+      20179,
+      20184
+    ],
+    [
+      20182,
+      20184
+    ],
+    [
+      20182,
+      20189
+    ],
+    [
+      20373,
+      20378
+    ],
+    [
+      20791,
+      20863
+    ],
+    [
+      20889,
+      20890
+    ],
+    [
+      20889,
+      20893
+    ],
+    [
+      20890,
+      20893
+    ],
+    [
+      20891,
+      20892
+    ]
+  ],
+  "selected_edges_sha256": "c0346edb6c7737f2dafc3e80cec40c1f88f3f5d9debbab3ac161a208397b66ca",
+  "selected_pair_rows": 661,
+  "selected_patch_count": 15,
+  "selected_skin_face_count": 152,
+  "selected_support_node_count": 179,
+  "status": "REFINEMENT_CONSTRUCTION_READY_UNADMITTED",
+  "surface_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/full-check-545/audit-159/report.json",
+  "surface_report_sha256": "115c7fafd5bff00ad9e7f8f50e3919214664051269e3697c98762bb7bcfef8c5",
+  "topology_lineage_checks": {
+    "anchors_bitwise_unchanged": true,
+    "midpoint_parent_edges_match_selected_edges": true,
+    "midpoint_weights_exactly_half": true,
+    "new_child_parent_barycentric_domain_valid": true,
+    "new_nodes_are_shared_edge_midpoints": true,
+    "new_point_midpoint_replay_bitwise": true,
+    "old_point_prefix_bitwise_unchanged": true,
+    "source_QP_and_parent_CSR_constructed_by_pinned_585_546_path": true
+  }
+}
