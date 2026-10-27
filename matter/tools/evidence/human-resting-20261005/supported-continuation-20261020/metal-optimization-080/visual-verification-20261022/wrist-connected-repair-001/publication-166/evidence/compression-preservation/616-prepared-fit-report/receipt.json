@@ -1,0 +1,44 @@
+{
+  "all_archives_verified": true,
+  "all_originals_retained": true,
+  "compression": "zstd -1 -T1",
+  "files": [
+    {
+      "compressed_bytes": 4340469,
+      "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-166/evidence/compression-preservation/616-prepared-fit-report/fit-report.json.zst",
+      "compressed_sha256": "fd69132786764981a2c6a40109cf97947ffd29612c643ce810ec77c73a906af3",
+      "compression": "zstd -1 -T1",
+      "original_allocated_bytes": 41902080,
+      "original_atime_ns": 1793072211250760299,
+      "original_bytes": 41899765,
+      "original_dev": 16777231,
+      "original_ino": 5215051,
+      "original_mode": 420,
+      "original_mtime_ns": 1793071644564365913,
+      "original_nlink": 1,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-616/from-615-001/prepared/fit/report.json",
+      "original_sha256": "120ca16104001617571cbda18cd0c087c9c758db7f4138b46e7fc037db2e27ad",
+      "package_compressed_relative_path": "evidence/compression-preservation/616-prepared-fit-report/fit-report.json.zst",
+      "relative_path": "surface-clearance-546/connected-continuation-616/from-615-001/prepared/fit/report.json"
+    }
+  ],
+  "generated_utc": "2026-10-27T03:38:40.581685+00:00",
+  "restore_test": {
+    "destination_removed_after_test": true,
+    "result": {
+      "receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-166/evidence/compression-preservation/616-prepared-fit-report/receipt.json",
+      "restored_count": 1,
+      "results": [
+        {
+          "bytes": 41899765,
+          "mode": 420,
+          "mtime_ns": 1793071644564365913,
+          "path": "/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/p166-restore-616-prepared-fit-report-laa2tdw2/surface-clearance-546/connected-continuation-616/from-615-001/prepared/fit/report.json",
+          "sha256": "120ca16104001617571cbda18cd0c087c9c758db7f4138b46e7fc037db2e27ad",
+          "status": "restored_and_verified"
+        }
+      ]
+    },
+    "status": "PASS_FRESH_DESTINATION"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-613/prepare_matched613.py",
+    "--current-inputs",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-616/from-615-001/current-inputs.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-616/from-615-001/prepared"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-613/prepare_matched613.py": "ae7e70a0010bb751ea93ed95f55a795476658b30f4076bb520a4dfaddf8bf1df",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-616/from-615-001/current-inputs.json": "3d824e0197b8112ac0f2eb0b8a41a7ac791bcff44fe31d4757e3530023610a3d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/parent-context-599-001/constraint-context.json": "5cd1216c173e203ac4ae66bf58e6ea7af2b5e2960cdab7d8b5791573e29de98d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-continuation-615/run-001/final/state.json": "24fa4d3cea53e83a0238721d8a3ec32c837ef10468d76ac6702fc3c92e2d3be6"
+  }
+}

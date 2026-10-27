@@ -1,0 +1,14 @@
+{
+  "accepted_physical_steps": 0,
+  "arithmetic_pass": true,
+  "complete_banks": 185,
+  "construction_progress": true,
+  "contained_pairs": 0,
+  "native_admission": false,
+  "passing_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-continuation-615/run-001/final/state.json",
+  "self_pairs": 0,
+  "state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prefix-field-transfer-614/from-612-001/final/state.json",
+  "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS",
+  "surface_pairs": 1407,
+  "target": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prefix-field-transfer-614/from-612-001/merge/candidate.npz"
+}

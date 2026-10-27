@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "all_targets_and_acceptance_gates_retained": true,
+  "argv": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-616/from-615-001/cut-617-001/fit-argv-scp1.json",
+  "argv_sha256": "beefc19df3302ce10f9ed84eedc5967050f44c68d380d7627e9dd8946c4ecd37",
+  "changed_flag": "--area-scp-iterations",
+  "native_admission": false,
+  "new_value": "1",
+  "old_value": "2",
+  "parent_argv": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-616/from-615-001/cut-617-001/fit-argv.json",
+  "parent_sha256": "b04189f3c4c17464c01d62417910980b6c12e79ade65f225dadaa06c1a6a5d06",
+  "status": "BOUNDED_ONE_SCP_PASS_USING_FRESH_MEASURED_SELF_WITNESSES"
+}

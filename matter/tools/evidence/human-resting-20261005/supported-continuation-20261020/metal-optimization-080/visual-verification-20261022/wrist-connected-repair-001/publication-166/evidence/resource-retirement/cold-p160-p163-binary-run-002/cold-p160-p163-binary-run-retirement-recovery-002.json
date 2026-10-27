@@ -1,0 +1,22 @@
+{
+  "all_target_members_preflighted_before_unlink": 107,
+  "created_utc": "2026-10-27T03:37:02Z",
+  "current_input_pin_count": 44,
+  "free_bytes_before": 178552832,
+  "method": "All remaining aliases and inode identities were rechecked against immutable plan 002. During each own unlink, nlink/ctime are advanced only by the recorded unlink; file identity, size, mtime, content hash, and remaining nlink are revalidated before deleting the next alias.",
+  "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/cold-p160-p163-binary-run-retirement-plan-002.json",
+  "plan_sha256": "88ca0ae071f29775d2dab48f3f1a974d4e85d9550969cff0fd942b129673f1c6",
+  "preflight_alias_count": 213,
+  "previous_attempt": "The first unlink removed only the D alias of the first 581 candidate NPZ; a stale pre-unlink ctime check then aborted. No contents were lost.",
+  "previously_removed_alias": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continued-connected-fit-581/run-001/round-001/fit/candidate.npz",
+  "remaining_alias_before_resume": "/Users/numi/Work/numi-human-connected-surface-069/publication-160/evidence/surface-clearance-546/continued-connected-fit-581/run-001/round-001/fit/candidate.npz",
+  "remaining_inode": {
+    "dev": 16777231,
+    "ino": 5189375,
+    "nlink": 1,
+    "observed_ctime_ns": 1793072007107583074,
+    "sha256": "1d28ce8a3cd31c8cb71ddc3bbba343e62f3d307b83e0163cb1fcbba4a33b8693",
+    "size": 6663074
+  },
+  "schema": "numi.storage.cold_published_output_retirement_recovery.v1"
+}

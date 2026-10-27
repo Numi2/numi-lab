@@ -1,0 +1,45 @@
+{
+  "candidate_sha256": "e52baf927268033f876cb521ead50ddf136bcae7bae3bc6e8b5cba058ee21852",
+  "points": 20889,
+  "faces": 41733,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "exact_PLC_surface_pairs": 0,
+  "complete_surface_audit": true,
+  "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "inside_node_bank_pairs": 1,
+  "inside_nodes": 1,
+  "query_pair_count": 13150,
+  "wall_seconds": 9.713285417063162,
+  "status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC",
+  "inside_witnesses": [
+    {
+      "query_row": "20196",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "inside_rays": "3",
+      "outside_rays": "0",
+      "ambiguous": "0",
+      "nearest_bone": "16",
+      "nearest_triangle": "145",
+      "nearest_distance_m": "2.4649637433251018e-06",
+      "signed_face_distance_m": "-2.4649637433251018e-06",
+      "query_local_x": "-0.0020085839117811666",
+      "query_local_y": "-0.0016124927322761357",
+      "query_local_z": "0.054286367832071289",
+      "closest_x": "-0.0020103526758987176",
+      "closest_y": "-0.0016132462782798554",
+      "closest_z": "0.054287910455866208",
+      "output_node": 20196,
+      "node_kind": -1,
+      "source_row": -1,
+      "point_m": [
+        -0.28059831261634827,
+        -0.8559069037437439,
+        0.13065503537654877
+      ]
+    }
+  ],
+  "edge_and_solid_clearance_certified": false
+}

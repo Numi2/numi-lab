@@ -1,0 +1,44 @@
+{
+  "all_archives_verified": true,
+  "all_originals_retained": true,
+  "compression": "zstd -1 -T1",
+  "files": [
+    {
+      "compressed_bytes": 4650907,
+      "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-166/evidence/compression-preservation/617-cut-fit-report/fit-report.json.zst",
+      "compressed_sha256": "b6133435f1cd767552899f7adeb3e6bb858bb7d8420db8354c681102e9855b2a",
+      "compression": "zstd -1 -T1",
+      "original_allocated_bytes": 45273088,
+      "original_atime_ns": 1793072206669822347,
+      "original_bytes": 45271006,
+      "original_dev": 16777231,
+      "original_ino": 5215304,
+      "original_mode": 420,
+      "original_mtime_ns": 1793071865999588027,
+      "original_nlink": 1,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-616/from-615-001/cut-617-001/fit/report.json",
+      "original_sha256": "834b0ab3b4671d160978feaa0132ae64201b9ae0972d9344960b8831bd52798a",
+      "package_compressed_relative_path": "evidence/compression-preservation/617-cut-fit-report/fit-report.json.zst",
+      "relative_path": "surface-clearance-546/connected-continuation-616/from-615-001/cut-617-001/fit/report.json"
+    }
+  ],
+  "generated_utc": "2026-10-27T03:39:40.604981+00:00",
+  "restore_test": {
+    "destination_removed_after_test": true,
+    "result": {
+      "receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-166/evidence/compression-preservation/617-cut-fit-report/receipt.json",
+      "restored_count": 1,
+      "results": [
+        {
+          "bytes": 45271006,
+          "mode": 420,
+          "mtime_ns": 1793071865999588027,
+          "path": "/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/p166-restore-617-cut-fit-report-l06cd1lw/surface-clearance-546/connected-continuation-616/from-615-001/cut-617-001/fit/report.json",
+          "sha256": "834b0ab3b4671d160978feaa0132ae64201b9ae0972d9344960b8831bd52798a",
+          "status": "restored_and_verified"
+        }
+      ]
+    },
+    "status": "PASS_FRESH_DESTINATION"
+  }
+}

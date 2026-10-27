@@ -1,0 +1,1 @@
+{"candidate_sha256": "0778bbccd291aa5ed6c8808f29af72491cf4a74dfcc0b3e2a59b8b6aad3cd302", "self_pairs": 48, "contained_pairs": null, "status": "FAILED", "error": "exact self intersections", "seconds": 8.358001041924581}

@@ -1,0 +1,10 @@
+{
+  "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -B -m pytest -p no:cacheprovider -q /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-613/test_prepare_matched613.py",
+  "completed_at_utc": "2026-10-27T03:27:41.475751+00:00",
+  "output": "......... [100%]\n9 passed in 0.04s\n",
+  "pytest_cache_disabled": true,
+  "python": "/Users/n/numi-human-prep-venv-20261005/bin/python -B",
+  "result": "9 passed",
+  "source_sha256": "ae7e70a0010bb751ea93ed95f55a795476658b30f4076bb520a4dfaddf8bf1df",
+  "test_sha256": "8a08bc8f7aa0f0b4157fe4154689f546cddd9ce10bce0ef2236a88895a61ecb2"
+}

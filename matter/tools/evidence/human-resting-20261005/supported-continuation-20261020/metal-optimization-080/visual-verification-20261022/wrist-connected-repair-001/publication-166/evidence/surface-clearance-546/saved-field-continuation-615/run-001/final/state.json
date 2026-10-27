@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-continuation-615/run-001/retention/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "ff456b2e6ed114506dad58c9ca3fed357c2bb031c37ebee27ce962d805ce61aa",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-continuation-615/run-001/full-check/audit-130/summary.json",
+  "point_summary_sha256": "85c02a104e5205917bdad194b37d1c2514ae4a1834d41e6f223d5c6383973ab1",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-continuation-615/run-001/full-check/audit-159/report.json",
+  "surface_report_sha256": "b5129539b31a021aedc2784447c95d61925e82a3bad41db694cf042925049180",
+  "temporary_unselected_construction": false
+}

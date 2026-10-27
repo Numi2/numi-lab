@@ -1,0 +1,7 @@
+{
+  "accepted_physical_steps": 0,
+  "free_bytes_at_launch": 263852032,
+  "minimum_free_bytes": 262144000,
+  "native_admission": false,
+  "policy": "single SCP pass; measured two-pass616 outputs used about70MiB; one-pass expected <=64MiB, preserve >=128MiB OS reserve"
+}

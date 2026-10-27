@@ -1,0 +1,11 @@
+{
+  "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -B -m pytest -p no:cacheprovider -q /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/contained-field-retention-620/test_restore_inside_rows620.py",
+  "completed_at_utc": "2026-10-27T03:58:43.028556+00:00",
+  "output": "...... [100%]\n6 passed in 0.05s\n",
+  "pytest_cache_disabled": true,
+  "python": "/Users/n/numi/numi-human-prep-venv-20261005/bin/python -B",
+  "result": "6 passed",
+  "source_note": "The test file defines one test function name twice; the later definition shadows the earlier one, so pytest collected six distinct tests. Source was left unchanged.",
+  "source_sha256": "5d733d43eadedfdb3ec853a5cf36286e78a5263c7c82e1ac8639be9e6dde8bf4",
+  "test_sha256": "4f074867de95ee8b9ab0757df92bb3d83f55bdb3eae2a64e4f3ec5eea5c27fbf"
+}

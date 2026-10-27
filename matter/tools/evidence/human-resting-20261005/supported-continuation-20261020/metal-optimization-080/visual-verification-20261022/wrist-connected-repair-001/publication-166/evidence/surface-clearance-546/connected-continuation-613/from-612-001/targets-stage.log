@@ -1,0 +1,50 @@
+waiting_for_human_geometry_slot pid=17374
+acquired_human_geometry_slot pid=17374
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-613/from-612-001/point-targets/nearest-union-exits.json",
+  "report_sha256": "899ed84ec26b87d31ae2548b18fe5fc121082af93bd1812b06358d2b2cc8c807",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-613/from-612-001/point-targets/nearest-union-exits.npz",
+  "npz_sha256": "ebb8c4908ff6162aa23e91b115a275863335c88aa6e1e1d070827095711192cb",
+  "query_rows": 337,
+  "passing_targets": 337,
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY",
+  "seconds": 7.254404500126839
+}
+{
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY",
+  "proposal_policy_606": {
+    "status": "PASS_SOURCE_AND_DEPTH_TARGETS_ONLY",
+    "direction_mode": "depth-maximizing",
+    "minimum_source_cosine": 0.05,
+    "minimum_depth_cosine": 0.05,
+    "current_source_normal_agreement_required": false,
+    "current_source_normal_agreement_claimed": false,
+    "current_source_normal_disagreement_diagnostic": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-613/from-612-001/current-source-normal-audit.json",
+      "sha256": "f18b087260a66980d4e16236aaf763c3ee94276b33090490f4b4b99d69aee18a",
+      "status": "CURRENT_SOURCE_OUTWARD_DISAGREEMENT",
+      "rows": 337,
+      "agreement_count": 222,
+      "disagreement_count": 115,
+      "minimum_dot": -0.9743901087165329
+    },
+    "source_depth_target_count": 337,
+    "actual_minimum_source_dot": 0.050000000000013915,
+    "actual_minimum_depth_dot": 0.41684054417700495,
+    "full_185_bank_first_union_exit_validation": {
+      "target_count": 337,
+      "passing_targets": 337,
+      "all_passing_endpoints_exactly_outside_185": true,
+      "minimum_source_cosine": 0.05,
+      "minimum_depth_cosine": 0.05,
+      "physical_steps": 0
+    },
+    "geometry_admitted": false,
+    "physical_steps": 0,
+    "native_admission": false
+  },
+  "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-613/from-612-001/point-targets/nearest-union-exits.json",
+  "report_sha256": "2f811f660469e4f25850d1cec7cad6cdd1db77c885829b4b04128d6ab6f3026c",
+  "target_npz_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-613/from-612-001/point-targets/nearest-union-exits.npz",
+  "target_npz_sha256": "ebb8c4908ff6162aa23e91b115a275863335c88aa6e1e1d070827095711192cb"
+}
