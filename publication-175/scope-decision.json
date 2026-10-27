@@ -1,0 +1,20 @@
+{
+  "accepted_physical_steps": 0,
+  "excluded": [
+    "physical/native admission and tissue volume mesh qualification",
+    "cell positivity/conditioning, conservative mass/thickness transfer, contact dynamics, multiple poses and native performance",
+    "global LP convergence/optimality for timed-out solves"
+  ],
+  "included": [
+    "638 midpoint refinement intermediate with exact checks and two contained pairs",
+    "715 and 703 strict same-topology candidates with exact checks and pair identity comparisons",
+    "701 passing but bank-regressing intermediate and filtered 697 strict candidate",
+    "successful 715 fit, both later LP_NO_PROPOSAL timeouts and partial timeout/raw capture evidence",
+    "source pins, continuation-643 preparation receipts and independent review"
+  ],
+  "native_admission": false,
+  "parent_publication": "P174",
+  "publication": "P175",
+  "schema": "numi.human.connected_surface_publication_scope.v1",
+  "source_policy": "Unpublished staging only; originals retained; P174 inherited by immutable commit and manifest."
+}

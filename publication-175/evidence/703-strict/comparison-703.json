@@ -1,0 +1,50 @@
+{
+  "accepted_physical_steps": 0,
+  "after_distinct_parent_pairs": 695,
+  "after_surface_pairs": 703,
+  "bank_changes": [
+    {
+      "after": 171,
+      "before": 175,
+      "body": 43,
+      "bone": 16,
+      "delta": -4
+    },
+    {
+      "after": 64,
+      "before": 66,
+      "body": 57,
+      "bone": 89,
+      "delta": -2
+    },
+    {
+      "after": 90,
+      "before": 94,
+      "body": 65,
+      "bone": 99,
+      "delta": -4
+    },
+    {
+      "after": 122,
+      "before": 124,
+      "body": 109,
+      "bone": 114,
+      "delta": -2
+    }
+  ],
+  "before_surface_pairs": 715,
+  "candidate_after_sha256": "22dce5fe0457cfe0ec2109ff922ba4ce69720504b3f69370e55beb25b0da279b",
+  "candidate_before_sha256": "4879ee344b459c511b260b41e1b33a2dd2b3592ffecdbb1f77b99e86715cdb2a",
+  "contained_node_bank_pairs": 0,
+  "inventory_owner_sha256": "2958dee4b747d9da1e12d3375cc64d19eccc4396acabf62a2e7de42b5bdc7a8d",
+  "native_admission": false,
+  "original_parent_pairs": 764,
+  "parent_pair_identities_introduced": 126,
+  "parent_pair_identities_removed": 195,
+  "same_topology": true,
+  "same_topology_pair_identities_introduced": 18,
+  "same_topology_pair_identities_removed": 30,
+  "self_pairs": 0,
+  "source_script_sha256": "ee8a08de3a3fa71bae9e11ca548501659c262ca1b9f9436c4e230dd55ebbcfc5",
+  "status": "SAME_TOPOLOGY_AND_PARENT_IDENTITY_COMPARISON_UNADMITTED"
+}

@@ -1,0 +1,27 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/joint-fit-001/restored-retention-582-001/next-714-001/retention-582-001/strict-from-refined/state.json",
+    "--target",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from715-001/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from715-001/retention-582-001",
+    "--max-edge-gradient",
+    "0.5",
+    "--trust-mm",
+    "4.0"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from715-001/fit/raw-joint-capture-563/raw-direction-001/candidate.npz": "3a74a3af23de160e6d374e97f79d0c4506b48ba5618e2729b72afd8238c397c7",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/joint-fit-001/restored-retention-582-001/next-714-001/retention-582-001/strict-from-refined/state.json": "9531253907ed2d989d27a6a943fdb42365a78645fc5eb251831c2797db04b7ab",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py": "08bb82034180636d0ff798ad503735b6a50327bf52cc3c62bffb75d0265ff57a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/run_target582.py": "9fe3c3493fbe8453aec13b1ea0b5fb73b03c8dedff482e8fac56e7b76627a113"
+  }
+}

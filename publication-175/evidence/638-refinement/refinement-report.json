@@ -1,0 +1,294 @@
+{
+  "adapter": "connected_refinement_adapter546",
+  "adapter_sha256": "06081873eaf0d5452fbf4beee3d580a0eba97c3a546a9f7e7a06a0c9f548cbc6",
+  "added_face_centroids": 0,
+  "added_nodes_are_only_edge_midpoints": true,
+  "affected_parent_face_count": 8,
+  "anchor_count": 237,
+  "anchor_positions_preserved_bitwise": true,
+  "area_reference_037_sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+  "area_reference_faces_match_candidate_exactly": true,
+  "area_reference_sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+  "area_reference_uses_same_Q": true,
+  "boundary_components_after": 2,
+  "boundary_components_before": 2,
+  "boundary_edges_after": 45,
+  "boundary_edges_before": 45,
+  "candidate_sha256": "d0d8ba18026d37a1ea64a247e09e4f6e972db0b157d64ad075851ab76c1c4ca4",
+  "caveat": "Midpoint-only refinement preserves the existing piecewise-planar surface exactly; crossings are not cleared by this construction alone. New midpoint containment is unknown until exact point checks.",
+  "child_barycentric_reconstruction_tolerance_m": 9.5367431640625e-07,
+  "composed_QP_nnz": 32657,
+  "composed_QP_shape": [
+    20895,
+    13518
+  ],
+  "construction_face_selection": {
+    "excluded_crossed_face_rows": [],
+    "frozen_face_rows": [],
+    "original_validated_crossed_face_rows": null,
+    "selected_crossed_face_rows": null
+  },
+  "containment_or_clearance_claim": false,
+  "crossing_bank_triangle_pair_count": 764,
+  "crossing_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/full-check/audit-159/report.json",
+  "crossing_report_sha256": "980264f285e805a4edb6d0a70b8fe706d72560e94557900613e4a2bab9603b36",
+  "edge_midpoint_parent_edges_sha256": "12a90f2a68797bb7b4614b7a3e1ea9d7ef675ac279d91bb4db2dde99dd3e073d",
+  "edge_midpoint_rows": [
+    20889,
+    20890,
+    20891,
+    20892,
+    20893,
+    20894
+  ],
+  "edge_midpoint_rows_count": 6,
+  "edge_midpoint_rows_sha256": "b118182d56318274e22de81d25b27df7a9c1e40a4ef9ab33e191b2bb76e4979d",
+  "edge_midpoint_rows_sha256_encoding": "sha256 of C-contiguous little-endian int64 row IDs as raw bytes",
+  "edge_only_refinement585_sha256": "07d466ba25c7d565bb8be61c9ff87a7725699f13e4080587a48cbbeec24056a3",
+  "exact_130_159_checks_run": false,
+  "existing_node_coordinates_moved": false,
+  "existing_prior_input_parent_namespace_preserved_under": "prior_input_parent_546__",
+  "face_ancestry_parent_row_stats": {
+    "face_fine_detail_ancestry_indptr": {
+      "parent_rows_with_empty_ancestry": 6852,
+      "parent_rows_with_multi_parent_union": 186
+    },
+    "face_fine_subface_ancestry_indptr": {
+      "parent_rows_with_empty_ancestry": 6846,
+      "parent_rows_with_multi_parent_union": 192
+    },
+    "face_source_ancestry_indptr": {
+      "parent_rows_with_empty_ancestry": 0,
+      "parent_rows_with_multi_parent_union": 192
+    }
+  },
+  "face_centroid_count": 0,
+  "fit_run": false,
+  "geometry_admitted": false,
+  "geometry_moved": false,
+  "historical_maps_preserved": [],
+  "historical_namespace_migrations": {
+    "prior_input_parent__": "prior_input_parent_546__"
+  },
+  "historical_prior_keys_preserved": [
+    "prior_input_006__refinement_boundary_semantics",
+    "prior_input_006__refinement_face_parent_barycentric",
+    "prior_input_006__refinement_face_parent_barycentric_semantics",
+    "prior_input_006__refinement_face_parent_face_row",
+    "prior_input_006__refinement_input_candidate_sha256",
+    "prior_input_006__refinement_input_face_report_sha256",
+    "prior_input_006__refinement_node_kind",
+    "prior_input_006__refinement_node_kind_semantics",
+    "prior_input_006__refinement_node_parent_edge_rows",
+    "prior_input_006__refinement_node_parent_edge_weights",
+    "prior_input_006__refinement_node_parent_face_barycentric",
+    "prior_input_006__refinement_node_parent_face_indptr",
+    "prior_input_006__refinement_node_parent_face_rows",
+    "prior_input_006__source_prolongation_indptr",
+    "prior_input_006__source_prolongation_node_rows",
+    "prior_input_006__source_prolongation_semantics",
+    "prior_input_006__source_prolongation_weights",
+    "prior_input_parent__refinement_boundary_semantics",
+    "prior_input_parent__refinement_face_parent_barycentric",
+    "prior_input_parent__refinement_face_parent_barycentric_semantics",
+    "prior_input_parent__refinement_face_parent_face_row",
+    "prior_input_parent__refinement_input_candidate_sha256",
+    "prior_input_parent__refinement_input_face_report_sha256",
+    "prior_input_parent__refinement_node_kind",
+    "prior_input_parent__refinement_node_kind_semantics",
+    "prior_input_parent__refinement_node_parent_edge_rows",
+    "prior_input_parent__refinement_node_parent_edge_weights",
+    "prior_input_parent__refinement_node_parent_face_barycentric",
+    "prior_input_parent__refinement_node_parent_face_indptr",
+    "prior_input_parent__refinement_node_parent_face_rows",
+    "prior_input_parent__source_prolongation_indptr",
+    "prior_input_parent__source_prolongation_node_rows",
+    "prior_input_parent__source_prolongation_semantics",
+    "prior_input_parent__source_prolongation_weights",
+    "prior_run028__refinement_boundary_semantics",
+    "prior_run028__refinement_face_parent_barycentric",
+    "prior_run028__refinement_face_parent_barycentric_semantics",
+    "prior_run028__refinement_face_parent_face_row",
+    "prior_run028__refinement_input_candidate_sha256",
+    "prior_run028__refinement_input_face_report_sha256",
+    "prior_run028__refinement_node_kind",
+    "prior_run028__refinement_node_kind_semantics",
+    "prior_run028__refinement_node_parent_edge_rows",
+    "prior_run028__refinement_node_parent_edge_weights",
+    "prior_run028__refinement_node_parent_face_barycentric",
+    "prior_run028__refinement_node_parent_face_indptr",
+    "prior_run028__refinement_node_parent_face_rows",
+    "prior_run028__source_prolongation_indptr",
+    "prior_run028__source_prolongation_node_rows",
+    "prior_run028__source_prolongation_semantics",
+    "prior_run028__source_prolongation_weights"
+  ],
+  "historical_prior_keys_preserved_count": 51,
+  "immediate_Q_nnz": 20901,
+  "immediate_Q_shape": [
+    20895,
+    20889
+  ],
+  "input_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/candidate.npz",
+  "input_candidate_sha256": "d0d8ba18026d37a1ea64a247e09e4f6e972db0b157d64ad075851ab76c1c4ca4",
+  "input_construction_check_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/full-check/report.json",
+  "input_construction_check_sha256": "52d8067d32467a69a7adbbc0050aa0db8b9db7f87024c10ecd20fd46e871b044",
+  "input_point_summary_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/full-check/audit-130/summary.json",
+  "input_point_summary_sha256": "d32a215e983c5b4060b0de6c173733c35455a4018449034f7f82927c5c24e326",
+  "input_points": 20889,
+  "input_state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/final/state.json",
+  "input_state_sha256": "d550f351dadbffa26085960c377dd5754dc7d175ac33d31de9d80821ec266b4d",
+  "input_surface_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/full-check/audit-159/report.json",
+  "input_surface_report_sha256": "980264f285e805a4edb6d0a70b8fe706d72560e94557900613e4a2bab9603b36",
+  "max_child_barycentric_parent_reconstruction_error_m": 2.9802322387695312e-08,
+  "max_parent_area_relative_drift_037_reference": 7.104224010130806e-14,
+  "max_parent_area_relative_drift_current_geometry": 1.2635019363088954e-05,
+  "new_face_count": 41745,
+  "new_faces_added": 12,
+  "new_faces_inherit_full_parent_union": true,
+  "new_immediate_parent_csr_singleton_child_to_input_face": true,
+  "new_immediate_parent_namespace": "prior_input_parent__",
+  "new_midpoint_count": 6,
+  "new_node_count": 20895,
+  "new_nodes_created_by_affine_subdivision": true,
+  "old_face_count": 41733,
+  "old_input_immediate_parent_csr_archive_prefix": "prior_input_parent_546__input_",
+  "old_input_immediate_parent_csr_archived": true,
+  "old_node_count": 20889,
+  "old_point_prefix_bitwise_unchanged": true,
+  "old_point_prefix_preserved_bitwise": true,
+  "output_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/candidate.npz",
+  "output_candidate_sha256": "f00fed90ed100562f9cc7a90e1bfb6c3887ac09bee9df0ddf5f628cfcecfc82f",
+  "p037_refiner_sha256": "d3a6e0c31e34f2165d853ffaf411ad67faaa1d307a3af1a6c79ba41a129f4f31",
+  "p084_owner_sha256": "eab8deda28164964051a6fa6ff346b8d94bc8bede04e896411dfdd02d46594f6",
+  "parent_P_shape": [
+    20889,
+    13518
+  ],
+  "parent_prefix_node_count": 20889,
+  "parent_prefix_points_bytes_sha256": "0cc47bf827714af9a67cbee6082e652bb7fa3d860806c7b9ec5c824d5a8add13",
+  "physical_clearance_or_containment_claim": false,
+  "physical_steps": 0,
+  "pinned_037_refiner_sha256": "d3a6e0c31e34f2165d853ffaf411ad67faaa1d307a3af1a6c79ba41a129f4f31",
+  "pinned_084_owner_sha256": "eab8deda28164964051a6fa6ff346b8d94bc8bede04e896411dfdd02d46594f6",
+  "pinned_270_sha256": "70e391867c4aa5680dacdcba1244ec15962a5dc74dc9d67c31467cdaffb608db",
+  "pinned_546_adapter_sha256": "06081873eaf0d5452fbf4beee3d580a0eba97c3a546a9f7e7a06a0c9f548cbc6",
+  "protected_faces_proven_unchanged": [],
+  "purpose": "bounded source-preserving local refinement seed for unresolved 159 pairs on skin faces 11035 and 13130 against body57/stable bone89/triangle469",
+  "refinement_method": "conforming edge-only affine midpoint bisection; no face-centroid nodes",
+  "requires_fresh_130_159_and_545_checks": true,
+  "requires_fresh_413_depth_and_589_or_613_targets_if_points_are_inside": true,
+  "scope_limit": "conforming affine subdivision and ancestry only; no bone clearance, mass transfer, material, native runtime, or physical admission",
+  "selected_edge_count": 6,
+  "selected_edge_incident_faces": {
+    "(10503, 18706)": [
+      11025,
+      11035
+    ],
+    "(10503, 19762)": [
+      11030,
+      11035
+    ],
+    "(13609, 19890)": [
+      13129,
+      13130
+    ],
+    "(13609, 19900)": [
+      13130,
+      13246
+    ],
+    "(18706, 19762)": [
+      11034,
+      11035
+    ],
+    "(19890, 19900)": [
+      13130,
+      13241
+    ]
+  },
+  "selected_edge_subset_policy": {
+    "candidate_crossing_rows_remain_unresolved_until_new_geometry_checks": true,
+    "construction_priority_only": true,
+    "crossing_report_is_full_185_bank_report": true,
+    "mode": "two-witness-face-edge-only-local-refinement",
+    "selected_edge_count": 6,
+    "selected_edges": [
+      [
+        10503,
+        18706
+      ],
+      [
+        10503,
+        19762
+      ],
+      [
+        13609,
+        19890
+      ],
+      [
+        13609,
+        19900
+      ],
+      [
+        18706,
+        19762
+      ],
+      [
+        19890,
+        19900
+      ]
+    ],
+    "selected_face_rows": [
+      11035,
+      13130
+    ]
+  },
+  "status": "REFINEMENT_CONSTRUCTION_READY",
+  "target_face_pair_witnesses": {
+    "11035": {
+      "body": 57,
+      "stable_bone_id": 89,
+      "triangles_for_face": [
+        184,
+        185,
+        186,
+        294,
+        295,
+        299,
+        300,
+        301,
+        302,
+        303,
+        304,
+        458,
+        459,
+        460,
+        461,
+        462,
+        463,
+        464,
+        465,
+        469,
+        552
+      ]
+    },
+    "13130": {
+      "body": 57,
+      "stable_bone_id": 89,
+      "triangles_for_face": [
+        187,
+        190,
+        192,
+        305,
+        307,
+        308,
+        462,
+        463,
+        464,
+        466,
+        469
+      ]
+    }
+  },
+  "unique_crossed_parent_face_count": 187
+}

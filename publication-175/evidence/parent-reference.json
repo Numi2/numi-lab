@@ -1,0 +1,8 @@
+{
+  "baseline": "764 surface pairs / 0 contained / 0 self / 185 complete banks; candidate_selected=false",
+  "baseline_candidate_member": "evidence/box-aware-sat-fit-637/run-001-from766/merit-631-001/candidate.npz",
+  "baseline_candidate_sha256": "d0d8ba18026d37a1ea64a247e09e4f6e972db0b157d64ad075851ab76c1c4ca4",
+  "commit": "ed5b9a9adc7f5fe516db184ad7390b0482744aef",
+  "manifest_sha256": "9b4bfdec4e37902db1ae6969fdc7950c7c78214d1cec651a38576b316fd8723e",
+  "publication": "P174"
+}

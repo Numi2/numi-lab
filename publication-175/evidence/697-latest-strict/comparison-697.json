@@ -1,0 +1,16 @@
+{
+  "status": "SAME_TOPOLOGY_AND_PARENT_IDENTITY_COMPARISON_UNADMITTED",
+  "candidate_before_sha256": "22dce5fe0457cfe0ec2109ff922ba4ce69720504b3f69370e55beb25b0da279b",
+  "candidate_after_sha256": "22f8899a5646e479be697be2932ae93a7efdfc5216ace9d315889e7cdc5b432b",
+  "before_surface_pairs": 703,
+  "after_surface_pairs": 697,
+  "same_topology_pair_identities_removed": 13,
+  "same_topology_pair_identities_introduced": 7,
+  "original_parent_pairs": 764,
+  "after_distinct_parent_pairs": 691,
+  "parent_pair_identities_removed": 202,
+  "parent_pair_identities_introduced": 129,
+  "inventory_owner_sha256": "2958dee4b747d9da1e12d3375cc64d19eccc4396acabf62a2e7de42b5bdc7a8d",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

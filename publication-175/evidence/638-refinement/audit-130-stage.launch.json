@@ -1,0 +1,18 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/audit-130"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/candidate.npz": "f00fed90ed100562f9cc7a90e1bfb6c3887ac09bee9df0ddf5f628cfcecfc82f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/report.json": "b0048106d366bf07d8fa55aa82aeaf71b07d60b31ef6a032fedeabe4961a1ef0",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9"
+  }
+}

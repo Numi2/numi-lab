@@ -1,0 +1,60 @@
+{
+  "branch": "main",
+  "commit": "ed5b9a9adc7f5fe516db184ad7390b0482744aef",
+  "manifest_sha256": "9b4bfdec4e37902db1ae6969fdc7950c7c78214d1cec651a38576b316fd8723e",
+  "member_count": 102,
+  "method": "Git Data API chunked P174 subtree then non-force main ref update",
+  "new_tree": "618563a81b827be1d8cd1a4fb0b6459e870b3ca7",
+  "parent_commit": "5385f2e1ab11139ed56babdd34b9565dd2e11eeb",
+  "parent_tree": "184b10e7b100e4ae7ba1319d23f5835cee13504f",
+  "publication": "P174",
+  "publication_subtree": "483d14cd51efd5dfaf73584d75852d36ca6f256f",
+  "published_bytes": 48491781,
+  "published_paths": 103,
+  "ref_after": "ed5b9a9adc7f5fe516db184ad7390b0482744aef",
+  "repository": "Numi2/numi-lab",
+  "tree_batches": [
+    {
+      "chunk": 0,
+      "count": 16,
+      "returned_entries": 2,
+      "sha": "b58f8231f915e8ed7344b7acfb1ecbf040ba2fa1"
+    },
+    {
+      "chunk": 1,
+      "count": 16,
+      "returned_entries": 2,
+      "sha": "6b33945602537bca8271581480570cf871610256"
+    },
+    {
+      "chunk": 2,
+      "count": 16,
+      "returned_entries": 2,
+      "sha": "318294ad4bd04beb90ceb6ad4eec3b4dba9f8a0a"
+    },
+    {
+      "chunk": 3,
+      "count": 16,
+      "returned_entries": 2,
+      "sha": "c60b246613a960ec53a1eff2dfc72bfdd362762f"
+    },
+    {
+      "chunk": 4,
+      "count": 16,
+      "returned_entries": 2,
+      "sha": "6ebaf1231499077c065a9a0903820f59c02e6b69"
+    },
+    {
+      "chunk": 5,
+      "count": 16,
+      "returned_entries": 2,
+      "sha": "09e19d0ff5b66c951ecf84ba4931222996025f8a"
+    },
+    {
+      "chunk": 6,
+      "count": 7,
+      "returned_entries": 5,
+      "sha": "483d14cd51efd5dfaf73584d75852d36ca6f256f"
+    }
+  ]
+}

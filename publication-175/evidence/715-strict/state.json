@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/joint-fit-001/restored-retention-582-001/next-714-001/retention-582-001/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "4879ee344b459c511b260b41e1b33a2dd2b3592ffecdbb1f77b99e86715cdb2a",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/joint-fit-001/restored-retention-582-001/next-714-001/retention-582-001/full-check/audit-130/summary.json",
+  "point_summary_sha256": "8f4e64c190cd560e0917e099344bce294ff6c562ee7452d01cbe80b7b6fb917e",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/joint-fit-001/restored-retention-582-001/next-714-001/retention-582-001/full-check/audit-159/report.json",
+  "surface_report_sha256": "48d212daa3bfb7ff69ff8a5bfb6a8fe5a2d9ce7b44e127366361c0245d308ebb",
+  "temporary_unselected_construction": false
+}

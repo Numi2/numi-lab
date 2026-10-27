@@ -1,0 +1,17 @@
+{
+  "archive_bytes": 4890656,
+  "archive_path": "evidence/715-strict/fit/report.json.zst",
+  "archive_sha256": "778f8653eaeda4327037ffb89ca59df54b92012115c374d6afaf9c14a1029b90",
+  "fresh_filesystem_restore_bytes": 49210458,
+  "fresh_filesystem_restore_parse_passed": true,
+  "fresh_filesystem_restore_sha256": "2d6e01b3ee9e7a275081eea5403814f043d9837b5dd980881464e1e627360fe4",
+  "publication": "P175",
+  "restore_command": "zstd -d -c <archive> > <destination>; restore mode and mtime_ns from this receipt",
+  "restore_hash_size_passed": true,
+  "schema": "numi.lossless_zstd_restore_receipt.v1",
+  "source_bytes": 49210458,
+  "source_mode": 420,
+  "source_mtime_ns": 1793093902549216778,
+  "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/joint-fit-001/fit/report.json",
+  "source_sha256": "2d6e01b3ee9e7a275081eea5403814f043d9837b5dd980881464e1e627360fe4"
+}

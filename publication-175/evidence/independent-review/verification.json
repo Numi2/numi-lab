@@ -1,0 +1,117 @@
+{
+  "697_per_bank_deltas": {
+    "57/89": -4,
+    "59/95": -2
+  },
+  "701_per_bank_deltas": {
+    "43/16": 2,
+    "57/89": -4,
+    "59/95": -2,
+    "65/99": 2
+  },
+  "area_gate_minima": {
+    "697_current": 0.11956479904215168,
+    "697_fixed037": 0.10000963829086307,
+    "703_current": 0.10174806658616826,
+    "703_fixed037": 0.10000963829086307,
+    "floor": 0.1
+  },
+  "baseline_764_candidate_sha256": "d0d8ba18026d37a1ea64a247e09e4f6e972db0b157d64ad075851ab76c1c4ca4",
+  "limitations": [
+    "638 intermediate has two contained node-bank pairs and is not a strict endpoint.",
+    "Single rest-pose checks do not qualify closed-solid containment, volume cells, mass/thickness, dynamics, multiple poses or native execution.",
+    "The fixed-037 area ratio for 703/697 is about 0.1000096383 against the 0.1 floor.",
+    "All states have native_admission=false and accepted_physical_steps=0."
+  ],
+  "p174_manifest_sha256": "9b4bfdec4e37902db1ae6969fdc7950c7c78214d1cec651a38576b316fd8723e",
+  "pair_identity_comparison": {
+    "baseline_parent_pairs": 764,
+    "mapped_764_to_697_introduced": 129,
+    "mapped_764_to_697_removed": 202,
+    "mapped_distinct_715_703_701_697": [
+      707,
+      695,
+      695,
+      691
+    ],
+    "same_topology_introduced_703_to_697": 7,
+    "same_topology_introduced_715_to_703": 18,
+    "same_topology_removed_703_to_697": 13,
+    "same_topology_removed_715_to_703": 30
+  },
+  "refinement_face_count": 41745,
+  "schema": "numi.human.connected_surface_p175_independent_verification.v1",
+  "states": [
+    {
+      "banks": 185,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/candidate.npz",
+      "candidate_sha256": "f00fed90ed100562f9cc7a90e1bfb6c3887ac09bee9df0ddf5f628cfcecfc82f",
+      "contained_pairs": 2,
+      "final_report_sha256": "2f3cb6298147819577fcdce5512d42f3f99de626f1a5eb1957e21383e786a8d8",
+      "label": "638",
+      "point_report_sha256": "5e3f8e9a4a8a0b44783d658501d04d81e43f66ed763cbfeff6ca1af313c621df",
+      "self_pairs": 0,
+      "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/state.json",
+      "state_sha256": "6a3b8617f45809039212c8d3a8a7e43da0099263a22c6abd1f6ac1e09e03f133",
+      "surface_pairs": 770,
+      "surface_report_sha256": "5c562a669801b2ba94b808c8df2d4b59420895c247b711b244641861dcb4a5d5"
+    },
+    {
+      "banks": 185,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/joint-fit-001/restored-retention-582-001/next-714-001/retention-582-001/candidate.npz",
+      "candidate_sha256": "4879ee344b459c511b260b41e1b33a2dd2b3592ffecdbb1f77b99e86715cdb2a",
+      "contained_pairs": 0,
+      "final_report_sha256": "4856d728b2456450ae4a4bb5e37ef273e6c5ad2b61ef67cae27e176cc9df69fc",
+      "label": "715",
+      "point_report_sha256": "8f4e64c190cd560e0917e099344bce294ff6c562ee7452d01cbe80b7b6fb917e",
+      "self_pairs": 0,
+      "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/joint-fit-001/restored-retention-582-001/next-714-001/retention-582-001/strict-from-refined/state.json",
+      "state_sha256": "9531253907ed2d989d27a6a943fdb42365a78645fc5eb251831c2797db04b7ab",
+      "surface_pairs": 715,
+      "surface_report_sha256": "48d212daa3bfb7ff69ff8a5bfb6a8fe5a2d9ce7b44e127366361c0245d308ebb"
+    },
+    {
+      "banks": 185,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from715-001/retention-582-001/candidate.npz",
+      "candidate_sha256": "22dce5fe0457cfe0ec2109ff922ba4ce69720504b3f69370e55beb25b0da279b",
+      "contained_pairs": 0,
+      "final_report_sha256": "5309cdff7a23667b6fc97c054a4366abea7351f3ee791d501a676bd34c5f70a1",
+      "label": "703",
+      "point_report_sha256": "8d5050b665a8ce3b75deeb810d1b10b80e0d6084cab912231e3be2a476f979a5",
+      "self_pairs": 0,
+      "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from715-001/retention-582-001/final/state.json",
+      "state_sha256": "f0bb8b82c26799af95fbeb36a8f203584ab25c3e7f63124af3a4640c07b92124",
+      "surface_pairs": 703,
+      "surface_report_sha256": "6ca7c6aa089683cc460b22ad88255f46de3fe873e3566480245cd6c08c91fc61"
+    },
+    {
+      "banks": 185,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from703-001/retention-582-001/candidate.npz",
+      "candidate_sha256": "ea43b25cacf39e6563538c730c1ae0ef19cf9c5aae620a4602fbe1810127ce00",
+      "contained_pairs": 0,
+      "final_report_sha256": "304a9bf61b9706a92afeb339e3a4fb83ae3f120c1c98eb023b96db9cffd702dc",
+      "label": "701",
+      "point_report_sha256": "bc2c8bda06537d820f52c8f35e79a3fb278e9c126bf18938605d2f7fc08f0716",
+      "self_pairs": 0,
+      "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from703-001/retention-582-001/final/state.json",
+      "state_sha256": "b58878d27fa0a7692eacc90d9ef122bedc259e1efb51d74fd1977561f07630ea",
+      "surface_pairs": 701,
+      "surface_report_sha256": "3baecf67e64306d233879d0bd5d2baa5c1eb5987f87db4f146d753846fb00111"
+    },
+    {
+      "banks": 185,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from703-001/merit-631-001/candidate.npz",
+      "candidate_sha256": "22f8899a5646e479be697be2932ae93a7efdfc5216ace9d315889e7cdc5b432b",
+      "contained_pairs": 0,
+      "final_report_sha256": "ea3eabb5a4f5c4adca0bb06f31ba88cc0cfd7d3e5b6fa6162604219bf39f2f54",
+      "label": "697",
+      "point_report_sha256": "9f535c21e5aed77a595e50b2c7cffbeade4c2c97aa34f64a6ea9b416dccc4adb",
+      "self_pairs": 0,
+      "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from703-001/merit-631-001/final/state.json",
+      "state_sha256": "9bf1f410cff44ea2aed2d7ead980303b96c5d4626f7b356b1865ee871e6de7ee",
+      "surface_pairs": 697,
+      "surface_report_sha256": "a3b680f7feca98673911a2938747c8afffdb4ea96309aab50a71da4223a6b707"
+    }
+  ],
+  "status": "PASS_CONSTRUCTION_EVIDENCE_ONLY"
+}

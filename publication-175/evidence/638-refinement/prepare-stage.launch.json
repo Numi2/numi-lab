@@ -1,0 +1,37 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-613/prepare_matched613.py",
+    "--current-inputs",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/current-inputs.json",
+    "--point-target-npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/point-targets-589/nearest-union-exits.npz",
+    "--point-target-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/point-targets-589/nearest-union-exits.prefix639.json",
+    "--fit-template",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from764-001/prepared/fit-argv.json",
+    "--matched-template",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from764-001/prepared/matched-inputs.json",
+    "--fit-entry",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-scp-area-backtrack-603/frozen-v1/run_joint_full_coordinate_fit603.py",
+    "--prior-seed-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from764-001/prepared/constraints/self-seeds/seed-preflight.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/prepared"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-scp-area-backtrack-603/frozen-v1/run_joint_full_coordinate_fit603.py": "38c3dfa9ddd961250111c87f56d6184075bde43be07c46e09d239f057b06d692",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-613/prepare_matched613.py": "ae7e70a0010bb751ea93ed95f55a795476658b30f4076bb520a4dfaddf8bf1df",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/candidate.npz": "f00fed90ed100562f9cc7a90e1bfb6c3887ac09bee9df0ddf5f628cfcecfc82f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/current-inputs.json": "3f94d2d1bb495a2c78d6e80f3d00a19c80efac9e07707db3d1fe27471fa78ca5",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/point-targets-589/nearest-union-exits.npz": "5ea293b80780687c6e9aa9caf40b7cbceb059cf6ff8fe53725f8e7a780965ffe",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/point-targets-589/nearest-union-exits.prefix639.json": "89078e4e0efe144336ed4e9a2d86855053a7993cde8fc78905068a31cd37b0a1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/local-refinement-638/from-764-001/state.json": "6a3b8617f45809039212c8d3a8a7e43da0099263a22c6abd1f6ac1e09e03f133",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from764-001/prepared/constraints/self-seeds/seed-preflight.json": "1bc565660972212177dc51d499a0dd2ab54c32f18b770a3d3d9cafc2feb35ef8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from764-001/prepared/fit-argv.json": "a8a811f0d43539f9175dbd9dead2bb3bf6fda908678f15a0303f364f996334a2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from764-001/prepared/matched-inputs.json": "00ba8c3024ed18f5f354d53cc281f8962bada7455da3308697a24bc51e54fe36"
+  }
+}

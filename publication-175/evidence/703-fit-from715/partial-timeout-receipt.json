@@ -1,0 +1,29 @@
+{
+  "accepted_physical_steps": 0,
+  "classification": "construction-only bounded area SCP; no candidate admitted",
+  "failed_components": [
+    {
+      "component": 9,
+      "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+      "status": 1,
+      "success": false,
+      "time_limit_per_stage_s": 18.38681010616218,
+      "wall_seconds": 18.41165554197505
+    }
+  ],
+  "fit_label": "703-fit-from715",
+  "fit_report_sha256": "82f0b550a551fe5ceaf05a0258af76146198eb43e2e895afd80cf601934fc9e2",
+  "fit_status": "LP_NO_PROPOSAL",
+  "global_lp_converged": false,
+  "native_admission": false,
+  "partial_timeout_direction_count": 1,
+  "partial_timeout_is_solver_failure_not_global_success": true,
+  "partial_timeout_zero_fallback_opt_in": true,
+  "raw_capture_status": "RAW_JOINT_LP_DIRECTIONS_CAPTURED_UNADMITTED",
+  "raw_capture_summary_sha256": "6ff68844644d6d312bcad06e140c0616275968f5f812f2ddd92fad6b5f94d329",
+  "retained_gain_budget_claimed_for_partial": false,
+  "schema": "numi.human.connected_surface.partial_timeout_evidence.v1",
+  "solver_message": "component 9 LP failed: Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+  "solver_status": 1,
+  "solver_wall_seconds": 53.57964475010522
+}
