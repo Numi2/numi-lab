@@ -1,0 +1,19 @@
+{
+  "archive_bytes": 3607063,
+  "archive_path": "evidence/box-aware-sat-fit-637/run-001-from766/fit/report.json.zst",
+  "archive_sha256": "edf4f3f0f1e3df2fac3d667913703312b7aadbf282aff0ed4517727652c2df2d",
+  "fresh_filesystem_restore_bytes": 49316351,
+  "fresh_filesystem_restore_mode": 420,
+  "fresh_filesystem_restore_mtime_ns": 1793093019543193013,
+  "fresh_filesystem_restore_sha256": "de6d8a67a64b01395c828e111fca32726994fed7ed8ed75bff5cba2dfd5ff8ec",
+  "publication": "P174",
+  "restore_command": "zstd -d -c <archive> > <destination>; restore mode and mtime_ns from this receipt",
+  "restore_hash_size_mode_mtime_passed": true,
+  "restored_json_parse_passed": true,
+  "schema": "numi.lossless_zstd_restore_receipt.v1",
+  "source_bytes": 49316351,
+  "source_mode": 420,
+  "source_mtime_ns": 1793093019543193013,
+  "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/fit/report.json",
+  "source_sha256": "de6d8a67a64b01395c828e111fca32726994fed7ed8ed75bff5cba2dfd5ff8ec"
+}

@@ -1,0 +1,19 @@
+{
+  "accepted_physical_steps": 0,
+  "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q -p no:cacheprovider directional-source-bounds-636/test_directional_bounds636_v2.py box-aware-sat-fit-637/test_box_aware_sat637.py component-merit-retention-631/test_select_components631_v2.py",
+  "duration_seconds": 0.1,
+  "failed": 0,
+  "log_path": "evidence/tests-636-637-631.log",
+  "log_sha256": "6ed77de399c0d232c5e0f89fca2fafc9cf3dc332b40bd5d0c0daf67eaf493edc",
+  "native_admission": false,
+  "passed": 20,
+  "publication": "P174",
+  "result": "PASS",
+  "schema": "numi.human.construction_publication_unit_test_receipt.v1",
+  "scope": "pure 636-v2, 637 and 631-v2 unit tests; no solver or geometry audit run",
+  "test_source_sha256": {
+    "evidence/box-aware-sat-fit-637/test_box_aware_sat637.py": "ef3702755c2a70b521e2cd9834c547b23eae8e9624290fe10e8691291d9c6bf5",
+    "evidence/component-merit-retention-631/test_select_components631_v2.py": "496d91473ba67eb63b9e6232ef9585f006497a481798c570f1907777001721ed",
+    "evidence/directional-source-bounds-636/test_directional_bounds636_v2.py": "070fb9fe920f16a52b69952e2a9eb3164ff86da3cf90d3586679490b270f4003"
+  }
+}

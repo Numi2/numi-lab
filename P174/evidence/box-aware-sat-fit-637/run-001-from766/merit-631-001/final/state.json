@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "d0d8ba18026d37a1ea64a247e09e4f6e972db0b157d64ad075851ab76c1c4ca4",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/full-check/audit-130/summary.json",
+  "point_summary_sha256": "d32a215e983c5b4060b0de6c173733c35455a4018449034f7f82927c5c24e326",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/full-check/audit-159/report.json",
+  "surface_report_sha256": "980264f285e805a4edb6d0a70b8fe706d72560e94557900613e4a2bab9603b36",
+  "temporary_unselected_construction": false
+}

@@ -1,0 +1,28 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/candidate.npz",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-009-from772/final/state.json",
+    "--point-summary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/full-check/audit-130/summary.json",
+    "--surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/full-check/audit-159/report.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/final",
+    "--trust-mm",
+    "4"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/candidate.npz": "d0d8ba18026d37a1ea64a247e09e4f6e972db0b157d64ad075851ab76c1c4ca4",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/full-check/audit-130/summary.json": "d32a215e983c5b4060b0de6c173733c35455a4018449034f7f82927c5c24e326",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/full-check/audit-159/report.json": "980264f285e805a4edb6d0a70b8fe706d72560e94557900613e4a2bab9603b36",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-009-from772/final/state.json": "64f8e823435d02677908e06fcb367db9bca11ccadc7e42e0e35f26e793bc4695",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py": "db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781"
+  }
+}

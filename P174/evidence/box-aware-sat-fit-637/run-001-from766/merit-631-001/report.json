@@ -1,0 +1,283 @@
+{
+  "accepted_physical_steps": 0,
+  "base_candidate_sha256": "47ec88d0442188e5e71cb8edf4e6adc05af7f13dbac965deff99ac2a253a8220",
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-009-from772/final/state.json",
+  "baseline_state_sha256": "64f8e823435d02677908e06fcb367db9bca11ccadc7e42e0e35f26e793bc4695",
+  "candidate_selected": false,
+  "candidate_sha256": "d0d8ba18026d37a1ea64a247e09e4f6e972db0b157d64ad075851ab76c1c4ca4",
+  "components": [
+    {
+      "component": 4376,
+      "delta": 0,
+      "nodes": 33,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 4381,
+      "delta": 0,
+      "nodes": 75,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 4733,
+      "delta": 2,
+      "nodes": 26,
+      "per_bank_delta": {
+        "(59, 95)": 2
+      },
+      "retained": false
+    },
+    {
+      "component": 5694,
+      "delta": 2,
+      "nodes": 13,
+      "per_bank_delta": {
+        "(74, 104)": 2
+      },
+      "retained": false
+    },
+    {
+      "component": 5698,
+      "delta": 0,
+      "nodes": 2,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 6984,
+      "delta": 0,
+      "nodes": 299,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 7754,
+      "delta": -2,
+      "nodes": 80,
+      "per_bank_delta": {
+        "(109, 114)": -2
+      },
+      "retained": true
+    },
+    {
+      "component": 8946,
+      "delta": 0,
+      "nodes": 2,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 8981,
+      "delta": 8,
+      "nodes": 106,
+      "per_bank_delta": {
+        "(65, 99)": 8
+      },
+      "retained": false
+    },
+    {
+      "component": 9097,
+      "delta": 2,
+      "nodes": 159,
+      "per_bank_delta": {
+        "(43, 16)": 2
+      },
+      "retained": false
+    },
+    {
+      "component": 9135,
+      "delta": 0,
+      "nodes": 3,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 9212,
+      "delta": 5,
+      "nodes": 27,
+      "per_bank_delta": {
+        "(115, 118)": 5
+      },
+      "retained": false
+    },
+    {
+      "component": 9521,
+      "delta": 0,
+      "nodes": 30,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 10111,
+      "delta": 0,
+      "nodes": 11,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 11070,
+      "delta": 0,
+      "nodes": 13,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 14208,
+      "delta": 0,
+      "nodes": 21,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 14601,
+      "delta": 2,
+      "nodes": 13,
+      "per_bank_delta": {
+        "(64, 98)": 2
+      },
+      "retained": false
+    },
+    {
+      "component": 14625,
+      "delta": 0,
+      "nodes": 5,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 14832,
+      "delta": 0,
+      "nodes": 9,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 18139,
+      "delta": 0,
+      "nodes": 2,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 18486,
+      "delta": 0,
+      "nodes": 1,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 18522,
+      "delta": 0,
+      "nodes": 1,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 18656,
+      "delta": 0,
+      "nodes": 1,
+      "per_bank_delta": {},
+      "retained": false
+    }
+  ],
+  "limitations": [
+    "Endpoint pair composition is a proposal only; changed cross-component self intersections and containment require fresh full545/130/159.",
+    "No LP feasibility, optimality, physical skin/fat, mass, motion or native qualification claimed."
+  ],
+  "native_admission": false,
+  "nonpoint_payload_bitwise_baseline": true,
+  "outside_selected_coordinates_bitwise_baseline": true,
+  "predicted_surface_pairs": 764,
+  "selected_node_rows": [
+    7759,
+    9971,
+    11135,
+    11144,
+    11849,
+    13167,
+    13168,
+    13866,
+    13869,
+    13870,
+    14440,
+    14443,
+    15070,
+    15071,
+    15073,
+    15074,
+    15680,
+    17859,
+    17868,
+    17960,
+    17961,
+    17964,
+    17965,
+    17966,
+    17967,
+    17970,
+    18638,
+    18639,
+    18640,
+    18641,
+    18642,
+    18836,
+    18842,
+    18844,
+    18928,
+    18929,
+    18930,
+    18931,
+    18934,
+    19181,
+    19191,
+    19193,
+    19194,
+    19195,
+    19197,
+    19314,
+    19315,
+    19432,
+    19433,
+    19553,
+    19555,
+    19556,
+    19557,
+    19558,
+    19723,
+    19724,
+    20627,
+    20629,
+    20630,
+    20643,
+    20675,
+    20676,
+    20677,
+    20678,
+    20679,
+    20683,
+    20684,
+    20685,
+    20690,
+    20691,
+    20694,
+    20695,
+    20696,
+    20699,
+    20700,
+    20701,
+    20703,
+    20704,
+    20710,
+    20711
+  ],
+  "source_sha256": "31e9dc21071aed2f27399c2ef35da6133d4444e7a300870ffa5c9c541b3e269b",
+  "status": "COMPONENT_PROPOSAL_PENDING_FRESH_FULL_AUDITS",
+  "target": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/retention-582-001/candidate.npz",
+  "target_check": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/retention-582-001/full-check/report.json",
+  "target_check_sha256": "65d6e2e5845d515a4530c41357ed5dc3501489a8e1fa7abb3d8f37c167ad22a9",
+  "target_sha256": "b8ece5274a92bec201fcd7c525957a889631d2bb90230d0ce4b7196922270ff1",
+  "target_surface_report_sha256": "ffa8a9a814d9e827b175b1f58c46177fcc283d42d353c40a70ef7210283ea31f",
+  "typed_anchors": 237
+}

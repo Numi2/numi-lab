@@ -1,0 +1,22 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/fit/candidate.npz",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-009-from772/final/state.json",
+    "--trust-mm",
+    "4",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/full-check"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/fit/candidate.npz": "176fa94b9bfc677be0fae87dfa98cce93e9141c9415ca5ebc4bf86322bb27380",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-009-from772/final/state.json": "64f8e823435d02677908e06fcb367db9bca11ccadc7e42e0e35f26e793bc4695"
+  }
+}

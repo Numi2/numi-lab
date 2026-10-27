@@ -1,0 +1,23 @@
+{
+  "accepted_physical_steps": 0,
+  "anchors_on_support": 0,
+  "candidate_sha256": "47ec88d0442188e5e71cb8edf4e6adc05af7f13dbac965deff99ac2a253a8220",
+  "check_sha256": "31b9dd874a318bdf04f64d11afc8361a7de19977e92f85b8b1f7476ca34374f0",
+  "directional_bounds636_sha256": "fb3e9cda895b086cf2f5f15ca28f35b43e84c912c73db443e3c7d04cacbd10a8",
+  "eight_box_corners_checked": true,
+  "expanded_component_count": 111,
+  "expanded_node_count": 37,
+  "max_box_corner_source_distance_mm": 11.999969510654678,
+  "max_box_corner_step_mm": 4.0,
+  "maximum_box_source_distance_mm": 11.999969510654678,
+  "maximum_box_step_mm": 4.0,
+  "native_admission": false,
+  "old_cube_contained_for_all_support_nodes": true,
+  "owner408_sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+  "semantics": "asymmetric inner box preserving zero, original 408 cube, and actual trust/source spheres",
+  "source_base_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+  "source_cap_mm": 12.0,
+  "support_nodes": 220,
+  "target_sha256": "106f88173662cfada7539551facb4a3e76537b419c6114df7db25c2665cb877a",
+  "trust_mm": 4.0
+}

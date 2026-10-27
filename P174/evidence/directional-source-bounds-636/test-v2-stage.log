@@ -1,0 +1,8 @@
+test_boundary_and_axis_sign (test_directional_bounds636_v2.BoundsTests.test_boundary_and_axis_sign) ... ok
+test_invalid_inputs_fail_closed (test_directional_bounds636_v2.BoundsTests.test_invalid_inputs_fail_closed) ... ok
+test_randomized_boxes_and_old_cube (test_directional_bounds636_v2.BoundsTests.test_randomized_boxes_and_old_cube) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.011s
+
+OK

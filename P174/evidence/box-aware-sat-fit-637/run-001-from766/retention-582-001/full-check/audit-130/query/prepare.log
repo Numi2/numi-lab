@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/retention-582-001/full-check/audit-130/query/points-world.npz",
+  "input_sha256": "c366837ddf8d852f256f39aafc7a41e2bcfb23dee63590b5fec4a6ac38fde131",
+  "field": "points_world_f32",
+  "query_count": 20889,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/retention-582-001/full-check/audit-130/query/points.csv",
+  "output_sha256": "47a12724aca5e8b3e043975398e282fbd4aea7f0909c87b2150ed2f6edd6c6a2",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

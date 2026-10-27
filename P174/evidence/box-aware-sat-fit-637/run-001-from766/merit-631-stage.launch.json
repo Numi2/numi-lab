@@ -1,0 +1,22 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/select_components631_v2.py",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-009-from772/final/state.json",
+    "--target-check",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/retention-582-001/full-check/report.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/retention-582-001/full-check/report.json": "65d6e2e5845d515a4530c41357ed5dc3501489a8e1fa7abb3d8f37c167ad22a9",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/select_components631_v2.py": "31e9dc21071aed2f27399c2ef35da6133d4444e7a300870ffa5c9c541b3e269b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-009-from772/final/state.json": "64f8e823435d02677908e06fcb367db9bca11ccadc7e42e0e35f26e793bc4695"
+  }
+}

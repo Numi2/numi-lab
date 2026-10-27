@@ -1,0 +1,24 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline": {
+    "candidate_sha256": "47ec88d0442188e5e71cb8edf4e6adc05af7f13dbac965deff99ac2a253a8220",
+    "manifest_sha256": "c7834936fcc8a9bb46d2982cb4d6ad00f7fe16db016288fff28a2abc21f4d30a",
+    "member": "P173/evidence/surface-clearance-546/connected-topology-580/run-009-from772/lineage/candidate.npz"
+  },
+  "excluded": [
+    "unaccepted 638 branch and later mutable work",
+    "native admission, physical steps, anatomy or tissue-physics qualification"
+  ],
+  "included": [
+    "frozen complete 637 run from 766, including failed fit, raw witnesses, 764 merit result and non-improving 582 branch",
+    "636-v2 code/test/check",
+    "637 code/tests plus 631-v2 selector and test",
+    "exact SAT/458/603/checker source snapshots",
+    "verified zstd archive of initial 637 fit report and 20-pass test receipt"
+  ],
+  "native_admission": false,
+  "parent_publication": "P173",
+  "publication": "P174",
+  "schema": "numi.human.connected_surface_publication_scope.v1",
+  "source_policy": "All frozen candidates and exact failure witnesses retained; source-run files were not modified or removed."
+}

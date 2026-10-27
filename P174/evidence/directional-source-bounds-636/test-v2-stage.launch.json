@@ -1,0 +1,20 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-v",
+    "-s",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/directional-source-bounds-636",
+    "-p",
+    "test_directional_bounds636_v2.py"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/directional-source-bounds-636/directional_bounds636_v2.py": "fb3e9cda895b086cf2f5f15ca28f35b43e84c912c73db443e3c7d04cacbd10a8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/directional-source-bounds-636/test_directional_bounds636_v2.py": "070fb9fe920f16a52b69952e2a9eb3164ff86da3cf90d3586679490b270f4003"
+  }
+}
