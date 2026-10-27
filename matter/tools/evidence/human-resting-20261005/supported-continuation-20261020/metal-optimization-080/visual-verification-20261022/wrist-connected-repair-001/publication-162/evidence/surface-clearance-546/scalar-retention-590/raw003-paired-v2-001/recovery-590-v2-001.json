@@ -1,0 +1,143 @@
+{
+  "additional_lp_trials": 0,
+  "artifacts": {
+    "alpha": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/alpha.npy",
+      "sha256": "d6d045d3ba132395a9274735712fb094cf159d03e52bbac426a9ad0d855561c6"
+    },
+    "base_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/lineage/candidate.npz",
+      "sha256": "25485ae52b3a7ad19ea5c3176a79416d8f04d9d2e4f852fac931d75ca734ae04"
+    },
+    "base_state": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/final/state.json",
+      "sha256": "7c922fb005c4de5dcfde91c996f5d6c3a86ae2a985041aefcdaf2c93b99990ab"
+    },
+    "core_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/582-witness-retention/candidate.npz",
+      "sha256": "ba1a20edffcf4286b8ac772847114c9667423481ad38d505e2afccac2122d8ca"
+    },
+    "core_full545": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/full-check-545/report.json",
+      "sha256": "fc4a1d7d7f2b7f40de31c5042c4bc5e6a2a2a54a64a726dee88269093af1a02a"
+    },
+    "core_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/582-witness-retention/report.json",
+      "sha256": "0016570174635c180241cc0bb425dbff8202a7c8b36dfbffdae10bc1c400fa6a"
+    },
+    "final_state": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/final/state.json",
+      "sha256": "fa00b1c9a59ee148f3772fb4382d370d94451b5510b404295d6d649cda5c99ac"
+    },
+    "finalize_source": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py",
+      "sha256": "db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781"
+    },
+    "matched_context": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/prepare/constraint-context.json",
+      "sha256": "68f719f2b433d78009a935c51f4b6577a306024880a5a68485f672df7b59fb05"
+    },
+    "regional_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/candidate.npz",
+      "sha256": "5fc28d62b10536923ad96d095292f904be6bb35e94c3f44fcbf12d3a535e8834"
+    },
+    "regional_full545": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/full-check-545/report.json",
+      "sha256": "a1836e930e2ca196afca82bc9beba71a1d42ebb507788a38e0e4d3698fec58d3"
+    },
+    "regional_owner": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/retain_surface_components552.py",
+      "sha256": "88baf47524c02c525a2f121a99923777576e8603c16a6b84729032ce464ad671"
+    },
+    "regional_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/report.json",
+      "sha256": "2124895e8d9416f5a66352a7ef2c7d98437960f5c5058e6077dafae76241eb85"
+    },
+    "scalar_target": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/scalar-target.npz",
+      "sha256": "50dc7876c967424d797068781285f484ad177548ef38671951b37af6f33ed4f4"
+    },
+    "target_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+      "sha256": "81532082e061eba4155529300d9cac5fd147ad14d1652e03c24d783248ecf792"
+    },
+    "target_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/report.json",
+      "sha256": "ceaf76d2b40219453440c540c40bfc3f5105c42b8310ae863b11e300853f4314"
+    },
+    "v2_execution": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001.execution.json",
+      "sha256": "e55e318fd1af4e9039a803da7383608d947fda5694d92eb0e3bdd023d04ac775"
+    },
+    "v2_helper": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/scalar_alpha_retention590_v2.py",
+      "sha256": "58e373a68487a291ff7c3ed67d195b589830b81970ebbb210b857c292ee86638"
+    },
+    "v2_launch": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001.launch.json",
+      "sha256": "de4926cbb33adaf3cacdb8978b2c30c6bd4a298ad0a0cd77a522984cbfec4a1a"
+    },
+    "v2_log": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001.log",
+      "sha256": "d310d0ebb7cf601c119c7b6def9ead24cd44b463446de5cbcafe7dba53c67a55"
+    },
+    "v2_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/report.json",
+      "sha256": "fe5f4593fe5403833861164bc78911d0b2a7648f2a39a0704057f6769b89e266"
+    },
+    "v2_runner": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/run_scalar_retention590_v2.py",
+      "sha256": "4827cba551472d775f4c3ddae63f4b2e49ec57a5420ed9f170d442eab703a0bb"
+    },
+    "v2_tests": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/test_scalar_alpha_retention590_v2.py",
+      "sha256": "c5a1cd9075f4935b81312bd6709d4d5a41a0c05a1e108dbe24a3f8800b6e7e30"
+    }
+  },
+  "baseline_counts": {
+    "contained_pairs": 0,
+    "self_pairs": 0,
+    "surface_pairs": 1601
+  },
+  "candidate_selected": false,
+  "comparison": "Regional552 retained the safe measured components. Its 1593 count is 2 below the previous 1595 checkpoint and 8 below this matched 1601 baseline; this result does not establish isolated scalar-LP causality.",
+  "native_admission": false,
+  "original_v1_failure_preserved": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/wrapper-serialization-failure-receipt.json",
+  "schema": "590-v2-recovery-receipt-v1",
+  "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS_UNSELECTED",
+  "v1_untouched": true,
+  "v2_frozen582_full545": {
+    "contained_pairs": 2,
+    "full545_status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS",
+    "self_pairs": 0,
+    "surface_pairs": 1613
+  },
+  "v2_regional552_full545": {
+    "candidate_selected": false,
+    "candidate_sha256": "5fc28d62b10536923ad96d095292f904be6bb35e94c3f44fcbf12d3a535e8834",
+    "contained_pairs": 0,
+    "continuation_mode": "strict_surface",
+    "self_pairs": 0,
+    "strict_surface_finalizer_status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS",
+    "surface_pairs": 1593
+  },
+  "v2_scalar_lp": {
+    "all_solver_success": true,
+    "alpha_count": 2846,
+    "alpha_max": 1.0,
+    "alpha_min": 0.7680709727184891,
+    "calls": 8,
+    "optimality_claim": false,
+    "statuses": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "zero_feasibility_clipped_cut_count": 3
+  }
+}

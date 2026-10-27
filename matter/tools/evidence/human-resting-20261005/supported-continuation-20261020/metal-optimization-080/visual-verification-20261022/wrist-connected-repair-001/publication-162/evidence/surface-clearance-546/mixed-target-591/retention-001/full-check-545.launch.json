@@ -1,0 +1,25 @@
+{
+  "classification": "authorized one paired full-545 exact audit after 582 local retention",
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/retention-001/candidate.npz",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/baseline-check/baseline-state.json",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/retention-001/full-check-545",
+    "--trust-mm",
+    "4"
+  ],
+  "wrapper": "545 coordinator launched without outer geometry slot; its exact audit children use the shared slot",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/retention-001/candidate.npz",
+  "candidate_sha256": "afc6196b798b6dc6c29b83b6186307502203fdb54e6ce5fe0ea1194552261b10",
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/baseline-check/baseline-state.json",
+  "baseline_state_sha256": "bfdf066d28534960336b948621bbefeb439fcba24fba36e44db1b214851ec47a",
+  "script": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+  "script_sha256": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/retention-001/full-check-545",
+  "geometry_slot_preflight": "free",
+  "started_unix": 1793062782.641527
+}

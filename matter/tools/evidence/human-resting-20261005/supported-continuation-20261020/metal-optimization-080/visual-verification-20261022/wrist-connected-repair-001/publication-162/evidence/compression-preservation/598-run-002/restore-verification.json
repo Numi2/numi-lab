@@ -1,0 +1,27 @@
+{
+  "helper_sha256": "32476471781c11fa5eb1c6d5add247130168d45ef860554173984fd2ec41a99e",
+  "receipt_sha256": "5e813ba3a84c2b55bb96083c908510a2f54b29eaa1a4c67591bde2356566d929",
+  "restored_count": 2,
+  "restored_files": [
+    {
+      "bytes": 41295220,
+      "compressed_bytes": 4928964,
+      "compressed_sha256": "b1d7e05815b43bf8cfdcaeef72862aeec3051c7d91fe4c1c826cae946349ca32",
+      "mode": 420,
+      "mtime_ns": 1793064593603447145,
+      "relative_path": "connected-fit-598/run-002/fit-stage.log",
+      "sha256": "07eaa3db79bee7651dce250b6e7a1f985ca9e8709075ceb62debcb117e1d9d53"
+    },
+    {
+      "bytes": 41321377,
+      "compressed_bytes": 4932097,
+      "compressed_sha256": "0b88ec1b2ba70d505d66682f1c7c524cc4114707d5833bc2455a5cd92cbff448",
+      "mode": 420,
+      "mtime_ns": 1793064593596678866,
+      "relative_path": "connected-fit-598/run-002/fit/report.json",
+      "sha256": "a98e07edc9848052142ed2214367d410cf0b98e20e116d64723d659577f86766"
+    }
+  ],
+  "schema": "numi.p162.598_restore_verification.v1",
+  "status": "PASS"
+}

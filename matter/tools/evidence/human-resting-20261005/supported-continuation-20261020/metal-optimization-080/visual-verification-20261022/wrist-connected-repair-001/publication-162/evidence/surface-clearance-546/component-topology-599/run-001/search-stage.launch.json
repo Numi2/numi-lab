@@ -1,0 +1,33 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/search_component599.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-596/run-001/final/state.json",
+    "--payload-helper",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py",
+    "--output",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/run-001/search",
+    "--seconds",
+    "60",
+    "--rounds",
+    "3",
+    "--max-centers",
+    "2000",
+    "--max-degree",
+    "128",
+    "--max-candidates-per-center",
+    "128"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/component_patch_centers599.py": "1aa3a3c900d5c9cafd451f66c5df65a055d6ef68ab805385623b2057f70b5df2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/search_component599.py": "22bb58ec87b51772f021df1fbe88030c38a54ab2f90ff18c91713a6a7634dd7f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-596/run-001/final/state.json": "a513caee6053154b6284d68ac05e1ec6e78e605e881ee0a5a68770c94de588e2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py": "91e60eda6c6ed4a39fb3d9cc226af87743101b22da9c32c5229030ac6cd4cd8a"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "accepted_physical_steps": 0,
+  "area_floor": 0.1,
+  "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-596/run-001/lineage/candidate.npz",
+  "base_candidate_sha256": "2c963e10e3eda97b6e550ec1592936a7f75fa7968afb3112884b5f7a74001ae2",
+  "face_target_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/targets-1585-v2-001/targets.npz",
+  "face_target_npz_sha256": "51030407d788c85cfaa7d52cd6f126d8a48735f2a0ba33245f1b585d470db05a",
+  "face_target_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/targets-1585-v2-001/report.json",
+  "face_target_report_sha256": "a527f8eaaaaca232e1a9ff1961cf7d5ee0316dfc3ac4fda05bb7e11859a950bf",
+  "fit_owner": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-timeout-fallback564/frozen-v2/run_joint_full_coordinate_fit564.py",
+  "fit_owner_sha256": "bce28ca873ba9fdc75427e16443fdf047587742cfbef1f83e48a31df28caa4d9",
+  "max_edge_gradient": 0.5,
+  "native_admission": false,
+  "prepared_context": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/prepare-001/constraint-context.json",
+  "prepared_context_sha256": "5dffcf314290ca4f14a2171d4e2a1be7a513be1d5cb9d6ae4241d8eb5aef6695",
+  "recovery_verification": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/targets-1585-v2-001/recovery-verification.json",
+  "recovery_verification_sha256": "c06de4bacd3bbbf8eeaf5514802169de0c571ad274c56bbd6210bb02cce1ce92",
+  "source_cap_mm": 12.0,
+  "state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-596/run-001/final/state.json",
+  "state_sha256": "a513caee6053154b6284d68ac05e1ec6e78e605e881ee0a5a68770c94de588e2",
+  "target_coverage": {
+    "crossing_pairs": 1585,
+    "direction_mode": "source-current-outward-with-source-fold-exceptions",
+    "endpoint_banks": 185,
+    "joint_source_current_rows": 1576,
+    "source_only_fold_exceptions": 9,
+    "target_rows": 1585
+  },
+  "trust_mm": 4.0
+}

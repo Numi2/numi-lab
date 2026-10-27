@@ -1,0 +1,33 @@
+waiting_for_human_geometry_slot pid=3519
+acquired_human_geometry_slot pid=3519
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/targets-1585-001/report.json",
+  "report_sha256": "8721fa692725acbb8a5bb7e0e011f88c8ffd33d6d7031f344dab93e604f38699",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/targets-1585-001/targets.npz",
+  "npz_sha256": "a13c29db29e860ca022b2f97369f77139ab0b323f45cad96de1067930c32be0e",
+  "rows": 1585,
+  "pairs": 1585,
+  "targets": 1576,
+  "failures": {
+    "NEAREST_COMPLETE_BANK_TRIANGLE_FAILED": 9
+  },
+  "elapsed_seconds": 21.675749958027154
+}
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/build_joint_outward_targets597.py", line 75, in <module>
+    if __name__=="__main__":main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/build_joint_outward_targets597.py", line 68, in main
+    records.write_text("".join(json.dumps(v,sort_keys=True,allow_nan=False)+"\n"for v in rows))
+                       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/build_joint_outward_targets597.py", line 68, in <genexpr>
+    records.write_text("".join(json.dumps(v,sort_keys=True,allow_nan=False)+"\n"for v in rows))
+                               ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/__init__.py", line 242, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/encoder.py", line 202, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/encoder.py", line 263, in iterencode
+    return _iterencode(o, 0)
+ValueError: Out of range float values are not JSON compliant: inf

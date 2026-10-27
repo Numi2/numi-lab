@@ -1,0 +1,11 @@
+{
+  "parent": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/search_connected580.py",
+  "parent_sha256": "6aa19e839738bcafb14db12896cf5eafc9777ee5d3e668a44779e13b6439b9da",
+  "changes": [
+    "connected crossing component and 0/1/2-ring patches instead of vertex balls",
+    "proposal patch size cap512 faces, boundary cap passedexplicitly128",
+    "allquality185bankselfanchorprovenancegatesunchanged"
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

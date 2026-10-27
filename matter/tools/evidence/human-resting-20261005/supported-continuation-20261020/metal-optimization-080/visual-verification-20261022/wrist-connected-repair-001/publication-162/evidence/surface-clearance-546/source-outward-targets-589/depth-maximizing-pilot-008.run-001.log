@@ -1,0 +1,27 @@
+waiting_for_human_geometry_slot pid=99716
+acquired_human_geometry_slot pid=99716
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/depth-maximizing-pilot-008/nearest-union-exits.json",
+  "report_sha256": "789ded88cda0db801f010c199d5e58151a9a21fe3fefe3a4f594595d31ac1f48",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/depth-maximizing-pilot-008/nearest-union-exits.npz",
+  "npz_sha256": "7d29acfe753d7aae75acc6eb0111d021c4d7beb88238dcebf80bbcb47d87f711",
+  "query_rows": 8,
+  "passing_targets": 8,
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY",
+  "seconds": 1.3693652090150863
+}
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/depth-maximizing-pilot-008/nearest-union-exits.json",
+  "report_sha256": "59b8b74edeeb079839f0b7dd39e011bcf44f7a17168d520de2275bdfad8ba01a",
+  "target_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/depth-maximizing-pilot-008/nearest-union-exits.npz",
+  "target_npz_sha256": "7d29acfe753d7aae75acc6eb0111d021c4d7beb88238dcebf80bbcb47d87f711",
+  "current_source_audit": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/depth-maximizing-pilot-008.current-source-normal-audit.json",
+  "current_source_audit_sha256": "2929d5cd7455a9d0d232f92036a4506658dca987ef98de2905805d91b1855396",
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY",
+  "target_count": 8,
+  "passing_targets": 8,
+  "all_passing_endpoints_exactly_outside_185": true,
+  "minimum_source_cosine": 0.05,
+  "minimum_depth_cosine": 0.05,
+  "physical_steps": 0
+}

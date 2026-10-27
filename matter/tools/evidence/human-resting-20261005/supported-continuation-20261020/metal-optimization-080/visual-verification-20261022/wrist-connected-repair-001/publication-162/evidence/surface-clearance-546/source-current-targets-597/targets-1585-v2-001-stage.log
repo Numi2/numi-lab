@@ -1,0 +1,21 @@
+waiting_for_human_geometry_slot pid=4112
+acquired_human_geometry_slot pid=4112
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/targets-1585-v2-001/report.json",
+  "report_sha256": "913c7988e852523b6ab7fe6b97a2b0002e9314581283f641f6cbceff6505ecf7",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/targets-1585-v2-001/targets.npz",
+  "npz_sha256": "51030407d788c85cfaa7d52cd6f126d8a48735f2a0ba33245f1b585d470db05a",
+  "rows": 1585,
+  "pairs": 1585,
+  "targets": 1585,
+  "failures": {},
+  "elapsed_seconds": 21.39607262494974
+}
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/build_joint_outward_targets597_v2.py", line 104, in <module>
+    if __name__=="__main__":main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/build_joint_outward_targets597_v2.py", line 102, in main
+    print(json.dumps({"status":r["status"],"passing_targets":r["passing_targets"],"crossing_pairs":r["crossing_pairs"],"report_sha256":sha(rp)}),flush=True)
+                               ~^^^^^^^^^^
+KeyError: 'status'

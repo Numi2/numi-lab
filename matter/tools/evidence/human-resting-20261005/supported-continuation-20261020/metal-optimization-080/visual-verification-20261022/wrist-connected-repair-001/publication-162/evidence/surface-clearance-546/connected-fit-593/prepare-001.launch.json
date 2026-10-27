@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/final/state.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-593/prepare-001",
+    "--prior-context",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/prepare/constraint-context.json",
+    "--seed-source-candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-directions/raw-direction-001/candidate.npz",
+    "--seed-source-audit130",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-self-audit130/summary.json"
+  ],
+  "context": "fresh current-state guard/depth/surface-target preparation through existing 546 owner; inner geometry children use shared slot",
+  "current_exact_scope": {
+    "banks": 185,
+    "contained_pairs": 0,
+    "self_pairs": 0,
+    "surface_pairs": 1593
+  },
+  "native_admission": false,
+  "pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/prepare/constraint-context.json": "68f719f2b433d78009a935c51f4b6577a306024880a5a68485f672df7b59fb05",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py": "84bcd87e6ba2c877eeabf853ff2db7739041e6c96838a6b625ddea878c72e2a0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-directions/raw-direction-001/candidate.npz": "b984477875c5744f35d87abcf07a46fc97ca2d12605f1f9fa366306836c7ac3f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-self-audit130/summary.json": "1f0063289f240afe1d5258ebe9408c817d1346561d7b71383086712686adbe1e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/candidate.npz": "5fc28d62b10536923ad96d095292f904be6bb35e94c3f44fcbf12d3a535e8834",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/final/state.json": "fa00b1c9a59ee148f3772fb4382d370d94451b5510b404295d6d649cda5c99ac",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/full-check-545/audit-130/summary.json": "b9ec711340bb035ff3318f784f09e5ad0c67eecafe13ce2f42569bf36e57946a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/full-check-545/audit-159/report.json": "18a56a03545454436634d51244f1ebae7dbcef7cd5f4236bfe84b1ec7d4b0bf8"
+  }
+}

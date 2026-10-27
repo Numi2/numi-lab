@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/continuation-002/full-check-545/audit-130/query/points-world.npz",
+  "input_sha256": "2143b80f4559cbde93a74fd6426429336d2d3e2ac865c5d5aac0b74d13f78178",
+  "field": "points_world_f32",
+  "query_count": 20897,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/continuation-002/full-check-545/audit-130/query/points.csv",
+  "output_sha256": "c14eac92b00a6f58dfd72f0bbf58c99b97b2c5e78f093edea8c82fa5b3ed1138",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

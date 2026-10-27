@@ -1,0 +1,19 @@
+{
+  "accepted_physical_steps": 0,
+  "all_bank_ray_results": 0,
+  "classification": "Empty construction objective from exact zero-contained baseline; no ray targets requested or physical steps",
+  "inputs": {
+    "candidate_sha256": "2c963e10e3eda97b6e550ec1592936a7f75fa7968afb3112884b5f7a74001ae2",
+    "depth_report_sha256": "79c40c4b8aa0d4d1b1a21a50c237f05b152e5fa164761f988336dafce991226e",
+    "point_summary_sha256": "d7cfb57c1da008cebf4224b1080c7a7eb3fe7de3f7b60cbeb5c0170e3c29c79c"
+  },
+  "inside_node_bank_pairs": 0,
+  "inside_query_nodes": 0,
+  "native_admission": false,
+  "passing_targets": 0,
+  "physical_steps": 0,
+  "query_rows": 0,
+  "schema": "numi.human.point-first-union-exits.depth-maximizing-390.v1",
+  "status": "PASS_EMPTY_POINT_TARGETS_ZERO_CONTAINMENT",
+  "targets": []
+}

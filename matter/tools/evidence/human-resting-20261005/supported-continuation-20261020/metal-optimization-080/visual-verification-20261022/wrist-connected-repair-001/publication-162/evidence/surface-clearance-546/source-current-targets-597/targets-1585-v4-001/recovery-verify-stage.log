@@ -1,0 +1,1 @@
+{"status": "PASS_CERTIFIED_DIRECTION_TARGETS_ONLY", "target_count": 1585, "joint_source_current_targets": 1576, "source_only_exception_targets": 9, "minimum_actual_joint_source_cosine": 0.04912676049470032, "minimum_actual_joint_current_cosine": 0.04923870524132151}

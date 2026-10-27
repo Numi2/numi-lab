@@ -1,0 +1,17 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/test_component_patch_centers599.py",
+    "-q"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/component_patch_centers599.py": "1aa3a3c900d5c9cafd451f66c5df65a055d6ef68ab805385623b2057f70b5df2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/search_component599.py": "22bb58ec87b51772f021df1fbe88030c38a54ab2f90ff18c91713a6a7634dd7f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/test_component_patch_centers599.py": "da8da0d25b729d43bb18afec518774b70ec620599372d6c86e25f291a79239fc"
+  }
+}

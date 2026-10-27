@@ -1,0 +1,4 @@
+waiting_for_human_geometry_slot pid=698
+acquired_human_geometry_slot pid=698
+{"candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/582-witness-retention/candidate.npz", "iterations": 50, "alpha_counts": {"9.5367431640625e-07": 1, "1.9073486328125e-06": 2, "3.814697265625e-06": 6, "7.62939453125e-06": 8, "1.52587890625e-05": 8, "3.0517578125e-05": 9, "6.103515625e-05": 7, "0.0001220703125": 14, "0.000244140625": 27, "0.00048828125": 42, "0.0009765625": 62, "0.001953125": 71, "0.00390625": 110, "0.0078125": 129, "0.015625": 149, "0.03125": 205, "0.0625": 215, "0.125": 274, "0.25": 343, "0.5": 416, "1.0": 748}, "seconds": 55.80812949989922}
+{"status": "SCALAR_ALPHA_582_COMPLETE", "mutable_node_count": 2846, "typed_anchor_count": 237, "core_582_error": null, "seconds": 65.05120166600682}

@@ -1,0 +1,330 @@
+{
+  "alignment": {
+    "185_bank_complete_each": true,
+    "598_saved_source_normals_match597_records_atol": 2e-15,
+    "all_endpoints_outside_185": true,
+    "all_failure_counts_empty": true,
+    "bitwise_equal_arrays": [
+      "pair_index",
+      "face_rows",
+      "face_node_rows",
+      "barycentric_weights",
+      "inside_sample_world_m",
+      "inside_sample_world_f32_m",
+      "bank_body",
+      "bank_stable_bone_id",
+      "bank_triangle_stable_id",
+      "nearest_boundary_direction_world_unit"
+    ],
+    "current_normals_equal_v2_v4": true,
+    "distance_definition": "Euclidean norm(target_world_f32_m - inside_sample_world_f32_m), computed from saved F32 endpoints.",
+    "pair_ids": 1585,
+    "pair_ids_equal": true,
+    "source_normals_equal_v2_v4": true,
+    "unique_pair_ids_each": true
+  },
+  "candidate_sha256_by_case": {
+    "597_v2_current_objective": "2c963e10e3eda97b6e550ec1592936a7f75fa7968afb3112884b5f7a74001ae2",
+    "597_v4_nearest_angular": "2c963e10e3eda97b6e550ec1592936a7f75fa7968afb3112884b5f7a74001ae2",
+    "598_outward_nearest": "2c963e10e3eda97b6e550ec1592936a7f75fa7968afb3112884b5f7a74001ae2"
+  },
+  "classification": "read_only_target_comparison_no_geometry_query_no_fit_no_admission",
+  "input_hashes_and_sizes": {
+    "597_v2_current_objective": {
+      "source-current-targets-597/targets-1585-v2-001/report.json": {
+        "bytes": 6590,
+        "sha256": "a527f8eaaaaca232e1a9ff1961cf7d5ee0316dfc3ac4fda05bb7e11859a950bf"
+      },
+      "source-current-targets-597/targets-1585-v2-001/target-records.jsonl": {
+        "bytes": 6310088,
+        "sha256": "d6b2a4a9589a06c36bb4be229e5ab5a8d61f791371e8f29ee14c78683dec16ed"
+      },
+      "source-current-targets-597/targets-1585-v2-001/targets.npz": {
+        "bytes": 225658,
+        "sha256": "51030407d788c85cfaa7d52cd6f126d8a48735f2a0ba33245f1b585d470db05a"
+      }
+    },
+    "597_v4_nearest_angular": {
+      "source-current-targets-597/targets-1585-v4-001/report.json": {
+        "bytes": 6921,
+        "sha256": "079cb6be790b446fc6dea454bb27b4236778106d1c4b4a717bf2102fd77511af"
+      },
+      "source-current-targets-597/targets-1585-v4-001/target-records.jsonl": {
+        "bytes": 6598068,
+        "sha256": "23e4e86f1aa962bf83c6e84db11da24c6626a29590142069f5651746d7597da6"
+      },
+      "source-current-targets-597/targets-1585-v4-001/targets.npz": {
+        "bytes": 240189,
+        "sha256": "92f1affea150c431bdd425ed30ff991b674fc98359fede6dcb3cdf5715dddd0b"
+      }
+    },
+    "598_outward_nearest": {
+      "connected-fit-598/prepare-001/surface-targets/report.json": {
+        "bytes": 6587,
+        "sha256": "43a0322bab83ff17e194cb2381b6d7a7b4d173fac93522ba34dd58e6653c9281"
+      },
+      "connected-fit-598/prepare-001/surface-targets/target-records.jsonl": {
+        "bytes": 5527810,
+        "sha256": "ab2f0fae0dc120ebde13242b33201578421f862cfe342e53aeb0ae064665b91e"
+      },
+      "connected-fit-598/prepare-001/surface-targets/targets.npz": {
+        "bytes": 278006,
+        "sha256": "a1139ee97f613afc1d54d436d2f17ffda254f22cd97a62aca52149e9bd7ae6ab"
+      }
+    }
+  },
+  "interpretation_limits": [
+    "These are target proposals only; no fit or clearance admission is performed here.",
+    "The 597 methods preserve nine source-only fold exceptions where both caps are infeasible; their actual current-normal dot can be negative.",
+    "The 597 v4 selector minimizes angular rotation toward the nearest-boundary reference within feasible source/current caps; it does not minimize ray-exit distance.",
+    "The 598 result is the prior outward-nearest proposal and is retained for paired comparison, not as an accepted geometry."
+  ],
+  "methods": {
+    "597_v2_current_objective": {
+      "actual_endpoint_dot_current": {
+        "max": 0.9999999999999994,
+        "median": 0.999999999377874,
+        "min": -0.9980746525574363,
+        "p10": 0.5429625785211595,
+        "p90": 0.9999999999997157
+      },
+      "actual_endpoint_dot_source": {
+        "max": 0.9999999999946251,
+        "median": 0.39326176327070694,
+        "min": 0.04914197705469896,
+        "p10": 0.04999075517888336,
+        "p90": 0.9038270082958955
+      },
+      "actual_endpoint_gt12mm": 237,
+      "actual_endpoint_gt4mm": 740,
+      "actual_endpoints_both_caps_ge_0_05": 1310,
+      "actual_f32_endpoint_distance_mm": {
+        "max": 51.428535691752586,
+        "median": 3.11895698575681,
+        "min": 0.04999662909733062,
+        "p10": 0.0738850734584863,
+        "p90": 15.14735795255191
+      },
+      "classification": "construction_target_proposals_only_no_fit_or_clearance_admission",
+      "direction_method": "maximize current outward cosine within source cap when feasible; retain pinned 500 source-only goal for explicit infeasible fold witnesses; unchanged exact union-ray and all185 endpoint checks",
+      "direction_mode": "source-current-outward-with-source-fold-exceptions",
+      "proposal_both_caps_ge_0_05": 1576,
+      "proposal_current_cap_ge_0_05": 1576,
+      "proposal_dot_current": {
+        "max": 1.0000000000000004,
+        "median": 0.9999999999999999,
+        "min": -0.9980747954560858,
+        "p10": 0.5430610594494107,
+        "p90": 1.0000000000000002
+      },
+      "proposal_dot_source": {
+        "max": 1.0000000000000002,
+        "median": 0.3932625969585431,
+        "min": 0.05000000000001216,
+        "p10": 0.050000000000014144,
+        "p90": 0.9038268587754658
+      },
+      "proposal_rotation_from_raw_nearest_degrees": {
+        "max": 174.86571557188984,
+        "median": 85.59692502155765,
+        "min": 3.807142923068911,
+        "p10": 41.54721360290334,
+        "p90": 130.98289238157915
+      },
+      "proposal_source_cap_ge_0_05": 1585,
+      "reported_joint_outward_direction_count": 1576,
+      "reported_minimum_source_hemisphere_dot": 0.0500000000000122,
+      "reported_source_only_fold_exception_count": 9,
+      "target_count": 1585,
+      "unique_source_normal_provenance_rows": 27
+    },
+    "597_v4_nearest_angular": {
+      "actual_endpoint_dot_current": {
+        "max": 0.9978154367618985,
+        "median": 0.121587031747101,
+        "min": -0.9980746525574363,
+        "p10": 0.049940032621537844,
+        "p90": 0.722818327747594
+      },
+      "actual_endpoint_dot_source": {
+        "max": 0.9999999999946251,
+        "median": 0.10422059816995317,
+        "min": 0.048747983932272795,
+        "p10": 0.04993746748077769,
+        "p90": 0.7840896874915686
+      },
+      "actual_endpoint_gt12mm": 11,
+      "actual_endpoint_gt4mm": 30,
+      "actual_endpoints_both_caps_ge_0_05": 898,
+      "actual_f32_endpoint_distance_mm": {
+        "max": 16.574895263035685,
+        "median": 0.1940512012355755,
+        "min": 0.049968526221558056,
+        "p10": 0.05584011772903354,
+        "p90": 1.666845072957689
+      },
+      "classification": "construction_target_proposals_only_no_fit_or_clearance_admission",
+      "direction_method": "minimum angular rotation of nearest bank-boundary vector within source/current cosine caps when feasible; preserve source-only goals for infeasible caps; no minimum ray-exit-distance claim; unchanged exact union-ray and all185 endpoint checks",
+      "direction_mode": "source-current-outward-with-source-fold-exceptions",
+      "proposal_both_caps_ge_0_05": 1576,
+      "proposal_current_cap_ge_0_05": 1576,
+      "proposal_dot_current": {
+        "max": 0.9977931983349744,
+        "median": 0.12094153789006139,
+        "min": -0.9980747954560858,
+        "p10": 0.05000000000002838,
+        "p90": 0.7228845843753783
+      },
+      "proposal_dot_source": {
+        "max": 1.0000000000000002,
+        "median": 0.10424018463644392,
+        "min": 0.05000000000002691,
+        "p10": 0.050000000000028355,
+        "p90": 0.7841037926363217
+      },
+      "proposal_rotation_from_raw_nearest_degrees": {
+        "max": 140.53461699359386,
+        "median": 14.28194226492318,
+        "min": 0.0,
+        "p10": 0.0,
+        "p90": 65.67603122499935
+      },
+      "proposal_source_cap_ge_0_05": 1585,
+      "reported_joint_outward_direction_count": 1576,
+      "reported_minimum_source_hemisphere_dot": 0.050000000000026926,
+      "reported_source_only_fold_exception_count": 9,
+      "target_count": 1585,
+      "unique_source_normal_provenance_rows": 27
+    },
+    "598_outward_nearest": {
+      "actual_endpoint_dot_current": {
+        "max": 0.9986065463734878,
+        "median": 0.1094539049607838,
+        "min": -0.9953218630287675,
+        "p10": -0.6179982277109795,
+        "p90": 0.6880550004556253
+      },
+      "actual_endpoint_dot_source": {
+        "max": 0.9946818702551674,
+        "median": 0.0493661136908556,
+        "min": -0.0015643336816749676,
+        "p10": -5.552191858630983e-05,
+        "p90": 0.76386801760916
+      },
+      "actual_endpoint_gt12mm": 0,
+      "actual_endpoint_gt4mm": 1,
+      "actual_endpoints_both_caps_ge_0_05": 404,
+      "actual_f32_endpoint_distance_mm": {
+        "max": 4.087582577330785,
+        "median": 0.17077024327911489,
+        "min": 0.04997921437306542,
+        "p10": 0.05432814478342072,
+        "p90": 1.3300135985164463
+      },
+      "classification": "construction_target_proposals_only_no_fit_or_clearance_admission",
+      "direction_method": "Nearest point on initially containing complete bank triangles clipped to the source-normal hemisphere, in an orthonormal source-relative frame with strict nonnegative clipping coordinate; deterministic stable-ID ties; exact certified-union-interval ray plus all185 endpoint classification unchanged.",
+      "direction_mode": "outward-nearest",
+      "proposal_both_caps_ge_0_05": 404,
+      "proposal_current_cap_ge_0_05": 873,
+      "proposal_dot_current": {
+        "max": 0.9986070363243549,
+        "median": 0.10945683945922316,
+        "min": -0.9952955157730454,
+        "p10": -0.6179013986980361,
+        "p90": 0.6880757673232689
+      },
+      "proposal_dot_source": {
+        "max": 0.9946289536713169,
+        "median": 0.04942490328456044,
+        "min": -1.6653345369377348e-16,
+        "p10": -4.370418957289068e-17,
+        "p90": 0.7639011942950352
+      },
+      "proposal_rotation_from_raw_nearest_degrees": {
+        "max": 174.7235974638685,
+        "median": 8.537736462515939e-07,
+        "min": 0.0,
+        "p10": 0.0,
+        "p90": 42.650577000811644
+      },
+      "proposal_source_cap_ge_0_05": 773,
+      "reported_joint_outward_direction_count": null,
+      "reported_minimum_source_hemisphere_dot": -1.6653345369377348e-16,
+      "reported_source_only_fold_exception_count": null,
+      "target_count": 1585,
+      "unique_source_normal_provenance_rows": 27
+    }
+  },
+  "owner": {
+    "bytes": 11600,
+    "numpy": "2.5.3",
+    "path": "target-comparison-601/compare_target_distances601.py",
+    "python": "3.13.16",
+    "sha256": "629c240560be54747d28e88c8dd51fa933bb57e225a07797209d2b3bf8f0774b"
+  },
+  "paired_actual_endpoint_distance_ratio_vs_598": {
+    "597_v2_current_objective": {
+      "max": 1028.5178262453721,
+      "median": 4.332447361145564,
+      "min": 0.9999209654462226,
+      "p10": 1.068605041564012,
+      "p90": 120.17207522339417
+    },
+    "597_v4_nearest_angular": {
+      "max": 140.98165497999858,
+      "median": 1.00779523731721,
+      "min": 0.9995197510903817,
+      "p10": 1.0,
+      "p90": 1.3216414657177176
+    }
+  },
+  "schema": "target-distance-direction-comparison-601-v1",
+  "source_only_exception_rows": {
+    "count": 9,
+    "pairs": [
+      {
+        "face_row": 18986,
+        "pair_index": 25
+      },
+      {
+        "face_row": 18986,
+        "pair_index": 26
+      },
+      {
+        "face_row": 19065,
+        "pair_index": 76
+      },
+      {
+        "face_row": 19065,
+        "pair_index": 77
+      },
+      {
+        "face_row": 14818,
+        "pair_index": 626
+      },
+      {
+        "face_row": 14818,
+        "pair_index": 627
+      },
+      {
+        "face_row": 14818,
+        "pair_index": 628
+      },
+      {
+        "face_row": 14818,
+        "pair_index": 629
+      },
+      {
+        "face_row": 14818,
+        "pair_index": 630
+      }
+    ],
+    "same_v2_v4": true
+  },
+  "units": {
+    "angle": "degrees",
+    "coordinates_in_inputs": "m",
+    "direction_cosine": "dimensionless",
+    "distance": "mm"
+  }
+}

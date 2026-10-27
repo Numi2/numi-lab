@@ -1,0 +1,27 @@
+{
+  "classification": "authorized unadmitted coordinate-retention and full-check experiment",
+  "started_unix": 1793062742.711102,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/baseline-check/baseline-state.json",
+    "--target",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/emitted-001/candidate.npz",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/retention-001",
+    "--trust-mm",
+    "4",
+    "--max-edge-gradient",
+    ".5"
+  ],
+  "wrapper": "in-process 582; no outer geometry-slot wrapper",
+  "source_sha256": "08bb82034180636d0ff798ad503735b6a50327bf52cc3c62bffb75d0265ff57a",
+  "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/baseline-check/baseline-state.json",
+  "state_sha256": "bfdf066d28534960336b948621bbefeb439fcba24fba36e44db1b214851ec47a",
+  "target_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/emitted-001/candidate.npz",
+  "target_sha256": "d44d1eba3f90ca5302b214b702129d54acda249128e9f57e0e778c7b1a6b3e95",
+  "target_base_candidate_sha256": "6b912d5dc08b044d1dd08a55527435bf6584a0e3a2c3f8c36f43ac4b30d3ded1",
+  "output_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/retention-001",
+  "geometry_slot_preflight": "free"
+}

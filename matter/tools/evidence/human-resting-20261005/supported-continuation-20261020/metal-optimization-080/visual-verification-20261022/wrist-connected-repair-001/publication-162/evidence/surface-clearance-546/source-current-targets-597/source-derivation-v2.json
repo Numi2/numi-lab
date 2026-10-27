@@ -1,0 +1,10 @@
+{
+  "parent": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/build_joint_outward_targets597.py",
+  "parent_sha256": "fd8e3e92be9eceb49c2f50dc6de1e1e6f4948a7350836702b6827faa412f2cd1",
+  "changes": [
+    "explicit infeasible-current/source-fold targets retain original source-only goals, never omitted",
+    "positive infinite diagnostic interval represented explicitly in strict JSON"
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

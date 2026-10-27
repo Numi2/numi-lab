@@ -1,0 +1,13 @@
+{
+  "pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/final/state.json": "7c922fb005c4de5dcfde91c996f5d6c3a86ae2a985041aefcdaf2c93b99990ab",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py": "db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/candidate.npz": "5fc28d62b10536923ad96d095292f904be6bb35e94c3f44fcbf12d3a535e8834",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/full-check-545/audit-130/summary.json": "b9ec711340bb035ff3318f784f09e5ad0c67eecafe13ce2f42569bf36e57946a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/full-check-545/audit-159/report.json": "18a56a03545454436634d51244f1ebae7dbcef7cd5f4236bfe84b1ec7d4b0bf8"
+  },
+  "returncode": 0,
+  "seconds": 0.6126977500971407,
+  "stderr": "",
+  "stdout": "{\"status\": \"COMPLETE_EXACT_CONSTRUCTION_CHECKS\", \"surface_pairs\": 1593, \"contained_pairs\": 0, \"self_pairs\": 0, \"construction_progress\": true, \"continuation_mode\": \"strict_surface\", \"candidate_sha256\": \"5fc28d62b10536923ad96d095292f904be6bb35e94c3f44fcbf12d3a535e8834\"}\n"
+}

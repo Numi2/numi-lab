@@ -1,0 +1,19 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/run-002/fit/candidate.npz",
+  "candidate_sha256": "8477100e71d939c314494c4bf1e3a0e27f921cadf14aa9ddb7f69a972621c8fa",
+  "fit_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/run-002/fit/report.json",
+  "fit_report_sha256": "a98e07edc9848052142ed2214367d410cf0b98e20e116d64723d659577f86766",
+  "matched_inputs": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/run-002/matched-inputs.json",
+  "matched_inputs_sha256": "8970b9eb36aa593c175f6f07c408e7f3d87958fbf57bc1c790fac31e7d8fc2ec",
+  "native_admission": false,
+  "status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED",
+  "target_coverage": {
+    "crossing_pairs": 1585,
+    "direction_mode": "source-current-outward-with-source-fold-exceptions",
+    "endpoint_banks": 185,
+    "joint_source_current_rows": 1576,
+    "source_only_fold_exceptions": 9,
+    "target_rows": 1585
+  }
+}

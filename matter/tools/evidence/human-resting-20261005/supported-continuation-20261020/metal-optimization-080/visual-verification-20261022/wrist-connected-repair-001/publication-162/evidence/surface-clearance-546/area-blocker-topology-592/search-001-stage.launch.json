@@ -1,0 +1,39 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/area-blocker-topology-592/search_area_blockers592.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/regional-552/final/state.json",
+    "--saved-target",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+    "--target-alpha",
+    ".5",
+    "--output",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/area-blocker-topology-592/search-001",
+    "--payload-helper",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py",
+    "--rounds",
+    "2",
+    "--seconds",
+    "60",
+    "--max-centers",
+    "160",
+    "--max-degree",
+    "48",
+    "--max-candidates-per-center",
+    "64"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/area-blocker-topology-592/search_area_blockers592.py": "4e5361943cecbee52a13f1720e9e7b18f5db4dae4bbebeaa4fadefe35c8961fa",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/area-blocker-topology-592/source-derivation.json": "0728f46eb5c704da939e4bacc005f2457dae56709416d343200bd52926d00269",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/area-blocker-topology-592/test_area_blockers592.py": "71a6b4235f8443ef125cc6122cdcea2b96459654804e0db6371f9b6a9f6123cd",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz": "81532082e061eba4155529300d9cac5fd147ad14d1652e03c24d783248ecf792",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py": "91e60eda6c6ed4a39fb3d9cc226af87743101b22da9c32c5229030ac6cd4cd8a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/regional-552/final/state.json": "9f8e7eeb88d9c560355f71b638cf7306129b8c500a44aae30f884ea2e97b4caa"
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "all_remaining_actual_directions_positive": true,
+  "classification": "cached direction check before next 582 retention; no candidate edit/audit",
+  "current_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/retention-001/candidate.npz",
+  "current_candidate_sha256": "afc6196b798b6dc6c29b83b6186307502203fdb54e6ce5fe0ea1194552261b10",
+  "current_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/retention-001/point-continuation-finalize/state.json",
+  "current_state_sha256": "e718e84e61d47bfc1650ef5ab00ea0c8c3e58431349247a8efa71e27f3577cf2",
+  "depth_adapter": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/run_depthmax_targets589_v2.py",
+  "depth_adapter_sha256": "cd64f5280dec578ef8441aa9e44b9c01d44ba703edbd3fde39167ed471c71200",
+  "depth_target_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/depth-maximizing-pilot-008/nearest-union-exits.npz",
+  "depth_target_npz_sha256": "7d29acfe753d7aae75acc6eb0111d021c4d7beb88238dcebf80bbcb47d87f711",
+  "failed_direction_witnesses": [],
+  "mixed_target": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/emitted-001/candidate.npz",
+  "mixed_target_sha256": "d44d1eba3f90ca5302b214b702129d54acda249128e9f57e0e778c7b1a6b3e95",
+  "next_582_authorized": true,
+  "normal_audit": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/pilot-008.current-source-normal-audit.json",
+  "normal_audit_sha256": "2929d5cd7455a9d0d232f92036a4506658dca987ef98de2905805d91b1855396",
+  "normal_owner_method": "pinned 589 v2 area-weighted current emitted-F32 face normals; O-to-I coarse winding sign -1",
+  "physical_steps": 0,
+  "remaining_rows": 6,
+  "rows": [
+    {
+      "move_mm": 0.0,
+      "reason": "already bitwise at mixed endpoint",
+      "remaining": false,
+      "row": 20889
+    },
+    {
+      "move_mm": 0.0,
+      "reason": "already bitwise at mixed endpoint",
+      "remaining": false,
+      "row": 20890
+    },
+    {
+      "current_outward_positive": true,
+      "dot_registered_source_outward": 0.05000618617407199,
+      "dot_signed_current_outward": 0.5679826019818186,
+      "move_mm": 0.9426669344305392,
+      "remaining": true,
+      "row": 20891,
+      "source_origin_from_target": "depth-maximizing",
+      "source_outward_positive": true
+    },
+    {
+      "current_outward_positive": true,
+      "dot_registered_source_outward": 0.33804757903602795,
+      "dot_signed_current_outward": 0.34542529139443895,
+      "move_mm": 0.17340919206242122,
+      "remaining": true,
+      "row": 20892,
+      "source_origin_from_target": "depth-maximizing",
+      "source_outward_positive": true
+    },
+    {
+      "current_outward_positive": true,
+      "dot_registered_source_outward": 0.9999999999530377,
+      "dot_signed_current_outward": 0.615465633972818,
+      "move_mm": 1.3951929648358958,
+      "remaining": true,
+      "row": 20893,
+      "source_origin_from_target": "source-outward",
+      "source_outward_positive": true
+    },
+    {
+      "current_outward_positive": true,
+      "dot_registered_source_outward": 0.8288122663521961,
+      "dot_signed_current_outward": 0.28995484878886923,
+      "move_mm": 0.6248325816234865,
+      "remaining": true,
+      "row": 20894,
+      "source_origin_from_target": "depth-maximizing",
+      "source_outward_positive": true
+    },
+    {
+      "current_outward_positive": true,
+      "dot_registered_source_outward": 0.05000055075925247,
+      "dot_signed_current_outward": 0.3854213598313266,
+      "move_mm": 1.7289915981375412,
+      "remaining": true,
+      "row": 20895,
+      "source_origin_from_target": "depth-maximizing",
+      "source_outward_positive": true
+    },
+    {
+      "current_outward_positive": true,
+      "dot_registered_source_outward": 0.9999999997322284,
+      "dot_signed_current_outward": 0.12235800663113443,
+      "move_mm": 2.583362426103359,
+      "remaining": true,
+      "row": 20896,
+      "source_origin_from_target": "source-outward",
+      "source_outward_positive": true
+    }
+  ],
+  "schema": "numi.human.mixed-target-591.continuation-direction-preflight.v1",
+  "signed_current_outward_sign": -1,
+  "source_target_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/pilot-008/nearest-union-exits.npz",
+  "source_target_npz_sha256": "6575b16f0b5eeabd3fa18ac1a6ea848b0984269f77b3e6e742cb56397876d28a"
+}

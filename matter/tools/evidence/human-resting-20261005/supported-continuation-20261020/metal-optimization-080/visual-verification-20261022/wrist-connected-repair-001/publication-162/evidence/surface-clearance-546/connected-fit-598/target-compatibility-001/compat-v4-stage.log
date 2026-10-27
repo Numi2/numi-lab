@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/target-compatibility-001/compatibility_report598.py", line 136, in <module>
+    if __name__=="__main__": main()
+                             ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/target-compatibility-001/compatibility_report598.py", line 127, in main
+    result=build_compatibility_report(report,arrays,records,recovery,
+        report_path=a.report,npz_path=a.npz,records_path=a.records,
+        recovery_path=a.recovery,adapter_path=Path(__file__))
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/target-compatibility-001/compatibility_report598.py", line 76, in build_compatibility_report
+    raise ValueError("unclassified 597 direction source")
+ValueError: unclassified 597 direction source

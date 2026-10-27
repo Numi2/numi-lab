@@ -1,0 +1,17 @@
+{
+  "returncode": 0,
+  "seconds": 0.8528179998975247,
+  "source_input_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/final/state.json": "7c922fb005c4de5dcfde91c996f5d6c3a86ae2a985041aefcdaf2c93b99990ab",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/lineage/candidate.npz": "25485ae52b3a7ad19ea5c3176a79416d8f04d9d2e4f852fac931d75ca734ae04",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/prepare/constraint-context.json": "68f719f2b433d78009a935c51f4b6577a306024880a5a68485f672df7b59fb05",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/retain_surface_components552.py": "88baf47524c02c525a2f121a99923777576e8603c16a6b84729032ce464ad671",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/582-witness-retention/candidate.npz": "ba1a20edffcf4286b8ac772847114c9667423481ad38d505e2afccac2122d8ca",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/582-witness-retention/report.json": "0016570174635c180241cc0bb425dbff8202a7c8b36dfbffdae10bc1c400fa6a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/full-check-545/audit-130/summary.json": "23438e8b6238105b9e1812a14fda0d861db56c45aef76d89e3df9838fbe3053d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/full-check-545/audit-159/report.json": "635d6678d87db5e8b00d91ad5ad72bb39c2b7c46b9c6f59bfc0a9ac9d9423254",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/full-check-545/report.json": "fc4a1d7d7f2b7f40de31c5042c4bc5e6a2a2a54a64a726dee88269093af1a02a"
+  },
+  "stderr": "",
+  "stdout": "{\"predicted_surface_pairs\": 1593, \"selected_components\": [5, 11], \"native_admission\": false}\n"
+}

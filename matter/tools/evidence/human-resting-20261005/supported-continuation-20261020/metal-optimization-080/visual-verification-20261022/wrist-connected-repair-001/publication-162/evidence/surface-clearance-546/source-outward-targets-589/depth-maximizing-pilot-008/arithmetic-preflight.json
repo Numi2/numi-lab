@@ -1,0 +1,217 @@
+{
+  "classification": "cached arithmetic target-set preflight only; no exact self/159/130 candidate checks",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/candidate.npz",
+  "candidate_sha256": "6b912d5dc08b044d1dd08a55527435bf6584a0e3a2c3f8c36f43ac4b30d3ded1",
+  "target_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/depth-maximizing-pilot-008/nearest-union-exits.json",
+  "target_report_sha256": "59b8b74edeeb079839f0b7dd39e011bcf44f7a17168d520de2275bdfad8ba01a",
+  "target_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/depth-maximizing-pilot-008/nearest-union-exits.npz",
+  "target_npz_sha256": "7d29acfe753d7aae75acc6eb0111d021c4d7beb88238dcebf80bbcb47d87f711",
+  "source_reference_method": "pinned run_candidate_checks545 + 408 compose_source_reference",
+  "source_reference_levels": [
+    {
+      "kind": "csr_level",
+      "level": 0,
+      "prefix": "",
+      "rows": 20897,
+      "columns": 13518,
+      "nnz": 32662,
+      "max_row_sum_error": 2.220446049250313e-16
+    },
+    {
+      "kind": "csr_level",
+      "level": 1,
+      "prefix": "prior_input_006__",
+      "rows": 13518,
+      "columns": 10145,
+      "nnz": 18450,
+      "max_row_sum_error": 0.0
+    },
+    {
+      "kind": "csr_level",
+      "level": 2,
+      "prefix": "prior_run028__",
+      "rows": 10145,
+      "columns": 8776,
+      "nnz": 12193,
+      "max_row_sum_error": 0.0
+    },
+    {
+      "kind": "composed_source_base",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+      "shape": [
+        8776,
+        3
+      ],
+      "composed_shape": [
+        20897,
+        8776
+      ],
+      "composed_nnz": 43481
+    }
+  ],
+  "rows": [
+    {
+      "row": 20889,
+      "bank_ids": [
+        [
+          57,
+          89
+        ]
+      ],
+      "target_distance_mm": 1.7204117916676032,
+      "current_move_mm": 1.7204117917054433,
+      "composed_source_distance_mm": 3.886490897503776,
+      "source_dot_proposal": 0.0500000000000142,
+      "depth_dot_proposal": 0.5199926843213192,
+      "current_outward_dot_proposal": 0.49314875771163597,
+      "endpoint_outside185": true
+    },
+    {
+      "row": 20890,
+      "bank_ids": [
+        [
+          74,
+          104
+        ]
+      ],
+      "target_distance_mm": 1.9626107725328685,
+      "current_move_mm": 1.9626107727433193,
+      "composed_source_distance_mm": 5.648876490552553,
+      "source_dot_proposal": 0.05000000000001417,
+      "depth_dot_proposal": 0.9926785381262722,
+      "current_outward_dot_proposal": 0.6685281655757587,
+      "endpoint_outside185": true
+    },
+    {
+      "row": 20891,
+      "bank_ids": [
+        [
+          57,
+          89
+        ]
+      ],
+      "target_distance_mm": 1.8853559502840966,
+      "current_move_mm": 1.8853559503076962,
+      "composed_source_distance_mm": 6.307496578947818,
+      "source_dot_proposal": 0.05000000000001409,
+      "depth_dot_proposal": 0.5775311433833337,
+      "current_outward_dot_proposal": 0.503459577505899,
+      "endpoint_outside185": true
+    },
+    {
+      "row": 20892,
+      "bank_ids": [
+        [
+          61,
+          97
+        ]
+      ],
+      "target_distance_mm": 0.2312113692731253,
+      "current_move_mm": 0.2312113764012924,
+      "composed_source_distance_mm": 2.269613087233421,
+      "source_dot_proposal": 0.33807437098969406,
+      "depth_dot_proposal": 1.0,
+      "current_outward_dot_proposal": 0.19117965005790108,
+      "endpoint_outside185": true
+    },
+    {
+      "row": 20893,
+      "bank_ids": [
+        [
+          57,
+          89
+        ]
+      ],
+      "target_distance_mm": 2.0689078045438336,
+      "current_move_mm": 2.068907804711347,
+      "composed_source_distance_mm": 4.959778093196821,
+      "source_dot_proposal": 0.5327838818171539,
+      "depth_dot_proposal": 1.0000000000000002,
+      "current_outward_dot_proposal": 0.5614606555120549,
+      "endpoint_outside185": true
+    },
+    {
+      "row": 20894,
+      "bank_ids": [
+        [
+          43,
+          16
+        ]
+      ],
+      "target_distance_mm": 1.2496651630449793,
+      "current_move_mm": 1.249665163246973,
+      "composed_source_distance_mm": 8.867749841200855,
+      "source_dot_proposal": 0.8288221327164176,
+      "depth_dot_proposal": 1.0000000000000002,
+      "current_outward_dot_proposal": 0.71578612689604,
+      "endpoint_outside185": true
+    },
+    {
+      "row": 20895,
+      "bank_ids": [
+        [
+          43,
+          16
+        ]
+      ],
+      "target_distance_mm": 3.4579751892675605,
+      "current_move_mm": 3.4579751892971657,
+      "composed_source_distance_mm": 7.966450160324735,
+      "source_dot_proposal": 0.050000000000014144,
+      "depth_dot_proposal": 0.9985546400756837,
+      "current_outward_dot_proposal": 0.8691917935472279,
+      "endpoint_outside185": true
+    },
+    {
+      "row": 20896,
+      "bank_ids": [
+        [
+          61,
+          97
+        ]
+      ],
+      "target_distance_mm": 8.375637639448446,
+      "current_move_mm": 8.37563763945201,
+      "composed_source_distance_mm": 8.442232565762046,
+      "source_dot_proposal": 0.05000000000001291,
+      "depth_dot_proposal": 0.12067020421330774,
+      "current_outward_dot_proposal": 0.1235752044789036,
+      "endpoint_outside185": true
+    }
+  ],
+  "counts": {
+    "bad_area_faces": 1,
+    "bad_edge_rows": 8,
+    "bad_trust_nodes": 1,
+    "bad_source_nodes": 0,
+    "bad_bound_nodes": 1
+  },
+  "min_oriented_area_cosine": 0.014372582865877755,
+  "min_area_ratio": 0.10009356948026137,
+  "max_edge_gradient_ratio": 3.058343352321404,
+  "max_step_mm": 8.37563763945201,
+  "max_source_distance_mm": 11.999365547963421,
+  "bad_area_faces": [
+    13255
+  ],
+  "bad_edge_rows": [
+    53797,
+    57609,
+    61891,
+    62499,
+    62564,
+    62643,
+    62644,
+    62645
+  ],
+  "bad_trust_nodes": [
+    20896
+  ],
+  "bad_source_nodes": [],
+  "trust_mm": 4.0,
+  "source_cap_mm": 12.0,
+  "physical_steps": 0,
+  "full_candidate_checks_run": false,
+  "arithmetic_status": "FAIL"
+}

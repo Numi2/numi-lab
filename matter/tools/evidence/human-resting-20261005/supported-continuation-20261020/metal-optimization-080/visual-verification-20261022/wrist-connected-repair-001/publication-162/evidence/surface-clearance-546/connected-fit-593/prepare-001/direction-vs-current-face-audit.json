@@ -1,0 +1,151 @@
+{
+  "candidate_sha256": "5fc28d62b10536923ad96d095292f904be6bb35e94c3f44fcbf12d3a535e8834",
+  "current_face_outward_definition": "negative normalized cross product of current source_O_faces, using the source_orientation coarse_outward_sign=-1 recorded by the pinned 500 target report",
+  "dot_quantiles": [
+    -0.9952955157730454,
+    -0.945764831655293,
+    -0.778078368806667,
+    -0.6169833377398628,
+    -0.18937474995278836,
+    0.10653687622266067,
+    0.4058148852937463,
+    0.6886969163934048,
+    0.8212118225271959,
+    0.9550657509765048,
+    0.9986070363243549
+  ],
+  "native_admission": false,
+  "nearzero_lt_0_1_rows": 788,
+  "nearzero_lt_0_1_weight": 0.5052737314365221,
+  "negative_rows": 634,
+  "negative_weight": 0.40946654551305717,
+  "objective_weight_rule": "one unit total face-target mass; each unique skin face shares equally across its typed-bank target pairs, as in 458 face rows with no point rows",
+  "per_bank": [
+    {
+      "body": 109,
+      "bone": 114,
+      "median_dot": 0.06341783801714583,
+      "nearzero_lt_0_1_rows": 177,
+      "nearzero_lt_0_1_weight": 0.1070090439276486,
+      "negative_rows": 136,
+      "negative_weight": 0.08597268364710225,
+      "rows": 331,
+      "weight": 0.20348837209302328
+    },
+    {
+      "body": 65,
+      "bone": 99,
+      "median_dot": 0.050816501463710216,
+      "nearzero_lt_0_1_rows": 126,
+      "nearzero_lt_0_1_weight": 0.09802971576227391,
+      "negative_rows": 95,
+      "negative_weight": 0.07445090439276487,
+      "rows": 218,
+      "weight": 0.16666666666666669
+    },
+    {
+      "body": 43,
+      "bone": 16,
+      "median_dot": -0.0037082878211634127,
+      "nearzero_lt_0_1_rows": 124,
+      "nearzero_lt_0_1_weight": 0.07655038759689925,
+      "negative_rows": 112,
+      "negative_weight": 0.06895994832041344,
+      "rows": 224,
+      "weight": 0.1414728682170543
+    },
+    {
+      "body": 115,
+      "bone": 118,
+      "median_dot": 0.02276219310530564,
+      "nearzero_lt_0_1_rows": 88,
+      "nearzero_lt_0_1_weight": 0.05975452196382429,
+      "negative_rows": 83,
+      "negative_weight": 0.05523255813953488,
+      "rows": 173,
+      "weight": 0.11240310077519378
+    },
+    {
+      "body": 124,
+      "bone": 123,
+      "median_dot": 0.05783497219691113,
+      "nearzero_lt_0_1_rows": 94,
+      "nearzero_lt_0_1_weight": 0.06619832041343669,
+      "negative_rows": 64,
+      "negative_weight": 0.045058139534883725,
+      "rows": 170,
+      "weight": 0.12403100775193798
+    },
+    {
+      "body": 114,
+      "bone": 117,
+      "median_dot": 0.11223516956525653,
+      "nearzero_lt_0_1_rows": 64,
+      "nearzero_lt_0_1_weight": 0.03857511997046881,
+      "negative_rows": 61,
+      "negative_weight": 0.035991140642303444,
+      "rows": 131,
+      "weight": 0.07364341085271318
+    },
+    {
+      "body": 74,
+      "bone": 104,
+      "median_dot": 0.31782600526091354,
+      "nearzero_lt_0_1_rows": 32,
+      "nearzero_lt_0_1_weight": 0.019504074736632876,
+      "negative_rows": 28,
+      "negative_weight": 0.016274100576426156,
+      "rows": 92,
+      "weight": 0.05813953488372093
+    },
+    {
+      "body": 59,
+      "bone": 95,
+      "median_dot": 0.15126672230244181,
+      "nearzero_lt_0_1_rows": 37,
+      "nearzero_lt_0_1_weight": 0.02033499446290145,
+      "negative_rows": 26,
+      "negative_weight": 0.014857881136950905,
+      "rows": 85,
+      "weight": 0.05426356589147287
+    },
+    {
+      "body": 57,
+      "bone": 89,
+      "median_dot": 0.2064116876896845,
+      "nearzero_lt_0_1_rows": 23,
+      "nearzero_lt_0_1_weight": 0.006736803248431156,
+      "negative_rows": 16,
+      "negative_weight": 0.004979543496985357,
+      "rows": 76,
+      "weight": 0.02131782945736434
+    },
+    {
+      "body": 61,
+      "bone": 97,
+      "median_dot": 0.21572514363127193,
+      "nearzero_lt_0_1_rows": 7,
+      "nearzero_lt_0_1_weight": 0.0045058139534883725,
+      "negative_rows": 7,
+      "negative_weight": 0.0045058139534883725,
+      "rows": 39,
+      "weight": 0.01744186046511628
+    },
+    {
+      "body": 64,
+      "bone": 98,
+      "median_dot": 0.28137649096374084,
+      "nearzero_lt_0_1_rows": 16,
+      "nearzero_lt_0_1_weight": 0.008074935400516795,
+      "negative_rows": 6,
+      "negative_weight": 0.003183831672203765,
+      "rows": 54,
+      "weight": 0.027131782945736434
+    }
+  ],
+  "row_count": 1593,
+  "schema": "593-target-current-face-direction-dot-census-v1",
+  "target_report_sha256": "0a564031ba56f86d1c9abb68bcc3b15cbe435e41602514d6266580e49d98270f",
+  "targets_sha256": "d043aa1ccac7128d8db08a1a4b5cc22091b1fecff5a5a34915c4187b4c922477",
+  "unique_skin_faces": 516
+}

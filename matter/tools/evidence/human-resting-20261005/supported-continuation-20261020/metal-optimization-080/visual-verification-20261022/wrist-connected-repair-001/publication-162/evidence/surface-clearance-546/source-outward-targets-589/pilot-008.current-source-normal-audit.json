@@ -1,0 +1,218 @@
+{
+  "schema": "numi.surface-clearance-546.source-current-normal-agreement.589.v1",
+  "classification": "orientation preflight for unadmitted target proposals; no candidate relocation or physical step",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/candidate.npz",
+  "candidate_sha256": "6b912d5dc08b044d1dd08a55527435bf6584a0e3a2c3f8c36f43ac4b30d3ded1",
+  "source_orientation_report_path": "/Users/numi/Work/numi-human-connected-surface-069/digit-source-diagnosis-110/source-path-orientation-audit-112.json",
+  "source_orientation_report_sha256": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497",
+  "fine_outward_sign": 1,
+  "fine_outward_anchor_count": 2315,
+  "fine_outward_agreement_fraction": 0.9969762419006479,
+  "fine_to_coarse_winding_parity": -1,
+  "parity_anchor_count": 2300,
+  "parity_agreement_fraction": 0.9982608695652174,
+  "orientation_owner_derived_coarse_outward_sign": -1,
+  "status": "PASS",
+  "coarse_outward_sign": -1,
+  "target_row_count": 8,
+  "agreement_count": 8,
+  "disagreement_count": 0,
+  "rows": [
+    {
+      "query_row": 20889,
+      "status": "PASS",
+      "incident_faces": [
+        11029,
+        11030,
+        11042,
+        11043
+      ],
+      "current_area_sum_m2": 0.00011533443393678003,
+      "resultant_over_area_sum": 0.9982599475062812,
+      "current_outward_normal_world_unit": [
+        -0.36488282396740324,
+        -0.9310468719513695,
+        0.003499571851396314
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.8872407073423071,
+        -0.18036040451525923,
+        0.42458691891980704
+      ],
+      "current_source_outward_dot": 0.49314875771163597,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20890,
+      "status": "PASS",
+      "incident_faces": [
+        22192,
+        22193,
+        22229,
+        22230
+      ],
+      "current_area_sum_m2": 6.670632053805925e-05,
+      "resultant_over_area_sum": 0.9602180878581295,
+      "current_outward_normal_world_unit": [
+        -0.5171179972859318,
+        -0.8017884358454517,
+        -0.29954011589016083
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.27387681500676336,
+        -0.9463378010331598,
+        -0.17156997562940585
+      ],
+      "current_source_outward_dot": 0.6685281655757587,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20891,
+      "status": "PASS",
+      "incident_faces": [
+        13249,
+        13250,
+        13255,
+        13256
+      ],
+      "current_area_sum_m2": 9.209044722624533e-05,
+      "resultant_over_area_sum": 0.9792282787457618,
+      "current_outward_normal_world_unit": [
+        0.11965768203135754,
+        0.991043283591426,
+        0.05928953684425932
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.6331597676615225,
+        0.5519958758910181,
+        0.5425949332735375
+      ],
+      "current_source_outward_dot": 0.503459577505899,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20892,
+      "status": "PASS",
+      "incident_faces": [
+        8837,
+        8838,
+        8844,
+        8845
+      ],
+      "current_area_sum_m2": 1.7691025154746583e-05,
+      "resultant_over_area_sum": 0.9924748835354078,
+      "current_outward_normal_world_unit": [
+        0.366182869295624,
+        0.8806061793584521,
+        -0.3007371994119348
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.42428279965545335,
+        0.08566790648508904,
+        -0.9014683109876866
+      ],
+      "current_source_outward_dot": 0.1911796500579011,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20893,
+      "status": "PASS",
+      "incident_faces": [
+        11039,
+        11040,
+        11041,
+        11042,
+        11043
+      ],
+      "current_area_sum_m2": 0.00017099201512804955,
+      "resultant_over_area_sum": 0.9979869057355238,
+      "current_outward_normal_world_unit": [
+        -0.4113019944639879,
+        -0.9082341609749606,
+        0.07708033593631503
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.8872407073423071,
+        -0.18036040451525923,
+        0.424586918919807
+      ],
+      "current_source_outward_dot": 0.5614606555120549,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20894,
+      "status": "PASS",
+      "incident_faces": [
+        19370,
+        19371,
+        19372,
+        19373
+      ],
+      "current_area_sum_m2": 0.00010551656347290921,
+      "resultant_over_area_sum": 0.9993124322406869,
+      "current_outward_normal_world_unit": [
+        -0.2414448097183816,
+        -0.8927098813290449,
+        0.3804910927177363
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.29184711937406943,
+        -0.5460456236812982,
+        0.7852766619297685
+      ],
+      "current_source_outward_dot": 0.71578612689604,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20895,
+      "status": "PASS",
+      "incident_faces": [
+        19369,
+        19370,
+        19371,
+        19382,
+        19383
+      ],
+      "current_area_sum_m2": 0.00014428377780901765,
+      "resultant_over_area_sum": 0.9148319765560288,
+      "current_outward_normal_world_unit": [
+        -0.09552398430690856,
+        -0.8092496100984318,
+        0.5796466483795706
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.2918471193740693,
+        -0.5460456236812979,
+        0.7852766619297685
+      ],
+      "current_source_outward_dot": 0.8691917935472278,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20896,
+      "status": "PASS",
+      "incident_faces": [
+        8834,
+        8835,
+        8836,
+        8837,
+        8838
+      ],
+      "current_area_sum_m2": 5.314544927678074e-05,
+      "resultant_over_area_sum": 0.9675045301210715,
+      "current_outward_normal_world_unit": [
+        0.16027300761061966,
+        0.9798243796189056,
+        -0.11940162534854158
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.42428279965545335,
+        0.08566790648508903,
+        -0.9014683109876866
+      ],
+      "current_source_outward_dot": 0.12357520447890362,
+      "coarse_outward_sign": -1
+    }
+  ],
+  "witnesses": []
+}

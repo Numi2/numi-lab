@@ -1,0 +1,585 @@
+{
+  "538_composer_source_sha256": "9dc78be3a52e2607771c49b11b30e175099ae0c6295ccecf504cdf9c9519cd52",
+  "accepted_physical_steps": 0,
+  "active_banks": [
+    {
+      "body": 109,
+      "bone_faces": 35,
+      "cross_face_vertex_source_displacement_mm_p50_max": [
+        6.006580904019055,
+        8.429530302343931
+      ],
+      "pairs": 331,
+      "skin_centroid_world_m_mean": [
+        0.257758945510501,
+        -0.961275844157688,
+        0.13854549512976688
+      ],
+      "skin_centroid_world_m_std": [
+        0.0012917626896604012,
+        0.0007247735554138571,
+        0.004184922757335845
+      ],
+      "skin_faces": 105,
+      "stable_bone_id": 114
+    },
+    {
+      "body": 43,
+      "bone_faces": 39,
+      "cross_face_vertex_source_displacement_mm_p50_max": [
+        6.76565861122527,
+        11.65355618847706
+      ],
+      "pairs": 224,
+      "skin_centroid_world_m_mean": [
+        -0.2806966397315944,
+        -0.8525824731887749,
+        0.13254711603465152
+      ],
+      "skin_centroid_world_m_std": [
+        0.0033956695685903454,
+        0.005280054421081887,
+        0.0016117467798280292
+      ],
+      "skin_faces": 73,
+      "stable_bone_id": 16
+    },
+    {
+      "body": 65,
+      "bone_faces": 25,
+      "cross_face_vertex_source_displacement_mm_p50_max": [
+        3.1484528138214145,
+        4.939203424285567
+      ],
+      "pairs": 218,
+      "skin_centroid_world_m_mean": [
+        -0.3170439743025359,
+        -1.008914005386737,
+        0.11854775206640705
+      ],
+      "skin_centroid_world_m_std": [
+        0.0008039263032519923,
+        0.0008071594459579367,
+        0.002240087396441314
+      ],
+      "skin_faces": 86,
+      "stable_bone_id": 99
+    },
+    {
+      "body": 115,
+      "bone_faces": 29,
+      "cross_face_vertex_source_displacement_mm_p50_max": [
+        3.5950232359006202,
+        5.519650648484558
+      ],
+      "pairs": 173,
+      "skin_centroid_world_m_mean": [
+        0.2671270860337663,
+        -1.0065089080525542,
+        0.12199786378220583
+      ],
+      "skin_centroid_world_m_std": [
+        0.0005890968799867484,
+        0.0010796039549455236,
+        0.003444149320148058
+      ],
+      "skin_faces": 58,
+      "stable_bone_id": 118
+    },
+    {
+      "body": 124,
+      "bone_faces": 22,
+      "cross_face_vertex_source_displacement_mm_p50_max": [
+        3.47675097378252,
+        5.498655582616899
+      ],
+      "pairs": 170,
+      "skin_centroid_world_m_mean": [
+        0.23509330325759936,
+        -0.9547052622462311,
+        0.0885663494700566
+      ],
+      "skin_centroid_world_m_std": [
+        0.0016416530748728023,
+        0.0004506893840415263,
+        0.0014415082389094116
+      ],
+      "skin_faces": 64,
+      "stable_bone_id": 123
+    },
+    {
+      "body": 114,
+      "bone_faces": 35,
+      "cross_face_vertex_source_displacement_mm_p50_max": [
+        4.780100142978116,
+        6.562366322292107
+      ],
+      "pairs": 131,
+      "skin_centroid_world_m_mean": [
+        0.2612775305384084,
+        -0.9777444444204634,
+        0.11918949636450986
+      ],
+      "skin_centroid_world_m_std": [
+        0.0011775016861755127,
+        0.0013450854770388656,
+        0.00425148762387641
+      ],
+      "skin_faces": 38,
+      "stable_bone_id": 117
+    },
+    {
+      "body": 74,
+      "bone_faces": 24,
+      "cross_face_vertex_source_displacement_mm_p50_max": [
+        3.6629795543863524,
+        8.895924712966709
+      ],
+      "pairs": 92,
+      "skin_centroid_world_m_mean": [
+        -0.28911752369668753,
+        -0.9567589382330578,
+        0.08945000304116144
+      ],
+      "skin_centroid_world_m_std": [
+        0.0008709353745424423,
+        0.0006841885499944752,
+        0.0012736012329281538
+      ],
+      "skin_faces": 30,
+      "stable_bone_id": 104
+    },
+    {
+      "body": 59,
+      "bone_faces": 26,
+      "cross_face_vertex_source_displacement_mm_p50_max": [
+        8.602617235620187,
+        11.996999814955918
+      ],
+      "pairs": 85,
+      "skin_centroid_world_m_mean": [
+        -0.30883973127319697,
+        -0.961240488148871,
+        0.13449264956372126
+      ],
+      "skin_centroid_world_m_std": [
+        0.0012103273751758834,
+        0.0008976652076344357,
+        0.0029710046750619935
+      ],
+      "skin_faces": 28,
+      "stable_bone_id": 95
+    },
+    {
+      "body": 57,
+      "bone_faces": 51,
+      "cross_face_vertex_source_displacement_mm_p50_max": [
+        6.819756472374674,
+        7.657373331542378
+      ],
+      "pairs": 76,
+      "skin_centroid_world_m_mean": [
+        -0.29843940518119116,
+        -0.9236756021326239,
+        0.13150387686310394
+      ],
+      "skin_centroid_world_m_std": [
+        0.002530236053199402,
+        0.0038123734706985474,
+        0.0029204484324595764
+      ],
+      "skin_faces": 11,
+      "stable_bone_id": 89
+    },
+    {
+      "body": 64,
+      "bone_faces": 28,
+      "cross_face_vertex_source_displacement_mm_p50_max": [
+        6.4148016798141025,
+        8.856820910352441
+      ],
+      "pairs": 54,
+      "skin_centroid_world_m_mean": [
+        -0.3085360711529141,
+        -0.961913009484609,
+        0.11583705423843292
+      ],
+      "skin_centroid_world_m_std": [
+        0.001466683517715382,
+        0.0008209370085409982,
+        0.0037977184867241365
+      ],
+      "skin_faces": 14,
+      "stable_bone_id": 98
+    },
+    {
+      "body": 61,
+      "bone_faces": 21,
+      "cross_face_vertex_source_displacement_mm_p50_max": [
+        2.9701177080852106,
+        4.745081389299681
+      ],
+      "pairs": 39,
+      "skin_centroid_world_m_mean": [
+        -0.3180011952364887,
+        -1.017911257567229,
+        0.1438281536102295
+      ],
+      "skin_centroid_world_m_std": [
+        0.0008807721217605804,
+        0.0002620753384788451,
+        0.0013318492201096963
+      ],
+      "skin_faces": 9,
+      "stable_bone_id": 97
+    }
+  ],
+  "bank_name_availability": {
+    "anatomical_member_names_available": false,
+    "export_report": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/export-report-final.json",
+    "export_report_sha256": "48fec5abb489f9830cf033ea940244fd4c7d141f8ed1260a0c54afb7fb5601d7",
+    "reporting_rule": "Use typed body/stable_bone_id and registered world centroids; do not infer bone names from IDs.",
+    "source_record_mapping": "body_index + bone_stable_id to unique verified BoneOwner sourceRecordIndex; member string is not present in this owner record"
+  },
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/candidate.npz",
+  "candidate_sha256": "5fc28d62b10536923ad96d095292f904be6bb35e94c3f44fcbf12d3a535e8834",
+  "cross_face_quality": {
+    "cross_faces_negative_current_vs_037_normal": 144,
+    "cross_faces_negative_current_vs_R0_normal": 197,
+    "current_to_fixed037_area_ratio_percentiles_0_10_50_90_100": [
+      0.10037330397239892,
+      1.5277575657297726,
+      14.172983226094596,
+      92.34450897975664,
+      262700.1612565049
+    ],
+    "current_to_fixed037_oriented_normal_cosine_percentiles_0_10_50_90_100": [
+      -0.9992476696528404,
+      -0.7994621077394695,
+      0.6085345071933383,
+      0.9814760927776329,
+      0.9990863031128621
+    ],
+    "current_triangle_min_angle_deg_percentiles_0_10_50_90_100": [
+      0.08241236368546324,
+      1.5605756452110493,
+      8.081907197528093,
+      28.662143855169152,
+      53.4758177967997
+    ],
+    "current_vs_R0_normal_cosine_percentiles_0_10_50_90_100": [
+      -0.9990608046985595,
+      -0.8300414318260032,
+      0.29502920795509124,
+      0.9057460375623074,
+      0.9996143913634267
+    ],
+    "normal_note": "Same-index geometry diagnostic only; does not certify registered outward sign."
+  },
+  "crossed_vertex_source_displacement_to_R0_mm": {
+    "interpretation": "12 mm Euclidean source-cap proximity diagnostic from preserved R0 coordinates; no cap exceedance on these vertices.",
+    "nodes": 569,
+    "nodes_over_12mm": 0,
+    "percentiles_0_50_90_99_100": [
+      0.5263261321261717,
+      4.6885028932688755,
+      7.638556143827889,
+      10.299821697465983,
+      11.996999814955918
+    ]
+  },
+  "geometry_admitted": false,
+  "limitations": [
+    "Read retained state and audit reports; no new exact geometry queries, solver, or audit executed.",
+    "No anatomical labels in pinned bank export; spatial grouping is reported without guessed names.",
+    "Surface pair list omits exact narrowphase feature classification.",
+    "Diagnostic is not geometry admission or physical/native qualification."
+  ],
+  "native_admission": false,
+  "next_mechanism": "Reuse connected_candidates580.patch_candidates on the exact 1593 state, with centers limited to vertices of the six dominant bank-pair connected patches and candidate patch rows drawn from their edge-connected crossing components plus one-ring neighbors. Apply nonoverlapping same-bank patch batches; retain exact 185-bank strict bankwise pair reduction, no introduced self pairs, fixed037 area/orientation, unchanged boundary/anchors/CSR. Existing search_connected580.py supports a bounded local search and recorded exact counters; do not claim compatibility with refined node domain until its lineage check is run.",
+  "point_contained_nodes": 0,
+  "point_exact_self_pairs": 0,
+  "point_owner_status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/full-check-545/audit-130/summary.json",
+  "point_summary_sha256": "b9ec711340bb035ff3318f784f09e5ad0c67eecafe13ce2f42569bf36e57946a",
+  "proven_fixed_coordinate_topology": {
+    "538_composer": {
+      "full_exact_pairs": 2981,
+      "interpretation": "Self-safe composition evidence, but no measured surface-crossing reduction versus its base is recorded here.",
+      "removed_flips": 23,
+      "report": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-quality-patch-538/run-001/report.json",
+      "report_sha256": "b3fb7a298a284c158d4c6bb94e791230bed8c4f511f9561c45d665ad1de9c91a",
+      "retained_flips": 263
+    },
+    "candidate_generator": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/connected_candidates580.py",
+    "interpretation": "Verified reductions per completed run. Run 003 starts from 1705, not run 002's 1717; do not add the reductions as a single uninterrupted chain.",
+    "method": "Connected regional patch retriangulation with preserved coordinates/point IDs, 237 typed anchors, 185-bank exact incremental screening and unchanged full545 gates.",
+    "owner_source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/search_connected580.py",
+    "runs": [
+      {
+        "accepted_operations": 40,
+        "before_pairs": 1855,
+        "candidate_selected": false,
+        "exact_triangle_calls": 3184,
+        "full_exact_pairs": 1731,
+        "full_inside_pairs": 0,
+        "full_report_sha256": "29eae400782b4123854911c606d7a03d3f1d822013ae141f12c87d03b8ae3b60",
+        "full_self_pairs": 0,
+        "run": 1,
+        "search_after_pairs": 1731,
+        "search_reduction": 124,
+        "search_report_sha256": "cd1720a74f8e2160748654088314f51953d7ff5a95cb1a51188a188239c8aa41",
+        "search_seconds": 160.6835202081129
+      },
+      {
+        "accepted_operations": 6,
+        "before_pairs": 1731,
+        "candidate_selected": false,
+        "exact_triangle_calls": 3072,
+        "full_exact_pairs": 1717,
+        "full_inside_pairs": 0,
+        "full_report_sha256": "34aefe0808dfe4b1149b973fa87b0c3e322e364dcfa807c4058271d8407b688c",
+        "full_self_pairs": 0,
+        "run": 2,
+        "search_after_pairs": 1717,
+        "search_reduction": 14,
+        "search_report_sha256": "ac4b071a12d744ef003dd4c3489a6c2ccc4063472c7a9ee9598f17dbe43d60c9",
+        "search_seconds": 160.7399983748328
+      },
+      {
+        "accepted_operations": 4,
+        "before_pairs": 1705,
+        "candidate_selected": false,
+        "exact_triangle_calls": 2836,
+        "full_exact_pairs": 1697,
+        "full_inside_pairs": 0,
+        "full_report_sha256": "61e20291fe298b5a6e89aaa108b74afd849c089d8771ca4540bd7f1039271d9f",
+        "full_self_pairs": 0,
+        "run": 3,
+        "search_after_pairs": 1697,
+        "search_reduction": 8,
+        "search_report_sha256": "47f041f9cf8871b6741f6ae3e4a63f60f64f87c2941f2f1395a881cdd7be7e4c",
+        "search_seconds": 91.03256650012918
+      }
+    ]
+  },
+  "schema": "numi.human.surface-crossing-distribution-diagnostic.594.v1",
+  "spatial_crossing_patch": {
+    "boundary_edge_count": 45,
+    "boundary_face_count": 40,
+    "component_bank_pair_counts": [
+      {
+        "bank_pair_counts": [
+          {
+            "body": 65,
+            "pair_count": 182,
+            "stable_bone_id": 99
+          }
+        ],
+        "component": 0,
+        "skin_face_count": 74
+      },
+      {
+        "bank_pair_counts": [
+          {
+            "body": 124,
+            "pair_count": 170,
+            "stable_bone_id": 123
+          }
+        ],
+        "component": 1,
+        "skin_face_count": 64
+      },
+      {
+        "bank_pair_counts": [
+          {
+            "body": 43,
+            "pair_count": 186,
+            "stable_bone_id": 16
+          }
+        ],
+        "component": 2,
+        "skin_face_count": 58
+      },
+      {
+        "bank_pair_counts": [
+          {
+            "body": 115,
+            "pair_count": 140,
+            "stable_bone_id": 118
+          }
+        ],
+        "component": 3,
+        "skin_face_count": 44
+      },
+      {
+        "bank_pair_counts": [
+          {
+            "body": 109,
+            "pair_count": 137,
+            "stable_bone_id": 114
+          }
+        ],
+        "component": 4,
+        "skin_face_count": 39
+      },
+      {
+        "bank_pair_counts": [
+          {
+            "body": 109,
+            "pair_count": 112,
+            "stable_bone_id": 114
+          }
+        ],
+        "component": 5,
+        "skin_face_count": 37
+      },
+      {
+        "bank_pair_counts": [
+          {
+            "body": 114,
+            "pair_count": 80,
+            "stable_bone_id": 117
+          }
+        ],
+        "component": 6,
+        "skin_face_count": 24
+      },
+      {
+        "bank_pair_counts": [
+          {
+            "body": 59,
+            "pair_count": 57,
+            "stable_bone_id": 95
+          }
+        ],
+        "component": 7,
+        "skin_face_count": 18
+      },
+      {
+        "bank_pair_counts": [
+          {
+            "body": 74,
+            "pair_count": 64,
+            "stable_bone_id": 104
+          }
+        ],
+        "component": 8,
+        "skin_face_count": 18
+      },
+      {
+        "bank_pair_counts": [
+          {
+            "body": 109,
+            "pair_count": 42,
+            "stable_bone_id": 114
+          }
+        ],
+        "component": 9,
+        "skin_face_count": 15
+      },
+      {
+        "bank_pair_counts": [
+          {
+            "body": 64,
+            "pair_count": 54,
+            "stable_bone_id": 98
+          }
+        ],
+        "component": 10,
+        "skin_face_count": 14
+      },
+      {
+        "bank_pair_counts": [
+          {
+            "body": 115,
+            "pair_count": 29,
+            "stable_bone_id": 118
+          }
+        ],
+        "component": 11,
+        "skin_face_count": 12
+      }
+    ],
+    "cross_face_boundary_graph_distance_histogram": {
+      "100": 4,
+      "101": 11,
+      "102": 25,
+      "103": 26,
+      "104": 26,
+      "105": 18,
+      "106": 10,
+      "107": 3,
+      "59": 1,
+      "60": 3,
+      "61": 5,
+      "62": 11,
+      "63": 17,
+      "64": 14,
+      "65": 9,
+      "66": 6,
+      "67": 6,
+      "68": 1,
+      "75": 1,
+      "76": 5,
+      "77": 7,
+      "78": 9,
+      "79": 21,
+      "80": 13,
+      "81": 9,
+      "82": 8,
+      "83": 13,
+      "84": 25,
+      "85": 45,
+      "86": 35,
+      "87": 21,
+      "88": 11,
+      "89": 7,
+      "90": 8,
+      "91": 8,
+      "92": 9,
+      "93": 9,
+      "94": 7,
+      "95": 6,
+      "96": 7,
+      "97": 17,
+      "98": 14,
+      "99": 5
+    },
+    "cross_faces_touching_boundary": 0,
+    "exact_pair_feature_classification": "Not stored by audit159 report; counts establish topological interior location, not edge-edge versus face-interior narrowphase feature.",
+    "face_components": 32,
+    "largest_component_face_counts": [
+      74,
+      64,
+      58,
+      44,
+      39,
+      37,
+      24,
+      18,
+      18,
+      15,
+      14,
+      12,
+      12,
+      11,
+      10,
+      9,
+      7,
+      7,
+      6,
+      5
+    ]
+  },
+  "state_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/final/state.json",
+  "state_sha256": "fa00b1c9a59ee148f3772fb4382d370d94451b5510b404295d6d649cda5c99ac",
+  "status": "READ_ONLY_DIAGNOSTIC_NO_NEW_AUDIT",
+  "surface_pairs": 1593,
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/regional-552/full-check-545/audit-159/report.json",
+  "surface_report_sha256": "18a56a03545454436634d51244f1ebae7dbcef7cd5f4236bfe84b1ec7d4b0bf8",
+  "topology_580_helper_sha256": "53284b811b71bbaf5f29397df38714b35addd568ffff49fdb23c8a57b6a9c584",
+  "topology_580_search_sha256": "6aa19e839738bcafb14db12896cf5eafc9777ee5d3e668a44779e13b6439b9da",
+  "unique_crossed_bank_faces": 335,
+  "unique_crossed_skin_faces": 516
+}

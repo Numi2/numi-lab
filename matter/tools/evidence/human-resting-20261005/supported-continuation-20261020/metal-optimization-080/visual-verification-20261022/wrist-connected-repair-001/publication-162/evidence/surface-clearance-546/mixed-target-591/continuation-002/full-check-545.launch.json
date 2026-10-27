@@ -1,0 +1,24 @@
+{
+  "classification": "second continuation full-545 exact pair audit",
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/continuation-002/582-retention/candidate.npz",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/retention-001/point-continuation-finalize/state.json",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/continuation-002/full-check-545",
+    "--trust-mm",
+    "4"
+  ],
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/continuation-002/582-retention/candidate.npz",
+  "candidate_sha256": "0a3b4566c43882b3575c3985b221e73fa322c96c42505a2130ad85d74dc7d61c",
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/retention-001/point-continuation-finalize/state.json",
+  "baseline_state_sha256": "e718e84e61d47bfc1650ef5ab00ea0c8c3e58431349247a8efa71e27f3577cf2",
+  "script": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+  "script_sha256": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/continuation-002/full-check-545",
+  "shared_slot_preflight": "free",
+  "launch_unwrapped_coordinator": true
+}

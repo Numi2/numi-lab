@@ -1,0 +1,52 @@
+{
+  "all_archives_verified": true,
+  "all_originals_retained": true,
+  "files": [
+    {
+      "compressed_allocated_bytes": 4931584,
+      "compressed_bytes": 4928964,
+      "compressed_mode": 420,
+      "compressed_mtime_ns": 1793065574361684314,
+      "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-162/evidence/compression-preservation/598-run-002/payloads/connected-fit-598/run-002/fit-stage.log.zst",
+      "compressed_sha256": "b1d7e05815b43bf8cfdcaeef72862aeec3051c7d91fe4c1c826cae946349ca32",
+      "original_atime_ns": 1793065386728772415,
+      "original_bytes": 41295220,
+      "original_mode": 420,
+      "original_mtime_ns": 1793064593603447145,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/run-002/fit-stage.log",
+      "original_sha256": "07eaa3db79bee7651dce250b6e7a1f985ca9e8709075ceb62debcb117e1d9d53",
+      "package_compressed_relative_path": "connected-fit-598/run-002/fit-stage.log.zst",
+      "relative_path": "connected-fit-598/run-002/fit-stage.log",
+      "source_nlink_before_staging": 1,
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/run-002/fit-stage.log",
+      "source_retained_local": true
+    },
+    {
+      "compressed_allocated_bytes": 4935680,
+      "compressed_bytes": 4932097,
+      "compressed_mode": 420,
+      "compressed_mtime_ns": 1793065574417159634,
+      "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-162/evidence/compression-preservation/598-run-002/payloads/connected-fit-598/run-002/fit/report.json.zst",
+      "compressed_sha256": "0b88ec1b2ba70d505d66682f1c7c524cc4114707d5833bc2455a5cd92cbff448",
+      "original_atime_ns": 1793064593750723439,
+      "original_bytes": 41321377,
+      "original_mode": 420,
+      "original_mtime_ns": 1793064593596678866,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/run-002/fit/report.json",
+      "original_sha256": "a98e07edc9848052142ed2214367d410cf0b98e20e116d64723d659577f86766",
+      "package_compressed_relative_path": "connected-fit-598/run-002/fit/report.json.zst",
+      "relative_path": "connected-fit-598/run-002/fit/report.json",
+      "source_nlink_before_staging": 1,
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/run-002/fit/report.json",
+      "source_retained_local": true
+    }
+  ],
+  "publication": "P162",
+  "restore_command_template": "python restore_compressed_text_mirrors.py --receipt compression-receipt.json --destination-root <empty-temp-dir> --compressed-root payloads",
+  "restore_helper_path": "evidence/compression-preservation/598-run-002/restore_compressed_text_mirrors.py",
+  "restore_helper_test_count": 2,
+  "restore_helper_test_status": "PASS_TWO_FILES_HASH_SIZE_MODE_MTIME",
+  "schema": "numi.lossless_text_mirror_preservation.v1",
+  "source_root": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546",
+  "status": "ARCHIVE_AND_FRESH_RESTORE_VERIFIED"
+}

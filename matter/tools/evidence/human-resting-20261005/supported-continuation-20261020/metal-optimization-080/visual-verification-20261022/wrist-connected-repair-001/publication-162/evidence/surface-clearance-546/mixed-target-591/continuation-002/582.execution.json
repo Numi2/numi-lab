@@ -1,0 +1,42 @@
+{
+  "alpha_counts": {
+    "0.25": 1,
+    "0.5": 1,
+    "1.0": 4
+  },
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/retention-001/point-continuation-finalize/state.json",
+    "--target",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/emitted-001/candidate.npz",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/continuation-002/582-retention",
+    "--trust-mm",
+    "4",
+    "--max-edge-gradient",
+    ".5"
+  ],
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/continuation-002/582-retention/candidate.npz",
+  "candidate_sha256": "0a3b4566c43882b3575c3985b221e73fa322c96c42505a2130ad85d74dc7d61c",
+  "classification": "second bounded582 local retention; unadmitted construction candidate",
+  "direction_preflight": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/continuation-002/direction-preflight.json",
+  "direction_preflight_sha256": "49405f8c0d019a4e350f0b57f3751649c4c48c34ffe12b57a61fe4f1f400f3a3",
+  "elapsed_seconds": 1.256876084022224,
+  "exact_self_pairs": 0,
+  "launch_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/continuation-002/582.launch.json",
+  "launch_receipt_sha256": "d162da291fbb48d3b43d01e1357c056e2b9f94ef561d1363b4978669c46f412f",
+  "log": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/continuation-002/582-retention.run.log",
+  "log_sha256": "de56b2ca25f6b3347d07f641e1c5ee151828de77ff26848f3c1e304236e9c25d",
+  "native_admission": false,
+  "physical_steps": 0,
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/continuation-002/582-retention/report.json",
+  "report_sha256": "0e0912d1a7d34bfe668331d98e9a600c85948d6053e704a295f8551c066ef9a6",
+  "returncode": 0,
+  "source_sha256": "08bb82034180636d0ff798ad503735b6a50327bf52cc3c62bffb75d0265ff57a",
+  "state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/retention-001/point-continuation-finalize/state.json",
+  "state_sha256": "e718e84e61d47bfc1650ef5ab00ea0c8c3e58431349247a8efa71e27f3577cf2",
+  "target": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/emitted-001/candidate.npz",
+  "target_sha256": "d44d1eba3f90ca5302b214b702129d54acda249128e9f57e0e778c7b1a6b3e95"
+}

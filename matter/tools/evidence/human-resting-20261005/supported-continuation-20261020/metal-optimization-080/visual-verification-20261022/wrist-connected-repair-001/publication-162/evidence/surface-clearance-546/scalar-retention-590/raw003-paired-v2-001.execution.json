@@ -1,0 +1,59 @@
+{
+  "582-witness-retention/candidate.npz": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/582-witness-retention/candidate.npz",
+    "sha256": "ba1a20edffcf4286b8ac772847114c9667423481ad38d505e2afccac2122d8ca"
+  },
+  "582-witness-retention/report.json": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/582-witness-retention/report.json",
+    "sha256": "0016570174635c180241cc0bb425dbff8202a7c8b36dfbffdae10bc1c400fa6a"
+  },
+  "alpha.npy": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/alpha.npy",
+    "sha256": "d6d045d3ba132395a9274735712fb094cf159d03e52bbac426a9ad0d855561c6"
+  },
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/run_scalar_retention590_v2.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/final/state.json",
+    "--target",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+    "--capture-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/report.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001",
+    "--max-lp-calls",
+    "8",
+    "--lp-time-limit-s",
+    "5"
+  ],
+  "launch_receipt_sha256": "de4926cbb33adaf3cacdb8978b2c30c6bd4a298ad0a0cd77a522984cbfec4a1a",
+  "log_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001.log",
+  "log_sha256": "d310d0ebb7cf601c119c7b6def9ead24cd44b463446de5cbcafe7dba53c67a55",
+  "output_exists": true,
+  "report.json": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/report.json",
+    "sha256": "fe5f4593fe5403833861164bc78911d0b2a7648f2a39a0704057f6769b89e266"
+  },
+  "returncode": 0,
+  "scalar-target.npz": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-v2-001/scalar-target.npz",
+    "sha256": "50dc7876c967424d797068781285f484ad177548ef38671951b37af6f33ed4f4"
+  },
+  "seconds": 73.70870829210617,
+  "source_input_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/final/state.json": "7c922fb005c4de5dcfde91c996f5d6c3a86ae2a985041aefcdaf2c93b99990ab",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/lineage/candidate.npz": "25485ae52b3a7ad19ea5c3176a79416d8f04d9d2e4f852fac931d75ca734ae04",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz": "81532082e061eba4155529300d9cac5fd147ad14d1652e03c24d783248ecf792",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/report.json": "ceaf76d2b40219453440c540c40bfc3f5105c42b8310ae863b11e300853f4314",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py": "08bb82034180636d0ff798ad503735b6a50327bf52cc3c62bffb75d0265ff57a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/run_scalar_retention590_v2.py": "4827cba551472d775f4c3ddae63f4b2e49ec57a5420ed9f170d442eab703a0bb",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/scalar_alpha_retention590_v2.py": "58e373a68487a291ff7c3ed67d195b589830b81970ebbb210b857c292ee86638",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+    "/tmp/numi-human-geometry-slot.py": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1"
+  },
+  "timeout_error": null
+}

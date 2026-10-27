@@ -1,0 +1,1 @@
+Focused pytest attempt 002: 3 passed, 2 failed. Finite-difference area derivatives passed, but a redundant test asserted perturbed oriented ratio exactly 1; LP smoke fixture placed source 30 mm from baseline, violating 12 mm precondition. Correcting fixture/assertions only.

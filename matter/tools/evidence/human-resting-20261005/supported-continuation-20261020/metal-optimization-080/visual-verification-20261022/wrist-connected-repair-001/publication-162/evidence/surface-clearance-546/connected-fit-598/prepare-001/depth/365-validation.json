@@ -1,0 +1,40 @@
+{
+  "bank_count": 185,
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-596/run-001/lineage/candidate.npz",
+  "candidate_sha256": "2c963e10e3eda97b6e550ec1592936a7f75fa7968afb3112884b5f7a74001ae2",
+  "compat_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/prepare-001/depth/365-compatible-report.json",
+  "compat_report_sha256": "79c40c4b8aa0d4d1b1a21a50c237f05b152e5fa164761f988336dafce991226e",
+  "complete_bank_accounting_verified": true,
+  "inside_row_count": 0,
+  "outside_row_count": 5853,
+  "raw_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/prepare-001/depth/report.json",
+  "raw_report_sha256": "f1f3f6d571bee964c8e4aeebac81895b9aa460f3d21b446b69b8f581dbaa302b",
+  "row_count": 5853,
+  "rows_npz_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/prepare-001/depth/point-depth-rows.npz",
+  "rows_npz_sha256": "1c10c8c1f8711c38defbea636f58b4de78daf0e00ced7c646113a7f1a85a856b",
+  "status": "PASS_401_POINT_DEPTH_PAYLOAD_VALIDATION",
+  "unique_node_count": 5765,
+  "validator_path": "/Users/numi/Work/numi-human-connected-surface-069/D/retained-gain-continuation-401/propose_joint_clearance_witnesses_401.py",
+  "validator_receipt": {
+    "bank_count": 185,
+    "candidate_points_sha256": "bf46890d7daab64bad03a991e9dc762b260d5c0c4829cb182205239141a359e6",
+    "candidate_sha256": "2c963e10e3eda97b6e550ec1592936a7f75fa7968afb3112884b5f7a74001ae2",
+    "enabled": true,
+    "inside_row_count": 0,
+    "outside_row_count": 5853,
+    "owner_path": "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-barriers-357/point_depth_barriers_357.py",
+    "owner_sha256": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+    "query_receipt_sha256s": [
+      "377c704dcb0c54de7bb70a829aaadf149fe403c3ca60ac04ce354e90253bf089",
+      "377c704dcb0c54de7bb70a829aaadf149fe403c3ca60ac04ce354e90253bf089"
+    ],
+    "report_sha256": null,
+    "row_count": 5853,
+    "rows_npz_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/prepare-001/depth/point-depth-rows.npz",
+    "rows_npz_sha256": "1c10c8c1f8711c38defbea636f58b4de78daf0e00ced7c646113a7f1a85a856b",
+    "semantics": "hard construction-only point tangent non-regression; exact emitted-F32 all-bank gates remain mandatory",
+    "unique_node_count": 5765
+  },
+  "validator_sha256": "2f1eda3f0d46d0f5497a1a04075b5dc2c3b37afe906d0389ff636fca8abc5869",
+  "zero_step_violation_m": 0.0
+}

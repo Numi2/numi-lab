@@ -1,0 +1,548 @@
+{
+  "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/candidate.npz",
+  "base_candidate_sha256": "6b912d5dc08b044d1dd08a55527435bf6584a0e3a2c3f8c36f43ac4b30d3ded1",
+  "classification": "cached in-memory target mixing and arithmetic preflight only; no candidate NPZ, no self audit, no 159 surface audit, no native admission",
+  "endpoint_sets": {
+    "depth-maximizing": {
+      "bad_area_count": 1,
+      "bad_area_faces": [
+        13255
+      ],
+      "bad_bound_nodes": [
+        20896
+      ],
+      "bad_edge_count": 8,
+      "bad_edge_rows": [
+        53797,
+        57609,
+        61891,
+        62499,
+        62564,
+        62643,
+        62644,
+        62645
+      ],
+      "bad_source_count": 0,
+      "bad_source_nodes": [],
+      "bad_trust_count": 1,
+      "bad_trust_nodes": [
+        20896
+      ],
+      "max_edge_gradient_ratio": 1.0856839417092428,
+      "max_source_distance_mm": 11.999365547963421,
+      "max_step_mm": 8.37563763945201,
+      "min_area_ratio": 0.10009356948026137,
+      "min_oriented_area_cosine": -0.12954248852945174
+    },
+    "mixed_shortest_eligible": {
+      "bad_area_count": 4,
+      "bad_area_faces": [
+        8834,
+        8837,
+        8838,
+        13255
+      ],
+      "bad_bound_nodes": [],
+      "bad_edge_count": 8,
+      "bad_edge_rows": [
+        53797,
+        57609,
+        61891,
+        62499,
+        62564,
+        62643,
+        62644,
+        62645
+      ],
+      "bad_source_count": 0,
+      "bad_source_nodes": [],
+      "bad_trust_count": 0,
+      "bad_trust_nodes": [],
+      "max_edge_gradient_ratio": 1.0856839417092428,
+      "max_source_distance_mm": 11.999365547963421,
+      "max_step_mm": 3.4579751892971657,
+      "min_area_ratio": 0.10009356948026137,
+      "min_oriented_area_cosine": -0.12954248852945174
+    },
+    "source-outward": {
+      "bad_area_count": 5,
+      "bad_area_faces": [
+        8834,
+        8837,
+        11043,
+        13250,
+        22230
+      ],
+      "bad_bound_nodes": [
+        20889,
+        20890,
+        20891,
+        20895
+      ],
+      "bad_edge_count": 22,
+      "bad_edge_rows": [
+        40875,
+        48853,
+        51222,
+        53797,
+        57609,
+        60081,
+        60089,
+        60970,
+        60974,
+        61042,
+        61477,
+        61891,
+        62223,
+        62499,
+        62515,
+        62516,
+        62564,
+        62575,
+        62576,
+        62643,
+        62644,
+        62645
+      ],
+      "bad_source_count": 1,
+      "bad_source_nodes": [
+        20890
+      ],
+      "bad_trust_count": 4,
+      "bad_trust_nodes": [
+        20889,
+        20890,
+        20891,
+        20895
+      ],
+      "max_edge_gradient_ratio": 1.0856839417092428,
+      "max_source_distance_mm": 16.562663822273255,
+      "max_step_mm": 11.616680886734184,
+      "min_area_ratio": 0.10009356948026137,
+      "min_oriented_area_cosine": -0.12954248852945174
+    }
+  },
+  "full_candidate_checks_run": false,
+  "inputs": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/candidate.npz": "6b912d5dc08b044d1dd08a55527435bf6584a0e3a2c3f8c36f43ac4b30d3ded1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/depth/365-compatible-report.json": "4d9015b81a69979803cca377c198dd2410211994a9407543da6de3a90ef78167",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/depth/point-depth-rows.npz": "15b20ed7bfa49464b4ef9b22dbec06346ead0ebf46993acbe11a3a566f21a54d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/select_batch_endpoint_operations546.py": "9c3257524e95b3e00ee41c154caa90cfbc4fcd1031719d46a591338232e03f8b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/depth-maximizing-pilot-008/arithmetic-preflight.json": "4243f79a35e6f70bdff96f993ea0026f7c4276475f8381dbf16181f137e8a740",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/depth-maximizing-pilot-008/nearest-union-exits.json": "59b8b74edeeb079839f0b7dd39e011bcf44f7a17168d520de2275bdfad8ba01a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/depth-maximizing-pilot-008/nearest-union-exits.npz": "7d29acfe753d7aae75acc6eb0111d021c4d7beb88238dcebf80bbcb47d87f711",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/pilot-008/../pilot-008.current-source-normal-audit.json": "2929d5cd7455a9d0d232f92036a4506658dca987ef98de2905805d91b1855396",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/pilot-008/nearest-union-exits.json": "6ef6a923671c102cf16d571b9af918dd4c782cfe62e967435893a0b40718a663",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/pilot-008/nearest-union-exits.npz": "6575b16f0b5eeabd3fa18ac1a6ea848b0984269f77b3e6e742cb56397876d28a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+  },
+  "mixed_candidate_written": false,
+  "mixed_selection_metrics": {
+    "bad_area_count": 4,
+    "bad_area_faces": [
+      8834,
+      8837,
+      8838,
+      13255
+    ],
+    "bad_bound_nodes": [],
+    "bad_edge_count": 8,
+    "bad_edge_rows": [
+      53797,
+      57609,
+      61891,
+      62499,
+      62564,
+      62643,
+      62644,
+      62645
+    ],
+    "bad_source_count": 0,
+    "bad_source_nodes": [],
+    "bad_trust_count": 0,
+    "bad_trust_nodes": [],
+    "max_edge_gradient_ratio": 1.0856839417092428,
+    "max_source_distance_mm": 11.999365547963421,
+    "max_step_mm": 3.4579751892971657,
+    "min_area_ratio": 0.10009356948026137,
+    "min_oriented_area_cosine": -0.12954248852945174
+  },
+  "physical_steps": 0,
+  "rows": [
+    {
+      "alternatives": [
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.49314875771163597,
+          "depth_dot_proposal": null,
+          "eligible_trust4_source12_positive_source_current": false,
+          "mode": "source-outward",
+          "move_mm_f32": 7.298277149914968,
+          "source_distance_mm": 4.846613463430789,
+          "source_dot_proposal": 0.9999999999999999,
+          "target_world_f32_m": [
+            -0.3031180500984192,
+            -0.919642448425293,
+            0.13243480026721954
+          ]
+        },
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.49314875771163597,
+          "depth_dot_proposal": 0.5199926843213192,
+          "eligible_trust4_source12_positive_source_current": true,
+          "mode": "depth-maximizing",
+          "move_mm_f32": 1.7204117917054431,
+          "source_distance_mm": 3.886490897503775,
+          "source_dot_proposal": 0.0500000000000142,
+          "target_world_f32_m": [
+            -0.29723894596099854,
+            -0.9191444516181946,
+            0.12794511020183563
+          ]
+        }
+      ],
+      "chosen_current_outward_dot": 0.49314875771163597,
+      "chosen_depth_dot": 0.5199926843213192,
+      "chosen_mode": "depth-maximizing",
+      "chosen_move_mm": 1.7204117917054431,
+      "chosen_source_distance_mm": 3.886490897503775,
+      "chosen_source_dot": 0.0500000000000142,
+      "row": 20889
+    },
+    {
+      "alternatives": [
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.6685281655757587,
+          "depth_dot_proposal": null,
+          "eligible_trust4_source12_positive_source_current": false,
+          "mode": "source-outward",
+          "move_mm_f32": 11.616680886734185,
+          "source_distance_mm": 16.562663822273255,
+          "source_dot_proposal": 0.9999999999999999,
+          "target_world_f32_m": [
+            -0.28381070494651794,
+            -0.9698425531387329,
+            0.08385936170816422
+          ]
+        },
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.6685281655757587,
+          "depth_dot_proposal": 0.9926785381262722,
+          "eligible_trust4_source12_positive_source_current": true,
+          "mode": "depth-maximizing",
+          "move_mm_f32": 1.9626107727433195,
+          "source_distance_mm": 5.648876490552578,
+          "source_dot_proposal": 0.05000000000001417,
+          "target_world_f32_m": [
+            -0.2882297933101654,
+            -0.9590370655059814,
+            0.08434079587459564
+          ]
+        }
+      ],
+      "chosen_current_outward_dot": 0.6685281655757587,
+      "chosen_depth_dot": 0.9926785381262722,
+      "chosen_mode": "depth-maximizing",
+      "chosen_move_mm": 1.9626107727433195,
+      "chosen_source_distance_mm": 5.648876490552578,
+      "chosen_source_dot": 0.05000000000001417,
+      "row": 20890
+    },
+    {
+      "alternatives": [
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.503459577505899,
+          "depth_dot_proposal": null,
+          "eligible_trust4_source12_positive_source_current": false,
+          "mode": "source-outward",
+          "move_mm_f32": 8.0997851294821,
+          "source_distance_mm": 8.20641907866603,
+          "source_dot_proposal": 1.0,
+          "target_world_f32_m": [
+            -0.30203911662101746,
+            -0.9216493368148804,
+            0.13597233593463898
+          ]
+        },
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.503459577505899,
+          "depth_dot_proposal": 0.5775311433833337,
+          "eligible_trust4_source12_positive_source_current": true,
+          "mode": "depth-maximizing",
+          "move_mm_f32": 1.885355950307696,
+          "source_distance_mm": 6.307496578947818,
+          "source_dot_proposal": 0.05000000000001409,
+          "target_world_f32_m": [
+            -0.29551374912261963,
+            -0.9252643585205078,
+            0.13251036405563354
+          ]
+        }
+      ],
+      "chosen_current_outward_dot": 0.503459577505899,
+      "chosen_depth_dot": 0.5775311433833337,
+      "chosen_mode": "depth-maximizing",
+      "chosen_move_mm": 1.885355950307696,
+      "chosen_source_distance_mm": 6.307496578947818,
+      "chosen_source_dot": 0.05000000000001409,
+      "row": 20891
+    },
+    {
+      "alternatives": [
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.1911796500579011,
+          "depth_dot_proposal": null,
+          "eligible_trust4_source12_positive_source_current": true,
+          "mode": "source-outward",
+          "move_mm_f32": 0.6617194119825751,
+          "source_distance_mm": 2.465535753064352,
+          "source_dot_proposal": 1.0,
+          "target_world_f32_m": [
+            -0.3166036903858185,
+            -1.0181952714920044,
+            0.1431967318058014
+          ]
+        },
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.19117965005790108,
+          "depth_dot_proposal": 1.0,
+          "eligible_trust4_source12_positive_source_current": true,
+          "mode": "depth-maximizing",
+          "move_mm_f32": 0.23121137640129238,
+          "source_distance_mm": 2.2696130872334197,
+          "source_dot_proposal": 0.33807437098969406,
+          "target_world_f32_m": [
+            -0.3161661922931671,
+            -1.0182946920394897,
+            0.14362870156764984
+          ]
+        }
+      ],
+      "chosen_current_outward_dot": 0.19117965005790108,
+      "chosen_depth_dot": 1.0,
+      "chosen_mode": "depth-maximizing",
+      "chosen_move_mm": 0.23121137640129238,
+      "chosen_source_distance_mm": 2.2696130872334197,
+      "chosen_source_dot": 0.33807437098969406,
+      "row": 20892
+    },
+    {
+      "alternatives": [
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.5614606555120549,
+          "depth_dot_proposal": null,
+          "eligible_trust4_source12_positive_source_current": true,
+          "mode": "source-outward",
+          "move_mm_f32": 2.7903859296717917,
+          "source_distance_mm": 4.6632126552709465,
+          "source_dot_proposal": 1.0,
+          "target_world_f32_m": [
+            -0.3011403977870941,
+            -0.91773921251297,
+            0.13527993857860565
+          ]
+        },
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.5614606555120549,
+          "depth_dot_proposal": 1.0000000000000002,
+          "eligible_trust4_source12_positive_source_current": true,
+          "mode": "depth-maximizing",
+          "move_mm_f32": 2.068907804711347,
+          "source_distance_mm": 4.959778093196804,
+          "source_dot_proposal": 0.5327838818171539,
+          "target_world_f32_m": [
+            -0.2990853190422058,
+            -0.9166874885559082,
+            0.13604521751403809
+          ]
+        }
+      ],
+      "chosen_current_outward_dot": 0.5614606555120549,
+      "chosen_depth_dot": 1.0000000000000002,
+      "chosen_mode": "depth-maximizing",
+      "chosen_move_mm": 2.068907804711347,
+      "chosen_source_distance_mm": 4.959778093196804,
+      "chosen_source_dot": 0.5327838818171539,
+      "row": 20893
+    },
+    {
+      "alternatives": [
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.71578612689604,
+          "depth_dot_proposal": null,
+          "eligible_trust4_source12_positive_source_current": true,
+          "mode": "source-outward",
+          "move_mm_f32": 1.4974243194385282,
+          "source_distance_mm": 9.311219100903427,
+          "source_dot_proposal": 1.0000000000000002,
+          "target_world_f32_m": [
+            -0.2773234248161316,
+            -0.8530058860778809,
+            0.1380622833967209
+          ]
+        },
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.71578612689604,
+          "depth_dot_proposal": 1.0000000000000002,
+          "eligible_trust4_source12_positive_source_current": true,
+          "mode": "depth-maximizing",
+          "move_mm_f32": 1.249665163246973,
+          "source_distance_mm": 8.867749841200851,
+          "source_dot_proposal": 0.8288221327164176,
+          "target_world_f32_m": [
+            -0.27718132734298706,
+            -0.8521829843521118,
+            0.13799375295639038
+          ]
+        }
+      ],
+      "chosen_current_outward_dot": 0.71578612689604,
+      "chosen_depth_dot": 1.0000000000000002,
+      "chosen_mode": "depth-maximizing",
+      "chosen_move_mm": 1.249665163246973,
+      "chosen_source_distance_mm": 8.867749841200851,
+      "chosen_source_dot": 0.8288221327164176,
+      "row": 20894
+    },
+    {
+      "alternatives": [
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.8691917935472278,
+          "depth_dot_proposal": null,
+          "eligible_trust4_source12_positive_source_current": false,
+          "mode": "source-outward",
+          "move_mm_f32": 5.067832119240269,
+          "source_distance_mm": 10.579631450009678,
+          "source_dot_proposal": 1.0,
+          "target_world_f32_m": [
+            -0.27665844559669495,
+            -0.8562405109405518,
+            0.13720186054706573
+          ]
+        },
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.8691917935472279,
+          "depth_dot_proposal": 0.9985546400756837,
+          "eligible_trust4_source12_positive_source_current": true,
+          "mode": "depth-maximizing",
+          "move_mm_f32": 3.4579751892971657,
+          "source_distance_mm": 7.966450160324759,
+          "source_dot_proposal": 0.050000000000014144,
+          "target_world_f32_m": [
+            -0.27799537777900696,
+            -0.856386125087738,
+            0.131364107131958
+          ]
+        }
+      ],
+      "chosen_current_outward_dot": 0.8691917935472279,
+      "chosen_depth_dot": 0.9985546400756837,
+      "chosen_mode": "depth-maximizing",
+      "chosen_move_mm": 3.4579751892971657,
+      "chosen_source_distance_mm": 7.966450160324759,
+      "chosen_source_dot": 0.050000000000014144,
+      "row": 20895
+    },
+    {
+      "alternatives": [
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.12357520447890362,
+          "depth_dot_proposal": null,
+          "eligible_trust4_source12_positive_source_current": true,
+          "mode": "source-outward",
+          "move_mm_f32": 3.44449506799523,
+          "source_distance_mm": 2.884223382708258,
+          "source_dot_proposal": 0.9999999999999998,
+          "target_world_f32_m": [
+            -0.31868964433670044,
+            -1.0169709920883179,
+            0.14304275810718536
+          ]
+        },
+        {
+          "all185_endpoint": true,
+          "current_outward_dot_proposal": 0.1235752044789036,
+          "depth_dot_proposal": 0.12067020421330774,
+          "eligible_trust4_source12_positive_source_current": false,
+          "mode": "depth-maximizing",
+          "move_mm_f32": 8.37563763945201,
+          "source_distance_mm": 8.442232565762064,
+          "source_dot_proposal": 0.05000000000001291,
+          "target_world_f32_m": [
+            -0.31843432784080505,
+            -1.0090252161026,
+            0.14703412353992462
+          ]
+        }
+      ],
+      "chosen_current_outward_dot": 0.12357520447890362,
+      "chosen_depth_dot": null,
+      "chosen_mode": "source-outward",
+      "chosen_move_mm": 3.44449506799523,
+      "chosen_source_distance_mm": 2.884223382708258,
+      "chosen_source_dot": 0.9999999999999998,
+      "row": 20896
+    }
+  ],
+  "schema": "numi.human.source-outward-targets-589.mixed-endpoint-arithmetic-preflight.v1",
+  "selection_rule": "for each query row choose shortest Float32 move among the two already-passing all185 target endpoints satisfying move<=4mm, composed-source distance<=12mm, positive source and current-outward direction dots, and depth cosine>=0.05 for depth-maximizing mode; no direction is recomputed",
+  "source_reference_composition": [
+    {
+      "columns": 13518,
+      "kind": "csr_level",
+      "level": 0,
+      "max_row_sum_error": 2.220446049250313e-16,
+      "nnz": 32662,
+      "prefix": "",
+      "rows": 20897
+    },
+    {
+      "columns": 10145,
+      "kind": "csr_level",
+      "level": 1,
+      "max_row_sum_error": 0.0,
+      "nnz": 18450,
+      "prefix": "prior_input_006__",
+      "rows": 13518
+    },
+    {
+      "columns": 8776,
+      "kind": "csr_level",
+      "level": 2,
+      "max_row_sum_error": 0.0,
+      "nnz": 12193,
+      "prefix": "prior_run028__",
+      "rows": 10145
+    },
+    {
+      "composed_nnz": 43481,
+      "composed_shape": [
+        20897,
+        8776
+      ],
+      "kind": "composed_source_base",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+      "shape": [
+        8776,
+        3
+      ]
+    }
+  ]
+}

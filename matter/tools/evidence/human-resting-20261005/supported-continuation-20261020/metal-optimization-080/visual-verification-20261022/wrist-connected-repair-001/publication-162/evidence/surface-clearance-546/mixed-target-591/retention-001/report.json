@@ -1,0 +1,102 @@
+{
+  "accepted_physical_steps": 0,
+  "alpha_counts": {
+    "0.25": 2,
+    "0.5": 4,
+    "1.0": 2
+  },
+  "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/candidate.npz",
+  "base_sha256": "6b912d5dc08b044d1dd08a55527435bf6584a0e3a2c3f8c36f43ac4b30d3ded1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/retention-001/candidate.npz",
+  "candidate_sha256": "afc6196b798b6dc6c29b83b6186307502203fdb54e6ce5fe0ea1194552261b10",
+  "construction_gates": {
+    "area_floor": 0.1,
+    "max_edge_gradient": 0.5,
+    "scope": "additional construction gates; final 545/130/159 acceptance remains unchanged",
+    "source_cap_mm": 12.0,
+    "strict_endpoint_self_intersections": true,
+    "trust_mm": 4.0
+  },
+  "exact_self_pairs": 0,
+  "free_nodes": [
+    20889,
+    20890,
+    20891,
+    20892,
+    20893,
+    20894,
+    20895,
+    20896
+  ],
+  "full_545_required": true,
+  "full_final_gate": {
+    "area_floor": 0.1,
+    "bad_current_oriented_face_count": 0,
+    "bad_current_oriented_face_rows_first_64": [],
+    "bad_current_oriented_face_rows_truncated": false,
+    "bad_fixed_037_reference_face_count": 0,
+    "bad_fixed_037_reference_face_rows_first_64": [],
+    "bad_fixed_037_reference_face_rows_truncated": false,
+    "faces_checked": 41749,
+    "minimum_current_oriented_ratio": 0.5049527334418342,
+    "minimum_fixed_037_reference_magnitude_ratio": 0.10009356948026137,
+    "pass": true
+  },
+  "iterations": [
+    {
+      "area_bad_faces": [
+        8834,
+        8837,
+        8838,
+        13255
+      ],
+      "damped_node_count": 6,
+      "edge_bad_rows": 10,
+      "iteration": 0,
+      "max_edge_gradient": 0.5,
+      "max_source_mm": 11.999365547963421,
+      "max_step_mm": 3.4579751892971657,
+      "minimum_edge_slack_mm": -1.5498047111385191,
+      "trust_mm": 4.0
+    },
+    {
+      "area_bad_faces": [],
+      "damped_node_count": 2,
+      "edge_bad_rows": 1,
+      "iteration": 1,
+      "max_edge_gradient": 0.5,
+      "max_source_mm": 11.999365547963421,
+      "max_step_mm": 1.9626107727433193,
+      "minimum_edge_slack_mm": -0.08205061950322456,
+      "trust_mm": 4.0
+    },
+    {
+      "area_bad_faces": [],
+      "edge_bad_rows": 0,
+      "exact_self_pairs": 0,
+      "iteration": 2,
+      "max_edge_gradient": 0.5,
+      "max_source_mm": 11.999365547963421,
+      "max_step_mm": 1.9626107727433193,
+      "minimum_edge_slack_mm": 0.02750062822539001,
+      "self_pairs_first64": [],
+      "trust_mm": 4.0
+    }
+  ],
+  "native_admission": false,
+  "scope": "witness-local coordinate-target backtracking with whole-mesh actual Float32 gates and exact endpoint self checks; not LP feasibility or native acceptance",
+  "seconds": 1.2510704169981182,
+  "source_pins": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/baseline-check/baseline-state.json": "bfdf066d28534960336b948621bbefeb439fcba24fba36e44db1b214851ec47a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/candidate.npz": "6b912d5dc08b044d1dd08a55527435bf6584a0e3a2c3f8c36f43ac4b30d3ded1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/retain_local_witnesses567.py": "422667ee0099145013ae39a706f64cf20e16c8c411d6b69e05d096264c7d9e35",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py": "08bb82034180636d0ff798ad503735b6a50327bf52cc3c62bffb75d0265ff57a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/emitted-001/candidate.npz": "d44d1eba3f90ca5302b214b702129d54acda249128e9f57e0e778c7b1a6b3e95",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+  },
+  "status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED",
+  "target": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/mixed-target-591/emitted-001/candidate.npz",
+  "target_sha256": "d44d1eba3f90ca5302b214b702129d54acda249128e9f57e0e778c7b1a6b3e95"
+}
