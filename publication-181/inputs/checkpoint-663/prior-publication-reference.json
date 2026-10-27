@@ -1,0 +1,18 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate_member": "publication-179/evidence/checkpoint-663-minimal/candidate.npz",
+  "candidate_member_manifest_entry": {
+    "bytes": 6947116,
+    "mode": 420,
+    "path": "evidence/checkpoint-663-minimal/candidate.npz",
+    "sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b"
+  },
+  "candidate_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+  "local_stage_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-179-stage-001/evidence/checkpoint-663-minimal/candidate.npz",
+  "native_admission": false,
+  "prior_commit_sha": "d18de33e4939b60f66cc60b7023ce8bd419b4269",
+  "prior_commit_url": "https://github.com/Numi2/numi-lab/commit/d18de33e4939b60f66cc60b7023ce8bd419b4269",
+  "prior_manifest_sha256": "a78d335e176837927c2539ec8bfe475f2578a6215994535ac62491380627f33e",
+  "prior_prefix": "publication-179",
+  "schema": "numi.human.p181_prior_663_input_reference.v1"
+}

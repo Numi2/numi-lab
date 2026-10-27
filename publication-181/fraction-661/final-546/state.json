@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/full-check-545/audit-130/summary.json",
+  "point_summary_sha256": "ce8f4d7b72a12638dd81ad02a5190a28ff6bca2a8abd3c9c5399ea6d4e2e47f6",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/full-check-545/audit-159/report.json",
+  "surface_report_sha256": "115c7fafd5bff00ad9e7f8f50e3919214664051269e3697c98762bb7bcfef8c5",
+  "temporary_unselected_construction": false
+}

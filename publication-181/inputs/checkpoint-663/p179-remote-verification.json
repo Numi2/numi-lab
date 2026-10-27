@@ -1,0 +1,15 @@
+{
+  "all_remote_raw_hashes_and_sizes_passed": true,
+  "archive_restore_results": [],
+  "commit": "d18de33e4939b60f66cc60b7023ce8bd419b4269",
+  "manifest_sha256": "a78d335e176837927c2539ec8bfe475f2578a6215994535ac62491380627f33e",
+  "member_bytes": 92526067,
+  "member_count": 109,
+  "parent": "4155ce4ffa88e54285a27557e47ee621991d7479",
+  "prefix": "publication-179",
+  "remote_path_count": 110,
+  "repository": "Numi2/numi-lab",
+  "root_siblings_equal_parent": true,
+  "schema": "numi.human.prefix_gitdata_remote_verification.v1",
+  "verified_utc": "2026-10-27T12:11:26.243812+00:00"
+}

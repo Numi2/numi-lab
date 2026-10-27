@@ -1,0 +1,223 @@
+{
+  "661_preparation_source_dependencies": [
+    {
+      "bytes": 9587,
+      "sha256": "84bcd87e6ba2c877eeabf853ff2db7739041e6c96838a6b625ddea878c72e2a0",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py",
+      "staged_path": "sources/prep-661/prepare_surface546.py"
+    },
+    {
+      "bytes": 37809,
+      "sha256": "a9586a81d92f117040e774c980b6028168432386b2e9babd96a7b7f725175d09",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py",
+      "staged_path": "sources/prep-661/refresh_surface_constraints546.py"
+    },
+    {
+      "bytes": 9983,
+      "sha256": "dbef219f9d414a8cca41b54284bc78ffe1b1e15d339e7b35c42b31b7523e0b31",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py",
+      "staged_path": "sources/prep-661/continue545.py"
+    },
+    {
+      "bytes": 23103,
+      "sha256": "ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py",
+      "staged_path": "sources/prep-661/refresh_point_depth_rows.py"
+    },
+    {
+      "bytes": 14151,
+      "sha256": "dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_targets_multi_source_546.py",
+      "staged_path": "sources/prep-661/build_outward_targets_multi_source_546.py"
+    },
+    {
+      "bytes": 5152,
+      "sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+      "staged_path": "sources/checks/audit_connected_outer_geometry_130.py"
+    },
+    {
+      "bytes": 4925,
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+      "staged_path": "sources/checks/audit_skin_bone_surfaces_159.py"
+    }
+  ],
+  "accepted_physical_steps": 0,
+  "combined_fit_declared_source_pins_member": "sources/combined-fit/source-pins.json",
+  "native_admission": false,
+  "prior_published_source_dependencies": "Pinned by included 663 fit launch/report and prior publication source receipts; no source scripts were edited in this staging pass.",
+  "schema": "numi.human.p181_source_pin_index.v1",
+  "staged_source_files": [
+    {
+      "bytes": 5152,
+      "path": "sources/checks/audit_connected_outer_geometry_130.py",
+      "sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9"
+    },
+    {
+      "bytes": 4925,
+      "path": "sources/checks/audit_skin_bone_surfaces_159.py",
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+    },
+    {
+      "bytes": 11275,
+      "path": "sources/checks/run_candidate_checks545.py",
+      "sha256": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a"
+    },
+    {
+      "bytes": 7758,
+      "path": "sources/combined-fit/combined_bank_coverage663.py",
+      "sha256": "236e4dd8b4070d804742a1f0f97690d8db98c75ddf1ac254df0c3a9b8ec2266f"
+    },
+    {
+      "bytes": 8019,
+      "path": "sources/combined-fit/run_combined_bank_fit663.py",
+      "sha256": "650964cf43f4cee9e4f042aa3d9dbf6cd31d661717f0631cc3592ee79185c2a1"
+    },
+    {
+      "bytes": 2860,
+      "path": "sources/combined-fit/test_combined_bank_coverage663.py",
+      "sha256": "39dee81a7dbd950bb84a7c0a51d358af613fe1cb3a49250672be44e88608bc18"
+    },
+    {
+      "bytes": 2934,
+      "path": "sources/fraction-followup/compare_rejected_bank_audit.py",
+      "sha256": "26adde3bae161c81f75ab55c0806448ba239aae98df18cd906e5d96f0ffd3e76"
+    },
+    {
+      "bytes": 2411,
+      "path": "sources/fraction-followup/prepare_661.py",
+      "sha256": "6f92d9362daff1520d73fb995afe0629124b649ae6a84e1f74e0b8521f516816"
+    },
+    {
+      "bytes": 2440,
+      "path": "sources/fraction-followup/prepare_661_absolute.py",
+      "sha256": "acd2635c3dfbf4c1ccc32eb44145e4de2c88500c80d02a9e178f9185c559294e"
+    },
+    {
+      "bytes": 3842,
+      "path": "sources/fraction-followup/retain_smallest_selfsafe_fraction663.py",
+      "sha256": "a59a5200a17753a0fc920a7d1f89b57860b453c252894249068f77acf18e1d93"
+    },
+    {
+      "bytes": 7379,
+      "path": "sources/fraction-followup/sweep_component_fractions663.py",
+      "sha256": "42678bcc1bc15f42369eb10ce07aa7ef94d9ba436496b2ee8b7ac3124d8a084c"
+    },
+    {
+      "bytes": 10548,
+      "path": "sources/fraction-followup/sweep_extrapolation_with_self661.py",
+      "sha256": "8aa71e93fcfae35b659f62164b8d16b8b28a7141273cd5a8b615485c57e8b8cf"
+    },
+    {
+      "bytes": 10556,
+      "path": "sources/fraction-followup/sweep_reverse_with_self661.py",
+      "sha256": "cd91226281f063cacced9f5b4bc7f67ce58fc87174925eb5539a807cbb3ac106"
+    },
+    {
+      "bytes": 8709,
+      "path": "sources/fraction-followup/sweep_small_fractions_with_self663.py",
+      "sha256": "13bd246e31202babde29c1c70787d51ffbd0ae94b8a14634ee6b885930364a85"
+    },
+    {
+      "bytes": 6757,
+      "path": "sources/objective/bank_balanced_objective689.py",
+      "sha256": "835c566508fd5f47d2ab274fd638058556be4ba614a1b3e84a43d4d7766a1ee8"
+    },
+    {
+      "bytes": 10317,
+      "path": "sources/objective/fixed_bone_outward_plane_458.py",
+      "sha256": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0"
+    },
+    {
+      "bytes": 22143,
+      "path": "sources/objective/run_grouped_fit_458.py",
+      "sha256": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93"
+    },
+    {
+      "bytes": 14151,
+      "path": "sources/prep-661/build_outward_targets_multi_source_546.py",
+      "sha256": "dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68"
+    },
+    {
+      "bytes": 9983,
+      "path": "sources/prep-661/continue545.py",
+      "sha256": "dbef219f9d414a8cca41b54284bc78ffe1b1e15d339e7b35c42b31b7523e0b31"
+    },
+    {
+      "bytes": 9587,
+      "path": "sources/prep-661/prepare_surface546.py",
+      "sha256": "84bcd87e6ba2c877eeabf853ff2db7739041e6c96838a6b625ddea878c72e2a0"
+    },
+    {
+      "bytes": 23103,
+      "path": "sources/prep-661/refresh_point_depth_rows.py",
+      "sha256": "ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f"
+    },
+    {
+      "bytes": 37809,
+      "path": "sources/prep-661/refresh_surface_constraints546.py",
+      "sha256": "a9586a81d92f117040e774c980b6028168432386b2e9babd96a7b7f725175d09"
+    },
+    {
+      "bytes": 3789,
+      "path": "sources/retention/retain_selfsafe_components631.py",
+      "sha256": "a7d6a44f996de3338ab5b900d18503c45f0cd8963cd6739ab330a25f60f8aaf9"
+    },
+    {
+      "bytes": 6145,
+      "path": "sources/retention/retain_selfsafe_components638.py",
+      "sha256": "49d82934e88a26c651046dd7fbaeff57f2e1a93642cd76ce156e682c8b7c93b2"
+    },
+    {
+      "bytes": 5276,
+      "path": "sources/retention/retain_surface_components552.py",
+      "sha256": "88baf47524c02c525a2f121a99923777576e8603c16a6b84729032ce464ad671"
+    },
+    {
+      "bytes": 7147,
+      "path": "sources/retention/select_components631_v2.py",
+      "sha256": "31e9dc21071aed2f27399c2ef35da6133d4444e7a300870ffa5c9c541b3e269b"
+    },
+    {
+      "bytes": 4962,
+      "path": "sources/seed-union/merge_exact_self_witnesses.py",
+      "sha256": "62f2eb0fd4406ce143275ecee3bb186349f8868479f7eaa77011eced64ccef47"
+    },
+    {
+      "bytes": 3095,
+      "path": "sources/seed-union/run_weighted_selfseed_retry.py",
+      "sha256": "ec973395a03a9fceb5521c9e926f810841464113e8c550c615a09e7b6a329c6a"
+    },
+    {
+      "bytes": 14402,
+      "path": "sources/selector/box_aware_sat637.py",
+      "sha256": "a226a8f7e5b4afaeeb9d484883f6a213b84220bb639a15388f3c37dd944069bd"
+    },
+    {
+      "bytes": 13286,
+      "path": "sources/selector/connected_patch_sat_selector638.py",
+      "sha256": "a188e5a55d2aebb0ce27848b0d3fb03d7aa2f8715ee6a8da7bbc57d781485a9a"
+    },
+    {
+      "bytes": 5294,
+      "path": "sources/selector/run_box_aware_sat637.py",
+      "sha256": "3a142578939683981274ebef061d797b471594ce6694cd888b0e450bbaf6bff2"
+    },
+    {
+      "bytes": 39967,
+      "path": "sources/selector/run_connected_patch_sat_selector638.py",
+      "sha256": "bbaf1ca9fef90f370c5a877dd1f0249779f0091a4dad8013a581820d110ed92f"
+    },
+    {
+      "bytes": 25091,
+      "path": "sources/selector/sat_axis_map_adapter638.py",
+      "sha256": "d49c33a0f3108e1005b6fc64357f9edc796a0c469d9ba61ac7378915939365f6"
+    },
+    {
+      "bytes": 2800,
+      "path": "sources/unweighted/root-run-unweighted-001.py",
+      "sha256": "d30ec92b585a9aabddb7388e2e300605c47b018c38f3bb80032c85a4160fdae0"
+    }
+  ]
+}

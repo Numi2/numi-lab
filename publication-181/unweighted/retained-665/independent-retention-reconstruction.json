@@ -1,0 +1,188 @@
+{
+  "accepted_physical_steps": 0,
+  "anchors_bitwise_baseline": true,
+  "baseline": "D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/candidate.npz",
+  "baseline_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+  "changed_component_count": 25,
+  "excluded_rows": 235,
+  "expected_candidate": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/candidate.npz",
+  "expected_candidate_sha256": "a5c1f8fecee8fd886658c3ff290a306beffd40f3ca08d3637bed1dbf8af77550",
+  "implicated_component_ids": [
+    7759,
+    9106,
+    9226
+  ],
+  "native_admission": false,
+  "pair_component_map": [
+    {
+      "components": [
+        9106
+      ],
+      "faces": [
+        19089,
+        19112
+      ]
+    },
+    {
+      "components": [
+        9106
+      ],
+      "faces": [
+        19089,
+        19117
+      ]
+    },
+    {
+      "components": [
+        9106
+      ],
+      "faces": [
+        19090,
+        19112
+      ]
+    },
+    {
+      "components": [
+        9106
+      ],
+      "faces": [
+        19090,
+        19117
+      ]
+    },
+    {
+      "components": [
+        9106
+      ],
+      "faces": [
+        19098,
+        19105
+      ]
+    },
+    {
+      "components": [
+        9106
+      ],
+      "faces": [
+        19099,
+        19105
+      ]
+    },
+    {
+      "components": [
+        9106
+      ],
+      "faces": [
+        19099,
+        19107
+      ]
+    },
+    {
+      "components": [
+        9106
+      ],
+      "faces": [
+        19112,
+        19189
+      ]
+    },
+    {
+      "components": [
+        9106
+      ],
+      "faces": [
+        19117,
+        19189
+      ]
+    },
+    {
+      "components": [
+        9226
+      ],
+      "faces": [
+        30936,
+        31141
+      ]
+    },
+    {
+      "components": [
+        9226
+      ],
+      "faces": [
+        30937,
+        31141
+      ]
+    },
+    {
+      "components": [
+        9226
+      ],
+      "faces": [
+        30938,
+        31141
+      ]
+    },
+    {
+      "components": [
+        7759
+      ],
+      "faces": [
+        34044,
+        34087
+      ]
+    },
+    {
+      "components": [
+        7759
+      ],
+      "faces": [
+        34049,
+        34087
+      ]
+    },
+    {
+      "components": [
+        7759
+      ],
+      "faces": [
+        34049,
+        34088
+      ]
+    }
+  ],
+  "rebuilt_arrays_bitwise_match_expected": true,
+  "retained_component_ids": [
+    4247,
+    4376,
+    4733,
+    8920,
+    9143,
+    9227,
+    9535,
+    9616,
+    9628,
+    9720,
+    10134,
+    10496,
+    10976,
+    11114,
+    11543,
+    12665,
+    14724,
+    16518,
+    16925,
+    18642,
+    19676,
+    20224
+  ],
+  "retained_rows": 343,
+  "selector631_v2": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/select_components631_v2.py",
+  "selector631_v2_sha256": "31e9dc21071aed2f27399c2ef35da6133d4444e7a300870ffa5c9c541b3e269b",
+  "self_pairs": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/full-check-545/audit-130/surface-self-pairs.npy",
+  "self_pairs_sha256": "f09e003c653038f0af6782467785183b32d34d956024284f87f3ece023be79f3",
+  "self_summary": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/full-check-545/audit-130/summary.json",
+  "self_summary_sha256": "6c2112e15a4c3bb04c10a0675ee2afd5ed235cc0d357a809c753d34d30b0cae5",
+  "status": "RECONSTRUCTION_VERIFIED",
+  "trial": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/candidate.npz",
+  "trial_sha256": "e0486cbc29c881ed32d43e13ef8ff778f34a821e69a9d88ec1858b78eeba05d6"
+}

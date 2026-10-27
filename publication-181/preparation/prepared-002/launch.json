@@ -1,0 +1,32 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/final-absolute-546/state.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-661-001/prepared-002",
+    "--prior-context",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/matched-prepared-613/constraints/constraint-context.json",
+    "--seed-source-candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/combined-fit-663-001/fit-001/candidate.npz",
+    "--seed-source-audit130",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/combined-fit-663-001/fit-001/full-check-545-001/audit-130/summary.json",
+    "--prior-surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/full-check/audit-159/report.json",
+    "--ancestry-parent-candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/candidate.npz"
+  ],
+  "input_sha256": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/combined-fit-663-001/fit-001/candidate.npz": "991bcffdf50ed5b28cfa5bed72bb5840bc2af67054948d65342b13d21d4932cb",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/combined-fit-663-001/fit-001/full-check-545-001/audit-130/summary.json": "bed328985b7bc5d0000fcba703e575fe63eea91d0de56d81d5b06ce7de585132",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/combined-fit-663-001/fit-001/full-check-545-001/audit-130/surface-self-pairs.npy": "f09e003c653038f0af6782467785183b32d34d956024284f87f3ece023be79f3",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/matched-prepared-613/constraints/constraint-context.json": "9fb844b2931d943e0dc159cb58b7a6cb05a5d24262504f1e8fba0a4db840c85d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/final-absolute-546/state.json": "fcee9ee45bc2319a7c5699974727139b13b06996031bd115a0e4ef2abaa68519",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/candidate.npz": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/full-check/audit-159/report.json": "546fe8614df45a1754ce5491efe4b5243add4b686710e8df4c69c7f8d1f118c9",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py": "84bcd87e6ba2c877eeabf853ff2db7739041e6c96838a6b625ddea878c72e2a0"
+  },
+  "native_admission": false
+}

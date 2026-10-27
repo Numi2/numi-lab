@@ -1,0 +1,89 @@
+{
+  "accepted_physical_steps": 0,
+  "alpha": 0.5,
+  "audit159_sha256": "546fe8614df45a1754ce5491efe4b5243add4b686710e8df4c69c7f8d1f118c9",
+  "candidate_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+  "classification": "three-bank soft-row reweighting only; all 359 typed crossing pairs are checked against positive movable selected soft rows before solve",
+  "expected_pair_counts": [
+    [
+      43,
+      16,
+      153
+    ],
+    [
+      57,
+      89,
+      60
+    ],
+    [
+      59,
+      95,
+      33
+    ],
+    [
+      61,
+      97,
+      26
+    ],
+    [
+      64,
+      98,
+      32
+    ],
+    [
+      65,
+      99,
+      86
+    ],
+    [
+      74,
+      104,
+      19
+    ],
+    [
+      109,
+      114,
+      120
+    ],
+    [
+      114,
+      117,
+      42
+    ],
+    [
+      115,
+      118,
+      34
+    ],
+    [
+      124,
+      123,
+      58
+    ]
+  ],
+  "native_admission": false,
+  "schema": "numi.human.bank_balanced_objective689.config.v1",
+  "source_group_report": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/target-groups-663-001/target-groups.json",
+    "sha256": "633be791b69344aa74e3431fa37ff0afbab9ed153a41062bad930c7cf63b5ae7"
+  },
+  "target_banks": [
+    [
+      43,
+      16
+    ],
+    [
+      65,
+      99
+    ],
+    [
+      109,
+      114
+    ]
+  ],
+  "target_pair_counts": {
+    "109:114": 120,
+    "43:16": 153,
+    "65:99": 86
+  }
+}

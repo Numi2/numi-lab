@@ -1,0 +1,13 @@
+{
+  "normalized_derivative_bytes": 4580,
+  "normalized_derivative_path": "inputs/checkpoint-663/retention-report.json",
+  "normalized_derivative_sha256": "2e9459d3b91d92b4765d3065893211bf7de4f5a29ab90850d7a71f2f414da58b",
+  "normalized_json_parses": true,
+  "parse_error": "The published source ends with two literal backslash-n bytes, causing JSON Extra data.",
+  "source_bytes": 4581,
+  "source_bytes_path": "inputs/checkpoint-663/retention-report.json.raw",
+  "source_manifest_path": "evidence/checkpoint-663-minimal/retention-report.json",
+  "source_sha256": "a53da5159eae91faa5a4a7f9a3f0de495e2e20a7df8545dffed5f15a97a84e56",
+  "status": "EXACT_SOURCE_PRESERVED_WITH_SEPARATE_PARSEABLE_DERIVATIVE",
+  "transformation": "Remove the final two literal bytes \\ and n, then add one actual newline; JSON payload bytes otherwise unchanged."
+}

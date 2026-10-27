@@ -1,0 +1,145 @@
+{
+  "accepted_physical_steps": 0,
+  "all_185_bank_counts_sum_to_audited_total": true,
+  "all_185_bank_identity_sets_compared": true,
+  "all_changed_banks": [
+    {
+      "added_skin_face_bone_triangle_pairs": [
+        [
+          40537,
+          264
+        ]
+      ],
+      "baseline_count": 42,
+      "body": 114,
+      "delta": 0,
+      "removed_skin_face_bone_triangle_pairs": [
+        [
+          40537,
+          176
+        ]
+      ],
+      "retained_count": 42,
+      "stable_bone_id": 117
+    },
+    {
+      "added_skin_face_bone_triangle_pairs": [
+        [
+          26632,
+          30
+        ],
+        [
+          26632,
+          32
+        ],
+        [
+          26632,
+          49
+        ],
+        [
+          26632,
+          50
+        ]
+      ],
+      "baseline_count": 58,
+      "body": 124,
+      "delta": 2,
+      "removed_skin_face_bone_triangle_pairs": [
+        [
+          26503,
+          30
+        ],
+        [
+          26503,
+          49
+        ]
+      ],
+      "retained_count": 60,
+      "stable_bone_id": 123
+    }
+  ],
+  "baseline_checkpoint": {
+    "candidate_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+    "state_path": "D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/final-546/state.json",
+    "state_sha256": "eedfb35ea9dc00159113daa30c2bef9d06071b89d6dbec70e7725706fb2a98a4",
+    "surface_pairs": 663,
+    "surface_report_sha256": "546fe8614df45a1754ce5491efe4b5243add4b686710e8df4c69c7f8d1f118c9"
+  },
+  "candidate_promoted": false,
+  "changed_bank_count": 2,
+  "failed_638_trial": {
+    "candidate_path": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/candidate.npz",
+    "candidate_sha256": "e0486cbc29c881ed32d43e13ef8ff778f34a821e69a9d88ec1858b78eeba05d6",
+    "exact_self_pair_array_path": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/full-check-545/audit-130/surface-self-pairs.npy",
+    "exact_self_pair_array_sha256": "f09e003c653038f0af6782467785183b32d34d956024284f87f3ece023be79f3",
+    "exact_self_summary_path": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/full-check-545/audit-130/summary.json",
+    "exact_self_summary_sha256": "6c2112e15a4c3bb04c10a0675ee2afd5ed235cc0d357a809c753d34d30b0cae5",
+    "self_pair_count": 15
+  },
+  "limitations": [
+    "The fit candidate had 15 exact self pairs; this retained candidate is a component-only diagnostic and not promoted.",
+    "Retained candidate passes exact construction checks but has 2 more total surface pairs than baseline; the three requested banks have no exact pair-set changes.",
+    "No physical or native admission is represented."
+  ],
+  "native_admission": false,
+  "pair_identity_semantics": "each pair is [skin_face_row,bone_triangle_row], within typed bank (body,stable_bone_id)",
+  "requested_bank_deltas": {
+    "109/114": {
+      "added_pairs": [],
+      "baseline_count": 120,
+      "delta": 0,
+      "removed_pairs": [],
+      "retained_count": 120
+    },
+    "43/16": {
+      "added_pairs": [],
+      "baseline_count": 153,
+      "delta": 0,
+      "removed_pairs": [],
+      "retained_count": 153
+    },
+    "65/99": {
+      "added_pairs": [],
+      "baseline_count": 86,
+      "delta": 0,
+      "removed_pairs": [],
+      "retained_count": 86
+    }
+  },
+  "retained_candidate": {
+    "candidate_path": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/candidate.npz",
+    "candidate_sha256": "a5c1f8fecee8fd886658c3ff290a306beffd40f3ca08d3637bed1dbf8af77550",
+    "construction_progress": false,
+    "contained_pairs": 0,
+    "fresh_545_check_path": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/full-check-545/report.json",
+    "fresh_545_check_sha256": "829f3b83610552462e1fa4e69a5164fd368167db26a6907e7f20308c30714bbc",
+    "independent_reconstruction_path": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/independent-retention-reconstruction.json",
+    "independent_reconstruction_sha256": "5b11fc4f213c940ab76b140b5232e7c6c539a7fb11efcc126818f608bb36a315",
+    "retention_report_path": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/retention-report.json",
+    "retention_report_sha256": "da64c03a5dc9bae42c875fdc31529de7510785a74e42f6c10470b4f686971421",
+    "self_pairs": 0,
+    "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS",
+    "surface_delta": 2,
+    "surface_pairs": 665,
+    "surface_report_path": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/full-check-545/audit-159/report.json",
+    "surface_report_sha256": "a94e1a7de18a0840c55da46532ff160d18f9fcf2411b7f2e10d4d54aa4b047f7"
+  },
+  "schema": "numi.human.retained638_bank_pair_delta.v1",
+  "source_and_evidence_sha256": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/candidate.npz": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/full-check/audit-159/report.json": "546fe8614df45a1754ce5491efe4b5243add4b686710e8df4c69c7f8d1f118c9",
+    "D/surface-clearance-546/component-merit-retention-631/select_components631_v2.py": "31e9dc21071aed2f27399c2ef35da6133d4444e7a300870ffa5c9c541b3e269b",
+    "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/candidate.npz": "e0486cbc29c881ed32d43e13ef8ff778f34a821e69a9d88ec1858b78eeba05d6",
+    "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/full-check-545/audit-130/summary.json": "6c2112e15a4c3bb04c10a0675ee2afd5ed235cc0d357a809c753d34d30b0cae5",
+    "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/full-check-545/audit-130/surface-self-pairs.npy": "f09e003c653038f0af6782467785183b32d34d956024284f87f3ece023be79f3",
+    "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/candidate.npz": "a5c1f8fecee8fd886658c3ff290a306beffd40f3ca08d3637bed1dbf8af77550",
+    "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/full-check-545/audit-159/report.json": "a94e1a7de18a0840c55da46532ff160d18f9fcf2411b7f2e10d4d54aa4b047f7",
+    "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/full-check-545/report.json": "829f3b83610552462e1fa4e69a5164fd368167db26a6907e7f20308c30714bbc",
+    "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/independent-retention-reconstruction.json": "5b11fc4f213c940ab76b140b5232e7c6c539a7fb11efcc126818f608bb36a315",
+    "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/retention-report.json": "da64c03a5dc9bae42c875fdc31529de7510785a74e42f6c10470b4f686971421",
+    "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/retain_selfsafe_components638.py": "49d82934e88a26c651046dd7fbaeff57f2e1a93642cd76ce156e682c8b7c93b2",
+    "D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retain_selfsafe_components631.py": "a7d6a44f996de3338ab5b900d18503c45f0cd8963cd6739ab330a25f60f8aaf9",
+    "D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/final-546/state.json": "eedfb35ea9dc00159113daa30c2bef9d06071b89d6dbec70e7725706fb2a98a4"
+  },
+  "status": "REJECTED_NO_REQUESTED_BANK_PROGRESS"
+}

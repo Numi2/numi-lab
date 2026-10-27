@@ -1,0 +1,38 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py", line 157, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py", line 142, in main
+    m.run(depth_args, O / "depth", True)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py", line 24, in run
+    if r.returncode:raise RuntimeError(f'failed {stem}: '+Path(str(stem)+'.log').read_text()[-3000:])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: failed /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-661-001/prepared/depth: waiting_for_human_geometry_slot pid=82647
+acquired_human_geometry_slot pid=82647
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py", line 432, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py", line 427, in main
+    print(json.dumps(build(args), indent=2))
+                     ~~~~~^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py", line 300, in build
+    node_rows, normals, lower, typed, records, row_report = owner_module.build_point_depth_rows(
+                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        points, [inside_spec, outside_spec], body_csv,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        expected_point_count=point_count, expected_bank_count=len(bank_keys),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        baseline_feasibility_tolerance_m=1e-10,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        reconstruction_tolerance_m=2e-8)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-barriers-357/point_depth_barriers_357.py", line 142, in build_point_depth_rows
+    pair_rows, qpoints, receipt = _load_query(spec, n, expected_bank_count, bodies_path)
+                                  ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-barriers-357/point_depth_barriers_357.py", line 76, in _load_query
+    if Path(argv[arg_index]).resolve() != path.resolve(): raise ValueError(f"query receipt argv {label} path mismatch")
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: query receipt argv points path mismatch
+

@@ -1,0 +1,439 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz",
+  "baseline_report159": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/full-check-545/audit-159/report.json",
+  "baseline_report159_sha256": "115c7fafd5bff00ad9e7f8f50e3919214664051269e3697c98762bb7bcfef8c5",
+  "baseline_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+  "counter_owner": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-370/select_bone_reducing_flips_370.py",
+  "counter_owner_sha256": "c8650b8c311ca8f386ebf1713b5fc285b7bded860cfa878192472704ac1336d5",
+  "deadline_seconds": 120,
+  "fraction_results": [
+    {
+      "affected_faces": 252,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 7759,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.0625,
+      "no_bank_count_increase": true,
+      "node_count": 81,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 252,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 7759,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.125,
+      "no_bank_count_increase": true,
+      "node_count": 81,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 252,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 7759,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.25,
+      "no_bank_count_increase": true,
+      "node_count": 81,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 252,
+      "all_bank_deltas": {
+        "109/114": 2
+      },
+      "bone_target_improvement": false,
+      "component": 7759,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.375,
+      "no_bank_count_increase": false,
+      "node_count": 81,
+      "surface_total": 663,
+      "target_deltas": {
+        "109/114": 2,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 2
+    },
+    {
+      "affected_faces": 252,
+      "all_bank_deltas": {
+        "109/114": 4
+      },
+      "bone_target_improvement": false,
+      "component": 7759,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.5,
+      "no_bank_count_increase": false,
+      "node_count": 81,
+      "surface_total": 665,
+      "target_deltas": {
+        "109/114": 4,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 4
+    },
+    {
+      "affected_faces": 252,
+      "all_bank_deltas": {
+        "109/114": 4
+      },
+      "bone_target_improvement": false,
+      "component": 7759,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.75,
+      "no_bank_count_increase": false,
+      "node_count": 81,
+      "surface_total": 665,
+      "target_deltas": {
+        "109/114": 4,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 4
+    },
+    {
+      "affected_faces": 252,
+      "all_bank_deltas": {
+        "109/114": 2
+      },
+      "bone_target_improvement": false,
+      "component": 7759,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -1.0,
+      "no_bank_count_increase": false,
+      "node_count": 81,
+      "surface_total": 663,
+      "target_deltas": {
+        "109/114": 2,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 2
+    },
+    {
+      "affected_faces": 308,
+      "all_bank_deltas": {
+        "43/16": 2
+      },
+      "bone_target_improvement": false,
+      "component": 9106,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.0625,
+      "no_bank_count_increase": false,
+      "node_count": 110,
+      "surface_total": 663,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 2,
+        "65/99": 0
+      },
+      "total_delta": 2
+    },
+    {
+      "affected_faces": 308,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 9106,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.125,
+      "no_bank_count_increase": true,
+      "node_count": 110,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 308,
+      "all_bank_deltas": {
+        "43/16": 2
+      },
+      "bone_target_improvement": false,
+      "component": 9106,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.25,
+      "no_bank_count_increase": false,
+      "node_count": 110,
+      "surface_total": 663,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 2,
+        "65/99": 0
+      },
+      "total_delta": 2
+    },
+    {
+      "affected_faces": 275,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 9628,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.0625,
+      "no_bank_count_increase": true,
+      "node_count": 72,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 275,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 9628,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.125,
+      "no_bank_count_increase": true,
+      "node_count": 72,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 275,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 9628,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.25,
+      "no_bank_count_increase": true,
+      "node_count": 72,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 275,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 9628,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.375,
+      "no_bank_count_increase": true,
+      "node_count": 72,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 275,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 9628,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.5,
+      "no_bank_count_increase": true,
+      "node_count": 72,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 61,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 11114,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.0625,
+      "no_bank_count_increase": true,
+      "node_count": 14,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 61,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 11114,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.125,
+      "no_bank_count_increase": true,
+      "node_count": 14,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 61,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 11114,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.25,
+      "no_bank_count_increase": true,
+      "node_count": 14,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 61,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 11114,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.375,
+      "no_bank_count_increase": true,
+      "node_count": 14,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 61,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 11114,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.5,
+      "no_bank_count_increase": true,
+      "node_count": 14,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 61,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 11114,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -0.75,
+      "no_bank_count_increase": true,
+      "node_count": 14,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 61,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 11114,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -1.0,
+      "no_bank_count_increase": true,
+      "node_count": 14,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    },
+    {
+      "affected_faces": 61,
+      "all_bank_deltas": {},
+      "bone_target_improvement": false,
+      "component": 11114,
+      "exact_incremental_self_pair_count": null,
+      "fraction": -1.5,
+      "no_bank_count_increase": true,
+      "node_count": 14,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": 0,
+        "65/99": 0
+      },
+      "total_delta": 0
+    }
+  ],
+  "limitation": "Exact 159 changed-face and incremental self screening only. Full 130/159, containment, area, mass, mechanical transfer and native qualification remain mandatory.",
+  "native_admission": false,
+  "output_candidate": null,
+  "output_candidate_sha256": null,
+  "runtime_pins": {
+    "bank_reader_and_summary": "37c040a442f1fdf312745c1cc1fb6c543383f1cd0782db46c81ca1eadf0d8324",
+    "exact_predicate_315": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "flip_operator_358": "a08e1f7e6392854f72ffab09af6f2b1f2afe885b1a84f586afe71160ff3ccbee",
+    "surface_audit_159": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+  },
+  "seconds": 11.318842250155285,
+  "selected_fractions": [],
+  "status": "NO_TARGET_IMPROVEMENT_IN_SCREENED_FRACTIONS",
+  "target_components": [
+    7759,
+    9106,
+    9628,
+    11114
+  ],
+  "trial": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/../../combined-fit-663-001/fit-001/candidate.npz",
+  "trial_full159_parity": true,
+  "trial_report159": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/../../combined-fit-663-001/fit-001/rejected-159-diagnostic-001/report.json",
+  "trial_report159_sha256": "ba4158e7279fbdb954a89f38c9339b5d9525d43a679e40ceb0a1d1fa59fa8c9b",
+  "trial_sha256": "991bcffdf50ed5b28cfa5bed72bb5840bc2af67054948d65342b13d21d4932cb"
+}

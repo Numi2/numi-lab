@@ -1,0 +1,27 @@
+{
+  "candidate_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+  "crossing_pairs": 661,
+  "multi_parent_faces": [
+    14891,
+    14907,
+    14920,
+    14922,
+    14941,
+    29373,
+    29383,
+    30897,
+    30979,
+    30980,
+    41479,
+    41480,
+    41481
+  ],
+  "passing_targets": 661,
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-661-001/prepared-002/surface-targets/report.json",
+  "report_sha256": "7cf3e840e950580cd59777245193124290457c4ca634b557dc1dac8c6623c31c",
+  "surface_report_sha256": "115c7fafd5bff00ad9e7f8f50e3919214664051269e3697c98762bb7bcfef8c5",
+  "target_records": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-661-001/prepared-002/surface-targets/target-records.jsonl",
+  "target_records_sha256": "4f0e78e71c3363f7253d692106676157c501cb52af754043f3f37532c84dbbb1",
+  "targets_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-661-001/prepared-002/surface-targets/targets.npz",
+  "targets_npz_sha256": "59568bc366b39532af5382b235930dc19d1c30e28ad5a1b84a6084430d1d6871"
+}

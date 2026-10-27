@@ -1,0 +1,43 @@
+{
+  "accepted_physical_steps": 0,
+  "audit159": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/full-check/audit-159/report.json",
+    "sha256": "546fe8614df45a1754ce5491efe4b5243add4b686710e8df4c69c7f8d1f118c9"
+  },
+  "candidate": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/candidate.npz",
+    "sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b"
+  },
+  "fit_argv_template": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/matched-prepared-613/fit-argv.json",
+    "sha256": "2a7bf677e852a594591ca6d0be5f6fdf0e3907fe5b1586e6d45854116f57f506"
+  },
+  "group_report": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/target-groups-663-001/target-groups.json",
+    "sha256": "633be791b69344aa74e3431fa37ff0afbab9ed153a41062bad930c7cf63b5ae7"
+  },
+  "matched_inputs": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/matched-prepared-613/matched-inputs.json",
+    "sha256": "ae962de976b7cd9faff80eb8937b4c8040d0d7e703e373830da03867b024e54b"
+  },
+  "native_admission": false,
+  "prepared": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/matched-prepared-613/prepared.json",
+    "sha256": "1b4b512023bf8a4c139e4e31f81e9ec8e07bcfe7d51a8cc3f525198b1793ea69"
+  },
+  "requested_pair_count": 359,
+  "selected_mask_coverage_by_bank": {
+    "109:114": 120,
+    "43:16": 153,
+    "65:99": 86
+  },
+  "selected_pair_count": 648,
+  "selector_npz": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/selector-001/selection.npz",
+    "sha256": "7c39b7071ce33ff7ddf95a4ea3bfefc83b71b88ea24ef92b086ec323ed3b2997"
+  },
+  "selector_report": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/selector-001/report.json",
+    "sha256": "4e9b64a3bf73cca36f920aaaf693e4df70185e18727d0a7c1e47d15b3cd31808"
+  }
+}

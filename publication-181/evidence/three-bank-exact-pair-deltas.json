@@ -1,0 +1,645 @@
+{
+  "accepted_physical_steps": 0,
+  "all_185_bank_identity_sets_compared": true,
+  "baseline_candidate_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+  "baseline_surface_pairs": 663,
+  "baseline_surface_report_sha256": "546fe8614df45a1754ce5491efe4b5243add4b686710e8df4c69c7f8d1f118c9",
+  "comparisons": {
+    "fraction_small_661": {
+      "absolute_node_audit_path": "fraction-661/audit-130-absolute-001/summary.json",
+      "absolute_node_audit_sha256": "f00db46e65866f338f96121ac6b3e73b336d59b3c97d14f51147bcf5995ebea1",
+      "all_changed_banks": [
+        {
+          "added_pairs": [],
+          "baseline_count": 153,
+          "body": 43,
+          "candidate_count": 151,
+          "delta": -2,
+          "removed_pairs": [
+            [
+              18990,
+              140
+            ],
+            [
+              18995,
+              140
+            ]
+          ],
+          "stable_bone_id": 16
+        }
+      ],
+      "candidate_path": "fraction-661/candidate.npz",
+      "candidate_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+      "construction_progress": true,
+      "contained_pairs": 0,
+      "final_state_path": "fraction-661/final-absolute-546/state.json",
+      "final_state_sha256": "fcee9ee45bc2319a7c5699974727139b13b06996031bd115a0e4ef2abaa68519",
+      "full_check_path": "fraction-661/full-check-545/report.json",
+      "full_check_sha256": "59ec3ba390da442e1be6b114ea1c0da50fdcb54eb1a39859968525f49116b49b",
+      "requested_bank_deltas": {
+        "109/114": {
+          "added_pairs": [],
+          "baseline_count": 120,
+          "candidate_count": 120,
+          "delta": 0,
+          "removed_pairs": []
+        },
+        "43/16": {
+          "added_pairs": [],
+          "baseline_count": 153,
+          "candidate_count": 151,
+          "delta": -2,
+          "removed_pairs": [
+            [
+              18990,
+              140
+            ],
+            [
+              18995,
+              140
+            ]
+          ]
+        },
+        "65/99": {
+          "added_pairs": [],
+          "baseline_count": 86,
+          "candidate_count": 86,
+          "delta": 0,
+          "removed_pairs": []
+        }
+      },
+      "self_pairs": 0,
+      "surface_delta": -2,
+      "surface_pairs": 661,
+      "surface_report_path": "fraction-661/full-check-545/audit-159/report.json",
+      "surface_report_sha256": "115c7fafd5bff00ad9e7f8f50e3919214664051269e3697c98762bb7bcfef8c5"
+    },
+    "retained_665": {
+      "all_changed_banks": [
+        {
+          "added_skin_face_bone_triangle_pairs": [
+            [
+              40537,
+              264
+            ]
+          ],
+          "baseline_count": 42,
+          "body": 114,
+          "candidate_count": 42,
+          "delta": 0,
+          "removed_skin_face_bone_triangle_pairs": [
+            [
+              40537,
+              176
+            ]
+          ],
+          "stable_bone_id": 117
+        },
+        {
+          "added_skin_face_bone_triangle_pairs": [
+            [
+              26632,
+              30
+            ],
+            [
+              26632,
+              32
+            ],
+            [
+              26632,
+              49
+            ],
+            [
+              26632,
+              50
+            ]
+          ],
+          "baseline_count": 58,
+          "body": 124,
+          "candidate_count": 60,
+          "delta": 2,
+          "removed_skin_face_bone_triangle_pairs": [
+            [
+              26503,
+              30
+            ],
+            [
+              26503,
+              49
+            ]
+          ],
+          "stable_bone_id": 123
+        }
+      ],
+      "candidate_path": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/candidate.npz",
+      "candidate_sha256": "a5c1f8fecee8fd886658c3ff290a306beffd40f3ca08d3637bed1dbf8af77550",
+      "changed_bank_count": 2,
+      "construction_progress": false,
+      "contained_pairs": 0,
+      "full_check_path": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/full-check-545/report.json",
+      "full_check_sha256": "829f3b83610552462e1fa4e69a5164fd368167db26a6907e7f20308c30714bbc",
+      "requested_bank_deltas": {
+        "109/114": {
+          "added_pairs": [],
+          "baseline_count": 120,
+          "candidate_count": 120,
+          "delta": 0,
+          "removed_pairs": []
+        },
+        "43/16": {
+          "added_pairs": [],
+          "baseline_count": 153,
+          "candidate_count": 153,
+          "delta": 0,
+          "removed_pairs": []
+        },
+        "65/99": {
+          "added_pairs": [],
+          "baseline_count": 86,
+          "candidate_count": 86,
+          "delta": 0,
+          "removed_pairs": []
+        }
+      },
+      "self_pairs": 0,
+      "surface_delta": 2,
+      "surface_pairs": 665,
+      "surface_report_path": "D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/retained-631-selfsafe-001/result/full-check-545/audit-159/report.json",
+      "surface_report_sha256": "a94e1a7de18a0840c55da46532ff160d18f9fcf2411b7f2e10d4d54aa4b047f7"
+    },
+    "retained_689": {
+      "all_changed_banks": [
+        {
+          "added_skin_face_bone_triangle_pairs": [
+            [
+              18994,
+              140
+            ],
+            [
+              18994,
+              144
+            ],
+            [
+              19000,
+              134
+            ],
+            [
+              19000,
+              135
+            ],
+            [
+              19003,
+              140
+            ],
+            [
+              19003,
+              144
+            ],
+            [
+              19023,
+              134
+            ],
+            [
+              19023,
+              135
+            ],
+            [
+              19133,
+              146
+            ],
+            [
+              19133,
+              147
+            ],
+            [
+              19332,
+              142
+            ],
+            [
+              19332,
+              145
+            ],
+            [
+              19354,
+              142
+            ],
+            [
+              19354,
+              145
+            ],
+            [
+              19372,
+              152
+            ],
+            [
+              19373,
+              151
+            ],
+            [
+              19447,
+              129
+            ],
+            [
+              19447,
+              162
+            ],
+            [
+              19472,
+              129
+            ],
+            [
+              19472,
+              130
+            ],
+            [
+              19472,
+              162
+            ]
+          ],
+          "baseline_count": 153,
+          "body": 43,
+          "candidate_count": 169,
+          "delta": 16,
+          "removed_skin_face_bone_triangle_pairs": [
+            [
+              18990,
+              140
+            ],
+            [
+              18995,
+              140
+            ],
+            [
+              19373,
+              154
+            ],
+            [
+              19377,
+              152
+            ],
+            [
+              19471,
+              129
+            ]
+          ],
+          "stable_bone_id": 16
+        },
+        {
+          "added_skin_face_bone_triangle_pairs": [
+            [
+              34050,
+              149
+            ],
+            [
+              34050,
+              150
+            ],
+            [
+              34051,
+              149
+            ],
+            [
+              34051,
+              150
+            ],
+            [
+              34165,
+              111
+            ],
+            [
+              34165,
+              112
+            ],
+            [
+              34165,
+              115
+            ],
+            [
+              34165,
+              116
+            ]
+          ],
+          "baseline_count": 120,
+          "body": 109,
+          "candidate_count": 126,
+          "delta": 6,
+          "removed_skin_face_bone_triangle_pairs": [
+            [
+              34167,
+              112
+            ],
+            [
+              34167,
+              116
+            ]
+          ],
+          "stable_bone_id": 114
+        },
+        {
+          "added_skin_face_bone_triangle_pairs": [
+            [
+              40537,
+              264
+            ]
+          ],
+          "baseline_count": 42,
+          "body": 114,
+          "candidate_count": 42,
+          "delta": 0,
+          "removed_skin_face_bone_triangle_pairs": [
+            [
+              40537,
+              176
+            ]
+          ],
+          "stable_bone_id": 117
+        },
+        {
+          "added_skin_face_bone_triangle_pairs": [
+            [
+              29373,
+              285
+            ],
+            [
+              29383,
+              286
+            ],
+            [
+              30980,
+              106
+            ],
+            [
+              30980,
+              203
+            ],
+            [
+              30980,
+              279
+            ],
+            [
+              30980,
+              284
+            ],
+            [
+              30980,
+              285
+            ]
+          ],
+          "baseline_count": 34,
+          "body": 115,
+          "candidate_count": 36,
+          "delta": 2,
+          "removed_skin_face_bone_triangle_pairs": [
+            [
+              29373,
+              106
+            ],
+            [
+              29373,
+              107
+            ],
+            [
+              29373,
+              203
+            ],
+            [
+              29373,
+              279
+            ],
+            [
+              30980,
+              290
+            ]
+          ],
+          "stable_bone_id": 118
+        },
+        {
+          "added_skin_face_bone_triangle_pairs": [
+            [
+              26632,
+              30
+            ],
+            [
+              26632,
+              32
+            ],
+            [
+              26632,
+              49
+            ],
+            [
+              26632,
+              50
+            ]
+          ],
+          "baseline_count": 58,
+          "body": 124,
+          "candidate_count": 60,
+          "delta": 2,
+          "removed_skin_face_bone_triangle_pairs": [
+            [
+              26503,
+              30
+            ],
+            [
+              26503,
+              49
+            ]
+          ],
+          "stable_bone_id": 123
+        }
+      ],
+      "candidate_path": "D/surface-clearance-546/component-sat-selector-638/combined-fit-663-001/fit-001/retention-582-001/candidate.npz",
+      "candidate_sha256": "71a89be8554b306c8a5f0974f76ad62de8c9da5079905890266b0350831ddfcd",
+      "changed_bank_count": 5,
+      "construction_progress": false,
+      "contained_pairs": 0,
+      "full_check_path": "D/surface-clearance-546/component-sat-selector-638/combined-fit-663-001/fit-001/retention-582-001/full-check/report.json",
+      "full_check_sha256": "741b6cca238a6750379b74b4f0738fd2f355ce2202bbc355677e2f2c93d8b034",
+      "requested_bank_deltas": {
+        "109/114": {
+          "added_pairs": [
+            [
+              34050,
+              149
+            ],
+            [
+              34050,
+              150
+            ],
+            [
+              34051,
+              149
+            ],
+            [
+              34051,
+              150
+            ],
+            [
+              34165,
+              111
+            ],
+            [
+              34165,
+              112
+            ],
+            [
+              34165,
+              115
+            ],
+            [
+              34165,
+              116
+            ]
+          ],
+          "baseline_count": 120,
+          "candidate_count": 126,
+          "delta": 6,
+          "removed_pairs": [
+            [
+              34167,
+              112
+            ],
+            [
+              34167,
+              116
+            ]
+          ]
+        },
+        "43/16": {
+          "added_pairs": [
+            [
+              18994,
+              140
+            ],
+            [
+              18994,
+              144
+            ],
+            [
+              19000,
+              134
+            ],
+            [
+              19000,
+              135
+            ],
+            [
+              19003,
+              140
+            ],
+            [
+              19003,
+              144
+            ],
+            [
+              19023,
+              134
+            ],
+            [
+              19023,
+              135
+            ],
+            [
+              19133,
+              146
+            ],
+            [
+              19133,
+              147
+            ],
+            [
+              19332,
+              142
+            ],
+            [
+              19332,
+              145
+            ],
+            [
+              19354,
+              142
+            ],
+            [
+              19354,
+              145
+            ],
+            [
+              19372,
+              152
+            ],
+            [
+              19373,
+              151
+            ],
+            [
+              19447,
+              129
+            ],
+            [
+              19447,
+              162
+            ],
+            [
+              19472,
+              129
+            ],
+            [
+              19472,
+              130
+            ],
+            [
+              19472,
+              162
+            ]
+          ],
+          "baseline_count": 153,
+          "candidate_count": 169,
+          "delta": 16,
+          "removed_pairs": [
+            [
+              18990,
+              140
+            ],
+            [
+              18995,
+              140
+            ],
+            [
+              19373,
+              154
+            ],
+            [
+              19377,
+              152
+            ],
+            [
+              19471,
+              129
+            ]
+          ]
+        },
+        "65/99": {
+          "added_pairs": [],
+          "baseline_count": 86,
+          "candidate_count": 86,
+          "delta": 0,
+          "removed_pairs": []
+        }
+      },
+      "self_pairs": 0,
+      "surface_delta": 26,
+      "surface_pairs": 689,
+      "surface_report_path": "D/surface-clearance-546/component-sat-selector-638/combined-fit-663-001/fit-001/retention-582-001/full-check/audit-159/report.json",
+      "surface_report_sha256": "c80ffe2a1010cd4debf165a67779a58a09d945019f0de47f7f59364f126259a4"
+    }
+  },
+  "limitations": [
+    "Exact construction comparison only; neither retained diagnostic improves total surface count over 663.",
+    "The two raw fit candidates each failed at 15 exact self pairs before surface audit.",
+    "No physical skin/fat/FEM or native admission is claimed."
+  ],
+  "native_admission": false,
+  "pair_identity_semantics": "[skin_face_row,bone_triangle_row] within typed bank (body,stable_bone_id)",
+  "schema": "numi.human.three_bank_retained_pair_identity_deltas181.v1"
+}

@@ -1,0 +1,9 @@
+{
+  "input": "fraction-small-001/full-check-545/audit-130/query/points-world.npz",
+  "input_sha256": "d99362406d0ba6c7f07a209f67c1e376f20840bfc4137a355fdc0bb4f5877dc6",
+  "field": "points_world_f32",
+  "query_count": 20895,
+  "output": "fraction-small-001/full-check-545/audit-130/query/points.csv",
+  "output_sha256": "8f9bea0765598d08af843912b22ae1067e07072e7dbd69e5778fcda218298839",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

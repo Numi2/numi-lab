@@ -1,0 +1,165 @@
+{
+  "accepted_physical_steps": 0,
+  "alpha": 0.5,
+  "config": {
+    "accepted_physical_steps": 0,
+    "alpha": 0.5,
+    "audit159_sha256": "546fe8614df45a1754ce5491efe4b5243add4b686710e8df4c69c7f8d1f118c9",
+    "candidate_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+    "classification": "three-bank soft-row reweighting only; all 359 typed crossing pairs are checked against positive movable selected soft rows before solve",
+    "expected_pair_counts": [
+      [
+        43,
+        16,
+        153
+      ],
+      [
+        57,
+        89,
+        60
+      ],
+      [
+        59,
+        95,
+        33
+      ],
+      [
+        61,
+        97,
+        26
+      ],
+      [
+        64,
+        98,
+        32
+      ],
+      [
+        65,
+        99,
+        86
+      ],
+      [
+        74,
+        104,
+        19
+      ],
+      [
+        109,
+        114,
+        120
+      ],
+      [
+        114,
+        117,
+        42
+      ],
+      [
+        115,
+        118,
+        34
+      ],
+      [
+        124,
+        123,
+        58
+      ]
+    ],
+    "native_admission": false,
+    "schema": "numi.human.bank_balanced_objective689.config.v1",
+    "source_group_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/target-groups-663-001/target-groups.json",
+      "sha256": "633be791b69344aa74e3431fa37ff0afbab9ed153a41062bad930c7cf63b5ae7"
+    },
+    "target_banks": [
+      [
+        43,
+        16
+      ],
+      [
+        65,
+        99
+      ],
+      [
+        109,
+        114
+      ]
+    ],
+    "target_pair_counts": {
+      "109:114": 120,
+      "43:16": 153,
+      "65:99": 86
+    }
+  },
+  "exact_audit159_sha256": "546fe8614df45a1754ce5491efe4b5243add4b686710e8df4c69c7f8d1f118c9",
+  "exact_candidate_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+  "hard_G_shape": [
+    1989,
+    24879
+  ],
+  "hard_lower_row_count": 1989,
+  "legacy_weight_mass_by_bank": {
+    "109:114": 0.18099547511312175,
+    "114:117": 0.06334841628959276,
+    "115:118": 0.05128205128205128,
+    "124:123": 0.08748114630467564,
+    "43:16": 0.23076923076923017,
+    "57:89": 0.09049773755656093,
+    "59:95": 0.049773755656108615,
+    "61:97": 0.0392156862745098,
+    "64:98": 0.048265460030165915,
+    "65:99": 0.12971342383107065,
+    "74:104": 0.02865761689291103
+  },
+  "native_admission": false,
+  "pair_counts": {
+    "109:114": 120,
+    "114:117": 42,
+    "115:118": 34,
+    "124:123": 58,
+    "43:16": 153,
+    "57:89": 60,
+    "59:95": 33,
+    "61:97": 26,
+    "64:98": 32,
+    "65:99": 86,
+    "74:104": 19
+  },
+  "schema": "numi.human.bank_balanced_objective689.install.v1",
+  "soft_C_shape": [
+    975,
+    24879
+  ],
+  "soft_h_shape": [
+    975
+  ],
+  "soft_row_count": 975,
+  "soft_weight_mass_after": 1.0000000000000013,
+  "soft_weight_mass_before": 1.0000000000000002,
+  "target_banks": [
+    [
+      43,
+      16
+    ],
+    [
+      65,
+      99
+    ],
+    [
+      109,
+      114
+    ]
+  ],
+  "weighted_mass_by_bank": {
+    "109:114": 0.25716440422322745,
+    "114:117": 0.03167420814479638,
+    "115:118": 0.02564102564102564,
+    "124:123": 0.04374057315233782,
+    "43:16": 0.28205128205128294,
+    "57:89": 0.045248868778280465,
+    "59:95": 0.024886877828054307,
+    "61:97": 0.0196078431372549,
+    "64:98": 0.024132730015082957,
+    "65:99": 0.23152337858220223,
+    "74:104": 0.014328808446455515
+  }
+}

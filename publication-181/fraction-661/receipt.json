@@ -1,0 +1,37 @@
+{
+  "accepted_physical_steps": 0,
+  "anchors_and_nonpoint_arrays_unchanged": true,
+  "baseline_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+  "candidate": "fraction-small-001/candidate.npz",
+  "candidate_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+  "changed_nodes": 110,
+  "component_selector_sha256": "31e9dc21071aed2f27399c2ef35da6133d4444e7a300870ffa5c9c541b3e269b",
+  "maximum_step_mm": 0.024180778691950452,
+  "native_admission": false,
+  "screen": "fraction-screen-self-002/report.json",
+  "screen_sha256": "b86fb760d2b7730995a51391af91f7ab382d7030f426fb3c4ec6ce3aaab5acb0",
+  "selected": [
+    {
+      "affected_faces": 308,
+      "all_bank_deltas": {
+        "43/16": -2
+      },
+      "bone_target_improvement": true,
+      "component": 9106,
+      "exact_incremental_self_pair_count": 0,
+      "exact_incremental_self_pair_ids": [],
+      "fraction": 0.03125,
+      "no_bank_count_increase": true,
+      "node_count": 110,
+      "surface_total": 661,
+      "target_deltas": {
+        "109/114": 0,
+        "43/16": -2,
+        "65/99": 0
+      },
+      "total_delta": -2
+    }
+  ],
+  "status": "SELF_SCREENED_PROPOSAL_REQUIRES_FULL_545",
+  "trial_sha256": "991bcffdf50ed5b28cfa5bed72bb5840bc2af67054948d65342b13d21d4932cb"
+}

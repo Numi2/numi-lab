@@ -1,0 +1,43 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline": "../../outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/candidate.npz",
+  "baseline_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+  "limitation": "Construction constraints only; full emitted geometry and physical checks still required.",
+  "merged_pair_count": 32140,
+  "merged_seed": "seeds-001/merged-self-pair-seeds.npy",
+  "merged_seed_sha256": "e061337d74aa31faf03a3866f7763021d2f065abd2f61c8b3dd052789c3b62b0",
+  "native_admission": false,
+  "new_records": 15,
+  "new_rows": 74,
+  "new_rows_max_lower_mm": -0.00016432736640548118,
+  "new_witness_pairs": 15,
+  "pair_owner": "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/204/source/fit/self_separation_026.py",
+  "pair_owner_sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3",
+  "prior_pair_count": 32125,
+  "prior_receipt": "../matched-prepared-613/constraints/self-seeds/seed-preflight.json",
+  "prior_receipt_sha256": "09ae9dfc74884a4b54b408613ea2f26c109f26581e62ffb80b201d20e4894f4f",
+  "prior_seed": "../matched-prepared-613/constraints/self-seeds/merged-self-pair-seeds.npy",
+  "prior_seed_sha256": "df16c730cb6213e0a103e887336ef4fdc90e058a1714c55c65a233fae4c81581",
+  "sources": [
+    {
+      "candidate": "../root-unweighted-fit-001/candidate.npz",
+      "candidate_sha256": "e0486cbc29c881ed32d43e13ef8ff778f34a821e69a9d88ec1858b78eeba05d6",
+      "pairs": "../root-unweighted-fit-001/full-check-545/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "f09e003c653038f0af6782467785183b32d34d956024284f87f3ece023be79f3",
+      "summary": "../root-unweighted-fit-001/full-check-545/audit-130/summary.json",
+      "summary_sha256": "6c2112e15a4c3bb04c10a0675ee2afd5ed235cc0d357a809c753d34d30b0cae5",
+      "witness_count": 15
+    },
+    {
+      "candidate": "../../combined-fit-663-001/fit-001/candidate.npz",
+      "candidate_sha256": "991bcffdf50ed5b28cfa5bed72bb5840bc2af67054948d65342b13d21d4932cb",
+      "pairs": "../../combined-fit-663-001/fit-001/full-check-545-001/audit-130/surface-self-pairs.npy",
+      "pairs_sha256": "f09e003c653038f0af6782467785183b32d34d956024284f87f3ece023be79f3",
+      "summary": "../../combined-fit-663-001/fit-001/full-check-545-001/audit-130/summary.json",
+      "summary_sha256": "bed328985b7bc5d0000fcba703e575fe63eea91d0de56d81d5b06ce7de585132",
+      "witness_count": 15
+    }
+  ],
+  "status": "PASS_NEW_EXACT_SELF_WITNESS_ZERO_STEP_PREFLIGHT",
+  "topology_exactly_matched": true
+}

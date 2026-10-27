@@ -1,0 +1,9 @@
+{
+  "force_update": false,
+  "parent_commit": "fd70e3356bf0caec0710cbb48c2e04c21ce934e3",
+  "parent_publication": "P180",
+  "publication": "P181 draft",
+  "publish_status": "NOT_PUBLISHED",
+  "remote_ref": "refs/heads/main",
+  "repository": "Numi2/numi-lab"
+}

@@ -1,0 +1,19 @@
+{
+  "accepted_physical_steps": 0,
+  "bank_counts": {
+    "109:114": 120,
+    "43:16": 153,
+    "65:99": 86
+  },
+  "injection_counts": {
+    "_bank689.install(owner, objective, crossing, _bank_cfg)": 1,
+    "_coverage663.install(objective, crossing, _required": 1,
+    "install_axis_map_from_cli(owner, objective, crossing)": 1,
+    "install_from_cli(owner, objective, crossing)": 1
+  },
+  "native_admission": false,
+  "patched_source_sha256": "44edc3c991199b0a1f330261597135aed7849ec4bd88e85ddfc629bc8682a392",
+  "requested_pairs": 359,
+  "selected_count": 648,
+  "status": "PASS_FROZEN_OWNER_PATCH_COMPILES"
+}

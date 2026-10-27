@@ -1,0 +1,20 @@
+{
+  "accepted_physical_steps": 0,
+  "excluded": [
+    "unfinished or active files",
+    "pycache and test caches",
+    "later work outside the completed 661 checkpoint",
+    "physical/native qualification"
+  ],
+  "included": [
+    "pinned 663 input",
+    "three-bank target grouping and fit coverage",
+    "unweighted and bank-balanced fit sources, launches, and coverage",
+    "both rejected 15-self audits",
+    "665 and 689 retained candidates and all-bank identity deltas",
+    "zero-step seed union and failed pre-solve retry",
+    "completed 661 small-fraction candidate, screens, full 545, absolute 130 audit, strict 546 finalization, and compact prepared-002 receipts"
+  ],
+  "native_admission": false,
+  "schema": "numi.human.p181_scope.v1"
+}

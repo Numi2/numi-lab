@@ -1,0 +1,37 @@
+{
+  "entries": [
+    {
+      "algorithm": "gzip -n -9",
+      "decompressed_sha256_verified": true,
+      "decompressed_size_verified": true,
+      "gzip_bytes": 5447078,
+      "gzip_mode": 420,
+      "gzip_sha256": "265b73062dbcaedc98a89ba6fe573182e859081a094d548287c4674f7c146690",
+      "json_parse_after_atomic_write": true,
+      "member_path": "unweighted/fit/report.json.gz",
+      "original_bytes": 52867891,
+      "original_mode": 420,
+      "original_mtime_ns": 1793103706389532139,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/root-unweighted-fit-001/report.json",
+      "original_sha256": "9f57182408c3e7a340f60a5b5dc0d942d89e31d4ab75168575a2b231f63b0299",
+      "restore_command": "gzip -dc unweighted/fit/report.json.gz > report.json"
+    },
+    {
+      "algorithm": "gzip -n -9",
+      "decompressed_sha256_verified": true,
+      "decompressed_size_verified": true,
+      "gzip_bytes": 5450449,
+      "gzip_mode": 420,
+      "gzip_sha256": "437c0ae91285ef4cee3a5f7cd8a470dd4ea49bfbb226a943757e5a554f9cf167",
+      "json_parse_after_atomic_write": true,
+      "member_path": "bank-balanced/fit/report.json.gz",
+      "original_bytes": 52886584,
+      "original_mode": 420,
+      "original_mtime_ns": 1793103955946538178,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/combined-fit-663-001/fit-001/report.json",
+      "original_sha256": "e44161a4b39c710508e801bcf7452a1f05610b0efcc8e391f56d072687a70c85",
+      "restore_command": "gzip -dc bank-balanced/fit/report.json.gz > report.json"
+    }
+  ],
+  "schema": "numi.human.p181_deterministic_gzip_restore.v1"
+}

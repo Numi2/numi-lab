@@ -1,0 +1,45 @@
+{
+  "axis_source_counts": {},
+  "base_candidate_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+  "bounds_calls": [],
+  "bounds_receipt": null,
+  "individually_box_feasible_count": 0,
+  "individually_box_infeasible_count": 0,
+  "infeasible_pairs": [],
+  "inputs": {
+    "base_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/candidate.npz",
+      "sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b"
+    },
+    "source_base": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+    }
+  },
+  "pair_count": 0,
+  "policy": {
+    "accepted_physical_steps": 0,
+    "joint_shared_node_compatibility_certified": false,
+    "native_admission": false,
+    "no_positive_hard_rows_added": true,
+    "nonpositive_458_guards_rebuilt": true,
+    "positive_458_rows_remain_soft": true,
+    "same_trust_source_area_edge_self_anchor_and_exact_gates": true,
+    "whole_bank_clearance_certificate": false
+  },
+  "schema": "numi.human.box_aware_sat_fit_637.v1",
+  "selected_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/weighted-fit-001/pair-sat-box-routing-637.npz",
+  "selected_npz_sha256": "72899fd16fbbf3f781ec7f0251dc7decfd9722e8f696446fa73e9f94a37946a5",
+  "shared_node_diagnostic": {
+    "nodes_with_cosine_below_minus_half": 0,
+    "nodes_with_multiple_positive_rows": 0,
+    "nodes_with_opposed_positive_rows": 0,
+    "semantics": "pairwise row-normal opposition is a soft-target conflict indicator, not an infeasibility proof",
+    "worst_nodes": []
+  },
+  "soft_pair_count": null,
+  "soft_row_count": null,
+  "soft_weight_mass": null,
+  "source_base_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+  "source_reference_sha256": "c3a78b7873249bb9bfc1ce94e89c77174369a89b469d1996cba71ee623bb7bf5"
+}

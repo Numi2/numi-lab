@@ -1,0 +1,26 @@
+{
+  "accepted_physical_steps": 0,
+  "native_admission": false,
+  "sha256": {
+    "axis_adapter": "d49c33a0f3108e1005b6fc64357f9edc796a0c469d9ba61ac7378915939365f6",
+    "axis_helper": "a188e5a55d2aebb0ce27848b0d3fb03d7aa2f8715ee6a8da7bbc57d781485a9a",
+    "axis_runner": "bbaf1ca9fef90f370c5a877dd1f0249779f0091a4dad8013a581820d110ed92f",
+    "bank_helper": "835c566508fd5f47d2ab274fd638058556be4ba614a1b3e84a43d4d7766a1ee8",
+    "coverage_helper": "236e4dd8b4070d804742a1f0f97690d8db98c75ddf1ac254df0c3a9b8ec2266f",
+    "frozen603": "38c3dfa9ddd961250111c87f56d6184075bde43be07c46e09d239f057b06d692",
+    "helper637": "a226a8f7e5b4afaeeb9d484883f6a213b84220bb639a15388f3c37dd944069bd",
+    "runner637": "3a142578939683981274ebef061d797b471594ce6694cd888b0e450bbaf6bff2",
+    "selector_helper": "a188e5a55d2aebb0ce27848b0d3fb03d7aa2f8715ee6a8da7bbc57d781485a9a"
+  },
+  "sources": {
+    "axis_adapter": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/sat_axis_map_adapter638.py",
+    "axis_helper": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/connected_patch_sat_selector638.py",
+    "axis_runner": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/run_connected_patch_sat_selector638.py",
+    "bank_helper": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/bank-balanced-objective-689/bank_balanced_objective689.py",
+    "coverage_helper": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/combined-fit-663-001/combined_bank_coverage663.py",
+    "frozen603": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-scp-area-backtrack-603/frozen-v1/run_joint_full_coordinate_fit603.py",
+    "helper637": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/box_aware_sat637.py",
+    "runner637": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run_box_aware_sat637.py",
+    "selector_helper": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/connected_patch_sat_selector638.py"
+  }
+}

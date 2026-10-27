@@ -1,0 +1,277 @@
+{
+  "axis_source_counts": {
+    "bone_face": 588,
+    "edge_cross": 62,
+    "skin_face": 13
+  },
+  "base_candidate_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+  "bounds_calls": [
+    {
+      "directional636": {
+        "accepted_physical_steps": 0,
+        "anchors_on_support": 18,
+        "expanded_component_count": 1554,
+        "expanded_node_count": 518,
+        "maximum_box_source_distance_mm": 11.999996036920685,
+        "maximum_box_step_mm": 4.0,
+        "native_admission": false,
+        "semantics": "asymmetric inner box preserving zero, original 408 cube, and actual trust/source spheres",
+        "source_cap_mm": 12.0,
+        "support_nodes": 8293,
+        "trust_mm": 4.0
+      },
+      "fixed_prefix_count": 0,
+      "lower_sha256": "aa714bd3f54175f7a9a511ccdb371c9797da5770909e676978e10cac8c3d9d02",
+      "old408_cube_contained": true,
+      "signature_sha256": "d7991af58044381cd785bba6dc13c723ef21d5eb392eb203cbd32d4a863e434f",
+      "support_count": 8293,
+      "support_rows_sha256": "a30b6b750bd84d252744d1a828554f4972cab2720e246e6a1c28199c8656a14a",
+      "upper_sha256": "a26b5213ce18dd659e055b4b25b408e32b1497f92c37702be68e75664f4d7f57"
+    },
+    {
+      "directional636": {
+        "accepted_physical_steps": 0,
+        "anchors_on_support": 18,
+        "expanded_component_count": 1554,
+        "expanded_node_count": 518,
+        "maximum_box_source_distance_mm": 11.999996036920685,
+        "maximum_box_step_mm": 4.0,
+        "native_admission": false,
+        "semantics": "asymmetric inner box preserving zero, original 408 cube, and actual trust/source spheres",
+        "source_cap_mm": 12.0,
+        "support_nodes": 8293,
+        "trust_mm": 4.0
+      },
+      "fixed_prefix_count": 0,
+      "lower_sha256": "aa714bd3f54175f7a9a511ccdb371c9797da5770909e676978e10cac8c3d9d02",
+      "old408_cube_contained": true,
+      "signature_sha256": "d7991af58044381cd785bba6dc13c723ef21d5eb392eb203cbd32d4a863e434f",
+      "support_count": 8293,
+      "support_rows_sha256": "a30b6b750bd84d252744d1a828554f4972cab2720e246e6a1c28199c8656a14a",
+      "upper_sha256": "a26b5213ce18dd659e055b4b25b408e32b1497f92c37702be68e75664f4d7f57"
+    }
+  ],
+  "bounds_receipt": {
+    "bound_semantics": "636-v2 asymmetric box inside unchanged trust/source balls",
+    "directional_bounds_636": {
+      "accepted_physical_steps": 0,
+      "anchors_on_support": 18,
+      "expanded_component_count": 1554,
+      "expanded_node_count": 518,
+      "maximum_box_source_distance_mm": 11.999996036920685,
+      "maximum_box_step_mm": 4.0,
+      "native_admission": false,
+      "semantics": "asymmetric inner box preserving zero, original 408 cube, and actual trust/source spheres",
+      "source_cap_mm": 12.0,
+      "support_nodes": 8293,
+      "trust_mm": 4.0
+    },
+    "maximum_base_source_displacement_mm": 11.999981854019131,
+    "maximum_component_bound_mm": 2.3094010767585034,
+    "minimum_remaining_source_cap_mm_on_support": 1.8145980869022083e-05,
+    "old408_cube_contained": true,
+    "original_408_maximum_component_bound_mm": 2.3094010767585034,
+    "source_cap_norm_guarantee_mm": 12.0,
+    "trust_norm_guarantee_mm": 4.0
+  },
+  "individually_box_feasible_count": 663,
+  "individually_box_infeasible_count": 0,
+  "infeasible_pairs": [],
+  "inputs": {
+    "base_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/candidate.npz",
+      "sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b"
+    },
+    "source_base": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+    }
+  },
+  "pair_count": 663,
+  "policy": {
+    "accepted_physical_steps": 0,
+    "joint_shared_node_compatibility_certified": false,
+    "native_admission": false,
+    "no_positive_hard_rows_added": true,
+    "nonpositive_458_guards_rebuilt": true,
+    "positive_458_rows_remain_soft": true,
+    "same_trust_source_area_edge_self_anchor_and_exact_gates": true,
+    "whole_bank_clearance_certificate": false
+  },
+  "schema": "numi.human.box_aware_sat_fit_637.v1",
+  "selected_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/combined-fit-663-001/fit-001/pair-sat-box-routing-637.npz",
+  "selected_npz_sha256": "861ff74e082f4c0644219df0edadf1c8de94722c1d6a51044cc74a84eee36aa3",
+  "shared_node_diagnostic": {
+    "nodes_with_cosine_below_minus_half": 12,
+    "nodes_with_multiple_positive_rows": 176,
+    "nodes_with_opposed_positive_rows": 28,
+    "semantics": "pairwise row-normal opposition is a soft-target conflict indicator, not an infeasibility proof",
+    "worst_nodes": [
+      {
+        "minimum_pairwise_normal_cosine": -0.9998948742735647,
+        "node_row": 20891,
+        "positive_soft_row_count": 24
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.9998948742735647,
+        "node_row": 18437,
+        "positive_soft_row_count": 17
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.999834166899923,
+        "node_row": 14795,
+        "positive_soft_row_count": 24
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.999834166899923,
+        "node_row": 16987,
+        "positive_soft_row_count": 15
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.9987603539463314,
+        "node_row": 20893,
+        "positive_soft_row_count": 18
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.9987603539463314,
+        "node_row": 20890,
+        "positive_soft_row_count": 11
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.9153992106607216,
+        "node_row": 13609,
+        "positive_soft_row_count": 10
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.8120789815230594,
+        "node_row": 19104,
+        "positive_soft_row_count": 6
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.784079403424323,
+        "node_row": 20889,
+        "positive_soft_row_count": 11
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.7495217985246667,
+        "node_row": 19092,
+        "positive_soft_row_count": 10
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.7312473429999534,
+        "node_row": 19462,
+        "positive_soft_row_count": 9
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.6240149976514072,
+        "node_row": 19094,
+        "positive_soft_row_count": 7
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.4742269197697064,
+        "node_row": 20791,
+        "positive_soft_row_count": 10
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.4247394966718725,
+        "node_row": 18501,
+        "positive_soft_row_count": 7
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.3446317898183704,
+        "node_row": 16343,
+        "positive_soft_row_count": 11
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.3027652595862718,
+        "node_row": 19641,
+        "positive_soft_row_count": 9
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.2458711153759664,
+        "node_row": 19064,
+        "positive_soft_row_count": 10
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.2223878974498081,
+        "node_row": 12694,
+        "positive_soft_row_count": 8
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.21101113869613425,
+        "node_row": 14623,
+        "positive_soft_row_count": 8
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.21101113869613425,
+        "node_row": 19450,
+        "positive_soft_row_count": 12
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.1925181135109207,
+        "node_row": 19487,
+        "positive_soft_row_count": 9
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.1693893470604289,
+        "node_row": 19735,
+        "positive_soft_row_count": 10
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.15225316018027912,
+        "node_row": 18945,
+        "positive_soft_row_count": 6
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.13424440689271816,
+        "node_row": 20755,
+        "positive_soft_row_count": 9
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.10938303965807412,
+        "node_row": 16555,
+        "positive_soft_row_count": 7
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.09730037607024393,
+        "node_row": 18799,
+        "positive_soft_row_count": 7
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.09236218244913162,
+        "node_row": 18706,
+        "positive_soft_row_count": 8
+      },
+      {
+        "minimum_pairwise_normal_cosine": -0.05400144202421908,
+        "node_row": 18789,
+        "positive_soft_row_count": 11
+      },
+      {
+        "minimum_pairwise_normal_cosine": 0.05917272914371151,
+        "node_row": 20516,
+        "positive_soft_row_count": 10
+      },
+      {
+        "minimum_pairwise_normal_cosine": 0.06681075572669509,
+        "node_row": 19667,
+        "positive_soft_row_count": 10
+      },
+      {
+        "minimum_pairwise_normal_cosine": 0.08657029493014651,
+        "node_row": 20863,
+        "positive_soft_row_count": 8
+      },
+      {
+        "minimum_pairwise_normal_cosine": 0.10448307221125566,
+        "node_row": 19625,
+        "positive_soft_row_count": 6
+      }
+    ]
+  },
+  "soft_pair_count": 663,
+  "soft_row_count": 975,
+  "soft_weight_mass": 1.0000000000000002,
+  "source_base_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+  "source_reference_sha256": "c3a78b7873249bb9bfc1ce94e89c77174369a89b469d1996cba71ee623bb7bf5"
+}

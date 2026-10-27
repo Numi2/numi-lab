@@ -1,0 +1,67 @@
+{
+  "accepted_physical_steps": 0,
+  "all_185_bank_identity_sets_compared": true,
+  "all_changed_banks": [
+    {
+      "added_pairs": [],
+      "baseline_count": 153,
+      "body": 43,
+      "candidate_count": 151,
+      "delta": -2,
+      "removed_pairs": [
+        [
+          18990,
+          140
+        ],
+        [
+          18995,
+          140
+        ]
+      ],
+      "stable_bone_id": 16
+    }
+  ],
+  "baseline_candidate_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+  "baseline_surface_pairs": 663,
+  "candidate_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+  "candidate_surface_pairs": 661,
+  "changed_bank_count": 1,
+  "comparison": "661 candidate versus pinned 663 input across all exact typed bank identities",
+  "full_545_report_sha256": "59ec3ba390da442e1be6b114ea1c0da50fdcb54eb1a39859968525f49116b49b",
+  "native_admission": false,
+  "requested_bank_deltas": {
+    "109/114": {
+      "added_pairs": [],
+      "baseline_count": 120,
+      "candidate_count": 120,
+      "delta": 0,
+      "removed_pairs": []
+    },
+    "43/16": {
+      "added_pairs": [],
+      "baseline_count": 153,
+      "candidate_count": 151,
+      "delta": -2,
+      "removed_pairs": [
+        [
+          18990,
+          140
+        ],
+        [
+          18995,
+          140
+        ]
+      ]
+    },
+    "65/99": {
+      "added_pairs": [],
+      "baseline_count": 86,
+      "candidate_count": 86,
+      "delta": 0,
+      "removed_pairs": []
+    }
+  },
+  "schema": "numi.human.p181_three_bank_exact_pair_delta.v1",
+  "surface_delta": -2,
+  "surface_report_sha256": "115c7fafd5bff00ad9e7f8f50e3919214664051269e3697c98762bb7bcfef8c5"
+}
