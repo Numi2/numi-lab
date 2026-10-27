@@ -1,0 +1,648 @@
+{
+  "candidate_modified": false,
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-013-replay-on-pinned-653-001/candidate-pinned653-eight-flip.npz",
+  "candidate_sha256": "bfbf03766c6f99cc9bfdcc2c609f390d683221ed12764b2e83d41a898229a0ce",
+  "changed_face_row_count": 16,
+  "changed_face_rows": [
+    14060,
+    14061,
+    14126,
+    14128,
+    14172,
+    14174,
+    14192,
+    14193,
+    14221,
+    14223,
+    14248,
+    14251,
+    14456,
+    14457,
+    15101,
+    15104
+  ],
+  "changed_row_ancestry_receipts": [
+    {
+      "face_row": 14060,
+      "operation_rows": [
+        14060,
+        14061
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          13983
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 14061,
+      "operation_rows": [
+        14060,
+        14061
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          13983
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 14126,
+      "operation_rows": [
+        14126,
+        14128
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          14024
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 14128,
+      "operation_rows": [
+        14126,
+        14128
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          14024
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 14172,
+      "operation_rows": [
+        14172,
+        14174
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          14053
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 14174,
+      "operation_rows": [
+        14172,
+        14174
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          14053
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 14192,
+      "operation_rows": [
+        14192,
+        14193
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          14062
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 14193,
+      "operation_rows": [
+        14192,
+        14193
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          14062
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 14221,
+      "operation_rows": [
+        14221,
+        14223
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          14083
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 14223,
+      "operation_rows": [
+        14221,
+        14223
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          14083
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 14248,
+      "operation_rows": [
+        14248,
+        14251
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          14097
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 14251,
+      "operation_rows": [
+        14248,
+        14251
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          14097
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 14456,
+      "operation_rows": [
+        14456,
+        14457
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          14285
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 14457,
+      "operation_rows": [
+        14456,
+        14457
+      ],
+      "unions": {
+        "detail": [
+          5530
+        ],
+        "parent": [
+          14285
+        ],
+        "source": [
+          5530
+        ],
+        "subface": [
+          5530
+        ]
+      }
+    },
+    {
+      "face_row": 15101,
+      "operation_rows": [
+        15101,
+        15104
+      ],
+      "unions": {
+        "detail": [
+          5530,
+          6103
+        ],
+        "parent": [
+          14920
+        ],
+        "source": [
+          5530,
+          6103
+        ],
+        "subface": [
+          5530,
+          6103
+        ]
+      }
+    },
+    {
+      "face_row": 15104,
+      "operation_rows": [
+        15101,
+        15104
+      ],
+      "unions": {
+        "detail": [
+          5530,
+          6103
+        ],
+        "parent": [
+          14920
+        ],
+        "source": [
+          5530,
+          6103
+        ],
+        "subface": [
+          5530,
+          6103
+        ]
+      }
+    }
+  ],
+  "coordinates_bitwise_unchanged_from_pinned653": true,
+  "exact_bone_screen": "NOT_RUN_PENDING_COORDINATION",
+  "exact_self_screen": "NOT_RUN_PENDING_COORDINATION",
+  "geometry_or_native_admission": false,
+  "incompatible_operation_count": 0,
+  "incremental_audit_scope": "Same pinned 653 coordinates; exact all-bank intersections can be updated by replacing changed-face records after screening changed faces against all bank triangles. Exact skin self-pairs must replace every pair incident to changed rows after screening them against the complete skin. Not run here.",
+  "input_pins": {
+    "immediate_refinement_parent": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz",
+      "sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35"
+    },
+    "owner402": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py",
+      "sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764"
+    },
+    "pinned653": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+      "sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af"
+    },
+    "prior_flip_manifest": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/preflight.json",
+      "sha256": "6169a812653299153a6a3ad205e6305a263b4d614f414fe1a8eff4581c0a6dff"
+    },
+    "refresh546_generation002": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/refresh_guards_multi_parent_generation002.py",
+      "sha256": "90bafb6a51e9d7a2dd9b49570fcd977423616e18e992c2d4a4306feea5bd5eab"
+    },
+    "rejected_backtrack": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-008-witness-direction-backtrack-prepared-001/candidate-private-iteration-01.npz",
+      "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-008-witness-direction-backtrack-prepared-001/report.json",
+      "report_sha256": "5ce52aa8e793a0ff8cf202e9efa00f9dee01823f6cf62144426725612c4a3d0e",
+      "sha256": "8931f3f240f595f2df17e91cb4f4c82688721e778e81bcbc4acc7f6264d61d70"
+    },
+    "replay534": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-quality-patch-534/replay_surviving_flips_534.py",
+      "sha256": "4559fd425a3300528f49e5211afbd633674910ecaa0d6671408ee0e9d145e504"
+    }
+  },
+  "lineage_refresh": {
+    "affine_parent_map_validation": null,
+    "all_scalar_summaries_match_csr_unions": true,
+    "construction_only": true,
+    "crossing_face_count": 0,
+    "crossing_face_kind_counts": {
+      "2": 0
+    },
+    "crossing_faces_with_multi_detail_union": 0,
+    "crossing_faces_with_multi_parent_csr": 0,
+    "crossing_faces_with_multi_source_union": 0,
+    "crossing_fine_detail_ancestry_union_validated": true,
+    "crossing_fine_detail_ancestry_unique_and_matching": false,
+    "current_face_count": 42379,
+    "detail_csr_value_count": 35767,
+    "multi_parent_current_face_count": 0,
+    "native_admission": false,
+    "parent_candidate_path": "provided",
+    "parent_face_count": 41745,
+    "parent_indices_in_range": true,
+    "refinement_parent_contract_mode": "legacy_parent_union_with_nan_multi_parent",
+    "refinement_parent_csr_rows": 42379,
+    "registered_detail_id_count": 11453,
+    "registered_source_id_count": 14345,
+    "registered_subface_id_count": 11459,
+    "source_csr_value_count": 42625,
+    "subface_csr_value_count": 35779
+  },
+  "operations": [
+    {
+      "angle_gain_deg": 2.530597792784029,
+      "edge": [
+        21089,
+        21168
+      ],
+      "face_rows": [
+        14456,
+        14457
+      ],
+      "immediate_parent_union": [
+        14285
+      ],
+      "new_min_angle_deg": 22.30426217416113,
+      "old_min_angle_deg": 19.773664381377102,
+      "prior_operation_index": 0,
+      "status": "REVALIDATED"
+    },
+    {
+      "angle_gain_deg": 1.5154048060044722,
+      "edge": [
+        21078,
+        21085
+      ],
+      "face_rows": [
+        14126,
+        14128
+      ],
+      "immediate_parent_union": [
+        14024
+      ],
+      "new_min_angle_deg": 17.244135962210866,
+      "old_min_angle_deg": 15.728731156206393,
+      "prior_operation_index": 1,
+      "status": "REVALIDATED"
+    },
+    {
+      "angle_gain_deg": 0.8777527097427011,
+      "edge": [
+        20984,
+        21158
+      ],
+      "face_rows": [
+        14172,
+        14174
+      ],
+      "immediate_parent_union": [
+        14053
+      ],
+      "new_min_angle_deg": 14.564784764398532,
+      "old_min_angle_deg": 13.68703205465583,
+      "prior_operation_index": 2,
+      "status": "REVALIDATED"
+    },
+    {
+      "angle_gain_deg": 0.37268625256439947,
+      "edge": [
+        21001,
+        21058
+      ],
+      "face_rows": [
+        14192,
+        14193
+      ],
+      "immediate_parent_union": [
+        14062
+      ],
+      "new_min_angle_deg": 9.460380803295468,
+      "old_min_angle_deg": 9.087694550731069,
+      "prior_operation_index": 3,
+      "status": "REVALIDATED"
+    },
+    {
+      "angle_gain_deg": 1.729455201453165,
+      "edge": [
+        20985,
+        21185
+      ],
+      "face_rows": [
+        14248,
+        14251
+      ],
+      "immediate_parent_union": [
+        14097
+      ],
+      "new_min_angle_deg": 12.30368887394535,
+      "old_min_angle_deg": 10.574233672492184,
+      "prior_operation_index": 4,
+      "status": "REVALIDATED"
+    },
+    {
+      "angle_gain_deg": 0.7951109531409521,
+      "edge": [
+        21156,
+        21157
+      ],
+      "face_rows": [
+        15101,
+        15104
+      ],
+      "immediate_parent_union": [
+        14920
+      ],
+      "new_min_angle_deg": 14.291173113800465,
+      "old_min_angle_deg": 13.496062160659513,
+      "prior_operation_index": 6,
+      "status": "REVALIDATED"
+    },
+    {
+      "angle_gain_deg": 0.38355773924873926,
+      "edge": [
+        20998,
+        21169
+      ],
+      "face_rows": [
+        14060,
+        14061
+      ],
+      "immediate_parent_union": [
+        13983
+      ],
+      "new_min_angle_deg": 6.284589402364028,
+      "old_min_angle_deg": 5.901031663115289,
+      "prior_operation_index": 7,
+      "status": "REVALIDATED"
+    },
+    {
+      "angle_gain_deg": 0.27559248859474206,
+      "edge": [
+        20946,
+        21118
+      ],
+      "face_rows": [
+        14221,
+        14223
+      ],
+      "immediate_parent_union": [
+        14083
+      ],
+      "new_min_angle_deg": 8.14415178466456,
+      "old_min_angle_deg": 7.868559296069818,
+      "prior_operation_index": 8,
+      "status": "REVALIDATED"
+    }
+  ],
+  "patch_boundary_edge_count": 62,
+  "patch_boundary_preserved": true,
+  "quality_improvement": {
+    "max_operation_min_angle_gain_deg": 2.530597792784029,
+    "mean_operation_min_angle_gain_deg": 1.06001974294165,
+    "per_operation_angle_gains_deg": [
+      2.530597792784029,
+      1.5154048060044722,
+      0.8777527097427011,
+      0.37268625256439947,
+      1.729455201453165,
+      0.7951109531409521,
+      0.38355773924873926,
+      0.27559248859474206
+    ]
+  },
+  "rejected_backtrack_origin": {
+    "candidate_not_used_as_replay_base": true,
+    "changed_coordinate_count_from_pinned653": 75,
+    "complete_all_bank_audit": "NOT_PRESENT_IN_ATTEMPT008_REPORT",
+    "local_65_99_exact_pairs": 148,
+    "max_node_delta_m": 5.411413312893037e-05,
+    "parent_identity_improved": false,
+    "reported_max_cumulative_displacement_mm": 0.05412658773652747,
+    "selected_backtrack_factor": 0.0625,
+    "solver": "HiGHS sparse LP",
+    "solver_status": 0,
+    "source_method": "Private 248-face local patch; one sparse HiGHS LP with hard linearized area, edge-gradient, boundary and trust rows plus explicit witness slacks; persist the full optimizer vector and backtrack only along that vector against unchanged double and emitted Float32 shape gates; exact local target-bank recheck only after a shape-feasible emission; local self only after strict mapped parent-identity reduction.",
+    "status": "PRIVATE_REJECTED_NO_PARENT_IDENTITY_IMPROVEMENT"
+  },
+  "revalidated_operation_count": 8,
+  "schema": "numi.human.bank65_99.pinned653-eight-flip-topology-replay.v1",
+  "scope": "Replay the eight retained 402 owner flips against pinned 653, rechecking operation eligibility, ancestry unions, topology and emitted-F32 shape only.",
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-013-replay-on-pinned-653-001/replay_pinned653.py",
+  "script_sha256": "c2d452f9a87708d8efecf09faa5eaad7d029c8e4ad77e56940574799436a5892",
+  "shape_gate": {
+    "area_ratio_floor": 0.1,
+    "maximum_aspect_cap": 31.295682699019785,
+    "minimum_angle_floor_deg": 0.8108801448691115,
+    "pass": true,
+    "pinned653_baseline": {
+      "area_orientation_reference": "unchanged rows use their pre-flip emitted F32 triangle; changed rows use old paired quadrilateral aggregate",
+      "face_count": 248,
+      "maximum_aspect_measure": 25.036546182710815,
+      "minimum_angle_degrees": 0.9009779378174699,
+      "minimum_signed_orientation_cosine": 0.9999999999999998,
+      "minimum_unsigned_parent_area_ratio": 1.0,
+      "orientation_positive": true,
+      "p05_angle_degrees": 2.1966980926239925
+    },
+    "replayed_candidate": {
+      "area_orientation_reference": "unchanged rows use their pre-flip emitted F32 triangle; changed rows use old paired quadrilateral aggregate",
+      "face_count": 248,
+      "maximum_aspect_measure": 25.036546182710815,
+      "minimum_angle_degrees": 0.9009779378174699,
+      "minimum_signed_orientation_cosine": 0.999915100764046,
+      "minimum_unsigned_parent_area_ratio": 0.48030315535455986,
+      "orientation_positive": true,
+      "p05_angle_degrees": 2.1966980926239925
+    }
+  },
+  "status": "TOPOLOGY_PREFLIGHT_PASSED_PENDING_EXACT_AUDIT",
+  "topology_identical_outside_changed_rows": true,
+  "unexpected_array_mutations": [],
+  "whole_surface_boundary_edge_count": 45,
+  "whole_surface_boundary_preserved": true,
+  "whole_surface_nonmanifold_edges_after": 0,
+  "whole_surface_nonmanifold_edges_before": 0
+}

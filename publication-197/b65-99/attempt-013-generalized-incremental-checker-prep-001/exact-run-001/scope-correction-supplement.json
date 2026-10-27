@@ -1,0 +1,15 @@
+{
+  "change": "Preserved the original ancestry-delta receipt. Corrected only the exact-local report scope label to derive 16 changed rows and 185 banks, and corrected its incident-node scope count; no geometry was rerun or changed.",
+  "construction_only": true,
+  "corrected_checker_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-013-generalized-incremental-checker-prep-001/scoped_exact_checker_snapshot.py",
+  "corrected_checker_sha256": "8023a87cbf70cdb14c1193e4b0e6e879139aa742d97d6f323ddc61f99245f498",
+  "corrected_scope_only_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/report.json",
+  "corrected_scope_only_report_sha256": "23c42d7c9e935f878c63eac1245a638c3d152f8b153a1b862cb9677027150a54",
+  "exact_measurements_remain_from_slot_run": true,
+  "geometry_or_native_admission": false,
+  "original_ancestry_receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/ancestry-delta.original.json",
+  "original_ancestry_receipt_sha256": "a363eb9a2adb1c9c0ac7a4c36871acc3450d946452013bfc6638dff3f4605615",
+  "original_exact_local_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/report.pre-scope-correction.json",
+  "original_exact_local_report_sha256": "1f2a131c16a7d7f0be377d2e85e769c989e5a5404bec1cffaaa576393d756c85",
+  "schema": "numi.human.b65-99.scope-correction-chain.v1"
+}

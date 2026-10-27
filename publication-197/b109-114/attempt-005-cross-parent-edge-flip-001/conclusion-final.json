@@ -1,0 +1,150 @@
+{
+  "aabb_predicate": {
+    "actual_rows": [
+      0,
+      1,
+      4,
+      5
+    ],
+    "expected_rows": [
+      0,
+      1,
+      4,
+      5
+    ],
+    "helper_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/per_face_aabb_overlap.py",
+    "helper_sha256": "d455229eb69208ff45700918fe05adc976eca5f942335775337db782692957cb",
+    "test_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/test_per_face_aabb_overlap_v2.py",
+    "test_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/aabb-predicate-test-report-v2.json",
+    "test_report_sha256": "23c322ba1f60755eac9bd9625a7996d103ece1e6c250928c47f3770173b6890e",
+    "test_sha256": "e3fbb42425ebe31f485ec0b761c033b15e6a4ddb30aacbe989512bd86c280e0e",
+    "test_status": "PASS"
+  },
+  "all_changed_rows_use_explicit_nan_multi_parent_maps": true,
+  "boundary_preserved": true,
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/candidate-two-cross-parent-flips.npz",
+  "candidate_sha256": "b2d4315d060659a31381f2c48d21a113cd1bd57670850876134ccda6f3b37192",
+  "coordinates_bitwise_unchanged": true,
+  "exact_bone_result": {
+    "baseline_immediate_parent_pairs": 119,
+    "baseline_raw_child_pairs": 187,
+    "parent_pairs_added": [
+      [
+        34158,
+        91
+      ],
+      [
+        34158,
+        115
+      ],
+      [
+        34158,
+        149
+      ]
+    ],
+    "parent_pairs_removed": 0,
+    "raw_baseline_reproduced_saved_187_pairs": true,
+    "raw_pairs_added": [
+      [
+        34705,
+        115
+      ],
+      [
+        34705,
+        149
+      ]
+    ],
+    "raw_pairs_removed": [
+      [
+        34666,
+        149
+      ],
+      [
+        34666,
+        150
+      ]
+    ],
+    "registered_source_detail_subface_pairs": {
+      "added": 0,
+      "baseline": 39,
+      "removed": 0,
+      "trial": 39
+    },
+    "trial_immediate_parent_pairs": 122,
+    "trial_raw_child_pairs": 187
+  },
+  "full_body_audit_run": false,
+  "generation002_guard_pass": true,
+  "generation002_guard_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/refresh_guards_multi_parent_generation002.py",
+  "generation002_guard_sha256": "90bafb6a51e9d7a2dd9b49570fcd977423616e18e992c2d4a4306feea5bd5eab",
+  "inside_node_result": {
+    "coordinates_bitwise_unchanged": true,
+    "inside_or_boundary_nodes": 24,
+    "new_inside_nodes": 0,
+    "patch_nodes": 172
+  },
+  "local_boundary_edges": 63,
+  "native_admission": false,
+  "not_promoted": true,
+  "operations": [
+    {
+      "diagonal_edge": [
+        19197,
+        21045
+      ],
+      "face_rows": [
+        34666,
+        34705
+      ],
+      "minimum_angle_after_deg": 2.242665473621198,
+      "minimum_angle_before_deg": 0.5678922510852136,
+      "new_diagonal": [
+        21149,
+        21150
+      ]
+    },
+    {
+      "diagonal_edge": [
+        17965,
+        21045
+      ],
+      "face_rows": [
+        34668,
+        34706
+      ],
+      "minimum_angle_after_deg": 2.242665473621198,
+      "minimum_angle_before_deg": 0.5678922510852136,
+      "new_diagonal": [
+        21046,
+        21047
+      ]
+    }
+  ],
+  "owner": "two_parent_patch_flips_402.propose_patch_flips",
+  "owner_sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+  "physical_steps": 0,
+  "same_parent_barycentric_max_error_m": 0.0,
+  "same_parent_barycentric_tolerance_m": 1e-12,
+  "schema": "numi.human.b109_114.attempt005.conclusion.v2",
+  "self_screen_limit": {
+    "complement_self_result_valid": false,
+    "diagnosed_cause": "AABB overlap needed per-face axis=1 reductions; the saved local complement screen returned zero active rows. The retained synthetic predicate test validates row-wise inclusive overlap.",
+    "independent_topology_and_world_aabb_witnesses": {
+      "boundary_edges_with_complement_incident_face": 63,
+      "complement_faces_sharing_patch_node": 194,
+      "patch_boundary_edges": 63,
+      "world_aabb_active_complement_faces": 1419
+    },
+    "invalid_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/exact-local-report-corrected.json",
+    "invalid_report_sha256": "15805a1cb235a50c3bab72e5ce1e192e2b86c83eecd3208f800974056f8dca06",
+    "limitation": "The saved exact complement check selected zero faces, so its zero-hit result is invalid. No full exact rerun was performed after discovering the filter issue; the candidate already failed the bone identity gate.",
+    "patch_internal_nonadjacent_self_pairs_baseline": 0,
+    "patch_internal_nonadjacent_self_pairs_trial": 0,
+    "recorded_complement_aabb_active_faces": 0
+  },
+  "source_detail_subface_transfer_preserved": true,
+  "status": "REJECTED_LOCAL_CONSTRUCTION_CANDIDATE",
+  "topology_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/topology-and-lineage-report.json",
+  "topology_report_sha256": "5ab8287dda2be2c52fce0d12453ce9019bb8bc9e2d8be60ceb4cf23fc3e9e027",
+  "trial_multi_parent_rows": 4
+}

@@ -1,0 +1,14 @@
+{
+  "checker_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/exact_local_check_corrected.py",
+  "checker_returncode": 0,
+  "checker_sha256": "fa7b854515bc045290503735efd7dcf29de8647dacc446992334251f9c01a836",
+  "checker_status": "LOCAL_EXACT_CHECK_REJECTED",
+  "elapsed_seconds": 2.010859209112823,
+  "exact_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/exact-local-report-corrected.json",
+  "exact_report_sha256": "15805a1cb235a50c3bab72e5ce1e192e2b86c83eecd3208f800974056f8dca06",
+  "native_admission": false,
+  "physical_steps": 0,
+  "schema": "numi.human.b109_114.attempt005.corrected_exact_execution.v1",
+  "serialized_by": "/tmp/numi-human-geometry-slot.py",
+  "status": "REJECTED_OR_FAILED"
+}

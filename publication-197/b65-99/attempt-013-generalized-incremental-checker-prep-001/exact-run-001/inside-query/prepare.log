@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/inside-query/points-world.npz",
+  "input_sha256": "6fe6e5054be707fe4ee50e018cb6326f63103c63fa1d6c34b3d860a18b22b013",
+  "field": "points_world_f32",
+  "query_count": 32,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/inside-query/points.csv",
+  "output_sha256": "8cb430a86aa0f38d6f9450b674552b2e09c02b573fc4e39c517ca127e436fd57",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

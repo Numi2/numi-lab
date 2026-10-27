@@ -1,0 +1,173 @@
+{
+  "admission": false,
+  "base_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-182-stage-001/combined-653/candidate.npz",
+  "base_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/candidate-two-cross-parent-flips.npz",
+  "candidate_sha256": "b2d4315d060659a31381f2c48d21a113cd1bd57670850876134ccda6f3b37192",
+  "coarse_parent_scalar_remains_unset": true,
+  "coordinates_bitwise_unchanged": true,
+  "crossing_faces_targeted": [
+    34705,
+    34706
+  ],
+  "exact_bone_self_inside_checks": "pending serialized local check under geometry slot",
+  "final_immediate_parent_rows": {
+    "34666": [
+      34132,
+      34158
+    ],
+    "34668": [
+      34132,
+      34158
+    ],
+    "34705": [
+      34132,
+      34158
+    ],
+    "34706": [
+      34132,
+      34158
+    ]
+  },
+  "generation002_guard_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/refresh_guards_multi_parent_generation002.py",
+  "generation002_guard_sha256": "90bafb6a51e9d7a2dd9b49570fcd977423616e18e992c2d4a4306feea5bd5eab",
+  "generation002_multi_parent_refresh_guard": {
+    "affine_parent_map_validation": null,
+    "all_scalar_summaries_match_csr_unions": true,
+    "construction_only": true,
+    "crossing_face_count": 565,
+    "crossing_face_kind_counts": {
+      "2": 565
+    },
+    "crossing_faces_with_multi_detail_union": 51,
+    "crossing_faces_with_multi_parent_csr": 4,
+    "crossing_faces_with_multi_source_union": 51,
+    "crossing_fine_detail_ancestry_union_validated": true,
+    "crossing_fine_detail_ancestry_unique_and_matching": false,
+    "current_face_count": 42379,
+    "detail_csr_value_count": 35767,
+    "multi_parent_current_face_count": 4,
+    "native_admission": false,
+    "parent_candidate_path": "provided",
+    "parent_face_count": 41745,
+    "parent_indices_in_range": true,
+    "refinement_parent_contract_mode": "legacy_parent_union_with_nan_multi_parent",
+    "refinement_parent_csr_rows": 42383,
+    "registered_detail_id_count": 11453,
+    "registered_source_id_count": 14345,
+    "registered_subface_id_count": 11459,
+    "source_csr_value_count": 42625,
+    "subface_csr_value_count": 35779
+  },
+  "geometry_audit_run": false,
+  "historical_quality_flip_lineage_preserved": true,
+  "immediate_parent_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz",
+  "immediate_parent_candidate_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+  "immediate_parent_unions_updated": true,
+  "local_boundary_preserved": true,
+  "local_outer_boundary_edge_count": 63,
+  "local_patch_component_face_count": 277,
+  "matched_037_connectivity_synchronized": true,
+  "native_admission": false,
+  "operations": [
+    {
+      "accepted_flip_count": 1,
+      "changed_face_rows": [
+        34666,
+        34705
+      ],
+      "freshly_revalidated_after_previous_flip": false,
+      "operation": {
+        "angle_gain_deg": 1.6747732225359844,
+        "edge": [
+          19197,
+          21045
+        ],
+        "face_rows": [
+          34666,
+          34705
+        ],
+        "immediate_parent_union": [
+          34132,
+          34158
+        ],
+        "new_diagonal": [
+          21149,
+          21150
+        ],
+        "new_faces": [
+          [
+            21045,
+            21150,
+            21149
+          ],
+          [
+            21150,
+            19197,
+            21149
+          ]
+        ],
+        "new_min_angle_deg": 2.242665473621198,
+        "old_min_angle_deg": 0.5678922510852136,
+        "source_detail_face_row": 90091,
+        "source_subface_row": 90099
+      },
+      "owner_status": "LOCAL_PATCH_RETRIANGULATION_PROPOSED",
+      "seed": 34705
+    },
+    {
+      "accepted_flip_count": 1,
+      "changed_face_rows": [
+        34668,
+        34706
+      ],
+      "freshly_revalidated_after_previous_flip": true,
+      "operation": {
+        "angle_gain_deg": 1.6747732225359844,
+        "edge": [
+          17965,
+          21045
+        ],
+        "face_rows": [
+          34668,
+          34706
+        ],
+        "immediate_parent_union": [
+          34132,
+          34158
+        ],
+        "new_diagonal": [
+          21046,
+          21047
+        ],
+        "new_faces": [
+          [
+            17965,
+            21047,
+            21046
+          ],
+          [
+            21047,
+            21045,
+            21046
+          ]
+        ],
+        "new_min_angle_deg": 2.242665473621198,
+        "old_min_angle_deg": 0.5678922510852136,
+        "source_detail_face_row": 90091,
+        "source_subface_row": 90099
+      },
+      "owner_status": "LOCAL_PATCH_RETRIANGULATION_PROPOSED",
+      "seed": 34706
+    }
+  ],
+  "owner": "two_parent_patch_flips_402.propose_patch_flips",
+  "owner_path": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py",
+  "owner_sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+  "physical_steps": 0,
+  "saved_audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-182-stage-001/combined-653/audit-159/report.json",
+  "saved_audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "schema": "numi.human.b109_114.attempt005.owner_supported_cross_parent_flips.v1",
+  "source_detail_subface_ancestry_preserved": true,
+  "status": "TOPOLOGY_ONLY_PREPARED_FOR_EXACT_LOCAL_CHECKS"
+}

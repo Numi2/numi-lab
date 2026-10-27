@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-009-parent-barycentric-remap-001/exact-local-audit-001/run-001/inside-query/points-world.npz",
+  "input_sha256": "4a1d331f5a6290a72066da06dcf29b14374ec08dcc91d8d9e3be8aab89c6ed20",
+  "field": "points_world_f32",
+  "query_count": 4,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-009-parent-barycentric-remap-001/exact-local-audit-001/run-001/inside-query/points.csv",
+  "output_sha256": "528ca7401ec3c5911e6684218f3a1d85aea3700f4125952eb26b1c89a35bbba5",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

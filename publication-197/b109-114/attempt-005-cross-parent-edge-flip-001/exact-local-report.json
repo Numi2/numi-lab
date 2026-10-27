@@ -1,0 +1,11 @@
+{
+  "admission": false,
+  "elapsed_seconds": 1.0454034579452127,
+  "failure": "ValueError('zero-motion exact local control failed to reproduce saved 109/114 child pair identities')",
+  "full_body_audit_run": false,
+  "native_admission": false,
+  "physical_steps": 0,
+  "schema": "numi.human.b109_114.attempt005.exact_local_check.v1",
+  "status": "LOCAL_EXACT_CHECK_ABORTED",
+  "traceback": "Traceback (most recent call last):\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/exact_local_check.py\", line 79, in main\n    if raw0!=expected:raise ValueError(\"zero-motion exact local control failed to reproduce saved 109/114 child pair identities\")\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: zero-motion exact local control failed to reproduce saved 109/114 child pair identities\n"
+}

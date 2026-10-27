@@ -1,0 +1,1234 @@
+{
+  "candidate_modified": false,
+  "canonical_identity_improvement": "NOT_CLAIMED_PENDING_EXACT_SCREEN",
+  "changed_face_csr_receipts": [
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14060,
+      "immediate_parent_union": [
+        13983
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14060,
+        14061
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14061,
+      "immediate_parent_union": [
+        13983
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14060,
+        14061
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14126,
+      "immediate_parent_union": [
+        14024
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14126,
+        14128
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14128,
+      "immediate_parent_union": [
+        14024
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14126,
+        14128
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14172,
+      "immediate_parent_union": [
+        14053
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14172,
+        14174
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14174,
+      "immediate_parent_union": [
+        14053
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14172,
+        14174
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14192,
+      "immediate_parent_union": [
+        14062
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14192,
+        14193
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14193,
+      "immediate_parent_union": [
+        14062
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14192,
+        14193
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14221,
+      "immediate_parent_union": [
+        14083
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14221,
+        14223
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14223,
+      "immediate_parent_union": [
+        14083
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14221,
+        14223
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14248,
+      "immediate_parent_union": [
+        14097
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14248,
+        14251
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14251,
+      "immediate_parent_union": [
+        14097
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14248,
+        14251
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14405,
+      "immediate_parent_union": [
+        14250,
+        14284
+      ],
+      "is_multi_parent": true,
+      "operation_face_rows": [
+        14405,
+        14453
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14453,
+      "immediate_parent_union": [
+        14250,
+        14284
+      ],
+      "is_multi_parent": true,
+      "operation_face_rows": [
+        14405,
+        14453
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14456,
+      "immediate_parent_union": [
+        14285
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14456,
+        14457
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530
+      ],
+      "face_row": 14457,
+      "immediate_parent_union": [
+        14285
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        14456,
+        14457
+      ],
+      "source_union": [
+        5530
+      ],
+      "subface_union": [
+        5530
+      ]
+    },
+    {
+      "detail_union": [
+        5530,
+        6103
+      ],
+      "face_row": 15101,
+      "immediate_parent_union": [
+        14920
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        15101,
+        15104
+      ],
+      "source_union": [
+        5530,
+        6103
+      ],
+      "subface_union": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "detail_union": [
+        5530,
+        6103
+      ],
+      "face_row": 15104,
+      "immediate_parent_union": [
+        14920
+      ],
+      "is_multi_parent": false,
+      "operation_face_rows": [
+        15101,
+        15104
+      ],
+      "source_union": [
+        5530,
+        6103
+      ],
+      "subface_union": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "detail_union": [
+        5530,
+        6103
+      ],
+      "face_row": 15106,
+      "immediate_parent_union": [
+        14922,
+        14993
+      ],
+      "is_multi_parent": true,
+      "operation_face_rows": [
+        15106,
+        15186
+      ],
+      "source_union": [
+        5530,
+        6103
+      ],
+      "subface_union": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "detail_union": [
+        5530,
+        6103
+      ],
+      "face_row": 15186,
+      "immediate_parent_union": [
+        14922,
+        14993
+      ],
+      "is_multi_parent": true,
+      "operation_face_rows": [
+        15106,
+        15186
+      ],
+      "source_union": [
+        5530,
+        6103
+      ],
+      "subface_union": [
+        5530,
+        6103
+      ]
+    }
+  ],
+  "coordinates_bitwise_unchanged": true,
+  "deterministic_sort": "descending saved exact pair count touched; descending 402 angle gain; then face_rows and edge",
+  "exact_bone_screen": "NOT_RUN_PENDING_AUTHORIZED_SLOT",
+  "exact_self_screen": "NOT_RUN_PENDING_AUTHORIZED_SLOT",
+  "geometry_or_native_admission": false,
+  "input_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-008-witness-direction-backtrack-prepared-001/candidate-private-iteration-01.npz",
+  "input_candidate_sha256": "8931f3f240f595f2df17e91cb4f4c82688721e778e81bcbc4acc7f6264d61d70",
+  "input_pins": {
+    "input_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-008-witness-direction-backtrack-prepared-001/candidate-private-iteration-01.npz",
+      "sha256": "8931f3f240f595f2df17e91cb4f4c82688721e778e81bcbc4acc7f6264d61d70"
+    },
+    "input_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-008-witness-direction-backtrack-prepared-001/report.json",
+      "sha256": "5ce52aa8e793a0ff8cf202e9efa00f9dee01823f6cf62144426725612c4a3d0e"
+    },
+    "owner402": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py",
+      "sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764"
+    },
+    "parent_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz",
+      "sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35"
+    },
+    "refresh546": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/refresh_guards_multi_parent_generation002.py",
+      "sha256": "90bafb6a51e9d7a2dd9b49570fcd977423616e18e992c2d4a4306feea5bd5eab"
+    },
+    "replay405": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-405/cross_seam_search_405.py",
+      "sha256": "e995a2f460e60cb62fb24b80af400678757f62a2b0c1b51141bf0ef387993967"
+    },
+    "replay534": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-quality-patch-534/replay_surviving_flips_534.py",
+      "sha256": "4559fd425a3300528f49e5211afbd633674910ecaa0d6671408ee0e9d145e504"
+    }
+  },
+  "lineage_trace": {
+    "archived_generation002_input_candidate_sha256": "5a7239e62cbc0cf461440a48a8c4747d7d733eec630d63cf9e08682009593cc6",
+    "current_refinement_input_candidate_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+    "immediate_parent_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz",
+    "parent_domain_source": "the current refinement_input_candidate_sha256 pin; archived generation-002 hash remains historical lineage"
+  },
+  "local_patch_boundary_preserved": true,
+  "owner_batch_report": {
+    "applied_operation_count": 10,
+    "array_updates": "source, detail, subface and immediate-parent CSR unions; scalar -1 and NaN barycentrics for multi-parent rows",
+    "helper": "connected-quality-patch-534/replay_surviving_flips_534.apply_ops_batch"
+  },
+  "owner_eligible_operations": 21,
+  "owner_rejection_reasons": {
+    "037_nonpositive_new_face": 4,
+    "037_old_orientation": 2,
+    "ancestry_or_material_seam": 6,
+    "current_037_orientation_disagreement": 44,
+    "no_min_angle_gain": 72,
+    "nonconvex_quad": 63
+  },
+  "patch_boundary_edge_count": 62,
+  "patch_face_count": 248,
+  "patch_interior_crossing_neighborhood_edge_count": 212,
+  "private_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/candidate-private.npz",
+  "private_candidate_sha256": "097452436f69e4bbe2c12ba51d78fa8415076c8d786519b4baa701863e8c0e9b",
+  "refresh_546_lineage_guard": {
+    "affine_parent_map_validation": null,
+    "all_scalar_summaries_match_csr_unions": true,
+    "construction_only": true,
+    "crossing_face_count": 102,
+    "crossing_face_kind_counts": {
+      "2": 102
+    },
+    "crossing_faces_with_multi_detail_union": 17,
+    "crossing_faces_with_multi_parent_csr": 0,
+    "crossing_faces_with_multi_source_union": 17,
+    "crossing_fine_detail_ancestry_union_validated": true,
+    "crossing_fine_detail_ancestry_unique_and_matching": false,
+    "current_face_count": 42379,
+    "detail_csr_value_count": 35767,
+    "multi_parent_current_face_count": 4,
+    "native_admission": false,
+    "parent_candidate_path": "provided",
+    "parent_face_count": 41745,
+    "parent_indices_in_range": true,
+    "refinement_parent_contract_mode": "legacy_parent_union_with_nan_multi_parent",
+    "refinement_parent_csr_rows": 42383,
+    "registered_detail_id_count": 11453,
+    "registered_source_id_count": 14345,
+    "registered_subface_id_count": 11459,
+    "source_csr_value_count": 42625,
+    "subface_csr_value_count": 35779
+  },
+  "refresh_guard_crossing_scope": "Existing saved 65/99 pairs on unchanged face rows only; changed rows are explicitly omitted until exact screen.",
+  "saved_crossing_face_count": 120,
+  "saved_exact_pair_count": 148,
+  "schema": "numi.human.bank65_99.topology-flip-batch-preflight.v1",
+  "scope": "One private deterministic, node-disjoint 2-to-2 flip batch in the 248-face 65/99 patch; use 402 shape/topology proposal guards, 534 batch ancestry replay and 546 lineage refresh. No exact bone or self screen in this preflight.",
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/prepare_topology_flip_batch.py",
+  "script_sha256": "cca0fee5903d549daa0b7f8956ed1b12e1c7d0ecf5bf33b5174ddc860806af4c",
+  "selected_multi_parent_operation_count": 2,
+  "selected_operation_count": 10,
+  "selected_operations": [
+    {
+      "angle_gain_deg": 2.661293362759981,
+      "crossing_pair_count_touched": 5,
+      "crossing_pairs_touched": [
+        [
+          14456,
+          103
+        ],
+        [
+          14456,
+          111
+        ],
+        [
+          14456,
+          113
+        ],
+        [
+          14457,
+          103
+        ],
+        [
+          14457,
+          111
+        ]
+      ],
+      "detail_ancestry_union": [
+        5530
+      ],
+      "edge": [
+        21089,
+        21168
+      ],
+      "face_rows": [
+        14456,
+        14457
+      ],
+      "immediate_parent_union": [
+        14285
+      ],
+      "new_diagonal": [
+        19469,
+        21091
+      ],
+      "new_faces": [
+        [
+          21168,
+          21091,
+          19469
+        ],
+        [
+          21091,
+          21089,
+          19469
+        ]
+      ],
+      "new_min_angle_deg": 22.38579395643761,
+      "old_faces": [
+        [
+          21168,
+          21089,
+          19469
+        ],
+        [
+          21091,
+          21089,
+          21168
+        ]
+      ],
+      "old_min_angle_deg": 19.72450059367763,
+      "source_ancestry_union": [
+        5530
+      ],
+      "source_detail_face_row": 5530,
+      "source_subface_row": 5530,
+      "subface_ancestry_union": [
+        5530
+      ]
+    },
+    {
+      "angle_gain_deg": 1.5239965368634731,
+      "crossing_pair_count_touched": 4,
+      "crossing_pairs_touched": [
+        [
+          14126,
+          104
+        ],
+        [
+          14126,
+          173
+        ],
+        [
+          14128,
+          102
+        ],
+        [
+          14128,
+          104
+        ]
+      ],
+      "detail_ancestry_union": [
+        5530
+      ],
+      "edge": [
+        21078,
+        21085
+      ],
+      "face_rows": [
+        14126,
+        14128
+      ],
+      "immediate_parent_union": [
+        14024
+      ],
+      "new_diagonal": [
+        18571,
+        21080
+      ],
+      "new_faces": [
+        [
+          21078,
+          21080,
+          18571
+        ],
+        [
+          21080,
+          21085,
+          18571
+        ]
+      ],
+      "new_min_angle_deg": 16.440564864098157,
+      "old_faces": [
+        [
+          21085,
+          18571,
+          21078
+        ],
+        [
+          21085,
+          21078,
+          21080
+        ]
+      ],
+      "old_min_angle_deg": 14.916568327234684,
+      "source_ancestry_union": [
+        5530
+      ],
+      "source_detail_face_row": 5530,
+      "source_subface_row": 5530,
+      "subface_ancestry_union": [
+        5530
+      ]
+    },
+    {
+      "angle_gain_deg": 0.9787731151729879,
+      "crossing_pair_count_touched": 3,
+      "crossing_pairs_touched": [
+        [
+          14172,
+          175
+        ],
+        [
+          14172,
+          180
+        ],
+        [
+          14174,
+          175
+        ]
+      ],
+      "detail_ancestry_union": [
+        5530
+      ],
+      "edge": [
+        20984,
+        21158
+      ],
+      "face_rows": [
+        14172,
+        14174
+      ],
+      "immediate_parent_union": [
+        14053
+      ],
+      "new_diagonal": [
+        19343,
+        20986
+      ],
+      "new_faces": [
+        [
+          21158,
+          20986,
+          19343
+        ],
+        [
+          20986,
+          20984,
+          19343
+        ]
+      ],
+      "new_min_angle_deg": 14.680572321405919,
+      "old_faces": [
+        [
+          20984,
+          19343,
+          21158
+        ],
+        [
+          20984,
+          21158,
+          20986
+        ]
+      ],
+      "old_min_angle_deg": 13.70179920623293,
+      "source_ancestry_union": [
+        5530
+      ],
+      "source_detail_face_row": 5530,
+      "source_subface_row": 5530,
+      "subface_ancestry_union": [
+        5530
+      ]
+    },
+    {
+      "angle_gain_deg": 0.3713333893290258,
+      "crossing_pair_count_touched": 3,
+      "crossing_pairs_touched": [
+        [
+          14192,
+          180
+        ],
+        [
+          14192,
+          183
+        ],
+        [
+          14193,
+          180
+        ]
+      ],
+      "detail_ancestry_union": [
+        5530
+      ],
+      "edge": [
+        21001,
+        21058
+      ],
+      "face_rows": [
+        14192,
+        14193
+      ],
+      "immediate_parent_union": [
+        14062
+      ],
+      "new_diagonal": [
+        18460,
+        21003
+      ],
+      "new_faces": [
+        [
+          21001,
+          21003,
+          18460
+        ],
+        [
+          21003,
+          21058,
+          18460
+        ]
+      ],
+      "new_min_angle_deg": 9.446565799106004,
+      "old_faces": [
+        [
+          21001,
+          21058,
+          18460
+        ],
+        [
+          21003,
+          21058,
+          21001
+        ]
+      ],
+      "old_min_angle_deg": 9.075232409776978,
+      "source_ancestry_union": [
+        5530
+      ],
+      "source_detail_face_row": 5530,
+      "source_subface_row": 5530,
+      "subface_ancestry_union": [
+        5530
+      ]
+    },
+    {
+      "angle_gain_deg": 1.8220172126287135,
+      "crossing_pair_count_touched": 2,
+      "crossing_pairs_touched": [
+        [
+          14248,
+          175
+        ],
+        [
+          14251,
+          175
+        ]
+      ],
+      "detail_ancestry_union": [
+        5530
+      ],
+      "edge": [
+        20985,
+        21185
+      ],
+      "face_rows": [
+        14248,
+        14251
+      ],
+      "immediate_parent_union": [
+        14097
+      ],
+      "new_diagonal": [
+        19686,
+        20987
+      ],
+      "new_faces": [
+        [
+          20985,
+          20987,
+          19686
+        ],
+        [
+          20987,
+          21185,
+          19686
+        ]
+      ],
+      "new_min_angle_deg": 12.346176007189836,
+      "old_faces": [
+        [
+          19686,
+          20985,
+          21185
+        ],
+        [
+          20985,
+          20987,
+          21185
+        ]
+      ],
+      "old_min_angle_deg": 10.524158794561123,
+      "source_ancestry_union": [
+        5530
+      ],
+      "source_detail_face_row": 5530,
+      "source_subface_row": 5530,
+      "subface_ancestry_union": [
+        5530
+      ]
+    },
+    {
+      "angle_gain_deg": 1.4810993211138674,
+      "crossing_pair_count_touched": 2,
+      "crossing_pairs_touched": [
+        [
+          15106,
+          174
+        ],
+        [
+          15106,
+          226
+        ]
+      ],
+      "detail_ancestry_union": [
+        5530,
+        6103
+      ],
+      "edge": [
+        18725,
+        21011
+      ],
+      "face_rows": [
+        15106,
+        15186
+      ],
+      "immediate_parent_union": [
+        14922,
+        14993
+      ],
+      "new_diagonal": [
+        20006,
+        21103
+      ],
+      "new_faces": [
+        [
+          21011,
+          20006,
+          21103
+        ],
+        [
+          20006,
+          18725,
+          21103
+        ]
+      ],
+      "new_min_angle_deg": 4.60553650481806,
+      "old_faces": [
+        [
+          18725,
+          21103,
+          21011
+        ],
+        [
+          18725,
+          21011,
+          20006
+        ]
+      ],
+      "old_min_angle_deg": 3.1244371837041927,
+      "source_ancestry_union": [
+        5530,
+        6103
+      ],
+      "source_detail_face_row": -1,
+      "source_subface_row": -1,
+      "subface_ancestry_union": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "angle_gain_deg": 0.795335570853231,
+      "crossing_pair_count_touched": 2,
+      "crossing_pairs_touched": [
+        [
+          15101,
+          183
+        ],
+        [
+          15104,
+          183
+        ]
+      ],
+      "detail_ancestry_union": [
+        5530,
+        6103
+      ],
+      "edge": [
+        21156,
+        21157
+      ],
+      "face_rows": [
+        15101,
+        15104
+      ],
+      "immediate_parent_union": [
+        14920
+      ],
+      "new_diagonal": [
+        19341,
+        21199
+      ],
+      "new_faces": [
+        [
+          21157,
+          21199,
+          19341
+        ],
+        [
+          21199,
+          21156,
+          19341
+        ]
+      ],
+      "new_min_angle_deg": 14.270682707112861,
+      "old_faces": [
+        [
+          19341,
+          21157,
+          21156
+        ],
+        [
+          21157,
+          21199,
+          21156
+        ]
+      ],
+      "old_min_angle_deg": 13.47534713625963,
+      "source_ancestry_union": [
+        5530,
+        6103
+      ],
+      "source_detail_face_row": -1,
+      "source_subface_row": -1,
+      "subface_ancestry_union": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "angle_gain_deg": 0.4068400067325726,
+      "crossing_pair_count_touched": 2,
+      "crossing_pairs_touched": [
+        [
+          14060,
+          175
+        ],
+        [
+          14061,
+          175
+        ]
+      ],
+      "detail_ancestry_union": [
+        5530
+      ],
+      "edge": [
+        20998,
+        21169
+      ],
+      "face_rows": [
+        14060,
+        14061
+      ],
+      "immediate_parent_union": [
+        13983
+      ],
+      "new_diagonal": [
+        19932,
+        20997
+      ],
+      "new_faces": [
+        [
+          21169,
+          20997,
+          19932
+        ],
+        [
+          20997,
+          20998,
+          19932
+        ]
+      ],
+      "new_min_angle_deg": 6.3326949815741225,
+      "old_faces": [
+        [
+          21169,
+          20998,
+          19932
+        ],
+        [
+          20997,
+          20998,
+          21169
+        ]
+      ],
+      "old_min_angle_deg": 5.92585497484155,
+      "source_ancestry_union": [
+        5530
+      ],
+      "source_detail_face_row": 5530,
+      "source_subface_row": 5530,
+      "subface_ancestry_union": [
+        5530
+      ]
+    },
+    {
+      "angle_gain_deg": 0.2894436088880106,
+      "crossing_pair_count_touched": 2,
+      "crossing_pairs_touched": [
+        [
+          14221,
+          175
+        ],
+        [
+          14223,
+          175
+        ]
+      ],
+      "detail_ancestry_union": [
+        5530
+      ],
+      "edge": [
+        20946,
+        21118
+      ],
+      "face_rows": [
+        14221,
+        14223
+      ],
+      "immediate_parent_union": [
+        14083
+      ],
+      "new_diagonal": [
+        18864,
+        20948
+      ],
+      "new_faces": [
+        [
+          20946,
+          20948,
+          18864
+        ],
+        [
+          20948,
+          21118,
+          18864
+        ]
+      ],
+      "new_min_angle_deg": 8.11019171067547,
+      "old_faces": [
+        [
+          21118,
+          18864,
+          20946
+        ],
+        [
+          21118,
+          20946,
+          20948
+        ]
+      ],
+      "old_min_angle_deg": 7.82074810178746,
+      "source_ancestry_union": [
+        5530
+      ],
+      "source_detail_face_row": 5530,
+      "source_subface_row": 5530,
+      "subface_ancestry_union": [
+        5530
+      ]
+    },
+    {
+      "angle_gain_deg": 0.01576137100668351,
+      "crossing_pair_count_touched": 1,
+      "crossing_pairs_touched": [
+        [
+          14405,
+          104
+        ]
+      ],
+      "detail_ancestry_union": [
+        5530
+      ],
+      "edge": [
+        18572,
+        21086
+      ],
+      "face_rows": [
+        14405,
+        14453
+      ],
+      "immediate_parent_union": [
+        14250,
+        14284
+      ],
+      "new_diagonal": [
+        18569,
+        21088
+      ],
+      "new_faces": [
+        [
+          18572,
+          18569,
+          21088
+        ],
+        [
+          18569,
+          21086,
+          21088
+        ]
+      ],
+      "new_min_angle_deg": 6.57842708084933,
+      "old_faces": [
+        [
+          18572,
+          21086,
+          21088
+        ],
+        [
+          21086,
+          18572,
+          18569
+        ]
+      ],
+      "old_min_angle_deg": 6.562665709842647,
+      "source_ancestry_union": [
+        5530
+      ],
+      "source_detail_face_row": 5530,
+      "source_subface_row": 5530,
+      "subface_ancestry_union": [
+        5530
+      ]
+    }
+  ],
+  "shape_gate": {
+    "area_ratio_floor": 0.1,
+    "maximum_aspect_cap": 31.295682699019785,
+    "measured": {
+      "area_orientation_reference": "unchanged rows use their pre-flip emitted F32 triangle; changed rows use old paired quadrilateral aggregate",
+      "face_count": 248,
+      "maximum_aspect_measure": 26.661322720626618,
+      "minimum_angle_degrees": 0.8462441853369103,
+      "minimum_signed_orientation_cosine": 0.47221768369434525,
+      "minimum_unsigned_parent_area_ratio": 0.10003677294476356,
+      "orientation_positive": true,
+      "p05_angle_degrees": 2.1936073831461806
+    },
+    "minimum_angle_floor_deg": 0.8108801448691115,
+    "pass": true
+  },
+  "status": "SHAPE_AND_LINEAGE_PREFLIGHT_PASSED_PENDING_EXACT_LOCAL_SCREEN",
+  "whole_surface_boundary_preserved": true
+}

@@ -1,0 +1,2497 @@
+{
+  "all_bank_clearance": "NOT_RUN",
+  "baseline_inside_or_boundary_nodes": [
+    20946,
+    20948,
+    20986,
+    20987,
+    20996,
+    20997,
+    20999,
+    21001,
+    21002,
+    21003,
+    21004,
+    21007,
+    21008,
+    21009,
+    21012,
+    21080,
+    21083,
+    21084,
+    21085,
+    21087,
+    21088,
+    21091,
+    21103,
+    21105,
+    21156,
+    21158,
+    21169,
+    21185,
+    21199
+  ],
+  "baseline_local_self": {
+    "aabb_active_complement_face_count": 634,
+    "aabb_bounds_axis_semantics": "min/max over triangle vertices axis=1; overlap predicates all tested per face over 3 axes",
+    "canonical_parent_self": [],
+    "canonical_source_self": [],
+    "patch_internal_pair_count": 0,
+    "patch_internal_pairs": [],
+    "patch_vs_complement_pair_count": 0,
+    "patch_vs_complement_pairs": [],
+    "raw_pair_union": [],
+    "shared_boundary_adjacent_face_count": 53,
+    "shared_boundary_adjacent_faces_in_aabb_active_count": 53
+  },
+  "candidate_modified": false,
+  "final_private_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/exact-screen-corrected-001/candidate-exact-screen-round-02.npz",
+  "final_private_candidate_sha256": "2fd66c7e1f1255e43591b708a183b96852fa7ea7a7340897898185468690dcb3",
+  "full_surface_self": "NOT_RUN",
+  "geometry_or_native_admission": false,
+  "input_pins": {
+    "audit_owner_sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+    "bank_input_helper_sha256": "ea833990d8b1ffb309d4960e62fb8c67e5cf0ecdbcdc0d8e9ad40c20eaf4c6db",
+    "baseline_candidate_sha256": "8931f3f240f595f2df17e91cb4f4c82688721e778e81bcbc4acc7f6264d61d70",
+    "generation002_refresh_sha256": "90bafb6a51e9d7a2dd9b49570fcd977423616e18e992c2d4a4306feea5bd5eab",
+    "parent_candidate_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+    "preflight_sha256": "6169a812653299153a6a3ad205e6305a263b4d614f414fe1a8eff4581c0a6dff",
+    "private_batch_candidate_sha256": "097452436f69e4bbe2c12ba51d78fa8415076c8d786519b4baa701863e8c0e9b",
+    "target_bone_count": 342
+  },
+  "native_physical_admission": "NOT_CLAIMED",
+  "schema": "numi.human.bank65_99.topology-flip-batch-local-exact.v1",
+  "scope": "Exact local 65/99 bone screen and patch-internal / AABB-selected complement self screen for the preflighted private 10-flip topology batch, with canonical source/immediate-parent identities and all-patch-node point locations. No full all-bank audit or physical admission.",
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/screen_topology_flip_batch_corrected.py",
+  "script_sha256": "f22867b22d103a53df0408f2a3211d4c1da269f8eca183d15e9eaebd4d06e8ff",
+  "status": "PRIVATE_REJECTED_NO_CANONICAL_IMPROVEMENT",
+  "topology_batch": {
+    "excluded_operations": [
+      {
+        "face_rows": [
+          15106,
+          15186
+        ],
+        "operation_index_in_initial_batch": 5,
+        "reason": "directly implicated by newly added canonical bone identity or self witness"
+      },
+      {
+        "face_rows": [
+          14405,
+          14453
+        ],
+        "operation_index_in_initial_batch": 9,
+        "reason": "directly implicated by newly added canonical bone identity or self witness"
+      }
+    ],
+    "final_variant": {
+      "excluded_operation_indices": [
+        {
+          "face_rows": [
+            15106,
+            15186
+          ],
+          "operation_index_in_initial_batch": 5,
+          "reason": "directly implicated by newly added canonical bone identity or self witness"
+        },
+        {
+          "face_rows": [
+            14405,
+            14453
+          ],
+          "operation_index_in_initial_batch": 9,
+          "reason": "directly implicated by newly added canonical bone identity or self witness"
+        }
+      ],
+      "operation_count": 8,
+      "variant_index": 1
+    },
+    "initial_changed_face_rows": [
+      14060,
+      14061,
+      14126,
+      14128,
+      14172,
+      14174,
+      14192,
+      14193,
+      14221,
+      14223,
+      14248,
+      14251,
+      14405,
+      14453,
+      14456,
+      14457,
+      15101,
+      15104,
+      15106,
+      15186
+    ],
+    "initial_nonconflicting_face_node_disjoint": true,
+    "initial_operation_count": 10,
+    "multi_parent_operation_count": 2,
+    "operations": [
+      {
+        "angle_gain_deg": 2.661293362759981,
+        "crossing_pair_count_touched": 5,
+        "crossing_pairs_touched": [
+          [
+            14456,
+            103
+          ],
+          [
+            14456,
+            111
+          ],
+          [
+            14456,
+            113
+          ],
+          [
+            14457,
+            103
+          ],
+          [
+            14457,
+            111
+          ]
+        ],
+        "detail_ancestry_union": [
+          5530
+        ],
+        "edge": [
+          21089,
+          21168
+        ],
+        "face_rows": [
+          14456,
+          14457
+        ],
+        "immediate_parent_union": [
+          14285
+        ],
+        "new_diagonal": [
+          19469,
+          21091
+        ],
+        "new_faces": [
+          [
+            21168,
+            21091,
+            19469
+          ],
+          [
+            21091,
+            21089,
+            19469
+          ]
+        ],
+        "new_min_angle_deg": 22.38579395643761,
+        "old_faces": [
+          [
+            21168,
+            21089,
+            19469
+          ],
+          [
+            21091,
+            21089,
+            21168
+          ]
+        ],
+        "old_min_angle_deg": 19.72450059367763,
+        "source_ancestry_union": [
+          5530
+        ],
+        "source_detail_face_row": 5530,
+        "source_subface_row": 5530,
+        "subface_ancestry_union": [
+          5530
+        ]
+      },
+      {
+        "angle_gain_deg": 1.5239965368634731,
+        "crossing_pair_count_touched": 4,
+        "crossing_pairs_touched": [
+          [
+            14126,
+            104
+          ],
+          [
+            14126,
+            173
+          ],
+          [
+            14128,
+            102
+          ],
+          [
+            14128,
+            104
+          ]
+        ],
+        "detail_ancestry_union": [
+          5530
+        ],
+        "edge": [
+          21078,
+          21085
+        ],
+        "face_rows": [
+          14126,
+          14128
+        ],
+        "immediate_parent_union": [
+          14024
+        ],
+        "new_diagonal": [
+          18571,
+          21080
+        ],
+        "new_faces": [
+          [
+            21078,
+            21080,
+            18571
+          ],
+          [
+            21080,
+            21085,
+            18571
+          ]
+        ],
+        "new_min_angle_deg": 16.440564864098157,
+        "old_faces": [
+          [
+            21085,
+            18571,
+            21078
+          ],
+          [
+            21085,
+            21078,
+            21080
+          ]
+        ],
+        "old_min_angle_deg": 14.916568327234684,
+        "source_ancestry_union": [
+          5530
+        ],
+        "source_detail_face_row": 5530,
+        "source_subface_row": 5530,
+        "subface_ancestry_union": [
+          5530
+        ]
+      },
+      {
+        "angle_gain_deg": 0.9787731151729879,
+        "crossing_pair_count_touched": 3,
+        "crossing_pairs_touched": [
+          [
+            14172,
+            175
+          ],
+          [
+            14172,
+            180
+          ],
+          [
+            14174,
+            175
+          ]
+        ],
+        "detail_ancestry_union": [
+          5530
+        ],
+        "edge": [
+          20984,
+          21158
+        ],
+        "face_rows": [
+          14172,
+          14174
+        ],
+        "immediate_parent_union": [
+          14053
+        ],
+        "new_diagonal": [
+          19343,
+          20986
+        ],
+        "new_faces": [
+          [
+            21158,
+            20986,
+            19343
+          ],
+          [
+            20986,
+            20984,
+            19343
+          ]
+        ],
+        "new_min_angle_deg": 14.680572321405919,
+        "old_faces": [
+          [
+            20984,
+            19343,
+            21158
+          ],
+          [
+            20984,
+            21158,
+            20986
+          ]
+        ],
+        "old_min_angle_deg": 13.70179920623293,
+        "source_ancestry_union": [
+          5530
+        ],
+        "source_detail_face_row": 5530,
+        "source_subface_row": 5530,
+        "subface_ancestry_union": [
+          5530
+        ]
+      },
+      {
+        "angle_gain_deg": 0.3713333893290258,
+        "crossing_pair_count_touched": 3,
+        "crossing_pairs_touched": [
+          [
+            14192,
+            180
+          ],
+          [
+            14192,
+            183
+          ],
+          [
+            14193,
+            180
+          ]
+        ],
+        "detail_ancestry_union": [
+          5530
+        ],
+        "edge": [
+          21001,
+          21058
+        ],
+        "face_rows": [
+          14192,
+          14193
+        ],
+        "immediate_parent_union": [
+          14062
+        ],
+        "new_diagonal": [
+          18460,
+          21003
+        ],
+        "new_faces": [
+          [
+            21001,
+            21003,
+            18460
+          ],
+          [
+            21003,
+            21058,
+            18460
+          ]
+        ],
+        "new_min_angle_deg": 9.446565799106004,
+        "old_faces": [
+          [
+            21001,
+            21058,
+            18460
+          ],
+          [
+            21003,
+            21058,
+            21001
+          ]
+        ],
+        "old_min_angle_deg": 9.075232409776978,
+        "source_ancestry_union": [
+          5530
+        ],
+        "source_detail_face_row": 5530,
+        "source_subface_row": 5530,
+        "subface_ancestry_union": [
+          5530
+        ]
+      },
+      {
+        "angle_gain_deg": 1.8220172126287135,
+        "crossing_pair_count_touched": 2,
+        "crossing_pairs_touched": [
+          [
+            14248,
+            175
+          ],
+          [
+            14251,
+            175
+          ]
+        ],
+        "detail_ancestry_union": [
+          5530
+        ],
+        "edge": [
+          20985,
+          21185
+        ],
+        "face_rows": [
+          14248,
+          14251
+        ],
+        "immediate_parent_union": [
+          14097
+        ],
+        "new_diagonal": [
+          19686,
+          20987
+        ],
+        "new_faces": [
+          [
+            20985,
+            20987,
+            19686
+          ],
+          [
+            20987,
+            21185,
+            19686
+          ]
+        ],
+        "new_min_angle_deg": 12.346176007189836,
+        "old_faces": [
+          [
+            19686,
+            20985,
+            21185
+          ],
+          [
+            20985,
+            20987,
+            21185
+          ]
+        ],
+        "old_min_angle_deg": 10.524158794561123,
+        "source_ancestry_union": [
+          5530
+        ],
+        "source_detail_face_row": 5530,
+        "source_subface_row": 5530,
+        "subface_ancestry_union": [
+          5530
+        ]
+      },
+      {
+        "angle_gain_deg": 1.4810993211138674,
+        "crossing_pair_count_touched": 2,
+        "crossing_pairs_touched": [
+          [
+            15106,
+            174
+          ],
+          [
+            15106,
+            226
+          ]
+        ],
+        "detail_ancestry_union": [
+          5530,
+          6103
+        ],
+        "edge": [
+          18725,
+          21011
+        ],
+        "face_rows": [
+          15106,
+          15186
+        ],
+        "immediate_parent_union": [
+          14922,
+          14993
+        ],
+        "new_diagonal": [
+          20006,
+          21103
+        ],
+        "new_faces": [
+          [
+            21011,
+            20006,
+            21103
+          ],
+          [
+            20006,
+            18725,
+            21103
+          ]
+        ],
+        "new_min_angle_deg": 4.60553650481806,
+        "old_faces": [
+          [
+            18725,
+            21103,
+            21011
+          ],
+          [
+            18725,
+            21011,
+            20006
+          ]
+        ],
+        "old_min_angle_deg": 3.1244371837041927,
+        "source_ancestry_union": [
+          5530,
+          6103
+        ],
+        "source_detail_face_row": -1,
+        "source_subface_row": -1,
+        "subface_ancestry_union": [
+          5530,
+          6103
+        ]
+      },
+      {
+        "angle_gain_deg": 0.795335570853231,
+        "crossing_pair_count_touched": 2,
+        "crossing_pairs_touched": [
+          [
+            15101,
+            183
+          ],
+          [
+            15104,
+            183
+          ]
+        ],
+        "detail_ancestry_union": [
+          5530,
+          6103
+        ],
+        "edge": [
+          21156,
+          21157
+        ],
+        "face_rows": [
+          15101,
+          15104
+        ],
+        "immediate_parent_union": [
+          14920
+        ],
+        "new_diagonal": [
+          19341,
+          21199
+        ],
+        "new_faces": [
+          [
+            21157,
+            21199,
+            19341
+          ],
+          [
+            21199,
+            21156,
+            19341
+          ]
+        ],
+        "new_min_angle_deg": 14.270682707112861,
+        "old_faces": [
+          [
+            19341,
+            21157,
+            21156
+          ],
+          [
+            21157,
+            21199,
+            21156
+          ]
+        ],
+        "old_min_angle_deg": 13.47534713625963,
+        "source_ancestry_union": [
+          5530,
+          6103
+        ],
+        "source_detail_face_row": -1,
+        "source_subface_row": -1,
+        "subface_ancestry_union": [
+          5530,
+          6103
+        ]
+      },
+      {
+        "angle_gain_deg": 0.4068400067325726,
+        "crossing_pair_count_touched": 2,
+        "crossing_pairs_touched": [
+          [
+            14060,
+            175
+          ],
+          [
+            14061,
+            175
+          ]
+        ],
+        "detail_ancestry_union": [
+          5530
+        ],
+        "edge": [
+          20998,
+          21169
+        ],
+        "face_rows": [
+          14060,
+          14061
+        ],
+        "immediate_parent_union": [
+          13983
+        ],
+        "new_diagonal": [
+          19932,
+          20997
+        ],
+        "new_faces": [
+          [
+            21169,
+            20997,
+            19932
+          ],
+          [
+            20997,
+            20998,
+            19932
+          ]
+        ],
+        "new_min_angle_deg": 6.3326949815741225,
+        "old_faces": [
+          [
+            21169,
+            20998,
+            19932
+          ],
+          [
+            20997,
+            20998,
+            21169
+          ]
+        ],
+        "old_min_angle_deg": 5.92585497484155,
+        "source_ancestry_union": [
+          5530
+        ],
+        "source_detail_face_row": 5530,
+        "source_subface_row": 5530,
+        "subface_ancestry_union": [
+          5530
+        ]
+      },
+      {
+        "angle_gain_deg": 0.2894436088880106,
+        "crossing_pair_count_touched": 2,
+        "crossing_pairs_touched": [
+          [
+            14221,
+            175
+          ],
+          [
+            14223,
+            175
+          ]
+        ],
+        "detail_ancestry_union": [
+          5530
+        ],
+        "edge": [
+          20946,
+          21118
+        ],
+        "face_rows": [
+          14221,
+          14223
+        ],
+        "immediate_parent_union": [
+          14083
+        ],
+        "new_diagonal": [
+          18864,
+          20948
+        ],
+        "new_faces": [
+          [
+            20946,
+            20948,
+            18864
+          ],
+          [
+            20948,
+            21118,
+            18864
+          ]
+        ],
+        "new_min_angle_deg": 8.11019171067547,
+        "old_faces": [
+          [
+            21118,
+            18864,
+            20946
+          ],
+          [
+            21118,
+            20946,
+            20948
+          ]
+        ],
+        "old_min_angle_deg": 7.82074810178746,
+        "source_ancestry_union": [
+          5530
+        ],
+        "source_detail_face_row": 5530,
+        "source_subface_row": 5530,
+        "subface_ancestry_union": [
+          5530
+        ]
+      },
+      {
+        "angle_gain_deg": 0.01576137100668351,
+        "crossing_pair_count_touched": 1,
+        "crossing_pairs_touched": [
+          [
+            14405,
+            104
+          ]
+        ],
+        "detail_ancestry_union": [
+          5530
+        ],
+        "edge": [
+          18572,
+          21086
+        ],
+        "face_rows": [
+          14405,
+          14453
+        ],
+        "immediate_parent_union": [
+          14250,
+          14284
+        ],
+        "new_diagonal": [
+          18569,
+          21088
+        ],
+        "new_faces": [
+          [
+            18572,
+            18569,
+            21088
+          ],
+          [
+            18569,
+            21086,
+            21088
+          ]
+        ],
+        "new_min_angle_deg": 6.57842708084933,
+        "old_faces": [
+          [
+            18572,
+            21086,
+            21088
+          ],
+          [
+            21086,
+            18572,
+            18569
+          ]
+        ],
+        "old_min_angle_deg": 6.562665709842647,
+        "source_ancestry_union": [
+          5530
+        ],
+        "source_detail_face_row": 5530,
+        "source_subface_row": 5530,
+        "subface_ancestry_union": [
+          5530
+        ]
+      }
+    ],
+    "saved_pair_count_touched": 26
+  },
+  "variants": [
+    {
+      "baseline_child_pair_count": 148,
+      "canonical_immediate_parent_bone_identity": {
+        "added": [
+          [
+            14284,
+            104
+          ],
+          [
+            14993,
+            174
+          ],
+          [
+            14993,
+            226
+          ]
+        ],
+        "added_count": 3,
+        "after_count": 87,
+        "before_count": 84,
+        "net_delta": 3,
+        "removed": [],
+        "removed_count": 0
+      },
+      "canonical_immediate_parent_self_identities": {
+        "added": [],
+        "added_count": 0,
+        "after_count": 0,
+        "before_count": 0,
+        "removed": [],
+        "removed_count": 0
+      },
+      "canonical_parent_identity_improved_without_additions": false,
+      "canonical_source_bone_identity": {
+        "added": [],
+        "added_count": 0,
+        "after_count": 34,
+        "before_count": 34,
+        "net_delta": 0,
+        "removed": [],
+        "removed_count": 0
+      },
+      "canonical_source_self_identities": {
+        "added": [],
+        "added_count": 0,
+        "after_count": 0,
+        "before_count": 0,
+        "removed": [],
+        "removed_count": 0
+      },
+      "child_pair_added": [
+        [
+          14126,
+          102
+        ],
+        [
+          14128,
+          173
+        ],
+        [
+          14174,
+          180
+        ],
+        [
+          14193,
+          183
+        ],
+        [
+          14453,
+          104
+        ],
+        [
+          14457,
+          113
+        ],
+        [
+          15186,
+          174
+        ],
+        [
+          15186,
+          226
+        ]
+      ],
+      "child_pair_added_count": 8,
+      "child_pair_removed": [
+        [
+          14126,
+          173
+        ],
+        [
+          14128,
+          102
+        ],
+        [
+          14172,
+          175
+        ],
+        [
+          14192,
+          180
+        ],
+        [
+          14456,
+          111
+        ],
+        [
+          14456,
+          113
+        ],
+        [
+          15106,
+          174
+        ]
+      ],
+      "child_pair_removed_count": 7,
+      "exact_local_65_99_child_pair_count": 149,
+      "exact_local_65_99_child_pairs": [
+        [
+          14050,
+          174
+        ],
+        [
+          14051,
+          175
+        ],
+        [
+          14052,
+          175
+        ],
+        [
+          14053,
+          175
+        ],
+        [
+          14054,
+          173
+        ],
+        [
+          14055,
+          173
+        ],
+        [
+          14056,
+          175
+        ],
+        [
+          14057,
+          173
+        ],
+        [
+          14058,
+          173
+        ],
+        [
+          14059,
+          175
+        ],
+        [
+          14060,
+          175
+        ],
+        [
+          14061,
+          175
+        ],
+        [
+          14069,
+          173
+        ],
+        [
+          14070,
+          175
+        ],
+        [
+          14071,
+          173
+        ],
+        [
+          14072,
+          173
+        ],
+        [
+          14073,
+          175
+        ],
+        [
+          14074,
+          173
+        ],
+        [
+          14075,
+          173
+        ],
+        [
+          14076,
+          173
+        ],
+        [
+          14087,
+          175
+        ],
+        [
+          14088,
+          173
+        ],
+        [
+          14089,
+          175
+        ],
+        [
+          14090,
+          175
+        ],
+        [
+          14091,
+          173
+        ],
+        [
+          14092,
+          175
+        ],
+        [
+          14093,
+          173
+        ],
+        [
+          14094,
+          173
+        ],
+        [
+          14110,
+          175
+        ],
+        [
+          14111,
+          102
+        ],
+        [
+          14112,
+          102
+        ],
+        [
+          14112,
+          104
+        ],
+        [
+          14113,
+          102
+        ],
+        [
+          14125,
+          175
+        ],
+        [
+          14126,
+          102
+        ],
+        [
+          14126,
+          104
+        ],
+        [
+          14127,
+          102
+        ],
+        [
+          14128,
+          104
+        ],
+        [
+          14128,
+          173
+        ],
+        [
+          14130,
+          175
+        ],
+        [
+          14131,
+          175
+        ],
+        [
+          14132,
+          173
+        ],
+        [
+          14133,
+          175
+        ],
+        [
+          14143,
+          183
+        ],
+        [
+          14144,
+          174
+        ],
+        [
+          14145,
+          183
+        ],
+        [
+          14146,
+          183
+        ],
+        [
+          14147,
+          174
+        ],
+        [
+          14148,
+          183
+        ],
+        [
+          14149,
+          183
+        ],
+        [
+          14150,
+          183
+        ],
+        [
+          14158,
+          174
+        ],
+        [
+          14159,
+          183
+        ],
+        [
+          14160,
+          174
+        ],
+        [
+          14161,
+          174
+        ],
+        [
+          14171,
+          175
+        ],
+        [
+          14172,
+          180
+        ],
+        [
+          14173,
+          174
+        ],
+        [
+          14174,
+          175
+        ],
+        [
+          14174,
+          180
+        ],
+        [
+          14175,
+          173
+        ],
+        [
+          14176,
+          175
+        ],
+        [
+          14177,
+          173
+        ],
+        [
+          14177,
+          174
+        ],
+        [
+          14178,
+          173
+        ],
+        [
+          14180,
+          180
+        ],
+        [
+          14181,
+          174
+        ],
+        [
+          14182,
+          174
+        ],
+        [
+          14183,
+          174
+        ],
+        [
+          14190,
+          174
+        ],
+        [
+          14191,
+          180
+        ],
+        [
+          14192,
+          183
+        ],
+        [
+          14193,
+          180
+        ],
+        [
+          14193,
+          183
+        ],
+        [
+          14214,
+          174
+        ],
+        [
+          14215,
+          173
+        ],
+        [
+          14215,
+          174
+        ],
+        [
+          14216,
+          175
+        ],
+        [
+          14217,
+          174
+        ],
+        [
+          14220,
+          175
+        ],
+        [
+          14221,
+          175
+        ],
+        [
+          14222,
+          173
+        ],
+        [
+          14223,
+          175
+        ],
+        [
+          14231,
+          175
+        ],
+        [
+          14232,
+          173
+        ],
+        [
+          14232,
+          174
+        ],
+        [
+          14233,
+          175
+        ],
+        [
+          14234,
+          175
+        ],
+        [
+          14244,
+          173
+        ],
+        [
+          14245,
+          175
+        ],
+        [
+          14246,
+          173
+        ],
+        [
+          14247,
+          173
+        ],
+        [
+          14248,
+          175
+        ],
+        [
+          14249,
+          175
+        ],
+        [
+          14250,
+          173
+        ],
+        [
+          14251,
+          175
+        ],
+        [
+          14405,
+          104
+        ],
+        [
+          14406,
+          102
+        ],
+        [
+          14406,
+          104
+        ],
+        [
+          14407,
+          176
+        ],
+        [
+          14408,
+          104
+        ],
+        [
+          14409,
+          175
+        ],
+        [
+          14409,
+          176
+        ],
+        [
+          14410,
+          104
+        ],
+        [
+          14411,
+          176
+        ],
+        [
+          14412,
+          176
+        ],
+        [
+          14453,
+          104
+        ],
+        [
+          14454,
+          103
+        ],
+        [
+          14454,
+          176
+        ],
+        [
+          14455,
+          101
+        ],
+        [
+          14455,
+          102
+        ],
+        [
+          14455,
+          111
+        ],
+        [
+          14456,
+          103
+        ],
+        [
+          14457,
+          103
+        ],
+        [
+          14457,
+          111
+        ],
+        [
+          14457,
+          113
+        ],
+        [
+          15063,
+          306
+        ],
+        [
+          15063,
+          314
+        ],
+        [
+          15064,
+          304
+        ],
+        [
+          15064,
+          305
+        ],
+        [
+          15064,
+          314
+        ],
+        [
+          15064,
+          315
+        ],
+        [
+          15065,
+          300
+        ],
+        [
+          15065,
+          301
+        ],
+        [
+          15065,
+          303
+        ],
+        [
+          15065,
+          304
+        ],
+        [
+          15066,
+          304
+        ],
+        [
+          15066,
+          314
+        ],
+        [
+          15085,
+          174
+        ],
+        [
+          15086,
+          183
+        ],
+        [
+          15086,
+          184
+        ],
+        [
+          15087,
+          184
+        ],
+        [
+          15087,
+          306
+        ],
+        [
+          15088,
+          184
+        ],
+        [
+          15101,
+          183
+        ],
+        [
+          15102,
+          183
+        ],
+        [
+          15103,
+          174
+        ],
+        [
+          15104,
+          183
+        ],
+        [
+          15106,
+          226
+        ],
+        [
+          15107,
+          306
+        ],
+        [
+          15108,
+          226
+        ],
+        [
+          15108,
+          300
+        ],
+        [
+          15109,
+          226
+        ],
+        [
+          15130,
+          174
+        ],
+        [
+          15131,
+          174
+        ],
+        [
+          15132,
+          183
+        ],
+        [
+          15133,
+          174
+        ],
+        [
+          15186,
+          174
+        ],
+        [
+          15186,
+          226
+        ]
+      ],
+      "exact_pair_count_from_guard_screen": 149,
+      "generation002_lineage_refresh": {
+        "affine_parent_map_validation": null,
+        "all_scalar_summaries_match_csr_unions": true,
+        "construction_only": true,
+        "crossing_face_count": 122,
+        "crossing_face_kind_counts": {
+          "2": 122
+        },
+        "crossing_faces_with_multi_detail_union": 21,
+        "crossing_faces_with_multi_parent_csr": 4,
+        "crossing_faces_with_multi_source_union": 21,
+        "crossing_fine_detail_ancestry_union_validated": true,
+        "crossing_fine_detail_ancestry_unique_and_matching": false,
+        "current_face_count": 42379,
+        "detail_csr_value_count": 35767,
+        "multi_parent_current_face_count": 4,
+        "native_admission": false,
+        "parent_candidate_path": "provided",
+        "parent_face_count": 41745,
+        "parent_indices_in_range": true,
+        "refinement_parent_contract_mode": "legacy_parent_union_with_nan_multi_parent",
+        "refinement_parent_csr_rows": 42383,
+        "registered_detail_id_count": 11453,
+        "registered_source_id_count": 14345,
+        "registered_subface_id_count": 11459,
+        "source_csr_value_count": 42625,
+        "subface_csr_value_count": 35779
+      },
+      "inside_boundary_comparison": {
+        "baseline_count": 29,
+        "current_count": 29,
+        "new_ids": [],
+        "no_new_inside_or_boundary": true,
+        "removed_ids": []
+      },
+      "local_self": {
+        "aabb_active_complement_face_count": 634,
+        "aabb_bounds_axis_semantics": "min/max over triangle vertices axis=1; overlap predicates all tested per face over 3 axes",
+        "patch_internal_pair_count": 0,
+        "patch_internal_pairs": [],
+        "patch_vs_complement_pair_count": 0,
+        "patch_vs_complement_pairs": [],
+        "raw_pair_union": [],
+        "shared_boundary_adjacent_face_count": 53,
+        "shared_boundary_adjacent_faces_in_aabb_active_count": 53
+      },
+      "local_self_new_witnesses": [],
+      "local_self_pass": true,
+      "point_location_all_patch_nodes": {
+        "counts": {
+          "inside": 29,
+          "outside": 127
+        },
+        "inside_or_boundary_node_ids": [
+          20946,
+          20948,
+          20986,
+          20987,
+          20996,
+          20997,
+          20999,
+          21001,
+          21002,
+          21003,
+          21004,
+          21007,
+          21008,
+          21009,
+          21012,
+          21080,
+          21083,
+          21084,
+          21085,
+          21087,
+          21088,
+          21091,
+          21103,
+          21105,
+          21156,
+          21158,
+          21169,
+          21185,
+          21199
+        ]
+      },
+      "selected_operation_face_rows": [
+        [
+          14456,
+          14457
+        ],
+        [
+          14126,
+          14128
+        ],
+        [
+          14172,
+          14174
+        ],
+        [
+          14192,
+          14193
+        ],
+        [
+          14248,
+          14251
+        ],
+        [
+          15106,
+          15186
+        ],
+        [
+          15101,
+          15104
+        ],
+        [
+          14060,
+          14061
+        ],
+        [
+          14221,
+          14223
+        ],
+        [
+          14405,
+          14453
+        ]
+      ],
+      "shape": {
+        "area_orientation_reference": "unchanged rows use their pre-flip emitted F32 triangle; changed rows use old paired quadrilateral aggregate",
+        "face_count": 248,
+        "maximum_aspect_measure": 26.661322720626618,
+        "minimum_angle_degrees": 0.8462441853369103,
+        "minimum_signed_orientation_cosine": 0.47221768369434525,
+        "minimum_unsigned_parent_area_ratio": 0.10003677294476356,
+        "orientation_positive": true,
+        "p05_angle_degrees": 2.1936073831461806
+      },
+      "variant_index": 0
+    },
+    {
+      "baseline_child_pair_count": 148,
+      "canonical_immediate_parent_bone_identity": {
+        "added": [],
+        "added_count": 0,
+        "after_count": 84,
+        "before_count": 84,
+        "net_delta": 0,
+        "removed": [],
+        "removed_count": 0
+      },
+      "canonical_immediate_parent_self_identities": {
+        "added": [],
+        "added_count": 0,
+        "after_count": 0,
+        "before_count": 0,
+        "removed": [],
+        "removed_count": 0
+      },
+      "canonical_parent_identity_improved_without_additions": false,
+      "canonical_source_bone_identity": {
+        "added": [],
+        "added_count": 0,
+        "after_count": 34,
+        "before_count": 34,
+        "net_delta": 0,
+        "removed": [],
+        "removed_count": 0
+      },
+      "canonical_source_self_identities": {
+        "added": [],
+        "added_count": 0,
+        "after_count": 0,
+        "before_count": 0,
+        "removed": [],
+        "removed_count": 0
+      },
+      "child_pair_added": [
+        [
+          14126,
+          102
+        ],
+        [
+          14128,
+          173
+        ],
+        [
+          14174,
+          180
+        ],
+        [
+          14193,
+          183
+        ],
+        [
+          14457,
+          113
+        ]
+      ],
+      "child_pair_added_count": 5,
+      "child_pair_removed": [
+        [
+          14126,
+          173
+        ],
+        [
+          14128,
+          102
+        ],
+        [
+          14172,
+          175
+        ],
+        [
+          14192,
+          180
+        ],
+        [
+          14456,
+          111
+        ],
+        [
+          14456,
+          113
+        ]
+      ],
+      "child_pair_removed_count": 6,
+      "exact_local_65_99_child_pair_count": 147,
+      "exact_local_65_99_child_pairs": [
+        [
+          14050,
+          174
+        ],
+        [
+          14051,
+          175
+        ],
+        [
+          14052,
+          175
+        ],
+        [
+          14053,
+          175
+        ],
+        [
+          14054,
+          173
+        ],
+        [
+          14055,
+          173
+        ],
+        [
+          14056,
+          175
+        ],
+        [
+          14057,
+          173
+        ],
+        [
+          14058,
+          173
+        ],
+        [
+          14059,
+          175
+        ],
+        [
+          14060,
+          175
+        ],
+        [
+          14061,
+          175
+        ],
+        [
+          14069,
+          173
+        ],
+        [
+          14070,
+          175
+        ],
+        [
+          14071,
+          173
+        ],
+        [
+          14072,
+          173
+        ],
+        [
+          14073,
+          175
+        ],
+        [
+          14074,
+          173
+        ],
+        [
+          14075,
+          173
+        ],
+        [
+          14076,
+          173
+        ],
+        [
+          14087,
+          175
+        ],
+        [
+          14088,
+          173
+        ],
+        [
+          14089,
+          175
+        ],
+        [
+          14090,
+          175
+        ],
+        [
+          14091,
+          173
+        ],
+        [
+          14092,
+          175
+        ],
+        [
+          14093,
+          173
+        ],
+        [
+          14094,
+          173
+        ],
+        [
+          14110,
+          175
+        ],
+        [
+          14111,
+          102
+        ],
+        [
+          14112,
+          102
+        ],
+        [
+          14112,
+          104
+        ],
+        [
+          14113,
+          102
+        ],
+        [
+          14125,
+          175
+        ],
+        [
+          14126,
+          102
+        ],
+        [
+          14126,
+          104
+        ],
+        [
+          14127,
+          102
+        ],
+        [
+          14128,
+          104
+        ],
+        [
+          14128,
+          173
+        ],
+        [
+          14130,
+          175
+        ],
+        [
+          14131,
+          175
+        ],
+        [
+          14132,
+          173
+        ],
+        [
+          14133,
+          175
+        ],
+        [
+          14143,
+          183
+        ],
+        [
+          14144,
+          174
+        ],
+        [
+          14145,
+          183
+        ],
+        [
+          14146,
+          183
+        ],
+        [
+          14147,
+          174
+        ],
+        [
+          14148,
+          183
+        ],
+        [
+          14149,
+          183
+        ],
+        [
+          14150,
+          183
+        ],
+        [
+          14158,
+          174
+        ],
+        [
+          14159,
+          183
+        ],
+        [
+          14160,
+          174
+        ],
+        [
+          14161,
+          174
+        ],
+        [
+          14171,
+          175
+        ],
+        [
+          14172,
+          180
+        ],
+        [
+          14173,
+          174
+        ],
+        [
+          14174,
+          175
+        ],
+        [
+          14174,
+          180
+        ],
+        [
+          14175,
+          173
+        ],
+        [
+          14176,
+          175
+        ],
+        [
+          14177,
+          173
+        ],
+        [
+          14177,
+          174
+        ],
+        [
+          14178,
+          173
+        ],
+        [
+          14180,
+          180
+        ],
+        [
+          14181,
+          174
+        ],
+        [
+          14182,
+          174
+        ],
+        [
+          14183,
+          174
+        ],
+        [
+          14190,
+          174
+        ],
+        [
+          14191,
+          180
+        ],
+        [
+          14192,
+          183
+        ],
+        [
+          14193,
+          180
+        ],
+        [
+          14193,
+          183
+        ],
+        [
+          14214,
+          174
+        ],
+        [
+          14215,
+          173
+        ],
+        [
+          14215,
+          174
+        ],
+        [
+          14216,
+          175
+        ],
+        [
+          14217,
+          174
+        ],
+        [
+          14220,
+          175
+        ],
+        [
+          14221,
+          175
+        ],
+        [
+          14222,
+          173
+        ],
+        [
+          14223,
+          175
+        ],
+        [
+          14231,
+          175
+        ],
+        [
+          14232,
+          173
+        ],
+        [
+          14232,
+          174
+        ],
+        [
+          14233,
+          175
+        ],
+        [
+          14234,
+          175
+        ],
+        [
+          14244,
+          173
+        ],
+        [
+          14245,
+          175
+        ],
+        [
+          14246,
+          173
+        ],
+        [
+          14247,
+          173
+        ],
+        [
+          14248,
+          175
+        ],
+        [
+          14249,
+          175
+        ],
+        [
+          14250,
+          173
+        ],
+        [
+          14251,
+          175
+        ],
+        [
+          14405,
+          104
+        ],
+        [
+          14406,
+          102
+        ],
+        [
+          14406,
+          104
+        ],
+        [
+          14407,
+          176
+        ],
+        [
+          14408,
+          104
+        ],
+        [
+          14409,
+          175
+        ],
+        [
+          14409,
+          176
+        ],
+        [
+          14410,
+          104
+        ],
+        [
+          14411,
+          176
+        ],
+        [
+          14412,
+          176
+        ],
+        [
+          14454,
+          103
+        ],
+        [
+          14454,
+          176
+        ],
+        [
+          14455,
+          101
+        ],
+        [
+          14455,
+          102
+        ],
+        [
+          14455,
+          111
+        ],
+        [
+          14456,
+          103
+        ],
+        [
+          14457,
+          103
+        ],
+        [
+          14457,
+          111
+        ],
+        [
+          14457,
+          113
+        ],
+        [
+          15063,
+          306
+        ],
+        [
+          15063,
+          314
+        ],
+        [
+          15064,
+          304
+        ],
+        [
+          15064,
+          305
+        ],
+        [
+          15064,
+          314
+        ],
+        [
+          15064,
+          315
+        ],
+        [
+          15065,
+          300
+        ],
+        [
+          15065,
+          301
+        ],
+        [
+          15065,
+          303
+        ],
+        [
+          15065,
+          304
+        ],
+        [
+          15066,
+          304
+        ],
+        [
+          15066,
+          314
+        ],
+        [
+          15085,
+          174
+        ],
+        [
+          15086,
+          183
+        ],
+        [
+          15086,
+          184
+        ],
+        [
+          15087,
+          184
+        ],
+        [
+          15087,
+          306
+        ],
+        [
+          15088,
+          184
+        ],
+        [
+          15101,
+          183
+        ],
+        [
+          15102,
+          183
+        ],
+        [
+          15103,
+          174
+        ],
+        [
+          15104,
+          183
+        ],
+        [
+          15106,
+          174
+        ],
+        [
+          15106,
+          226
+        ],
+        [
+          15107,
+          306
+        ],
+        [
+          15108,
+          226
+        ],
+        [
+          15108,
+          300
+        ],
+        [
+          15109,
+          226
+        ],
+        [
+          15130,
+          174
+        ],
+        [
+          15131,
+          174
+        ],
+        [
+          15132,
+          183
+        ],
+        [
+          15133,
+          174
+        ]
+      ],
+      "exact_pair_count_from_guard_screen": 147,
+      "generation002_lineage_refresh": {
+        "affine_parent_map_validation": null,
+        "all_scalar_summaries_match_csr_unions": true,
+        "construction_only": true,
+        "crossing_face_count": 120,
+        "crossing_face_kind_counts": {
+          "2": 120
+        },
+        "crossing_faces_with_multi_detail_union": 20,
+        "crossing_faces_with_multi_parent_csr": 0,
+        "crossing_faces_with_multi_source_union": 20,
+        "crossing_fine_detail_ancestry_union_validated": true,
+        "crossing_fine_detail_ancestry_unique_and_matching": false,
+        "current_face_count": 42379,
+        "detail_csr_value_count": 35767,
+        "multi_parent_current_face_count": 0,
+        "native_admission": false,
+        "parent_candidate_path": "provided",
+        "parent_face_count": 41745,
+        "parent_indices_in_range": true,
+        "refinement_parent_contract_mode": "legacy_parent_union_with_nan_multi_parent",
+        "refinement_parent_csr_rows": 42379,
+        "registered_detail_id_count": 11453,
+        "registered_source_id_count": 14345,
+        "registered_subface_id_count": 11459,
+        "source_csr_value_count": 42625,
+        "subface_csr_value_count": 35779
+      },
+      "inside_boundary_comparison": {
+        "baseline_count": 29,
+        "current_count": 29,
+        "new_ids": [],
+        "no_new_inside_or_boundary": true,
+        "removed_ids": []
+      },
+      "local_self": {
+        "aabb_active_complement_face_count": 634,
+        "aabb_bounds_axis_semantics": "min/max over triangle vertices axis=1; overlap predicates all tested per face over 3 axes",
+        "patch_internal_pair_count": 0,
+        "patch_internal_pairs": [],
+        "patch_vs_complement_pair_count": 0,
+        "patch_vs_complement_pairs": [],
+        "raw_pair_union": [],
+        "shared_boundary_adjacent_face_count": 53,
+        "shared_boundary_adjacent_faces_in_aabb_active_count": 53
+      },
+      "local_self_new_witnesses": [],
+      "local_self_pass": true,
+      "point_location_all_patch_nodes": {
+        "counts": {
+          "inside": 29,
+          "outside": 127
+        },
+        "inside_or_boundary_node_ids": [
+          20946,
+          20948,
+          20986,
+          20987,
+          20996,
+          20997,
+          20999,
+          21001,
+          21002,
+          21003,
+          21004,
+          21007,
+          21008,
+          21009,
+          21012,
+          21080,
+          21083,
+          21084,
+          21085,
+          21087,
+          21088,
+          21091,
+          21103,
+          21105,
+          21156,
+          21158,
+          21169,
+          21185,
+          21199
+        ]
+      },
+      "selected_operation_face_rows": [
+        [
+          14456,
+          14457
+        ],
+        [
+          14126,
+          14128
+        ],
+        [
+          14172,
+          14174
+        ],
+        [
+          14192,
+          14193
+        ],
+        [
+          14248,
+          14251
+        ],
+        [
+          15101,
+          15104
+        ],
+        [
+          14060,
+          14061
+        ],
+        [
+          14221,
+          14223
+        ]
+      ],
+      "shape": {
+        "area_orientation_reference": "unchanged rows use their pre-flip emitted F32 triangle; changed rows use old paired quadrilateral aggregate",
+        "face_count": 248,
+        "maximum_aspect_measure": 26.661322720626618,
+        "minimum_angle_degrees": 0.8462441853369103,
+        "minimum_signed_orientation_cosine": 0.9999457671279302,
+        "minimum_unsigned_parent_area_ratio": 0.4844475385253609,
+        "orientation_positive": true,
+        "p05_angle_degrees": 2.1936073831461806
+      },
+      "variant_index": 1
+    }
+  ]
+}

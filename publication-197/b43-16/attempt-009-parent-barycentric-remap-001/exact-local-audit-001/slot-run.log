@@ -1,0 +1,59 @@
+waiting_for_human_geometry_slot pid=798
+acquired_human_geometry_slot pid=798
+{
+  "all_bank_new_pairs": [
+    [
+      43,
+      16,
+      19819,
+      135
+    ]
+  ],
+  "all_bank_no_new_pair": false,
+  "all_bank_removed_pairs": [
+    [
+      43,
+      16,
+      19819,
+      130
+    ]
+  ],
+  "all_bank_strict_pair_reduction": false,
+  "baseline_changed_face_pair_count": 4,
+  "inside_matches_baseline": true,
+  "inside_pairs_local_query": [
+    [
+      20895,
+      43,
+      16
+    ],
+    [
+      20901,
+      43,
+      16
+    ]
+  ],
+  "inside_pairs_stored_baseline": [
+    [
+      20895,
+      43,
+      16
+    ],
+    [
+      20901,
+      43,
+      16
+    ]
+  ],
+  "inside_query_node_ids": [
+    18488,
+    20895,
+    20901,
+    21061
+  ],
+  "post_changed_face_pair_count": 4,
+  "self_pairs_touching_changed_face_count": 0,
+  "status": "LOCAL_DELTA_FAIL_OR_NO_STRICT_IMPROVEMENT",
+  "target_43_16_after_count": 4,
+  "target_43_16_before_count": 4
+}

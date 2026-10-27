@@ -1,0 +1,11 @@
+{
+  "candidate_modified": false,
+  "failure": "FileNotFoundError(2, 'No such file or directory')",
+  "geometry_or_native_admission": false,
+  "schema": "numi.human.bank65_99.topology-flip-batch-local-exact.v1",
+  "scope": "Exact local 65/99 bone screen and patch-internal / AABB-selected complement self screen for the preflighted private 10-flip topology batch, with canonical source/immediate-parent identities and all-patch-node point locations. No full all-bank audit or physical admission.",
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/screen_topology_flip_batch.py",
+  "script_sha256": "bb10828205c3b698fb7638d5c53d541190e8fae7456d503f43c530caaebeda24",
+  "status": "EXACT_LOCAL_SCREEN_FAILED",
+  "traceback": "Traceback (most recent call last):\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/screen_topology_flip_batch.py\", line 138, in run\n    audit_tool=loadmod('b65_99_topology_audit_owner',AUDIT_TOOL);bank_helper=loadmod('b65_99_topology_bank_helper',BANK_HELPER)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/screen_topology_flip_batch.py\", line 30, in loadmod\n    mod=importlib.util.module_from_spec(spec);sys.modules[name]=mod;spec.loader.exec_module(mod);return mod\n                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap_external>\", line 995, in exec_module\n  File \"<frozen importlib._bootstrap_external>\", line 1132, in get_code\n  File \"<frozen importlib._bootstrap_external>\", line 1190, in get_data\nFileNotFoundError: [Errno 2] No such file or directory: '/Users/numi/Work/numi-human-connected-surface-069/D/audit_skin_bone_surfaces_159.py'\n"
+}

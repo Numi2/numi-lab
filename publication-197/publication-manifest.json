@@ -1,0 +1,313 @@
+{
+  "schema": "numi.human.p197_evidence_manifest.v1",
+  "reference_main_commit": "eed5be766e8aaeaeb147e0036f99e52968c3d1db",
+  "archive_git_parent": null,
+  "status": "construction evidence only; no physical or native admission",
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "ded905a9ec786577e1b11488c9b547fc3db077109b2bd037c8534a747353449f",
+      "bytes": 2271
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/aabb-predicate-test-report-v2.json",
+      "sha256": "23c322ba1f60755eac9bd9625a7996d103ece1e6c250928c47f3770173b6890e",
+      "bytes": 1850
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/aabb-predicate-test-report.json",
+      "sha256": "ce38359b4c85df6c4645d6093b65c0eaa3588b19da8206366c596ca238465a35",
+      "bytes": 1809
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/candidate-two-cross-parent-flips.npz",
+      "sha256": "b2d4315d060659a31381f2c48d21a113cd1bd57670850876134ccda6f3b37192",
+      "bytes": 7303233
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/conclusion-final.json",
+      "sha256": "6ecf57d7624a466dd758d96f3440c40b7754448651fa2f8d44ff4768335045ab",
+      "bytes": 5715
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/conclusion.json",
+      "sha256": "b370ccd17a2cdaaac12781c9e9d362f28384ed435d336f5192bf352634a3eef8",
+      "bytes": 5498
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/exact-local-report-corrected.json",
+      "sha256": "15805a1cb235a50c3bab72e5ce1e192e2b86c83eecd3208f800974056f8dca06",
+      "bytes": 26919
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/exact-local-report.json",
+      "sha256": "0220d8eacf63cde6123aa80f65593885e366c84232659d730476f77172e70659",
+      "bytes": 1022
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/exact_local_check.py",
+      "sha256": "d0baec27ab335c61906c79f72dc4adef8c2b40e7e9a7ffc45f81e1b277b0e280",
+      "bytes": 12483
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/exact_local_check_corrected.py",
+      "sha256": "fa7b854515bc045290503735efd7dcf29de8647dacc446992334251f9c01a836",
+      "bytes": 16244
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/execution-corrected.json",
+      "sha256": "9297253602f4f5be7e257c8bd7668cc1bbba468cf155c4f8f649628da847acd8",
+      "bytes": 979
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/execution.json",
+      "sha256": "5e05867d880b10953f26ba81f8c08e2066dc59ecc099148d5cc61246f4409593",
+      "bytes": 1121
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/per_face_aabb_overlap.py",
+      "sha256": "d455229eb69208ff45700918fe05adc976eca5f942335775337db782692957cb",
+      "bytes": 1149
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/prepare_two_flips.py",
+      "sha256": "2395c90b60779f1467e2aec37369a7bc836f096db1aed10de6003a8b7beca54f",
+      "bytes": 9495
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/run_attempt005.py",
+      "sha256": "4efe4a758c608f5bc05f2245143743723d1e799e33bf50d56238a650aac24315",
+      "bytes": 1682
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/run_exact_corrected.py",
+      "sha256": "3357bdcf1f4afc3b8d9fd53de77db0f2065d68f037f440985ea6984e6346ce7f",
+      "bytes": 1478
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/test_per_face_aabb_overlap.py",
+      "sha256": "d335866888777cf6f5deaf3736e8160be698a3cfcd5554d1e81acc7e666351af",
+      "bytes": 1844
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/test_per_face_aabb_overlap_v2.py",
+      "sha256": "e3fbb42425ebe31f485ec0b761c033b15e6a4ddb30aacbe989512bd86c280e0e",
+      "bytes": 1930
+    },
+    {
+      "path": "b109-114/attempt-005-cross-parent-edge-flip-001/topology-and-lineage-report.json",
+      "sha256": "5ab8287dda2be2c52fce0d12453ce9019bb8bc9e2d8be60ceb4cf23fc3e9e027",
+      "bytes": 5815
+    },
+    {
+      "path": "b43-16/attempt-008-cross-parent-flip-prep-001/prepare_43_16_cross_parent_flips.py",
+      "sha256": "9fa2f346d5907a9995887a1af2c2f569a1aa7e00129b692e70de87a78825983a",
+      "bytes": 11017
+    },
+    {
+      "path": "b43-16/attempt-008-cross-parent-flip-prep-001/ring-expansion-001/one_ring_expansion_43_16.py",
+      "sha256": "df6087e13862147fbfbccf1d220fccea7a1ebb1a193813ef25c0d518b484b553",
+      "bytes": 6986
+    },
+    {
+      "path": "b43-16/attempt-008-cross-parent-flip-prep-001/ring-expansion-001/report.json",
+      "sha256": "80489c217f59688c192e9090c5d123a6b9bffe74ceff60205e02034732cdf0d5",
+      "bytes": 12780
+    },
+    {
+      "path": "b43-16/attempt-008-cross-parent-flip-prep-001/run-001/report.json",
+      "sha256": "d90ddb7e01c60f979553ca66f2ac668aea3f67bbc3b9498c68719a02af9e35da",
+      "bytes": 6075
+    },
+    {
+      "path": "b43-16/attempt-009-parent-barycentric-remap-001/exact-local-audit-001/audit_corrected_flip_local.py",
+      "sha256": "f8f1c9f09e2ce2160102cdb8e91322c5089f32c3e5aba1cd4e1442133901246b",
+      "bytes": 15382
+    },
+    {
+      "path": "b43-16/attempt-009-parent-barycentric-remap-001/exact-local-audit-001/run-001/bone-local.json",
+      "sha256": "9029624925d56cf6077bbf6fc820546a52e9a134941f2f579d8b9c6b32cac10f",
+      "bytes": 662
+    },
+    {
+      "path": "b43-16/attempt-009-parent-barycentric-remap-001/exact-local-audit-001/run-001/inside-query/nodes.csv",
+      "sha256": "dc4d44b0d0bdc886966aa3ca65a7c3a7246f5c9f6e54e364e2dfa9a1802bd870",
+      "bytes": 216
+    },
+    {
+      "path": "b43-16/attempt-009-parent-barycentric-remap-001/exact-local-audit-001/run-001/inside-query/pairs.csv",
+      "sha256": "840f57e31064ec56c156b0ca87ec93cebad8d7ad5e1cbe547bd4e62299f1d410",
+      "bytes": 1058
+    },
+    {
+      "path": "b43-16/attempt-009-parent-barycentric-remap-001/exact-local-audit-001/run-001/inside-query/points-world.npz",
+      "sha256": "4a1d331f5a6290a72066da06dcf29b14374ec08dcc91d8d9e3be8aab89c6ed20",
+      "bytes": 279
+    },
+    {
+      "path": "b43-16/attempt-009-parent-barycentric-remap-001/exact-local-audit-001/run-001/inside-query/points.csv",
+      "sha256": "528ca7401ec3c5911e6684218f3a1d85aea3700f4125952eb26b1c89a35bbba5",
+      "bytes": 346
+    },
+    {
+      "path": "b43-16/attempt-009-parent-barycentric-remap-001/exact-local-audit-001/run-001/inside-query/prepare.log",
+      "sha256": "42b0a3291f255fd1272b967d18287fb1fb67d4148c4a93d5e47d46571e398274",
+      "bytes": 832
+    },
+    {
+      "path": "b43-16/attempt-009-parent-barycentric-remap-001/exact-local-audit-001/run-001/inside-query/query.log",
+      "sha256": "12a6253129648a08e04e9da936e62ca8040ea3d44a7460f38e6c970b1947a64f",
+      "bytes": 122
+    },
+    {
+      "path": "b43-16/attempt-009-parent-barycentric-remap-001/exact-local-audit-001/run-001/report.json",
+      "sha256": "b784f807640b897697290694ac12c8ff3f90bd05bd9d4212f1e30e2b2a158ab6",
+      "bytes": 7087
+    },
+    {
+      "path": "b43-16/attempt-009-parent-barycentric-remap-001/exact-local-audit-001/slot-run.log",
+      "sha256": "ddcb195c7a90d0e34cf90b64be53818ae81cf283982505f1a442f2e1da469224",
+      "bytes": 949
+    },
+    {
+      "path": "b43-16/attempt-009-parent-barycentric-remap-001/prepare_parent_barycentric_remap.py",
+      "sha256": "b300facdf2d46e3f794cc3afc3d38f33219f0bb8f2be535089d8ab6b31005262",
+      "bytes": 11332
+    },
+    {
+      "path": "b43-16/attempt-009-parent-barycentric-remap-001/run-001/candidate.npz",
+      "sha256": "86af2de8b4a09adae1eabd231b11ebcc27356e5ae3f1d1db050889843c1208d4",
+      "bytes": 7303265
+    },
+    {
+      "path": "b43-16/attempt-009-parent-barycentric-remap-001/run-001/report.json",
+      "sha256": "96c84c647ded6e198eddb7c180ed622ff6730aa77195e5b8f6d12fbc43c922e6",
+      "bytes": 11990
+    },
+    {
+      "path": "b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/candidate-private.npz",
+      "sha256": "097452436f69e4bbe2c12ba51d78fa8415076c8d786519b4baa701863e8c0e9b",
+      "bytes": 7303213
+    },
+    {
+      "path": "b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/exact-screen/report.json",
+      "sha256": "8b80c71aa07177dde7c5c87902045285248811a552621fee624e5055980885c3",
+      "bytes": 2196
+    },
+    {
+      "path": "b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/exact-screen-corrected-001/candidate-exact-screen-round-02.npz",
+      "sha256": "2fd66c7e1f1255e43591b708a183b96852fa7ea7a7340897898185468690dcb3",
+      "bytes": 7303166
+    },
+    {
+      "path": "b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/exact-screen-corrected-001/report.json",
+      "sha256": "cdd1ef48e6041465dfb2287fa545c0b22ff3db769de5b76d576103b63f2df652",
+      "bytes": 44945
+    },
+    {
+      "path": "b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/preflight.json",
+      "sha256": "6169a812653299153a6a3ad205e6305a263b4d614f414fe1a8eff4581c0a6dff",
+      "bytes": 26156
+    },
+    {
+      "path": "b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/prepare_topology_flip_batch.py",
+      "sha256": "cca0fee5903d549daa0b7f8956ed1b12e1c7d0ecf5bf33b5174ddc860806af4c",
+      "bytes": 17787
+    },
+    {
+      "path": "b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/screen_topology_flip_batch.py",
+      "sha256": "bb10828205c3b698fb7638d5c53d541190e8fae7456d503f43c530caaebeda24",
+      "bytes": 20167
+    },
+    {
+      "path": "b65-99/attempt-012-topology-flip-batch-preflight-shape-ref-001/screen_topology_flip_batch_corrected.py",
+      "sha256": "f22867b22d103a53df0408f2a3211d4c1da269f8eca183d15e9eaebd4d06e8ff",
+      "bytes": 21268
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/ancestry-delta.json",
+      "sha256": "a363eb9a2adb1c9c0ac7a4c36871acc3450d946452013bfc6638dff3f4605615",
+      "bytes": 11408
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/ancestry-delta.original.json",
+      "sha256": "a363eb9a2adb1c9c0ac7a4c36871acc3450d946452013bfc6638dff3f4605615",
+      "bytes": 11408
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/bone-local.json",
+      "sha256": "85b8078ed3633f2267429724e657264b4443cc86829c7da6b7f3d1c2a8721906",
+      "bytes": 3238
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/inside-query/nodes.csv",
+      "sha256": "5fbfd5f8f6034d399d269c6e6aa9a5cf73b35211c8a9e699b582b6c8573dfce0",
+      "bytes": 798
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/inside-query/pairs.csv",
+      "sha256": "8186de1c0f8e985435ed7c51f6fdff7de3c2419a7a37117aea678cb0d9605d98",
+      "bytes": 6822
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/inside-query/points-world.npz",
+      "sha256": "6fe6e5054be707fe4ee50e018cb6326f63103c63fa1d6c34b3d860a18b22b013",
+      "bytes": 611
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/inside-query/points.csv",
+      "sha256": "8cb430a86aa0f38d6f9450b674552b2e09c02b573fc4e39c517ca127e436fd57",
+      "bytes": 2371
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/inside-query/prepare.log",
+      "sha256": "7e04d85a4f43de6ec9dfa81466bcfb8e0c4c0abb0dbd5128e171b7a991ae3a95",
+      "bytes": 825
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/inside-query/query.log",
+      "sha256": "daa7b75ca819ffa47c6f9fceaf411fe2c22101aea0d9599618f404e657211397",
+      "bytes": 126
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/report.json",
+      "sha256": "23c42d7c9e935f878c63eac1245a638c3d152f8b153a1b862cb9677027150a54",
+      "bytes": 14889
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/report.pre-scope-correction.json",
+      "sha256": "1f2a131c16a7d7f0be377d2e85e769c989e5a5404bec1cffaaa576393d756c85",
+      "bytes": 14749
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-run-001/scope-correction-supplement.json",
+      "sha256": "3f8a1cfcf8bf8f251443b5603f7c1afce4042ceda84db5bd8a88297150c7ff51",
+      "bytes": 1884
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/exact-slot-run.log",
+      "sha256": "8ded825a0ec4e9eeac6b93464a2563562c36ff449cb665064c4759569a5f4c87",
+      "bytes": 2936
+    },
+    {
+      "path": "b65-99/attempt-013-generalized-incremental-checker-prep-001/scoped_exact_checker_snapshot.py",
+      "sha256": "8023a87cbf70cdb14c1193e4b0e6e879139aa742d97d6f323ddc61f99245f498",
+      "bytes": 16960
+    },
+    {
+      "path": "b65-99/attempt-013-replay-on-pinned-653-001/candidate-pinned653-eight-flip.npz",
+      "sha256": "bfbf03766c6f99cc9bfdcc2c609f390d683221ed12764b2e83d41a898229a0ce",
+      "bytes": 7303158
+    },
+    {
+      "path": "b65-99/attempt-013-replay-on-pinned-653-001/replay_pinned653.py",
+      "sha256": "c2d452f9a87708d8efecf09faa5eaad7d029c8e4ad77e56940574799436a5892",
+      "bytes": 14871
+    },
+    {
+      "path": "b65-99/attempt-013-replay-on-pinned-653-001/report.json",
+      "sha256": "ff3a81dbc7eb353fde515385978bc28fa9751828f2cf5aa6850e06772d53f84f",
+      "bytes": 16495
+    }
+  ]
+}

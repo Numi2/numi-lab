@@ -1,0 +1,298 @@
+{
+  "accepted_physical_steps": 0,
+  "builder_script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-009-parent-barycentric-remap-001/prepare_parent_barycentric_remap.py",
+  "builder_script_sha256": "b300facdf2d46e3f794cc3afc3d38f33219f0bb8f2be535089d8ab6b31005262",
+  "candidate_input_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_input_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_output_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-009-parent-barycentric-remap-001/run-001/candidate.npz",
+  "candidate_output_sha256": "86af2de8b4a09adae1eabd231b11ebcc27356e5ae3f1d1db050889843c1208d4",
+  "changed_barycentric_rows_only": [
+    19818,
+    19819
+  ],
+  "corrected_map_max_vertex_error_m": {
+    "19818": 2.7755575615628914e-17,
+    "19819": 0.0
+  },
+  "corrected_map_min_weight": {
+    "19818": -3.228528555609955e-13,
+    "19819": -3.228528555609955e-13
+  },
+  "corrected_map_row_sum_error": {
+    "19818": 0.0,
+    "19819": 0.0
+  },
+  "exact_updated_bone_check": "NOT_RUN_PENDING_SHARED_GEOMETRY_SLOT",
+  "exact_updated_self_check": "NOT_RUN_PENDING_SHARED_GEOMETRY_SLOT",
+  "face_kind": 2,
+  "fine_subface_ancestry": [
+    8271
+  ],
+  "fine_subface_rows": [
+    8271
+  ],
+  "generation002_ancestry_guard_after_barycentric_repair": {
+    "affine_parent_map_validation": null,
+    "all_scalar_summaries_match_csr_unions": true,
+    "construction_only": true,
+    "crossing_face_count": 565,
+    "crossing_face_kind_counts": {
+      "2": 565
+    },
+    "crossing_faces_with_multi_detail_union": 51,
+    "crossing_faces_with_multi_parent_csr": 0,
+    "crossing_faces_with_multi_source_union": 51,
+    "crossing_fine_detail_ancestry_union_validated": true,
+    "crossing_fine_detail_ancestry_unique_and_matching": false,
+    "current_face_count": 42379,
+    "detail_csr_value_count": 35767,
+    "multi_parent_current_face_count": 0,
+    "native_admission": false,
+    "parent_candidate_path": "provided",
+    "parent_face_count": 41745,
+    "parent_indices_in_range": true,
+    "refinement_parent_contract_mode": "legacy_parent_union_with_nan_multi_parent",
+    "refinement_parent_csr_rows": 42379,
+    "registered_detail_id_count": 11453,
+    "registered_source_id_count": 14345,
+    "registered_subface_id_count": 11459,
+    "source_csr_value_count": 42625,
+    "subface_csr_value_count": 35779
+  },
+  "generation002_ancestry_guard_before": {
+    "affine_parent_map_validation": {
+      "archived_input_parent_union_preserved": true,
+      "current_geometry_affine_reconstructed": false,
+      "current_geometry_qualification": "independent source/trust/area/exact audits",
+      "max_parent_reconstruction_error_m": 0.0,
+      "parent_reconstruction_tolerance_m": 1e-12,
+      "reconstruction_domain": "immutable area_reference_037 points and topology"
+    },
+    "all_scalar_summaries_match_csr_unions": true,
+    "construction_only": true,
+    "crossing_face_count": 565,
+    "crossing_face_kind_counts": {
+      "2": 565
+    },
+    "crossing_faces_with_multi_detail_union": 51,
+    "crossing_faces_with_multi_parent_csr": 0,
+    "crossing_faces_with_multi_source_union": 51,
+    "crossing_fine_detail_ancestry_union_validated": true,
+    "crossing_fine_detail_ancestry_unique_and_matching": false,
+    "current_face_count": 42379,
+    "detail_csr_value_count": 35767,
+    "multi_parent_current_face_count": 0,
+    "native_admission": false,
+    "parent_candidate_path": "provided",
+    "parent_face_count": 41745,
+    "parent_indices_in_range": true,
+    "refinement_parent_contract_mode": "affine_child_to_immediate_input_face",
+    "refinement_parent_csr_rows": 42379,
+    "registered_detail_id_count": 11453,
+    "registered_source_id_count": 14345,
+    "registered_subface_id_count": 11459,
+    "source_csr_value_count": 42625,
+    "subface_csr_value_count": 35779
+  },
+  "generation002_guard_note": "The guard validates CSR/scalar/simplex semantics in legacy union mode; explicit per-face immutable-reference reconstruction for the two edited rows is separately measured above.",
+  "geometry_admitted": false,
+  "immediate_input_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz",
+  "immediate_input_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+  "immediate_parent_union": [
+    19444
+  ],
+  "inputs": {
+    "audit159": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json",
+      "sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e"
+    },
+    "candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+      "sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af"
+    },
+    "generation002_adapter": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/connected_refinement_adapter546_generation002.py",
+      "sha256": "6603e244496dfbbeb76f7cfbaa56c80f39b1a18e6cccb50727406148ba885fe4"
+    },
+    "generation002_guard": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/refresh_guards_multi_parent_generation002.py",
+      "sha256": "90bafb6a51e9d7a2dd9b49570fcd977423616e18e992c2d4a4306feea5bd5eab"
+    },
+    "owner402": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py",
+      "sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764"
+    },
+    "parent": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz",
+      "sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35"
+    },
+    "ring_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-008-cross-parent-flip-prep-001/ring-expansion-001/report.json",
+      "sha256": "80489c217f59688c192e9090c5d123a6b9bffe74ceff60205e02034732cdf0d5"
+    },
+    "ring_script": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-008-cross-parent-flip-prep-001/ring-expansion-001/one_ring_expansion_43_16.py",
+      "sha256": "df6087e13862147fbfbccf1d220fccea7a1ebb1a193813ef25c0d518b484b553"
+    },
+    "self_pairs": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    },
+    "self_summary": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-130/summary.json",
+      "sha256": "0ec99fa47245355d60858b05e1240b0e562de229c13721ea11659f6f4acdf5cf"
+    }
+  },
+  "inside_node_check": "NOT_RUN_PENDING_SHARED_GEOMETRY_SLOT",
+  "limitations": [
+    "candidate is construction-only and not admitted",
+    "the flip changes two rows that were baseline 43/16 exact crossing witnesses",
+    "updated exact bone, self and inside-node checks remain required",
+    "no physical transfer or admission"
+  ],
+  "local_float32_shape": [
+    {
+      "area_m2": 1.2759081139550017e-06,
+      "aspect": 0.5472449478195136,
+      "min_angle_deg": 42.81007908356765,
+      "row": 19818,
+      "triangle": [
+        21061,
+        20901,
+        18488
+      ]
+    },
+    {
+      "area_m2": 1.2758559874602684e-06,
+      "aspect": 0.5472462036853315,
+      "min_angle_deg": 42.808934005219506,
+      "row": 19819,
+      "triangle": [
+        20901,
+        20895,
+        18488
+      ]
+    }
+  ],
+  "local_shape_gate": {
+    "max_aspect": 50,
+    "min_angle_deg": 0.5,
+    "passes": true,
+    "positive_area": true
+  },
+  "matched_037_topology_synchronized": true,
+  "native_admission": false,
+  "operation": {
+    "angle_gain_deg": 22.568203178513404,
+    "edge": [
+      20895,
+      21061
+    ],
+    "face_rows": [
+      19818,
+      19819
+    ],
+    "immediate_parent_union": [
+      19444
+    ],
+    "new_diagonal": [
+      18488,
+      20901
+    ],
+    "new_faces": [
+      [
+        21061,
+        20901,
+        18488
+      ],
+      [
+        20901,
+        20895,
+        18488
+      ]
+    ],
+    "new_min_angle_deg": 42.808934005219506,
+    "old_min_angle_deg": 20.240730826706102,
+    "source_detail_face_row": 8269,
+    "source_subface_row": 8271
+  },
+  "parent_rank": {
+    "19818": 2,
+    "19819": 2
+  },
+  "parent_reference_face_row": 19444,
+  "parent_reference_triangle_m": [
+    [
+      -0.28000961740811664,
+      -0.85105828444163,
+      0.13089991112550098
+    ],
+    [
+      -0.27814793586730957,
+      -0.8546003699302673,
+      0.1280660331249237
+    ],
+    [
+      -0.2794206142425537,
+      -0.8525213301181793,
+      0.1297978237271309
+    ]
+  ],
+  "points_bitwise_unchanged": true,
+  "points_world_m_dtype": "float32",
+  "preexisting_incomplete_candidate_sha256": "86af2de8b4a09adae1eabd231b11ebcc27356e5ae3f1d1db050889843c1208d4",
+  "preserved_failed_evidence_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-008-cross-parent-flip-prep-001/ring-expansion-001/report.json",
+  "preserved_failed_evidence_report_sha256": "80489c217f59688c192e9090c5d123a6b9bffe74ceff60205e02034732cdf0d5",
+  "recomputed_barycentric_rows": {
+    "19818": [
+      [
+        0.500000000000202,
+        1.1973703794366462e-13,
+        0.49999999999967837
+      ],
+      [
+        0.5000000000002026,
+        0.5000000000001202,
+        -3.228528555609955e-13
+      ],
+      [
+        0.0,
+        -0.0,
+        1.0
+      ]
+    ],
+    "19819": [
+      [
+        0.5000000000002026,
+        0.5000000000001202,
+        -3.228528555609955e-13
+      ],
+      [
+        3.1108466357808824e-16,
+        0.5000000000000002,
+        0.49999999999999944
+      ],
+      [
+        0.0,
+        -0.0,
+        1.0
+      ]
+    ]
+  },
+  "reconstruction_tolerance_m": 1e-12,
+  "reference_source": "immutable area_reference_037_points_world_m_f64 for emitted vertices and immediate parent 19444 triangle from pinned input candidate area_reference_037_points_world_m_f64; deformed points were not used",
+  "schema": "numi.human.b43-16.parent-barycentric-remap.v1",
+  "simplex_tolerance": 2e-08,
+  "source_detail_ancestry": [
+    8269
+  ],
+  "source_detail_rows": [
+    8269
+  ],
+  "source_material_transfer": "Same registered source detail/subface/kind and one immediate parent 19444; source identity remains representable. Continuous physical material, volume and layer transfer are not recomputed by the topology owner.",
+  "status": "PRIVATE_CORRECTED_TOPOLOGY_CANDIDATE_PENDING_EXACT_LOCAL_AUDITS",
+  "stored_owner_map_max_vertex_error_m": {
+    "19818": 0.0007315228382747119,
+    "19819": 0.0007315228382747119
+  }
+}

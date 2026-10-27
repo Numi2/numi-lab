@@ -1,0 +1,241 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline_refresh_ancestry_error": "ValueError: archived pre-refinement parent union differs from immediate input",
+  "baseline_refresh_ancestry_receipt": null,
+  "candidate_input_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_input_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_output_path": null,
+  "composer538_sha256": "9dc78be3a52e2607771c49b11b30e175099ae0c6295ccecf504cdf9c9519cd52",
+  "crossing_face_kind": 2,
+  "exact_bone_check": "NOT_RUN; audit159 is the unchanged baseline witness set only",
+  "exact_self_check": "NOT_RUN; only the pinned baseline self receipt was read; 538 stored-witness exclusion rule applied",
+  "excluded_all_in_pinned_exact_pairs": true,
+  "excluded_count": 16,
+  "excluded_intrinsically_skinny_crossing_faces": [
+    19309,
+    19310,
+    19311,
+    19312,
+    19352,
+    19353,
+    19354,
+    19355,
+    19417,
+    19418,
+    19419,
+    19420,
+    19870,
+    19871,
+    19872,
+    19873
+  ],
+  "geometry_admitted": false,
+  "immediate_parent_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz",
+  "immediate_parent_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+  "limitations": [
+    "no updated exact bone or self predicates were run",
+    "child pair-count changes would not establish clearance",
+    "no physical or geometry admission"
+  ],
+  "native_admission": false,
+  "owner402_sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+  "owner_report": {
+    "accepted_flip_count": 0,
+    "changed_face_rows": [],
+    "full_exact_self_and_all185_gates_required_before_admission": true,
+    "geometry_admitted": false,
+    "immediate_parent_union_csr_regenerated": false,
+    "local_exact_self_audit_required": true,
+    "locked_inter_parent_seam_edge_count": 7,
+    "locked_inter_parent_seam_edges": [
+      [
+        5888,
+        10749
+      ],
+      [
+        5889,
+        10757
+      ],
+      [
+        9106,
+        10749
+      ],
+      [
+        9106,
+        20895
+      ],
+      [
+        10757,
+        14280
+      ],
+      [
+        14280,
+        18488
+      ],
+      [
+        18488,
+        20895
+      ]
+    ],
+    "locked_outer_edge_count": 22,
+    "locked_outer_edges": [
+      [
+        2706,
+        10213
+      ],
+      [
+        2706,
+        13531
+      ],
+      [
+        5884,
+        10742
+      ],
+      [
+        5884,
+        10743
+      ],
+      [
+        5888,
+        10747
+      ],
+      [
+        5888,
+        10748
+      ],
+      [
+        5889,
+        10755
+      ],
+      [
+        5889,
+        10756
+      ],
+      [
+        8833,
+        14025
+      ],
+      [
+        8833,
+        14026
+      ],
+      [
+        8834,
+        10213
+      ],
+      [
+        8834,
+        10755
+      ],
+      [
+        9104,
+        10742
+      ],
+      [
+        9104,
+        10748
+      ],
+      [
+        9105,
+        10756
+      ],
+      [
+        9105,
+        18481
+      ],
+      [
+        10212,
+        13531
+      ],
+      [
+        10212,
+        14025
+      ],
+      [
+        10743,
+        18751
+      ],
+      [
+        10747,
+        14026
+      ],
+      [
+        14274,
+        18481
+      ],
+      [
+        14274,
+        18751
+      ]
+    ],
+    "matched_037_faces_synchronized": true,
+    "multi_parent_changed_face_rows": [],
+    "operations": [],
+    "patch_boundary_and_seam_preserved": true,
+    "physical_steps": 0,
+    "points_bitwise_unchanged": true,
+    "rejection_reason_counts": {
+      "current_037_orientation_disagreement": 14,
+      "locked_outer_or_seam": 2,
+      "no_min_angle_gain": 12,
+      "nonconvex_quad": 8
+    },
+    "seed_face_rows": [
+      19309,
+      19310,
+      19311,
+      19312,
+      19352,
+      19353,
+      19354,
+      19355,
+      19417,
+      19418,
+      19419,
+      19420,
+      19870,
+      19871,
+      19872,
+      19873
+    ],
+    "selected_face_count": 752,
+    "source_detail_rows": [
+      8265,
+      8269
+    ],
+    "source_face_ancestry_union_regenerated": false,
+    "status": "NO_ELIGIBLE_LOCAL_FLIPS"
+  },
+  "pinned_self_pairs_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+  "pinned_self_receipt_sha256": "0ec99fa47245355d60858b05e1240b0e562de229c13721ea11659f6f4acdf5cf",
+  "pinned_target_audit_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "points_bitwise_unchanged": true,
+  "post_flip_ancestry_receipt_baseline_witness_domain_only": "BLOCKED_BY_BASELINE_ANCESTRY_GUARD",
+  "proposal_limits": {
+    "max_flips": 4,
+    "max_output_operations": 4,
+    "max_rounds": 1,
+    "min_angle_gain_degrees": 0.5
+  },
+  "proposal_shape": [],
+  "refresh_guard546_sha256": "090e368e693bc6f7d12c403812c1b691dc8de6d3e409cfae8d869f910aae076f",
+  "schema": "numi.human.b43-16.cross-parent-flip-prep.v1",
+  "shape_gate": {
+    "max_aspect": 50,
+    "min_angle_degrees": 0.5,
+    "min_area_fraction_of_old_two_face_patch": 0.1,
+    "passes": false
+  },
+  "source_detail_rows": [
+    8265,
+    8269
+  ],
+  "source_material_transfer": "Owner 402 unions source/detail/subface and immediate-parent CSR on each flipped pair; it requires equal face_kind, source-detail and source-subface, preserves outer boundary and detail seams, leaves points fixed, writes multi-parent scalar/barycentric sentinels where needed, and byte-preserves every other array. This represents categorical face_kind and registered ancestry only; it does not recompute/transfer continuous per-face material, volume, or layer fields.",
+  "status": "BASELINE_ANCESTRY_GUARD_BLOCKED",
+  "stored_exact_self_pairs": 0,
+  "stored_self_pair_conflict_count": 0,
+  "target_body": 43,
+  "target_exact_pair_count": 249,
+  "target_stable_bone_id": 16,
+  "target_unique_crossing_faces": 183
+}

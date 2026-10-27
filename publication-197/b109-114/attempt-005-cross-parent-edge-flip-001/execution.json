@@ -1,0 +1,24 @@
+{
+  "elapsed_seconds": 4.463787707965821,
+  "geometry_admitted": false,
+  "physical_steps": 0,
+  "schema": "numi.human.b109_114.attempt005.serialized_execution.v1",
+  "serialized_by": "/tmp/numi-human-geometry-slot.py",
+  "stages": [
+    {
+      "elapsed_seconds": 3.378626624820754,
+      "returncode": 0,
+      "script": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/prepare_two_flips.py",
+      "script_sha256": "2395c90b60779f1467e2aec37369a7bc836f096db1aed10de6003a8b7beca54f",
+      "stage": "owner_flip_and_lineage"
+    },
+    {
+      "elapsed_seconds": 1.0850597501266748,
+      "returncode": 0,
+      "script": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/exact_local_check.py",
+      "script_sha256": "d0baec27ab335c61906c79f72dc4adef8c2b40e7e9a7ffc45f81e1b277b0e280",
+      "stage": "exact_local_check"
+    }
+  ],
+  "status": "REJECTED_OR_FAILED"
+}

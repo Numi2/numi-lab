@@ -1,0 +1,797 @@
+{
+  "all_185_no_new_raw_pairs": false,
+  "all_185_raw_pair_added": [
+    [
+      65,
+      99,
+      14126,
+      102
+    ],
+    [
+      65,
+      99,
+      14128,
+      173
+    ],
+    [
+      65,
+      99,
+      14174,
+      180
+    ],
+    [
+      65,
+      99,
+      14193,
+      183
+    ],
+    [
+      65,
+      99,
+      14457,
+      113
+    ]
+  ],
+  "all_185_raw_pair_removed": [
+    [
+      65,
+      99,
+      14126,
+      173
+    ],
+    [
+      65,
+      99,
+      14128,
+      102
+    ],
+    [
+      65,
+      99,
+      14172,
+      175
+    ],
+    [
+      65,
+      99,
+      14192,
+      180
+    ],
+    [
+      65,
+      99,
+      14456,
+      111
+    ],
+    [
+      65,
+      99,
+      14456,
+      113
+    ]
+  ],
+  "all_185_strict_raw_pair_reduction": true,
+  "baseline_audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "baseline_changed_row_raw_pair_count": 23,
+  "baseline_complete_raw_pair_count": 985,
+  "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_changed_row_raw_pair_count": 22,
+  "candidate_report_sha256": "ff3a81dbc7eb353fde515385978bc28fa9751828f2cf5aa6850e06772d53f84f",
+  "candidate_sha256": "bfbf03766c6f99cc9bfdcc2c609f390d683221ed12764b2e83d41a898229a0ce",
+  "canonical_immediate_parent_identity_reduction": false,
+  "canonical_source_identity_reduction": false,
+  "changed_face_shape_and_aabb_baseline": {
+    "aabb_encloses_every_vertex": true,
+    "aabb_extents_max_m": [
+      0.002468794584274292,
+      0.000720977783203125,
+      0.0009273439645767212
+    ],
+    "aabb_extents_min_m": [
+      0.0018201768398284912,
+      0.00012946128845214844,
+      7.220357656478882e-05
+    ],
+    "face_count": 16,
+    "finite_aabb": true,
+    "max_aspect_edge2_over_4root3area": 5.8246407971630045,
+    "min_angle_deg": 5.901031663115289,
+    "min_area_m2": 2.3467290675801675e-07,
+    "nonnegative_aabb_extents": true,
+    "positive_triangle_area_count": 16,
+    "zero_area_rows": []
+  },
+  "changed_face_shape_and_aabb_candidate": {
+    "aabb_encloses_every_vertex": true,
+    "aabb_extents_max_m": [
+      0.0023897290229797363,
+      0.001095890998840332,
+      0.0006252899765968323
+    ],
+    "aabb_extents_min_m": [
+      0.0018303990364074707,
+      9.72747802734375e-05,
+      3.965944051742554e-05
+    ],
+    "face_count": 16,
+    "finite_aabb": true,
+    "max_aspect_edge2_over_4root3area": 5.414210043134326,
+    "min_angle_deg": 6.284589402364042,
+    "min_area_m2": 2.3467290675801675e-07,
+    "nonnegative_aabb_extents": true,
+    "positive_triangle_area_count": 16,
+    "zero_area_rows": []
+  },
+  "changed_rows": [
+    14060,
+    14061,
+    14126,
+    14128,
+    14172,
+    14174,
+    14192,
+    14193,
+    14221,
+    14223,
+    14248,
+    14251,
+    14456,
+    14457,
+    15101,
+    15104
+  ],
+  "construction_only": true,
+  "exact_controls": {
+    "baseline_selected_rows_canonical_exact_self_pairs": [],
+    "candidate_inside_matches_baseline": true,
+    "candidate_selected_rows_canonical_exact_self_pairs": [],
+    "inside_node_count": 32,
+    "inside_query_ambiguous_invalid_node_count": 32,
+    "inside_query_bank_count_each": [
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185
+    ],
+    "zero_motion_reproduced_complete_audit159_changed_rows": true
+  },
+  "exact_local_bone_receipt_sha256": "85b8078ed3633f2267429724e657264b4443cc86829c7da6b7f3d1c2a8721906",
+  "exact_local_report_sha256": "2ed44f1da9cbd38bb63a1f53b8ca46d52a9d7f608d3061b8dee732952e960e89",
+  "geometry_or_native_admission": false,
+  "incrementally_updated_complete_raw_pair_count": 984,
+  "interpretation": "Raw emitted child pair total decreases by one, but five raw child pair IDs appear and six disappear. The full mapped immediate-parent crossing identity set is unchanged at 653, and the source-ancestry identity set is unchanged at 385. This is not a canonical crossing-identity reduction and is not accepted as a geometric clearance improvement.",
+  "limitations": [
+    "incremental update relies on bitwise-identical world coordinates and a full source-face-row diff showing only listed rows changed",
+    "exact local changed-face checks against all 185 typed banks and complete skin are not a full rerun of the entire surface-by-185 audit",
+    "inside and self results only certify the scoped checks; no edge clearance, tissue thickness, full geometry admission, physical transfer, or native admission is claimed",
+    "Five raw child pair IDs are added and six removed, while immediate-parent and source-mapped identity sets are unchanged; the raw count delta is not a canonical clearance improvement."
+  ],
+  "mapped_identity_deltas": {
+    "immediate_parent": {
+      "added": [],
+      "after_identity_count": 653,
+      "before_identity_count": 653,
+      "missing_ancestry_after": [],
+      "missing_ancestry_before": [],
+      "new_identity_count": 0,
+      "removed": [],
+      "removed_identity_count": 0
+    },
+    "source_face": {
+      "added": [],
+      "after_identity_count": 385,
+      "before_identity_count": 385,
+      "missing_ancestry_after": [],
+      "missing_ancestry_before": [],
+      "new_identity_count": 0,
+      "removed": [],
+      "removed_identity_count": 0
+    }
+  },
+  "no_new_mapped_immediate_parent_identity": true,
+  "no_new_mapped_source_identity": true,
+  "physical_admission": false,
+  "points_world_m_bitwise_equal": true,
+  "result": "NO_CANONICAL_IDENTITY_REDUCTION_RAW_CHILD_REMAP_ONLY",
+  "schema": "numi.human.b65-99.incremental-raw-and-ancestry-delta.v1",
+  "strict_canonical_improvement": false,
+  "target65_99_baseline_changed_raw_pairs": [
+    [
+      65,
+      99,
+      14060,
+      175
+    ],
+    [
+      65,
+      99,
+      14061,
+      175
+    ],
+    [
+      65,
+      99,
+      14126,
+      104
+    ],
+    [
+      65,
+      99,
+      14126,
+      173
+    ],
+    [
+      65,
+      99,
+      14128,
+      102
+    ],
+    [
+      65,
+      99,
+      14128,
+      104
+    ],
+    [
+      65,
+      99,
+      14172,
+      175
+    ],
+    [
+      65,
+      99,
+      14172,
+      180
+    ],
+    [
+      65,
+      99,
+      14174,
+      175
+    ],
+    [
+      65,
+      99,
+      14192,
+      180
+    ],
+    [
+      65,
+      99,
+      14192,
+      183
+    ],
+    [
+      65,
+      99,
+      14193,
+      180
+    ],
+    [
+      65,
+      99,
+      14221,
+      175
+    ],
+    [
+      65,
+      99,
+      14223,
+      175
+    ],
+    [
+      65,
+      99,
+      14248,
+      175
+    ],
+    [
+      65,
+      99,
+      14251,
+      175
+    ],
+    [
+      65,
+      99,
+      14456,
+      103
+    ],
+    [
+      65,
+      99,
+      14456,
+      111
+    ],
+    [
+      65,
+      99,
+      14456,
+      113
+    ],
+    [
+      65,
+      99,
+      14457,
+      103
+    ],
+    [
+      65,
+      99,
+      14457,
+      111
+    ],
+    [
+      65,
+      99,
+      15101,
+      183
+    ],
+    [
+      65,
+      99,
+      15104,
+      183
+    ]
+  ],
+  "target65_99_candidate_changed_raw_pairs": [
+    [
+      65,
+      99,
+      14060,
+      175
+    ],
+    [
+      65,
+      99,
+      14061,
+      175
+    ],
+    [
+      65,
+      99,
+      14126,
+      102
+    ],
+    [
+      65,
+      99,
+      14126,
+      104
+    ],
+    [
+      65,
+      99,
+      14128,
+      104
+    ],
+    [
+      65,
+      99,
+      14128,
+      173
+    ],
+    [
+      65,
+      99,
+      14172,
+      180
+    ],
+    [
+      65,
+      99,
+      14174,
+      175
+    ],
+    [
+      65,
+      99,
+      14174,
+      180
+    ],
+    [
+      65,
+      99,
+      14192,
+      183
+    ],
+    [
+      65,
+      99,
+      14193,
+      180
+    ],
+    [
+      65,
+      99,
+      14193,
+      183
+    ],
+    [
+      65,
+      99,
+      14221,
+      175
+    ],
+    [
+      65,
+      99,
+      14223,
+      175
+    ],
+    [
+      65,
+      99,
+      14248,
+      175
+    ],
+    [
+      65,
+      99,
+      14251,
+      175
+    ],
+    [
+      65,
+      99,
+      14456,
+      103
+    ],
+    [
+      65,
+      99,
+      14457,
+      103
+    ],
+    [
+      65,
+      99,
+      14457,
+      111
+    ],
+    [
+      65,
+      99,
+      14457,
+      113
+    ],
+    [
+      65,
+      99,
+      15101,
+      183
+    ],
+    [
+      65,
+      99,
+      15104,
+      183
+    ]
+  ],
+  "target65_99_immediate_parent_mapped_after": [
+    [
+      65,
+      99,
+      13983,
+      175
+    ],
+    [
+      65,
+      99,
+      14024,
+      102
+    ],
+    [
+      65,
+      99,
+      14024,
+      104
+    ],
+    [
+      65,
+      99,
+      14024,
+      173
+    ],
+    [
+      65,
+      99,
+      14053,
+      175
+    ],
+    [
+      65,
+      99,
+      14053,
+      180
+    ],
+    [
+      65,
+      99,
+      14062,
+      180
+    ],
+    [
+      65,
+      99,
+      14062,
+      183
+    ],
+    [
+      65,
+      99,
+      14083,
+      175
+    ],
+    [
+      65,
+      99,
+      14097,
+      175
+    ],
+    [
+      65,
+      99,
+      14285,
+      103
+    ],
+    [
+      65,
+      99,
+      14285,
+      111
+    ],
+    [
+      65,
+      99,
+      14285,
+      113
+    ],
+    [
+      65,
+      99,
+      14920,
+      183
+    ]
+  ],
+  "target65_99_immediate_parent_mapped_before": [
+    [
+      65,
+      99,
+      13983,
+      175
+    ],
+    [
+      65,
+      99,
+      14024,
+      102
+    ],
+    [
+      65,
+      99,
+      14024,
+      104
+    ],
+    [
+      65,
+      99,
+      14024,
+      173
+    ],
+    [
+      65,
+      99,
+      14053,
+      175
+    ],
+    [
+      65,
+      99,
+      14053,
+      180
+    ],
+    [
+      65,
+      99,
+      14062,
+      180
+    ],
+    [
+      65,
+      99,
+      14062,
+      183
+    ],
+    [
+      65,
+      99,
+      14083,
+      175
+    ],
+    [
+      65,
+      99,
+      14097,
+      175
+    ],
+    [
+      65,
+      99,
+      14285,
+      103
+    ],
+    [
+      65,
+      99,
+      14285,
+      111
+    ],
+    [
+      65,
+      99,
+      14285,
+      113
+    ],
+    [
+      65,
+      99,
+      14920,
+      183
+    ]
+  ],
+  "target65_99_source_mapped_after": [
+    [
+      65,
+      99,
+      5530,
+      102
+    ],
+    [
+      65,
+      99,
+      5530,
+      103
+    ],
+    [
+      65,
+      99,
+      5530,
+      104
+    ],
+    [
+      65,
+      99,
+      5530,
+      111
+    ],
+    [
+      65,
+      99,
+      5530,
+      113
+    ],
+    [
+      65,
+      99,
+      5530,
+      173
+    ],
+    [
+      65,
+      99,
+      5530,
+      175
+    ],
+    [
+      65,
+      99,
+      5530,
+      180
+    ],
+    [
+      65,
+      99,
+      5530,
+      183
+    ],
+    [
+      65,
+      99,
+      6103,
+      183
+    ]
+  ],
+  "target65_99_source_mapped_before": [
+    [
+      65,
+      99,
+      5530,
+      102
+    ],
+    [
+      65,
+      99,
+      5530,
+      103
+    ],
+    [
+      65,
+      99,
+      5530,
+      104
+    ],
+    [
+      65,
+      99,
+      5530,
+      111
+    ],
+    [
+      65,
+      99,
+      5530,
+      113
+    ],
+    [
+      65,
+      99,
+      5530,
+      173
+    ],
+    [
+      65,
+      99,
+      5530,
+      175
+    ],
+    [
+      65,
+      99,
+      5530,
+      180
+    ],
+    [
+      65,
+      99,
+      5530,
+      183
+    ],
+    [
+      65,
+      99,
+      6103,
+      183
+    ]
+  ],
+  "whole_source_face_diff_equals_changed_rows": true
+}

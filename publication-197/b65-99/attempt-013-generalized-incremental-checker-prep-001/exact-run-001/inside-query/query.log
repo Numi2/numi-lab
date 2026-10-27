@@ -1,0 +1,1 @@
+query_rows=32 banks=185 aabb_outside=5888 parity_outside=17 inside=15 ambiguous=0 invalid=0 triangles=469136 bvh_nodes=938186

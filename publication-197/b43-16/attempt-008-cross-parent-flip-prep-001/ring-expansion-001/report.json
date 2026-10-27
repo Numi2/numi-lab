@@ -1,0 +1,428 @@
+{
+  "accepted_flip_count": 1,
+  "builder_script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-008-cross-parent-flip-prep-001/ring-expansion-001/one_ring_expansion_43_16.py",
+  "builder_script_sha256": "df6087e13862147fbfbccf1d220fccea7a1ebb1a193813ef25c0d518b484b553",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_written": false,
+  "detail_rows": [
+    8265,
+    8269
+  ],
+  "exact_target_pair_count": 249,
+  "excluded_seed_faces": [
+    19309,
+    19310,
+    19311,
+    19312,
+    19352,
+    19353,
+    19354,
+    19355,
+    19417,
+    19418,
+    19419,
+    19420,
+    19870,
+    19871,
+    19872,
+    19873
+  ],
+  "expanded_seed_count": 40,
+  "expanded_seed_faces": [
+    19307,
+    19308,
+    19309,
+    19310,
+    19311,
+    19312,
+    19313,
+    19315,
+    19328,
+    19329,
+    19352,
+    19353,
+    19354,
+    19355,
+    19359,
+    19360,
+    19367,
+    19369,
+    19404,
+    19405,
+    19414,
+    19415,
+    19417,
+    19418,
+    19419,
+    19420,
+    19457,
+    19458,
+    19817,
+    19818,
+    19844,
+    19845,
+    19857,
+    19859,
+    19868,
+    19869,
+    19870,
+    19871,
+    19872,
+    19873
+  ],
+  "generation002_ancestry_guard_after_report_only": {
+    "affine_parent_map_validation": null,
+    "all_scalar_summaries_match_csr_unions": true,
+    "construction_only": true,
+    "crossing_face_count": 565,
+    "crossing_face_kind_counts": {
+      "2": 565
+    },
+    "crossing_faces_with_multi_detail_union": 51,
+    "crossing_faces_with_multi_parent_csr": 0,
+    "crossing_faces_with_multi_source_union": 51,
+    "crossing_fine_detail_ancestry_union_validated": true,
+    "crossing_fine_detail_ancestry_unique_and_matching": false,
+    "current_face_count": 42379,
+    "detail_csr_value_count": 35767,
+    "multi_parent_current_face_count": 0,
+    "native_admission": false,
+    "parent_candidate_path": "provided",
+    "parent_face_count": 41745,
+    "parent_indices_in_range": true,
+    "refinement_parent_contract_mode": "legacy_parent_union_with_nan_multi_parent",
+    "refinement_parent_csr_rows": 42379,
+    "registered_detail_id_count": 11453,
+    "registered_source_id_count": 14345,
+    "registered_subface_id_count": 11459,
+    "source_csr_value_count": 42625,
+    "subface_csr_value_count": 35779
+  },
+  "generation002_ancestry_guard_before": {
+    "affine_parent_map_validation": {
+      "archived_input_parent_union_preserved": true,
+      "current_geometry_affine_reconstructed": false,
+      "current_geometry_qualification": "independent source/trust/area/exact audits",
+      "max_parent_reconstruction_error_m": 0.0,
+      "parent_reconstruction_tolerance_m": 1e-12,
+      "reconstruction_domain": "immutable area_reference_037 points and topology"
+    },
+    "all_scalar_summaries_match_csr_unions": true,
+    "construction_only": true,
+    "crossing_face_count": 565,
+    "crossing_face_kind_counts": {
+      "2": 565
+    },
+    "crossing_faces_with_multi_detail_union": 51,
+    "crossing_faces_with_multi_parent_csr": 0,
+    "crossing_faces_with_multi_source_union": 51,
+    "crossing_fine_detail_ancestry_union_validated": true,
+    "crossing_fine_detail_ancestry_unique_and_matching": false,
+    "current_face_count": 42379,
+    "detail_csr_value_count": 35767,
+    "multi_parent_current_face_count": 0,
+    "native_admission": false,
+    "parent_candidate_path": "provided",
+    "parent_face_count": 41745,
+    "parent_indices_in_range": true,
+    "refinement_parent_contract_mode": "affine_child_to_immediate_input_face",
+    "refinement_parent_csr_rows": 42379,
+    "registered_detail_id_count": 11453,
+    "registered_source_id_count": 14345,
+    "registered_subface_id_count": 11459,
+    "source_csr_value_count": 42625,
+    "subface_csr_value_count": 35779
+  },
+  "generation002_guard_resolution": {
+    "baseline_generation002_guard_passed": true,
+    "baseline_immutable_reference_reconstruction_error_m": 0.0,
+    "designated_parent_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+    "generation002_namespace_csr_shape": [
+      41746
+    ],
+    "generation002_namespace_csr_value_count": 42061,
+    "generation002_namespace_input_candidate_sha256": "5a7239e62cbc0cf461440a48a8c4747d7d733eec630d63cf9e08682009593cc6",
+    "generation002_namespace_matches_designated_parent": true,
+    "legacy_guard_546_sha256": "090e368e693bc6f7d12c403812c1b691dc8de6d3e409cfae8d869f910aae076f",
+    "legacy_guard_expected_namespace": "prior_input_parent_546__input_refinement_face_parent_ancestry_*",
+    "legacy_guard_failure": "The original 546 guard compares the old prior_input_parent_546 namespace and fails on this descendant; generation-002 namespace is the matching archive for the designated beaff5 parent.",
+    "legacy_namespace_csr_shape": [
+      41734
+    ],
+    "legacy_namespace_csr_value_count": 48350,
+    "legacy_namespace_input_candidate_sha256": "931529f21497521436aa15d52ebebf71a1e243c5a32d9b301d3f0a99e3035cc7",
+    "no_provenance_was_rewritten": true,
+    "post_proposal_affine_parent_map_validation": null,
+    "post_proposal_affine_parent_reconstruction": "not performed by generation-002 guard in legacy union mode",
+    "post_proposal_parent_contract_mode": "legacy_parent_union_with_nan_multi_parent"
+  },
+  "geometry_admitted": false,
+  "limitations": [
+    "report only; no candidate emitted",
+    "no updated exact bone or self predicates",
+    "ancestry validation does not establish clearance or physical admission",
+    "The one-ring flip is report-only. Owner 402 leaves stale parent barycentric values after changing these two same-parent faces; the generation-002 validator's legacy union mode does not detect the 0.7315 mm mismatch."
+  ],
+  "limits": {
+    "max_flips": 4,
+    "min_angle_gain": 0.5,
+    "rounds": 1
+  },
+  "locked_detail_seams": 7,
+  "locked_outer_edges": 22,
+  "one_extra_ring_only_count": 24,
+  "one_extra_ring_only_faces": [
+    19307,
+    19308,
+    19313,
+    19315,
+    19328,
+    19329,
+    19359,
+    19360,
+    19367,
+    19369,
+    19404,
+    19405,
+    19414,
+    19415,
+    19457,
+    19458,
+    19817,
+    19818,
+    19844,
+    19845,
+    19857,
+    19859,
+    19868,
+    19869
+  ],
+  "operation_crossing_membership": [
+    {
+      "face_row": 19818,
+      "in_baseline_exact_43_16_crossing_faces": true,
+      "old_triangle": [
+        21061,
+        20895,
+        18488
+      ],
+      "proposed_triangle": [
+        21061,
+        20901,
+        18488
+      ]
+    },
+    {
+      "face_row": 19819,
+      "in_baseline_exact_43_16_crossing_faces": true,
+      "old_triangle": [
+        20901,
+        20895,
+        21061
+      ],
+      "proposed_triangle": [
+        20901,
+        20895,
+        18488
+      ]
+    }
+  ],
+  "operation_identity_checks": [
+    {
+      "detail": [
+        8269
+      ],
+      "incident_to_excluded": false,
+      "kind": [
+        2
+      ],
+      "passes_same_detail_subface_kind": true,
+      "rows": [
+        19818,
+        19819
+      ],
+      "subface": [
+        8271
+      ]
+    }
+  ],
+  "operation_registered_identity": {
+    "face_kind": 2,
+    "fine_subface_ancestry": [
+      8271
+    ],
+    "fine_subface_row": 8271,
+    "immediate_parent_union": [
+      19444
+    ],
+    "matched_037_connectivity_synchronized": true,
+    "new_self_check_run": false,
+    "outer_boundary_or_detail_seam_crossed": false,
+    "points_bitwise_unchanged": true,
+    "source_detail_ancestry": [
+      8269
+    ],
+    "source_detail_row": 8269,
+    "stored_baseline_exact_self_pairs": 0
+  },
+  "operations": [
+    {
+      "angle_gain_deg": 22.568203178513404,
+      "edge": [
+        20895,
+        21061
+      ],
+      "face_rows": [
+        19818,
+        19819
+      ],
+      "immediate_parent_union": [
+        19444
+      ],
+      "new_diagonal": [
+        18488,
+        20901
+      ],
+      "new_faces": [
+        [
+          21061,
+          20901,
+          18488
+        ],
+        [
+          20901,
+          20895,
+          18488
+        ]
+      ],
+      "new_min_angle_deg": 42.808934005219506,
+      "old_min_angle_deg": 20.240730826706102,
+      "source_detail_face_row": 8269,
+      "source_subface_row": 8271
+    }
+  ],
+  "owner_patch_faces": 752,
+  "parent_barycentric_reparameterization_diagnostic": {
+    "basis_parent_face_row": 19444,
+    "existing_owner_stored_map_max_vertex_error_m_by_changed_face": {
+      "19818": 0.0007315228382747119,
+      "19819": 0.0007315228382747119
+    },
+    "existing_stored_map_invalid_for_proposed_connectivity": true,
+    "interpretation": "Owner 402 changes topology and parent CSR but leaves the old face-row barycentric maps in place. Its post-proposal generation-002 guard accepts the legacy CSR-union contract without reconstructing these changed single-parent rows. Do not emit this proposal as a candidate unless per-face barycentrics are regenerated and rechecked.",
+    "recomputed_affine_map_max_vertex_error_m_by_changed_face": {
+      "19818": 3.3306690738754696e-16,
+      "19819": 3.3306690738754696e-16
+    },
+    "recomputed_map_representable_within_tolerance": true,
+    "recomputed_maps": {
+      "19818": [
+        [
+          0.5000000000015128,
+          1.0079913942107186e-12,
+          0.4999999999974795
+        ],
+        [
+          0.5000000000015125,
+          0.5000000000010082,
+          -2.5204046310417663e-12
+        ],
+        [
+          2.325807632185287e-16,
+          6.035926200348172e-18,
+          0.9999999999999999
+        ]
+      ],
+      "19819": [
+        [
+          0.5000000000015125,
+          0.5000000000010082,
+          -2.5204046310417663e-12
+        ],
+        [
+          -7.204997192092263e-17,
+          0.5,
+          0.5000000000000001
+        ],
+        [
+          2.325807632185287e-16,
+          6.035926200348172e-18,
+          0.9999999999999999
+        ]
+      ]
+    },
+    "recomputed_min_barycentric_weight": {
+      "19818": -2.5204046310417663e-12,
+      "19819": -2.5204046310417663e-12
+    },
+    "simplex_tolerance": 2e-08
+  },
+  "physical_steps": 0,
+  "pinned_hashes": {
+    "candidate": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+    "owner_402": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+    "parent": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+    "refresh_guard_546_generation_002": "90bafb6a51e9d7a2dd9b49570fcd977423616e18e992c2d4a4306feea5bd5eab",
+    "refresh_guard_546_generation_002_adapter": "6603e244496dfbbeb76f7cfbaa56c80f39b1a18e6cccb50727406148ba885fe4",
+    "self_pairs_130": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "self_summary_130": "0ec99fa47245355d60858b05e1240b0e562de229c13721ea11659f6f4acdf5cf",
+    "target_audit_159": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e"
+  },
+  "rejections": {
+    "current_037_orientation_disagreement": 20,
+    "locked_outer_or_seam": 3,
+    "no_min_angle_gain": 26,
+    "nonconvex_quad": 29
+  },
+  "schema": "numi.human.b43-16.one-ring-expansion-prep.v1",
+  "shape_gates": {
+    "max_aspect": 50,
+    "min_angle": 0.5,
+    "min_area_fraction_old_patch": 0.1,
+    "pass": true
+  },
+  "shape_metrics": [
+    {
+      "angle_gain": 22.568203178513404,
+      "new_faces": [
+        {
+          "area": 1.2759081139550017e-06,
+          "aspect": 0.5472449478195136,
+          "fraction_old_patch_area": 0.5000102137585384,
+          "min_angle": 42.81007908356765,
+          "row": 19818,
+          "tri": [
+            21061,
+            20901,
+            18488
+          ]
+        },
+        {
+          "area": 1.2758559874602684e-06,
+          "aspect": 0.5472462036853315,
+          "fraction_old_patch_area": 0.4999897861278266,
+          "min_angle": 42.808934005219506,
+          "row": 19819,
+          "tri": [
+            20901,
+            20895,
+            18488
+          ]
+        }
+      ],
+      "rows": [
+        19818,
+        19819
+      ],
+      "shape_pass": true,
+      "target": []
+    }
+  ],
+  "source_material_transfer": "The two faces share detail 8269, subface 8271, face_kind 2, source ancestry [8269], and immediate parent 19444. Registered categorical ancestry is representable. The proposed topology needs regenerated per-face barycentrics: the owner leaves stale maps with 0.7315 mm vertex error, while a fresh map to parent 19444 reconstructs within 3.4e-16 m and lies within the 2e-8 simplex tolerance. Continuous physical material, volume, and layer transfer is not recomputed.",
+  "stable_bone_id": 16,
+  "status": "REPORT_ONLY_FLIP_FOUND_BUT_OWNER_PARENT_BARYCENTRICS_STALE",
+  "stored_self_pairs": 0,
+  "target_body": 43,
+  "unique_crossing_faces": 183,
+  "updated_self_or_bone_checks": "NOT_RUN"
+}

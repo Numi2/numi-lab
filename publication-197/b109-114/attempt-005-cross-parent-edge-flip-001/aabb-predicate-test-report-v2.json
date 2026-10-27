@@ -1,0 +1,101 @@
+{
+  "actual_rows": [
+    0,
+    1,
+    4,
+    5
+  ],
+  "disjoint_rows_excluded": true,
+  "expected_rows": [
+    0,
+    1,
+    4,
+    5
+  ],
+  "face_lower_bounds": [
+    [
+      0.1,
+      0.1,
+      0.1
+    ],
+    [
+      1.0,
+      0.2,
+      0.2
+    ],
+    [
+      1.1,
+      0.2,
+      0.2
+    ],
+    [
+      0.2,
+      1.1,
+      0.2
+    ],
+    [
+      -1.0,
+      -1.0,
+      -1.0
+    ],
+    [
+      1.0,
+      1.0,
+      1.0
+    ]
+  ],
+  "face_upper_bounds": [
+    [
+      0.2,
+      0.2,
+      0.2
+    ],
+    [
+      1.1,
+      0.3,
+      0.3
+    ],
+    [
+      1.2,
+      0.3,
+      0.3
+    ],
+    [
+      0.3,
+      1.2,
+      0.3
+    ],
+    [
+      2.0,
+      2.0,
+      2.0
+    ],
+    [
+      2.0,
+      2.0,
+      2.0
+    ]
+  ],
+  "geometry_audit_run": false,
+  "helper_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/per_face_aabb_overlap.py",
+  "helper_sha256": "d455229eb69208ff45700918fe05adc976eca5f942335775337db782692957cb",
+  "inclusive_boundary_contacts_retained": true,
+  "old_scalar_mask_would_drop_all_rows": true,
+  "old_unreduced_scalar_is_false": true,
+  "old_unreduced_scalar_value": false,
+  "predicate": "all(face_upper >= query_lower, axis=1) & all(face_lower <= query_upper, axis=1)",
+  "query_lower": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "query_upper": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "schema": "numi.human.per_face_aabb_overlap.synthetic_test.v1",
+  "status": "PASS",
+  "test_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-005-cross-parent-edge-flip-001/test_per_face_aabb_overlap_v2.py",
+  "test_sha256": "e3fbb42425ebe31f485ec0b761c033b15e6a4ddb30aacbe989512bd86c280e0e"
+}
