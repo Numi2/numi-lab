@@ -1,0 +1,794 @@
+{
+  "schema": "numi.human.bank115_118.exact-endpoint-facewise-patch-topology.v1",
+  "status": "LOCAL_PATCH_TOPOLOGY_PASS",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json",
+  "audit_report_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "exact_predicate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+  "exact_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/wider-fit-trial-001/topology/wide_topology_patch.py",
+  "script_sha256": "34e30b680871914f81b9ab7934416b1ab0e8569ae3fbf0701fea3f7a5cb1e3e5",
+  "patch_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/patch-trial-001/patch-candidate.npz",
+  "rational_ancestry_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/patch-trial-001/rational-ancestry.json",
+  "geometry_or_native_admission": false,
+  "scope": "One local face-wise topology integration over the crossing faces, original one-vertex ring, and connecting source-face path to 31574; no all-bank or self audit.",
+  "widening": {
+    "reason": "include source face 31574 from prior local self witness",
+    "target_source_face": 31574,
+    "dual_path_distance": 22,
+    "dual_path_faces": [
+      31437,
+      31485,
+      31487,
+      31505,
+      31504,
+      31434,
+      31462,
+      31525,
+      31524,
+      31531,
+      31530,
+      31607,
+      31604,
+      31605,
+      31586,
+      31587,
+      31588,
+      31594,
+      31591,
+      31556,
+      31561,
+      31575,
+      31574
+    ],
+    "base_patch_faces": 57
+  },
+  "patch_candidate_sha256": "67c90a682da5213bb7f26d166565b1a7e36d502dff504ab2ffd7ebf734ed14e4",
+  "rational_ancestry_sha256": "1e5990f31062742a00779f320361023307830221ac56318e7501a6012e7c1066",
+  "counts": {
+    "exact_crossing_pairs": 46,
+    "crossing_skin_faces": 19,
+    "one_vertex_ring_parent_faces": 79,
+    "fixed_outer_boundary_edges": 47,
+    "fixed_boundary_components": 1,
+    "original_patch_nodes": 64,
+    "exact_endpoint_keys": 46,
+    "emitted_nodes_added_once_per_exact_key": 46,
+    "child_patch_faces": 171,
+    "contour_segments": 46,
+    "contour_edges_unique": 46,
+    "local_edge_flips": 0
+  },
+  "checks": {
+    "one_closed_exact_endpoint_cycle": true,
+    "one_output_node_per_exact_endpoint_key": true,
+    "exact_rational_skin_barycentrics_preserved": true,
+    "candidate_source_ancestry_inherited": true,
+    "fixed_outer_boundary_unchanged": true,
+    "all_parent_faces_reference_area_covered": true,
+    "all_patch_edges_have_incidence_one_or_two": true,
+    "all_contour_edges_have_incidence_two": true
+  },
+  "per_parent_face": [
+    {
+      "parent_face_row": 29830,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 29833,
+      "point_count": 7,
+      "child_triangle_count": 7,
+      "contour_constraint_count": 3,
+      "constraint_count": 8,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 29834,
+      "point_count": 9,
+      "child_triangle_count": 11,
+      "contour_constraint_count": 5,
+      "constraint_count": 10,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 29835,
+      "point_count": 5,
+      "child_triangle_count": 3,
+      "contour_constraint_count": 1,
+      "constraint_count": 6,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 29836,
+      "point_count": 5,
+      "child_triangle_count": 3,
+      "contour_constraint_count": 1,
+      "constraint_count": 6,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 29838,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 29846,
+      "point_count": 5,
+      "child_triangle_count": 3,
+      "contour_constraint_count": 1,
+      "constraint_count": 6,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 29847,
+      "point_count": 5,
+      "child_triangle_count": 3,
+      "contour_constraint_count": 1,
+      "constraint_count": 6,
+      "reference_area": 0.49999999999999994,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 29848,
+      "point_count": 6,
+      "child_triangle_count": 5,
+      "contour_constraint_count": 2,
+      "constraint_count": 7,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 29849,
+      "point_count": 5,
+      "child_triangle_count": 3,
+      "contour_constraint_count": 1,
+      "constraint_count": 6,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 29850,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 29851,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 29852,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 29857,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31359,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31360,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31363,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31364,
+      "point_count": 6,
+      "child_triangle_count": 5,
+      "contour_constraint_count": 2,
+      "constraint_count": 7,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31365,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31366,
+      "point_count": 5,
+      "child_triangle_count": 3,
+      "contour_constraint_count": 1,
+      "constraint_count": 6,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31367,
+      "point_count": 9,
+      "child_triangle_count": 11,
+      "contour_constraint_count": 5,
+      "constraint_count": 10,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31368,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31369,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31373,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31374,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31378,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31417,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31419,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31420,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31422,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31423,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31425,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31428,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31434,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31436,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31437,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31439,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31440,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31441,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31447,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31452,
+      "point_count": 8,
+      "child_triangle_count": 9,
+      "contour_constraint_count": 4,
+      "constraint_count": 9,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31453,
+      "point_count": 9,
+      "child_triangle_count": 11,
+      "contour_constraint_count": 5,
+      "constraint_count": 10,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31454,
+      "point_count": 7,
+      "child_triangle_count": 7,
+      "contour_constraint_count": 3,
+      "constraint_count": 8,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31455,
+      "point_count": 8,
+      "child_triangle_count": 7,
+      "contour_constraint_count": 3,
+      "constraint_count": 10,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31456,
+      "point_count": 6,
+      "child_triangle_count": 5,
+      "contour_constraint_count": 2,
+      "constraint_count": 7,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31457,
+      "point_count": 5,
+      "child_triangle_count": 3,
+      "contour_constraint_count": 1,
+      "constraint_count": 6,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31458,
+      "point_count": 8,
+      "child_triangle_count": 9,
+      "contour_constraint_count": 4,
+      "constraint_count": 9,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31459,
+      "point_count": 5,
+      "child_triangle_count": 3,
+      "contour_constraint_count": 1,
+      "constraint_count": 6,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31462,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31464,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31465,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31471,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31472,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31484,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31485,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31487,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31498,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31499,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31504,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31505,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31508,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31509,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31511,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31524,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31525,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31530,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31531,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31556,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31561,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31574,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31575,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31586,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31587,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31588,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31591,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31594,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31604,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31605,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    },
+    {
+      "parent_face_row": 31607,
+      "point_count": 3,
+      "child_triangle_count": 1,
+      "contour_constraint_count": 0,
+      "constraint_count": 3,
+      "reference_area": 0.5,
+      "flips": 0
+    }
+  ],
+  "bank_clearance_checked": false,
+  "skin_self_intersection_checked": false,
+  "limitations": [
+    "Topology-only local patch trial; no crossing, containment, self-intersection, all-bank or native physical admission check.",
+    "All endpoint coordinates are independently emitted as Float32 world metres; this trial checks topology and face coverage, not bone clearance.",
+    "Bone source vertex indices are absent from the pinned triangle CSV; exact emitted coordinate keys stand in for explicit bone edge IDs."
+  ],
+  "elapsed_seconds": 0.8964978340081871
+}

@@ -1,0 +1,87 @@
+{
+  "schema": "numi.human.p191_evidence_manifest.v1",
+  "parent_commit": "210abbd79debf9ce1543fa5bb1859b7d692f5c5d",
+  "status": "construction evidence only; no physical or native admission",
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "679dc5287562db5d9fc9aa38014471de6cbad49de3d5596b18624b5b66269e78",
+      "bytes": 1630
+    },
+    {
+      "path": "b115-118-wider-rejected-fit/explicit-fit/constrained_exterior_fit.py",
+      "sha256": "4c33077dfaae121504260ab8a3d6343a126eb75004e0f4a5ed626001cd036491",
+      "bytes": 25529
+    },
+    {
+      "path": "b115-118-wider-rejected-fit/explicit-fit/private-constrained-fit-patch.npz",
+      "sha256": "f675fa8e8dbb53f02862b0d9654d758c9002204b95718948c09ba905839cfb22",
+      "bytes": 12317
+    },
+    {
+      "path": "b115-118-wider-rejected-fit/explicit-fit/report.json",
+      "sha256": "48fa2e05255cee37069676cdb5b2d836f76b3aa9bb9d204565eb5c66c1ccc903",
+      "bytes": 9775
+    },
+    {
+      "path": "b115-118-wider-rejected-fit/topology/patch-candidate.npz",
+      "sha256": "67c90a682da5213bb7f26d166565b1a7e36d502dff504ab2ffd7ebf734ed14e4",
+      "bytes": 10547
+    },
+    {
+      "path": "b115-118-wider-rejected-fit/topology/rational-ancestry.json",
+      "sha256": "1e5990f31062742a00779f320361023307830221ac56318e7501a6012e7c1066",
+      "bytes": 148152
+    },
+    {
+      "path": "b115-118-wider-rejected-fit/topology/report-first-misplaced.json",
+      "sha256": "68b436d46b1548a539fa116074aeb9577f1bbe1f2c52061e2bf1dce4fe7f744a",
+      "bytes": 21261
+    },
+    {
+      "path": "b115-118-wider-rejected-fit/topology/report.json",
+      "sha256": "4ae2e7059d0af71bd9841f5c60fa95d7bdacb55080fa17fb57aa91a290363e39",
+      "bytes": 21287
+    },
+    {
+      "path": "b115-118-wider-rejected-fit/topology/wide_topology_patch.py",
+      "sha256": "f0105f31c76d4ea277828da3508f23c0b6f8b28c279fe400bd894dbbce054122",
+      "bytes": 27140
+    },
+    {
+      "path": "b65-99-exact-contour-failure/exact_endpoint_check_65_99.log",
+      "sha256": "bf7973cbdbeba5e68cbd4cc49485a4df29d8d8bd40b241a99fed6d8fc4781185",
+      "bytes": 651
+    },
+    {
+      "path": "b65-99-exact-contour-failure/exact_endpoint_check_65_99.py",
+      "sha256": "96e2ec2665591294679dcc5cce44e2dbe71f9075b57c46ef399f735487f6f119",
+      "bytes": 21492
+    },
+    {
+      "path": "b65-99-exact-contour-failure/facewise-failure-witness.json",
+      "sha256": "7efd2c3806fc0f1b126efce261c38315a5181fe5e102a54b2f44d2c38447d60d",
+      "bytes": 12785
+    },
+    {
+      "path": "b65-99-exact-contour-failure/patch-trial-001/exact_endpoint_patch_65_99.log",
+      "sha256": "55ddf3c8044a836b3e1ec1d8c7ced8c8db10561ac1842bf31ca1012003c9e680",
+      "bytes": 3508
+    },
+    {
+      "path": "b65-99-exact-contour-failure/patch-trial-001/exact_endpoint_patch_65_99.py",
+      "sha256": "53f22664940f3fd80d9c15976b3e8911b47e0e3cad0f10663e6c030a1ffd6826",
+      "bytes": 33284
+    },
+    {
+      "path": "b65-99-exact-contour-failure/patch-trial-001/report.json",
+      "sha256": "503251d91bb7a192cc5cadcaf0d980c17a0283259c309cabc829e6bba667c968",
+      "bytes": 3427
+    },
+    {
+      "path": "b65-99-exact-contour-failure/receipt.json",
+      "sha256": "e54f1e6572c508054ba3402401b03fd04d901927703e8e686e69037eec015349",
+      "bytes": 461278
+    }
+  ]
+}

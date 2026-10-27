@@ -1,0 +1,21 @@
+waiting_for_human_geometry_slot pid=95558
+acquired_human_geometry_slot pid=95558
+{
+  "status": "EXACT_ENDPOINT_GRAPH_CHECKED",
+  "pair_dimension_counts": {
+    "segment": 148
+  },
+  "endpoint_records": 296,
+  "components": 148,
+  "degree_histogram": {
+    "2": 148
+  },
+  "graph_components": 1,
+  "graph_vertex_count": 148,
+  "coord_conflicts": 0,
+  "world_conflicts": 0,
+  "f32_collisions": 1,
+  "rounded_skin_fail": 296,
+  "rounded_bone_fail": 296,
+  "receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-003-exact-endpoint-identity/receipt.json"
+}

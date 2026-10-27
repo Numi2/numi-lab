@@ -1,0 +1,573 @@
+{
+  "schema": "numi.human.bank115_118.wide-constrained-exterior-fit.v1",
+  "status": "PRIVATE_WIDE_FIT_REJECTED",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "wide_topology_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/wider-fit-trial-001/topology/patch-candidate.npz",
+  "wide_topology_sha256": "67c90a682da5213bb7f26d166565b1a7e36d502dff504ab2ffd7ebf734ed14e4",
+  "wide_topology_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/wider-fit-trial-001/topology/report.json",
+  "wide_topology_report_sha256": "4ae2e7059d0af71bd9841f5c60fa95d7bdacb55080fa17fb57aa91a290363e39",
+  "base_topology_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/patch-trial-001/report.json",
+  "base_topology_report_sha256": "bcd2748f0cde4347fc1dabb5fb31e8fac70b8b41f9eff03b3632d0352e199711",
+  "output_patch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/wider-fit-trial-001/explicit-fit/private-constrained-fit-patch.npz",
+  "fit_target_mm": 0.05,
+  "fit_method": "SLSQP constrained displacement objective with explicit per-child orientation/area inequalities and bone-side halfspaces",
+  "geometry_or_native_admission": false,
+  "boundary_preservation": {
+    "original_fixed_outer_edges": 25,
+    "original_fixed_outer_source_nodes": 25,
+    "wide_fixed_outer_edges": 47,
+    "wide_fixed_outer_nodes": 47,
+    "fixed_node_union": 47
+  },
+  "optimizer": {
+    "method": "SLSQP explicit constrained displacement optimization",
+    "success": true,
+    "message": "Optimization terminated successfully",
+    "iterations": 95,
+    "objective": 6042.514473161446,
+    "movable_nodes": 63,
+    "fixed_nodes": 47,
+    "explicit_bone_halfspace_count": 50,
+    "explicit_face_orientation_area_constraint_count": 171,
+    "initial_min_shape_constraint": -7.638447128359468e-07,
+    "final_min_shape_constraint": -3.8487511919988576e-13,
+    "initial_min_bone_halfspace_constraint_scaled": -29.340840245762053,
+    "final_min_bone_halfspace_constraint_scaled": -5.67826493290402e-10,
+    "smoothness_penalty_weight": 0.5,
+    "max_node_displacement_mm": 1.4697981635939803,
+    "rms_node_displacement_mm": 0.25722702058708224,
+    "output_patch_sha256": "f675fa8e8dbb53f02862b0d9654d758c9002204b95718948c09ba905839cfb22"
+  },
+  "shape_gate_emitted_f32": {
+    "positive_orientation": false,
+    "inverted_child_rows": [
+      13,
+      58,
+      98,
+      102,
+      116
+    ],
+    "minimum_relative_area": 2.5589844447130652e-06,
+    "maximum_aspect_measure": 184.7152069797958,
+    "minimum_angle_degrees": 0.08987096846822078,
+    "pass": false
+  },
+  "exact_local_bone_gate": {
+    "bank": [
+      115,
+      118
+    ],
+    "pair_count": 105,
+    "pairs": [
+      [
+        4,
+        284
+      ],
+      [
+        4,
+        308
+      ],
+      [
+        4,
+        327
+      ],
+      [
+        5,
+        284
+      ],
+      [
+        5,
+        307
+      ],
+      [
+        5,
+        308
+      ],
+      [
+        19,
+        285
+      ],
+      [
+        19,
+        286
+      ],
+      [
+        19,
+        327
+      ],
+      [
+        20,
+        285
+      ],
+      [
+        20,
+        286
+      ],
+      [
+        22,
+        285
+      ],
+      [
+        22,
+        327
+      ],
+      [
+        24,
+        284
+      ],
+      [
+        24,
+        285
+      ],
+      [
+        24,
+        327
+      ],
+      [
+        28,
+        214
+      ],
+      [
+        28,
+        215
+      ],
+      [
+        28,
+        304
+      ],
+      [
+        31,
+        215
+      ],
+      [
+        31,
+        290
+      ],
+      [
+        32,
+        108
+      ],
+      [
+        32,
+        111
+      ],
+      [
+        32,
+        215
+      ],
+      [
+        33,
+        108
+      ],
+      [
+        33,
+        111
+      ],
+      [
+        33,
+        215
+      ],
+      [
+        34,
+        108
+      ],
+      [
+        34,
+        215
+      ],
+      [
+        37,
+        215
+      ],
+      [
+        37,
+        304
+      ],
+      [
+        39,
+        215
+      ],
+      [
+        39,
+        290
+      ],
+      [
+        39,
+        304
+      ],
+      [
+        39,
+        349
+      ],
+      [
+        49,
+        283
+      ],
+      [
+        49,
+        286
+      ],
+      [
+        49,
+        327
+      ],
+      [
+        53,
+        280
+      ],
+      [
+        53,
+        281
+      ],
+      [
+        53,
+        308
+      ],
+      [
+        53,
+        327
+      ],
+      [
+        89,
+        148
+      ],
+      [
+        89,
+        215
+      ],
+      [
+        90,
+        124
+      ],
+      [
+        90,
+        215
+      ],
+      [
+        91,
+        124
+      ],
+      [
+        91,
+        148
+      ],
+      [
+        91,
+        215
+      ],
+      [
+        98,
+        214
+      ],
+      [
+        98,
+        215
+      ],
+      [
+        103,
+        214
+      ],
+      [
+        103,
+        215
+      ],
+      [
+        107,
+        108
+      ],
+      [
+        107,
+        111
+      ],
+      [
+        107,
+        215
+      ],
+      [
+        111,
+        111
+      ],
+      [
+        111,
+        215
+      ],
+      [
+        112,
+        111
+      ],
+      [
+        112,
+        215
+      ],
+      [
+        113,
+        111
+      ],
+      [
+        113,
+        215
+      ],
+      [
+        116,
+        124
+      ],
+      [
+        116,
+        215
+      ],
+      [
+        118,
+        111
+      ],
+      [
+        118,
+        215
+      ],
+      [
+        119,
+        111
+      ],
+      [
+        119,
+        123
+      ],
+      [
+        119,
+        124
+      ],
+      [
+        119,
+        215
+      ],
+      [
+        120,
+        215
+      ],
+      [
+        120,
+        285
+      ],
+      [
+        120,
+        290
+      ],
+      [
+        121,
+        285
+      ],
+      [
+        121,
+        286
+      ],
+      [
+        121,
+        290
+      ],
+      [
+        122,
+        285
+      ],
+      [
+        122,
+        286
+      ],
+      [
+        127,
+        114
+      ],
+      [
+        127,
+        116
+      ],
+      [
+        127,
+        119
+      ],
+      [
+        127,
+        120
+      ],
+      [
+        127,
+        207
+      ],
+      [
+        127,
+        285
+      ],
+      [
+        127,
+        288
+      ],
+      [
+        127,
+        295
+      ],
+      [
+        128,
+        109
+      ],
+      [
+        128,
+        215
+      ],
+      [
+        129,
+        108
+      ],
+      [
+        129,
+        109
+      ],
+      [
+        129,
+        110
+      ],
+      [
+        129,
+        121
+      ],
+      [
+        129,
+        215
+      ],
+      [
+        132,
+        109
+      ],
+      [
+        132,
+        215
+      ],
+      [
+        133,
+        80
+      ],
+      [
+        133,
+        107
+      ],
+      [
+        133,
+        109
+      ],
+      [
+        133,
+        215
+      ],
+      [
+        137,
+        107
+      ],
+      [
+        137,
+        215
+      ],
+      [
+        137,
+        285
+      ],
+      [
+        138,
+        107
+      ],
+      [
+        138,
+        120
+      ],
+      [
+        138,
+        285
+      ]
+    ],
+    "patch_vertex_location_counts": {
+      "outside": 110
+    },
+    "all_patch_vertices_outside": true,
+    "pass": false
+  },
+  "exact_local_self_gate": {
+    "patch_internal_pair_count": 15,
+    "patch_internal_pairs": [
+      [
+        1,
+        161
+      ],
+      [
+        3,
+        161
+      ],
+      [
+        7,
+        161
+      ],
+      [
+        44,
+        161
+      ],
+      [
+        45,
+        161
+      ],
+      [
+        46,
+        161
+      ],
+      [
+        54,
+        161
+      ],
+      [
+        55,
+        161
+      ],
+      [
+        69,
+        161
+      ],
+      [
+        69,
+        162
+      ],
+      [
+        71,
+        161
+      ],
+      [
+        71,
+        162
+      ],
+      [
+        83,
+        161
+      ],
+      [
+        145,
+        161
+      ],
+      [
+        154,
+        161
+      ]
+    ],
+    "complement_aabb_active_count": 807,
+    "patch_vs_complement_pair_count": 0,
+    "patch_vs_complement_pairs": [],
+    "pass": false
+  },
+  "fixed_boundary_checks": {
+    "wider_fixed_boundary_node_bits_preserved": true,
+    "original_25_edge_source_node_bits_preserved": true
+  },
+  "accepted_candidate_modified": false,
+  "limitations": [
+    "One private widened local fit only; no full mesh or all-bank audit.",
+    "Exact bone and self checks cover bank 115/118 and this patch plus AABB-overlapping complement only.",
+    "No whole-solid containment, physical transfer, or native admission is claimed.",
+    "Bone source vertex indices are absent from the pinned triangle CSV; exact emitted coordinate keys identify candidate bone edges."
+  ],
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/wider-fit-trial-001/explicit-fit/constrained_exterior_fit.py",
+  "script_sha256": "4c33077dfaae121504260ab8a3d6343a126eb75004e0f4a5ed626001cd036491",
+  "elapsed_seconds": 2.0321564581245184
+}

@@ -1,0 +1,451 @@
+{
+  "schema": "numi.human.bank65_99.facewise-failure-witness.v1",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "exact_endpoint_graph_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-003-exact-endpoint-identity/receipt.json",
+  "exact_endpoint_graph_receipt_sha256": "e54f1e6572c508054ba3402401b03fd04d901927703e8e686e69037eec015349",
+  "facewise_trial_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-003-exact-endpoint-identity/patch-trial-001/report.json",
+  "facewise_trial_report_sha256": "503251d91bb7a192cc5cadcaf0d980c17a0283259c309cabc829e6bba667c968",
+  "endpoint_graph_counts": {
+    "pair_dimension_counts": {
+      "segment": 148
+    },
+    "endpoint_record_count": 296,
+    "endpoint_components_by_exact_feature_union": 148,
+    "degree_histogram": {
+      "2": 148
+    },
+    "graph_connected_component_count": 1,
+    "collapsed_segments_after_exact_feature_union": [],
+    "duplicate_canonical_segment_multiplicities": []
+  },
+  "float32_endpoint_recheck": {
+    "scope": "rounded exact endpoint coordinates in world metres only; no patch interior vertices emitted",
+    "canonical_components_with_consistent_exact_world_position": 148,
+    "components_with_conflicting_exact_world_positions": [],
+    "distinct_exact_components_collapsed_to_one_Float32_point": [
+      [
+        116,
+        117
+      ]
+    ],
+    "endpoint_pair_checks_failing_skin_triangle": 296,
+    "endpoint_pair_checks_failing_bone_triangle": 296,
+    "components_still_on_every_incident_skin_and_bone_triangle": 0,
+    "components_checked_after_emission": 148
+  },
+  "distinct_exact_roots_collapsed": [
+    116,
+    117
+  ],
+  "exact_sub_ulp_witnesses": [
+    {
+      "canonical_exact_root": 116,
+      "endpoint_record_ids": [
+        116,
+        135
+      ],
+      "incident_pair_endpoints": [
+        {
+          "skin_face": 14173,
+          "bone_triangle": 174,
+          "endpoint_ordinal": 0,
+          "skin_feature": [
+            "skin-edge",
+            19945,
+            21158,
+            "136953722172526510343636846/4891631902507464786434543469405"
+          ],
+          "bone_feature": null
+        },
+        {
+          "skin_face": 14182,
+          "bone_triangle": 174,
+          "endpoint_ordinal": 1,
+          "skin_feature": [
+            "skin-edge",
+            19945,
+            21158,
+            "136953722172526510343636846/4891631902507464786434543469405"
+          ],
+          "bone_feature": null
+        }
+      ],
+      "exact_world_endpoint_m": [
+        "-12924911810027803765046005806741836407/41033982510429339167203102823798538240",
+        "-13792652588470326734105779546501297539/13677994170143113055734367607932846080",
+        "78600956720664875342555228643929073983/656543720166869426675249645180776611840"
+      ],
+      "emitted_world_f32_m": [
+        -0.314980685710907,
+        -1.0083826780319214,
+        0.11971930414438248
+      ],
+      "emitted_f32_bits": [
+        3198240038,
+        3212907183,
+        1039478629
+      ],
+      "exact_squared_separation_from_anchor_m2": "0/1",
+      "separation_from_anchor_m": 0.0
+    },
+    {
+      "canonical_exact_root": 117,
+      "endpoint_record_ids": [
+        117,
+        126
+      ],
+      "incident_pair_endpoints": [
+        {
+          "skin_face": 14173,
+          "bone_triangle": 174,
+          "endpoint_ordinal": 1,
+          "skin_feature": [
+            "skin-edge",
+            19945,
+            20986,
+            "136953722172526510343636846/5270775616709442029190928371591"
+          ],
+          "bone_feature": null
+        },
+        {
+          "skin_face": 14177,
+          "bone_triangle": 174,
+          "endpoint_ordinal": 0,
+          "skin_feature": [
+            "skin-edge",
+            19945,
+            20986,
+            "136953722172526510343636846/5270775616709442029190928371591"
+          ],
+          "bone_feature": null
+        }
+      ],
+      "exact_world_endpoint_m": [
+        "-27853408263951833176418431436589169135/88428941009067518163214510530710470656",
+        "-44585106206624506435339029536553617437/44214470504533759081607255265355235328",
+        "84693208943423162328324648825091844137/707431528072540145305716084245683765248"
+      ],
+      "emitted_world_f32_m": [
+        -0.314980685710907,
+        -1.0083826780319214,
+        0.11971930414438248
+      ],
+      "emitted_f32_bits": [
+        3198240038,
+        3212907183,
+        1039478629
+      ],
+      "exact_squared_separation_from_anchor_m2": "15756472737192151336291610582020606465999728447334313921634682342086505319649372083790924663120276297392433593935588462933/83159882604516234276419815743655654073157330808773877837616837115154667217319174659380174860761854669926518487655120903923125457413734400",
+      "separation_from_anchor_m": 1.3764884366052629e-08
+    }
+  ],
+  "facewise_attempt_failure": "ValueError('degenerate reference triangle (2, 5, 0) area2=0.0')",
+  "facewise_attempt_traceback": "Traceback (most recent call last):\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-003-exact-endpoint-identity/patch-trial-001/exact_endpoint_patch_65_99.py\", line 405, in <module>\n    tris,flips=constrained_triangulate(p2,constraints)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-003-exact-endpoint-identity/patch-trial-001/exact_endpoint_patch_65_99.py\", line 113, in constrained_triangulate\n    T = [make_tri(*map(int,t), p2) for t in Delaunay(p2).simplices]\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-003-exact-endpoint-identity/patch-trial-001/exact_endpoint_patch_65_99.py\", line 92, in make_tri\n    raise ValueError(f\"degenerate reference triangle {(a,b,c)} area2={o}\")\nValueError: degenerate reference triangle (2, 5, 0) area2=0.0\n",
+  "patch_candidate_file_exists": false,
+  "reconstructed_parent_patch": {
+    "faces": 241,
+    "seed_crossing_faces": 120,
+    "two_rings": 2,
+    "fan_branch_nodes": [
+      10551
+    ],
+    "fan_faces_added": 9
+  },
+  "parent_csr_ancestry": {
+    "source": {
+      "parent_faces": 241,
+      "empty_parent_rows": 0,
+      "empty_face_rows": [],
+      "negative_parent_rows": 0,
+      "negative_face_rows": [],
+      "distinct_ancestry_id_count": 2,
+      "common_ancestry_sets_top20": [
+        [
+          [
+            5530
+          ],
+          190
+        ],
+        [
+          [
+            5530,
+            6103
+          ],
+          41
+        ],
+        [
+          [
+            6103
+          ],
+          10
+        ]
+      ]
+    },
+    "fine_detail": {
+      "parent_faces": 241,
+      "empty_parent_rows": 0,
+      "empty_face_rows": [],
+      "negative_parent_rows": 0,
+      "negative_face_rows": [],
+      "distinct_ancestry_id_count": 2,
+      "common_ancestry_sets_top20": [
+        [
+          [
+            5530
+          ],
+          190
+        ],
+        [
+          [
+            5530,
+            6103
+          ],
+          41
+        ],
+        [
+          [
+            6103
+          ],
+          10
+        ]
+      ]
+    },
+    "fine_subface": {
+      "parent_faces": 241,
+      "empty_parent_rows": 0,
+      "empty_face_rows": [],
+      "negative_parent_rows": 0,
+      "negative_face_rows": [],
+      "distinct_ancestry_id_count": 2,
+      "common_ancestry_sets_top20": [
+        [
+          [
+            5530
+          ],
+          190
+        ],
+        [
+          [
+            5530,
+            6103
+          ],
+          41
+        ],
+        [
+          [
+            6103
+          ],
+          10
+        ]
+      ]
+    },
+    "all_valid": true
+  },
+  "crossing_faces_with_minus_one_scalar_marker": 20,
+  "minus_one_crossing_face_alternative_source_ancestry": [
+    {
+      "skin_face": 15063,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15064,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15065,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15066,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15085,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15086,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15087,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15088,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15101,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15102,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15103,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15104,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15106,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15107,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15108,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15109,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15130,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15131,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15132,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    },
+    {
+      "skin_face": 15133,
+      "parent_coarse_face_row": -1,
+      "parent_fine_detail_face_row": -1,
+      "parent_fine_subface_row": -1,
+      "source_ancestry_rows": [
+        5530,
+        6103
+      ]
+    }
+  ],
+  "geometry_changed": false,
+  "all_bank_or_full_audit_run": false,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}
