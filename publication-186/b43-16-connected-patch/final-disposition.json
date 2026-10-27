@@ -1,0 +1,65 @@
+{
+  "schema": "numi.human.bank43_16.topology_first_disposition.v1",
+  "status": "TOPOLOGY_ONLY_PATCH_SUPPORT_IDENTIFIED_NO_GEOMETRY_CHANGED",
+  "checkpoint": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+    "sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+    "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json",
+    "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e"
+  },
+  "bank_43_16": {
+    "exact_crossing_pairs": 249,
+    "crossing_skin_faces": 183,
+    "crossing_bone_faces": 31,
+    "skin_crossings_edge_connected_components": 1,
+    "crossing_source_ancestry_rows": [8265, 8269],
+    "crossing_fine_subface_ancestry_rows": [8267, 8271],
+    "inside_crossing_vertices_by_solid_angle_winding": 43,
+    "crossing_vertex_count": 138,
+    "inside_vertex_depth_range_mm": [0.00429096385703315, 1.7782188299526833],
+    "initial_one_ring_boundary_min_distance_to_bone_mm": 0.018483949724805472,
+    "initial_one_ring_boundary_inside_nodes": 0,
+    "bone_surface": {
+      "face_count": 672,
+      "closed_edge_incidence": "1008 bitwise-coordinate edges, all valence 2",
+      "orientation_conflicts": 0,
+      "vertex_identity_limit": "Exact Float32 bit-coordinate classes were used as an adjacency proxy because the pinned triangle export lacks explicit bone-corner IDs; no coordinate bins were used."
+    }
+  },
+  "patch_expansion": {
+    "initial_crossing_plus_vertex_ring_faces": 381,
+    "initial_boundary_components": 1,
+    "initial_boundary_nodes": 88,
+    "initial_degree_four_vertices": [10759, 12579, 12580, 12591, 18894],
+    "after_two_branched_fan_expansions_faces": 422,
+    "before_complement_fill_boundary_loops_node_counts": [54, 6, 5, 4, 3],
+    "complement_face_components": [
+      {"component": 0, "face_count": 41945, "adjacent_loop_nodes": 54, "action": "leave large body component untouched"},
+      {"component": 1, "face_count": 3, "adjacent_loop_nodes": 5, "action": "fill topologically"},
+      {"component": 2, "face_count": 6, "adjacent_loop_nodes": 6, "action": "fill topologically"},
+      {"component": 3, "face_count": 1, "adjacent_loop_nodes": 3, "action": "fill topologically"},
+      {"component": 4, "face_count": 2, "adjacent_loop_nodes": 4, "action": "fill topologically"}
+    ],
+    "filled_complement_face_rows": [19192, 19351, 19361, 19379, 19388, 19396, 19434, 19445, 19465, 19468, 19474, 19476],
+    "added_faces": 12,
+    "resulting_topology_only_patch_face_count": 434,
+    "resulting_boundary_loops": 1,
+    "resulting_boundary_loop_node_count": 54,
+    "resulting_boundary_degree_histogram": {"2": 54},
+    "exact_crossing_faces_still_inside": 183,
+    "exact_crossing_pairs_still_inside": 249
+  },
+  "artifacts": {
+    "local-diagnostic.json": "adcfeedb5219cb7547b377baa98cbfb83d7ecc64b08b2df1b153bef7ed1aedda",
+    "bone-bitwise-topology.json": "3b1fdc90e299327ba2f3262d4da3b9c9a452d664a44f2da1d3fc1a9af0254dc7",
+    "ring-expansion.json": "feec11af96cd9e5cd0c684c18191771e2ade5202307541b8dd01b97033617f5d",
+    "complement-fill-check.json": "2adfaad8954ba560653566954582e8c18cc0f0433fcb3199a8218baca3ad5c03",
+    "complement-filled-patch-face-rows.npy": "ad2fb608a536ab8396b781baab4b01f62fc8ae1da81ad533fcb6a4c281131085"
+  },
+  "interpretation": "A face-set with one simple 54-node boundary is identifiable after filling four small edge-disconnected complement components (12 faces total). This is only a topology-only support definition. It is not a conforming remesh, geometric clearance result, or anatomical repair.",
+  "limitations": [
+    "No coordinates were moved and the shared checkpoint was not modified.",
+    "No patch construction, local clearance certification, all-bank no-worsening audit, whole-body self audit, or physical/native admission was performed.",
+    "The initial local-diagnostic.json bone-topology section used an incorrect node-table mapping; use bone-bitwise-topology.json for the corrected exact-bit adjacency proxy and its stated limitation."
+  ]
+}

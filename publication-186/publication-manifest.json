@@ -1,0 +1,112 @@
+{
+  "schema": "numi.human.p186_evidence_manifest.v1",
+  "parent_commit": "bc8b2de98bfb642b2d4da8f42713d4590355ead7",
+  "status": "construction evidence only; no physical or native admission",
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "70f006512afa270fded8e0ec87c82f0373a6efb423218abf68b87e936a35b6e4",
+      "bytes": 2326
+    },
+    {
+      "path": "b43-16-boundary/boundary-feasibility.json",
+      "sha256": "f9c6c70c4e909a5d71600c2d182a0de0c703e499dd5c7df296599b67fcb7b7e0",
+      "bytes": 31538
+    },
+    {
+      "path": "b43-16-boundary/boundary-feasibility.log",
+      "sha256": "deebfc2abe1bb73b48272abc4baaf6dfac07ca9700620e896b9b12faab4649b3",
+      "bytes": 3043
+    },
+    {
+      "path": "b43-16-boundary/boundary_feasibility.py",
+      "sha256": "2c6ca7a5fd757d3d6b1821e7f2de7efc8376dddedfe1fc39a503c0ad5a4de637",
+      "bytes": 12250
+    },
+    {
+      "path": "b43-16-connected-patch/bone-bitwise-topology.json",
+      "sha256": "3b1fdc90e299327ba2f3262d4da3b9c9a452d664a44f2da1d3fc1a9af0254dc7",
+      "bytes": 1877
+    },
+    {
+      "path": "b43-16-connected-patch/bone-bitwise-topology.log",
+      "sha256": "ee9633019b30db129557044378ffa72073e496bdbb027af2c1f413ae9b489350",
+      "bytes": 1958
+    },
+    {
+      "path": "b43-16-connected-patch/bone_bitwise_topology.py",
+      "sha256": "2db48446c739a12ee7554774169e28e609aa83a003f1e998d15ddacb550555dc",
+      "bytes": 3723
+    },
+    {
+      "path": "b43-16-connected-patch/complement-fill-check.json",
+      "sha256": "2adfaad8954ba560653566954582e8c18cc0f0433fcb3199a8218baca3ad5c03",
+      "bytes": 23119
+    },
+    {
+      "path": "b43-16-connected-patch/complement-fill-check.log",
+      "sha256": "2adfaad8954ba560653566954582e8c18cc0f0433fcb3199a8218baca3ad5c03",
+      "bytes": 23119
+    },
+    {
+      "path": "b43-16-connected-patch/complement-filled-patch-face-rows.npy",
+      "sha256": "ad2fb608a536ab8396b781baab4b01f62fc8ae1da81ad533fcb6a4c281131085",
+      "bytes": 3600
+    },
+    {
+      "path": "b43-16-connected-patch/complement_fill_check.py",
+      "sha256": "d5f0fda0414d37a9b556fe475c5291dd8dc1881b00bc332e0a3c18203acf1cfd",
+      "bytes": 7682
+    },
+    {
+      "path": "b43-16-connected-patch/final-disposition.json",
+      "sha256": "b651eef56622cb66eac52ec79eeef74cba9a4d869a8356caf044cb9fb39a94b6",
+      "bytes": 4329
+    },
+    {
+      "path": "b43-16-connected-patch/local-diagnostic.json",
+      "sha256": "adcfeedb5219cb7547b377baa98cbfb83d7ecc64b08b2df1b153bef7ed1aedda",
+      "bytes": 36313
+    },
+    {
+      "path": "b43-16-connected-patch/local-diagnostic.log",
+      "sha256": "ba16efeb4f15100ec03af3c57d45e09f879f004b04bfdadeddcb04df6ad3a16b",
+      "bytes": 9335
+    },
+    {
+      "path": "b43-16-connected-patch/local_bank_diagnostic.py",
+      "sha256": "178529656dc9e924ba744b924a23275ce491513ab5cea2082798a720c69aeb72",
+      "bytes": 11366
+    },
+    {
+      "path": "b43-16-connected-patch/ring-expansion.json",
+      "sha256": "feec11af96cd9e5cd0c684c18191771e2ade5202307541b8dd01b97033617f5d",
+      "bytes": 3374
+    },
+    {
+      "path": "b43-16-connected-patch/ring_expansion.py",
+      "sha256": "24ae456b4706e6a247a507a247669a0f6031316d0739da49fca668b228a53a86",
+      "bytes": 3782
+    },
+    {
+      "path": "b74-104-bone-cap/cap-planar-report.json",
+      "sha256": "c499eb88657d0428cef30b02b230409f3ff0ec5cdb89c2a51876550194aef62a",
+      "bytes": 48342
+    },
+    {
+      "path": "b74-104-bone-cap/clip-diagnostic.json",
+      "sha256": "a3dbbbc689f82141c7ea3b9c2db75f28482c7306042e195b7d9a67223b26c6fe",
+      "bytes": 10061
+    },
+    {
+      "path": "b74-104-bone-cap/clip_bone_cap.py",
+      "sha256": "ffe91b00505ded53b862c032765071273f174e5a11f600e1b147494beade7272",
+      "bytes": 19289
+    },
+    {
+      "path": "b74-104-bone-cap/diagnose_clip_ids.py",
+      "sha256": "8251f0311030853a2e07227963cc79b3ba5427dbcc7d2ab2dd02b607e061a69a",
+      "bytes": 7623
+    }
+  ]
+}

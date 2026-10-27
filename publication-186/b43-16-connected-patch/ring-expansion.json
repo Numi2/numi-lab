@@ -1,0 +1,111 @@
+{
+  "schema": "numi.human.bank43_16.topology_only_ring_expansion.v1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "local_diagnostic_sha256": "adcfeedb5219cb7547b377baa98cbfb83d7ecc64b08b2df1b153bef7ed1aedda",
+  "typed_bank": [
+    43,
+    16
+  ],
+  "expansion_policy": "At each stage, add every incident mesh face around all current boundary vertices of degree >2. At most two expansions; stop if patch exceeds 5,000 faces. No coordinates moved.",
+  "steps": [
+    {
+      "step": 0,
+      "patch_face_count": 381,
+      "patch_node_count": 233,
+      "crossing_skin_faces_contained": 183,
+      "crossing_skin_faces_total": 183,
+      "exact_cross_pairs_owned": 249,
+      "exact_cross_pairs_total": 249,
+      "missing_crossing_face_rows": [],
+      "boundary_edge_count": 93,
+      "boundary_node_count": 88,
+      "boundary_component_count": 1,
+      "boundary_component_sizes_nodes": [
+        88
+      ],
+      "boundary_degree_histogram": {
+        "2": 83,
+        "4": 5
+      },
+      "branched_boundary_nodes": [
+        10759,
+        12579,
+        12580,
+        12591,
+        18894
+      ],
+      "simple_single_loop": false,
+      "branched_vertex_incident_faces_added_next": 34,
+      "branched_vertex_face_fan_sizes": {
+        "10759": 5,
+        "12579": 14,
+        "12580": 4,
+        "12591": 8,
+        "18894": 3
+      }
+    },
+    {
+      "step": 1,
+      "patch_face_count": 415,
+      "patch_node_count": 242,
+      "crossing_skin_faces_contained": 183,
+      "crossing_skin_faces_total": 183,
+      "exact_cross_pairs_owned": 249,
+      "exact_cross_pairs_total": 249,
+      "missing_crossing_face_rows": [],
+      "boundary_edge_count": 77,
+      "boundary_node_count": 76,
+      "boundary_component_count": 5,
+      "boundary_component_sizes_nodes": [
+        3,
+        4,
+        5,
+        10,
+        54
+      ],
+      "boundary_degree_histogram": {
+        "2": 75,
+        "4": 1
+      },
+      "branched_boundary_nodes": [
+        11685
+      ],
+      "simple_single_loop": false,
+      "branched_vertex_incident_faces_added_next": 7,
+      "branched_vertex_face_fan_sizes": {
+        "11685": 7
+      }
+    },
+    {
+      "step": 2,
+      "patch_face_count": 422,
+      "patch_node_count": 244,
+      "crossing_skin_faces_contained": 183,
+      "crossing_skin_faces_total": 183,
+      "exact_cross_pairs_owned": 249,
+      "exact_cross_pairs_total": 249,
+      "missing_crossing_face_rows": [],
+      "boundary_edge_count": 72,
+      "boundary_node_count": 72,
+      "boundary_component_count": 5,
+      "boundary_component_sizes_nodes": [
+        3,
+        4,
+        5,
+        6,
+        54
+      ],
+      "boundary_degree_histogram": {
+        "2": 72
+      },
+      "branched_boundary_nodes": [],
+      "simple_single_loop": false
+    }
+  ],
+  "geometry_or_clearance_conclusion": false,
+  "limitations": [
+    "Boundary topology and current exact-crossing face ownership only. No construction, clearance proof, self audit, other-bank check, or physical/native admission."
+  ]
+}

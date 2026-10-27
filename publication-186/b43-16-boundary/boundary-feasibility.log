@@ -1,0 +1,59 @@
+waiting_for_human_geometry_slot pid=94140
+acquired_human_geometry_slot pid=94140
+{
+  "schema": "numi.human.bank43_16.fixed_boundary_feasibility.v1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "patch_face_rows_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-001/complement-filled-patch-face-rows.npy",
+  "patch_face_rows_sha256": "ad2fb608a536ab8396b781baab4b01f62fc8ae1da81ad533fcb6a4c281131085",
+  "topology_receipt_sha256": "2adfaad8954ba560653566954582e8c18cc0f0433fcb3199a8218baca3ad5c03",
+  "typed_bank": [
+    43,
+    16
+  ],
+  "patch_face_count": 434,
+  "crossing_exact_pair_count": 249,
+  "crossing_skin_face_count": 183,
+  "boundary_loop_count": 1,
+  "boundary_node_count": 54,
+  "boundary_edge_count": 54,
+  "boundary_nodes_inside_target_bone": 0,
+  "inside_boundary_node_rows": [],
+  "minimum_boundary_node_distance_mm": 0.0591361595713313,
+  "minimum_boundary_node_record": {
+    "skin_node_row": 19051,
+    "winding": 4.859180763347039e-16,
+    "inside_by_abs_winding_gt_half": false,
+    "nearest_target_bone_face_row": 133,
+    "nearest_distance_mm": 0.0591361595713313
+  },
+  "exact_boundary_edge_target_bone_intersections": 0,
+  "exact_boundary_edge_intersection_witnesses": [],
+  "minimum_boundary_edge_to_bone_distance_mm": 0.01487845570713246,
+  "minimum_boundary_edge_record": {
+    "skin_edge_node_rows": [
+      12578,
+      19051
+    ],
+    "inside_patch_face_rows": [
+      19232
+    ],
+    "outside_patch_face_rows": [
+      19259
+    ],
+    "nearest_target_bone_face_row": 134,
+    "minimum_segment_to_triangle_distance_mm": 0.01487845570713246
+  },
+  "stored_neighbor_bank_crossing_pairs_touching_boundary": 0,
+  "stored_neighbor_bank_boundary_crossing_witnesses": [],
+  "edge_predicate": "Exact rational segment-vs-triangle intersection in pinned target-body-local coordinates.",
+  "distance_predicate": "Float64 Euclidean closest distance to exact-emitted Float32 triangle values promoted to Float64; distance is diagnostic and no clearance margin threshold was imposed.",
+  "geometry_or_native_admission": false,
+  "elapsed_seconds": 3.491304417140782,
+  "limitations": [
+    "Only the fixed boundary of the topology-only face set was checked against target bone 43/16 and stored audit crossings. No vertices moved, no complete candidate, self audit, all-bank rerun, or physical/native admission."
+  ],
+  "boundary_feasible_local": true
+}

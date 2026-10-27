@@ -1,0 +1,305 @@
+{
+  "schema": "numi.human.b74_104_clip_id_diagnostic.v1",
+  "source_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/steiner-multinode-005-bone-cap/cap-planar-report.json",
+  "source_report_sha256": "c499eb88657d0428cef30b02b230409f3ff0ec5cdb89c2a51876550194aef62a",
+  "clip_script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/steiner-multinode-005-bone-cap/clip_bone_cap.py",
+  "clip_script_sha256": "ffe91b00505ded53b862c032765071273f174e5a11f600e1b147494beade7272",
+  "exact_segment_graph_sha256": "06688d88c9aa85288d36dba534f79dfa98251a835229598f17d9f2e08c57394c",
+  "bone_triangle_count": 314,
+  "canonical_float32_vertex_count": 159,
+  "canonical_undirected_edge_count": 471,
+  "edge_incidence_histogram": {
+    "2": 471
+  },
+  "all_bone_edges_incidence_two": true,
+  "all_directed_edges_opposed": true,
+  "bone_face_connected_components": 1,
+  "bone_face_duplicate_count": 0,
+  "zero_area_bone_face_count": 0,
+  "minimum_bone_face_area_m2": 1.063999874872934e-07,
+  "maximum_exact_contour_plane_residual_m": 8.925225376485458e-09,
+  "plane_vertex_tolerance_m": 2e-09,
+  "endpoint_matching_tolerance_m": 1e-06,
+  "clip_script_endpoint_mapping_lines": [
+    162,
+    163
+  ],
+  "largest_component_extra_endpoint_distances": [
+    {
+      "side_sign": 1,
+      "largest_component_faces": 194,
+      "boundary_edge_count": 26,
+      "missing_target_edges": 24,
+      "extra_edges": 25,
+      "extra_edges_sample": [
+        [
+          {
+            "token": [
+              "c",
+              0
+            ],
+            "nearest_contour_vertex_m": 0.0,
+            "nearest_contour_segment_m": 0.0,
+            "source_plane_signed_distance_m": -2.710505431213761e-19
+          },
+          {
+            "token": [
+              "x",
+              35,
+              45
+            ],
+            "nearest_contour_vertex_m": 1.2275864836009525e-09,
+            "nearest_contour_segment_m": 8.035155113926675e-10,
+            "source_plane_signed_distance_m": -7.860465750519907e-19
+          }
+        ],
+        [
+          {
+            "token": [
+              "c",
+              0
+            ],
+            "nearest_contour_vertex_m": 0.0,
+            "nearest_contour_segment_m": 0.0,
+            "source_plane_signed_distance_m": -2.710505431213761e-19
+          },
+          {
+            "token": [
+              "x",
+              35,
+              46
+            ],
+            "nearest_contour_vertex_m": 2.637270173477218e-10,
+            "nearest_contour_segment_m": 2.637270173477218e-10,
+            "source_plane_signed_distance_m": -1.0842021724855044e-19
+          }
+        ],
+        [
+          {
+            "token": [
+              "c",
+              14
+            ],
+            "nearest_contour_vertex_m": 0.0,
+            "nearest_contour_segment_m": 0.0,
+            "source_plane_signed_distance_m": 8.673617379884035e-19
+          },
+          {
+            "token": [
+              "x",
+              77,
+              78
+            ],
+            "nearest_contour_vertex_m": 3.0434053762942218e-09,
+            "nearest_contour_segment_m": 1.216333257881388e-09,
+            "source_plane_signed_distance_m": 2.168404344971009e-19
+          }
+        ],
+        [
+          {
+            "token": [
+              "c",
+              21
+            ],
+            "nearest_contour_vertex_m": 0.0,
+            "nearest_contour_segment_m": 0.0,
+            "source_plane_signed_distance_m": 8.809142651444724e-19
+          },
+          {
+            "token": [
+              "x",
+              18,
+              45
+            ],
+            "nearest_contour_vertex_m": 1.906531932825381e-09,
+            "nearest_contour_segment_m": 1.6940867624653342e-09,
+            "source_plane_signed_distance_m": -9.75781955236954e-19
+          }
+        ],
+        [
+          {
+            "token": [
+              "c",
+              21
+            ],
+            "nearest_contour_vertex_m": 0.0,
+            "nearest_contour_segment_m": 0.0,
+            "source_plane_signed_distance_m": 8.809142651444724e-19
+          },
+          {
+            "token": [
+              "x",
+              35,
+              45
+            ],
+            "nearest_contour_vertex_m": 1.2275864836009525e-09,
+            "nearest_contour_segment_m": 8.035155113926675e-10,
+            "source_plane_signed_distance_m": -7.860465750519907e-19
+          }
+        ],
+        [
+          {
+            "token": [
+              "c",
+              23
+            ],
+            "nearest_contour_vertex_m": 0.0,
+            "nearest_contour_segment_m": 0.0,
+            "source_plane_signed_distance_m": 2.6020852139652106e-18
+          },
+          {
+            "token": [
+              "x",
+              44,
+              78
+            ],
+            "nearest_contour_vertex_m": 6.1568740285694805e-09,
+            "nearest_contour_segment_m": 3.195732776120886e-09,
+            "source_plane_signed_distance_m": 2.168404344971009e-19
+          }
+        ]
+      ],
+      "extra_token_point_count": 50,
+      "max_extra_point_nearest_contour_segment_m": 0.006173911594783529,
+      "min_extra_point_nearest_contour_vertex_m": 0.0
+    },
+    {
+      "side_sign": -1,
+      "largest_component_faces": 145,
+      "boundary_edge_count": 21,
+      "missing_target_edges": 25,
+      "extra_edges": 21,
+      "extra_edges_sample": [
+        [
+          {
+            "token": [
+              "v",
+              127
+            ],
+            "nearest_contour_vertex_m": 0.0014481224814010122,
+            "nearest_contour_segment_m": 0.0014269317033031809,
+            "source_plane_signed_distance_m": -0.0013676955487775615
+          },
+          {
+            "token": [
+              "x",
+              120,
+              127
+            ],
+            "nearest_contour_vertex_m": 3.014320724425866e-09,
+            "nearest_contour_segment_m": 6.000974970366924e-10,
+            "source_plane_signed_distance_m": 4.336808689942018e-19
+          }
+        ],
+        [
+          {
+            "token": [
+              "v",
+              127
+            ],
+            "nearest_contour_vertex_m": 0.0014481224814010122,
+            "nearest_contour_segment_m": 0.0014269317033031809,
+            "source_plane_signed_distance_m": -0.0013676955487775615
+          },
+          {
+            "token": [
+              "x",
+              77,
+              127
+            ],
+            "nearest_contour_vertex_m": 8.414117463769055e-09,
+            "nearest_contour_segment_m": 7.144708871684973e-10,
+            "source_plane_signed_distance_m": 8.673617379884035e-19
+          }
+        ],
+        [
+          {
+            "token": [
+              "v",
+              45
+            ],
+            "nearest_contour_vertex_m": 0.002625553280399473,
+            "nearest_contour_segment_m": 0.002519284988638164,
+            "source_plane_signed_distance_m": -0.0022905911116411102
+          },
+          {
+            "token": [
+              "v",
+              46
+            ],
+            "nearest_contour_vertex_m": 0.008512688671828745,
+            "nearest_contour_segment_m": 0.008480801659947178,
+            "source_plane_signed_distance_m": -0.008394293028543049
+          }
+        ],
+        [
+          {
+            "token": [
+              "v",
+              45
+            ],
+            "nearest_contour_vertex_m": 0.002625553280399473,
+            "nearest_contour_segment_m": 0.002519284988638164,
+            "source_plane_signed_distance_m": -0.0022905911116411102
+          },
+          {
+            "token": [
+              "x",
+              44,
+              45
+            ],
+            "nearest_contour_vertex_m": 1.9559947780377913e-09,
+            "nearest_contour_segment_m": 1.7719104520731802e-09,
+            "source_plane_signed_distance_m": -1.6263032587282567e-19
+          }
+        ],
+        [
+          {
+            "token": [
+              "v",
+              46
+            ],
+            "nearest_contour_vertex_m": 0.008512688671828745,
+            "nearest_contour_segment_m": 0.008480801659947178,
+            "source_plane_signed_distance_m": -0.008394293028543049
+          },
+          {
+            "token": [
+              "x",
+              35,
+              46
+            ],
+            "nearest_contour_vertex_m": 2.637270173477218e-10,
+            "nearest_contour_segment_m": 2.637270173477218e-10,
+            "source_plane_signed_distance_m": -1.0842021724855044e-19
+          }
+        ],
+        [
+          {
+            "token": [
+              "v",
+              47
+            ],
+            "nearest_contour_vertex_m": 0.004329333994462007,
+            "nearest_contour_segment_m": 0.0040937829076471925,
+            "source_plane_signed_distance_m": -0.00408491008170263
+          },
+          {
+            "token": [
+              "x",
+              35,
+              47
+            ],
+            "nearest_contour_vertex_m": 2.770402282021304e-10,
+            "nearest_contour_segment_m": 2.519792219552568e-10,
+            "source_plane_signed_distance_m": -8.131516293641283e-19
+          }
+        ]
+      ],
+      "extra_token_point_count": 42,
+      "max_extra_point_nearest_contour_segment_m": 0.008480801659947178,
+      "min_extra_point_nearest_contour_vertex_m": 1.546008199694211e-10
+    }
+  ],
+  "diagnosis": "The clip source inserts only intermediate contour c-tokens; matched cut-edge endpoints remain their x/v tokens. Thus the target contour edge set (c-c) cannot match the clipped boundary even where geometry coincides. Canonical Float32 input vertices and bone-edge IDs are shared and incidence-two; the exact contour lies within 8.93e-9 m of the single source plane, so a real plane/skin discrepancy is far below the unchanged 1e-6 m endpoint match tolerance. The missing contour is an endpoint identity/welding bug, not duplicate or degenerate input bone faces."
+}

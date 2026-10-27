@@ -1,0 +1,65 @@
+{
+  "schema": "numi.human.bank43_16.bone_triangle_bitwise_adjacency.v1",
+  "bank": [
+    43,
+    16
+  ],
+  "triangle_count": 672,
+  "corner_count": 2016,
+  "unique_exact_bitwise_corner_classes": 338,
+  "edge_count": 1008,
+  "edge_valence_histogram": {
+    "2": 1008
+  },
+  "boundary_edge_count": 0,
+  "nonmanifold_edge_count": 0,
+  "orientation_conflicting_two_face_edges": 0,
+  "crossing_bone_face_component_count": 1,
+  "crossing_bone_face_components": [
+    [
+      128,
+      129,
+      130,
+      133,
+      134,
+      135,
+      138,
+      140,
+      142,
+      144,
+      145,
+      146,
+      147,
+      148,
+      151,
+      152,
+      154,
+      156,
+      162,
+      167,
+      168,
+      169,
+      245,
+      246,
+      247,
+      248,
+      250,
+      263,
+      264,
+      265,
+      267
+    ]
+  ],
+  "vertex_identity_source": "Exact Float32 bit tuples from the pinned triangle export only; export has no explicit bone-corner IDs. This is an exact-value adjacency proxy, not a certified source topology ID map.",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "input_pins": {
+    "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df"
+  },
+  "limitations": [
+    "No coordinate-bin merging. No full/all-bank/self audit or construction. A coincident disconnected bone vertex pair could be conflated by bitwise coordinate equality because explicit corner IDs are absent."
+  ]
+}

@@ -1,0 +1,1526 @@
+{
+  "schema": "numi.human.bank43_16.topology_first_diagnostic.v1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "audit_complete": true,
+  "typed_bank_count": 185,
+  "typed_bank": [
+    43,
+    16
+  ],
+  "exact_cross_pair_count": 249,
+  "unique_crossing_skin_face_count": 183,
+  "crossing_skin_face_rows": [
+    19197,
+    19199,
+    19200,
+    19203,
+    19204,
+    19206,
+    19212,
+    19213,
+    19214,
+    19215,
+    19219,
+    19220,
+    19221,
+    19222,
+    19224,
+    19225,
+    19226,
+    19227,
+    19229,
+    19230,
+    19237,
+    19238,
+    19239,
+    19240,
+    19309,
+    19310,
+    19311,
+    19312,
+    19313,
+    19314,
+    19315,
+    19316,
+    19317,
+    19318,
+    19319,
+    19320,
+    19324,
+    19325,
+    19326,
+    19327,
+    19328,
+    19329,
+    19330,
+    19331,
+    19336,
+    19337,
+    19338,
+    19339,
+    19352,
+    19353,
+    19354,
+    19355,
+    19367,
+    19368,
+    19369,
+    19370,
+    19371,
+    19372,
+    19373,
+    19374,
+    19381,
+    19382,
+    19383,
+    19384,
+    19389,
+    19390,
+    19391,
+    19392,
+    19403,
+    19404,
+    19405,
+    19406,
+    19417,
+    19418,
+    19419,
+    19420,
+    19421,
+    19422,
+    19423,
+    19424,
+    19429,
+    19430,
+    19431,
+    19432,
+    19446,
+    19447,
+    19448,
+    19449,
+    19450,
+    19451,
+    19452,
+    19453,
+    19457,
+    19458,
+    19459,
+    19460,
+    19461,
+    19462,
+    19463,
+    19464,
+    19646,
+    19647,
+    19648,
+    19649,
+    19650,
+    19651,
+    19652,
+    19653,
+    19654,
+    19655,
+    19656,
+    19657,
+    19664,
+    19665,
+    19666,
+    19667,
+    19674,
+    19675,
+    19676,
+    19677,
+    19678,
+    19679,
+    19680,
+    19681,
+    19682,
+    19683,
+    19684,
+    19685,
+    19717,
+    19719,
+    19720,
+    19725,
+    19726,
+    19727,
+    19728,
+    19729,
+    19730,
+    19731,
+    19732,
+    19735,
+    19736,
+    19737,
+    19738,
+    19747,
+    19748,
+    19749,
+    19750,
+    19808,
+    19809,
+    19810,
+    19811,
+    19812,
+    19813,
+    19814,
+    19815,
+    19816,
+    19817,
+    19818,
+    19819,
+    19840,
+    19841,
+    19842,
+    19843,
+    19844,
+    19845,
+    19846,
+    19847,
+    19848,
+    19849,
+    19850,
+    19851,
+    19857,
+    19858,
+    19859,
+    19860,
+    19861,
+    19862,
+    19863,
+    19864,
+    19870,
+    19871,
+    19872,
+    19873
+  ],
+  "unique_crossing_bone_face_count": 31,
+  "crossing_bone_face_rows": [
+    128,
+    129,
+    130,
+    133,
+    134,
+    135,
+    138,
+    140,
+    142,
+    144,
+    145,
+    146,
+    147,
+    148,
+    151,
+    152,
+    154,
+    156,
+    162,
+    167,
+    168,
+    169,
+    245,
+    246,
+    247,
+    248,
+    250,
+    263,
+    264,
+    265,
+    267
+  ],
+  "crossing_skin_edge_connected_components": 1,
+  "crossing_skin_vertex_connected_components": 1,
+  "crossing_skin_components_edge": [
+    [
+      19197,
+      19199,
+      19200,
+      19203,
+      19204,
+      19206,
+      19212,
+      19213,
+      19214,
+      19215,
+      19219,
+      19220,
+      19221,
+      19222,
+      19224,
+      19225,
+      19226,
+      19227,
+      19229,
+      19230,
+      19237,
+      19238,
+      19239,
+      19240,
+      19309,
+      19310,
+      19311,
+      19312,
+      19313,
+      19314,
+      19315,
+      19316,
+      19317,
+      19318,
+      19319,
+      19320,
+      19324,
+      19325,
+      19326,
+      19327,
+      19328,
+      19329,
+      19330,
+      19331,
+      19336,
+      19337,
+      19338,
+      19339,
+      19352,
+      19353,
+      19354,
+      19355,
+      19367,
+      19368,
+      19369,
+      19370,
+      19371,
+      19372,
+      19373,
+      19374,
+      19381,
+      19382,
+      19383,
+      19384,
+      19389,
+      19390,
+      19391,
+      19392,
+      19403,
+      19404,
+      19405,
+      19406,
+      19417,
+      19418,
+      19419,
+      19420,
+      19421,
+      19422,
+      19423,
+      19424,
+      19429,
+      19430,
+      19431,
+      19432,
+      19446,
+      19447,
+      19448,
+      19449,
+      19450,
+      19451,
+      19452,
+      19453,
+      19457,
+      19458,
+      19459,
+      19460,
+      19461,
+      19462,
+      19463,
+      19464,
+      19646,
+      19647,
+      19648,
+      19649,
+      19650,
+      19651,
+      19652,
+      19653,
+      19654,
+      19655,
+      19656,
+      19657,
+      19664,
+      19665,
+      19666,
+      19667,
+      19674,
+      19675,
+      19676,
+      19677,
+      19678,
+      19679,
+      19680,
+      19681,
+      19682,
+      19683,
+      19684,
+      19685,
+      19717,
+      19719,
+      19720,
+      19725,
+      19726,
+      19727,
+      19728,
+      19729,
+      19730,
+      19731,
+      19732,
+      19735,
+      19736,
+      19737,
+      19738,
+      19747,
+      19748,
+      19749,
+      19750,
+      19808,
+      19809,
+      19810,
+      19811,
+      19812,
+      19813,
+      19814,
+      19815,
+      19816,
+      19817,
+      19818,
+      19819,
+      19840,
+      19841,
+      19842,
+      19843,
+      19844,
+      19845,
+      19846,
+      19847,
+      19848,
+      19849,
+      19850,
+      19851,
+      19857,
+      19858,
+      19859,
+      19860,
+      19861,
+      19862,
+      19863,
+      19864,
+      19870,
+      19871,
+      19872,
+      19873
+    ]
+  ],
+  "one_ring_merged_patch_count": 1,
+  "patches": [
+    {
+      "patch_component": 0,
+      "crossing_skin_faces": [
+        19197,
+        19199,
+        19200,
+        19203,
+        19204,
+        19206,
+        19212,
+        19213,
+        19214,
+        19215,
+        19219,
+        19220,
+        19221,
+        19222,
+        19224,
+        19225,
+        19226,
+        19227,
+        19229,
+        19230,
+        19237,
+        19238,
+        19239,
+        19240,
+        19309,
+        19310,
+        19311,
+        19312,
+        19313,
+        19314,
+        19315,
+        19316,
+        19317,
+        19318,
+        19319,
+        19320,
+        19324,
+        19325,
+        19326,
+        19327,
+        19328,
+        19329,
+        19330,
+        19331,
+        19336,
+        19337,
+        19338,
+        19339,
+        19352,
+        19353,
+        19354,
+        19355,
+        19367,
+        19368,
+        19369,
+        19370,
+        19371,
+        19372,
+        19373,
+        19374,
+        19381,
+        19382,
+        19383,
+        19384,
+        19389,
+        19390,
+        19391,
+        19392,
+        19403,
+        19404,
+        19405,
+        19406,
+        19417,
+        19418,
+        19419,
+        19420,
+        19421,
+        19422,
+        19423,
+        19424,
+        19429,
+        19430,
+        19431,
+        19432,
+        19446,
+        19447,
+        19448,
+        19449,
+        19450,
+        19451,
+        19452,
+        19453,
+        19457,
+        19458,
+        19459,
+        19460,
+        19461,
+        19462,
+        19463,
+        19464,
+        19646,
+        19647,
+        19648,
+        19649,
+        19650,
+        19651,
+        19652,
+        19653,
+        19654,
+        19655,
+        19656,
+        19657,
+        19664,
+        19665,
+        19666,
+        19667,
+        19674,
+        19675,
+        19676,
+        19677,
+        19678,
+        19679,
+        19680,
+        19681,
+        19682,
+        19683,
+        19684,
+        19685,
+        19717,
+        19719,
+        19720,
+        19725,
+        19726,
+        19727,
+        19728,
+        19729,
+        19730,
+        19731,
+        19732,
+        19735,
+        19736,
+        19737,
+        19738,
+        19747,
+        19748,
+        19749,
+        19750,
+        19808,
+        19809,
+        19810,
+        19811,
+        19812,
+        19813,
+        19814,
+        19815,
+        19816,
+        19817,
+        19818,
+        19819,
+        19840,
+        19841,
+        19842,
+        19843,
+        19844,
+        19845,
+        19846,
+        19847,
+        19848,
+        19849,
+        19850,
+        19851,
+        19857,
+        19858,
+        19859,
+        19860,
+        19861,
+        19862,
+        19863,
+        19864,
+        19870,
+        19871,
+        19872,
+        19873
+      ],
+      "crossing_pair_count": 249,
+      "crossing_bone_faces": [
+        128,
+        129,
+        130,
+        133,
+        134,
+        135,
+        138,
+        140,
+        142,
+        144,
+        145,
+        146,
+        147,
+        148,
+        151,
+        152,
+        154,
+        156,
+        162,
+        167,
+        168,
+        169,
+        245,
+        246,
+        247,
+        248,
+        250,
+        263,
+        264,
+        265,
+        267
+      ],
+      "patch_face_count": 381,
+      "patch_node_count": 233,
+      "crossing_node_count": 138,
+      "crossing_source_ancestry_rows": [
+        8265,
+        8269
+      ],
+      "crossing_fine_detail_ancestry_rows": [
+        8265,
+        8269
+      ],
+      "crossing_fine_subface_ancestry_rows": [
+        8267,
+        8271
+      ],
+      "crossing_immediate_parent_face_rows": [
+        18988,
+        18990,
+        18995,
+        18997,
+        18998,
+        18999,
+        19004,
+        19071,
+        19072,
+        19073,
+        19076,
+        19077,
+        19080,
+        19091,
+        19101,
+        19102,
+        19108,
+        19113,
+        19123,
+        19131,
+        19132,
+        19136,
+        19149,
+        19150,
+        19153,
+        19154,
+        19333,
+        19334,
+        19335,
+        19341,
+        19346,
+        19347,
+        19348,
+        19373,
+        19377,
+        19378,
+        19380,
+        19387,
+        19442,
+        19443,
+        19444,
+        19464,
+        19465,
+        19466,
+        19470,
+        19471,
+        19475
+      ],
+      "patch_outer_boundary_edge_count": 93,
+      "patch_outer_boundary_node_count": 88,
+      "boundary_loop_count": 1,
+      "boundary_degree_histogram": {
+        "2": 83,
+        "4": 5
+      },
+      "noncrossing_faces_adjacent_to_patch_boundary": 69,
+      "boundary_nodes_inside_bone_count": 0,
+      "boundary_node_min_clearance_mm": 0.018483949724805472,
+      "boundary_node_max_clearance_mm": 6.580856733849819,
+      "boundary_nodes": [
+        {
+          "node_row": 10746,
+          "distance_to_bone_local_mm": 4.698380703762784,
+          "winding": 8.834874115176436e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 10749,
+          "distance_to_bone_local_mm": 3.9121023613794073,
+          "winding": 2.6504622345529306e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 10751,
+          "distance_to_bone_local_mm": 5.262419209135452,
+          "winding": 1.5461029701558764e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 10757,
+          "distance_to_bone_local_mm": 2.6121903913683058,
+          "winding": -2.6504622345529306e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 10759,
+          "distance_to_bone_local_mm": 1.6678922141503034,
+          "winding": 3.533949646070574e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 11682,
+          "distance_to_bone_local_mm": 4.453189987625416,
+          "winding": 1.3252311172764653e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 11685,
+          "distance_to_bone_local_mm": 1.064944492622691,
+          "winding": 8.834874115176436e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 11686,
+          "distance_to_bone_local_mm": 5.6054185651701625,
+          "winding": -1.3252311172764653e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 12577,
+          "distance_to_bone_local_mm": 1.3176425304805721,
+          "winding": 1.3252311172764653e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 12578,
+          "distance_to_bone_local_mm": 3.3362750013721985,
+          "winding": -2.208718528794109e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 12579,
+          "distance_to_bone_local_mm": 2.17778718139103,
+          "winding": 4.417437057588218e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 12580,
+          "distance_to_bone_local_mm": 3.687245101481343,
+          "winding": 2.6504622345529306e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 12581,
+          "distance_to_bone_local_mm": 6.580856733849819,
+          "winding": -2.374372418453667e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 12582,
+          "distance_to_bone_local_mm": 5.197944928999925,
+          "winding": 6.6261555863823264e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 12591,
+          "distance_to_bone_local_mm": 2.904388175109379,
+          "winding": -2.208718528794109e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 12592,
+          "distance_to_bone_local_mm": 2.4956711955050905,
+          "winding": -3.092205940311753e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 14280,
+          "distance_to_bone_local_mm": 0.2236512623362794,
+          "winding": -4.417437057588218e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 14281,
+          "distance_to_bone_local_mm": 0.9017598987959082,
+          "winding": -5.742668174864683e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 14284,
+          "distance_to_bone_local_mm": 2.167183168368059,
+          "winding": 0.0,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 14821,
+          "distance_to_bone_local_mm": 0.700592036603071,
+          "winding": 2.208718528794109e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 14822,
+          "distance_to_bone_local_mm": 2.0047890450787924,
+          "winding": -4.417437057588218e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 14823,
+          "distance_to_bone_local_mm": 1.1583012936213928,
+          "winding": -4.417437057588218e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 15502,
+          "distance_to_bone_local_mm": 2.465365916421899,
+          "winding": 0.0,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 15504,
+          "distance_to_bone_local_mm": 2.375035825714119,
+          "winding": 2.6504622345529306e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 15505,
+          "distance_to_bone_local_mm": 1.8698412138328817,
+          "winding": -1.987846675914698e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 17066,
+          "distance_to_bone_local_mm": 1.6440543389051994,
+          "winding": 7.951386703658792e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 17070,
+          "distance_to_bone_local_mm": 0.09342690387920767,
+          "winding": -1.1043592643970544e-16,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 17075,
+          "distance_to_bone_local_mm": 0.8366946761594728,
+          "winding": 5.300924469105861e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 17078,
+          "distance_to_bone_local_mm": 1.1228084979633246,
+          "winding": -7.067899292141149e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 17079,
+          "distance_to_bone_local_mm": 2.7800896382960705,
+          "winding": 2.6504622345529306e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 17092,
+          "distance_to_bone_local_mm": 1.944538709804743,
+          "winding": 4.417437057588218e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 17094,
+          "distance_to_bone_local_mm": 5.248756532544232,
+          "winding": 4.417437057588218e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 17095,
+          "distance_to_bone_local_mm": 4.2715954416121065,
+          "winding": 2.7608981609926363e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 17097,
+          "distance_to_bone_local_mm": 1.3117191298270585,
+          "winding": 2.208718528794109e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 17100,
+          "distance_to_bone_local_mm": 1.5031462744641797,
+          "winding": 8.834874115176436e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 18493,
+          "distance_to_bone_local_mm": 0.5369480728404369,
+          "winding": 8.393130409417613e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 18495,
+          "distance_to_bone_local_mm": 0.1221820953786247,
+          "winding": 9.718361526694079e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 18892,
+          "distance_to_bone_local_mm": 0.13138621157717384,
+          "winding": 5.698493804288801e-16,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 18894,
+          "distance_to_bone_local_mm": 1.0235330217132592,
+          "winding": 1.766974823035287e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 18895,
+          "distance_to_bone_local_mm": 2.984083336129004,
+          "winding": 2.208718528794109e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 18896,
+          "distance_to_bone_local_mm": 0.687005358030183,
+          "winding": 8.834874115176436e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19051,
+          "distance_to_bone_local_mm": 0.0591361595713313,
+          "winding": 4.859180763347039e-16,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19053,
+          "distance_to_bone_local_mm": 1.8076090641433036,
+          "winding": -5.300924469105861e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19055,
+          "distance_to_bone_local_mm": 0.812651461757076,
+          "winding": -3.975693351829396e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19056,
+          "distance_to_bone_local_mm": 0.6258965940457135,
+          "winding": -1.3252311172764653e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19057,
+          "distance_to_bone_local_mm": 2.012491715697683,
+          "winding": -2.4295903816735198e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19058,
+          "distance_to_bone_local_mm": 0.691775956770221,
+          "winding": -7.067899292141149e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19059,
+          "distance_to_bone_local_mm": 0.7487994647017784,
+          "winding": -3.975693351829396e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19060,
+          "distance_to_bone_local_mm": 2.051007284173804,
+          "winding": 2.6504622345529306e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19061,
+          "distance_to_bone_local_mm": 2.9035935182593935,
+          "winding": -4.086129278269101e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19062,
+          "distance_to_bone_local_mm": 1.8442051169787443,
+          "winding": 2.6504622345529306e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19377,
+          "distance_to_bone_local_mm": 0.23179374110129822,
+          "winding": -8.834874115176436e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19380,
+          "distance_to_bone_local_mm": 0.9972270726634896,
+          "winding": 1.3252311172764653e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19382,
+          "distance_to_bone_local_mm": 0.23641383448169806,
+          "winding": -2.6504622345529306e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19383,
+          "distance_to_bone_local_mm": 0.8270527594126812,
+          "winding": 5.742668174864683e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19384,
+          "distance_to_bone_local_mm": 0.7304129743711361,
+          "winding": -4.417437057588218e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19494,
+          "distance_to_bone_local_mm": 0.950750506667729,
+          "winding": 9.718361526694079e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19495,
+          "distance_to_bone_local_mm": 0.7591043111935325,
+          "winding": -8.393130409417613e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19497,
+          "distance_to_bone_local_mm": 0.06738708999676865,
+          "winding": 5.521796321985272e-16,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19498,
+          "distance_to_bone_local_mm": 0.7966997222476321,
+          "winding": 1.0160105232452901e-16,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 19499,
+          "distance_to_bone_local_mm": 0.4257118251430412,
+          "winding": -3.092205940311753e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20156,
+          "distance_to_bone_local_mm": 0.8014306666457467,
+          "winding": -8.834874115176436e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20160,
+          "distance_to_bone_local_mm": 1.6537961152480278,
+          "winding": 3.754821498949985e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20164,
+          "distance_to_bone_local_mm": 0.10862128826623128,
+          "winding": 5.300924469105861e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20165,
+          "distance_to_bone_local_mm": 0.21647783918440272,
+          "winding": 1.0160105232452901e-16,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20170,
+          "distance_to_bone_local_mm": 0.34395944950654544,
+          "winding": 2.0761954170664623e-16,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20173,
+          "distance_to_bone_local_mm": 1.0945236337756714,
+          "winding": -4.417437057588218e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20174,
+          "distance_to_bone_local_mm": 0.7611132507250359,
+          "winding": -4.8591807633470396e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20176,
+          "distance_to_bone_local_mm": 0.018483949724805472,
+          "winding": 3.4367660308036335e-15,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20177,
+          "distance_to_bone_local_mm": 1.2692643613647228,
+          "winding": -2.8713340874323413e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20178,
+          "distance_to_bone_local_mm": 0.9158126096298106,
+          "winding": -8.834874115176436e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20180,
+          "distance_to_bone_local_mm": 1.0467048566497235,
+          "winding": 4.8591807633470396e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20181,
+          "distance_to_bone_local_mm": 0.8803578521157391,
+          "winding": -1.3252311172764653e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20183,
+          "distance_to_bone_local_mm": 0.8392129707190507,
+          "winding": -1.3252311172764653e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20186,
+          "distance_to_bone_local_mm": 0.7746771956629678,
+          "winding": -4.417437057588218e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20187,
+          "distance_to_bone_local_mm": 2.0335513197484523,
+          "winding": -3.092205940311753e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20188,
+          "distance_to_bone_local_mm": 0.6459494224131648,
+          "winding": 9.718361526694079e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20197,
+          "distance_to_bone_local_mm": 0.5714339832496077,
+          "winding": -1.766974823035287e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20199,
+          "distance_to_bone_local_mm": 0.34426994466776617,
+          "winding": -8.393130409417613e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20205,
+          "distance_to_bone_local_mm": 0.9973960969199187,
+          "winding": 2.208718528794109e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20209,
+          "distance_to_bone_local_mm": 2.9622220535562978,
+          "winding": 2.6504622345529306e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20210,
+          "distance_to_bone_local_mm": 3.5004470987621428,
+          "winding": -1.684147878205508e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20212,
+          "distance_to_bone_local_mm": 0.1836765995734324,
+          "winding": 1.6786260818835226e-16,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20214,
+          "distance_to_bone_local_mm": 1.5062511510339847,
+          "winding": -4.417437057588218e-18,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20216,
+          "distance_to_bone_local_mm": 2.0284857910257053,
+          "winding": 5.521796321985272e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 20219,
+          "distance_to_bone_local_mm": 0.9343643156083401,
+          "winding": 4.1965652047088066e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 21130,
+          "distance_to_bone_local_mm": 1.9233974701050431,
+          "winding": -2.8713340874323413e-17,
+          "inside_by_abs_winding_gt_half": false
+        },
+        {
+          "node_row": 21133,
+          "distance_to_bone_local_mm": 1.4184712862862947,
+          "winding": 8.834874115176436e-18,
+          "inside_by_abs_winding_gt_half": false
+        }
+      ],
+      "inside_crossing_nodes": [
+        {
+          "node_row": 20895,
+          "winding": 0.9999999999999999,
+          "nearest_bone_distance_mm": 0.592929991912551
+        },
+        {
+          "node_row": 20899,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 1.1080766051425528
+        },
+        {
+          "node_row": 20900,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 0.5940395764205813
+        },
+        {
+          "node_row": 20901,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 1.2568733214049643
+        },
+        {
+          "node_row": 20902,
+          "winding": 0.9999999999999999,
+          "nearest_bone_distance_mm": 1.1002530714838437
+        },
+        {
+          "node_row": 20907,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.1670138646873044
+        },
+        {
+          "node_row": 20924,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.7727250953371184
+        },
+        {
+          "node_row": 20926,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.7173474480763067
+        },
+        {
+          "node_row": 20928,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.5902028588718115
+        },
+        {
+          "node_row": 20931,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 0.607488900193133
+        },
+        {
+          "node_row": 20932,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 1.63870818178945
+        },
+        {
+          "node_row": 20956,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.00429096385703315
+        },
+        {
+          "node_row": 20957,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 0.5533579653097154
+        },
+        {
+          "node_row": 20989,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.966617982841064
+        },
+        {
+          "node_row": 20990,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.5408868943798494
+        },
+        {
+          "node_row": 21016,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.1373886411788427
+        },
+        {
+          "node_row": 21019,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 0.44820448779134664
+        },
+        {
+          "node_row": 21022,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.21547019308040316
+        },
+        {
+          "node_row": 21025,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 0.21560296687010178
+        },
+        {
+          "node_row": 21026,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.5985652254984449
+        },
+        {
+          "node_row": 21027,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.6096904458169713
+        },
+        {
+          "node_row": 21030,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.4376608250203942
+        },
+        {
+          "node_row": 21062,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.8789998185033355
+        },
+        {
+          "node_row": 21064,
+          "winding": 0.9999999999999999,
+          "nearest_bone_distance_mm": 0.8207484437124789
+        },
+        {
+          "node_row": 21066,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.5925171138646589
+        },
+        {
+          "node_row": 21068,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 1.2099025104133474
+        },
+        {
+          "node_row": 21069,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 1.1215924655053204
+        },
+        {
+          "node_row": 21071,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 0.22484638875796847
+        },
+        {
+          "node_row": 21092,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 0.03888177318714324
+        },
+        {
+          "node_row": 21093,
+          "winding": 0.9999999999999997,
+          "nearest_bone_distance_mm": 0.10220476973085059
+        },
+        {
+          "node_row": 21094,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.022838762301538758
+        },
+        {
+          "node_row": 21095,
+          "winding": 0.9999999999999999,
+          "nearest_bone_distance_mm": 0.009969666899491199
+        },
+        {
+          "node_row": 21096,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 0.1660030068448081
+        },
+        {
+          "node_row": 21131,
+          "winding": 0.9999999999999999,
+          "nearest_bone_distance_mm": 1.4084583609136052
+        },
+        {
+          "node_row": 21134,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 1.7782188299526833
+        },
+        {
+          "node_row": 21159,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 0.6760302218108624
+        },
+        {
+          "node_row": 21187,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.6490177826111244
+        },
+        {
+          "node_row": 21188,
+          "winding": 1.0000000000000002,
+          "nearest_bone_distance_mm": 0.5698590831870307
+        },
+        {
+          "node_row": 21190,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 0.6122873892770346
+        },
+        {
+          "node_row": 21191,
+          "winding": 0.9999999999999999,
+          "nearest_bone_distance_mm": 0.1379599171350581
+        },
+        {
+          "node_row": 21193,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 1.3710436161720307
+        },
+        {
+          "node_row": 21204,
+          "winding": 1.0,
+          "nearest_bone_distance_mm": 0.5808498846737766
+        },
+        {
+          "node_row": 21205,
+          "winding": 0.9999999999999999,
+          "nearest_bone_distance_mm": 0.3563750001338536
+        }
+      ]
+    }
+  ],
+  "bone_mesh_topology": {
+    "face_count": 672,
+    "topological_vertex_ids_recovered_by_bitwise_pin_match": 0,
+    "unmapped_vertex_corners": 2016,
+    "boundary_edge_count": 0,
+    "nonmanifold_edge_count": 1,
+    "crossing_bone_face_components": [
+      [
+        128,
+        129,
+        130,
+        133,
+        134,
+        135,
+        138,
+        140,
+        142,
+        144,
+        145,
+        146,
+        147,
+        148,
+        151,
+        152,
+        154,
+        156,
+        162,
+        167,
+        168,
+        169,
+        245,
+        246,
+        247,
+        248,
+        250,
+        263,
+        264,
+        265,
+        267
+      ]
+    ]
+  },
+  "inputs": {
+    "bank_triangle_export_pins": {
+      "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+      "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+      "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+      "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df"
+    },
+    "bank_local_frame_rule": "skin local=(world-position)@M.T-offset; exact emitted bank triangle float32 values promoted to float64",
+    "coordinate_bin_endpoint_welding_used": false
+  },
+  "limitation": [
+    "Topology and local point containment/clearance diagnostics only. Existing audit-159 supplies exact crossing pairs; no new full or all-bank audit, self audit, patch construction, or physical/native admission."
+  ],
+  "elapsed_seconds": 2.0884042500983924
+}

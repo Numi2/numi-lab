@@ -1,0 +1,11 @@
+# Numi Human P186: bone-cap conformity diagnostic
+
+Construction diagnostic on SSH Numi, continuing P185 commit bc8b2de98bfb642b2d4da8f42713d4590355ead7. It is not an admitted skin or a physical simulation. The best audited checkpoint still has 653 comparable parent skin/bone crossing identities, 125 sampled inside node/bank pairs, zero self-intersections, and 45 boundary edges.
+
+For bank 74/104 a bounded attempt clipped the existing bone geometry at a plane fitted to the affected source face and required the resulting component boundary to match the existing 25-segment contour. The input bone mesh had 314 faces, 159 unique vertices, closed edge incidence and consistent edge orientation. Neither clipped side produced a matching connected boundary: the positive side's largest component had 26 boundary edges with 24 contour edges missing and 25 extra; the negative side's largest had 21 edges with 25 missing and 21 extra. A follow-up diagnostic identified a bookkeeping error in that comparison: matched cut-edge endpoints were kept as bone-edge tokens while the target contour uses contour tokens. The failure is therefore not evidence that the geometric boundaries cannot be made to match; a corrected comparison is still required. No 3D offset or skin candidate was emitted; no post-patch bone, self, physical-transfer or native checks were run. The source-face plane is an approximation of the current piecewise skin geometry.
+
+Source and mixed-reference attribution are retained in P182/P183.
+
+For bank 43/16 the stored exact audit has 249 refined pairs on 183 edge-connected skin faces. A topology-only patch expansion followed by filling four small enclosed complement components creates a single 54-node degree-two boundary loop, while preserving the 41,945-face exterior component and keeping all target crossings inside. The face set and checks are retained; no coordinate or physical state was changed, and no surface clearance is implied.
+
+The 54 boundary nodes all lie outside the target bone; exact segment/triangle checks found zero target-bone hits on the 54 boundary edges. The nearest edge distance is 0.0148785 mm. No margin threshold was imposed, and a clear boundary alone does not establish skin thickness or whole-patch clearance. Stored neighboring-bank crossings did not touch its boundary.

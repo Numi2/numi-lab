@@ -1,0 +1,1195 @@
+{
+  "schema": "numi.human.bank43_16.fixed_boundary_feasibility.v1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "patch_face_rows_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-001/complement-filled-patch-face-rows.npy",
+  "patch_face_rows_sha256": "ad2fb608a536ab8396b781baab4b01f62fc8ae1da81ad533fcb6a4c281131085",
+  "topology_receipt_sha256": "2adfaad8954ba560653566954582e8c18cc0f0433fcb3199a8218baca3ad5c03",
+  "typed_bank": [
+    43,
+    16
+  ],
+  "patch_face_count": 434,
+  "crossing_exact_pair_count": 249,
+  "crossing_skin_face_count": 183,
+  "boundary_loop_count": 1,
+  "boundary_node_count": 54,
+  "boundary_edge_count": 54,
+  "boundary_nodes_inside_target_bone": 0,
+  "inside_boundary_node_rows": [],
+  "minimum_boundary_node_distance_mm": 0.0591361595713313,
+  "minimum_boundary_node_record": {
+    "skin_node_row": 19051,
+    "winding": 4.859180763347039e-16,
+    "inside_by_abs_winding_gt_half": false,
+    "nearest_target_bone_face_row": 133,
+    "nearest_distance_mm": 0.0591361595713313
+  },
+  "exact_boundary_edge_target_bone_intersections": 0,
+  "exact_boundary_edge_intersection_witnesses": [],
+  "minimum_boundary_edge_to_bone_distance_mm": 0.01487845570713246,
+  "minimum_boundary_edge_record": {
+    "skin_edge_node_rows": [
+      12578,
+      19051
+    ],
+    "inside_patch_face_rows": [
+      19232
+    ],
+    "outside_patch_face_rows": [
+      19259
+    ],
+    "nearest_target_bone_face_row": 134,
+    "minimum_segment_to_triangle_distance_mm": 0.01487845570713246
+  },
+  "stored_neighbor_bank_crossing_pairs_touching_boundary": 0,
+  "stored_neighbor_bank_boundary_crossing_witnesses": [],
+  "boundary_node_records": [
+    {
+      "skin_node_row": 5888,
+      "winding": 1.3252311172764653e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 243,
+      "nearest_distance_mm": 6.739646472943285
+    },
+    {
+      "skin_node_row": 5889,
+      "winding": -1.1043592643970545e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 84,
+      "nearest_distance_mm": 8.208674405909527
+    },
+    {
+      "skin_node_row": 10746,
+      "winding": 8.834874115176436e-18,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 244,
+      "nearest_distance_mm": 4.698380703762784
+    },
+    {
+      "skin_node_row": 10749,
+      "winding": 2.6504622345529306e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 240,
+      "nearest_distance_mm": 3.9121023613794073
+    },
+    {
+      "skin_node_row": 10751,
+      "winding": 1.5461029701558764e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 241,
+      "nearest_distance_mm": 5.262419209135452
+    },
+    {
+      "skin_node_row": 10757,
+      "winding": -2.6504622345529306e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 85,
+      "nearest_distance_mm": 2.6121903913683058
+    },
+    {
+      "skin_node_row": 11682,
+      "winding": 1.3252311172764653e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 241,
+      "nearest_distance_mm": 4.453189987625416
+    },
+    {
+      "skin_node_row": 11686,
+      "winding": -1.3252311172764653e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 5.6054185651701625
+    },
+    {
+      "skin_node_row": 12577,
+      "winding": 1.3252311172764653e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 145,
+      "nearest_distance_mm": 1.3176425304805721
+    },
+    {
+      "skin_node_row": 12578,
+      "winding": -2.208718528794109e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 3.3362750013721985
+    },
+    {
+      "skin_node_row": 12581,
+      "winding": -2.374372418453667e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 241,
+      "nearest_distance_mm": 6.580856733849819
+    },
+    {
+      "skin_node_row": 12582,
+      "winding": 6.6261555863823264e-18,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 241,
+      "nearest_distance_mm": 5.197944928999925
+    },
+    {
+      "skin_node_row": 12592,
+      "winding": -3.092205940311753e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 85,
+      "nearest_distance_mm": 2.4956711955050905
+    },
+    {
+      "skin_node_row": 13741,
+      "winding": -1.3804490804963181e-18,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 242,
+      "nearest_distance_mm": 4.659288620883164
+    },
+    {
+      "skin_node_row": 14280,
+      "winding": -4.417437057588218e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 129,
+      "nearest_distance_mm": 0.2236512623362794
+    },
+    {
+      "skin_node_row": 14822,
+      "winding": -4.417437057588218e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 145,
+      "nearest_distance_mm": 2.0047890450787924
+    },
+    {
+      "skin_node_row": 15501,
+      "winding": -1.766974823035287e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 253,
+      "nearest_distance_mm": 3.531854718171099
+    },
+    {
+      "skin_node_row": 15502,
+      "winding": 0.0,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 2.465365916421899
+    },
+    {
+      "skin_node_row": 15504,
+      "winding": 2.6504622345529306e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 2.375035825714119
+    },
+    {
+      "skin_node_row": 17066,
+      "winding": 7.951386703658792e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 145,
+      "nearest_distance_mm": 1.6440543389051994
+    },
+    {
+      "skin_node_row": 17068,
+      "winding": -1.3252311172764653e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 85,
+      "nearest_distance_mm": 4.3955370691977755
+    },
+    {
+      "skin_node_row": 17070,
+      "winding": -1.1043592643970544e-16,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 140,
+      "nearest_distance_mm": 0.09342690387920767
+    },
+    {
+      "skin_node_row": 17072,
+      "winding": -6.6261555863823264e-18,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 85,
+      "nearest_distance_mm": 3.829760427987539
+    },
+    {
+      "skin_node_row": 17091,
+      "winding": -3.0369879770918994e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 242,
+      "nearest_distance_mm": 3.155099580291789
+    },
+    {
+      "skin_node_row": 17094,
+      "winding": 4.417437057588218e-18,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 163,
+      "nearest_distance_mm": 5.248756532544232
+    },
+    {
+      "skin_node_row": 17095,
+      "winding": 2.7608981609926363e-18,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 286,
+      "nearest_distance_mm": 4.2715954416121065
+    },
+    {
+      "skin_node_row": 17096,
+      "winding": 1.766974823035287e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 251,
+      "nearest_distance_mm": 4.248987570949537
+    },
+    {
+      "skin_node_row": 17097,
+      "winding": 2.208718528794109e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 1.3117191298270585
+    },
+    {
+      "skin_node_row": 17100,
+      "winding": 8.834874115176436e-18,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 1.5031462744641797
+    },
+    {
+      "skin_node_row": 18495,
+      "winding": 9.718361526694079e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 129,
+      "nearest_distance_mm": 0.1221820953786247
+    },
+    {
+      "skin_node_row": 18895,
+      "winding": 2.208718528794109e-18,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 2.984083336129004
+    },
+    {
+      "skin_node_row": 18896,
+      "winding": 8.834874115176436e-18,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 147,
+      "nearest_distance_mm": 0.687005358030183
+    },
+    {
+      "skin_node_row": 19051,
+      "winding": 4.859180763347039e-16,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 133,
+      "nearest_distance_mm": 0.0591361595713313
+    },
+    {
+      "skin_node_row": 19053,
+      "winding": -5.300924469105861e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 129,
+      "nearest_distance_mm": 1.8076090641433036
+    },
+    {
+      "skin_node_row": 19061,
+      "winding": -4.086129278269101e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 264,
+      "nearest_distance_mm": 2.9035935182593935
+    },
+    {
+      "skin_node_row": 19377,
+      "winding": -8.834874115176436e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 130,
+      "nearest_distance_mm": 0.23179374110129822
+    },
+    {
+      "skin_node_row": 19380,
+      "winding": 1.3252311172764653e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 130,
+      "nearest_distance_mm": 0.9972270726634896
+    },
+    {
+      "skin_node_row": 19383,
+      "winding": 5.742668174864683e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 0.8270527594126812
+    },
+    {
+      "skin_node_row": 19384,
+      "winding": -4.417437057588218e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 0.7304129743711361
+    },
+    {
+      "skin_node_row": 19497,
+      "winding": 5.521796321985272e-16,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 140,
+      "nearest_distance_mm": 0.06738708999676865
+    },
+    {
+      "skin_node_row": 20160,
+      "winding": 3.754821498949985e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 1.6537961152480278
+    },
+    {
+      "skin_node_row": 20164,
+      "winding": 5.300924469105861e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 133,
+      "nearest_distance_mm": 0.10862128826623128
+    },
+    {
+      "skin_node_row": 20165,
+      "winding": 1.0160105232452901e-16,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 144,
+      "nearest_distance_mm": 0.21647783918440272
+    },
+    {
+      "skin_node_row": 20170,
+      "winding": 2.0761954170664623e-16,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 129,
+      "nearest_distance_mm": 0.34395944950654544
+    },
+    {
+      "skin_node_row": 20197,
+      "winding": -1.766974823035287e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 147,
+      "nearest_distance_mm": 0.5714339832496077
+    },
+    {
+      "skin_node_row": 20205,
+      "winding": 2.208718528794109e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 0.9973960969199187
+    },
+    {
+      "skin_node_row": 20209,
+      "winding": 2.6504622345529306e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 248,
+      "nearest_distance_mm": 2.9622220535562978
+    },
+    {
+      "skin_node_row": 20210,
+      "winding": -1.684147878205508e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 286,
+      "nearest_distance_mm": 3.5004470987621428
+    },
+    {
+      "skin_node_row": 20212,
+      "winding": 1.6786260818835226e-16,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 129,
+      "nearest_distance_mm": 0.1836765995734324
+    },
+    {
+      "skin_node_row": 20214,
+      "winding": -4.417437057588218e-18,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 1.5062511510339847
+    },
+    {
+      "skin_node_row": 20216,
+      "winding": 5.521796321985272e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 2.0284857910257053
+    },
+    {
+      "skin_node_row": 20219,
+      "winding": 4.1965652047088066e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 162,
+      "nearest_distance_mm": 0.9343643156083401
+    },
+    {
+      "skin_node_row": 21130,
+      "winding": -2.8713340874323413e-17,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 283,
+      "nearest_distance_mm": 1.9233974701050431
+    },
+    {
+      "skin_node_row": 21133,
+      "winding": 8.834874115176436e-18,
+      "inside_by_abs_winding_gt_half": false,
+      "nearest_target_bone_face_row": 154,
+      "nearest_distance_mm": 1.4184712862862947
+    }
+  ],
+  "boundary_edge_records": [
+    {
+      "skin_edge_node_rows": [
+        5888,
+        10749
+      ],
+      "inside_patch_face_rows": [
+        19492
+      ],
+      "outside_patch_face_rows": [
+        19635
+      ],
+      "nearest_target_bone_face_row": 240,
+      "minimum_segment_to_triangle_distance_mm": 3.9121023613794073
+    },
+    {
+      "skin_edge_node_rows": [
+        5888,
+        10751
+      ],
+      "inside_patch_face_rows": [
+        19493
+      ],
+      "outside_patch_face_rows": [
+        19508
+      ],
+      "nearest_target_bone_face_row": 241,
+      "minimum_segment_to_triangle_distance_mm": 5.262419209135452
+    },
+    {
+      "skin_edge_node_rows": [
+        5889,
+        17068
+      ],
+      "inside_patch_face_rows": [
+        19187
+      ],
+      "outside_patch_face_rows": [
+        19190
+      ],
+      "nearest_target_bone_face_row": 85,
+      "minimum_segment_to_triangle_distance_mm": 4.3955370691977755
+    },
+    {
+      "skin_edge_node_rows": [
+        5889,
+        17072
+      ],
+      "inside_patch_face_rows": [
+        19302
+      ],
+      "outside_patch_face_rows": [
+        19299
+      ],
+      "nearest_target_bone_face_row": 85,
+      "minimum_segment_to_triangle_distance_mm": 3.829760427987539
+    },
+    {
+      "skin_edge_node_rows": [
+        10746,
+        12577
+      ],
+      "inside_patch_face_rows": [
+        19180
+      ],
+      "outside_patch_face_rows": [
+        19181
+      ],
+      "nearest_target_bone_face_row": 145,
+      "minimum_segment_to_triangle_distance_mm": 1.3176425304805721
+    },
+    {
+      "skin_edge_node_rows": [
+        10746,
+        12582
+      ],
+      "inside_patch_face_rows": [
+        19512
+      ],
+      "outside_patch_face_rows": [
+        19511
+      ],
+      "nearest_target_bone_face_row": 241,
+      "minimum_segment_to_triangle_distance_mm": 4.6983807037627825
+    },
+    {
+      "skin_edge_node_rows": [
+        10749,
+        17091
+      ],
+      "inside_patch_face_rows": [
+        19636
+      ],
+      "outside_patch_face_rows": [
+        19635
+      ],
+      "nearest_target_bone_face_row": 243,
+      "minimum_segment_to_triangle_distance_mm": 3.1550995802917887
+    },
+    {
+      "skin_edge_node_rows": [
+        10751,
+        12581
+      ],
+      "inside_patch_face_rows": [
+        19507
+      ],
+      "outside_patch_face_rows": [
+        19508
+      ],
+      "nearest_target_bone_face_row": 241,
+      "minimum_segment_to_triangle_distance_mm": 5.262419209135452
+    },
+    {
+      "skin_edge_node_rows": [
+        10757,
+        15502
+      ],
+      "inside_patch_face_rows": [
+        19349
+      ],
+      "outside_patch_face_rows": [
+        19300
+      ],
+      "nearest_target_bone_face_row": 162,
+      "minimum_segment_to_triangle_distance_mm": 2.465365916421899
+    },
+    {
+      "skin_edge_node_rows": [
+        10757,
+        20170
+      ],
+      "inside_patch_face_rows": [
+        19306
+      ],
+      "outside_patch_face_rows": [
+        19303
+      ],
+      "nearest_target_bone_face_row": 129,
+      "minimum_segment_to_triangle_distance_mm": 0.34395944950654544
+    },
+    {
+      "skin_edge_node_rows": [
+        11682,
+        12581
+      ],
+      "inside_patch_face_rows": [
+        19506
+      ],
+      "outside_patch_face_rows": [
+        19505
+      ],
+      "nearest_target_bone_face_row": 241,
+      "minimum_segment_to_triangle_distance_mm": 4.453189987625416
+    },
+    {
+      "skin_edge_node_rows": [
+        11682,
+        12582
+      ],
+      "inside_patch_face_rows": [
+        19513
+      ],
+      "outside_patch_face_rows": [
+        19514
+      ],
+      "nearest_target_bone_face_row": 241,
+      "minimum_segment_to_triangle_distance_mm": 4.453189987625416
+    },
+    {
+      "skin_edge_node_rows": [
+        11686,
+        18896
+      ],
+      "inside_patch_face_rows": [
+        19672
+      ],
+      "outside_patch_face_rows": [
+        19743
+      ],
+      "nearest_target_bone_face_row": 147,
+      "minimum_segment_to_triangle_distance_mm": 0.687005358030183
+    },
+    {
+      "skin_edge_node_rows": [
+        11686,
+        20197
+      ],
+      "inside_patch_face_rows": [
+        19663
+      ],
+      "outside_patch_face_rows": [
+        19662
+      ],
+      "nearest_target_bone_face_row": 147,
+      "minimum_segment_to_triangle_distance_mm": 0.5714339832496077
+    },
+    {
+      "skin_edge_node_rows": [
+        12577,
+        17066
+      ],
+      "inside_patch_face_rows": [
+        19177
+      ],
+      "outside_patch_face_rows": [
+        19178
+      ],
+      "nearest_target_bone_face_row": 145,
+      "minimum_segment_to_triangle_distance_mm": 1.3176425304805721
+    },
+    {
+      "skin_edge_node_rows": [
+        12578,
+        19051
+      ],
+      "inside_patch_face_rows": [
+        19232
+      ],
+      "outside_patch_face_rows": [
+        19259
+      ],
+      "nearest_target_bone_face_row": 134,
+      "minimum_segment_to_triangle_distance_mm": 0.01487845570713246
+    },
+    {
+      "skin_edge_node_rows": [
+        12578,
+        19053
+      ],
+      "inside_patch_face_rows": [
+        19233
+      ],
+      "outside_patch_face_rows": [
+        19244
+      ],
+      "nearest_target_bone_face_row": 129,
+      "minimum_segment_to_triangle_distance_mm": 1.8076090641433036
+    },
+    {
+      "skin_edge_node_rows": [
+        12592,
+        20214
+      ],
+      "inside_patch_face_rows": [
+        19804
+      ],
+      "outside_patch_face_rows": [
+        19807
+      ],
+      "nearest_target_bone_face_row": 162,
+      "minimum_segment_to_triangle_distance_mm": 1.5062511510339847
+    },
+    {
+      "skin_edge_node_rows": [
+        12592,
+        20219
+      ],
+      "inside_patch_face_rows": [
+        19874
+      ],
+      "outside_patch_face_rows": [
+        19875
+      ],
+      "nearest_target_bone_face_row": 162,
+      "minimum_segment_to_triangle_distance_mm": 0.9343643156083401
+    },
+    {
+      "skin_edge_node_rows": [
+        13741,
+        17091
+      ],
+      "inside_patch_face_rows": [
+        19637
+      ],
+      "outside_patch_face_rows": [
+        19638
+      ],
+      "nearest_target_bone_face_row": 243,
+      "minimum_segment_to_triangle_distance_mm": 3.1550995802917887
+    },
+    {
+      "skin_edge_node_rows": [
+        13741,
+        17096
+      ],
+      "inside_patch_face_rows": [
+        19788
+      ],
+      "outside_patch_face_rows": [
+        19787
+      ],
+      "nearest_target_bone_face_row": 251,
+      "minimum_segment_to_triangle_distance_mm": 4.248987570949537
+    },
+    {
+      "skin_edge_node_rows": [
+        14280,
+        19377
+      ],
+      "inside_patch_face_rows": [
+        19323
+      ],
+      "outside_patch_face_rows": [
+        19304
+      ],
+      "nearest_target_bone_face_row": 129,
+      "minimum_segment_to_triangle_distance_mm": 0.2236512623362794
+    },
+    {
+      "skin_edge_node_rows": [
+        14280,
+        20212
+      ],
+      "inside_patch_face_rows": [
+        19792
+      ],
+      "outside_patch_face_rows": [
+        19793
+      ],
+      "nearest_target_bone_face_row": 129,
+      "minimum_segment_to_triangle_distance_mm": 0.1836765995734324
+    },
+    {
+      "skin_edge_node_rows": [
+        14822,
+        17066
+      ],
+      "inside_patch_face_rows": [
+        19176
+      ],
+      "outside_patch_face_rows": [
+        19175
+      ],
+      "nearest_target_bone_face_row": 145,
+      "minimum_segment_to_triangle_distance_mm": 1.644054338905198
+    },
+    {
+      "skin_edge_node_rows": [
+        14822,
+        17070
+      ],
+      "inside_patch_face_rows": [
+        19246
+      ],
+      "outside_patch_face_rows": [
+        19250
+      ],
+      "nearest_target_bone_face_row": 140,
+      "minimum_segment_to_triangle_distance_mm": 0.09342690387920767
+    },
+    {
+      "skin_edge_node_rows": [
+        15501,
+        17096
+      ],
+      "inside_patch_face_rows": [
+        19789
+      ],
+      "outside_patch_face_rows": [
+        19790
+      ],
+      "nearest_target_bone_face_row": 253,
+      "minimum_segment_to_triangle_distance_mm": 3.531854718171099
+    },
+    {
+      "skin_edge_node_rows": [
+        15501,
+        20209
+      ],
+      "inside_patch_face_rows": [
+        19767
+      ],
+      "outside_patch_face_rows": [
+        19770
+      ],
+      "nearest_target_bone_face_row": 248,
+      "minimum_segment_to_triangle_distance_mm": 2.9622220535562978
+    },
+    {
+      "skin_edge_node_rows": [
+        15502,
+        17072
+      ],
+      "inside_patch_face_rows": [
+        19301
+      ],
+      "outside_patch_face_rows": [
+        19300
+      ],
+      "nearest_target_bone_face_row": 162,
+      "minimum_segment_to_triangle_distance_mm": 2.465365916421899
+    },
+    {
+      "skin_edge_node_rows": [
+        15504,
+        17068
+      ],
+      "inside_patch_face_rows": [
+        19188
+      ],
+      "outside_patch_face_rows": [
+        19189
+      ],
+      "nearest_target_bone_face_row": 162,
+      "minimum_segment_to_triangle_distance_mm": 2.375035825714119
+    },
+    {
+      "skin_edge_node_rows": [
+        15504,
+        20160
+      ],
+      "inside_patch_face_rows": [
+        19242
+      ],
+      "outside_patch_face_rows": [
+        19241
+      ],
+      "nearest_target_bone_face_row": 162,
+      "minimum_segment_to_triangle_distance_mm": 1.6537961152480278
+    },
+    {
+      "skin_edge_node_rows": [
+        17070,
+        20165
+      ],
+      "inside_patch_face_rows": [
+        19272
+      ],
+      "outside_patch_face_rows": [
+        19273
+      ],
+      "nearest_target_bone_face_row": 140,
+      "minimum_segment_to_triangle_distance_mm": 0.08332174296162281
+    },
+    {
+      "skin_edge_node_rows": [
+        17094,
+        20205
+      ],
+      "inside_patch_face_rows": [
+        19746
+      ],
+      "outside_patch_face_rows": [
+        19745
+      ],
+      "nearest_target_bone_face_row": 162,
+      "minimum_segment_to_triangle_distance_mm": 0.9973960969199187
+    },
+    {
+      "skin_edge_node_rows": [
+        17094,
+        21133
+      ],
+      "inside_patch_face_rows": [
+        19712
+      ],
+      "outside_patch_face_rows": [
+        19711
+      ],
+      "nearest_target_bone_face_row": 154,
+      "minimum_segment_to_triangle_distance_mm": 1.4184712862862943
+    },
+    {
+      "skin_edge_node_rows": [
+        17095,
+        20209
+      ],
+      "inside_patch_face_rows": [
+        19769
+      ],
+      "outside_patch_face_rows": [
+        19770
+      ],
+      "nearest_target_bone_face_row": 248,
+      "minimum_segment_to_triangle_distance_mm": 2.9622220535562978
+    },
+    {
+      "skin_edge_node_rows": [
+        17095,
+        20210
+      ],
+      "inside_patch_face_rows": [
+        19777
+      ],
+      "outside_patch_face_rows": [
+        19776
+      ],
+      "nearest_target_bone_face_row": 286,
+      "minimum_segment_to_triangle_distance_mm": 3.5004470987621428
+    },
+    {
+      "skin_edge_node_rows": [
+        17097,
+        18495
+      ],
+      "inside_patch_face_rows": [
+        19820
+      ],
+      "outside_patch_face_rows": [
+        19795
+      ],
+      "nearest_target_bone_face_row": 129,
+      "minimum_segment_to_triangle_distance_mm": 0.1221820953786247
+    },
+    {
+      "skin_edge_node_rows": [
+        17097,
+        19383
+      ],
+      "inside_patch_face_rows": [
+        19821
+      ],
+      "outside_patch_face_rows": [
+        19806
+      ],
+      "nearest_target_bone_face_row": 162,
+      "minimum_segment_to_triangle_distance_mm": 0.8270527594126812
+    },
+    {
+      "skin_edge_node_rows": [
+        17100,
+        19380
+      ],
+      "inside_patch_face_rows": [
+        19854
+      ],
+      "outside_patch_face_rows": [
+        19838
+      ],
+      "nearest_target_bone_face_row": 129,
+      "minimum_segment_to_triangle_distance_mm": 0.9693867927752722
+    },
+    {
+      "skin_edge_node_rows": [
+        17100,
+        19384
+      ],
+      "inside_patch_face_rows": [
+        19867
+      ],
+      "outside_patch_face_rows": [
+        19876
+      ],
+      "nearest_target_bone_face_row": 162,
+      "minimum_segment_to_triangle_distance_mm": 0.7304129743711361
+    },
+    {
+      "skin_edge_node_rows": [
+        18495,
+        20212
+      ],
+      "inside_patch_face_rows": [
+        19791
+      ],
+      "outside_patch_face_rows": [
+        19795
+      ],
+      "nearest_target_bone_face_row": 129,
+      "minimum_segment_to_triangle_distance_mm": 0.1221820953786247
+    },
+    {
+      "skin_edge_node_rows": [
+        18895,
+        20197
+      ],
+      "inside_patch_face_rows": [
+        19661
+      ],
+      "outside_patch_face_rows": [
+        19662
+      ],
+      "nearest_target_bone_face_row": 147,
+      "minimum_segment_to_triangle_distance_mm": 0.5714339832496077
+    },
+    {
+      "skin_edge_node_rows": [
+        18895,
+        20216
+      ],
+      "inside_patch_face_rows": [
+        19836
+      ],
+      "outside_patch_face_rows": [
+        19835
+      ],
+      "nearest_target_bone_face_row": 162,
+      "minimum_segment_to_triangle_distance_mm": 2.0284857910257053
+    },
+    {
+      "skin_edge_node_rows": [
+        18896,
+        20205
+      ],
+      "inside_patch_face_rows": [
+        19673
+      ],
+      "outside_patch_face_rows": [
+        19743
+      ],
+      "nearest_target_bone_face_row": 147,
+      "minimum_segment_to_triangle_distance_mm": 0.6632871129596006
+    },
+    {
+      "skin_edge_node_rows": [
+        19051,
+        20164
+      ],
+      "inside_patch_face_rows": [
+        19260
+      ],
+      "outside_patch_face_rows": [
+        19259
+      ],
+      "nearest_target_bone_face_row": 133,
+      "minimum_segment_to_triangle_distance_mm": 0.0591361595713313
+    },
+    {
+      "skin_edge_node_rows": [
+        19053,
+        20160
+      ],
+      "inside_patch_face_rows": [
+        19243
+      ],
+      "outside_patch_face_rows": [
+        19244
+      ],
+      "nearest_target_bone_face_row": 162,
+      "minimum_segment_to_triangle_distance_mm": 1.6537961152480278
+    },
+    {
+      "skin_edge_node_rows": [
+        19061,
+        20210
+      ],
+      "inside_patch_face_rows": [
+        19772
+      ],
+      "outside_patch_face_rows": [
+        19775
+      ],
+      "nearest_target_bone_face_row": 263,
+      "minimum_segment_to_triangle_distance_mm": 2.8997225287315347
+    },
+    {
+      "skin_edge_node_rows": [
+        19061,
+        21130
+      ],
+      "inside_patch_face_rows": [
+        19713
+      ],
+      "outside_patch_face_rows": [
+        19773
+      ],
+      "nearest_target_bone_face_row": 283,
+      "minimum_segment_to_triangle_distance_mm": 1.9233974701050431
+    },
+    {
+      "skin_edge_node_rows": [
+        19377,
+        20170
+      ],
+      "inside_patch_face_rows": [
+        19305
+      ],
+      "outside_patch_face_rows": [
+        19304
+      ],
+      "nearest_target_bone_face_row": 130,
+      "minimum_segment_to_triangle_distance_mm": 0.23179374110129822
+    },
+    {
+      "skin_edge_node_rows": [
+        19380,
+        20216
+      ],
+      "inside_patch_face_rows": [
+        19837
+      ],
+      "outside_patch_face_rows": [
+        19838
+      ],
+      "nearest_target_bone_face_row": 130,
+      "minimum_segment_to_triangle_distance_mm": 0.9972270726634896
+    },
+    {
+      "skin_edge_node_rows": [
+        19383,
+        20214
+      ],
+      "inside_patch_face_rows": [
+        19805
+      ],
+      "outside_patch_face_rows": [
+        19806
+      ],
+      "nearest_target_bone_face_row": 162,
+      "minimum_segment_to_triangle_distance_mm": 0.8270527594126812
+    },
+    {
+      "skin_edge_node_rows": [
+        19384,
+        20219
+      ],
+      "inside_patch_face_rows": [
+        19877
+      ],
+      "outside_patch_face_rows": [
+        19876
+      ],
+      "nearest_target_bone_face_row": 162,
+      "minimum_segment_to_triangle_distance_mm": 0.7304129743711361
+    },
+    {
+      "skin_edge_node_rows": [
+        19497,
+        20164
+      ],
+      "inside_patch_face_rows": [
+        19267
+      ],
+      "outside_patch_face_rows": [
+        19269
+      ],
+      "nearest_target_bone_face_row": 140,
+      "minimum_segment_to_triangle_distance_mm": 0.02191074079658979
+    },
+    {
+      "skin_edge_node_rows": [
+        19497,
+        20165
+      ],
+      "inside_patch_face_rows": [
+        19274
+      ],
+      "outside_patch_face_rows": [
+        19273
+      ],
+      "nearest_target_bone_face_row": 144,
+      "minimum_segment_to_triangle_distance_mm": 0.05232709438753737
+    },
+    {
+      "skin_edge_node_rows": [
+        21130,
+        21133
+      ],
+      "inside_patch_face_rows": [
+        19716
+      ],
+      "outside_patch_face_rows": [
+        19715
+      ],
+      "nearest_target_bone_face_row": 154,
+      "minimum_segment_to_triangle_distance_mm": 1.0452497819127962
+    }
+  ],
+  "edge_predicate": "Exact rational segment-vs-triangle intersection in pinned target-body-local coordinates.",
+  "distance_predicate": "Float64 Euclidean closest distance to exact-emitted Float32 triangle values promoted to Float64; distance is diagnostic and no clearance margin threshold was imposed.",
+  "geometry_or_native_admission": false,
+  "elapsed_seconds": 3.491304417140782,
+  "limitations": [
+    "Only the fixed boundary of the topology-only face set was checked against target bone 43/16 and stored audit crossings. No vertices moved, no complete candidate, self audit, all-bank rerun, or physical/native admission."
+  ],
+  "boundary_feasible_local": true
+}
