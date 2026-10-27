@@ -1,0 +1,1288 @@
+{
+  "base_d071_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/root-topology-a69-safe-subset-001/candidate.npz",
+  "base_d071_sha256": "d071f04fa64ce602f08dbf7859c45b4518ef2032ac92af0c1100d69dbdd59826",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz",
+  "candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "depth_metric_rule": "For inside rows use classification-signed nearest_distance_m (negative inside). All 13,181 shared query records are checked against per-node movement plus 1e-5 mm. signed_face_distance_m is a selected-triangle-plane metric and is diagnostic only.",
+  "evidence_files": {
+    "audit130": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/audit-130/summary.json",
+      "sha256": "1291c50ddd6ac65e031f04bc586dfd7d7d3806b16338e245dbe65f9aabfc0eb4"
+    },
+    "audit159": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/audit-159/report.json",
+      "sha256": "4cc8fd5d5e8fb651733fd380001e2b9847a0040960d7c8865c37f25fe5b8a09d"
+    },
+    "comparison_script": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/compare_full.py",
+      "sha256": "4a1f9db4688a54ea058c28a996c27ddf6123bbd20cca6bb7081a9f333eaeb336"
+    },
+    "full_comparison": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/full-comparison.json",
+      "sha256": "52c73b8a6013f5515c06e0109aaa80b4bcba6ed55c4496ea342f2766e49ffe64"
+    },
+    "plane_metric_diagnostic": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/full-comparison-plane-distance-diagnostic.json",
+      "sha256": "3017dccfcc03ca78429263d6363d354f72ebcda4a34a8fbd9c1357d699d6907b"
+    },
+    "preflight": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/preflight.json",
+      "sha256": "68aaebdb8c56fdceb6e5036c873ec8ab07c29d5853f65edfcf629003412ab3cb"
+    },
+    "shape_layer": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/shape-layer-report.json",
+      "sha256": "dbd46128636b61740ca45ed4e6061acef6cbb94b00e9564676c7a5a26e318306"
+    }
+  },
+  "full_audit": {
+    "audit130": {
+      "complete_surface_audit": true,
+      "exact_PLC_surface_pairs": 0,
+      "faces": 42379,
+      "inside_node_bank_pairs": 125,
+      "inside_nodes": 125,
+      "points": 21212,
+      "query_pair_count": 13181,
+      "status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC"
+    },
+    "audit159": {
+      "bank_count": 185,
+      "complete": true,
+      "expected_bank_count": 185,
+      "status": "COMPLETE_TYPED_BANK_SURFACE_CROSSING_AUDIT",
+      "surface_face_count": 42379,
+      "surface_point_count": 21212
+    },
+    "execution_receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/full-audits-execution.json",
+    "execution_receipt_sha256": "88ea31f7d5e5c4013321f7ab567a039c68fbced6460035644230965950aaffb6"
+  },
+  "geometry_admitted": false,
+  "identity_comparison": {
+    "comparison_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/full-comparison.json",
+    "comparison_report_sha256": "52c73b8a6013f5515c06e0109aaa80b4bcba6ed55c4496ea342f2766e49ffe64",
+    "versus_a69": {
+      "exact_surface_self_pairs": {
+        "added": [],
+        "added_count": 0,
+        "baseline_count": 0,
+        "candidate_count": 0,
+        "removed": [],
+        "removed_count": 0
+      },
+      "inside_node_bank_identities": {
+        "added": [],
+        "added_count": 0,
+        "baseline_count": 125,
+        "candidate_count": 125,
+        "removed": [],
+        "removed_count": 0
+      },
+      "parent_pairs": {
+        "added": [],
+        "added_count": 0,
+        "baseline_count": 651,
+        "candidate_count": 651,
+        "removed": [],
+        "removed_count": 0
+      },
+      "raw_crossings": {
+        "added": [
+          [
+            59,
+            95,
+            12185,
+            302
+          ],
+          [
+            59,
+            95,
+            12187,
+            252
+          ],
+          [
+            59,
+            95,
+            12187,
+            305
+          ],
+          [
+            109,
+            114,
+            34536,
+            88
+          ],
+          [
+            109,
+            114,
+            34724,
+            111
+          ],
+          [
+            109,
+            114,
+            34724,
+            112
+          ],
+          [
+            109,
+            114,
+            34724,
+            116
+          ],
+          [
+            109,
+            114,
+            35437,
+            305
+          ],
+          [
+            109,
+            114,
+            35440,
+            298
+          ]
+        ],
+        "added_count": 9,
+        "banks_with_changed_counts": [
+          {
+            "bank": [
+              43,
+              16
+            ],
+            "baseline_raw_count": 249,
+            "candidate_raw_count": 247
+          },
+          {
+            "bank": [
+              59,
+              95
+            ],
+            "baseline_raw_count": 45,
+            "candidate_raw_count": 44
+          },
+          {
+            "bank": [
+              109,
+              114
+            ],
+            "baseline_raw_count": 187,
+            "candidate_raw_count": 184
+          }
+        ],
+        "baseline_count": 983,
+        "candidate_count": 977,
+        "removed": [
+          [
+            43,
+            16,
+            19206,
+            144
+          ],
+          [
+            43,
+            16,
+            19316,
+            133
+          ],
+          [
+            59,
+            95,
+            12185,
+            149
+          ],
+          [
+            59,
+            95,
+            12185,
+            252
+          ],
+          [
+            59,
+            95,
+            12187,
+            302
+          ],
+          [
+            59,
+            95,
+            12187,
+            306
+          ],
+          [
+            109,
+            114,
+            34534,
+            62
+          ],
+          [
+            109,
+            114,
+            34536,
+            92
+          ],
+          [
+            109,
+            114,
+            34722,
+            111
+          ],
+          [
+            109,
+            114,
+            34722,
+            112
+          ],
+          [
+            109,
+            114,
+            34722,
+            115
+          ],
+          [
+            109,
+            114,
+            34722,
+            116
+          ],
+          [
+            109,
+            114,
+            35437,
+            191
+          ],
+          [
+            109,
+            114,
+            35440,
+            305
+          ],
+          [
+            109,
+            114,
+            35440,
+            331
+          ]
+        ],
+        "removed_count": 15
+      },
+      "target_banks": {
+        "109-114": {
+          "added": [
+            [
+              34536,
+              88
+            ],
+            [
+              34724,
+              111
+            ],
+            [
+              34724,
+              112
+            ],
+            [
+              34724,
+              116
+            ],
+            [
+              35437,
+              305
+            ],
+            [
+              35440,
+              298
+            ]
+          ],
+          "added_count": 6,
+          "baseline_raw_count": 187,
+          "candidate_raw_count": 184,
+          "removed": [
+            [
+              34534,
+              62
+            ],
+            [
+              34536,
+              92
+            ],
+            [
+              34722,
+              111
+            ],
+            [
+              34722,
+              112
+            ],
+            [
+              34722,
+              115
+            ],
+            [
+              34722,
+              116
+            ],
+            [
+              35437,
+              191
+            ],
+            [
+              35440,
+              305
+            ],
+            [
+              35440,
+              331
+            ]
+          ],
+          "removed_count": 9
+        },
+        "61-97": {
+          "added": [],
+          "added_count": 0,
+          "baseline_raw_count": 32,
+          "candidate_raw_count": 32,
+          "removed": [],
+          "removed_count": 0
+        }
+      }
+    },
+    "versus_d071": {
+      "exact_surface_self_pairs": {
+        "added": [],
+        "added_count": 0,
+        "baseline_count": 0,
+        "candidate_count": 0,
+        "removed": [],
+        "removed_count": 0
+      },
+      "inside_node_bank_identities": {
+        "added": [],
+        "added_count": 0,
+        "baseline_count": 125,
+        "candidate_count": 125,
+        "removed": [],
+        "removed_count": 0
+      },
+      "parent_pairs": {
+        "added": [],
+        "added_count": 0,
+        "baseline_count": 651,
+        "candidate_count": 651,
+        "removed": [],
+        "removed_count": 0
+      },
+      "raw_crossings": {
+        "added": [],
+        "added_count": 0,
+        "banks_with_changed_counts": [],
+        "baseline_count": 977,
+        "candidate_count": 977,
+        "removed": [],
+        "removed_count": 0
+      },
+      "target_banks": {
+        "109-114": {
+          "added": [],
+          "added_count": 0,
+          "baseline_raw_count": 184,
+          "candidate_raw_count": 184,
+          "removed": [],
+          "removed_count": 0
+        },
+        "61-97": {
+          "added": [],
+          "added_count": 0,
+          "baseline_raw_count": 32,
+          "candidate_raw_count": 32,
+          "removed": [],
+          "removed_count": 0
+        }
+      }
+    }
+  },
+  "input_position_patches": {
+    "b109_114_candidate_sha256": "468254c2d44472bbcaf91b86f968536477fa2847b8581bc69003c3eb2395e0e7",
+    "b61_97_candidate_sha256": "c65ba99363fe98d403d2ce2bbf6fea2eff89b6ae1758bcd40e7274e6a2b9f8ed"
+  },
+  "integration": {
+    "changed_connectivity_faces_from_d071": 12,
+    "changed_nodes_b109_114": 1074,
+    "changed_nodes_b61_97": 78,
+    "d071_topology_and_nonposition_metadata_preserved": true,
+    "overlap_nodes": 0,
+    "union_changed_nodes": 1152
+  },
+  "layer": {
+    "a69_layer_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-200-stage-001/evidence/layer/guarded-65-quarter/skin-fat-layers-541.npz",
+    "a69_layer_sha256": "78916a0c05eb130e5efb02174342295c2d8d4444eae963c7b36fc43a2a1b17fc",
+    "added_failure_count": 0,
+    "baseline_d071_layer_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/root-topology-a69-safe-subset-001/layer-diagnostic/skin-fat-layers-541.npz",
+    "baseline_d071_layer_sha256": "20a01394251a6b4d95fc1fe02d3822cf7803a16703bc0190a3c4379168a3486b",
+    "candidate_layer_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/skin-fat-layers-541.npz",
+    "candidate_layer_sha256": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57",
+    "candidate_outer_matches_combined_candidate": true,
+    "checked_all_layer_faces": 42379,
+    "d071_changed_connectivity_face_rows": [
+      12185,
+      12187,
+      19203,
+      19206,
+      19314,
+      19316,
+      34534,
+      34536,
+      34722,
+      34724,
+      35437,
+      35440
+    ],
+    "geometry_admitted": false,
+    "no_new_failure_identities": true,
+    "per_layer_failure_identity_delta_vs_d071": {
+      "fat": {
+        "authored_orientation": {
+          "added_count": 0,
+          "added_ids": [],
+          "added_on_12_connectivity_faces": [],
+          "baseline_failure_count": 8530,
+          "baseline_failures_on_12_connectivity_faces": [],
+          "candidate_failure_count": 8530,
+          "candidate_failures_on_12_connectivity_faces": [],
+          "removed_count": 0,
+          "removed_ids": [],
+          "removed_on_12_connectivity_faces": []
+        },
+        "f32_conditioned_tets": {
+          "added_count": 0,
+          "added_ids": [],
+          "added_on_12_connectivity_faces": [],
+          "baseline_failure_count": 128,
+          "baseline_failures_on_12_connectivity_faces": [],
+          "candidate_failure_count": 126,
+          "candidate_failures_on_12_connectivity_faces": [],
+          "removed_count": 2,
+          "removed_ids": [
+            104115,
+            104124
+          ],
+          "removed_on_12_connectivity_faces": []
+        },
+        "f32_nonpositive_tets": {
+          "added_count": 0,
+          "added_ids": [],
+          "added_on_12_connectivity_faces": [],
+          "baseline_failure_count": 2,
+          "baseline_failures_on_12_connectivity_faces": [],
+          "candidate_failure_count": 2,
+          "candidate_failures_on_12_connectivity_faces": [],
+          "removed_count": 0,
+          "removed_ids": [],
+          "removed_on_12_connectivity_faces": []
+        }
+      },
+      "skin": {
+        "authored_orientation": {
+          "added_count": 0,
+          "added_ids": [],
+          "added_on_12_connectivity_faces": [],
+          "baseline_failure_count": 7612,
+          "baseline_failures_on_12_connectivity_faces": [],
+          "candidate_failure_count": 7612,
+          "candidate_failures_on_12_connectivity_faces": [],
+          "removed_count": 0,
+          "removed_ids": [],
+          "removed_on_12_connectivity_faces": []
+        },
+        "f32_conditioned_tets": {
+          "added_count": 0,
+          "added_ids": [],
+          "added_on_12_connectivity_faces": [],
+          "baseline_failure_count": 52,
+          "baseline_failures_on_12_connectivity_faces": [],
+          "candidate_failure_count": 51,
+          "candidate_failures_on_12_connectivity_faces": [],
+          "removed_count": 1,
+          "removed_ids": [
+            104229
+          ],
+          "removed_on_12_connectivity_faces": []
+        },
+        "f32_nonpositive_tets": {
+          "added_count": 0,
+          "added_ids": [],
+          "added_on_12_connectivity_faces": [],
+          "baseline_failure_count": 2,
+          "baseline_failures_on_12_connectivity_faces": [],
+          "candidate_failure_count": 2,
+          "candidate_failures_on_12_connectivity_faces": [],
+          "removed_count": 0,
+          "removed_ids": [],
+          "removed_on_12_connectivity_faces": []
+        }
+      }
+    },
+    "physical_steps": 0,
+    "status": "LAYER_IDENTITY_CHECK_COMPLETE",
+    "topology_preserved_from_d071": true
+  },
+  "limitations": [
+    "Static reference-pose construction checks only. No physical simulation, conservative material-mass transfer, closed-solid containment, or native tissue admission.",
+    "signed_face_distance_m reports distance to a selected triangle plane, not nearest clearance; use the separate classification-signed nearest_distance_m check for depth comparisons."
+  ],
+  "nearest_distance_displacement_bound_check_vs_d071": {
+    "all_shared_rows_within_displacement_bound": true,
+    "bound_tolerance_mm": 1e-05,
+    "bound_violation_count": 0,
+    "classification_changes": [],
+    "max_absolute_signed_nearest_distance_change_mm": 0.06179385651762298,
+    "max_motion_bound_excess_mm": 0.0,
+    "max_point_motion_mm": 0.06920387392879747,
+    "metric": "classification-signed nearest_distance_m (negative inside, positive outside)",
+    "shared_query_records": 13181,
+    "violations": []
+  },
+  "physical_steps": 0,
+  "plane_signed_distance_diagnostic_vs_d071": {
+    "examples": [
+      {
+        "nearest_distance_baseline_mm": 5.99840295566869,
+        "nearest_distance_candidate_mm": 5.998252401480401,
+        "nearest_triangle_baseline": 298,
+        "nearest_triangle_candidate": 191,
+        "point_motion_mm": 0.0005997601687162551,
+        "query_key": [
+          13174,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": 1.1786755296131932,
+        "signed_face_plane_distance_baseline_mm": 4.79242277935596,
+        "signed_face_plane_distance_candidate_mm": 5.971098308969154
+      },
+      {
+        "nearest_distance_baseline_mm": 3.999459558506326,
+        "nearest_distance_candidate_mm": 3.9992361692884026,
+        "nearest_triangle_baseline": 91,
+        "nearest_triangle_candidate": 92,
+        "point_motion_mm": 0.0009625965594952828,
+        "query_key": [
+          9281,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": -0.7466070966271163,
+        "signed_face_plane_distance_baseline_mm": 3.998723409665237,
+        "signed_face_plane_distance_candidate_mm": 3.2521163130381203
+      },
+      {
+        "nearest_distance_baseline_mm": 4.00517320648213,
+        "nearest_distance_candidate_mm": 4.005026010949468,
+        "nearest_triangle_baseline": 191,
+        "nearest_triangle_candidate": 298,
+        "point_motion_mm": 0.0002735489569706592,
+        "query_key": [
+          11128,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": 0.7388955603701928,
+        "signed_face_plane_distance_baseline_mm": 3.240833005911534,
+        "signed_face_plane_distance_candidate_mm": 3.9797285662817266
+      },
+      {
+        "nearest_distance_baseline_mm": 6.833340425469548,
+        "nearest_distance_candidate_mm": 6.832767504793339,
+        "nearest_triangle_baseline": 190,
+        "nearest_triangle_candidate": 139,
+        "point_motion_mm": 0.0009426677616795725,
+        "query_key": [
+          13857,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": -0.6019397603482116,
+        "signed_face_plane_distance_baseline_mm": 6.829727040730905,
+        "signed_face_plane_distance_candidate_mm": 6.227787280382693
+      },
+      {
+        "nearest_distance_baseline_mm": 3.1323711206056126,
+        "nearest_distance_candidate_mm": 3.132295984471927,
+        "nearest_triangle_baseline": 255,
+        "nearest_triangle_candidate": 256,
+        "point_motion_mm": 0.00013328003749250113,
+        "query_key": [
+          13176,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": -0.5204875408186083,
+        "signed_face_plane_distance_baseline_mm": 3.1290989097127744,
+        "signed_face_plane_distance_candidate_mm": 2.6086113688941666
+      },
+      {
+        "nearest_distance_baseline_mm": 2.4488900432061516,
+        "nearest_distance_candidate_mm": 2.448732833734818,
+        "nearest_triangle_baseline": 92,
+        "nearest_triangle_candidate": 91,
+        "point_motion_mm": 0.0007028863677424643,
+        "query_key": [
+          17881,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": -0.47738876190379703,
+        "signed_face_plane_distance_baseline_mm": 2.4488510473107903,
+        "signed_face_plane_distance_candidate_mm": 1.9714622854069934
+      },
+      {
+        "nearest_distance_baseline_mm": 2.663885425543493,
+        "nearest_distance_candidate_mm": 2.6636563426471738,
+        "nearest_triangle_baseline": 256,
+        "nearest_triangle_candidate": 255,
+        "point_motion_mm": 0.0003384893146634265,
+        "query_key": [
+          20735,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": 0.44383874116752386,
+        "signed_face_plane_distance_baseline_mm": 2.21714568966922,
+        "signed_face_plane_distance_candidate_mm": 2.6609844308367436
+      },
+      {
+        "nearest_distance_baseline_mm": 3.474098727208321,
+        "nearest_distance_candidate_mm": 3.4740543650673237,
+        "nearest_triangle_baseline": 251,
+        "nearest_triangle_candidate": 183,
+        "point_motion_mm": 0.0001519626234052415,
+        "query_key": [
+          11861,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": 0.4207726176975912,
+        "signed_face_plane_distance_baseline_mm": 3.0228561838930004,
+        "signed_face_plane_distance_candidate_mm": 3.4436288015905916
+      },
+      {
+        "nearest_distance_baseline_mm": 2.919686220805957,
+        "nearest_distance_candidate_mm": 2.91952000382193,
+        "nearest_triangle_baseline": 92,
+        "nearest_triangle_candidate": 91,
+        "point_motion_mm": 0.0007208220137624636,
+        "query_key": [
+          13094,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": 0.38617881248102437,
+        "signed_face_plane_distance_baseline_mm": 2.5161498866963363,
+        "signed_face_plane_distance_candidate_mm": 2.9023286991773607
+      },
+      {
+        "nearest_distance_baseline_mm": 3.0520519857740562,
+        "nearest_distance_candidate_mm": 3.0519976360483003,
+        "nearest_triangle_baseline": 256,
+        "nearest_triangle_candidate": 255,
+        "point_motion_mm": 0.0001273155770498146,
+        "query_key": [
+          15667,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": -0.3848686264217149,
+        "signed_face_plane_distance_baseline_mm": 3.032926809839798,
+        "signed_face_plane_distance_candidate_mm": 2.648058183418083
+      },
+      {
+        "nearest_distance_baseline_mm": 2.1327608839328422,
+        "nearest_distance_candidate_mm": 2.1327400404920764,
+        "nearest_triangle_baseline": 251,
+        "nearest_triangle_candidate": 183,
+        "point_motion_mm": 0.00040343363197686924,
+        "query_key": [
+          18545,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": 0.3768384258773332,
+        "signed_face_plane_distance_baseline_mm": 1.7539735897688613,
+        "signed_face_plane_distance_candidate_mm": 2.1308120156461947
+      },
+      {
+        "nearest_distance_baseline_mm": 2.7371686501029275,
+        "nearest_distance_candidate_mm": 2.736997171756642,
+        "nearest_triangle_baseline": 91,
+        "nearest_triangle_candidate": 92,
+        "point_motion_mm": 0.0007942472679159897,
+        "query_key": [
+          13109,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": -0.36177170317747404,
+        "signed_face_plane_distance_baseline_mm": 2.7210060795417825,
+        "signed_face_plane_distance_candidate_mm": 2.3592343763643084
+      },
+      {
+        "nearest_distance_baseline_mm": 3.7852309416029635,
+        "nearest_distance_candidate_mm": 3.7851815530334934,
+        "nearest_triangle_baseline": 183,
+        "nearest_triangle_candidate": 251,
+        "point_motion_mm": 0.0001519626234052415,
+        "query_key": [
+          13184,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": -0.35040281829601566,
+        "signed_face_plane_distance_baseline_mm": 3.7254087422599373,
+        "signed_face_plane_distance_candidate_mm": 3.3750059239639216
+      },
+      {
+        "nearest_distance_baseline_mm": 1.9853837532589325,
+        "nearest_distance_candidate_mm": 1.9852226453131596,
+        "nearest_triangle_baseline": 183,
+        "nearest_triangle_candidate": 251,
+        "point_motion_mm": 0.0003516800320507868,
+        "query_key": [
+          14452,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": 0.33010638230985645,
+        "signed_face_plane_distance_baseline_mm": 1.6515882950611795,
+        "signed_face_plane_distance_candidate_mm": 1.981694677371036
+      },
+      {
+        "nearest_distance_baseline_mm": 2.282821506221363,
+        "nearest_distance_candidate_mm": 2.282713163876247,
+        "nearest_triangle_baseline": 256,
+        "nearest_triangle_candidate": 254,
+        "point_motion_mm": 0.0004110668368379391,
+        "query_key": [
+          15664,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": 0.31396295302655275,
+        "signed_face_plane_distance_baseline_mm": 1.9687489555970124,
+        "signed_face_plane_distance_candidate_mm": 2.282711908623565
+      },
+      {
+        "nearest_distance_baseline_mm": 2.601083497437352,
+        "nearest_distance_candidate_mm": 2.600630383660325,
+        "nearest_triangle_baseline": 91,
+        "nearest_triangle_candidate": 92,
+        "point_motion_mm": 0.002428843565083645,
+        "query_key": [
+          11848,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": -0.3082598691339384,
+        "signed_face_plane_distance_baseline_mm": 2.5788965046814214,
+        "signed_face_plane_distance_candidate_mm": 2.270636635547483
+      },
+      {
+        "nearest_distance_baseline_mm": 1.7673471091302546,
+        "nearest_distance_candidate_mm": 1.767116027933642,
+        "nearest_triangle_baseline": 255,
+        "nearest_triangle_candidate": 256,
+        "point_motion_mm": 0.0004723926628871965,
+        "query_key": [
+          19664,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": 0.3036736010491917,
+        "signed_face_plane_distance_baseline_mm": 1.4623063909484146,
+        "signed_face_plane_distance_candidate_mm": 1.7659799919976065
+      },
+      {
+        "nearest_distance_baseline_mm": 3.0171820361455324,
+        "nearest_distance_candidate_mm": 3.0169443569067464,
+        "nearest_triangle_baseline": 191,
+        "nearest_triangle_candidate": 298,
+        "point_motion_mm": 0.00046861723642100056,
+        "query_key": [
+          17988,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": -0.28754669095353536,
+        "signed_face_plane_distance_baseline_mm": 2.9319021796482523,
+        "signed_face_plane_distance_candidate_mm": 2.6443554886947167
+      },
+      {
+        "nearest_distance_baseline_mm": 3.2216559902854067,
+        "nearest_distance_candidate_mm": 3.2214441649154324,
+        "nearest_triangle_baseline": 191,
+        "nearest_triangle_candidate": 298,
+        "point_motion_mm": 0.00034530848938991033,
+        "query_key": [
+          17989,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": 0.28030994817521265,
+        "signed_face_plane_distance_baseline_mm": 2.84125022963887,
+        "signed_face_plane_distance_candidate_mm": 3.1215601778140827
+      },
+      {
+        "nearest_distance_baseline_mm": 2.938564925356165,
+        "nearest_distance_candidate_mm": 2.938501346669739,
+        "nearest_triangle_baseline": 254,
+        "nearest_triangle_candidate": 256,
+        "point_motion_mm": 0.00014370159448672763,
+        "query_key": [
+          17981,
+          109,
+          114
+        ],
+        "semantics": "selected-triangle-plane diagnostic only; not nearest Euclidean clearance",
+        "signed_face_plane_delta_mm": -0.2793940324019744,
+        "signed_face_plane_distance_baseline_mm": 2.9281685985508528,
+        "signed_face_plane_distance_candidate_mm": 2.6487745661488784
+      }
+    ],
+    "interpretation": "signed distance to the selected triangle plane, not Euclidean nearest clearance; values can jump when nearest_triangle changes",
+    "metric": "signed_face_distance_m",
+    "rows_exceeding_motion_bound_or_triangle_changed": 84
+  },
+  "schema": "numi.human.combined.d071.b109_114.b61_97.static-increment-receipt.v1",
+  "shape": {
+    "12_flip_faces_vs_d071": {
+      "faces_checked": 12,
+      "maximum_aspect_ratio": 1.0016929665279741,
+      "maximum_normal_rotation_degrees": 0.03361108784838109,
+      "minimum_angle_ratio": 0.9994368185539725,
+      "minimum_area_ratio": 0.999177570343717,
+      "minimum_normal_dot": 0.9999998279360593,
+      "thresholds": {
+        "area_ratio_floor": 0.95,
+        "aspect_ratio_ceiling": 1.05,
+        "minimum_angle_ratio_floor": 0.95,
+        "positive_orientation": true
+      },
+      "violating_faces": 0
+    },
+    "affected_face_count": 2465,
+    "affected_faces_vs_d071": {
+      "faces_checked": 2465,
+      "maximum_aspect_ratio": 1.0176924387483313,
+      "maximum_normal_rotation_degrees": 2.7111467865185053,
+      "minimum_angle_ratio": 0.9767041931745021,
+      "minimum_area_ratio": 0.9792912684699698,
+      "minimum_normal_dot": 0.9988806915868528,
+      "thresholds": {
+        "area_ratio_floor": 0.95,
+        "aspect_ratio_ceiling": 1.05,
+        "minimum_angle_ratio_floor": 0.95,
+        "positive_orientation": true
+      },
+      "violating_faces": 0
+    },
+    "anchors_bitwise_unchanged": true,
+    "baseline_candidate_sha256": "d071f04fa64ce602f08dbf7859c45b4518ef2032ac92af0c1100d69dbdd59826",
+    "candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+    "changed_connectivity_faces_included_in_shape_rows": true,
+    "changed_d071_connectivity_face_rows": [
+      12185,
+      12187,
+      19203,
+      19206,
+      19314,
+      19316,
+      34534,
+      34536,
+      34722,
+      34724,
+      35437,
+      35440
+    ],
+    "changed_node_count": 1152,
+    "geometry_admitted": false,
+    "max_displacement_from_d071_mm": 0.06920387392879747,
+    "nonposition_metadata_preserved_bytewise": true,
+    "pass": true,
+    "physical_steps": 0,
+    "status": "SHAPE_CHECK_COMPLETE",
+    "topology_matches_d071": true
+  },
+  "source_a69_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "status": "STATIC_CONSTRUCTION_INCREMENT_CHECKED_ON_D071",
+  "target_inside_depth_vs_d071": {
+    "109-114": {
+      "inside_rows_compared": 24,
+      "minimum_progress_mm": 0.00030039701173224104,
+      "rows": [
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.7105513181074113,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.7082142744636954,
+          "node_row": 20920,
+          "point_motion_mm": 0.002441063091722158,
+          "progress_mm": 0.002337043643715897
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.6367320503001772,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.634374941848095,
+          "node_row": 20960,
+          "point_motion_mm": 0.003964072986959189,
+          "progress_mm": 0.002357108452082257
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.8350462088925957,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.832700960201997,
+          "node_row": 20961,
+          "point_motion_mm": 0.004082292705507332,
+          "progress_mm": 0.0023452486905987113
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.32065148104818647,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.3184236684988608,
+          "node_row": 20964,
+          "point_motion_mm": 0.004285865133485095,
+          "progress_mm": 0.0022278125493256917
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.0621811735559565,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.06076053346377947,
+          "node_row": 20965,
+          "point_motion_mm": 0.005225040699300568,
+          "progress_mm": 0.0014206400921770307
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.1326041792442341,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.1310277343839312,
+          "node_row": 20968,
+          "point_motion_mm": 0.00405599096822104,
+          "progress_mm": 0.0015764448603028947
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.816119018911675,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.813489007198031,
+          "node_row": 20969,
+          "point_motion_mm": 0.0029995411968436556,
+          "progress_mm": 0.002630011713644076
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.20153659594495524,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.199942295552008,
+          "node_row": 20970,
+          "point_motion_mm": 0.002511939795885764,
+          "progress_mm": 0.001594300392947251
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.7710746053917682,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.7687540229964861,
+          "node_row": 20972,
+          "point_motion_mm": 0.00307715292639528,
+          "progress_mm": 0.0023205823952821003
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -1.8275810095400398,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -1.8252358922190444,
+          "node_row": 20979,
+          "point_motion_mm": 0.002586671622028194,
+          "progress_mm": 0.0023451173209954046
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -1.8703534897469334,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -1.8680120434504341,
+          "node_row": 20980,
+          "point_motion_mm": 0.0025404185564875,
+          "progress_mm": 0.002341446296499239
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.21494674363346208,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.21260921590630205,
+          "node_row": 21035,
+          "point_motion_mm": 0.00516133290794837,
+          "progress_mm": 0.0023375277271600325
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.8546576425509276,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.8518103903935552,
+          "node_row": 21038,
+          "point_motion_mm": 0.004844344357074716,
+          "progress_mm": 0.0028472521573723597
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.2307597221212639,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.2284109832299515,
+          "node_row": 21039,
+          "point_motion_mm": 0.005225720594971088,
+          "progress_mm": 0.002348738891312402
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.07914812945425216,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.07776966062901623,
+          "node_row": 21040,
+          "point_motion_mm": 0.00436947174265653,
+          "progress_mm": 0.001378468825235929
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.08899795649705632,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.08732426108892821,
+          "node_row": 21043,
+          "point_motion_mm": 0.004029490003776903,
+          "progress_mm": 0.0016736954081281036
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.7729721839975003,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.7701358397534114,
+          "node_row": 21045,
+          "point_motion_mm": 0.003151164028140617,
+          "progress_mm": 0.002836344244088962
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.4416407008300155,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.4392949891079852,
+          "node_row": 21046,
+          "point_motion_mm": 0.00333280052159888,
+          "progress_mm": 0.002345711722030297
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.1266220786709989,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.12428064512155634,
+          "node_row": 21052,
+          "point_motion_mm": 0.004162228023649818,
+          "progress_mm": 0.002341433549442551
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.6690734609306319,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.6667459137134726,
+          "node_row": 21147,
+          "point_motion_mm": 0.0026694713907174637,
+          "progress_mm": 0.0023275472171593314
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.6676585193921902,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.66532095924272,
+          "node_row": 21150,
+          "point_motion_mm": 0.0027751787549317813,
+          "progress_mm": 0.002337560149470286
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -1.0848850732402355,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -1.081904751193727,
+          "node_row": 21174,
+          "point_motion_mm": 0.004646486955332022,
+          "progress_mm": 0.0029803220465085545
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.11676294371128682,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.11526324464848432,
+          "node_row": 21176,
+          "point_motion_mm": 0.004033785895273359,
+          "progress_mm": 0.0014996990628024925
+        },
+        {
+          "bank": [
+            109,
+            114
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.025848521444987463,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.025548124433255222,
+          "node_row": 21178,
+          "point_motion_mm": 0.0026923309840689437,
+          "progress_mm": 0.00030039701173224104
+        }
+      ],
+      "sum_progress_mm": 0.051050454420014095
+    },
+    "61-97": {
+      "inside_rows_compared": 2,
+      "minimum_progress_mm": 0.0017420408721126046,
+      "rows": [
+        {
+          "bank": [
+            61,
+            97
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.08240242410348192,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.02060856758585894,
+          "node_row": 20993,
+          "point_motion_mm": 0.06920387392879747,
+          "progress_mm": 0.06179385651762298
+        },
+        {
+          "bank": [
+            61,
+            97
+          ],
+          "baseline_classification": "inside",
+          "baseline_signed_nearest_distance_mm": -0.7216801225549325,
+          "candidate_classification": "inside",
+          "candidate_signed_nearest_distance_mm": -0.7199380816828199,
+          "node_row": 21166,
+          "point_motion_mm": 0.016536234238385603,
+          "progress_mm": 0.0017420408721126046
+        }
+      ],
+      "sum_progress_mm": 0.06353589738973558
+    }
+  }
+}

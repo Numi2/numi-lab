@@ -1,0 +1,89 @@
+{
+  "baseline_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "candidate_sha256": "d071f04fa64ce602f08dbf7859c45b4518ef2032ac92af0c1100d69dbdd59826",
+  "raw_before": 983,
+  "raw_after": 977,
+  "parent_before": 651,
+  "parent_after": 651,
+  "bank_changes": [
+    {
+      "bank": [
+        43,
+        16
+      ],
+      "raw_before": 249,
+      "raw_after": 247,
+      "parent_before": 149,
+      "parent_after": 149,
+      "parent_added": 0,
+      "parent_removed": 0
+    },
+    {
+      "bank": [
+        59,
+        95
+      ],
+      "raw_before": 45,
+      "raw_after": 44,
+      "parent_before": 33,
+      "parent_after": 33,
+      "parent_added": 0,
+      "parent_removed": 0
+    },
+    {
+      "bank": [
+        109,
+        114
+      ],
+      "raw_before": 187,
+      "raw_after": 184,
+      "parent_before": 119,
+      "parent_after": 119,
+      "parent_added": 0,
+      "parent_removed": 0
+    }
+  ],
+  "self_before": 0,
+  "self_after": 0,
+  "inside_before": 125,
+  "inside_after": 125,
+  "inside_added": [],
+  "inside_removed": [],
+  "coordinates_bitwise_unchanged": true,
+  "typed_anchors_unchanged": true,
+  "changed_existing_arrays": [
+    "source_O_faces",
+    "refinement_face_parent_barycentric",
+    "area_reference_037_source_O_faces",
+    "same_parent_flip_349_face_rows",
+    "same_parent_flip_349_pair_face_rows",
+    "same_parent_flip_349_parent_rows"
+  ],
+  "added_arrays": [
+    "prior_selector653_candidate_sha256",
+    "prior_selector653_same_parent_flip_349_face_rows",
+    "prior_selector653_same_parent_flip_349_pair_face_rows",
+    "prior_selector653_same_parent_flip_349_parent_rows",
+    "prior_selector653_same_parent_flip_349_semantics",
+    "selector653_ungrouped_proposal_sha256"
+  ],
+  "changed_faces": 12,
+  "changed_face_min_current_normal_cos": 0.999987940162659,
+  "boundary_edge_count": 45,
+  "nonmanifold_edge_count": 0,
+  "full_f32_area_gate": {
+    "faces_checked": 42379,
+    "minimum_current_oriented_ratio": 0.9999999999999994,
+    "minimum_fixed_037_reference_magnitude_ratio": 0.10000963829086307,
+    "bad_current_oriented_face_count": 0,
+    "bad_current_oriented_face_rows_first_64": [],
+    "bad_current_oriented_face_rows_truncated": false,
+    "bad_fixed_037_reference_face_count": 0,
+    "bad_fixed_037_reference_face_rows_first_64": [],
+    "bad_fixed_037_reference_face_rows_truncated": false,
+    "area_floor": 0.1,
+    "pass": true
+  },
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0
+}

@@ -1,0 +1,252 @@
+{
+  "geometry_admitted": false,
+  "inherited_d071_12_face_layer_comparison": {
+    "changed_connectivity_quality_pass": true,
+    "changed_face_rows": [
+      12185,
+      12187,
+      19203,
+      19206,
+      19314,
+      19316,
+      34534,
+      34536,
+      34722,
+      34724,
+      35437,
+      35440
+    ],
+    "note": "Existing invalid cells and unknown mass ancestry mean no physical admission.",
+    "per_layer": {
+      "fat": {
+        "authored_fail": {
+          "added_on_unchanged": [],
+          "after_count": 8530,
+          "before_count": 8530,
+          "new_changed_fail_ids": [],
+          "old_changed_fail_ids": [],
+          "removed_on_unchanged": []
+        },
+        "f32_conditioned_fail": {
+          "added_on_unchanged": [],
+          "after_count": 128,
+          "before_count": 128,
+          "new_changed_fail_ids": [],
+          "old_changed_fail_ids": [],
+          "removed_on_unchanged": []
+        },
+        "f32_nonpositive": {
+          "added_on_unchanged": [],
+          "after_count": 2,
+          "before_count": 2,
+          "new_changed_fail_ids": [],
+          "old_changed_fail_ids": [],
+          "removed_on_unchanged": []
+        }
+      },
+      "skin": {
+        "authored_fail": {
+          "added_on_unchanged": [],
+          "after_count": 7612,
+          "before_count": 7612,
+          "new_changed_fail_ids": [],
+          "old_changed_fail_ids": [],
+          "removed_on_unchanged": []
+        },
+        "f32_conditioned_fail": {
+          "added_on_unchanged": [],
+          "after_count": 52,
+          "before_count": 52,
+          "new_changed_fail_ids": [],
+          "old_changed_fail_ids": [],
+          "removed_on_unchanged": []
+        },
+        "f32_nonpositive": {
+          "added_on_unchanged": [],
+          "after_count": 2,
+          "before_count": 2,
+          "new_changed_fail_ids": [],
+          "old_changed_fail_ids": [],
+          "removed_on_unchanged": []
+        }
+      }
+    }
+  },
+  "inherited_d071_12_face_layer_comparison_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/root-topology-a69-safe-subset-001/layer-identity-comparison.json",
+  "inherited_d071_12_face_layer_comparison_sha256": "a6b8a10d0e6ce07a5c57de39890fa98744bee5417d67a2cd227591b63e049a1a",
+  "layer": {
+    "a69_layer_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-200-stage-001/evidence/layer/guarded-65-quarter/skin-fat-layers-541.npz",
+    "a69_layer_sha256": "78916a0c05eb130e5efb02174342295c2d8d4444eae963c7b36fc43a2a1b17fc",
+    "added_failure_count": 0,
+    "baseline_d071_layer_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/root-topology-a69-safe-subset-001/layer-diagnostic/skin-fat-layers-541.npz",
+    "baseline_d071_layer_sha256": "20a01394251a6b4d95fc1fe02d3822cf7803a16703bc0190a3c4379168a3486b",
+    "candidate_layer_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/skin-fat-layers-541.npz",
+    "candidate_layer_sha256": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57",
+    "candidate_outer_matches_combined_candidate": true,
+    "checked_all_layer_faces": 42379,
+    "d071_changed_connectivity_face_rows": [
+      12185,
+      12187,
+      19203,
+      19206,
+      19314,
+      19316,
+      34534,
+      34536,
+      34722,
+      34724,
+      35437,
+      35440
+    ],
+    "geometry_admitted": false,
+    "no_new_failure_identities": true,
+    "per_layer_failure_identity_delta_vs_d071": {
+      "fat": {
+        "authored_orientation": {
+          "added_count": 0,
+          "added_ids": [],
+          "added_on_12_connectivity_faces": [],
+          "baseline_failure_count": 8530,
+          "baseline_failures_on_12_connectivity_faces": [],
+          "candidate_failure_count": 8530,
+          "candidate_failures_on_12_connectivity_faces": [],
+          "removed_count": 0,
+          "removed_ids": [],
+          "removed_on_12_connectivity_faces": []
+        },
+        "f32_conditioned_tets": {
+          "added_count": 0,
+          "added_ids": [],
+          "added_on_12_connectivity_faces": [],
+          "baseline_failure_count": 128,
+          "baseline_failures_on_12_connectivity_faces": [],
+          "candidate_failure_count": 126,
+          "candidate_failures_on_12_connectivity_faces": [],
+          "removed_count": 2,
+          "removed_ids": [
+            104115,
+            104124
+          ],
+          "removed_on_12_connectivity_faces": []
+        },
+        "f32_nonpositive_tets": {
+          "added_count": 0,
+          "added_ids": [],
+          "added_on_12_connectivity_faces": [],
+          "baseline_failure_count": 2,
+          "baseline_failures_on_12_connectivity_faces": [],
+          "candidate_failure_count": 2,
+          "candidate_failures_on_12_connectivity_faces": [],
+          "removed_count": 0,
+          "removed_ids": [],
+          "removed_on_12_connectivity_faces": []
+        }
+      },
+      "skin": {
+        "authored_orientation": {
+          "added_count": 0,
+          "added_ids": [],
+          "added_on_12_connectivity_faces": [],
+          "baseline_failure_count": 7612,
+          "baseline_failures_on_12_connectivity_faces": [],
+          "candidate_failure_count": 7612,
+          "candidate_failures_on_12_connectivity_faces": [],
+          "removed_count": 0,
+          "removed_ids": [],
+          "removed_on_12_connectivity_faces": []
+        },
+        "f32_conditioned_tets": {
+          "added_count": 0,
+          "added_ids": [],
+          "added_on_12_connectivity_faces": [],
+          "baseline_failure_count": 52,
+          "baseline_failures_on_12_connectivity_faces": [],
+          "candidate_failure_count": 51,
+          "candidate_failures_on_12_connectivity_faces": [],
+          "removed_count": 1,
+          "removed_ids": [
+            104229
+          ],
+          "removed_on_12_connectivity_faces": []
+        },
+        "f32_nonpositive_tets": {
+          "added_count": 0,
+          "added_ids": [],
+          "added_on_12_connectivity_faces": [],
+          "baseline_failure_count": 2,
+          "baseline_failures_on_12_connectivity_faces": [],
+          "candidate_failure_count": 2,
+          "candidate_failures_on_12_connectivity_faces": [],
+          "removed_count": 0,
+          "removed_ids": [],
+          "removed_on_12_connectivity_faces": []
+        }
+      }
+    },
+    "physical_steps": 0,
+    "status": "LAYER_IDENTITY_CHECK_COMPLETE",
+    "topology_preserved_from_d071": true
+  },
+  "physical_steps": 0,
+  "schema": "numi.human.combined.d071.b109_114.b61_97.shape-layer.v1",
+  "shape": {
+    "12_flip_faces_vs_d071": {
+      "faces_checked": 12,
+      "maximum_aspect_ratio": 1.0016929665279741,
+      "maximum_normal_rotation_degrees": 0.03361108784838109,
+      "minimum_angle_ratio": 0.9994368185539725,
+      "minimum_area_ratio": 0.999177570343717,
+      "minimum_normal_dot": 0.9999998279360593,
+      "thresholds": {
+        "area_ratio_floor": 0.95,
+        "aspect_ratio_ceiling": 1.05,
+        "minimum_angle_ratio_floor": 0.95,
+        "positive_orientation": true
+      },
+      "violating_faces": 0
+    },
+    "affected_face_count": 2465,
+    "affected_faces_vs_d071": {
+      "faces_checked": 2465,
+      "maximum_aspect_ratio": 1.0176924387483313,
+      "maximum_normal_rotation_degrees": 2.7111467865185053,
+      "minimum_angle_ratio": 0.9767041931745021,
+      "minimum_area_ratio": 0.9792912684699698,
+      "minimum_normal_dot": 0.9988806915868528,
+      "thresholds": {
+        "area_ratio_floor": 0.95,
+        "aspect_ratio_ceiling": 1.05,
+        "minimum_angle_ratio_floor": 0.95,
+        "positive_orientation": true
+      },
+      "violating_faces": 0
+    },
+    "anchors_bitwise_unchanged": true,
+    "baseline_candidate_sha256": "d071f04fa64ce602f08dbf7859c45b4518ef2032ac92af0c1100d69dbdd59826",
+    "candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+    "changed_connectivity_faces_included_in_shape_rows": true,
+    "changed_d071_connectivity_face_rows": [
+      12185,
+      12187,
+      19203,
+      19206,
+      19314,
+      19316,
+      34534,
+      34536,
+      34722,
+      34724,
+      35437,
+      35440
+    ],
+    "changed_node_count": 1152,
+    "geometry_admitted": false,
+    "max_displacement_from_d071_mm": 0.06920387392879747,
+    "nonposition_metadata_preserved_bytewise": true,
+    "pass": true,
+    "physical_steps": 0,
+    "status": "SHAPE_CHECK_COMPLETE",
+    "topology_matches_d071": true
+  },
+  "status": "SHAPE_AND_LAYER_CHECKED"
+}

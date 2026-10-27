@@ -1,0 +1,4067 @@
+{
+  "direct_edge_connected_witness_components": [
+    {
+      "component": 0,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": true,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 5
+          },
+          "boundary_edge_count": 5,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            5
+          ],
+          "boundary_node_count": 5,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 19,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 0,
+            "exact_crossing_pairs": [],
+            "exact_crossing_pairs_truncated": false,
+            "pass": true
+          },
+          "immediate_parent_union_count": 3,
+          "nonclear_boundary_nodes": [],
+          "patch_face_count": 3,
+          "patch_face_rows": [
+            19114,
+            19126,
+            19133
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 3,
+            "max_aspect": 9.457205139065916,
+            "min_angle_deg": 1.9894171347684153,
+            "min_area_m2": 2.5534240772752607e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": true,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 10
+          },
+          "boundary_edge_count": 10,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            10
+          ],
+          "boundary_node_count": 10,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 38,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 0,
+            "exact_crossing_pairs": [],
+            "exact_crossing_pairs_truncated": false,
+            "pass": true
+          },
+          "immediate_parent_union_count": 8,
+          "nonclear_boundary_nodes": [],
+          "patch_face_count": 8,
+          "patch_face_rows": [
+            19113,
+            19114,
+            19115,
+            19126,
+            19129,
+            19132,
+            19133,
+            19134
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 8,
+            "max_aspect": 9.457205139065916,
+            "min_angle_deg": 1.9894171347684153,
+            "min_area_m2": 2.5534240772752607e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": true,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 15
+          },
+          "boundary_edge_count": 15,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            15
+          ],
+          "boundary_node_count": 15,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 63,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 0,
+            "exact_crossing_pairs": [],
+            "exact_crossing_pairs_truncated": false,
+            "pass": true
+          },
+          "immediate_parent_union_count": 17,
+          "nonclear_boundary_nodes": [],
+          "patch_face_count": 17,
+          "patch_face_rows": [
+            19112,
+            19113,
+            19114,
+            19115,
+            19116,
+            19122,
+            19125,
+            19126,
+            19129,
+            19130,
+            19131,
+            19132,
+            19133,
+            19134,
+            19137,
+            19141,
+            19164
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 17,
+            "max_aspect": 31.011841886245737,
+            "min_angle_deg": 0.7856959574068889,
+            "min_area_m2": 2.5534240772752607e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        }
+      ],
+      "new_bone_witness_faces": [],
+      "seed_face_count": 3,
+      "seed_witness_face_rows": [
+        19114,
+        19126,
+        19133
+      ],
+      "self_witness_faces": [
+        19114,
+        19126,
+        19133
+      ]
+    },
+    {
+      "component": 1,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 5
+          },
+          "boundary_edge_count": 5,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            5
+          ],
+          "boundary_node_count": 5,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 28,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20903,
+                  21093
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20906,
+                  21092
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 134,
+                "edge": [
+                  21092,
+                  21202
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 134,
+                "edge": [
+                  21093,
+                  21202
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 3,
+          "nonclear_boundary_nodes": [
+            21092,
+            21093
+          ],
+          "patch_face_count": 5,
+          "patch_face_rows": [
+            19197,
+            19200,
+            19447,
+            19451,
+            19453
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 5,
+            "max_aspect": 3.5564362247218972,
+            "min_angle_deg": 6.526846997146481,
+            "min_area_m2": 4.6693196096901565e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 8
+          },
+          "boundary_edge_count": 8,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            8
+          ],
+          "boundary_node_count": 8,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 35,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 133,
+                "edge": [
+                  20157,
+                  20906
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20157,
+                  20906
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 134,
+                "edge": [
+                  20185,
+                  21093
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20903,
+                  20907
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 3,
+          "nonclear_boundary_nodes": [
+            20907,
+            21093
+          ],
+          "patch_face_count": 10,
+          "patch_face_rows": [
+            19197,
+            19198,
+            19199,
+            19200,
+            19447,
+            19449,
+            19450,
+            19451,
+            19452,
+            19453
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 10,
+            "max_aspect": 3.5573161662939814,
+            "min_angle_deg": 6.525415404946541,
+            "min_area_m2": 4.668099487253805e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 8
+          },
+          "boundary_edge_count": 8,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            8
+          ],
+          "boundary_node_count": 8,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 45,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  9721,
+                  20907
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 133,
+                "edge": [
+                  20157,
+                  21095
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 134,
+                "edge": [
+                  20185,
+                  20907
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20906,
+                  21095
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 5,
+          "nonclear_boundary_nodes": [
+            20907,
+            21095
+          ],
+          "patch_face_count": 16,
+          "patch_face_rows": [
+            19195,
+            19196,
+            19197,
+            19198,
+            19199,
+            19200,
+            19204,
+            19205,
+            19446,
+            19447,
+            19448,
+            19449,
+            19450,
+            19451,
+            19452,
+            19453
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 16,
+            "max_aspect": 30.431989758517908,
+            "min_angle_deg": 0.6127101159835727,
+            "min_area_m2": 3.862838999832865e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        }
+      ],
+      "new_bone_witness_faces": [
+        19197,
+        19200,
+        19447,
+        19451,
+        19453
+      ],
+      "seed_face_count": 5,
+      "seed_witness_face_rows": [
+        19197,
+        19200,
+        19447,
+        19451,
+        19453
+      ],
+      "self_witness_faces": []
+    },
+    {
+      "component": 2,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 10
+          },
+          "boundary_edge_count": 10,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            10
+          ],
+          "boundary_node_count": 10,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 49,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 6,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 135,
+                "edge": [
+                  17069,
+                  21016
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20906,
+                  21095
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 140,
+                "edge": [
+                  20953,
+                  21094
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 134,
+                "edge": [
+                  21016,
+                  21018
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 134,
+                "edge": [
+                  21017,
+                  21094
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 134,
+                "edge": [
+                  21018,
+                  21095
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 4,
+          "nonclear_boundary_nodes": [
+            21016,
+            21094,
+            21095
+          ],
+          "patch_face_count": 8,
+          "patch_face_rows": [
+            19203,
+            19206,
+            19214,
+            19215,
+            19220,
+            19221,
+            19222,
+            19239
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 8,
+            "max_aspect": 4.888152872695208,
+            "min_angle_deg": 4.262915795040389,
+            "min_area_m2": 1.9278288627341315e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 13
+          },
+          "boundary_edge_count": 13,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            13
+          ],
+          "boundary_node_count": 13,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 55,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 6,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 133,
+                "edge": [
+                  19496,
+                  21094
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 133,
+                "edge": [
+                  20157,
+                  20906
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20157,
+                  20906
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 133,
+                "edge": [
+                  20953,
+                  20955
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 140,
+                "edge": [
+                  20953,
+                  20955
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 133,
+                "edge": [
+                  20955,
+                  21094
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 7,
+          "nonclear_boundary_nodes": [
+            21094
+          ],
+          "patch_face_count": 17,
+          "patch_face_rows": [
+            19201,
+            19203,
+            19204,
+            19205,
+            19206,
+            19212,
+            19213,
+            19214,
+            19215,
+            19216,
+            19219,
+            19220,
+            19221,
+            19222,
+            19236,
+            19239,
+            19240
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 17,
+            "max_aspect": 13.214988660667,
+            "min_angle_deg": 1.7320476061384988,
+            "min_area_m2": 1.3673607261780195e-09
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 14
+          },
+          "boundary_edge_count": 14,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            14
+          ],
+          "boundary_node_count": 14,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 80,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 2,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 133,
+                "edge": [
+                  20157,
+                  21092
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20906,
+                  21092
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 10,
+          "nonclear_boundary_nodes": [
+            21092
+          ],
+          "patch_face_count": 28,
+          "patch_face_rows": [
+            19198,
+            19199,
+            19201,
+            19202,
+            19203,
+            19204,
+            19205,
+            19206,
+            19207,
+            19208,
+            19212,
+            19213,
+            19214,
+            19215,
+            19216,
+            19217,
+            19218,
+            19219,
+            19220,
+            19221,
+            19222,
+            19234,
+            19235,
+            19236,
+            19237,
+            19238,
+            19239,
+            19240
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 28,
+            "max_aspect": 38.205457234137924,
+            "min_angle_deg": 0.862395524815154,
+            "min_area_m2": 1.3673607261780195e-09
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        }
+      ],
+      "new_bone_witness_faces": [
+        19203,
+        19206,
+        19214,
+        19215,
+        19220,
+        19221,
+        19222,
+        19239
+      ],
+      "seed_face_count": 8,
+      "seed_witness_face_rows": [
+        19203,
+        19206,
+        19214,
+        19215,
+        19220,
+        19221,
+        19222,
+        19239
+      ],
+      "self_witness_faces": []
+    },
+    {
+      "component": 3,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 8
+          },
+          "boundary_edge_count": 8,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            8
+          ],
+          "boundary_node_count": 8,
+          "detail_union_count": 2,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 46,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 145,
+                "edge": [
+                  9106,
+                  20900
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  9106,
+                  20901
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 135,
+                "edge": [
+                  20171,
+                  20900
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  20895,
+                  21061
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 2,
+          "nonclear_boundary_nodes": [
+            20895,
+            20900,
+            20901
+          ],
+          "patch_face_count": 6,
+          "patch_face_rows": [
+            19309,
+            19310,
+            19311,
+            19312,
+            19817,
+            19818
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 6,
+            "max_aspect": 30.289342412738463,
+            "min_angle_deg": 0.5513614694124227,
+            "min_area_m2": 2.350019157133735e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 2
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 11
+          },
+          "boundary_edge_count": 11,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            11
+          ],
+          "boundary_node_count": 11,
+          "detail_union_count": 2,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 57,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  20897,
+                  20901
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20898,
+                  20900
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 133,
+                "edge": [
+                  20900,
+                  21070
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  20901,
+                  21061
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 6,
+          "nonclear_boundary_nodes": [
+            20900,
+            20901
+          ],
+          "patch_face_count": 13,
+          "patch_face_rows": [
+            19307,
+            19308,
+            19309,
+            19310,
+            19311,
+            19312,
+            19313,
+            19315,
+            19797,
+            19813,
+            19817,
+            19818,
+            19819
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 13,
+            "max_aspect": 32.04650278892826,
+            "min_angle_deg": 0.5174711842051354,
+            "min_area_m2": 2.350019157133735e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 2
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 15
+          },
+          "boundary_edge_count": 15,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            15
+          ],
+          "boundary_node_count": 15,
+          "detail_union_count": 2,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 87,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 8,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  9106,
+                  20902
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 129,
+                "edge": [
+                  20215,
+                  20901
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  20897,
+                  20902
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  20897,
+                  21068
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 133,
+                "edge": [
+                  20898,
+                  21070
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20898,
+                  21070
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  21020,
+                  21070
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 134,
+                "edge": [
+                  21020,
+                  21070
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 12,
+          "nonclear_boundary_nodes": [
+            20901,
+            20902,
+            21068
+          ],
+          "patch_face_count": 23,
+          "patch_face_rows": [
+            19307,
+            19308,
+            19309,
+            19310,
+            19311,
+            19312,
+            19313,
+            19315,
+            19316,
+            19319,
+            19323,
+            19342,
+            19791,
+            19792,
+            19796,
+            19797,
+            19813,
+            19815,
+            19816,
+            19817,
+            19818,
+            19819,
+            19857
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 23,
+            "max_aspect": 32.04650278892826,
+            "min_angle_deg": 0.5174711842051354,
+            "min_area_m2": 2.350019157133735e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 2
+        }
+      ],
+      "new_bone_witness_faces": [
+        19309,
+        19310,
+        19311,
+        19312,
+        19817,
+        19818
+      ],
+      "seed_face_count": 6,
+      "seed_witness_face_rows": [
+        19309,
+        19310,
+        19311,
+        19312,
+        19817,
+        19818
+      ],
+      "self_witness_faces": []
+    },
+    {
+      "component": 4,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 4
+          },
+          "boundary_edge_count": 4,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            4
+          ],
+          "boundary_node_count": 4,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 29,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 140,
+                "edge": [
+                  18492,
+                  21019
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  21019,
+                  21020
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  21020,
+                  21070
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 134,
+                "edge": [
+                  21020,
+                  21070
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 1,
+          "nonclear_boundary_nodes": [
+            21019
+          ],
+          "patch_face_count": 2,
+          "patch_face_rows": [
+            19317,
+            19320
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 2,
+            "max_aspect": 1.7657055543485034,
+            "min_angle_deg": 17.91415318483153,
+            "min_area_m2": 5.382593281235739e-07
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 8
+          },
+          "boundary_edge_count": 8,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            8
+          ],
+          "boundary_node_count": 8,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 43,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  17073,
+                  21019
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 140,
+                "edge": [
+                  18492,
+                  21071
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 133,
+                "edge": [
+                  20898,
+                  21070
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20898,
+                  21070
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 3,
+          "nonclear_boundary_nodes": [
+            21019,
+            21071
+          ],
+          "patch_face_count": 6,
+          "patch_face_rows": [
+            19314,
+            19317,
+            19318,
+            19319,
+            19320,
+            19337
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 6,
+            "max_aspect": 2.910317261053982,
+            "min_angle_deg": 6.4174548419935125,
+            "min_area_m2": 3.2656618103965836e-07
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 8
+          },
+          "boundary_edge_count": 8,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            8
+          ],
+          "boundary_node_count": 8,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 40,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 135,
+                "edge": [
+                  20171,
+                  20900
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20898,
+                  20900
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  21021,
+                  21071
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  21065,
+                  21071
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 6,
+          "nonclear_boundary_nodes": [
+            20900,
+            21071
+          ],
+          "patch_face_count": 14,
+          "patch_face_rows": [
+            19314,
+            19315,
+            19316,
+            19317,
+            19318,
+            19319,
+            19320,
+            19321,
+            19322,
+            19325,
+            19336,
+            19337,
+            19339,
+            19341
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 14,
+            "max_aspect": 10.564138259738863,
+            "min_angle_deg": 3.0127882343265964,
+            "min_area_m2": 4.353285530719561e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        }
+      ],
+      "new_bone_witness_faces": [
+        19317,
+        19320
+      ],
+      "seed_face_count": 2,
+      "seed_witness_face_rows": [
+        19317,
+        19320
+      ],
+      "self_witness_faces": []
+    },
+    {
+      "component": 5,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 4
+          },
+          "boundary_edge_count": 4,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            4
+          ],
+          "boundary_node_count": 4,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 17,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 2,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  19703,
+                  21190
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  21186,
+                  21188
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 2,
+          "nonclear_boundary_nodes": [
+            21188,
+            21190
+          ],
+          "patch_face_count": 2,
+          "patch_face_rows": [
+            19372,
+            19390
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 2,
+            "max_aspect": 4.09296983728298,
+            "min_angle_deg": 4.330064724673268,
+            "min_area_m2": 1.472914054103888e-07
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 8
+          },
+          "boundary_edge_count": 8,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            8
+          ],
+          "boundary_node_count": 8,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 43,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  21186,
+                  21187
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  21188,
+                  21203
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 146,
+                "edge": [
+                  21189,
+                  21190
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  21190,
+                  21203
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 4,
+          "nonclear_boundary_nodes": [
+            21187,
+            21188,
+            21190
+          ],
+          "patch_face_count": 6,
+          "patch_face_rows": [
+            19372,
+            19374,
+            19376,
+            19381,
+            19390,
+            19392
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 6,
+            "max_aspect": 7.483031395744572,
+            "min_angle_deg": 2.3372147177089935,
+            "min_area_m2": 1.0228682540892467e-07
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 10
+          },
+          "boundary_edge_count": 10,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            10
+          ],
+          "boundary_node_count": 10,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 50,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  19702,
+                  21187
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20179,
+                  21187
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20184,
+                  21190
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 146,
+                "edge": [
+                  21189,
+                  21204
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 6,
+          "nonclear_boundary_nodes": [
+            21187,
+            21190,
+            21204
+          ],
+          "patch_face_count": 14,
+          "patch_face_rows": [
+            19371,
+            19372,
+            19373,
+            19374,
+            19375,
+            19376,
+            19381,
+            19384,
+            19389,
+            19390,
+            19391,
+            19392,
+            19409,
+            19425
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 14,
+            "max_aspect": 10.89285478267109,
+            "min_angle_deg": 2.3372147177089935,
+            "min_area_m2": 8.279390022266908e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        }
+      ],
+      "new_bone_witness_faces": [
+        19372,
+        19390
+      ],
+      "seed_face_count": 2,
+      "seed_witness_face_rows": [
+        19372,
+        19390
+      ],
+      "self_witness_faces": []
+    },
+    {
+      "component": 6,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 9
+          },
+          "boundary_edge_count": 9,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            9
+          ],
+          "boundary_node_count": 9,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 35,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 2,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 146,
+                "edge": [
+                  20182,
+                  21205
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 146,
+                "edge": [
+                  21189,
+                  21204
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 7,
+          "nonclear_boundary_nodes": [
+            20957,
+            21204,
+            21205
+          ],
+          "patch_face_count": 7,
+          "patch_face_rows": [
+            19383,
+            19402,
+            19408,
+            19423,
+            19426,
+            19427,
+            19430
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 7,
+            "max_aspect": 15.00496358558182,
+            "min_angle_deg": 1.1116433392965475,
+            "min_area_m2": 3.4570344997152294e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 15
+          },
+          "boundary_edge_count": 15,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            15
+          ],
+          "boundary_node_count": 15,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 61,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 6,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20957,
+                  20958
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20957,
+                  20959
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20958,
+                  21204
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20959,
+                  21205
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 138,
+                "edge": [
+                  21023,
+                  21205
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 146,
+                "edge": [
+                  21189,
+                  21190
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 11,
+          "nonclear_boundary_nodes": [
+            20957,
+            21190,
+            21204,
+            21205
+          ],
+          "patch_face_count": 15,
+          "patch_face_rows": [
+            19383,
+            19384,
+            19402,
+            19403,
+            19408,
+            19412,
+            19423,
+            19424,
+            19425,
+            19426,
+            19427,
+            19430,
+            19432,
+            19439,
+            19479
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 15,
+            "max_aspect": 15.005127498670944,
+            "min_angle_deg": 1.1116304915548145,
+            "min_area_m2": 3.4570344997152294e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 18
+          },
+          "boundary_edge_count": 18,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            18
+          ],
+          "boundary_node_count": 18,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 64,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  19703,
+                  21190
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20184,
+                  21190
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20189,
+                  21205
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 138,
+                "edge": [
+                  21023,
+                  21025
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 17,
+          "nonclear_boundary_nodes": [
+            21025,
+            21190,
+            21205
+          ],
+          "patch_face_count": 28,
+          "patch_face_rows": [
+            19381,
+            19382,
+            19383,
+            19384,
+            19402,
+            19403,
+            19406,
+            19408,
+            19409,
+            19410,
+            19412,
+            19421,
+            19422,
+            19423,
+            19424,
+            19425,
+            19426,
+            19427,
+            19429,
+            19430,
+            19431,
+            19432,
+            19433,
+            19439,
+            19471,
+            19474,
+            19476,
+            19479
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 28,
+            "max_aspect": 39.68233046202677,
+            "min_angle_deg": 0.4636219053611939,
+            "min_area_m2": 1.1582185580925849e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        }
+      ],
+      "new_bone_witness_faces": [
+        19383,
+        19423,
+        19430
+      ],
+      "seed_face_count": 7,
+      "seed_witness_face_rows": [
+        19383,
+        19402,
+        19408,
+        19423,
+        19426,
+        19427,
+        19430
+      ],
+      "self_witness_faces": [
+        19383,
+        19402,
+        19408,
+        19426,
+        19427
+      ]
+    },
+    {
+      "component": 7,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 3
+          },
+          "boundary_edge_count": 3,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            3
+          ],
+          "boundary_node_count": 3,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 14,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 2,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 138,
+                "edge": [
+                  21023,
+                  21025
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 138,
+                "edge": [
+                  21023,
+                  21205
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 1,
+          "nonclear_boundary_nodes": [
+            21025,
+            21205
+          ],
+          "patch_face_count": 1,
+          "patch_face_rows": [
+            19406
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 1,
+            "max_aspect": 4.972623382219642,
+            "min_angle_deg": 4.6020177269020435,
+            "min_area_m2": 1.6265365366263955e-07
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 6
+          },
+          "boundary_edge_count": 6,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            6
+          ],
+          "boundary_node_count": 6,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 29,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 135,
+                "edge": [
+                  17076,
+                  21025
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 146,
+                "edge": [
+                  20182,
+                  21205
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20189,
+                  21025
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20189,
+                  21205
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 1,
+          "nonclear_boundary_nodes": [
+            21025,
+            21205
+          ],
+          "patch_face_count": 4,
+          "patch_face_rows": [
+            19403,
+            19404,
+            19405,
+            19406
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 4,
+            "max_aspect": 4.972802908589052,
+            "min_angle_deg": 4.601788595440018,
+            "min_area_m2": 1.626477815980414e-07
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 10
+          },
+          "boundary_edge_count": 10,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            10
+          ],
+          "boundary_node_count": 10,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 40,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 135,
+                "edge": [
+                  17076,
+                  21022
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 146,
+                "edge": [
+                  20182,
+                  20957
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  20959,
+                  21205
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  21025,
+                  21097
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 4,
+          "nonclear_boundary_nodes": [
+            20957,
+            21022,
+            21025,
+            21205
+          ],
+          "patch_face_count": 10,
+          "patch_face_rows": [
+            19403,
+            19404,
+            19405,
+            19406,
+            19410,
+            19411,
+            19417,
+            19419,
+            19422,
+            19423
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 10,
+            "max_aspect": 51.441826067589616,
+            "min_angle_deg": 0.3216027581067492,
+            "min_area_m2": 1.573053500942115e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        }
+      ],
+      "new_bone_witness_faces": [
+        19406
+      ],
+      "seed_face_count": 1,
+      "seed_witness_face_rows": [
+        19406
+      ],
+      "self_witness_faces": []
+    },
+    {
+      "component": 8,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 9
+          },
+          "boundary_edge_count": 9,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            9
+          ],
+          "boundary_node_count": 9,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 47,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  20217,
+                  21064
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 145,
+                "edge": [
+                  20896,
+                  21062
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 145,
+                "edge": [
+                  20926,
+                  21063
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  21062,
+                  21072
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 4,
+          "nonclear_boundary_nodes": [
+            20924,
+            20926,
+            21062,
+            21064
+          ],
+          "patch_face_count": 7,
+          "patch_face_rows": [
+            19646,
+            19649,
+            19841,
+            19846,
+            19849,
+            19850,
+            19851
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 7,
+            "max_aspect": 15.17288116923435,
+            "min_angle_deg": 1.2679756747108744,
+            "min_area_m2": 6.734681174070913e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 13
+          },
+          "boundary_edge_count": 13,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            13
+          ],
+          "boundary_node_count": 13,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 73,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 6,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  14282,
+                  20924
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  14282,
+                  20926
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  18496,
+                  21062
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  20196,
+                  20926
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 145,
+                "edge": [
+                  20896,
+                  20899
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  20924,
+                  20927
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 6,
+          "nonclear_boundary_nodes": [
+            20899,
+            20924,
+            20926,
+            21062
+          ],
+          "patch_face_count": 15,
+          "patch_face_rows": [
+            19644,
+            19646,
+            19647,
+            19648,
+            19649,
+            19841,
+            19842,
+            19843,
+            19846,
+            19847,
+            19848,
+            19849,
+            19850,
+            19851,
+            19852
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 15,
+            "max_aspect": 19.15032426724963,
+            "min_angle_deg": 0.8968990507222651,
+            "min_area_m2": 1.8961069278080307e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 12
+          },
+          "boundary_edge_count": 12,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            12
+          ],
+          "boundary_node_count": 12,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 58,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  9106,
+                  20899
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  18496,
+                  20899
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  20196,
+                  21159
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  20925,
+                  20926
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 9,
+          "nonclear_boundary_nodes": [
+            20899,
+            20926,
+            21159
+          ],
+          "patch_face_count": 24,
+          "patch_face_rows": [
+            19644,
+            19645,
+            19646,
+            19647,
+            19648,
+            19649,
+            19650,
+            19652,
+            19840,
+            19841,
+            19842,
+            19843,
+            19844,
+            19845,
+            19846,
+            19847,
+            19848,
+            19849,
+            19850,
+            19851,
+            19852,
+            19853,
+            19854,
+            19856
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 24,
+            "max_aspect": 19.15032426724963,
+            "min_angle_deg": 0.8968990507222651,
+            "min_area_m2": 1.8957052549739867e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        }
+      ],
+      "new_bone_witness_faces": [
+        19646,
+        19649,
+        19841,
+        19846,
+        19849,
+        19850,
+        19851
+      ],
+      "seed_face_count": 7,
+      "seed_witness_face_rows": [
+        19646,
+        19649,
+        19841,
+        19846,
+        19849,
+        19850,
+        19851
+      ],
+      "self_witness_faces": []
+    },
+    {
+      "component": 9,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 8
+          },
+          "boundary_edge_count": 8,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            8
+          ],
+          "boundary_node_count": 8,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 28,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 2,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  18897,
+                  21026
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  20925,
+                  21159
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 5,
+          "nonclear_boundary_nodes": [
+            21026,
+            21027,
+            21159
+          ],
+          "patch_face_count": 8,
+          "patch_face_rows": [
+            19651,
+            19654,
+            19665,
+            19666,
+            19667,
+            19669,
+            19670,
+            19671
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 8,
+            "max_aspect": 11.30881375411864,
+            "min_angle_deg": 1.5156305040187736,
+            "min_area_m2": 3.8118234107564634e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 11
+          },
+          "boundary_edge_count": 11,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            11
+          ],
+          "boundary_node_count": 11,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 59,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 6,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  14282,
+                  20926
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  17093,
+                  21026
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  17093,
+                  21027
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 138,
+                "edge": [
+                  21026,
+                  21121
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  21027,
+                  21029
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  21029,
+                  21159
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 7,
+          "nonclear_boundary_nodes": [
+            20926,
+            21026,
+            21027,
+            21159
+          ],
+          "patch_face_count": 15,
+          "patch_face_rows": [
+            19650,
+            19651,
+            19653,
+            19654,
+            19657,
+            19661,
+            19664,
+            19665,
+            19666,
+            19667,
+            19668,
+            19669,
+            19670,
+            19671,
+            19683
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 15,
+            "max_aspect": 13.565926180139463,
+            "min_angle_deg": 1.2395259891084554,
+            "min_area_m2": 3.8118234107564634e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 11
+          },
+          "boundary_edge_count": 11,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            11
+          ],
+          "boundary_node_count": 11,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 56,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  14282,
+                  20924
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  17093,
+                  21030
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  20196,
+                  20926
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 138,
+                "edge": [
+                  21030,
+                  21121
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 12,
+          "nonclear_boundary_nodes": [
+            20924,
+            20926,
+            21030
+          ],
+          "patch_face_count": 25,
+          "patch_face_rows": [
+            19647,
+            19650,
+            19651,
+            19652,
+            19653,
+            19654,
+            19655,
+            19656,
+            19657,
+            19661,
+            19662,
+            19663,
+            19664,
+            19665,
+            19666,
+            19667,
+            19668,
+            19669,
+            19670,
+            19671,
+            19682,
+            19683,
+            19685,
+            19687,
+            19836
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 25,
+            "max_aspect": 20.343107693602093,
+            "min_angle_deg": 0.9258420301236648,
+            "min_area_m2": 3.8118234107564634e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        }
+      ],
+      "new_bone_witness_faces": [
+        19651,
+        19654,
+        19665,
+        19666,
+        19667
+      ],
+      "seed_face_count": 8,
+      "seed_witness_face_rows": [
+        19651,
+        19654,
+        19665,
+        19666,
+        19667,
+        19669,
+        19670,
+        19671
+      ],
+      "self_witness_faces": [
+        19651,
+        19654,
+        19665,
+        19669,
+        19670,
+        19671
+      ]
+    },
+    {
+      "component": 10,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 5
+          },
+          "boundary_edge_count": 5,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            5
+          ],
+          "boundary_node_count": 5,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 37,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 2,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  20988,
+                  21191
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  21028,
+                  21191
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 3,
+          "nonclear_boundary_nodes": [
+            21191
+          ],
+          "patch_face_count": 3,
+          "patch_face_rows": [
+            19675,
+            19678,
+            19692
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 3,
+            "max_aspect": 7.507751578693198,
+            "min_angle_deg": 2.4302052544414128,
+            "min_area_m2": 2.536332200298912e-07
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 7
+          },
+          "boundary_edge_count": 7,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            7
+          ],
+          "boundary_node_count": 7,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 36,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 2,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  20988,
+                  20990
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  21028,
+                  21030
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 4,
+          "nonclear_boundary_nodes": [
+            20990,
+            21030,
+            21191
+          ],
+          "patch_face_count": 7,
+          "patch_face_rows": [
+            19675,
+            19677,
+            19678,
+            19681,
+            19691,
+            19692,
+            19693
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 7,
+            "max_aspect": 7.507751578693198,
+            "min_angle_deg": 2.4302052544414128,
+            "min_area_m2": 2.5355485984501107e-07
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 7
+          },
+          "boundary_edge_count": 7,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            7
+          ],
+          "boundary_node_count": 7,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 37,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 145,
+                "edge": [
+                  15972,
+                  20990
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  17093,
+                  21030
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 138,
+                "edge": [
+                  20198,
+                  20990
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 138,
+                "edge": [
+                  20198,
+                  21030
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 5,
+          "nonclear_boundary_nodes": [
+            20990,
+            21030
+          ],
+          "patch_face_count": 13,
+          "patch_face_rows": [
+            19674,
+            19675,
+            19676,
+            19677,
+            19678,
+            19679,
+            19680,
+            19681,
+            19690,
+            19691,
+            19692,
+            19693,
+            19694
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 13,
+            "max_aspect": 7.507751578693198,
+            "min_angle_deg": 2.4302052544414128,
+            "min_area_m2": 2.5355485984501107e-07
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        }
+      ],
+      "new_bone_witness_faces": [
+        19675,
+        19678
+      ],
+      "seed_face_count": 3,
+      "seed_witness_face_rows": [
+        19675,
+        19678,
+        19692
+      ],
+      "self_witness_faces": [
+        19675,
+        19678,
+        19692
+      ]
+    },
+    {
+      "component": 11,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 4
+          },
+          "boundary_edge_count": 4,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            4
+          ],
+          "boundary_node_count": 4,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 16,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 2,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 138,
+                "edge": [
+                  20198,
+                  20990
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 138,
+                "edge": [
+                  20198,
+                  21030
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 2,
+          "nonclear_boundary_nodes": [
+            20990,
+            21030,
+            21191
+          ],
+          "patch_face_count": 2,
+          "patch_face_rows": [
+            19676,
+            19680
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 2,
+            "max_aspect": 1.502008557758314,
+            "min_angle_deg": 12.130514828434128,
+            "min_area_m2": 2.71749377968035e-07
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 8
+          },
+          "boundary_edge_count": 8,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            8
+          ],
+          "boundary_node_count": 8,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 55,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 6,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  20988,
+                  20990
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  20988,
+                  21191
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  20990,
+                  21192
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  21028,
+                  21030
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 144,
+                "edge": [
+                  21028,
+                  21191
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 138,
+                "edge": [
+                  21030,
+                  21121
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 4,
+          "nonclear_boundary_nodes": [
+            20990,
+            21030,
+            21191
+          ],
+          "patch_face_count": 6,
+          "patch_face_rows": [
+            19676,
+            19677,
+            19680,
+            19681,
+            19684,
+            19749
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 6,
+            "max_aspect": 2.2616634917237137,
+            "min_angle_deg": 8.96327047276671,
+            "min_area_m2": 2.689008713590285e-07
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 14
+          },
+          "boundary_edge_count": 14,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            14
+          ],
+          "boundary_node_count": 14,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 91,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 145,
+                "edge": [
+                  15972,
+                  20990
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 142,
+                "edge": [
+                  17093,
+                  21030
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 147,
+                "edge": [
+                  20989,
+                  21192
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 138,
+                "edge": [
+                  21026,
+                  21121
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 6,
+          "nonclear_boundary_nodes": [
+            20989,
+            20990,
+            21026,
+            21030
+          ],
+          "patch_face_count": 14,
+          "patch_face_rows": [
+            19674,
+            19675,
+            19676,
+            19677,
+            19678,
+            19679,
+            19680,
+            19681,
+            19684,
+            19685,
+            19686,
+            19742,
+            19749,
+            19750
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 14,
+            "max_aspect": 29.403262243647234,
+            "min_angle_deg": 0.7336465659229136,
+            "min_area_m2": 1.3805319452270667e-07
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        }
+      ],
+      "new_bone_witness_faces": [
+        19676,
+        19680
+      ],
+      "seed_face_count": 2,
+      "seed_witness_face_rows": [
+        19676,
+        19680
+      ],
+      "self_witness_faces": []
+    },
+    {
+      "component": 12,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 4
+          },
+          "boundary_edge_count": 4,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            4
+          ],
+          "boundary_node_count": 4,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 24,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 2,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  9106,
+                  20899
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  20897,
+                  20902
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 2,
+          "nonclear_boundary_nodes": [
+            20899,
+            20902
+          ],
+          "patch_face_count": 2,
+          "patch_face_rows": [
+            19857,
+            19871
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 2,
+            "max_aspect": 88.84651237605524,
+            "min_angle_deg": 0.18751748935208054,
+            "min_area_m2": 1.335917493032515e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 8
+          },
+          "boundary_edge_count": 8,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            8
+          ],
+          "boundary_node_count": 8,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 65,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 6,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  9106,
+                  20901
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 145,
+                "edge": [
+                  20896,
+                  20899
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  20897,
+                  20901
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  20897,
+                  21069
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  20899,
+                  21073
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  20902,
+                  21073
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 4,
+          "nonclear_boundary_nodes": [
+            20899,
+            20901,
+            20902,
+            21069
+          ],
+          "patch_face_count": 6,
+          "patch_face_rows": [
+            19813,
+            19844,
+            19857,
+            19860,
+            19871,
+            19873
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 6,
+            "max_aspect": 88.84651237605524,
+            "min_angle_deg": 0.18751748935208054,
+            "min_area_m2": 1.335917493032515e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 14
+          },
+          "boundary_edge_count": 14,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            14
+          ],
+          "boundary_node_count": 14,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 68,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 6,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 145,
+                "edge": [
+                  9106,
+                  20895
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  18491,
+                  21069
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  18496,
+                  20899
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  20218,
+                  21069
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 145,
+                "edge": [
+                  20896,
+                  21062
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  20897,
+                  21068
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 6,
+          "nonclear_boundary_nodes": [
+            20895,
+            20899,
+            20901,
+            21062,
+            21068,
+            21069
+          ],
+          "patch_face_count": 14,
+          "patch_face_rows": [
+            19643,
+            19813,
+            19815,
+            19817,
+            19844,
+            19847,
+            19857,
+            19858,
+            19859,
+            19860,
+            19870,
+            19871,
+            19872,
+            19873
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 14,
+            "max_aspect": 89.06805422152893,
+            "min_angle_deg": 0.18705001933570362,
+            "min_area_m2": 1.3326039976108993e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        }
+      ],
+      "new_bone_witness_faces": [
+        19857,
+        19871
+      ],
+      "seed_face_count": 2,
+      "seed_witness_face_rows": [
+        19857,
+        19871
+      ],
+      "self_witness_faces": []
+    },
+    {
+      "component": 13,
+      "levels": [
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 3
+          },
+          "boundary_edge_count": 3,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            3
+          ],
+          "boundary_node_count": 3,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 15,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 2,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 129,
+                "edge": [
+                  20932,
+                  20934
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 129,
+                "edge": [
+                  20934,
+                  21069
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 1,
+          "nonclear_boundary_nodes": [
+            20932,
+            21069
+          ],
+          "patch_face_count": 1,
+          "patch_face_rows": [
+            19864
+          ],
+          "ring_expansion": 0,
+          "shape_a69": {
+            "face_count": 1,
+            "max_aspect": 1.4378389833903626,
+            "min_angle_deg": 18.783929444481238,
+            "min_area_m2": 1.7184423467634666e-06
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 6
+          },
+          "boundary_edge_count": 6,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            6
+          ],
+          "boundary_node_count": 6,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 30,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 162,
+                "edge": [
+                  14285,
+                  20932
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  18491,
+                  20932
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  18491,
+                  21069
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  20218,
+                  21069
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 1,
+          "nonclear_boundary_nodes": [
+            20932,
+            21069
+          ],
+          "patch_face_count": 4,
+          "patch_face_rows": [
+            19861,
+            19862,
+            19863,
+            19864
+          ],
+          "ring_expansion": 1,
+          "shape_a69": {
+            "face_count": 4,
+            "max_aspect": 1.4378998089567134,
+            "min_angle_deg": 18.782882930800717,
+            "min_area_m2": 1.718369653778648e-06
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        },
+        {
+          "all_boundary_nodes_outside_all185_from_pinned_a69_point_query": false,
+          "ancestry_empty_rows": [],
+          "boundary_degree_histogram": {
+            "2": 10
+          },
+          "boundary_edge_count": 10,
+          "boundary_loop_count": 1,
+          "boundary_loop_sizes": [
+            10
+          ],
+          "boundary_node_count": 10,
+          "detail_union_count": 1,
+          "exact_boundary_edge_target43_16": {
+            "candidate_pairs_tested": 45,
+            "coplanar_ambiguous_pair_count": 0,
+            "coplanar_ambiguous_pairs": [],
+            "exact_crossing_pair_count": 4,
+            "exact_crossing_pairs": [
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  18491,
+                  21068
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 130,
+                "edge": [
+                  20218,
+                  20902
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 245,
+                "edge": [
+                  20897,
+                  21069
+                ],
+                "exact_hit_count": 1
+              },
+              {
+                "bone_triangle": 162,
+                "edge": [
+                  20932,
+                  20933
+                ],
+                "exact_hit_count": 1
+              }
+            ],
+            "exact_crossing_pairs_truncated": false,
+            "pass": false
+          },
+          "immediate_parent_union_count": 4,
+          "nonclear_boundary_nodes": [
+            20902,
+            20932,
+            21068,
+            21069
+          ],
+          "patch_face_count": 10,
+          "patch_face_rows": [
+            19808,
+            19809,
+            19858,
+            19859,
+            19861,
+            19862,
+            19863,
+            19864,
+            19865,
+            19866
+          ],
+          "ring_expansion": 2,
+          "shape_a69": {
+            "face_count": 10,
+            "max_aspect": 20.40375533655961,
+            "min_angle_deg": 1.4658905327710223,
+            "min_area_m2": 9.986590980179882e-08
+          },
+          "simple_single_loop_boundary": true,
+          "source_union_count": 1
+        }
+      ],
+      "new_bone_witness_faces": [
+        19864
+      ],
+      "seed_face_count": 1,
+      "seed_witness_face_rows": [
+        19864
+      ],
+      "self_witness_faces": []
+    }
+  ],
+  "elapsed_seconds": 0.9448401927947998,
+  "existing_two_flip_row_overlap": {
+    "19814": [],
+    "19816": [],
+    "19818": [],
+    "19819": []
+  },
+  "existing_two_flip_rows": [
+    19814,
+    19816,
+    19818,
+    19819
+  ],
+  "geometry_admitted": false,
+  "limitations": [
+    "Witnesses are from failed alpha-0.5 trial; component grouping maps those face identities onto the pinned a69 mesh.",
+    "Clear-node test reuses the complete pinned a69 all-bank point query; exact segment-vs-triangle test is only for target body 43 stable bone 16.",
+    "No candidate topology was changed in this preflight."
+  ],
+  "physical_steps": 0,
+  "pins": {
+    "a69_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+    "bank_triangle_export_sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "failed_candidate_sha256": "d21241ea6b16f2119faebda48196d79d4312d1316f7af5f7817e3780f145d8bb",
+    "scoped_bone_receipt_sha256": "d4bc7090cb916364aa2706704f94281981d8a9c3b68ce487023ba918cd82dfe2",
+    "self_receipt_sha256": "093b2b4741108b528bd29ff327551c69f306526b0a1b0a8ee36ae3ed3b81b362"
+  },
+  "schema": "numi.human.b43-16.topology_witness_component_preflight.v1",
+  "status": "TOPOLOGY_PREFLIGHT_ONLY",
+  "witness_counts": {
+    "exact_self_pairs": 25,
+    "exact_self_witness_faces": 17,
+    "new_43_16_raw_bone_pairs": 55,
+    "new_43_16_raw_pairs": [
+      [
+        19197,
+        133
+      ],
+      [
+        19197,
+        140
+      ],
+      [
+        19200,
+        133
+      ],
+      [
+        19203,
+        133
+      ],
+      [
+        19203,
+        140
+      ],
+      [
+        19206,
+        133
+      ],
+      [
+        19214,
+        133
+      ],
+      [
+        19214,
+        140
+      ],
+      [
+        19215,
+        133
+      ],
+      [
+        19220,
+        134
+      ],
+      [
+        19221,
+        133
+      ],
+      [
+        19221,
+        140
+      ],
+      [
+        19222,
+        133
+      ],
+      [
+        19239,
+        133
+      ],
+      [
+        19309,
+        134
+      ],
+      [
+        19310,
+        144
+      ],
+      [
+        19311,
+        134
+      ],
+      [
+        19312,
+        134
+      ],
+      [
+        19317,
+        134
+      ],
+      [
+        19320,
+        128
+      ],
+      [
+        19320,
+        135
+      ],
+      [
+        19372,
+        146
+      ],
+      [
+        19383,
+        138
+      ],
+      [
+        19390,
+        146
+      ],
+      [
+        19406,
+        135
+      ],
+      [
+        19423,
+        138
+      ],
+      [
+        19430,
+        138
+      ],
+      [
+        19447,
+        140
+      ],
+      [
+        19451,
+        133
+      ],
+      [
+        19451,
+        140
+      ],
+      [
+        19453,
+        133
+      ],
+      [
+        19646,
+        142
+      ],
+      [
+        19649,
+        142
+      ],
+      [
+        19651,
+        138
+      ],
+      [
+        19651,
+        146
+      ],
+      [
+        19654,
+        138
+      ],
+      [
+        19665,
+        138
+      ],
+      [
+        19665,
+        146
+      ],
+      [
+        19666,
+        146
+      ],
+      [
+        19667,
+        146
+      ],
+      [
+        19675,
+        140
+      ],
+      [
+        19676,
+        137
+      ],
+      [
+        19678,
+        140
+      ],
+      [
+        19680,
+        137
+      ],
+      [
+        19817,
+        142
+      ],
+      [
+        19817,
+        144
+      ],
+      [
+        19818,
+        134
+      ],
+      [
+        19841,
+        142
+      ],
+      [
+        19846,
+        142
+      ],
+      [
+        19849,
+        130
+      ],
+      [
+        19850,
+        142
+      ],
+      [
+        19851,
+        130
+      ],
+      [
+        19857,
+        145
+      ],
+      [
+        19864,
+        130
+      ],
+      [
+        19871,
+        145
+      ]
+    ],
+    "new_bone_witness_faces": 46,
+    "self_pairs": [
+      [
+        19114,
+        19675
+      ],
+      [
+        19114,
+        19678
+      ],
+      [
+        19114,
+        19692
+      ],
+      [
+        19126,
+        19675
+      ],
+      [
+        19126,
+        19692
+      ],
+      [
+        19133,
+        19675
+      ],
+      [
+        19133,
+        19678
+      ],
+      [
+        19133,
+        19692
+      ],
+      [
+        19383,
+        19651
+      ],
+      [
+        19383,
+        19654
+      ],
+      [
+        19383,
+        19665
+      ],
+      [
+        19402,
+        19665
+      ],
+      [
+        19402,
+        19669
+      ],
+      [
+        19402,
+        19670
+      ],
+      [
+        19402,
+        19671
+      ],
+      [
+        19408,
+        19665
+      ],
+      [
+        19408,
+        19669
+      ],
+      [
+        19408,
+        19670
+      ],
+      [
+        19408,
+        19671
+      ],
+      [
+        19426,
+        19651
+      ],
+      [
+        19426,
+        19665
+      ],
+      [
+        19426,
+        19669
+      ],
+      [
+        19426,
+        19670
+      ],
+      [
+        19427,
+        19665
+      ],
+      [
+        19427,
+        19669
+      ]
+    ],
+    "union_unique_witness_faces": 57
+  }
+}

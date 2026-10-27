@@ -1,0 +1,120 @@
+{
+  "status": "FEASIBILITY_NO_GO_EXISTING_OWNER",
+  "scope": "Read-only topology, provenance, and owner-capability review. No fit, candidate emission, installation, or new full audit.",
+  "candidate": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz",
+    "sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756"
+  },
+  "audits": {
+    "audit130_summary_sha256": "1291c50ddd6ac65e031f04bc586dfd7d7d3806b16338e245dbe65f9aabfc0eb4",
+    "audit159_report_sha256": "4cc8fd5d5e8fb651733fd380001e2b9847a0040960d7c8865c37f25fe5b8a09d"
+  },
+  "target": {
+    "body": 109,
+    "stable_bone_id": 114,
+    "raw_crossing_pairs": 184,
+    "distinct_crossing_skin_faces": 111
+  },
+  "patch": {
+    "inside_nodes": 24,
+    "inside_node_face_stars": 107,
+    "union_faces": 111,
+    "component_face_counts": [
+      44,
+      27,
+      27,
+      13
+    ],
+    "seed_boundary_loops": [
+      {
+        "faces": 44,
+        "edges": 26,
+        "vertices": 26
+      },
+      {
+        "faces": 27,
+        "edges": 17,
+        "vertices": 17
+      },
+      {
+        "faces": 27,
+        "edges": 17,
+        "vertices": 17
+      },
+      {
+        "faces": 13,
+        "edges": 11,
+        "vertices": 11
+      }
+    ],
+    "one_ring": {
+      "component_faces": [
+        153,
+        24
+      ],
+      "main_boundary": {
+        "edges": 41,
+        "vertices": 39,
+        "degree_histogram": {
+          "2": 37,
+          "4": 2
+        }
+      },
+      "small_loop_edges": 12
+    },
+    "two_rings": {
+      "component_faces": [
+        182,
+        36
+      ],
+      "main_boundary": {
+        "edges": 34,
+        "vertices": 33,
+        "degree_histogram": {
+          "2": 32,
+          "4": 1
+        }
+      },
+      "small_loop_edges": 16
+    },
+    "boundary_nodes": "Saved audit-130 nodes.csv marks all boundary vertices through ring 2 outside all 185 banks (zero inside, ambiguous, or invalid bank counts). This is node classification, not a clearance-margin certificate."
+  },
+  "inside_node_provenance": {
+    "kind": 1,
+    "semantics": "0=preexisting; 1=selected shared-edge midpoint; no centroid kind is emitted",
+    "parent_edge_weights": [
+      0.5,
+      0.5
+    ],
+    "all_have_endpoint_rows": true
+  },
+  "owners": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py",
+      "sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+      "finding": "Fixed-coordinate local flips; cannot clear inside nodes with fixed vertices."
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-quality-patch-538/compose_surviving_flips_538.py",
+      "sha256": "9dc78be3a52e2607771c49b11b30e175099ae0c6295ccecf504cdf9c9519cd52",
+      "finding": "Composes topology flips with a separate coordinate field; does not remove or relocate nodes."
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/connected_refinement_adapter546_generation002.py",
+      "sha256": "6603e244496dfbbeb76f7cfbaa56c80f39b1a18e6cccb50727406148ba885fe4",
+      "finding": "Selected-edge midpoint refinement only."
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/refresh_guards_multi_parent_generation002.py",
+      "sha256": "90bafb6a51e9d7a2dd9b49570fcd977423616e18e992c2d4a4306feea5bd5eab",
+      "finding": "Validates lineage after supported operations; not a collision-aware remesher."
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-023-a69-layer-witness-fit-001/fit_scaled_layer_witnesses.py",
+      "sha256": "9bc513b6c2345d761c54af8d4a0066bae41c8b750b3b395ae454b48727b0cea3",
+      "finding": "Fixed-connectivity fit; candidate 806 retains all 24 target inside-node identities."
+    }
+  ],
+  "result": "The initial patch has four simple-loop components and saved all-bank boundary classifications show rings 0-2 outside the banks. Boundary feasibility is not the blocker. The 24 residual inside nodes are shared-edge midpoint nodes. Clearing them requires moving/removing those vertices or replacing their stars, but no inspected owner combines collision-aware remeshing with refreshed skin/fat topology, ancestry, shape, and layer guards. Stop without a candidate.",
+  "limitation": "No physical admission or clearance-margin claim."
+}

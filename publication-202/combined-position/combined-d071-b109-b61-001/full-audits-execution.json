@@ -1,0 +1,129 @@
+{
+  "candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "elapsed_seconds": 35.63244037493132,
+  "geometry_admitted": false,
+  "physical_steps": 0,
+  "runs": [
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+        "/tmp/numi-human-geometry-slot.py",
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+        "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/audit-130"
+      ],
+      "elapsed_seconds": 9.82507933396846,
+      "log_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/audit-130.log",
+      "log_sha256": "e8a29ef7f9466328fea714b63f56d8f4352981dc603aacccd93cc56c2890e9f3",
+      "name": "audit-130",
+      "returncode": 0,
+      "summary": {
+        "candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+        "complete_surface_audit": true,
+        "edge_and_solid_clearance_certified": false,
+        "exact_PLC_surface_pairs": 0,
+        "faces": 42379,
+        "geometry_admitted": false,
+        "inside_node_bank_pairs": 125,
+        "inside_nodes": 125,
+        "points": 21212,
+        "query_pair_count": 13181,
+        "status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC"
+      },
+      "summary_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/audit-130/summary.json",
+      "summary_sha256": "1291c50ddd6ac65e031f04bc586dfd7d7d3806b16338e245dbe65f9aabfc0eb4"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+        "/tmp/numi-human-geometry-slot.py",
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+        "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/audit-159"
+      ],
+      "elapsed_seconds": 25.797144749900326,
+      "log_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/audit-159.log",
+      "log_sha256": "baafbb6ed74cdf833d854541124f529eaba5b6577f365006bbaff581962bb189",
+      "name": "audit-159",
+      "report": {
+        "bank_count": 185,
+        "candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+        "complete": true,
+        "elapsed_seconds": 24.527512500062585,
+        "expected_bank_count": 185,
+        "geometry_or_native_admission": false,
+        "status": "COMPLETE_TYPED_BANK_SURFACE_CROSSING_AUDIT",
+        "surface_face_count": 42379,
+        "surface_point_count": 21212
+      },
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/audit-159/report.json",
+      "report_sha256": "4cc8fd5d5e8fb651733fd380001e2b9847a0040960d7c8865c37f25fe5b8a09d",
+      "returncode": 0
+    }
+  ],
+  "schema": "numi.human.combined.d071.b109_114.b61_97.full-audit-execution.v1",
+  "source_pins_after": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/publication-200-stage-001/evidence/retained/candidate.npz": {
+      "bytes": 7303243,
+      "sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz": {
+      "bytes": 7305267,
+      "sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/root-topology-a69-safe-subset-001/candidate.npz": {
+      "bytes": 7305250,
+      "sha256": "d071f04fa64ce602f08dbf7859c45b4518ef2032ac92af0c1100d69dbdd59826"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py": {
+      "bytes": 5152,
+      "sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py": {
+      "bytes": 4925,
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+    },
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python": {
+      "bytes": 34640,
+      "sha256": "c2d16fe8332897836229aff307d1d9cb32432d405fa889f342ffe1830b1608c5"
+    },
+    "/tmp/numi-human-geometry-slot.py": {
+      "bytes": 692,
+      "sha256": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1"
+    }
+  },
+  "source_pins_before": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/publication-200-stage-001/evidence/retained/candidate.npz": {
+      "bytes": 7303243,
+      "sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz": {
+      "bytes": 7305267,
+      "sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/root-topology-a69-safe-subset-001/candidate.npz": {
+      "bytes": 7305250,
+      "sha256": "d071f04fa64ce602f08dbf7859c45b4518ef2032ac92af0c1100d69dbdd59826"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py": {
+      "bytes": 5152,
+      "sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py": {
+      "bytes": 4925,
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+    },
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python": {
+      "bytes": 34640,
+      "sha256": "c2d16fe8332897836229aff307d1d9cb32432d405fa889f342ffe1830b1608c5"
+    },
+    "/tmp/numi-human-geometry-slot.py": {
+      "bytes": 692,
+      "sha256": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1"
+    }
+  },
+  "source_pins_unchanged": true,
+  "status": "AUDITS_RUN"
+}

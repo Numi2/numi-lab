@@ -1,0 +1,72 @@
+{
+  "changed_face_rows": [
+    12185,
+    12187,
+    19203,
+    19206,
+    19314,
+    19316,
+    34534,
+    34536,
+    34722,
+    34724,
+    35437,
+    35440
+  ],
+  "per_layer": {
+    "skin": {
+      "authored_fail": {
+        "before_count": 7612,
+        "after_count": 7612,
+        "added_on_unchanged": [],
+        "removed_on_unchanged": [],
+        "old_changed_fail_ids": [],
+        "new_changed_fail_ids": []
+      },
+      "f32_nonpositive": {
+        "before_count": 2,
+        "after_count": 2,
+        "added_on_unchanged": [],
+        "removed_on_unchanged": [],
+        "old_changed_fail_ids": [],
+        "new_changed_fail_ids": []
+      },
+      "f32_conditioned_fail": {
+        "before_count": 52,
+        "after_count": 52,
+        "added_on_unchanged": [],
+        "removed_on_unchanged": [],
+        "old_changed_fail_ids": [],
+        "new_changed_fail_ids": []
+      }
+    },
+    "fat": {
+      "authored_fail": {
+        "before_count": 8530,
+        "after_count": 8530,
+        "added_on_unchanged": [],
+        "removed_on_unchanged": [],
+        "old_changed_fail_ids": [],
+        "new_changed_fail_ids": []
+      },
+      "f32_nonpositive": {
+        "before_count": 2,
+        "after_count": 2,
+        "added_on_unchanged": [],
+        "removed_on_unchanged": [],
+        "old_changed_fail_ids": [],
+        "new_changed_fail_ids": []
+      },
+      "f32_conditioned_fail": {
+        "before_count": 128,
+        "after_count": 128,
+        "added_on_unchanged": [],
+        "removed_on_unchanged": [],
+        "old_changed_fail_ids": [],
+        "new_changed_fail_ids": []
+      }
+    }
+  },
+  "changed_connectivity_quality_pass": true,
+  "note": "Existing invalid cells and unknown mass ancestry mean no physical admission."
+}

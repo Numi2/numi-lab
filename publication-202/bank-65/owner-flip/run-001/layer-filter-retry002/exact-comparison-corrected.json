@@ -1,0 +1,115 @@
+{
+  "accepted_physical_steps": 0,
+  "any_bank_mapped_identity_added": false,
+  "any_bank_raw_identity_added": true,
+  "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-022-boundary-owner-flip-001/run-001/layer-filter-retry002/audit-130/summary.json",
+  "audit130_sha256": "37808a063daf49b5ec111f950749aa10ec59811bdc4d2259a215d296e35b7bd3",
+  "audit159_complete": true,
+  "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-022-boundary-owner-flip-001/run-001/layer-filter-retry002/audit-159/report.json",
+  "audit159_sha256": "633578ddf26bc557ece5665a3499b4cb116285d7052a7f4910b50197e5bb0ad7",
+  "base_candidate_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "candidate_sha256": "3a1a73121ca7fd556ef0a8096ac261b2e004a2755d3e5cb15ab1391862faf086",
+  "correction_note": "Corrected per-bank grouping for mapped identities. Raw 65/99 pair changed from (14172,175) to (14174,180); both map to the same parent/bone identity set, so mapped count stays 84.",
+  "exact_self_pairs_after": 0,
+  "geometry_admitted": false,
+  "inside_identity_set_unchanged": true,
+  "inside_pairs_after": 125,
+  "inside_pairs_before": 125,
+  "layer_filter_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-022-boundary-owner-flip-001/run-001/layer-filter-retry002/report.json",
+  "layer_filter_report_sha256": "87f1980e96b408faa2d43404053d1dcbba368252628d28164c6bddfb8715606c",
+  "layer_local_excluded_operation_indices": [
+    0,
+    1,
+    2,
+    4,
+    5,
+    6,
+    7
+  ],
+  "layer_local_safe_operation_indices": [
+    3
+  ],
+  "layer_old_new_failure_witness_count": 53,
+  "limits": [
+    "Only safe flip op 3 was evaluated with exact full 185-bank, skin-self and all-node audits; other 7 operations were omitted by local layer checks.",
+    "Offset-prism nonregression is local to changed cells and does not establish physical solver or native admission."
+  ],
+  "mapped_added_all_banks": [],
+  "mapped_all_banks_after": 651,
+  "mapped_all_banks_before": 651,
+  "mapped_removed_all_banks": [],
+  "mapping_tuple_order": "(body, stable_bone_id, immediate_parent_face_row, bone_triangle_id)",
+  "native_admission": false,
+  "original_comparison_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-022-boundary-owner-flip-001/run-001/layer-filter-retry002/exact-comparison.json",
+  "original_comparison_sha256": "d7f2636169d1e81a98aa56a44cee98af8d50e3bdf3cd1fdf83c2f18ac4aa0984",
+  "per_changed_bank": [
+    {
+      "bank": [
+        65,
+        99
+      ],
+      "mapped_added": [],
+      "mapped_parent_identity_after": 84,
+      "mapped_parent_identity_before": 84,
+      "mapped_removed": [],
+      "raw_added": [
+        [
+          14174,
+          180
+        ]
+      ],
+      "raw_after": 148,
+      "raw_before": 148,
+      "raw_removed": [
+        [
+          14172,
+          175
+        ]
+      ]
+    }
+  ],
+  "raw_added_all_banks": [
+    [
+      65,
+      99,
+      14174,
+      180
+    ]
+  ],
+  "raw_all_banks_after": 983,
+  "raw_all_banks_before": 983,
+  "raw_removed_all_banks": [
+    [
+      65,
+      99,
+      14172,
+      175
+    ]
+  ],
+  "schema": "numi.human.b65-99.layer-filtered-flip-exact-comparison.v2",
+  "self_audit_complete": true,
+  "status": "DIAGNOSTIC_NO_STRICT_CROSSING_REDUCTION",
+  "strict_target_mapped_reduction": false,
+  "target_65_99_mapped_added": [],
+  "target_65_99_mapped_parent_identities_after": 84,
+  "target_65_99_mapped_parent_identities_before": 84,
+  "target_65_99_mapped_removed": [],
+  "target_65_99_raw_added": [
+    [
+      65,
+      99,
+      14174,
+      180
+    ]
+  ],
+  "target_65_99_raw_after": 148,
+  "target_65_99_raw_before": 148,
+  "target_65_99_raw_removed": [
+    [
+      65,
+      99,
+      14172,
+      175
+    ]
+  ]
+}

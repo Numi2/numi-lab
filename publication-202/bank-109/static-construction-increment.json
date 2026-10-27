@@ -1,0 +1,20 @@
+{
+  "baseline_a69_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-200-stage-001/evidence/retained/candidate.npz",
+  "baseline_a69_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-024-a69-layer-fit-backtrack-001/alpha-0p015625/candidate.npz",
+  "candidate_sha256": "468254c2d44472bbcaf91b86f968536477fa2847b8581bc69003c3eb2395e0e7",
+  "changed_node_count": 1074,
+  "changed_node_rows_sha256": "7e2d0d78831de6a87777f371e8ed9661f21a64d3191c6c87a4ee221b10e58922",
+  "comparison_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-025-a69-full-audits-001/a69-full-audit-comparison.json",
+  "comparison_report_sha256": "5dfc7dc8586f4ea803e21e10ab4ced661d30db5471a63c49af3f9ac3cdc08f07",
+  "geometry_admitted": false,
+  "limits": [
+    "Exact 130/159 construction checks and the local 541 layer identity gate passed against a69.",
+    "The static candidate is not admitted to physical simulation or native tissue layers."
+  ],
+  "node_patch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-025-a69-full-audits-001/static-construction-node-patch.npz",
+  "node_patch_sha256": "f9af2516bd09b906682885213c466672bc8736f1e547107b22480e7932c64781",
+  "physical_steps": 0,
+  "schema": "numi.human.b109-114.a69-static-construction-increment.v1",
+  "status": "RETAINED_STATIC_CONSTRUCTION_ONLY"
+}

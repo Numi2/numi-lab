@@ -1,0 +1,69 @@
+{
+  "candidate": {
+    "faces": 42379,
+    "node_patch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/patch-nodes.npz",
+    "node_patch_sha256": "dd1e2a1e33b56a97e5d32669fa4075db0350bef2d6471fcdec696379c79e038a",
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz",
+    "points": 21212,
+    "sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756"
+  },
+  "compatibility": {
+    "d071_all_nonposition_arrays_preserved_bytewise": true,
+    "d071_positions_bitwise_equal_a69": true,
+    "metadata_rule": "Preserve every d071 array exactly except points_world_m; apply each position patch only on its disjoint rows.",
+    "node_rows_same": true,
+    "overlap_rows": [],
+    "patch_topology_matches_a69": true,
+    "position_patch_noncoordinate_arrays_bytewise_equal_a69": true,
+    "position_patch_schemas_equal_a69": true
+  },
+  "d071_connectivity": {
+    "changed_face_rows": [
+      12185,
+      12187,
+      19203,
+      19206,
+      19314,
+      19316,
+      34534,
+      34536,
+      34722,
+      34724,
+      35437,
+      35440
+    ],
+    "changed_face_rows_vs_a69": 12,
+    "faces_preserved_from_d071": true
+  },
+  "geometry_admitted": false,
+  "input_pins": {
+    "a69": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-200-stage-001/evidence/retained/candidate.npz",
+      "sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db"
+    },
+    "b109_114_468": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-024-a69-layer-fit-backtrack-001/alpha-0p015625/candidate.npz",
+      "sha256": "468254c2d44472bbcaf91b86f968536477fa2847b8581bc69003c3eb2395e0e7"
+    },
+    "b61_97_c65": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b61-97/root-layer-guard-004/candidate-private.npz",
+      "sha256": "c65ba99363fe98d403d2ce2bbf6fea2eff89b6ae1758bcd40e7274e6a2b9f8ed"
+    },
+    "d071": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/root-topology-a69-safe-subset-001/candidate.npz",
+      "sha256": "d071f04fa64ce602f08dbf7859c45b4518ef2032ac92af0c1100d69dbdd59826"
+    }
+  },
+  "physical_steps": 0,
+  "schema": "numi.human.combined.d071.b109_114.b61_97.preflight.v1",
+  "status": "DISJOINT_COORDINATE_PATCHES_COMBINED_ON_D071",
+  "support": {
+    "b109_changed_node_count": 1074,
+    "b109_rows_sha256": "7e2d0d78831de6a87777f371e8ed9661f21a64d3191c6c87a4ee221b10e58922",
+    "b61_changed_node_count": 78,
+    "b61_rows_sha256": "e08ede0c66e034d16a75e8b558f40a01ccdeb5519cf5e80b015fe8e60ab6b7ea",
+    "changed_node_overlap_count": 0,
+    "max_movement_from_d071_mm": 0.06920387392879747,
+    "union_changed_node_count": 1152
+  }
+}

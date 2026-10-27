@@ -1,0 +1,1691 @@
+{
+  "accepted_physical_steps": 0,
+  "base_candidate_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-022-boundary-owner-flip-001/run-001/layer-filter-retry002/candidate-layer-safe-subset.npz",
+  "candidate_sha256": "3a1a73121ca7fd556ef0a8096ac261b2e004a2755d3e5cb15ab1391862faf086",
+  "excluded_face_rows": [
+    14060,
+    14061,
+    14126,
+    14128,
+    14192,
+    14193,
+    14221,
+    14223,
+    14248,
+    14251,
+    14405,
+    14453,
+    14456,
+    14457
+  ],
+  "excluded_operation_indices": [
+    0,
+    1,
+    2,
+    4,
+    5,
+    6,
+    7
+  ],
+  "full_eight_flip_candidate_sha256": "ccd5e12b278c10ad6941f5d53a3b780076634f4f6ee08b981b0ebfd3bcfa18cb",
+  "geometry_admitted": false,
+  "layer_candidate_base_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "layer_npz_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/physical-layer-diagnostic-001/guarded-65-quarter/skin-fat-layers-541.npz",
+  "layer_npz_sha256": "78916a0c05eb130e5efb02174342295c2d8d4444eae963c7b36fc43a2a1b17fc",
+  "layer_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/physical-layer-diagnostic-001/guarded-65-quarter/report.json",
+  "layer_report_sha256": "172a05971715852352afec6a21575c4524b3cacb7d0d942214ed25d780bbc31e",
+  "limitations": [
+    "This is a local inherited offset-prism orientation and Float32-conditioning check, not physical solver admission.",
+    "An operation is excluded if any old or new affected skin/fat prism is already invalid or ill-conditioned."
+  ],
+  "native_admission": false,
+  "operation_count": 8,
+  "operations": [
+    {
+      "edge": [
+        21089,
+        21168
+      ],
+      "failure_witnesses": [
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.028100086696073955,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14456,
+          "inner_face_area_m2": 7.669784784647591e-07,
+          "layer": "skin",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.06379703204174014,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14457,
+          "inner_face_area_m2": 8.028831594176697e-07,
+          "layer": "skin",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.016367238331111027,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14456,
+          "inner_face_area_m2": 7.629321609621433e-07,
+          "layer": "fat",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.048797019030124726,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14457,
+          "inner_face_area_m2": 7.984570887299702e-07,
+          "layer": "fat",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.03627310228105299,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14456,
+          "inner_face_area_m2": 7.539833589282286e-07,
+          "layer": "skin",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.031156623956977093,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14457,
+          "inner_face_area_m2": 8.158472439895179e-07,
+          "layer": "skin",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.02052205747843164,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14456,
+          "inner_face_area_m2": 7.500164935927192e-07,
+          "layer": "fat",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.018004711851609147,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14457,
+          "inner_face_area_m2": 8.1133936001815e-07,
+          "layer": "fat",
+          "phase": "new"
+        }
+      ],
+      "global_face_rows": [
+        14456,
+        14457
+      ],
+      "layer_gate_pass": false,
+      "layer_new": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              4.0635556339404215e-10,
+              -4.1397090601168363e-10,
+              4.0377540921755394e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.02052205747843164,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14456,
+            "inner_face_area_m2": 7.500164935927192e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              4.603784530847027e-10,
+              -4.5857429884616243e-10,
+              4.579519621515146e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.018004711851609147,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14457,
+            "inner_face_area_m2": 8.1133936001815e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              1.1082000432420341e-10,
+              -1.1128894041769412e-10,
+              1.1051589878944938e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.03627310228105299,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14456,
+            "inner_face_area_m2": 7.539833589282286e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              1.266714173238881e-10,
+              -1.264380449963012e-10,
+              1.2652817103059187e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.031156623956977093,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14457,
+            "inner_face_area_m2": 8.158472439895179e-07
+          }
+        ]
+      },
+      "layer_old": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              4.1895488060593923e-10,
+              -4.2590462861253506e-10,
+              4.1631845110888275e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.016367238331111027,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14456,
+            "inner_face_area_m2": 7.629321609621433e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              4.4832835964594677e-10,
+              -4.4662419558575407e-10,
+              4.4487951304775964e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.048797019030124726,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14457,
+            "inner_face_area_m2": 7.984570887299702e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              1.143394988522049e-10,
+              -1.1469425852546863e-10,
+              1.1402895677839732e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.028100086696073955,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14456,
+            "inner_face_area_m2": 7.669784784647591e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              1.2336295312823892e-10,
+              -1.230419151661967e-10,
+              1.2281518527654005e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.06379703204174014,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14457,
+            "inner_face_area_m2": 8.028831594176697e-07
+          }
+        ]
+      },
+      "local_patch_rows": [
+        208,
+        209
+      ],
+      "new_diagonal": [
+        19469,
+        21091
+      ],
+      "operation_index": 0
+    },
+    {
+      "edge": [
+        20985,
+        21185
+      ],
+      "failure_witnesses": [
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.010418956506447053,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14248,
+          "inner_face_area_m2": 4.062628670639472e-07,
+          "layer": "skin",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.010214322725606295,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14251,
+          "inner_face_area_m2": 4.010145518062249e-07,
+          "layer": "skin",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.005918438020859673,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14248,
+          "inner_face_area_m2": 4.006757657244416e-07,
+          "layer": "fat",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.005760711751404866,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14251,
+          "inner_face_area_m2": 3.953329282215562e-07,
+          "layer": "fat",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.013513876333644773,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14248,
+          "inner_face_area_m2": 4.0256909017853344e-07,
+          "layer": "skin",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.013235558993071335,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14251,
+          "inner_face_area_m2": 4.047077882786357e-07,
+          "layer": "skin",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.0068600212857268346,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14248,
+          "inner_face_area_m2": 3.9701023471882343e-07,
+          "layer": "fat",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.0067353803717268975,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14251,
+          "inner_face_area_m2": 3.989979306352998e-07,
+          "layer": "fat",
+          "phase": "new"
+        }
+      ],
+      "global_face_rows": [
+        14248,
+        14251
+      ],
+      "layer_gate_pass": false,
+      "layer_new": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -1.9865652177761015e-10,
+              1.9602104946159053e-10,
+              -1.9440158238571452e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.0068600212857268346,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14248,
+            "inner_face_area_m2": 3.9701023471882343e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -1.9855909806246123e-10,
+              1.9759008698088077e-10,
+              -1.9433772365404735e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.0067353803717268975,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14251,
+            "inner_face_area_m2": 3.989979306352998e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.103911745220965e-11,
+              6.063796435469941e-11,
+              -6.041066369040127e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.013513876333644773,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14248,
+            "inner_face_area_m2": 4.0256909017853344e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.089569396086155e-11,
+              6.088636715566822e-11,
+              -6.035290456974473e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.013235558993071335,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14251,
+            "inner_face_area_m2": 4.047077882786357e-07
+          }
+        ]
+      },
+      "layer_old": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -2.0015877464805976e-10,
+              1.9811966467943346e-10,
+              -1.9594239064176153e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.005918438020859673,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14248,
+            "inner_face_area_m2": 4.006757657244416e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -1.9700254802595467e-10,
+              1.9548203374783304e-10,
+              -1.928506863305906e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.005760711751404866,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14251,
+            "inner_face_area_m2": 3.953329282215562e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.143629925331006e-11,
+              6.116618929572962e-11,
+              -6.089113410999467e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.010418956506447053,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14248,
+            "inner_face_area_m2": 4.062628670639472e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.041214357147681e-11,
+              6.03558700590259e-11,
+              -5.99574419388673e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.010214322725606295,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14251,
+            "inner_face_area_m2": 4.010145518062249e-07
+          }
+        ]
+      },
+      "local_patch_rows": [
+        162,
+        165
+      ],
+      "new_diagonal": [
+        19686,
+        20987
+      ],
+      "operation_index": 1
+    },
+    {
+      "edge": [
+        21078,
+        21085
+      ],
+      "failure_witnesses": [
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.04525267300257676,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14126,
+          "inner_face_area_m2": 5.309899734841475e-07,
+          "layer": "skin",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.04524604276476009,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14128,
+          "inner_face_area_m2": 5.309145884146188e-07,
+          "layer": "skin",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.019441599042527773,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14126,
+          "inner_face_area_m2": 5.344662979251101e-07,
+          "layer": "fat",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.021745523654423598,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14128,
+          "inner_face_area_m2": 5.343907901047284e-07,
+          "layer": "fat",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.05865646317908761,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14126,
+          "inner_face_area_m2": 5.309907000396057e-07,
+          "layer": "skin",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.05850104914176853,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14128,
+          "inner_face_area_m2": 5.309138618580382e-07,
+          "layer": "skin",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.01957013425358178,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14126,
+          "inner_face_area_m2": 5.34466922986054e-07,
+          "layer": "fat",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.021732612425102212,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14128,
+          "inner_face_area_m2": 5.343901650429892e-07,
+          "layer": "fat",
+          "phase": "new"
+        }
+      ],
+      "global_face_rows": [
+        14126,
+        14128
+      ],
+      "layer_gate_pass": false,
+      "layer_new": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -1.9648364429437147e-10,
+              1.9504153671317234e-10,
+              -1.954973777395141e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.01957013425358178,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14126,
+            "inner_face_area_m2": 5.34466922986054e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -1.956250439955116e-10,
+              1.96437368115897e-10,
+              -1.9547030658549744e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.021732612425102212,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14128,
+            "inner_face_area_m2": 5.343901650429892e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.654863161496139e-11,
+              6.671130993957397e-11,
+              -6.66307415041939e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.05865646317908761,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14126,
+            "inner_face_area_m2": 5.309907000396057e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.637696096774985e-11,
+              6.647801168681199e-11,
+              -6.662159160627816e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.05850104914176853,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14128,
+            "inner_face_area_m2": 5.309138618580382e-07
+          }
+        ]
+      },
+      "layer_old": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -1.9565311484716043e-10,
+              1.9373977885179333e-10,
+              -1.9549817687147777e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.019441599042527773,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14126,
+            "inner_face_area_m2": 5.344662979251101e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -1.956240622715122e-10,
+              1.9774133319420698e-10,
+              -1.9629869459542122e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.021745523654423598,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14128,
+            "inner_face_area_m2": 5.343907901047284e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.638637798526676e-11,
+              6.656773071189484e-11,
+              -6.663103012618411e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.04525267300257676,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14126,
+            "inner_face_area_m2": 5.309899734841475e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.637665134418722e-11,
+              6.662132754390169e-11,
+              -6.678410637643092e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.04524604276476009,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14128,
+            "inner_face_area_m2": 5.309145884146188e-07
+          }
+        ]
+      },
+      "local_patch_rows": [
+        61,
+        63
+      ],
+      "new_diagonal": [
+        18571,
+        21080
+      ],
+      "operation_index": 2
+    },
+    {
+      "edge": [
+        20984,
+        21158
+      ],
+      "failure_witnesses": [],
+      "global_face_rows": [
+        14172,
+        14174
+      ],
+      "layer_gate_pass": true,
+      "layer_new": {
+        "fat": [
+          {
+            "authored_fail": false,
+            "authored_signed_volumes_m3": [
+              -1.3073665375810243e-10,
+              1.2884702941329605e-10,
+              -1.2800958967481078e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.0038427068425870817,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14172,
+            "inner_face_area_m2": 5.218888668571488e-07
+          },
+          {
+            "authored_fail": false,
+            "authored_signed_volumes_m3": [
+              -1.3470373241135733e-10,
+              1.3029077869327007e-10,
+              -1.329588392222441e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.003911288159604246,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14174,
+            "inner_face_area_m2": 5.419903803940344e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": false,
+            "authored_signed_volumes_m3": [
+              -5.806023290645378e-11,
+              5.747716418842063e-11,
+              -5.761098131575354e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.010286639966589182,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14172,
+            "inner_face_area_m2": 5.225262166360676e-07
+          },
+          {
+            "authored_fail": false,
+            "authored_signed_volumes_m3": [
+              -5.981010398179032e-11,
+              5.917349383988029e-11,
+              -5.988616389303325e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.010588554803382496,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14174,
+            "inner_face_area_m2": 5.424434996111879e-07
+          }
+        ]
+      },
+      "layer_old": {
+        "fat": [
+          {
+            "authored_fail": false,
+            "authored_signed_volumes_m3": [
+              -1.3801369609307445e-10,
+              1.3006688639871382e-10,
+              -1.3507704858523487e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.004027424732029795,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14172,
+            "inner_face_area_m2": 5.429141030221753e-07
+          },
+          {
+            "authored_fail": false,
+            "authored_signed_volumes_m3": [
+              -1.2850791022826822e-10,
+              1.290738962331004e-10,
+              -1.2484715704508317e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.003861356830323292,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14174,
+            "inner_face_area_m2": 5.209667222880313e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": false,
+            "authored_signed_volumes_m3": [
+              -6.108512063817313e-11,
+              5.967295959019917e-11,
+              -6.060427239261682e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.010661163734448519,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14172,
+            "inner_face_area_m2": 5.434522243794177e-07
+          },
+          {
+            "authored_fail": false,
+            "authored_signed_volumes_m3": [
+              -5.7333058131979935e-11,
+              5.6976972332887674e-11,
+              -5.637029347882915e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.010072906195908197,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14174,
+            "inner_face_area_m2": 5.215195324770169e-07
+          }
+        ]
+      },
+      "local_patch_rows": [
+        101,
+        103
+      ],
+      "new_diagonal": [
+        19343,
+        20986
+      ],
+      "operation_index": 3
+    },
+    {
+      "edge": [
+        20998,
+        21169
+      ],
+      "failure_witnesses": [
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.004671041732695159,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14060,
+          "inner_face_area_m2": 2.3742291395905337e-07,
+          "layer": "skin",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.004644558548429691,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14061,
+          "inner_face_area_m2": 2.3743462997007244e-07,
+          "layer": "skin",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.0017975160262200458,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14060,
+          "inner_face_area_m2": 2.503025735885328e-07,
+          "layer": "fat",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.0017036852017221333,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14061,
+          "inner_face_area_m2": 2.503142899262991e-07,
+          "layer": "fat",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.005052790843938471,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14060,
+          "inner_face_area_m2": 2.3742772047584478e-07,
+          "layer": "skin",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.005642960592599658,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14061,
+          "inner_face_area_m2": 2.3742982345090157e-07,
+          "layer": "skin",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.0017084775348174357,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14060,
+          "inner_face_area_m2": 2.5030702954810543e-07,
+          "layer": "fat",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.001956738763350473,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14061,
+          "inner_face_area_m2": 2.503098339639947e-07,
+          "layer": "fat",
+          "phase": "new"
+        }
+      ],
+      "global_face_rows": [
+        14060,
+        14061
+      ],
+      "layer_gate_pass": false,
+      "layer_new": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              6.294375471264126e-11,
+              -5.363293145205908e-11,
+              5.754011892675429e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.0017084775348174357,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14060,
+            "inner_face_area_m2": 2.5030702954810543e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.181115421757739e-11,
+              6.31907553990152e-11,
+              -5.7537724053991055e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.001956738763350473,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14061,
+            "inner_face_area_m2": 2.503098339639947e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              2.794682648800087e-11,
+              -2.6978107756733397e-11,
+              2.7639648027514678e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.005052790843938471,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14060,
+            "inner_face_area_m2": 2.3742772047584478e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -2.7682122158425753e-11,
+              2.774149464588272e-11,
+              -2.7639053275598647e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.005642960592599658,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14061,
+            "inner_face_area_m2": 2.3742982345090157e-07
+          }
+        ]
+      },
+      "layer_old": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              6.294026871273936e-11,
+              -6.020660622469702e-11,
+              5.753657995347389e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.0017975160262200458,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14060,
+            "inner_face_area_m2": 2.503025735885328e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.294513205025613e-11,
+              5.706099964030084e-11,
+              -5.596680157073627e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.0017036852017221333,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14061,
+            "inner_face_area_m2": 2.503142899262991e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              2.7945571085912555e-11,
+              -2.752420104270865e-11,
+              2.7638385773487514e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.004671041732695159,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14060,
+            "inner_face_area_m2": 2.3742291395905337e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -2.7947510601854224e-11,
+              2.7365874635757814e-11,
+              -2.7205695812140545e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.004644558548429691,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14061,
+            "inner_face_area_m2": 2.3743462997007244e-07
+          }
+        ]
+      },
+      "local_patch_rows": [
+        12,
+        13
+      ],
+      "new_diagonal": [
+        19932,
+        20997
+      ],
+      "operation_index": 4
+    },
+    {
+      "edge": [
+        20946,
+        21118
+      ],
+      "failure_witnesses": [
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.0016275642808579566,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14221,
+          "inner_face_area_m2": 3.8574334052684343e-07,
+          "layer": "skin",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.004342871645491064,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14223,
+          "inner_face_area_m2": 3.7784027918207726e-07,
+          "layer": "skin",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.00145733951775173,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14221,
+          "inner_face_area_m2": 3.5926598848543084e-07,
+          "layer": "fat",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.005376810689858292,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14223,
+          "inner_face_area_m2": 3.5149322629171866e-07,
+          "layer": "fat",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.0015451185061478771,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14221,
+          "inner_face_area_m2": 3.803057690736714e-07,
+          "layer": "skin",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.0015938056020402419,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14223,
+          "inner_face_area_m2": 3.832776683086918e-07,
+          "layer": "skin",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.001389394707841361,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14221,
+          "inner_face_area_m2": 3.537892389811864e-07,
+          "layer": "fat",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.001421204809229652,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14223,
+          "inner_face_area_m2": 3.569697553968889e-07,
+          "layer": "fat",
+          "phase": "new"
+        }
+      ],
+      "global_face_rows": [
+        14221,
+        14223
+      ],
+      "layer_gate_pass": false,
+      "layer_new": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.141611242875878e-11,
+              5.3697984634310294e-11,
+              -5.266645416708897e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.001389394707841361,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14221,
+            "inner_face_area_m2": 3.537892389811864e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.208295618113776e-11,
+              6.565477774795966e-11,
+              -5.387627370404119e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.001421204809229652,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14223,
+            "inner_face_area_m2": 3.569697553968889e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -1.2007161608985447e-11,
+              1.1336381938042786e-11,
+              -1.1162997322822088e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.0015451185061478771,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14221,
+            "inner_face_area_m2": 3.803057690736714e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -1.2228053744418667e-11,
+              1.2608935474143114e-11,
+              -1.1505692409865475e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.0015938056020402419,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14223,
+            "inner_face_area_m2": 3.832776683086918e-07
+          }
+        ]
+      },
+      "layer_old": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.276980405095034e-11,
+              5.925615265926835e-11,
+              -5.450739378604455e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.00145733951775173,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14221,
+            "inner_face_area_m2": 3.5926598848543084e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.027158908632892e-11,
+              6.012131301686846e-11,
+              -5.2470657324168895e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.005376810689858292,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14223,
+            "inner_face_area_m2": 3.5149322629171866e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -1.2395486745448779e-11,
+              1.2170048812548025e-11,
+              -1.166779475370036e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.0016275642808579566,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14221,
+            "inner_face_area_m2": 3.8574334052684343e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -1.1726871608402292e-11,
+              1.177729044554394e-11,
+              -1.1112695126441679e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.004342871645491064,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14223,
+            "inner_face_area_m2": 3.7784027918207726e-07
+          }
+        ]
+      },
+      "local_patch_rows": [
+        135,
+        137
+      ],
+      "new_diagonal": [
+        18864,
+        20948
+      ],
+      "operation_index": 5
+    },
+    {
+      "edge": [
+        21001,
+        21058
+      ],
+      "failure_witnesses": [
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.01354856034917736,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14192,
+          "inner_face_area_m2": 3.9420432864153444e-07,
+          "layer": "skin",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.030511189230700765,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14193,
+          "inner_face_area_m2": 3.9395186503530697e-07,
+          "layer": "skin",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.008118911413609448,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14192,
+          "inner_face_area_m2": 4.210167287372118e-07,
+          "layer": "fat",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.019330935776660226,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14193,
+          "inner_face_area_m2": 4.210377266226417e-07,
+          "layer": "fat",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.01116040770542027,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14192,
+          "inner_face_area_m2": 3.9152832621531946e-07,
+          "layer": "skin",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.012184543543403238,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14193,
+          "inner_face_area_m2": 3.9658394203094135e-07,
+          "layer": "skin",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.007043300320623972,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14192,
+          "inner_face_area_m2": 4.184304484382578e-07,
+          "layer": "fat",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.007017605055219043,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14193,
+          "inner_face_area_m2": 4.235856674774449e-07,
+          "layer": "fat",
+          "phase": "new"
+        }
+      ],
+      "global_face_rows": [
+        14192,
+        14193
+      ],
+      "layer_gate_pass": false,
+      "layer_new": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -2.1230073745873908e-10,
+              2.241372799470416e-10,
+              -2.2258728812366845e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.007043300320623972,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14192,
+            "inner_face_area_m2": 4.184304484382578e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -2.3158450090846657e-10,
+              2.1152268739038912e-10,
+              -2.413957401672588e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.007017605055219043,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14193,
+            "inner_face_area_m2": 4.235856674774449e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -5.95629524775134e-11,
+              6.063196436611656e-11,
+              -6.060195725418224e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.01116040770542027,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14192,
+            "inner_face_area_m2": 3.9152832621531946e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.681743258447885e-11,
+              6.502964232953073e-11,
+              -6.760817920310925e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.012184543543403238,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14193,
+            "inner_face_area_m2": 3.9658394203094135e-07
+          }
+        ]
+      },
+      "layer_old": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -2.3494756270721086e-10,
+              2.275422622194365e-10,
+              -2.450392628308519e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.008118911413609448,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14192,
+            "inner_face_area_m2": 4.210167287372118e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -2.084430968718848e-10,
+              2.0787354547679724e-10,
+              -2.194366034118037e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.019330935776660226,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14193,
+            "inner_face_area_m2": 4.210377266226417e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -6.782994705831026e-11,
+              6.719890580608029e-11,
+              -6.86586626116418e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.01354856034917736,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14192,
+            "inner_face_area_m2": 3.9420432864153444e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -5.866633695685175e-11,
+              5.841528866259275e-11,
+              -5.94466274195857e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.030511189230700765,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14193,
+            "inner_face_area_m2": 3.9395186503530697e-07
+          }
+        ]
+      },
+      "local_patch_rows": [
+        119,
+        120
+      ],
+      "new_diagonal": [
+        18460,
+        21003
+      ],
+      "operation_index": 6
+    },
+    {
+      "edge": [
+        18572,
+        21086
+      ],
+      "failure_witnesses": [
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.046142453549638356,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14405,
+          "inner_face_area_m2": 1.6933526605845325e-07,
+          "layer": "skin",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.013805402447695484,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14405,
+          "inner_face_area_m2": 1.8100480456678456e-07,
+          "layer": "fat",
+          "phase": "old"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.04213192291498041,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14453,
+          "inner_face_area_m2": 1.683311732915632e-07,
+          "layer": "skin",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.0015783258379727177,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14405,
+          "inner_face_area_m2": 1.8942850017145486e-07,
+          "layer": "fat",
+          "phase": "new"
+        },
+        {
+          "authored_fail": true,
+          "f32_conditioned_tet_ids_lt_1e-5": [],
+          "f32_min_normalized_det": 0.009687067214262277,
+          "f32_nonpositive_tet_ids": [],
+          "face_row": 14453,
+          "inner_face_area_m2": 1.68136516483894e-07,
+          "layer": "fat",
+          "phase": "new"
+        }
+      ],
+      "global_face_rows": [
+        14405,
+        14453
+      ],
+      "layer_gate_pass": false,
+      "layer_new": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              1.4288511111831279e-11,
+              -1.422036413906531e-11,
+              2.520232871550743e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.0015783258379727177,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14405,
+            "inner_face_area_m2": 1.8942850017145486e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -9.411616684611561e-11,
+              9.34948195034171e-11,
+              -8.826673111354578e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.009687067214262277,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14453,
+            "inner_face_area_m2": 1.68136516483894e-07
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": false,
+            "authored_signed_volumes_m3": [
+              -1.7529485206369852e-12,
+              1.7509112761885677e-12,
+              -1.0437144768414936e-12
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.0012475839204040117,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14405,
+            "inner_face_area_m2": 1.683726373199257e-07
+          },
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -3.4477248469790916e-11,
+              3.450333961305453e-11,
+              -3.416047062000855e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.04213192291498041,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14453,
+            "inner_face_area_m2": 1.683311732915632e-07
+          }
+        ]
+      },
+      "layer_old": {
+        "fat": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -1.2861482631482291e-10,
+              1.2844421879083392e-10,
+              -1.3495114180688345e-10
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.013805402447695484,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14405,
+            "inner_face_area_m2": 1.8100480456678456e-07
+          },
+          {
+            "authored_fail": false,
+            "authored_signed_volumes_m3": [
+              -2.022488887719401e-11,
+              2.1119403109773034e-11,
+              -2.2298113414994668e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.0021747924495549354,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14453,
+            "inner_face_area_m2": 1.9774887684534918e-08
+          }
+        ],
+        "skin": [
+          {
+            "authored_fail": true,
+            "authored_signed_volumes_m3": [
+              -3.8701055109986414e-11,
+              3.867751666074798e-11,
+              -3.923360494601487e-11
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.046142453549638356,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14405,
+            "inner_face_area_m2": 1.6933526605845325e-07
+          },
+          {
+            "authored_fail": false,
+            "authored_signed_volumes_m3": [
+              -5.9676641149494304e-12,
+              6.064633507202316e-12,
+              -6.176374596530974e-12
+            ],
+            "f32_conditioned_tet_ids_lt_1e-5": [],
+            "f32_min_normalized_det": 0.018942468113140338,
+            "f32_nonpositive_tet_ids": [],
+            "face_row": 14453,
+            "inner_face_area_m2": 1.769148471479776e-08
+          }
+        ]
+      },
+      "local_patch_rows": [
+        182,
+        205
+      ],
+      "new_diagonal": [
+        18569,
+        21088
+      ],
+      "operation_index": 7
+    }
+  ],
+  "patch_rows_sha256": "17de0575019ed0eee3ba279e6b87931431e38eaf393ecf693240ba529e8497bb",
+  "safe_face_rows": [
+    14172,
+    14174
+  ],
+  "safe_operation_indices": [
+    3
+  ],
+  "safe_subset_candidate_written": true,
+  "safe_subset_face_count": 2,
+  "schema": "numi.human.b65-99.per-flip-layer-filter.v1",
+  "status": "LAYER_FILTERED_SAFE_SUBSET_READY"
+}

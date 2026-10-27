@@ -1,0 +1,1240 @@
+{
+  "accepted_physical_steps": 0,
+  "boundary_node_clearance": {
+    "all185_node_inside_count": 0,
+    "exact_boundary_edge_hits_all185": 0
+  },
+  "candidate_emitted": false,
+  "construction_gate": "STOP_FIXED_INSIDE_NODES",
+  "fixed_outer_boundary_nodes": 91,
+  "geometry_changed": false,
+  "global_best_fit_projection_diagnostic": {
+    "all_projected_faces_same_orientation": false,
+    "degenerate_projected_faces": 0,
+    "singular_values_m": [
+      0.0246788017721986,
+      0.019064862838265362,
+      0.006873271338444016
+    ]
+  },
+  "groups_with_invalid_or_folded_chart": 0,
+  "groups_without_constant_registered_ancestry": 0,
+  "groups_without_simple_boundary": 0,
+  "inside_target_node_rows": [
+    20895,
+    20899,
+    20900,
+    20901,
+    20902,
+    20907,
+    20924,
+    20926,
+    20928,
+    20931,
+    20932,
+    20956,
+    20957,
+    20989,
+    20990,
+    21016,
+    21019,
+    21022,
+    21025,
+    21026,
+    21027,
+    21030,
+    21062,
+    21064,
+    21066,
+    21068,
+    21069,
+    21071,
+    21092,
+    21093,
+    21094,
+    21095,
+    21096,
+    21131,
+    21134,
+    21159,
+    21187,
+    21188,
+    21190,
+    21191,
+    21193,
+    21204,
+    21205
+  ],
+  "inside_target_nodes_count": 43,
+  "interior_patch_nodes": 47,
+  "layer_541_matches_this_candidate": {
+    "face_arrays_bitwise": {
+      "deep_faces": false,
+      "inner_faces": false,
+      "outer_faces": false,
+      "source_outer_faces_raw": true
+    },
+    "max_world_deltas_m": {
+      "deep_points_f64": 0.012350655182672199,
+      "inner_points_f64": 0.0024506570989615284,
+      "outer_points_f64": 0.00015059113502502441
+    },
+    "point_arrays_bitwise": {
+      "deep_points_f32": false,
+      "inner_points_f32": false,
+      "outer_points_f32": false
+    },
+    "reusable_for_this_candidate": false
+  },
+  "layer_541_sha256": "78916a0c05eb130e5efb02174342295c2d8d4444eae963c7b36fc43a2a1b17fc",
+  "max_same_parent_node_barycentric_disagreement": 0.0,
+  "owner_limit": "The existing owner emits a planar triangulation in one source-triangle barycentric chart; it has no native 3D metric, layer-volume, collision, or ancestry writer. A piecewise per-immediate-parent adapter could preserve single-parent CSR only if every chart group passes the recorded checks.",
+  "owner_source": "partial-midpoint-continuation-root-001/bank74-cdt-root-001/constrained_edgeflip_root.py",
+  "parent_chart_groups": 47,
+  "patch_face_count": 183,
+  "patch_vertex_count": 138,
+  "physical_admission": false,
+  "piecewise_chart_group_reports": [
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 5,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        5
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 3,
+      "interior_node_count": 0,
+      "node_count": 5,
+      "parent_face_row": 18988,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 5,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        5
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 3,
+      "interior_node_count": 0,
+      "node_count": 5,
+      "parent_face_row": 18990,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 18995,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 18997,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 5,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        5
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 3,
+      "interior_node_count": 0,
+      "node_count": 5,
+      "parent_face_row": 18998,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 5,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        5
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 3,
+      "interior_node_count": 0,
+      "node_count": 5,
+      "parent_face_row": 18999,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19004,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19071,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19072,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19073,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19076,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19077,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19080,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19091,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19101,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19102,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19108,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19113,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19123,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19131,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19132,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19136,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19149,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19150,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19153,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8265
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19154,
+      "simple_single_loop": true,
+      "source_ids": [
+        8265
+      ],
+      "subface_ids": [
+        8267
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19333,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19334,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19335,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19341,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19346,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19347,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19348,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 5,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        5
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 3,
+      "interior_node_count": 0,
+      "node_count": 5,
+      "parent_face_row": 19373,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19377,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19378,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19380,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19387,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19442,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19443,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19444,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19464,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19465,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19466,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19470,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19471,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    },
+    {
+      "ancestry_constant_source_detail_subface_with_single_immediate_parent": true,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_loop_sizes": [
+        6
+      ],
+      "chart_barycentric_valid_and_nonfolded": true,
+      "chart_min_abs_determinant": 0.25,
+      "detail_ids": [
+        8269
+      ],
+      "face_count": 4,
+      "interior_node_count": 0,
+      "node_count": 6,
+      "parent_face_row": 19475,
+      "simple_single_loop": true,
+      "source_ids": [
+        8269
+      ],
+      "subface_ids": [
+        8271
+      ]
+    }
+  ],
+  "pins": {
+    "base_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+    "bulk_patch_topology_sha256": "4458a452a349dacec292f197b8fad814a66b37d4e3cdfc0c355bb607bf7ba0f1",
+    "exact_boundary_receipt_sha256": "8c915cb3da19988feb33fa57788710f04fa1f1071e19534ea80811bc1e96e67d"
+  },
+  "schema": "numi.human.b43-16.cdt-owner-piecewise-chart-preflight.v1",
+  "status": "PREFLIGHT_COMPLETE_NO_GEOMETRY_CHANGED",
+  "target_bank": [
+    43,
+    16
+  ],
+  "topology_only_triangulation_preserves_point_positions_and_inside_classifications": true,
+  "why_no_construction": "The requested CDT uses the existing interior vertices without moving them. It therefore leaves all 43 points already classified inside bank 43/16 inside. The available layer bundle must also match the pinned geometry before cell checks can be interpreted."
+}

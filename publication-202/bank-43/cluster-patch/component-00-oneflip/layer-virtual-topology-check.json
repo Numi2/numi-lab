@@ -1,0 +1,170 @@
+{
+  "base_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "candidate_points_bitwise_same": true,
+  "candidate_sha256": "1918739307097c6c51f7bfd867cf645b7b05aa2450b7af18655272a3630272ac",
+  "changed_face_rows": [
+    19114,
+    19126
+  ],
+  "elapsed_seconds": 0.02003002166748047,
+  "geometry_admitted": false,
+  "intervals": [
+    {
+      "base_nonpositive_count": 6,
+      "base_signed_sum_mm3": -0.24613322494619808,
+      "base_tetra_signed_mm3": [
+        {
+          "row": 19114,
+          "signed_mm3": -0.06779004117568131,
+          "slot": 0
+        },
+        {
+          "row": 19114,
+          "signed_mm3": -0.07807465978860512,
+          "slot": 1
+        },
+        {
+          "row": 19114,
+          "signed_mm3": -0.07621577497853328,
+          "slot": 2
+        },
+        {
+          "row": 19126,
+          "signed_mm3": -0.005337261422486843,
+          "slot": 0
+        },
+        {
+          "row": 19126,
+          "signed_mm3": -0.00917520808424685,
+          "slot": 1
+        },
+        {
+          "row": 19126,
+          "signed_mm3": -0.009540279496644691,
+          "slot": 2
+        }
+      ],
+      "layer_interval": 0,
+      "local_construction_gate": false,
+      "min_trial_signed_mm3": -0.07521959314396004,
+      "trial_nonpositive_count": 6,
+      "trial_signed_sum_mm3": -0.2462208762689136,
+      "trial_tetra_signed_mm3": [
+        {
+          "row": 19114,
+          "signed_mm3": -0.010342610152458145,
+          "slot": 0
+        },
+        {
+          "row": 19114,
+          "signed_mm3": -0.011886511624902512,
+          "slot": 1
+        },
+        {
+          "row": 19114,
+          "signed_mm3": -0.012543797084982114,
+          "slot": 2
+        },
+        {
+          "row": 19126,
+          "signed_mm3": -0.06305993094918186,
+          "slot": 0
+        },
+        {
+          "row": 19126,
+          "signed_mm3": -0.07521959314396004,
+          "slot": 1
+        },
+        {
+          "row": 19126,
+          "signed_mm3": -0.07316843331342894,
+          "slot": 2
+        }
+      ]
+    },
+    {
+      "base_nonpositive_count": 6,
+      "base_signed_sum_mm3": -0.22416955255625906,
+      "base_tetra_signed_mm3": [
+        {
+          "row": 19114,
+          "signed_mm3": -0.06206410918340712,
+          "slot": 0
+        },
+        {
+          "row": 19114,
+          "signed_mm3": -0.0738050881847712,
+          "slot": 1
+        },
+        {
+          "row": 19114,
+          "signed_mm3": -0.0708541311320639,
+          "slot": 2
+        },
+        {
+          "row": 19126,
+          "signed_mm3": -0.004262629830215285,
+          "slot": 0
+        },
+        {
+          "row": 19126,
+          "signed_mm3": -0.006285610310254643,
+          "slot": 1
+        },
+        {
+          "row": 19126,
+          "signed_mm3": -0.006897983915546917,
+          "slot": 2
+        }
+      ],
+      "layer_interval": 1,
+      "local_construction_gate": false,
+      "min_trial_signed_mm3": -0.0698764612018322,
+      "trial_nonpositive_count": 6,
+      "trial_signed_sum_mm3": -0.22500440555881424,
+      "trial_tetra_signed_mm3": [
+        {
+          "row": 19114,
+          "signed_mm3": -0.009386214228224036,
+          "slot": 0
+        },
+        {
+          "row": 19114,
+          "signed_mm3": -0.010989818896991216,
+          "slot": 1
+        },
+        {
+          "row": 19114,
+          "signed_mm3": -0.011346264153166953,
+          "slot": 2
+        },
+        {
+          "row": 19126,
+          "signed_mm3": -0.057069646508897676,
+          "slot": 0
+        },
+        {
+          "row": 19126,
+          "signed_mm3": -0.0698764612018322,
+          "slot": 1
+        },
+        {
+          "row": 19126,
+          "signed_mm3": -0.06633600056970214,
+          "slot": 2
+        }
+      ]
+    }
+  ],
+  "layer_file_sha256": "78916a0c05eb130e5efb02174342295c2d8d4444eae963c7b36fc43a2a1b17fc",
+  "limitations": [
+    "Only the two-face local layer tetrahedra were compared; this is a virtual same-row connectivity remesh check, not physical material-transfer admission.",
+    "The existing guarded layer archive still stores the original topology and was not changed."
+  ],
+  "outer_points_match_a69": true,
+  "physical_layer_file_modified": false,
+  "physical_transfer_steps": 0,
+  "schema": "numi.human.component0.virtual_layer_topology_check.v1",
+  "status": "FAIL_LOCAL_LAYER_TOPOLOGY_GUARD",
+  "virtual_same_flip_applied_to_outer_inner_deep_topologies": true
+}

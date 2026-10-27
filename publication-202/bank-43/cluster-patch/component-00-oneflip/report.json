@@ -1,0 +1,169 @@
+{
+  "ancestry_refresh": [
+    {
+      "face_row": 19114,
+      "mode": "multi_parent_union_csr_nan_scalar_map",
+      "parents": [
+        18906,
+        18918
+      ]
+    },
+    {
+      "face_row": 19126,
+      "mode": "multi_parent_union_csr_nan_scalar_map",
+      "parents": [
+        18906,
+        18918
+      ]
+    }
+  ],
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-025-witness-cluster-topology-001/component-00-oneflip/candidate-private.npz",
+  "candidate_sha256": "1918739307097c6c51f7bfd867cf645b7b05aa2450b7af18655272a3630272ac",
+  "changed_face_count": 2,
+  "changed_face_rows": [
+    19114,
+    19126
+  ],
+  "clear_fixed_boundary_edges_pass_43_16": true,
+  "clear_fixed_boundary_node_count": 5,
+  "component_seed_faces": [
+    19114,
+    19126,
+    19133
+  ],
+  "coordinates_bitwise_identical_to_a69": true,
+  "elapsed_seconds": 2.0588369369506836,
+  "faces_unchanged_outside_operation_rows": true,
+  "generation002_ancestry_guard": {
+    "affine_parent_map_validation": null,
+    "all_scalar_summaries_match_csr_unions": true,
+    "construction_only": true,
+    "crossing_face_count": 565,
+    "crossing_face_kind_counts": {
+      "2": 565
+    },
+    "crossing_faces_with_multi_detail_union": 51,
+    "crossing_faces_with_multi_parent_csr": 0,
+    "crossing_faces_with_multi_source_union": 51,
+    "crossing_fine_detail_ancestry_union_validated": true,
+    "crossing_fine_detail_ancestry_unique_and_matching": false,
+    "current_face_count": 42379,
+    "detail_csr_value_count": 35767,
+    "multi_parent_current_face_count": 2,
+    "native_admission": false,
+    "parent_candidate_path": "provided",
+    "parent_face_count": 41745,
+    "parent_indices_in_range": true,
+    "refinement_parent_contract_mode": "legacy_parent_union_with_nan_multi_parent",
+    "refinement_parent_csr_rows": 42381,
+    "registered_detail_id_count": 11453,
+    "registered_source_id_count": 14345,
+    "registered_subface_id_count": 11459,
+    "source_csr_value_count": 42625,
+    "subface_csr_value_count": 35779
+  },
+  "geometry_admitted": false,
+  "immediate_parent_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+  "input_a69_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "input_pins": {
+    "a69": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+    "audit130": "c1aa0b43b19cfa860ee7c92400ecd396d16f5442c0918bdb2ef4c434bfff6a0d",
+    "audit159": "2e870a160a1514e7a5621ceb504845303e984871532f60278bac12b6bbf817a8",
+    "generation002_guard": "90bafb6a51e9d7a2dd9b49570fcd977423616e18e992c2d4a4306feea5bd5eab",
+    "immediate_parent": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+    "owner402": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+    "self_pairs": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+  },
+  "limitations": [
+    "fixed-coordinate topology operation only; full exact self, target bank, layer transfer and all-bank checks remain gating",
+    "multi-parent categorical ancestry is preserved by CSR union; continuous material transfer still requires owner reconciliation"
+  ],
+  "matched_037_connectivity_synchronized": true,
+  "operation": {
+    "angle_gain_deg": 8.196304483330103,
+    "edge": [
+      17064,
+      19370
+    ],
+    "face_rows": [
+      19114,
+      19126
+    ],
+    "immediate_parent_union": [
+      18906,
+      18918
+    ],
+    "new_diagonal": [
+      19375,
+      20144
+    ],
+    "new_faces": [
+      [
+        19370,
+        19375,
+        20144
+      ],
+      [
+        19375,
+        17064,
+        20144
+      ]
+    ],
+    "new_min_angle_deg": 10.185721618098517,
+    "old_min_angle_deg": 1.9894171347684153,
+    "source_detail_face_row": 8265,
+    "source_subface_row": 8267
+  },
+  "physical_steps": 0,
+  "schema": "numi.human.b43-16.component0.topology-repair-build.v1",
+  "shape_gate": {
+    "changed_rows": [
+      {
+        "current_f32": {
+          "area_fraction_old_patch": 0.14273796224294177,
+          "area_m2": 1.7106292207212878e-08,
+          "aspect": 2.249352872415088,
+          "min_angle_deg": 10.18572161809854
+        },
+        "face_row": 19114,
+        "immutable_037": {
+          "area_fraction_old_patch": 0.7142450854449192,
+          "area_m2": 5.042924972873251e-08,
+          "aspect": 4.134061558058686,
+          "min_angle_deg": 4.537977769263361
+        },
+        "triangle": [
+          19370,
+          19375,
+          20144
+        ]
+      },
+      {
+        "current_f32": {
+          "area_fraction_old_patch": 0.7373283337710891,
+          "area_m2": 8.836439677258552e-08,
+          "aspect": 2.112854884531592,
+          "min_angle_deg": 11.041178684053445
+        },
+        "face_row": 19126,
+        "immutable_037": {
+          "area_fraction_old_patch": 0.2857549145568997,
+          "area_m2": 2.0175715928694077e-08,
+          "aspect": 8.048671686476554,
+          "min_angle_deg": 3.1496294568497354
+        },
+        "triangle": [
+          19375,
+          17064,
+          20144
+        ]
+      }
+    ],
+    "maximum_aspect": 50,
+    "minimum_angle_deg": 0.5,
+    "minimum_area_fraction_old_patch": 0.1,
+    "pass": true
+  },
+  "source_detail_ancestry": "all input component faces are source/detail 8265; owner regenerated face-source/detail unions",
+  "status": "PRIVATE_COMPONENT0_ONE_FLIP_PENDING_EXACT_GATES"
+}

@@ -1,0 +1,308 @@
+{
+  "audit_130": {
+    "baseline_inside_node_bank_identities": 125,
+    "baseline_self_pairs": 0,
+    "baseline_sha256": "c1aa0b43b19cfa860ee7c92400ecd396d16f5442c0918bdb2ef4c434bfff6a0d",
+    "candidate_inside_node_bank_identities": 125,
+    "candidate_report_sha256": "446f6cb69d5ed0712dcf9ecd05d62f7f8b76948f8db1d731cf15d9da59a2fae9",
+    "candidate_self_pairs": 0,
+    "candidate_surface_complete": true,
+    "inside_added": [],
+    "inside_identity_nonregression": true,
+    "inside_removed": []
+  },
+  "audit_159": {
+    "baseline_bank_count": 185,
+    "baseline_sha256": "2e870a160a1514e7a5621ceb504845303e984871532f60278bac12b6bbf817a8",
+    "candidate_bank_count": 185,
+    "candidate_report_sha256": "17df9932ee887d698cea1e5bf665359a9375de0d855f87270072dd2b797750d8",
+    "complete": true,
+    "crossings": {
+      "banks_with_changed_raw_counts": [],
+      "baseline_parent_pair_count": 651,
+      "baseline_raw_pair_count": 983,
+      "candidate_parent_pair_count": 651,
+      "candidate_raw_pair_count": 983,
+      "parent_pair_add_count": 0,
+      "parent_pair_added": [],
+      "parent_pair_remove_count": 0,
+      "parent_pair_removed": [],
+      "raw_pair_add_count": 0,
+      "raw_pair_added": [],
+      "raw_pair_remove_count": 0,
+      "raw_pair_removed": [],
+      "target_109_114_baseline_raw_pairs": 187,
+      "target_109_114_candidate_raw_pairs": 187
+    }
+  },
+  "baseline_a69_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-200-stage-001/evidence/retained/candidate.npz",
+  "baseline_a69_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-024-a69-layer-fit-backtrack-001/alpha-0p015625/candidate.npz",
+  "candidate_sha256": "468254c2d44472bbcaf91b86f968536477fa2847b8581bc69003c3eb2395e0e7",
+  "geometry_admitted": false,
+  "limitations": [
+    "Reference-pose construction only. No full solid-containment, physical, native layer or motion qualification."
+  ],
+  "physical_steps": 0,
+  "schema": "numi.human.b109-114.a69-full-audit-comparison.v1",
+  "selected_layer_gate": {
+    "added_failure_count": 0,
+    "backtrack_report_sha256": "475b8ef7062f522ab8a3b08df18cca6b9380a6174980db11cb2a6bc9f5fb95c6",
+    "baseline_layer_sha256": "78916a0c05eb130e5efb02174342295c2d8d4444eae963c7b36fc43a2a1b17fc",
+    "candidate_layer_sha256": "d0c90f19906a81bbea37ed9d05daed9d0f46f8af1bde006173390b9eb37f8381",
+    "per_layer_failure_identity_delta": {
+      "fat": {
+        "authored_orientation": {
+          "added": [],
+          "baseline_count": 8530,
+          "candidate_count": 8530,
+          "removed": []
+        },
+        "f32_conditioned_tets": {
+          "added": [],
+          "baseline_count": 128,
+          "candidate_count": 126,
+          "removed": [
+            104115,
+            104124
+          ]
+        },
+        "f32_nonpositive_tets": {
+          "added": [],
+          "baseline_count": 2,
+          "candidate_count": 2,
+          "removed": []
+        }
+      },
+      "skin": {
+        "authored_orientation": {
+          "added": [],
+          "baseline_count": 7612,
+          "candidate_count": 7612,
+          "removed": []
+        },
+        "f32_conditioned_tets": {
+          "added": [],
+          "baseline_count": 52,
+          "candidate_count": 51,
+          "removed": [
+            104229
+          ]
+        },
+        "f32_nonpositive_tets": {
+          "added": [],
+          "baseline_count": 2,
+          "candidate_count": 2,
+          "removed": []
+        }
+      }
+    }
+  },
+  "status": "STATIC_CONSTRUCTION_INCREMENT_CHECKED",
+  "target_depth_vs_a69": {
+    "banks_per_node": 185,
+    "minimum_progress_mm": 0.000300397011732243,
+    "no_depth_regression": true,
+    "no_new_inside_identities": true,
+    "rows": [
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.7105513181074115,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.7082142744636956,
+        "node_row": 20920,
+        "progress_mm": 0.0023370436437158536
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.6367320503001773,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.634374941848095,
+        "node_row": 20960,
+        "progress_mm": 0.002357108452082416
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.8350462088925957,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.832700960201997,
+        "node_row": 20961,
+        "progress_mm": 0.0023452486905986645
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.32065148104818647,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.31842366849886083,
+        "node_row": 20964,
+        "progress_mm": 0.002227812549325612
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.062181173555956516,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.060760533463779486,
+        "node_row": 20965,
+        "progress_mm": 0.001420640092177033
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.1326041792442341,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.13102773438393123,
+        "node_row": 20968,
+        "progress_mm": 0.0015764448603028782
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.8161190189116752,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.813489007198031,
+        "node_row": 20969,
+        "progress_mm": 0.0026300117136442624
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.20153659594495527,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.19994229555200804,
+        "node_row": 20970,
+        "progress_mm": 0.0015943003929472233
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.7710746053917682,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.7687540229964861,
+        "node_row": 20972,
+        "progress_mm": 0.0023205823952821654
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -1.8275810095400398,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -1.8252358922190444,
+        "node_row": 20979,
+        "progress_mm": 0.002345117320995318
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -1.8703534897469334,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -1.8680120434504344,
+        "node_row": 20980,
+        "progress_mm": 0.002341446296499211
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.2149467436334621,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.21260921590630208,
+        "node_row": 21035,
+        "progress_mm": 0.0023375277271600278
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.8546576425509277,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.8518103903935553,
+        "node_row": 21038,
+        "progress_mm": 0.002847252157372397
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.23075972212126392,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.22841098322995151,
+        "node_row": 21039,
+        "progress_mm": 0.0023487388913123915
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.07914812945425218,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.07776966062901623,
+        "node_row": 21040,
+        "progress_mm": 0.001378468825235943
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.08899795649705632,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.08732426108892821,
+        "node_row": 21043,
+        "progress_mm": 0.0016736954081281044
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.7729721839975003,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.7701358397534115,
+        "node_row": 21045,
+        "progress_mm": 0.0028363442440888396
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.44164070083001555,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.43929498910798526,
+        "node_row": 21046,
+        "progress_mm": 0.002345711722030275
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.1266220786709989,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.12428064512155634,
+        "node_row": 21052,
+        "progress_mm": 0.0023414335494425457
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.669073460930632,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.6667459137134727,
+        "node_row": 21147,
+        "progress_mm": 0.0023275472171593826
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.6676585193921903,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.66532095924272,
+        "node_row": 21150,
+        "progress_mm": 0.0023375601494703612
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -1.0848850732402358,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -1.081904751193727,
+        "node_row": 21174,
+        "progress_mm": 0.0029803220465086846
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.11676294371128683,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.11526324464848434,
+        "node_row": 21176,
+        "progress_mm": 0.0014996990628024982
+      },
+      {
+        "a69_classification": "inside",
+        "a69_signed_distance_mm": -0.025848521444987463,
+        "candidate_classification": "inside",
+        "candidate_signed_distance_mm": -0.025548124433255222,
+        "node_row": 21178,
+        "progress_mm": 0.000300397011732243
+      }
+    ],
+    "sampled_nodes": 24,
+    "sum_progress_mm": 0.05105045442001433,
+    "target": [
+      109,
+      114
+    ]
+  }
+}

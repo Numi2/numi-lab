@@ -1,0 +1,53 @@
+{
+  "status": "PRIVATE_CANDIDATE_PENDING_CHECKS",
+  "baseline_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "proposal_sha256": "b1de8d18c5b6c91c882944c845fd543367b2cf0c27233d72a7ea9c4965809a2b",
+  "candidate_sha256": "d071f04fa64ce602f08dbf7859c45b4518ef2032ac92af0c1100d69dbdd59826",
+  "selected_face_pairs": [
+    [
+      34722,
+      34724
+    ],
+    [
+      19314,
+      19316
+    ],
+    [
+      19203,
+      19206
+    ],
+    [
+      34534,
+      34536
+    ],
+    [
+      35437,
+      35440
+    ],
+    [
+      12185,
+      12187
+    ]
+  ],
+  "omitted_face_pairs": [
+    [
+      13199,
+      13200
+    ],
+    [
+      34593,
+      34595
+    ],
+    [
+      31452,
+      31455
+    ],
+    [
+      14456,
+      14457
+    ]
+  ],
+  "omission_reason": "a changed face in the previous or proposed pair has an authored or Float32 layer-quality failure",
+  "geometry_admitted": false,
+  "physical_steps": 0
+}

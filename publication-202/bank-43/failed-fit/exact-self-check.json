@@ -1,0 +1,121 @@
+{
+  "schema": "numi.human.a69.incremental_complete_self_audit.v1",
+  "status": "FAIL_NEW_EXACT_SELF_PAIRS",
+  "pins": {
+    "candidate_sha256": "d21241ea6b16f2119faebda48196d79d4312d1316f7af5f7817e3780f145d8bb",
+    "a69_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+    "audit130_sha256": "c1aa0b43b19cfa860ee7c92400ecd396d16f5442c0918bdb2ef4c434bfff6a0d"
+  },
+  "baseline_exact_self_pair_count": 0,
+  "candidate_point_count": 21212,
+  "candidate_face_count": 42379,
+  "changed_point_rows": 366,
+  "changed_face_rows": 802,
+  "unchanged_faces_bitwise_invariant": true,
+  "scope": "all changed faces against the full candidate skin; unchanged/unchanged pairs are covered by the pinned complete a69 self audit with zero pairs",
+  "exact_self_pair_count": 25,
+  "exact_self_pairs": [
+    [
+      19114,
+      19675
+    ],
+    [
+      19114,
+      19678
+    ],
+    [
+      19114,
+      19692
+    ],
+    [
+      19126,
+      19675
+    ],
+    [
+      19126,
+      19692
+    ],
+    [
+      19133,
+      19675
+    ],
+    [
+      19133,
+      19678
+    ],
+    [
+      19133,
+      19692
+    ],
+    [
+      19383,
+      19651
+    ],
+    [
+      19383,
+      19654
+    ],
+    [
+      19383,
+      19665
+    ],
+    [
+      19402,
+      19665
+    ],
+    [
+      19402,
+      19669
+    ],
+    [
+      19402,
+      19670
+    ],
+    [
+      19402,
+      19671
+    ],
+    [
+      19408,
+      19665
+    ],
+    [
+      19408,
+      19669
+    ],
+    [
+      19408,
+      19670
+    ],
+    [
+      19408,
+      19671
+    ],
+    [
+      19426,
+      19651
+    ],
+    [
+      19426,
+      19665
+    ],
+    [
+      19426,
+      19669
+    ],
+    [
+      19426,
+      19670
+    ],
+    [
+      19427,
+      19665
+    ],
+    [
+      19427,
+      19669
+    ]
+  ],
+  "exact_self_pairs_truncated": false,
+  "elapsed_seconds": 4.232934236526489
+}

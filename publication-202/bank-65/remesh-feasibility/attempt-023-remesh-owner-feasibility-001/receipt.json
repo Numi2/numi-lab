@@ -1,0 +1,202 @@
+{
+  "accepted_physical_steps": 0,
+  "available_inputs_and_gap": {
+    "face_ancestry_available_for_current_faces": true,
+    "layer_file_contains_volume_cell_mass_or_parent_tet_ids": false,
+    "layer_file_shapes": {
+      "deep_faces": [
+        42379,
+        3
+      ],
+      "deep_points_f64": [
+        21212,
+        3
+      ],
+      "full_source_prolongation_indptr": [
+        21213
+      ],
+      "inner_faces": [
+        42379,
+        3
+      ],
+      "inner_points_f64": [
+        21212,
+        3
+      ],
+      "outer_faces": [
+        42379,
+        3
+      ],
+      "outer_points_f64": [
+        21212,
+        3
+      ],
+      "source_face_ancestry_indptr": [
+        42380
+      ]
+    },
+    "missing_existing_capability": "No existing owner composes a general remesh for the 261-face nonplanar patch with complete updated node/face ancestry, collision-aware repositioning, and a skin/fat changed-connectivity transfer that owns/rebuilds affected prism cells. The pinned 541 file contains nodal surfaces/offsets and face ancestry, not volumetric cell mass/parent-cell mapping. Fixed flips cannot clear inside nodes; the single-face CDT is not safely reusable at this patch scale.",
+    "node_prolongation_can_represent_barycentric_new_nodes_in_principle": true,
+    "source_ancestry_available": true
+  },
+  "candidate_created": false,
+  "current_65_99_inside": {
+    "candidate_audit_status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC",
+    "count": 29,
+    "max_signed_depth_mm": 2.0752720811574465,
+    "output_node_rows": [
+      20946,
+      20948,
+      20986,
+      20987,
+      20996,
+      20997,
+      20999,
+      21001,
+      21002,
+      21003,
+      21004,
+      21007,
+      21008,
+      21009,
+      21012,
+      21080,
+      21083,
+      21084,
+      21085,
+      21087,
+      21088,
+      21091,
+      21103,
+      21105,
+      21156,
+      21158,
+      21169,
+      21185,
+      21199
+    ],
+    "whole_surface_inside_node_count": 125
+  },
+  "current_candidate": {
+    "face_count": 42379,
+    "point_count": 21212,
+    "sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+    "source_provenance_levels": [
+      "node parent edge/face CSR",
+      "immediate and composed source prolongation CSR",
+      "face immediate-parent barycentrics and parent ancestry CSR",
+      "source-face ancestry CSR"
+    ]
+  },
+  "disposition": "No candidate was built because the existing owners do not supply the required end-to-end remesh/layer-cell mapping. Inputs do contain barycentric node CSR, but this is insufficient by itself to assign changed skin/fat cell ownership after a 261-face remesh. Preserve current 806 checkpoint; a new compatible owner is required.",
+  "existing_owner_contracts": [
+    {
+      "capability": "Same-parent topology flips at fixed coordinates; cannot move or remove the 29 inside nodes.",
+      "owner": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-358/same_parent_flips_358.py",
+      "sha256": "a08e1f7e6392854f72ffab09af6f2b1f2afe885b1a84f586afe71160ff3ccbee"
+    },
+    {
+      "capability": "Fixed-coordinate local flips with parent CSR; boundary/seams locked; no node creation, collapse, or reposition.",
+      "owner": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py",
+      "sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764"
+    },
+    {
+      "capability": "Conforming midpoint edge refinement with ancestry; no collision-aware fit or replacement of interior nodes.",
+      "owner": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/selective_patch_refinement621.py",
+      "sha256": "574be9d48eb23cb72243614da3fa8c2a799403b17ec3d13c9e3521dd33aca966"
+    },
+    {
+      "capability": "Moves existing nodes with same topology; no remesh or cell ownership update.",
+      "owner": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_connected_endpoint_patch545.py",
+      "sha256": "5934629949f183c02c47afd0dc9cf612bff16bd70a77c6a7e1db1ff6f841e142"
+    },
+    {
+      "capability": "One source-face constrained-contour CDT; emits node/face provenance for that face. Hard-coded to source face 22189, four replaced faces, six fixed boundary nodes; not a generic 261-face/61-edge patch remesher and emits no skin/fat layer arrays.",
+      "owner": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-184-stage-001/worker-74-cdt/cdt_patch_trial.py",
+      "sha256": "7b55bb630d796b665b3e0942e487cb88144e153c9e7f0c55c7d23cf0b21b6ce1"
+    },
+    {
+      "capability": "Transfers 541 skin/fat nodal offsets through composed source-prolongation CSR, but is pinned to the current 21,212-node/42,379-face topology and requires outer face rows to match; it has no changed-connectivity cell/material remap.",
+      "owner": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/physical-layer-diagnostic-001/transfer_current.py",
+      "sha256": "14cc312781348947992b1ecd7b375224fc2006a648ca45501cf0c7ad0a46feb6"
+    }
+  ],
+  "geometry_job_run": false,
+  "limits": [
+    "Boundary is geometrically eligible for a local remesh (61 edges, 0 exact bone hits, 0 uncertainties, >0.05 mm minimum clearance).",
+    "The existing patch has severe slivers (minimum angle 0.90098 degrees; p05 2.11753 degrees), making a shape-quality-controlled remesh nontrivial.",
+    "This receipt is not a clearance, self, skin/fat, physical, or native-admission result."
+  ],
+  "patch_preflight": {
+    "boundary_all_185_accounted": true,
+    "boundary_all_185_points_outside": true,
+    "boundary_edge_count": 61,
+    "boundary_node_count": 61,
+    "edge_uncertainties": 0,
+    "exact_edge_hits": 0,
+    "face_count": 261,
+    "minimum_angle_degrees": 0.9009779378174699,
+    "minimum_boundary_edge_bone_distance_mm": 0.050261126256799606,
+    "node_count": 162,
+    "p05_angle_degrees": 2.1175308414985494,
+    "patch_is_disk": true,
+    "report_sha256": "4827aec76257361a3e2e4354cc22b9013c966899dc1644131adad582f47927ff"
+  },
+  "pins": {
+    "audit130": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/audit-130/summary.json",
+      "sha256": "1291c50ddd6ac65e031f04bc586dfd7d7d3806b16338e245dbe65f9aabfc0eb4"
+    },
+    "audit159": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/audit-159/report.json",
+      "sha256": "4cc8fd5d5e8fb651733fd380001e2b9847a0040960d7c8865c37f25fe5b8a09d"
+    },
+    "boundary": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-021-boundary-expansion-001/run-001/iteration-002/preflight.json",
+      "sha256": "4827aec76257361a3e2e4354cc22b9013c966899dc1644131adad582f47927ff"
+    },
+    "candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz",
+      "sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756"
+    },
+    "cdt_input74": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-184-stage-001/worker-74-cdt/patch_cdt_input.py",
+      "sha256": "feaf42cc9228625d7bfc846c25d9028bbf951e4379a2003276487fd416af053c"
+    },
+    "expansion": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-021-boundary-expansion-001/run-001/expansion-receipt.json",
+      "sha256": "a492fc98557658d953e60d678317704414f12687e9ebc17d214afc1ce784264c"
+    },
+    "flips358": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-358/same_parent_flips_358.py",
+      "sha256": "a08e1f7e6392854f72ffab09af6f2b1f2afe885b1a84f586afe71160ff3ccbee"
+    },
+    "layer_transfer541": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/physical-layer-diagnostic-001/transfer_current.py",
+      "sha256": "14cc312781348947992b1ecd7b375224fc2006a648ca45501cf0c7ad0a46feb6"
+    },
+    "layers": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/skin-fat-layers-541.npz",
+      "sha256": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57"
+    },
+    "point_patch545": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_connected_endpoint_patch545.py",
+      "sha256": "5934629949f183c02c47afd0dc9cf612bff16bd70a77c6a7e1db1ff6f841e142"
+    },
+    "refine621": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/selective_patch_refinement621.py",
+      "sha256": "574be9d48eb23cb72243614da3fa8c2a799403b17ec3d13c9e3521dd33aca966"
+    },
+    "steiner_cdt74": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-184-stage-001/worker-74-cdt/cdt_patch_trial.py",
+      "sha256": "7b55bb630d796b665b3e0942e487cb88144e153c9e7f0c55c7d23cf0b21b6ce1"
+    },
+    "two_parent402": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py",
+      "sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764"
+    }
+  },
+  "schema": "numi.human.b65-99.remesh-owner-feasibility.v1",
+  "scope": "Source/NPZ contract feasibility only; no mesh edits, remesh candidate, solver, or geometry audit were run.",
+  "status": "NO_COMPATIBLE_EXISTING_OWNER_FOR_BOUNDED_261_FACE_LAYERED_REMESH"
+}
