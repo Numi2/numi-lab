@@ -1,0 +1,32 @@
+{
+  "schema": "numi.human.p193_evidence_manifest.v1",
+  "parent_commit": "410d51d39cdfa7225b58a2c4f5666351e698b975",
+  "status": "construction evidence only; no physical or native admission",
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "cf1c69473a7b43bff9e8844eca2ac7c4c1638459d79d0f0d93982f88f352fd0f",
+      "bytes": 1085
+    },
+    {
+      "path": "b109-114-rejected-fit/attempt-003-combined-3d-fit.py",
+      "sha256": "b4e6435603ad9912be8a73e166b88737797c4fbcb057d774da348e1a4a580b1d",
+      "bytes": 22610
+    },
+    {
+      "path": "b109-114-rejected-fit/fit-report.json",
+      "sha256": "551eca097348c438b012048cfd5b45d8fab74880e226466d350d660a8b21eb5d",
+      "bytes": 7088
+    },
+    {
+      "path": "b109-114-rejected-fit/local-replacement-trial.npz",
+      "sha256": "601abb3548711cae9d5d286b5baceddc46c361fa383d6afb2c4aefdb5ee7985f",
+      "bytes": 777721
+    },
+    {
+      "path": "b109-114-rejected-fit/topology-bundle.json",
+      "sha256": "09354c04bf26656bd7eaad457e29a1eb1c9bde69261b64a469ef0cf27fd42694",
+      "bytes": 1279
+    }
+  ]
+}

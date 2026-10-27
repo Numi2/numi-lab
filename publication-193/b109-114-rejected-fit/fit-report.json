@@ -1,0 +1,307 @@
+{
+  "ancestry": {
+    "endpoint_nodes_with_skin_face_barycentrics": 187,
+    "fine_detail_ancestry_entries": 36141,
+    "fine_subface_ancestry_entries": 36153,
+    "full_replacement_faces": 42753,
+    "source_ancestry_entries": 42999,
+    "source_rows_match_parent": true
+  },
+  "base_audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "base_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-182-stage-001/combined-653/candidate.npz",
+  "base_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "base_mesh": {
+    "baseline_self_pair_count": 0,
+    "face_count": 42379,
+    "node_count": 21212
+  },
+  "body": 109,
+  "checks": {
+    "all_bank_audit": false,
+    "exact_local_screens": "NOT_RUN_AFTER_SHAPE_FAILURE",
+    "full_body_audit": false,
+    "geometry_admitted": false,
+    "native_admission": false,
+    "physical_steps": 0
+  },
+  "elapsed_seconds": 2.1287502499762923,
+  "fit": {
+    "components": [
+      {
+        "active_movable_nodes": 192,
+        "component_id": 0,
+        "fixed_boundary_bitwise": true,
+        "fixed_boundary_nodes": 49,
+        "inside_nodes_before": 87,
+        "max_node_move_m": 0.0010944666898769415,
+        "min_distance_to_bone_m": 1.6833790066282532e-10,
+        "nearest_bone_face_counts": {
+          "109": 5,
+          "110": 39,
+          "111": 21,
+          "112": 9,
+          "115": 60,
+          "116": 6,
+          "139": 2,
+          "149": 5,
+          "150": 15,
+          "62": 25,
+          "88": 7,
+          "89": 10,
+          "90": 32,
+          "91": 20,
+          "92": 33
+        },
+        "node_count": 289,
+        "rms_node_move_m": 0.0002053481535599529
+      },
+      {
+        "active_movable_nodes": 45,
+        "component_id": 1,
+        "fixed_boundary_bitwise": true,
+        "fixed_boundary_nodes": 14,
+        "inside_nodes_before": 23,
+        "max_node_move_m": 0.0016845778274155823,
+        "min_distance_to_bone_m": 3.5366706663007384e-10,
+        "nearest_bone_face_counts": {
+          "109": 2,
+          "110": 2,
+          "111": 2,
+          "112": 1,
+          "113": 3,
+          "114": 2,
+          "115": 7,
+          "138": 2,
+          "139": 7,
+          "140": 4,
+          "150": 2,
+          "190": 1,
+          "191": 6,
+          "254": 2,
+          "255": 2,
+          "256": 2,
+          "257": 1,
+          "261": 1,
+          "298": 4,
+          "302": 1,
+          "304": 4,
+          "305": 3,
+          "331": 4,
+          "89": 1,
+          "90": 4
+        },
+        "node_count": 70,
+        "rms_node_move_m": 0.0003102892525676057
+      }
+    ],
+    "input_exact_point_locations": [
+      {
+        "component_id": 0,
+        "location_histogram": {
+          "inside": 87,
+          "outside": 202
+        }
+      },
+      {
+        "component_id": 1,
+        "location_histogram": {
+          "inside": 23,
+          "outside": 47
+        }
+      }
+    ],
+    "method": "one weighted Laplacian fit toward closest actual bone point plus 0.15 mm outward offset"
+  },
+  "fit_parameters": {
+    "active_target_weight": 30.0,
+    "bone_outward_target_margin_m": 0.00015,
+    "child_area_ratio_guard": [
+      0.25,
+      4.0
+    ],
+    "fixed_outer_boundary": true,
+    "inactive_anchor_weight": 0.05,
+    "laplacian_weight": 0.5,
+    "max_node_move_m": 0.004
+  },
+  "schema": "numi.human.b109_114.local_replacement_fit_trial.v1",
+  "shape_gates": {
+    "area_ratio_fail_count": 59,
+    "area_ratio_fail_face_indices": [
+      10,
+      11,
+      13,
+      19,
+      29,
+      49,
+      50,
+      51,
+      55,
+      57,
+      62,
+      64,
+      65,
+      67,
+      110,
+      112,
+      119,
+      120,
+      167,
+      169,
+      170,
+      171,
+      177,
+      180,
+      181,
+      183,
+      185,
+      198,
+      199,
+      264,
+      268,
+      269,
+      272,
+      280,
+      306,
+      307,
+      323,
+      337,
+      343,
+      344,
+      348,
+      351,
+      366,
+      372,
+      378,
+      379,
+      388,
+      410,
+      461,
+      464,
+      483,
+      484,
+      485,
+      491,
+      493,
+      518,
+      635,
+      649,
+      650
+    ],
+    "area_ratio_guard": [
+      0.25,
+      4.0
+    ],
+    "area_ratio_max": 218.58326085601658,
+    "area_ratio_min": 0.05111857722589141,
+    "degenerate_after_exact": 0,
+    "degenerate_after_numeric": 0,
+    "degenerate_before": 0,
+    "double_area_after_range_m2": [
+      2.7818152847833493e-11,
+      4.065615855187135e-05
+    ],
+    "double_area_before_range_m2": [
+      9.68124662951892e-13,
+      4.0963405092913086e-05
+    ],
+    "exact_degenerate_face_indices": [],
+    "fixed_outer_boundary_bitwise": true,
+    "inverted_or_flat_face_count": 46,
+    "inverted_or_flat_face_indices": [
+      10,
+      50,
+      59,
+      64,
+      93,
+      97,
+      112,
+      115,
+      120,
+      130,
+      131,
+      167,
+      171,
+      172,
+      173,
+      174,
+      182,
+      199,
+      263,
+      267,
+      268,
+      269,
+      278,
+      309,
+      311,
+      317,
+      324,
+      325,
+      334,
+      339,
+      348,
+      357,
+      366,
+      371,
+      385,
+      397,
+      398,
+      409,
+      410,
+      415,
+      416,
+      441,
+      465,
+      517,
+      518,
+      537
+    ],
+    "max_move_m": 0.0016845778274155823,
+    "status": "FAIL"
+  },
+  "stable_bone_id": 114,
+  "status": "REJECTED_SHAPE_OR_BOUNDARY_GUARD",
+  "target_bone": {
+    "consistent_orientation": true,
+    "edge_valence_histogram": {
+      "2": 588
+    },
+    "exact_bit_edge_count": 588,
+    "exact_bit_vertex_count": 198,
+    "signed_volume_m3": 2.587845366864981e-06,
+    "source_pins": {
+      "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+      "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+      "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+      "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+    },
+    "triangle_count": 392
+  },
+  "topology": {
+    "child_face_count": 651,
+    "combined_node_count": 21399,
+    "components": [
+      {
+        "added_endpoint_nodes": 144,
+        "boundary_edges": 49,
+        "child_faces": 527,
+        "contour_edges": 144,
+        "id": 0,
+        "parent_faces": 239
+      },
+      {
+        "added_endpoint_nodes": 43,
+        "boundary_edges": 14,
+        "child_faces": 124,
+        "contour_edges": 43,
+        "id": 1,
+        "parent_faces": 38
+      }
+    ],
+    "outside_original_face_count": 42102,
+    "replaced_parent_face_count": 277
+  },
+  "topology_bundle_sha256": "09354c04bf26656bd7eaad457e29a1eb1c9bde69261b64a469ef0cf27fd42694",
+  "trial_file_sha256": "601abb3548711cae9d5d286b5baceddc46c361fa383d6afb2c4aefdb5ee7985f",
+  "trial_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-003-combined-3d-fit/local-replacement-trial.npz"
+}
