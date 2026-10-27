@@ -1,0 +1,82 @@
+{
+  "schema": "numi.human.p184_evidence_manifest.v1",
+  "parent_commit": "7e48c6a413276ded649598e64e008514a1d4992f",
+  "status": "construction evidence only; no physical or native admission",
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "99641c7f5fd17b9d3cda6c2281f04c5e037745323d733a30df8c168750967e02",
+      "bytes": 2523
+    },
+    {
+      "path": "planar-74-104/constrained_edgeflip_root.py",
+      "sha256": "08b806b04515ae00e455aaf7801639fb5dce44f11b81ae682fe86c3278fa9871",
+      "bytes": 6267
+    },
+    {
+      "path": "planar-74-104/planar-report.json",
+      "sha256": "d8d51b57c1faedad0b89b68884070832679a09d9117ba6a725e3912061861db6",
+      "bytes": 738
+    },
+    {
+      "path": "planar-74-104/planar-triangulation.npz",
+      "sha256": "eda7d2f93cca1d187c5a20713efac83e13022c372cda0408cbcf872e208aaf2e",
+      "bytes": 2177
+    },
+    {
+      "path": "worker-59-registration/receipt.json",
+      "sha256": "abc3301c93276c2f4bbb43731f44290f646747022926c52530b258f56989309c",
+      "bytes": 12909
+    },
+    {
+      "path": "worker-74-cdt/cdt_patch_trial.py",
+      "sha256": "7b55bb630d796b665b3e0942e487cb88144e153c9e7f0c55c7d23cf0b21b6ce1",
+      "bytes": 39983
+    },
+    {
+      "path": "worker-74-cdt/constrained_edgeflip_root.py",
+      "sha256": "08b806b04515ae00e455aaf7801639fb5dce44f11b81ae682fe86c3278fa9871",
+      "bytes": 6267
+    },
+    {
+      "path": "worker-74-cdt/fix_cdt_trial.py",
+      "sha256": "f1dccbb137cb686645eb2922adbb585162bc5382d420beecd8b4019f7b24fec2",
+      "bytes": 1182
+    },
+    {
+      "path": "worker-74-cdt/patch_cdt_input.py",
+      "sha256": "feaf42cc9228625d7bfc846c25d9028bbf951e4379a2003276487fd416af053c",
+      "bytes": 8482
+    },
+    {
+      "path": "worker-74-cdt/planar-triangulation-report.json",
+      "sha256": "be7b269f83324b63c64c51aee55f3560dbc2760905cc32cb44089ca1c1e9c424",
+      "bytes": 7503
+    },
+    {
+      "path": "worker-74-cdt/planar-triangulation.npz",
+      "sha256": "eda7d2f93cca1d187c5a20713efac83e13022c372cda0408cbcf872e208aaf2e",
+      "bytes": 2177
+    },
+    {
+      "path": "worker-74-cdt/root-planar-report.json",
+      "sha256": "d8d51b57c1faedad0b89b68884070832679a09d9117ba6a725e3912061861db6",
+      "bytes": 738
+    },
+    {
+      "path": "worker-74-cdt/segment-graph-report.json",
+      "sha256": "06688d88c9aa85288d36dba534f79dfa98251a835229598f17d9f2e08c57394c",
+      "bytes": 8945
+    },
+    {
+      "path": "worker-74-cdt/segment-guided-failed-patch.npz",
+      "sha256": "2c7c3a76504e5b61eebdf1ed77aaa9b50f2131e84d9d392801129b6a97c35b6e",
+      "bytes": 418551
+    },
+    {
+      "path": "worker-74-cdt/segment-guided-report.json",
+      "sha256": "743096a87b7486ba6f1b49463280b8f68741b066bcbf53b1c303e73fde4ed66d",
+      "bytes": 109873
+    }
+  ]
+}

@@ -1,0 +1,337 @@
+{
+  "schema": "numi.human.b74_104_cdt_independent_planar_check.v1",
+  "status": "PASS",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "root_planar_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/steiner-multinode-004-cdt-guided/root-planar-report.json",
+  "root_planar_report_sha256": "d8d51b57c1faedad0b89b68884070832679a09d9117ba6a725e3912061861db6",
+  "cdt_npz_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/steiner-multinode-004-cdt-guided/planar-triangulation.npz",
+  "cdt_npz_sha256": "eda7d2f93cca1d187c5a20713efac83e13022c372cda0408cbcf872e208aaf2e",
+  "segment_graph_report_sha256": "06688d88c9aa85288d36dba534f79dfa98251a835229598f17d9f2e08c57394c",
+  "outer_node_identity_mapping": [
+    {
+      "row": 0,
+      "node": 19094,
+      "barycentric": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "row": 1,
+      "node": 21136,
+      "barycentric": [
+        0.5,
+        0.5,
+        0.0
+      ]
+    },
+    {
+      "row": 2,
+      "node": 19092,
+      "barycentric": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "row": 3,
+      "node": 20914,
+      "barycentric": [
+        0.0,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "row": 4,
+      "node": 12694,
+      "barycentric": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "row": 5,
+      "node": 20915,
+      "barycentric": [
+        0.5,
+        0.0,
+        0.5
+      ]
+    }
+  ],
+  "contour_node_identity_mapping": [
+    {
+      "row": 6,
+      "graph_point_id": 0,
+      "output_node": 21212,
+      "barycentric": [
+        0.5000000128777293,
+        0.05640362383439487,
+        0.44359636328787583
+      ]
+    },
+    {
+      "row": 7,
+      "graph_point_id": 1,
+      "output_node": 21213,
+      "barycentric": [
+        0.5914715463489402,
+        0.01809956129155032,
+        0.39042889235950945
+      ]
+    },
+    {
+      "row": 8,
+      "graph_point_id": 2,
+      "output_node": 21214,
+      "barycentric": [
+        0.6137947575884708,
+        0.017880397658140982,
+        0.36832484475338817
+      ]
+    },
+    {
+      "row": 9,
+      "graph_point_id": 3,
+      "output_node": 21215,
+      "barycentric": [
+        0.7679559293441351,
+        0.010746373195107408,
+        0.22129769746075742
+      ]
+    },
+    {
+      "row": 10,
+      "graph_point_id": 4,
+      "output_node": 21216,
+      "barycentric": [
+        0.7893778866226604,
+        0.04886642092369278,
+        0.16175569245364688
+      ]
+    },
+    {
+      "row": 11,
+      "graph_point_id": 5,
+      "output_node": 21217,
+      "barycentric": [
+        0.8024141947623477,
+        0.19717908415283528,
+        0.0004067210848170568
+      ]
+    },
+    {
+      "row": 12,
+      "graph_point_id": 6,
+      "output_node": 21218,
+      "barycentric": [
+        0.5000001139246676,
+        0.49898270079509316,
+        0.0010171852802392679
+      ]
+    },
+    {
+      "row": 13,
+      "graph_point_id": 7,
+      "output_node": 21219,
+      "barycentric": [
+        0.17923041704314846,
+        0.8196531580855537,
+        0.001116424871297768
+      ]
+    },
+    {
+      "row": 14,
+      "graph_point_id": 8,
+      "output_node": 21220,
+      "barycentric": [
+        0.18001064565304337,
+        0.818977851144927,
+        0.0010115032020296018
+      ]
+    },
+    {
+      "row": 15,
+      "graph_point_id": 9,
+      "output_node": 21221,
+      "barycentric": [
+        0.2661219899323134,
+        0.7323881072293529,
+        0.0014899028383337696
+      ]
+    },
+    {
+      "row": 16,
+      "graph_point_id": 10,
+      "output_node": 21222,
+      "barycentric": [
+        0.49898178407588156,
+        0.4999989750057617,
+        0.0010192409183567652
+      ]
+    },
+    {
+      "row": 17,
+      "graph_point_id": 11,
+      "output_node": 21223,
+      "barycentric": [
+        0.17804100449552274,
+        0.819810898558188,
+        0.0021480969462892617
+      ]
+    },
+    {
+      "row": 18,
+      "graph_point_id": 12,
+      "output_node": 21224,
+      "barycentric": [
+        0.0660203568028892,
+        0.7952869010022531,
+        0.13869274219485778
+      ]
+    },
+    {
+      "row": 19,
+      "graph_point_id": 13,
+      "output_node": 21225,
+      "barycentric": [
+        0.027625131786208623,
+        0.5437975241928789,
+        0.4285773440209126
+      ]
+    },
+    {
+      "row": 20,
+      "graph_point_id": 14,
+      "output_node": 21226,
+      "barycentric": [
+        0.04570600195285235,
+        0.49999897500576146,
+        0.45429502304138625
+      ]
+    },
+    {
+      "row": 21,
+      "graph_point_id": 15,
+      "output_node": 21227,
+      "barycentric": [
+        0.011431477184289829,
+        0.591190929008656,
+        0.39737759380705423
+      ]
+    },
+    {
+      "row": 22,
+      "graph_point_id": 16,
+      "output_node": 21228,
+      "barycentric": [
+        0.015970867252002474,
+        0.6468824391145881,
+        0.3371466936334094
+      ]
+    },
+    {
+      "row": 23,
+      "graph_point_id": 17,
+      "output_node": 21229,
+      "barycentric": [
+        0.02348895747593671,
+        0.7277597455416658,
+        0.24875129698239748
+      ]
+    },
+    {
+      "row": 24,
+      "graph_point_id": 18,
+      "output_node": 21230,
+      "barycentric": [
+        0.028974988865773987,
+        0.7376920395551237,
+        0.23333297157910224
+      ]
+    },
+    {
+      "row": 25,
+      "graph_point_id": 19,
+      "output_node": 21231,
+      "barycentric": [
+        0.3244285293750321,
+        0.15054142988510566,
+        0.5250300407398623
+      ]
+    },
+    {
+      "row": 26,
+      "graph_point_id": 20,
+      "output_node": 21232,
+      "barycentric": [
+        0.2703010998697286,
+        0.1955934593125736,
+        0.5341054408176977
+      ]
+    },
+    {
+      "row": 27,
+      "graph_point_id": 21,
+      "output_node": 21233,
+      "barycentric": [
+        0.37869461843035523,
+        0.12130516059060324,
+        0.5000002209790415
+      ]
+    },
+    {
+      "row": 28,
+      "graph_point_id": 22,
+      "output_node": 21234,
+      "barycentric": [
+        0.09070404116354103,
+        0.3909969343572287,
+        0.5182990244792303
+      ]
+    },
+    {
+      "row": 29,
+      "graph_point_id": 23,
+      "output_node": 21235,
+      "barycentric": [
+        0.07783944524351827,
+        0.4221597857169426,
+        0.500000769039539
+      ]
+    },
+    {
+      "row": 30,
+      "graph_point_id": 24,
+      "output_node": 21236,
+      "barycentric": [
+        0.4962278834369558,
+        0.057983217796975295,
+        0.445788898766069
+      ]
+    }
+  ],
+  "fixed_boundary_edge_count": 6,
+  "exact_contour_segment_count": 25,
+  "edge_incidence_ok": true,
+  "unused_nodes": [],
+  "t_junctions": [],
+  "nonadjacent_edge_crossings": [],
+  "outer_area_barycentric2": 0.5,
+  "contour_area_barycentric2": 0.3214222487641143,
+  "triangulated_area_barycentric2": 0.4999999999999999,
+  "annulus_area_barycentric2": 0.17857775123588568,
+  "cap_area_barycentric2": 0.32142224876411424,
+  "coverage_error_barycentric2": -1.1102230246251565e-16,
+  "minimum_triangle_area_barycentric2": 3.4007245949627007e-07,
+  "triangle_count": 54,
+  "domain_centroid_classification_pass": true,
+  "source_face_barycentric_ancestry_pass": true,
+  "immediate_parent_face_row": 22189,
+  "fine_detail_face_row": 10342,
+  "fine_subface_row": 10344
+}

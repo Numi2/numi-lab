@@ -1,0 +1,287 @@
+{
+  "assessment": "No evidence found for a stale pose or obvious typed-ID swap. Exact emitted transforms match the registered current poses; typed bank records form the named right index proximal/middle/distal phalanx sequence under the stated name-join caveat. The remaining intersection evidence is most safely addressed as a local skin contour/topology defect around the 59/95 witness patch while preserving the exact bank identity and pose.",
+  "checkpoint": {
+    "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz",
+    "original_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+    "recorded_refinement_input_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+    "sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af"
+  },
+  "exact_export": {
+    "bank_inventory_table": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+      "sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df"
+    },
+    "directory": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight",
+    "exact_emitted_body_table": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+      "sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90"
+    },
+    "exact_emitted_triangle_table": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+      "sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+    },
+    "export_report": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/export-report-final.json",
+      "sha256": "48fec5abb489f9830cf033ea940244fd4c7d141f8ed1260a0c54afb7fb5601d7"
+    },
+    "pose_snapshot": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/registered-skin-poses.json",
+      "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+    },
+    "pose_snapshot_sha256_in_report": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "registered_skin_csv": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/registered-skin.csv",
+      "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524"
+    },
+    "source_record_contract": "body_index + bone_stable_id to unique verified BoneOwner sourceRecordIndex; member string is not present in this owner record"
+  },
+  "limitations": [
+    "No visual inspection was performed.",
+    "No new exact triangle-crossing or skin self-intersection audit was run.",
+    "Anatomical labels are a cross-file join, not present in the exact exporter record.",
+    "This does not establish native physical admission or resolve whether the contour is physically intended."
+  ],
+  "named_inventory_link": {
+    "identity_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "join_limit": "The exact export maps typed body_index + bone_stable_id to sourceRecordIndex but has no anatomical member string. Names above are joined from the linked named inventory by body index and exact face count, under the same pose identity hash; they are not a direct name field in the exact export.",
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/fine-source-wholehand-repair-013/refinement-011-finite-sat/candidate-report.json",
+    "records": [
+      {
+        "body_index": 59,
+        "bone_stable_id": 95,
+        "local_aabb_m": {
+          "max_x": "0.011466294527053833",
+          "max_y": "-0.0036087632179260254",
+          "max_z": "0.011076569557189941",
+          "min_x": "-0.0065455436706542969",
+          "min_y": "-0.044648230075836182",
+          "min_z": "-0.0047263503074645996"
+        },
+        "named_inventory_owner": "2proxph_r",
+        "owner_name_join_basis": "same body_index and exact triangle count; candidate report identity_sha256 equals registered pose snapshot SHA; exact exporter itself has no member string",
+        "owner_side": "right",
+        "source_record_index": 37,
+        "triangle_count": 386
+      },
+      {
+        "body_index": 60,
+        "bone_stable_id": 96,
+        "local_aabb_m": {
+          "max_x": "0.0065640807151794434",
+          "max_y": "-0.0021039247512817383",
+          "max_z": "0.0042971372604370117",
+          "min_x": "-0.005635678768157959",
+          "min_y": "-0.027581572532653809",
+          "min_z": "-0.004769444465637207"
+        },
+        "named_inventory_owner": "midph2_r",
+        "owner_name_join_basis": "same body_index and exact triangle count; candidate report identity_sha256 equals registered pose snapshot SHA; exact exporter itself has no member string",
+        "owner_side": "right",
+        "source_record_index": 38,
+        "triangle_count": 264
+      },
+      {
+        "body_index": 61,
+        "bone_stable_id": 97,
+        "local_aabb_m": {
+          "max_x": "0.0047717378474771976",
+          "max_y": "-0.0013033137656748295",
+          "max_z": "0.0034415142145007849",
+          "min_x": "-0.004529894795268774",
+          "min_y": "-0.020544035360217094",
+          "min_z": "-0.0029744489584118128"
+        },
+        "named_inventory_owner": "distph2_r",
+        "owner_name_join_basis": "same body_index and exact triangle count; candidate report identity_sha256 equals registered pose snapshot SHA; exact exporter itself has no member string",
+        "owner_side": "right",
+        "source_record_index": 39,
+        "triangle_count": 210
+      }
+    ],
+    "same_as_registered_pose_sha256": true,
+    "sha256": "63075beb5456a26ab2e0b8d7e2caf0d029befe044bd77b8b125d657551de61ef"
+  },
+  "pose_parity": {
+    "max_abs_current_position_difference_m_bodies_57_59_60_61": 1.510009672855972e-09,
+    "max_abs_current_quaternion_difference_bodies_57_59_60_61": 1.1694334389744654e-10,
+    "registered_pose_records_body_59_60_61": {
+      "59": {
+        "current": {
+          "orientation_world_xyzw": [
+            0.0333554447,
+            0.707361877,
+            0.0371846072,
+            -0.705084324
+          ],
+          "position_world_m": [
+            -0.300941437,
+            -0.94211024,
+            0.134068429
+          ]
+        },
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.5,
+            0.49999997,
+            0.50000006,
+            -0.5
+          ],
+          "position_world_m": [
+            -0.238644019,
+            0.152867064,
+            0.849382639
+          ]
+        }
+      },
+      "60": {
+        "current": {
+          "orientation_world_xyzw": [
+            0.0333554447,
+            0.707361877,
+            0.0371846072,
+            -0.705084324
+          ],
+          "position_world_m": [
+            -0.312368959,
+            -0.982486665,
+            0.141326845
+          ]
+        },
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.5,
+            0.49999997,
+            0.50000006,
+            -0.5
+          ],
+          "position_world_m": [
+            -0.245970026,
+            0.145357072,
+            0.808109641
+          ]
+        }
+      },
+      "61": {
+        "current": {
+          "orientation_world_xyzw": [
+            0.0333554447,
+            0.707361877,
+            0.0371846072,
+            -0.705084324
+          ],
+          "position_world_m": [
+            -0.316073984,
+            -1.00714636,
+            0.144517571
+          ]
+        },
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.5,
+            0.49999997,
+            0.50000006,
+            -0.5
+          ],
+          "position_world_m": [
+            -0.247190028,
+            0.14202407,
+            0.783221602
+          ]
+        }
+      }
+    }
+  },
+  "schema": "numi.human.skin_bone_registration_identity_check.v1",
+  "scope": "read-only source and registration inspection; no geometry audit or source/candidate mutation",
+  "surface_landmark_check": {
+    "candidate_node": 20912,
+    "nearest_registered_skin_vertex_by_donor_body": {
+      "59": {
+        "distance_mm": 4.842197146439913,
+        "registered_vertex": 2832,
+        "world_m": [
+          -0.30719152092933655,
+          -0.9584221243858337,
+          0.1326526552438736
+        ]
+      },
+      "60": {
+        "distance_mm": 29.898442291744495,
+        "registered_vertex": 1632,
+        "world_m": [
+          -0.30809515714645386,
+          -0.9879416823387146,
+          0.1476471871137619
+        ]
+      },
+      "61": {
+        "distance_mm": 46.89451708115368,
+        "registered_vertex": 1311,
+        "world_m": [
+          -0.2876252233982086,
+          -0.999009370803833,
+          0.150308758020401
+        ]
+      }
+    },
+    "world_m": [
+      -0.31024956703186035,
+      -0.9606205224990845,
+      0.13569605350494385
+    ]
+  },
+  "typed_neighboring_banks": [
+    {
+      "body_index": 59,
+      "bone_stable_id": 95,
+      "local_aabb_m": {
+        "max_x": "0.011466294527053833",
+        "max_y": "-0.0036087632179260254",
+        "max_z": "0.011076569557189941",
+        "min_x": "-0.0065455436706542969",
+        "min_y": "-0.044648230075836182",
+        "min_z": "-0.0047263503074645996"
+      },
+      "named_inventory_owner": "2proxph_r",
+      "owner_name_join_basis": "same body_index and exact triangle count; candidate report identity_sha256 equals registered pose snapshot SHA; exact exporter itself has no member string",
+      "owner_side": "right",
+      "source_record_index": 37,
+      "triangle_count": 386
+    },
+    {
+      "body_index": 60,
+      "bone_stable_id": 96,
+      "local_aabb_m": {
+        "max_x": "0.0065640807151794434",
+        "max_y": "-0.0021039247512817383",
+        "max_z": "0.0042971372604370117",
+        "min_x": "-0.005635678768157959",
+        "min_y": "-0.027581572532653809",
+        "min_z": "-0.004769444465637207"
+      },
+      "named_inventory_owner": "midph2_r",
+      "owner_name_join_basis": "same body_index and exact triangle count; candidate report identity_sha256 equals registered pose snapshot SHA; exact exporter itself has no member string",
+      "owner_side": "right",
+      "source_record_index": 38,
+      "triangle_count": 264
+    },
+    {
+      "body_index": 61,
+      "bone_stable_id": 97,
+      "local_aabb_m": {
+        "max_x": "0.0047717378474771976",
+        "max_y": "-0.0013033137656748295",
+        "max_z": "0.0034415142145007849",
+        "min_x": "-0.004529894795268774",
+        "min_y": "-0.020544035360217094",
+        "min_z": "-0.0029744489584118128"
+      },
+      "named_inventory_owner": "distph2_r",
+      "owner_name_join_basis": "same body_index and exact triangle count; candidate report identity_sha256 equals registered pose snapshot SHA; exact exporter itself has no member string",
+      "owner_side": "right",
+      "source_record_index": 39,
+      "triangle_count": 210
+    }
+  ]
+}
