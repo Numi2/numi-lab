@@ -1,0 +1,98 @@
+{
+  "files": [
+    {
+      "path": "/private/tmp/numi-baseline069-index-y6t6vox4",
+      "name": "numi-baseline069-index-y6t6vox4",
+      "bytes": 18862531,
+      "sha256": "d9a553d7fcec2ca2862679af16bc392453bae4377e572d5791622c6765f140a8",
+      "allocated": 18866176,
+      "mode": 420,
+      "dev": 16777231,
+      "ino": 4565838,
+      "nlink": 1,
+      "mtime_ns": 1792760877862312718,
+      "ctime_ns": 1792760877862409677
+    },
+    {
+      "path": "/private/tmp/numi-human-capacity-059.index",
+      "name": "numi-human-capacity-059.index",
+      "bytes": 21627504,
+      "sha256": "390ea5dd46cf1e250f21ae6c34095ee14ed759d95d0d7529d5ab4383af621c6c",
+      "allocated": 21630976,
+      "mode": 420,
+      "dev": 16777231,
+      "ino": 4685935,
+      "nlink": 1,
+      "mtime_ns": 1792877381977295728,
+      "ctime_ns": 1792877381977738606
+    },
+    {
+      "path": "/private/tmp/numi-joint082-index-g53iiqa6",
+      "name": "numi-joint082-index-g53iiqa6",
+      "bytes": 19323593,
+      "sha256": "9493a1f866442dd7c77fc1f88e8b6c7525b5e639f81ef7b0bb0ddc7a3e073f78",
+      "allocated": 19324928,
+      "mode": 420,
+      "dev": 16777231,
+      "ino": 4570720,
+      "nlink": 1,
+      "mtime_ns": 1792768371428512753,
+      "ctime_ns": 1792768371428642295
+    },
+    {
+      "path": "/private/tmp/numi-rebind075-index-3ekbjll2",
+      "name": "numi-rebind075-index-3ekbjll2",
+      "bytes": 19309355,
+      "sha256": "04ea0fdcb55ed07e2e43afea78046957b2a91adf0d0ecff5128d6b908438251a",
+      "allocated": 19312640,
+      "mode": 420,
+      "dev": 16777231,
+      "ino": 4568922,
+      "nlink": 1,
+      "mtime_ns": 1792765344450422086,
+      "ctime_ns": 1792765344450526920
+    },
+    {
+      "path": "/private/tmp/numi-replay070-index-ue_b_hx7",
+      "name": "numi-replay070-index-ue_b_hx7",
+      "bytes": 18865142,
+      "sha256": "8bbeda44bff3442122334633901088071c6119b62d6c5d41746d991078a3155e",
+      "allocated": 18866176,
+      "mode": 420,
+      "dev": 16777231,
+      "ino": 4566514,
+      "nlink": 1,
+      "mtime_ns": 1792762043959526290,
+      "ctime_ns": 1792762043959613707
+    },
+    {
+      "path": "/private/tmp/numi-shared071-index-cyl5oevk",
+      "name": "numi-shared071-index-cyl5oevk",
+      "bytes": 19270801,
+      "sha256": "e80126c7a088d769a4c3efa1ee1375e10909d30f6ea64016e2a6cc252b134dac",
+      "allocated": 19271680,
+      "mode": 420,
+      "dev": 16777231,
+      "ino": 4567237,
+      "nlink": 1,
+      "mtime_ns": 1792762676154760011,
+      "ctime_ns": 1792762676154869887
+    },
+    {
+      "path": "/private/tmp/numi-transfer065-index-y12eibao",
+      "name": "numi-transfer065-index-y12eibao",
+      "bytes": 18856973,
+      "sha256": "1dd44a58c7926ac97e91cb1f697882deedbe1b961ea5ffee15828e1b33a95e97",
+      "allocated": 18857984,
+      "mode": 420,
+      "dev": 16777231,
+      "ino": 4564914,
+      "nlink": 1,
+      "mtime_ns": 1792758828873847882,
+      "ctime_ns": 1792758828873950758
+    }
+  ],
+  "current_index": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+  "current_index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+  "status": "PLANNED_RECOVERABLE_TEMPORARY_INDEX_CACHE_RETIREMENT"
+}

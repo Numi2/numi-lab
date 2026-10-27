@@ -1,0 +1,3 @@
+waiting_for_human_geometry_slot pid=47411
+acquired_human_geometry_slot pid=47411
+{"fit_argv": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continued-self-cuts-630/from-run005-round1-001/cut-003/fit-argv.json", "fit_status": "PREPARED_NOT_LAUNCHED", "merged_pairs": 28877, "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continued-self-cuts-630/from-run005-round1-001/cut-003", "overlap_pairs": 15, "rows": 161104, "status": "PASS_REBUILT_CONSTRUCTION_SEEDS_ONLY", "zero_step_max_rhs_mm": -1.2536580913202582e-07}

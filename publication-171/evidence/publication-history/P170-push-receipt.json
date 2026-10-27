@@ -1,0 +1,40 @@
+{
+  "commit": "c1390f7f33f4bd90e5cf2306f137666e62eb5089",
+  "commit_message": "Publish P170 connected-surface construction checkpoint",
+  "independent_plaintext_retirement": {
+    "receipt_directory": "/Users/numi/Work/numi-human-connected-surface-069/D/published-fit-retirement-plan-20261027/p170-archives-004",
+    "recovery_sha256": "419cdc584a7858239ae76302d0a0bd01a1ea8dfdc5cd07d8516da87b4acbf532",
+    "retired_only_after_remote_restore_and_consumer_checks": true
+  },
+  "manifest_member_bytes": 219083402,
+  "manifest_member_count": 349,
+  "manifest_sha256": "e6a9572750d02b438e776d04a3cd20b5cb3a6fc9d1a685ee8fa791452261d0a4",
+  "parent": "ff83a29f52cc23e6a51839af0b1e818f20103d3f",
+  "prefix": "publication-170",
+  "publication": "P170",
+  "recorded_utc": "2026-10-27T06:01:43.049084+00:00",
+  "ref_update": {
+    "expected_parent": "ff83a29f52cc23e6a51839af0b1e818f20103d3f",
+    "force": false,
+    "ref": "refs/heads/main"
+  },
+  "remote_verification": {
+    "all_remote_raw_hashes_and_sizes_passed": true,
+    "archive_restore_count": 3,
+    "receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-170-remote-verification.json",
+    "remote_path_count": 350,
+    "root_siblings_equal_parent": true,
+    "sha256": "df87a73df21317386aa583c6fb1640a18ebc5c66254de33148f60ed816de3e03"
+  },
+  "repository": "Numi2/numi-lab",
+  "schema": "numi.human.publication_push_receipt.v1",
+  "shared_checkout_after": {
+    "branch": "numi-human-aortic-contact-perf",
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "repository": "/Users/n/numi-human-aortic-contact-opt-20261019",
+    "status_bytes": 10012302,
+    "status_porcelain_v1_uall_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "tree": "8aee77c2488b72e34b45a75d1437f6c15970bed3"
+}

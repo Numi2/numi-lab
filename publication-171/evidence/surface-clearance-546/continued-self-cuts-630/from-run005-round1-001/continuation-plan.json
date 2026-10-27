@@ -1,0 +1,17 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-007-from901-recovered-space/final/state.json",
+  "decision": {
+    "allowed": true,
+    "reason": "strict_self_progress_and_resource_guards_pass"
+  },
+  "last_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-001/cut-merge-002/fit/candidate.npz",
+  "last_candidate_sha256": "fee2e3fb255155feaeec0bf73ffe4421f588617fd40354eca136fc9ad07f2d67",
+  "last_exact_self_pairs": 15,
+  "native_admission": false,
+  "new_fit_index": 3,
+  "previous_exact_self_pairs": 54,
+  "purpose": "Preserve the connected LP field by adding actual collision witnesses before local damping",
+  "requested_max_total_fits": 5,
+  "reuse_completed_fit_count": 3
+}

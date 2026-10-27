@@ -1,0 +1,28 @@
+{"base_sha256":"699727ec76fa4d7c30448e42382a5b3052e8a5c8029ffcd85b58e592557b0faf","event":"fit-start","fit":0,"round":1}
+{"event":"fit-checked","fit":0,"round":1,"self_pairs":501,"status":"FAILED"}
+{"base_sha256":"699727ec76fa4d7c30448e42382a5b3052e8a5c8029ffcd85b58e592557b0faf","event":"fit-start","fit":1,"round":1}
+{"event":"fit-checked","fit":1,"round":1,"self_pairs":54,"status":"FAILED"}
+{"base_sha256":"699727ec76fa4d7c30448e42382a5b3052e8a5c8029ffcd85b58e592557b0faf","event":"fit-start","fit":2,"round":1}
+{"event":"fit-checked","fit":2,"round":1,"self_pairs":15,"status":"FAILED"}
+{"event":"retention-start","round":1,"target_sha256":"fee2e3fb255155feaeec0bf73ffe4421f588617fd40354eca136fc9ad07f2d67"}
+{"event":"strict-pass","round":1,"state":"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-001/final/state.json","surface_pairs":875}
+{"base_sha256":"0c455299a2809c678892623ffa9268a200976f8ba33279773e7f4ac322305fbe","event":"fit-start","fit":0,"round":2}
+{"event":"fit-checked","fit":0,"round":2,"self_pairs":303,"status":"FAILED"}
+{"base_sha256":"0c455299a2809c678892623ffa9268a200976f8ba33279773e7f4ac322305fbe","event":"fit-start","fit":1,"round":2}
+{"event":"fit-checked","fit":1,"round":2,"self_pairs":81,"status":"FAILED"}
+{"event":"cut-budget-stop","fit_index":2,"free_bytes":223358976,"reason":"additional cut fit below 250 MiB; preserve completed proposal for retention","round":2,"stage":"before_cut_merge"}
+{"event":"retention-start","round":2,"target_sha256":"d25472775ab006785fb9572a13e6bddf84870565ec16bd4178ba8c046538fa2b"}
+{"event":"strict-pass","round":2,"state":"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/final/state.json","surface_pairs":796}
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v7.py", line 656, in <module>
+    if __name__=="__main__": raise SystemExit(main())
+                                              ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v7.py", line 655, in main
+    result=run(a);emit("complete",status=result["status"],rounds=len(result["rounds"]));return 0
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v7.py", line 514, in run
+    disk_guard(free,MIN_FIT_FREE)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v7.py", line 64, in disk_guard
+    if type(free) is not int or free<minimum: raise OSError(f"free disk {free} < required {minimum}")
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: free disk 182734848 < required 262144000

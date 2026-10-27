@@ -1,0 +1,14 @@
+waiting_for_human_geometry_slot pid=46697
+acquired_human_geometry_slot pid=46697
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/prepared/surface-targets/report.json",
+  "report_sha256": "13f6cccb349aba9676f0fd8c0b16f6909eb884fb138fac59bc74658233b7be7f",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/prepared/surface-targets/targets.npz",
+  "npz_sha256": "a528b826ea003ed3645d4f87048904c1cc89f3efe27571aab98f69fd905dfc2a",
+  "rows": 875,
+  "pairs": 875,
+  "targets": 875,
+  "failures": {},
+  "elapsed_seconds": 12.421525999903679
+}
+{"status": "PASS_CERTIFIED_DIRECTION_TARGETS_ONLY", "passing_targets": 875, "crossing_pairs": 875, "report_sha256": "22b1a5a70a5f8b7fcf2a0beeca0de8b46378be87194b5a348a6f076f6f16c019"}

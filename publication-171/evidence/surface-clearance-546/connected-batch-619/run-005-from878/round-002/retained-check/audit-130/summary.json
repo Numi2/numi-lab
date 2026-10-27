@@ -1,0 +1,72 @@
+{
+  "candidate_sha256": "2d4d0d2d31e7ce30e52c7f12dff3edc65d26b3b8a1f67c2542f627676e95b8af",
+  "points": 20889,
+  "faces": 41733,
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "exact_PLC_surface_pairs": 0,
+  "complete_surface_audit": true,
+  "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "inside_node_bank_pairs": 2,
+  "inside_nodes": 2,
+  "query_pair_count": 12912,
+  "wall_seconds": 10.59988445811905,
+  "status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC",
+  "inside_witnesses": [
+    {
+      "query_row": "16710",
+      "bank_body": "65",
+      "bank_stable_id": "99",
+      "classification": "inside",
+      "inside_rays": "3",
+      "outside_rays": "0",
+      "ambiguous": "0",
+      "nearest_bone": "99",
+      "nearest_triangle": "100",
+      "nearest_distance_m": "0.00015583132148823433",
+      "signed_face_distance_m": "-0.00015583132148823433",
+      "query_local_x": "0.0010110838157323782",
+      "query_local_y": "-0.026499886397504148",
+      "query_local_z": "0.00014808006321628646",
+      "closest_x": "0.00099737902682956901",
+      "closest_y": "-0.026413932372874881",
+      "closest_z": "1.882262564331617e-05",
+      "output_node": 16710,
+      "node_kind": -1,
+      "source_row": -1,
+      "point_m": [
+        -0.3147479295730591,
+        -1.0113725662231445,
+        0.11884859204292297
+      ]
+    },
+    {
+      "query_row": "18491",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "inside_rays": "3",
+      "outside_rays": "0",
+      "ambiguous": "0",
+      "nearest_bone": "16",
+      "nearest_triangle": "245",
+      "nearest_distance_m": "8.9523604797351445e-06",
+      "signed_face_distance_m": "-8.9523604797351445e-06",
+      "query_local_x": "-0.0024428323644601043",
+      "query_local_y": "-0.0015614890126355793",
+      "query_local_z": "0.053890882325686548",
+      "closest_x": "-0.0024486825082690343",
+      "closest_y": "-0.0015634398882347937",
+      "closest_z": "0.053897371906564413",
+      "output_node": 18491,
+      "node_kind": -1,
+      "source_row": -1,
+      "point_m": [
+        -0.2805156409740448,
+        -0.8555550575256348,
+        0.13018925487995148
+      ]
+    }
+  ],
+  "edge_and_solid_clearance_certified": false
+}

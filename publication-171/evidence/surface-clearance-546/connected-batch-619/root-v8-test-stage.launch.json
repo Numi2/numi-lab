@@ -1,0 +1,19 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/test_run_connected_batch619_v8.py"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v7.py": "383e889de216a960db3de4d7b76fae613c4316f132ee1856765e9930106cae60",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v8.py": "166c674175f25c1d84caa90e8bf53c1af9f1c677a2e17f1e168a9684fd52e027",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/test_run_connected_batch619_v8.py": "c1c46d8538e1f3e847fdbbb54dd21e6ccf909955df95e83ff62d42c2dc228c66"
+  }
+}

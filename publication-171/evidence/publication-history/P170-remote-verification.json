@@ -1,0 +1,49 @@
+{
+  "all_remote_raw_hashes_and_sizes_passed": true,
+  "archive_restore_results": [
+    {
+      "commit": "c1390f7f33f4bd90e5cf2306f137666e62eb5089",
+      "compressed_bytes": 4872029,
+      "compressed_sha256": "2c4364fdea81391223867d5190880c5bee1904b01062d27a89e9b9a30f04b58f",
+      "mode": 420,
+      "mtime_ns": 1793078796103175404,
+      "original_bytes": 47706041,
+      "original_sha256": "c2d25e97fb9bcc5e7c29706a6e8b0c0b0d1f36eb9130dc5eb7c989624d205fe7",
+      "path": "evidence/compression-preservation/619-run-004/connected-batch-619/run-004-from1002/round-001/cut-merge-001/fit/report.json.zst",
+      "status": "remote_archive_restored_and_verified"
+    },
+    {
+      "commit": "c1390f7f33f4bd90e5cf2306f137666e62eb5089",
+      "compressed_bytes": 4883914,
+      "compressed_sha256": "8166ec40629461e45277dbbf2caef21da604094449b49278d23f16a97ad97e15",
+      "mode": 420,
+      "mtime_ns": 1793078872747500387,
+      "original_bytes": 47802603,
+      "original_sha256": "04b9588a8f8634bf209914abe8d02f0db3ea947eb5a5018bd8ddd46cbab074f5",
+      "path": "evidence/compression-preservation/619-run-004/connected-batch-619/run-004-from1002/round-001/cut-merge-002/fit/report.json.zst",
+      "status": "remote_archive_restored_and_verified"
+    },
+    {
+      "commit": "c1390f7f33f4bd90e5cf2306f137666e62eb5089",
+      "compressed_bytes": 4826059,
+      "compressed_sha256": "2d9f3653276e5132afb3515be0ee17e56c9aef6bbffc378643fe515eeb2c796c",
+      "mode": 420,
+      "mtime_ns": 1793078722725541460,
+      "original_bytes": 47220813,
+      "original_sha256": "8946e682dd22debca791bd1f46d233ff25f9698413af54f7dd37fdf022b4fc82",
+      "path": "evidence/compression-preservation/619-run-004/connected-batch-619/run-004-from1002/round-001/fit-000/report.json.zst",
+      "status": "remote_archive_restored_and_verified"
+    }
+  ],
+  "commit": "c1390f7f33f4bd90e5cf2306f137666e62eb5089",
+  "manifest_sha256": "e6a9572750d02b438e776d04a3cd20b5cb3a6fc9d1a685ee8fa791452261d0a4",
+  "member_bytes": 219083402,
+  "member_count": 349,
+  "parent": "ff83a29f52cc23e6a51839af0b1e818f20103d3f",
+  "prefix": "publication-170",
+  "remote_path_count": 350,
+  "repository": "Numi2/numi-lab",
+  "root_siblings_equal_parent": true,
+  "schema": "numi.human.prefix_gitdata_remote_verification.v1",
+  "verified_utc": "2026-10-27T06:00:43.480533+00:00"
+}

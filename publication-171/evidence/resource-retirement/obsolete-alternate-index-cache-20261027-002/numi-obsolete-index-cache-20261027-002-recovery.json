@@ -1,0 +1,9 @@
+{
+  "status": "ALL7_FRESH_FILESYSTEM_RECOVERIES_PASS",
+  "manifest_sha256": "de70c9c25bc304a7661c71ef46d8bcf8614db040a816f5c570d351ee16cec637",
+  "archive_sha256": "49eb80991dd24bc5fff569f4f5dd8192961f74006e8ab7d293dcc7a104c65727",
+  "archive_bytes": 11900792,
+  "files": 7,
+  "original_unique_allocated_bytes": 136130560,
+  "ns_metadata_restored_from_manifest": true
+}

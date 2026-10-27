@@ -1,0 +1,17 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/restore-620/candidate.npz",
+  "candidate_sha256": "1a79cf4051e61e2c92124958b90098e6e6bd509f0424118fa85cad5bce69fd5a",
+  "guard_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-003/prepared/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+  "guard_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-003/prepared/constraints/refresh-541/fixed-guards/report.json",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/restored-check/audit-130/summary.json",
+  "point_summary_sha256": "e80868ad83e999f98c4e01976ce331a435d972c6265a05f670340246eb3abf26",
+  "refresh_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-003/prepared/constraints/refresh-report.json",
+  "refresh_report_sha256": "2ab471cbbeffc960af8ad6999030afcefa6bfac8103cccff6e77e3a4db4c2895",
+  "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-003/prepared/constraints/self-seeds/merged-self-pair-seeds.npy",
+  "seed_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-003/prepared/constraints/self-seeds/seed-preflight.json",
+  "seed_report_sha256": "3cd16108538f884964dd527512b6c2feecd8be821d91c96ce65f7cae1f2790c4",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/restored-check/audit-159/report.json",
+  "surface_report_sha256": "3c690616ca00789846fdf174bca072a2127abe9787a94343f5b9e062503fd8d7"
+}

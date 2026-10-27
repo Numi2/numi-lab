@@ -1,0 +1,76 @@
+{
+  "accepted_physical_steps": 0,
+  "allow_certified_partial": true,
+  "baseline_sha256": "0c455299a2809c678892623ffa9268a200976f8ba33279773e7f4ac322305fbe",
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-001/final/state.json",
+  "constraint_context": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/prepared/constraints/constraint-context.json",
+  "contained_pairs": 0,
+  "cut_budget_stop": {
+    "fit_index": 2,
+    "free_bytes": 223358976,
+    "reason": "additional cut fit below 250 MiB; preserve completed proposal for retention",
+    "stage": "before_cut_merge"
+  },
+  "final_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/restore-620/candidate.npz",
+  "final_candidate_sha256": "1a79cf4051e61e2c92124958b90098e6e6bd509f0424118fa85cad5bce69fd5a",
+  "final_point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/restored-check/audit-130/summary.json",
+  "final_point_summary_sha256": "e80868ad83e999f98c4e01976ce331a435d972c6265a05f670340246eb3abf26",
+  "final_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/final/state.json",
+  "final_state_sha256": "dcb72f5e3ff0151ee3ca69295925846219e438d514a8ee1f0a94cf3b64d76917",
+  "final_surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/restored-check/audit-159/report.json",
+  "final_surface_report_sha256": "3c690616ca00789846fdf174bca072a2127abe9787a94343f5b9e062503fd8d7",
+  "fit_attempts": [
+    {
+      "candidate_kind": "complete",
+      "candidate_sha256": "1eaf688b9fdb0dc2d1e4cae6643caae880a43be92df13622860f514c50200cd1",
+      "check_status": "FAILED",
+      "fit": 0,
+      "fit_report_sha256": "9a6b1b3d5bd007ff0a9b2145c9a19af9e85fb10bedf53b27232c275c7f236b47",
+      "partial_timeout": null,
+      "self_pairs": 303
+    },
+    {
+      "candidate_kind": "complete",
+      "candidate_sha256": "d25472775ab006785fb9572a13e6bddf84870565ec16bd4178ba8c046538fa2b",
+      "check_status": "FAILED",
+      "fit": 1,
+      "fit_report_sha256": "32e39093d9b745811763c11f177e08411e6e86bc750bbf071b3fca74e3d7c4eb",
+      "partial_timeout": null,
+      "self_pairs": 81
+    }
+  ],
+  "native_admission": false,
+  "next_seed_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/cut-merge-001/self-seeds/seed-preflight.json",
+  "prepared": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/prepared",
+  "restore_audits": {
+    "arithmetic_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/restore-arithmetic-545/report.json",
+    "arithmetic_report_sha256": "47e40bb4dbeb6a739d6e5dc9de527da3bfa0edc5d90cd4fde6c8193ef84b6b99",
+    "fresh_130_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/restored-check/audit-130/summary.json",
+    "fresh_130_summary_sha256": "e80868ad83e999f98c4e01976ce331a435d972c6265a05f670340246eb3abf26",
+    "fresh_159_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/restored-check/audit-159/report.json",
+    "fresh_159_report_sha256": "3c690616ca00789846fdf174bca072a2127abe9787a94343f5b9e062503fd8d7",
+    "fresh_545_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/restored-check/report.json",
+    "fresh_545_report_sha256": "88ccfb7b490646f09117974014fb8089348e0042deb873ea1a54bfb7785b1754"
+  },
+  "restore_contained_requested": true,
+  "restore_receipt": {
+    "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/restore-620/candidate.npz",
+    "candidate_sha256": "1a79cf4051e61e2c92124958b90098e6e6bd509f0424118fa85cad5bce69fd5a",
+    "inside_rows_restored": [
+      16710,
+      18491
+    ],
+    "point_summary": true,
+    "restore_report_sha256": "d63c477fba7b2ebd6a977c45b6c6b7b8aa712ce8ff787406dbc748c13f5f3d16",
+    "surface_report": true
+  },
+  "retention_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/retention-582/report.json",
+  "selected_candidate_kind": "complete",
+  "selected_candidate_metadata": {
+    "candidate_kind": "complete",
+    "fit_status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED"
+  },
+  "self_pairs": 0,
+  "status": "STRICT_PASS",
+  "surface_pairs": 796
+}

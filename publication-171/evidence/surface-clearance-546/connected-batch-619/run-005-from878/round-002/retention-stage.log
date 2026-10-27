@@ -1,0 +1,3 @@
+waiting_for_human_geometry_slot pid=46897
+acquired_human_geometry_slot pid=46897
+{"candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/retention-582/candidate.npz", "iterations": 74, "alpha_counts": {"0.0001220703125": 1, "0.0009765625": 2, "0.001953125": 10, "0.00390625": 10, "0.0078125": 33, "0.015625": 58, "0.03125": 83, "0.0625": 135, "0.125": 160, "0.25": 205, "0.5": 207, "1.0": 3872}, "seconds": 49.85914404201321}

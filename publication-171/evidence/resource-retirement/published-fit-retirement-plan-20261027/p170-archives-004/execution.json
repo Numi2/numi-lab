@@ -1,0 +1,10 @@
+{
+  "active_source_references": 0,
+  "all_archives_candidates_sources_retained": true,
+  "allocated_retired": 142733312,
+  "free_after": 376569856,
+  "free_before": 233811968,
+  "lsof_consumers": 0,
+  "recovery_sha256": "419cdc584a7858239ae76302d0a0bd01a1ea8dfdc5cd07d8516da87b4acbf532",
+  "status": "RETIRED3_PUBLISHED_PLAINTEXT_REPORTS_AFTER_FRESH_RECOVERY"
+}

@@ -1,0 +1,21 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-007-from901-recovered-space/lineage/candidate.npz",
+  "candidate_sha256": "699727ec76fa4d7c30448e42382a5b3052e8a5c8029ffcd85b58e592557b0faf",
+  "depth_rows_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-001/depth-413/point-depth-rows.npz",
+  "depth_rows_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-001/depth-413/365-compatible-report.json",
+  "failed_audit130": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/check-fit-002/audit-130/summary.json",
+  "failed_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/cut-merge-002/fit/candidate.npz",
+  "failed_pairs": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/check-fit-002/audit-130/surface-self-pairs.npy",
+  "guard_context": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/prepared/constraints/constraint-context.json",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-007-from901-recovered-space/full-check/audit-130/summary.json",
+  "point_summary_sha256": "16439a3f4e5b57befd6d22c7dd09c5ad52b36854d5691086ae1f3fa59e7e8e5d",
+  "prior_seed_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/cut-merge-002/self-seeds/seed-preflight.json",
+  "query_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-007-from901-recovered-space/full-check/audit-130/query/query-receipt.json",
+  "source_parent_context": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/final/state.json",
+  "state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-007-from901-recovered-space/final/state.json",
+  "state_sha256": "5611788787910ce8d57f8794a55395ea572f9d962652e31e4b0aae0d62efc969",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-007-from901-recovered-space/full-check/audit-159/report.json",
+  "surface_report_sha256": "d39be22a32b455826c04ddb7d22f2b498e2ac018361b5ac30e5c905005c47778"
+}

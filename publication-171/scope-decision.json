@@ -1,0 +1,60 @@
+{
+  "excluded_groups": [
+    {
+      "path": "surface-clearance-546/connected-topology-580/run-008-from796",
+      "reason": "Mutable active work."
+    },
+    {
+      "path": "surface-clearance-546/connected-batch-619/run-006-from782-v8 and later",
+      "reason": "Active/future v8 geometry run; no complete v8 run claim."
+    },
+    {
+      "path": "new v8 source-curved diagnostics and future v8 sources/runs",
+      "reason": "Outside the frozen v8 test/source snapshot."
+    },
+    {
+      "path": "__pycache__, .pytest_cache, .pyc, .pyo",
+      "reason": "Generated cache files."
+    }
+  ],
+  "included_groups": [
+    {
+      "path": "evidence/surface-clearance-546/connected-batch-619/run-005-from878",
+      "scope": "Complete frozen v7 run-005 output, including strict round-001 875/0/0, strict round-002 796/0/0, all failed fits, and stopped round-003/outer ENOSPC evidence."
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-batch-619/run_connected_batch619_v8.py and test_run_connected_batch619_v8.py",
+      "scope": "Tested v8 source and its exact test file; test receipt is 17 passed. No full v8 geometry run is claimed."
+    },
+    {
+      "path": "evidence/surface-clearance-546/continued-self-cuts-630/from-run005-round1-001",
+      "scope": "Completed extra cut-003 replay of the identical candidate, retaining the failed 15-self-pair result and all input/output evidence."
+    },
+    {
+      "path": "evidence/resource-retirement/obsolete-alternate-index-cache-20261027-002",
+      "scope": "Second seven-entry obsolete alternate-index cache archive, manifest and fresh filesystem recovery evidence."
+    },
+    {
+      "path": "evidence/publication-history/P170-* and evidence/resource-retirement/published-fit-retirement-plan-20261027/p170-archives-004",
+      "scope": "P170 commit, complete remote verification and independent archived-report retirement proof."
+    },
+    {
+      "path": "evidence/compression-preservation/run-005-and-630",
+      "scope": "Six complete fit reports over 15 MiB stored as lossless zstd with per-file fresh restore validation; plaintext source reports retained at P171 preparation."
+    }
+  ],
+  "parent_publication": {
+    "commit": "c1390f7f33f4bd90e5cf2306f137666e62eb5089",
+    "id": "P170",
+    "manifest_sha256": "e6a9572750d02b438e776d04a3cd20b5cb3a6fc9d1a685ee8fa791452261d0a4"
+  },
+  "publication": "P171",
+  "publication_limits": {
+    "accepted_physical_steps": 0,
+    "native_admission": false,
+    "physical_or_anatomical_admission": false
+  },
+  "schema": "numi.human.publication_scope_decision.v1",
+  "source_deletion": false,
+  "status": "FROZEN_SCOPE"
+}

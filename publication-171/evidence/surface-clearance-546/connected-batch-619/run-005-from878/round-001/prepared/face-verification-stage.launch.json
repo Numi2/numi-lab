@@ -1,0 +1,21 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/verify_joint_targets604.py",
+    "--folder",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-001/prepared/surface-targets",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-007-from901-recovered-space/final/state.json",
+    "--output",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-001/prepared/face-verification.json"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-001/prepared/surface-targets/report.json": "d43f419b320808b5eb101cff136ed47cef2aa895eae7ecc80a9e1e45fc91efef",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-001/prepared/surface-targets/target-records.jsonl": "b6eb56a8a3ef98068d6989a8deb842b0471fcf768ccac2bf186dbcf45f63b316",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-001/prepared/surface-targets/targets.npz": "b2eb9b9ff78d6cfaf6e2bf71be09b9a15aba3726bcec6eb8d3af145fe296084a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/verify_joint_targets604.py": "fec8143430e2e43ce149c1d6a11bcfe2b5c8382c7b14bc97292c103b992ed161"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "proof": [
+    {
+      "archive_sha256": "2c4364fdea81391223867d5190880c5bee1904b01062d27a89e9b9a30f04b58f",
+      "bytes": 47706041,
+      "fresh_remote_filesystem_restore_exact": true,
+      "git_blob_sha1": "f01ccb1b40ed36b0b603411f3d8ceb4f530ba67b",
+      "original_sha256": "c2d25e97fb9bcc5e7c29706a6e8b0c0b0d1f36eb9130dc5eb7c989624d205fe7",
+      "remote_path": "publication-170/evidence/compression-preservation/619-run-004/connected-batch-619/run-004-from1002/round-001/cut-merge-001/fit/report.json.zst"
+    },
+    {
+      "archive_sha256": "8166ec40629461e45277dbbf2caef21da604094449b49278d23f16a97ad97e15",
+      "bytes": 47802603,
+      "fresh_remote_filesystem_restore_exact": true,
+      "git_blob_sha1": "59c057d747d6444a4bf59035691a2decd789eee0",
+      "original_sha256": "04b9588a8f8634bf209914abe8d02f0db3ea947eb5a5018bd8ddd46cbab074f5",
+      "remote_path": "publication-170/evidence/compression-preservation/619-run-004/connected-batch-619/run-004-from1002/round-001/cut-merge-002/fit/report.json.zst"
+    },
+    {
+      "archive_sha256": "2d9f3653276e5132afb3515be0ee17e56c9aef6bbffc378643fe515eeb2c796c",
+      "bytes": 47220813,
+      "fresh_remote_filesystem_restore_exact": true,
+      "git_blob_sha1": "0e39bf96c71a2685782210112ee770fe3ecc0e5e",
+      "original_sha256": "8946e682dd22debca791bd1f46d233ff25f9698413af54f7dd37fdf022b4fc82",
+      "remote_path": "publication-170/evidence/compression-preservation/619-run-004/connected-batch-619/run-004-from1002/round-001/fit-000/report.json.zst"
+    }
+  ],
+  "status": "ALL3_FRESH_IMMUTABLE_REMOTE_FILESYSTEM_RECOVERIES_PASS"
+}

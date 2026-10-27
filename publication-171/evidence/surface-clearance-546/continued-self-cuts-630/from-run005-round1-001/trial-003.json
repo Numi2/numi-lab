@@ -1,0 +1,14 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continued-self-cuts-630/from-run005-round1-001/cut-003/fit/candidate.npz",
+  "candidate_kind": {
+    "candidate_kind": "complete",
+    "fit_status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED"
+  },
+  "candidate_sha256": "fee2e3fb255155feaeec0bf73ffe4421f588617fd40354eca136fc9ad07f2d67",
+  "check": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continued-self-cuts-630/from-run005-round1-001/check-fit-003/report.json",
+  "contained_pairs": null,
+  "native_admission": false,
+  "self_pairs": 15,
+  "surface_pairs": null
+}
