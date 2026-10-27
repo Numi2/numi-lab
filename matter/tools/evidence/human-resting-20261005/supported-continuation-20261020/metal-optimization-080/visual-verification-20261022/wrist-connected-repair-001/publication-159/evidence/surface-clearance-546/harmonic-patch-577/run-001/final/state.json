@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-patch-577/run-001/lineage/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "07b9d1186d026ed0342cd9a24629a7a9b323b7feb931da92d0cb3b07b4baa6e2",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-patch-577/run-001/full-check/audit-130/summary.json",
+  "point_summary_sha256": "3d0e315237dca88a18e59e7f8b230151a09e4c3b75584ccd220ca5bd60ea5161",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-patch-577/run-001/full-check/audit-159/report.json",
+  "surface_report_sha256": "4d2909557ac6bb97ee84dbdb60631b6eb85cdf247d00f74445cc8abd56d58aa1",
+  "temporary_unselected_construction": false
+}

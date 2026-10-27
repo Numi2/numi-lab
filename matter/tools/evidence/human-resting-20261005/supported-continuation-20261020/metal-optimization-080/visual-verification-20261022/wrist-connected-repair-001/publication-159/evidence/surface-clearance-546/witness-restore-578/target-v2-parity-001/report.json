@@ -1,0 +1,31 @@
+{
+  "accepted_physical_steps": 0,
+  "all_noncoordinate_fields_from_passing_baseline": true,
+  "all_other_target_coordinates_preserved": true,
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/final/state.json",
+  "baseline_state_sha256": "99f8fb2b129e013354270235674abf97473c4f504f2cfd351567bbaa06781dcb",
+  "binding_fields_checked": [
+    "node_kind",
+    "refinement_node_kind",
+    "source_prolongation_indptr",
+    "source_prolongation_node_rows",
+    "source_prolongation_weights",
+    "source_prolongation_semantics",
+    "typed_coarse_anchor_output_rows_018",
+    "typed_coarse_anchor_source_ids_018"
+  ],
+  "linear_feasibility_claim": false,
+  "native_admission": false,
+  "output_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/witness-restore-578/target-v2-parity-001/candidate.npz",
+  "output_candidate_sha256": "0c7e8b7eae5ebfc708f630c056ecbd02dc4353ecc63b98310fb6b0725a16aca7",
+  "restored_rows": [
+    18892
+  ],
+  "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/witness-restore-578/restore_witness_points578_v2.py",
+  "source_sha256": "85f72bce483525eba8a0e524a9da2e46f74d160c5809f62f67c66aae59567670",
+  "status": "WITNESS_RESTORED_COORDINATE_TARGET_PENDING_FULL_CHECKS",
+  "target_input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/candidate.npz",
+  "target_input_sha256": "c74c6ebde1b8baefac3c94852151303186f5905cf1850c265be55a900492da9f",
+  "witness_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/full-check/audit-130/summary.json",
+  "witness_summary_sha256": "3487cc84f2a83fdce179125200f6d099ab101296470480aba23dcea856b49d11"
+}

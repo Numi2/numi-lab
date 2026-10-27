@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "evidence/surface-clearance-546/matched-connected-fit-575/test_replay_raw_direction575.py",
+    "evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py"
+  ],
+  "cwd": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-159",
+  "exit_code": 0,
+  "finished_utc": "2026-10-26T23:53:24.997701+00:00",
+  "scope": "pure unit tests only; no geometry or native execution",
+  "source_pins": {
+    "evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py": "9f5aa65bf4589677d26687b4bf66e80d3c1bee322f1d77b6cf04efd71082e590",
+    "evidence/surface-clearance-546/matched-connected-fit-575/test_replay_raw_direction575.py": "61fe0acb07f7e6b2e43757d3c9fa1a12686f5a388f6daa83a2cb0a8e5cd38675"
+  },
+  "started_utc": "2026-10-26T23:53:24.796614+00:00",
+  "status": "PASS",
+  "stdout_sha256": "caf56757b18b52a7c892a24609a6f4ec6e8900c554da434531b573fc2a87250b"
+}

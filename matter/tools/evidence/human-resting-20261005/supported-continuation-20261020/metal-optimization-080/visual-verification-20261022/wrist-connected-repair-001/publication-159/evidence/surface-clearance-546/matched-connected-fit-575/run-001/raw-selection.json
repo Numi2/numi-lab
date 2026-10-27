@@ -1,0 +1,11 @@
+{
+  "accepted_physical_steps": 0,
+  "capture_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/fit/raw-joint-capture-563/report.json",
+  "capture_sha256": "937f5244a0081c82a04525df8f7d35e9eaaa387eb312f4bf4facb493fa4618d8",
+  "fit_process_failed": false,
+  "fit_status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED",
+  "linear_solution_is_not_geometry_acceptance": true,
+  "native_admission": false,
+  "target": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+  "target_sha256": "9dc01c1fc23552e5349d006ce87ceac2e1a7960fe5111e9089925ef4fbd5417e"
+}

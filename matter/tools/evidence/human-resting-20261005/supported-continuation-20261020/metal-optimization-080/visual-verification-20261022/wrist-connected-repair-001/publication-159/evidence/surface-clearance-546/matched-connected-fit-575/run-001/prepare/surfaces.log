@@ -1,0 +1,33 @@
+waiting_for_human_geometry_slot pid=92105
+acquired_human_geometry_slot pid=92105
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/prepare/surface-targets/report.json",
+  "report_sha256": "162cd8daad65b4d8fc3de94b10e99a3a6cf58d92b1911af0d322a8f3b0222b9e",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/prepare/surface-targets/targets.npz",
+  "npz_sha256": "9ce0af7cef2a31a3f6ff04d0f12d664a923f577a5d8e7773c80c6f3797152d41",
+  "rows": 1992,
+  "pairs": 1992,
+  "targets": 1992,
+  "failures": {},
+  "elapsed_seconds": 18.2442165419925
+}
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/prepare/surface-targets/report.json",
+  "report_sha256": "d8246eb6831016e900b2177f4f5b459407bff5ca6a0c45d4a16547e5491df601",
+  "candidate_sha256": "b32314463656719f475198f59f9c2cb07dddc2daa85e2cbaf7b42524bfa25637",
+  "surface_report_sha256": "b48ce3c5fc55265b9ab412648048926192088b9166ecf79fd12edcb248e38172",
+  "targets_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/prepare/surface-targets/targets.npz",
+  "targets_npz_sha256": "9ce0af7cef2a31a3f6ff04d0f12d664a923f577a5d8e7773c80c6f3797152d41",
+  "target_records": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/prepare/surface-targets/target-records.jsonl",
+  "target_records_sha256": "d37e72cdf1c0144d788cafd4b1c052f064d3fad343c53f5451f4d00197753be6",
+  "passing_targets": 1992,
+  "crossing_pairs": 1992,
+  "multi_parent_faces": [
+    11827,
+    14133,
+    21227,
+    21426,
+    21427,
+    40520
+  ]
+}

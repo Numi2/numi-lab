@@ -1,0 +1,893 @@
+{
+  "declared_gaps": [
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/replay_raw_direction575.py"
+      ],
+      "reason": "Old v1 helper is omitted from P159; original worktree source is preserved.",
+      "status": "INTENTIONALLY_EXCLUDED_PENDING_EXACT_SOURCE_LEDGER"
+    },
+    {
+      "original_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/test_replay_raw_direction575.py"
+      ],
+      "receipt_paths": [
+        "tests/dependency-retry-failure.receipt.json",
+        "tests/initial-package-collection-failure.receipt.json",
+        "tests/pre-exclusion-full-suite.receipt.json"
+      ],
+      "sha256": "61fe0acb07f7e6b2e43757d3c9fa1a12686f5a388f6daa83a2cb0a8e5cd38675",
+      "status": "HISTORICAL_PRE_EXCLUSION_TEST_SOURCE_NOT_INCLUDED"
+    }
+  ],
+  "parent_publication": {
+    "commit": "74d996c81735f6c4f02651fff539b16a2e743a66",
+    "manifest_sha256": "b777fef746ddc11f99a57035663ee0136c2c0a7c63d8afafc40dbb97bebad5fe",
+    "publication": 158
+  },
+  "pins": [
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-408/incremental_exact_flip_check_408.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/01026156cccd5c1742e2edcaa6288f64f888731424dfb6337831412701020711-incremental_exact_flip_check_408.py"
+        ]
+      },
+      "sha256": "01026156cccd5c1742e2edcaa6288f64f888731424dfb6337831412701020711"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/constraints/refresh-541.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/090e368e693bc6f7d12c403812c1b691dc8de6d3e409cfae8d869f910aae076f-refresh_guards_multi_parent_546.py"
+        ]
+      },
+      "sha256": "090e368e693bc6f7d12c403812c1b691dc8de6d3e409cfae8d869f910aae076f"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-timeout-fallback564/frozen-v2/joint_objective_560.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/fit-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/09ce0c4f47e69142de6ce394576edd3ef0ee6f4b946824a476f5425919c492c8-joint_objective_560.py"
+        ]
+      },
+      "sha256": "09ce0c4f47e69142de6ce394576edd3ef0ee6f4b946824a476f5425919c492c8"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/full-check-stage.launch.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/full-check-stage.launch.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/full-check/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/regions-check-stage.launch.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/full-check/report.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001/full-check-stage.launch.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a-run_candidate_checks545.py"
+        ]
+      },
+      "sha256": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/cached_counter569_v2.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/1a19339d5f6004d36c38d0b22a29a5b6a644f911d3091194ee59396216f30e6e-cached_counter569_v2.py"
+        ]
+      },
+      "sha256": "1a19339d5f6004d36c38d0b22a29a5b6a644f911d3091194ee59396216f30e6e"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/repair_focused_clearance_541.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/26930be05518834f02724948cffa5ff74719f070a4ac4e4917b0965f42a412aa-repair_focused_clearance_541.py"
+        ]
+      },
+      "sha256": "26930be05518834f02724948cffa5ff74719f070a4ac4e4917b0965f42a412aa"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/refresh_guards_541.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/constraints/refresh-541.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/293e4da49a10f07420d1da7c512823dcb182dca246e411c3775d18866b27a241-refresh_guards_541.py"
+        ]
+      },
+      "sha256": "293e4da49a10f07420d1da7c512823dcb182dca246e411c3775d18866b27a241"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology-policy-root-v6/quality_policy025_variant.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/2ce11405c178379325d98fe76171010015eac5bc46b2c12d9813676afcd9970a-quality_policy025_variant.py"
+        ]
+      },
+      "sha256": "2ce11405c178379325d98fe76171010015eac5bc46b2c12d9813676afcd9970a"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/retained-gain-continuation-401/propose_joint_clearance_witnesses_401.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/constraints/refresh-541.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/2f1eda3f0d46d0f5497a1a04075b5dc2c3b37afe906d0389ff636fca8abc5869-propose_joint_clearance_witnesses_401.py"
+        ]
+      },
+      "sha256": "2f1eda3f0d46d0f5497a1a04075b5dc2c3b37afe906d0389ff636fca8abc5869"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/publication-113/sources/connected-fixed-boundary-314/emit_introduced_skin_bone_barriers_314.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/constraints/refresh-541.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78-emit_introduced_skin_bone_barriers_314.py"
+        ]
+      },
+      "sha256": "3422f30a61db0724d234c487d70fc3d74237a802261c2f9a72af9e15843a1c78"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/retain_local_witnesses567.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/local-retention-stage.launch.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/report.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001-stage.launch.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/422667ee0099145013ae39a706f64cf20e16c8c411d6b69e05d096264c7d9e35-retain_local_witnesses567.py"
+        ]
+      },
+      "sha256": "422667ee0099145013ae39a706f64cf20e16c8c411d6b69e05d096264c7d9e35"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/regional-patch-571/regional_candidates571.py",
+        "evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search/report.json",
+        "evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py",
+        "evidence/surface-clearance-546/regional-patch-576/diagnostic-002/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py"
+        ]
+      },
+      "sha256": "48d53b5516bc4e604a8c8bbfb7b100039e2646b3efcc2298010ed957fc9c3cfc"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-patch-577/search_harmonic577.py",
+        "evidence/surface-clearance-546/harmonic-patch-577/search_harmonic577.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search/report.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/search_harmonic577.py"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/surface-clearance-546/harmonic-patch-577/search_harmonic577.py"
+        ]
+      },
+      "sha256": "49ae65ae9a73004f535f1ec2735b4af77ab98af4c27a9444b37f92d7ba527f88"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/publication-084/canonical/matter/tools/human_skin_fat_bone_audit.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/constraints/refresh-541.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81-human_skin_fat_bone_audit.py"
+        ]
+      },
+      "sha256": "4b2e084df442e1fc7491188696c410609228215b70b98db43640688b466f3e81"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/component-area-backtracking-549/component_area_backtracking549.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/523b1aef89d92eef09bf63e9de2d4f3fa6bd938ef53a45915f9ea138f5b8f249-component_area_backtracking549.py"
+        ]
+      },
+      "sha256": "523b1aef89d92eef09bf63e9de2d4f3fa6bd938ef53a45915f9ea138f5b8f249"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/run_target567.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/local-retention-stage.launch.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/retention-stage.launch.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/52b95f2971e8a6c39ec2fd118691fac01c2d1ac5fe1ab7948f5e4f274ff14f5d-run_target567.py"
+        ]
+      },
+      "sha256": "52b95f2971e8a6c39ec2fd118691fac01c2d1ac5fe1ab7948f5e4f274ff14f5d"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/full-check/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/full-check/report.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9-audit_connected_outer_geometry_130.py"
+        ]
+      },
+      "sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-patch-577/harmonic_candidates577.py",
+        "evidence/surface-clearance-546/harmonic-patch-577/harmonic_candidates577.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/harmonic_candidates577.py",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search/report.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/unit-tests.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/surface-clearance-546/harmonic-patch-577/harmonic_candidates577.py"
+        ]
+      },
+      "sha256": "5352353ae6ef692d4ad340a82fd07494fa4dc0218fd997f6d9d5ebab93ca5803"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/full-check/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/full-check/report.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001/full-check/report.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2-propose_joint_clearance_witnesses_408.py"
+        ]
+      },
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-patch-570/patch_candidates570.py",
+        "evidence/surface-clearance-546/connected-patch-570/patch_candidates570.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-patch-570/patch_candidates570.py",
+        "evidence/surface-clearance-546/regional-patch-576/diagnostic-002/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/surface-clearance-546/connected-patch-570/patch_candidates570.py"
+        ]
+      },
+      "sha256": "5e309fd361ac99de50f1d3f9aeca8d5f5711a406969525c09a1a80481bf0861d"
+    },
+    {
+      "original_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/measure_emitted_policy575.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/measure_emitted_policy575.py"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/surface-clearance-546/matched-connected-fit-575/run-001/measure_emitted_policy575.py"
+        ]
+      },
+      "sha256": "5f90d14cfb41bb9c5a0a512972a3630a09298b407e4a037adea943143127dcaf"
+    },
+    {
+      "original_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/test_replay_raw_direction575.py"
+      ],
+      "receipt_paths": [
+        "tests/dependency-retry-failure.receipt.json",
+        "tests/initial-package-collection-failure.receipt.json",
+        "tests/pre-exclusion-full-suite.receipt.json"
+      ],
+      "resolution": {
+        "kind": "intentionally-excluded-historical-test-source"
+      },
+      "sha256": "61fe0acb07f7e6b2e43757d3c9fa1a12686f5a388f6daa83a2cb0a8e5cd38675"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-408/exact_global_incremental_flip_search_409.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/64f05be466d672266d4265185c895fecc70113d476f69e7a1c6dc3af8ec514a8-exact_global_incremental_flip_search_409.py"
+        ]
+      },
+      "sha256": "64f05be466d672266d4265185c895fecc70113d476f69e7a1c6dc3af8ec514a8"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/changed-triangle-quality-572/changed_triangle_masks572.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search/report.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/unit-tests.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/6f046d1960e3626368ae210e9685d4d33276c149797fae7691de6ace85e948cf-changed_triangle_masks572.py"
+        ]
+      },
+      "sha256": "6f046d1960e3626368ae210e9685d4d33276c149797fae7691de6ace85e948cf"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/affine-ancestry-refresh-566/rebuild_affine_rows566.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/lineage-stage.launch.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/lineage/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/79a808bb3fa0e0cb6216e9fe91752335cec214e7958a5bd08222519b407ebb65-rebuild_affine_rows566.py"
+        ]
+      },
+      "sha256": "79a808bb3fa0e0cb6216e9fe91752335cec214e7958a5bd08222519b407ebb65"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/star_candidates569.py",
+        "evidence/surface-clearance-546/connected-star-569/star_candidates569.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/connected-star-569/star_candidates569.py",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search/report.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/unit-tests.launch.json",
+        "evidence/surface-clearance-546/regional-patch-576/diagnostic-002/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/surface-clearance-546/connected-star-569/star_candidates569.py"
+        ]
+      },
+      "sha256": "81b33966ba0c2182c86d2a6d66862064105cf48e91c2efe0cfcc0ef6359d1b2c"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/84bcd87e6ba2c877eeabf853ff2db7739041e6c96838a6b625ddea878c72e2a0-prepare_surface546.py"
+        ]
+      },
+      "sha256": "84bcd87e6ba2c877eeabf853ff2db7739041e6c96838a6b625ddea878c72e2a0"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/witness-restore-578/restore_witness_points578_v2.py",
+        "evidence/surface-clearance-546/witness-restore-578/restore_witness_points578_v2.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/witness-restore-578/restore_witness_points578_v2.py",
+        "evidence/surface-clearance-546/witness-restore-578/target-v2-parity-001-stage.launch.json",
+        "evidence/surface-clearance-546/witness-restore-578/target-v2-parity-001/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/surface-clearance-546/witness-restore-578/restore_witness_points578_v2.py"
+        ]
+      },
+      "sha256": "85f72bce483525eba8a0e524a9da2e46f74d160c5809f62f67c66aae59567670"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/retain_surface_components552.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/regions-stage.launch.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/88baf47524c02c525a2f121a99923777576e8603c16a6b84729032ce464ad671-retain_surface_components552.py"
+        ]
+      },
+      "sha256": "88baf47524c02c525a2f121a99923777576e8603c16a6b84729032ce464ad671"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/91e60eda6c6ed4a39fb3d9cc226af87743101b22da9c32c5229030ac6cd4cd8a-same_count_patch_payload568.py"
+        ]
+      },
+      "sha256": "91e60eda6c6ed4a39fb3d9cc226af87743101b22da9c32c5229030ac6cd4cd8a"
+    },
+    {
+      "original_paths": [
+        "evidence/surface-clearance-546/witness-restore-578/prepare_target578.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/witness-restore-578/prepare_target578.py"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/surface-clearance-546/witness-restore-578/prepare_target578.py"
+        ]
+      },
+      "sha256": "966bfb3b1a6d72198931f82e07292f9020fde7a7e1d815ef4800f4dc1fdd222b"
+    },
+    {
+      "original_paths": [
+        "restore_compressed_text_mirrors.py"
+      ],
+      "receipt_paths": [
+        "restore_compressed_text_mirrors.py"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "restore_compressed_text_mirrors.py"
+        ]
+      },
+      "sha256": "9d34141c070726644a0d3d83639ab395e6b7ac1b2d0cc4663ca30d90302b6688"
+    },
+    {
+      "original_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py",
+        "tests/dependency-retry-failure.receipt.json",
+        "tests/initial-package-collection-failure.receipt.json",
+        "tests/pre-exclusion-full-suite.receipt.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py"
+        ]
+      },
+      "sha256": "9f5aa65bf4589677d26687b4bf66e80d3c1bee322f1d77b6cf04efd71082e590"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-timeout-fallback564/frozen-v2/component_lp_partial_timeout564.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/fit-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/a24aa58178394e25d7b38c7c35a36c93eaf109a666ace7773c0ca13d33250818-component_lp_partial_timeout564.py"
+        ]
+      },
+      "sha256": "a24aa58178394e25d7b38c7c35a36c93eaf109a666ace7773c0ca13d33250818"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run_matched_fit575.py",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run_matched_fit575.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare-stage.launch.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run_matched_fit575.py"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/surface-clearance-546/matched-connected-fit-575/run_matched_fit575.py"
+        ]
+      },
+      "sha256": "a510ebabc389ba359c335ec72eb03bdc817ef93386981ffa53f94141e2c1d61e"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/constraints/refresh-541.launch.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/refresh.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/a9586a81d92f117040e774c980b6028168432386b2e9babd96a7b7f725175d09-refresh_surface_constraints546.py"
+        ]
+      },
+      "sha256": "a9586a81d92f117040e774c980b6028168432386b2e9babd96a7b7f725175d09"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/frozen-v4/diagnose_reference_degeneracy_557.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/lineage/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/aecbb82aca291172de54b1529ca217100c935380afed03c057c868d7bcec5798-diagnose_reference_degeneracy_557.py"
+        ]
+      },
+      "sha256": "aecbb82aca291172de54b1529ca217100c935380afed03c057c868d7bcec5798"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-timeout-fallback564/frozen-v2/run_joint_full_coordinate_fit564.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/fit-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/bce28ca873ba9fdc75427e16443fdf047587742cfbef1f83e48a31df28caa4d9-run_joint_full_coordinate_fit564.py"
+        ]
+      },
+      "sha256": "bce28ca873ba9fdc75427e16443fdf047587742cfbef1f83e48a31df28caa4d9"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-patch-577/run_harmonic_round577.py",
+        "evidence/surface-clearance-546/harmonic-patch-577/run_harmonic_round577.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search-stage.launch.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run_harmonic_round577.py"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/surface-clearance-546/harmonic-patch-577/run_harmonic_round577.py"
+        ]
+      },
+      "sha256": "be93e0c2eebbc56b0f808412cf386c8c6b383f2ca6823be09c4814f0688d3bbe"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/204/source/fit/self_separation_026.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/constraints/refresh-541.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3-self_separation_026.py"
+        ]
+      },
+      "sha256": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-370/select_bone_reducing_flips_370.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/c8650b8c311ca8f386ebf1713b5fc285b7bded860cfa878192472704ac1336d5-select_bone_reducing_flips_370.py"
+        ]
+      },
+      "sha256": "c8650b8c311ca8f386ebf1713b5fc285b7bded860cfa878192472704ac1336d5"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/regional-patch-576/diagnose_patches576.py",
+        "evidence/surface-clearance-546/regional-patch-576/diagnose_patches576.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/regional-patch-576/diagnose_patches576.py",
+        "evidence/surface-clearance-546/regional-patch-576/diagnostic-002/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/surface-clearance-546/regional-patch-576/diagnose_patches576.py"
+        ]
+      },
+      "sha256": "cb1b9f22489cfc7c9614fbe6e6b68085677a7a34135e58b04ddc8a26bf280441"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/changed-triangle-quality-572/test_changed_triangle_masks572.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/unit-tests.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/cb270f7e5281fae48b9753082576cbc555fd79e1bb306aef07fce877b23ec256-test_changed_triangle_masks572.py"
+        ]
+      },
+      "sha256": "cb270f7e5281fae48b9753082576cbc555fd79e1bb306aef07fce877b23ec256"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/final-stage.launch.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/regions-final-stage.launch.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001/final-stage.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781-finalize_existing_checks546.py"
+        ]
+      },
+      "sha256": "db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/depth.launch.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/refresh.launch.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/surfaces.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/dbef219f9d414a8cca41b54284bc78ffe1b1e15d339e7b35c42b31b7523e0b31-continue545.py"
+        ]
+      },
+      "sha256": "dbef219f9d414a8cca41b54284bc78ffe1b1e15d339e7b35c42b31b7523e0b31"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/publication-113/sources/connected-fixed-boundary-313/fixed_bone_triangle_rows_313.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/constraints/refresh-541.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e-fixed_bone_triangle_rows_313.py"
+        ]
+      },
+      "sha256": "dc9d4f953ecede00567c59cbbb6b6b63e0a3556b97972689de499cbce29d4c2e"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_targets_multi_source_546.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/surfaces.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68-build_outward_targets_multi_source_546.py"
+        ]
+      },
+      "sha256": "dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/full-check/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/full-check/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/constraints/refresh-541.launch.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/full-check/report.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001/final/arithmetic/report.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001/full-check/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1-audit_skin_bone_surfaces_159.py"
+        ]
+      },
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-405/cross_seam_search_405.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/lineage/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/e995a2f460e60cb62fb24b80af400678757f62a2b0c1b51141bf0ef387993967-cross_seam_search_405.py"
+        ]
+      },
+      "sha256": "e995a2f460e60cb62fb24b80af400678757f62a2b0c1b51141bf0ef387993967"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/depth.launch.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f-refresh_point_depth_rows.py"
+        ]
+      },
+      "sha256": "ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f"
+    },
+    {
+      "original_paths": [
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/report.json",
+        "evidence/surface-clearance-546/matched-connected-fit-575/run-001/prepare/constraints/refresh-541.launch.json",
+        "evidence/surface-clearance-546/witness-restore-578/checked-001/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d-cardiac_cavity_intersections.py"
+        ]
+      },
+      "sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d"
+    },
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py"
+      ],
+      "receipt_paths": [
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/lineage/report.json",
+        "evidence/surface-clearance-546/harmonic-patch-577/run-001/search/report.json"
+      ],
+      "resolution": {
+        "kind": "included-in-p159",
+        "paths": [
+          "evidence/source-snapshots/f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764-two_parent_patch_flips_402.py"
+        ]
+      },
+      "sha256": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764"
+    }
+  ],
+  "schema": "p159-source-pin-index-v1",
+  "summary": {
+    "declared_source_gaps": 2,
+    "pin_count": 52,
+    "unresolved_report_source_pins": []
+  }
+}

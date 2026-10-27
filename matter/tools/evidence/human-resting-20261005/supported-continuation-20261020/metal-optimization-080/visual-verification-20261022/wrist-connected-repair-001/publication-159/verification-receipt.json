@@ -1,0 +1,90 @@
+{
+  "accepted_physical_steps": 0,
+  "checks": [
+    "latest candidate SHA equals state, final report, and full report",
+    "full exact construction report is 1855/0/0 across 185 banks and 237 anchors",
+    "candidate_selected=false; native_admission=false; accepted physical steps=0",
+    "578 checked-001 full and final reports agree at 1896/0/0",
+    "578 target-v2 replay has bitwise payload parity while target report remains pending checks",
+    "575 fit report is unadmitted; exact global self audit and all-bank point query were not run",
+    "575 emitted-policy measurement separates 0.1 fit factor from existing 0.5 admission factor",
+    "576 remains diagnostic-only with no geometry/solver execution",
+    "staged 575/576/577/578 copies hash-match frozen source files except the two archived text mirrors",
+    "all included report source pins resolve to P159 files or exact P158-prior sources; legacy v1 omission is explicit",
+    "included 577 pure unit tests pass (3)",
+    "compression receipt verifies both original payload hashes, sizes, modes, and timestamps"
+  ],
+  "compression_preservation_receipt_sha256": "5101c479f511790cf6f9af046142d92e99cd1e60c40da86164657cbbc03382eb",
+  "generated_utc": "2026-10-27T00:04:55.604476+00:00",
+  "latest_checked_candidate": {
+    "accepted_physical_steps": 0,
+    "anchor_rows": 237,
+    "candidate_path": "evidence/surface-clearance-546/harmonic-patch-577/run-001/lineage/candidate.npz",
+    "candidate_selected_state_field": false,
+    "candidate_sha256": "07b9d1186d026ed0342cd9a24629a7a9b323b7feb931da92d0cb3b07b4baa6e2",
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "continuation_mode": "strict_surface",
+    "exact_report_path": "evidence/surface-clearance-546/harmonic-patch-577/run-001/full-check/report.json",
+    "exact_report_sha256": "f91db831b75d6ed8469b0b265d58227da88084bae6f56b516bf9a4acb4dcb5c4",
+    "native_admission": false,
+    "physical_admission": false,
+    "self_pairs": 0,
+    "state_path": "evidence/surface-clearance-546/harmonic-patch-577/run-001/final/state.json",
+    "state_sha256": "4ef1ad8f4e7b7dc43fe6a56a101e901da693233338129c81fbe6ebed15bb4e95",
+    "surface_pairs": 1855
+  },
+  "native_admission": false,
+  "parent_main": "74d996c81735f6c4f02651fff539b16a2e743a66",
+  "physical_admission": false,
+  "publication": "P159",
+  "publication_ready": true,
+  "remote_main_before": "74d996c81735f6c4f02651fff539b16a2e743a66",
+  "schema": "p159-verification-receipt-v1",
+  "shared_checkout_after_preparation": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "shared_checkout_before": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "source_pin_count": 52,
+  "source_pin_gaps": [
+    {
+      "original_paths": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/replay_raw_direction575.py"
+      ],
+      "reason": "Old v1 helper is omitted from P159; original worktree source is preserved.",
+      "status": "INTENTIONALLY_EXCLUDED_PENDING_EXACT_SOURCE_LEDGER"
+    },
+    {
+      "original_paths": [
+        "evidence/surface-clearance-546/matched-connected-fit-575/test_replay_raw_direction575.py"
+      ],
+      "receipt_paths": [
+        "tests/dependency-retry-failure.receipt.json",
+        "tests/initial-package-collection-failure.receipt.json",
+        "tests/pre-exclusion-full-suite.receipt.json"
+      ],
+      "sha256": "61fe0acb07f7e6b2e43757d3c9fa1a12686f5a388f6daa83a2cb0a8e5cd38675",
+      "status": "HISTORICAL_PRE_EXCLUSION_TEST_SOURCE_NOT_INCLUDED"
+    }
+  ],
+  "source_pin_index_sha256": "1304b04af9e0e28618a8335ac8348c9dac3f4e186d353370df6d6172afa8473c",
+  "tested": {
+    "log_sha256": "35a1d58c48b74e0e3e7b158b5545a9552f2371583edfef1ea0d022c59f5a0a1c",
+    "receipt_path": "tests/pure-tests-final.receipt.json",
+    "receipt_sha256": "48f48c0ccfdc0c66a225936a23f51e5950a3617a82197e9943a05a3868fcb0e3",
+    "status": "PASS",
+    "test_count": 3
+  }
+}

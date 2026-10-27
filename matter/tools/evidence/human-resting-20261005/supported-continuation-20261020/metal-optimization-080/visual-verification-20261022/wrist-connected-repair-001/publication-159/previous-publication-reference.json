@@ -1,0 +1,25 @@
+{
+  "fresh_server_parent": {
+    "commit": "74d996c81735f6c4f02651fff539b16a2e743a66",
+    "manifest_sha256": "b777fef746ddc11f99a57035663ee0136c2c0a7c63d8afafc40dbb97bebad5fe",
+    "publication": 158
+  },
+  "prior_published_construction_checkpoint": {
+    "anchor_rows": 237,
+    "candidate_selected": false,
+    "candidate_sha256": "b32314463656719f475198f59f9c2cb07dddc2daa85e2cbaf7b42524bfa25637",
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-158/evidence/surface-clearance-546/connected-star-573/run-001/lineage/candidate.npz",
+    "self_pairs": 0,
+    "surface_pairs": 1992
+  },
+  "schema": "p159-previous-publication-reference-v1",
+  "source_base_reference": {
+    "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+    "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/inputs/70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31-endpoint-candidate.npz",
+    "publication": 157,
+    "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+  },
+  "stale_origin_tracking_ref_modified": false
+}

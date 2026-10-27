@@ -1,0 +1,23 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/witness-restore-578/restore_witness_points578_v2.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/final/state.json",
+    "--target",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/candidate.npz",
+    "--point-summary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/full-check/audit-130/summary.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/witness-restore-578/target-v2-parity-001"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/candidate.npz": "c74c6ebde1b8baefac3c94852151303186f5905cf1850c265be55a900492da9f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/full-check/audit-130/summary.json": "3487cc84f2a83fdce179125200f6d099ab101296470480aba23dcea856b49d11",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/final/state.json": "99f8fb2b129e013354270235674abf97473c4f504f2cfd351567bbaa06781dcb",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/witness-restore-578/restore_witness_points578_v2.py": "85f72bce483525eba8a0e524a9da2e46f74d160c5809f62f67c66aae59567670"
+  }
+}

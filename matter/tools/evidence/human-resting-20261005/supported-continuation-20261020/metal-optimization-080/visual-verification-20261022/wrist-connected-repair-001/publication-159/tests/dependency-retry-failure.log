@@ -1,0 +1,122 @@
+....FFF                                                                  [100%]
+=================================== FAILURES ===================================
+____________ Tests.test_alternatives_preserve_geometry_ids_boundary ____________
+
+self = <test_harmonic_candidates577.Tests testMethod=test_alternatives_preserve_geometry_ids_boundary>
+
+    def test_alternatives_preserve_geometry_ids_boundary(self):
+>    p,f=self.fixture();before=p.tobytes();a=h.patch_candidates(p,p,f,np.arange(len(f)))
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+evidence/surface-clearance-546/harmonic-patch-577/harmonic_candidates577.py:50: in patch_candidates
+    rowids,old,boundary,vertices=p571._boundary_and_vertices(np.asarray(points),np.asarray(faces),rows,max_boundary)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py:59: in _boundary_and_vertices
+    patch_owner, _ = _owners()
+                     ^^^^^^^^^
+evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py:38: in _owners
+    actual = _sha(path)
+             ^^^^^^^^^^
+evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py:29: in _sha
+    with path.open("rb") as stream:
+         ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/numi/Work/numi-human-connected-surface-069/D/publication-159/evidence/surface-clearance-546/connected-patch-570/patch_candidates570.py')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/numi/Work/numi-human-connected-surface-069/D/publication-159/evidence/surface-clearance-546/connected-patch-570/patch_candidates570.py'
+
+/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: FileNotFoundError
+_______________________ Tests.test_broken_patch_rejected _______________________
+
+self = <test_harmonic_candidates577.Tests testMethod=test_broken_patch_rejected>
+
+    def test_broken_patch_rejected(self):
+     p,f=self.fixture();f[0]=f[1]
+>    with self.assertRaises(ValueError):h.patch_candidates(p,p,f,np.arange(len(f)))
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+evidence/surface-clearance-546/harmonic-patch-577/harmonic_candidates577.py:50: in patch_candidates
+    rowids,old,boundary,vertices=p571._boundary_and_vertices(np.asarray(points),np.asarray(faces),rows,max_boundary)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py:59: in _boundary_and_vertices
+    patch_owner, _ = _owners()
+                     ^^^^^^^^^
+evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py:38: in _owners
+    actual = _sha(path)
+             ^^^^^^^^^^
+evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py:29: in _sha
+    with path.open("rb") as stream:
+         ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/numi/Work/numi-human-connected-surface-069/D/publication-159/evidence/surface-clearance-546/connected-patch-570/patch_candidates570.py'
+
+/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: FileNotFoundError
+_____________________ Tests.test_chart_all_nodes_positive ______________________
+
+self = <test_harmonic_candidates577.Tests testMethod=test_chart_all_nodes_positive>
+
+    def test_chart_all_nodes_positive(self):
+>    p,f=self.fixture();r,o,b,v=h.p571._boundary_and_vertices(p,f,np.arange(len(f)),48)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py:59: in _boundary_and_vertices
+    patch_owner, _ = _owners()
+                     ^^^^^^^^^
+evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py:38: in _owners
+    actual = _sha(path)
+             ^^^^^^^^^^
+evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py:29: in _sha
+    with path.open("rb") as stream:
+         ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/numi/Work/numi-human-connected-surface-069/D/publication-159/evidence/surface-clearance-546/connected-patch-570/patch_candidates570.py')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/numi/Work/numi-human-connected-surface-069/D/publication-159/evidence/surface-clearance-546/connected-patch-570/patch_candidates570.py'
+
+/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: FileNotFoundError
+=========================== short test summary info ============================
+FAILED evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py::Tests::test_alternatives_preserve_geometry_ids_boundary
+FAILED evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py::Tests::test_broken_patch_rejected
+FAILED evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py::Tests::test_chart_all_nodes_positive
+3 failed, 4 passed in 0.14s

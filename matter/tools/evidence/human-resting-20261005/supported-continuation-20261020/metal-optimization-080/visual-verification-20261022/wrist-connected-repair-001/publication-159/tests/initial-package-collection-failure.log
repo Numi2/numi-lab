@@ -1,0 +1,22 @@
+
+==================================== ERRORS ====================================
+_ ERROR collecting evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py _
+evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py:2: in <module>
+    import harmonic_candidates577 as h
+evidence/surface-clearance-546/harmonic-patch-577/harmonic_candidates577.py:15: in <module>
+    p571=load("p571_for577",N/"regional-patch-571/regional_candidates571.py")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+evidence/surface-clearance-546/harmonic-patch-577/harmonic_candidates577.py:14: in load
+    sp=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(sp);sys.modules[name]=m;sp.loader.exec_module(m);return m
+                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap_external>:1023: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1160: in get_code
+    ???
+<frozen importlib._bootstrap_external>:1218: in get_data
+    ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/Users/numi/Work/numi-human-connected-surface-069/D/publication-159/evidence/surface-clearance-546/regional-patch-571/regional_candidates571.py'
+=========================== short test summary info ============================
+ERROR evidence/surface-clearance-546/harmonic-patch-577/test_harmonic_candidates577.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.14s

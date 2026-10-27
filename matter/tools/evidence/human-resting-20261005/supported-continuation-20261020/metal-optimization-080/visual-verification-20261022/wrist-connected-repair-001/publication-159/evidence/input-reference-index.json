@@ -1,0 +1,57 @@
+{
+  "local_candidates": [
+    {
+      "name": "575_unadmitted_fit_proposal",
+      "path": "evidence/surface-clearance-546/matched-connected-fit-575/run-001/fit/candidate.npz",
+      "resolution": "included-in-P159",
+      "sha256": "45b40a7f92ac12f6964c45c4783f2b948f0c676b236af23cf7bce969f6a8e8f3"
+    },
+    {
+      "name": "575_nonpassing_local_retention",
+      "path": "evidence/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/candidate.npz",
+      "resolution": "included-in-P159",
+      "sha256": "c74c6ebde1b8baefac3c94852151303186f5905cf1850c265be55a900492da9f"
+    },
+    {
+      "name": "575_retained_regions_pass",
+      "path": "evidence/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/candidate.npz",
+      "resolution": "included-in-P159",
+      "sha256": "6a740fe69e4f51f3ceb39468fe6b2873d1c6f9ed0b1c170f4b93719d97f97a39"
+    },
+    {
+      "name": "578_v2_target_pending_checks",
+      "path": "evidence/surface-clearance-546/witness-restore-578/target-v2-parity-001/candidate.npz",
+      "resolution": "included-in-P159",
+      "sha256": "0c7e8b7eae5ebfc708f630c056ecbd02dc4353ecc63b98310fb6b0725a16aca7"
+    },
+    {
+      "name": "578_checked_retained_target",
+      "path": "evidence/surface-clearance-546/witness-restore-578/checked-001/candidate.npz",
+      "resolution": "included-in-P159",
+      "sha256": "b084d54a4a2dbece602d46d5278bd7e516b28d0c094c38ca49709c86641c3d5d"
+    },
+    {
+      "name": "577_latest_exact_construction",
+      "path": "evidence/surface-clearance-546/harmonic-patch-577/run-001/lineage/candidate.npz",
+      "resolution": "included-in-P159",
+      "sha256": "07b9d1186d026ed0342cd9a24629a7a9b323b7feb931da92d0cb3b07b4baa6e2"
+    }
+  ],
+  "published_inputs": [
+    {
+      "commit": "74d996c81735f6c4f02651fff539b16a2e743a66",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-158/evidence/surface-clearance-546/connected-star-573/run-001/lineage/candidate.npz",
+      "publication": 158,
+      "purpose": "P158 prior published construction checkpoint; input to retained-regions branch; remained unselected.",
+      "sha256": "b32314463656719f475198f59f9c2cb07dddc2daa85e2cbaf7b42524bfa25637"
+    },
+    {
+      "commit": "a86c18727bf0b1e54b3c3cf3e849f5f87db378fa",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-157/evidence/inputs/70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31-endpoint-candidate.npz",
+      "publication": 157,
+      "purpose": "Pinned composed source base referenced by 577 full-check lineage.",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+    }
+  ],
+  "schema": "p159-input-reference-index-v1"
+}

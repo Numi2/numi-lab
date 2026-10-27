@@ -1,0 +1,23 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/retain_local_witnesses567.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/final/state.json",
+    "--target",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/witness-restore-578/target-001/candidate.npz",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/witness-restore-578/checked-001"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/retain_local_witnesses567.py": "422667ee0099145013ae39a706f64cf20e16c8c411d6b69e05d096264c7d9e35",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/run_target567.py": "52b95f2971e8a6c39ec2fd118691fac01c2d1ac5fe1ab7948f5e4f274ff14f5d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/final/state.json": "99f8fb2b129e013354270235674abf97473c4f504f2cfd351567bbaa06781dcb",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/witness-restore-578/target-001/candidate.npz": "0c7e8b7eae5ebfc708f630c056ecbd02dc4353ecc63b98310fb6b0725a16aca7"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "status": "PASS_ALL_PAYLOAD_FIELDS_BITWISE_PARITY",
+  "reference_candidate_sha256": "0c7e8b7eae5ebfc708f630c056ecbd02dc4353ecc63b98310fb6b0725a16aca7",
+  "replayed_candidate_sha256": "0c7e8b7eae5ebfc708f630c056ecbd02dc4353ecc63b98310fb6b0725a16aca7",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

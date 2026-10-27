@@ -1,0 +1,63 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline_state_sha256": "4a013dbc7e94419d103589dc0ef99865e19cc49fb739b3f27fe726c35be3c68f",
+  "edge_owner_sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+  "existing_admission_limits": "4mm trust / 0.5 edge-gradient; unchanged",
+  "fits_use_1mm_trust_and_0p1_gradient": "linear construction policy, separately measured here after local retention",
+  "measurements": [
+    {
+      "0.1": {
+        "minimum_edge_slack_mm": -0.2198143376402745,
+        "row_count": 76098,
+        "violated_rows_tolerance_1e7": 2452
+      },
+      "0.5": {
+        "minimum_edge_slack_mm": 2.2667706910280833e-05,
+        "row_count": 76098,
+        "violated_rows_tolerance_1e7": 0
+      },
+      "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/local-retention/candidate.npz",
+      "candidate_sha256": "c74c6ebde1b8baefac3c94852151303186f5905cf1850c265be55a900492da9f",
+      "label": "raw002_local",
+      "maximum_euclidean_step_mm": 0.882385297727023,
+      "support_nodes": 3655
+    },
+    {
+      "0.1": {
+        "minimum_edge_slack_mm": -0.2198143376402745,
+        "row_count": 59844,
+        "violated_rows_tolerance_1e7": 1953
+      },
+      "0.5": {
+        "minimum_edge_slack_mm": 2.2667706910280833e-05,
+        "row_count": 59844,
+        "violated_rows_tolerance_1e7": 0
+      },
+      "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/retained-regions/candidate.npz",
+      "candidate_sha256": "6a740fe69e4f51f3ceb39468fe6b2873d1c6f9ed0b1c170f4b93719d97f97a39",
+      "label": "retained1913",
+      "maximum_euclidean_step_mm": 0.7362706421101821,
+      "support_nodes": 2906
+    },
+    {
+      "0.1": {
+        "minimum_edge_slack_mm": -0.2198143376402745,
+        "row_count": 76098,
+        "violated_rows_tolerance_1e7": 2454
+      },
+      "0.5": {
+        "minimum_edge_slack_mm": 2.2667706910280833e-05,
+        "row_count": 76098,
+        "violated_rows_tolerance_1e7": 0
+      },
+      "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/witness-restore-578/checked-001/candidate.npz",
+      "candidate_sha256": "b084d54a4a2dbece602d46d5278bd7e516b28d0c094c38ca49709c86641c3d5d",
+      "label": "witness1896",
+      "maximum_euclidean_step_mm": 0.882385297727023,
+      "support_nodes": 3654
+    }
+  ],
+  "native_admission": false,
+  "source_sha256": "5f90d14cfb41bb9c5a0a512972a3630a09298b407e4a037adea943143127dcaf",
+  "status": "MEASURED_POST_RETENTION_POLICY_RESIDUALS"
+}

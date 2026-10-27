@@ -1,0 +1,45 @@
+{
+  "created_utc": "2026-10-26T23:52:26.572226+00:00",
+  "files": [
+    {
+      "archive_bytes": 5055968,
+      "archive_path": "evidence/surface-clearance-546/matched-connected-fit-575/run-001/compression-preservation/fit-report.json.zst",
+      "archive_sha256": "75c63ebe93f61b7c931898bddf84eea28fb354f7cd57deaa06259d080929aff7",
+      "compression_ratio": 0.118774,
+      "original_bytes": 42567989,
+      "original_mode": 420,
+      "original_mtime_ns": 1793058310007819358,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/fit/report.json",
+      "original_sha256": "03b6e393411a726d4fcc36afacce4219bfe5a032abd0de035cf27d05b798a4c8",
+      "restore": {
+        "decompressed_bytes": 42567989,
+        "decompressed_sha256": "03b6e393411a726d4fcc36afacce4219bfe5a032abd0de035cf27d05b798a4c8",
+        "restore_verified": true,
+        "restored_mode": 420,
+        "restored_mtime_ns": 1793058310007819358
+      }
+    },
+    {
+      "archive_bytes": 5051583,
+      "archive_path": "evidence/surface-clearance-546/matched-connected-fit-575/run-001/compression-preservation/fit-stage.log.zst",
+      "archive_sha256": "1528c1605913565fe5601952f7e39a6758e21bc55bdbc498730e217829a10bfc",
+      "compression_ratio": 0.118744,
+      "original_bytes": 42541730,
+      "original_mode": 420,
+      "original_mtime_ns": 1793058310014377643,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run-001/fit-stage.log",
+      "original_sha256": "eb684c03a90acfd414645c1b941f7902c01e48f61d9c0295e96e87eeda6e45d9",
+      "restore": {
+        "decompressed_bytes": 42541730,
+        "decompressed_sha256": "eb684c03a90acfd414645c1b941f7902c01e48f61d9c0295e96e87eeda6e45d9",
+        "restore_verified": true,
+        "restored_mode": 420,
+        "restored_mtime_ns": 1793058310014377643
+      }
+    }
+  ],
+  "schema": "p159-lossless-text-preservation-v1",
+  "source_files_left_untouched": true,
+  "sources_deleted": false,
+  "tool": "zstd -3 -T1"
+}

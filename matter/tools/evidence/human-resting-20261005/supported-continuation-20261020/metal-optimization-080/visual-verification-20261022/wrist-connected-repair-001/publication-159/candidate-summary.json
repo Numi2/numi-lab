@@ -1,0 +1,92 @@
+{
+  "575_emitted_policy_measurement": {
+    "limits_relaxed": false,
+    "raw_local_minimum_slack_mm": -0.2198143376402745,
+    "raw_local_rows_violating_existing_factor_0p5": 0,
+    "raw_local_rows_violating_gradient_factor_0p1": 2452,
+    "retained_regions_rows_violating_factor_0p1": 1953,
+    "retained_regions_rows_violating_factor_0p5": 0,
+    "source_sha256": "77e062dcf1bc24c9681ffc03391c689d486960822f0687cfcfb57845dec05e7f",
+    "witness1896_maximum_euclidean_step_mm": 0.882385297727023,
+    "witness1896_rows_violating_factor_0p1": 2454,
+    "witness1896_rows_violating_factor_0p5": 0
+  },
+  "575_fit_proposal": {
+    "all_185_bank_point_query": "NOT_RUN",
+    "candidate_selected": false,
+    "candidate_sha256": "45b40a7f92ac12f6964c45c4783f2b948f0c676b236af23cf7bce969f6a8e8f3",
+    "exact_global_self_audit": "NOT_RUN_REQUIRED",
+    "status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED"
+  },
+  "575_local_retention_negative": {
+    "candidate_selected": false,
+    "candidate_sha256": "c74c6ebde1b8baefac3c94852151303186f5905cf1850c265be55a900492da9f",
+    "contained_pairs": 1,
+    "self_pairs": 0,
+    "surface_pairs": 1900
+  },
+  "575_retained_regions": {
+    "anchor_rows": 237,
+    "candidate_selected": false,
+    "candidate_sha256": "6a740fe69e4f51f3ceb39468fe6b2873d1c6f9ed0b1c170f4b93719d97f97a39",
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "self_pairs": 0,
+    "surface_pairs": 1913
+  },
+  "576_diagnostic": {
+    "geometry_or_solver_executed": false,
+    "status": "PURE_PATCH_PREFLIGHT_DIAGNOSTIC_ONLY"
+  },
+  "577_latest_unselected_construction": {
+    "accepted_patches": 11,
+    "anchor_rows": 237,
+    "candidate_selected": false,
+    "candidate_sha256": "07b9d1186d026ed0342cd9a24629a7a9b323b7feb931da92d0cb3b07b4baa6e2",
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "coordinates_unchanged": true,
+    "full_check_status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS",
+    "self_pairs": 0,
+    "surface_pairs": 1855
+  },
+  "578_checked_retained_target": {
+    "anchor_rows": 237,
+    "candidate_selected": false,
+    "candidate_sha256": "b084d54a4a2dbece602d46d5278bd7e516b28d0c094c38ca49709c86641c3d5d",
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "self_pairs": 0,
+    "surface_pairs": 1896
+  },
+  "578_target_v2_parity": {
+    "candidate_selected": false,
+    "candidate_sha256": "0c7e8b7eae5ebfc708f630c056ecbd02dc4353ecc63b98310fb6b0725a16aca7",
+    "linear_feasibility_claim": false,
+    "parity_status": "PASS_ALL_PAYLOAD_FIELDS_BITWISE_PARITY",
+    "restored_rows": [
+      18892
+    ],
+    "target_status": "WITNESS_RESTORED_COORDINATE_TARGET_PENDING_FULL_CHECKS"
+  },
+  "global_claims": {
+    "accepted_physical_steps": 0,
+    "candidate_selected": false,
+    "clinical_or_completed_anatomy_claim": false,
+    "native_admission": false,
+    "physical_admission": false
+  },
+  "prior_published_construction_checkpoint": {
+    "anchor_rows": 237,
+    "candidate_selected": false,
+    "candidate_sha256": "b32314463656719f475198f59f9c2cb07dddc2daa85e2cbaf7b42524bfa25637",
+    "commit": "74d996c81735f6c4f02651fff539b16a2e743a66",
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "label": "prior published construction checkpoint; not selected",
+    "publication": 158,
+    "self_pairs": 0,
+    "surface_pairs": 1992
+  },
+  "schema": "p159-candidate-summary-v1"
+}

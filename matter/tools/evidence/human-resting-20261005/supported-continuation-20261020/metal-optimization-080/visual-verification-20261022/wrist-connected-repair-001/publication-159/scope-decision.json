@@ -1,0 +1,20 @@
+{
+  "excluded_scopes": [
+    "active connected-star-580 and all in-flight continuation output",
+    "old replay_raw_direction575.py v1 helper pending exact source ledger",
+    "any later geometry or native work"
+  ],
+  "included_frozen_scopes": [
+    "matched-connected-fit-575/run-001 outputs and emitted-policy measurement",
+    "regional-patch-576/diagnostic-002 preflight diagnostic",
+    "witness-restore-578 target, v2 parity, and checked-001 results",
+    "harmonic-patch-577/run-001 exact check and tests",
+    "exact source pins and lossless text preservation data"
+  ],
+  "no_geometry_or_native_work_run_by_publisher": true,
+  "publication": "P159",
+  "publication_parent": "74d996c81735f6c4f02651fff539b16a2e743a66",
+  "push_authorization": "Inherited user authorization; root directed a normal push after source and manifest gates pass.",
+  "schema": "p159-scope-decision-v1",
+  "status": "READY_FOR_PUBLICATION_REVIEW"
+}
