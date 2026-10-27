@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/baseline-check/audit-130/query/points-world.npz",
+  "input_sha256": "c7ad7d7b5c689df5428b23642be537b07f8db0e99be818eb3a83f782493e87be",
+  "field": "points_world_f32",
+  "query_count": 20897,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/baseline-check/audit-130/query/points.csv",
+  "output_sha256": "95b1fd7b5fe2ff26c3c064c34ee15fa80a89f4de1a6258e2f065bcede6f4a67f",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

@@ -1,0 +1,10 @@
+{
+  "accepted_physical_steps": 0,
+  "area_floor": 0.1,
+  "edge_gradient": 0.1,
+  "hypothesis": "1mm trust and 0.1 edge-gradient limit may retain more actual Float32 progress than larger, poorly conditioned directions",
+  "native_admission": false,
+  "source_cap_mm": 12,
+  "trust_mm": 1,
+  "unchanged_total_solver_budget_seconds": 120
+}

@@ -1,0 +1,20 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/run_target567.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-002/final/state.json",
+    "--target",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continued-connected-fit-581/run-001/round-001/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continued-connected-fit-581/run-001/round-001/local-retention"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-002/final/state.json": "c05315c7da54eef82c8a272ff4a88f717ae2a20944bc5d47ffd4bd3879a8307c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continued-connected-fit-581/run-001/round-001/fit/raw-joint-capture-563/raw-direction-002/candidate.npz": "fcefb10cbf4810af1412846bddf57264921bf15764c84b4f8aad0fff7de98b12",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-567/run_target567.py": "52b95f2971e8a6c39ec2fd118691fac01c2d1ac5fe1ab7948f5e4f274ff14f5d"
+  }
+}

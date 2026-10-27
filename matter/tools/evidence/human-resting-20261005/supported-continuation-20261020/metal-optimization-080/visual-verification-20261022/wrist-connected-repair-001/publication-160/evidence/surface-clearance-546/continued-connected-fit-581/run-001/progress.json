@@ -1,0 +1,23 @@
+{
+  "accepted_physical_steps": 0,
+  "best_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continued-connected-fit-581/run-001/round-001/retained-regions/final/state.json",
+  "native_admission": false,
+  "rounds": [
+    {
+      "accepted_physical_steps": 0,
+      "after_surface_pairs": 1705,
+      "before_surface_pairs": 1717,
+      "best_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continued-connected-fit-581/run-001/round-001/retained-regions/final/state.json",
+      "best_state_sha256": "0b33837375a420e9d5e3707cbaa7c6e2c6f69ecd83bb7691134731ea306213ee",
+      "contained_pairs": 0,
+      "input_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-002/final/state.json",
+      "input_state_sha256": "c05315c7da54eef82c8a272ff4a88f717ae2a20944bc5d47ffd4bd3879a8307c",
+      "native_admission": false,
+      "round": 1,
+      "self_pairs": 0,
+      "strict_progress": true
+    }
+  ],
+  "status": "CONTINUING_CONSTRUCTION",
+  "surface_pairs": 1705
+}

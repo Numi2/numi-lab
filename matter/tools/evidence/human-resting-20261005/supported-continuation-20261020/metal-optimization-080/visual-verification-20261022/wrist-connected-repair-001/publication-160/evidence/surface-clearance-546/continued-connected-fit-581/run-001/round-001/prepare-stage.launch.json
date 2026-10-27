@@ -1,0 +1,25 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-002/final/state.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continued-connected-fit-581/run-001/round-001/prepare",
+    "--prior-context",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/constraints/constraint-context.json",
+    "--seed-source-candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-directions/raw-direction-001/candidate.npz",
+    "--seed-source-audit130",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-self-audit130/summary.json"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-002/final/state.json": "c05315c7da54eef82c8a272ff4a88f717ae2a20944bc5d47ffd4bd3879a8307c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-575/run_matched_fit575.py": "a510ebabc389ba359c335ec72eb03bdc817ef93386981ffa53f94141e2c1d61e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py": "84bcd87e6ba2c877eeabf853ff2db7739041e6c96838a6b625ddea878c72e2a0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/constraints/constraint-context.json": "8ddc6a4379580a9777a1cd8e0833f8ab7654638293efc633444be771d0a72d92"
+  }
+}

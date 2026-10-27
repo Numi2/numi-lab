@@ -1,0 +1,36 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/prepare_edge_only_refinement585.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-003/lineage/candidate.npz",
+    "--crossing-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-003/full-check/audit-159/report.json",
+    "--expected-candidate-sha256",
+    "8d5ac3dddb8bfebb77ef608fefcb484e8c648625ff5d7e84f876cd6fe0536d78",
+    "--expected-crossing-report-sha256",
+    "83cc6f6ee8839e1d5ca0991b0cb16854336f78c499603128ba8b62b2e44cd80e",
+    "--expected-area-reference-sha256",
+    "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+    "--output-candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/candidate.npz",
+    "--output-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/report.json",
+    "--max-edges",
+    "8"
+  ],
+  "native_admission": false,
+  "operation": "offline affine array construction only",
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-adapter546/connected_refinement_adapter546.py": "06081873eaf0d5452fbf4beee3d580a0eba97c3a546a9f7e7a06a0c9f548cbc6",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-003/full-check/audit-159/report.json": "83cc6f6ee8839e1d5ca0991b0cb16854336f78c499603128ba8b62b2e44cd80e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-003/lineage/candidate.npz": "8d5ac3dddb8bfebb77ef608fefcb484e8c648625ff5d7e84f876cd6fe0536d78",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/edge_only_refinement585.py": "07d466ba25c7d565bb8be61c9ff87a7725699f13e4080587a48cbbeec24056a3",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/prepare_edge_only_refinement585.py": "1cae6c1c63cd342151a1057b47c61d26f57ec8b76f1879c91e7cde5de5046ca9",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-017-conforming-crossing-refinement/canonical-increment-019/matter/tools/human_skin_fat_boundary_refinement.py": "eab8deda28164964051a6fa6ff346b8d94bc8bede04e896411dfdd02d46594f6",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-037-local-refinement-006-prep/refine_conforming_006.py": "d3a6e0c31e34f2165d853ffaf411ad67faaa1d307a3af1a6c79ba41a129f4f31",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-109/sources/connected-refinement-270/connected_refinement_270.py": "70e391867c4aa5680dacdcba1244ec15962a5dc74dc9d67c31467cdaffb608db"
+  }
+}

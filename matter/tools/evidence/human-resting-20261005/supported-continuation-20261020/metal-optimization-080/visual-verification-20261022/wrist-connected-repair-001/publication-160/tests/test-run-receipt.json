@@ -1,0 +1,41 @@
+{
+  "no_tests_wrote_cache_to_source": true,
+  "pytest_args": "-q -p no:cacheprovider",
+  "python": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "runs": [
+    {
+      "record": "embedded run unit-tests.launch/execution/log in each completed run",
+      "results": [
+        "8 passed",
+        "8 passed",
+        "8 passed"
+      ],
+      "scope": "connected-topology-580 run-001/002/003"
+    },
+    {
+      "output": "tests/582-tests.log",
+      "result": "4 passed",
+      "scope": "local-witness-retention-582",
+      "tests": "evidence/surface-clearance-546/local-witness-retention-582/test_retain_local_witnesses582.py"
+    },
+    {
+      "output": "tests/583-tests.log",
+      "result": "6 passed",
+      "runtime_claim": "unit tests only; v2 was not run as a geometry coordinator",
+      "scope": "matched-connected-fit-583 v1+v2",
+      "tests": [
+        "evidence/surface-clearance-546/matched-connected-fit-583/test_run_matched_fit583.py",
+        "evidence/surface-clearance-546/matched-connected-fit-583/test_run_matched_fit583_v2.py"
+      ]
+    },
+    {
+      "output": "tests/585-tests.log",
+      "result": "8 passed",
+      "runtime_claim": "pilot array only; no full candidate check",
+      "scope": "edge-only-refinement-585",
+      "tests": "evidence/surface-clearance-546/edge-only-refinement-585/test_edge_only_refinement585.py"
+    }
+  ],
+  "schema": "numi.human.surface_clearance.p160.tests.v1",
+  "test_sources_copied_mutably": true
+}

@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-001/lineage/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "32fcd3a345b9794ffc2a93f786242afbf8d0df981707e0d16375519be01fd0bf",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-001/full-check/audit-130/summary.json",
+  "point_summary_sha256": "dccf8df3f49d691deceb145345590360e0c0bbb1832de8e26976272b34ec61d5",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-001/full-check/audit-159/report.json",
+  "surface_report_sha256": "85e2cdeab099c9cc8076d7f0cd8627b6e1717aaf37c28d91c048363db6a1f185",
+  "temporary_unselected_construction": false
+}

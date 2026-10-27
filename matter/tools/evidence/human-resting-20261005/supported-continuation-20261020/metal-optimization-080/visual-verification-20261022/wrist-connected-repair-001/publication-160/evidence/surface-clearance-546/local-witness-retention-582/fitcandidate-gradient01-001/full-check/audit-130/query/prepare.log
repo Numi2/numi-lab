@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/fitcandidate-gradient01-001/full-check/audit-130/query/points-world.npz",
+  "input_sha256": "d8378fe959fa28c28e27a30f039916af9adf777d009e88d8c2f2b8d87c2d4e3f",
+  "field": "points_world_f32",
+  "query_count": 20889,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/fitcandidate-gradient01-001/full-check/audit-130/query/points.csv",
+  "output_sha256": "4e4d4c957cea8f7dd012b85b00742f6b4ac7793cd45311fd86c179d7baedba5b",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

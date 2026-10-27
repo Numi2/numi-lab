@@ -1,0 +1,2611 @@
+{
+  "classification": "offline geometry construction only; no native/physical/FEM admission",
+  "construction_limits": {
+    "actual_source_distance_cap_mm": 12,
+    "fresh_edge_gradient_cap": 0.5,
+    "maximum_reported_final_step_mm": 0.055628653255699045,
+    "maximum_reported_source_distance_mm": 11.988305485403343,
+    "minimum_area_ratio": 0.1,
+    "minimum_current_oriented_area_ratio": 0.25547094657514474,
+    "minimum_fixed_037_reference_area_magnitude_ratio": 0.10009356948026137,
+    "preexisting_head_boundary_edges_remain_open": 45,
+    "typed_anchor_rows": 237
+  },
+  "excluded_future_numbered_directories_present_at_snapshot": [],
+  "excluded_reasons": {
+    "Python/pytest caches": "not included",
+    "directories beyond last-exit-022": "future/active work outside this completed supplement",
+    "unchanged source snapshots and helpers": "already present under publication-142 and referenced with exact hashes",
+    "unrun prepare_publication142.py": "unrelated broad preparer not part of this evidence snapshot"
+  },
+  "excluded_root_files_present_at_snapshot": [
+    "all-failed-self-seeds-through003.npy",
+    "backtrack-001.log",
+    "build_coherent_depth_targets545.py",
+    "build_cone_depth_targets545.py",
+    "build_connected_endpoint_patch545.py",
+    "build_direct_depth_targets545.py",
+    "build_joint_source_targets545.py",
+    "check-001-diagnostic.log",
+    "component_lp_active545.py",
+    "context-through003.json",
+    "continue545.py",
+    "depth-001.log",
+    "depth-argv.json",
+    "filter_endpoint_operations545.py",
+    "fit-001-argv.json",
+    "fit-001-execution.json",
+    "fit-001-input-pins.json",
+    "fit-001.log",
+    "fit-001.sat-crossing-inputs-458.json",
+    "fit-001.sat-crossing-inputs-458.npz",
+    "fit-001.solver-progress.jsonl",
+    "full-point-005-retry.log",
+    "full-point-005.log",
+    "initial-state.json",
+    "matched-inputs-001.json",
+    "point-targets-001.log",
+    "point-targets-argv.json",
+    "prepare_publication142.py",
+    "project_patch_quality545.py",
+    "retry_full005.py",
+    "retry_prepared004.py",
+    "round-002.log",
+    "round-003.log",
+    "round-004-retry.log",
+    "round-004.log",
+    "run_candidate_checks545.py",
+    "run_checked_batch545.py",
+    "run_checked_batch_context545.py",
+    "run_full_coordinate_point_fit545.py",
+    "run_full_hardpoint_fit545.py",
+    "run_point_batch545.py",
+    "seed-preflight.json",
+    "select_connected_endpoint_patches545.py",
+    "select_exact_endpoint_operations545.py",
+    "select_joint_source_patch545.py",
+    "state-001.json",
+    "surface-targets-001.log",
+    "surface-targets-argv.json",
+    "test_component_active545.py",
+    "test_connected_patch545.py",
+    "test_direct_depth545.py",
+    "test_point_batch545.py",
+    "test_project_patch545.py"
+  ],
+  "generated_utc": "2026-10-26T17:26:16.998790+00:00",
+  "included_directories": [
+    "topology-017",
+    "topology-builder-018",
+    "soft-joint-fit-019",
+    "final-two-020",
+    "final-one-021",
+    "last-exit-022"
+  ],
+  "included_root_artifacts": [
+    "zero-contained-checkpoint.json",
+    "zero-contained-summary.md",
+    "topology-builder-018.py",
+    "diagnosis/*.json",
+    "source-snapshots/* only when new or changed"
+  ],
+  "initial_to_final_identity_receipt": {
+    "changed_coordinate_count": 2273,
+    "final_candidate_sha256": "ced651c06f4363139288fc006ce9bdbf62ef13f603491c16fbdf0d98eb654bc4",
+    "initial_candidate_sha256": "c1e02aaaacebe571370e5b6273501fbb95d1d938cf4292025163495415468939",
+    "maximum_cumulative_coordinate_delta_mm": 3.030683161162512,
+    "receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/initial-to-final-identity-check.json",
+    "receipt_sha256": "e956b181da273a0c6319101401845cd371049b9382a91805c49fc493547760c8",
+    "source_topology_and_provenance_arrays_bitwise_unchanged": true,
+    "unchanged_coordinate_count": 18616
+  },
+  "manifest_excludes_itself": true,
+  "member_bytes": 376302009,
+  "member_count": 277,
+  "members": [
+    {
+      "bytes": 433,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/topology-017/check/audit-130/summary.json",
+      "sha256": "05c10446536504531c375089edb0a8ad9bf4e10031c9e56341f94a41c401eacf",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/topology-017/check/audit-130/summary.json"
+    },
+    {
+      "bytes": 288,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/topology-017/check/audit-130/surface-self-pairs.npy",
+      "sha256": "8caa5c03ac230c202b218173fac490696a0aae6a24bf35fd4cc1b1d6bc1a3759",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/topology-017/check/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 492,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/topology-017/check/audit-130.log",
+      "sha256": "48c35f40bd4be53eaf2274816e71a63274a8881ff96b62aa28da91e21737a5c6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/topology-017/check/audit-130.log"
+    },
+    {
+      "bytes": 13751,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/topology-017/check/report.json",
+      "sha256": "c78c59961549066f882683ebaac198e7cce3f146378e7b4ec5e03f8916e2abed",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/topology-017/check/report.json"
+    },
+    {
+      "bytes": 13,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/topology-017/details.json",
+      "sha256": "0864257e0cc63b2ef0e428313a18cb79df86de2203a9b02dc0532386c7bc03ed",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/topology-017/details.json"
+    },
+    {
+      "bytes": 6445566,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/topology-017/proposal/candidate.npz",
+      "sha256": "0c06dc2cb75b41dbca7775dd7d2f36717bd07bada2924c3cfe4661589ce6ce14",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/topology-017/proposal/candidate.npz"
+    },
+    {
+      "bytes": 8452,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/topology-017/proposal/report.json",
+      "sha256": "f3dab3825f6b69f33dd38d6bfb494e667b867ac49cc15f97235461b06a454926",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/topology-017/proposal/report.json"
+    },
+    {
+      "bytes": 127,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/topology-017/seeds.json",
+      "sha256": "26b7770c62c69f40d988247961ba2b0b58719802759b71380a6fcc5ff4caffca",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/topology-017/seeds.json"
+    },
+    {
+      "bytes": 6445688,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/topology-builder-018/run-001/candidate.npz",
+      "sha256": "76ec607a3cc6105bce6ef6e26f2a66b881fcce46003f23bf3310c019eb069c20",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/topology-builder-018/run-001/candidate.npz"
+    },
+    {
+      "bytes": 35259,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/topology-builder-018/run-001/receipt.json",
+      "sha256": "64d4e005561c8f797236d1ec0b42d8a6555460f7d2914c45e33dc8c49b42d807",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/topology-builder-018/run-001/receipt.json"
+    },
+    {
+      "bytes": 4202,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/argv.json",
+      "sha256": "0ab2152eef50a8ca51c6deddc904df8d7fd7026d8dcbf00e450c91f60306e430",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/argv.json"
+    },
+    {
+      "bytes": 167240,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-001/node-step-scales.npy",
+      "sha256": "34446ce007e5e6ca1b639c29e3aa44a002320df0c960dedb29923d7d2a9f75d2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-001/node-step-scales.npy"
+    },
+    {
+      "bytes": 248285,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-001/result.json",
+      "sha256": "b8d4a4abbb6a4f334aba50ccde2e094c28c25fb87745cb6bf8456f09c8944e36",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-001/result.json"
+    },
+    {
+      "bytes": 431,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/audit-130/summary.json",
+      "sha256": "2dcb92382e2757eb278bb70618ed07bccf6ca757272dc000b8053beb559fd6e0",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/audit-130/summary.json"
+    },
+    {
+      "bytes": 208,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/audit-130/surface-self-pairs.npy",
+      "sha256": "e5cfb3d850b3baf34421c076f2535ce7a81ded827b1506225894be40509c090d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 621,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/audit-130.execution.json",
+      "sha256": "8afcb2305073b21669eac297ad53fa0c41f7522910fbfe8c31025a70d3a9bda8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/audit-130.execution.json"
+    },
+    {
+      "bytes": 490,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/audit-130.log",
+      "sha256": "32b7a0277dd85c64debb9f2c78ed398773b26439c748d41929881d9789222274",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/audit-130.log"
+    },
+    {
+      "bytes": 6445514,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/candidate.npz",
+      "sha256": "808e12c272b3a340aba52651d09d1376eda6f4a1c9418de7f780e7122a00d44d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/candidate.npz"
+    },
+    {
+      "bytes": 167240,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/node-step-scales.npy",
+      "sha256": "75e2eb414cfcd975ce8f2c9c52952cd17a8b2ec855ef39e67bbc9268d616dc8b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/node-step-scales.npy"
+    },
+    {
+      "bytes": 246259,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/result.json",
+      "sha256": "35526a623e9dde33ff2c496bb099ca7d36eb570f006f7aac4f6e977e73a19ed7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-002/result.json"
+    },
+    {
+      "bytes": 490362,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/nodes.csv",
+      "sha256": "7ebe58be76b9a25326b057cbc2f4beb9a394e4636a4184720affbc0954832319",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/nodes.csv"
+    },
+    {
+      "bytes": 2805815,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/pairs.csv",
+      "sha256": "4d321b7c130220b6408510ffb777005fdc8035609c5eaeef91a8935460cc8258",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/pairs.csv"
+    },
+    {
+      "bytes": 225236,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/points-world.npz",
+      "sha256": "bbbb88dccf0b40a4f51c2ab8322d5f714ed99e8afabb5a078c45850362723aca",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/points-world.npz"
+    },
+    {
+      "bytes": 1583976,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/points.csv",
+      "sha256": "c8db3082d1cdea128caddb649ed0e53038e62a6d75d8ad89a8b40510123d0a75",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/points.csv"
+    },
+    {
+      "bytes": 688,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/prepare.log",
+      "sha256": "1495e3fe7f6050c0613fa270609f206c8a3dd5911bd14fff7eaa722502e42886",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/prepare.log"
+    },
+    {
+      "bytes": 1660,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/query-receipt.json",
+      "sha256": "9e4e88f184403b631e779c46163f19f486bcc43536e9786a451908fd96927e63",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/query-receipt.json"
+    },
+    {
+      "bytes": 134,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/query.log",
+      "sha256": "4e4255e764f084e278320337e6342157213c220a2247c4c3ffc1a201aaa89a22",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/query/query.log"
+    },
+    {
+      "bytes": 3129,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/summary.json",
+      "sha256": "8b4507e7abd95ce15d3fdf2ee758533d35761f8740166ebb25c9a9256f9e3905",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/summary.json"
+    },
+    {
+      "bytes": 128,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 621,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130.execution.json",
+      "sha256": "3db227543e77b8036d51a928d577d9eabde672783b4b5dafbf0611484299746e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130.execution.json"
+    },
+    {
+      "bytes": 647,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130.log",
+      "sha256": "3d3242d9775431b4f5f5e9d222f6346673989acfc85f51779945c260a8eee79f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-130.log"
+    },
+    {
+      "bytes": 99,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-159/progress.json",
+      "sha256": "ebc13478b608d0bfcd1baefbfaff1cc5378d587052cb3433d9adcfd317d9a221",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-159/progress.json"
+    },
+    {
+      "bytes": 232572,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-159/report.json",
+      "sha256": "328247cdb11ce9f8343035cf0b06e24ff970fa65301bee41dbc742a223aab727",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-159/report.json"
+    },
+    {
+      "bytes": 648,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-159.execution.json",
+      "sha256": "6178e34fcff9e68e285a52c5edf8102d5948c6218b837ac56e87e892c33879ee",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-159.execution.json"
+    },
+    {
+      "bytes": 938,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-159.log",
+      "sha256": "d3008112357613facb30c033cbad82c4c470b7ac72de64737e3e99335bd4718a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/audit-159.log"
+    },
+    {
+      "bytes": 6445518,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/candidate.npz",
+      "sha256": "c8f25f31fe62e7495ce447450002675ec8f9ebb9f967658fd13fc2b26ce9509c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/candidate.npz"
+    },
+    {
+      "bytes": 167240,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/node-step-scales.npy",
+      "sha256": "50e9e975c61db37f814e86e2c9d115fed10284178f2b30ae5020e6e8a5da9b37",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/node-step-scales.npy"
+    },
+    {
+      "bytes": 4679,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/result.json",
+      "sha256": "0554606cc64ba0b6d7247d85ca5ab4c3ec2517ba102ba1fb531a168b2ff88cd4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/pass-003/result.json"
+    },
+    {
+      "bytes": 4679,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/selected-result.json",
+      "sha256": "0554606cc64ba0b6d7247d85ca5ab4c3ec2517ba102ba1fb531a168b2ff88cd4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/selected-result.json"
+    },
+    {
+      "bytes": 792,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/source-inputs.json",
+      "sha256": "3fda28f6e7ba7dcbba282819003edc77c8eb51131d7210367e3d07bb862d0fce",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-373/source-inputs.json"
+    },
+    {
+      "bytes": 87321,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-config.json",
+      "sha256": "fea28c73737e9ba0f31c32d35317912fff06c39031c0ef2d21465e1d4eb7b3f5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/backtrack-config.json"
+    },
+    {
+      "bytes": 567937,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/context.npz",
+      "sha256": "ec5b41df3965a1eb2a45367e58e0707bce38c2d4b4dc838a91d831fb522547c7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/context.npz"
+    },
+    {
+      "bytes": 183,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/execution.json",
+      "sha256": "d22042d58dc3dfb38a2b26c60d7dedbf0f0a8057e7693ca3c0698376e50dff4a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/execution.json"
+    },
+    {
+      "bytes": 3879,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/execution.log",
+      "sha256": "0355787d0ac5188e7a157b5dfc95b6845941c3c6b4ce667f9b540e3f2bd10819",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/execution.log"
+    },
+    {
+      "bytes": 167240,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/initial-scales.npy",
+      "sha256": "34446ce007e5e6ca1b639c29e3aa44a002320df0c960dedb29923d7d2a9f75d2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/initial-scales.npy"
+    },
+    {
+      "bytes": 5198,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/launch.json",
+      "sha256": "52693efc7c7ed16c0b79774d001e83915220fe7216f63fde4b70a91b85d2add2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/launch.json"
+    },
+    {
+      "bytes": 8493,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/preprojection.json",
+      "sha256": "545692fcceae3f22ace8c344137ae4d888a1eea4e01b4646ef9729a2415153c7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/preprojection.json"
+    },
+    {
+      "bytes": 17541884,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/seed-rows.npz",
+      "sha256": "3a7d21186c2c5e68f95007464fdfa96fa93cef8b96eb514b8b075ab496d507d8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/seed-rows.npz"
+    },
+    {
+      "bytes": 210620,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/backtrack/seed-scale-report.json",
+      "sha256": "bb6180d236e4608f36548427872a380b468b78a2f35a29ce218b2c8e6fdc3d89",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/backtrack/seed-scale-report.json"
+    },
+    {
+      "bytes": 433,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/check/audit-130/summary.json",
+      "sha256": "97264a2ebe4dd2617e902bb8a1e78e53b45a6ac306c5fc28fe0cfcd793aa3a44",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/check/audit-130/summary.json"
+    },
+    {
+      "bytes": 400,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/check/audit-130/surface-self-pairs.npy",
+      "sha256": "5142ea2b0c0d9f96c4be960b62f31ef16401ed390018fe161c4b3712820e17b7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/check/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 492,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/check/audit-130.log",
+      "sha256": "ace3fd3ef077edc4587e903870b02671692dfd1738b92d9869afd322ab65e223",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/check/audit-130.log"
+    },
+    {
+      "bytes": 14958,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/check/report.json",
+      "sha256": "00529ce63b350f0d3a5f460320634ed67b73bbbaf646e9204f251c1e983de7cb",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/check/report.json"
+    },
+    {
+      "bytes": 6290271,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/fit/candidate.npz",
+      "sha256": "6cedac079ccc40bc39e167f4398a0cf28a05c69d3a0b3704f4fa2f6301f7a56c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/fit/candidate.npz"
+    },
+    {
+      "bytes": 6512135,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/fit/raw-lp-candidate.npz",
+      "sha256": "38609fa58e64c4759a4146f3b0fb30ba489811305f661ac84b42c5d149d27594",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/fit/raw-lp-candidate.npz"
+    },
+    {
+      "bytes": 39977611,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/fit/report.json",
+      "sha256": "b9058f99cb1d061f0ce12f2d6b2ecada5faf338cdf7d6e6045c50b15042a5a5f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/fit/report.json"
+    },
+    {
+      "bytes": 80,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/fit.execution.json",
+      "sha256": "5fec64dca5c65f63ab2873cede8723d79e8ccae174b0e77a11a9cb25520753d8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/fit.execution.json"
+    },
+    {
+      "bytes": 4835,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/fit.launch.json",
+      "sha256": "baa45baee3660b22781ed6ef0cb659e5c4108b22aa48d67ed1a9afb0ce956a69",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/fit.launch.json"
+    },
+    {
+      "bytes": 39953606,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/fit.log",
+      "sha256": "04f4adf6aafb8566920747a71c88ffe2d6299f4050d4e102b1bba39bb5c3c607",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/fit.log"
+    },
+    {
+      "bytes": 13398,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/fit.sat-crossing-inputs-458.json",
+      "sha256": "ea9ced025579b3b64e1fecf83791fa7c4a9ad3ed131f84bbf67fe3958b5aba72",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/fit.sat-crossing-inputs-458.json"
+    },
+    {
+      "bytes": 26298,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/fit.sat-crossing-inputs-458.npz",
+      "sha256": "24d18e03e5ae0a844a6214a4a33fcc803f0409cd6532286cf1e69061ba31aa29",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/fit.sat-crossing-inputs-458.npz"
+    },
+    {
+      "bytes": 1504,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/fit.solver-progress.jsonl",
+      "sha256": "7b858e36033e389d93922a2a4e4888e13e8dcbe1c2a2cf490158fbf7e997075d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/fit.solver-progress.jsonl"
+    },
+    {
+      "bytes": 6445518,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/candidate.npz",
+      "sha256": "a1a8c8a75d8097c9d99d96be33ddceef0ec971df67fa36758959fcbd2efe93ab",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/candidate.npz"
+    },
+    {
+      "bytes": 490362,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/nodes.csv",
+      "sha256": "ccc55d61926e5307b14fcb7dc6e22e39a85c6d4efd27ab9399f7fee8b383b141",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/nodes.csv"
+    },
+    {
+      "bytes": 2805815,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/pairs.csv",
+      "sha256": "1c47d1e16b4017d950db2a4b54ff9f40164b675df0665024ecdb3809f5d8f08a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/pairs.csv"
+    },
+    {
+      "bytes": 225236,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/points-world.npz",
+      "sha256": "5e6f5ea7ee07b217b902baa21083e64f4397823ff908e84e6e93893efc6e84d4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/points-world.npz"
+    },
+    {
+      "bytes": 1583975,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/points.csv",
+      "sha256": "4fe18054ac37b79da90aae7ee08e3b31dfdb8f2ff6c936a8f4d816a11e7b5063",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/points.csv"
+    },
+    {
+      "bytes": 678,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/prepare.log",
+      "sha256": "562a5dd6d82dd69fb1ec0686c6484f32fe14c0035de10ee6fe02d50de2862067",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/prepare.log"
+    },
+    {
+      "bytes": 1645,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/query-receipt.json",
+      "sha256": "553cf0bcc316fdee32de3a44c8f01e9ebc409236a9f28bf6dd939ca85e5291ac",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/query-receipt.json"
+    },
+    {
+      "bytes": 134,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/query.log",
+      "sha256": "884b62ceca751f1d83cd82df13e67a38f176897b1b0d61e6089bc95edc5fd6f6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/query/query.log"
+    },
+    {
+      "bytes": 2285,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/summary.json",
+      "sha256": "17333220a641c0bd7e8473a1c5587095a5fae4589b182bef8833bf4cfd4f90d7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/summary.json"
+    },
+    {
+      "bytes": 128,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 649,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130.log",
+      "sha256": "4bd86bf1febeecd43759b07e14c94ba7c9edfcaeaff2d3e50309e0c6e0e294a0",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-130.log"
+    },
+    {
+      "bytes": 99,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-159/progress.json",
+      "sha256": "e8d5cac7840dc5d45659de52cea3b87badf29f00641436581b594581677e300a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-159/progress.json"
+    },
+    {
+      "bytes": 232452,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-159/report.json",
+      "sha256": "b5160007c76da3ae0e70c2f249ca0949a303953b2cd79152c72364edb5ebd1fb",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-159/report.json"
+    },
+    {
+      "bytes": 938,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-159.log",
+      "sha256": "d3304b804a4ba986df3c3d4766032143b19662fc56cd46b6a26b490493f88c16",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/audit-159.log"
+    },
+    {
+      "bytes": 15962,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/report.json",
+      "sha256": "395bbe0c7561d87878bc073243e82e4167ca316eaae3bc69e3fe47dbb3e95e2a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/check/report.json"
+    },
+    {
+      "bytes": 405,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/report.json",
+      "sha256": "639861d77784ae87066201d7c6d02ddaa8d038676a5d81f0df7625d49af599b8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/report.json"
+    },
+    {
+      "bytes": 828,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/state.json",
+      "sha256": "f68789a6a1c114927d3cfa5d7453fa4ed89ef583a1a0b7b84533abbc6fe07f11",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/protect-cleared-18591/state.json"
+    },
+    {
+      "bytes": 6445518,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/restore-replay/candidate.npz",
+      "sha256": "a1a8c8a75d8097c9d99d96be33ddceef0ec971df67fa36758959fcbd2efe93ab",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/restore-replay/candidate.npz"
+    },
+    {
+      "bytes": 820,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/restore-replay/report.json",
+      "sha256": "71405c12f1bfd18a2959347a5c52dd1ff13340201411540e662334a5c4420d4a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/restore-replay/report.json"
+    },
+    {
+      "bytes": 2207,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/soft-joint-fit-019/restore_outside_witness_rows545.py",
+      "sha256": "e03b1ed60137e06c21e9bb7d0ed05a0bf27a7c0ff3f0b80863603bb36bd3b7bf",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/restore_outside_witness_rows545.py"
+    },
+    {
+      "bytes": 490362,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/audit-130/query/nodes.csv",
+      "sha256": "5acb5ee258a70e402279c287d1add389e3dd9c991583aeaccacd6c97b21887b2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/audit-130/query/nodes.csv"
+    },
+    {
+      "bytes": 2805814,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/audit-130/query/pairs.csv",
+      "sha256": "f694e5118eb9c988c0af1ed9d9ba202cc973dd23fc01f21382473c3c4357828c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/audit-130/query/pairs.csv"
+    },
+    {
+      "bytes": 225233,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/audit-130/query/points-world.npz",
+      "sha256": "641c182013965e5658664690182b3303d57ea4f785e30fa345144d29b7cc7cb3",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/audit-130/query/points-world.npz"
+    },
+    {
+      "bytes": 1583969,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/audit-130/query/points.csv",
+      "sha256": "01372dea1450249e9b0c05a777c5edd9ea53e6010d3ce9ade957a4822d6830c2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/audit-130/query/points.csv"
+    },
+    {
+      "bytes": 624,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/audit-130/query/prepare.log",
+      "sha256": "aedf8afeb8d3fb587ac32a0f67ee52b8e8a3968b8152f5689031fd05d1e102ea",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/audit-130/query/prepare.log"
+    },
+    {
+      "bytes": 1564,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/audit-130/query/query-receipt.json",
+      "sha256": "fd1c213360376b020606914a6c7995a967a8b38833d3c9acb3eb046d06e8ada7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/audit-130/query/query-receipt.json"
+    },
+    {
+      "bytes": 134,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/audit-130/query/query.log",
+      "sha256": "b0adf5231982359e97114f888fc5303807b4f2a82cafdf66a0797d27d8680822",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/audit-130/query/query.log"
+    },
+    {
+      "bytes": 1441,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/audit-130/summary.json",
+      "sha256": "7658c8f4669175477b3d2003b7caa98495d47564b9819bfd243f601336bdc532",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/audit-130/summary.json"
+    },
+    {
+      "bytes": 128,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 648,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/audit-130.log",
+      "sha256": "24db2e089396da079aabf0f8a9d5aef49942e7aa9f164a2b9d8a817e22ca60c7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/audit-130.log"
+    },
+    {
+      "bytes": 99,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/audit-159/progress.json",
+      "sha256": "54ce97971a053bdaa2185a6513c6ac14db852b9fe46c55dfbccc3cb7d8130a7a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/audit-159/progress.json"
+    },
+    {
+      "bytes": 232632,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/audit-159/report.json",
+      "sha256": "70312e75b813f04443e6d9402d7708d2e9960e83862fcd5483ecf8cdc04f919a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/audit-159/report.json"
+    },
+    {
+      "bytes": 938,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/audit-159.log",
+      "sha256": "0eb6d4a87ffd7e7ad30f2546e661b71c1957c3a4706d1aa1180e488aa6440da9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/audit-159.log"
+    },
+    {
+      "bytes": 15290,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/check/report.json",
+      "sha256": "361d25cd662f608bec7ecaff519dcb8ad483c8c20a2674276abbbf9e67d7f418",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/check/report.json"
+    },
+    {
+      "bytes": 755,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/constraint-context.json",
+      "sha256": "7ec0b001daea6b8aced34645ee1fbfa5889792551108c032cf28754bddf61376",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/constraint-context.json"
+    },
+    {
+      "bytes": 158333,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/constraints/fixed-guards/fixed-guard-313-rows.npz",
+      "sha256": "df083374cdbb8fe5dbcd54d229bf274b4c4eb8229bfbf38e9ce7389b06c6971f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/constraints/fixed-guards/fixed-guard-313-rows.npz"
+    },
+    {
+      "bytes": 16144,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/constraints/fixed-guards/fixed-skin-bone-guards.npz",
+      "sha256": "8a789974207c854dfb70675186ceb735ba463260d8864ae9245d7cec61a47d94",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/constraints/fixed-guards/fixed-skin-bone-guards.npz"
+    },
+    {
+      "bytes": 241145,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/constraints/fixed-guards/report.json",
+      "sha256": "1d6420d8bc0d3753bab0cd2634dbc7508fad11195314fa24903aa550dabbbd09",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/constraints/fixed-guards/report.json"
+    },
+    {
+      "bytes": 602,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/constraints/fixed-guards/validation.json",
+      "sha256": "1df54e86cefd8c3fdb76e5c5506f86d3e35ca35959d288cc6982ec105f0207ea",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/constraints/fixed-guards/validation.json"
+    },
+    {
+      "bytes": 375248,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/constraints/merged-self-pair-seeds.npy",
+      "sha256": "c519e82dc0d7b3d2fc7d60b1019a0f7c2bf594cc89311eb2126b7d6c09f7ee11",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/constraints/merged-self-pair-seeds.npy"
+    },
+    {
+      "bytes": 3804,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/constraints/refresh-report.json",
+      "sha256": "bda7aaefb102e42f069abc86fa97cdc98d76f4bf9a4f1eba260c5abd6f0ac52d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/constraints/refresh-report.json"
+    },
+    {
+      "bytes": 1272,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/constraints/seed-preflight.json",
+      "sha256": "3cf69b3eac52a4445c7a7d524e6e54dcd587350e4f6ee59f528587a53d88e987",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/constraints/seed-preflight.json"
+    },
+    {
+      "bytes": 128,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/constraints/self-guards/current-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/constraints/self-guards/current-self-pairs.npy"
+    },
+    {
+      "bytes": 771,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/constraints/self-guards/current-self-rows.npz",
+      "sha256": "425fde3f5c66ea12847da674f61aea388c27d1c1204f0180a1ce7e560a5f1f3b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/constraints/self-guards/current-self-rows.npz"
+    },
+    {
+      "bytes": 400,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/constraints/self-guards/mapped-trial-self-pairs.npy",
+      "sha256": "5142ea2b0c0d9f96c4be960b62f31ef16401ed390018fe161c4b3712820e17b7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/constraints/self-guards/mapped-trial-self-pairs.npy"
+    },
+    {
+      "bytes": 2579,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/constraints/self-guards/mapped-trial-self-rows.npz",
+      "sha256": "32d96c5982c7c9e5899a7583b17b8856f01ea01b710bf425dbc43ce23e6426dc",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/constraints/self-guards/mapped-trial-self-rows.npz"
+    },
+    {
+      "bytes": 1942,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/constraints/self-guards/mapped-trial-self-seeds-report.json",
+      "sha256": "b9d04e5c0afe7ca7a0e05564f6d71281e4b322161c5eef970941cc1cfd443ece",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/constraints/self-guards/mapped-trial-self-seeds-report.json"
+    },
+    {
+      "bytes": 7641654,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/depth/365-compatible-report.json",
+      "sha256": "78675fecbfdc8d507cf362bc464bfe8467d925309db0fdf4edc59d3b4ed11569",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/depth/365-compatible-report.json"
+    },
+    {
+      "bytes": 2593,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/depth/365-validation.json",
+      "sha256": "1ff073e0b1d098776beed636a8a2c72317c9cf0b8f65781261fbc1498de945af",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/depth/365-validation.json"
+    },
+    {
+      "bytes": 180820,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/depth/point-depth-rows.npz",
+      "sha256": "853bd2c843e6ae993ad0b6db4c1c21b7dd3c9097a6a348977ffa6f69103ee562",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/depth/point-depth-rows.npz"
+    },
+    {
+      "bytes": 7640825,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/depth/report.json",
+      "sha256": "c77e7ff541a899c0bf9eacab9604f026df0012318f1d04cb12ed4b6028df63a9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/depth/report.json"
+    },
+    {
+      "bytes": 80,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/depth.execution.json",
+      "sha256": "d8377c857cbf48b24e812818a4399060f1b07ea293ae39fd1a39738183bd0b83",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/depth.execution.json"
+    },
+    {
+      "bytes": 1993,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/depth.launch.json",
+      "sha256": "ef35132d095f42d32f7fc80a4dc48537d7b3d849af59d4d89fd361bb139c8656",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/depth.launch.json"
+    },
+    {
+      "bytes": 1487,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/depth.log",
+      "sha256": "2c7a58255e4d76eaabc6d6dcbb78bdd36fd4951d0f46fbf8c203ab1a6885e1c0",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/depth.log"
+    },
+    {
+      "bytes": 6445518,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/direct/candidate.npz",
+      "sha256": "a1a8c8a75d8097c9d99d96be33ddceef0ec971df67fa36758959fcbd2efe93ab",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/direct/candidate.npz"
+    },
+    {
+      "bytes": 4532,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/direct/report.json",
+      "sha256": "82b1eadedc4e59f43747ea169d04b74abd396cf091d852ecb55876f376bc65f6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/direct/report.json"
+    },
+    {
+      "bytes": 81,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/direct.execution.json",
+      "sha256": "0318f0559e911f29217b1329df83d0070124f98d77b24db4d2c68bb9cb22f3ed",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/direct.execution.json"
+    },
+    {
+      "bytes": 1093,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/direct.launch.json",
+      "sha256": "56557d669978007101af01cea11ff3707d96fe7a7e6fe2bf6e3e1fcf4b9f0ef9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/direct.launch.json"
+    },
+    {
+      "bytes": 226,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/direct.log",
+      "sha256": "cb07d1b1a05dff02068af7c705e5cff26216baf19bcec7ae6d687131d22d8a6a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/direct.log"
+    },
+    {
+      "bytes": 6445515,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/harmonic/candidate.npz",
+      "sha256": "80ba8f870d7032fba5d02045b56bf0d8c1a70562107f753c11490a5bb44ca9ed",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/harmonic/candidate.npz"
+    },
+    {
+      "bytes": 61,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/harmonic/progress.json",
+      "sha256": "edf054537726d17d6dee589824ca099e9ebb8a1bbbb2acf54f0396697c01c7bc",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/harmonic/progress.json"
+    },
+    {
+      "bytes": 882,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/harmonic/query-001/nodes.csv",
+      "sha256": "ffa1db75ea151738e04f006496a9945065f9c86aa938cbad8300cb6f6ecc4a74",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/harmonic/query-001/nodes.csv"
+    },
+    {
+      "bytes": 7402,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/harmonic/query-001/pairs.csv",
+      "sha256": "7bd6a7331d68481e45fef70717a85d7133235387d5ce52401b3b9d59ef6e8dd9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/harmonic/query-001/pairs.csv"
+    },
+    {
+      "bytes": 2694,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/harmonic/query-001/points.csv",
+      "sha256": "a85a331709a83146e5a976c3df7371c897c2633f8a6785fbb32b990cc04c6c41",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/harmonic/query-001/points.csv"
+    },
+    {
+      "bytes": 125,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/harmonic/query-001/query.log",
+      "sha256": "949b7ea30a5b52d874968d6cca264b937c6b1fc164030ec781d6071439162d67",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/harmonic/query-001/query.log"
+    },
+    {
+      "bytes": 32084,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/harmonic/report.json",
+      "sha256": "f8f614534c2d9e99c600f3c3e846b537394def949aefb217794838f9994175f9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/harmonic/report.json"
+    },
+    {
+      "bytes": 79,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/harmonic.execution.json",
+      "sha256": "c5a7123157cfaef3fedbcfd192f3096b62f0f5f0c0d94e8aec4fe5c655a9dc2b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/harmonic.execution.json"
+    },
+    {
+      "bytes": 1254,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/harmonic.launch.json",
+      "sha256": "3b29142434335f7a898055035a3da014775fa1ea36c608a8ef7a92eee37d9c31",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/harmonic.launch.json"
+    },
+    {
+      "bytes": 226,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/harmonic.log",
+      "sha256": "f84a37ee0503916148a8f65fac8f14394f4e7275e7536964aa3df06091bb875b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/harmonic.log"
+    },
+    {
+      "bytes": 2116,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/matched-inputs.json",
+      "sha256": "573a34b90a107bc9a4729d01e13c772506c21c08e1c2442c3083295e649d320e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/matched-inputs.json"
+    },
+    {
+      "bytes": 17086,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/point-targets/nearest-union-exits.json",
+      "sha256": "5211562ae1ffe6321c56f3d9547ef4033b5abe234d04d876c19dfb379c851e11",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/point-targets/nearest-union-exits.json"
+    },
+    {
+      "bytes": 2379,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/point-targets/nearest-union-exits.npz",
+      "sha256": "0c3c7d1ac16039c6dcc8faf20436154dfeea613256a0bc4fade319a9c685480d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/point-targets/nearest-union-exits.npz"
+    },
+    {
+      "bytes": 81,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/points.execution.json",
+      "sha256": "5d666e8da5fabecef8a7c8f8b8522f4703aaed856b37026b1c9314b3a035e276",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/points.execution.json"
+    },
+    {
+      "bytes": 1727,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/points.launch.json",
+      "sha256": "1ab7b9ec16a19357019ba98723919c3182c77246681113a808a35a192e9ee9f5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/points.launch.json"
+    },
+    {
+      "bytes": 664,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/points.log",
+      "sha256": "582c7fb71f1a97d01ca332db6958729a23c24c8f42dfe10b1f23074fa0c9005d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/points.log"
+    },
+    {
+      "bytes": 81,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/refresh.execution.json",
+      "sha256": "1619034ac9d39a3bbcfb76f7a24d7e06376f660316a258544cfc8835c4e21221",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/refresh.execution.json"
+    },
+    {
+      "bytes": 2941,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/refresh.launch.json",
+      "sha256": "e9db85857f20f92ac1e102edfa9067a2939a84dee254ca17b7c6835f94670942",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/refresh.launch.json"
+    },
+    {
+      "bytes": 3885,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/refresh.log",
+      "sha256": "69e0d2065c5ce8cf7ae4f844367d9a2a4041ed51f89f804b67089b140f1ae9a2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/refresh.log"
+    },
+    {
+      "bytes": 136,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/selected.json",
+      "sha256": "d08a8caecfcdcf8efdf4489f1737b262be78efc1da23d7fd6481e140d2b7f8dd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/selected.json"
+    },
+    {
+      "bytes": 6445515,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/spatial/candidate.npz",
+      "sha256": "80ba8f870d7032fba5d02045b56bf0d8c1a70562107f753c11490a5bb44ca9ed",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/spatial/candidate.npz"
+    },
+    {
+      "bytes": 61,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/spatial/progress.json",
+      "sha256": "e5352ed2b5896b018c15fb9ccdcd65d7b721a96eae960da29c6aa08b62fe1aa7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/spatial/progress.json"
+    },
+    {
+      "bytes": 23044,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/spatial/report.json",
+      "sha256": "e2a11cdeedf3297e80152aa782c9b94af909eb4f470f67c76e37b4dd227854fd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/spatial/report.json"
+    },
+    {
+      "bytes": 80,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/spatial.execution.json",
+      "sha256": "3d9fdd8811fa3632dadcb341b870e19804d843b7e09148947c48c7c305f81e4e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/spatial.execution.json"
+    },
+    {
+      "bytes": 1300,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/spatial.launch.json",
+      "sha256": "8a79718f62f11e40a4a45d921edd6ed9c5b5ed0bc797bd2a29aa48ea1a44b0db",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/spatial.launch.json"
+    },
+    {
+      "bytes": 227,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/spatial.log",
+      "sha256": "2c6b0ad814f067ba30467679e32591f4f68793452310a45b2dd9d878ef57bde6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/spatial.log"
+    },
+    {
+      "bytes": 755,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/state.json",
+      "sha256": "710f5dde7258ae39469f4058e95d51b83ff65c25c0769fe11fb672b94aa1ec58",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/state.json"
+    },
+    {
+      "bytes": 4757,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/surface-targets/report.json",
+      "sha256": "4f4f1e56a2989dc02628cf4c320bbd2d3823d1a3cf447d90a4601aab94e5bdaf",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/surface-targets/report.json"
+    },
+    {
+      "bytes": 9802903,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/surface-targets/target-records.jsonl",
+      "sha256": "c4f34cc7e071ec739b3a579384c84cc7c1926692acfafd918c66ebc00d974e24",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/surface-targets/target-records.jsonl"
+    },
+    {
+      "bytes": 486992,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/surface-targets/targets.npz",
+      "sha256": "7c4c7485751dd47345745739d43eed621a797f54eef5e0e355c19b26608125a3",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/surface-targets/targets.npz"
+    },
+    {
+      "bytes": 81,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/surfaces.execution.json",
+      "sha256": "298cec203ec04e1857605a5fe0efaf8e4761cfe0abd000151b4873f831ab7a75",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/surfaces.execution.json"
+    },
+    {
+      "bytes": 1426,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/surfaces.launch.json",
+      "sha256": "0f86c12a908c69e0364ed0341a43f9554199c30058dddb6a7a69a625858c3136",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/surfaces.launch.json"
+    },
+    {
+      "bytes": 629,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-two-020/surfaces.log",
+      "sha256": "694c2068b44eff17ca0ec9180dfe7205b33b6d6fe8fd25ad2a7c087974f1489f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-two-020/surfaces.log"
+    },
+    {
+      "bytes": 490362,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/audit-130/query/nodes.csv",
+      "sha256": "5acb5ee258a70e402279c287d1add389e3dd9c991583aeaccacd6c97b21887b2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-130/query/nodes.csv"
+    },
+    {
+      "bytes": 2805817,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/audit-130/query/pairs.csv",
+      "sha256": "55137694e94eb1dfae2553eca882ccac7a9eaceb685464e5adc1de2d38727e75",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-130/query/pairs.csv"
+    },
+    {
+      "bytes": 225228,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/audit-130/query/points-world.npz",
+      "sha256": "f34ff6608daa33abc582cb98ef6671fdf7302e97fa0153de61c96a6d0fe1a916",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-130/query/points-world.npz"
+    },
+    {
+      "bytes": 1583972,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/audit-130/query/points.csv",
+      "sha256": "e5fa6db5b8a542ed45f2228192f595d732644ae5cfd5d6265f314f6a278d93fc",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-130/query/points.csv"
+    },
+    {
+      "bytes": 624,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/audit-130/query/prepare.log",
+      "sha256": "133cb4f25bc015b2de5b666994669546dac1bfef3d8acba900d43e2754a7ea60",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-130/query/prepare.log"
+    },
+    {
+      "bytes": 1564,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/audit-130/query/query-receipt.json",
+      "sha256": "45e8444e1a87faff98e894d62d619088530b44cd6d0781f1850bd4478b409db7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-130/query/query-receipt.json"
+    },
+    {
+      "bytes": 134,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/audit-130/query/query.log",
+      "sha256": "b0adf5231982359e97114f888fc5303807b4f2a82cafdf66a0797d27d8680822",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-130/query/query.log"
+    },
+    {
+      "bytes": 1440,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/audit-130/summary.json",
+      "sha256": "1f9a60d5a6d5f453138f3850fec6bf9454b4f130890dbc511f301801239718fe",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-130/summary.json"
+    },
+    {
+      "bytes": 128,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 649,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/audit-130.log",
+      "sha256": "50fe78997dc52f081a9f5d7c4d63ef791cf1d225bda3c81e326d06d539aee222",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-130.log"
+    },
+    {
+      "bytes": 99,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/audit-159/progress.json",
+      "sha256": "c26d90edef94189ad9caad13d4beebe96b94c95e74d8152b71a0bff8b2eb5010",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-159/progress.json"
+    },
+    {
+      "bytes": 232632,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/audit-159/report.json",
+      "sha256": "65153661f7e6881b8888567508dbc96593070e2f9b1baa54f78aaad6dd30e390",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-159/report.json"
+    },
+    {
+      "bytes": 938,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/audit-159.log",
+      "sha256": "8cef60f74502d1fd74652c5ce7bf2d9b5ee3c907df40149c76f5b09e0b729c5a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/audit-159.log"
+    },
+    {
+      "bytes": 15834,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/check/report.json",
+      "sha256": "6882a21a04ce5d507445aeb4afce9bbe7be840e8eb74defb4e46eb5706226da7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/check/report.json"
+    },
+    {
+      "bytes": 736,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/constraint-context.json",
+      "sha256": "ee4bda3e9a9b032cdb1f61afb6966c7229a92a038ee746927c818bb10caa5fbe",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraint-context.json"
+    },
+    {
+      "bytes": 158328,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/constraints/fixed-guards/fixed-guard-313-rows.npz",
+      "sha256": "e0ad1460d0136d23e3cdfbd9163cbd2ff8c3994eedb5f13b0d950aeba905fddc",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/fixed-guards/fixed-guard-313-rows.npz"
+    },
+    {
+      "bytes": 16144,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/constraints/fixed-guards/fixed-skin-bone-guards.npz",
+      "sha256": "8a789974207c854dfb70675186ceb735ba463260d8864ae9245d7cec61a47d94",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/fixed-guards/fixed-skin-bone-guards.npz"
+    },
+    {
+      "bytes": 241086,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/constraints/fixed-guards/report.json",
+      "sha256": "44b6871ea1eb5024080f3afd503c4307946dd7c54ee91172e757ec1357a659f4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/fixed-guards/report.json"
+    },
+    {
+      "bytes": 602,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/constraints/fixed-guards/validation.json",
+      "sha256": "97d44177dfae75aaf25b93a38db75b8616ddee1b2fecf13679d332c1b518f2bd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/fixed-guards/validation.json"
+    },
+    {
+      "bytes": 375248,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/constraints/merged-self-pair-seeds.npy",
+      "sha256": "c519e82dc0d7b3d2fc7d60b1019a0f7c2bf594cc89311eb2126b7d6c09f7ee11",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/merged-self-pair-seeds.npy"
+    },
+    {
+      "bytes": 3730,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/constraints/refresh-report.json",
+      "sha256": "7642cb568336ffbf82358a98ed985e92c2b557c0c9f35c6ebb1e8dce2899afb5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/refresh-report.json"
+    },
+    {
+      "bytes": 1263,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/constraints/seed-preflight.json",
+      "sha256": "46d61f5d0636b8b4ffd78c24c79bac13a30118fd04cac0efbaf2ffccca6bf722",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/seed-preflight.json"
+    },
+    {
+      "bytes": 128,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/constraints/self-guards/current-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/self-guards/current-self-pairs.npy"
+    },
+    {
+      "bytes": 771,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/constraints/self-guards/current-self-rows.npz",
+      "sha256": "425fde3f5c66ea12847da674f61aea388c27d1c1204f0180a1ce7e560a5f1f3b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/self-guards/current-self-rows.npz"
+    },
+    {
+      "bytes": 400,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/constraints/self-guards/mapped-trial-self-pairs.npy",
+      "sha256": "5142ea2b0c0d9f96c4be960b62f31ef16401ed390018fe161c4b3712820e17b7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/self-guards/mapped-trial-self-pairs.npy"
+    },
+    {
+      "bytes": 2582,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/constraints/self-guards/mapped-trial-self-rows.npz",
+      "sha256": "e0aca3c7d8cb8e06347e8daa8067693ca0c256560eb2515b671518e7cde3fb66",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/self-guards/mapped-trial-self-rows.npz"
+    },
+    {
+      "bytes": 1922,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/constraints/self-guards/mapped-trial-self-seeds-report.json",
+      "sha256": "be44e763ab406428a8b50338b340810667e7dd7aa9486d826d93fe52ab04cf72",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/constraints/self-guards/mapped-trial-self-seeds-report.json"
+    },
+    {
+      "bytes": 7641366,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/depth/365-compatible-report.json",
+      "sha256": "d679ca00e03aa8ef533263d30dc5196b774fa37a4db0ed696b894336c5cbca5f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/depth/365-compatible-report.json"
+    },
+    {
+      "bytes": 2574,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/depth/365-validation.json",
+      "sha256": "beced344c2a3ff55d71984c88a02b27bbf93c6beffe01a444d610b67b6a76977",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/depth/365-validation.json"
+    },
+    {
+      "bytes": 180855,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/depth/point-depth-rows.npz",
+      "sha256": "62f3aad3117ba390742030022f991b8f3e80af703a0608e0cab3330e1ebf3f2c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/depth/point-depth-rows.npz"
+    },
+    {
+      "bytes": 7640537,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/depth/report.json",
+      "sha256": "5b3537e6d7949cce0f7f12ff5fc964d7382e3443c063d5b71a8738536cf01bf9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/depth/report.json"
+    },
+    {
+      "bytes": 81,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/depth.execution.json",
+      "sha256": "30aa77776dbfbb4a97e3f920f43f2052174db86870f15c7b69e1593f7fb9437f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/depth.execution.json"
+    },
+    {
+      "bytes": 1893,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/depth.launch.json",
+      "sha256": "6380aa5bf7f0341a59929db8b5785fcc5e61766be8ce29ef65f833f08f569019",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/depth.launch.json"
+    },
+    {
+      "bytes": 1468,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/depth.log",
+      "sha256": "b2d3324f7fbd6d911aad4b26a63920d166e0d9e6af6ae2ce4004d4ae27e757e6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/depth.log"
+    },
+    {
+      "bytes": 6291316,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/fit/candidate.npz",
+      "sha256": "d3951dbf02dd2451fde308b4b0499ef3b059034e1e134853f32892842ebb53b5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/fit/candidate.npz"
+    },
+    {
+      "bytes": 6511918,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/fit/raw-lp-candidate.npz",
+      "sha256": "eabc27051c09b3b5fceae96dccf6bfcfad75e76d1e3fbecbee4fcecf06a3cc0f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/fit/raw-lp-candidate.npz"
+    },
+    {
+      "bytes": 39990339,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/fit/report.json",
+      "sha256": "40d0aca271f1a61f6911578325d03b3b86a4de5a04e98c10a81a1330792630dd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/fit/report.json"
+    },
+    {
+      "bytes": 4054,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/fit-argv.json",
+      "sha256": "356875ebc63fca94d4e9d7f36ee0df9ecf5b15e629c63d2653fc7d858877e033",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/fit-argv.json"
+    },
+    {
+      "bytes": 81,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/fit.execution.json",
+      "sha256": "97e45796097f48a700a03dcf6f99d64c79ec59d580d6fb2aa5678c440da2d6cf",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/fit.execution.json"
+    },
+    {
+      "bytes": 4687,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/fit.launch.json",
+      "sha256": "48cafe0f58459f196d056822f2d32a90140eba051041c41762dce1f13d9af787",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/fit.launch.json"
+    },
+    {
+      "bytes": 39966530,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/fit.log",
+      "sha256": "53337d97958e7cf4833b826719e8d31d4f3e780f672da947f73b3331598f4f2a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/fit.log"
+    },
+    {
+      "bytes": 13213,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/fit.sat-crossing-inputs-458.json",
+      "sha256": "99de19984641b883a31fb3f3ee6a97860efafe6b10566b9b96bf2f9456b603fc",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/fit.sat-crossing-inputs-458.json"
+    },
+    {
+      "bytes": 26280,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/fit.sat-crossing-inputs-458.npz",
+      "sha256": "ca9865b692089956c3ec902d3784c1d43cb57fc9af8d80234e7b1924e84ebc1d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/fit.sat-crossing-inputs-458.npz"
+    },
+    {
+      "bytes": 1503,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/fit.solver-progress.jsonl",
+      "sha256": "9b2e64c8cc8f1f07c190b0dc7560c1f74e7c93682f23816d679529c2f73a6a57",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/fit.solver-progress.jsonl"
+    },
+    {
+      "bytes": 2070,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/matched-inputs.json",
+      "sha256": "fcd82be3d97b910a1d4f0687f6169d7c7af50d30bf9c03efb5445ec947ac70c1",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/matched-inputs.json"
+    },
+    {
+      "bytes": 10315,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/point-targets/nearest-union-exits.json",
+      "sha256": "527c97541637c0408ff8be92f289b64cfd661f30bdcec4e17e65097bf04e20c7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/point-targets/nearest-union-exits.json"
+    },
+    {
+      "bytes": 2309,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/point-targets/nearest-union-exits.npz",
+      "sha256": "0fca2056a24181469f868d18cbcfbb30c56748877572b01a8f6640b2a4775cad",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/point-targets/nearest-union-exits.npz"
+    },
+    {
+      "bytes": 81,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/points.execution.json",
+      "sha256": "f746834394ca79db7f0814d5e8b50af744a2a132dedaf17d7b0f8d8326406b28",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/points.execution.json"
+    },
+    {
+      "bytes": 1654,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/points.launch.json",
+      "sha256": "52020e62e8762fec83165b15e2dda47e6def5029caa428eb7e4eaaf4baaca833",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/points.launch.json"
+    },
+    {
+      "bytes": 665,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/points.log",
+      "sha256": "58cf5276f2b3eefca7f7ecc150554b79a93cee69588719068f56bcf838c1261c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/points.log"
+    },
+    {
+      "bytes": 81,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/refresh.execution.json",
+      "sha256": "54e564ed83ccdf16c51a83573f5a4b31b654a9b9b3b00f9fbfa7577d677a9731",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/refresh.execution.json"
+    },
+    {
+      "bytes": 2810,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/refresh.launch.json",
+      "sha256": "1b799cf7a074e1595fbb0a7686c4633cf34a5366d71ab4667c6f1948aae0ac43",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/refresh.launch.json"
+    },
+    {
+      "bytes": 3811,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/refresh.log",
+      "sha256": "8e0e120c196490c59070ea4d80052d2d18488406676f197c431ef8ee1fba980d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/refresh.log"
+    },
+    {
+      "bytes": 751,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/state.json",
+      "sha256": "a8aeb9d9633cbe8cf83c2cb38389c720974afa51241cef97fe6f9b6251e73bde",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/state.json"
+    },
+    {
+      "bytes": 4756,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/surface-targets/report.json",
+      "sha256": "54ee9500a0829424f02ee2978faef1a85f158f4ada5841008cd2fdfac8f488b1",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/surface-targets/report.json"
+    },
+    {
+      "bytes": 9813344,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/surface-targets/target-records.jsonl",
+      "sha256": "3dfe7974d2aa429adb2b5f03a8a29600ab8cdac4d433e630f44f2862b89a02a7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/surface-targets/target-records.jsonl"
+    },
+    {
+      "bytes": 487452,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/surface-targets/targets.npz",
+      "sha256": "386a4f6f211a8b3ada20a4710f5001cc64ff1b95e233f75d4085480ce283c53d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/surface-targets/targets.npz"
+    },
+    {
+      "bytes": 80,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/surfaces.execution.json",
+      "sha256": "ab96f6fa877518506bf4827a05a2b0377a00356b7f3ba252e6b53bea755dbef5",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/surfaces.execution.json"
+    },
+    {
+      "bytes": 1353,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/surfaces.launch.json",
+      "sha256": "f3d328546dfd2984e3ed090ccb8af8016012b450f43c334baa870252ced09ac3",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/surfaces.launch.json"
+    },
+    {
+      "bytes": 628,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/final-one-021/surfaces.log",
+      "sha256": "71d6d914ee0e2b55bd1ec4b3aba591eaf41add2103d7f5d45b611e7475de3fb6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/final-one-021/surfaces.log"
+    },
+    {
+      "bytes": 490362,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/audit-130/query/nodes.csv",
+      "sha256": "d319a36e5e317656c364af35a8167282dcb0fe3367ebccdeb77613f27b47795f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/audit-130/query/nodes.csv"
+    },
+    {
+      "bytes": 2805817,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/audit-130/query/pairs.csv",
+      "sha256": "98b0dc84bb59dda0020314cba6d66ae892d65a76b6463ea414a043021d8680fd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/audit-130/query/pairs.csv"
+    },
+    {
+      "bytes": 225227,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/audit-130/query/points-world.npz",
+      "sha256": "49671f229e910884c9fa9ec77d5dccf066e546ed3f86ec77f4bb75fb732725bf",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/audit-130/query/points-world.npz"
+    },
+    {
+      "bytes": 1583972,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/audit-130/query/points.csv",
+      "sha256": "35296f99fb843e82f4a6bbc742544f863be33dc3ed50dbb996f43398212f101f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/audit-130/query/points.csv"
+    },
+    {
+      "bytes": 624,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/audit-130/query/prepare.log",
+      "sha256": "235d4ad57e747a74574c5531cb9d592a1247e83f662dfcc3374f3f3238763d3a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/audit-130/query/prepare.log"
+    },
+    {
+      "bytes": 1564,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/audit-130/query/query-receipt.json",
+      "sha256": "18c8e8dfa5114959ad438ae21c72608026896932f87ac29d4f2aa2f6ce35ff44",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/audit-130/query/query-receipt.json"
+    },
+    {
+      "bytes": 134,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/audit-130/query/query.log",
+      "sha256": "3076bfdac14d24094ddb9603b9cc98b06839d62fac052ffec799f37e7c4bcfa7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/audit-130/query/query.log"
+    },
+    {
+      "bytes": 595,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/audit-130/summary.json",
+      "sha256": "bdefd631243673d3cb2476bdef6c2a83a5ebc28b21d18111658c9e60e6d499db",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/audit-130/summary.json"
+    },
+    {
+      "bytes": 128,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/audit-130/surface-self-pairs.npy"
+    },
+    {
+      "bytes": 650,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/audit-130.log",
+      "sha256": "32cdbc5529b2db073228845c0498b6731d3c0aae2785f9b8dcfcca7cd534ab3b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/audit-130.log"
+    },
+    {
+      "bytes": 99,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/audit-159/progress.json",
+      "sha256": "39a508bb8d7c369b9e66acb9d45a19e48e5bd8d49bf7f1b6f8c7ac6d43239427",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/audit-159/progress.json"
+    },
+    {
+      "bytes": 232691,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/audit-159/report.json",
+      "sha256": "dd1dc6d851391978dbfc8b18b4dfd6dfa8e6dd04e3d174f12f21d513cdf25e43",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/audit-159/report.json"
+    },
+    {
+      "bytes": 937,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/audit-159.log",
+      "sha256": "0ec7aeb95ee235141a36e4c71f5b1a3ad1256311037179ae0e16d9ed9d687cf3",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/audit-159.log"
+    },
+    {
+      "bytes": 14768,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/check/report.json",
+      "sha256": "c9c4b7d25a0e2e128f9449edfb951fb58c83cbe6eb5423a88749e676ab1bfb6d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/check/report.json"
+    },
+    {
+      "bytes": 732,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/constraint-context.json",
+      "sha256": "e927232e004eac860e9015efab9d1114454922c3df6e85dfad8e19ae5853295e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/constraint-context.json"
+    },
+    {
+      "bytes": 158408,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/constraints/fixed-guards/fixed-guard-313-rows.npz",
+      "sha256": "68a50c3075d4541801430f434f0c133b65fac9d0d435fc6850abf0f7aba7e7b7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/constraints/fixed-guards/fixed-guard-313-rows.npz"
+    },
+    {
+      "bytes": 16144,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/constraints/fixed-guards/fixed-skin-bone-guards.npz",
+      "sha256": "8a789974207c854dfb70675186ceb735ba463260d8864ae9245d7cec61a47d94",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/constraints/fixed-guards/fixed-skin-bone-guards.npz"
+    },
+    {
+      "bytes": 241059,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/constraints/fixed-guards/report.json",
+      "sha256": "5ee0e2e17dd86a4437ff3156243d425d9a8dd729fa28df6f9136fb486365791f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/constraints/fixed-guards/report.json"
+    },
+    {
+      "bytes": 602,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/constraints/fixed-guards/validation.json",
+      "sha256": "ba3acf64e8be8e20b98e4262d95b0a0352c488b446eff694f8dc1a91edf5256d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/constraints/fixed-guards/validation.json"
+    },
+    {
+      "bytes": 375248,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/constraints/merged-self-pair-seeds.npy",
+      "sha256": "c519e82dc0d7b3d2fc7d60b1019a0f7c2bf594cc89311eb2126b7d6c09f7ee11",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/constraints/merged-self-pair-seeds.npy"
+    },
+    {
+      "bytes": 3727,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/constraints/refresh-report.json",
+      "sha256": "a27719d9a4245a8a090b0ed54e9cfc19e5f72f9c6bc83718cfae608dc2084f1f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/constraints/refresh-report.json"
+    },
+    {
+      "bytes": 1263,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/constraints/seed-preflight.json",
+      "sha256": "b95fda8aabc333e7a2f7b30e99ec85f63707327ae7d3d968078ca2c61dc906c9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/constraints/seed-preflight.json"
+    },
+    {
+      "bytes": 128,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/constraints/self-guards/current-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/constraints/self-guards/current-self-pairs.npy"
+    },
+    {
+      "bytes": 771,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/constraints/self-guards/current-self-rows.npz",
+      "sha256": "425fde3f5c66ea12847da674f61aea388c27d1c1204f0180a1ce7e560a5f1f3b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/constraints/self-guards/current-self-rows.npz"
+    },
+    {
+      "bytes": 400,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/constraints/self-guards/mapped-trial-self-pairs.npy",
+      "sha256": "5142ea2b0c0d9f96c4be960b62f31ef16401ed390018fe161c4b3712820e17b7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/constraints/self-guards/mapped-trial-self-pairs.npy"
+    },
+    {
+      "bytes": 2774,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/constraints/self-guards/mapped-trial-self-rows.npz",
+      "sha256": "ff0529e5156e00dc5cec038a03577f21a0cb82b843d947f74c9156c132aa7188",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/constraints/self-guards/mapped-trial-self-rows.npz"
+    },
+    {
+      "bytes": 1919,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/constraints/self-guards/mapped-trial-self-seeds-report.json",
+      "sha256": "ff234776f5289cb3e14e68a2b5f0aaaa7813900028d802d3d3687dc13b513497",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/constraints/self-guards/mapped-trial-self-seeds-report.json"
+    },
+    {
+      "bytes": 7640157,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/depth/365-compatible-report.json",
+      "sha256": "f696bb913aac4be6a4de59c9ba18a7739ea9abda926b79985e54749e9cb08c89",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/depth/365-compatible-report.json"
+    },
+    {
+      "bytes": 2570,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/depth/365-validation.json",
+      "sha256": "69385b26447760840413684aadf4e19f8f4843a0b42c346f1d0bec40664d7b52",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/depth/365-validation.json"
+    },
+    {
+      "bytes": 180782,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/depth/point-depth-rows.npz",
+      "sha256": "67c369daadf03f6a616fcae72b9f012d6165f80c8b2990407a8bb63465f257a3",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/depth/point-depth-rows.npz"
+    },
+    {
+      "bytes": 7639328,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/depth/report.json",
+      "sha256": "1eb5caacaadc4c931dd96a29cfedee3a39746b06b4f5a81e51a2b27a2571c3d6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/depth/report.json"
+    },
+    {
+      "bytes": 81,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/depth.execution.json",
+      "sha256": "4fd0491e02ff1893581a53e62215d6515bb6160221c633b678a337033ec8e2f9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/depth.execution.json"
+    },
+    {
+      "bytes": 1889,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/depth.launch.json",
+      "sha256": "ce72cca7dad335f5acc1e14b61f56be9f19035b72685c2d26434839ed0426b30",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/depth.launch.json"
+    },
+    {
+      "bytes": 1464,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/depth.log",
+      "sha256": "5311e299969262142b644b1b51fe32827aff2d4d8a19be2a2622914152ee844f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/depth.log"
+    },
+    {
+      "bytes": 6291315,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/direct/candidate.npz",
+      "sha256": "ced651c06f4363139288fc006ce9bdbf62ef13f603491c16fbdf0d98eb654bc4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/direct/candidate.npz"
+    },
+    {
+      "bytes": 1918,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/direct/report.json",
+      "sha256": "eaf6ba0365de3cd6279f99d1f15326af004626350e8998e874b94e86de9a7660",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/direct/report.json"
+    },
+    {
+      "bytes": 81,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/direct.execution.json",
+      "sha256": "a18e3eb5daff1af15ab8218123116f1148300b4d7e5382874f5032e8e2fb1a14",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/direct.execution.json"
+    },
+    {
+      "bytes": 1066,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/direct.launch.json",
+      "sha256": "e914a1420f943649021ad459f68346a2b8fe5f00ccd7b9c2e440cf43c29f369a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/direct.launch.json"
+    },
+    {
+      "bytes": 227,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/direct.log",
+      "sha256": "d52c7a27872b4e6747d6a68cb45893f881d7d7f6b11ff094fc3ef83854596cc8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/direct.log"
+    },
+    {
+      "bytes": 27263,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/initial-to-final-identity-check.json",
+      "sha256": "e956b181da273a0c6319101401845cd371049b9382a91805c49fc493547760c8",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/initial-to-final-identity-check.json"
+    },
+    {
+      "bytes": 2066,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/matched-inputs.json",
+      "sha256": "ccebcb7d48b9c956074d80c38f6032526db9cd04daf7c20affa27c7116f32332",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/matched-inputs.json"
+    },
+    {
+      "bytes": 10310,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/point-targets/nearest-union-exits.json",
+      "sha256": "eedf3ad570fd63300695033af3fe715d253a4214ac3998a9d6f1e92e6e83db26",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/point-targets/nearest-union-exits.json"
+    },
+    {
+      "bytes": 2308,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/point-targets/nearest-union-exits.npz",
+      "sha256": "9b30a3ed623021289ddf4288354ac29ddbb5125e0155a1d07fbc145f61c330de",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/point-targets/nearest-union-exits.npz"
+    },
+    {
+      "bytes": 81,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/points.execution.json",
+      "sha256": "eb128c958ddf3e7df3534c3ea6b09dd500298d959712e783ff8bbc2a0e7d6ed4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/points.execution.json"
+    },
+    {
+      "bytes": 1650,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/points.launch.json",
+      "sha256": "55193ee19c7f0052fbd3333c5338da30fbcf56f5aadb95fa535acec59c4d2e39",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/points.launch.json"
+    },
+    {
+      "bytes": 664,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/points.log",
+      "sha256": "37f22642a38c1a2c3df9751c17e36a22e337bb775ae1dcb8651a41353672ae67",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/points.log"
+    },
+    {
+      "bytes": 81,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/refresh.execution.json",
+      "sha256": "dc33bc4e31b532ae1b9ab9767dca8a939d623338e86491a6ce1657eb2ddcaebe",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/refresh.execution.json"
+    },
+    {
+      "bytes": 2783,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/refresh.launch.json",
+      "sha256": "4282f1b6281200c984c29a3a38b46a3494be09d18df972f58aff23e8639ab928",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/refresh.launch.json"
+    },
+    {
+      "bytes": 3808,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/refresh.log",
+      "sha256": "fe072f39b6379be26726e82bd88371e5d8e1144d625be43143bf90fe488c05a4",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/refresh.log"
+    },
+    {
+      "bytes": 1664,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/registered-bank-owner.json",
+      "sha256": "3031cb824fbf58ecf1f3506498252a88357ba2f4f231812303a6ef2e5e8d3cf6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/registered-bank-owner.json"
+    },
+    {
+      "bytes": 135,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/selected.json",
+      "sha256": "d8b6969678f20326553540ecc7531c2f621e0499990b3a93acf6dd983c3c41ac",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/selected.json"
+    },
+    {
+      "bytes": 754,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/state.json",
+      "sha256": "7c197fbc9316617c74ea58373c70d3eb067c7c838a165ffc74551b73247f342b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/state.json"
+    },
+    {
+      "bytes": 4757,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/surface-targets/report.json",
+      "sha256": "5e4bdb57a23764d80b65b3215f4fb32074cc82e2b2a8a18da4a9b5d4911b0fec",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/surface-targets/report.json"
+    },
+    {
+      "bytes": 9813588,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/surface-targets/target-records.jsonl",
+      "sha256": "8c456dcefdcb146e042eed27162613f1cd0a3e3836245817ad226dfdb4286769",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/surface-targets/target-records.jsonl"
+    },
+    {
+      "bytes": 487342,
+      "copy_method": "hardlink-immutable-output",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/surface-targets/targets.npz",
+      "sha256": "35e01f8e1f921e3d9bb2c408c74d56a3aa5f6a8f333e8fad10a99f86426232c6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/surface-targets/targets.npz"
+    },
+    {
+      "bytes": 81,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/surfaces.execution.json",
+      "sha256": "9bac871588aa1becadb6c016a83a049573ad6891022450fcae6d7d8dab717ebf",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/surfaces.execution.json"
+    },
+    {
+      "bytes": 1349,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/surfaces.launch.json",
+      "sha256": "44df0cee580b5aedb80148662e2ed29b5a5620f619377e298c1311ef7828e25b",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/surfaces.launch.json"
+    },
+    {
+      "bytes": 629,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/last-exit-022/surfaces.log",
+      "sha256": "67dc822327b93d56e4a2f5e50055775091064c35ac34fbb9576b31cf1f68e57f",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/last-exit-022/surfaces.log"
+    },
+    {
+      "bytes": 771,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/zero-contained-checkpoint.json",
+      "sha256": "6f0a26448c9a051c661b6f3cab6faf9b77143193995a351aea70e6b0213fbd1a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/zero-contained-checkpoint.json"
+    },
+    {
+      "bytes": 2581,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "contained-clearance-545/zero-contained-summary.md",
+      "sha256": "a07a8affe601b8c5260f639de7e43b6f90529addbcd2b50fc8aa54836383d1ef",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/zero-contained-summary.md"
+    },
+    {
+      "bytes": 2581,
+      "copy_method": "copy",
+      "mode": "0o644",
+      "path": "README.md",
+      "sha256": "a07a8affe601b8c5260f639de7e43b6f90529addbcd2b50fc8aa54836383d1ef",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/zero-contained-summary.md"
+    },
+    {
+      "bytes": 17532,
+      "copy_method": "copy",
+      "mode": "0o755",
+      "path": "contained-clearance-545/topology-builder-018.py",
+      "sha256": "5eb18b1fe1bc9af6c79a4a595b610404114c1daca722118ce0b182327f2d2a31",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/topology-builder-018.py"
+    },
+    {
+      "bytes": 5755,
+      "copy_method": "generated-verification-receipt",
+      "mode": "0o644",
+      "path": "verification-receipt.json",
+      "sha256": "876b401e50b904cef3b50321713f1c7ea4df3b69d315e99bd5415f2fda96119c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-143/verification-receipt.json"
+    }
+  ],
+  "parent_publication_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+  "registered_rigid_owner_receipt": {
+    "body_index": 43,
+    "member_id": "FJ3349",
+    "path": "contained-clearance-545/last-exit-022/registered-bank-owner.json",
+    "registered_rigid_owner": "radius_r",
+    "sha256": "3031cb824fbf58ecf1f3506498252a88357ba2f4f231812303a6ef2e5e8d3cf6",
+    "source_record_index": 24,
+    "stable_bone_id": 16,
+    "triangle_count": 672
+  },
+  "remote_main_at_snapshot_time": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+  "repository": "/Users/n/numi-human-aortic-contact-opt-20261019",
+  "restore_replay": {
+    "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/restore-replay/candidate.npz",
+    "deterministic_replay_rerun_this_turn": false,
+    "expected_and_actual_candidate_sha256": "a1a8c8a75d8097c9d99d96be33ddceef0ec971df67fa36758959fcbd2efe93ab",
+    "interpretation": "hash confirms retained replay output matches its report; report remains pending exact checks and is not promoted to final admission",
+    "original_status": "OUTSIDE_WITNESS_RESTORE_PENDING_EXACT_CHECKS",
+    "owner_reported_prior_replay_byte_match": true,
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/restore-replay/report.json",
+    "report_sha256": "71405c12f1bfd18a2959347a5c52dd1ff13340201411540e662334a5c4420d4a",
+    "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/soft-joint-fit-019/restore_outside_witness_rows545.py",
+    "source_sha256": "e03b1ed60137e06c21e9bb7d0ed05a0bf27a7c0ff3f0b80863603bb36bd3b7bf"
+  },
+  "reused_source_references": [
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/diagnosis/fit001-point-progress-and-node19415.json",
+      "sha256": "577d8b60706103601b800ba42517122b8927a04a6f5ba10a1edc3ad643650d98",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/diagnosis/fit001-point-progress-and-node19415.json"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/diagnosis/remaining-inside-summary.json",
+      "sha256": "741015c6fc29eb27ee1d0938b1e6837d182d01a048e6244c4acd768ae18fc6e3",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/diagnosis/remaining-inside-summary.json"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/diagnosis/remaining-three-topology-ancestry-001.json",
+      "sha256": "ddfae190701c8f90fab5b77aedc3568f4df8627f18364dd53f602842a09285f2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/diagnosis/remaining-three-topology-ancestry-001.json"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/build_coherent_depth_targets545.py",
+      "sha256": "f760a42cfaa2dd7ecf253c4221d7485741233e45d45f12320cd4bc8f90d61379",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_coherent_depth_targets545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/build_cone_depth_targets545.py",
+      "sha256": "5c016c4dc3345815c321caa4a48e3b979f574641436c95eaeb768a0951aae5ce",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_cone_depth_targets545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/build_connected_endpoint_patch545.py",
+      "sha256": "5934629949f183c02c47afd0dc9cf612bff16bd70a77c6a7e1db1ff6f841e142",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_connected_endpoint_patch545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/build_direct_depth_targets545.py",
+      "sha256": "2864d9547d2715c61c9c27b17bcfd11fac250197c47f4fd4870f8f6898cecb60",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_direct_depth_targets545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/build_joint_source_targets545.py",
+      "sha256": "f4066f7db73c37911ed75ef48eca92116e6a15ea8d1fe6543af597a5655398e0",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_joint_source_targets545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/component_lp_active545.py",
+      "sha256": "37c8a7e22f240be1a669e0f29712b0dfb068861fd89c9b6b2a8955c8ffdf39ed",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/component_lp_active545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/continue545.py",
+      "sha256": "dbef219f9d414a8cca41b54284bc78ffe1b1e15d339e7b35c42b31b7523e0b31",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/continue545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/filter_endpoint_operations545.py",
+      "sha256": "943631340a8ebbc21e058461aa9ed9422d5c842dc3c548130664eba02675ea30",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/filter_endpoint_operations545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/project_patch_quality545.py",
+      "sha256": "ac230cf06743aab449e9cd34d96b06ece27c35f6c36cbefdd0129311cffdb7c2",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/project_patch_quality545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/retry_full005.py",
+      "sha256": "41300350f587271438bf63d90e4f3c0d1cc667205ec06cf49e99d0dee34aeafa",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/retry_full005.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/retry_prepared004.py",
+      "sha256": "a5650c765e3e5b6a4f475d8c46210f18f0a4af4d8425bb4d01329c5751550302",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/retry_prepared004.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/run_candidate_checks545.py",
+      "sha256": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/run_checked_batch545.py",
+      "sha256": "a8d69ee65897e6daaca1240e36b82ab241538ed15abbb26e16a793dbbd3fc7c9",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_checked_batch545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/run_checked_batch_context545.py",
+      "sha256": "ca1074c583144ac86c6b44e9c382ab7fc04ab32749eede794fb5fd31dc0d8f21",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_checked_batch_context545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/run_full_coordinate_point_fit545.py",
+      "sha256": "af50878fa77ce7ab86ad80c5d316d1b12f5edb7a8efe5df3d0afeb7928ad0e83",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_full_coordinate_point_fit545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/run_full_hardpoint_fit545.py",
+      "sha256": "7c3a3587cb0c5754e28c84c9c06dd37c6ad4b59ac06cf0b9c163b762dbe3d340",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_full_hardpoint_fit545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/run_point_batch545.py",
+      "sha256": "ae4697acc1ca8d5b747d0b2406b36d565ca98775a99d1bd18a1388f09cb970ea",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_point_batch545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/select_connected_endpoint_patches545.py",
+      "sha256": "297029608d02769ce2f93e26c9798007af66410d99b1aaaca3c7a3dd7d4ac960",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/select_connected_endpoint_patches545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/select_exact_endpoint_operations545.py",
+      "sha256": "6faf31ed4f474d311f843402807663ffaa3139ee95dd1c7c4844e63dca38ae12",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/select_exact_endpoint_operations545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/select_joint_source_patch545.py",
+      "sha256": "02e909c59bb6e347cc9982bac4656a55c2ecaf5a7934190f948ee5ca78303bd7",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/select_joint_source_patch545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/test_component_active545.py",
+      "sha256": "8877422af972a8ca03688d7477afe4cf04fbb69a0b96b638bad7e8ac4bc8dae6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/test_component_active545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/test_connected_patch545.py",
+      "sha256": "9474ce722292bde1c191b96aa286da6a04c6de6f2b34152251d5729f8fc8fbd6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/test_connected_patch545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/test_direct_depth545.py",
+      "sha256": "a82b35e96485c2bc0052937ef9d4b2701c6da753d28c01166b64279bef504311",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/test_direct_depth545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/test_point_batch545.py",
+      "sha256": "cc59cc77128b080c00db2de4d1e1501cb7f76a1ba02f0a611d1d079ec80d6621",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/test_point_batch545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/test_project_patch545.py",
+      "sha256": "16d2526f0a36d366b7b9cb621a8c5eaf9e09f407c439d3e59e52be1b61bb4b17",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/test_project_patch545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/source-snapshots/1b796c7167b76e950d5ef01421bc308691c9497e3e09f2584bc7ea19711ed88d-continue545.py",
+      "sha256": "1b796c7167b76e950d5ef01421bc308691c9497e3e09f2584bc7ea19711ed88d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/source-snapshots/1b796c7167b76e950d5ef01421bc308691c9497e3e09f2584bc7ea19711ed88d-continue545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/source-snapshots/236734f419f7fbc4de33a743bf833fabd79c3a0bbc0e677d398172c8c54b623d-select_exact_endpoint_operations545.py",
+      "sha256": "236734f419f7fbc4de33a743bf833fabd79c3a0bbc0e677d398172c8c54b623d",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/source-snapshots/236734f419f7fbc4de33a743bf833fabd79c3a0bbc0e677d398172c8c54b623d-select_exact_endpoint_operations545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/source-snapshots/26e2ad44f81addafe3f3a3410f831ee7592ef88166e659226e5b5a18fe058101-select_exact_endpoint_operations545.py",
+      "sha256": "26e2ad44f81addafe3f3a3410f831ee7592ef88166e659226e5b5a18fe058101",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/source-snapshots/26e2ad44f81addafe3f3a3410f831ee7592ef88166e659226e5b5a18fe058101-select_exact_endpoint_operations545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/source-snapshots/41214798681b7ee78870c8276fe00b52061d5f054b6e4d27788960994d104f4c-project_patch_quality545.py",
+      "sha256": "41214798681b7ee78870c8276fe00b52061d5f054b6e4d27788960994d104f4c",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/source-snapshots/41214798681b7ee78870c8276fe00b52061d5f054b6e4d27788960994d104f4c-project_patch_quality545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/source-snapshots/55c2f305e55ee67f22056b8ef0eb4c1b70035fe9d6211b72a8b30987535e4cc6-select_connected_endpoint_patches545.py",
+      "sha256": "55c2f305e55ee67f22056b8ef0eb4c1b70035fe9d6211b72a8b30987535e4cc6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/source-snapshots/55c2f305e55ee67f22056b8ef0eb4c1b70035fe9d6211b72a8b30987535e4cc6-select_connected_endpoint_patches545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/source-snapshots/a14c36e04167670807270b2b8cf753cc84884ab856752d98414a793ce7c46d0e-select_connected_endpoint_patches545.py",
+      "sha256": "a14c36e04167670807270b2b8cf753cc84884ab856752d98414a793ce7c46d0e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/source-snapshots/a14c36e04167670807270b2b8cf753cc84884ab856752d98414a793ce7c46d0e-select_connected_endpoint_patches545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/source-snapshots/b2be9384f66963cf64f880186faf5d1e57ed43192bf0272b474807a157ff3328-build_coherent_depth_targets545.py",
+      "sha256": "b2be9384f66963cf64f880186faf5d1e57ed43192bf0272b474807a157ff3328",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/source-snapshots/b2be9384f66963cf64f880186faf5d1e57ed43192bf0272b474807a157ff3328-build_coherent_depth_targets545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/source-snapshots/c6ef6f4323fb29a6b677839d3b1748c3d7b00c7aa719a08fb8db3726d0d2a9a6-select_connected_endpoint_patches545.py",
+      "sha256": "c6ef6f4323fb29a6b677839d3b1748c3d7b00c7aa719a08fb8db3726d0d2a9a6",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/source-snapshots/c6ef6f4323fb29a6b677839d3b1748c3d7b00c7aa719a08fb8db3726d0d2a9a6-select_connected_endpoint_patches545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/source-snapshots/d69f6e96a95aed0e4b6d6de57c01c1454ec3bf3cdbe315e7b12910e1e0ce51cd-run_candidate_checks545.py",
+      "sha256": "d69f6e96a95aed0e4b6d6de57c01c1454ec3bf3cdbe315e7b12910e1e0ce51cd",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/source-snapshots/d69f6e96a95aed0e4b6d6de57c01c1454ec3bf3cdbe315e7b12910e1e0ce51cd-run_candidate_checks545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/source-snapshots/e12d99081b1c025fed169f073ffd0264fb6b1bd42915518372e6465262146f2e-project_patch_quality545.py",
+      "sha256": "e12d99081b1c025fed169f073ffd0264fb6b1bd42915518372e6465262146f2e",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/source-snapshots/e12d99081b1c025fed169f073ffd0264fb6b1bd42915518372e6465262146f2e-project_patch_quality545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/source-snapshots/fc521e6e1a3db7add2ad430838c47f1e7c8728764e5a14049326fdcd7100e7d3-build_coherent_depth_targets545.py",
+      "sha256": "fc521e6e1a3db7add2ad430838c47f1e7c8728764e5a14049326fdcd7100e7d3",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/source-snapshots/fc521e6e1a3db7add2ad430838c47f1e7c8728764e5a14049326fdcd7100e7d3-build_coherent_depth_targets545.py"
+    },
+    {
+      "previous_commit": "b705b1c638136f899a00e26130cf8ebc7149d5e7",
+      "previous_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-142/contained-clearance-545/source-snapshots/ffe4b4f38582d6bd181dd84bbc1791d297e04f4402f49366885ead44291f0745-select_connected_endpoint_patches545.py",
+      "sha256": "ffe4b4f38582d6bd181dd84bbc1791d297e04f4402f49366885ead44291f0745",
+      "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/source-snapshots/ffe4b4f38582d6bd181dd84bbc1791d297e04f4402f49366885ead44291f0745-select_connected_endpoint_patches545.py"
+    }
+  ],
+  "schema_version": 1,
+  "selected_zero_contained_checkpoint": {
+    "accepted_physical_steps": 0,
+    "candidate_path": "contained-clearance-545/last-exit-022/direct/candidate.npz",
+    "candidate_sha256": "ced651c06f4363139288fc006ce9bdbf62ef13f603491c16fbdf0d98eb654bc4",
+    "complete_banks": 185,
+    "construction_progress": false,
+    "contained_node_bank_pairs": 0,
+    "exact_report_path": "contained-clearance-545/last-exit-022/check/report.json",
+    "exact_report_sha256": "c9c4b7d25a0e2e128f9449edfb951fb58c83cbe6eb5423a88749e676ab1bfb6d",
+    "native_admission": false,
+    "self_pairs": 0,
+    "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS",
+    "surface_pairs": 2861
+  },
+  "source_root": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545",
+  "title": "Offline zero-contained connected skin construction supplement through last-exit-022",
+  "verification_receipt": {
+    "path": "verification-receipt.json",
+    "sha256": "876b401e50b904cef3b50321713f1c7ea4df3b69d315e99bd5415f2fda96119c"
+  }
+}
