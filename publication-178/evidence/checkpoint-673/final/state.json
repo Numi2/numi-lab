@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-component-linesearch-002/alpha-005/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "f466d2e9acaf2ac81051c9e1ca16bbb948900ca4a9808ccb884aaeeb09d81a5e",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-component-linesearch-002/alpha-005/full-check/audit-130/summary.json",
+  "point_summary_sha256": "49a94bff946dd92303f87d03c5f7ac320239233f5d0d6318e2dfe66757ba6e41",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-component-linesearch-002/alpha-005/full-check/audit-159/report.json",
+  "surface_report_sha256": "3138aea12d19fb1a81c27ce2d071665aeff59be521e40da23d13a0a0f849a983",
+  "temporary_unselected_construction": false
+}
