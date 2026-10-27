@@ -1,0 +1,12 @@
+{
+  "status": "FIT_STAGE_FINISHED_UNADMITTED",
+  "fit_argv": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-refined-595/run-002/fit-argv.json",
+  "fit_argv_sha256": "bfea9f842d20dd0d81033f3c4e02e55fc7ba072e0c8c854bd475c594303cec4f",
+  "fit_output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-refined-595/run-002/fit",
+  "disk_free_before_bytes": 448151552,
+  "disk_free_after_bytes": 337760256,
+  "fit_stage": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-refined-595/run-002/fit-stage",
+  "fit_stage_log": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-refined-595/run-002/fit-stage.log",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

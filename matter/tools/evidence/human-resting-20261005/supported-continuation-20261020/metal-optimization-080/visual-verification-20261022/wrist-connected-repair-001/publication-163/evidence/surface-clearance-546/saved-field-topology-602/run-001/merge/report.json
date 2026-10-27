@@ -1,0 +1,27 @@
+{
+  "accepted_physical_steps": 0,
+  "all_nonpoint_fields_bitwise_preserved": true,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-topology-602/run-001/merge/candidate.npz",
+  "candidate_sha256": "e7c2bfa57ab4e7311f85b441597141b8bcc840f7f51b147da43a73f254d0e9b3",
+  "changed_nodes": 512,
+  "constraints_reused": false,
+  "maximum_step_mm": 0.6012506426052646,
+  "native_admission": false,
+  "source_anchor_count": 237,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/run-001/final/state.json": "7ada7daac43f76970af74ab8c73d7d24a739be162f282c82b63bac316c75c792",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/run-001/full-check/audit-130/summary.json": "6aaa96b2eb745bbf2b61c8bac987d5b1227fbafb383f6c4a22b05bf8635b5e31",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/run-001/full-check/audit-159/report.json": "2eedcda0de5ec8ce7cb543c7b489f4e0579271a7b4b76cc265409ca7fd76a785",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/run-001/lineage/candidate.npz": "05b499db61f22492f4ee4611951bdb4e02e196a3175205dda862bc08befc7729",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/run-002/retained-regions/candidate.npz": "1f9e30b2393fbd92e8200e8fbe3fdb958f11e3887837a0d8781f1eead6981335",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/run-002/retained-regions/final/state.json": "01f9148db5e9017b9e06e074fd335b61c557885db8f616d77525a1a0765da4b2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/run-002/retained-regions/full-check/audit-130/summary.json": "fe91aadc9e3842744281d0c3092733b2068e4b988c18183167369d1ebac19294",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/run-002/retained-regions/full-check/audit-159/report.json": "4df253267e3f913f1100b654c4fb499aad2919f81fe5a540fd46708377a6cb22",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-596/run-001/final/state.json": "a513caee6053154b6284d68ac05e1ec6e78e605e881ee0a5a68770c94de588e2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-596/run-001/full-check/audit-130/summary.json": "d7cfb57c1da008cebf4224b1080c7a7eb3fe7de3f7b60cbeb5c0170e3c29c79c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-596/run-001/full-check/audit-159/report.json": "ab8fa125ad55cc64d57bb4c56b1d445d9b62a66d94538ea4fb6ca13fd61ffebd",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-596/run-001/lineage/candidate.npz": "2c963e10e3eda97b6e550ec1592936a7f75fa7968afb3112884b5f7a74001ae2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-topology-602/merge_saved_field602.py": "c74d6c4440834c9126f2c062ca723015ee438021a5856ac2ebfe4ab7a350283c"
+  },
+  "status": "SAVED_COORDINATE_FIELD_REPLAY_PENDING_FRESH_GEOMETRY_CHECKS"
+}

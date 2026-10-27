@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q test_joint_refined595.py test_mixed_targets595.py",
+  "output": "test-receipt-001/pytest.log",
+  "output_sha256": "0324e48f941794371649adda93db948840056d0d818d5a18cf340c4a132fa198",
+  "files": {
+    "joint_refined595.py": "409d5f6990195373346749f3cb43cdbc55c54afd1fcd2f84c6b30815523b1b4c",
+    "prepare_joint_refined595.py": "8c3e3805970558d2c341bcf5ba11dc870a61f7061d023ba629a8ec2b7b156618",
+    "make_mixed_targets595.py": "cc846426091e943b080dd1648c4ad7a09e5b8d25843da95451aefa1cfdd50ea6",
+    "test_joint_refined595.py": "0e5516d494eaf2b17df2bf92c82f6e9ebc010498837ba0b5d3fc421438295c0d",
+    "test_mixed_targets595.py": "309890adb0c6bcc503560aa66818770e1e0e931fc59b4d631c1ee719e2c6440f"
+  },
+  "preflight": "preflight-005/preflight.json",
+  "preflight_sha256": "be80f48a7dadf461dd88ace0e2df99d44ed672decedbdce3bb17d013018e6213",
+  "physical_steps": 0
+}\n

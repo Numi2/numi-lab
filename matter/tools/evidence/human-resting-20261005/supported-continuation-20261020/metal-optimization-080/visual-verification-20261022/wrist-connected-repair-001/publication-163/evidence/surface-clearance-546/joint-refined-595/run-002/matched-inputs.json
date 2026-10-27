@@ -1,0 +1,39 @@
+{
+  "inputs": {
+    "audit159": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/baseline-check/audit-159/report.json",
+      "sha256": "e0af3fdd07feaa85e2afd0f62243ffaba7448179c30fe48fc4df768345680563"
+    },
+    "candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/candidate.npz",
+      "sha256": "6b912d5dc08b044d1dd08a55527435bf6584a0e3a2c3f8c36f43ac4b30d3ded1"
+    },
+    "face_target_npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-refined-595/run-002/surface-targets/targets.npz",
+      "sha256": "f9425c0edd9a2b5fff0c33f87647dd561625e98ae45b248a73cc1e9a7a56f06c"
+    },
+    "point_target_npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-refined-595/mixed-targets-003/nearest-union-exits.npz",
+      "sha256": "3b43e378b3f5275800e8ed73d3290307e4cf7c694eefdd910ad2f1b9d7912735"
+    }
+  },
+  "schema": "numi.human.matched_inputs_component_fit_475.v1",
+  "source_pins": {
+    "decomposition475": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-475/component_lp_decomposition_475.py",
+      "sha256": "af0b6a6bf40757a403a8b7c359233694241d34e1e016b6dd3a37d7c98789c46d"
+    },
+    "objective458": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/fixed_bone_outward_plane_458.py",
+      "sha256": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0"
+    },
+    "owner408": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+    },
+    "runner458": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/run_grouped_fit_458.py",
+      "sha256": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93"
+    }
+  }
+}

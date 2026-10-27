@@ -1,0 +1,10 @@
+{
+  "claim": "P162 is the fresh origin/main parent; prior source pins are not upgraded beyond their exact recorded hashes.",
+  "commit": "e86aa13955400d36167c02a1975ee6779184ec75",
+  "manifest_sha256": "2f00a11832725cc0292e48e7174729ee490054a1260cd7c8d2f18b274cce4b02",
+  "member_bytes": 237663503,
+  "member_count": 468,
+  "prefix": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-162",
+  "publication": "P162",
+  "schema": "numi.human.surface_clearance.p163.prior_reference.v1"
+}

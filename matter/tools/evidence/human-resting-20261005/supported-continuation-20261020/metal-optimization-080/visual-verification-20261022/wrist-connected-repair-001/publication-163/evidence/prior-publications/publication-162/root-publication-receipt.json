@@ -1,0 +1,106 @@
+{
+  "commit": "e86aa13955400d36167c02a1975ee6779184ec75",
+  "free_disk_after_cleanup_bytes": 315805696,
+  "index_free_publication": true,
+  "local_plaintext_retirements": [
+    {
+      "files": [
+        {
+          "allocated_bytes": 41295872,
+          "atime_ns_at_retirement": 1793065386728772415,
+          "compressed_archive_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-162/evidence/compression-preservation/598-run-002/payloads/connected-fit-598/run-002/fit-stage.log.zst",
+          "compressed_bytes": 4928964,
+          "compressed_sha256": "b1d7e05815b43bf8cfdcaeef72862aeec3051c7d91fe4c1c826cae946349ca32",
+          "lsof_open_handles": 0,
+          "mode": 420,
+          "mtime_ns": 1793064593603447145,
+          "nlink_before": 1,
+          "original_bytes": 41295220,
+          "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/run-002/fit-stage.log",
+          "original_sha256": "07eaa3db79bee7651dce250b6e7a1f985ca9e8709075ceb62debcb117e1d9d53",
+          "ps_exact_path_consumers": 0,
+          "remote_commit": "e86aa13955400d36167c02a1975ee6779184ec75",
+          "remote_member_status": "REMOTE_BYTES_MATCH",
+          "remote_restore_status": "REMOTE_ARCHIVE_RESTORED_AND_VERIFIED"
+        },
+        {
+          "allocated_bytes": 41324544,
+          "atime_ns_at_retirement": 1793064593750723439,
+          "compressed_archive_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-162/evidence/compression-preservation/598-run-002/payloads/connected-fit-598/run-002/fit/report.json.zst",
+          "compressed_bytes": 4932097,
+          "compressed_sha256": "0b88ec1b2ba70d505d66682f1c7c524cc4114707d5833bc2455a5cd92cbff448",
+          "lsof_open_handles": 0,
+          "mode": 420,
+          "mtime_ns": 1793064593596678866,
+          "nlink_before": 1,
+          "original_bytes": 41321377,
+          "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/run-002/fit/report.json",
+          "original_sha256": "a98e07edc9848052142ed2214367d410cf0b98e20e116d64723d659577f86766",
+          "ps_exact_path_consumers": 0,
+          "remote_commit": "e86aa13955400d36167c02a1975ee6779184ec75",
+          "remote_member_status": "REMOTE_BYTES_MATCH",
+          "remote_restore_status": "REMOTE_ARCHIVE_RESTORED_AND_VERIFIED"
+        }
+      ],
+      "freed_allocated_bytes": 82620416,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-162-plaintext-retirement-receipt.json",
+      "sha256": "d13fcd0fe7e880b2a578a962784465b6b4d6a2d7cb887a84b05dee716584e554",
+      "status": "RETIRED_AFTER_INDEPENDENT_REMOTE_MEMBER_AND_RESTORE_VERIFICATION"
+    },
+    {
+      "file_sha256": "55834dad83781637a95a3d8099d2721e577af9d9f5c08ae87cb1addc105b459a",
+      "files_retired": 2,
+      "freed_allocated_bytes": 41570304,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-162-581-report-retirement-receipt.json",
+      "sha256": "fbcf9ed9180f8b224d841c687299a8b6d77f660e6925605dfe0d612908c66345",
+      "status": "RETIRED_AFTER_FRESH_REMOTE_RESTORE_AND_CONSUMER_CHECK"
+    }
+  ],
+  "manifest_sha256": "2f00a11832725cc0292e48e7174729ee490054a1260cd7c8d2f18b274cce4b02",
+  "member_bytes": 237663503,
+  "member_count": 468,
+  "parent": "ce7e5a0b18455b56a40866e609b008b972554537",
+  "prefix": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-162",
+  "published_utc": "2026-10-27T01:49:42.541436+00:00",
+  "push_stdout": "",
+  "remote_main_after": "e86aa13955400d36167c02a1975ee6779184ec75",
+  "remote_verification": {
+    "all_member_sha256_size_match": true,
+    "archive_restore_count": 2,
+    "manifest_sha256": "2f00a11832725cc0292e48e7174729ee490054a1260cd7c8d2f18b274cce4b02",
+    "member_bytes": 237663503,
+    "member_count": 468,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-162-remote-verification.json",
+    "sha256": "e55510536ebb6694af8ef76a956776679fbf6f5245ea151e58163bc57d97962d"
+  },
+  "schema": "numi.human.surface_clearance.p162.root_publication_receipt.v1",
+  "shared_checkout_after": {
+    "branch": "numi-human-aortic-contact-perf",
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "shared_checkout_before": {
+    "branch": "numi-human-aortic-contact-perf",
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "shared_checkout_final": {
+    "branch": "numi-human-aortic-contact-perf",
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_tree": "b8d44c114ef552130634d80d7e94488ee5136201",
+    "status_entries": 40915,
+    "status_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "tree": "24aabb50ef8e3dd421814a5ebe594e4df4269e9d",
+  "updated_utc": "2026-10-27T01:55:20.542388+00:00"
+}

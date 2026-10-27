@@ -1,0 +1,22 @@
+{
+  "classification": "unadmitted connected 595 candidate exact 545 check",
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-refined-595/run-002/retention-582-001/candidate.npz",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/baseline-check/baseline-state.json",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-refined-595/run-002/retention-582-001/full-check-545",
+    "--trust-mm",
+    "4"
+  ],
+  "wrapper": "545 coordinator unwrapped; exact audit children use shared slot",
+  "candidate_sha256": "b2366af63df68ba5796a6d54ed2af917a90cd99914cdf919b21ee9cee0b5a70e",
+  "baseline_state_sha256": "bfdf066d28534960336b948621bbefeb439fcba24fba36e44db1b214851ec47a",
+  "checker_sha256": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-refined-595/run-002/retention-582-001/full-check-545",
+  "geometry_claim": false,
+  "physical_steps": 0
+}\n
