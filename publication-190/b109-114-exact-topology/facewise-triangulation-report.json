@@ -1,0 +1,2570 @@
+{
+  "schema": "numi.human.bank109_114.facewise_conforming_triangulation.v1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-182-stage-001/combined-653/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "exact_contour_graph_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-002-exact-contours/exact-contour-graph.json",
+  "exact_contour_graph_sha256": "524e1c62a7768b5ec9ae50a2b7bc5ac65bd2303ff9d03355486bf784cfc932ab",
+  "component_results": [
+    {
+      "component_id": 0,
+      "status": "CONFORMING_LOCAL_TRIANGULATION_PASS",
+      "patch_parent_face_count": 239,
+      "crossing_pairs": 144,
+      "contour_cycles": [
+        45,
+        36,
+        63
+      ],
+      "contour_segment_count": 144,
+      "canonical_endpoint_count": 144,
+      "output_node_count": 289,
+      "added_endpoint_node_count": 144,
+      "child_face_count": 527,
+      "outer_boundary_edge_count": 49,
+      "outer_boundary_unchanged": true,
+      "global_edge_incidence_histogram": {
+        "2": 766,
+        "1": 49
+      },
+      "all_contour_edges_incidence_two": true,
+      "exact_parent_face_double_area": true,
+      "constrained_triangulator_edge_flips": 1,
+      "patch_npz_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-002-exact-contours/component-00/conforming-patch.npz",
+      "patch_npz_sha256": "0f4a35e195a78b1f8153194cb0d7e8e8ed1a0a9af130a604d633e56e084bea95",
+      "rational_ancestry_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-002-exact-contours/component-00/rational-ancestry.json",
+      "rational_ancestry_sha256": "7b995e682647b57888694a1d023e52308d6645d78c1b6b0f7b958a84d108c6d6",
+      "per_parent_face": [
+        {
+          "parent_face_row": 34420,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34421,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34426,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34427,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34499,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34500,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34503,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34514,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34515,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34516,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34518,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34519,
+          "point_count": 7,
+          "child_triangle_count": 7,
+          "contour_segments": 3,
+          "local_constraint_count": 8,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34520,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34521,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34522,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34524,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34525,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34526,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34527,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34529,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34530,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34531,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34532,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34533,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34534,
+          "point_count": 7,
+          "child_triangle_count": 7,
+          "contour_segments": 3,
+          "local_constraint_count": 8,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34535,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34536,
+          "point_count": 7,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 9,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34537,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34538,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34539,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34540,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34541,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34542,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34543,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34544,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34545,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34546,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34547,
+          "point_count": 7,
+          "child_triangle_count": 7,
+          "contour_segments": 3,
+          "local_constraint_count": 8,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34548,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34549,
+          "point_count": 7,
+          "child_triangle_count": 7,
+          "contour_segments": 3,
+          "local_constraint_count": 8,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34550,
+          "point_count": 8,
+          "child_triangle_count": 9,
+          "contour_segments": 4,
+          "local_constraint_count": 9,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34551,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34552,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34553,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34554,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34555,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34556,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34557,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34558,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34559,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34560,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34562,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34563,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34564,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34565,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34566,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34567,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34568,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34570,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34571,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34575,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34576,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34577,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34580,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34581,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34583,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34584,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34585,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34586,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34587,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34591,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34592,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34593,
+          "point_count": 8,
+          "child_triangle_count": 9,
+          "contour_segments": 4,
+          "local_constraint_count": 9,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34594,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34595,
+          "point_count": 7,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 9,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34596,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34597,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34598,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34599,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34600,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34601,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34602,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34603,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34604,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34605,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34606,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34607,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34608,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34609,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34610,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34611,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34612,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34613,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34614,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34615,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34616,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34617,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34618,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34619,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34620,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34621,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34622,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34623,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34624,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34625,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34644,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34645,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34648,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34649,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34650,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34653,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34654,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34658,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34659,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34662,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34663,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34664,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34666,
+          "point_count": 7,
+          "child_triangle_count": 7,
+          "contour_segments": 3,
+          "local_constraint_count": 8,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34667,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34668,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34669,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34670,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34671,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34672,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34673,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34674,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34675,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34676,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34677,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34678,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34679,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34680,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34681,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34682,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34684,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34685,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34687,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34688,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34689,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34690,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34691,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34692,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34693,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34694,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34695,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34696,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34697,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34698,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34699,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34700,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34701,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34702,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34703,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34704,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34705,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34706,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34707,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34708,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34709,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34710,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34711,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34712,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34713,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34714,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34715,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34716,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34717,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34718,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34719,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34720,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34721,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34722,
+          "point_count": 9,
+          "child_triangle_count": 11,
+          "contour_segments": 5,
+          "local_constraint_count": 10,
+          "exact_reference_double_area": "1",
+          "flips": 1
+        },
+        {
+          "parent_face_row": 34723,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34724,
+          "point_count": 7,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 9,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34727,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34728,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34729,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34730,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34731,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34733,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34734,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34735,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34736,
+          "point_count": 9,
+          "child_triangle_count": 11,
+          "contour_segments": 5,
+          "local_constraint_count": 10,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34737,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34738,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34739,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34740,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34741,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34742,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34743,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34744,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34745,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34747,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34748,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34749,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34751,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34752,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34754,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34755,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34756,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34757,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34758,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34759,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34760,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34761,
+          "point_count": 7,
+          "child_triangle_count": 7,
+          "contour_segments": 3,
+          "local_constraint_count": 8,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34762,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34763,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34764,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34765,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34766,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34767,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34768,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34769,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34770,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34771,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34772,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34773,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34774,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34775,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34776,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34777,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34778,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34779,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34780,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34781,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34782,
+          "point_count": 7,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 9,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34783,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34784,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34785,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34786,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34787,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34788,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34789,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34790,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34792,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34793,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34827,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34828,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 34832,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        }
+      ]
+    },
+    {
+      "component_id": 1,
+      "status": "CONFORMING_LOCAL_TRIANGULATION_PASS",
+      "patch_parent_face_count": 38,
+      "crossing_pairs": 43,
+      "contour_cycles": [
+        43
+      ],
+      "contour_segment_count": 43,
+      "canonical_endpoint_count": 43,
+      "output_node_count": 70,
+      "added_endpoint_node_count": 43,
+      "child_face_count": 124,
+      "outer_boundary_edge_count": 14,
+      "outer_boundary_unchanged": true,
+      "global_edge_incidence_histogram": {
+        "2": 179,
+        "1": 14
+      },
+      "all_contour_edges_incidence_two": true,
+      "exact_parent_face_double_area": true,
+      "constrained_triangulator_edge_flips": 0,
+      "patch_npz_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-002-exact-contours/component-01/conforming-patch.npz",
+      "patch_npz_sha256": "787df5675fc7b835ec89430304b76dd1e21f14ea4c0c8942d52dc78f211a36db",
+      "rational_ancestry_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-002-exact-contours/component-01/rational-ancestry.json",
+      "rational_ancestry_sha256": "978ad2ef347790e59bbafafe774634dfa79dcf831d1e1a6195243f850d995a02",
+      "per_parent_face": [
+        {
+          "parent_face_row": 35339,
+          "point_count": 9,
+          "child_triangle_count": 11,
+          "contour_segments": 5,
+          "local_constraint_count": 10,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35340,
+          "point_count": 8,
+          "child_triangle_count": 9,
+          "contour_segments": 4,
+          "local_constraint_count": 9,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35341,
+          "point_count": 7,
+          "child_triangle_count": 7,
+          "contour_segments": 3,
+          "local_constraint_count": 8,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35342,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35363,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35366,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35367,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35380,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35384,
+          "point_count": 8,
+          "child_triangle_count": 9,
+          "contour_segments": 4,
+          "local_constraint_count": 9,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35385,
+          "point_count": 10,
+          "child_triangle_count": 13,
+          "contour_segments": 6,
+          "local_constraint_count": 11,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35386,
+          "point_count": 7,
+          "child_triangle_count": 7,
+          "contour_segments": 3,
+          "local_constraint_count": 8,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35387,
+          "point_count": 7,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 9,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35388,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35389,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35390,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35391,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35392,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35393,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35394,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35407,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35409,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35410,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35411,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35421,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35426,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35427,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35428,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35429,
+          "point_count": 9,
+          "child_triangle_count": 11,
+          "contour_segments": 5,
+          "local_constraint_count": 10,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35430,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35431,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35433,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35434,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35435,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35436,
+          "point_count": 3,
+          "child_triangle_count": 1,
+          "contour_segments": 0,
+          "local_constraint_count": 3,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35437,
+          "point_count": 9,
+          "child_triangle_count": 9,
+          "contour_segments": 4,
+          "local_constraint_count": 11,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35438,
+          "point_count": 6,
+          "child_triangle_count": 5,
+          "contour_segments": 2,
+          "local_constraint_count": 7,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35439,
+          "point_count": 5,
+          "child_triangle_count": 3,
+          "contour_segments": 1,
+          "local_constraint_count": 6,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        },
+        {
+          "parent_face_row": 35440,
+          "point_count": 8,
+          "child_triangle_count": 7,
+          "contour_segments": 3,
+          "local_constraint_count": 10,
+          "exact_reference_double_area": "1",
+          "flips": 0
+        }
+      ]
+    }
+  ],
+  "all_components_triangulated": true,
+  "existing_candidate_coordinates_moved": false,
+  "existing_candidate_modified": false,
+  "new_endpoint_coordinates": "Exact rational world points from skin barycentrics rounded to Float32 metres; only private patch outputs contain them.",
+  "physical_or_clearance_claim": false,
+  "audit_rerun": false,
+  "scope": "Face-wise constrained triangulation of the two fixed face-row patches using exact rational contour endpoints and inherited source ancestry; no full candidate or audit emitted.",
+  "elapsed_seconds": 0.2205890000332147
+}

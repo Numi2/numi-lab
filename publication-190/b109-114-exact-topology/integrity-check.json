@@ -1,0 +1,39 @@
+{
+  "schema": "numi.human.bank109_114.topology_patch_integrity_check.v1",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "exact_graph_sha256": "524e1c62a7768b5ec9ae50a2b7bc5ac65bd2303ff9d03355486bf784cfc932ab",
+  "triangulation_report_sha256": "3960375ac7d6efdfea0a1705c535489957875d0880f76eb6d1a3827cc24bf0c8",
+  "checks": [
+    {
+      "component_id": 0,
+      "patch_node_count": 289,
+      "original_nodes": 145,
+      "endpoints": 144,
+      "existing_node_coordinates_exactly_preserved": true,
+      "parent_face_count": 239,
+      "source_patch_face_rows_preserved": true,
+      "child_face_count": 527,
+      "child_face_ancestry_matches_parent_arrays": true,
+      "contour_edge_count": 144,
+      "exact_endpoint_root_ids": 144,
+      "patch_npz_sha256": "0f4a35e195a78b1f8153194cb0d7e8e8ed1a0a9af130a604d633e56e084bea95",
+      "rational_ancestry_sha256": "7b995e682647b57888694a1d023e52308d6645d78c1b6b0f7b958a84d108c6d6"
+    },
+    {
+      "component_id": 1,
+      "patch_node_count": 70,
+      "original_nodes": 27,
+      "endpoints": 43,
+      "existing_node_coordinates_exactly_preserved": true,
+      "parent_face_count": 38,
+      "source_patch_face_rows_preserved": true,
+      "child_face_count": 124,
+      "child_face_ancestry_matches_parent_arrays": true,
+      "contour_edge_count": 43,
+      "exact_endpoint_root_ids": 43,
+      "patch_npz_sha256": "787df5675fc7b835ec89430304b76dd1e21f14ea4c0c8942d52dc78f211a36db",
+      "rational_ancestry_sha256": "978ad2ef347790e59bbafafe774634dfa79dcf831d1e1a6195243f850d995a02"
+    }
+  ],
+  "all_checks_passed": true
+}

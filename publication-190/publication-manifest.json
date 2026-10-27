@@ -1,0 +1,57 @@
+{
+  "schema": "numi.human.p190_evidence_manifest.v1",
+  "parent_commit": "46a89becee5dd0a220d11d0d30411cf24ebe3ac1",
+  "status": "construction evidence only; no physical or native admission",
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "aa52ff991221cf2de8b131d37330523080acda03d1fcf11043ca868354c35993",
+      "bytes": 1201
+    },
+    {
+      "path": "b109-114-exact-topology/component-00/conforming-patch.npz",
+      "sha256": "0f4a35e195a78b1f8153194cb0d7e8e8ed1a0a9af130a604d633e56e084bea95",
+      "bytes": 21563
+    },
+    {
+      "path": "b109-114-exact-topology/component-00/rational-ancestry.json",
+      "sha256": "7b995e682647b57888694a1d023e52308d6645d78c1b6b0f7b958a84d108c6d6",
+      "bytes": 457584
+    },
+    {
+      "path": "b109-114-exact-topology/component-01/conforming-patch.npz",
+      "sha256": "787df5675fc7b835ec89430304b76dd1e21f14ea4c0c8942d52dc78f211a36db",
+      "bytes": 8925
+    },
+    {
+      "path": "b109-114-exact-topology/component-01/rational-ancestry.json",
+      "sha256": "978ad2ef347790e59bbafafe774634dfa79dcf831d1e1a6195243f850d995a02",
+      "bytes": 142530
+    },
+    {
+      "path": "b109-114-exact-topology/exact-contour-graph.json",
+      "sha256": "524e1c62a7768b5ec9ae50a2b7bc5ac65bd2303ff9d03355486bf784cfc932ab",
+      "bytes": 666317
+    },
+    {
+      "path": "b109-114-exact-topology/exact_contour_graph.py",
+      "sha256": "2a6738a6ae654a574fbe70d74b9ff765ffba7914563b0a0c7943aa8f6366fe44",
+      "bytes": 13589
+    },
+    {
+      "path": "b109-114-exact-topology/facewise-triangulation-report.json",
+      "sha256": "3960375ac7d6efdfea0a1705c535489957875d0880f76eb6d1a3827cc24bf0c8",
+      "bytes": 76303
+    },
+    {
+      "path": "b109-114-exact-topology/facewise_conforming_triangulation.py",
+      "sha256": "aa353213bd51e2b7ebf80bba175ba47112ec16c67a5a7381bd059b3e6fdb38ad",
+      "bytes": 20182
+    },
+    {
+      "path": "b109-114-exact-topology/integrity-check.json",
+      "sha256": "6ed79b3ef868f682103c6d448ea5698b7899dd7d8013c25b5aeebee322c128c9",
+      "bytes": 1629
+    }
+  ]
+}
