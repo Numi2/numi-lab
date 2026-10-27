@@ -1,0 +1,9 @@
+{
+  "status": "FRESH_REMOTE_FILESYSTEM_RECOVERY_PASS",
+  "git_blob_sha1": "084dae868c9c8389ec30cd5fb6f460e7aec46749",
+  "compressed_sha256": "033b4df407805e9a3df922b3c35c9df6e95cfc9c87fa1d4c4db97559dd94ad38",
+  "original_sha256": "6bb4b0bd0ca665237bebedb1fa233254e32e8d7204884f8b523d42e4e95b6e7d",
+  "bytes": 46531768,
+  "mode": 420,
+  "mtime_ns": 1793075068901570138
+}

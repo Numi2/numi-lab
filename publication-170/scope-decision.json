@@ -1,0 +1,67 @@
+{
+  "excluded_groups": [
+    {
+      "path": "surface-clearance-546/connected-batch-619/run-005-from878",
+      "reason": "Mutable active run."
+    },
+    {
+      "path": "surface-clearance-546/connected-batch-619/run-006-and-later",
+      "reason": "Future work outside frozen P170 cutoff."
+    },
+    {
+      "path": "all __pycache__ and .pytest_cache",
+      "reason": "Generated caches."
+    }
+  ],
+  "included_groups": [
+    {
+      "path": "evidence/surface-clearance-546/saved-field-topology-602-v2",
+      "scope": "Frozen merge owner/tests and 1043 construction checkpoint."
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-005-from1043",
+      "scope": "Frozen 1002 construction checkpoint and full ancestry/evidence."
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-006-from901",
+      "scope": "Retained ENOSPC attempt; no candidate output was produced."
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-007-from901-recovered-space",
+      "scope": "Frozen 878/0/0 full construction check, all 185 banks."
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-batch-619/run-004-from1002",
+      "scope": "Retained strict 901 checkpoint and coordinator JSON-serialization stop; v7 fix is separate tested source and recovery receipt."
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-batch-619/run_connected_batch619_v7.py",
+      "scope": "One-line path-to-string finalization fix; 22 tests and root receipts included; v7 not represented as a geometry rerun."
+    },
+    {
+      "path": "evidence/resource-retirement/published-fit-retirement-plan-20261027",
+      "scope": "P168/P169 exact remote recovery, restore and source-retirement receipts."
+    },
+    {
+      "path": "evidence/resource-retirement/obsolete-alternate-index-cache-20261027",
+      "scope": "18 obsolete alternate Git index cache archive, manifest and recovery receipts."
+    },
+    {
+      "path": "evidence/publication-history/P169-push-receipt.json",
+      "scope": "P169 publication commit and remote verification receipt."
+    }
+  ],
+  "parent_publication": {
+    "commit": "ff83a29f52cc23e6a51839af0b1e818f20103d3f",
+    "id": "P169",
+    "manifest_sha256": "c35db7825bcc1586eee18e456f2309297719fb7a3373398e0cf980f3ec95d4cf"
+  },
+  "publication": "P170",
+  "publication_limits": {
+    "accepted_physical_steps": 0,
+    "native_admission": false,
+    "physical_or_anatomical_admission": false
+  },
+  "source_deletion": false,
+  "status": "FROZEN_SCOPE"
+}

@@ -1,0 +1,3 @@
+waiting_for_human_geometry_slot pid=45018
+acquired_human_geometry_slot pid=45018
+{"status": "AFFINE_ANCESTRY_REGENERATED_GEOMETRY_IDENTICAL", "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-007-from901-recovered-space/lineage/candidate.npz", "candidate_sha256": "699727ec76fa4d7c30448e42382a5b3052e8a5c8029ffcd85b58e592557b0faf", "changed_fields": [], "repair": {"changed_rows": [], "changed_row_count": 0, "rows_rebuilt_from_pinned_parent_and_Q": 40358, "remaining_singleton_mismatches": 0, "barycentric_values_regenerated_from_pinned_parent_Q": true, "coordinate_fit_or_least_squares_used": false}}

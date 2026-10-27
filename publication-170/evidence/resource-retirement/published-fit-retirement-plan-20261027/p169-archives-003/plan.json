@@ -1,0 +1,63 @@
+{
+  "commit": "ff83a29f52cc23e6a51839af0b1e818f20103d3f",
+  "targets": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-001/fit-000/report.json",
+      "original_sha256": "5879ec1794202b0a02d05c3b7da1c173f9b9c3fbb79735a4422dd58e389da92b",
+      "bytes": 47049620,
+      "dev": 16777231,
+      "ino": 5220358,
+      "nlink": 1,
+      "mtime_ns": 1793076932914590301,
+      "ctime_ns": 1793076932914590301,
+      "allocated_bytes": 47050752
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-001/cut-merge-001/fit/report.json",
+      "original_sha256": "9749b6d32d52200c4aa0bedf0db71b62b53cbb6820e030de10f8fcec2b0137c1",
+      "bytes": 47410776,
+      "dev": 16777231,
+      "ino": 5220581,
+      "nlink": 1,
+      "mtime_ns": 1793077091693187768,
+      "ctime_ns": 1793077091693187768,
+      "allocated_bytes": 47411200
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-001/cut-merge-002/fit/report.json",
+      "original_sha256": "72e6b9e39611569752bc7725ed09a77c3e0f5287285dd48fd3e8122519dd982d",
+      "bytes": 47518627,
+      "dev": 16777231,
+      "ino": 5220664,
+      "nlink": 1,
+      "mtime_ns": 1793077191468568045,
+      "ctime_ns": 1793077191468568045,
+      "allocated_bytes": 47521792
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-002/fit-000/report.json",
+      "original_sha256": "31ad2c50121c944546d5373874ff2f835d1705bf666f2c2391eda92072a21f1b",
+      "bytes": 47731506,
+      "dev": 16777231,
+      "ino": 5220963,
+      "nlink": 1,
+      "mtime_ns": 1793077636155633416,
+      "ctime_ns": 1793077636155633416,
+      "allocated_bytes": 47734784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/fit-000/report.json",
+      "original_sha256": "7a3730a7a7cf35685ca22bc13d7ff9ab03410d9510e56eaca890f4d631383f4c",
+      "bytes": 45750625,
+      "dev": 16777231,
+      "ino": 5219344,
+      "nlink": 1,
+      "mtime_ns": 1793076426934266639,
+      "ctime_ns": 1793078729109010123,
+      "allocated_bytes": 45752320
+    }
+  ],
+  "active_source_references": 0,
+  "lsof_consumers": 0,
+  "scope": "only archived old full-report plaintext; preserve sources/assets/checkpoint/compact evidence/archives"
+}

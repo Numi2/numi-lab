@@ -1,0 +1,277 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-005-from1043/lineage/candidate.npz",
+  "candidate_sha256": "373ffd4f730ff65f103dfdb3ce359ac92f3ef2cf14995d6cc7209e15162913d2",
+  "construction_only": true,
+  "current_exact_self_pair_count": 0,
+  "current_seed_source": {
+    "dropped_pair_count": 0,
+    "mapped_unique_pair_count": 27861,
+    "mapping_payload_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/cut-merge-001/self-seeds/current-seed-remap.npz",
+    "mapping_payload_sha256": "23ed83676e648a65774274cda585b10850f7f10ed2fcdc83d4cf844ca423f52d",
+    "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/prepared/constraints/self-seeds/merged-self-pair-seeds.npy",
+    "pairs_sha256": "d7b3d60b0a8c640c578f74bebe5f6b324a86a40d8ca9caec7ba2506e8369c48f",
+    "source_pair_count": 27861
+  },
+  "deduplication": {
+    "merged_count_equals_union": true,
+    "overlap_count": 15,
+    "overlap_pairs": [
+      [
+        14086,
+        14090
+      ],
+      [
+        14088,
+        14090
+      ],
+      [
+        14089,
+        14090
+      ],
+      [
+        26324,
+        26326
+      ],
+      [
+        26324,
+        26329
+      ],
+      [
+        26852,
+        26867
+      ],
+      [
+        26852,
+        26872
+      ],
+      [
+        26853,
+        26867
+      ],
+      [
+        26853,
+        26872
+      ],
+      [
+        31050,
+        31218
+      ],
+      [
+        31055,
+        31218
+      ],
+      [
+        31269,
+        31407
+      ],
+      [
+        31269,
+        31417
+      ],
+      [
+        31270,
+        31407
+      ],
+      [
+        31270,
+        31417
+      ]
+    ]
+  },
+  "failed_trial_source": {
+    "audit130_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/check-fit-000/audit-130/summary.json",
+    "audit130_sha256": "d96312a89044facbacf3aaa1f52f31285a206176986873a4f782bebf4086cbaf",
+    "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/fit-000/candidate.npz",
+    "candidate_sha256": "67dfe12ed71e7bd60d42083bdab85c1ca2a31de6a795e2166b55489bf547ce17",
+    "dropped_pair_count": 0,
+    "exact_audit_pair_count": 443,
+    "mapped_unique_pair_count": 443,
+    "mapping_payload_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/cut-merge-001/self-seeds/failed-trial-remap.npz",
+    "mapping_payload_sha256": "ed69165063bab05a26d9314ac36545d6e5be4530f85e52979e39b4bc7d1d1925",
+    "pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/check-fit-000/audit-130/surface-self-pairs.npy",
+    "pairs_sha256": "3cedd5a40c2879719051c9cdfb18965c38f6fea95415a12550690e5312b8ad66",
+    "source_pair_count": 443
+  },
+  "fit_argv_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/cut-merge-001/fit-argv.json",
+  "fit_argv_sha256": "a9b6831588808892e47ec497be9b8d1e8a299eb801bc042f391edcdd38f7667d",
+  "limitation": "Seed refresh and zero-step 026 certificate only; no fit or exact post-fit audit was run.",
+  "mapping_status": "PASS_PARTIAL_EXACT_FACE_REMAP_AND_ZERO_STEP_026_CERTIFICATE",
+  "merged_unique_pair_count": 28289,
+  "native_admission": false,
+  "output_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/cut-merge-001/self-seeds/merged-self-pair-seeds.npy",
+  "output_pairs_sha256": "205f09c40aa6b46565b590fd4e22141535d8e3b91d2fa7dde46e624e7fa31a51",
+  "output_rows_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/cut-merge-001/self-seeds/merged-self-pair-rows.npz",
+  "output_rows_sha256": "d82318adb88db2e316067c9673edb59b4f6f79b92d59b57cf4e93a0664931a95",
+  "overlap_pair_diagnostics": [
+    {
+      "face_rows": [
+        14086,
+        14090
+      ],
+      "kind": "common_vertex_wedge",
+      "minimum_vertex_side_gap_mm": 2.0271476008637546e-06,
+      "preserved_margin_mm": 5.067869002159386e-07,
+      "shared_vertex": 14717
+    },
+    {
+      "face_rows": [
+        14088,
+        14090
+      ],
+      "kind": "common_vertex_wedge",
+      "minimum_vertex_side_gap_mm": 2.818607355459246e-06,
+      "preserved_margin_mm": 7.046518388648115e-07,
+      "shared_vertex": 16713
+    },
+    {
+      "face_rows": [
+        14089,
+        14090
+      ],
+      "kind": "moving_sat_midplane",
+      "minimum_vertex_side_gap_mm": null,
+      "preserved_margin_mm": 9.101548812395777e-07,
+      "shared_vertex": null
+    },
+    {
+      "face_rows": [
+        26324,
+        26326
+      ],
+      "kind": "moving_sat_midplane",
+      "minimum_vertex_side_gap_mm": null,
+      "preserved_margin_mm": 1.49388370118686e-06,
+      "shared_vertex": null
+    },
+    {
+      "face_rows": [
+        26324,
+        26329
+      ],
+      "kind": "common_vertex_wedge",
+      "minimum_vertex_side_gap_mm": 3.901286231594581e-06,
+      "preserved_margin_mm": 9.753215578986452e-07,
+      "shared_vertex": 17397
+    },
+    {
+      "face_rows": [
+        26852,
+        26867
+      ],
+      "kind": "moving_sat_midplane",
+      "minimum_vertex_side_gap_mm": null,
+      "preserved_margin_mm": 6.905966074555181e-07,
+      "shared_vertex": null
+    },
+    {
+      "face_rows": [
+        26852,
+        26872
+      ],
+      "kind": "moving_sat_midplane",
+      "minimum_vertex_side_gap_mm": null,
+      "preserved_margin_mm": 6.905966074555181e-07,
+      "shared_vertex": null
+    },
+    {
+      "face_rows": [
+        26853,
+        26867
+      ],
+      "kind": "common_vertex_wedge",
+      "minimum_vertex_side_gap_mm": 2.5775601908417656e-06,
+      "preserved_margin_mm": 6.443900477104414e-07,
+      "shared_vertex": 12787
+    },
+    {
+      "face_rows": [
+        26853,
+        26872
+      ],
+      "kind": "common_vertex_wedge",
+      "minimum_vertex_side_gap_mm": 2.57756019100136e-06,
+      "preserved_margin_mm": 6.4439004775034e-07,
+      "shared_vertex": 12787
+    },
+    {
+      "face_rows": [
+        31050,
+        31218
+      ],
+      "kind": "moving_sat_midplane",
+      "minimum_vertex_side_gap_mm": null,
+      "preserved_margin_mm": 2.2460451702954742e-06,
+      "shared_vertex": null
+    },
+    {
+      "face_rows": [
+        31055,
+        31218
+      ],
+      "kind": "moving_sat_midplane",
+      "minimum_vertex_side_gap_mm": null,
+      "preserved_margin_mm": 2.2460451702954742e-06,
+      "shared_vertex": null
+    },
+    {
+      "face_rows": [
+        31269,
+        31407
+      ],
+      "kind": "moving_sat_midplane",
+      "minimum_vertex_side_gap_mm": null,
+      "preserved_margin_mm": 9.993202638725052e-07,
+      "shared_vertex": null
+    },
+    {
+      "face_rows": [
+        31269,
+        31417
+      ],
+      "kind": "moving_sat_midplane",
+      "minimum_vertex_side_gap_mm": null,
+      "preserved_margin_mm": 9.993202638725052e-07,
+      "shared_vertex": null
+    },
+    {
+      "face_rows": [
+        31270,
+        31407
+      ],
+      "kind": "moving_sat_midplane",
+      "minimum_vertex_side_gap_mm": null,
+      "preserved_margin_mm": 9.993202638725052e-07,
+      "shared_vertex": null
+    },
+    {
+      "face_rows": [
+        31270,
+        31417
+      ],
+      "kind": "moving_sat_midplane",
+      "minimum_vertex_side_gap_mm": null,
+      "preserved_margin_mm": 9.993202638725052e-07,
+      "shared_vertex": null
+    }
+  ],
+  "rebuilt_linear_row_count": 157882,
+  "schema": "numi.human.continuation-self-seeds.v1",
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/constraints/refresh_guards_541.py": "293e4da49a10f07420d1da7c512823dcb182dca246e411c3775d18866b27a241",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/check-fit-000/audit-130/summary.json": "d96312a89044facbacf3aaa1f52f31285a206176986873a4f782bebf4086cbaf",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/check-fit-000/audit-130/surface-self-pairs.npy": "3cedd5a40c2879719051c9cdfb18965c38f6fea95415a12550690e5312b8ad66",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/fit-000/candidate.npz": "67dfe12ed71e7bd60d42083bdab85c1ca2a31de6a795e2166b55489bf547ce17",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/fit-argv-000.json": "7d098dcd5b8fc7b77ec48a5043eac939cfb42657516facfbc31564c66db37eb2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/prepared/constraints/self-seeds/merged-self-pair-seeds.npy": "d7b3d60b0a8c640c578f74bebe5f6b324a86a40d8ca9caec7ba2506e8369c48f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/prepared/constraints/self-seeds/seed-preflight.json": "4993db30e4ee22145bbc25c8f5853be28def8f9447d532be0d541468a276b29a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-005-from1043/lineage/candidate.npz": "373ffd4f730ff65f103dfdb3ce359ac92f3ef2cf14995d6cc7209e15162913d2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continue_surface_round546.py": "b2fb1407bcbcf8d44cb7138ff2cb9dc6ce43f9a6fcddb64ed6624df672123d17",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py": "a9586a81d92f117040e774c980b6028168432386b2e9babd96a7b7f725175d09",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/self-seed-merge-609/merge_self_seeds609_v2.py": "2f067cefc48b76225b7b9689ce34d817e17dfb0a8f903446c1eb38bd4c7854b9",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-101/evidence/204/source/fit/self_separation_026.py": "c67daf7c9fd2292e32ae88dba215a74350e1cbf83c669bc299a64b86d12e99f3"
+  },
+  "status": "PASS_REBUILT_CONSTRUCTION_SEEDS_ONLY",
+  "zero_step_feasible": true,
+  "zero_step_max_rhs_mm": -5.105286737935519e-08
+}

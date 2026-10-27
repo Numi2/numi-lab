@@ -1,0 +1,13 @@
+test_actual_1095_1149_1088_states_pure_merge (test_merge_saved_field602_v2.SavedFieldReplay602V2Tests.test_actual_1095_1149_1088_states_pure_merge) ... ok
+test_actual_state_candidate_hash_tamper_rejected (test_merge_saved_field602_v2.SavedFieldReplay602V2Tests.test_actual_state_candidate_hash_tamper_rejected) ... ok
+test_anchor_motion_rejected (test_merge_saved_field602_v2.SavedFieldReplay602V2Tests.test_anchor_motion_rejected) ... ok
+test_bad_baseline_coordinates_rejected (test_merge_saved_field602_v2.SavedFieldReplay602V2Tests.test_bad_baseline_coordinates_rejected) ... ok
+test_bad_candidate_bound_report_rejected (test_merge_saved_field602_v2.SavedFieldReplay602V2Tests.test_bad_candidate_bound_report_rejected) ... ok
+test_changed_point_provenance_rejected (test_merge_saved_field602_v2.SavedFieldReplay602V2Tests.test_changed_point_provenance_rejected) ... ok
+test_legitimate_face_ancestry_changes_are_allowlisted (test_merge_saved_field602_v2.SavedFieldReplay602V2Tests.test_legitimate_face_ancestry_changes_are_allowlisted) ... ok
+test_unobserved_face_marker_or_semantics_change_rejected (test_merge_saved_field602_v2.SavedFieldReplay602V2Tests.test_unobserved_face_marker_or_semantics_change_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.117s
+
+OK

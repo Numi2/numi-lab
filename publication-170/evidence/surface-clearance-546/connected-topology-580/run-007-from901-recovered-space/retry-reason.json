@@ -1,0 +1,8 @@
+{
+  "accepted_physical_steps": 0,
+  "available_bytes_before": 462393344,
+  "cause": "ENOSPC during progress write; no candidate output existed",
+  "native_admission": false,
+  "previous_failed_run": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-006-from901",
+  "specific_change": "18 obsolete temporary Git index caches losslessly archived and retired after exact recovery verification; shortening construction search to 100 seconds / 3 rounds"
+}

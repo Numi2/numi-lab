@@ -1,0 +1,9 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-topology-602-v2/run-001-from1088/merge/candidate.npz",
+  "classification": "Replay passing 580 topology operations onto latest 1088 coordinates; no coordinate step relative to the verification baseline",
+  "coordinate_step_mm": 0,
+  "fresh_checks_required": true,
+  "native_admission": false,
+  "verification_baseline": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/contained-field-retention-629/from1093-001/final/state.json"
+}

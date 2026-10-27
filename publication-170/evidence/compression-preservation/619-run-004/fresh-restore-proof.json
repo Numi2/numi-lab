@@ -1,0 +1,33 @@
+{
+  "files": [
+    {
+      "archive_path": "evidence/compression-preservation/619-run-004/connected-batch-619/run-004-from1002/round-001/cut-merge-001/fit/report.json.zst",
+      "bytes": 47706041,
+      "mode": 420,
+      "mtime_ns": 1793078796103175404,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/cut-merge-001/fit/report.json",
+      "restored_sha256": "c2d25e97fb9bcc5e7c29706a6e8b0c0b0d1f36eb9130dc5eb7c989624d205fe7",
+      "status": "fresh_restore_verified"
+    },
+    {
+      "archive_path": "evidence/compression-preservation/619-run-004/connected-batch-619/run-004-from1002/round-001/cut-merge-002/fit/report.json.zst",
+      "bytes": 47802603,
+      "mode": 420,
+      "mtime_ns": 1793078872747500387,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/cut-merge-002/fit/report.json",
+      "restored_sha256": "04b9588a8f8634bf209914abe8d02f0db3ea947eb5a5018bd8ddd46cbab074f5",
+      "status": "fresh_restore_verified"
+    },
+    {
+      "archive_path": "evidence/compression-preservation/619-run-004/connected-batch-619/run-004-from1002/round-001/fit-000/report.json.zst",
+      "bytes": 47220813,
+      "mode": 420,
+      "mtime_ns": 1793078722725541460,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/fit-000/report.json",
+      "restored_sha256": "8946e682dd22debca791bd1f46d233ff25f9698413af54f7dd37fdf022b4fc82",
+      "status": "fresh_restore_verified"
+    }
+  ],
+  "schema": "numi.human.publication170.archive_restore_proof.v1",
+  "source_retained": true
+}

@@ -1,0 +1,11 @@
+--- /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v6.py	2026-10-26 21:56:22
++++ /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v7.py	2026-10-26 22:37:53
+@@ -393,7 +393,7 @@
+     if fresh_check.get("arithmetic_pass") is not True or fresh_check.get("self_pairs")!=0 or fresh_check.get("contained_pairs")!=0 or fresh_check.get("complete_banks")!=185: raise ValueError("restored candidate failed fresh strict 545 gates")
+     if point_summary.get("candidate_sha256")!=ch or point_summary.get("complete_surface_audit") is not True or point_summary.get("inside_node_bank_pairs")!=0 or point_summary.get("inside_nodes")!=0 or point_summary.get("exact_PLC_surface_pairs")!=0: raise ValueError("restored candidate 130 is not zero-inside/self")
+     if surface_report.get("candidate_sha256")!=ch or surface_report.get("status")!="COMPLETE_TYPED_BANK_SURFACE_CROSSING_AUDIT" or surface_report.get("complete") is not True or surface_report.get("bank_count")!=185 or surface_report.get("expected_bank_count")!=185 or len(surface_report.get("banks",[]))!=185: raise ValueError("restored candidate 159 lacks complete 185 coverage")
+-    return {"candidate":restored_candidate,"point_summary":True,"surface_report":True,
++    return {"candidate":str(restored_candidate),"point_summary":True,"surface_report":True,
+             "inside_rows_restored":rows,"restore_report_sha256":sha(restore_report_path),
+             "candidate_sha256":ch}
+ 

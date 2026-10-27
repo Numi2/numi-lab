@@ -1,0 +1,11 @@
+{
+  "status": "RETIRED_VERIFIED_PUBLISHED_REDUNDANT_FULL_REPORT",
+  "target": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-002/round-001/fit-000/report.json",
+  "path_absent": true,
+  "unique_allocated_bytes": 46534656,
+  "available_before": 281784320,
+  "available_after": 328310784,
+  "plan_sha256": "3d7f57243b0e5f37cd26208972e594b2af40ea796a1d0d5cdea99220d3b2ddc9",
+  "recovery_sha256": "a4a1c6b6545f6d403c208d4294273a232ff1ed2d5fe6d9043aea70a39f2ca826",
+  "source_assets_or_current_evidence_deleted": false
+}

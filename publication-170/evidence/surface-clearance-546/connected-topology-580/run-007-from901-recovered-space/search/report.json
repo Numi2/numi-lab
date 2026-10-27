@@ -1,0 +1,1609 @@
+{
+  "accepted_operations": [
+    {
+      "center": [
+        13128,
+        13129,
+        13130,
+        13131,
+        13132,
+        13137,
+        13138,
+        13139,
+        13241
+      ],
+      "exact159_delta": {
+        "cache_matches_original370": true,
+        "new": 30,
+        "old": 31,
+        "per_bank": [
+          {
+            "body": 57,
+            "bone": 89,
+            "new": 30,
+            "old": 31
+          }
+        ],
+        "reduction": 1
+      },
+      "face_rows": [
+        13128,
+        13129,
+        13130,
+        13131,
+        13132,
+        13137,
+        13138,
+        13139,
+        13241
+      ],
+      "new_faces": [
+        [
+          18563,
+          19890,
+          16631
+        ],
+        [
+          19890,
+          19260,
+          16631
+        ],
+        [
+          18437,
+          19260,
+          13609
+        ],
+        [
+          19891,
+          18437,
+          13609
+        ],
+        [
+          19260,
+          18437,
+          16631
+        ],
+        [
+          19260,
+          19900,
+          13609
+        ],
+        [
+          19890,
+          19900,
+          19260
+        ],
+        [
+          18562,
+          19890,
+          18563
+        ],
+        [
+          18562,
+          19900,
+          19890
+        ]
+      ],
+      "old_faces": [
+        [
+          19890,
+          18563,
+          18562
+        ],
+        [
+          18562,
+          19900,
+          19890
+        ],
+        [
+          13609,
+          19260,
+          19890
+        ],
+        [
+          19260,
+          16631,
+          19890
+        ],
+        [
+          16631,
+          18563,
+          19890
+        ],
+        [
+          16631,
+          19260,
+          18437
+        ],
+        [
+          19260,
+          19891,
+          18437
+        ],
+        [
+          19260,
+          13609,
+          19891
+        ],
+        [
+          19900,
+          13609,
+          19890
+        ]
+      ],
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 14.688212196413529,
+          "minimum_area_ratio": 19.36607741681138,
+          "minimum_normal_cosine": 0.33383170851790755
+        },
+        "angle_loss_deg": -5.527346379759896,
+        "angle_loss_limit_deg": 4.5804329083268165,
+        "before": {
+          "minimum_angle_deg": 9.160865816653633,
+          "minimum_area_ratio": 8.240784684485051,
+          "minimum_normal_cosine": 0.4868684592991463
+        },
+        "deltas": {
+          "area_ratio": 11.125292732326328,
+          "min_angle_deg": 5.527346379759896,
+          "normal_cosine": -0.15303675078123874
+        },
+        "exact_185_strict_reduction_still_required_downstream": true,
+        "score": [
+          11.125292732326328,
+          -0.15303675078123874,
+          5.527346379759896
+        ],
+        "strict_quality_gain_required_before_exact_pairs": false,
+        "unchanged_physical_triangles_retained": 5
+      },
+      "round": 1,
+      "self_screen": {
+        "allowed_shared_vertex_or_edge_pairs": 86,
+        "candidate_sha256": "1f9029915025aba852897f2c60f80226ef5c4644284fcd965f84eb0332982a56",
+        "changed_face_aabb_candidate_pairs": 927,
+        "changed_face_exact_pairs": 0,
+        "changed_face_rows": [
+          13128,
+          13129,
+          13130,
+          13131,
+          13132,
+          13137,
+          13138,
+          13139,
+          13241
+        ],
+        "complete_surface_audit": true,
+        "exact_PLC_surface_pairs": 0,
+        "exact_incremental_reuse": true,
+        "faces": 41733,
+        "introduced_pairs": [],
+        "no_new_pairs": true,
+        "removed_pairs": [],
+        "scope_limit": "Global exact result: unchanged pairs reuse complete baseline; every pair touching changed faces is re-audited against the full surface.",
+        "status": "EXACT_INCREMENTAL_GLOBAL_SELF_AUDIT",
+        "strict_pair_reduction": false,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "unchanged_baseline_pairs_reused": 0,
+        "unchanged_face_count": 41724
+      }
+    },
+    {
+      "center": [
+        29363,
+        29372,
+        30936,
+        31006,
+        31007,
+        31015,
+        31016,
+        31017,
+        31018
+      ],
+      "exact159_delta": {
+        "cache_matches_original370": true,
+        "new": 22,
+        "old": 27,
+        "per_bank": [
+          {
+            "body": 115,
+            "bone": 118,
+            "new": 22,
+            "old": 27
+          }
+        ],
+        "reduction": 5
+      },
+      "face_rows": [
+        29363,
+        29372,
+        30936,
+        31006,
+        31007,
+        31015,
+        31016,
+        31017,
+        31018
+      ],
+      "new_faces": [
+        [
+          14366,
+          19406,
+          18512
+        ],
+        [
+          14366,
+          20528,
+          19406
+        ],
+        [
+          20521,
+          14366,
+          18512
+        ],
+        [
+          20521,
+          20516,
+          14366
+        ],
+        [
+          19406,
+          20527,
+          18512
+        ],
+        [
+          20516,
+          18799,
+          19405
+        ],
+        [
+          19149,
+          20528,
+          14366
+        ],
+        [
+          19149,
+          20516,
+          19405
+        ],
+        [
+          20516,
+          19149,
+          14366
+        ]
+      ],
+      "old_faces": [
+        [
+          14366,
+          20521,
+          20516
+        ],
+        [
+          20516,
+          18799,
+          14366
+        ],
+        [
+          18512,
+          20521,
+          14366
+        ],
+        [
+          18512,
+          14366,
+          20527
+        ],
+        [
+          14366,
+          19406,
+          20527
+        ],
+        [
+          19406,
+          14366,
+          20528
+        ],
+        [
+          19405,
+          14366,
+          18799
+        ],
+        [
+          14366,
+          19405,
+          19149
+        ],
+        [
+          20528,
+          14366,
+          19149
+        ]
+      ],
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 20.40573171854455,
+          "minimum_area_ratio": 8.244740384552586,
+          "minimum_normal_cosine": 0.16565374479770448
+        },
+        "angle_loss_deg": -6.072706221898965,
+        "angle_loss_limit_deg": 5.0,
+        "before": {
+          "minimum_angle_deg": 14.333025496645586,
+          "minimum_area_ratio": 7.3982443786186405,
+          "minimum_normal_cosine": 0.6173379091488296
+        },
+        "deltas": {
+          "area_ratio": 0.846496005933945,
+          "min_angle_deg": 6.072706221898965,
+          "normal_cosine": -0.45168416435112513
+        },
+        "exact_185_strict_reduction_still_required_downstream": true,
+        "score": [
+          0.846496005933945,
+          -0.45168416435112513,
+          6.072706221898965
+        ],
+        "strict_quality_gain_required_before_exact_pairs": false,
+        "unchanged_physical_triangles_retained": 4
+      },
+      "round": 1,
+      "self_screen": {
+        "allowed_shared_vertex_or_edge_pairs": 108,
+        "candidate_sha256": "1f9029915025aba852897f2c60f80226ef5c4644284fcd965f84eb0332982a56",
+        "changed_face_aabb_candidate_pairs": 318,
+        "changed_face_exact_pairs": 0,
+        "changed_face_rows": [
+          29363,
+          29372,
+          30936,
+          31006,
+          31007,
+          31015,
+          31016,
+          31017,
+          31018
+        ],
+        "complete_surface_audit": true,
+        "exact_PLC_surface_pairs": 0,
+        "exact_incremental_reuse": true,
+        "faces": 41733,
+        "introduced_pairs": [],
+        "no_new_pairs": true,
+        "removed_pairs": [],
+        "scope_limit": "Global exact result: unchanged pairs reuse complete baseline; every pair touching changed faces is re-audited against the full surface.",
+        "status": "EXACT_INCREMENTAL_GLOBAL_SELF_AUDIT",
+        "strict_pair_reduction": false,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "unchanged_baseline_pairs_reused": 0,
+        "unchanged_face_count": 41724
+      }
+    },
+    {
+      "center": [
+        12169,
+        12170,
+        12171,
+        12173,
+        12174,
+        12208
+      ],
+      "exact159_delta": {
+        "cache_matches_original370": true,
+        "new": 16,
+        "old": 18,
+        "per_bank": [
+          {
+            "body": 59,
+            "bone": 95,
+            "new": 16,
+            "old": 18
+          }
+        ],
+        "reduction": 2
+      },
+      "face_rows": [
+        12169,
+        12170,
+        12171,
+        12173,
+        12174,
+        12208
+      ],
+      "new_faces": [
+        [
+          18966,
+          19823,
+          12266
+        ],
+        [
+          19823,
+          19830,
+          15904
+        ],
+        [
+          19830,
+          18966,
+          19682
+        ],
+        [
+          19830,
+          19823,
+          18966
+        ],
+        [
+          19823,
+          18964,
+          12266
+        ],
+        [
+          18964,
+          19823,
+          15904
+        ]
+      ],
+      "old_faces": [
+        [
+          15904,
+          18964,
+          19823
+        ],
+        [
+          18964,
+          12266,
+          19823
+        ],
+        [
+          12266,
+          18966,
+          19823
+        ],
+        [
+          19682,
+          19823,
+          18966
+        ],
+        [
+          19682,
+          19830,
+          19823
+        ],
+        [
+          19830,
+          15904,
+          19823
+        ]
+      ],
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 21.073778074358287,
+          "minimum_area_ratio": 11.52425681380846,
+          "minimum_normal_cosine": 0.6070357993546929
+        },
+        "angle_loss_deg": 4.671012292557027,
+        "angle_loss_limit_deg": 5.0,
+        "before": {
+          "minimum_angle_deg": 25.744790366915314,
+          "minimum_area_ratio": 16.255672270702334,
+          "minimum_normal_cosine": 0.5486739863068102
+        },
+        "deltas": {
+          "area_ratio": -4.731415456893874,
+          "min_angle_deg": -4.671012292557027,
+          "normal_cosine": 0.05836181304788268
+        },
+        "exact_185_strict_reduction_still_required_downstream": true,
+        "score": [
+          -4.731415456893874,
+          0.05836181304788268,
+          -4.671012292557027
+        ],
+        "strict_quality_gain_required_before_exact_pairs": false,
+        "unchanged_physical_triangles_retained": 4
+      },
+      "round": 1,
+      "self_screen": {
+        "allowed_shared_vertex_or_edge_pairs": 74,
+        "candidate_sha256": "1f9029915025aba852897f2c60f80226ef5c4644284fcd965f84eb0332982a56",
+        "changed_face_aabb_candidate_pairs": 153,
+        "changed_face_exact_pairs": 0,
+        "changed_face_rows": [
+          12169,
+          12170,
+          12171,
+          12173,
+          12174,
+          12208
+        ],
+        "complete_surface_audit": true,
+        "exact_PLC_surface_pairs": 0,
+        "exact_incremental_reuse": true,
+        "faces": 41733,
+        "introduced_pairs": [],
+        "no_new_pairs": true,
+        "removed_pairs": [],
+        "scope_limit": "Global exact result: unchanged pairs reuse complete baseline; every pair touching changed faces is re-audited against the full surface.",
+        "status": "EXACT_INCREMENTAL_GLOBAL_SELF_AUDIT",
+        "strict_pair_reduction": false,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "unchanged_baseline_pairs_reused": 0,
+        "unchanged_face_count": 41727
+      }
+    },
+    {
+      "center": [
+        34085,
+        34100
+      ],
+      "exact159_delta": {
+        "cache_matches_original370": true,
+        "new": 6,
+        "old": 10,
+        "per_bank": [
+          {
+            "body": 109,
+            "bone": 114,
+            "new": 6,
+            "old": 10
+          }
+        ],
+        "reduction": 4
+      },
+      "face_rows": [
+        34085,
+        34100
+      ],
+      "new_faces": [
+        [
+          18934,
+          20686,
+          18937
+        ],
+        [
+          20686,
+          18934,
+          11851
+        ]
+      ],
+      "old_faces": [
+        [
+          18937,
+          11851,
+          20686
+        ],
+        [
+          11851,
+          18937,
+          18934
+        ]
+      ],
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 6.882740447348642,
+          "minimum_area_ratio": 8.484291419005544,
+          "minimum_normal_cosine": 0.9014674490400608
+        },
+        "angle_loss_deg": -1.212677737531445,
+        "angle_loss_limit_deg": 2.8350313549085984,
+        "before": {
+          "minimum_angle_deg": 5.670062709817197,
+          "minimum_area_ratio": 15.136151695185026,
+          "minimum_normal_cosine": -0.9461355275790904
+        },
+        "deltas": {
+          "area_ratio": -6.651860276179482,
+          "min_angle_deg": 1.212677737531445,
+          "normal_cosine": 1.847602976619151
+        },
+        "exact_185_strict_reduction_still_required_downstream": true,
+        "score": [
+          -6.651860276179482,
+          1.847602976619151,
+          1.212677737531445
+        ],
+        "strict_quality_gain_required_before_exact_pairs": false,
+        "unchanged_physical_triangles_retained": 0
+      },
+      "round": 1,
+      "self_screen": {
+        "allowed_shared_vertex_or_edge_pairs": 28,
+        "candidate_sha256": "1f9029915025aba852897f2c60f80226ef5c4644284fcd965f84eb0332982a56",
+        "changed_face_aabb_candidate_pairs": 159,
+        "changed_face_exact_pairs": 0,
+        "changed_face_rows": [
+          34085,
+          34100
+        ],
+        "complete_surface_audit": true,
+        "exact_PLC_surface_pairs": 0,
+        "exact_incremental_reuse": true,
+        "faces": 41733,
+        "introduced_pairs": [],
+        "no_new_pairs": true,
+        "removed_pairs": [],
+        "scope_limit": "Global exact result: unchanged pairs reuse complete baseline; every pair touching changed faces is re-audited against the full surface.",
+        "status": "EXACT_INCREMENTAL_GLOBAL_SELF_AUDIT",
+        "strict_pair_reduction": false,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "unchanged_baseline_pairs_reused": 0,
+        "unchanged_face_count": 41731
+      }
+    },
+    {
+      "center": [
+        14879,
+        14981
+      ],
+      "exact159_delta": {
+        "cache_matches_original370": true,
+        "new": 5,
+        "old": 7,
+        "per_bank": [
+          {
+            "body": 65,
+            "bone": 99,
+            "new": 5,
+            "old": 7
+          }
+        ],
+        "reduction": 2
+      },
+      "face_rows": [
+        14879,
+        14981
+      ],
+      "new_faces": [
+        [
+          20021,
+          19613,
+          19011
+        ],
+        [
+          19613,
+          20021,
+          16756
+        ]
+      ],
+      "old_faces": [
+        [
+          19613,
+          19011,
+          16756
+        ],
+        [
+          16756,
+          19011,
+          20021
+        ]
+      ],
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 2.6474577001045616,
+          "minimum_area_ratio": 4.758337220769238,
+          "minimum_normal_cosine": 0.3629864928194453
+        },
+        "angle_loss_deg": -1.0911755084986319,
+        "angle_loss_limit_deg": 0.7781410958029649,
+        "before": {
+          "minimum_angle_deg": 1.5562821916059297,
+          "minimum_area_ratio": 4.969864394390798,
+          "minimum_normal_cosine": -0.09708358450942217
+        },
+        "deltas": {
+          "area_ratio": -0.21152717362156004,
+          "min_angle_deg": 1.0911755084986319,
+          "normal_cosine": 0.46007007732886745
+        },
+        "exact_185_strict_reduction_still_required_downstream": true,
+        "score": [
+          -0.21152717362156004,
+          0.46007007732886745,
+          1.0911755084986319
+        ],
+        "strict_quality_gain_required_before_exact_pairs": false,
+        "unchanged_physical_triangles_retained": 0
+      },
+      "round": 1,
+      "self_screen": {
+        "allowed_shared_vertex_or_edge_pairs": 44,
+        "candidate_sha256": "1f9029915025aba852897f2c60f80226ef5c4644284fcd965f84eb0332982a56",
+        "changed_face_aabb_candidate_pairs": 80,
+        "changed_face_exact_pairs": 0,
+        "changed_face_rows": [
+          14879,
+          14981
+        ],
+        "complete_surface_audit": true,
+        "exact_PLC_surface_pairs": 0,
+        "exact_incremental_reuse": true,
+        "faces": 41733,
+        "introduced_pairs": [],
+        "no_new_pairs": true,
+        "removed_pairs": [],
+        "scope_limit": "Global exact result: unchanged pairs reuse complete baseline; every pair touching changed faces is re-audited against the full surface.",
+        "status": "EXACT_INCREMENTAL_GLOBAL_SELF_AUDIT",
+        "strict_pair_reduction": false,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "unchanged_baseline_pairs_reused": 0,
+        "unchanged_face_count": 41731
+      }
+    },
+    {
+      "center": [
+        22174,
+        22175,
+        22177,
+        22178,
+        22180,
+        22215,
+        22216,
+        22219
+      ],
+      "exact159_delta": {
+        "cache_matches_original370": true,
+        "new": 13,
+        "old": 15,
+        "per_bank": [
+          {
+            "body": 74,
+            "bone": 104,
+            "new": 13,
+            "old": 15
+          }
+        ],
+        "reduction": 2
+      },
+      "face_rows": [
+        22174,
+        22175,
+        22177,
+        22178,
+        22180,
+        22215,
+        22216,
+        22219
+      ],
+      "new_faces": [
+        [
+          20322,
+          19094,
+          17283
+        ],
+        [
+          15959,
+          19092,
+          20322
+        ],
+        [
+          19094,
+          19092,
+          12694
+        ],
+        [
+          19092,
+          19094,
+          20322
+        ],
+        [
+          19697,
+          20322,
+          17283
+        ],
+        [
+          19697,
+          15959,
+          20322
+        ],
+        [
+          19697,
+          17283,
+          20321
+        ],
+        [
+          15959,
+          19697,
+          20321
+        ]
+      ],
+      "old_faces": [
+        [
+          15959,
+          19697,
+          20321
+        ],
+        [
+          19697,
+          17283,
+          20321
+        ],
+        [
+          19094,
+          20322,
+          12694
+        ],
+        [
+          20322,
+          19092,
+          12694
+        ],
+        [
+          15959,
+          19092,
+          20322
+        ],
+        [
+          19697,
+          15959,
+          20322
+        ],
+        [
+          19094,
+          19697,
+          20322
+        ],
+        [
+          19697,
+          19094,
+          17283
+        ]
+      ],
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 3.7192964337472003,
+          "minimum_area_ratio": 19.145547714450565,
+          "minimum_normal_cosine": 0.3091176215614307
+        },
+        "angle_loss_deg": 1.9476921828739466,
+        "angle_loss_limit_deg": 2.8334943083105735,
+        "before": {
+          "minimum_angle_deg": 5.666988616621147,
+          "minimum_area_ratio": 12.911480735881623,
+          "minimum_normal_cosine": 0.23389478910053543
+        },
+        "deltas": {
+          "area_ratio": 6.234066978568942,
+          "min_angle_deg": -1.9476921828739466,
+          "normal_cosine": 0.07522283246089526
+        },
+        "exact_185_strict_reduction_still_required_downstream": true,
+        "score": [
+          6.234066978568942,
+          0.07522283246089526,
+          -1.9476921828739466
+        ],
+        "strict_quality_gain_required_before_exact_pairs": false,
+        "unchanged_physical_triangles_retained": 4
+      },
+      "round": 1,
+      "self_screen": {
+        "allowed_shared_vertex_or_edge_pairs": 80,
+        "candidate_sha256": "1f9029915025aba852897f2c60f80226ef5c4644284fcd965f84eb0332982a56",
+        "changed_face_aabb_candidate_pairs": 406,
+        "changed_face_exact_pairs": 0,
+        "changed_face_rows": [
+          22174,
+          22175,
+          22177,
+          22178,
+          22180,
+          22216,
+          22219
+        ],
+        "complete_surface_audit": true,
+        "exact_PLC_surface_pairs": 0,
+        "exact_incremental_reuse": true,
+        "faces": 41733,
+        "introduced_pairs": [],
+        "no_new_pairs": true,
+        "removed_pairs": [],
+        "scope_limit": "Global exact result: unchanged pairs reuse complete baseline; every pair touching changed faces is re-audited against the full surface.",
+        "status": "EXACT_INCREMENTAL_GLOBAL_SELF_AUDIT",
+        "strict_pair_reduction": false,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "unchanged_baseline_pairs_reused": 0,
+        "unchanged_face_count": 41726
+      }
+    },
+    {
+      "center": [
+        26490,
+        26492,
+        26496,
+        26500,
+        26592,
+        26593,
+        26602
+      ],
+      "exact159_delta": {
+        "cache_matches_original370": true,
+        "new": 7,
+        "old": 9,
+        "per_bank": [
+          {
+            "body": 124,
+            "bone": 123,
+            "new": 7,
+            "old": 9
+          }
+        ],
+        "reduction": 2
+      },
+      "face_rows": [
+        26490,
+        26492,
+        26496,
+        26500,
+        26592,
+        26593,
+        26602
+      ],
+      "new_faces": [
+        [
+          18899,
+          20359,
+          19389
+        ],
+        [
+          18899,
+          19389,
+          20358
+        ],
+        [
+          20374,
+          19390,
+          20373
+        ],
+        [
+          20358,
+          20374,
+          20373
+        ],
+        [
+          14304,
+          18899,
+          20358
+        ],
+        [
+          14304,
+          20358,
+          20373
+        ],
+        [
+          14304,
+          20373,
+          18899
+        ]
+      ],
+      "old_faces": [
+        [
+          20374,
+          14304,
+          20358
+        ],
+        [
+          14304,
+          19389,
+          20358
+        ],
+        [
+          14304,
+          18899,
+          20359
+        ],
+        [
+          19389,
+          14304,
+          20359
+        ],
+        [
+          18899,
+          14304,
+          20373
+        ],
+        [
+          14304,
+          19390,
+          20373
+        ],
+        [
+          19390,
+          14304,
+          20374
+        ]
+      ],
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 2.0058702541208913,
+          "minimum_area_ratio": 10.389792790700945,
+          "minimum_normal_cosine": 0.23304079762883065
+        },
+        "angle_loss_deg": -0.2059827730332866,
+        "angle_loss_limit_deg": 0.8999437405438023,
+        "before": {
+          "minimum_angle_deg": 1.7998874810876047,
+          "minimum_area_ratio": 7.7397669429696485,
+          "minimum_normal_cosine": 0.3872733849169334
+        },
+        "deltas": {
+          "area_ratio": 2.650025847731296,
+          "min_angle_deg": 0.2059827730332866,
+          "normal_cosine": -0.15423258728810277
+        },
+        "exact_185_strict_reduction_still_required_downstream": true,
+        "score": [
+          2.650025847731296,
+          -0.15423258728810277,
+          0.2059827730332866
+        ],
+        "strict_quality_gain_required_before_exact_pairs": false,
+        "unchanged_physical_triangles_retained": 1
+      },
+      "round": 1,
+      "self_screen": {
+        "allowed_shared_vertex_or_edge_pairs": 66,
+        "candidate_sha256": "1f9029915025aba852897f2c60f80226ef5c4644284fcd965f84eb0332982a56",
+        "changed_face_aabb_candidate_pairs": 424,
+        "changed_face_exact_pairs": 0,
+        "changed_face_rows": [
+          26490,
+          26492,
+          26496,
+          26500,
+          26592,
+          26593,
+          26602
+        ],
+        "complete_surface_audit": true,
+        "exact_PLC_surface_pairs": 0,
+        "exact_incremental_reuse": true,
+        "faces": 41733,
+        "introduced_pairs": [],
+        "no_new_pairs": true,
+        "removed_pairs": [],
+        "scope_limit": "Global exact result: unchanged pairs reuse complete baseline; every pair touching changed faces is re-audited against the full surface.",
+        "status": "EXACT_INCREMENTAL_GLOBAL_SELF_AUDIT",
+        "strict_pair_reduction": false,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "unchanged_baseline_pairs_reused": 0,
+        "unchanged_face_count": 41726
+      }
+    },
+    {
+      "center": [
+        30885,
+        30890
+      ],
+      "exact159_delta": {
+        "cache_matches_original370": true,
+        "new": 5,
+        "old": 7,
+        "per_bank": [
+          {
+            "body": 115,
+            "bone": 118,
+            "new": 5,
+            "old": 7
+          }
+        ],
+        "reduction": 2
+      },
+      "face_rows": [
+        30885,
+        30890
+      ],
+      "new_faces": [
+        [
+          20508,
+          20512,
+          20509
+        ],
+        [
+          20512,
+          20508,
+          18628
+        ]
+      ],
+      "old_faces": [
+        [
+          18628,
+          20509,
+          20508
+        ],
+        [
+          20509,
+          18628,
+          20512
+        ]
+      ],
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 8.96703402125641,
+          "minimum_area_ratio": 8.286283028343396,
+          "minimum_normal_cosine": 0.45582369917754445
+        },
+        "angle_loss_deg": 1.5994752865239636,
+        "angle_loss_limit_deg": 5.0,
+        "before": {
+          "minimum_angle_deg": 10.566509307780374,
+          "minimum_area_ratio": 7.906210837467633,
+          "minimum_normal_cosine": 0.557677403609401
+        },
+        "deltas": {
+          "area_ratio": 0.3800721908757634,
+          "min_angle_deg": -1.5994752865239636,
+          "normal_cosine": -0.10185370443185654
+        },
+        "exact_185_strict_reduction_still_required_downstream": true,
+        "score": [
+          0.3800721908757634,
+          -0.10185370443185654,
+          -1.5994752865239636
+        ],
+        "strict_quality_gain_required_before_exact_pairs": false,
+        "unchanged_physical_triangles_retained": 0
+      },
+      "round": 1,
+      "self_screen": {
+        "allowed_shared_vertex_or_edge_pairs": 42,
+        "candidate_sha256": "1f9029915025aba852897f2c60f80226ef5c4644284fcd965f84eb0332982a56",
+        "changed_face_aabb_candidate_pairs": 85,
+        "changed_face_exact_pairs": 0,
+        "changed_face_rows": [
+          30885,
+          30890
+        ],
+        "complete_surface_audit": true,
+        "exact_PLC_surface_pairs": 0,
+        "exact_incremental_reuse": true,
+        "faces": 41733,
+        "introduced_pairs": [],
+        "no_new_pairs": true,
+        "removed_pairs": [],
+        "scope_limit": "Global exact result: unchanged pairs reuse complete baseline; every pair touching changed faces is re-audited against the full surface.",
+        "status": "EXACT_INCREMENTAL_GLOBAL_SELF_AUDIT",
+        "strict_pair_reduction": false,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "unchanged_baseline_pairs_reused": 0,
+        "unchanged_face_count": 41731
+      }
+    },
+    {
+      "center": [
+        13129,
+        13130,
+        13132,
+        13137,
+        13138
+      ],
+      "exact159_delta": {
+        "cache_matches_original370": true,
+        "new": 29,
+        "old": 30,
+        "per_bank": [
+          {
+            "body": 57,
+            "bone": 89,
+            "new": 29,
+            "old": 30
+          }
+        ],
+        "reduction": 1
+      },
+      "face_rows": [
+        13129,
+        13130,
+        13132,
+        13137,
+        13138
+      ],
+      "new_faces": [
+        [
+          13609,
+          18437,
+          19890
+        ],
+        [
+          13609,
+          19890,
+          19900
+        ],
+        [
+          19260,
+          18437,
+          16631
+        ],
+        [
+          19260,
+          16631,
+          19890
+        ],
+        [
+          19260,
+          19890,
+          18437
+        ]
+      ],
+      "old_faces": [
+        [
+          19890,
+          19260,
+          16631
+        ],
+        [
+          18437,
+          19260,
+          13609
+        ],
+        [
+          19260,
+          18437,
+          16631
+        ],
+        [
+          19260,
+          19900,
+          13609
+        ],
+        [
+          19890,
+          19900,
+          19260
+        ]
+      ],
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 14.811501979690217,
+          "minimum_area_ratio": 65.46125533241786,
+          "minimum_normal_cosine": 0.5178646642179906
+        },
+        "angle_loss_deg": -0.12328978327668771,
+        "angle_loss_limit_deg": 5.0,
+        "before": {
+          "minimum_angle_deg": 14.688212196413529,
+          "minimum_area_ratio": 19.36607741681138,
+          "minimum_normal_cosine": 0.6585194037607324
+        },
+        "deltas": {
+          "area_ratio": 46.095177915606484,
+          "min_angle_deg": 0.12328978327668771,
+          "normal_cosine": -0.14065473954274177
+        },
+        "exact_185_strict_reduction_still_required_downstream": true,
+        "score": [
+          46.095177915606484,
+          -0.14065473954274177,
+          0.12328978327668771
+        ],
+        "strict_quality_gain_required_before_exact_pairs": false,
+        "unchanged_physical_triangles_retained": 2
+      },
+      "round": 2,
+      "self_screen": {
+        "allowed_shared_vertex_or_edge_pairs": 48,
+        "candidate_sha256": "1f9029915025aba852897f2c60f80226ef5c4644284fcd965f84eb0332982a56",
+        "changed_face_aabb_candidate_pairs": 896,
+        "changed_face_exact_pairs": 0,
+        "changed_face_rows": [
+          13129,
+          13130,
+          13137,
+          13138
+        ],
+        "complete_surface_audit": true,
+        "exact_PLC_surface_pairs": 0,
+        "exact_incremental_reuse": true,
+        "faces": 41733,
+        "introduced_pairs": [],
+        "no_new_pairs": true,
+        "removed_pairs": [],
+        "scope_limit": "Global exact result: unchanged pairs reuse complete baseline; every pair touching changed faces is re-audited against the full surface.",
+        "status": "EXACT_INCREMENTAL_GLOBAL_SELF_AUDIT",
+        "strict_pair_reduction": false,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "unchanged_baseline_pairs_reused": 0,
+        "unchanged_face_count": 41729
+      }
+    },
+    {
+      "center": [
+        30885,
+        30886,
+        30888,
+        30890,
+        30894,
+        30922,
+        30954,
+        30984,
+        30985,
+        30998
+      ],
+      "exact159_delta": {
+        "cache_matches_original370": true,
+        "new": 20,
+        "old": 22,
+        "per_bank": [
+          {
+            "body": 115,
+            "bone": 118,
+            "new": 20,
+            "old": 22
+          }
+        ],
+        "reduction": 2
+      },
+      "face_rows": [
+        30885,
+        30886,
+        30888,
+        30890,
+        30894,
+        30922,
+        30954,
+        30984,
+        30985,
+        30998
+      ],
+      "new_faces": [
+        [
+          19145,
+          20523,
+          19538
+        ],
+        [
+          19149,
+          19145,
+          19538
+        ],
+        [
+          20508,
+          20523,
+          15020
+        ],
+        [
+          20523,
+          20508,
+          19538
+        ],
+        [
+          20508,
+          20509,
+          19538
+        ],
+        [
+          20508,
+          18627,
+          18628
+        ],
+        [
+          18624,
+          18627,
+          15020
+        ],
+        [
+          18627,
+          20508,
+          15020
+        ],
+        [
+          20512,
+          20508,
+          18628
+        ],
+        [
+          20508,
+          20512,
+          20509
+        ]
+      ],
+      "old_faces": [
+        [
+          20508,
+          20512,
+          20509
+        ],
+        [
+          20508,
+          15020,
+          18624
+        ],
+        [
+          19538,
+          20508,
+          20509
+        ],
+        [
+          20512,
+          20508,
+          18628
+        ],
+        [
+          18627,
+          18628,
+          20508
+        ],
+        [
+          18627,
+          20508,
+          18624
+        ],
+        [
+          20508,
+          19145,
+          20523
+        ],
+        [
+          19149,
+          20508,
+          19538
+        ],
+        [
+          20508,
+          19149,
+          19145
+        ],
+        [
+          15020,
+          20508,
+          20523
+        ]
+      ],
+      "quality": {
+        "after": {
+          "minimum_angle_deg": 4.870410393099367,
+          "minimum_area_ratio": 1.1316473664141111,
+          "minimum_normal_cosine": 0.22957428883801445
+        },
+        "angle_loss_deg": -2.1138717052328553,
+        "angle_loss_limit_deg": 1.3782693439332558,
+        "before": {
+          "minimum_angle_deg": 2.7565386878665117,
+          "minimum_area_ratio": 0.4388414106296136,
+          "minimum_normal_cosine": 0.3139353341340128
+        },
+        "deltas": {
+          "area_ratio": 0.6928059557844974,
+          "min_angle_deg": 2.1138717052328553,
+          "normal_cosine": -0.08436104529599836
+        },
+        "exact_185_strict_reduction_still_required_downstream": true,
+        "score": [
+          0.6928059557844974,
+          -0.08436104529599836,
+          2.1138717052328553
+        ],
+        "strict_quality_gain_required_before_exact_pairs": false,
+        "unchanged_physical_triangles_retained": 5
+      },
+      "round": 2,
+      "self_screen": {
+        "allowed_shared_vertex_or_edge_pairs": 123,
+        "candidate_sha256": "1f9029915025aba852897f2c60f80226ef5c4644284fcd965f84eb0332982a56",
+        "changed_face_aabb_candidate_pairs": 414,
+        "changed_face_exact_pairs": 0,
+        "changed_face_rows": [
+          30885,
+          30886,
+          30888,
+          30890,
+          30894,
+          30922,
+          30954,
+          30984,
+          30985,
+          30998
+        ],
+        "complete_surface_audit": true,
+        "exact_PLC_surface_pairs": 0,
+        "exact_incremental_reuse": true,
+        "faces": 41733,
+        "introduced_pairs": [],
+        "no_new_pairs": true,
+        "removed_pairs": [],
+        "scope_limit": "Global exact result: unchanged pairs reuse complete baseline; every pair touching changed faces is re-audited against the full surface.",
+        "status": "EXACT_INCREMENTAL_GLOBAL_SELF_AUDIT",
+        "strict_pair_reduction": false,
+        "surface_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "unchanged_baseline_pairs_reused": 0,
+        "unchanged_face_count": 41723
+      }
+    }
+  ],
+  "accepted_physical_steps": 0,
+  "after_pairs_composed": 878,
+  "before_pairs": 901,
+  "coordinates_unchanged": true,
+  "exact_triangle_calls": 2267,
+  "input_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/restore-620/candidate.npz",
+  "input_candidate_sha256": "1f9029915025aba852897f2c60f80226ef5c4644284fcd965f84eb0332982a56",
+  "input_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-004-from1002/round-001/final/state.json",
+  "input_state_sha256": "f5deced140892edd3f43155c83d92e41c8522ae7f21fc85fedec26bc7c8f4170",
+  "limitations": [
+    "Construction only; full130/159, refreshed affine ancestry and skin/fat physical compiler remain mandatory.",
+    "Pair counts for unchanged faces reuse the pinned complete base audit.",
+    "No motion, mass, physical contact or native qualification claimed."
+  ],
+  "native_admission": false,
+  "output_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-007-from901-recovered-space/search/candidate.npz",
+  "output_candidate_sha256": "699727ec76fa4d7c30448e42382a5b3052e8a5c8029ffcd85b58e592557b0faf",
+  "point_ids_unchanged": true,
+  "quality_proposal_count": 40868,
+  "reduction": 23,
+  "rejections": {
+    "exact_no_bankwise_reduction": 2133,
+    "exact_self_intersection": 122,
+    "external_edge": 1626,
+    "overlap_in_batch": 423,
+    "patch_preflight:boundary count 49 exceeds max_boundary=48": 6,
+    "patch_preflight:boundary count 50 exceeds max_boundary=48": 8,
+    "patch_preflight:boundary count 51 exceeds max_boundary=48": 15,
+    "patch_preflight:boundary count 52 exceeds max_boundary=48": 6,
+    "patch_preflight:boundary count 53 exceeds max_boundary=48": 10,
+    "patch_preflight:boundary count 55 exceeds max_boundary=48": 3,
+    "patch_preflight:boundary count 56 exceeds max_boundary=48": 3,
+    "patch_preflight:boundary count 58 exceeds max_boundary=48": 3,
+    "patch_preflight:boundary count 60 exceeds max_boundary=48": 3,
+    "patch_preflight:boundary count 61 exceeds max_boundary=48": 3,
+    "patch_preflight:boundary count 62 exceeds max_boundary=48": 7,
+    "patch_preflight:boundary count 63 exceeds max_boundary=48": 3,
+    "patch_preflight:boundary count 64 exceeds max_boundary=48": 4,
+    "patch_preflight:boundary count 65 exceeds max_boundary=48": 4,
+    "patch_preflight:boundary count 66 exceeds max_boundary=48": 2,
+    "patch_preflight:boundary count 68 exceeds max_boundary=48": 3,
+    "patch_preflight:boundary count 78 exceeds max_boundary=48": 1,
+    "patch_preflight:patch boundary is not one simple cycle": 6,
+    "patch_preflight:patch boundary is open, branched, or repeated": 248,
+    "quality_angle_loss_bound": 1991,
+    "quality_fixed037_area_floor": 794,
+    "quality_new_face_not_aligned_to_fixed037": 27653,
+    "quality_nonfinite_quality_metrics": 8117
+  },
+  "rounds": [
+    {
+      "accepted": 8,
+      "deadline": false,
+      "pairs": 881,
+      "round": 1
+    },
+    {
+      "accepted": 2,
+      "deadline": false,
+      "pairs": 878,
+      "round": 2
+    },
+    {
+      "accepted": 0,
+      "deadline": true,
+      "pairs": 878,
+      "round": 3
+    }
+  ],
+  "runtime_source_pins": {
+    "bank_reader_and_summary": "37c040a442f1fdf312745c1cc1fb6c543383f1cd0782db46c81ca1eadf0d8324",
+    "exact_predicate_315": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+    "flip_operator_358": "a08e1f7e6392854f72ffab09af6f2b1f2afe885b1a84f586afe71160ff3ccbee",
+    "surface_audit_159": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+  },
+  "seconds": 100.69041625014506,
+  "self_pair_count_incremental": 0,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-remesh-reuse-370/select_bone_reducing_flips_370.py": "c8650b8c311ca8f386ebf1713b5fc285b7bded860cfa878192472704ac1336d5",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/repair_focused_clearance_541.py": "26930be05518834f02724948cffa5ff74719f070a4ac4e4917b0965f42a412aa",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-408/exact_global_incremental_flip_search_409.py": "64f05be466d672266d4265185c895fecc70113d476f69e7a1c6dc3af8ec514a8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-408/incremental_exact_flip_check_408.py": "01026156cccd5c1742e2edcaa6288f64f888731424dfb6337831412701020711",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/changed-triangle-quality-572/changed_triangle_masks572.py": "6f046d1960e3626368ae210e9685d4d33276c149797fae7691de6ace85e948cf",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-patch-570/patch_candidates570.py": "5e309fd361ac99de50f1d3f9aeca8d5f5711a406969525c09a1a80481bf0861d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/star_candidates569.py": "81b33966ba0c2182c86d2a6d66862064105cf48e91c2efe0cfcc0ef6359d1b2c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/connected_candidates580.py": "53284b811b71bbaf5f29397df38714b35addd568ffff49fdb23c8a57b6a9c584",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/search_connected580.py": "6aa19e839738bcafb14db12896cf5eafc9777ee5d3e668a44779e13b6439b9da",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-patch-577/harmonic_candidates577.py": "5352353ae6ef692d4ad340a82fd07494fa4dc0218fd997f6d9d5ebab93ca5803",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/regional-patch-571/regional_candidates571.py": "48d53b5516bc4e604a8c8bbfb7b100039e2646b3efcc2298010ed957fc9c3cfc",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/cached_counter569_v2.py": "1a19339d5f6004d36c38d0b22a29a5b6a644f911d3091194ee59396216f30e6e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py": "91e60eda6c6ed4a39fb3d9cc226af87743101b22da9c32c5229030ac6cd4cd8a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology-policy-root-v6/quality_policy025_variant.py": "2ce11405c178379325d98fe76171010015eac5bc46b2c12d9813676afcd9970a"
+  },
+  "status": "CONNECTED_REGIONAL_PATCH_CONSTRUCTION_PENDING_FULL_AUDITS",
+  "typed_anchors": 237,
+  "typed_banks": 185
+}

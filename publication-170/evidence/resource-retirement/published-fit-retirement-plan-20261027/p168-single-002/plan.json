@@ -1,0 +1,16 @@
+{
+  "target": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-002/round-001/fit-000/report.json",
+  "original_sha256": "6bb4b0bd0ca665237bebedb1fa233254e32e8d7204884f8b523d42e4e95b6e7d",
+  "bytes": 46531768,
+  "allocated_bytes": 46534656,
+  "dev": 16777231,
+  "ino": 5218321,
+  "nlink": 1,
+  "mtime_ns": 1793075068901570138,
+  "ctime_ns": 1793075068901570138,
+  "remote_commit": "928bbd8599c11a9a58ed4121a64c05c815083301",
+  "remote_path": "publication-168/evidence/compression-preservation/619-run-002-fit-000/fit-report.json.zst",
+  "active_launch_has_no_target_reference": true,
+  "lsof_open_consumers": 0,
+  "native_admission": false
+}

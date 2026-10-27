@@ -1,0 +1,30 @@
+{"base_sha256":"373ffd4f730ff65f103dfdb3ce359ac92f3ef2cf14995d6cc7209e15162913d2","event":"fit-start","fit":0,"round":1}
+{"event":"fit-checked","fit":0,"round":1,"self_pairs":443,"status":"FAILED"}
+{"base_sha256":"373ffd4f730ff65f103dfdb3ce359ac92f3ef2cf14995d6cc7209e15162913d2","event":"fit-start","fit":1,"round":1}
+{"event":"fit-checked","fit":1,"round":1,"self_pairs":117,"status":"FAILED"}
+{"base_sha256":"373ffd4f730ff65f103dfdb3ce359ac92f3ef2cf14995d6cc7209e15162913d2","event":"fit-start","fit":2,"round":1}
+{"event":"fit-checked","fit":2,"round":1,"self_pairs":27,"status":"FAILED"}
+{"event":"retention-start","round":1,"target_sha256":"db23eb9f40432974b2d8d737894c1ffedb8a6221ea96e4e25fa490884c8e30dd"}
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v6.py", line 656, in <module>
+    if __name__=="__main__": raise SystemExit(main())
+                                              ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v6.py", line 655, in main
+    result=run(a);emit("complete",status=result["status"],rounds=len(result["rounds"]));return 0
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v6.py", line 608, in run
+    writej(rd/"round-report.json",row);results.append(row)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v6.py", line 51, in writej
+    p.write_text(json.dumps(x,indent=2,sort_keys=True,allow_nan=False)+"\n")
+                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/__init__.py", line 242, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/encoder.py", line 202, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/encoder.py", line 263, in iterencode
+    return _iterencode(o, 0)
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/encoder.py", line 182, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type PosixPath is not JSON serializable

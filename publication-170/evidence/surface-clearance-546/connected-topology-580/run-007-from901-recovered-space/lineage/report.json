@@ -1,0 +1,68 @@
+{
+  "accepted_physical_steps": 0,
+  "audit": {
+    "Q_times_P_max_abs_source_weight_error": 1.1102230246251565e-16,
+    "Q_to_canonical037_max_abs_point_error_m": 2.220446049250313e-16,
+    "canonical037_candidate_sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+    "coordinate_fit_or_least_squares_used": false,
+    "face_barycentric_values_derived_from_exact_Q": true,
+    "maximum_stale_barycentric_component_delta": 0.0,
+    "multi_parent_ancestry_length_counts": {
+      "10": 38,
+      "11": 12,
+      "13": 29,
+      "15": 54,
+      "16": 14,
+      "2": 533,
+      "25": 28,
+      "26": 9,
+      "28": 28,
+      "3": 193,
+      "4": 179,
+      "5": 45,
+      "6": 87,
+      "7": 29,
+      "8": 79,
+      "9": 18
+    },
+    "multi_parent_face_count": 1375,
+    "parent_P_matches_archived_P_bitwise": true,
+    "parent_candidate_sha256": "5a7239e62cbc0cf461440a48a8c4747d7d733eec630d63cf9e08682009593cc6",
+    "parent_face_count": 36815,
+    "parent_row_27587_nodes": [
+      15020,
+      9913,
+      17779
+    ],
+    "rule": "old node uses exact one-hot parent-face membership; new node uses immediate-Q row support restricted to the pinned parent-face node rows",
+    "singleton_parent_face_count": 40358,
+    "stale_singleton_face_barycentric_count": 0,
+    "stale_singleton_face_rows": [],
+    "unmapped_singleton_face_count": 0
+  },
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-007-from901-recovered-space/lineage/candidate.npz",
+  "candidate_sha256": "699727ec76fa4d7c30448e42382a5b3052e8a5c8029ffcd85b58e592557b0faf",
+  "changed_fields": [],
+  "coordinates_and_connectivity_bitwise_unchanged": true,
+  "input_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-007-from901-recovered-space/search/candidate.npz",
+  "input_sha256": "699727ec76fa4d7c30448e42382a5b3052e8a5c8029ffcd85b58e592557b0faf",
+  "native_admission": false,
+  "repair": {
+    "barycentric_values_regenerated_from_pinned_parent_Q": true,
+    "changed_row_count": 0,
+    "changed_rows": [],
+    "coordinate_fit_or_least_squares_used": false,
+    "remaining_singleton_mismatches": 0,
+    "rows_rebuilt_from_pinned_parent_and_Q": 40358
+  },
+  "requires_full_geometry_recheck_for_emitted_candidate": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-402/two_parent_patch_flips_402.py": "f68271083bbb97905487f7571ded8264fde1b575759feaf4f5aadf9c42076764",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/local-two-parent-retriangulation-405/cross_seam_search_405.py": "e995a2f460e60cb62fb24b80af400678757f62a2b0c1b51141bf0ef387993967",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/affine-ancestry-refresh-566/rebuild_affine_rows566.py": "79a808bb3fa0e0cb6216e9fe91752335cec214e7958a5bd08222519b407ebb65",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/frozen-v4/diagnose_reference_degeneracy_557.py": "aecbb82aca291172de54b1529ca217100c935380afed03c057c868d7bcec5798",
+    "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-037-local-refinement-006-prep/run-001/refined-candidate.npz": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-108/evidence/outward-surface-resume-264/pass-001/candidate.npz": "5a7239e62cbc0cf461440a48a8c4747d7d733eec630d63cf9e08682009593cc6"
+  },
+  "status": "AFFINE_ANCESTRY_REGENERATED_GEOMETRY_IDENTICAL"
+}

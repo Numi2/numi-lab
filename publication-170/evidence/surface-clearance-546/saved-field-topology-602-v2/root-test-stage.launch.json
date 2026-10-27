@@ -1,0 +1,18 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-topology-602-v2",
+    "-p",
+    "test_merge_saved_field602_v2.py"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-topology-602-v2/test_merge_saved_field602_v2.py": "72f9a64b0b3c206c21444692c7aad386e85d80ad2af014b1714a2fcbd1568e2b"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "numi.human.surface_clearance.p169.publication_receipt.v1",
+  "repository": "Numi2/numi-lab",
+  "branch": "main",
+  "commit": "ff83a29f52cc23e6a51839af0b1e818f20103d3f",
+  "parent": "928bbd8599c11a9a58ed4121a64c05c815083301",
+  "root_tree": "9e583a09044fd04f612a802518fd931131ce6186",
+  "publication_subtree": "4a8cab12dbc657a3420fde6ffbd37647e7fbb671",
+  "manifest_sha256": "c35db7825bcc1586eee18e456f2309297719fb7a3373398e0cf980f3ec95d4cf",
+  "manifest_bytes": 155981,
+  "member_count": 600,
+  "member_bytes": 337509661,
+  "published_blob_count_including_manifest": 601,
+  "published_bytes_including_manifest": 337665642,
+  "remote_main_at_verification": "ff83a29f52cc23e6a51839af0b1e818f20103d3f",
+  "remote_verification": {
+    "tree_path_count": 601,
+    "tree_truncated": false,
+    "git_mode": "100644 for all 601 non-executable files",
+    "root_siblings_equal_parent": true,
+    "local_git_blob_sha_matches_remote_tree_blob_sha": true,
+    "fresh_remote_raw_content_sha256_and_size_checks": 601,
+    "content_mismatches": 0,
+    "note": "The raw-content phase completed for all 601 paths before the initial verifier stopped in archive-save handling due to a local tuple/dict indexing bug. The follow-up archive recovery is independently attested by the root recovery receipt below."
+  },
+  "archive_recovery": {
+    "recovery_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/published-fit-retirement-plan-20261027/p169-archives-003/recovery.json",
+    "recovery_receipt_sha256": "d977fe24971d62a3121f51e3e4701bf7a24b5fb2d551ce2826f97e9617906056",
+    "archives_freshly_downloaded_hash_checked_and_restored": 5,
+    "restore_checks": "original SHA-256, byte count, mode, and mtime verified; reports JSON-valid",
+    "retirement_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/published-fit-retirement-plan-20261027/p169-archives-003/execution.json",
+    "retired_source_plaintexts": 5,
+    "allocated_bytes_freed": 235470848
+  },
+  "shared_checkout": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "branch": "numi-human-aortic-contact-perf",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "status_porcelain_v1_uall_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814",
+    "status": "unchanged"
+  },
+  "published_utc": "2026-10-27T05:42:07.359Z"
+}

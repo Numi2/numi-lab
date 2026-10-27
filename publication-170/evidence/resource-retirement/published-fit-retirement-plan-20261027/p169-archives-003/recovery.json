@@ -1,0 +1,45 @@
+{
+  "status": "ALL5_FRESH_IMMUTABLE_REMOTE_FILESYSTEM_RECOVERIES_PASS",
+  "proof": [
+    {
+      "remote_path": "publication-169/evidence/compression-preservation/619-run-003/round001-fit000-report.json.zst",
+      "git_blob_sha1": "5af5c2035555fcadc913254f1d41b5a853fb78cd",
+      "archive_sha256": "6996947b62dc1d97f37f3c542686b29d15ed2b8f18c52345c2bce640b038f8af",
+      "original_sha256": "5879ec1794202b0a02d05c3b7da1c173f9b9c3fbb79735a4422dd58e389da92b",
+      "bytes": 47049620,
+      "fresh_remote_filesystem_restore_exact": true
+    },
+    {
+      "remote_path": "publication-169/evidence/compression-preservation/619-run-003/round001-cutmerge001-fit-report.json.zst",
+      "git_blob_sha1": "6d15506abf4f5a4295fc461077541f176d21fffc",
+      "archive_sha256": "e27342520182fbd0d1eded6ee59bc77e9c196ece8256b6352d05d891e0ff5237",
+      "original_sha256": "9749b6d32d52200c4aa0bedf0db71b62b53cbb6820e030de10f8fcec2b0137c1",
+      "bytes": 47410776,
+      "fresh_remote_filesystem_restore_exact": true
+    },
+    {
+      "remote_path": "publication-169/evidence/compression-preservation/619-run-003/round001-cutmerge002-fit-report.json.zst",
+      "git_blob_sha1": "fabae8021f90d902c72484b4ad2083993855a5ad",
+      "archive_sha256": "df16688d33ab701ae86d671480d812084cb4d70bb1a5517d905e251f9cceba66",
+      "original_sha256": "72e6b9e39611569752bc7725ed09a77c3e0f5287285dd48fd3e8122519dd982d",
+      "bytes": 47518627,
+      "fresh_remote_filesystem_restore_exact": true
+    },
+    {
+      "remote_path": "publication-169/evidence/compression-preservation/619-run-003/round002-fit000-report.json.zst",
+      "git_blob_sha1": "87a7605acb0353de5b9a097fe53c0f9fdeba88e6",
+      "archive_sha256": "3b00a5341a7eb505dd41733da6e4b9e1ae2575a64d1035d61e8cbbae78fb4364",
+      "original_sha256": "31ad2c50121c944546d5373874ff2f835d1705bf666f2c2391eda92072a21f1b",
+      "bytes": 47731506,
+      "fresh_remote_filesystem_restore_exact": true
+    },
+    {
+      "remote_path": "publication-169/evidence/compression-preservation/626-from-621v2-fit-000/fit-report.json.zst",
+      "git_blob_sha1": "732e2eabb909355ad6fd7cdb0becf0da3733a049",
+      "archive_sha256": "786087f5009a614d01bbf2f09a5ecaf8d28c44e4c11c9e74952d462ed9d2a1b8",
+      "original_sha256": "7a3730a7a7cf35685ca22bc13d7ff9ab03410d9510e56eaca890f4d631383f4c",
+      "bytes": 45750625,
+      "fresh_remote_filesystem_restore_exact": true
+    }
+  ]
+}

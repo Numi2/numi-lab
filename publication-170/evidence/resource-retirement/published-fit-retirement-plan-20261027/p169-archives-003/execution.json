@@ -1,0 +1,11 @@
+{
+  "status": "COMPLETE_VERIFIED_PUBLISHED_FULL_REPORT_RETIREMENT",
+  "files": 5,
+  "original_allocated_bytes": 235470848,
+  "available_before": 437583872,
+  "available_after": 673001472,
+  "all5_paths_absent": true,
+  "plan_sha256": "0f62467184a4aa2ed29dd121e857f300e208d2f50a4a99536d0bc96f63999ac9",
+  "recovery_sha256": "d977fe24971d62a3121f51e3e4701bf7a24b5fb2d551ce2826f97e9617906056",
+  "sources_assets_current_evidence_or_compact_traces_deleted": false
+}
