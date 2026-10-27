@@ -1,0 +1,125 @@
+{
+  "schema": "numi.human.b74_104_bone_cap_canonical_correction_summary.v1",
+  "scope": "One corrected planar clipped-bone-cap construction; no 3D fit or local collision test after planar coverage failed.",
+  "input_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "exact_segment_graph_sha256": "06688d88c9aa85288d36dba534f79dfa98251a835229598f17d9f2e08c57394c",
+  "preserved_005_failure_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/steiner-multinode-005-bone-cap/cap-planar-report.json",
+  "preserved_005_failure_report_sha256": "c499eb88657d0428cef30b02b230409f3ff0ec5cdb89c2a51876550194aef62a",
+  "read_only_005_diagnostic_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/steiner-multinode-005-bone-cap/clip-diagnostic.json",
+  "read_only_005_diagnostic_sha256": "a3dbbbc689f82141c7ea3b9c2db75f28482c7306042e195b7d9a67223b26c6fe",
+  "corrected_script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/steiner-multinode-006-bone-cap-canonical/clip_bone_cap_canonical.py",
+  "corrected_script_sha256": "422aa458bfe322965db366911a65e15c19a77bd9d6157dec8f59ad9a45e7f00b",
+  "corrected_planar_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/steiner-multinode-006-bone-cap-canonical/cap-planar-report.json",
+  "corrected_planar_report_sha256": "3fe22817a5b4db1e835edb4215b8d0f5bc37b2afa52435fa733ad5d46edfc0fb",
+  "endpoint_and_cycle_corrections": [
+    "canonicalize cut-edge/vertex endpoints to contour c tokens within the existing 1e-6 m endpoint-match tolerance",
+    "return exact bone vertex token when a clipped edge intersection lands on a plane vertex",
+    "rotate the cyclic clipped polygon before replacing its cut edge to avoid qj==0 polygon duplication"
+  ],
+  "unchanged_plane_vertex_tolerance_m": 2e-09,
+  "diagnostic_endpoint_match_tolerance_m": 1e-06,
+  "input_bone_topology": {
+    "triangle_count": 314,
+    "canonical_float32_vertex_count": 159,
+    "undirected_edge_count": 471,
+    "all_edge_incidence_two": true,
+    "consistently_oriented": true,
+    "duplicate_face_count": 0,
+    "zero_area_face_count": 0
+  },
+  "corrected_side_results": [
+    {
+      "side_sign": 1,
+      "selected_face_count": 203,
+      "physical_surface_area_m2": 0.0006797759224546636,
+      "projected_area_barycentric2": 2.5221693895346755,
+      "contour_area_barycentric2": 0.3214222487641143,
+      "projected_area_error": 2.200747140770561,
+      "boundary_edge_count": 25,
+      "boundary_edges_match_exact_contour": true,
+      "internal_edge_incidence_valid": true,
+      "barycentric_source_ancestry_valid": false,
+      "projected_orientation_consistent": false,
+      "all_face_centroids_inside_contour": false,
+      "projected_edge_crossings": [
+        [
+          "(('c', 0), ('c', 1))",
+          "(('v', 72), ('v', 74))"
+        ]
+      ],
+      "projected_t_junctions": [],
+      "planar_pass": false
+    },
+    {
+      "side_sign": -1,
+      "selected_face_count": 161,
+      "physical_surface_area_m2": 0.00029002374535731215,
+      "projected_area_barycentric2": 1.4072532352696976,
+      "contour_area_barycentric2": 0.3214222487641143,
+      "projected_area_error": 1.0858309865055833,
+      "boundary_edge_count": 25,
+      "boundary_edges_match_exact_contour": true,
+      "internal_edge_incidence_valid": true,
+      "barycentric_source_ancestry_valid": false,
+      "projected_orientation_consistent": false,
+      "all_face_centroids_inside_contour": false,
+      "projected_edge_crossings": [
+        [
+          "(('c', 1), ('v', 46))",
+          "(('c', 5), ('c', 6))"
+        ],
+        [
+          "(('c', 1), ('v', 46))",
+          "(('c', 6), ('v', 48))"
+        ],
+        [
+          "(('c', 1), ('v', 46))",
+          "(('c', 10), ('v', 48))"
+        ]
+      ],
+      "projected_t_junctions": [],
+      "planar_pass": false
+    }
+  ],
+  "status": "FAIL_NO_COHERENT_CLIPPED_BONE_CAP",
+  "selected_cap_planar_pass": false,
+  "selected_cap_face_count": 0,
+  "candidate_payload_emitted": false,
+  "downstream_3d_exact_checks_run": false,
+  "corrected_boundary_components": [
+    {
+      "side_sign": 1,
+      "clipped_triangle_count": 203,
+      "connected_component_count": 1,
+      "components": [
+        {
+          "face_count": 203,
+          "boundary_edge_count": 25,
+          "boundary_edges_match_exact_contour": true,
+          "internal_edge_incidence_valid": true,
+          "boundary_mismatch": {
+            "missing": [],
+            "extra": []
+          }
+        }
+      ]
+    },
+    {
+      "side_sign": -1,
+      "clipped_triangle_count": 161,
+      "connected_component_count": 1,
+      "components": [
+        {
+          "face_count": 161,
+          "boundary_edge_count": 25,
+          "boundary_edges_match_exact_contour": true,
+          "internal_edge_incidence_valid": true,
+          "boundary_mismatch": {
+            "missing": [],
+            "extra": []
+          }
+        }
+      ]
+    }
+  ]
+}

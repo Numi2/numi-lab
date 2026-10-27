@@ -1,0 +1,10 @@
+waiting_for_human_geometry_slot pid=94330
+acquired_human_geometry_slot pid=94330
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-003/ring_clearance_check.py", line 47, in <module>
+    q=exact_segment_triangle(p0,p1,BTfrac[j])
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-002/boundary_feasibility.py", line 58, in exact_segment_triangle
+    q=add(p0,mul(t,sub(p1,p0)))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'set' object is not callable

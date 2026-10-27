@@ -1,0 +1,47 @@
+{
+  "schema": "numi.human.p187_evidence_manifest.v1",
+  "parent_commit": "189c931242a64cc167b40c3fc006b16018d93914",
+  "status": "construction evidence only; no physical or native admission",
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "5a041ca590d666a097f393f42ad0a6e418f73b86cc7284f0039ae3d40df3ca94",
+      "bytes": 1510
+    },
+    {
+      "path": "b43-16-boundary-expansion/ring-clearance-check-rerun.json",
+      "sha256": "b03cb71ce389368b500a80e60869acc8e86b4b07852d860aca1f9463f67e9656",
+      "bytes": 4623
+    },
+    {
+      "path": "b43-16-boundary-expansion/ring-clearance-check.log",
+      "sha256": "5ae58e7d9d02315e003bbc321cf4a5c10317ae6e301ff480314192d1becc2845",
+      "bytes": 728
+    },
+    {
+      "path": "b43-16-boundary-expansion/ring-clearance-rerun.log",
+      "sha256": "2f06a92a87a0446ec8edacb0383ea34843a55bd39ca4643f1950f759a06c452b",
+      "bytes": 3528
+    },
+    {
+      "path": "b43-16-boundary-expansion/ring_clearance_check.py",
+      "sha256": "ad52fbf7257bc5dba2f00c5a033515805782ca4db9118bed7a4d1f29aa98455f",
+      "bytes": 7340
+    },
+    {
+      "path": "b74-104-canonical-cap/cap-planar-report.json",
+      "sha256": "3fe22817a5b4db1e835edb4215b8d0f5bc37b2afa52435fa733ad5d46edfc0fb",
+      "bytes": 14993
+    },
+    {
+      "path": "b74-104-canonical-cap/clip_bone_cap_canonical.py",
+      "sha256": "422aa458bfe322965db366911a65e15c19a77bd9d6157dec8f59ad9a45e7f00b",
+      "bytes": 20681
+    },
+    {
+      "path": "b74-104-canonical-cap/correction-summary.json",
+      "sha256": "2b25443893c9e23d10e9a37e321e3e9c5780611eb574bf8770cca40d92bcc7b3",
+      "bytes": 5298
+    }
+  ]
+}

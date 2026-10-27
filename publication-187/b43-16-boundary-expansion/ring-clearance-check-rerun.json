@@ -1,0 +1,149 @@
+{
+  "schema": "numi.human.bank43_16.ring_clearance_screen.v1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "seed_patch_face_rows_sha256": "ad2fb608a536ab8396b781baab4b01f62fc8ae1da81ad533fcb6a4c281131085",
+  "target_bank": [
+    43,
+    16
+  ],
+  "ring_expansion": "1 and 2 contiguous edge-adjacent face rings; no coordinates moved",
+  "rings": [
+    {
+      "ring_level": 0,
+      "patch_faces": 434,
+      "boundary_edges": 54,
+      "boundary_nodes": 54,
+      "boundary_components": 1,
+      "boundary_component_node_counts": [
+        54
+      ],
+      "boundary_degree_histogram": {
+        "2": 54
+      },
+      "simple_single_loop": true,
+      "boundary_inside_node_count": 0,
+      "minimum_boundary_node_distance_mm": 0.0591361595713313,
+      "minimum_boundary_node": {
+        "node": 19051,
+        "inside": false,
+        "winding": 4.859180763347039e-16,
+        "nearest_bone_face": 133,
+        "distance_mm": 0.0591361595713313
+      },
+      "exact_target_bone_boundary_edge_hits": 0,
+      "target_bone_edge_hit_witnesses": [],
+      "minimum_boundary_edge_distance_mm": 0.01487845570713246,
+      "minimum_boundary_edge": {
+        "edge": [
+          12578,
+          19051
+        ],
+        "inside_faces": [
+          19232
+        ],
+        "outside_faces": [
+          19259
+        ],
+        "nearest_bone_face": 134,
+        "distance_mm": 0.01487845570713246
+      },
+      "stored_crossing_touch_count": 0,
+      "stored_crossing_touch_by_bank": {},
+      "stored_crossing_touch_witnesses": [],
+      "added_faces_for_next_ring": 40
+    },
+    {
+      "ring_level": 1,
+      "patch_faces": 474,
+      "boundary_edges": 36,
+      "boundary_nodes": 36,
+      "boundary_components": 1,
+      "boundary_component_node_counts": [
+        36
+      ],
+      "boundary_degree_histogram": {
+        "2": 36
+      },
+      "simple_single_loop": true,
+      "boundary_inside_node_count": 0,
+      "minimum_boundary_node_distance_mm": 0.06738708999676865,
+      "minimum_boundary_node": {
+        "node": 19497,
+        "inside": false,
+        "winding": 5.521796321985272e-16,
+        "nearest_bone_face": 140,
+        "distance_mm": 0.06738708999676865
+      },
+      "exact_target_bone_boundary_edge_hits": 0,
+      "target_bone_edge_hit_witnesses": [],
+      "minimum_boundary_edge_distance_mm": 0.02700277583853943,
+      "minimum_boundary_edge": {
+        "edge": [
+          19054,
+          19497
+        ],
+        "inside_faces": [
+          19269
+        ],
+        "outside_faces": [
+          19268
+        ],
+        "nearest_bone_face": 133,
+        "distance_mm": 0.02700277583853943
+      },
+      "stored_crossing_touch_count": 0,
+      "stored_crossing_touch_by_bank": {},
+      "stored_crossing_touch_witnesses": [],
+      "added_faces_for_next_ring": 28
+    },
+    {
+      "ring_level": 2,
+      "patch_faces": 502,
+      "boundary_edges": 38,
+      "boundary_nodes": 38,
+      "boundary_components": 1,
+      "boundary_component_node_counts": [
+        38
+      ],
+      "boundary_degree_histogram": {
+        "2": 38
+      },
+      "simple_single_loop": true,
+      "boundary_inside_node_count": 0,
+      "minimum_boundary_node_distance_mm": 0.09342690387920767,
+      "minimum_boundary_node": {
+        "node": 17070,
+        "inside": false,
+        "winding": -1.1043592643970544e-16,
+        "nearest_bone_face": 140,
+        "distance_mm": 0.09342690387920767
+      },
+      "exact_target_bone_boundary_edge_hits": 0,
+      "target_bone_edge_hit_witnesses": [],
+      "minimum_boundary_edge_distance_mm": 0.03857188027363714,
+      "minimum_boundary_edge": {
+        "edge": [
+          17070,
+          19054
+        ],
+        "inside_faces": [
+          19268
+        ],
+        "outside_faces": [
+          19264
+        ],
+        "nearest_bone_face": 140,
+        "distance_mm": 0.03857188027363714
+      },
+      "stored_crossing_touch_count": 0,
+      "stored_crossing_touch_by_bank": {},
+      "stored_crossing_touch_witnesses": []
+    }
+  ],
+  "elapsed_seconds": 5.833128832979128,
+  "limitations": [
+    "Stored neighbor crossings come from audit-159; no new all-bank audit. Exact boundary-segment intersection is only against target bone 43/16. Float64 distances are diagnostic; no threshold imposed."
+  ]
+}
