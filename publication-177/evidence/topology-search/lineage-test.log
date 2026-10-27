@@ -1,0 +1,8 @@
+test_nonunit_affine_row_fails_closed (test_validate_637_lineage580.LineageTests.test_nonunit_affine_row_fails_closed) ... ok
+test_singleton_q_rows_map_to_parent_triangle_order (test_validate_637_lineage580.LineageTests.test_singleton_q_rows_map_to_parent_triangle_order) ... ok
+test_support_outside_single_parent_fails_closed (test_validate_637_lineage580.LineageTests.test_support_outside_single_parent_fails_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK

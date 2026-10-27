@@ -1,0 +1,39 @@
+{
+  "accepted_physical_steps": 0,
+  "direct_545_argv": [
+    [
+      "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+      "--candidate",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/search/candidate.npz",
+      "--output-dir",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/root-full-check-001",
+      "--baseline-state",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/guard-transfer-725-695/prep-002/axis-fit-695-001/component-retention-631-v2-695-001/final/state.json",
+      "--trust-mm",
+      "4"
+    ],
+    [
+      "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+      "--candidate",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/root-combined-001/candidate.npz",
+      "--output-dir",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/root-combined-001/full-check",
+      "--baseline-state",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/root-final-001/state.json",
+      "--trust-mm",
+      "4"
+    ]
+  ],
+  "execution_host": "SSH numi",
+  "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A425",
+  "native_scene_launched": false,
+  "owner_checkout_dirty": true,
+  "owner_checkout_head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "processor": "Apple M6",
+  "source_skin_asset": {
+    "path": "/Users/numi/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+    "sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/guard-transfer-703-689/prep-002/axis-fit-689-001/component-retention-631-001/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "7204a84c2b89f4803e38eae46d2dbb89449c3053f94c6e8babe18e95c83b3783",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/guard-transfer-703-689/prep-002/axis-fit-689-001/component-retention-631-001/full-check/audit-130/summary.json",
+  "point_summary_sha256": "14d1b36f6b1c9f7992faeeb191559d7c604561d081fc76016b47ebea17b54fc2",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/guard-transfer-703-689/prep-002/axis-fit-689-001/component-retention-631-001/full-check/audit-159/report.json",
+  "surface_report_sha256": "24a98d4e3f318898ed2fa7d8be9f86a76c09d04d8657d6e2a27ac8779d12d6c2",
+  "temporary_unselected_construction": false
+}

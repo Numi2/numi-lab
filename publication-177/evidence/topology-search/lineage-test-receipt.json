@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "unittest",
+    "-v"
+  ],
+  "cwd": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/lineage-637",
+  "returncode": 0,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/lineage-637/receipt-001/lineage-report.json": "af577acc33d5f6c2bca4454adaf87779967d02271bf8ffed3238ddc4366c56d4",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/lineage-637/test_validate_637_lineage580.py": "36283554b1111836ffd8f3ada931499fec0ad1cd69dff2a0ae66092601791afc",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/lineage-637/validate_637_lineage580.py": "504044892372be91e82fc9c707848032bc8e738c402aeed1ca4f0a35f6d223b4"
+  },
+  "status": "PASS",
+  "stdout_stderr": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/lineage-637/test-lineage-637.log",
+  "stdout_stderr_sha256": "6d53496c5d854beac9cd29bd2869fd551ed710a598567f6542264ff257687662",
+  "test_count": 3
+}

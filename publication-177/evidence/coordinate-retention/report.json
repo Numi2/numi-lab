@@ -1,0 +1,304 @@
+{
+  "accepted_physical_steps": 0,
+  "base_candidate_sha256": "f8a6a5c62f4ccc0208b16d65c13b57132f9728a20a814bae4af8b535a5855a73",
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/guard-transfer-725-695/prep-002/axis-fit-695-001/component-retention-631-v2-695-001/final/state.json",
+  "baseline_state_sha256": "cc295ac159d87129f9ac9f7773a4f02e8de288d201f4873c3f5f3be53fca52db",
+  "candidate_selected": false,
+  "candidate_sha256": "7204a84c2b89f4803e38eae46d2dbb89449c3053f94c6e8babe18e95c83b3783",
+  "components": [
+    {
+      "component": 4247,
+      "delta": 0,
+      "nodes": 1,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 4376,
+      "delta": 0,
+      "nodes": 15,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 4733,
+      "delta": 0,
+      "nodes": 33,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 7759,
+      "delta": -2,
+      "nodes": 90,
+      "per_bank_delta": {
+        "(109, 114)": -2
+      },
+      "retained": true
+    },
+    {
+      "component": 8920,
+      "delta": 0,
+      "nodes": 5,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 9106,
+      "delta": 10,
+      "nodes": 123,
+      "per_bank_delta": {
+        "(43, 16)": 10
+      },
+      "retained": false
+    },
+    {
+      "component": 9143,
+      "delta": 0,
+      "nodes": 60,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 9226,
+      "delta": 0,
+      "nodes": 32,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 9535,
+      "delta": 0,
+      "nodes": 41,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 9616,
+      "delta": 0,
+      "nodes": 11,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 9628,
+      "delta": 0,
+      "nodes": 70,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 9720,
+      "delta": 0,
+      "nodes": 8,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 10135,
+      "delta": 0,
+      "nodes": 5,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 10191,
+      "delta": 0,
+      "nodes": 3,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 10497,
+      "delta": 0,
+      "nodes": 18,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 10981,
+      "delta": 0,
+      "nodes": 37,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 11116,
+      "delta": 0,
+      "nodes": 16,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 11543,
+      "delta": 0,
+      "nodes": 1,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 12662,
+      "delta": 0,
+      "nodes": 3,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 14365,
+      "delta": 0,
+      "nodes": 5,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 14717,
+      "delta": 0,
+      "nodes": 7,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 16512,
+      "delta": 0,
+      "nodes": 1,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 18344,
+      "delta": 0,
+      "nodes": 1,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 19191,
+      "delta": 0,
+      "nodes": 1,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 19669,
+      "delta": 0,
+      "nodes": 1,
+      "per_bank_delta": {},
+      "retained": false
+    },
+    {
+      "component": 20214,
+      "delta": 0,
+      "nodes": 1,
+      "per_bank_delta": {},
+      "retained": false
+    }
+  ],
+  "limitations": [
+    "Endpoint pair composition is a proposal only; changed cross-component self intersections and containment require fresh full545/130/159.",
+    "No LP feasibility, optimality, physical skin/fat, mass, motion or native qualification claimed."
+  ],
+  "native_admission": false,
+  "nonpoint_payload_bitwise_baseline": true,
+  "outside_selected_coordinates_bitwise_baseline": true,
+  "predicted_surface_pairs": 687,
+  "selected_node_rows": [
+    7759,
+    9971,
+    11135,
+    11144,
+    11849,
+    11851,
+    13166,
+    13167,
+    13168,
+    13866,
+    13869,
+    14440,
+    14446,
+    15070,
+    15071,
+    15072,
+    15073,
+    15074,
+    15680,
+    16040,
+    16043,
+    17868,
+    17960,
+    17961,
+    17962,
+    17965,
+    17966,
+    17967,
+    18541,
+    18544,
+    18638,
+    18639,
+    18640,
+    18641,
+    18642,
+    18842,
+    18843,
+    18928,
+    18929,
+    18930,
+    18933,
+    18934,
+    18936,
+    18937,
+    19191,
+    19192,
+    19193,
+    19194,
+    19195,
+    19197,
+    19198,
+    19440,
+    19441,
+    19553,
+    19555,
+    19556,
+    19557,
+    19558,
+    19723,
+    19724,
+    19725,
+    20669,
+    20670,
+    20671,
+    20676,
+    20677,
+    20678,
+    20679,
+    20681,
+    20682,
+    20683,
+    20684,
+    20685,
+    20686,
+    20687,
+    20688,
+    20689,
+    20691,
+    20692,
+    20693,
+    20694,
+    20695,
+    20696,
+    20697,
+    20698,
+    20699,
+    20700,
+    20703,
+    20704,
+    20710
+  ],
+  "source_sha256": "31e9dc21071aed2f27399c2ef35da6133d4444e7a300870ffa5c9c541b3e269b",
+  "status": "COMPONENT_PROPOSAL_PENDING_FRESH_FULL_AUDITS",
+  "target": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/guard-transfer-703-689/prep-002/axis-fit-689-001/retention-582-002/candidate.npz",
+  "target_check": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/guard-transfer-703-689/prep-002/axis-fit-689-001/retention-582-002/full-check/report.json",
+  "target_check_sha256": "823e641470b9d72abf7dcc8484068c79daac5ddea7d739cf543a8a0b9551cd68",
+  "target_sha256": "06a6ae49e68a27433867af747ebcfd146fc30b15501e74bed9e00309cd508d08",
+  "target_surface_report_sha256": "d8d25c70fcda6493bc5461f9c3d60d00323a3730ff5763a41d128968332df57b",
+  "typed_anchors": 237
+}

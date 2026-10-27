@@ -1,0 +1,62 @@
+{
+  "Q_P_reference": {
+    "P_nnz": 32638,
+    "Q_nnz": 20901,
+    "Q_shape": [
+      20895,
+      20889
+    ],
+    "Q_times_P_exact_csr": true,
+    "Q_times_propagated_037_reference_bitwise": true
+  },
+  "accepted_physical_steps": 0,
+  "base_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/guard-transfer-725-695/prep-002/axis-fit-695-001/component-retention-631-v2-695-001/candidate.npz",
+  "base_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/guard-transfer-725-695/prep-002/axis-fit-695-001/component-retention-631-v2-695-001/final/state.json",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/search/candidate.npz",
+  "candidate_sha256": "66f95bcb20c985fa5d0c00df227b87977808a9eeb0b82f4b929ab072779af6c1",
+  "changed_fields_from_689": [
+    "area_reference_037_source_O_faces",
+    "refinement_face_parent_ancestry_face_rows",
+    "refinement_face_parent_ancestry_indptr",
+    "refinement_face_parent_ancestry_semantics",
+    "refinement_face_parent_barycentric",
+    "refinement_face_parent_barycentric_semantics",
+    "refinement_face_parent_face_row",
+    "source_O_faces"
+  ],
+  "coordinates_and_237_typed_anchors_bitwise_unchanged": true,
+  "face_lineage": {
+    "barycentric_rule": "old node uses exact one-hot parent-face membership; new node uses immediate-Q row support restricted to the pinned parent-face node rows",
+    "max_q_to_037_error_m": 0.0,
+    "multi_parent_faces": 33,
+    "parent_face_count_637": 41733,
+    "parent_face_ids_in_range": true,
+    "singleton_parent_faces": 41712,
+    "stale_singleton_barycentrics": 0,
+    "unmapped_singleton_faces": 0
+  },
+  "limitations": [
+    "Construction-only topology proposal; full 545/130/159 is required.",
+    "No physical, tissue-transfer, native or mechanical qualification."
+  ],
+  "native_admission": false,
+  "parent_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/candidate.npz",
+  "parent_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/final/state.json",
+  "pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/candidate.npz": "d0d8ba18026d37a1ea64a247e09e4f6e972db0b157d64ad075851ab76c1c4ca4",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run-001-from766/merit-631-001/final/state.json": "d550f351dadbffa26085960c377dd5754dc7d175ac33d31de9d80821ec266b4d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/guard-transfer-725-695/prep-002/axis-fit-695-001/component-retention-631-v2-695-001/candidate.npz": "f8a6a5c62f4ccc0208b16d65c13b57132f9728a20a814bae4af8b535a5855a73",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/guard-transfer-725-695/prep-002/axis-fit-695-001/component-retention-631-v2-695-001/final/state.json": "cc295ac159d87129f9ac9f7773a4f02e8de288d201f4873c3f5f3be53fca52db",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-reference-degeneracy-repair-557/frozen-v4/diagnose_reference_degeneracy_557.py": "aecbb82aca291172de54b1529ca217100c935380afed03c057c868d7bcec5798",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/search/candidate.npz": "66f95bcb20c985fa5d0c00df227b87977808a9eeb0b82f4b929ab072779af6c1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/search/report.json": "ba0eb7fd2fcffb5dbb29f6929711aa519d3a2ab086e77b18fc16a63da459916c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py": "91e60eda6c6ed4a39fb3d9cc226af87743101b22da9c32c5229030ac6cd4cd8a"
+  },
+  "status": "637_PARENT_LINEAGE_VERIFIED_NO_REWRITE_REQUIRED",
+  "topology_payload_replay": {
+    "all_arrays_reproduced_bitwise": true,
+    "operation_count": 6,
+    "owner": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py",
+    "owner_sha256": "91e60eda6c6ed4a39fb3d9cc226af87743101b22da9c32c5229030ac6cd4cd8a"
+  }
+}
