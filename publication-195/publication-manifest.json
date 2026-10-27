@@ -1,0 +1,57 @@
+{
+  "schema": "numi.human.p195_evidence_manifest.v1",
+  "parent_commit": "1af46f4b50faaca5537a7fe7c3cf85df7755960d",
+  "status": "construction evidence only; no physical or native admission",
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "9f3bfde443dce7daac016f7f4980ab05ee39ed0a6967e37aff018ccf3abee618",
+      "bytes": 1542
+    },
+    {
+      "path": "b115-118-bone-aware-constructor/constructor.py",
+      "sha256": "6bb1b8d3721ebf7b6a8cee3657ddc6c7c47654c4a35f0363747e9ca3f95d30df",
+      "bytes": 27505
+    },
+    {
+      "path": "b115-118-bone-aware-constructor/corrected-fit-001/constructor.py",
+      "sha256": "963aee0c3b7cc724a9cb4801e9096c1ce9f90776b74fdc60f31be55aec04f644",
+      "bytes": 29076
+    },
+    {
+      "path": "b115-118-bone-aware-constructor/corrected-fit-001/parent-identity-comparison.json",
+      "sha256": "2d8ca74f1450bb8385caecbe9e4bf24b2f0a4c873d4d038abc124bd061837ba6",
+      "bytes": 4752
+    },
+    {
+      "path": "b115-118-bone-aware-constructor/corrected-fit-001/pre-fit-centroid-fan-patch.npz",
+      "sha256": "f2fdbb3e1074c11b4a78655a12e9a2e59d8bc2d671f94881e82b3196b765f814",
+      "bytes": 14685
+    },
+    {
+      "path": "b115-118-bone-aware-constructor/corrected-fit-001/private-bone-aware-centroid-fan-patch.npz",
+      "sha256": "2955e3b23a122c5ddbe2bb602179168796ff3a41d4339e9006eb7997ed8e7c1e",
+      "bytes": 18914
+    },
+    {
+      "path": "b115-118-bone-aware-constructor/corrected-fit-001/report.json",
+      "sha256": "957e06a33273bb8d5fb13a417c66f059f4457c767bcee0d2ae68167d0897098d",
+      "bytes": 11371
+    },
+    {
+      "path": "b115-118-bone-aware-constructor/pre-fit-centroid-fan-patch.npz",
+      "sha256": "f2fdbb3e1074c11b4a78655a12e9a2e59d8bc2d671f94881e82b3196b765f814",
+      "bytes": 14685
+    },
+    {
+      "path": "b115-118-bone-aware-constructor/private-bone-aware-centroid-fan-patch.npz",
+      "sha256": "58275f9da78f9d5c50c3a8b689d44a199be3d1d75f67681cb2e1340e95ca746c",
+      "bytes": 18974
+    },
+    {
+      "path": "b115-118-bone-aware-constructor/report.json",
+      "sha256": "38e426e80bafd5637a60b8445cd71cf0c300c2edcfd65e9d1d5f9f493a8138c2",
+      "bytes": 30677
+    }
+  ]
+}

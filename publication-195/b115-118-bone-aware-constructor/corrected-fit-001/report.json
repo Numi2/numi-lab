@@ -1,0 +1,542 @@
+{
+  "schema": "numi.human.bank115_118.bone-aware-centroid-fan.v1",
+  "status": "PRIVATE_REJECTED_EXACT_LOCAL_BONE",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "wide_topology_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/wider-fit-trial-001/topology/patch-candidate.npz",
+  "method": "Replace the exact-contour subdivision with a per-source-face interior barycentric vertex and three child faces; retain the exact source boundary and CSR ancestry; fit only interior nodes against exact bone-derived halfspaces and positive parent-oriented area constraints.",
+  "candidate_modified": false,
+  "geometry_or_native_admission": false,
+  "fit_scale_mm": 1.0,
+  "constraints": {
+    "bone_clearance_mm": 0.05,
+    "child_projected_area_ratio_floor": 0.1,
+    "SLSQP_ftol": 1e-09,
+    "SLSQP_maxiter": 250,
+    "smoothness_weight": 0.5,
+    "emitted_shape_gate": {
+      "min_angle_degrees": 0.5,
+      "max_aspect_measure": 50.0,
+      "min_parent_relative_area_ratio": 0.1
+    }
+  },
+  "input_pins": {
+    "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+    "wide_topology_sha256": "67c90a682da5213bb7f26d166565b1a7e36d502dff504ab2ffd7ebf734ed14e4",
+    "candidate_surface_report_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e"
+  },
+  "disk_preflight": {
+    "vertices": 64,
+    "edges": 142,
+    "faces": 79,
+    "boundary_edges": 47,
+    "boundary_degree_histogram": {
+      "2": 47
+    },
+    "connected_components": 1,
+    "euler_characteristic": 1,
+    "is_single_disk": true,
+    "boundary_matches_pinned_topology": true,
+    "all_parent_faces_have_source_ancestry": true,
+    "source_parent_face_rows": 79
+  },
+  "source_face_ancestry_parent_count": 135,
+  "construction": {
+    "points": 143,
+    "faces": 237,
+    "source_nodes": 64,
+    "new_face_barycentric_nodes": 79,
+    "fixed_boundary_edges": 47,
+    "fixed_boundary_nodes": 47,
+    "center_barycentric_min": [
+      0.17426914174936925,
+      0.18121768689792855,
+      0.18076787824384574
+    ],
+    "center_barycentric_max": [
+      0.4159343973648594,
+      0.41622993302820604,
+      0.4163090749774313
+    ],
+    "pre_fit_float32_shape": {
+      "face_count": 237,
+      "minimum_unsigned_parent_area_ratio": 0.17426940276056105,
+      "minimum_signed_orientation_ratio": 0.17426940263647667,
+      "minimum_angle_degrees": 0.6834496327582774,
+      "p05_angle_degrees": 1.9755428298741389,
+      "maximum_aspect_measure": 29.956166894331236,
+      "p95_aspect_measure": 12.149114267242155,
+      "orientation_positive": true
+    },
+    "pre_fit_patch_sha256": "f2fdbb3e1074c11b4a78655a12e9a2e59d8bc2d671f94881e82b3196b765f814"
+  },
+  "bone_constraint_preflight": {
+    "exact_crossing_pair_count": 46,
+    "exact_intersection_point_count": 92,
+    "inside_or_boundary_vertex_count": 15,
+    "halfspace_count": 107,
+    "fixed_only_violated_constraints": 0,
+    "inside_or_boundary_nodes": [
+      {
+        "node": 53,
+        "location": "inside",
+        "nearest_bone_id": 285,
+        "distance_mm": 1.4170420122881027
+      },
+      {
+        "node": 59,
+        "location": "inside",
+        "nearest_bone_id": 327,
+        "distance_mm": 0.40675826752048205
+      },
+      {
+        "node": 60,
+        "location": "inside",
+        "nearest_bone_id": 215,
+        "distance_mm": 1.320776185993521
+      },
+      {
+        "node": 62,
+        "location": "inside",
+        "nearest_bone_id": 215,
+        "distance_mm": 0.9464955243312512
+      },
+      {
+        "node": 65,
+        "location": "inside",
+        "nearest_bone_id": 285,
+        "distance_mm": 0.4137857962165343
+      },
+      {
+        "node": 67,
+        "location": "inside",
+        "nearest_bone_id": 286,
+        "distance_mm": 0.7421678726945135
+      },
+      {
+        "node": 68,
+        "location": "inside",
+        "nearest_bone_id": 285,
+        "distance_mm": 0.8809945817916548
+      },
+      {
+        "node": 72,
+        "location": "inside",
+        "nearest_bone_id": 215,
+        "distance_mm": 1.285891213010141
+      },
+      {
+        "node": 73,
+        "location": "inside",
+        "nearest_bone_id": 215,
+        "distance_mm": 0.9813804973146166
+      },
+      {
+        "node": 84,
+        "location": "inside",
+        "nearest_bone_id": 327,
+        "distance_mm": 0.10957034711448532
+      },
+      {
+        "node": 105,
+        "location": "inside",
+        "nearest_bone_id": 215,
+        "distance_mm": 0.3053752680399654
+      },
+      {
+        "node": 107,
+        "location": "inside",
+        "nearest_bone_id": 215,
+        "distance_mm": 0.5448566832567157
+      },
+      {
+        "node": 108,
+        "location": "inside",
+        "nearest_bone_id": 290,
+        "distance_mm": 1.3794219383481976
+      },
+      {
+        "node": 110,
+        "location": "inside",
+        "nearest_bone_id": 109,
+        "distance_mm": 0.20284052800121186
+      },
+      {
+        "node": 111,
+        "location": "inside",
+        "nearest_bone_id": 120,
+        "distance_mm": 1.1388996658859296
+      }
+    ],
+    "verified_exact_hit_mapping_count": 92,
+    "max_exact_hit_fan_reconstruction_residual_m": 1.0761666461330903e-16
+  },
+  "optimizer": {
+    "success": true,
+    "message": "Optimization terminated successfully",
+    "iterations": 36,
+    "objective": 26.022125376921995,
+    "movable_nodes": 96,
+    "fixed_nodes": 47,
+    "shape_constraint_count": 237,
+    "bone_halfspace_count": 107,
+    "initial_min_shape_constraint": 0.07426914174937677,
+    "final_min_shape_constraint": -1.953844031010732e-11,
+    "initial_min_bone_halfspace_scaled": -1.4670420122881025,
+    "final_min_bone_halfspace_scaled": -2.270048298641525e-15,
+    "max_displacement_mm": 1.4726357736228926,
+    "rms_displacement_mm": 0.3462294957223914,
+    "fit_patch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-007-bone-aware-centroid-fan-001/corrected-fit-001/private-bone-aware-centroid-fan-patch.npz",
+    "fit_patch_sha256": "2955e3b23a122c5ddbe2bb602179168796ff3a41d4339e9006eb7997ed8e7c1e"
+  },
+  "emitted_f32_shape_gate": {
+    "face_count": 237,
+    "minimum_unsigned_parent_area_ratio": 0.10026960155553777,
+    "minimum_signed_orientation_ratio": 0.09998272139276994,
+    "minimum_angle_degrees": 0.6540220007577523,
+    "p05_angle_degrees": 1.7799213160644691,
+    "maximum_aspect_measure": 32.052610477471816,
+    "p95_aspect_measure": 13.258316219585442,
+    "orientation_positive": true,
+    "pass": true
+  },
+  "fixed_boundary": {
+    "bitwise_preserved": true,
+    "edge_count": 47,
+    "node_count": 47
+  },
+  "exact_local_bone_gate": {
+    "bank": [
+      115,
+      118
+    ],
+    "pair_count": 79,
+    "pairs": [
+      [
+        4,
+        285
+      ],
+      [
+        4,
+        327
+      ],
+      [
+        5,
+        285
+      ],
+      [
+        5,
+        308
+      ],
+      [
+        5,
+        321
+      ],
+      [
+        5,
+        326
+      ],
+      [
+        5,
+        327
+      ],
+      [
+        9,
+        285
+      ],
+      [
+        9,
+        286
+      ],
+      [
+        9,
+        327
+      ],
+      [
+        10,
+        285
+      ],
+      [
+        10,
+        286
+      ],
+      [
+        11,
+        283
+      ],
+      [
+        11,
+        286
+      ],
+      [
+        11,
+        327
+      ],
+      [
+        13,
+        285
+      ],
+      [
+        13,
+        327
+      ],
+      [
+        14,
+        285
+      ],
+      [
+        14,
+        327
+      ],
+      [
+        22,
+        215
+      ],
+      [
+        22,
+        290
+      ],
+      [
+        23,
+        214
+      ],
+      [
+        23,
+        215
+      ],
+      [
+        23,
+        290
+      ],
+      [
+        23,
+        304
+      ],
+      [
+        23,
+        349
+      ],
+      [
+        25,
+        111
+      ],
+      [
+        25,
+        215
+      ],
+      [
+        26,
+        111
+      ],
+      [
+        26,
+        215
+      ],
+      [
+        57,
+        280
+      ],
+      [
+        57,
+        281
+      ],
+      [
+        57,
+        308
+      ],
+      [
+        57,
+        327
+      ],
+      [
+        59,
+        308
+      ],
+      [
+        59,
+        327
+      ],
+      [
+        126,
+        111
+      ],
+      [
+        126,
+        123
+      ],
+      [
+        126,
+        124
+      ],
+      [
+        126,
+        215
+      ],
+      [
+        127,
+        111
+      ],
+      [
+        127,
+        215
+      ],
+      [
+        130,
+        124
+      ],
+      [
+        130,
+        148
+      ],
+      [
+        130,
+        215
+      ],
+      [
+        131,
+        124
+      ],
+      [
+        131,
+        148
+      ],
+      [
+        132,
+        285
+      ],
+      [
+        132,
+        286
+      ],
+      [
+        132,
+        290
+      ],
+      [
+        133,
+        215
+      ],
+      [
+        133,
+        285
+      ],
+      [
+        133,
+        290
+      ],
+      [
+        134,
+        215
+      ],
+      [
+        134,
+        290
+      ],
+      [
+        137,
+        114
+      ],
+      [
+        137,
+        116
+      ],
+      [
+        137,
+        207
+      ],
+      [
+        137,
+        285
+      ],
+      [
+        137,
+        288
+      ],
+      [
+        137,
+        295
+      ],
+      [
+        138,
+        80
+      ],
+      [
+        138,
+        107
+      ],
+      [
+        138,
+        109
+      ],
+      [
+        138,
+        215
+      ],
+      [
+        140,
+        108
+      ],
+      [
+        140,
+        109
+      ],
+      [
+        140,
+        111
+      ],
+      [
+        140,
+        215
+      ],
+      [
+        141,
+        107
+      ],
+      [
+        141,
+        116
+      ],
+      [
+        141,
+        119
+      ],
+      [
+        141,
+        120
+      ],
+      [
+        141,
+        285
+      ],
+      [
+        142,
+        107
+      ],
+      [
+        142,
+        215
+      ],
+      [
+        143,
+        107
+      ],
+      [
+        143,
+        215
+      ],
+      [
+        143,
+        285
+      ]
+    ],
+    "patch_vertex_location_counts": {
+      "outside": 143
+    },
+    "all_vertices_outside": true,
+    "pass": false
+  },
+  "failure": "RuntimeError('stop at first fit gate: exact local bone screen failed')",
+  "traceback": "Traceback (most recent call last):\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-007-bone-aware-centroid-fan-001/corrected-fit-001/constructor.py\", line 424, in <module>\n    raise RuntimeError(\"stop at first fit gate: exact local bone screen failed\")\nRuntimeError: stop at first fit gate: exact local bone screen failed\n",
+  "elapsed_seconds": 1.8964878330007195,
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-007-bone-aware-centroid-fan-001/corrected-fit-001/constructor.py",
+  "script_sha256": "963aee0c3b7cc724a9cb4801e9096c1ce9f90776b74fdc60f31be55aec04f644"
+}
