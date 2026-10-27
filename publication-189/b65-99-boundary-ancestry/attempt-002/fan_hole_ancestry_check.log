@@ -1,0 +1,118 @@
+waiting_for_human_geometry_slot pid=95325
+acquired_human_geometry_slot pid=95325
+{
+  "status": "COMPLETE_BOUNDED_FAN_HOLE_CHECK",
+  "fan": [
+    {
+      "component_id": 0,
+      "face_count": 232,
+      "boundary_edges": 66,
+      "boundary_nodes": 65,
+      "boundary_loop_node_counts": [
+        65
+      ],
+      "boundary_degree_histogram": {
+        "2": 64,
+        "4": 1
+      },
+      "branch_nodes": [
+        [
+          10551,
+          4
+        ]
+      ],
+      "fan_faces_added": 9,
+      "fan_face_rows": [
+        14163,
+        14166,
+        14197,
+        14201,
+        15067,
+        15068,
+        15078,
+        15126,
+        15127
+      ]
+    }
+  ],
+  "hole_fill": [
+    {
+      "component_id": 0,
+      "fan_patch_faces": 241,
+      "boundary_loop_count": 1,
+      "boundary_loop_node_counts": [
+        63
+      ],
+      "boundary_degree_histogram": {
+        "2": 63
+      },
+      "small_hole_fill_analysis": {
+        "eligible": true,
+        "complement_component_count": 1,
+        "small_hole_fill_threshold_faces": 12,
+        "small_hole_fill_threshold_loop_nodes": 12,
+        "boundary_loop_count": 1
+      },
+      "eligible_holes": []
+    }
+  ],
+  "final_boundary": [
+    {
+      "component_id": 0,
+      "patch_face_count": 241,
+      "boundary_edge_count": 63,
+      "boundary_node_count": 63,
+      "boundary_loop_count": 1,
+      "boundary_loop_node_counts": [
+        63
+      ],
+      "boundary_degree_histogram": {
+        "2": 63
+      },
+      "all_boundary_loops_simple": true,
+      "checks_run": true,
+      "boundary_inside_or_on_target_nodes": 0,
+      "minimum_node_distance": {
+        "skin_node_row": 19972,
+        "exact_location": "outside",
+        "exact_ray": [
+          1,
+          1,
+          1
+        ],
+        "exact_crossings": 0,
+        "nearest_target_bone_face_row": 175,
+        "distance_mm": 0.002456564018298625
+      },
+      "exact_target_bone_boundary_edge_hits": 0,
+      "minimum_edge_distance": {
+        "edge": [
+          14713,
+          19972
+        ],
+        "nearest_target_bone_face_row": 175,
+        "distance_mm": 0.002456564018298625
+      },
+      "stored_neighbor_crossings_in_patch": 0,
+      "stored_neighbor_crossings_touching_boundary": 0
+    }
+  ],
+  "ancestry_minus_one": {
+    "count": 20,
+    "unique_source_ancestry_sets": [
+      [
+        [
+          5530,
+          6103
+        ],
+        20
+      ]
+    ],
+    "empty_source_ancestry_count": 0,
+    "semantics": {
+      "face_fine_detail_ancestry_semantics": "CSR union of source fine detail face rows; singular row -1 for cross-detail flips",
+      "refinement_face_parent_ancestry_semantics": "CSR singleton immediate input-face row for each affine child; older input unions are archived under prior_input_parent_546_generation_002__input_refinement_face_parent_ancestry_*"
+    }
+  },
+  "elapsed_seconds": 2.730224208906293
+}

@@ -1,0 +1,2088 @@
+{
+  "schema": "numi.human.bank65_99.fan_hole_and_ancestry_check.v1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "previous_topology_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-001/topology-boundary-check.json",
+  "previous_topology_receipt_sha256": "374fe874669287d62e42ae5e7adea00e484c14cdb503ddd5efbb086aca68a188",
+  "target_bank": [
+    65,
+    99
+  ],
+  "initial_crossing_component_count": 1,
+  "two_ring_patch_summary": [
+    {
+      "component_id": 0,
+      "faces": 232,
+      "face_rows": [
+        14048,
+        14049,
+        14050,
+        14051,
+        14052,
+        14053,
+        14054,
+        14055,
+        14056,
+        14057,
+        14058,
+        14059,
+        14060,
+        14061,
+        14062,
+        14063,
+        14064,
+        14065,
+        14066,
+        14067,
+        14068,
+        14069,
+        14070,
+        14071,
+        14072,
+        14073,
+        14074,
+        14075,
+        14076,
+        14077,
+        14078,
+        14079,
+        14080,
+        14081,
+        14082,
+        14083,
+        14084,
+        14085,
+        14086,
+        14087,
+        14088,
+        14089,
+        14090,
+        14091,
+        14092,
+        14093,
+        14094,
+        14097,
+        14102,
+        14104,
+        14105,
+        14106,
+        14110,
+        14111,
+        14112,
+        14113,
+        14125,
+        14126,
+        14127,
+        14128,
+        14129,
+        14130,
+        14131,
+        14132,
+        14133,
+        14140,
+        14142,
+        14143,
+        14144,
+        14145,
+        14146,
+        14147,
+        14148,
+        14149,
+        14150,
+        14151,
+        14152,
+        14153,
+        14154,
+        14155,
+        14156,
+        14157,
+        14158,
+        14159,
+        14160,
+        14161,
+        14162,
+        14165,
+        14169,
+        14171,
+        14172,
+        14173,
+        14174,
+        14175,
+        14176,
+        14177,
+        14178,
+        14179,
+        14180,
+        14181,
+        14182,
+        14183,
+        14184,
+        14185,
+        14186,
+        14189,
+        14190,
+        14191,
+        14192,
+        14193,
+        14194,
+        14195,
+        14196,
+        14212,
+        14213,
+        14214,
+        14215,
+        14216,
+        14217,
+        14218,
+        14219,
+        14220,
+        14221,
+        14222,
+        14223,
+        14224,
+        14225,
+        14226,
+        14227,
+        14228,
+        14229,
+        14230,
+        14231,
+        14232,
+        14233,
+        14234,
+        14235,
+        14236,
+        14237,
+        14238,
+        14239,
+        14240,
+        14241,
+        14242,
+        14243,
+        14244,
+        14245,
+        14246,
+        14247,
+        14248,
+        14249,
+        14250,
+        14251,
+        14254,
+        14264,
+        14265,
+        14266,
+        14397,
+        14398,
+        14403,
+        14404,
+        14405,
+        14406,
+        14407,
+        14408,
+        14409,
+        14410,
+        14411,
+        14412,
+        14413,
+        14414,
+        14415,
+        14416,
+        14426,
+        14427,
+        14429,
+        14430,
+        14431,
+        14436,
+        14438,
+        14439,
+        14440,
+        14450,
+        14452,
+        14453,
+        14454,
+        14455,
+        14456,
+        14457,
+        14458,
+        15063,
+        15064,
+        15065,
+        15066,
+        15070,
+        15071,
+        15072,
+        15073,
+        15074,
+        15075,
+        15081,
+        15082,
+        15084,
+        15085,
+        15086,
+        15087,
+        15088,
+        15101,
+        15102,
+        15103,
+        15104,
+        15106,
+        15107,
+        15108,
+        15109,
+        15111,
+        15123,
+        15124,
+        15125,
+        15128,
+        15129,
+        15130,
+        15131,
+        15132,
+        15133,
+        15149,
+        15163,
+        15164,
+        15185,
+        15186,
+        15187,
+        15188
+      ]
+    }
+  ],
+  "fan_expansion": [
+    {
+      "component_id": 0,
+      "face_count": 232,
+      "boundary_edges": 66,
+      "boundary_nodes": 65,
+      "boundary_loop_node_counts": [
+        65
+      ],
+      "boundary_degree_histogram": {
+        "2": 64,
+        "4": 1
+      },
+      "branch_nodes": [
+        [
+          10551,
+          4
+        ]
+      ],
+      "fan_faces_added": 9,
+      "fan_face_rows": [
+        14163,
+        14166,
+        14197,
+        14201,
+        15067,
+        15068,
+        15078,
+        15126,
+        15127
+      ]
+    }
+  ],
+  "fan_expansion_component_conflict": null,
+  "small_hole_fill_checks": [
+    {
+      "component_id": 0,
+      "fan_patch_faces": 241,
+      "boundary_loop_count": 1,
+      "boundary_loop_node_counts": [
+        63
+      ],
+      "boundary_degree_histogram": {
+        "2": 63
+      },
+      "small_hole_fill_analysis": {
+        "eligible": true,
+        "complement_component_count": 1,
+        "small_hole_fill_threshold_faces": 12,
+        "small_hole_fill_threshold_loop_nodes": 12,
+        "boundary_loop_count": 1
+      },
+      "eligible_holes": []
+    }
+  ],
+  "final_boundary_checks": [
+    {
+      "component_id": 0,
+      "patch_face_count": 241,
+      "boundary_edge_count": 63,
+      "boundary_node_count": 63,
+      "boundary_loop_count": 1,
+      "boundary_loop_node_counts": [
+        63
+      ],
+      "boundary_degree_histogram": {
+        "2": 63
+      },
+      "all_boundary_loops_simple": true,
+      "checks_run": true,
+      "boundary_inside_or_on_target_nodes": 0,
+      "inside_or_on_witnesses": [],
+      "minimum_node_distance": {
+        "skin_node_row": 19972,
+        "exact_location": "outside",
+        "exact_ray": [
+          1,
+          1,
+          1
+        ],
+        "exact_crossings": 0,
+        "nearest_target_bone_face_row": 175,
+        "distance_mm": 0.002456564018298625
+      },
+      "exact_target_bone_boundary_edge_hits": 0,
+      "exact_target_bone_boundary_edge_hit_witnesses": [],
+      "minimum_edge_distance": {
+        "edge": [
+          14713,
+          19972
+        ],
+        "nearest_target_bone_face_row": 175,
+        "distance_mm": 0.002456564018298625
+      },
+      "stored_neighbor_crossings_in_patch": 0,
+      "stored_neighbor_crossings_touching_boundary": 0,
+      "stored_neighbor_boundary_witnesses": [],
+      "boundary_node_records": [
+        {
+          "skin_node_row": 8990,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 184,
+          "distance_mm": 5.476440199739889
+        },
+        {
+          "skin_node_row": 9628,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 173,
+          "distance_mm": 3.0473793810629446
+        },
+        {
+          "skin_node_row": 10555,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 2,
+          "nearest_target_bone_face_row": 302,
+          "distance_mm": 1.399442988807245
+        },
+        {
+          "skin_node_row": 11585,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 180,
+          "distance_mm": 4.360240114674152
+        },
+        {
+          "skin_node_row": 12364,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 3.0280421257187986
+        },
+        {
+          "skin_node_row": 12388,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 184,
+          "distance_mm": 4.971013874634611
+        },
+        {
+          "skin_node_row": 13676,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 3.0705468502114224
+        },
+        {
+          "skin_node_row": 14175,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 183,
+          "distance_mm": 0.024691753102130492
+        },
+        {
+          "skin_node_row": 14177,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 183,
+          "distance_mm": 2.774923250055846
+        },
+        {
+          "skin_node_row": 14713,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.8118501483980135
+        },
+        {
+          "skin_node_row": 14715,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 173,
+          "distance_mm": 0.7589750247477247
+        },
+        {
+          "skin_node_row": 14716,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.4936943642766807
+        },
+        {
+          "skin_node_row": 14719,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 2.4084499991146413
+        },
+        {
+          "skin_node_row": 15393,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 1.671961523064013
+        },
+        {
+          "skin_node_row": 15394,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 184,
+          "distance_mm": 2.806754000548663
+        },
+        {
+          "skin_node_row": 15914,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.31610500301066136
+        },
+        {
+          "skin_node_row": 16707,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.3724224955201939
+        },
+        {
+          "skin_node_row": 16710,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 2,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 0.027956954104219667
+        },
+        {
+          "skin_node_row": 16711,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 2.1768846563516018
+        },
+        {
+          "skin_node_row": 16713,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 2,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 0.7475484540632873
+        },
+        {
+          "skin_node_row": 16722,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 1.9376707270840055
+        },
+        {
+          "skin_node_row": 16751,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 2,
+          "nearest_target_bone_face_row": 226,
+          "distance_mm": 0.25133648808601894
+        },
+        {
+          "skin_node_row": 16756,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 2,
+          "nearest_target_bone_face_row": 300,
+          "distance_mm": 1.0696878640329714
+        },
+        {
+          "skin_node_row": 18458,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 184,
+          "distance_mm": 3.1781694164044225
+        },
+        {
+          "skin_node_row": 18567,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 173,
+          "distance_mm": 2.4729809996953938
+        },
+        {
+          "skin_node_row": 18569,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 104,
+          "distance_mm": 0.4291252991864386
+        },
+        {
+          "skin_node_row": 18727,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 2.6213443582042553
+        },
+        {
+          "skin_node_row": 18729,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 315,
+          "distance_mm": 1.1630024946571607
+        },
+        {
+          "skin_node_row": 18730,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 2,
+          "nearest_target_bone_face_row": 300,
+          "distance_mm": 0.42934048449561807
+        },
+        {
+          "skin_node_row": 18859,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 99,
+          "distance_mm": 0.6942007585420598
+        },
+        {
+          "skin_node_row": 18862,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 180,
+          "distance_mm": 2.8586590450600484
+        },
+        {
+          "skin_node_row": 18863,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 3.2802904582494046
+        },
+        {
+          "skin_node_row": 18994,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 180,
+          "distance_mm": 0.04282630333668789
+        },
+        {
+          "skin_node_row": 18996,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 2.075714753404059
+        },
+        {
+          "skin_node_row": 18997,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 2.0240386610786074
+        },
+        {
+          "skin_node_row": 18998,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.017009958080293087
+        },
+        {
+          "skin_node_row": 19011,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 314,
+          "distance_mm": 1.304444871417821
+        },
+        {
+          "skin_node_row": 19342,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 184,
+          "distance_mm": 2.41445400225934
+        },
+        {
+          "skin_node_row": 19469,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 103,
+          "distance_mm": 0.6450206140311973
+        },
+        {
+          "skin_node_row": 19471,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 173,
+          "distance_mm": 0.7431209059828067
+        },
+        {
+          "skin_node_row": 19472,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.4659395953631121
+        },
+        {
+          "skin_node_row": 19475,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 3.3706262215205607
+        },
+        {
+          "skin_node_row": 19934,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.0710549393403624
+        },
+        {
+          "skin_node_row": 19935,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 180,
+          "distance_mm": 1.069670804175229
+        },
+        {
+          "skin_node_row": 19936,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 180,
+          "distance_mm": 3.1075916002741133
+        },
+        {
+          "skin_node_row": 19937,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.030953685888832547
+        },
+        {
+          "skin_node_row": 19940,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.04755249557288136
+        },
+        {
+          "skin_node_row": 19941,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 183,
+          "distance_mm": 0.005022699185160478
+        },
+        {
+          "skin_node_row": 19943,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 1.8894971866058643
+        },
+        {
+          "skin_node_row": 19944,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 1.9615534076658676
+        },
+        {
+          "skin_node_row": 19946,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 180,
+          "distance_mm": 0.8492743955966008
+        },
+        {
+          "skin_node_row": 19951,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 1.0142999220978748
+        },
+        {
+          "skin_node_row": 19972,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.002456564018298625
+        },
+        {
+          "skin_node_row": 19975,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 104,
+          "distance_mm": 0.6538377393275534
+        },
+        {
+          "skin_node_row": 19976,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 176,
+          "distance_mm": 1.095785696808326
+        },
+        {
+          "skin_node_row": 19979,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 176,
+          "distance_mm": 0.241878046332704
+        },
+        {
+          "skin_node_row": 20005,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 2.678661132316398
+        },
+        {
+          "skin_node_row": 20006,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 2,
+          "nearest_target_bone_face_row": 226,
+          "distance_mm": 0.05308072069915311
+        },
+        {
+          "skin_node_row": 20007,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 183,
+          "distance_mm": 0.7431870889737069
+        },
+        {
+          "skin_node_row": 20010,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 183,
+          "distance_mm": 0.0256258185558561
+        },
+        {
+          "skin_node_row": 20021,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 314,
+          "distance_mm": 1.3587209730809153
+        },
+        {
+          "skin_node_row": 21090,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 102,
+          "distance_mm": 0.7203782679247362
+        },
+        {
+          "skin_node_row": 21167,
+          "exact_location": "outside",
+          "exact_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 105,
+          "distance_mm": 0.3454774293235931
+        }
+      ],
+      "boundary_edge_records": [
+        {
+          "edge": [
+            11585,
+            18863
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 3.2802904582494046
+        },
+        {
+          "edge": [
+            14715,
+            18567
+          ],
+          "nearest_target_bone_face_row": 173,
+          "distance_mm": 0.7589750247477244
+        },
+        {
+          "edge": [
+            9628,
+            18567
+          ],
+          "nearest_target_bone_face_row": 173,
+          "distance_mm": 2.4729809996953938
+        },
+        {
+          "edge": [
+            14716,
+            19472
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.4659395953631121
+        },
+        {
+          "edge": [
+            14716,
+            19934
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.0710549393403624
+        },
+        {
+          "edge": [
+            16707,
+            19935
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.3724224955201939
+        },
+        {
+          "edge": [
+            19472,
+            19935
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.4659395953631121
+        },
+        {
+          "edge": [
+            18863,
+            19936
+          ],
+          "nearest_target_bone_face_row": 180,
+          "distance_mm": 3.1075916002741133
+        },
+        {
+          "edge": [
+            16707,
+            19936
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.3724224955201939
+        },
+        {
+          "edge": [
+            14713,
+            19937
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.030953685888832547
+        },
+        {
+          "edge": [
+            19937,
+            19940
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.030953685888832547
+        },
+        {
+          "edge": [
+            19934,
+            19940
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.04755249557288136
+        },
+        {
+          "edge": [
+            8990,
+            18458
+          ],
+          "nearest_target_bone_face_row": 184,
+          "distance_mm": 3.1781694164044225
+        },
+        {
+          "edge": [
+            18458,
+            19941
+          ],
+          "nearest_target_bone_face_row": 183,
+          "distance_mm": 0.005022699185160478
+        },
+        {
+          "edge": [
+            19342,
+            19941
+          ],
+          "nearest_target_bone_face_row": 183,
+          "distance_mm": 0.005022699185160478
+        },
+        {
+          "edge": [
+            14175,
+            19342
+          ],
+          "nearest_target_bone_face_row": 183,
+          "distance_mm": 0.024691753102130492
+        },
+        {
+          "edge": [
+            15394,
+            20007
+          ],
+          "nearest_target_bone_face_row": 183,
+          "distance_mm": 0.7431870889737069
+        },
+        {
+          "edge": [
+            15394,
+            20010
+          ],
+          "nearest_target_bone_face_row": 183,
+          "distance_mm": 0.0256258185558561
+        },
+        {
+          "edge": [
+            15393,
+            19943
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 1.671961523064013
+        },
+        {
+          "edge": [
+            16710,
+            19943
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 0.027956954104219667
+        },
+        {
+          "edge": [
+            12364,
+            18996
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 2.075714753404059
+        },
+        {
+          "edge": [
+            18996,
+            19944
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 1.9615534076658676
+        },
+        {
+          "edge": [
+            16710,
+            19944
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 0.027956954104219667
+        },
+        {
+          "edge": [
+            14177,
+            19946
+          ],
+          "nearest_target_bone_face_row": 180,
+          "distance_mm": 0.8492743955966008
+        },
+        {
+          "edge": [
+            8990,
+            19946
+          ],
+          "nearest_target_bone_face_row": 180,
+          "distance_mm": 0.8492743955966008
+        },
+        {
+          "edge": [
+            13676,
+            16711
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 2.1768846563516018
+        },
+        {
+          "edge": [
+            15393,
+            16711
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 1.671961523064013
+        },
+        {
+          "edge": [
+            14715,
+            19471
+          ],
+          "nearest_target_bone_face_row": 173,
+          "distance_mm": 0.7431209059828064
+        },
+        {
+          "edge": [
+            16713,
+            19471
+          ],
+          "nearest_target_bone_face_row": 173,
+          "distance_mm": 0.7415758646098498
+        },
+        {
+          "edge": [
+            11585,
+            18862
+          ],
+          "nearest_target_bone_face_row": 180,
+          "distance_mm": 2.8586590450600484
+        },
+        {
+          "edge": [
+            15914,
+            18862
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.31610500301066136
+        },
+        {
+          "edge": [
+            12364,
+            18997
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 2.0240386610786074
+        },
+        {
+          "edge": [
+            16713,
+            19951
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 0.7475484540632873
+        },
+        {
+          "edge": [
+            18997,
+            19951
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 1.0142999220978748
+        },
+        {
+          "edge": [
+            14177,
+            18994
+          ],
+          "nearest_target_bone_face_row": 180,
+          "distance_mm": 0.04282630333668789
+        },
+        {
+          "edge": [
+            18994,
+            18998
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.017009958080293087
+        },
+        {
+          "edge": [
+            15914,
+            18998
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.017009958080293087
+        },
+        {
+          "edge": [
+            19469,
+            19976
+          ],
+          "nearest_target_bone_face_row": 103,
+          "distance_mm": 0.6450206140311973
+        },
+        {
+          "edge": [
+            14713,
+            19972
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.002456564018298625
+        },
+        {
+          "edge": [
+            14719,
+            19972
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.002456564018298625
+        },
+        {
+          "edge": [
+            9628,
+            18569
+          ],
+          "nearest_target_bone_face_row": 104,
+          "distance_mm": 0.4291252991864386
+        },
+        {
+          "edge": [
+            19975,
+            21090
+          ],
+          "nearest_target_bone_face_row": 104,
+          "distance_mm": 0.6538377393275534
+        },
+        {
+          "edge": [
+            18569,
+            19975
+          ],
+          "nearest_target_bone_face_row": 104,
+          "distance_mm": 0.4291252991864386
+        },
+        {
+          "edge": [
+            18859,
+            21167
+          ],
+          "nearest_target_bone_face_row": 98,
+          "distance_mm": 0.2751871368241948
+        },
+        {
+          "edge": [
+            18859,
+            19469
+          ],
+          "nearest_target_bone_face_row": 103,
+          "distance_mm": 0.6450206140311973
+        },
+        {
+          "edge": [
+            16722,
+            19976
+          ],
+          "nearest_target_bone_face_row": 176,
+          "distance_mm": 1.095785696808326
+        },
+        {
+          "edge": [
+            21090,
+            21167
+          ],
+          "nearest_target_bone_face_row": 101,
+          "distance_mm": 0.32422109785921854
+        },
+        {
+          "edge": [
+            16722,
+            19475
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 1.9376707270840055
+        },
+        {
+          "edge": [
+            14719,
+            19979
+          ],
+          "nearest_target_bone_face_row": 176,
+          "distance_mm": 0.241878046332704
+        },
+        {
+          "edge": [
+            19475,
+            19979
+          ],
+          "nearest_target_bone_face_row": 176,
+          "distance_mm": 0.241878046332704
+        },
+        {
+          "edge": [
+            10555,
+            18729
+          ],
+          "nearest_target_bone_face_row": 304,
+          "distance_mm": 0.9906981400041697
+        },
+        {
+          "edge": [
+            13676,
+            20005
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 2.678661132316398
+        },
+        {
+          "edge": [
+            18727,
+            20005
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 2.6213443582042553
+        },
+        {
+          "edge": [
+            19011,
+            20007
+          ],
+          "nearest_target_bone_face_row": 184,
+          "distance_mm": 0.5544182360058637
+        },
+        {
+          "edge": [
+            18727,
+            20006
+          ],
+          "nearest_target_bone_face_row": 226,
+          "distance_mm": 0.05308072069915311
+        },
+        {
+          "edge": [
+            16751,
+            16756
+          ],
+          "nearest_target_bone_face_row": 226,
+          "distance_mm": 0.25133648808601894
+        },
+        {
+          "edge": [
+            16751,
+            20006
+          ],
+          "nearest_target_bone_face_row": 226,
+          "distance_mm": 0.05308072069915311
+        },
+        {
+          "edge": [
+            14175,
+            20010
+          ],
+          "nearest_target_bone_face_row": 183,
+          "distance_mm": 0.024691753102130492
+        },
+        {
+          "edge": [
+            18729,
+            20021
+          ],
+          "nearest_target_bone_face_row": 315,
+          "distance_mm": 1.1630024946571607
+        },
+        {
+          "edge": [
+            10555,
+            18730
+          ],
+          "nearest_target_bone_face_row": 300,
+          "distance_mm": 0.42934048449561807
+        },
+        {
+          "edge": [
+            12388,
+            19011
+          ],
+          "nearest_target_bone_face_row": 314,
+          "distance_mm": 1.3044448714178207
+        },
+        {
+          "edge": [
+            12388,
+            20021
+          ],
+          "nearest_target_bone_face_row": 314,
+          "distance_mm": 1.3587209730809153
+        },
+        {
+          "edge": [
+            16756,
+            18730
+          ],
+          "nearest_target_bone_face_row": 300,
+          "distance_mm": 0.42934048449561807
+        }
+      ]
+    }
+  ],
+  "ancestry_minus_one_audit": {
+    "crossing_faces_with_parent_source_marker_minus_one": 20,
+    "rows": [
+      {
+        "skin_face_row": 15063,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14891
+        ]
+      },
+      {
+        "skin_face_row": 15064,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14891
+        ]
+      },
+      {
+        "skin_face_row": 15065,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14891
+        ]
+      },
+      {
+        "skin_face_row": 15066,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14891
+        ]
+      },
+      {
+        "skin_face_row": 15085,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14907
+        ]
+      },
+      {
+        "skin_face_row": 15086,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14907
+        ]
+      },
+      {
+        "skin_face_row": 15087,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14907
+        ]
+      },
+      {
+        "skin_face_row": 15088,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14907
+        ]
+      },
+      {
+        "skin_face_row": 15101,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14920
+        ]
+      },
+      {
+        "skin_face_row": 15102,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14920
+        ]
+      },
+      {
+        "skin_face_row": 15103,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14920
+        ]
+      },
+      {
+        "skin_face_row": 15104,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14920
+        ]
+      },
+      {
+        "skin_face_row": 15106,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14922
+        ]
+      },
+      {
+        "skin_face_row": 15107,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14922
+        ]
+      },
+      {
+        "skin_face_row": 15108,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14922
+        ]
+      },
+      {
+        "skin_face_row": 15109,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14922
+        ]
+      },
+      {
+        "skin_face_row": 15130,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14941
+        ]
+      },
+      {
+        "skin_face_row": 15131,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14941
+        ]
+      },
+      {
+        "skin_face_row": 15132,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14941
+        ]
+      },
+      {
+        "skin_face_row": 15133,
+        "parent_source_face_marker": -1,
+        "parent_coarse_face_row": -1,
+        "parent_fine_detail_face_row": -1,
+        "parent_fine_subface_row": -1,
+        "source_face_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_detail_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "fine_subface_ancestry_rows": [
+          5530,
+          6103
+        ],
+        "immediate_parent_face_rows": [
+          14941
+        ]
+      }
+    ],
+    "source_ancestry_set_counts": [
+      [
+        [
+          5530,
+          6103
+        ],
+        20
+      ]
+    ],
+    "semantics": {
+      "face_fine_detail_ancestry_semantics": "CSR union of source fine detail face rows; singular row -1 for cross-detail flips",
+      "refinement_face_parent_ancestry_semantics": "CSR singleton immediate input-face row for each affine child; older input unions are archived under prior_input_parent_546_generation_002__input_refinement_face_parent_ancestry_*"
+    },
+    "conclusion": "Alternative direct source/fine ancestry is present where CSR rows are nonempty; -1 scalar markers alone do not mean missing provenance. Review rows with empty CSR ancestry as unresolved."
+  },
+  "geometry_changed": false,
+  "whole_body_or_all_bank_audit_run": false,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "limitations": [
+    "Topology-only fan/fill; no coordinates or source arrays edited.",
+    "Complement fill admits only disconnected complement components of at most 12 faces, attached to exactly one simple boundary loop of at most 12 nodes with no other loop attachment.",
+    "Stored neighboring-bank pairs come from audit-159; no neighboring-bank rerun.",
+    "Distance is Float64 diagnostic only; exact point location and edge-segment contact are rational predicates on stored transformed coordinates.",
+    "This does not establish tissue thickness or physical admission."
+  ],
+  "elapsed_seconds": 2.730224208906293
+}

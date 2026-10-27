@@ -1,0 +1,62 @@
+{
+  "schema": "numi.human.p189_evidence_manifest.v1",
+  "parent_commit": "290a02033705899f5aeade22ce69fa6ad9d20162",
+  "status": "construction evidence only; no physical or native admission",
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "6179921d5841f81c75a155abca0d933004353470a0f81e8873b0009d3cc7ec8d",
+      "bytes": 1721
+    },
+    {
+      "path": "b115-118-rejected-exterior-fit/exterior_fit_trial.py",
+      "sha256": "6a1972c68b3ba32a46dc8f2653f9a610077d7e732786deb0d04ccb92e6a142b0",
+      "bytes": 23568
+    },
+    {
+      "path": "b115-118-rejected-exterior-fit/private-fit-patch.npz",
+      "sha256": "382e7706508f5eedf028f0379841fd7f86f043348a3786f2f1e96dd2c63c6b72",
+      "bytes": 11518
+    },
+    {
+      "path": "b115-118-rejected-exterior-fit/report-debug-endpoint-root-node-map.json",
+      "sha256": "e558f865b509684d859246c9183a0e5db798dc0c454f696e1dc49571e224a458",
+      "bytes": 2570
+    },
+    {
+      "path": "b115-118-rejected-exterior-fit/report.json",
+      "sha256": "fbf359f589b3fa20d68c190495baad35f81ef34689fa769c4055e5da7b51936e",
+      "bytes": 9378
+    },
+    {
+      "path": "b65-99-boundary-ancestry/attempt-001/topology-boundary-check.json",
+      "sha256": "374fe874669287d62e42ae5e7adea00e484c14cdb503ddd5efbb086aca68a188",
+      "bytes": 201100
+    },
+    {
+      "path": "b65-99-boundary-ancestry/attempt-001/topology_boundary_check.log",
+      "sha256": "986dc04ed9f8be0410c7f07cbfc47c960be42338069b1bd0a53371fbfc310798",
+      "bytes": 4547
+    },
+    {
+      "path": "b65-99-boundary-ancestry/attempt-001/topology_boundary_check.py",
+      "sha256": "a2aa17f8fc8d4476b0d48a1e64c79e2da4bf9c456c92207f1dfafa19998e7dc0",
+      "bytes": 15396
+    },
+    {
+      "path": "b65-99-boundary-ancestry/attempt-002/fan-hole-ancestry-check.json",
+      "sha256": "2cf84019b3c58e9300b063e61d9b3001c3111e8dfa84985ca773b8bc020c0281",
+      "bytes": 49426
+    },
+    {
+      "path": "b65-99-boundary-ancestry/attempt-002/fan_hole_ancestry_check.log",
+      "sha256": "82345e212d6e6a355fc418918f9efdb1328a2574a51f135925eb433df94e5009",
+      "bytes": 2896
+    },
+    {
+      "path": "b65-99-boundary-ancestry/attempt-002/fan_hole_ancestry_check.py",
+      "sha256": "834dd334d39e2408332b018e48e06635feb64416fc8d46e83fc840b97b2ea543",
+      "bytes": 14938
+    }
+  ]
+}

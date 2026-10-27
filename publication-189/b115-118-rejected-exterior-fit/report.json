@@ -1,0 +1,590 @@
+{
+  "schema": "numi.human.bank115_118.exterior-fit-local-gates.v1",
+  "status": "PRIVATE_FIT_REJECTED_LOCAL_GATE_FAILURE",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "topology_patch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/patch-trial-001/patch-candidate.npz",
+  "topology_patch_sha256": "840569c103e174269e9461d170d5cbccfb3f664da262c5798e027acacf8e617f",
+  "topology_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/patch-trial-001/report.json",
+  "topology_report_sha256": "bcd2748f0cde4347fc1dabb5fb31e8fac70b8b41f9eff03b3632d0352e199711",
+  "rational_ancestry_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/patch-trial-001/rational-ancestry.json",
+  "rational_ancestry_sha256": "9c13b765b6abf56b5f5943e0f16a08c11c5851a5c84450edf0320135a553b578",
+  "output_patch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/exterior-fit-trial-001/private-fit-patch.npz",
+  "fit_mm": 0.05,
+  "fixed_boundary_edge_count": 25,
+  "geometry_or_native_admission": false,
+  "fit": {
+    "method": "one discrete harmonic displacement field over the 149-face patch",
+    "contour_target_offset_mm": 0.05,
+    "initial_source_node_point_locations": {
+      "outside": 38,
+      "inside": 4
+    },
+    "fixed_boundary_nodes": 25,
+    "moved_nodes": 63,
+    "maximum_node_displacement_mm": 1.4670420122881027,
+    "rms_node_displacement_mm": 0.24679424512466389,
+    "bone_closed_exact_coordinate_edge_incidence": {
+      "2": 576
+    },
+    "bone_signed_volume_sign_for_outward_normals": "positive",
+    "patch_fit_sha256": "382e7706508f5eedf028f0379841fd7f86f043348a3786f2f1e96dd2c63c6b72"
+  },
+  "shape_gate_emitted_f32": {
+    "positive_orientation": false,
+    "minimum_relative_area": 8.892217112550756e-06,
+    "maximum_aspect_measure": 1520.6972167824745,
+    "minimum_angle_degrees": 0.010876726478117174,
+    "pass": false
+  },
+  "exact_local_bone_gate": {
+    "bank": [
+      115,
+      118
+    ],
+    "bone_triangle_count": 384,
+    "exact_triangle_intersection_pair_count": 116,
+    "exact_triangle_pairs": [
+      [
+        4,
+        284
+      ],
+      [
+        4,
+        308
+      ],
+      [
+        4,
+        327
+      ],
+      [
+        5,
+        284
+      ],
+      [
+        5,
+        307
+      ],
+      [
+        5,
+        308
+      ],
+      [
+        19,
+        283
+      ],
+      [
+        19,
+        285
+      ],
+      [
+        19,
+        286
+      ],
+      [
+        19,
+        327
+      ],
+      [
+        20,
+        285
+      ],
+      [
+        20,
+        286
+      ],
+      [
+        22,
+        284
+      ],
+      [
+        22,
+        285
+      ],
+      [
+        22,
+        327
+      ],
+      [
+        24,
+        284
+      ],
+      [
+        24,
+        327
+      ],
+      [
+        28,
+        215
+      ],
+      [
+        28,
+        290
+      ],
+      [
+        31,
+        215
+      ],
+      [
+        31,
+        290
+      ],
+      [
+        32,
+        110
+      ],
+      [
+        32,
+        215
+      ],
+      [
+        33,
+        110
+      ],
+      [
+        33,
+        121
+      ],
+      [
+        33,
+        215
+      ],
+      [
+        34,
+        121
+      ],
+      [
+        34,
+        215
+      ],
+      [
+        37,
+        215
+      ],
+      [
+        37,
+        290
+      ],
+      [
+        39,
+        215
+      ],
+      [
+        39,
+        290
+      ],
+      [
+        49,
+        283
+      ],
+      [
+        49,
+        286
+      ],
+      [
+        53,
+        308
+      ],
+      [
+        53,
+        327
+      ],
+      [
+        56,
+        283
+      ],
+      [
+        56,
+        308
+      ],
+      [
+        56,
+        327
+      ],
+      [
+        61,
+        283
+      ],
+      [
+        61,
+        308
+      ],
+      [
+        61,
+        327
+      ],
+      [
+        62,
+        308
+      ],
+      [
+        62,
+        324
+      ],
+      [
+        62,
+        325
+      ],
+      [
+        62,
+        326
+      ],
+      [
+        62,
+        327
+      ],
+      [
+        88,
+        148
+      ],
+      [
+        88,
+        215
+      ],
+      [
+        89,
+        123
+      ],
+      [
+        89,
+        124
+      ],
+      [
+        89,
+        215
+      ],
+      [
+        90,
+        124
+      ],
+      [
+        90,
+        148
+      ],
+      [
+        90,
+        215
+      ],
+      [
+        97,
+        215
+      ],
+      [
+        97,
+        290
+      ],
+      [
+        97,
+        304
+      ],
+      [
+        97,
+        349
+      ],
+      [
+        98,
+        214
+      ],
+      [
+        98,
+        304
+      ],
+      [
+        102,
+        215
+      ],
+      [
+        102,
+        304
+      ],
+      [
+        103,
+        214
+      ],
+      [
+        103,
+        215
+      ],
+      [
+        103,
+        304
+      ],
+      [
+        106,
+        108
+      ],
+      [
+        106,
+        121
+      ],
+      [
+        106,
+        215
+      ],
+      [
+        110,
+        108
+      ],
+      [
+        110,
+        111
+      ],
+      [
+        110,
+        215
+      ],
+      [
+        111,
+        111
+      ],
+      [
+        111,
+        215
+      ],
+      [
+        112,
+        111
+      ],
+      [
+        112,
+        215
+      ],
+      [
+        115,
+        123
+      ],
+      [
+        115,
+        215
+      ],
+      [
+        117,
+        111
+      ],
+      [
+        117,
+        215
+      ],
+      [
+        118,
+        111
+      ],
+      [
+        118,
+        123
+      ],
+      [
+        118,
+        215
+      ],
+      [
+        119,
+        215
+      ],
+      [
+        119,
+        285
+      ],
+      [
+        119,
+        290
+      ],
+      [
+        120,
+        285
+      ],
+      [
+        120,
+        286
+      ],
+      [
+        120,
+        290
+      ],
+      [
+        121,
+        285
+      ],
+      [
+        121,
+        286
+      ],
+      [
+        126,
+        107
+      ],
+      [
+        126,
+        114
+      ],
+      [
+        126,
+        116
+      ],
+      [
+        126,
+        119
+      ],
+      [
+        126,
+        120
+      ],
+      [
+        126,
+        207
+      ],
+      [
+        126,
+        285
+      ],
+      [
+        126,
+        288
+      ],
+      [
+        126,
+        295
+      ],
+      [
+        127,
+        109
+      ],
+      [
+        127,
+        215
+      ],
+      [
+        128,
+        109
+      ],
+      [
+        128,
+        110
+      ],
+      [
+        128,
+        215
+      ],
+      [
+        131,
+        80
+      ],
+      [
+        131,
+        109
+      ],
+      [
+        131,
+        215
+      ],
+      [
+        132,
+        80
+      ],
+      [
+        132,
+        107
+      ],
+      [
+        132,
+        215
+      ],
+      [
+        136,
+        107
+      ],
+      [
+        136,
+        215
+      ],
+      [
+        136,
+        285
+      ],
+      [
+        137,
+        107
+      ],
+      [
+        137,
+        285
+      ]
+    ],
+    "patch_vertex_locations": {
+      "outside": 88
+    },
+    "all_patch_vertices_outside": true,
+    "pass": false
+  },
+  "exact_local_self_gate": {
+    "patch_internal_pair_count": 0,
+    "patch_internal_pairs": [],
+    "complement_faces_aabb_active": 429,
+    "patch_vs_complement_pair_count": 13,
+    "patch_vs_complement_pairs": [
+      [
+        1,
+        31723
+      ],
+      [
+        3,
+        31723
+      ],
+      [
+        7,
+        31723
+      ],
+      [
+        44,
+        31723
+      ],
+      [
+        45,
+        31723
+      ],
+      [
+        46,
+        31723
+      ],
+      [
+        54,
+        31723
+      ],
+      [
+        55,
+        31723
+      ],
+      [
+        69,
+        31723
+      ],
+      [
+        71,
+        31723
+      ],
+      [
+        82,
+        31723
+      ],
+      [
+        143,
+        31723
+      ],
+      [
+        148,
+        31723
+      ]
+    ],
+    "pass": false
+  },
+  "accepted_candidate_modified": false,
+  "trial_patch_sha256": "382e7706508f5eedf028f0379841fd7f86f043348a3786f2f1e96dd2c63c6b72",
+  "limitations": [
+    "One private local fit only; not all-bank or full-body audit.",
+    "No containment of whole solids, physical transfer, native admission, or external qualification was claimed.",
+    "Exact Float32 bone and local self predicates are scoped to this bank and the 149-face patch plus its AABB-overlapping complement."
+  ],
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/exterior-fit-trial-001/exterior_fit_trial.py",
+  "script_sha256": "6a1972c68b3ba32a46dc8f2653f9a610077d7e732786deb0d04ccb92e6a142b0",
+  "elapsed_seconds": 1.2120953330304474
+}

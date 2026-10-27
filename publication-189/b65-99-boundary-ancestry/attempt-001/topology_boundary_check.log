@@ -1,0 +1,170 @@
+waiting_for_human_geometry_slot pid=95239
+acquired_human_geometry_slot pid=95239
+{
+  "status": "COMPLETE_LOCAL_TOPOLOGY_BOUNDARY_DIAGNOSTIC",
+  "crossing_pairs": 148,
+  "crossing_skin_faces": 120,
+  "components": [
+    {
+      "id": 0,
+      "faces": 120
+    }
+  ],
+  "bone_topology": {
+    "triangle_count": 342,
+    "edge_valence_histogram": {
+      "2": 513
+    },
+    "boundary_edge_count": 0,
+    "nonmanifold_edge_count": 0,
+    "orientation_conflicting_two_face_edges": 0,
+    "identity_basis": "exact emitted local coordinate tuples, since the bank table does not expose corner IDs"
+  },
+  "rings": [
+    [
+      {
+        "component_id": 0,
+        "ring_level": 0,
+        "patch_face_count": 120,
+        "boundary_edge_count": 64,
+        "boundary_node_count": 64,
+        "boundary_loop_count": 1,
+        "boundary_loop_node_counts": [
+          64
+        ],
+        "boundary_degree_histogram": {
+          "2": 64
+        },
+        "all_boundary_loops_simple": true,
+        "boundary_exact_inside_or_on_node_count": 0,
+        "minimum_boundary_node": {
+          "skin_node_row": 19945,
+          "exact_location": "outside",
+          "exact_location_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 2,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 5.710789088109428e-05
+        },
+        "exact_target_bone_boundary_edge_hit_count": 0,
+        "minimum_boundary_edge": {
+          "edge_node_rows": [
+            19945,
+            21200
+          ],
+          "inside_faces": [
+            14177
+          ],
+          "outside_faces": [
+            14238
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 5.710789088109428e-05
+        },
+        "stored_other_bank_pairs_in_patch": 0,
+        "stored_other_bank_pairs_touching_boundary": 0
+      }
+    ],
+    [
+      {
+        "component_id": 0,
+        "ring_level": 1,
+        "patch_face_count": 182,
+        "boundary_edge_count": 58,
+        "boundary_node_count": 57,
+        "boundary_loop_count": 1,
+        "boundary_loop_node_counts": [
+          57
+        ],
+        "boundary_degree_histogram": {
+          "2": 56,
+          "4": 1
+        },
+        "all_boundary_loops_simple": false,
+        "boundary_exact_inside_or_on_node_count": 0,
+        "minimum_boundary_node": {
+          "skin_node_row": 19945,
+          "exact_location": "outside",
+          "exact_location_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 2,
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 5.710789088109428e-05
+        },
+        "exact_target_bone_boundary_edge_hit_count": 0,
+        "minimum_boundary_edge": {
+          "edge_node_rows": [
+            18996,
+            19945
+          ],
+          "inside_faces": [
+            14184
+          ],
+          "outside_faces": [
+            14186
+          ],
+          "nearest_target_bone_face_row": 174,
+          "distance_mm": 5.710789088109428e-05
+        },
+        "stored_other_bank_pairs_in_patch": 0,
+        "stored_other_bank_pairs_touching_boundary": 0
+      }
+    ],
+    [
+      {
+        "component_id": 0,
+        "ring_level": 2,
+        "patch_face_count": 232,
+        "boundary_edge_count": 66,
+        "boundary_node_count": 65,
+        "boundary_loop_count": 1,
+        "boundary_loop_node_counts": [
+          65
+        ],
+        "boundary_degree_histogram": {
+          "2": 64,
+          "4": 1
+        },
+        "all_boundary_loops_simple": false,
+        "boundary_exact_inside_or_on_node_count": 0,
+        "minimum_boundary_node": {
+          "skin_node_row": 19972,
+          "exact_location": "outside",
+          "exact_location_ray": [
+            1,
+            1,
+            1
+          ],
+          "exact_crossings": 0,
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.002456564018298625
+        },
+        "exact_target_bone_boundary_edge_hit_count": 0,
+        "minimum_boundary_edge": {
+          "edge_node_rows": [
+            14713,
+            19972
+          ],
+          "inside_faces": [
+            14397
+          ],
+          "outside_faces": [
+            14402
+          ],
+          "nearest_target_bone_face_row": 175,
+          "distance_mm": 0.002456564018298625
+        },
+        "stored_other_bank_pairs_in_patch": 0,
+        "stored_other_bank_pairs_touching_boundary": 0
+      }
+    ]
+  ],
+  "merge_block": null,
+  "elapsed_seconds": 6.324375041993335
+}

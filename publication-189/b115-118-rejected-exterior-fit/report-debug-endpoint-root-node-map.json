@@ -1,0 +1,21 @@
+{
+  "schema": "numi.human.bank115_118.exterior-fit-local-gates.v1",
+  "status": "PRIVATE_FIT_REJECTED_TRIAL_ERROR",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "topology_patch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/patch-trial-001/patch-candidate.npz",
+  "topology_patch_sha256": "840569c103e174269e9461d170d5cbccfb3f664da262c5798e027acacf8e617f",
+  "topology_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/patch-trial-001/report.json",
+  "topology_report_sha256": "bcd2748f0cde4347fc1dabb5fb31e8fac70b8b41f9eff03b3632d0352e199711",
+  "rational_ancestry_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/patch-trial-001/rational-ancestry.json",
+  "rational_ancestry_sha256": "9c13b765b6abf56b5f5943e0f16a08c11c5851a5c84450edf0320135a553b578",
+  "output_patch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/exterior-fit-trial-001/private-fit-patch.npz",
+  "fit_mm": 0.05,
+  "fixed_boundary_edge_count": 25,
+  "geometry_or_native_admission": false,
+  "failure": "KeyError(42)",
+  "traceback": "Traceback (most recent call last):\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/exterior-fit-trial-001/exterior_fit_trial.py\", line 248, in <module>\n    fixed_disp[node]=FIT_M*endpoint_normals[root]\n                           ~~~~~~~~~~~~~~~~^^^^^^\nKeyError: 42\n",
+  "elapsed_seconds": 0.8718621670268476,
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/exterior-fit-trial-001/exterior_fit_trial.py",
+  "script_sha256": "9d89717d1b69edb23db0f756fbcd672bf1729c8d4ac40a6c1489d95cc0ff759b"
+}
