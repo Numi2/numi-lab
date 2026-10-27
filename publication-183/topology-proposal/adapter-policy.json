@@ -1,0 +1,8 @@
+{
+  "adapter_sha256": "df0426cd1be8968ec5f20683a0981c8bf0226717caf9b718a9b36933727cff69",
+  "owner_sha256": "c8650b8c311ca8f386ebf1713b5fc285b7bded860cfa878192472704ac1336d5",
+  "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "output_sha256": "b6cd9ff372f76ee574fb5302f59a70b342ba67aecbc452cd3bc6af7a509f506d",
+  "policy": "face parent ancestry CSR is singleton identical to immediate face-parent row before and after; only same-parent flips are allowed; CSR remains bitwise unchanged",
+  "physical_admission": false
+}

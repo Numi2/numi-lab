@@ -1,0 +1,52 @@
+{
+  "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "search_report_sha256": "068b88404e28a6c007e7a424594971e7c9e651df9e117ce22f105ffb37ab5210",
+  "support_nodes": 79,
+  "affected_faces": 250,
+  "depth_rows": 64,
+  "results": [
+    {
+      "alpha": 1.0,
+      "solver": {
+        "success": false,
+        "status": 2,
+        "message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)",
+        "nit": 0,
+        "objective": null,
+        "wall_seconds": 0.001292083179578185,
+        "lp_method": "highs"
+      },
+      "status": "INFEASIBLE_OR_SOLVE_FAILURE"
+    },
+    {
+      "alpha": 0.75,
+      "solver": {
+        "success": false,
+        "status": 2,
+        "message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)",
+        "nit": 0,
+        "objective": null,
+        "wall_seconds": 0.0010432908311486244,
+        "lp_method": "highs"
+      },
+      "status": "INFEASIBLE_OR_SOLVE_FAILURE"
+    },
+    {
+      "alpha": 0.5,
+      "solver": {
+        "success": false,
+        "status": 2,
+        "message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)",
+        "nit": 0,
+        "objective": null,
+        "wall_seconds": 0.0009998749010264874,
+        "lp_method": "highs"
+      },
+      "status": "INFEASIBLE_OR_SOLVE_FAILURE"
+    }
+  ],
+  "elapsed_s": 0.2346702499780804,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "limitations": "No exact postfit self, 185-bone, solid containment, transfer or native audit."
+}

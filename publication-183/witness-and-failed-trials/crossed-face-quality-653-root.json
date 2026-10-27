@@ -1,0 +1,172 @@
+{
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "method": "emitted Float32 coordinates, affected skin faces from exact all-bank 159, edge and altitude in mm, reference area ratio to registered 037",
+  "results": [
+    {
+      "bank": [
+        43,
+        16
+      ],
+      "crossing_faces": 183,
+      "median_min_altitude_mm": 0.14414,
+      "min_altitude_mm": 0.00929,
+      "aspect_median": 12.32,
+      "aspect_max": 308.54,
+      "aspect_over_10": 116,
+      "aspect_over_50": 28,
+      "ref_area_ratio_min": 0.36146,
+      "ref_area_ratio_below_025": 0
+    },
+    {
+      "bank": [
+        109,
+        114
+      ],
+      "crossing_faces": 111,
+      "median_min_altitude_mm": 0.36833,
+      "min_altitude_mm": 0.01728,
+      "aspect_median": 5.55,
+      "aspect_max": 142.08,
+      "aspect_over_10": 32,
+      "aspect_over_50": 8,
+      "ref_area_ratio_min": 1.3818,
+      "ref_area_ratio_below_025": 0
+    },
+    {
+      "bank": [
+        65,
+        99
+      ],
+      "crossing_faces": 120,
+      "median_min_altitude_mm": 0.3512,
+      "min_altitude_mm": 0.06701,
+      "aspect_median": 6.26,
+      "aspect_max": 32.53,
+      "aspect_over_10": 36,
+      "aspect_over_50": 0,
+      "ref_area_ratio_min": 4.77135,
+      "ref_area_ratio_below_025": 0
+    },
+    {
+      "bank": [
+        57,
+        89
+      ],
+      "crossing_faces": 21,
+      "median_min_altitude_mm": 3.31817,
+      "min_altitude_mm": 2.20938,
+      "aspect_median": 1.78,
+      "aspect_max": 4.17,
+      "aspect_over_10": 0,
+      "aspect_over_50": 0,
+      "ref_area_ratio_min": 61.96881,
+      "ref_area_ratio_below_025": 0
+    },
+    {
+      "bank": [
+        124,
+        123
+      ],
+      "crossing_faces": 46,
+      "median_min_altitude_mm": 0.31145,
+      "min_altitude_mm": 0.09286,
+      "aspect_median": 8.42,
+      "aspect_max": 28.68,
+      "aspect_over_10": 16,
+      "aspect_over_50": 0,
+      "ref_area_ratio_min": 8.37124,
+      "ref_area_ratio_below_025": 0
+    },
+    {
+      "bank": [
+        114,
+        117
+      ],
+      "crossing_faces": 23,
+      "median_min_altitude_mm": 1.07511,
+      "min_altitude_mm": 0.03052,
+      "aspect_median": 4.69,
+      "aspect_max": 61.21,
+      "aspect_over_10": 7,
+      "aspect_over_50": 3,
+      "ref_area_ratio_min": 0.31706,
+      "ref_area_ratio_below_025": 0
+    },
+    {
+      "bank": [
+        115,
+        118
+      ],
+      "crossing_faces": 19,
+      "median_min_altitude_mm": 0.93346,
+      "min_altitude_mm": 0.42168,
+      "aspect_median": 3.7,
+      "aspect_max": 8.5,
+      "aspect_over_10": 0,
+      "aspect_over_50": 0,
+      "ref_area_ratio_min": 8.23226,
+      "ref_area_ratio_below_025": 0
+    },
+    {
+      "bank": [
+        59,
+        95
+      ],
+      "crossing_faces": 20,
+      "median_min_altitude_mm": 1.70066,
+      "min_altitude_mm": 0.42764,
+      "aspect_median": 2.32,
+      "aspect_max": 9.79,
+      "aspect_over_10": 0,
+      "aspect_over_50": 0,
+      "ref_area_ratio_min": 57.17064,
+      "ref_area_ratio_below_025": 0
+    },
+    {
+      "bank": [
+        64,
+        98
+      ],
+      "crossing_faces": 8,
+      "median_min_altitude_mm": 3.91421,
+      "min_altitude_mm": 2.68661,
+      "aspect_median": 1.7,
+      "aspect_max": 2.17,
+      "aspect_over_10": 0,
+      "aspect_over_50": 0,
+      "ref_area_ratio_min": 114.32028,
+      "ref_area_ratio_below_025": 0
+    },
+    {
+      "bank": [
+        61,
+        97
+      ],
+      "crossing_faces": 10,
+      "median_min_altitude_mm": 2.38761,
+      "min_altitude_mm": 0.83864,
+      "aspect_median": 1.63,
+      "aspect_max": 3.5,
+      "aspect_over_10": 0,
+      "aspect_over_50": 0,
+      "ref_area_ratio_min": 22.30543,
+      "ref_area_ratio_below_025": 0
+    },
+    {
+      "bank": [
+        74,
+        104
+      ],
+      "crossing_faces": 4,
+      "median_min_altitude_mm": 4.00429,
+      "min_altitude_mm": 4.00429,
+      "aspect_median": 1.54,
+      "aspect_max": 1.54,
+      "aspect_over_10": 0,
+      "aspect_over_50": 0,
+      "ref_area_ratio_min": 331.45878,
+      "ref_area_ratio_below_025": 0
+    }
+  ],
+  "physical_admission": false
+}

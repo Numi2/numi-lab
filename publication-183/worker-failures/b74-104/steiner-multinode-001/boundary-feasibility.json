@@ -1,0 +1,133 @@
+{
+  "previous_trial_inside_samples_are": "4 of 6 fan-face centroids (the first sample was the Steiner vertex; it was outside); they were not boundary vertices",
+  "previous_trial_sample_order": "[Steiner vertex, centroid of fan face rows 22587, 22588, 22589, 22590, 42379, 42380]",
+  "previous_trial_sample_locations": [
+    "outside",
+    "inside",
+    "inside",
+    "inside",
+    "outside",
+    "outside",
+    "inside"
+  ],
+  "fixed_boundary_vertices": [
+    {
+      "node": 19094,
+      "location": "outside",
+      "world_f32_m": [
+        -0.2900407612323761,
+        -0.9582435488700867,
+        0.09149914979934692
+      ]
+    },
+    {
+      "node": 21136,
+      "location": "outside",
+      "world_f32_m": [
+        -0.2861318588256836,
+        -0.960946261882782,
+        0.08756699413061142
+      ]
+    },
+    {
+      "node": 19092,
+      "location": "outside",
+      "world_f32_m": [
+        -0.2822229266166687,
+        -0.9636489748954773,
+        0.08363483846187592
+      ]
+    },
+    {
+      "node": 20914,
+      "location": "outside",
+      "world_f32_m": [
+        -0.2869783639907837,
+        -0.960070788860321,
+        0.08336701989173889
+      ]
+    },
+    {
+      "node": 12694,
+      "location": "outside",
+      "world_f32_m": [
+        -0.2917337715625763,
+        -0.9564926028251648,
+        0.08309920132160187
+      ]
+    },
+    {
+      "node": 20915,
+      "location": "outside",
+      "world_f32_m": [
+        -0.2908872663974762,
+        -0.9573680758476257,
+        0.0872991755604744
+      ]
+    }
+  ],
+  "fixed_boundary_vertices_all_outside": true,
+  "fixed_boundary_edges": [
+    {
+      "edge_nodes": [
+        19094,
+        21136
+      ],
+      "intersection_count": 0,
+      "witnesses": []
+    },
+    {
+      "edge_nodes": [
+        21136,
+        19092
+      ],
+      "intersection_count": 0,
+      "witnesses": []
+    },
+    {
+      "edge_nodes": [
+        19092,
+        20914
+      ],
+      "intersection_count": 0,
+      "witnesses": []
+    },
+    {
+      "edge_nodes": [
+        20914,
+        12694
+      ],
+      "intersection_count": 0,
+      "witnesses": []
+    },
+    {
+      "edge_nodes": [
+        12694,
+        20915
+      ],
+      "intersection_count": 0,
+      "witnesses": []
+    },
+    {
+      "edge_nodes": [
+        20915,
+        19094
+      ],
+      "intersection_count": 0,
+      "witnesses": []
+    }
+  ],
+  "fixed_boundary_edges_all_disjoint_from_bone": true,
+  "candidate_653_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-182-stage-001/combined-653/candidate.npz",
+  "candidate_653_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_653_compatible_with_refined_baseline": true,
+  "compatibility_basis": "same points and face shapes; exact source_O_faces equality; identical coordinates for six boundary nodes; identical immediate parent-face rows for source face children; candidate combination report lists baseline refined candidate d367 and no target-bank changed nodes",
+  "baseline_intersection_witnesses_all_strictly_inside_source_face": true,
+  "minimum_source_face_barycentric_coordinate_over_witnesses": 0.00040636188785620977,
+  "bank_input_pins": {
+    "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df"
+  }
+}

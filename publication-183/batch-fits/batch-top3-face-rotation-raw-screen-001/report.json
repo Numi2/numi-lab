@@ -1,0 +1,409 @@
+{
+  "status": "NO_SAFE_IMPROVEMENT",
+  "results": [
+    {
+      "component": 0,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 1.0,
+      "changed_nodes": 174,
+      "area_pass": true,
+      "edge_slack_mm": -5.081053118492773e-05,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.6343828437494791,
+      "local_max_area": 1.7810854649804075,
+      "local_min_normal_cos": 0.9108378537669367,
+      "raw_total": 985,
+      "parent_total": 655,
+      "raw_delta": {},
+      "parent_delta": {
+        "65/99": 2
+      },
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 0,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.75,
+      "changed_nodes": 174,
+      "area_pass": true,
+      "edge_slack_mm": 0.0059269798828064865,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.7290312415887802,
+      "local_max_area": 1.5831364361884548,
+      "local_min_normal_cos": 0.9583383641959777,
+      "raw_total": 985,
+      "parent_total": 653,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 0,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.5,
+      "changed_nodes": 174,
+      "area_pass": true,
+      "edge_slack_mm": 0.011910550096460425,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.8215195572783129,
+      "local_max_area": 1.380867093980654,
+      "local_min_normal_cos": 0.9764812677503698,
+      "raw_total": 989,
+      "parent_total": 657,
+      "raw_delta": {
+        "65/99": 4
+      },
+      "parent_delta": {
+        "65/99": 4
+      },
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 0,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.25,
+      "changed_nodes": 174,
+      "area_pass": true,
+      "edge_slack_mm": 0.01781110888798559,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.9107142733455938,
+      "local_max_area": 1.1892491485285281,
+      "local_min_normal_cos": 0.9923866363154428,
+      "raw_total": 987,
+      "parent_total": 655,
+      "raw_delta": {
+        "65/99": 2
+      },
+      "parent_delta": {
+        "65/99": 2
+      },
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 0,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.125,
+      "changed_nodes": 174,
+      "area_pass": true,
+      "edge_slack_mm": 0.02080481740715207,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.9553473545693736,
+      "local_max_area": 1.0949887589207896,
+      "local_min_normal_cos": 0.9978230157962809,
+      "raw_total": 985,
+      "parent_total": 653,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 1,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 1.0,
+      "changed_nodes": 176,
+      "area_pass": true,
+      "edge_slack_mm": -1.8891974644150156e-05,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.6359807909600763,
+      "local_max_area": 2.1599217968324593,
+      "local_min_normal_cos": 0.8721753433976864,
+      "status": "LOCAL_SHAPE_REJECT"
+    },
+    {
+      "component": 1,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.75,
+      "changed_nodes": 176,
+      "area_pass": true,
+      "edge_slack_mm": 0.0011620997165066012,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.7295633663794401,
+      "local_max_area": 1.7996602134659831,
+      "local_min_normal_cos": 0.909973062553312,
+      "raw_total": 993,
+      "parent_total": 661,
+      "raw_delta": {
+        "43/16": 8
+      },
+      "parent_delta": {
+        "43/16": 8
+      },
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 1,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.5,
+      "changed_nodes": 176,
+      "area_pass": true,
+      "edge_slack_mm": 0.002342211474811633,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.8206851610186081,
+      "local_max_area": 1.483983877471184,
+      "local_min_normal_cos": 0.9492696668616822,
+      "raw_total": 995,
+      "parent_total": 665,
+      "raw_delta": {
+        "43/16": 10
+      },
+      "parent_delta": {
+        "43/16": 12
+      },
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 1,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.25,
+      "changed_nodes": 176,
+      "area_pass": true,
+      "edge_slack_mm": 0.003522323233116664,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.9111463586801939,
+      "local_max_area": 1.2157090511981479,
+      "local_min_normal_cos": 0.9837611722590377,
+      "raw_total": 985,
+      "parent_total": 657,
+      "raw_delta": {},
+      "parent_delta": {
+        "43/16": 4
+      },
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 1,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.125,
+      "changed_nodes": 176,
+      "area_pass": true,
+      "edge_slack_mm": 0.00411237911226918,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.9558867135049993,
+      "local_max_area": 1.1008637434169357,
+      "local_min_normal_cos": 0.9954547716232944,
+      "raw_total": 987,
+      "parent_total": 653,
+      "raw_delta": {
+        "43/16": 2
+      },
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 2,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 1.0,
+      "changed_nodes": 115,
+      "area_pass": true,
+      "edge_slack_mm": -6.143656568098621e-06,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.6516832280940219,
+      "local_max_area": 1.863078503871342,
+      "local_min_normal_cos": 0.8847187133844752,
+      "raw_total": 979,
+      "parent_total": 653,
+      "raw_delta": {
+        "109/114": -6
+      },
+      "parent_delta": {},
+      "self_pairs": 91,
+      "new_normal_conflicts": [],
+      "status": "SELF_OR_NORMAL_REJECT"
+    },
+    {
+      "component": 2,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.75,
+      "changed_nodes": 115,
+      "area_pass": true,
+      "edge_slack_mm": 0.002059051920465708,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.7383441759939825,
+      "local_max_area": 1.6336490821334615,
+      "local_min_normal_cos": 0.9406579674513397,
+      "raw_total": 987,
+      "parent_total": 657,
+      "raw_delta": {
+        "109/114": 2
+      },
+      "parent_delta": {
+        "109/114": 4
+      },
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 2,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.5,
+      "changed_nodes": 115,
+      "area_pass": true,
+      "edge_slack_mm": 0.004113710785371792,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.8253427458190455,
+      "local_max_area": 1.4129127584699168,
+      "local_min_normal_cos": 0.9720938101106384,
+      "raw_total": 985,
+      "parent_total": 655,
+      "raw_delta": {},
+      "parent_delta": {
+        "109/114": 2
+      },
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 2,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.25,
+      "changed_nodes": 115,
+      "area_pass": true,
+      "edge_slack_mm": 0.005421811612073498,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.9125549167972015,
+      "local_max_area": 1.1987392101815026,
+      "local_min_normal_cos": 0.9901551820332972,
+      "raw_total": 989,
+      "parent_total": 655,
+      "raw_delta": {
+        "109/114": 4
+      },
+      "parent_delta": {
+        "109/114": 2
+      },
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 2,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.125,
+      "changed_nodes": 115,
+      "area_pass": true,
+      "edge_slack_mm": 0.005421811612073498,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.9562831511099368,
+      "local_max_area": 1.0972829701578592,
+      "local_min_normal_cos": 0.9969973335378128,
+      "raw_total": 987,
+      "parent_total": 655,
+      "raw_delta": {
+        "109/114": 2
+      },
+      "parent_delta": {
+        "109/114": 2
+      },
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 3,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 1.0,
+      "changed_nodes": 5,
+      "area_pass": true,
+      "edge_slack_mm": 0.23883398600273142,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.6704710162406843,
+      "local_max_area": 1.3542746157607737,
+      "local_min_normal_cos": 0.9433700902883201,
+      "raw_total": 985,
+      "parent_total": 653,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 3,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.75,
+      "changed_nodes": 5,
+      "area_pass": true,
+      "edge_slack_mm": 0.3849465730778734,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.7478397197065874,
+      "local_max_area": 1.2595680779800549,
+      "local_min_normal_cos": 0.9729859883598639,
+      "raw_total": 985,
+      "parent_total": 653,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 3,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.5,
+      "changed_nodes": 5,
+      "area_pass": true,
+      "edge_slack_mm": 0.5310591601530152,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.8292574854340238,
+      "local_max_area": 1.1689294511467747,
+      "local_min_normal_cos": 0.9898245462087635,
+      "raw_total": 985,
+      "parent_total": 653,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 3,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.25,
+      "changed_nodes": 5,
+      "area_pass": true,
+      "edge_slack_mm": 0.6771612105160294,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.9135676329994301,
+      "local_max_area": 1.0823982579107077,
+      "local_min_normal_cos": 0.9978376245793112,
+      "raw_total": 985,
+      "parent_total": 653,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "component": 3,
+      "source_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-face-rotation-lp653-001/candidate-alpha-0.5.npz",
+      "source_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+      "fraction": 0.125,
+      "changed_nodes": 5,
+      "area_pass": true,
+      "edge_slack_mm": 0.7502227724096642,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.9565564120148728,
+      "local_max_area": 1.0406755956481841,
+      "local_min_normal_cos": 0.9995010041767396,
+      "raw_total": 985,
+      "parent_total": 653,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    }
+  ],
+  "best_components": {},
+  "combined": null,
+  "baseline_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_sha256": null,
+  "elapsed_s": 3.6423427499830723,
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0,
+  "limitations": "Incremental exact screen; full 130/159, closed-solid containment, transfer, and native qualification remain."
+}

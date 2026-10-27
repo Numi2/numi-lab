@@ -1,0 +1,16 @@
+{
+  "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "proposal_sha256": "b6cd9ff372f76ee574fb5302f59a70b342ba67aecbc452cd3bc6af7a509f506d",
+  "candidate_sha256": "308007c045ca2bda7d42a6267aa6558cac0f74affbd42e015e7f13e537db0083",
+  "prior_operation_count": 169,
+  "new_operation_count": 10,
+  "preserved_arrays": [
+    "same_parent_flip_349_face_rows",
+    "same_parent_flip_349_pair_face_rows",
+    "same_parent_flip_349_parent_rows",
+    "same_parent_flip_349_semantics"
+  ],
+  "geometry_byte_identical_to_proposal": true,
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0
+}

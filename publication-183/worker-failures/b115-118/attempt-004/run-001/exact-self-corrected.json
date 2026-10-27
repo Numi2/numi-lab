@@ -1,0 +1,89 @@
+{
+  "schema": "numi.human.bank115_118.corrected_incremental_exact_self.v1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-004/run-001/candidate.npz",
+  "candidate_sha256": "0eecbf747c07928e01d8d2a67e4cb169fc30f5aecf955af1e200257e9278e1f3",
+  "current_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "baseline_complete_self_audit_sha256": "0ec99fa47245355d60858b05e1240b0e562de229c13721ea11659f6f4acdf5cf",
+  "baseline_exact_PLC_surface_pairs": 0,
+  "changed_node_count": 14,
+  "changed_face_count": 60,
+  "changed_vs_unchanged_aabb_candidates": 237,
+  "changed_vs_unchanged_count": 17,
+  "changed_vs_unchanged_allowed_shared": 128,
+  "changed_mutual_count": 0,
+  "changed_mutual_allowed_shared": 378,
+  "new_exact_self_pair_count": 17,
+  "new_exact_self_pairs": [
+    [
+      29833,
+      31574
+    ],
+    [
+      29833,
+      31575
+    ],
+    [
+      31359,
+      31574
+    ],
+    [
+      31360,
+      31574
+    ],
+    [
+      31363,
+      31574
+    ],
+    [
+      31363,
+      31575
+    ],
+    [
+      31366,
+      31575
+    ],
+    [
+      31373,
+      31575
+    ],
+    [
+      31378,
+      31575
+    ],
+    [
+      31406,
+      31438
+    ],
+    [
+      31434,
+      31524
+    ],
+    [
+      31434,
+      31531
+    ],
+    [
+      31440,
+      31574
+    ],
+    [
+      31484,
+      31574
+    ],
+    [
+      31504,
+      31524
+    ],
+    [
+      31504,
+      31531
+    ],
+    [
+      31511,
+      31574
+    ]
+  ],
+  "no_new_exact_self_pairs": false,
+  "exact_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "coordinate_rule": "exact Float32 emitted world coordinates promoted to Float64; rational exact narrowphase with shared global mesh vertex IDs preserved"
+}

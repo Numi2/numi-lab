@@ -1,0 +1,1453 @@
+{
+  "schema": "numi.surface-clearance-546.source-current-normal-agreement.589.v1",
+  "classification": "PARTIAL target-row orientation preflight for unadmitted target proposals; no candidate relocation or physical step",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "source_orientation_report_path": "/Users/numi/Work/numi-human-connected-surface-069/digit-source-diagnosis-110/source-path-orientation-audit-112.json",
+  "source_orientation_report_sha256": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497",
+  "fine_outward_sign": 1,
+  "fine_outward_anchor_count": 2315,
+  "fine_outward_agreement_fraction": 0.9969762419006479,
+  "fine_to_coarse_winding_parity": -1,
+  "parity_anchor_count": 2300,
+  "parity_agreement_fraction": 0.9982608695652174,
+  "orientation_owner_derived_coarse_outward_sign": -1,
+  "status": "PASS",
+  "coarse_outward_sign": -1,
+  "target_row_count": 55,
+  "agreement_count": 55,
+  "disagreement_count": 0,
+  "rows": [
+    {
+      "query_row": 20895,
+      "status": "PASS",
+      "incident_faces": [
+        19309,
+        19310,
+        19312,
+        19817,
+        19818,
+        19819
+      ],
+      "current_area_sum_m2": 7.796277595851787e-06,
+      "resultant_over_area_sum": 0.9878591452854057,
+      "current_outward_normal_world_unit": [
+        0.5873087529439693,
+        -0.14071101518784945,
+        0.7970375392164439
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.4018305456429028,
+        -0.47030626898861844,
+        0.7857125593614579
+      ],
+      "current_source_outward_dot": 0.9284182740598368,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20900,
+      "status": "PASS",
+      "incident_faces": [
+        19310,
+        19311,
+        19312,
+        19313,
+        19315,
+        19316
+      ],
+      "current_area_sum_m2": 2.9171878807395172e-06,
+      "resultant_over_area_sum": 0.9668025230012989,
+      "current_outward_normal_world_unit": [
+        0.5934758894176038,
+        -0.144831254826284,
+        0.791713506456362
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.5681165847950532,
+        -0.3263553306643767,
+        0.7554705449107533
+      ],
+      "current_source_outward_dot": 0.9825461816492952,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20901,
+      "status": "PASS",
+      "incident_faces": [
+        19813,
+        19814,
+        19815,
+        19816,
+        19817,
+        19819
+      ],
+      "current_area_sum_m2": 8.58481399908993e-06,
+      "resultant_over_area_sum": 0.90909924275715,
+      "current_outward_normal_world_unit": [
+        0.5057511488222229,
+        -0.24402318696603056,
+        0.8274469527939198
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.2918471193740693,
+        -0.5460456236812979,
+        0.7852766619297685
+      ],
+      "current_source_outward_dot": 0.9306245902374243,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20907,
+      "status": "PASS",
+      "incident_faces": [
+        19446,
+        19448,
+        19449,
+        19462,
+        19463,
+        19464
+      ],
+      "current_area_sum_m2": 2.698922963817869e-06,
+      "resultant_over_area_sum": 0.6034305796425323,
+      "current_outward_normal_world_unit": [
+        0.7173108128423846,
+        0.5683537410687546,
+        0.40303749551691676
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.5681165847950533,
+        -0.3263553306643767,
+        0.7554705449107533
+      ],
+      "current_source_outward_dot": 0.5265138524853807,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20931,
+      "status": "PASS",
+      "incident_faces": [
+        19353,
+        19354,
+        19355,
+        19367,
+        19369,
+        19370
+      ],
+      "current_area_sum_m2": 1.1824803346158092e-06,
+      "resultant_over_area_sum": 0.8962185389980882,
+      "current_outward_normal_world_unit": [
+        0.8874375537054652,
+        0.33848809861192586,
+        0.312858427042237
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.5681165847950532,
+        -0.3263553306643767,
+        0.7554705449107533
+      ],
+      "current_source_outward_dot": 0.6300559232390942,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20946,
+      "status": "PASS",
+      "incident_faces": [
+        14215,
+        14216,
+        14217,
+        14221,
+        14222,
+        14223
+      ],
+      "current_area_sum_m2": 3.889708095217177e-06,
+      "resultant_over_area_sum": 0.7803651394908054,
+      "current_outward_normal_world_unit": [
+        -0.0869883634724532,
+        0.9270662492593196,
+        -0.364665866382695
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.19173918693677225,
+        0.8177315650325314,
+        -0.5427256873801647
+      ],
+      "current_source_outward_dot": 0.9726839459774622,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20948,
+      "status": "PASS",
+      "incident_faces": [
+        14054,
+        14056,
+        14057,
+        14220,
+        14222,
+        14223
+      ],
+      "current_area_sum_m2": 4.2134825570274436e-06,
+      "resultant_over_area_sum": 0.9904837334494069,
+      "current_outward_normal_world_unit": [
+        -0.036300421067523604,
+        0.7341206440800238,
+        -0.6780480509269617
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.1917391869367722,
+        0.8177315650325314,
+        -0.5427256873801648
+      ],
+      "current_source_outward_dot": 0.9752679309433135,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20957,
+      "status": "PASS",
+      "incident_faces": [
+        19421,
+        19423,
+        19424,
+        19429,
+        19430,
+        19432
+      ],
+      "current_area_sum_m2": 1.2061848624463255e-06,
+      "resultant_over_area_sum": 0.9188615552179997,
+      "current_outward_normal_world_unit": [
+        0.3018738020145706,
+        -0.6292315482486092,
+        0.7161982032551647
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.5681165847950532,
+        -0.32635533066437666,
+        0.7554705449107533
+      ],
+      "current_source_outward_dot": 0.9179192303100301,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20960,
+      "status": "PASS",
+      "incident_faces": [
+        34533,
+        34535,
+        34536,
+        34736,
+        34737,
+        34738
+      ],
+      "current_area_sum_m2": 6.9914265837667165e-06,
+      "resultant_over_area_sum": 0.8990089553897066,
+      "current_outward_normal_world_unit": [
+        0.34078492405464395,
+        -0.9395456773145895,
+        0.033459763545779904
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.7523993907606095,
+        -0.5099543053180976,
+        -0.4169433573887467
+      ],
+      "current_source_outward_dot": 0.7215809062784866,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20961,
+      "status": "PASS",
+      "incident_faces": [
+        34530,
+        34531,
+        34532,
+        34735,
+        34737,
+        34738
+      ],
+      "current_area_sum_m2": 8.77296204885209e-06,
+      "resultant_over_area_sum": 0.9736280328801942,
+      "current_outward_normal_world_unit": [
+        0.3505763912608618,
+        -0.6718327120466429,
+        -0.6524852495762365
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.7523993907606095,
+        -0.5099543053180977,
+        -0.41694335738874677
+      ],
+      "current_source_outward_dot": 0.8784268377663953,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20964,
+      "status": "PASS",
+      "incident_faces": [
+        34566,
+        34567,
+        34568,
+        34601,
+        34602,
+        34604
+      ],
+      "current_area_sum_m2": 4.363775597879569e-06,
+      "resultant_over_area_sum": 0.49255006477810287,
+      "current_outward_normal_world_unit": [
+        0.2199496057694278,
+        -0.3529513081813045,
+        -0.9094215441559427
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.7523993907606095,
+        -0.5099543053180977,
+        -0.41694335738874677
+      ],
+      "current_source_outward_dot": 0.7246562604557019,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20965,
+      "status": "PASS",
+      "incident_faces": [
+        34544,
+        34545,
+        34547,
+        34565,
+        34566,
+        34568
+      ],
+      "current_area_sum_m2": 2.448345041090277e-06,
+      "resultant_over_area_sum": 0.9923543941431061,
+      "current_outward_normal_world_unit": [
+        0.3562060969669722,
+        -0.9333246004432019,
+        -0.04497117622537481
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.7523993907606095,
+        -0.5099543053180977,
+        -0.4169433573887469
+      ],
+      "current_source_outward_dot": 0.7627125817995974,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20968,
+      "status": "PASS",
+      "incident_faces": [
+        34602,
+        34603,
+        34604,
+        34605,
+        34607,
+        34608
+      ],
+      "current_area_sum_m2": 2.388915979551726e-06,
+      "resultant_over_area_sum": 0.9949464181859556,
+      "current_outward_normal_world_unit": [
+        -0.1327014709217726,
+        0.4864373275442781,
+        -0.8635792065507244
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.7523993907606095,
+        -0.5099543053180977,
+        -0.41694335738874677
+      ],
+      "current_source_outward_dot": 0.012158298427156322,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20979,
+      "status": "PASS",
+      "incident_faces": [
+        35340,
+        35341,
+        35342,
+        35384,
+        35386,
+        35387
+      ],
+      "current_area_sum_m2": 9.655617457481722e-05,
+      "resultant_over_area_sum": 0.903063063843755,
+      "current_outward_normal_world_unit": [
+        0.14563161777928585,
+        -0.9725140270832283,
+        -0.18168076130771252
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.8236097348958746,
+        -0.5126192543289522,
+        -0.24266953800585767
+      ],
+      "current_source_outward_dot": 0.662561419910601,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20980,
+      "status": "PASS",
+      "incident_faces": [
+        35339,
+        35341,
+        35342,
+        35438,
+        35439,
+        35440
+      ],
+      "current_area_sum_m2": 0.0001105940828476239,
+      "resultant_over_area_sum": 0.9544830723604181,
+      "current_outward_normal_world_unit": [
+        -0.029037747876833473,
+        -0.9675144897027015,
+        -0.25114243252298557
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.8236097348958746,
+        -0.5126192543289522,
+        -0.24266953800585767
+      ],
+      "current_source_outward_dot": 0.5329954025070637,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20986,
+      "status": "PASS",
+      "incident_faces": [
+        14171,
+        14173,
+        14174,
+        14176,
+        14177,
+        14178
+      ],
+      "current_area_sum_m2": 4.11220258072716e-06,
+      "resultant_over_area_sum": 0.954057777201308,
+      "current_outward_normal_world_unit": [
+        0.03161747236192384,
+        0.08376445875255041,
+        -0.9959838607584638
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.19173918693677222,
+        0.8177315650325315,
+        -0.5427256873801648
+      ],
+      "current_source_outward_dot": 0.6029805589558425,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20987,
+      "status": "PASS",
+      "incident_faces": [
+        14175,
+        14176,
+        14178,
+        14249,
+        14250,
+        14251
+      ],
+      "current_area_sum_m2": 3.317726213375532e-06,
+      "resultant_over_area_sum": 0.9589721367443657,
+      "current_outward_normal_world_unit": [
+        -0.026699881288735686,
+        0.9207349489286536,
+        -0.3892740296507294
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.19173918693677222,
+        0.8177315650325314,
+        -0.5427256873801648
+      ],
+      "current_source_outward_dot": 0.969302459618625,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20989,
+      "status": "PASS",
+      "incident_faces": [
+        19735,
+        19737,
+        19738,
+        19747,
+        19748,
+        19750
+      ],
+      "current_area_sum_m2": 1.4717048283159541e-05,
+      "resultant_over_area_sum": 0.7909912860580551,
+      "current_outward_normal_world_unit": [
+        -0.592794531730288,
+        -0.6976104420274445,
+        0.40241062899101215
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.29184711937406943,
+        -0.5460456236812982,
+        0.7852766619297685
+      ],
+      "current_source_outward_dot": 0.5239254278963976,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20990,
+      "status": "PASS",
+      "incident_faces": [
+        19674,
+        19676,
+        19677,
+        19748,
+        19749,
+        19750
+      ],
+      "current_area_sum_m2": 6.338150434701128e-06,
+      "resultant_over_area_sum": 0.9700248447768186,
+      "current_outward_normal_world_unit": [
+        0.16858374205041213,
+        -0.514853148372567,
+        0.8405389684762602
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.2918471193740694,
+        -0.5460456236812979,
+        0.7852766619297685
+      ],
+      "current_source_outward_dot": 0.9903896233850207,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20996,
+      "status": "PASS",
+      "incident_faces": [
+        14069,
+        14070,
+        14072,
+        14087,
+        14088,
+        14090
+      ],
+      "current_area_sum_m2": 4.486860212489413e-06,
+      "resultant_over_area_sum": 0.9140179469398008,
+      "current_outward_normal_world_unit": [
+        -0.17787079638570658,
+        0.8955957398001633,
+        -0.40776249293542516
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.1917391869367722,
+        0.8177315650325315,
+        -0.5427256873801648
+      ],
+      "current_source_outward_dot": 0.9877648870882751,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 20999,
+      "status": "PASS",
+      "incident_faces": [
+        14070,
+        14071,
+        14072,
+        14073,
+        14075,
+        14076
+      ],
+      "current_area_sum_m2": 3.714129434124418e-06,
+      "resultant_over_area_sum": 0.7744969597169361,
+      "current_outward_normal_world_unit": [
+        -0.10842845620174625,
+        0.8205057452363198,
+        -0.5612607165301147
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.19173918693677222,
+        0.8177315650325314,
+        -0.5427256873801648
+      ],
+      "current_source_outward_dot": 0.9963540393815018,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21001,
+      "status": "PASS",
+      "incident_faces": [
+        14147,
+        14148,
+        14150,
+        14190,
+        14192,
+        14193
+      ],
+      "current_area_sum_m2": 2.930833951818551e-06,
+      "resultant_over_area_sum": 0.9778230801363766,
+      "current_outward_normal_world_unit": [
+        0.2116068411835143,
+        0.8845664278034785,
+        -0.41564982806122786
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.19173918693677222,
+        0.8177315650325314,
+        -0.5427256873801648
+      ],
+      "current_source_outward_dot": 0.9083484043481657,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21003,
+      "status": "PASS",
+      "incident_faces": [
+        14180,
+        14181,
+        14183,
+        14190,
+        14191,
+        14193
+      ],
+      "current_area_sum_m2": 1.0340027455721003e-05,
+      "resultant_over_area_sum": 0.9508517586591579,
+      "current_outward_normal_world_unit": [
+        -0.0042171724528557,
+        0.4483698817970333,
+        -0.8938381646326237
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.19173918693677225,
+        0.8177315650325315,
+        -0.5427256873801648
+      ],
+      "current_source_outward_dot": 0.8525637346794874,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21012,
+      "status": "PASS",
+      "incident_faces": [
+        15063,
+        15065,
+        15066,
+        15107,
+        15108,
+        15109
+      ],
+      "current_area_sum_m2": 2.459792545291315e-05,
+      "resultant_over_area_sum": 0.9986795542398378,
+      "current_outward_normal_world_unit": [
+        0.22459190506017493,
+        0.8927418273128837,
+        -0.3906027469789412
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.22837000577655778,
+        0.8785062678919121,
+        -0.41961157960218287
+      ],
+      "current_source_outward_dot": 0.8968906719044724,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21022,
+      "status": "PASS",
+      "incident_faces": [
+        19418,
+        19419,
+        19420,
+        19457,
+        19458,
+        19460
+      ],
+      "current_area_sum_m2": 1.5229922670323025e-06,
+      "resultant_over_area_sum": 0.9653393381281714,
+      "current_outward_normal_world_unit": [
+        0.7065781082125366,
+        -0.17171060389281223,
+        0.6864858669379573
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.5681165847950532,
+        -0.3263553306643766,
+        0.7554705449107533
+      ],
+      "current_source_outward_dot": 0.9760772646098239,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21045,
+      "status": "PASS",
+      "incident_faces": [
+        34666,
+        34668,
+        34669,
+        34705,
+        34706,
+        34708
+      ],
+      "current_area_sum_m2": 2.642916545562177e-06,
+      "resultant_over_area_sum": 0.9321442368439704,
+      "current_outward_normal_world_unit": [
+        0.41912995044140666,
+        -0.8081667803159548,
+        0.4137590359577992
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.7523993907606095,
+        -0.5099543053180976,
+        -0.41694335738874677
+      ],
+      "current_source_outward_dot": 0.5549671667966491,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21046,
+      "status": "PASS",
+      "incident_faces": [
+        34667,
+        34668,
+        34669,
+        34721,
+        34723,
+        34724
+      ],
+      "current_area_sum_m2": 4.777488107033582e-06,
+      "resultant_over_area_sum": 0.9994115804550076,
+      "current_outward_normal_world_unit": [
+        0.4094723273839749,
+        -0.8028651636794563,
+        0.43328967453276696
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.7523993907606095,
+        -0.5099543053180977,
+        -0.4169433573887468
+      ],
+      "current_source_outward_dot": 0.5368540248437201,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21068,
+      "status": "PASS",
+      "incident_faces": [
+        19809,
+        19810,
+        19811,
+        19812,
+        19814,
+        19815
+      ],
+      "current_area_sum_m2": 1.1061229693007845e-05,
+      "resultant_over_area_sum": 0.9876733133858618,
+      "current_outward_normal_world_unit": [
+        -0.152828307827984,
+        -0.6858395888539346,
+        0.7115248180401728
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.2918471193740694,
+        -0.546045623681298,
+        0.7852766619297685
+      ],
+      "current_source_outward_dot": 0.8886410386334338,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21080,
+      "status": "PASS",
+      "incident_faces": [
+        14110,
+        14111,
+        14113,
+        14125,
+        14127,
+        14128
+      ],
+      "current_area_sum_m2": 5.399966260357074e-06,
+      "resultant_over_area_sum": 0.18032936476183242,
+      "current_outward_normal_world_unit": [
+        -0.16360980018305835,
+        0.9846751499972185,
+        -0.060387765830631324
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.19173918693677222,
+        0.8177315650325315,
+        -0.5427256873801647
+      ],
+      "current_source_outward_dot": 0.8693443532376374,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21083,
+      "status": "PASS",
+      "incident_faces": [
+        14088,
+        14089,
+        14090,
+        14092,
+        14093,
+        14094
+      ],
+      "current_area_sum_m2": 3.674151182847196e-06,
+      "resultant_over_area_sum": 0.8948067910009452,
+      "current_outward_normal_world_unit": [
+        -0.2643004738686579,
+        0.526224649636297,
+        0.8082282336246113
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.19173918693677222,
+        0.8177315650325315,
+        -0.5427256873801648
+      ],
+      "current_source_outward_dot": 0.042341040618391224,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21085,
+      "status": "PASS",
+      "incident_faces": [
+        14125,
+        14126,
+        14128,
+        14130,
+        14132,
+        14133
+      ],
+      "current_area_sum_m2": 4.361574615446894e-06,
+      "resultant_over_area_sum": 0.7521658041428433,
+      "current_outward_normal_world_unit": [
+        -0.2643440627438333,
+        0.8800060973322374,
+        0.39460294620056896
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.1917391869367722,
+        0.8177315650325314,
+        -0.5427256873801648
+      ],
+      "current_source_outward_dot": 0.5561327236527844,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21087,
+      "status": "PASS",
+      "incident_faces": [
+        14110,
+        14112,
+        14113,
+        14409,
+        14410,
+        14412
+      ],
+      "current_area_sum_m2": 6.589663690500698e-06,
+      "resultant_over_area_sum": 0.6666711830403179,
+      "current_outward_normal_world_unit": [
+        0.29660880029175735,
+        -0.09979221087607247,
+        -0.9497708851285923
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.19173918693677217,
+        0.8177315650325315,
+        -0.5427256873801647
+      ],
+      "current_source_outward_dot": 0.37699028550110253,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21088,
+      "status": "PASS",
+      "incident_faces": [
+        14405,
+        14407,
+        14408,
+        14410,
+        14411,
+        14412
+      ],
+      "current_area_sum_m2": 5.649582661869299e-06,
+      "resultant_over_area_sum": 0.9384020860180703,
+      "current_outward_normal_world_unit": [
+        0.19479638538720453,
+        0.5349474082558991,
+        -0.8221226420920276
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.1917391869367722,
+        0.8177315650325315,
+        -0.5427256873801647
+      ],
+      "current_source_outward_dot": 0.8462803568510211,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21091,
+      "status": "PASS",
+      "incident_faces": [
+        14406,
+        14407,
+        14408,
+        14454,
+        14455,
+        14457
+      ],
+      "current_area_sum_m2": 5.11591858885245e-06,
+      "resultant_over_area_sum": 0.9809992494511187,
+      "current_outward_normal_world_unit": [
+        0.25364848338436735,
+        0.7770907243520064,
+        -0.5760142819434986
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.19173918693677222,
+        0.8177315650325314,
+        -0.5427256873801648
+      ],
+      "current_source_outward_dot": 0.899435007333343,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21093,
+      "status": "PASS",
+      "incident_faces": [
+        19447,
+        19448,
+        19449,
+        19450,
+        19451,
+        19453
+      ],
+      "current_area_sum_m2": 2.044639165142876e-06,
+      "resultant_over_area_sum": 0.9649890062844149,
+      "current_outward_normal_world_unit": [
+        0.6736132140744168,
+        0.026755865195288643,
+        0.7385995948428251
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.5681165847950532,
+        -0.32635533066437666,
+        0.7554705449107534
+      ],
+      "current_source_outward_dot": 0.9319491578065275,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21094,
+      "status": "PASS",
+      "incident_faces": [
+        19219,
+        19221,
+        19222,
+        19238,
+        19239,
+        19240
+      ],
+      "current_area_sum_m2": 6.736054109225008e-07,
+      "resultant_over_area_sum": 0.9849854187733507,
+      "current_outward_normal_world_unit": [
+        0.06152526401673938,
+        -0.6585310811042143,
+        0.7500343039537493
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.5681165847950532,
+        -0.3263553306643766,
+        0.7554705449107533
+      ],
+      "current_source_outward_dot": 0.8164974759080358,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21096,
+      "status": "PASS",
+      "incident_faces": [
+        19458,
+        19459,
+        19460,
+        19461,
+        19463,
+        19464
+      ],
+      "current_area_sum_m2": 2.362997660747028e-06,
+      "resultant_over_area_sum": 0.4520103718021535,
+      "current_outward_normal_world_unit": [
+        0.8167645462664574,
+        0.401330962744565,
+        0.4145227789937105
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.5681165847950532,
+        -0.32635533066437666,
+        0.7554705449107533
+      ],
+      "current_source_outward_dot": 0.6462007352785242,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21103,
+      "status": "PASS",
+      "incident_faces": [
+        15085,
+        15087,
+        15088,
+        15106,
+        15107,
+        15109
+      ],
+      "current_area_sum_m2": 1.9012648760142857e-05,
+      "resultant_over_area_sum": 0.8700955385339573,
+      "current_outward_normal_world_unit": [
+        0.2054774014296299,
+        0.9784074354810555,
+        -0.02231429356065429
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.22837000577655786,
+        0.8785062678919121,
+        -0.4196115796021829
+      ],
+      "current_source_outward_dot": 0.8219755252394152,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21105,
+      "status": "PASS",
+      "incident_faces": [
+        15085,
+        15086,
+        15088,
+        15130,
+        15132,
+        15133
+      ],
+      "current_area_sum_m2": 9.971240030735693e-06,
+      "resultant_over_area_sum": 0.9992268046222369,
+      "current_outward_normal_world_unit": [
+        0.033323122210044194,
+        0.7247521308040651,
+        0.6882033990188815
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.2283700057765578,
+        0.8785062678919121,
+        -0.41961157960218287
+      ],
+      "current_source_outward_dot": 0.3403111726178852,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21131,
+      "status": "PASS",
+      "incident_faces": [
+        19717,
+        19719,
+        19720,
+        19726,
+        19727,
+        19728
+      ],
+      "current_area_sum_m2": 8.390108740216917e-05,
+      "resultant_over_area_sum": 0.9854846785451952,
+      "current_outward_normal_world_unit": [
+        -0.09060937917920509,
+        -0.7787114159167093,
+        0.6208046964430544
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.29184711937406943,
+        -0.5460456236812982,
+        0.7852766619297685
+      ],
+      "current_source_outward_dot": 0.8862713142033876,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21134,
+      "status": "PASS",
+      "incident_faces": [
+        19725,
+        19726,
+        19728,
+        19729,
+        19731,
+        19732
+      ],
+      "current_area_sum_m2": 6.504850834355124e-05,
+      "resultant_over_area_sum": 0.9100925730263479,
+      "current_outward_normal_world_unit": [
+        -0.33834652365806683,
+        -0.7273674190611086,
+        0.5970412612348354
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.2918471193740694,
+        -0.546045623681298,
+        0.7852766619297685
+      ],
+      "current_source_outward_dot": 0.7672729063636723,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21150,
+      "status": "PASS",
+      "incident_faces": [
+        34702,
+        34703,
+        34704,
+        34705,
+        34707,
+        34708
+      ],
+      "current_area_sum_m2": 2.955334183287632e-06,
+      "resultant_over_area_sum": 0.9584386391657644,
+      "current_outward_normal_world_unit": [
+        0.46316067311480286,
+        -0.8861022549726514,
+        0.017463808640303526
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.7523993907606095,
+        -0.5099543053180977,
+        -0.4169433573887469
+      ],
+      "current_source_outward_dot": 0.793072049143947,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21158,
+      "status": "PASS",
+      "incident_faces": [
+        14172,
+        14173,
+        14174,
+        14180,
+        14182,
+        14183
+      ],
+      "current_area_sum_m2": 1.1241980791901076e-05,
+      "resultant_over_area_sum": 0.9843767783523856,
+      "current_outward_normal_world_unit": [
+        -0.03564849903408145,
+        0.2010453828731047,
+        -0.9789330613183027
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.1917391869367722,
+        0.8177315650325315,
+        -0.5427256873801648
+      ],
+      "current_source_outward_dot": 0.7025284884028443,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21169,
+      "status": "PASS",
+      "incident_faces": [
+        14055,
+        14056,
+        14057,
+        14058,
+        14060,
+        14061
+      ],
+      "current_area_sum_m2": 3.1786761154652612e-06,
+      "resultant_over_area_sum": 0.5427597294126372,
+      "current_outward_normal_world_unit": [
+        -0.07799754211667527,
+        0.9670731443998384,
+        0.24225176326368972
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.19173918693677222,
+        0.8177315650325314,
+        -0.5427256873801647
+      ],
+      "current_source_outward_dot": 0.674285166443186,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21174,
+      "status": "PASS",
+      "incident_faces": [
+        34529,
+        34530,
+        34532,
+        34537,
+        34538,
+        34540
+      ],
+      "current_area_sum_m2": 8.379414106740842e-06,
+      "resultant_over_area_sum": 0.9067657716175705,
+      "current_outward_normal_world_unit": [
+        0.2293197245757171,
+        -0.28756398881561895,
+        -0.9299029068977943
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.7523993907606095,
+        -0.5099543053180977,
+        -0.4169433573887469
+      ],
+      "current_source_outward_dot": 0.7069013552586522,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21176,
+      "status": "PASS",
+      "incident_faces": [
+        34606,
+        34607,
+        34608,
+        34609,
+        34611,
+        34612
+      ],
+      "current_area_sum_m2": 2.2511544176410352e-07,
+      "resultant_over_area_sum": 0.9549566281247199,
+      "current_outward_normal_world_unit": [
+        -0.1605695019766806,
+        0.3572640198015045,
+        -0.9200977421938556
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.7523993907606095,
+        -0.5099543053180978,
+        -0.4169433573887468
+      ],
+      "current_source_outward_dot": 0.08062792126109541,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21185,
+      "status": "PASS",
+      "incident_faces": [
+        14245,
+        14246,
+        14247,
+        14248,
+        14250,
+        14251
+      ],
+      "current_area_sum_m2": 3.1218056541180614e-06,
+      "resultant_over_area_sum": 0.7455972612551033,
+      "current_outward_normal_world_unit": [
+        -0.011271431867843396,
+        0.9989906964282057,
+        0.043480378028915204
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.19173918693677225,
+        0.8177315650325315,
+        -0.5427256873801648
+      ],
+      "current_source_outward_dot": 0.7954694827718364,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21187,
+      "status": "PASS",
+      "incident_faces": [
+        19367,
+        19368,
+        19370,
+        19371,
+        19373,
+        19374
+      ],
+      "current_area_sum_m2": 1.9654769432096732e-06,
+      "resultant_over_area_sum": 0.9949128711704649,
+      "current_outward_normal_world_unit": [
+        0.8786917687524591,
+        0.20118910712173294,
+        0.43292461087611395
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.5681165847950531,
+        -0.32635533066437666,
+        0.7554705449107533
+      ],
+      "current_source_outward_dot": 0.7606020208542414,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21188,
+      "status": "PASS",
+      "incident_faces": [
+        19371,
+        19372,
+        19374,
+        19390,
+        19391,
+        19392
+      ],
+      "current_area_sum_m2": 1.8562248066118906e-06,
+      "resultant_over_area_sum": 0.8964266758955796,
+      "current_outward_normal_world_unit": [
+        0.8432827416047605,
+        0.49456227921240453,
+        0.2104337655695737
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.5681165847950532,
+        -0.32635533066437666,
+        0.7554705449107533
+      ],
+      "current_source_outward_dot": 0.47665638655308135,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21190,
+      "status": "PASS",
+      "incident_faces": [
+        19381,
+        19382,
+        19384,
+        19389,
+        19390,
+        19392
+      ],
+      "current_area_sum_m2": 1.5861757273554935e-06,
+      "resultant_over_area_sum": 0.9559683750909727,
+      "current_outward_normal_world_unit": [
+        0.7669532960944337,
+        0.6358770407676196,
+        0.08627300061142412
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.5681165847950532,
+        -0.32635533066437666,
+        0.7554705449107534
+      ],
+      "current_source_outward_dot": 0.2933737361558755,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21191,
+      "status": "PASS",
+      "incident_faces": [
+        19675,
+        19676,
+        19677,
+        19678,
+        19680,
+        19681
+      ],
+      "current_area_sum_m2": 3.6085667335570986e-06,
+      "resultant_over_area_sum": 0.5434028592815715,
+      "current_outward_normal_world_unit": [
+        -0.6883736484333022,
+        -0.7158411259011903,
+        0.11710338428559793
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.2918471193740694,
+        -0.546045623681298,
+        0.7852766619297686
+      ],
+      "current_source_outward_dot": 0.2819406024136337,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21193,
+      "status": "PASS",
+      "incident_faces": [
+        19729,
+        19730,
+        19732,
+        19735,
+        19736,
+        19738
+      ],
+      "current_area_sum_m2": 3.2824154364949015e-05,
+      "resultant_over_area_sum": 0.9918808872145772,
+      "current_outward_normal_world_unit": [
+        -0.7338059822105684,
+        -0.6255398402519287,
+        0.26500695977572886
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.29184711937406943,
+        -0.5460456236812982,
+        0.7852766619297685
+      ],
+      "current_source_outward_dot": 0.33551791088109084,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21199,
+      "status": "PASS",
+      "incident_faces": [
+        15102,
+        15103,
+        15104,
+        15131,
+        15132,
+        15133
+      ],
+      "current_area_sum_m2": 7.003156532485836e-06,
+      "resultant_over_area_sum": 0.9997307013531375,
+      "current_outward_normal_world_unit": [
+        0.037667270158331045,
+        0.6738739776421862,
+        0.7378855189089415
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.22837000577655786,
+        0.8785062678919121,
+        -0.4196115796021829
+      ],
+      "current_source_outward_dot": 0.2737751302693121,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21204,
+      "status": "PASS",
+      "incident_faces": [
+        19382,
+        19383,
+        19384,
+        19430,
+        19431,
+        19432
+      ],
+      "current_area_sum_m2": 8.212975081145977e-07,
+      "resultant_over_area_sum": 0.9872917615685147,
+      "current_outward_normal_world_unit": [
+        0.8523195661183809,
+        0.3180903513356302,
+        0.41517452426533874
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.5681165847950533,
+        -0.32635533066437666,
+        0.7554705449107533
+      ],
+      "current_source_outward_dot": 0.6940585233456871,
+      "coarse_outward_sign": -1
+    },
+    {
+      "query_row": 21205,
+      "status": "PASS",
+      "incident_faces": [
+        19403,
+        19404,
+        19406,
+        19422,
+        19423,
+        19424
+      ],
+      "current_area_sum_m2": 1.974754548203386e-06,
+      "resultant_over_area_sum": 0.8629692846505196,
+      "current_outward_normal_world_unit": [
+        -0.3013136546738617,
+        -0.8236297958722368,
+        0.48046231991545235
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.5681165847950532,
+        -0.3263553306643767,
+        0.7554705449107533
+      ],
+      "current_source_outward_dot": 0.4605898205670981,
+      "coarse_outward_sign": -1
+    }
+  ],
+  "witnesses": []
+}

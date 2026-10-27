@@ -1,0 +1,170 @@
+{
+  "schema": "numi.human.bank115_118.one_ring_trial.disposition.v1",
+  "status": "REJECTED_EXACT_BANK_AND_SELF_REGRESSION",
+  "trial": "Connected one-ring correction around faces 31364 and 31367 on the current candidate; 0.20 mm directional core target and 0.10 mm one-ring targets; edge-gradient, source-safe, area, and failed-flip witness constraints.",
+  "current_candidate": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+    "sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af"
+  },
+  "trial_candidate": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-004/run-001/candidate.npz",
+    "sha256": "0eecbf747c07928e01d8d2a67e4cb169fc30f5aecf955af1e200257e9278e1f3",
+    "retained_as_candidate": false
+  },
+  "measured": {
+    "lp": "optimal, 55 iterations, 0.00176 s",
+    "changed_nodes": 14,
+    "changed_faces": 60,
+    "maximum_displacement_mm": 0.19998902342621852,
+    "maximum_source_distance_mm": 11.999981854019131,
+    "anchors_bitwise_unchanged": true,
+    "area_gate": "pass on 42379 faces; min current-oriented ratio 0.20725391911531987; min fixed-reference magnitude ratio 0.10000963829086307; zero bad faces",
+    "typed_banks_checked": 185,
+    "all_bank_cross_pairs": "985 before, 985 after; 7 new and 7 removed",
+    "bank_115_118_cross_pairs": "46 before, 46 after",
+    "exact_self_pairs": "0 baseline; 17 new trial pairs"
+  },
+  "new_bank_115_118_pairs_skin_face_bone_face": [
+    [
+      31366,
+      280
+    ],
+    [
+      31366,
+      281
+    ],
+    [
+      31366,
+      327
+    ],
+    [
+      31457,
+      106
+    ],
+    [
+      31457,
+      203
+    ],
+    [
+      31457,
+      279
+    ],
+    [
+      31457,
+      284
+    ]
+  ],
+  "removed_bank_115_118_pairs_skin_face_bone_face": [
+    [
+      29834,
+      106
+    ],
+    [
+      29834,
+      107
+    ],
+    [
+      29834,
+      203
+    ],
+    [
+      29834,
+      279
+    ],
+    [
+      31367,
+      280
+    ],
+    [
+      31367,
+      281
+    ],
+    [
+      31367,
+      308
+    ]
+  ],
+  "new_exact_self_pairs_skin_face_rows": [
+    [
+      29833,
+      31574
+    ],
+    [
+      29833,
+      31575
+    ],
+    [
+      31359,
+      31574
+    ],
+    [
+      31360,
+      31574
+    ],
+    [
+      31363,
+      31574
+    ],
+    [
+      31363,
+      31575
+    ],
+    [
+      31366,
+      31575
+    ],
+    [
+      31373,
+      31575
+    ],
+    [
+      31378,
+      31575
+    ],
+    [
+      31406,
+      31438
+    ],
+    [
+      31434,
+      31524
+    ],
+    [
+      31434,
+      31531
+    ],
+    [
+      31440,
+      31574
+    ],
+    [
+      31484,
+      31574
+    ],
+    [
+      31504,
+      31524
+    ],
+    [
+      31504,
+      31531
+    ],
+    [
+      31511,
+      31574
+    ]
+  ],
+  "evidence": {
+    "solver_report": "run-001/report.json (its exact bank results are valid; its self section is superseded)",
+    "corrected_global_vertex_self_audit": "run-001/exact-self-corrected.json",
+    "exact_audit_method": "incremental exact check against changed faces and every overlapping unchanged face, preserving global vertex IDs; baseline full audit had zero self pairs",
+    "limitation": "No physical admission or transfer claim."
+  },
+  "self_audit_correction": "The first self section in run-001/report.json is invalid because its triangle-record helper assigned unique vertex IDs per face. Use exact-self-corrected.json for self results; all-bank crossing results are unaffected.",
+  "next_method": "Expand the connected repair support to cover the complete crossing/self witness neighborhood, including bank faces against skin rows 31366 and 31457 and self-pair rows 31574, 31575, 31524, 31531, 31438. Include all current bank witnesses as no-worsening constraints and exact self-pair separation constraints on the same support, then rerun the exact incremental audits. A correction confined to faces 31364/31367 transports the crossing and creates 17 new self crossings, so another two-face-only flip or endpoint move is not justified.",
+  "artifact_sha256": {
+    "rejected_candidate.npz": "0eecbf747c07928e01d8d2a67e4cb169fc30f5aecf955af1e200257e9278e1f3",
+    "solver_report.json": "c28b31026180a9c52cb3ea904b4bb3d5c85f47bca370fda5a3180f6acce704cf",
+    "exact-self-corrected.json": "aa395caca1aba54de7c15b91830509418e45a7ee7cf747c0a507122c3da91417"
+  }
+}

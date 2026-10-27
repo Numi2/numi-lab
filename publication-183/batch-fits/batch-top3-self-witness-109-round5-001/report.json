@@ -1,0 +1,12 @@
+{
+  "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "trial_sha256": "fa8a22cf2ee9cd309cd4d4e9e5594033c0a681af1b03aa88ce6d5ed633cb86a0",
+  "component": 2,
+  "fraction": 0.75,
+  "new_pair_count": 12,
+  "previous_pair_count": 126,
+  "overlap": 0,
+  "merged_count": 138,
+  "merged_sha256": "93d8137ab20078f7ca22b8bb7a0545f7e6ac47d1b68396fb6987266ec2392b42",
+  "geometry_admitted": false
+}

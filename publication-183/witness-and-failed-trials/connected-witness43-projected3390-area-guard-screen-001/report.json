@@ -1,0 +1,61 @@
+{
+  "status": "NO_SAFE_IMPROVEMENT",
+  "results": [
+    {
+      "alpha": 0.75,
+      "sha256": "8aced680433081db2873a146d2efc4dec513a94b149a47de4db30e77fc99e11d",
+      "area_pass": true,
+      "edge_slack_mm": -1.3717612248574651e-05,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.4111526820420838,
+      "local_max_area": 1.6126496304380218,
+      "local_min_normal_cos": 0.36382230824665346,
+      "raw_total": 991,
+      "parent_total": 658,
+      "raw_delta": {
+        "43/16": 6
+      },
+      "parent_delta": {
+        "43/16": 5
+      },
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "alpha": 0.5,
+      "sha256": "843e2822d25735c81a2ad34277ec9e9485650e6fc1489049708c1d581548f8ba",
+      "area_pass": true,
+      "edge_slack_mm": 0.004286488340338344,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.6352726488411392,
+      "local_max_area": 1.7428858414446373,
+      "local_min_normal_cos": 0.6930682473264164,
+      "raw_total": 985,
+      "parent_total": 653,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    {
+      "alpha": 0.25,
+      "sha256": "727ee062211a9670096f435287ca2df46ae272d8500b55311e5fa65ae6a28612",
+      "area_pass": true,
+      "edge_slack_mm": 0.00036683142882520427,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.6619420568334834,
+      "local_max_area": 1.44497631641608,
+      "local_min_normal_cos": 0.5032322973709278,
+      "raw_total": 985,
+      "parent_total": 653,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    }
+  ],
+  "baseline_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "full_655_159_parity": true,
+  "candidate_sha256": null,
+  "elapsed_s": 0.5794177921488881,
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0,
+  "limitations": "Incremental screen only; full exact 130/159, containment, skin/fat transfer, native qualification still required."
+}

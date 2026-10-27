@@ -1,0 +1,8 @@
+{
+  "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "trial_sha256": "9b5f8b18e2f42867c856d6a2c205879afc4e6a4afd83b444990b805461d984c8",
+  "component": 2,
+  "self_pairs": 91,
+  "self_pairs_sha256": "4317ff790f9bc063672d6966cfd2e0e095a2cc2bdf99738e59b506482c4d8901",
+  "geometry_admitted": false
+}

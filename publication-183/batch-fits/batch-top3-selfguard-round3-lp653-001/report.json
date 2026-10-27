@@ -1,0 +1,44 @@
+{
+  "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "target_sha256": "e7c8273cbec53f4273e412869d1315f45bcf7334fa01b98b28c393c719b54450",
+  "support_nodes": 1150,
+  "affected_faces": 2664,
+  "results": [
+    {
+      "alpha": 0.5,
+      "success": true,
+      "solver_status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "iterations": 41409,
+      "area_gate": {
+        "faces_checked": 42379,
+        "minimum_current_oriented_ratio": 0.6010903519859114,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10000963829086307,
+        "bad_current_oriented_face_count": 0,
+        "bad_current_oriented_face_rows_first_64": [],
+        "bad_current_oriented_face_rows_truncated": false,
+        "bad_fixed_037_reference_face_count": 0,
+        "bad_fixed_037_reference_face_rows_first_64": [],
+        "bad_fixed_037_reference_face_rows_truncated": false,
+        "area_floor": 0.1,
+        "pass": true
+      },
+      "linear_slack": -5.081053118492773e-05,
+      "edge_slack_mm": -5.081053118492773e-05,
+      "max_step_mm": 0.9601771206017201,
+      "max_source_mm": 11.999981854019131,
+      "changed_count": 769,
+      "target_residual_l1_mm": 9.668786078691483,
+      "local_min_area": 0.6343828437494791,
+      "local_max_area": 2.1599217968324593,
+      "local_min_normal_cos": 0.8721753433976864,
+      "status": "CHEAP_GATE_PASS_ONLY",
+      "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/batch-top3-selfguard-round3-lp653-001/candidate-alpha-0.5.npz",
+      "candidate_sha256": "24329b6e457f03a2afc08d7ab45da6beb36ce98f9d6e3d01a37fc10c8c0ed221"
+    }
+  ],
+  "elapsed_s": 9.574113916838542,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "limitations": "soft targets and linearized area only; exact skin/bone/self/containment, skin-fat transfer and native gates remain"
+}
