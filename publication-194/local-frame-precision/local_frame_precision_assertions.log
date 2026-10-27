@@ -1,0 +1,1 @@
+LOCAL_PRECISION_ASSERTIONS_PASS cases=2 local_roots_distinct=2 exact_local_incidence_after_f32=0/4 source_vertex_world_bits_changed=0/18 world_43_one_ulp_shift=PASS world_65_recollapse=PASS geometry_written=NO

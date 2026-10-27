@@ -1,0 +1,275 @@
+{
+  "schema": "numi.human.common-sub-float32-root-local-frame-probe.v1",
+  "status": "LOCAL_BODY_FRAME_PRESERVES_ROOT_DISTINCTION_BUT_WORLD_EMISSION_IS_NOT_SAFE",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "emitted_input_sha256": {
+    "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df"
+  },
+  "results": [
+    {
+      "bank": "43/16",
+      "body": 43,
+      "stable_bone_id": 16,
+      "skin_face": 19841,
+      "bone_triangle": 145,
+      "skin_source_vertex_ids": [
+        20924,
+        18489,
+        21064
+      ],
+      "retained_exact_local_segment_length_m": 8.28622119944463e-09,
+      "reconstructed_exact_local_segment_length_m": 8.286221199441349e-09,
+      "reconstructed_exact_local_root_count": 2,
+      "body_local_float32_reintersection_root_count": 2,
+      "body_local_float32_reintersection_segment_length_m": 8.304225380693168e-09,
+      "body_local_float32_roots_m": [
+        [
+          -0.0019910229447244873,
+          -0.0012574491468581189,
+          0.05448387478781521
+        ],
+        [
+          -0.0019910204314582793,
+          -0.0012574570036576623,
+          0.0544838738315971
+        ]
+      ],
+      "body_local_float32_root_bit_patterns": [
+        [
+          3137502162,
+          3131363582,
+          1029646972
+        ],
+        [
+          3137502152,
+          3131363649,
+          1029646972
+        ]
+      ],
+      "body_local_float32_roots_distinct": true,
+      "rounded_local_roots_exactly_on_quantized_skin_and_bone_triangles": [
+        {
+          "skin": false,
+          "bone": false
+        },
+        {
+          "skin": false,
+          "bone": false
+        }
+      ],
+      "body_local_root_round_trip_world_f32_bits": [
+        [
+          3197099690,
+          3210420827,
+          1040567544
+        ],
+        [
+          3197099689,
+          3210420827,
+          1040567544
+        ]
+      ],
+      "body_local_root_round_trip_world_f32_distinct": true,
+      "pinned_world_f32_root_bits_from_retained_witness": [
+        [
+          3197099689,
+          3210420827,
+          1040567544
+        ],
+        [
+          3197099689,
+          3210420827,
+          1040567544
+        ]
+      ],
+      "body_local_f32_source_vertex_round_trip_world_max_abs_delta_m": 1.3233610540730467e-08,
+      "body_local_f32_source_vertex_round_trip_world_max_norm_delta_m": 1.818208048199403e-08,
+      "body_local_f32_source_vertex_round_trip_world_bits": [
+        [
+          3197145744,
+          3210395482,
+          1040682057
+        ],
+        [
+          3197099683,
+          3210420830,
+          1040567529
+        ],
+        [
+          3197140638,
+          3210399090,
+          1040663954
+        ]
+      ],
+      "pinned_source_vertex_world_f32_bits": [
+        [
+          3197145744,
+          3210395482,
+          1040682057
+        ],
+        [
+          3197099683,
+          3210420830,
+          1040567529
+        ],
+        [
+          3197140638,
+          3210399090,
+          1040663954
+        ]
+      ],
+      "body_local_source_vertex_changed_world_f32_component_count": 0,
+      "body_local_source_vertex_total_world_f32_components": 9,
+      "world_root_reconstruction_delta_from_exact_m": [
+        2.4465498024544064e-08,
+        1.6354556170252723e-08
+      ],
+      "world_f32_root_delta_from_pinned_exact_root_m": [
+        2.9802322387695312e-08,
+        0.0
+      ],
+      "world_f32_max_delta_from_pinned_exact_root_m": 2.9802322387695312e-08,
+      "world_f32_reemission_outcome": "roots become distinct by one x-coordinate ULP; one root is displaced from the pinned shared Float32 point"
+    },
+    {
+      "bank": "65/99",
+      "body": 65,
+      "stable_bone_id": 99,
+      "skin_face": 14173,
+      "bone_triangle": 174,
+      "skin_source_vertex_ids": [
+        20986,
+        21158,
+        19945
+      ],
+      "retained_exact_local_segment_length_m": 1.3764884369832876e-08,
+      "reconstructed_exact_local_segment_length_m": 1.3764884369832876e-08,
+      "reconstructed_exact_local_root_count": 2,
+      "body_local_float32_reintersection_root_count": 2,
+      "body_local_float32_reintersection_segment_length_m": 1.3732050117333245e-08,
+      "body_local_float32_roots_m": [
+        [
+          0.0018668979947372032,
+          -0.023543259944481913,
+          0.0006750290924904067
+        ],
+        [
+          0.001866899025860078,
+          -0.023543273436546698,
+          0.0006750267536501312
+        ]
+      ],
+      "body_local_float32_root_bit_patterns": [
+        [
+          989115060,
+          3166756299,
+          976286832
+        ],
+        [
+          989115069,
+          3166756307,
+          976286791
+        ]
+      ],
+      "body_local_float32_roots_distinct": true,
+      "rounded_local_roots_exactly_on_quantized_skin_and_bone_triangles": [
+        {
+          "skin": false,
+          "bone": false
+        },
+        {
+          "skin": false,
+          "bone": false
+        }
+      ],
+      "body_local_root_round_trip_world_f32_bits": [
+        [
+          3198240038,
+          3212907183,
+          1039478629
+        ],
+        [
+          3198240038,
+          3212907183,
+          1039478629
+        ]
+      ],
+      "body_local_root_round_trip_world_f32_distinct": false,
+      "pinned_world_f32_root_bits_from_retained_witness": [
+        [
+          3198240038,
+          3212907183,
+          1039478629
+        ],
+        [
+          3198240038,
+          3212907183,
+          1039478629
+        ]
+      ],
+      "body_local_f32_source_vertex_round_trip_world_max_abs_delta_m": 9.302738579464176e-10,
+      "body_local_f32_source_vertex_round_trip_world_max_norm_delta_m": 9.411377085806454e-10,
+      "body_local_f32_source_vertex_round_trip_world_bits": [
+        [
+          3198313915,
+          3212907413,
+          1039468938
+        ],
+        [
+          3198307424,
+          3212911500,
+          1039474262
+        ],
+        [
+          3198240036,
+          3212907183,
+          1039478629
+        ]
+      ],
+      "pinned_source_vertex_world_f32_bits": [
+        [
+          3198313915,
+          3212907413,
+          1039468938
+        ],
+        [
+          3198307424,
+          3212911500,
+          1039474262
+        ],
+        [
+          3198240036,
+          3212907183,
+          1039478629
+        ]
+      ],
+      "body_local_source_vertex_changed_world_f32_component_count": 0,
+      "body_local_source_vertex_total_world_f32_components": 9,
+      "world_root_reconstruction_delta_from_exact_m": [
+        1.3798781406571859e-08,
+        1.5093207948646958e-08
+      ],
+      "world_f32_root_delta_from_pinned_exact_root_m": [
+        0.0,
+        0.0
+      ],
+      "world_f32_max_delta_from_pinned_exact_root_m": 0.0,
+      "world_f32_reemission_outcome": "both roots collapse to the pinned shared Float32 point"
+    }
+  ],
+  "owner_code_review": {
+    "double_registered_surface_source": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/NumiHumanCoarseTissuePreparation.hpp:21; RegisteredSurface uses V3=std::array<double,3> for donorLocalPoints and worldPoints.",
+    "world_f32_fem_gate": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/NumiHumanCoarseTissuePreparation.hpp:1163-1173; accepted shell builder casts each world FEM coordinate to Float32 for reference quality admission.",
+    "local_point_abi": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/include/metalrobo/numi_human_resting_visual_gpu.h:14-18 and /Users/numi/Work/unpaired-skin-fat-mass-ownership-070/src/metal/NumiHumanRestingSupportGeometry.metalinc:79-103; support ABI stores per-body local Float32 influence points and reconstructs compensated world query positions.",
+    "mesh_topology_gap": "The local influence ABI carries point/weight/body records, not skin triangle connectivity or a per-patch origin; accepted candidate points_world_m and matched-query parity remain world Float32."
+  },
+  "conclusion": "Body-local Float32 re-intersection preserves two distinct roots in both tested pairs and changes segment lengths by less than 0.25 percent. On transform back to accepted world Float32, 65/99 collapses again; 43/16 separates by one world-float ULP, moving one root away from the pinned shared Float32 point. The three source skin vertices in each tested face round-trip to their original world Float32 bits, but rounded local root coordinates are not exactly incident on the quantized triangles, so emitting them requires changing both surface triangulations. The existing local Metal ABI carries point influences for support queries, not the conforming triangle topology required here. A safe owner-integrated remesh needs a local-frame topology/transform contract; this probe changes no geometry or public format.",
+  "geometry_changed": false,
+  "candidate_written": false,
+  "full_or_all_bank_audit_run": false,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

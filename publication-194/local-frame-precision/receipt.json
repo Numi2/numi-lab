@@ -1,0 +1,194 @@
+{
+  "schema": "numi.human.common-sub-float32-root-local-frame-receipt.v1",
+  "status": "LOCAL_BODY_FRAME_PRESERVES_ROOT_DISTINCTION_BUT_WORLD_EMISSION_IS_NOT_SAFE",
+  "scope": "Two exact incident skin/bone triangle pairs from banks 43/16 and 65/99; no patch candidate, no geometry mutation, no all-bank or full-body audit.",
+  "candidate_and_source_geometry_pins": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+      "sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af"
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+      "sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv",
+      "sha256": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c"
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+      "sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90"
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+      "sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-005-exact-endpoint-identity/receipt.json",
+      "sha256": "2fdc19702ad61b3c7853b30b9f1f80045ff3e7352508ea0726f600a6b3ff256e"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-005-exact-endpoint-identity/facewise-failure-witness.json",
+      "sha256": "a13bcda6df8d45015a69b4b31f6442f91a215ca9de5af80f436f86a1db7fa090"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-003-exact-endpoint-identity/receipt.json",
+      "sha256": "e54f1e6572c508054ba3402401b03fd04d901927703e8e686e69037eec015349"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-003-exact-endpoint-identity/facewise-failure-witness.json",
+      "sha256": "7efd2c3806fc0f1b126efce261c38315a5181fe5e102a54b2f44d2c38447d60d"
+    }
+  ],
+  "owner_code_pins": [
+    {
+      "path": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/NumiHumanCoarseTissuePreparation.hpp",
+      "sha256": "27b3069cc96719ff86057b1f74b8c9ce1e47464d4f359d94bddd9abe4b3cb70c"
+    },
+    {
+      "path": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/include/metalrobo/numi_human_resting_visual_gpu.h",
+      "sha256": "7ee91806911a97ddaeedfbc12a74514e0b92d63b8c97d95a674a839449fbba93"
+    },
+    {
+      "path": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/src/metal/NumiHumanRestingSupportGeometry.metalinc",
+      "sha256": "bbb259cf7c0440fd51003648b5e392846c4641727978a46ac51b2650adf63005"
+    },
+    {
+      "path": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/include/metalrobo/NumiHumanSurfaceFrameRebase.hpp",
+      "sha256": "73d1033fc9c793f254d88be50494515f68ac14bdca6de0a03e06cec750fda659"
+    },
+    {
+      "path": "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/matter/tools/human_skin_fat_bone_audit.py",
+      "sha256": "ea833990d8b1ffb309d4960e62fb8c67e5cf0ecdbcdc0d8e9ad40c20eaf4c6db"
+    }
+  ],
+  "prototype_and_test_artifacts": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/common-sub-float32-root-local-frame-001/local_frame_precision_probe_stdlib.py",
+      "sha256": "822558fb39c11a6b835dc6b0f99a2fe95887905f3827b680a258273ac0ec73b2"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/common-sub-float32-root-local-frame-001/local_frame_precision_probe_stdlib.log",
+      "sha256": "c711c62163aa33c71c2d21653ec15dc68d8d513f02d4ca46f924ff62e0101fe6"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/common-sub-float32-root-local-frame-001/finalize_local_frame_report.py",
+      "sha256": "1c5d5d6c721a3459929ff4591f03e852c60864a291d154545c7ce62a8616ac8d"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/common-sub-float32-root-local-frame-001/finalize_local_frame_report.log",
+      "sha256": "6ceb0ff8925a7faf89a0795b387d5527ae4eb1bf0f3e9f4daf1664bf157be0a2"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/common-sub-float32-root-local-frame-001/local_frame_precision_report.json",
+      "sha256": "6ceb0ff8925a7faf89a0795b387d5527ae4eb1bf0f3e9f4daf1664bf157be0a2"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/common-sub-float32-root-local-frame-001/local_frame_precision_assertions.py",
+      "sha256": "4e0c3d7badcac44d5dd1a3131a6f28e3fb95fe893a38df5102d12980a68d2c83"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/common-sub-float32-root-local-frame-001/local_frame_precision_assertions.log",
+      "sha256": "b9bc3243a45058878a2d32174748b875ab81e2f1b7c0dbfc17de30fc8b16257c"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/common-sub-float32-root-local-frame-001/make_precision_receipt.py",
+      "sha256": "59f8b60579b55afc3a6b69d6ee98148eb783aa42d33fc46d5236601093fd0b39"
+    }
+  ],
+  "results": [
+    {
+      "bank": "43/16",
+      "skin_face": 19841,
+      "bone_triangle": 145,
+      "source_vertices": [
+        20924,
+        18489,
+        21064
+      ],
+      "exact_root_count": 2,
+      "exact_segment_length_m": 8.286221199441349e-09,
+      "body_local_float32_root_count": 2,
+      "body_local_float32_segment_length_m": 8.304225380693168e-09,
+      "body_local_roots_distinct": true,
+      "rounded_local_root_incidence": [
+        {
+          "skin": false,
+          "bone": false
+        },
+        {
+          "skin": false,
+          "bone": false
+        }
+      ],
+      "world_float32_roots_distinct_after_round_trip": true,
+      "world_float32_delta_from_pinned_root_m": [
+        2.9802322387695312e-08,
+        0.0
+      ],
+      "source_skin_vertex_world_float32_bit_changes": 0,
+      "source_skin_vertex_max_round_trip_world_error_m": 1.818208048199403e-08
+    },
+    {
+      "bank": "65/99",
+      "skin_face": 14173,
+      "bone_triangle": 174,
+      "source_vertices": [
+        20986,
+        21158,
+        19945
+      ],
+      "exact_root_count": 2,
+      "exact_segment_length_m": 1.3764884369832876e-08,
+      "body_local_float32_root_count": 2,
+      "body_local_float32_segment_length_m": 1.3732050117333245e-08,
+      "body_local_roots_distinct": true,
+      "rounded_local_root_incidence": [
+        {
+          "skin": false,
+          "bone": false
+        },
+        {
+          "skin": false,
+          "bone": false
+        }
+      ],
+      "world_float32_roots_distinct_after_round_trip": false,
+      "world_float32_delta_from_pinned_root_m": [
+        0.0,
+        0.0
+      ],
+      "source_skin_vertex_world_float32_bit_changes": 0,
+      "source_skin_vertex_max_round_trip_world_error_m": 9.411377085806454e-10
+    }
+  ],
+  "accepted_owner_abi_limits": {
+    "registered_surface_source": "V3 is double in RegisteredSurface, but accepted shell FEM conditioning rounds world FEM node positions componentwise to Float32; source/owner hashes are pinned above.",
+    "local_metal_path": "The existing MRHumanRestingInfluence ABI stores per-body local Float32 point influences with body ID and compensated world-position reconstruction for support point queries. It has no skin triangle connectivity or per-patch origin.",
+    "candidate_format": "The pinned accepted candidate is points_world_m Float32 plus source_O_faces. Matched-query validation requires exact parity of emitted world-coordinate Float32 bits. No public format was changed."
+  },
+  "conclusion": "Body-local Float32 re-intersection preserves two distinct roots in both tested pairs and changes segment lengths by less than 0.25 percent. On transform back to accepted world Float32, 65/99 collapses again; 43/16 separates by one world-float ULP, moving one root away from the pinned shared Float32 point. The three source skin vertices in each tested face round-trip to their original world Float32 bits, but rounded local root coordinates are not exactly incident on the quantized triangles, so emitting them requires changing both surface triangulations. The existing local Metal ABI carries point influences for support queries, not the conforming triangle topology required here. A safe owner-integrated remesh needs a local-frame topology/transform contract; this probe changes no geometry or public format.",
+  "attempt_history": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/common-sub-float32-root-local-frame-001/local_frame_precision_prototype.py",
+      "sha256": "252f6ba04c01bc6e39e963e2f9d2cd25ed56a935bbd10c06b780f8c05cc55355",
+      "outcome": "initial NumPy probe could not start because the configured remote Python has no NumPy; retained unchanged as failed evidence"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/common-sub-float32-root-local-frame-001/run.log",
+      "sha256": "9984f12416e2990e0925fe93bfa1229809cf2d5db30fd73779fe4728f59d2304",
+      "outcome": "ModuleNotFoundError: numpy"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/common-sub-float32-root-local-frame-001/local_frame_precision_probe_stdlib.py",
+      "outcome": "successful standard-library exact Fraction probe and local assertions; it uses pinned source data and does not import NumPy"
+    }
+  ],
+  "geometry_changed": false,
+  "candidate_written": false,
+  "public_format_changed": false,
+  "full_or_all_bank_audit_run": false,
+  "native_admission": false,
+  "physical_support_claim": false,
+  "accepted_physical_steps": 0
+}

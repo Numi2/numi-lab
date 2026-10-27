@@ -1,0 +1,583 @@
+{
+  "baseline_topology_metrics": {
+    "baseline_double_area_range_m2": [
+      9.68124662951892e-13,
+      4.0963405092913086e-05
+    ],
+    "baseline_min_angle_range_by_child_deg": [
+      0.0029859174294814424,
+      57.368228628680434
+    ],
+    "minimum_angle_child_face_index": 344,
+    "minimum_angle_component_id": 0,
+    "minimum_angle_deg": 0.0029859174294814424,
+    "minimum_angle_source_parent_face_row": 34705,
+    "minimum_area_child_face_index": 343,
+    "minimum_area_component_id": 0,
+    "minimum_area_source_parent_face_row": 34705,
+    "minimum_double_area_m2": 9.68124662951892e-13
+  },
+  "cause_diagnosis": {
+    "conclusion": "All 46 reported flips are introduced by the fitted coordinates: topology-emitted child normals agree with their source parent face normals for all children; 46 fitted child normals reverse or flatten relative to topology baseline.",
+    "fit_vs_source_parent_inverted_count": 46,
+    "fit_vs_topology_flip_count": 46,
+    "topology_emission_vs_source_parent_inverted_count": 0
+  },
+  "child_face_count": 651,
+  "fit_shape_diagnostic": {
+    "area_ratio_fail_count": 59,
+    "area_ratio_range": [
+      0.05111857722589141,
+      218.58326085601658
+    ],
+    "flip_area_median_m2": 1.1939594214933855e-08,
+    "flip_area_min_m2": 1.2127864112477542e-12,
+    "flip_baseline_median_min_angle_deg": 3.281480149546636,
+    "flip_baseline_min_angle_deg": 0.037931620226824274
+  },
+  "flip_children_all_indices": [
+    10,
+    50,
+    59,
+    64,
+    93,
+    97,
+    112,
+    115,
+    120,
+    130,
+    131,
+    167,
+    171,
+    172,
+    173,
+    174,
+    182,
+    199,
+    263,
+    267,
+    268,
+    269,
+    278,
+    309,
+    311,
+    317,
+    324,
+    325,
+    334,
+    339,
+    348,
+    357,
+    366,
+    371,
+    385,
+    397,
+    398,
+    409,
+    410,
+    415,
+    416,
+    441,
+    465,
+    517,
+    518,
+    537
+  ],
+  "flip_concentration_by_source_parent_face_all": [
+    {
+      "child_face_indices": [
+        171,
+        172,
+        173,
+        174
+      ],
+      "flip_count": 4,
+      "source_parent_face_row": 34593
+    },
+    {
+      "child_face_indices": [
+        263,
+        267,
+        268,
+        269
+      ],
+      "flip_count": 4,
+      "source_parent_face_row": 34666
+    },
+    {
+      "child_face_indices": [
+        93,
+        97
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34547
+    },
+    {
+      "child_face_indices": [
+        112,
+        115
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34550
+    },
+    {
+      "child_face_indices": [
+        130,
+        131
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34555
+    },
+    {
+      "child_face_indices": [
+        397,
+        398
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34735
+    },
+    {
+      "child_face_indices": [
+        409,
+        410
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34736
+    },
+    {
+      "child_face_indices": [
+        415,
+        416
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34738
+    },
+    {
+      "child_face_indices": [
+        517,
+        518
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34789
+    },
+    {
+      "child_face_indices": [
+        10
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34518
+    },
+    {
+      "child_face_indices": [
+        50
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34533
+    },
+    {
+      "child_face_indices": [
+        59
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34535
+    },
+    {
+      "child_face_indices": [
+        64
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34536
+    },
+    {
+      "child_face_indices": [
+        120
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34552
+    },
+    {
+      "child_face_indices": [
+        167
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34592
+    },
+    {
+      "child_face_indices": [
+        182
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34595
+    },
+    {
+      "child_face_indices": [
+        199
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34602
+    },
+    {
+      "child_face_indices": [
+        278
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34669
+    },
+    {
+      "child_face_indices": [
+        309
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34695
+    },
+    {
+      "child_face_indices": [
+        311
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34696
+    },
+    {
+      "child_face_indices": [
+        317
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34697
+    },
+    {
+      "child_face_indices": [
+        324
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34699
+    },
+    {
+      "child_face_indices": [
+        325
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34700
+    },
+    {
+      "child_face_indices": [
+        334
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34702
+    },
+    {
+      "child_face_indices": [
+        339
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34704
+    },
+    {
+      "child_face_indices": [
+        348
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34707
+    },
+    {
+      "child_face_indices": [
+        357
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34712
+    },
+    {
+      "child_face_indices": [
+        366
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34721
+    },
+    {
+      "child_face_indices": [
+        371
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34722
+    },
+    {
+      "child_face_indices": [
+        385
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34724
+    },
+    {
+      "child_face_indices": [
+        441
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34761
+    },
+    {
+      "child_face_indices": [
+        465
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34768
+    },
+    {
+      "child_face_indices": [
+        537
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 35339
+    }
+  ],
+  "flip_concentration_by_source_parent_face_count": 33,
+  "flip_concentration_by_source_parent_face_top20": [
+    {
+      "child_face_indices": [
+        171,
+        172,
+        173,
+        174
+      ],
+      "flip_count": 4,
+      "source_parent_face_row": 34593
+    },
+    {
+      "child_face_indices": [
+        263,
+        267,
+        268,
+        269
+      ],
+      "flip_count": 4,
+      "source_parent_face_row": 34666
+    },
+    {
+      "child_face_indices": [
+        93,
+        97
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34547
+    },
+    {
+      "child_face_indices": [
+        112,
+        115
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34550
+    },
+    {
+      "child_face_indices": [
+        130,
+        131
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34555
+    },
+    {
+      "child_face_indices": [
+        397,
+        398
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34735
+    },
+    {
+      "child_face_indices": [
+        409,
+        410
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34736
+    },
+    {
+      "child_face_indices": [
+        415,
+        416
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34738
+    },
+    {
+      "child_face_indices": [
+        517,
+        518
+      ],
+      "flip_count": 2,
+      "source_parent_face_row": 34789
+    },
+    {
+      "child_face_indices": [
+        10
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34518
+    },
+    {
+      "child_face_indices": [
+        50
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34533
+    },
+    {
+      "child_face_indices": [
+        59
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34535
+    },
+    {
+      "child_face_indices": [
+        64
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34536
+    },
+    {
+      "child_face_indices": [
+        120
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34552
+    },
+    {
+      "child_face_indices": [
+        167
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34592
+    },
+    {
+      "child_face_indices": [
+        182
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34595
+    },
+    {
+      "child_face_indices": [
+        199
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34602
+    },
+    {
+      "child_face_indices": [
+        278
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34669
+    },
+    {
+      "child_face_indices": [
+        309
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34695
+    },
+    {
+      "child_face_indices": [
+        311
+      ],
+      "flip_count": 1,
+      "source_parent_face_row": 34696
+    }
+  ],
+  "inputs": {
+    "base_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+    "fitted_trial_sha256": "601abb3548711cae9d5d286b5baceddc46c361fa383d6afb2c4aefdb5ee7985f",
+    "topology_component_00_sha256": "0f4a35e195a78b1f8153194cb0d7e8e8ed1a0a9af130a604d633e56e084bea95",
+    "topology_component_01_sha256": "787df5675fc7b835ec89430304b76dd1e21f14ea4c0c8942d52dc78f211a36db"
+  },
+  "later_exact_bone_and_self_screens": "NOT_RUN because the fit failed the shape-first gate; this diagnostic does not extend validation.",
+  "per_component": [
+    {
+      "area_ratio_max": 218.58326085601658,
+      "area_ratio_min": 0.05111857722589141,
+      "baseline_double_area_max_m2": 6.698695547185883e-06,
+      "baseline_double_area_min_m2": 9.68124662951892e-13,
+      "baseline_min_angle_deg": 0.0029859174294814424,
+      "child_face_count": 527,
+      "component_id": 0,
+      "fit_flip_child_local_indices": [
+        10,
+        50,
+        59,
+        64,
+        93,
+        97,
+        112,
+        115,
+        120,
+        130,
+        131,
+        167,
+        171,
+        172,
+        173,
+        174,
+        182,
+        199,
+        263,
+        267,
+        268,
+        269,
+        278,
+        309,
+        311,
+        317,
+        324,
+        325,
+        334,
+        339,
+        348,
+        357,
+        366,
+        371,
+        385,
+        397,
+        398,
+        409,
+        410,
+        415,
+        416,
+        441,
+        465,
+        517,
+        518
+      ],
+      "fit_vs_source_parent_orientation_inversions": 45,
+      "fit_vs_topology_orientation_flips": 45,
+      "topology_vs_parent_orientation_inversions": 0
+    },
+    {
+      "area_ratio_max": 31.59872587400467,
+      "area_ratio_min": 0.38715433631205826,
+      "baseline_double_area_max_m2": 4.0963405092913086e-05,
+      "baseline_double_area_min_m2": 1.618831220375755e-10,
+      "baseline_min_angle_deg": 0.041103034686719796,
+      "child_face_count": 124,
+      "component_id": 1,
+      "fit_flip_child_local_indices": [
+        10
+      ],
+      "fit_vs_source_parent_orientation_inversions": 1,
+      "fit_vs_topology_orientation_flips": 1,
+      "topology_vs_parent_orientation_inversions": 0
+    }
+  ],
+  "recomputed_fit_orientation_flip_count": 46,
+  "schema": "numi.human.b109_114.shape_failure_readonly_diagnostic.v1",
+  "scope": "Read-only comparison of exact-topology Float32 patch points to the saved fitted trial. No new fitting or later collision gates run.",
+  "smallest_baseline_area_flip": {
+    "child_face_index": 268,
+    "component_id": 0,
+    "double_area_m2": 1.2127864112477542e-12,
+    "fit_area_ratio": 22.937388306662562,
+    "minimum_angle_deg": 1.061569621725567,
+    "source_parent_face_row": 34666
+  },
+  "status": "DIAGNOSIS_COMPLETE_SHAPE_FAILURE_PREEXISTS_IN_FIT_BASELINE_NOT_TOPOLOGY"
+}

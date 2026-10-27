@@ -1,0 +1,70 @@
+{
+  "schema": "numi.human.bank115_118.remesh_sdf_reconnaissance.v1",
+  "status": "NO_COMPATIBLE_EXISTING_OWNER_PATH",
+  "scope": "Read-only contract check for one substantially different local surface reconstruction approach. No candidate or fit was built; accepted source mesh and prior diagnostic artifacts were not modified.",
+  "inputs": {
+    "current_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+      "sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+      "surface_points_f32": [
+        21212,
+        3
+      ],
+      "source_O_faces": [
+        42379,
+        3
+      ],
+      "has_tetrahedra": false
+    },
+    "wider_patch": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/wider-fit-trial-001/topology/patch-candidate.npz",
+      "sha256": "67c90a682da5213bb7f26d166565b1a7e36d502dff504ab2ffd7ebf734ed14e4",
+      "points": [
+        110,
+        3
+      ],
+      "faces": [
+        171,
+        3
+      ],
+      "face_parent_rows": [
+        171
+      ],
+      "fixed_outer_boundary_edges": [
+        47,
+        2
+      ]
+    }
+  },
+  "reviewed_owner_implementations": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-115/sources/build_outward_nearest_union_targets_335.py",
+      "sha256": "1c3468b6e6285afed77e8ae7ca463abb797f6a22d562ccf878734c39161947c9",
+      "observed_contract": "Requires a matched complete surface report/query receipt and the complete 185-bank inventory. Produces exact-union-exit target points attached to source face rows and barycentric weights; it does not generate or remesh connected triangles."
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/shared-interface-snap-owner-163/human_skin_fat_layer_reconstruction.py",
+      "sha256": "f545896b6a00c96990cadd6b0b05d35a1dc35a2ec83db23a2ee4906759e175ab",
+      "observed_contract": "reconstruct_connected_layers offsets existing outer-surface vertices along their oriented normals and harmonically fits fixed layer boundaries. It consumes existing faces, has no bone distance-field input, and does not create a new surface topology."
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-cell-trust-109/matter/tools/human_skin_fat_bone_clearance.py",
+      "sha256": "116a32e8080c8470c36d3424d52e2deae17838bb46e93b28eec9d75db1ff5fc1",
+      "observed_contract": "Provides exact first-outward-exit/plane queries and source-outward direction mapping. It expects precomputed generated-node parent tetra/barycentric ancestry for reference fields; it does not build a signed-distance volume or offset skin mesh."
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-connected-inner-field-293-cavity-remesh-010/build_cavity_remesh_010.py",
+      "sha256": "055ad8d6069afdc903fb8e4e1ba9fa6f76ea8cf2891eb685be9e0a0c6f6c54b0",
+      "observed_contract": "Quality-controls TetGen tetrahedra within a closed pre-existing tetrahedral cavity, preserves its exact input cavity boundary, and maps new nodes to parent cavity tetrahedra/barycentrics. Its pinned input is a different global interior field candidate; it does not generate a skin patch with source-face ancestry from the current surface."
+    }
+  ],
+  "obstacle": "The reviewed owner tools provide point exit targets, vertex normal offsets on existing faces, and volumetric tetrahedral cavity remeshing. None accepts the current 115/118 crossing skin patch plus the bone triangles and returns a connected, quality-controlled outer-surface patch whose 47 fixed boundary edges are preserved and whose new vertices/faces carry source skin face/barycentric ancestry. The current candidate contains only points and surface faces, with no matched local tet cavity or signed-distance volume. Reusing the volumetric remesher would require a new bone-aware offset/cavity construction and a new skin ancestry bridge; constructing those here would introduce the framework the bounded task excludes.",
+  "next_safe_change": "Provide or build an owner-approved local offset-surface constructor for bank 115/118 that consumes the complete typed bone surface, preserves the 47-edge source patch boundary, emits well-shaped Float32 triangles, and records source candidate face/barycentric ancestry for every new vertex. Then screen the private patch with exact local bone, self, and parent-shape gates.",
+  "execution": {
+    "candidate_built": false,
+    "fit_run": false,
+    "exact_geometry_audit_run": false,
+    "accepted_candidate_modified": false,
+    "visual_check_performed": false
+  }
+}
