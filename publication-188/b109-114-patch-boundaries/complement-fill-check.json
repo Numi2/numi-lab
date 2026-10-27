@@ -1,0 +1,971 @@
+{
+  "schema": "numi.human.bank109_114.topology_only_complement_fill_check.v1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-182-stage-001/combined-653/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "ring_expansion_sha256": "857d5c3a086b101cc4c1d53ac40b3d25d9c00a67dc8296e1dda6646a6b29f581",
+  "typed_bank": [
+    109,
+    114
+  ],
+  "input_crossings": {
+    "exact_pair_count": 187,
+    "crossing_skin_face_count": 111
+  },
+  "base_patch": {
+    "face_count": 273,
+    "boundary_loop_count": 3,
+    "boundary_loop_node_counts": [
+      6,
+      14,
+      49
+    ],
+    "boundary_degree_histogram": {
+      "2": 69
+    },
+    "boundary_non_degree_two_nodes": []
+  },
+  "complement_components": {
+    "count": 2,
+    "largest_component_id": 0,
+    "largest_component_face_count": 42102,
+    "vertex_only_component_contacts": [],
+    "component_stats": [
+      {
+        "component": 0,
+        "face_count": 42102,
+        "adjacent_patch_boundary_loops": [
+          0,
+          1
+        ],
+        "adjacent_patch_boundary_edges": 63
+      },
+      {
+        "component": 1,
+        "face_count": 4,
+        "adjacent_patch_boundary_loops": [
+          2
+        ],
+        "adjacent_patch_boundary_edges": 6
+      }
+    ],
+    "loop_to_complement": [
+      {
+        "loop": 0,
+        "node_count": 49,
+        "edge_count": 49,
+        "complement_components": [
+          0
+        ],
+        "edge_ownership": [
+          {
+            "edge": [
+              7759,
+              11138
+            ],
+            "outside_faces": [
+              33033
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              7759,
+              17967
+            ],
+            "outside_faces": [
+              34791
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              9314,
+              14443
+            ],
+            "outside_faces": [
+              34652
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              9314,
+              20690
+            ],
+            "outside_faces": [
+              34655
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              11120,
+              13164
+            ],
+            "outside_faces": [
+              34422
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              11120,
+              13169
+            ],
+            "outside_faces": [
+              34826
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              11125,
+              13165
+            ],
+            "outside_faces": [
+              34425
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              11125,
+              13166
+            ],
+            "outside_faces": [
+              34504
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              11138,
+              17963
+            ],
+            "outside_faces": [
+              34651
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              11847,
+              13164
+            ],
+            "outside_faces": [
+              34419
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              11847,
+              13165
+            ],
+            "outside_faces": [
+              34428
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              11849,
+              18929
+            ],
+            "outside_faces": [
+              34725
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              11849,
+              20691
+            ],
+            "outside_faces": [
+              34661
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              13166,
+              17957
+            ],
+            "outside_faces": [
+              34501
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              13167,
+              20678
+            ],
+            "outside_faces": [
+              34561
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              13167,
+              20683
+            ],
+            "outside_faces": [
+              34590
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              13169,
+              17970
+            ],
+            "outside_faces": [
+              34831
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              14443,
+              17963
+            ],
+            "outside_faces": [
+              34652
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              15071,
+              17970
+            ],
+            "outside_faces": [
+              34829
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              15071,
+              20694
+            ],
+            "outside_faces": [
+              34683
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              15072,
+              17957
+            ],
+            "outside_faces": [
+              34498
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              15072,
+              20681
+            ],
+            "outside_faces": [
+              34578
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              15679,
+              20679
+            ],
+            "outside_faces": [
+              34569
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              15679,
+              20680
+            ],
+            "outside_faces": [
+              34573
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              15680,
+              17967
+            ],
+            "outside_faces": [
+              34794
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              15680,
+              20701
+            ],
+            "outside_faces": [
+              34750
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              16043,
+              19725
+            ],
+            "outside_faces": [
+              34641
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              16043,
+              20683
+            ],
+            "outside_faces": [
+              34589
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              17962,
+              19725
+            ],
+            "outside_faces": [
+              34642
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              17962,
+              20689
+            ],
+            "outside_faces": [
+              34647
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18842,
+              19554
+            ],
+            "outside_faces": [
+              34732
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18842,
+              20675
+            ],
+            "outside_faces": [
+              34746
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18843,
+              20675
+            ],
+            "outside_faces": [
+              34523
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18843,
+              20680
+            ],
+            "outside_faces": [
+              34574
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18844,
+              20700
+            ],
+            "outside_faces": [
+              34517
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18844,
+              20701
+            ],
+            "outside_faces": [
+              34753
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18929,
+              20698
+            ],
+            "outside_faces": [
+              34725
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18931,
+              20694
+            ],
+            "outside_faces": [
+              34686
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18931,
+              20698
+            ],
+            "outside_faces": [
+              34726
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18934,
+              18937
+            ],
+            "outside_faces": [
+              34631
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18934,
+              20682
+            ],
+            "outside_faces": [
+              34582
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18936,
+              20681
+            ],
+            "outside_faces": [
+              34579
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18936,
+              20682
+            ],
+            "outside_faces": [
+              34588
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18937,
+              20689
+            ],
+            "outside_faces": [
+              34647
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              19193,
+              20678
+            ],
+            "outside_faces": [
+              34561
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              19193,
+              20679
+            ],
+            "outside_faces": [
+              34572
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              19432,
+              20690
+            ],
+            "outside_faces": [
+              34657
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              19432,
+              20691
+            ],
+            "outside_faces": [
+              34665
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              19554,
+              20700
+            ],
+            "outside_faces": [
+              34732
+            ],
+            "complement_components": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "loop": 1,
+        "node_count": 14,
+        "edge_count": 14,
+        "complement_components": [
+          0
+        ],
+        "edge_ownership": [
+          {
+            "edge": [
+              11127,
+              18831
+            ],
+            "outside_faces": [
+              35513
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              11127,
+              20762
+            ],
+            "outside_faces": [
+              35432
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              13195,
+              19207
+            ],
+            "outside_faces": [
+              35360
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              13195,
+              20761
+            ],
+            "outside_faces": [
+              35406
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18010,
+              19666
+            ],
+            "outside_faces": [
+              35382
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18010,
+              20747
+            ],
+            "outside_faces": [
+              35365
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18831,
+              20758
+            ],
+            "outside_faces": [
+              35425
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18832,
+              20754
+            ],
+            "outside_faces": [
+              35379
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              18832,
+              20762
+            ],
+            "outside_faces": [
+              35432
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              19207,
+              19211
+            ],
+            "outside_faces": [
+              35405
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              19211,
+              20747
+            ],
+            "outside_faces": [
+              35405
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              19666,
+              20754
+            ],
+            "outside_faces": [
+              35382
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              20758,
+              21183
+            ],
+            "outside_faces": [
+              35408
+            ],
+            "complement_components": [
+              0
+            ]
+          },
+          {
+            "edge": [
+              20761,
+              21183
+            ],
+            "outside_faces": [
+              35408
+            ],
+            "complement_components": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "loop": 2,
+        "node_count": 6,
+        "edge_count": 6,
+        "complement_components": [
+          1
+        ],
+        "edge_ownership": [
+          {
+            "edge": [
+              16040,
+              20692
+            ],
+            "outside_faces": [
+              34672
+            ],
+            "complement_components": [
+              1
+            ]
+          },
+          {
+            "edge": [
+              16040,
+              20697
+            ],
+            "outside_faces": [
+              34714
+            ],
+            "complement_components": [
+              1
+            ]
+          },
+          {
+            "edge": [
+              19196,
+              20693
+            ],
+            "outside_faces": [
+              34676
+            ],
+            "complement_components": [
+              1
+            ]
+          },
+          {
+            "edge": [
+              19196,
+              20697
+            ],
+            "outside_faces": [
+              34714
+            ],
+            "complement_components": [
+              1
+            ]
+          },
+          {
+            "edge": [
+              19722,
+              20692
+            ],
+            "outside_faces": [
+              34672
+            ],
+            "complement_components": [
+              1
+            ]
+          },
+          {
+            "edge": [
+              19722,
+              20693
+            ],
+            "outside_faces": [
+              34680
+            ],
+            "complement_components": [
+              1
+            ]
+          }
+        ]
+      }
+    ],
+    "fill_eligibility": [
+      {
+        "component": 0,
+        "face_count": 42102,
+        "boundary_loops": [
+          0,
+          1
+        ],
+        "owned_boundary_edge_count": 63,
+        "single_loop_owns_full_boundary": false,
+        "shares_vertex_with_other_complement_component": false,
+        "is_largest_body_component": true,
+        "less_than_10_percent_largest": false,
+        "unambiguous_small_hole_candidate": false
+      },
+      {
+        "component": 1,
+        "face_count": 4,
+        "boundary_loops": [
+          2
+        ],
+        "owned_boundary_edge_count": 6,
+        "single_loop_owns_full_boundary": true,
+        "shares_vertex_with_other_complement_component": false,
+        "is_largest_body_component": false,
+        "less_than_10_percent_largest": true,
+        "unambiguous_small_hole_candidate": true
+      }
+    ]
+  },
+  "topology_only_fill": {
+    "selected_complement_component_ids": [
+      1
+    ],
+    "added_face_count": 4,
+    "added_face_rows": [
+      34672,
+      34676,
+      34680,
+      34714
+    ],
+    "resulting_patch_face_count": 277,
+    "resulting_boundary_loop_count": 2,
+    "resulting_boundary_loop_node_counts": [
+      14,
+      49
+    ],
+    "resulting_boundary_degree_histogram": {
+      "2": 63
+    },
+    "exact_crossing_faces_contained": 111,
+    "exact_crossing_faces_total": 111,
+    "exact_cross_pairs_owned": 187,
+    "exact_cross_pairs_total": 187,
+    "all_crossings_still_inside": true
+  },
+  "geometry_moved": false,
+  "shared_candidate_modified": false,
+  "limitation": "Face-set topology diagnostic only; no coordinates moved, no candidate edited, no anatomical repair or clearance claim."
+}

@@ -1,0 +1,73 @@
+{
+  "schema": "numi.human.bank109_114.topology_only_ring_expansion.v1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-182-stage-001/combined-653/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "local_diagnostic_sha256": "e7cde2bfb4b372c98cd9bebc7256ff662288de841bbdd00fd03c7f58fe9a074d",
+  "typed_bank": [
+    109,
+    114
+  ],
+  "expansion_policy": "At each stage, add every incident mesh face around all current boundary vertices of degree >2. At most two expansions; stop if patch exceeds 5,000 faces. No coordinates moved.",
+  "steps": [
+    {
+      "step": 0,
+      "patch_face_count": 255,
+      "patch_node_count": 159,
+      "crossing_skin_faces_contained": 111,
+      "crossing_skin_faces_total": 111,
+      "exact_cross_pairs_owned": 187,
+      "exact_cross_pairs_total": 187,
+      "missing_crossing_face_rows": [],
+      "boundary_edge_count": 65,
+      "boundary_node_count": 62,
+      "boundary_component_count": 2,
+      "boundary_component_sizes_nodes": [
+        14,
+        48
+      ],
+      "boundary_degree_histogram": {
+        "2": 60,
+        "6": 1,
+        "4": 1
+      },
+      "branched_boundary_nodes": [
+        9971,
+        17964
+      ],
+      "simple_single_loop": false,
+      "branched_vertex_incident_faces_added_next": 18,
+      "branched_vertex_face_fan_sizes": {
+        "9971": 12,
+        "17964": 6
+      }
+    },
+    {
+      "step": 1,
+      "patch_face_count": 273,
+      "patch_node_count": 172,
+      "crossing_skin_faces_contained": 111,
+      "crossing_skin_faces_total": 111,
+      "exact_cross_pairs_owned": 187,
+      "exact_cross_pairs_total": 187,
+      "missing_crossing_face_rows": [],
+      "boundary_edge_count": 69,
+      "boundary_node_count": 69,
+      "boundary_component_count": 3,
+      "boundary_component_sizes_nodes": [
+        6,
+        14,
+        49
+      ],
+      "boundary_degree_histogram": {
+        "2": 69
+      },
+      "branched_boundary_nodes": [],
+      "simple_single_loop": false
+    }
+  ],
+  "geometry_or_clearance_conclusion": false,
+  "limitations": [
+    "Boundary topology and current exact-crossing face ownership only. No construction, clearance proof, self audit, other-bank check, or physical/native admission."
+  ]
+}

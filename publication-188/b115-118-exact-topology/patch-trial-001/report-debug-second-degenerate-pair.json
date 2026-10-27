@@ -1,0 +1,18 @@
+{
+  "schema": "numi.human.bank115_118.exact-endpoint-facewise-patch-topology.v1",
+  "status": "LOCAL_PATCH_TOPOLOGY_FAILED",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json",
+  "audit_report_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "exact_predicate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/collision-free-seam-records-owner-315/src/numilab_human/cardiac_cavity_intersections.py",
+  "exact_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/patch-trial-001/exact_endpoint_patch.py",
+  "script_sha256": "e9d6a489bda2c558b5b263ba25514c32ffc334faf113fd2dcc37cb33da504bf1",
+  "patch_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/patch-trial-001/patch-candidate.npz",
+  "rational_ancestry_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/patch-trial-001/rational-ancestry.json",
+  "geometry_or_native_admission": false,
+  "scope": "One local face-wise topology integration over the crossing faces and one-vertex ring; no all-bank or self audit.",
+  "failure": "ValueError('degenerate exact triangle')",
+  "elapsed_seconds": 0.8029594579711556
+}

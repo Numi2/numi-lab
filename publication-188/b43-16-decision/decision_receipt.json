@@ -1,0 +1,154 @@
+{
+  "schema": "numi.human.bank43_16.ring_and_candidate_disposition.v1",
+  "status": "STOP_CANDIDATE_HAS_NO_SAFE_PAIR_COUNT_IMPROVEMENT",
+  "baseline_candidate": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+    "sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af"
+  },
+  "new_ring_check": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-003/ring-clearance-check-rerun.json",
+    "sha256": "b03cb71ce389368b500a80e60869acc8e86b4b07852d860aca1f9463f67e9656",
+    "rings": [
+      {
+        "ring_level": 0,
+        "patch_faces": 434,
+        "boundary_edges": 54,
+        "boundary_nodes": 54,
+        "boundary_components": 1,
+        "boundary_degree_histogram": {
+          "2": 54
+        },
+        "simple_single_loop": true,
+        "boundary_inside_node_count": 0,
+        "minimum_boundary_edge_distance_mm": 0.01487845570713246,
+        "minimum_boundary_edge": {
+          "edge": [
+            12578,
+            19051
+          ],
+          "inside_faces": [
+            19232
+          ],
+          "outside_faces": [
+            19259
+          ],
+          "nearest_bone_face": 134,
+          "distance_mm": 0.01487845570713246
+        },
+        "exact_target_bone_boundary_edge_hits": 0,
+        "stored_crossing_touch_count": 0
+      },
+      {
+        "ring_level": 1,
+        "patch_faces": 474,
+        "boundary_edges": 36,
+        "boundary_nodes": 36,
+        "boundary_components": 1,
+        "boundary_degree_histogram": {
+          "2": 36
+        },
+        "simple_single_loop": true,
+        "boundary_inside_node_count": 0,
+        "minimum_boundary_edge_distance_mm": 0.02700277583853943,
+        "minimum_boundary_edge": {
+          "edge": [
+            19054,
+            19497
+          ],
+          "inside_faces": [
+            19269
+          ],
+          "outside_faces": [
+            19268
+          ],
+          "nearest_bone_face": 133,
+          "distance_mm": 0.02700277583853943
+        },
+        "exact_target_bone_boundary_edge_hits": 0,
+        "stored_crossing_touch_count": 0
+      },
+      {
+        "ring_level": 2,
+        "patch_faces": 502,
+        "boundary_edges": 38,
+        "boundary_nodes": 38,
+        "boundary_components": 1,
+        "boundary_degree_histogram": {
+          "2": 38
+        },
+        "simple_single_loop": true,
+        "boundary_inside_node_count": 0,
+        "minimum_boundary_edge_distance_mm": 0.03857188027363714,
+        "minimum_boundary_edge": {
+          "edge": [
+            17070,
+            19054
+          ],
+          "inside_faces": [
+            19268
+          ],
+          "outside_faces": [
+            19264
+          ],
+          "nearest_bone_face": 140,
+          "distance_mm": 0.03857188027363714
+        },
+        "exact_target_bone_boundary_edge_hits": 0,
+        "stored_crossing_touch_count": 0
+      }
+    ],
+    "coordinates_moved": false
+  },
+  "existing_candidate_screen": {
+    "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/connected-witness43-projected3390-area-guard-001/candidate-alpha-0.5.npz",
+    "candidate_sha256": "843e2822d25735c81a2ad34277ec9e9485650e6fc1489049708c1d581548f8ba",
+    "candidate_not_modified_or_rerun": true,
+    "fit_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/connected-witness43-projected3390-area-guard-001/report.json",
+    "fit_report_sha256": "36c7494a33f782f467c934458cd3b9960a891ba78758894fbe5ca28ea2432686",
+    "exact_incremental_screen_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/connected-witness43-projected3390-area-guard-screen-001/report.json",
+    "exact_incremental_screen_sha256": "a00eb155319931c3d22e09faec80fef2615de5036937508c54a44493f506fac9",
+    "screen_status": "NO_SAFE_IMPROVEMENT",
+    "candidate_alpha": {
+      "alpha": 0.5,
+      "sha256": "843e2822d25735c81a2ad34277ec9e9485650e6fc1489049708c1d581548f8ba",
+      "area_pass": true,
+      "edge_slack_mm": 0.004286488340338344,
+      "source_max_mm": 11.999981854019131,
+      "local_min_area": 0.6352726488411392,
+      "local_max_area": 1.7428858414446373,
+      "local_min_normal_cos": 0.6930682473264164,
+      "raw_total": 985,
+      "parent_total": 653,
+      "raw_delta": {},
+      "parent_delta": {},
+      "status": "NO_SAFE_COUNT_IMPROVEMENT"
+    },
+    "baseline_raw_pair_count": 985,
+    "baseline_parent_pair_count": 653,
+    "no_safe_count_improvement": true
+  },
+  "shape_and_motion": {
+    "changed_nodes": 79,
+    "changed_faces": 250,
+    "max_motion_mm": 0.1314150302233104,
+    "linear_edge_slack_mm": 0.004286488340338344,
+    "current_oriented_area_ratio_min": 0.6281100786136944,
+    "fixed_037_reference_area_ratio_min": 0.10000963829086307,
+    "area_floor": 0.1,
+    "fixed_reference_margin_over_floor": 9.638290863062116e-06
+  },
+  "interpretation": [
+    "Expanding the connected patch by one and two contiguous rings improves the minimum boundary-edge distance from 0.01488 mm to 0.02700 mm and 0.03857 mm while preserving a simple loop and producing zero exact target-bank boundary-edge hits, zero boundary-inside nodes, and zero stored neighboring-bank crossings touching the boundary.",
+    "This is topology/outer-boundary feasibility only. The 0.03857 mm gap is not evidence of anatomically adequate tissue thickness.",
+    "The existing source-reference candidate alpha 0.5 is based on the exact baseline but its exact incremental screen reports 985 child and 653 parent crossing pairs, unchanged from baseline. It therefore fails strict net improvement despite passing the area gate.",
+    "Its minimum fixed-reference area ratio is 0.1000096 against a 0.10 floor, only about 9.64e-6 above the bound; this is a significant shape limitation. No safe connected candidate is supported by these saved references and constraints in this bounded step."
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "whole_body_audit_run": false,
+  "limitations": [
+    "No new candidate was emitted; the identical pre-existing failed proposal was not rerun or modified.",
+    "No new local exact candidate bone/self audit was run because the identical candidate already has a prior exact incremental screen with no net clearance-pair improvement.",
+    "No physical transfer, tissue-thickness, full all-bank or native admission is claimed."
+  ]
+}

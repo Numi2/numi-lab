@@ -1,0 +1,117 @@
+{
+  "schema": "numi.human.p188_evidence_manifest.v1",
+  "parent_commit": "0e7a8b97c1e89657bfa82743c414610edd3a01fd",
+  "status": "construction evidence only; no physical or native admission",
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "a31ebfbb1c50fba7cc4010f749e53c12b74aeb940a2b01d59b9cbda9a6dbb964",
+      "bytes": 2001
+    },
+    {
+      "path": "b109-114-patch-boundaries/complement-fill-check.json",
+      "sha256": "92bb961a991b18b041ecc4ab6589631d7c49229c5d79b769b71d6f44bf53e393",
+      "bytes": 20099
+    },
+    {
+      "path": "b109-114-patch-boundaries/complement-filled-patch-face-rows.npy",
+      "sha256": "bac98e4ca6da0eeca23d953389943a7a31b11c62cad3ace5ad1ef15523e758b4",
+      "bytes": 2344
+    },
+    {
+      "path": "b109-114-patch-boundaries/complement_fill_check.py",
+      "sha256": "eb94c2be01afcb02e8fe22adc39f7b5d5486da6e6960712a184e02b1d0223cd1",
+      "bytes": 7913
+    },
+    {
+      "path": "b109-114-patch-boundaries/connected-crossing-map.json",
+      "sha256": "e7cde2bfb4b372c98cd9bebc7256ff662288de841bbdd00fd03c7f58fe9a074d",
+      "bytes": 26274
+    },
+    {
+      "path": "b109-114-patch-boundaries/connected_crossing_map.py",
+      "sha256": "10c473b13c907eda6f78a3350e273b929d6e9eff1cba52440ff090a306144f00",
+      "bytes": 11592
+    },
+    {
+      "path": "b109-114-patch-boundaries/fixed-boundary-clearance.json",
+      "sha256": "9b2cd022b6029c318affadace343a60990f9625b81b0ec0bc3191dae6dda01f3",
+      "bytes": 47821
+    },
+    {
+      "path": "b109-114-patch-boundaries/fixed_boundary_clearance.py",
+      "sha256": "3b4896d0dd9406713df8afd2cd91864d251dcf7d20514755877524cc3c120eda",
+      "bytes": 18561
+    },
+    {
+      "path": "b109-114-patch-boundaries/patch-components/component-00-face-rows.npy",
+      "sha256": "331294b1fa5cd727015db683181daebd80599b5f7217a0eef9b1b18a4ed3b84d",
+      "bytes": 2040
+    },
+    {
+      "path": "b109-114-patch-boundaries/patch-components/component-01-face-rows.npy",
+      "sha256": "55af4b716aeacdcc8a25fb951f0b7fc84ad24908d996c5c9641ab08ac439c661",
+      "bytes": 432
+    },
+    {
+      "path": "b109-114-patch-boundaries/ring-expansion.json",
+      "sha256": "857d5c3a086b101cc4c1d53ac40b3d25d9c00a67dc8296e1dda6646a6b29f581",
+      "bytes": 2397
+    },
+    {
+      "path": "b109-114-patch-boundaries/ring_expansion.py",
+      "sha256": "9c9355da53bf770da4c5ba12782bd386beb5cd5d1555eea788ffb804608389a2",
+      "bytes": 4002
+    },
+    {
+      "path": "b109-114-patch-boundaries/summary.json",
+      "sha256": "beeba1fcbc5b4b45794ca147c74a820bf57a04ea15a6e72d33c1b8a30c8af507",
+      "bytes": 16588
+    },
+    {
+      "path": "b115-118-exact-topology/exact_endpoint_check.py",
+      "sha256": "33b6d824da8bce62d7fad0bdbba7f3a0e2aa8fcc1b7ad49c265b46e67d05037d",
+      "bytes": 21510
+    },
+    {
+      "path": "b115-118-exact-topology/patch-trial-001/exact_endpoint_patch.py",
+      "sha256": "c594bcd5f9383c881138c740d42ce94d4e7f283884855f1525e454cbe3e91972",
+      "bytes": 26018
+    },
+    {
+      "path": "b115-118-exact-topology/patch-trial-001/patch-candidate.npz",
+      "sha256": "840569c103e174269e9461d170d5cbccfb3f664da262c5798e027acacf8e617f",
+      "bytes": 9912
+    },
+    {
+      "path": "b115-118-exact-topology/patch-trial-001/rational-ancestry.json",
+      "sha256": "9c13b765b6abf56b5f5943e0f16a08c11c5851a5c84450edf0320135a553b578",
+      "bytes": 140772
+    },
+    {
+      "path": "b115-118-exact-topology/patch-trial-001/report-debug-initial-degenerate-face-scan.json",
+      "sha256": "22004109c955d7a60a27db40ab4a4936edaaacd768a91c903fc4892a701db7d4",
+      "bytes": 2226
+    },
+    {
+      "path": "b115-118-exact-topology/patch-trial-001/report-debug-second-degenerate-pair.json",
+      "sha256": "7c6dff6aba38a9ceab9171f613c9fb8b04fb8a04ecb993909ffacf19777bc03d",
+      "bytes": 2226
+    },
+    {
+      "path": "b115-118-exact-topology/patch-trial-001/report.json",
+      "sha256": "bcd2748f0cde4347fc1dabb5fb31e8fac70b8b41f9eff03b3632d0352e199711",
+      "bytes": 15979
+    },
+    {
+      "path": "b115-118-exact-topology/receipt.json",
+      "sha256": "0ed6d34e56c8b10623018cac68797090c73ec0e8cfa2ce629104e6940c2003f0",
+      "bytes": 168828
+    },
+    {
+      "path": "b43-16-decision/decision_receipt.json",
+      "sha256": "0fb84ade2fc98cb41daa919f23505269e4377d1c971a53719dbebe2efcb20ed1",
+      "bytes": 6838
+    }
+  ]
+}
