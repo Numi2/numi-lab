@@ -1,0 +1,58 @@
+{
+  "status": "COMPLETE_TOPOLOGY_AWARE_STATIC_COMPARISON",
+  "baseline_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "candidate_sha256": "dd31bdffbb689c8caed7bcc46229b89e23f77096aca6e780005c6a69529e432c",
+  "comparator_sha256": "e1bd86cf44ffd679395e9ba72f286e2ac8378dc2c1d5591994fdf47f7ba34780",
+  "audit_sha256": {
+    "baseline130": "1291c50ddd6ac65e031f04bc586dfd7d7d3806b16338e245dbe65f9aabfc0eb4",
+    "baseline159": "4cc8fd5d5e8fb651733fd380001e2b9847a0040960d7c8865c37f25fe5b8a09d",
+    "candidate130": "151b151a7fbe241de429c0d7c4afadbd17854d26123535fa9c567b0fe8e06a19",
+    "candidate159": "84241a86144190d8a0c77292bd217b3c55bd25fb74fc263d158f3e55cad4c794"
+  },
+  "baseline_face_count": 42379,
+  "candidate_face_count": 42377,
+  "baseline_node_count": 21212,
+  "candidate_node_count": 21211,
+  "banks": 185,
+  "face_map_policy": "candidate-supplied CSR into baseline faces",
+  "node_map_policy": "candidate-supplied old-to-new map; -1 is unresolved deletion",
+  "raw_crossings": {
+    "before": 977,
+    "after": 977,
+    "identity_comparison_valid": false
+  },
+  "mapped_parent_pairs": {
+    "before": 651,
+    "after": 651,
+    "added_count": 0,
+    "removed_count": 0,
+    "added": [],
+    "removed": []
+  },
+  "inside": {
+    "before": 125,
+    "after": 124,
+    "retained_old_identity_added": [],
+    "retained_old_identity_removed": [],
+    "deleted_or_merged_old_inside_witnesses_unresolved": [
+      [
+        21095,
+        43,
+        16
+      ]
+    ],
+    "deleted_or_merged_old_inside_count": 1
+  },
+  "self_pairs": {
+    "before": 0,
+    "after": 0
+  },
+  "per_changed_bank": [],
+  "limitations": [
+    "Candidate-supplied geometric face ancestry and node correspondence require independent validation.",
+    "A deleted/merged inside node is unresolved, not a proven clearance.",
+    "Surface-only diagnostics do not certify solid containment, tissue mass, contact dynamics, or native physical admission."
+  ],
+  "geometry_admitted": false,
+  "physical_steps": 0
+}

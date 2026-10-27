@@ -1,0 +1,9731 @@
+{
+  "audit159_source_sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+  "baseline159_sha256": "4cc8fd5d5e8fb651733fd380001e2b9847a0040960d7c8865c37f25fe5b8a09d",
+  "baseline_mapped_parent_pairs": 149,
+  "baseline_raw_pairs": 247,
+  "baseline_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "chart_shape_passed_candidates": 84,
+  "dd31_21095_to_18590_full_audit_regression": {
+    "mapped_after": 149,
+    "mapped_before": 149,
+    "passed": true,
+    "raw_after": 247,
+    "raw_before": 247
+  },
+  "exact_baseline_pair_parity_on_candidate_rows": true,
+  "exact_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+  "geometry_admitted": false,
+  "layer541_sha256": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57",
+  "limitations": [
+    "Screen ranks one edge collapse at a time; it does not prove combined-candidate interaction.",
+    "Exact target test is limited to 43/16 changed triangles; self intersections and other banks are not evaluated here.",
+    "Layer checks use inherited 806 outer/inner/deep coordinates and test changed faces only.",
+    "Removed inside nodes remain unresolved physical-containment witnesses."
+  ],
+  "physical_steps": 0,
+  "ranked_candidates": [
+    {
+      "changed_faces_old_rows": [
+        19717,
+        19720,
+        19726,
+        19728
+      ],
+      "edge_length_mm": 5.380844451295952,
+      "exact_new_changed_face_pairs": [
+        [
+          19717,
+          152
+        ],
+        [
+          19717,
+          154
+        ],
+        [
+          19717,
+          156
+        ],
+        [
+          19717,
+          167
+        ],
+        [
+          19717,
+          168
+        ],
+        [
+          19717,
+          169
+        ],
+        [
+          19717,
+          263
+        ],
+        [
+          19717,
+          264
+        ],
+        [
+          19717,
+          265
+        ],
+        [
+          19726,
+          152
+        ],
+        [
+          19726,
+          247
+        ],
+        [
+          19726,
+          248
+        ],
+        [
+          19726,
+          250
+        ],
+        [
+          19726,
+          265
+        ],
+        [
+          19726,
+          267
+        ],
+        [
+          19728,
+          247
+        ]
+      ],
+      "inside_node": 21131,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 1,
+      "mapped_added_pairs": [
+        [
+          19377,
+          265
+        ]
+      ],
+      "mapped_removed_count": 1,
+      "mapped_removed_pairs": [
+        [
+          19373,
+          267
+        ]
+      ],
+      "preflight_shape": {
+        "min_area_ratio": 0.7904633648387469,
+        "min_new_area_mm2": 6.195721878342074,
+        "min_normal_cosine": 0.9544410633042497
+      },
+      "raw_43_16_after": 245,
+      "raw_43_16_before": 247,
+      "raw_added_count": 8,
+      "raw_added_pairs": [
+        [
+          19717,
+          263
+        ],
+        [
+          19717,
+          264
+        ],
+        [
+          19717,
+          265
+        ],
+        [
+          19726,
+          247
+        ],
+        [
+          19726,
+          248
+        ],
+        [
+          19726,
+          250
+        ],
+        [
+          19726,
+          265
+        ],
+        [
+          19726,
+          267
+        ]
+      ],
+      "raw_removed_count": 10,
+      "raw_removed_pairs": [
+        [
+          19719,
+          265
+        ],
+        [
+          19719,
+          267
+        ],
+        [
+          19720,
+          169
+        ],
+        [
+          19720,
+          263
+        ],
+        [
+          19720,
+          264
+        ],
+        [
+          19720,
+          265
+        ],
+        [
+          19727,
+          247
+        ],
+        [
+          19727,
+          248
+        ],
+        [
+          19727,
+          250
+        ],
+        [
+          19727,
+          267
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19719,
+        19727
+      ],
+      "strict_raw_improvement": true,
+      "survivor": 19064,
+      "target_aabb_candidates": {
+        "bank_aabb": 36,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19719,
+        19720,
+        19727,
+        19728
+      ],
+      "edge_length_mm": 5.218072305005003,
+      "exact_new_changed_face_pairs": [
+        [
+          19719,
+          152
+        ],
+        [
+          19719,
+          263
+        ],
+        [
+          19719,
+          264
+        ],
+        [
+          19719,
+          265
+        ],
+        [
+          19720,
+          152
+        ],
+        [
+          19720,
+          154
+        ],
+        [
+          19720,
+          156
+        ],
+        [
+          19720,
+          167
+        ],
+        [
+          19720,
+          168
+        ],
+        [
+          19720,
+          169
+        ],
+        [
+          19720,
+          264
+        ],
+        [
+          19727,
+          152
+        ],
+        [
+          19727,
+          247
+        ],
+        [
+          19727,
+          248
+        ],
+        [
+          19727,
+          250
+        ],
+        [
+          19727,
+          265
+        ],
+        [
+          19727,
+          267
+        ],
+        [
+          19728,
+          152
+        ],
+        [
+          19728,
+          247
+        ]
+      ],
+      "inside_node": 21131,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 1,
+      "mapped_added_pairs": [
+        [
+          19377,
+          265
+        ]
+      ],
+      "mapped_removed_count": 1,
+      "mapped_removed_pairs": [
+        [
+          19373,
+          267
+        ]
+      ],
+      "preflight_shape": {
+        "min_area_ratio": 1.0074462116949514,
+        "min_new_area_mm2": 7.8266612165144425,
+        "min_normal_cosine": 0.9356050908674045
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 11,
+      "raw_added_pairs": [
+        [
+          19719,
+          152
+        ],
+        [
+          19719,
+          263
+        ],
+        [
+          19719,
+          264
+        ],
+        [
+          19720,
+          152
+        ],
+        [
+          19720,
+          154
+        ],
+        [
+          19720,
+          156
+        ],
+        [
+          19720,
+          167
+        ],
+        [
+          19720,
+          168
+        ],
+        [
+          19727,
+          152
+        ],
+        [
+          19727,
+          265
+        ],
+        [
+          19728,
+          152
+        ]
+      ],
+      "raw_removed_count": 10,
+      "raw_removed_pairs": [
+        [
+          19717,
+          152
+        ],
+        [
+          19717,
+          154
+        ],
+        [
+          19717,
+          156
+        ],
+        [
+          19717,
+          167
+        ],
+        [
+          19717,
+          168
+        ],
+        [
+          19717,
+          169
+        ],
+        [
+          19719,
+          267
+        ],
+        [
+          19720,
+          263
+        ],
+        [
+          19720,
+          265
+        ],
+        [
+          19726,
+          152
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19717,
+        19726
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 19063,
+      "target_aabb_candidates": {
+        "bank_aabb": 36,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19726,
+        19728,
+        19731,
+        19732
+      ],
+      "edge_length_mm": 4.279286335493909,
+      "exact_new_changed_face_pairs": [
+        [
+          19726,
+          145
+        ],
+        [
+          19726,
+          152
+        ],
+        [
+          19728,
+          145
+        ],
+        [
+          19728,
+          245
+        ],
+        [
+          19728,
+          246
+        ],
+        [
+          19728,
+          247
+        ],
+        [
+          19731,
+          145
+        ],
+        [
+          19731,
+          148
+        ],
+        [
+          19731,
+          151
+        ],
+        [
+          19731,
+          152
+        ],
+        [
+          19732,
+          145
+        ],
+        [
+          19732,
+          148
+        ]
+      ],
+      "inside_node": 21134,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999904448489376,
+        "min_new_area_mm2": 3.7445414369582455,
+        "min_normal_cosine": 0.9766294413750313
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 6,
+      "raw_added_pairs": [
+        [
+          19726,
+          145
+        ],
+        [
+          19728,
+          145
+        ],
+        [
+          19728,
+          245
+        ],
+        [
+          19728,
+          246
+        ],
+        [
+          19731,
+          145
+        ],
+        [
+          19732,
+          145
+        ]
+      ],
+      "raw_removed_count": 5,
+      "raw_removed_pairs": [
+        [
+          19725,
+          145
+        ],
+        [
+          19725,
+          245
+        ],
+        [
+          19725,
+          246
+        ],
+        [
+          19725,
+          247
+        ],
+        [
+          19729,
+          145
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19725,
+        19729
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20204,
+      "target_aabb_candidates": {
+        "bank_aabb": 45,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19674,
+        19677,
+        19748,
+        19750
+      ],
+      "edge_length_mm": 1.7909563426394317,
+      "exact_new_changed_face_pairs": [
+        [
+          19674,
+          138
+        ],
+        [
+          19674,
+          142
+        ],
+        [
+          19674,
+          145
+        ],
+        [
+          19677,
+          138
+        ],
+        [
+          19677,
+          142
+        ],
+        [
+          19748,
+          138
+        ],
+        [
+          19748,
+          145
+        ],
+        [
+          19750,
+          138
+        ],
+        [
+          19750,
+          146
+        ],
+        [
+          19750,
+          147
+        ]
+      ],
+      "inside_node": 20990,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.3296859308546802,
+        "min_normal_cosine": 0.9999999996184112
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 5,
+      "raw_added_pairs": [
+        [
+          19674,
+          138
+        ],
+        [
+          19677,
+          138
+        ],
+        [
+          19748,
+          138
+        ],
+        [
+          19750,
+          138
+        ],
+        [
+          19750,
+          146
+        ]
+      ],
+      "raw_removed_count": 4,
+      "raw_removed_pairs": [
+        [
+          19676,
+          138
+        ],
+        [
+          19749,
+          138
+        ],
+        [
+          19749,
+          146
+        ],
+        [
+          19749,
+          147
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19676,
+        19749
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20198,
+      "target_aabb_candidates": {
+        "bank_aabb": 15,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19725,
+        19728,
+        19729,
+        19732
+      ],
+      "edge_length_mm": 4.3826662472876015,
+      "exact_new_changed_face_pairs": [
+        [
+          19725,
+          145
+        ],
+        [
+          19725,
+          152
+        ],
+        [
+          19725,
+          245
+        ],
+        [
+          19725,
+          246
+        ],
+        [
+          19725,
+          247
+        ],
+        [
+          19728,
+          152
+        ],
+        [
+          19728,
+          247
+        ],
+        [
+          19729,
+          145
+        ],
+        [
+          19729,
+          152
+        ],
+        [
+          19732,
+          148
+        ],
+        [
+          19732,
+          151
+        ],
+        [
+          19732,
+          152
+        ]
+      ],
+      "inside_node": 21134,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9211034505617145,
+        "min_new_area_mm2": 5.9068570621084975,
+        "min_normal_cosine": 0.9282218155177042
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 5,
+      "raw_added_pairs": [
+        [
+          19725,
+          152
+        ],
+        [
+          19728,
+          152
+        ],
+        [
+          19729,
+          152
+        ],
+        [
+          19732,
+          151
+        ],
+        [
+          19732,
+          152
+        ]
+      ],
+      "raw_removed_count": 4,
+      "raw_removed_pairs": [
+        [
+          19726,
+          152
+        ],
+        [
+          19731,
+          148
+        ],
+        [
+          19731,
+          151
+        ],
+        [
+          19731,
+          152
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19726,
+        19731
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 19063,
+      "target_aabb_candidates": {
+        "bank_aabb": 45,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19367,
+        19370,
+        19371,
+        19374
+      ],
+      "edge_length_mm": 2.0437091382543087,
+      "exact_new_changed_face_pairs": [
+        [
+          19367,
+          144
+        ],
+        [
+          19367,
+          147
+        ],
+        [
+          19370,
+          130
+        ],
+        [
+          19370,
+          147
+        ],
+        [
+          19371,
+          144
+        ],
+        [
+          19371,
+          147
+        ],
+        [
+          19374,
+          147
+        ]
+      ],
+      "inside_node": 21187,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9997449212123777,
+        "min_new_area_mm2": 0.14729331830861805,
+        "min_normal_cosine": 0.9999999737098348
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19367,
+          147
+        ],
+        [
+          19370,
+          147
+        ],
+        [
+          19371,
+          147
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19368,
+          130
+        ],
+        [
+          19368,
+          147
+        ],
+        [
+          19373,
+          147
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19368,
+        19373
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 19702,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19219,
+        19222,
+        19238,
+        19240
+      ],
+      "edge_length_mm": 0.7579971795741477,
+      "exact_new_changed_face_pairs": [
+        [
+          19219,
+          133
+        ],
+        [
+          19219,
+          134
+        ],
+        [
+          19219,
+          144
+        ],
+        [
+          19222,
+          134
+        ],
+        [
+          19222,
+          135
+        ],
+        [
+          19222,
+          144
+        ],
+        [
+          19238,
+          133
+        ],
+        [
+          19238,
+          144
+        ],
+        [
+          19240,
+          133
+        ],
+        [
+          19240,
+          140
+        ],
+        [
+          19240,
+          144
+        ]
+      ],
+      "inside_node": 21094,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9993051006658219,
+        "min_new_area_mm2": 0.019276591279238493,
+        "min_normal_cosine": 0.9999994229326493
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19219,
+          144
+        ],
+        [
+          19222,
+          144
+        ],
+        [
+          19238,
+          144
+        ],
+        [
+          19240,
+          144
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19221,
+          144
+        ],
+        [
+          19239,
+          140
+        ],
+        [
+          19239,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19221,
+        19239
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18590,
+      "target_aabb_candidates": {
+        "bank_aabb": 6,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19676,
+        19677,
+        19749,
+        19750
+      ],
+      "edge_length_mm": 1.7909494693041312,
+      "exact_new_changed_face_pairs": [
+        [
+          19676,
+          138
+        ],
+        [
+          19676,
+          145
+        ],
+        [
+          19677,
+          142
+        ],
+        [
+          19677,
+          145
+        ],
+        [
+          19749,
+          138
+        ],
+        [
+          19749,
+          145
+        ],
+        [
+          19749,
+          146
+        ],
+        [
+          19749,
+          147
+        ],
+        [
+          19750,
+          145
+        ],
+        [
+          19750,
+          147
+        ]
+      ],
+      "inside_node": 20990,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999973656258605,
+        "min_new_area_mm2": 0.32967836647757126,
+        "min_normal_cosine": 0.999999999870749
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19676,
+          145
+        ],
+        [
+          19677,
+          145
+        ],
+        [
+          19749,
+          145
+        ],
+        [
+          19750,
+          145
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19674,
+          142
+        ],
+        [
+          19674,
+          145
+        ],
+        [
+          19748,
+          145
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19674,
+        19748
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 15972,
+      "target_aabb_candidates": {
+        "bank_aabb": 15,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19809,
+        19811,
+        19812,
+        19815
+      ],
+      "edge_length_mm": 3.0725118567332927,
+      "exact_new_changed_face_pairs": [
+        [
+          19809,
+          129
+        ],
+        [
+          19809,
+          245
+        ],
+        [
+          19811,
+          129
+        ],
+        [
+          19811,
+          162
+        ],
+        [
+          19812,
+          129
+        ],
+        [
+          19812,
+          245
+        ],
+        [
+          19815,
+          129
+        ],
+        [
+          19815,
+          245
+        ]
+      ],
+      "inside_node": 21068,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999315513132657,
+        "min_new_area_mm2": 0.1549228141468915,
+        "min_normal_cosine": 0.9999999772020969
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19809,
+          129
+        ],
+        [
+          19811,
+          129
+        ],
+        [
+          19812,
+          129
+        ],
+        [
+          19815,
+          129
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19810,
+          129
+        ],
+        [
+          19810,
+          162
+        ],
+        [
+          19814,
+          129
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19810,
+        19814
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20215,
+      "target_aabb_candidates": {
+        "bank_aabb": 23,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19814,
+        19815,
+        19816,
+        19819
+      ],
+      "edge_length_mm": 3.353393696802057,
+      "exact_new_changed_face_pairs": [
+        [
+          19814,
+          129
+        ],
+        [
+          19814,
+          245
+        ],
+        [
+          19815,
+          245
+        ],
+        [
+          19816,
+          129
+        ],
+        [
+          19816,
+          130
+        ],
+        [
+          19816,
+          245
+        ],
+        [
+          19819,
+          130
+        ],
+        [
+          19819,
+          145
+        ],
+        [
+          19819,
+          245
+        ]
+      ],
+      "inside_node": 20901,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.00005841255716,
+        "min_new_area_mm2": 0.15496057335677563,
+        "min_normal_cosine": 0.999999849679076
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19814,
+          245
+        ],
+        [
+          19816,
+          245
+        ],
+        [
+          19819,
+          145
+        ],
+        [
+          19819,
+          245
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19813,
+          245
+        ],
+        [
+          19817,
+          145
+        ],
+        [
+          19817,
+          245
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19813,
+        19817
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 9106,
+      "target_aabb_candidates": {
+        "bank_aabb": 22,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19729,
+        19732,
+        19736,
+        19738
+      ],
+      "edge_length_mm": 3.995385268474023,
+      "exact_new_changed_face_pairs": [
+        [
+          19729,
+          145
+        ],
+        [
+          19729,
+          147
+        ],
+        [
+          19732,
+          147
+        ],
+        [
+          19732,
+          148
+        ],
+        [
+          19736,
+          145
+        ],
+        [
+          19736,
+          147
+        ],
+        [
+          19738,
+          145
+        ],
+        [
+          19738,
+          147
+        ]
+      ],
+      "inside_node": 21193,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999927033288143,
+        "min_new_area_mm2": 1.7261455512544508,
+        "min_normal_cosine": 0.9999999991542697
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19729,
+          147
+        ],
+        [
+          19732,
+          147
+        ],
+        [
+          19736,
+          147
+        ],
+        [
+          19738,
+          147
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19730,
+          147
+        ],
+        [
+          19730,
+          148
+        ],
+        [
+          19735,
+          147
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19730,
+        19735
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 19705,
+      "target_aabb_candidates": {
+        "bank_aabb": 28,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19448,
+        19449,
+        19450,
+        19453
+      ],
+      "edge_length_mm": 1.0726171670161573,
+      "exact_new_changed_face_pairs": [
+        [
+          19448,
+          134
+        ],
+        [
+          19448,
+          144
+        ],
+        [
+          19449,
+          144
+        ],
+        [
+          19450,
+          134
+        ],
+        [
+          19450,
+          144
+        ],
+        [
+          19453,
+          134
+        ],
+        [
+          19453,
+          144
+        ]
+      ],
+      "inside_node": 21093,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999769580780505,
+        "min_new_area_mm2": 0.04669212019592153,
+        "min_normal_cosine": 0.9999999896099787
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19448,
+          144
+        ],
+        [
+          19450,
+          144
+        ],
+        [
+          19453,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19447,
+          144
+        ],
+        [
+          19451,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19447,
+        19451
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18587,
+      "target_aabb_candidates": {
+        "bank_aabb": 9,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19447,
+        19449,
+        19451,
+        19453
+      ],
+      "edge_length_mm": 1.0726271678218575,
+      "exact_new_changed_face_pairs": [
+        [
+          19447,
+          134
+        ],
+        [
+          19447,
+          144
+        ],
+        [
+          19449,
+          134
+        ],
+        [
+          19449,
+          144
+        ],
+        [
+          19451,
+          134
+        ],
+        [
+          19451,
+          144
+        ],
+        [
+          19453,
+          134
+        ]
+      ],
+      "inside_node": 21093,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.999738693741628,
+        "min_new_area_mm2": 0.04668099487253805,
+        "min_normal_cosine": 0.9999999964046535
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19447,
+          134
+        ],
+        [
+          19449,
+          134
+        ],
+        [
+          19451,
+          134
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19448,
+          134
+        ],
+        [
+          19450,
+          134
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19448,
+        19450
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20185,
+      "target_aabb_candidates": {
+        "bank_aabb": 9,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19418,
+        19420,
+        19458,
+        19460
+      ],
+      "edge_length_mm": 2.3677912504958853,
+      "exact_new_changed_face_pairs": [
+        [
+          19418,
+          135
+        ],
+        [
+          19418,
+          144
+        ],
+        [
+          19420,
+          135
+        ],
+        [
+          19420,
+          144
+        ],
+        [
+          19458,
+          135
+        ],
+        [
+          19458,
+          144
+        ],
+        [
+          19460,
+          135
+        ]
+      ],
+      "inside_node": 21022,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9976893491518952,
+        "min_new_area_mm2": 0.01569418723536049,
+        "min_normal_cosine": 0.9999962500569788
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19418,
+          135
+        ],
+        [
+          19420,
+          135
+        ],
+        [
+          19458,
+          135
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19419,
+          135
+        ],
+        [
+          19457,
+          135
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19419,
+        19457
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 17076,
+      "target_aabb_candidates": {
+        "bank_aabb": 14,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19735,
+        19738,
+        19747,
+        19750
+      ],
+      "edge_length_mm": 2.844508761795287,
+      "exact_new_changed_face_pairs": [
+        [
+          19735,
+          145
+        ],
+        [
+          19735,
+          147
+        ],
+        [
+          19738,
+          145
+        ],
+        [
+          19747,
+          145
+        ],
+        [
+          19747,
+          147
+        ],
+        [
+          19750,
+          145
+        ],
+        [
+          19750,
+          147
+        ]
+      ],
+      "inside_node": 20989,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.000000172902131,
+        "min_new_area_mm2": 0.7266799204694196,
+        "min_normal_cosine": 0.9999999993952525
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19735,
+          145
+        ],
+        [
+          19747,
+          145
+        ],
+        [
+          19750,
+          145
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19737,
+          145
+        ],
+        [
+          19748,
+          145
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19737,
+        19748
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 15972,
+      "target_aabb_candidates": {
+        "bank_aabb": 19,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19737,
+        19738,
+        19748,
+        19750
+      ],
+      "edge_length_mm": 2.844535997855602,
+      "exact_new_changed_face_pairs": [
+        [
+          19737,
+          145
+        ],
+        [
+          19737,
+          147
+        ],
+        [
+          19738,
+          145
+        ],
+        [
+          19738,
+          147
+        ],
+        [
+          19748,
+          145
+        ],
+        [
+          19748,
+          147
+        ],
+        [
+          19750,
+          147
+        ]
+      ],
+      "inside_node": 20989,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.000005763125127,
+        "min_new_area_mm2": 0.7267633457645077,
+        "min_normal_cosine": 0.999999998447967
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19737,
+          147
+        ],
+        [
+          19738,
+          147
+        ],
+        [
+          19748,
+          147
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19735,
+          147
+        ],
+        [
+          19747,
+          147
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19735,
+        19747
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 19705,
+      "target_aabb_candidates": {
+        "bank_aabb": 19,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19810,
+        19811,
+        19814,
+        19815
+      ],
+      "edge_length_mm": 3.072504346731199,
+      "exact_new_changed_face_pairs": [
+        [
+          19810,
+          129
+        ],
+        [
+          19810,
+          162
+        ],
+        [
+          19810,
+          245
+        ],
+        [
+          19811,
+          162
+        ],
+        [
+          19811,
+          245
+        ],
+        [
+          19814,
+          129
+        ],
+        [
+          19814,
+          245
+        ],
+        [
+          19815,
+          245
+        ]
+      ],
+      "inside_node": 21068,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.999993813675653,
+        "min_new_area_mm2": 0.15496189985872355,
+        "min_normal_cosine": 0.9999999873786053
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19810,
+          245
+        ],
+        [
+          19811,
+          245
+        ],
+        [
+          19814,
+          245
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19809,
+          245
+        ],
+        [
+          19812,
+          245
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19809,
+        19812
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18491,
+      "target_aabb_candidates": {
+        "bank_aabb": 23,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19730,
+        19732,
+        19735,
+        19738
+      ],
+      "edge_length_mm": 3.9953358608943375,
+      "exact_new_changed_face_pairs": [
+        [
+          19730,
+          145
+        ],
+        [
+          19730,
+          147
+        ],
+        [
+          19730,
+          148
+        ],
+        [
+          19732,
+          145
+        ],
+        [
+          19732,
+          148
+        ],
+        [
+          19735,
+          145
+        ],
+        [
+          19735,
+          147
+        ],
+        [
+          19738,
+          145
+        ]
+      ],
+      "inside_node": 21193,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.999997837901074,
+        "min_new_area_mm2": 1.7261287453146261,
+        "min_normal_cosine": 0.9999999998044088
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19730,
+          145
+        ],
+        [
+          19732,
+          145
+        ],
+        [
+          19735,
+          145
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19729,
+          145
+        ],
+        [
+          19736,
+          145
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19729,
+        19736
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20204,
+      "target_aabb_candidates": {
+        "bank_aabb": 28,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19368,
+        19370,
+        19373,
+        19374
+      ],
+      "edge_length_mm": 2.043719183538259,
+      "exact_new_changed_face_pairs": [
+        [
+          19368,
+          130
+        ],
+        [
+          19368,
+          144
+        ],
+        [
+          19368,
+          147
+        ],
+        [
+          19370,
+          130
+        ],
+        [
+          19370,
+          144
+        ],
+        [
+          19373,
+          144
+        ],
+        [
+          19373,
+          147
+        ],
+        [
+          19374,
+          144
+        ],
+        [
+          19374,
+          147
+        ]
+      ],
+      "inside_node": 21187,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": true,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0000435439534425,
+        "min_new_area_mm2": 0.14729781906048847,
+        "min_normal_cosine": 0.9999999841713172
+      },
+      "raw_43_16_after": 249,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19368,
+          144
+        ],
+        [
+          19370,
+          144
+        ],
+        [
+          19373,
+          144
+        ],
+        [
+          19374,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19367,
+          144
+        ],
+        [
+          19371,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19367,
+        19371
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20179,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19224,
+        19226,
+        19227,
+        19230
+      ],
+      "edge_length_mm": 0.7750773872492253,
+      "exact_new_changed_face_pairs": [
+        [
+          19224,
+          133
+        ],
+        [
+          19224,
+          140
+        ],
+        [
+          19227,
+          133
+        ],
+        [
+          19227,
+          140
+        ]
+      ],
+      "inside_node": 20956,
+      "layer_failures": {
+        "fat_authored": [
+          19224,
+          19226,
+          19230
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19224,
+          19226,
+          19230
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9992664189646764,
+        "min_new_area_mm2": 0.010974402600573887,
+        "min_normal_cosine": 0.9999999378727367
+      },
+      "raw_43_16_after": 243,
+      "raw_43_16_before": 247,
+      "raw_added_count": 0,
+      "raw_added_pairs": [],
+      "raw_removed_count": 4,
+      "raw_removed_pairs": [
+        [
+          19225,
+          133
+        ],
+        [
+          19226,
+          133
+        ],
+        [
+          19229,
+          133
+        ],
+        [
+          19230,
+          133
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19225,
+        19229
+      ],
+      "strict_raw_improvement": true,
+      "survivor": 20159,
+      "target_aabb_candidates": {
+        "bank_aabb": 5,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19203,
+        19214,
+        19215
+      ],
+      "edge_length_mm": 0.6773324158178173,
+      "exact_new_changed_face_pairs": [
+        [
+          19203,
+          133
+        ],
+        [
+          19203,
+          144
+        ],
+        [
+          19214,
+          133
+        ],
+        [
+          19214,
+          134
+        ],
+        [
+          19214,
+          144
+        ],
+        [
+          19215,
+          134
+        ]
+      ],
+      "inside_node": 21095,
+      "layer_failures": {
+        "fat_authored": [
+          19214,
+          19215
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19214,
+          19215
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.15007471766523756,
+        "min_normal_cosine": 0.9999999997677953
+      },
+      "raw_43_16_after": 246,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19203,
+          133
+        ],
+        [
+          19214,
+          133
+        ],
+        [
+          19214,
+          134
+        ]
+      ],
+      "raw_removed_count": 4,
+      "raw_removed_pairs": [
+        [
+          19204,
+          133
+        ],
+        [
+          19204,
+          144
+        ],
+        [
+          19213,
+          133
+        ],
+        [
+          19213,
+          134
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19204,
+        19213
+      ],
+      "strict_raw_improvement": true,
+      "survivor": 20157,
+      "target_aabb_candidates": {
+        "bank_aabb": 9,
+        "skin_aabb": 3
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19197,
+        19200,
+        19451,
+        19453
+      ],
+      "edge_length_mm": 0.7659179483908409,
+      "exact_new_changed_face_pairs": [
+        [
+          19197,
+          133
+        ],
+        [
+          19197,
+          144
+        ],
+        [
+          19200,
+          133
+        ],
+        [
+          19200,
+          144
+        ],
+        [
+          19451,
+          133
+        ],
+        [
+          19451,
+          134
+        ],
+        [
+          19451,
+          144
+        ],
+        [
+          19453,
+          134
+        ]
+      ],
+      "inside_node": 21092,
+      "layer_failures": {
+        "fat_authored": [
+          19197,
+          19200
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19197,
+          19200
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.999831188472049,
+        "min_new_area_mm2": 0.046685313747123536,
+        "min_normal_cosine": 0.9999999981669908
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19197,
+          133
+        ],
+        [
+          19200,
+          133
+        ],
+        [
+          19451,
+          133
+        ],
+        [
+          19451,
+          134
+        ]
+      ],
+      "raw_removed_count": 4,
+      "raw_removed_pairs": [
+        [
+          19199,
+          133
+        ],
+        [
+          19199,
+          144
+        ],
+        [
+          19452,
+          133
+        ],
+        [
+          19452,
+          134
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19199,
+        19452
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20157,
+      "target_aabb_candidates": {
+        "bank_aabb": 8,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19225,
+        19226,
+        19229,
+        19230
+      ],
+      "edge_length_mm": 0.7750160640889007,
+      "exact_new_changed_face_pairs": [
+        [
+          19225,
+          133
+        ],
+        [
+          19225,
+          140
+        ],
+        [
+          19226,
+          133
+        ],
+        [
+          19226,
+          140
+        ],
+        [
+          19229,
+          133
+        ],
+        [
+          19229,
+          140
+        ],
+        [
+          19230,
+          133
+        ],
+        [
+          19230,
+          140
+        ]
+      ],
+      "inside_node": 20956,
+      "layer_failures": {
+        "fat_authored": [
+          19225,
+          19226
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19225,
+          19226
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0010302105360271,
+        "min_new_area_mm2": 0.010993773369410048,
+        "min_normal_cosine": 0.9999991525791228
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19225,
+          140
+        ],
+        [
+          19226,
+          140
+        ],
+        [
+          19229,
+          140
+        ],
+        [
+          19230,
+          140
+        ]
+      ],
+      "raw_removed_count": 4,
+      "raw_removed_pairs": [
+        [
+          19224,
+          133
+        ],
+        [
+          19224,
+          140
+        ],
+        [
+          19227,
+          133
+        ],
+        [
+          19227,
+          140
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19224,
+        19227
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 14824,
+      "target_aabb_candidates": {
+        "bank_aabb": 5,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19664,
+        19667,
+        19682,
+        19685
+      ],
+      "edge_length_mm": 2.0526760159087667,
+      "exact_new_changed_face_pairs": [
+        [
+          19664,
+          142
+        ],
+        [
+          19664,
+          147
+        ],
+        [
+          19667,
+          147
+        ],
+        [
+          19682,
+          142
+        ],
+        [
+          19682,
+          147
+        ],
+        [
+          19685,
+          138
+        ],
+        [
+          19685,
+          146
+        ],
+        [
+          19685,
+          147
+        ]
+      ],
+      "inside_node": 21026,
+      "layer_failures": {
+        "fat_authored": [
+          19667,
+          19682,
+          19685
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19664,
+          19667,
+          19682,
+          19685
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.053789789558693665,
+        "min_normal_cosine": 0.9999999999999998
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19664,
+          147
+        ],
+        [
+          19682,
+          147
+        ],
+        [
+          19685,
+          146
+        ],
+        [
+          19685,
+          147
+        ]
+      ],
+      "raw_removed_count": 4,
+      "raw_removed_pairs": [
+        [
+          19666,
+          147
+        ],
+        [
+          19683,
+          138
+        ],
+        [
+          19683,
+          146
+        ],
+        [
+          19683,
+          147
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19666,
+        19683
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18897,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19310,
+        19312,
+        19817,
+        19819
+      ],
+      "edge_length_mm": 2.199391367423446,
+      "exact_new_changed_face_pairs": [
+        [
+          19310,
+          135
+        ],
+        [
+          19310,
+          145
+        ],
+        [
+          19312,
+          135
+        ],
+        [
+          19817,
+          135
+        ],
+        [
+          19817,
+          145
+        ],
+        [
+          19817,
+          245
+        ],
+        [
+          19819,
+          128
+        ],
+        [
+          19819,
+          130
+        ],
+        [
+          19819,
+          135
+        ]
+      ],
+      "inside_node": 20895,
+      "layer_failures": {
+        "fat_authored": [
+          19310,
+          19312
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19310,
+          19312
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.023500191571337353,
+        "min_normal_cosine": 0.9999999279490167
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19310,
+          135
+        ],
+        [
+          19817,
+          135
+        ],
+        [
+          19819,
+          128
+        ],
+        [
+          19819,
+          135
+        ]
+      ],
+      "raw_removed_count": 4,
+      "raw_removed_pairs": [
+        [
+          19309,
+          135
+        ],
+        [
+          19818,
+          128
+        ],
+        [
+          19818,
+          130
+        ],
+        [
+          19818,
+          135
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19309,
+        19818
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18488,
+      "target_aabb_candidates": {
+        "bank_aabb": 19,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19199,
+        19200,
+        19452,
+        19453
+      ],
+      "edge_length_mm": 0.765945698174835,
+      "exact_new_changed_face_pairs": [
+        [
+          19199,
+          133
+        ],
+        [
+          19199,
+          144
+        ],
+        [
+          19452,
+          133
+        ],
+        [
+          19452,
+          134
+        ],
+        [
+          19452,
+          144
+        ],
+        [
+          19453,
+          134
+        ],
+        [
+          19453,
+          144
+        ]
+      ],
+      "inside_node": 21092,
+      "layer_failures": {
+        "fat_authored": [
+          19199,
+          19200
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19199,
+          19200
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999695701323802,
+        "min_new_area_mm2": 0.046694298615145485,
+        "min_normal_cosine": 0.9999999947023875
+      },
+      "raw_43_16_after": 246,
+      "raw_43_16_before": 247,
+      "raw_added_count": 2,
+      "raw_added_pairs": [
+        [
+          19452,
+          144
+        ],
+        [
+          19453,
+          144
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19197,
+          144
+        ],
+        [
+          19200,
+          144
+        ],
+        [
+          19451,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19197,
+        19451
+      ],
+      "strict_raw_improvement": true,
+      "survivor": 18587,
+      "target_aabb_candidates": {
+        "bank_aabb": 8,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19221,
+        19222,
+        19239,
+        19240
+      ],
+      "edge_length_mm": 0.7579749250517033,
+      "exact_new_changed_face_pairs": [
+        [
+          19221,
+          133
+        ],
+        [
+          19221,
+          134
+        ],
+        [
+          19221,
+          144
+        ],
+        [
+          19222,
+          134
+        ],
+        [
+          19222,
+          135
+        ],
+        [
+          19239,
+          133
+        ],
+        [
+          19239,
+          140
+        ],
+        [
+          19239,
+          144
+        ],
+        [
+          19240,
+          133
+        ],
+        [
+          19240,
+          140
+        ]
+      ],
+      "inside_node": 21094,
+      "layer_failures": {
+        "fat_authored": [
+          19240
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19240
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9998138848275566,
+        "min_new_area_mm2": 0.019286405723624472,
+        "min_normal_cosine": 0.9999999869288317
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19221,
+          133
+        ],
+        [
+          19221,
+          134
+        ],
+        [
+          19239,
+          133
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19219,
+          133
+        ],
+        [
+          19219,
+          134
+        ],
+        [
+          19238,
+          133
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19219,
+        19238
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 19496,
+      "target_aabb_candidates": {
+        "bank_aabb": 6,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19214,
+        19215,
+        19221,
+        19222
+      ],
+      "edge_length_mm": 1.4747930282931891,
+      "exact_new_changed_face_pairs": [
+        [
+          19214,
+          135
+        ],
+        [
+          19214,
+          144
+        ],
+        [
+          19215,
+          134
+        ],
+        [
+          19215,
+          135
+        ],
+        [
+          19221,
+          135
+        ],
+        [
+          19221,
+          144
+        ],
+        [
+          19222,
+          134
+        ],
+        [
+          19222,
+          135
+        ]
+      ],
+      "inside_node": 21016,
+      "layer_failures": {
+        "fat_authored": [
+          19214,
+          19215
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19214,
+          19215
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0000270969068923,
+        "min_new_area_mm2": 0.09297141455725354,
+        "min_normal_cosine": 0.9999999957781566
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19214,
+          135
+        ],
+        [
+          19215,
+          135
+        ],
+        [
+          19221,
+          135
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19212,
+          134
+        ],
+        [
+          19212,
+          135
+        ],
+        [
+          19220,
+          135
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19212,
+        19220
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 17069,
+      "target_aabb_candidates": {
+        "bank_aabb": 8,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19676,
+        19677,
+        19680,
+        19681
+      ],
+      "edge_length_mm": 1.5380060941619447,
+      "exact_new_changed_face_pairs": [
+        [
+          19676,
+          138
+        ],
+        [
+          19676,
+          144
+        ],
+        [
+          19677,
+          142
+        ],
+        [
+          19677,
+          144
+        ],
+        [
+          19680,
+          138
+        ],
+        [
+          19680,
+          144
+        ],
+        [
+          19681,
+          144
+        ]
+      ],
+      "inside_node": 21191,
+      "layer_failures": {
+        "fat_authored": [
+          19680,
+          19681
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19680,
+          19681
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.27174818347341356,
+        "min_normal_cosine": 0.9999999998745103
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19676,
+          144
+        ],
+        [
+          19677,
+          144
+        ],
+        [
+          19680,
+          144
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19675,
+          142
+        ],
+        [
+          19675,
+          144
+        ],
+        [
+          19678,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19675,
+        19678
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 19704,
+      "target_aabb_candidates": {
+        "bank_aabb": 12,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19317,
+        19320,
+        19337,
+        19339
+      ],
+      "edge_length_mm": 2.566047214803545,
+      "exact_new_changed_face_pairs": [
+        [
+          19317,
+          130
+        ],
+        [
+          19317,
+          133
+        ],
+        [
+          19317,
+          134
+        ],
+        [
+          19317,
+          140
+        ],
+        [
+          19320,
+          130
+        ],
+        [
+          19320,
+          134
+        ],
+        [
+          19337,
+          130
+        ],
+        [
+          19337,
+          140
+        ],
+        [
+          19339,
+          130
+        ]
+      ],
+      "inside_node": 21019,
+      "layer_failures": {
+        "fat_authored": [
+          19317,
+          19320
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19317,
+          19320
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0000568305750648,
+        "min_new_area_mm2": 0.3265826936715532,
+        "min_normal_cosine": 0.999999993046604
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19317,
+          130
+        ],
+        [
+          19317,
+          134
+        ],
+        [
+          19337,
+          130
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19318,
+          130
+        ],
+        [
+          19320,
+          133
+        ],
+        [
+          19336,
+          130
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19318,
+        19336
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 17073,
+      "target_aabb_candidates": {
+        "bank_aabb": 15,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19809,
+        19811,
+        19861,
+        19864
+      ],
+      "edge_length_mm": 4.137451534919275,
+      "exact_new_changed_face_pairs": [
+        [
+          19809,
+          162
+        ],
+        [
+          19809,
+          245
+        ],
+        [
+          19811,
+          162
+        ],
+        [
+          19861,
+          162
+        ],
+        [
+          19861,
+          245
+        ],
+        [
+          19864,
+          129
+        ],
+        [
+          19864,
+          162
+        ]
+      ],
+      "inside_node": 20932,
+      "layer_failures": {
+        "fat_authored": [
+          19861,
+          19864
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19861,
+          19864
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.99998731953128,
+        "min_new_area_mm2": 1.6885724131615758,
+        "min_normal_cosine": 0.9999999988030758
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19809,
+          162
+        ],
+        [
+          19861,
+          162
+        ],
+        [
+          19864,
+          162
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19808,
+          162
+        ],
+        [
+          19862,
+          129
+        ],
+        [
+          19862,
+          162
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19808,
+        19862
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 14285,
+      "target_aabb_candidates": {
+        "bank_aabb": 20,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19458,
+        19460,
+        19461,
+        19464
+      ],
+      "edge_length_mm": 1.1102518476384344,
+      "exact_new_changed_face_pairs": [
+        [
+          19458,
+          134
+        ],
+        [
+          19458,
+          135
+        ],
+        [
+          19458,
+          144
+        ],
+        [
+          19460,
+          135
+        ],
+        [
+          19461,
+          134
+        ],
+        [
+          19461,
+          144
+        ],
+        [
+          19464,
+          134
+        ],
+        [
+          19464,
+          144
+        ]
+      ],
+      "inside_node": 21096,
+      "layer_failures": {
+        "fat_authored": [
+          19461,
+          19464
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19461,
+          19464
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999133641652753,
+        "min_new_area_mm2": 0.15571930989035862,
+        "min_normal_cosine": 0.9999999974512402
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19458,
+          134
+        ],
+        [
+          19458,
+          135
+        ],
+        [
+          19461,
+          134
+        ],
+        [
+          19464,
+          134
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19459,
+          134
+        ],
+        [
+          19459,
+          135
+        ],
+        [
+          19463,
+          134
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19459,
+        19463
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20185,
+      "target_aabb_candidates": {
+        "bank_aabb": 15,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19680,
+        19681,
+        19684,
+        19685
+      ],
+      "edge_length_mm": 1.6816471396424686,
+      "exact_new_changed_face_pairs": [
+        [
+          19680,
+          138
+        ],
+        [
+          19680,
+          142
+        ],
+        [
+          19681,
+          142
+        ],
+        [
+          19681,
+          144
+        ],
+        [
+          19684,
+          138
+        ],
+        [
+          19684,
+          142
+        ],
+        [
+          19685,
+          138
+        ],
+        [
+          19685,
+          142
+        ]
+      ],
+      "inside_node": 21030,
+      "layer_failures": {
+        "fat_authored": [
+          19680,
+          19681,
+          19684,
+          19685
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19680,
+          19681,
+          19684,
+          19685
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.999833577994703,
+        "min_new_area_mm2": 0.2688460539049639,
+        "min_normal_cosine": 0.9999999998693132
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19680,
+          142
+        ],
+        [
+          19681,
+          142
+        ],
+        [
+          19684,
+          142
+        ],
+        [
+          19685,
+          142
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19679,
+          142
+        ],
+        [
+          19679,
+          144
+        ],
+        [
+          19682,
+          142
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19679,
+        19682
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 17093,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19404,
+        19406,
+        19422,
+        19424
+      ],
+      "edge_length_mm": 1.7127979044821322,
+      "exact_new_changed_face_pairs": [
+        [
+          19404,
+          144
+        ],
+        [
+          19404,
+          146
+        ],
+        [
+          19406,
+          138
+        ],
+        [
+          19406,
+          146
+        ],
+        [
+          19422,
+          144
+        ],
+        [
+          19422,
+          146
+        ],
+        [
+          19424,
+          144
+        ],
+        [
+          19424,
+          146
+        ]
+      ],
+      "inside_node": 21205,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19404
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999639332062351,
+        "min_new_area_mm2": 0.1626477872668578,
+        "min_normal_cosine": 0.9999999927617004
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19404,
+          146
+        ],
+        [
+          19406,
+          146
+        ],
+        [
+          19422,
+          146
+        ],
+        [
+          19424,
+          146
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19403,
+          138
+        ],
+        [
+          19403,
+          146
+        ],
+        [
+          19423,
+          146
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19403,
+        19423
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20182,
+      "target_aabb_candidates": {
+        "bank_aabb": 11,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19382,
+        19384,
+        19389,
+        19392
+      ],
+      "edge_length_mm": 1.9462917969084172,
+      "exact_new_changed_face_pairs": [
+        [
+          19382,
+          144
+        ],
+        [
+          19382,
+          147
+        ],
+        [
+          19384,
+          146
+        ],
+        [
+          19384,
+          147
+        ],
+        [
+          19389,
+          144
+        ],
+        [
+          19389,
+          147
+        ],
+        [
+          19392,
+          144
+        ],
+        [
+          19392,
+          147
+        ]
+      ],
+      "inside_node": 21190,
+      "layer_failures": {
+        "fat_authored": [
+          19382,
+          19389,
+          19392
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19389,
+          19392
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.10228682540892467,
+        "min_normal_cosine": 0.9999999941826544
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19382,
+          147
+        ],
+        [
+          19384,
+          147
+        ],
+        [
+          19389,
+          147
+        ],
+        [
+          19392,
+          147
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19381,
+          146
+        ],
+        [
+          19381,
+          147
+        ],
+        [
+          19390,
+          147
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19381,
+        19390
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 19703,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19324,
+        19327,
+        19338,
+        19339
+      ],
+      "edge_length_mm": 2.277211515531448,
+      "exact_new_changed_face_pairs": [
+        [
+          19324,
+          130
+        ],
+        [
+          19324,
+          140
+        ],
+        [
+          19327,
+          140
+        ],
+        [
+          19327,
+          144
+        ],
+        [
+          19338,
+          130
+        ],
+        [
+          19338,
+          140
+        ],
+        [
+          19339,
+          130
+        ],
+        [
+          19339,
+          140
+        ]
+      ],
+      "inside_node": 21071,
+      "layer_failures": {
+        "fat_authored": [
+          19324,
+          19327
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19324,
+          19327
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999813259161,
+        "min_new_area_mm2": 0.32655803655792165,
+        "min_normal_cosine": 0.9999999993363461
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19324,
+          140
+        ],
+        [
+          19327,
+          140
+        ],
+        [
+          19338,
+          140
+        ],
+        [
+          19339,
+          140
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19325,
+          140
+        ],
+        [
+          19325,
+          144
+        ],
+        [
+          19337,
+          140
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19325,
+        19337
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18492,
+      "target_aabb_candidates": {
+        "bank_aabb": 14,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19404,
+        19406,
+        19417,
+        19420
+      ],
+      "edge_length_mm": 2.367236017395261,
+      "exact_new_changed_face_pairs": [
+        [
+          19404,
+          135
+        ],
+        [
+          19404,
+          138
+        ],
+        [
+          19404,
+          144
+        ],
+        [
+          19406,
+          138
+        ],
+        [
+          19417,
+          135
+        ],
+        [
+          19417,
+          144
+        ],
+        [
+          19420,
+          135
+        ],
+        [
+          19420,
+          144
+        ]
+      ],
+      "inside_node": 21025,
+      "layer_failures": {
+        "fat_authored": [
+          19420
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19420
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0001644456222798,
+        "min_new_area_mm2": 0.015767229606393696,
+        "min_normal_cosine": 0.9999962864618178
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19404,
+          135
+        ],
+        [
+          19404,
+          138
+        ],
+        [
+          19417,
+          135
+        ],
+        [
+          19420,
+          135
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19405,
+          135
+        ],
+        [
+          19405,
+          138
+        ],
+        [
+          19419,
+          135
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19405,
+        19419
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 17076,
+      "target_aabb_candidates": {
+        "bank_aabb": 14,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19846,
+        19847,
+        19850,
+        19851
+      ],
+      "edge_length_mm": 2.4388670014453,
+      "exact_new_changed_face_pairs": [
+        [
+          19846,
+          130
+        ],
+        [
+          19846,
+          145
+        ],
+        [
+          19847,
+          130
+        ],
+        [
+          19847,
+          145
+        ],
+        [
+          19850,
+          130
+        ],
+        [
+          19850,
+          145
+        ],
+        [
+          19851,
+          130
+        ],
+        [
+          19851,
+          147
+        ]
+      ],
+      "inside_node": 21062,
+      "layer_failures": {
+        "fat_authored": [
+          19846,
+          19847,
+          19850,
+          19851
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19846,
+          19847,
+          19850,
+          19851
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.14317073088950075,
+        "min_normal_cosine": 0.9999999979513986
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19846,
+          130
+        ],
+        [
+          19847,
+          130
+        ],
+        [
+          19850,
+          130
+        ],
+        [
+          19851,
+          130
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19845,
+          130
+        ],
+        [
+          19848,
+          130
+        ],
+        [
+          19848,
+          147
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19845,
+        19848
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18496,
+      "target_aabb_candidates": {
+        "bank_aabb": 18,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19318,
+        19320,
+        19336,
+        19339
+      ],
+      "edge_length_mm": 2.5660557089209983,
+      "exact_new_changed_face_pairs": [
+        [
+          19318,
+          130
+        ],
+        [
+          19318,
+          140
+        ],
+        [
+          19320,
+          130
+        ],
+        [
+          19320,
+          133
+        ],
+        [
+          19320,
+          134
+        ],
+        [
+          19320,
+          140
+        ],
+        [
+          19336,
+          130
+        ],
+        [
+          19336,
+          140
+        ],
+        [
+          19339,
+          130
+        ],
+        [
+          19339,
+          140
+        ]
+      ],
+      "inside_node": 21019,
+      "layer_failures": {
+        "fat_authored": [
+          19318,
+          19320
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19318,
+          19320
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0000011509428681,
+        "min_new_area_mm2": 0.32657227981106063,
+        "min_normal_cosine": 0.9999999991573839
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19318,
+          140
+        ],
+        [
+          19320,
+          140
+        ],
+        [
+          19336,
+          140
+        ],
+        [
+          19339,
+          140
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19317,
+          133
+        ],
+        [
+          19317,
+          140
+        ],
+        [
+          19337,
+          140
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19317,
+        19337
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18492,
+      "target_aabb_candidates": {
+        "bank_aabb": 15,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19858,
+        19860,
+        19861,
+        19864
+      ],
+      "edge_length_mm": 2.579769496101756,
+      "exact_new_changed_face_pairs": [
+        [
+          19858,
+          130
+        ],
+        [
+          19858,
+          245
+        ],
+        [
+          19860,
+          130
+        ],
+        [
+          19860,
+          245
+        ],
+        [
+          19861,
+          130
+        ],
+        [
+          19861,
+          245
+        ],
+        [
+          19864,
+          129
+        ],
+        [
+          19864,
+          130
+        ]
+      ],
+      "inside_node": 21069,
+      "layer_failures": {
+        "fat_authored": [
+          19858,
+          19860,
+          19861,
+          19864
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19858,
+          19860,
+          19861,
+          19864
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9997337901668067,
+        "min_new_area_mm2": 0.09983712078134979,
+        "min_normal_cosine": 0.9999997521087424
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19858,
+          130
+        ],
+        [
+          19860,
+          130
+        ],
+        [
+          19861,
+          130
+        ],
+        [
+          19864,
+          130
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19859,
+          130
+        ],
+        [
+          19863,
+          129
+        ],
+        [
+          19863,
+          130
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19859,
+        19863
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20218,
+      "target_aabb_candidates": {
+        "bank_aabb": 23,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19647,
+        19649,
+        19650,
+        19653
+      ],
+      "edge_length_mm": 2.6459786181467093,
+      "exact_new_changed_face_pairs": [
+        [
+          19647,
+          142
+        ],
+        [
+          19647,
+          147
+        ],
+        [
+          19649,
+          142
+        ],
+        [
+          19649,
+          145
+        ],
+        [
+          19650,
+          142
+        ],
+        [
+          19650,
+          147
+        ],
+        [
+          19653,
+          142
+        ],
+        [
+          19653,
+          147
+        ]
+      ],
+      "inside_node": 20926,
+      "layer_failures": {
+        "fat_authored": [
+          19647,
+          19649,
+          19650,
+          19653
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19647,
+          19649,
+          19650,
+          19653
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9995157434805416,
+        "min_new_area_mm2": 0.1434972167229158,
+        "min_normal_cosine": 0.9999999933016595
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19647,
+          142
+        ],
+        [
+          19649,
+          142
+        ],
+        [
+          19650,
+          142
+        ],
+        [
+          19653,
+          142
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19648,
+          142
+        ],
+        [
+          19648,
+          145
+        ],
+        [
+          19652,
+          142
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19648,
+        19652
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20196,
+      "target_aabb_candidates": {
+        "bank_aabb": 17,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19845,
+        19847,
+        19870,
+        19873
+      ],
+      "edge_length_mm": 2.8468916622010343,
+      "exact_new_changed_face_pairs": [
+        [
+          19845,
+          130
+        ],
+        [
+          19845,
+          245
+        ],
+        [
+          19847,
+          145
+        ],
+        [
+          19847,
+          245
+        ],
+        [
+          19870,
+          130
+        ],
+        [
+          19870,
+          245
+        ],
+        [
+          19873,
+          130
+        ],
+        [
+          19873,
+          245
+        ]
+      ],
+      "inside_node": 20899,
+      "layer_failures": {
+        "fat_authored": [
+          19845,
+          19847,
+          19870,
+          19873
+        ],
+        "fat_conditioned_tets": [
+          [
+            19870,
+            0
+          ],
+          [
+            19873,
+            0
+          ]
+        ],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19845,
+          19847,
+          19870,
+          19873
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999682645195949,
+        "min_new_area_mm2": 0.013372571246035152,
+        "min_normal_cosine": 0.9999998128826642
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19845,
+          245
+        ],
+        [
+          19847,
+          245
+        ],
+        [
+          19870,
+          245
+        ],
+        [
+          19873,
+          245
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19844,
+          145
+        ],
+        [
+          19844,
+          245
+        ],
+        [
+          19871,
+          245
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19844,
+        19871
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 9106,
+      "target_aabb_candidates": {
+        "bank_aabb": 19,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19813,
+        19815,
+        19817,
+        19819
+      ],
+      "edge_length_mm": 3.353448690600811,
+      "exact_new_changed_face_pairs": [
+        [
+          19813,
+          129
+        ],
+        [
+          19813,
+          245
+        ],
+        [
+          19815,
+          129
+        ],
+        [
+          19815,
+          245
+        ],
+        [
+          19817,
+          129
+        ],
+        [
+          19817,
+          130
+        ],
+        [
+          19817,
+          145
+        ],
+        [
+          19817,
+          245
+        ],
+        [
+          19819,
+          130
+        ]
+      ],
+      "inside_node": 20901,
+      "layer_failures": {
+        "fat_authored": [],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19813
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999765056802228,
+        "min_new_area_mm2": 0.1549462306161802,
+        "min_normal_cosine": 0.9999999728505858
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19813,
+          129
+        ],
+        [
+          19815,
+          129
+        ],
+        [
+          19817,
+          129
+        ],
+        [
+          19817,
+          130
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19814,
+          129
+        ],
+        [
+          19816,
+          129
+        ],
+        [
+          19816,
+          130
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19814,
+        19816
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20215,
+      "target_aabb_candidates": {
+        "bank_aabb": 22,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19212,
+        19215,
+        19220,
+        19222
+      ],
+      "edge_length_mm": 1.4747930282931891,
+      "exact_new_changed_face_pairs": [
+        [
+          19212,
+          134
+        ],
+        [
+          19212,
+          135
+        ],
+        [
+          19212,
+          144
+        ],
+        [
+          19215,
+          134
+        ],
+        [
+          19215,
+          144
+        ],
+        [
+          19220,
+          134
+        ],
+        [
+          19220,
+          135
+        ],
+        [
+          19220,
+          144
+        ],
+        [
+          19222,
+          134
+        ],
+        [
+          19222,
+          144
+        ]
+      ],
+      "inside_node": 21016,
+      "layer_failures": {
+        "fat_authored": [
+          19212,
+          19215
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19212,
+          19215
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999592002790303,
+        "min_new_area_mm2": 0.09296637700329193,
+        "min_normal_cosine": 0.9999999957776988
+      },
+      "raw_43_16_after": 249,
+      "raw_43_16_before": 247,
+      "raw_added_count": 5,
+      "raw_added_pairs": [
+        [
+          19212,
+          144
+        ],
+        [
+          19215,
+          144
+        ],
+        [
+          19220,
+          134
+        ],
+        [
+          19220,
+          144
+        ],
+        [
+          19222,
+          144
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19214,
+          144
+        ],
+        [
+          19221,
+          144
+        ],
+        [
+          19222,
+          135
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19214,
+        19221
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18590,
+      "target_aabb_candidates": {
+        "bank_aabb": 8,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19309,
+        19312,
+        19818,
+        19819
+      ],
+      "edge_length_mm": 2.199412936036284,
+      "exact_new_changed_face_pairs": [
+        [
+          19309,
+          135
+        ],
+        [
+          19309,
+          145
+        ],
+        [
+          19312,
+          135
+        ],
+        [
+          19312,
+          145
+        ],
+        [
+          19818,
+          128
+        ],
+        [
+          19818,
+          130
+        ],
+        [
+          19818,
+          135
+        ],
+        [
+          19818,
+          145
+        ],
+        [
+          19818,
+          245
+        ],
+        [
+          19819,
+          130
+        ],
+        [
+          19819,
+          245
+        ]
+      ],
+      "inside_node": 20895,
+      "layer_failures": {
+        "fat_authored": [
+          19309,
+          19312
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19309,
+          19312
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9993993192912815,
+        "min_new_area_mm2": 0.02348607545960926,
+        "min_normal_cosine": 0.9999997171230275
+      },
+      "raw_43_16_after": 249,
+      "raw_43_16_before": 247,
+      "raw_added_count": 5,
+      "raw_added_pairs": [
+        [
+          19309,
+          145
+        ],
+        [
+          19312,
+          145
+        ],
+        [
+          19818,
+          145
+        ],
+        [
+          19818,
+          245
+        ],
+        [
+          19819,
+          245
+        ]
+      ],
+      "raw_removed_count": 3,
+      "raw_removed_pairs": [
+        [
+          19310,
+          145
+        ],
+        [
+          19817,
+          145
+        ],
+        [
+          19817,
+          245
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19310,
+        19817
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 9106,
+      "target_aabb_candidates": {
+        "bank_aabb": 19,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19204,
+        19213,
+        19215
+      ],
+      "edge_length_mm": 0.6773215974348014,
+      "exact_new_changed_face_pairs": [
+        [
+          19204,
+          133
+        ],
+        [
+          19204,
+          144
+        ],
+        [
+          19213,
+          133
+        ],
+        [
+          19213,
+          134
+        ],
+        [
+          19213,
+          144
+        ],
+        [
+          19215,
+          134
+        ],
+        [
+          19215,
+          144
+        ]
+      ],
+      "inside_node": 21095,
+      "layer_failures": {
+        "fat_authored": [
+          19213,
+          19215
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19213,
+          19215
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0000119556285736,
+        "min_new_area_mm2": 0.15007651190282026,
+        "min_normal_cosine": 0.9999999995431803
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 2,
+      "raw_added_pairs": [
+        [
+          19213,
+          144
+        ],
+        [
+          19215,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19203,
+          144
+        ],
+        [
+          19214,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19203,
+        19214
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18590,
+      "target_aabb_candidates": {
+        "bank_aabb": 9,
+        "skin_aabb": 3
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19423,
+        19424,
+        19430,
+        19432
+      ],
+      "edge_length_mm": 1.879957362111167,
+      "exact_new_changed_face_pairs": [
+        [
+          19423,
+          144
+        ],
+        [
+          19423,
+          146
+        ],
+        [
+          19424,
+          144
+        ],
+        [
+          19430,
+          144
+        ],
+        [
+          19430,
+          146
+        ],
+        [
+          19432,
+          144
+        ]
+      ],
+      "inside_node": 20957,
+      "layer_failures": {
+        "fat_authored": [
+          19430
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9998202161842181,
+        "min_new_area_mm2": 0.034571439209151636,
+        "min_normal_cosine": 0.999999982631726
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 2,
+      "raw_added_pairs": [
+        [
+          19423,
+          144
+        ],
+        [
+          19430,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19421,
+          144
+        ],
+        [
+          19429,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19421,
+        19429
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 14825,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19448,
+        19449,
+        19463,
+        19464
+      ],
+      "edge_length_mm": 2.2318823585223457,
+      "exact_new_changed_face_pairs": [
+        [
+          19448,
+          134
+        ],
+        [
+          19448,
+          144
+        ],
+        [
+          19449,
+          144
+        ],
+        [
+          19463,
+          134
+        ],
+        [
+          19463,
+          144
+        ],
+        [
+          19464,
+          144
+        ]
+      ],
+      "inside_node": 20907,
+      "layer_failures": {
+        "fat_authored": [
+          19463,
+          19464
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19463,
+          19464
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0000035536082086,
+        "min_new_area_mm2": 0.1557409403559201,
+        "min_normal_cosine": 0.9999999928151379
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 2,
+      "raw_added_pairs": [
+        [
+          19448,
+          144
+        ],
+        [
+          19463,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19446,
+          144
+        ],
+        [
+          19462,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19446,
+        19462
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 9721,
+      "target_aabb_candidates": {
+        "bank_aabb": 9,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19841,
+        19843,
+        19850,
+        19851
+      ],
+      "edge_length_mm": 2.287643363585925,
+      "exact_new_changed_face_pairs": [
+        [
+          19841,
+          145
+        ],
+        [
+          19841,
+          147
+        ],
+        [
+          19843,
+          147
+        ],
+        [
+          19850,
+          145
+        ],
+        [
+          19850,
+          147
+        ],
+        [
+          19851,
+          147
+        ]
+      ],
+      "inside_node": 21064,
+      "layer_failures": {
+        "fat_authored": [
+          19850,
+          19851
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19850,
+          19851
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.0673419573394987,
+        "min_normal_cosine": 0.9999999946314663
+      },
+      "raw_43_16_after": 247,
+      "raw_43_16_before": 247,
+      "raw_added_count": 2,
+      "raw_added_pairs": [
+        [
+          19841,
+          147
+        ],
+        [
+          19850,
+          147
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19842,
+          147
+        ],
+        [
+          19849,
+          147
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19842,
+        19849
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20217,
+      "target_aabb_candidates": {
+        "bank_aabb": 15,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19459,
+        19460,
+        19463,
+        19464
+      ],
+      "edge_length_mm": 1.1102620548265194,
+      "exact_new_changed_face_pairs": [
+        [
+          19459,
+          134
+        ],
+        [
+          19459,
+          135
+        ],
+        [
+          19459,
+          144
+        ],
+        [
+          19460,
+          135
+        ],
+        [
+          19460,
+          144
+        ],
+        [
+          19463,
+          134
+        ],
+        [
+          19463,
+          144
+        ],
+        [
+          19464,
+          144
+        ]
+      ],
+      "inside_node": 21096,
+      "layer_failures": {
+        "fat_authored": [
+          19463,
+          19464
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19463,
+          19464
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999674529146549,
+        "min_new_area_mm2": 0.15574965693794404,
+        "min_normal_cosine": 0.9999999989006325
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19459,
+          144
+        ],
+        [
+          19460,
+          144
+        ],
+        [
+          19463,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19458,
+          144
+        ],
+        [
+          19461,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19458,
+        19461
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18591,
+      "target_aabb_candidates": {
+        "bank_aabb": 15,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19679,
+        19681,
+        19682,
+        19685
+      ],
+      "edge_length_mm": 1.681631338677469,
+      "exact_new_changed_face_pairs": [
+        [
+          19679,
+          138
+        ],
+        [
+          19679,
+          142
+        ],
+        [
+          19679,
+          144
+        ],
+        [
+          19681,
+          138
+        ],
+        [
+          19681,
+          144
+        ],
+        [
+          19682,
+          138
+        ],
+        [
+          19682,
+          142
+        ],
+        [
+          19685,
+          138
+        ]
+      ],
+      "inside_node": 21030,
+      "layer_failures": {
+        "fat_authored": [
+          19679,
+          19681,
+          19682,
+          19685
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19679,
+          19681,
+          19682,
+          19685
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999861519217579,
+        "min_new_area_mm2": 0.2688936129654166,
+        "min_normal_cosine": 0.9999999984071736
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19679,
+          138
+        ],
+        [
+          19681,
+          138
+        ],
+        [
+          19682,
+          138
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19680,
+          138
+        ],
+        [
+          19684,
+          138
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19680,
+        19684
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20198,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19403,
+        19406,
+        19423,
+        19424
+      ],
+      "edge_length_mm": 1.712774642828749,
+      "exact_new_changed_face_pairs": [
+        [
+          19403,
+          138
+        ],
+        [
+          19403,
+          144
+        ],
+        [
+          19403,
+          146
+        ],
+        [
+          19406,
+          138
+        ],
+        [
+          19406,
+          144
+        ],
+        [
+          19423,
+          144
+        ],
+        [
+          19423,
+          146
+        ],
+        [
+          19424,
+          144
+        ]
+      ],
+      "inside_node": 21205,
+      "layer_failures": {
+        "fat_authored": [
+          19403
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19403
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.16265365366263954,
+        "min_normal_cosine": 0.9999999996410304
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19403,
+          144
+        ],
+        [
+          19406,
+          144
+        ],
+        [
+          19423,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19404,
+          144
+        ],
+        [
+          19422,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19404,
+        19422
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20189,
+      "target_aabb_candidates": {
+        "bank_aabb": 11,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19383,
+        19384,
+        19430,
+        19432
+      ],
+      "edge_length_mm": 1.8957281917683024,
+      "exact_new_changed_face_pairs": [
+        [
+          19383,
+          144
+        ],
+        [
+          19383,
+          146
+        ],
+        [
+          19384,
+          144
+        ],
+        [
+          19384,
+          146
+        ],
+        [
+          19430,
+          144
+        ],
+        [
+          19430,
+          146
+        ],
+        [
+          19432,
+          144
+        ]
+      ],
+      "inside_node": 21204,
+      "layer_failures": {
+        "fat_authored": [
+          19384,
+          19430
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9995750906802418,
+        "min_new_area_mm2": 0.03460709046597792,
+        "min_normal_cosine": 0.9999999444760175
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19383,
+          144
+        ],
+        [
+          19384,
+          144
+        ],
+        [
+          19430,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19382,
+          144
+        ],
+        [
+          19431,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19382,
+        19431
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20184,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19382,
+        19384,
+        19431,
+        19432
+      ],
+      "edge_length_mm": 1.895743777113236,
+      "exact_new_changed_face_pairs": [
+        [
+          19382,
+          144
+        ],
+        [
+          19382,
+          146
+        ],
+        [
+          19384,
+          146
+        ],
+        [
+          19431,
+          144
+        ],
+        [
+          19431,
+          146
+        ],
+        [
+          19432,
+          144
+        ],
+        [
+          19432,
+          146
+        ]
+      ],
+      "inside_node": 21204,
+      "layer_failures": {
+        "fat_authored": [
+          19432
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9987858803765054,
+        "min_new_area_mm2": 0.03452946534639535,
+        "min_normal_cosine": 0.999999898853796
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19382,
+          146
+        ],
+        [
+          19431,
+          146
+        ],
+        [
+          19432,
+          146
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19383,
+          146
+        ],
+        [
+          19430,
+          146
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19383,
+        19430
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20182,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19371,
+        19374,
+        19391,
+        19392
+      ],
+      "edge_length_mm": 1.90910953233172,
+      "exact_new_changed_face_pairs": [
+        [
+          19371,
+          144
+        ],
+        [
+          19371,
+          147
+        ],
+        [
+          19374,
+          147
+        ],
+        [
+          19391,
+          144
+        ],
+        [
+          19391,
+          147
+        ],
+        [
+          19392,
+          144
+        ],
+        [
+          19392,
+          147
+        ]
+      ],
+      "inside_node": 21188,
+      "layer_failures": {
+        "fat_authored": [
+          19391,
+          19392
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19391,
+          19392
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.1472914054103888,
+        "min_normal_cosine": 0.9999999960424131
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19371,
+          147
+        ],
+        [
+          19391,
+          147
+        ],
+        [
+          19392,
+          147
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19372,
+          147
+        ],
+        [
+          19390,
+          147
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19372,
+        19390
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 19703,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19372,
+        19374,
+        19390,
+        19392
+      ],
+      "edge_length_mm": 1.9091237876779843,
+      "exact_new_changed_face_pairs": [
+        [
+          19372,
+          144
+        ],
+        [
+          19372,
+          147
+        ],
+        [
+          19374,
+          144
+        ],
+        [
+          19374,
+          147
+        ],
+        [
+          19390,
+          144
+        ],
+        [
+          19390,
+          147
+        ],
+        [
+          19392,
+          144
+        ]
+      ],
+      "inside_node": 21188,
+      "layer_failures": {
+        "fat_authored": [
+          19390,
+          19392
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19390,
+          19392
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9998984938790915,
+        "min_new_area_mm2": 0.14728643154559778,
+        "min_normal_cosine": 0.99999998618544
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19372,
+          144
+        ],
+        [
+          19374,
+          144
+        ],
+        [
+          19390,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19371,
+          144
+        ],
+        [
+          19391,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19371,
+        19391
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20179,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19381,
+        19384,
+        19390,
+        19392
+      ],
+      "edge_length_mm": 1.9462591707830486,
+      "exact_new_changed_face_pairs": [
+        [
+          19381,
+          144
+        ],
+        [
+          19381,
+          146
+        ],
+        [
+          19381,
+          147
+        ],
+        [
+          19384,
+          144
+        ],
+        [
+          19384,
+          146
+        ],
+        [
+          19390,
+          144
+        ],
+        [
+          19390,
+          147
+        ],
+        [
+          19392,
+          144
+        ]
+      ],
+      "inside_node": 21190,
+      "layer_failures": {
+        "fat_authored": [
+          19381,
+          19390,
+          19392
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19390,
+          19392
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.99986355748823,
+        "min_new_area_mm2": 0.10232975716943309,
+        "min_normal_cosine": 0.9999999644565902
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19381,
+          144
+        ],
+        [
+          19384,
+          144
+        ],
+        [
+          19390,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19382,
+          144
+        ],
+        [
+          19389,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19382,
+        19389
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20184,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19654,
+        19657,
+        19665,
+        19667
+      ],
+      "edge_length_mm": 1.9810285041536382,
+      "exact_new_changed_face_pairs": [
+        [
+          19654,
+          142
+        ],
+        [
+          19654,
+          147
+        ],
+        [
+          19657,
+          142
+        ],
+        [
+          19665,
+          142
+        ],
+        [
+          19665,
+          147
+        ],
+        [
+          19667,
+          142
+        ],
+        [
+          19667,
+          147
+        ]
+      ],
+      "inside_node": 21027,
+      "layer_failures": {
+        "fat_authored": [
+          19654,
+          19657
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19654,
+          19657,
+          19665,
+          19667
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9996873704601963,
+        "min_new_area_mm2": 0.053789789558693665,
+        "min_normal_cosine": 0.9999999890182322
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19654,
+          142
+        ],
+        [
+          19665,
+          142
+        ],
+        [
+          19667,
+          142
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19655,
+          142
+        ],
+        [
+          19664,
+          142
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19655,
+        19664
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 17093,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19655,
+        19657,
+        19664,
+        19667
+      ],
+      "edge_length_mm": 1.9810374187991662,
+      "exact_new_changed_face_pairs": [
+        [
+          19655,
+          142
+        ],
+        [
+          19655,
+          147
+        ],
+        [
+          19657,
+          142
+        ],
+        [
+          19657,
+          147
+        ],
+        [
+          19664,
+          142
+        ],
+        [
+          19664,
+          147
+        ],
+        [
+          19667,
+          147
+        ]
+      ],
+      "inside_node": 21027,
+      "layer_failures": {
+        "fat_authored": [
+          19655,
+          19657
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19655,
+          19657,
+          19664,
+          19667
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9997807166484459,
+        "min_new_area_mm2": 0.053777994353359844,
+        "min_normal_cosine": 0.999999994781318
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19655,
+          147
+        ],
+        [
+          19657,
+          147
+        ],
+        [
+          19664,
+          147
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19654,
+          147
+        ],
+        [
+          19665,
+          147
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19654,
+        19665
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 19379,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19652,
+        19653,
+        19656,
+        19657
+      ],
+      "edge_length_mm": 1.9943771754056105,
+      "exact_new_changed_face_pairs": [
+        [
+          19652,
+          142
+        ],
+        [
+          19652,
+          147
+        ],
+        [
+          19653,
+          147
+        ],
+        [
+          19656,
+          142
+        ],
+        [
+          19656,
+          147
+        ],
+        [
+          19657,
+          142
+        ],
+        [
+          19657,
+          147
+        ]
+      ],
+      "inside_node": 21159,
+      "layer_failures": {
+        "fat_authored": [
+          19652,
+          19653,
+          19656,
+          19657
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19652,
+          19653,
+          19656,
+          19657
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9996014912224264,
+        "min_new_area_mm2": 0.13927150933827928,
+        "min_normal_cosine": 0.9999999943503823
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19652,
+          147
+        ],
+        [
+          19656,
+          147
+        ],
+        [
+          19657,
+          147
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19651,
+          147
+        ],
+        [
+          19654,
+          147
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19651,
+        19654
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 19379,
+      "target_aabb_candidates": {
+        "bank_aabb": 15,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19651,
+        19653,
+        19654,
+        19657
+      ],
+      "edge_length_mm": 1.99441540842027,
+      "exact_new_changed_face_pairs": [
+        [
+          19651,
+          142
+        ],
+        [
+          19651,
+          147
+        ],
+        [
+          19653,
+          142
+        ],
+        [
+          19653,
+          147
+        ],
+        [
+          19654,
+          142
+        ],
+        [
+          19654,
+          147
+        ],
+        [
+          19657,
+          142
+        ]
+      ],
+      "inside_node": 21159,
+      "layer_failures": {
+        "fat_authored": [
+          19651,
+          19653,
+          19654,
+          19657
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19651,
+          19653,
+          19654,
+          19657
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999447772564506,
+        "min_new_area_mm2": 0.13932709467926077,
+        "min_normal_cosine": 0.9999999843119678
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19651,
+          142
+        ],
+        [
+          19653,
+          142
+        ],
+        [
+          19654,
+          142
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19652,
+          142
+        ],
+        [
+          19656,
+          142
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19652,
+        19656
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20196,
+      "target_aabb_candidates": {
+        "bank_aabb": 15,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19325,
+        19327,
+        19337,
+        19339
+      ],
+      "edge_length_mm": 2.2772023408131865,
+      "exact_new_changed_face_pairs": [
+        [
+          19325,
+          130
+        ],
+        [
+          19325,
+          140
+        ],
+        [
+          19325,
+          144
+        ],
+        [
+          19327,
+          130
+        ],
+        [
+          19327,
+          144
+        ],
+        [
+          19337,
+          130
+        ],
+        [
+          19337,
+          140
+        ],
+        [
+          19339,
+          130
+        ]
+      ],
+      "inside_node": 21071,
+      "layer_failures": {
+        "fat_authored": [
+          19325,
+          19327
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19325,
+          19327
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.32656413484397445,
+        "min_normal_cosine": 0.9999999997893342
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19325,
+          130
+        ],
+        [
+          19327,
+          130
+        ],
+        [
+          19337,
+          130
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19324,
+          130
+        ],
+        [
+          19338,
+          130
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19324,
+        19338
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20172,
+      "target_aabb_candidates": {
+        "bank_aabb": 14,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19405,
+        19406,
+        19419,
+        19420
+      ],
+      "edge_length_mm": 2.367200287172921,
+      "exact_new_changed_face_pairs": [
+        [
+          19405,
+          135
+        ],
+        [
+          19405,
+          138
+        ],
+        [
+          19405,
+          144
+        ],
+        [
+          19406,
+          138
+        ],
+        [
+          19406,
+          144
+        ],
+        [
+          19419,
+          135
+        ],
+        [
+          19419,
+          144
+        ],
+        [
+          19420,
+          144
+        ]
+      ],
+      "inside_node": 21025,
+      "layer_failures": {
+        "fat_authored": [
+          19406,
+          19419
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19406,
+          19419
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.01573053500942115,
+        "min_normal_cosine": 0.9999990690266852
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19405,
+          144
+        ],
+        [
+          19406,
+          144
+        ],
+        [
+          19419,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19404,
+          144
+        ],
+        [
+          19417,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19404,
+        19417
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20189,
+      "target_aabb_candidates": {
+        "bank_aabb": 14,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19419,
+        19420,
+        19457,
+        19460
+      ],
+      "edge_length_mm": 2.3677958920359576,
+      "exact_new_changed_face_pairs": [
+        [
+          19419,
+          135
+        ],
+        [
+          19419,
+          144
+        ],
+        [
+          19420,
+          144
+        ],
+        [
+          19457,
+          135
+        ],
+        [
+          19457,
+          144
+        ],
+        [
+          19460,
+          135
+        ],
+        [
+          19460,
+          144
+        ]
+      ],
+      "inside_node": 21022,
+      "layer_failures": {
+        "fat_authored": [
+          19420
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19420
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0000835814401359,
+        "min_new_area_mm2": 0.015793906293525218,
+        "min_normal_cosine": 0.9999995662163274
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19419,
+          144
+        ],
+        [
+          19457,
+          144
+        ],
+        [
+          19460,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19418,
+          144
+        ],
+        [
+          19458,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19418,
+        19458
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18591,
+      "target_aabb_candidates": {
+        "bank_aabb": 14,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19845,
+        19847,
+        19848,
+        19851
+      ],
+      "edge_length_mm": 2.4388914747674106,
+      "exact_new_changed_face_pairs": [
+        [
+          19845,
+          130
+        ],
+        [
+          19845,
+          145
+        ],
+        [
+          19847,
+          145
+        ],
+        [
+          19848,
+          130
+        ],
+        [
+          19848,
+          145
+        ],
+        [
+          19848,
+          147
+        ],
+        [
+          19851,
+          145
+        ],
+        [
+          19851,
+          147
+        ]
+      ],
+      "inside_node": 21062,
+      "layer_failures": {
+        "fat_authored": [
+          19845,
+          19847,
+          19848,
+          19851
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19845,
+          19847,
+          19848,
+          19851
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999639114716689,
+        "min_new_area_mm2": 0.14319018484131416,
+        "min_normal_cosine": 0.9999999906872855
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19845,
+          145
+        ],
+        [
+          19848,
+          145
+        ],
+        [
+          19851,
+          145
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19846,
+          145
+        ],
+        [
+          19850,
+          145
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19846,
+        19850
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18489,
+      "target_aabb_candidates": {
+        "bank_aabb": 18,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19324,
+        19327,
+        19330,
+        19331
+      ],
+      "edge_length_mm": 2.473158307012458,
+      "exact_new_changed_face_pairs": [
+        [
+          19324,
+          130
+        ],
+        [
+          19324,
+          144
+        ],
+        [
+          19327,
+          144
+        ],
+        [
+          19330,
+          130
+        ],
+        [
+          19330,
+          144
+        ],
+        [
+          19331,
+          130
+        ],
+        [
+          19331,
+          144
+        ]
+      ],
+      "inside_node": 21066,
+      "layer_failures": {
+        "fat_authored": [
+          19324,
+          19327,
+          19330,
+          19331
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19324,
+          19327,
+          19330,
+          19331
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999302151545618,
+        "min_new_area_mm2": 0.06282085641584342,
+        "min_normal_cosine": 0.99999999903325
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19324,
+          144
+        ],
+        [
+          19330,
+          144
+        ],
+        [
+          19331,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19326,
+          144
+        ],
+        [
+          19328,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19326,
+        19328
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18490,
+      "target_aabb_candidates": {
+        "bank_aabb": 14,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19326,
+        19327,
+        19328,
+        19331
+      ],
+      "edge_length_mm": 2.473172327478196,
+      "exact_new_changed_face_pairs": [
+        [
+          19326,
+          130
+        ],
+        [
+          19326,
+          144
+        ],
+        [
+          19327,
+          130
+        ],
+        [
+          19327,
+          144
+        ],
+        [
+          19328,
+          130
+        ],
+        [
+          19328,
+          144
+        ],
+        [
+          19331,
+          130
+        ]
+      ],
+      "inside_node": 21066,
+      "layer_failures": {
+        "fat_authored": [
+          19326,
+          19327,
+          19328,
+          19331
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19326,
+          19327,
+          19328,
+          19331
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.06284758664581011,
+        "min_normal_cosine": 0.9999999565550638
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19326,
+          130
+        ],
+        [
+          19327,
+          130
+        ],
+        [
+          19328,
+          130
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19324,
+          130
+        ],
+        [
+          19330,
+          130
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19324,
+        19330
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20172,
+      "target_aabb_candidates": {
+        "bank_aabb": 14,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19859,
+        19860,
+        19863,
+        19864
+      ],
+      "edge_length_mm": 2.579759551511717,
+      "exact_new_changed_face_pairs": [
+        [
+          19859,
+          130
+        ],
+        [
+          19859,
+          245
+        ],
+        [
+          19860,
+          245
+        ],
+        [
+          19863,
+          129
+        ],
+        [
+          19863,
+          130
+        ],
+        [
+          19863,
+          245
+        ],
+        [
+          19864,
+          129
+        ],
+        [
+          19864,
+          245
+        ]
+      ],
+      "inside_node": 21069,
+      "layer_failures": {
+        "fat_authored": [
+          19859,
+          19860,
+          19863,
+          19864
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19859,
+          19860,
+          19863,
+          19864
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0000362274890418,
+        "min_new_area_mm2": 0.0998973296228617,
+        "min_normal_cosine": 0.9999998325575583
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19859,
+          245
+        ],
+        [
+          19863,
+          245
+        ],
+        [
+          19864,
+          245
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19858,
+          245
+        ],
+        [
+          19861,
+          245
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19858,
+        19861
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18491,
+      "target_aabb_candidates": {
+        "bank_aabb": 23,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19328,
+        19331,
+        19352,
+        19355
+      ],
+      "edge_length_mm": 2.644656507051456,
+      "exact_new_changed_face_pairs": [
+        [
+          19328,
+          130
+        ],
+        [
+          19328,
+          144
+        ],
+        [
+          19331,
+          130
+        ],
+        [
+          19352,
+          130
+        ],
+        [
+          19352,
+          144
+        ],
+        [
+          19355,
+          130
+        ],
+        [
+          19355,
+          144
+        ]
+      ],
+      "inside_node": 20928,
+      "layer_failures": {
+        "fat_authored": [
+          19328,
+          19331,
+          19352,
+          19355
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19328,
+          19331,
+          19352,
+          19355
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.999624944961655,
+        "min_new_area_mm2": 0.016779311573652155,
+        "min_normal_cosine": 0.9999942784980617
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19328,
+          130
+        ],
+        [
+          19352,
+          130
+        ],
+        [
+          19355,
+          130
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19329,
+          130
+        ],
+        [
+          19354,
+          130
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19329,
+        19354
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 14283,
+      "target_aabb_candidates": {
+        "bank_aabb": 14,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19329,
+        19331,
+        19354,
+        19355
+      ],
+      "edge_length_mm": 2.644707472625784,
+      "exact_new_changed_face_pairs": [
+        [
+          19329,
+          130
+        ],
+        [
+          19329,
+          144
+        ],
+        [
+          19331,
+          130
+        ],
+        [
+          19331,
+          144
+        ],
+        [
+          19354,
+          130
+        ],
+        [
+          19354,
+          144
+        ],
+        [
+          19355,
+          144
+        ]
+      ],
+      "inside_node": 20928,
+      "layer_failures": {
+        "fat_authored": [
+          19329,
+          19331,
+          19354,
+          19355
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19329,
+          19331,
+          19354,
+          19355
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.016777937970754733,
+        "min_normal_cosine": 0.9999985477222202
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19329,
+          144
+        ],
+        [
+          19331,
+          144
+        ],
+        [
+          19354,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19328,
+          144
+        ],
+        [
+          19352,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19328,
+        19352
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18490,
+      "target_aabb_candidates": {
+        "bank_aabb": 14,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19648,
+        19649,
+        19652,
+        19653
+      ],
+      "edge_length_mm": 2.646005121802821,
+      "exact_new_changed_face_pairs": [
+        [
+          19648,
+          142
+        ],
+        [
+          19648,
+          145
+        ],
+        [
+          19648,
+          147
+        ],
+        [
+          19649,
+          145
+        ],
+        [
+          19649,
+          147
+        ],
+        [
+          19652,
+          142
+        ],
+        [
+          19652,
+          147
+        ],
+        [
+          19653,
+          147
+        ]
+      ],
+      "inside_node": 20926,
+      "layer_failures": {
+        "fat_authored": [
+          19648,
+          19649,
+          19652,
+          19653
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19648,
+          19649,
+          19652,
+          19653
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999882916116718,
+        "min_new_area_mm2": 0.14356505891752563,
+        "min_normal_cosine": 0.9999999723426354
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19648,
+          147
+        ],
+        [
+          19649,
+          147
+        ],
+        [
+          19652,
+          147
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19647,
+          147
+        ],
+        [
+          19650,
+          147
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19647,
+        19650
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 14282,
+      "target_aabb_candidates": {
+        "bank_aabb": 17,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19646,
+        19649,
+        19841,
+        19843
+      ],
+      "edge_length_mm": 2.6606933484510225,
+      "exact_new_changed_face_pairs": [
+        [
+          19646,
+          145
+        ],
+        [
+          19646,
+          147
+        ],
+        [
+          19649,
+          145
+        ],
+        [
+          19649,
+          147
+        ],
+        [
+          19841,
+          145
+        ],
+        [
+          19841,
+          147
+        ],
+        [
+          19843,
+          147
+        ]
+      ],
+      "inside_node": 20924,
+      "layer_failures": {
+        "fat_authored": [
+          19646,
+          19649
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19646,
+          19649
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999333603810329,
+        "min_new_area_mm2": 0.0673374696971211,
+        "min_normal_cosine": 0.9999995324594115
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19646,
+          147
+        ],
+        [
+          19649,
+          147
+        ],
+        [
+          19841,
+          147
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19647,
+          147
+        ],
+        [
+          19840,
+          147
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19647,
+        19840
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 14282,
+      "target_aabb_candidates": {
+        "bank_aabb": 17,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19647,
+        19649,
+        19840,
+        19843
+      ],
+      "edge_length_mm": 2.660742569132847,
+      "exact_new_changed_face_pairs": [
+        [
+          19647,
+          145
+        ],
+        [
+          19647,
+          147
+        ],
+        [
+          19649,
+          145
+        ],
+        [
+          19840,
+          145
+        ],
+        [
+          19840,
+          147
+        ],
+        [
+          19843,
+          145
+        ],
+        [
+          19843,
+          147
+        ]
+      ],
+      "inside_node": 20924,
+      "layer_failures": {
+        "fat_authored": [
+          19647,
+          19649
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19647,
+          19649
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9995818074719796,
+        "min_new_area_mm2": 0.06737375545449047,
+        "min_normal_cosine": 0.9999999840837258
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19647,
+          145
+        ],
+        [
+          19840,
+          145
+        ],
+        [
+          19843,
+          145
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19646,
+          145
+        ],
+        [
+          19841,
+          145
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19646,
+        19841
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18489,
+      "target_aabb_candidates": {
+        "bank_aabb": 17,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19353,
+        19355,
+        19367,
+        19370
+      ],
+      "edge_length_mm": 2.6646893556359665,
+      "exact_new_changed_face_pairs": [
+        [
+          19353,
+          130
+        ],
+        [
+          19353,
+          144
+        ],
+        [
+          19355,
+          130
+        ],
+        [
+          19355,
+          144
+        ],
+        [
+          19367,
+          130
+        ],
+        [
+          19367,
+          144
+        ],
+        [
+          19370,
+          130
+        ]
+      ],
+      "inside_node": 20931,
+      "layer_failures": {
+        "fat_authored": [
+          19353,
+          19355
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19353,
+          19355
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999098155272526,
+        "min_new_area_mm2": 0.016776424861265054,
+        "min_normal_cosine": 0.9999941894931945
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19353,
+          130
+        ],
+        [
+          19355,
+          130
+        ],
+        [
+          19367,
+          130
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19354,
+          130
+        ],
+        [
+          19369,
+          130
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19354,
+        19369
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 14283,
+      "target_aabb_candidates": {
+        "bank_aabb": 14,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19354,
+        19355,
+        19369,
+        19370
+      ],
+      "edge_length_mm": 2.6647403160348166,
+      "exact_new_changed_face_pairs": [
+        [
+          19354,
+          130
+        ],
+        [
+          19354,
+          144
+        ],
+        [
+          19355,
+          144
+        ],
+        [
+          19369,
+          130
+        ],
+        [
+          19369,
+          144
+        ],
+        [
+          19370,
+          130
+        ],
+        [
+          19370,
+          144
+        ]
+      ],
+      "inside_node": 20931,
+      "layer_failures": {
+        "fat_authored": [
+          19354,
+          19355
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19354,
+          19355
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9997663876069194,
+        "min_new_area_mm2": 0.016777937970754733,
+        "min_normal_cosine": 0.999998569230201
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19354,
+          144
+        ],
+        [
+          19369,
+          144
+        ],
+        [
+          19370,
+          144
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19353,
+          144
+        ],
+        [
+          19367,
+          144
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19353,
+        19367
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20179,
+      "target_aabb_candidates": {
+        "bank_aabb": 14,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19844,
+        19847,
+        19871,
+        19873
+      ],
+      "edge_length_mm": 2.846917658395814,
+      "exact_new_changed_face_pairs": [
+        [
+          19844,
+          130
+        ],
+        [
+          19844,
+          145
+        ],
+        [
+          19844,
+          245
+        ],
+        [
+          19847,
+          130
+        ],
+        [
+          19847,
+          145
+        ],
+        [
+          19871,
+          130
+        ],
+        [
+          19871,
+          245
+        ],
+        [
+          19873,
+          130
+        ]
+      ],
+      "inside_node": 20899,
+      "layer_failures": {
+        "fat_authored": [
+          19844,
+          19847,
+          19871,
+          19873
+        ],
+        "fat_conditioned_tets": [
+          [
+            19873,
+            0
+          ]
+        ],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19844,
+          19847,
+          19871,
+          19873
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9975213898970781,
+        "min_new_area_mm2": 0.013326206228793677,
+        "min_normal_cosine": 0.9999994597766441
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19844,
+          130
+        ],
+        [
+          19847,
+          130
+        ],
+        [
+          19871,
+          130
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19845,
+          130
+        ],
+        [
+          19870,
+          130
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19845,
+        19870
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18496,
+      "target_aabb_candidates": {
+        "bank_aabb": 19,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19857,
+        19860,
+        19871,
+        19873
+      ],
+      "edge_length_mm": 2.867565481366584,
+      "exact_new_changed_face_pairs": [
+        [
+          19857,
+          130
+        ],
+        [
+          19857,
+          245
+        ],
+        [
+          19860,
+          130
+        ],
+        [
+          19860,
+          245
+        ],
+        [
+          19871,
+          130
+        ],
+        [
+          19871,
+          245
+        ],
+        [
+          19873,
+          130
+        ]
+      ],
+      "inside_node": 20902,
+      "layer_failures": {
+        "fat_authored": [
+          19857,
+          19860,
+          19871,
+          19873
+        ],
+        "fat_conditioned_tets": [
+          [
+            19873,
+            0
+          ]
+        ],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19857,
+          19860,
+          19871,
+          19873
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9984252159815826,
+        "min_new_area_mm2": 0.01333828072957036,
+        "min_normal_cosine": 0.9999925304052795
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19857,
+          130
+        ],
+        [
+          19860,
+          130
+        ],
+        [
+          19871,
+          130
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19859,
+          130
+        ],
+        [
+          19872,
+          130
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19859,
+        19872
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20218,
+      "target_aabb_candidates": {
+        "bank_aabb": 19,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19859,
+        19860,
+        19872,
+        19873
+      ],
+      "edge_length_mm": 2.867611543340045,
+      "exact_new_changed_face_pairs": [
+        [
+          19859,
+          130
+        ],
+        [
+          19859,
+          245
+        ],
+        [
+          19860,
+          245
+        ],
+        [
+          19872,
+          130
+        ],
+        [
+          19872,
+          245
+        ],
+        [
+          19873,
+          130
+        ],
+        [
+          19873,
+          245
+        ]
+      ],
+      "inside_node": 20902,
+      "layer_failures": {
+        "fat_authored": [
+          19859,
+          19860,
+          19872,
+          19873
+        ],
+        "fat_conditioned_tets": [
+          [
+            19872,
+            0
+          ],
+          [
+            19873,
+            0
+          ]
+        ],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19859,
+          19860,
+          19872,
+          19873
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.998997608336517,
+        "min_new_area_mm2": 0.013345927501502165,
+        "min_normal_cosine": 0.9999998093902678
+      },
+      "raw_43_16_after": 248,
+      "raw_43_16_before": 247,
+      "raw_added_count": 3,
+      "raw_added_pairs": [
+        [
+          19859,
+          245
+        ],
+        [
+          19872,
+          245
+        ],
+        [
+          19873,
+          245
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19857,
+          245
+        ],
+        [
+          19871,
+          245
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19857,
+        19871
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 9106,
+      "target_aabb_candidates": {
+        "bank_aabb": 19,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19675,
+        19677,
+        19678,
+        19681
+      ],
+      "edge_length_mm": 1.538014789719018,
+      "exact_new_changed_face_pairs": [
+        [
+          19675,
+          138
+        ],
+        [
+          19675,
+          142
+        ],
+        [
+          19675,
+          144
+        ],
+        [
+          19677,
+          138
+        ],
+        [
+          19677,
+          142
+        ],
+        [
+          19678,
+          138
+        ],
+        [
+          19678,
+          144
+        ],
+        [
+          19681,
+          138
+        ],
+        [
+          19681,
+          144
+        ]
+      ],
+      "inside_node": 21191,
+      "layer_failures": {
+        "fat_authored": [
+          19678,
+          19681
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19678,
+          19681
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999847071059146,
+        "min_new_area_mm2": 0.2717531414020888,
+        "min_normal_cosine": 0.9999999995801246
+      },
+      "raw_43_16_after": 249,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19675,
+          138
+        ],
+        [
+          19677,
+          138
+        ],
+        [
+          19678,
+          138
+        ],
+        [
+          19681,
+          138
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19676,
+          138
+        ],
+        [
+          19680,
+          138
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19676,
+        19680
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20198,
+      "target_aabb_candidates": {
+        "bank_aabb": 12,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19421,
+        19424,
+        19429,
+        19432
+      ],
+      "edge_length_mm": 1.8799161543840308,
+      "exact_new_changed_face_pairs": [
+        [
+          19421,
+          144
+        ],
+        [
+          19421,
+          146
+        ],
+        [
+          19424,
+          144
+        ],
+        [
+          19424,
+          146
+        ],
+        [
+          19429,
+          144
+        ],
+        [
+          19429,
+          146
+        ],
+        [
+          19432,
+          144
+        ],
+        [
+          19432,
+          146
+        ]
+      ],
+      "inside_node": 20957,
+      "layer_failures": {
+        "fat_authored": [
+          19429
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19429
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.034612323627993866,
+        "min_normal_cosine": 0.999999931766288
+      },
+      "raw_43_16_after": 249,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19421,
+          146
+        ],
+        [
+          19424,
+          146
+        ],
+        [
+          19429,
+          146
+        ],
+        [
+          19432,
+          146
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19423,
+          146
+        ],
+        [
+          19430,
+          146
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19423,
+        19430
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20182,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19666,
+        19667,
+        19683,
+        19685
+      ],
+      "edge_length_mm": 2.0526760159087667,
+      "exact_new_changed_face_pairs": [
+        [
+          19666,
+          142
+        ],
+        [
+          19666,
+          147
+        ],
+        [
+          19667,
+          142
+        ],
+        [
+          19667,
+          147
+        ],
+        [
+          19683,
+          138
+        ],
+        [
+          19683,
+          142
+        ],
+        [
+          19683,
+          146
+        ],
+        [
+          19683,
+          147
+        ],
+        [
+          19685,
+          138
+        ],
+        [
+          19685,
+          142
+        ]
+      ],
+      "inside_node": 21026,
+      "layer_failures": {
+        "fat_authored": [
+          19683,
+          19685
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19666,
+          19667,
+          19683,
+          19685
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.053789789558693665,
+        "min_normal_cosine": 0.9999999999999998
+      },
+      "raw_43_16_after": 249,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19666,
+          142
+        ],
+        [
+          19667,
+          142
+        ],
+        [
+          19683,
+          142
+        ],
+        [
+          19685,
+          142
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19664,
+          142
+        ],
+        [
+          19682,
+          142
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19664,
+        19682
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 17093,
+      "target_aabb_candidates": {
+        "bank_aabb": 13,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19446,
+        19449,
+        19462,
+        19464
+      ],
+      "edge_length_mm": 2.231871803908334,
+      "exact_new_changed_face_pairs": [
+        [
+          19446,
+          134
+        ],
+        [
+          19446,
+          144
+        ],
+        [
+          19449,
+          134
+        ],
+        [
+          19449,
+          144
+        ],
+        [
+          19462,
+          134
+        ],
+        [
+          19462,
+          144
+        ],
+        [
+          19464,
+          134
+        ],
+        [
+          19464,
+          144
+        ]
+      ],
+      "inside_node": 20907,
+      "layer_failures": {
+        "fat_authored": [
+          19462,
+          19464
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19462,
+          19464
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 1.0,
+        "min_new_area_mm2": 0.1557573245210348,
+        "min_normal_cosine": 0.9999999994624955
+      },
+      "raw_43_16_after": 249,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19446,
+          134
+        ],
+        [
+          19449,
+          134
+        ],
+        [
+          19462,
+          134
+        ],
+        [
+          19464,
+          134
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19448,
+          134
+        ],
+        [
+          19463,
+          134
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19448,
+        19463
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 20185,
+      "target_aabb_candidates": {
+        "bank_aabb": 9,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19842,
+        19843,
+        19849,
+        19851
+      ],
+      "edge_length_mm": 2.2876592641311126,
+      "exact_new_changed_face_pairs": [
+        [
+          19842,
+          145
+        ],
+        [
+          19842,
+          147
+        ],
+        [
+          19843,
+          145
+        ],
+        [
+          19843,
+          147
+        ],
+        [
+          19849,
+          145
+        ],
+        [
+          19849,
+          147
+        ],
+        [
+          19851,
+          145
+        ],
+        [
+          19851,
+          147
+        ]
+      ],
+      "inside_node": 21064,
+      "layer_failures": {
+        "fat_authored": [
+          19849,
+          19851
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19849,
+          19851
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9995999240886936,
+        "min_new_area_mm2": 0.06731501544454695,
+        "min_normal_cosine": 0.9999999883758208
+      },
+      "raw_43_16_after": 249,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19842,
+          145
+        ],
+        [
+          19843,
+          145
+        ],
+        [
+          19849,
+          145
+        ],
+        [
+          19851,
+          145
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19841,
+          145
+        ],
+        [
+          19850,
+          145
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19841,
+        19850
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18489,
+      "target_aabb_candidates": {
+        "bank_aabb": 15,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    },
+    {
+      "changed_faces_old_rows": [
+        19808,
+        19811,
+        19862,
+        19864
+      ],
+      "edge_length_mm": 4.1374855080023,
+      "exact_new_changed_face_pairs": [
+        [
+          19808,
+          162
+        ],
+        [
+          19808,
+          245
+        ],
+        [
+          19811,
+          162
+        ],
+        [
+          19811,
+          245
+        ],
+        [
+          19862,
+          129
+        ],
+        [
+          19862,
+          162
+        ],
+        [
+          19862,
+          245
+        ],
+        [
+          19864,
+          129
+        ],
+        [
+          19864,
+          245
+        ]
+      ],
+      "inside_node": 20932,
+      "layer_failures": {
+        "fat_authored": [
+          19862,
+          19864
+        ],
+        "fat_conditioned_tets": [],
+        "fat_nonpositive_tets": [],
+        "skin_authored": [
+          19862,
+          19864
+        ],
+        "skin_conditioned_tets": [],
+        "skin_nonpositive_tets": []
+      },
+      "layer_pass": false,
+      "mapped_43_16_after": 149,
+      "mapped_43_16_before": 149,
+      "mapped_added_count": 0,
+      "mapped_added_pairs": [],
+      "mapped_removed_count": 0,
+      "mapped_removed_pairs": [],
+      "preflight_shape": {
+        "min_area_ratio": 0.9999525399891719,
+        "min_new_area_mm2": 1.6886032597542635,
+        "min_normal_cosine": 0.9999999992272629
+      },
+      "raw_43_16_after": 249,
+      "raw_43_16_before": 247,
+      "raw_added_count": 4,
+      "raw_added_pairs": [
+        [
+          19808,
+          245
+        ],
+        [
+          19811,
+          245
+        ],
+        [
+          19862,
+          245
+        ],
+        [
+          19864,
+          245
+        ]
+      ],
+      "raw_removed_count": 2,
+      "raw_removed_pairs": [
+        [
+          19809,
+          245
+        ],
+        [
+          19861,
+          245
+        ]
+      ],
+      "removed_faces_old_rows": [
+        19809,
+        19861
+      ],
+      "strict_raw_improvement": false,
+      "survivor": 18491,
+      "target_aabb_candidates": {
+        "bank_aabb": 20,
+        "skin_aabb": 4
+      },
+      "target_identity_improvement": false,
+      "topology_boundary_preserved": false
+    }
+  ],
+  "schema": "numi.human.b43-16.local-edge-collapse-target-rank.v1",
+  "status": "TARGET_RANK_COMPLETE",
+  "summary": {
+    "candidates_with_layer_pass": 19,
+    "candidates_with_mapped_identity_reduction": 0,
+    "candidates_with_mapped_reduction_and_layer_pass": 0,
+    "candidates_with_raw_improvement": 4
+  },
+  "target_bank": [
+    43,
+    16
+  ]
+}

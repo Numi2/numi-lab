@@ -1,0 +1,147 @@
+{
+  "all_existing_artifact_arrays_exact_byte_equal": true,
+  "array_comparisons": [
+    {
+      "exact_byte_array_match": true,
+      "key": "outer_points_f64",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "inner_points_f64",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "deep_points_f64",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "outer_points_f32",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "inner_points_f32",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "deep_points_f32",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "outer_faces",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "inner_faces",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "deep_faces",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "source_outer_faces_raw",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "face_winding_permutation",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "skin_thickness_transferred_m",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "fat_thickness_transferred_m",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "skin_thickness_actual_norm_m",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "fat_thickness_actual_norm_m",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "node_kind",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "node_source_row",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "source_face_ancestry_indptr",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "source_face_ancestry_rows",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "node_source_virtual_row",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "node_parent_coarse_face_row",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "node_parent_coarse_edge_a",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "node_parent_coarse_edge_b",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "node_parent_coarse_edge_parameter",
+      "max_abs_delta": NaN
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "full_source_prolongation_indptr",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "full_source_prolongation_rows",
+      "max_abs_delta": 0.0
+    },
+    {
+      "exact_byte_array_match": true,
+      "key": "full_source_prolongation_weights",
+      "max_abs_delta": 0.0
+    }
+  ],
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz",
+  "candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "current_541_reference_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/skin-fat-layers-541.npz",
+  "current_541_reference_sha256": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57",
+  "keys_compared": 27,
+  "owner_run_output_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-024-topology-independent-layer-transfer-001/parity-owner-806-001/skin-fat-layers-541.npz",
+  "owner_run_output_sha256": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57"
+}

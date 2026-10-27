@@ -1,0 +1,131 @@
+{
+  "receipt": "native skin-fat donor cell-owner compatibility",
+  "date": "2026-10-27",
+  "disposition": "NO_MATCHED_DONOR_OR_CONSERVATIVE_806_VOLUME_MAP",
+  "candidate_806": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz",
+    "sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+    "points": 21212,
+    "faces": 42379,
+    "candidate_layer_541_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/skin-fat-layers-541.npz",
+    "candidate_layer_541_sha256": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57",
+    "candidate_keys_with_tet_cell_mass_material_or_volume_fields": [],
+    "layer_541_keys_with_tet_cell_mass_material_or_volume_fields": []
+  },
+  "native_asset_identity": {
+    "run": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002",
+    "launch_manifest_sha256": "617dee1b93d08960daea7d006602b7df02e6f00e693de3b419aba7d424b1b655",
+    "source_preflight_manifest_sha256": "e45c6709dfcc66518dd97e7a678b4294e31ef530ee6ce26cdabec1a12a88f565",
+    "source_revision": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "compiled_app_copy_sha256": "72b0726f3c6190f36e706dcb83f3ecb4b5c4f3370c8abacabf57e9b298b1c762",
+    "exact_bank_dump_header_sha256": "c116306940faa97b7ea22b3dea138491c7ed9879a5b6abd8e4785cb412a52fe8",
+    "binary_sha256": "dc463fb9c341448e0a7d4accd52ba392c4bd757c8226541de0890462bd04b6ab",
+    "native_source_candidate_id": "candidate020-d37-current-unpaired163-owner-integration-038",
+    "native_source_candidate_sha256": "ad204691d202ee3455cb28653c297fca8a3094bcce6a838e069343d315f6f39b",
+    "skin_candidate_nhskin_sha256": "7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",
+    "candidate_node_override_csv_sha256": "058db5c144a48d84670963081e2b1a6cfab826d79ec098e19eefd07d14841681",
+    "dermis_material_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/human_skin_dermis_frequency_specific_effective.nmatter",
+    "dermis_material_sha256": "c575b204d975bfb77ae16973708e833796e3a4ad71794d69ac7e433f58dbd7ad",
+    "adipose_material_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter",
+    "adipose_material_sha256": "3d3a83e9d1803a60b103a45064c4b4020ebc6bfc8ae518acb6e4d3ec0cc8e29f",
+    "same_as_candidate_806": false,
+    "matched_input_parity": false
+  },
+  "native_retained_outputs": {
+    "export_report_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/export-report-final.json",
+    "export_report_sha256": "48fec5abb489f9830cf033ea940244fd4c7d141f8ed1260a0c54afb7fb5601d7",
+    "execution_receipt_sha256": "8bf9c1cdca95331ef23b5359fc8bf60a4e2e468220946155c15f5a105465b142",
+    "execution_status": "SOURCE_ONLY_INTENTIONAL_STOP",
+    "returncode": 1,
+    "physical_qualification": false,
+    "native_simulation_steps": 0,
+    "exact_emitted_nodes": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.nodes.csv",
+      "sha256": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+      "rows": 7233,
+      "layer_rows": [2411, 2411, 2411],
+      "node_mass_sum_kg": 13.9396797269631
+    },
+    "exact_emitted_triangles": {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+      "sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+      "rows": 469136
+    },
+    "registered_skin_poses_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "registered_skin_current_positions_sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524",
+    "tissue_mass_reference_sha256": "71715ff82763c53b478ada4a292f63ac01dd2c5971cf390c2e11705e96f1caec",
+    "tissue_mass_reference_rows": 14596,
+    "retained_tetrahedron_or_per_tet_mass_files": []
+  },
+  "identity_preflight_owner_result": {
+    "source": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/numilab_human_myosim_visual_probe.mm:22531-22564",
+    "source_sha256": "5875da5d34975c76793430a3d6cad5df67c489e477b5c4cb195a18d7e5d34627",
+    "stdout_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/stdout.log",
+    "stdout_identity_line": "whole_body_skin_fat_unpaired_identity_remap=PASS nodes=7233 tets=28632 reference_m3=0.015104913880526679 mass_kg=13.93967974060784 exact_identity_receipt_sha256=88cbdd4e909bfa1b7b8b6e7d0aa2464aca1e938d7498abfcf919031f730be348 source_world_mutated=0 physical_qualification=not_claimed",
+    "identity_map": "child and parent tetrahedra/material rows are copied from in-memory paired.tetrahedra/femMaterialIndices; each child maps to itself with fraction 1",
+    "parent_tetrahedron_mass_kg_supplied": false,
+    "child_ancestry_measure_volume_m3_supplied": false,
+    "per_tet_mass_behavior": "without the per-child ledger, the owner derives material density from aggregate skin/fat mass debit divided by volume and uses density times child volume; it does not emit femTetrahedronMassesKg",
+    "exact_identity_receipt_scope": "hashes reference coordinates, tet connectivity, and material IDs; it is not a persisted tet payload or per-cell mass ledger",
+    "owner_level_improvement": "the identity preflight proves in-memory exact topology/material parity and aggregate volume, debit, donor-node mass/frame parity without mutating the production source world"
+  },
+  "registered_surface_mapping": {
+    "reduction_header_path": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/NumiHumanWholeBodySkinReduction.hpp",
+    "reduction_header_sha256": "d55b1995fff2ee1841d000bd5453f97402a3af25c7bfbf184df81d2718caa772",
+    "transfer_ancestry_header_path": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+    "transfer_ancestry_header_sha256": "5ec98869da365684fe381a525160868fa2ae4ee17d09fb922315f15e838328b9",
+    "source_payload_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+    "registered_source_csv_sha256": "ba19f07304c36e4c3cdcd13068bbd66589bedbd51f22621f947dd0873858a3d6",
+    "transfer_npz_sha256_pinned_in_header": "b9f0f3cec8a5b86e5af7db0e0f71e6f6b091e0822c6846e43961eeb2d357226c",
+    "reduction_sha256": "867074e8a99d79d83a883f814246f9cc9433cd40647910b50a7652ab62e539ab",
+    "detailed_vertices": 61950,
+    "reduced_surface_vertices": 2411,
+    "reduced_surface_faces": 4777,
+    "detailed_to_coarse_representative_map": {
+      "assigned_detailed_rows": 54551,
+      "unassigned_detailed_rows": 7399,
+      "distinct_representative_rows": 2332,
+      "coarse_rows_with_detailed_face_embeddings": 79
+    },
+    "candidate_806_surface_lineage": {
+      "source_prolongation_rows": 21212,
+      "source_prolongation_source_domain": 13518,
+      "parent_coarse_face_rows_present": 4505,
+      "direct_nonnegative_node_source_rows": 8754,
+      "nodes_without_direct_node_source_row": 12458,
+      "complete_node_map_to_2411_rows": false,
+      "per_tet_material_or_volume_ancestry": false
+    },
+    "interpretation": "surface representative and face ancestry only; no exact conservative 806-to-2411-node-plus-parent-tet mapping"
+  },
+  "owner_interfaces": {
+    "unpaired_volume_header": {
+      "path": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "sha256": "f3b39b990ffb780227a876bae7ec6ea63cf923776db96bb0e6e115b64c2ce754"
+    },
+    "parent_reference_mass_transfer_header": {
+      "path": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/NumiHumanParentReferenceMassTransfer.hpp",
+      "sha256": "f9bbaf5c4e4d19e470235517e2e14a99e0fa5aaf134d63499034fe326da270be"
+    },
+    "local_tet_splice_header": {
+      "path": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/NumiHumanSkinFatLocalTetSplice.hpp",
+      "sha256": "816044407147596cf08d52244dae4342fbb1be10ddc5f153d15596d0278e8c38"
+    },
+    "coarse_tissue_preparation_header": {
+      "path": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/NumiHumanCoarseTissuePreparation.hpp",
+      "sha256": "27b3069cc96719ff86057b1f74b8c9ce1e47464d4f359d94bddd9abe4b3cb70c"
+    },
+    "synthetic_owner_fixture": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/tests/NumiHumanUnpairedSkinFatVolumeCheck.cpp",
+    "production_app_used_synthetic_fixture_for_806": false
+  },
+  "smallest_native_export_needed": {
+    "existing_source_only_hook": "NUMI_HUMAN_UNPAIRED_IDENTITY_PREFLIGHT=1; it checks clone parity but does not write tet/cell payloads",
+    "existing_exact_bank_dump_hook": "NUMI_HUMAN_D37_EXACT_EMITTED_BANK_DUMP_PREFIX; writes node/body/triangle records only",
+    "owner_code_change": "Add a one-shot volume-export path in the opt-in identity-preflight branch after paired is built; serialize exact current/reference node coordinates, tet connectivity, material and donor IDs, stable surface-face IDs, full child-parent CSR and exact overlap measures. Include per-tet mass only when sourced from an authoritative donor ledger; the existing aggregate-debit fallback must fail closed for this field.",
+    "additional_input_required_for_806": "An exact surface-node/barycentric map from all candidate 806 rows through the 13518-node source domain to the 2411-row registered boundary, plus the matching parent tetrahedron/material/donor/mass ledger or exact conservative volume-overlap mapping.",
+    "replay_configuration": "Repeat the recorded run-002 source-only launch with the same pinned binary, source revision, candidate.nhskin, node override and material inputs, adding only the new output-prefix flag; do not step physics."
+  },
+  "files_written": ["receipt.json"],
+  "candidate_emitted": false,
+  "geometry_modified": false
+}

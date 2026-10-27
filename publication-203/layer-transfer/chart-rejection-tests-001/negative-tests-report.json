@@ -1,0 +1,30 @@
+{
+  "inconsistent_overlap_ancestry_test": {
+    "candidate_sha256": "3542265b77e83a56ef57f123182ca6f2358a0c1ade0a263b1bcf13063ead5045",
+    "changed_face_row": 19213,
+    "rejected": true,
+    "transfer_error": "face 19213 face_source_ancestry_indptr does not equal the direct-806-parent ancestry union",
+    "wrong_direct_parent_face_row": 0
+  },
+  "pins": {
+    "baseline_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+    "candidate_sha256": "dd31bdffbb689c8caed7bcc46229b89e23f77096aca6e780005c6a69529e432c",
+    "chart_validator_sha256": "d46adbce768094f9c2d9a0c39cbb56f42700b1f915ec881678f9d3f640d8ad25",
+    "transfer_script_sha256": "fb53b372fd534a1f81e29944a1455ef249b674d4c8c043940fca442c3a7aad51"
+  },
+  "schema": "numi.human.topology-independent-transfer-negative-tests.v1",
+  "scope": [
+    "Private corrupted copies only.",
+    "Tests rejection behavior; no candidate was modified or promoted.",
+    "No physical/native admission."
+  ],
+  "stale_legacy_barycentric_test": {
+    "candidate_sha256": "8492896e29607ad802e9e119036baf6889fe66c3d9b9b59ee7c3263224d2d3d1",
+    "changed_face_row": 19213,
+    "rejected": true,
+    "returncode": 1,
+    "stderr": "Traceback (most recent call last):\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/root-material-chart-validation-001/validate_charts.py\", line 147, in <module>\n    if __name__==\"__main__\":main()\n                            ^^^^^^\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/root-material-chart-validation-001/validate_charts.py\", line 129, in main\n    if oldnode not in prior or not np.allclose(prior[oldnode],yb[n,k],rtol=0,atol=1e-11):raise ValueError(\"stale or invented chart on new face \"+str(n))\n                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: stale or invented chart on new face 19213",
+    "stdout": ""
+  },
+  "status": "PASS_NEGATIVE_TESTS"
+}

@@ -1,0 +1,153 @@
+{
+  "version": 1,
+  "status": "reference-pose construction and diagnostic evidence only",
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "members": [
+    {
+      "path": "README.md",
+      "bytes": 3038,
+      "sha256": "3c97d5cd05e7538224ed555fee848bad63b2c463eb5f4cc1398b5a8e77ab8cf7"
+    },
+    {
+      "path": "bank-43-trial/audit-130/summary.json",
+      "bytes": 105566,
+      "sha256": "151b151a7fbe241de429c0d7c4afadbd17854d26123535fa9c567b0fe8e06a19"
+    },
+    {
+      "path": "bank-43-trial/audit-159/report.json",
+      "bytes": 119980,
+      "sha256": "84241a86144190d8a0c77292bd217b3c55bd25fb74fc263d158f3e55cad4c794"
+    },
+    {
+      "path": "bank-43-trial/batch-screen-failure.json",
+      "bytes": 44550,
+      "sha256": "c957524489f655e23704983413b4cb699ee997574a7ed4fb342cbe355bdffc9e"
+    },
+    {
+      "path": "bank-43-trial/build_edge_collapse.py",
+      "bytes": 25173,
+      "sha256": "55f55c0471c61dbdffbe409dc9f1db84cdff79ba5333fbec4ce832a9a7e65eb5"
+    },
+    {
+      "path": "bank-43-trial/candidate.npz",
+      "bytes": 7499545,
+      "sha256": "dd31bdffbb689c8caed7bcc46229b89e23f77096aca6e780005c6a69529e432c"
+    },
+    {
+      "path": "bank-43-trial/comparison-806-v2.json",
+      "bytes": 2019,
+      "sha256": "565d1461b0803c7a8bb6722be636a0e312b519a729eb8a89193798d76044f4fa"
+    },
+    {
+      "path": "bank-43-trial/rank_edge_collapses.py",
+      "bytes": 10824,
+      "sha256": "cc28355b34fe30e3de968ce1c0df9ac7927068fbe4b9adb9b2156569c0ec6dd8"
+    },
+    {
+      "path": "bank-43-trial/report.json",
+      "bytes": 239445,
+      "sha256": "330d507167b43fd1dfb5794a07e6d3c0d981b4f5f92feb2c5b9c16a166616e04"
+    },
+    {
+      "path": "bank-43-trial/target-bank-edge-ranking-invalid-v1.json",
+      "bytes": 209038,
+      "sha256": "9719c2b243f67891d70a04f57a60b6ca822ddf6fe51e955b49c9424b430e6f70"
+    },
+    {
+      "path": "bank-43-trial/target-bank-edge-ranking-v2.json",
+      "bytes": 187044,
+      "sha256": "d4f9a924f6d65fb8dce13b9f7283e07c01e96bd98a75b13d8f2bb971b592d465"
+    },
+    {
+      "path": "chart-validation/b43-attempt028-chart-validation.json",
+      "bytes": 823,
+      "sha256": "5c2d68acc1c1c67e2f51abcb1522ecf860fa8216bb64fb6d2d8496ea65514cc9"
+    },
+    {
+      "path": "chart-validation/d071-chart-validation-v2.json",
+      "bytes": 823,
+      "sha256": "0b30b7d96fa09cd2516f9f23fd479a27ca3531a014b719c7ca148aaa89ffaad1"
+    },
+    {
+      "path": "chart-validation/identity-parity.json",
+      "bytes": 822,
+      "sha256": "1ad851e7b81d774da71d644e508f9751cf411b2430c371e4a810d7476597186c"
+    },
+    {
+      "path": "chart-validation/test_real_flip_ancestry.py",
+      "bytes": 2216,
+      "sha256": "e88e7251085b8fba8983a077c3a16344fa76afd16fcd36f11995ac92e409fa8a"
+    },
+    {
+      "path": "chart-validation/test_validate_charts.py",
+      "bytes": 3520,
+      "sha256": "bd012afbdbba2e18807182fd1381cbe20dc8113e52e36f54d9f00c7cf8e791a9"
+    },
+    {
+      "path": "chart-validation/validate_charts.py",
+      "bytes": 8585,
+      "sha256": "d46adbce768094f9c2d9a0c39cbb56f42700b1f915ec881678f9d3f640d8ad25"
+    },
+    {
+      "path": "layer-transfer/chart-rejection-tests-001/negative-tests-report.json",
+      "bytes": 2161,
+      "sha256": "5d398641eb8287869010148fa8835f65c4bc359d3d1b9cf4f4751a8d0809a0a0"
+    },
+    {
+      "path": "layer-transfer/chart-rejection-tests-001/run_negative_tests.py",
+      "bytes": 4937,
+      "sha256": "3f5560563551c3a7dabaf505f888f09762c595ef31d752fba21b8858e4a6e9eb"
+    },
+    {
+      "path": "layer-transfer/generic-parity-806-final-001/report.json",
+      "bytes": 9230,
+      "sha256": "080615ac797391469dcd57021d2ad5493ad7a0c1bf331c5b2c3b25eff1121702"
+    },
+    {
+      "path": "layer-transfer/parity-owner-806-001/parity.json",
+      "bytes": 4214,
+      "sha256": "4e55a6e58e580a5d308fc251a3dddaee2558b01e49e6cfdb763171232f2b39b1"
+    },
+    {
+      "path": "layer-transfer/parity_806_against_current_541.py",
+      "bytes": 2475,
+      "sha256": "ae42b89db699aa9305e3f1a674e446b219bb2e62c8812696d137957c6230c997"
+    },
+    {
+      "path": "layer-transfer/remesh-43-16-transfer-retry001/material-chart-validation.json",
+      "bytes": 823,
+      "sha256": "5c2d68acc1c1c67e2f51abcb1522ecf860fa8216bb64fb6d2d8496ea65514cc9"
+    },
+    {
+      "path": "layer-transfer/remesh-43-16-transfer-retry001/report.json",
+      "bytes": 9444,
+      "sha256": "965c993a928f60980a9cfc393ba7af08b235fe1ab65ef3f14f31fcf3bce222d1"
+    },
+    {
+      "path": "layer-transfer/transfer_topology_independent_541.py",
+      "bytes": 37696,
+      "sha256": "fb53b372fd534a1f81e29944a1455ef249b674d4c8c043940fca442c3a7aad51"
+    },
+    {
+      "path": "native-donor/receipt.json",
+      "bytes": 11045,
+      "sha256": "19a7a7a3dbafc1af0f8c0d0945eefb1ff67a89bab7fb158ce5e384bfe7854516"
+    },
+    {
+      "path": "topology-comparison/compare_changed_topology.py",
+      "bytes": 12778,
+      "sha256": "e1bd86cf44ffd679395e9ba72f286e2ac8378dc2c1d5591994fdf47f7ba34780"
+    },
+    {
+      "path": "topology-comparison/identity-parity-v7.json",
+      "bytes": 1899,
+      "sha256": "8613237fc593da79dcb741d22e48f6d44fd5352cbd214ef24fa517b8505eee84"
+    },
+    {
+      "path": "topology-comparison/test_compare_changed_topology.py",
+      "bytes": 3606,
+      "sha256": "19de38490b2fb06f208f59508e2a14342323aa7ab901d0efe617f682eaf27b01"
+    }
+  ]
+}

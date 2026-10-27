@@ -1,0 +1,2336 @@
+{
+  "baseline_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "candidates": [
+    {
+      "edge": [
+        9106,
+        20895
+      ],
+      "edge_faces": [
+        19310,
+        19817
+      ],
+      "edge_length_mm": 2.199412936036284,
+      "incident_faces": [
+        19309,
+        19310,
+        19312,
+        19817,
+        19818,
+        19819
+      ],
+      "inside_node": 20895,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 9106,
+      "witness": {
+        "face": 19309,
+        "parent": 19071
+      }
+    },
+    {
+      "edge": [
+        18488,
+        20895
+      ],
+      "edge_faces": [
+        19309,
+        19818
+      ],
+      "edge_length_mm": 2.199391367423446,
+      "incident_faces": [
+        19309,
+        19310,
+        19312,
+        19817,
+        19818,
+        19819
+      ],
+      "inside_node": 20895,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18488,
+      "witness": {
+        "face": 19310,
+        "parent": 19071
+      }
+    },
+    {
+      "edge": [
+        9106,
+        20899
+      ],
+      "edge_faces": [
+        19844,
+        19871
+      ],
+      "edge_length_mm": 2.8468916622010343,
+      "incident_faces": [
+        19844,
+        19845,
+        19847,
+        19870,
+        19871,
+        19873
+      ],
+      "inside_node": 20899,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 9106,
+      "witness": {
+        "face": 19845,
+        "parent": 19465
+      }
+    },
+    {
+      "edge": [
+        18496,
+        20899
+      ],
+      "edge_faces": [
+        19845,
+        19870
+      ],
+      "edge_length_mm": 2.846917658395814,
+      "incident_faces": [
+        19844,
+        19845,
+        19847,
+        19870,
+        19871,
+        19873
+      ],
+      "inside_node": 20899,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18496,
+      "witness": {
+        "face": 19844,
+        "parent": 19465
+      }
+    },
+    {
+      "edge": [
+        9106,
+        20900
+      ],
+      "edge_faces": [
+        19310,
+        19313
+      ],
+      "edge_length_mm": 2.2207226432479334,
+      "incident_faces": [
+        19310,
+        19311,
+        19312,
+        19313,
+        19314,
+        19315,
+        19316
+      ],
+      "inside_node": 20900,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 9106,
+      "witness": {
+        "face": 19311,
+        "parent": 19071
+      }
+    },
+    {
+      "edge": [
+        20171,
+        20900
+      ],
+      "edge_faces": [
+        19311,
+        19315
+      ],
+      "edge_length_mm": 2.220710177715735,
+      "incident_faces": [
+        19310,
+        19311,
+        19312,
+        19313,
+        19314,
+        19315,
+        19316
+      ],
+      "inside_node": 20900,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20171,
+      "witness": {
+        "face": 19310,
+        "parent": 19071
+      }
+    },
+    {
+      "edge": [
+        9106,
+        20901
+      ],
+      "edge_faces": [
+        19813,
+        19817
+      ],
+      "edge_length_mm": 3.353393696802057,
+      "incident_faces": [
+        19813,
+        19814,
+        19815,
+        19816,
+        19817,
+        19819
+      ],
+      "inside_node": 20901,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 9106,
+      "witness": {
+        "face": 19814,
+        "parent": 19443
+      }
+    },
+    {
+      "edge": [
+        20215,
+        20901
+      ],
+      "edge_faces": [
+        19814,
+        19816
+      ],
+      "edge_length_mm": 3.353448690600811,
+      "incident_faces": [
+        19813,
+        19814,
+        19815,
+        19816,
+        19817,
+        19819
+      ],
+      "inside_node": 20901,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20215,
+      "witness": {
+        "face": 19813,
+        "parent": 19443
+      }
+    },
+    {
+      "edge": [
+        9106,
+        20902
+      ],
+      "edge_faces": [
+        19857,
+        19871
+      ],
+      "edge_length_mm": 2.867611543340045,
+      "incident_faces": [
+        19857,
+        19859,
+        19860,
+        19871,
+        19872,
+        19873
+      ],
+      "inside_node": 20902,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 9106,
+      "witness": {
+        "face": 19859,
+        "parent": 19470
+      }
+    },
+    {
+      "edge": [
+        20218,
+        20902
+      ],
+      "edge_faces": [
+        19859,
+        19872
+      ],
+      "edge_length_mm": 2.867565481366584,
+      "incident_faces": [
+        19857,
+        19859,
+        19860,
+        19871,
+        19872,
+        19873
+      ],
+      "inside_node": 20902,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20218,
+      "witness": {
+        "face": 19857,
+        "parent": 19470
+      }
+    },
+    {
+      "edge": [
+        9721,
+        20907
+      ],
+      "edge_faces": [
+        19446,
+        19462
+      ],
+      "edge_length_mm": 2.2318823585223457,
+      "incident_faces": [
+        19446,
+        19448,
+        19449,
+        19462,
+        19463,
+        19464
+      ],
+      "inside_node": 20907,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 9721,
+      "witness": {
+        "face": 19448,
+        "parent": 19149
+      }
+    },
+    {
+      "edge": [
+        20185,
+        20907
+      ],
+      "edge_faces": [
+        19448,
+        19463
+      ],
+      "edge_length_mm": 2.231871803908334,
+      "incident_faces": [
+        19446,
+        19448,
+        19449,
+        19462,
+        19463,
+        19464
+      ],
+      "inside_node": 20907,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20185,
+      "witness": {
+        "face": 19446,
+        "parent": 19149
+      }
+    },
+    {
+      "edge": [
+        14282,
+        20924
+      ],
+      "edge_faces": [
+        19647,
+        19840
+      ],
+      "edge_length_mm": 2.6606933484510225,
+      "incident_faces": [
+        19646,
+        19647,
+        19649,
+        19840,
+        19841,
+        19843
+      ],
+      "inside_node": 20924,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 14282,
+      "witness": {
+        "face": 19646,
+        "parent": 19333
+      }
+    },
+    {
+      "edge": [
+        18489,
+        20924
+      ],
+      "edge_faces": [
+        19646,
+        19841
+      ],
+      "edge_length_mm": 2.660742569132847,
+      "incident_faces": [
+        19646,
+        19647,
+        19649,
+        19840,
+        19841,
+        19843
+      ],
+      "inside_node": 20924,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18489,
+      "witness": {
+        "face": 19647,
+        "parent": 19333
+      }
+    },
+    {
+      "edge": [
+        14282,
+        20926
+      ],
+      "edge_faces": [
+        19647,
+        19650
+      ],
+      "edge_length_mm": 2.646005121802821,
+      "incident_faces": [
+        19647,
+        19648,
+        19649,
+        19650,
+        19652,
+        19653
+      ],
+      "inside_node": 20926,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 14282,
+      "witness": {
+        "face": 19648,
+        "parent": 19333
+      }
+    },
+    {
+      "edge": [
+        20196,
+        20926
+      ],
+      "edge_faces": [
+        19648,
+        19652
+      ],
+      "edge_length_mm": 2.6459786181467093,
+      "incident_faces": [
+        19647,
+        19648,
+        19649,
+        19650,
+        19652,
+        19653
+      ],
+      "inside_node": 20926,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20196,
+      "witness": {
+        "face": 19647,
+        "parent": 19333
+      }
+    },
+    {
+      "edge": [
+        14283,
+        20928
+      ],
+      "edge_faces": [
+        19329,
+        19354
+      ],
+      "edge_length_mm": 2.644656507051456,
+      "incident_faces": [
+        19328,
+        19329,
+        19331,
+        19352,
+        19354,
+        19355
+      ],
+      "inside_node": 20928,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 14283,
+      "witness": {
+        "face": 19328,
+        "parent": 19077
+      }
+    },
+    {
+      "edge": [
+        18490,
+        20928
+      ],
+      "edge_faces": [
+        19328,
+        19352
+      ],
+      "edge_length_mm": 2.644707472625784,
+      "incident_faces": [
+        19328,
+        19329,
+        19331,
+        19352,
+        19354,
+        19355
+      ],
+      "inside_node": 20928,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18490,
+      "witness": {
+        "face": 19329,
+        "parent": 19077
+      }
+    },
+    {
+      "edge": [
+        14283,
+        20931
+      ],
+      "edge_faces": [
+        19354,
+        19369
+      ],
+      "edge_length_mm": 2.6646893556359665,
+      "incident_faces": [
+        19353,
+        19354,
+        19355,
+        19367,
+        19369,
+        19370
+      ],
+      "inside_node": 20931,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 14283,
+      "witness": {
+        "face": 19353,
+        "parent": 19091
+      }
+    },
+    {
+      "edge": [
+        20179,
+        20931
+      ],
+      "edge_faces": [
+        19353,
+        19367
+      ],
+      "edge_length_mm": 2.6647403160348166,
+      "incident_faces": [
+        19353,
+        19354,
+        19355,
+        19367,
+        19369,
+        19370
+      ],
+      "inside_node": 20931,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20179,
+      "witness": {
+        "face": 19354,
+        "parent": 19091
+      }
+    },
+    {
+      "edge": [
+        14285,
+        20932
+      ],
+      "edge_faces": [
+        19808,
+        19862
+      ],
+      "edge_length_mm": 4.137451534919275,
+      "incident_faces": [
+        19808,
+        19809,
+        19811,
+        19861,
+        19862,
+        19864
+      ],
+      "inside_node": 20932,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 14285,
+      "witness": {
+        "face": 19809,
+        "parent": 19442
+      }
+    },
+    {
+      "edge": [
+        18491,
+        20932
+      ],
+      "edge_faces": [
+        19809,
+        19861
+      ],
+      "edge_length_mm": 4.1374855080023,
+      "incident_faces": [
+        19808,
+        19809,
+        19811,
+        19861,
+        19862,
+        19864
+      ],
+      "inside_node": 20932,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18491,
+      "witness": {
+        "face": 19808,
+        "parent": 19442
+      }
+    },
+    {
+      "edge": [
+        14824,
+        20956
+      ],
+      "edge_faces": [
+        19224,
+        19227
+      ],
+      "edge_length_mm": 0.7750160640889007,
+      "incident_faces": [
+        19224,
+        19225,
+        19226,
+        19227,
+        19229,
+        19230
+      ],
+      "inside_node": 20956,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 14824,
+      "witness": {
+        "face": 19225,
+        "parent": 18998
+      }
+    },
+    {
+      "edge": [
+        20159,
+        20956
+      ],
+      "edge_faces": [
+        19225,
+        19229
+      ],
+      "edge_length_mm": 0.7750773872492253,
+      "incident_faces": [
+        19224,
+        19225,
+        19226,
+        19227,
+        19229,
+        19230
+      ],
+      "inside_node": 20956,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20159,
+      "witness": {
+        "face": 19224,
+        "parent": 18998
+      }
+    },
+    {
+      "edge": [
+        14825,
+        20957
+      ],
+      "edge_faces": [
+        19421,
+        19429
+      ],
+      "edge_length_mm": 1.879957362111167,
+      "incident_faces": [
+        19421,
+        19423,
+        19424,
+        19429,
+        19430,
+        19432
+      ],
+      "inside_node": 20957,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 14825,
+      "witness": {
+        "face": 19423,
+        "parent": 19132
+      }
+    },
+    {
+      "edge": [
+        20182,
+        20957
+      ],
+      "edge_faces": [
+        19423,
+        19430
+      ],
+      "edge_length_mm": 1.8799161543840308,
+      "incident_faces": [
+        19421,
+        19423,
+        19424,
+        19429,
+        19430,
+        19432
+      ],
+      "inside_node": 20957,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20182,
+      "witness": {
+        "face": 19421,
+        "parent": 19132
+      }
+    },
+    {
+      "edge": [
+        15972,
+        20989
+      ],
+      "edge_faces": [
+        19737,
+        19748
+      ],
+      "edge_length_mm": 2.844508761795287,
+      "incident_faces": [
+        19735,
+        19737,
+        19738,
+        19747,
+        19748,
+        19750
+      ],
+      "inside_node": 20989,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 15972,
+      "witness": {
+        "face": 19735,
+        "parent": 19380
+      }
+    },
+    {
+      "edge": [
+        19705,
+        20989
+      ],
+      "edge_faces": [
+        19735,
+        19747
+      ],
+      "edge_length_mm": 2.844535997855602,
+      "incident_faces": [
+        19735,
+        19737,
+        19738,
+        19747,
+        19748,
+        19750
+      ],
+      "inside_node": 20989,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 19705,
+      "witness": {
+        "face": 19737,
+        "parent": 19380
+      }
+    },
+    {
+      "edge": [
+        15972,
+        20990
+      ],
+      "edge_faces": [
+        19674,
+        19748
+      ],
+      "edge_length_mm": 1.7909494693041312,
+      "incident_faces": [
+        19674,
+        19676,
+        19677,
+        19748,
+        19749,
+        19750
+      ],
+      "inside_node": 20990,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 15972,
+      "witness": {
+        "face": 19676,
+        "parent": 19346
+      }
+    },
+    {
+      "edge": [
+        20198,
+        20990
+      ],
+      "edge_faces": [
+        19676,
+        19749
+      ],
+      "edge_length_mm": 1.7909563426394317,
+      "incident_faces": [
+        19674,
+        19676,
+        19677,
+        19748,
+        19749,
+        19750
+      ],
+      "inside_node": 20990,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20198,
+      "witness": {
+        "face": 19674,
+        "parent": 19346
+      }
+    },
+    {
+      "edge": [
+        17069,
+        21016
+      ],
+      "edge_faces": [
+        19212,
+        19220
+      ],
+      "edge_length_mm": 1.4747930282931891,
+      "incident_faces": [
+        19212,
+        19214,
+        19215,
+        19220,
+        19221,
+        19222
+      ],
+      "inside_node": 21016,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 17069,
+      "witness": {
+        "face": 19214,
+        "parent": 18995
+      }
+    },
+    {
+      "edge": [
+        18590,
+        21016
+      ],
+      "edge_faces": [
+        19214,
+        19221
+      ],
+      "edge_length_mm": 1.4747930282931891,
+      "incident_faces": [
+        19212,
+        19214,
+        19215,
+        19220,
+        19221,
+        19222
+      ],
+      "inside_node": 21016,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18590,
+      "witness": {
+        "face": 19212,
+        "parent": 18995
+      }
+    },
+    {
+      "edge": [
+        17073,
+        21019
+      ],
+      "edge_faces": [
+        19318,
+        19336
+      ],
+      "edge_length_mm": 2.566047214803545,
+      "incident_faces": [
+        19317,
+        19318,
+        19320,
+        19336,
+        19337,
+        19339
+      ],
+      "inside_node": 21019,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 17073,
+      "witness": {
+        "face": 19317,
+        "parent": 19073
+      }
+    },
+    {
+      "edge": [
+        18492,
+        21019
+      ],
+      "edge_faces": [
+        19317,
+        19337
+      ],
+      "edge_length_mm": 2.5660557089209983,
+      "incident_faces": [
+        19317,
+        19318,
+        19320,
+        19336,
+        19337,
+        19339
+      ],
+      "inside_node": 21019,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18492,
+      "witness": {
+        "face": 19318,
+        "parent": 19073
+      }
+    },
+    {
+      "edge": [
+        17076,
+        21022
+      ],
+      "edge_faces": [
+        19419,
+        19457
+      ],
+      "edge_length_mm": 2.3677912504958853,
+      "incident_faces": [
+        19418,
+        19419,
+        19420,
+        19457,
+        19458,
+        19460
+      ],
+      "inside_node": 21022,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 17076,
+      "witness": {
+        "face": 19418,
+        "parent": 19131
+      }
+    },
+    {
+      "edge": [
+        18591,
+        21022
+      ],
+      "edge_faces": [
+        19418,
+        19458
+      ],
+      "edge_length_mm": 2.3677958920359576,
+      "incident_faces": [
+        19418,
+        19419,
+        19420,
+        19457,
+        19458,
+        19460
+      ],
+      "inside_node": 21022,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18591,
+      "witness": {
+        "face": 19419,
+        "parent": 19131
+      }
+    },
+    {
+      "edge": [
+        17076,
+        21025
+      ],
+      "edge_faces": [
+        19405,
+        19419
+      ],
+      "edge_length_mm": 2.367236017395261,
+      "incident_faces": [
+        19404,
+        19405,
+        19406,
+        19417,
+        19419,
+        19420
+      ],
+      "inside_node": 21025,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 17076,
+      "witness": {
+        "face": 19404,
+        "parent": 19123
+      }
+    },
+    {
+      "edge": [
+        20189,
+        21025
+      ],
+      "edge_faces": [
+        19404,
+        19417
+      ],
+      "edge_length_mm": 2.367200287172921,
+      "incident_faces": [
+        19404,
+        19405,
+        19406,
+        19417,
+        19419,
+        19420
+      ],
+      "inside_node": 21025,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20189,
+      "witness": {
+        "face": 19405,
+        "parent": 19123
+      }
+    },
+    {
+      "edge": [
+        17093,
+        21026
+      ],
+      "edge_faces": [
+        19664,
+        19682
+      ],
+      "edge_length_mm": 2.0526760159087667,
+      "incident_faces": [
+        19664,
+        19666,
+        19667,
+        19682,
+        19683,
+        19685
+      ],
+      "inside_node": 21026,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 17093,
+      "witness": {
+        "face": 19666,
+        "parent": 19341
+      }
+    },
+    {
+      "edge": [
+        18897,
+        21026
+      ],
+      "edge_faces": [
+        19666,
+        19683
+      ],
+      "edge_length_mm": 2.0526760159087667,
+      "incident_faces": [
+        19664,
+        19666,
+        19667,
+        19682,
+        19683,
+        19685
+      ],
+      "inside_node": 21026,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18897,
+      "witness": {
+        "face": 19664,
+        "parent": 19341
+      }
+    },
+    {
+      "edge": [
+        17093,
+        21027
+      ],
+      "edge_faces": [
+        19655,
+        19664
+      ],
+      "edge_length_mm": 1.9810285041536382,
+      "incident_faces": [
+        19654,
+        19655,
+        19657,
+        19664,
+        19665,
+        19667
+      ],
+      "inside_node": 21027,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 17093,
+      "witness": {
+        "face": 19654,
+        "parent": 19335
+      }
+    },
+    {
+      "edge": [
+        19379,
+        21027
+      ],
+      "edge_faces": [
+        19654,
+        19665
+      ],
+      "edge_length_mm": 1.9810374187991662,
+      "incident_faces": [
+        19654,
+        19655,
+        19657,
+        19664,
+        19665,
+        19667
+      ],
+      "inside_node": 21027,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 19379,
+      "witness": {
+        "face": 19655,
+        "parent": 19335
+      }
+    },
+    {
+      "edge": [
+        17093,
+        21030
+      ],
+      "edge_faces": [
+        19679,
+        19682
+      ],
+      "edge_length_mm": 1.6816471396424686,
+      "incident_faces": [
+        19679,
+        19680,
+        19681,
+        19682,
+        19684,
+        19685
+      ],
+      "inside_node": 21030,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 17093,
+      "witness": {
+        "face": 19680,
+        "parent": 19347
+      }
+    },
+    {
+      "edge": [
+        20198,
+        21030
+      ],
+      "edge_faces": [
+        19680,
+        19684
+      ],
+      "edge_length_mm": 1.681631338677469,
+      "incident_faces": [
+        19679,
+        19680,
+        19681,
+        19682,
+        19684,
+        19685
+      ],
+      "inside_node": 21030,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20198,
+      "witness": {
+        "face": 19679,
+        "parent": 19347
+      }
+    },
+    {
+      "edge": [
+        18489,
+        21062
+      ],
+      "edge_faces": [
+        19846,
+        19850
+      ],
+      "edge_length_mm": 2.4388914747674106,
+      "incident_faces": [
+        19845,
+        19846,
+        19847,
+        19848,
+        19850,
+        19851
+      ],
+      "inside_node": 21062,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18489,
+      "witness": {
+        "face": 19845,
+        "parent": 19465
+      }
+    },
+    {
+      "edge": [
+        18496,
+        21062
+      ],
+      "edge_faces": [
+        19845,
+        19848
+      ],
+      "edge_length_mm": 2.4388670014453,
+      "incident_faces": [
+        19845,
+        19846,
+        19847,
+        19848,
+        19850,
+        19851
+      ],
+      "inside_node": 21062,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18496,
+      "witness": {
+        "face": 19846,
+        "parent": 19465
+      }
+    },
+    {
+      "edge": [
+        18489,
+        21064
+      ],
+      "edge_faces": [
+        19841,
+        19850
+      ],
+      "edge_length_mm": 2.2876592641311126,
+      "incident_faces": [
+        19841,
+        19842,
+        19843,
+        19849,
+        19850,
+        19851
+      ],
+      "inside_node": 21064,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18489,
+      "witness": {
+        "face": 19842,
+        "parent": 19464
+      }
+    },
+    {
+      "edge": [
+        20217,
+        21064
+      ],
+      "edge_faces": [
+        19842,
+        19849
+      ],
+      "edge_length_mm": 2.287643363585925,
+      "incident_faces": [
+        19841,
+        19842,
+        19843,
+        19849,
+        19850,
+        19851
+      ],
+      "inside_node": 21064,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20217,
+      "witness": {
+        "face": 19841,
+        "parent": 19464
+      }
+    },
+    {
+      "edge": [
+        18490,
+        21066
+      ],
+      "edge_faces": [
+        19326,
+        19328
+      ],
+      "edge_length_mm": 2.473158307012458,
+      "incident_faces": [
+        19324,
+        19326,
+        19327,
+        19328,
+        19330,
+        19331
+      ],
+      "inside_node": 21066,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18490,
+      "witness": {
+        "face": 19324,
+        "parent": 19076
+      }
+    },
+    {
+      "edge": [
+        20172,
+        21066
+      ],
+      "edge_faces": [
+        19324,
+        19330
+      ],
+      "edge_length_mm": 2.473172327478196,
+      "incident_faces": [
+        19324,
+        19326,
+        19327,
+        19328,
+        19330,
+        19331
+      ],
+      "inside_node": 21066,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20172,
+      "witness": {
+        "face": 19326,
+        "parent": 19076
+      }
+    },
+    {
+      "edge": [
+        18491,
+        21068
+      ],
+      "edge_faces": [
+        19809,
+        19812
+      ],
+      "edge_length_mm": 3.072504346731199,
+      "incident_faces": [
+        19809,
+        19810,
+        19811,
+        19812,
+        19814,
+        19815
+      ],
+      "inside_node": 21068,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18491,
+      "witness": {
+        "face": 19810,
+        "parent": 19442
+      }
+    },
+    {
+      "edge": [
+        20215,
+        21068
+      ],
+      "edge_faces": [
+        19810,
+        19814
+      ],
+      "edge_length_mm": 3.0725118567332927,
+      "incident_faces": [
+        19809,
+        19810,
+        19811,
+        19812,
+        19814,
+        19815
+      ],
+      "inside_node": 21068,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20215,
+      "witness": {
+        "face": 19809,
+        "parent": 19442
+      }
+    },
+    {
+      "edge": [
+        18491,
+        21069
+      ],
+      "edge_faces": [
+        19858,
+        19861
+      ],
+      "edge_length_mm": 2.579759551511717,
+      "incident_faces": [
+        19858,
+        19859,
+        19860,
+        19861,
+        19863,
+        19864
+      ],
+      "inside_node": 21069,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18491,
+      "witness": {
+        "face": 19859,
+        "parent": 19470
+      }
+    },
+    {
+      "edge": [
+        20218,
+        21069
+      ],
+      "edge_faces": [
+        19859,
+        19863
+      ],
+      "edge_length_mm": 2.579769496101756,
+      "incident_faces": [
+        19858,
+        19859,
+        19860,
+        19861,
+        19863,
+        19864
+      ],
+      "inside_node": 21069,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20218,
+      "witness": {
+        "face": 19858,
+        "parent": 19470
+      }
+    },
+    {
+      "edge": [
+        18492,
+        21071
+      ],
+      "edge_faces": [
+        19325,
+        19337
+      ],
+      "edge_length_mm": 2.277211515531448,
+      "incident_faces": [
+        19324,
+        19325,
+        19327,
+        19337,
+        19338,
+        19339
+      ],
+      "inside_node": 21071,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18492,
+      "witness": {
+        "face": 19324,
+        "parent": 19076
+      }
+    },
+    {
+      "edge": [
+        20172,
+        21071
+      ],
+      "edge_faces": [
+        19324,
+        19338
+      ],
+      "edge_length_mm": 2.2772023408131865,
+      "incident_faces": [
+        19324,
+        19325,
+        19327,
+        19337,
+        19338,
+        19339
+      ],
+      "inside_node": 21071,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20172,
+      "witness": {
+        "face": 19325,
+        "parent": 19076
+      }
+    },
+    {
+      "edge": [
+        18587,
+        21092
+      ],
+      "edge_faces": [
+        19197,
+        19451
+      ],
+      "edge_length_mm": 0.765945698174835,
+      "incident_faces": [
+        19197,
+        19199,
+        19200,
+        19451,
+        19452,
+        19453
+      ],
+      "inside_node": 21092,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18587,
+      "witness": {
+        "face": 19199,
+        "parent": 18988
+      }
+    },
+    {
+      "edge": [
+        20157,
+        21092
+      ],
+      "edge_faces": [
+        19199,
+        19452
+      ],
+      "edge_length_mm": 0.7659179483908409,
+      "incident_faces": [
+        19197,
+        19199,
+        19200,
+        19451,
+        19452,
+        19453
+      ],
+      "inside_node": 21092,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20157,
+      "witness": {
+        "face": 19197,
+        "parent": 18988
+      }
+    },
+    {
+      "edge": [
+        18587,
+        21093
+      ],
+      "edge_faces": [
+        19447,
+        19451
+      ],
+      "edge_length_mm": 1.0726171670161573,
+      "incident_faces": [
+        19447,
+        19448,
+        19449,
+        19450,
+        19451,
+        19453
+      ],
+      "inside_node": 21093,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18587,
+      "witness": {
+        "face": 19448,
+        "parent": 19149
+      }
+    },
+    {
+      "edge": [
+        20185,
+        21093
+      ],
+      "edge_faces": [
+        19448,
+        19450
+      ],
+      "edge_length_mm": 1.0726271678218575,
+      "incident_faces": [
+        19447,
+        19448,
+        19449,
+        19450,
+        19451,
+        19453
+      ],
+      "inside_node": 21093,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20185,
+      "witness": {
+        "face": 19447,
+        "parent": 19149
+      }
+    },
+    {
+      "edge": [
+        18590,
+        21094
+      ],
+      "edge_faces": [
+        19221,
+        19239
+      ],
+      "edge_length_mm": 0.7579971795741477,
+      "incident_faces": [
+        19219,
+        19221,
+        19222,
+        19238,
+        19239,
+        19240
+      ],
+      "inside_node": 21094,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18590,
+      "witness": {
+        "face": 19219,
+        "parent": 18997
+      }
+    },
+    {
+      "edge": [
+        19496,
+        21094
+      ],
+      "edge_faces": [
+        19219,
+        19238
+      ],
+      "edge_length_mm": 0.7579749250517033,
+      "incident_faces": [
+        19219,
+        19221,
+        19222,
+        19238,
+        19239,
+        19240
+      ],
+      "inside_node": 21094,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 19496,
+      "witness": {
+        "face": 19221,
+        "parent": 18997
+      }
+    },
+    {
+      "edge": [
+        18590,
+        21095
+      ],
+      "edge_faces": [
+        19203,
+        19214
+      ],
+      "edge_length_mm": 0.6773215974348014,
+      "incident_faces": [
+        19203,
+        19204,
+        19213,
+        19214,
+        19215
+      ],
+      "inside_node": 21095,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18590,
+      "witness": {
+        "face": 19204,
+        "parent": 18990
+      }
+    },
+    {
+      "edge": [
+        20157,
+        21095
+      ],
+      "edge_faces": [
+        19204,
+        19213
+      ],
+      "edge_length_mm": 0.6773324158178173,
+      "incident_faces": [
+        19203,
+        19204,
+        19213,
+        19214,
+        19215
+      ],
+      "inside_node": 21095,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20157,
+      "witness": {
+        "face": 19203,
+        "parent": 18990
+      }
+    },
+    {
+      "edge": [
+        18591,
+        21096
+      ],
+      "edge_faces": [
+        19458,
+        19461
+      ],
+      "edge_length_mm": 1.1102620548265194,
+      "incident_faces": [
+        19458,
+        19459,
+        19460,
+        19461,
+        19463,
+        19464
+      ],
+      "inside_node": 21096,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 18591,
+      "witness": {
+        "face": 19459,
+        "parent": 19153
+      }
+    },
+    {
+      "edge": [
+        20185,
+        21096
+      ],
+      "edge_faces": [
+        19459,
+        19463
+      ],
+      "edge_length_mm": 1.1102518476384344,
+      "incident_faces": [
+        19458,
+        19459,
+        19460,
+        19461,
+        19463,
+        19464
+      ],
+      "inside_node": 21096,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20185,
+      "witness": {
+        "face": 19458,
+        "parent": 19153
+      }
+    },
+    {
+      "edge": [
+        19063,
+        21131
+      ],
+      "edge_faces": [
+        19717,
+        19726
+      ],
+      "edge_length_mm": 5.218072305005003,
+      "incident_faces": [
+        19717,
+        19719,
+        19720,
+        19726,
+        19727,
+        19728
+      ],
+      "inside_node": 21131,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 19063,
+      "witness": {
+        "face": 19719,
+        "parent": 19373
+      }
+    },
+    {
+      "edge": [
+        19064,
+        21131
+      ],
+      "edge_faces": [
+        19719,
+        19727
+      ],
+      "edge_length_mm": 5.380844451295952,
+      "incident_faces": [
+        19717,
+        19719,
+        19720,
+        19726,
+        19727,
+        19728
+      ],
+      "inside_node": 21131,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 19064,
+      "witness": {
+        "face": 19717,
+        "parent": 19373
+      }
+    },
+    {
+      "edge": [
+        19063,
+        21134
+      ],
+      "edge_faces": [
+        19726,
+        19731
+      ],
+      "edge_length_mm": 4.3826662472876015,
+      "incident_faces": [
+        19725,
+        19726,
+        19728,
+        19729,
+        19731,
+        19732
+      ],
+      "inside_node": 21134,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 19063,
+      "witness": {
+        "face": 19725,
+        "parent": 19377
+      }
+    },
+    {
+      "edge": [
+        20204,
+        21134
+      ],
+      "edge_faces": [
+        19725,
+        19729
+      ],
+      "edge_length_mm": 4.279286335493909,
+      "incident_faces": [
+        19725,
+        19726,
+        19728,
+        19729,
+        19731,
+        19732
+      ],
+      "inside_node": 21134,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20204,
+      "witness": {
+        "face": 19726,
+        "parent": 19377
+      }
+    },
+    {
+      "edge": [
+        19379,
+        21159
+      ],
+      "edge_faces": [
+        19651,
+        19654
+      ],
+      "edge_length_mm": 1.9943771754056105,
+      "incident_faces": [
+        19651,
+        19652,
+        19653,
+        19654,
+        19656,
+        19657
+      ],
+      "inside_node": 21159,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 19379,
+      "witness": {
+        "face": 19652,
+        "parent": 19334
+      }
+    },
+    {
+      "edge": [
+        20196,
+        21159
+      ],
+      "edge_faces": [
+        19652,
+        19656
+      ],
+      "edge_length_mm": 1.99441540842027,
+      "incident_faces": [
+        19651,
+        19652,
+        19653,
+        19654,
+        19656,
+        19657
+      ],
+      "inside_node": 21159,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20196,
+      "witness": {
+        "face": 19651,
+        "parent": 19334
+      }
+    },
+    {
+      "edge": [
+        19702,
+        21187
+      ],
+      "edge_faces": [
+        19368,
+        19373
+      ],
+      "edge_length_mm": 2.0437091382543087,
+      "incident_faces": [
+        19367,
+        19368,
+        19370,
+        19371,
+        19373,
+        19374
+      ],
+      "inside_node": 21187,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 19702,
+      "witness": {
+        "face": 19367,
+        "parent": 19101
+      }
+    },
+    {
+      "edge": [
+        20179,
+        21187
+      ],
+      "edge_faces": [
+        19367,
+        19371
+      ],
+      "edge_length_mm": 2.043719183538259,
+      "incident_faces": [
+        19367,
+        19368,
+        19370,
+        19371,
+        19373,
+        19374
+      ],
+      "inside_node": 21187,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20179,
+      "witness": {
+        "face": 19368,
+        "parent": 19101
+      }
+    },
+    {
+      "edge": [
+        19703,
+        21188
+      ],
+      "edge_faces": [
+        19372,
+        19390
+      ],
+      "edge_length_mm": 1.90910953233172,
+      "incident_faces": [
+        19371,
+        19372,
+        19374,
+        19390,
+        19391,
+        19392
+      ],
+      "inside_node": 21188,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 19703,
+      "witness": {
+        "face": 19371,
+        "parent": 19102
+      }
+    },
+    {
+      "edge": [
+        20179,
+        21188
+      ],
+      "edge_faces": [
+        19371,
+        19391
+      ],
+      "edge_length_mm": 1.9091237876779843,
+      "incident_faces": [
+        19371,
+        19372,
+        19374,
+        19390,
+        19391,
+        19392
+      ],
+      "inside_node": 21188,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20179,
+      "witness": {
+        "face": 19372,
+        "parent": 19102
+      }
+    },
+    {
+      "edge": [
+        19703,
+        21190
+      ],
+      "edge_faces": [
+        19381,
+        19390
+      ],
+      "edge_length_mm": 1.9462917969084172,
+      "incident_faces": [
+        19381,
+        19382,
+        19384,
+        19389,
+        19390,
+        19392
+      ],
+      "inside_node": 21190,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 19703,
+      "witness": {
+        "face": 19382,
+        "parent": 19108
+      }
+    },
+    {
+      "edge": [
+        20184,
+        21190
+      ],
+      "edge_faces": [
+        19382,
+        19389
+      ],
+      "edge_length_mm": 1.9462591707830486,
+      "incident_faces": [
+        19381,
+        19382,
+        19384,
+        19389,
+        19390,
+        19392
+      ],
+      "inside_node": 21190,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20184,
+      "witness": {
+        "face": 19381,
+        "parent": 19108
+      }
+    },
+    {
+      "edge": [
+        19704,
+        21191
+      ],
+      "edge_faces": [
+        19675,
+        19678
+      ],
+      "edge_length_mm": 1.5380060941619447,
+      "incident_faces": [
+        19675,
+        19676,
+        19677,
+        19678,
+        19680,
+        19681
+      ],
+      "inside_node": 21191,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 19704,
+      "witness": {
+        "face": 19676,
+        "parent": 19346
+      }
+    },
+    {
+      "edge": [
+        20198,
+        21191
+      ],
+      "edge_faces": [
+        19676,
+        19680
+      ],
+      "edge_length_mm": 1.538014789719018,
+      "incident_faces": [
+        19675,
+        19676,
+        19677,
+        19678,
+        19680,
+        19681
+      ],
+      "inside_node": 21191,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20198,
+      "witness": {
+        "face": 19675,
+        "parent": 19346
+      }
+    },
+    {
+      "edge": [
+        19705,
+        21193
+      ],
+      "edge_faces": [
+        19730,
+        19735
+      ],
+      "edge_length_mm": 3.995385268474023,
+      "incident_faces": [
+        19729,
+        19730,
+        19732,
+        19735,
+        19736,
+        19738
+      ],
+      "inside_node": 21193,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 19705,
+      "witness": {
+        "face": 19729,
+        "parent": 19378
+      }
+    },
+    {
+      "edge": [
+        20204,
+        21193
+      ],
+      "edge_faces": [
+        19729,
+        19736
+      ],
+      "edge_length_mm": 3.9953358608943375,
+      "incident_faces": [
+        19729,
+        19730,
+        19732,
+        19735,
+        19736,
+        19738
+      ],
+      "inside_node": 21193,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20204,
+      "witness": {
+        "face": 19730,
+        "parent": 19378
+      }
+    },
+    {
+      "edge": [
+        20182,
+        21204
+      ],
+      "edge_faces": [
+        19383,
+        19430
+      ],
+      "edge_length_mm": 1.895743777113236,
+      "incident_faces": [
+        19382,
+        19383,
+        19384,
+        19430,
+        19431,
+        19432
+      ],
+      "inside_node": 21204,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20182,
+      "witness": {
+        "face": 19382,
+        "parent": 19108
+      }
+    },
+    {
+      "edge": [
+        20184,
+        21204
+      ],
+      "edge_faces": [
+        19382,
+        19431
+      ],
+      "edge_length_mm": 1.8957281917683024,
+      "incident_faces": [
+        19382,
+        19383,
+        19384,
+        19430,
+        19431,
+        19432
+      ],
+      "inside_node": 21204,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20184,
+      "witness": {
+        "face": 19383,
+        "parent": 19108
+      }
+    },
+    {
+      "edge": [
+        20182,
+        21205
+      ],
+      "edge_faces": [
+        19403,
+        19423
+      ],
+      "edge_length_mm": 1.7127979044821322,
+      "incident_faces": [
+        19403,
+        19404,
+        19406,
+        19422,
+        19423,
+        19424
+      ],
+      "inside_node": 21205,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20182,
+      "witness": {
+        "face": 19404,
+        "parent": 19123
+      }
+    },
+    {
+      "edge": [
+        20189,
+        21205
+      ],
+      "edge_faces": [
+        19404,
+        19422
+      ],
+      "edge_length_mm": 1.712774642828749,
+      "incident_faces": [
+        19403,
+        19404,
+        19406,
+        19422,
+        19423,
+        19424
+      ],
+      "inside_node": 21205,
+      "reason": "survivor_missing_or_ambiguous_historical_chart",
+      "status": "REJECT",
+      "survivor": 20189,
+      "witness": {
+        "face": 19403,
+        "parent": 19123
+      }
+    }
+  ],
+  "edge_candidate_count": 86,
+  "edge_candidate_status_counts": {
+    "REJECT": 86
+  },
+  "failure_reason_counts": {
+    "survivor_missing_or_ambiguous_historical_chart": 86
+  },
+  "schema": "numi.human.b43-16.edge-collapse-batch-screen.v1",
+  "status": "NO_CANDIDATE_PASSED_CHEAP_SCREENS"
+}
