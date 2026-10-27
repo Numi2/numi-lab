@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/source-outward-targets-589/test_source_outward_targets589.py"
+  ],
+  "cacheprovider_disabled": true,
+  "cwd": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/source-outward-targets-589",
+  "log_path": "test-receipts/589v1/pytest.log",
+  "log_sha256": "ef0e7ef49e71fa999842be0cb8d22ec1058d3a384ed5c0a2ec6efb8f434975ac",
+  "pycache_disabled": true,
+  "returncode": 0,
+  "seconds": 0.08980133407749236,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_sha256": "ef0e7ef49e71fa999842be0cb8d22ec1058d3a384ed5c0a2ec6efb8f434975ac",
+  "suite": "589v1",
+  "test_source_sha256_after": "77bf3b28e3ecf976e7c60043db0f29891f151399a5d17e0a55c6983e6750e4b9",
+  "test_source_sha256_before": "77bf3b28e3ecf976e7c60043db0f29891f151399a5d17e0a55c6983e6750e4b9",
+  "test_source_unchanged": true
+}

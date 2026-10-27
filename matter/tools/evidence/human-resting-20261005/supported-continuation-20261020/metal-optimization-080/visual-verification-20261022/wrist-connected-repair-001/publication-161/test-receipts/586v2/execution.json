@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/midpoint-exit-relocation-586/v2-current-q-validation/test_relocate_midpoint_targets586_v2.py"
+  ],
+  "cacheprovider_disabled": true,
+  "cwd": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/midpoint-exit-relocation-586/v2-current-q-validation",
+  "log_path": "test-receipts/586v2/pytest.log",
+  "log_sha256": "a4ce3c4d2d126cf54794b588fe0568dcf174b80e68913316f73e0da7b9f1c64b",
+  "pycache_disabled": true,
+  "returncode": 0,
+  "seconds": 0.09897720790468156,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_sha256": "a4ce3c4d2d126cf54794b588fe0568dcf174b80e68913316f73e0da7b9f1c64b",
+  "suite": "586v2",
+  "test_source_sha256_after": "769e3479e806d55430ec0b2f655b2fba652c484a08ac4bc5f0130c95ec7c3c6f",
+  "test_source_sha256_before": "769e3479e806d55430ec0b2f655b2fba652c484a08ac4bc5f0130c95ec7c3c6f",
+  "test_source_unchanged": true
+}

@@ -1,0 +1,17 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/lineage/candidate.npz",
+  "candidate_sha256": "25485ae52b3a7ad19ea5c3176a79416d8f04d9d2e4f852fac931d75ca734ae04",
+  "guard_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/prepare/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+  "guard_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/prepare/constraints/refresh-541/fixed-guards/report.json",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/full-check/audit-130/summary.json",
+  "point_summary_sha256": "2b692ea8b14d2bba4d3c25d6384644e3d464c01a47521d2184eb5e62f02f29c8",
+  "refresh_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/prepare/constraints/refresh-report.json",
+  "refresh_report_sha256": "752f15a2cb1f74041eb580d25b140414f88ea6e723ddf86bfab3817a40cf9093",
+  "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/prepare/constraints/self-seeds/merged-self-pair-seeds.npy",
+  "seed_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/prepare/constraints/self-seeds/seed-preflight.json",
+  "seed_report_sha256": "2f582f9389555633794b913c8c77b8093586d5ebc5092cc1bacb29927bbbb6cb",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/full-check/audit-159/report.json",
+  "surface_report_sha256": "b2eea3de8cc52d3fb33255759c1305efaf0a83646faace5c1e38fc5b784fce3f"
+}

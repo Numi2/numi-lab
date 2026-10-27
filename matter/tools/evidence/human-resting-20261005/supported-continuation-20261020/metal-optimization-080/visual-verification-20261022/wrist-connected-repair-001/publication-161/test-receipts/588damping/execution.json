@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/local-witness-retention-588/test_connected_witness_damping588.py"
+  ],
+  "cacheprovider_disabled": true,
+  "cwd": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/local-witness-retention-588",
+  "log_path": "test-receipts/588damping/pytest.log",
+  "log_sha256": "0e96d7ca7406320840ee2e704cbada03e2fe4b6d6aea1d667b4f685b07e7e24d",
+  "pycache_disabled": true,
+  "returncode": 0,
+  "seconds": 0.09422104200348258,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_sha256": "0e96d7ca7406320840ee2e704cbada03e2fe4b6d6aea1d667b4f685b07e7e24d",
+  "suite": "588damping",
+  "test_source_sha256_after": "ff0dd6d7c0c68708d97cda0aa7ff568cc663d7309b4cccbf1992819a189ec95e",
+  "test_source_sha256_before": "ff0dd6d7c0c68708d97cda0aa7ff568cc663d7309b4cccbf1992819a189ec95e",
+  "test_source_unchanged": true
+}

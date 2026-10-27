@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run_capped584.py",
+    "--seconds",
+    "1",
+    "--",
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "-c",
+    "import subprocess,sys,os,json,time; p=subprocess.Popen([sys.executable,'-c','import time; time.sleep(30)']); open(sys.argv[1],'w').write(json.dumps([os.getpid(),p.pid])); time.sleep(30)",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/validation-001/owned-pids-002.json"
+  ],
+  "returncode": 1,
+  "seconds": 3.06231762515381,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run_capped584.py\", line 10, in main\n    try:code=proc.wait(timeout=a.seconds)\n             ~~~~~~~~~^^^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py\", line 1281, in wait\n    return self._wait(timeout=timeout)\n           ~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py\", line 2078, in _wait\n    raise TimeoutExpired(self.args, timeout)\nsubprocess.TimeoutExpired: Command '['/Users/numi/numi-human-prep-venv-20261005/bin/python', '-c', \"import subprocess,sys,os,json,time; p=subprocess.Popen([sys.executable,'-c','import time; time.sleep(30)']); open(sys.argv[1],'w').write(json.dumps([os.getpid(),p.pid])); time.sleep(30)\", '/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/validation-001/owned-pids-002.json']' timed out after 1.0 seconds\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run_capped584.py\", line 22, in <module>\n    if __name__==\"__main__\":sys.exit(main())\n                                     ~~~~^^\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run_capped584.py\", line 16, in main\n    try:os.killpg(proc.pid,signal.SIGKILL)\n        ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [Errno 1] Operation not permitted\n",
+  "status": "FAILED_TIMEOUT_EXIT_PROTOCOL",
+  "old_source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run_capped584.py",
+  "old_source_sha256": "8f483047a235a9ffa0983c313e4729eb7708261544aa4438fad432f4239d0ff1",
+  "next_change": "PermissionError after termination is accepted only after ps proves no live member remains in the task-owned process group",
+  "replacement_source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run_capped584_v2.py",
+  "replacement_source_sha256": "94bd330680bfd156bda240f4db7e3c2be259617949f49bda89a1e2e278defdb2",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

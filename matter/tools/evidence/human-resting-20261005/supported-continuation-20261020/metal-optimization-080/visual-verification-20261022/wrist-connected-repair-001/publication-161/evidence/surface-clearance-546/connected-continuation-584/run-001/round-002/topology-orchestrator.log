@@ -1,0 +1,2 @@
+{"status": "CONNECTED_REGIONAL_PATCH_CONSTRUCTION_PENDING_FULL_AUDITS", "before_pairs": 1617, "after_pairs_composed": 1601, "reduction": 16, "exact_triangle_calls": 2844, "seconds": 90.68584891688079}
+{"status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS", "surface_pairs": 1601, "contained_pairs": 0, "self_pairs": 0, "construction_progress": true}

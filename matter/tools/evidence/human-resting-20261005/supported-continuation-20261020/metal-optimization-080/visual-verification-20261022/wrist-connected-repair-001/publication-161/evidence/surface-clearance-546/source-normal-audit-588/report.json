@@ -1,0 +1,896 @@
+{
+  "schema": "numi.surface-clearance-546.midpoint-source-normal-audit.588.v1",
+  "classification": "read_only_cached_arithmetic_diagnostic_no_target_or_geometry_run",
+  "inputs": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/candidate.npz": "6b912d5dc08b044d1dd08a55527435bf6584a0e3a2c3f8c36f43ac4b30d3ded1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/report.json": "db1f2cccaa12f6def91b3d360eb947afb0b5a7ed21e9b3edda22271c22d52cac",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-003/lineage/candidate.npz": "8d5ac3dddb8bfebb77ef608fefcb484e8c648625ff5d7e84f876cd6fe0536d78",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/union-targets/nearest-union-exits.json": "135551f0e7e3179284a4fa8e40590898694c0fe161c6073dee9640c5b3a969b7",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/union-targets/nearest-union-exits.npz": "a540e5549284179ae7317bad6acb0924e95df5252f3bceb060c3de41de0d157b",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-095/evidence/target-004/source-path-orientation-audit-112.json": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df"
+  },
+  "orientation_receipt": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-095/evidence/target-004/source-path-orientation-audit-112.json",
+    "fine_outward_sign": 1,
+    "fine_outward_anchor_count": 2315,
+    "fine_outward_agreement_fraction": 0.9969762419006479,
+    "fine_to_coarse_winding_parity": -1,
+    "parity_anchor_count": 2300,
+    "parity_agreement_fraction": 0.9982608695652174,
+    "derived_coarse_O_outward_sign": -1,
+    "interpretation": "current/037 source_O_faces use coarse O winding; raw cross normals require this pinned O-to-I sign to be read as outward"
+  },
+  "bank_identity_contract": {
+    "manifest_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+    "manifest_sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "available_columns": [
+      "body",
+      "stable_bone_id",
+      "triangle_count",
+      "min_x",
+      "min_y",
+      "min_z",
+      "max_x",
+      "max_y",
+      "max_z"
+    ],
+    "anatomical_names_present": false,
+    "reported_identity": "body index plus stable bone ID"
+  },
+  "midpoint_rows": [
+    {
+      "row": 20889,
+      "incident_faces": 4,
+      "face_kind_counts": {
+        "2": 4
+      },
+      "current_area_sum_m2": 5.7667216968390013e-05,
+      "current_raw_normal_resultant_over_area": 0.9982599475062812,
+      "reference037_area_sum_m2": 1.0253911059796882e-06,
+      "reference037_raw_normal_resultant_over_area": 0.9999999999757205,
+      "o_to_i_orientation_sign_for_coarse_face_winding": -1,
+      "current_raw_winding_normal_world_unit": [
+        0.36488282396740324,
+        0.9310468719513695,
+        -0.003499571851396314
+      ],
+      "current_outward_normal_world_unit": [
+        -0.36488282396740324,
+        -0.9310468719513695,
+        0.003499571851396314
+      ],
+      "reference037_raw_winding_normal_world_unit": [
+        0.5553291066769737,
+        0.8205787789421857,
+        -0.1351297555207805
+      ],
+      "reference037_outward_normal_world_unit": [
+        -0.5553291066769737,
+        -0.8205787789421857,
+        0.1351297555207805
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.8872407073423071,
+        -0.18036040451525923,
+        0.42458691891980704
+      ],
+      "current_outward_dot_registered_source_outward": 0.49314875771163597,
+      "reference037_outward_dot_registered_source_outward": 0.6980848364734547,
+      "current_outward_dot_direct_depth_direction": -0.10297491254654613,
+      "reference037_outward_dot_direct_depth_direction": -0.33056000110075606,
+      "registered_source_outward_dot_direct_depth_direction": -0.8271026979995159,
+      "registered_source_outward_dot_applied_target_displacement": -0.8271033136113348,
+      "proposal_applied_cosine": 0.9999999998947657,
+      "target_displacement_mm": 1.1901814205603463,
+      "parent_edge_rows": [
+        10503,
+        18706
+      ],
+      "parent_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 11025,
+            "from": 10503,
+            "to": 18706
+          },
+          {
+            "face_row": 11035,
+            "from": 18706,
+            "to": 10503
+          }
+        ]
+      },
+      "child_first_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 11029,
+            "from": 10503,
+            "to": 20889
+          },
+          {
+            "face_row": 11043,
+            "from": 20889,
+            "to": 10503
+          }
+        ]
+      },
+      "child_second_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 11030,
+            "from": 20889,
+            "to": 18706
+          },
+          {
+            "face_row": 11042,
+            "from": 18706,
+            "to": 20889
+          }
+        ]
+      },
+      "midpoint_fan_winding_bad_edges": [],
+      "boundary_edge": false,
+      "initial_inside_bank_body_stable_ids": [
+        [
+          57,
+          89
+        ]
+      ]
+    },
+    {
+      "row": 20890,
+      "incident_faces": 4,
+      "face_kind_counts": {
+        "2": 4
+      },
+      "current_area_sum_m2": 3.3353160269029626e-05,
+      "current_raw_normal_resultant_over_area": 0.9602180878581295,
+      "reference037_area_sum_m2": 2.6733953078887143e-07,
+      "reference037_raw_normal_resultant_over_area": 0.9993414911621281,
+      "o_to_i_orientation_sign_for_coarse_face_winding": -1,
+      "current_raw_winding_normal_world_unit": [
+        0.5171179972859318,
+        0.8017884358454517,
+        0.29954011589016083
+      ],
+      "current_outward_normal_world_unit": [
+        -0.5171179972859318,
+        -0.8017884358454517,
+        -0.29954011589016083
+      ],
+      "reference037_raw_winding_normal_world_unit": [
+        -0.05126861384659324,
+        0.9779791272064989,
+        0.20230757766990293
+      ],
+      "reference037_outward_normal_world_unit": [
+        0.05126861384659324,
+        -0.9779791272064989,
+        -0.20230757766990293
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.27387681500676336,
+        -0.9463378010331598,
+        -0.17156997562940585
+      ],
+      "current_outward_dot_registered_source_outward": 0.6685281655757587,
+      "reference037_outward_dot_registered_source_outward": 0.974249807537513,
+      "current_outward_dot_direct_depth_direction": 0.5518440095767235,
+      "reference037_outward_dot_direct_depth_direction": 0.09896931342332606,
+      "registered_source_outward_dot_direct_depth_direction": -0.07100125305221011,
+      "registered_source_outward_dot_applied_target_displacement": -0.0709859007082698,
+      "proposal_applied_cosine": 0.9999999998813613,
+      "target_displacement_mm": 1.948588720705015,
+      "parent_edge_rows": [
+        12694,
+        19092
+      ],
+      "parent_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 22178,
+            "from": 19092,
+            "to": 12694
+          },
+          {
+            "face_row": 22214,
+            "from": 12694,
+            "to": 19092
+          }
+        ]
+      },
+      "child_first_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 22193,
+            "from": 20890,
+            "to": 12694
+          },
+          {
+            "face_row": 22229,
+            "from": 12694,
+            "to": 20890
+          }
+        ]
+      },
+      "child_second_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 22192,
+            "from": 19092,
+            "to": 20890
+          },
+          {
+            "face_row": 22230,
+            "from": 20890,
+            "to": 19092
+          }
+        ]
+      },
+      "midpoint_fan_winding_bad_edges": [],
+      "boundary_edge": false,
+      "initial_inside_bank_body_stable_ids": [
+        [
+          74,
+          104
+        ]
+      ]
+    },
+    {
+      "row": 20891,
+      "incident_faces": 4,
+      "face_kind_counts": {
+        "2": 4
+      },
+      "current_area_sum_m2": 4.6045223613122665e-05,
+      "current_raw_normal_resultant_over_area": 0.9792282787457618,
+      "reference037_area_sum_m2": 1.1106260318003533e-06,
+      "reference037_raw_normal_resultant_over_area": 0.9997653070069633,
+      "o_to_i_orientation_sign_for_coarse_face_winding": -1,
+      "current_raw_winding_normal_world_unit": [
+        -0.11965768203135756,
+        -0.9910432835914261,
+        -0.059289536844259326
+      ],
+      "current_outward_normal_world_unit": [
+        0.11965768203135756,
+        0.9910432835914261,
+        0.059289536844259326
+      ],
+      "reference037_raw_winding_normal_world_unit": [
+        -0.09218708398555689,
+        -0.9893076558927564,
+        -0.11301284678397967
+      ],
+      "reference037_outward_normal_world_unit": [
+        0.09218708398555689,
+        0.9893076558927564,
+        0.11301284678397967
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.6331597676615225,
+        0.5519958758910181,
+        0.5425949332735375
+      ],
+      "current_outward_dot_registered_source_outward": 0.503459577505899,
+      "reference037_outward_dot_registered_source_outward": 0.5490447914223295,
+      "current_outward_dot_direct_depth_direction": -0.06028513251405469,
+      "reference037_outward_dot_direct_depth_direction": -0.09418057023340792,
+      "registered_source_outward_dot_direct_depth_direction": -0.7864709969304756,
+      "registered_source_outward_dot_applied_target_displacement": -0.7864775746081158,
+      "proposal_applied_cosine": 0.9999999999079829,
+      "target_displacement_mm": 1.2996324791516791,
+      "parent_edge_rows": [
+        13609,
+        19900
+      ],
+      "parent_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 13241,
+            "from": 19900,
+            "to": 13609
+          },
+          {
+            "face_row": 13246,
+            "from": 13609,
+            "to": 19900
+          }
+        ]
+      },
+      "child_first_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 13250,
+            "from": 20891,
+            "to": 13609
+          },
+          {
+            "face_row": 13255,
+            "from": 13609,
+            "to": 20891
+          }
+        ]
+      },
+      "child_second_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 13249,
+            "from": 19900,
+            "to": 20891
+          },
+          {
+            "face_row": 13256,
+            "from": 20891,
+            "to": 19900
+          }
+        ]
+      },
+      "midpoint_fan_winding_bad_edges": [],
+      "boundary_edge": false,
+      "initial_inside_bank_body_stable_ids": [
+        [
+          57,
+          89
+        ]
+      ]
+    },
+    {
+      "row": 20892,
+      "incident_faces": 4,
+      "face_kind_counts": {
+        "2": 4
+      },
+      "current_area_sum_m2": 8.845512577373291e-06,
+      "current_raw_normal_resultant_over_area": 0.9924748835354078,
+      "reference037_area_sum_m2": 2.942944527826168e-07,
+      "reference037_raw_normal_resultant_over_area": 1.0,
+      "o_to_i_orientation_sign_for_coarse_face_winding": -1,
+      "current_raw_winding_normal_world_unit": [
+        -0.366182869295624,
+        -0.880606179358452,
+        0.3007371994119348
+      ],
+      "current_outward_normal_world_unit": [
+        0.366182869295624,
+        0.880606179358452,
+        -0.3007371994119348
+      ],
+      "reference037_raw_winding_normal_world_unit": [
+        0.07030765377817934,
+        -0.9622918306978111,
+        0.26277607652231777
+      ],
+      "reference037_outward_normal_world_unit": [
+        -0.07030765377817934,
+        0.9622918306978111,
+        -0.26277607652231777
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.42428279965545335,
+        0.08566790648508904,
+        -0.9014683109876866
+      ],
+      "current_outward_dot_registered_source_outward": 0.19117965005790108,
+      "reference037_outward_dot_registered_source_outward": 0.34915216061634236,
+      "current_outward_dot_direct_depth_direction": 0.29945990600319294,
+      "reference037_outward_dot_direct_depth_direction": -0.03851522274597949,
+      "registered_source_outward_dot_direct_depth_direction": 0.33807437098969406,
+      "registered_source_outward_dot_applied_target_displacement": 0.3380988137987598,
+      "proposal_applied_cosine": 0.9999999691703445,
+      "target_displacement_mm": 0.23121137640129238,
+      "parent_edge_rows": [
+        16343,
+        19450
+      ],
+      "parent_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 8835,
+            "from": 19450,
+            "to": 16343
+          },
+          {
+            "face_row": 8841,
+            "from": 16343,
+            "to": 19450
+          }
+        ]
+      },
+      "child_first_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 8838,
+            "from": 20892,
+            "to": 16343
+          },
+          {
+            "face_row": 8844,
+            "from": 16343,
+            "to": 20892
+          }
+        ]
+      },
+      "child_second_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 8837,
+            "from": 19450,
+            "to": 20892
+          },
+          {
+            "face_row": 8845,
+            "from": 20892,
+            "to": 19450
+          }
+        ]
+      },
+      "midpoint_fan_winding_bad_edges": [],
+      "boundary_edge": false,
+      "initial_inside_bank_body_stable_ids": [
+        [
+          61,
+          97
+        ]
+      ]
+    },
+    {
+      "row": 20893,
+      "incident_faces": 5,
+      "face_kind_counts": {
+        "2": 5
+      },
+      "current_area_sum_m2": 8.549600756402477e-05,
+      "current_raw_normal_resultant_over_area": 0.9979869057355238,
+      "reference037_area_sum_m2": 7.690301575513466e-07,
+      "reference037_raw_normal_resultant_over_area": 1.0,
+      "o_to_i_orientation_sign_for_coarse_face_winding": -1,
+      "current_raw_winding_normal_world_unit": [
+        0.4113019944639879,
+        0.9082341609749605,
+        -0.07708033593631503
+      ],
+      "current_outward_normal_world_unit": [
+        -0.4113019944639879,
+        -0.9082341609749605,
+        0.07708033593631503
+      ],
+      "reference037_raw_winding_normal_world_unit": [
+        0.5553388337969044,
+        0.8205718858185856,
+        -0.13513163908287457
+      ],
+      "reference037_outward_normal_world_unit": [
+        -0.5553388337969044,
+        -0.8205718858185856,
+        0.13513163908287457
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.8872407073423071,
+        -0.18036040451525923,
+        0.424586918919807
+      ],
+      "current_outward_dot_registered_source_outward": 0.5614606555120549,
+      "reference037_outward_dot_registered_source_outward": 0.6980930232594877,
+      "current_outward_dot_direct_depth_direction": -0.08446250230245296,
+      "reference037_outward_dot_direct_depth_direction": 0.022776124570965214,
+      "registered_source_outward_dot_direct_depth_direction": 0.5327838818171539,
+      "registered_source_outward_dot_applied_target_displacement": 0.5327808589378558,
+      "proposal_applied_cosine": 0.9999999999190329,
+      "target_displacement_mm": 2.068907804711347,
+      "parent_edge_rows": [
+        18706,
+        19762
+      ],
+      "parent_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 11034,
+            "from": 18706,
+            "to": 19762
+          },
+          {
+            "face_row": 11035,
+            "from": 19762,
+            "to": 18706
+          }
+        ]
+      },
+      "child_first_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 11039,
+            "from": 18706,
+            "to": 20893
+          },
+          {
+            "face_row": 11042,
+            "from": 20893,
+            "to": 18706
+          }
+        ]
+      },
+      "child_second_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 11040,
+            "from": 20893,
+            "to": 19762
+          },
+          {
+            "face_row": 11041,
+            "from": 19762,
+            "to": 20893
+          }
+        ]
+      },
+      "midpoint_fan_winding_bad_edges": [],
+      "boundary_edge": false,
+      "initial_inside_bank_body_stable_ids": [
+        [
+          57,
+          89
+        ]
+      ]
+    },
+    {
+      "row": 20894,
+      "incident_faces": 4,
+      "face_kind_counts": {
+        "2": 4
+      },
+      "current_area_sum_m2": 5.2758281736454606e-05,
+      "current_raw_normal_resultant_over_area": 0.9993124322406869,
+      "reference037_area_sum_m2": 4.0889681700845133e-07,
+      "reference037_raw_normal_resultant_over_area": 0.9550982113951001,
+      "o_to_i_orientation_sign_for_coarse_face_winding": -1,
+      "current_raw_winding_normal_world_unit": [
+        0.2414448097183816,
+        0.8927098813290449,
+        -0.3804910927177363
+      ],
+      "current_outward_normal_world_unit": [
+        -0.2414448097183816,
+        -0.8927098813290449,
+        0.3804910927177363
+      ],
+      "reference037_raw_winding_normal_world_unit": [
+        -0.3586668545434034,
+        0.39813997494829056,
+        -0.8443000934502588
+      ],
+      "reference037_outward_normal_world_unit": [
+        0.3586668545434034,
+        -0.39813997494829056,
+        0.8443000934502588
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.29184711937406943,
+        -0.5460456236812982,
+        0.7852766619297685
+      ],
+      "current_outward_dot_registered_source_outward": 0.71578612689604,
+      "reference037_outward_dot_registered_source_outward": 0.9850876382981573,
+      "current_outward_dot_direct_depth_direction": 0.22154472142835469,
+      "reference037_outward_dot_direct_depth_direction": 0.9127081960096697,
+      "registered_source_outward_dot_direct_depth_direction": 0.8288221327164176,
+      "registered_source_outward_dot_applied_target_displacement": 0.8288122663521961,
+      "proposal_applied_cosine": 0.9999999998383617,
+      "target_displacement_mm": 1.249665163246973,
+      "parent_edge_rows": [
+        19061,
+        19063
+      ],
+      "parent_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 19359,
+            "from": 19063,
+            "to": 19061
+          },
+          {
+            "face_row": 19360,
+            "from": 19061,
+            "to": 19063
+          }
+        ]
+      },
+      "child_first_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 19371,
+            "from": 20894,
+            "to": 19061
+          },
+          {
+            "face_row": 19372,
+            "from": 19061,
+            "to": 20894
+          }
+        ]
+      },
+      "child_second_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 19370,
+            "from": 19063,
+            "to": 20894
+          },
+          {
+            "face_row": 19373,
+            "from": 20894,
+            "to": 19063
+          }
+        ]
+      },
+      "midpoint_fan_winding_bad_edges": [],
+      "boundary_edge": false,
+      "initial_inside_bank_body_stable_ids": [
+        [
+          43,
+          16
+        ]
+      ]
+    },
+    {
+      "row": 20895,
+      "incident_faces": 5,
+      "face_kind_counts": {
+        "2": 5
+      },
+      "current_area_sum_m2": 7.214188890450882e-05,
+      "current_raw_normal_resultant_over_area": 0.9148319765560288,
+      "reference037_area_sum_m2": 2.5169574957339535e-07,
+      "reference037_raw_normal_resultant_over_area": 0.999999999937646,
+      "o_to_i_orientation_sign_for_coarse_face_winding": -1,
+      "current_raw_winding_normal_world_unit": [
+        0.09552398430690856,
+        0.8092496100984319,
+        -0.5796466483795706
+      ],
+      "current_outward_normal_world_unit": [
+        -0.09552398430690856,
+        -0.8092496100984319,
+        0.5796466483795706
+      ],
+      "reference037_raw_winding_normal_world_unit": [
+        -0.6115223530294709,
+        -0.1800395442017675,
+        -0.7704713974372566
+      ],
+      "reference037_outward_normal_world_unit": [
+        0.6115223530294709,
+        0.1800395442017675,
+        0.7704713974372566
+      ],
+      "registered_source_outward_normal_world_unit": [
+        0.2918471193740693,
+        -0.5460456236812979,
+        0.7852766619297685
+      ],
+      "current_outward_dot_registered_source_outward": 0.8691917935472279,
+      "reference037_outward_dot_registered_source_outward": 0.6851944390554459,
+      "current_outward_dot_direct_depth_direction": 0.3199715624591605,
+      "reference037_outward_dot_direct_depth_direction": -0.578082264952574,
+      "registered_source_outward_dot_direct_depth_direction": -0.0037510273555961815,
+      "registered_source_outward_dot_applied_target_displacement": -0.003746664412997369,
+      "proposal_applied_cosine": 0.9999999999848395,
+      "target_displacement_mm": 3.4530564703600652,
+      "parent_edge_rows": [
+        19063,
+        19064
+      ],
+      "parent_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 19359,
+            "from": 19064,
+            "to": 19063
+          },
+          {
+            "face_row": 19369,
+            "from": 19063,
+            "to": 19064
+          }
+        ]
+      },
+      "child_first_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 19370,
+            "from": 20895,
+            "to": 19063
+          },
+          {
+            "face_row": 19382,
+            "from": 19063,
+            "to": 20895
+          }
+        ]
+      },
+      "child_second_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 19369,
+            "from": 19064,
+            "to": 20895
+          },
+          {
+            "face_row": 19383,
+            "from": 20895,
+            "to": 19064
+          }
+        ]
+      },
+      "midpoint_fan_winding_bad_edges": [],
+      "boundary_edge": false,
+      "initial_inside_bank_body_stable_ids": [
+        [
+          43,
+          16
+        ]
+      ]
+    },
+    {
+      "row": 20896,
+      "incident_faces": 5,
+      "face_kind_counts": {
+        "2": 5
+      },
+      "current_area_sum_m2": 2.657272463839037e-05,
+      "current_raw_normal_resultant_over_area": 0.9675045301210715,
+      "reference037_area_sum_m2": 2.942944527826305e-07,
+      "reference037_raw_normal_resultant_over_area": 1.0000000000000002,
+      "o_to_i_orientation_sign_for_coarse_face_winding": -1,
+      "current_raw_winding_normal_world_unit": [
+        -0.16027300761061963,
+        -0.9798243796189054,
+        0.11940162534854157
+      ],
+      "current_outward_normal_world_unit": [
+        0.16027300761061963,
+        0.9798243796189054,
+        -0.11940162534854157
+      ],
+      "reference037_raw_winding_normal_world_unit": [
+        0.07030765377825735,
+        -0.9622918306977662,
+        0.26277607652246093
+      ],
+      "reference037_outward_normal_world_unit": [
+        -0.07030765377825735,
+        0.9622918306977662,
+        -0.26277607652246093
+      ],
+      "registered_source_outward_normal_world_unit": [
+        -0.42428279965545335,
+        0.08566790648508903,
+        -0.9014683109876866
+      ],
+      "current_outward_dot_registered_source_outward": 0.1235752044789036,
+      "reference037_outward_dot_registered_source_outward": 0.3491521606165007,
+      "current_outward_dot_direct_depth_direction": 0.03533241529943919,
+      "reference037_outward_dot_direct_depth_direction": -0.18874316225994003,
+      "registered_source_outward_dot_direct_depth_direction": -0.9854174997038823,
+      "registered_source_outward_dot_applied_target_displacement": -0.9854146647606962,
+      "proposal_applied_cosine": 0.9999999998578855,
+      "target_displacement_mm": 1.3020188448577164,
+      "parent_edge_rows": [
+        19450,
+        19735
+      ],
+      "parent_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 8834,
+            "from": 19450,
+            "to": 19735
+          },
+          {
+            "face_row": 8835,
+            "from": 19735,
+            "to": 19450
+          }
+        ]
+      },
+      "child_first_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 8834,
+            "from": 19450,
+            "to": 20896
+          },
+          {
+            "face_row": 8837,
+            "from": 20896,
+            "to": 19450
+          }
+        ]
+      },
+      "child_second_half_edge_incidence": {
+        "count": 2,
+        "direction_balance": 0,
+        "uses": [
+          {
+            "face_row": 8835,
+            "from": 20896,
+            "to": 19735
+          },
+          {
+            "face_row": 8836,
+            "from": 19735,
+            "to": 20896
+          }
+        ]
+      },
+      "midpoint_fan_winding_bad_edges": [],
+      "boundary_edge": false,
+      "initial_inside_bank_body_stable_ids": [
+        [
+          61,
+          97
+        ]
+      ]
+    }
+  ],
+  "counts": {
+    "rows": 8,
+    "source_dot_direct_depth_nonpositive": 5,
+    "current_source_outward_dot_negative": 0,
+    "reference_source_outward_dot_negative": 0,
+    "parent_edges_interior_opposite_winding": 8,
+    "child_half_edges_both_interior_opposite_winding": 8
+  },
+  "limitations": [
+    "No point relocation or target generation performed.",
+    "Certified source-outward direction is read from the O-to-I orientation owner; no anatomy-name mapping is carried by the bank manifest.",
+    "The direct-depth endpoint targets remain diagnostic-only and all185-certified as recorded in their original report; this audit does not claim physical admission."
+  ]
+}

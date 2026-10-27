@@ -1,0 +1,14 @@
+{
+  "actual_local_package_path": "publication-095/evidence/target-004/source-path-orientation-audit-112.json",
+  "actual_source_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-095/evidence/target-004/source-path-orientation-audit-112.json",
+  "bytes": 491257,
+  "dependency": "source-path-orientation-audit-112.json",
+  "historical_alias": "D/digit-source-diagnosis-110/source-path-orientation-audit-112.json",
+  "kind": "source-orientation-proof",
+  "schema": "numi.human.surface_clearance.p161.source_dependency_provenance.v1",
+  "sha256": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497",
+  "source_publication": "095",
+  "source_publication_base_commit": "0210396c4eb300198b9fcab48b7df342a7184254",
+  "source_publication_manifest_sha256": "6ea55267f9abf0dc5992366516292a2d002fdd284d6891c612dda72e86b52b73",
+  "verification_scope": "exact_local_P095_manifest_member_and_file_SHA256; no server-path verification is asserted"
+}

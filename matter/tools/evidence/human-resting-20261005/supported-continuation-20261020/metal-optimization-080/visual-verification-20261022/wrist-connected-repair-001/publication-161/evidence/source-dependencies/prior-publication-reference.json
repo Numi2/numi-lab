@@ -1,0 +1,18 @@
+{
+  "commit": "23e1c2a55842cafd62be2d441ee33be53a6829bd",
+  "latest_published_construction_checkpoint": {
+    "anchor_rows": 237,
+    "candidate_selected": false,
+    "candidate_sha256": "8d5ac3dddb8bfebb77ef608fefcb484e8c648625ff5d7e84f876cd6fe0536d78",
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "self_pairs": 0,
+    "surface_pairs": 1697
+  },
+  "manifest_sha256": "f139190ea9155395c18914a0fc3cf003d9cd9845f8741dbbafed26e2e74ac2d4",
+  "note": "P160 checkpoint is a prior unselected construction reference, not a physical/native selection; P161 references exact source and data lineage without duplicating its large input files.",
+  "prefix": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-160",
+  "publication": "P160",
+  "schema": "numi.human.surface_clearance.prior_publication_reference.v1",
+  "source_pin_index_sha256": "d86ec36fbecd45588474aceeacf77a4c8bcd3c31a0b3ac23b01b8f307ba1f02c"
+}

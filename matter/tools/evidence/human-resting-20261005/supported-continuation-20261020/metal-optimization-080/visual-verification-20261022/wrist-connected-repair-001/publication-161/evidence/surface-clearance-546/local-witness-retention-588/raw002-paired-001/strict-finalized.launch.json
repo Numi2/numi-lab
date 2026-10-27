@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-588/raw002-paired-001/candidate.npz",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-003/final/state.json",
+    "--point-summary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-588/raw002-paired-001/full-check-545/audit-130/summary.json",
+    "--surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-588/raw002-paired-001/full-check-545/audit-159/report.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-588/raw002-paired-001/strict-finalized",
+    "--trust-mm",
+    "4"
+  ],
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-003/final/state.json",
+  "baseline_state_sha256": "7936a4f8476c77177c745f4743752198e6c5a1f19bfdeab15174eda511b7110b",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-588/raw002-paired-001/candidate.npz",
+  "candidate_sha256": "8927c3b3c3302f1a64702c1988f76472d7b61c4713d64a333cedade3365d83ef",
+  "created_unix": 1793061561.377742,
+  "finalizer": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py",
+  "finalizer_sha256": "db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781",
+  "input_545_report_sha256": "5afeee34452600661c1f108efc5d16a6aa6c1b1532034af09af41908b7faefd4",
+  "input_588_report_sha256": "9fd304f1984fcb63ece934f73f38a3259aa17483b9a273b41051365e4fe5e3dd",
+  "mode": "strict surface finalizer; matched to 580 base; output remains unselected and is not global-best promotion",
+  "output_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-588/raw002-paired-001/strict-finalized",
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-588/raw002-paired-001/full-check-545/audit-130/summary.json",
+  "point_summary_sha256": "6910aa57fcab39b697a88fa4d37e4ec8e6fa09ce181bc81437cfebfb24c55ef1",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-588/raw002-paired-001/full-check-545/audit-159/report.json",
+  "surface_report_sha256": "f83369dc2905ecef191331d23042b684f9b159d04ab5889d7685ea4f0c6dc093"
+}

@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/regional-552/candidate.npz",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/final/state.json",
+    "--trust-mm",
+    "4",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/regional-552/full-check-545"
+  ],
+  "context": "mandatory current 545 exact checks on 552 retained candidate; unwrapped outer runner, audit children own shared lock",
+  "pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/final/state.json": "7c922fb005c4de5dcfde91c996f5d6c3a86ae2a985041aefcdaf2c93b99990ab",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/regional-552/candidate.npz": "adafeec98c87ff305846fd9d4c1963bed399d7cf1eeb33adffc977bfa8ac67bb"
+  }
+}

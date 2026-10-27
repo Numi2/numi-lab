@@ -1,0 +1,12 @@
+waiting_for_human_geometry_slot pid=99164
+acquired_human_geometry_slot pid=99164
+usage: run_source_outward_targets589.py [-h] --candidate CANDIDATE
+                                        --point-summary POINT_SUMMARY
+                                        --query-dir QUERY_DIR
+                                        --output-dir OUTPUT_DIR
+                                        [--clearance-m CLEARANCE_M]
+                                        [--direction-mode {source-outward,depth-compatible,depth-maximizing,direct-depth}]
+                                        [--point-depth-rows-npz POINT_DEPTH_ROWS_NPZ]
+                                        [--point-depth-rows-report POINT_DEPTH_ROWS_REPORT]
+                                        [--minimum-depth-cosine MINIMUM_DEPTH_COSINE]
+run_source_outward_targets589.py: error: unrecognized arguments: --surface-report /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/baseline-check/audit-159/report.json

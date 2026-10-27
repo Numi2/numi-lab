@@ -1,0 +1,16 @@
+{
+  "returncode": 0,
+  "seconds": 0.8554140841588378,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/final/state.json": "7c922fb005c4de5dcfde91c996f5d6c3a86ae2a985041aefcdaf2c93b99990ab",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/prepare/constraint-context.json": "68f719f2b433d78009a935c51f4b6577a306024880a5a68485f672df7b59fb05",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/retain_surface_components552.py": "88baf47524c02c525a2f121a99923777576e8603c16a6b84729032ce464ad671",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/582-witness-retention/candidate.npz": "2e70bd8cd6ad9630aedad453bae9f5936d9aca3eab089c2e637e9d77ffa23583",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/582-witness-retention/report.json": "ae2b551227363d6fc011e3aecaf426b26ce4df6ae93c49665a16bd37f5236f61",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/full-check-545/audit-130/summary.json": "26789c65558645561295858aa44aa1d509efb495a545b02f6ec593af26351462",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/full-check-545/audit-159/report.json": "169c22faee5e1cecf27b9f4bc6d3ae212bef232e479b3d7182e18f0d005cd0d7",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/full-check-545/report.json": "f227562faea0b4996138b7ee5dc6194e9f8b22553b86ce7c0a1d589096a4aa59"
+  },
+  "stderr": "",
+  "stdout": "{\"predicted_surface_pairs\": 1595, \"selected_components\": [5, 11], \"native_admission\": false}\n"
+}

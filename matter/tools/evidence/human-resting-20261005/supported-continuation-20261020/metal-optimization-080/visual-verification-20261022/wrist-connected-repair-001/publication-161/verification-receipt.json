@@ -1,0 +1,134 @@
+{
+  "584_originals_retained_local": true,
+  "585_output": {
+    "anchor_rows": 237,
+    "candidate_sha256": "6b912d5dc08b044d1dd08a55527435bf6584a0e3a2c3f8c36f43ac4b30d3ded1",
+    "complete_banks": 185,
+    "contained_pairs": 8,
+    "input_surface_pairs": 1697,
+    "output_surface_pairs": 1710,
+    "self_pairs": 0
+  },
+  "589_v1": {
+    "candidate_geometry_run": false,
+    "full_candidate_checks_run": false,
+    "passing_endpoints": 8,
+    "target_rows": 8
+  },
+  "590_negative_global": {
+    "contained_pairs": 2,
+    "self_pairs": 0,
+    "surface_pairs": 1619
+  },
+  "accepted_physical_steps": 0,
+  "alternate_588": {
+    "anchor_rows": 237,
+    "candidate_sha256": "8927c3b3c3302f1a64702c1988f76472d7b61c4713d64a333cedade3365d83ef",
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "self_pairs": 0,
+    "surface_pairs": 1695
+  },
+  "cache_cleanup_receipt_sha256": "c0658d8145f024ecd0aebe61de15edbed4cbb43ed93507ec8f9de6cb7dd09185",
+  "compression_payload_count": 6,
+  "compression_receipt_sha256": "c65dfea1c00d1db559dfdf9e975034c256121ec47b1efeed25b52c5263b8ec24",
+  "excluded": [
+    "active 591+",
+    "589 v2 depth-maximizing subtree",
+    "586 v3 subtree",
+    "all future rounds outside explicit paths"
+  ],
+  "generated_utc": "2026-10-27T01:07:29.900810+00:00",
+  "intermediate_584_checkpoint": {
+    "anchor_rows": 237,
+    "candidate_sha256": "25485ae52b3a7ad19ea5c3176a79416d8f04d9d2e4f852fac931d75ca734ae04",
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "controller_returncode": 0,
+    "controller_seconds": 1202.1425707498565,
+    "controller_stop_reason": "TWENTY_MINUTE_METHOD_BUDGET",
+    "recorded_owned_pids_dead": true,
+    "round_003_partial_nonaccepted": true,
+    "self_pairs": 0,
+    "surface_pairs": 1601
+  },
+  "latest_construction_checkpoint": {
+    "accepted_physical_steps": 0,
+    "anchor_rows": 237,
+    "candidate_selected_state_field": false,
+    "candidate_sha256": "adafeec98c87ff305846fd9d4c1963bed399d7cf1eeb33adffc977bfa8ac67bb",
+    "complete_banks": 185,
+    "contained_pairs": 0,
+    "full_report_path": "evidence/surface-clearance-546/scalar-retention-590/raw003-paired-001/regional-552/final/report.json",
+    "full_report_sha256": "3e1c862f81f748b7d88a0db6f3e03f7f98f0e3e8c8bf809a6d541bd8dcd5ce30",
+    "native_admission": false,
+    "physical_admission": false,
+    "self_pairs": 0,
+    "state_path": "evidence/surface-clearance-546/scalar-retention-590/raw003-paired-001/regional-552/final/state.json",
+    "state_sha256": "9f8e7eeb88d9c560355f71b638cf7306129b8c500a44aae30f884ea2e97b4caa",
+    "surface_pairs": 1595
+  },
+  "member_bytes_pre_manifest": 372832558,
+  "members_pre_manifest": 640,
+  "native_admission": false,
+  "no_git_commit_or_push_performed": true,
+  "p160_cold_recovery_receipt_sha256": "2f4fb80495d90c898cf57430b9c27a67417d43a75b9b8452b830ac9f189e3b88",
+  "p160_manifest_sha256": "f139190ea9155395c18914a0fc3cf003d9cd9845f8741dbbafed26e2e74ac2d4",
+  "p160_source_pin_index_sha256": "d86ec36fbecd45588474aceeacf77a4c8bcd3c31a0b3ac23b01b8f307ba1f02c",
+  "physical_admission": false,
+  "remote_main": "23e1c2a55842cafd62be2d441ee33be53a6829bd",
+  "schema": "numi.human.surface_clearance.p161.verification_receipt.v1",
+  "shared_checkout_after": {
+    "branch": "numi-human-aortic-contact-perf",
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "status_all_entries": 40915,
+    "status_all_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814",
+    "status_entries": 3196,
+    "status_sha256": "f0521ba67bb615a1da546fb729287f487722d0a1500fd5f626eb20c49ad381be"
+  },
+  "shared_checkout_before": {
+    "branch": "numi-human-aortic-contact-perf",
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_path": "/Users/numi/numi-lab-native-replay-publish-20261017/.git/worktrees/numi-human-aortic-contact-opt-20261019/index",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "status_all_entries": 40915,
+    "status_all_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814",
+    "status_entries": 3196,
+    "status_sha256": "f0521ba67bb615a1da546fb729287f487722d0a1500fd5f626eb20c49ad381be"
+  },
+  "shared_checkout_unchanged": true,
+  "source_pin_count": 63,
+  "source_pin_index_sha256": "29419c7cf2f60d0879e40d6917b966772d453e19af7192be11e8dd7bf01d5657",
+  "source_pin_unresolved_count": 0,
+  "status": "staged_for_root_review_not_pushed",
+  "status_display_note": "Default porcelain aggregates untracked directories (3196 rows); --untracked-files=all expands them to 40915 rows. Both command forms match the protected pre-stage hashes and are rechecked after staging.",
+  "unit_test_receipts": {
+    "586v2": {
+      "log_path": "test-receipts/586v2/pytest.log",
+      "log_sha256": "a4ce3c4d2d126cf54794b588fe0568dcf174b80e68913316f73e0da7b9f1c64b",
+      "returncode": 0,
+      "seconds": 0.09897720790468156
+    },
+    "588damping": {
+      "log_path": "test-receipts/588damping/pytest.log",
+      "log_sha256": "0e96d7ca7406320840ee2e704cbada03e2fe4b6d6aea1d667b4f685b07e7e24d",
+      "returncode": 0,
+      "seconds": 0.09422104200348258
+    },
+    "589v1": {
+      "log_path": "test-receipts/589v1/pytest.log",
+      "log_sha256": "ef0e7ef49e71fa999842be0cb8d22ec1058d3a384ed5c0a2ec6efb8f434975ac",
+      "returncode": 0,
+      "seconds": 0.08980133407749236
+    },
+    "590v1": {
+      "log_path": "test-receipts/590v1/pytest.log",
+      "log_sha256": "dd16cbdbb2cff39a7ff41edae14420833d1d368adba1f7523723a58e363ea28d",
+      "returncode": 0,
+      "seconds": 0.21694358414970338
+    }
+  },
+  "zero_surface_goal_achieved": false
+}

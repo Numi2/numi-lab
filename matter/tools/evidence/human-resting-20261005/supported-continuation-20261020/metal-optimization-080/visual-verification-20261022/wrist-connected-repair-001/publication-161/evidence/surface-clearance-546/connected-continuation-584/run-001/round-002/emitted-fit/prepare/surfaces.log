@@ -1,0 +1,55 @@
+waiting_for_human_geometry_slot pid=97659
+acquired_human_geometry_slot pid=97659
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/prepare/surface-targets/report.json",
+  "report_sha256": "6e755f340df2a8255071a5296030816706864921d3f8d5d02baa894aa6a9f95c",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/prepare/surface-targets/targets.npz",
+  "npz_sha256": "a614da69c3617fe93a6800eab5997687a16199680ee337a2ed16d89081e2add1",
+  "rows": 1644,
+  "pairs": 1644,
+  "targets": 1644,
+  "failures": {},
+  "elapsed_seconds": 15.994514542166144
+}
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/prepare/surface-targets/report.json",
+  "report_sha256": "b8f79e10a757385ae96c75060b58888fc46dbb037096d2460c9fb1b8c295e75e",
+  "candidate_sha256": "c247193ff1c5d523b58c2955dfcc36a1d839624d8543b89be701659965210d7f",
+  "surface_report_sha256": "95625f10896b6b960221ff763c72cb241500d468ead151c31986282bff150d7a",
+  "targets_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/prepare/surface-targets/targets.npz",
+  "targets_npz_sha256": "a614da69c3617fe93a6800eab5997687a16199680ee337a2ed16d89081e2add1",
+  "target_records": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/prepare/surface-targets/target-records.jsonl",
+  "target_records_sha256": "0af122a40b715fc55fb2fedbe557add9e3983c42fe091c21c938cca1a6432d9e",
+  "passing_targets": 1644,
+  "crossing_pairs": 1644,
+  "multi_parent_faces": [
+    11827,
+    14023,
+    14133,
+    14910,
+    14924,
+    14929,
+    22135,
+    22141,
+    22142,
+    22148,
+    22149,
+    22161,
+    22162,
+    22165,
+    29363,
+    29367,
+    29369,
+    29370,
+    29378,
+    30935,
+    30936,
+    30937,
+    30943,
+    30963,
+    41466,
+    41467,
+    41468,
+    41469
+  ]
+}

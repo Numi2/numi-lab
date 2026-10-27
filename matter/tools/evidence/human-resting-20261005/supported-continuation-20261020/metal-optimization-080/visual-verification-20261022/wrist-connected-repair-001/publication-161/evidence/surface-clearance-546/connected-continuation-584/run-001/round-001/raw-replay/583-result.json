@@ -1,0 +1,14 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/raw-replay/retained-regions/candidate.npz",
+  "candidate_sha256": "c7725b7be9927fe936b1b26d0ba4ff29211a085914802b48346379109c2f3863",
+  "contained_pairs": 0,
+  "final_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/raw-replay/retained-regions/final/state.json",
+  "final_state_sha256": "f940031f537a90d3227629487639be9e722fae9d8b545687d4be28faddc139f7",
+  "full_check": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/raw-replay/retained-regions/full-check/report.json",
+  "native_admission": false,
+  "self_pairs": 0,
+  "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS",
+  "surface_pairs": 1683,
+  "target_selection": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/raw-replay/target-selection.json"
+}

@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "checks": [
+    "bounded child returns success",
+    "timeout terminates owned child and grandchild",
+    "strict complete-state selector chooses fully checked1705"
+  ],
+  "watchdog_elapsed_seconds": 3.0622218339703977,
+  "timeout_returncode": 124,
+  "process_probe": "",
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/continue_connected584.py": "07f85fc614698f1f2015a1030bf61ab28208b7597f1964dd002c9239add9fc8e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run_capped584_v2.py": "94bd330680bfd156bda240f4db7e3c2be259617949f49bda89a1e2e278defdb2"
+  },
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

@@ -1,0 +1,10 @@
+{
+  "accepted_physical_steps": 0,
+  "area_floor": 0.1,
+  "fit_max_edge_gradient": 0.5,
+  "fit_trust_mm": 2.0,
+  "max_total_solver_wall_seconds": 120,
+  "native_admission": false,
+  "retention_is_separate_construction_screen": true,
+  "source_cap_mm": 12
+}

@@ -1,0 +1,27 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-003/final/state.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/prepare",
+    "--prior-context",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/constraints/constraint-context.json",
+    "--seed-source-candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-directions/raw-direction-001/candidate.npz",
+    "--seed-source-audit130",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-self-audit130/summary.json"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-003/final/state.json": "7936a4f8476c77177c745f4743752198e6c5a1f19bfdeab15174eda511b7110b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/matched-connected-fit-583/run_matched_fit583_v2.py": "367145c5ce3e2f9559e05da0ce5c18cb4b870851e962ff2736aa9543569e004a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py": "84bcd87e6ba2c877eeabf853ff2db7739041e6c96838a6b625ddea878c72e2a0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-directions/raw-direction-001/candidate.npz": "b984477875c5744f35d87abcf07a46fc97ca2d12605f1f9fa366306836c7ac3f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-026-guard-cuts556/raw-self-audit130/summary.json": "1f0063289f240afe1d5258ebe9408c817d1346561d7b71383086712686adbe1e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-033-565-refresh/constraints/constraint-context.json": "8ddc6a4379580a9777a1cd8e0833f8ab7654638293efc633444be771d0a72d92"
+  }
+}

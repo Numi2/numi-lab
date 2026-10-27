@@ -1,0 +1,111 @@
+{
+  "accepted_physical_steps": 0,
+  "anchors_bitwise_unchanged": true,
+  "base_159_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-003/full-check/audit-159/report.json",
+  "base_159_report_sha256": "83cc6f6ee8839e1d5ca0991b0cb16854336f78c499603128ba8b62b2e44cd80e",
+  "base_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-003/lineage/candidate.npz",
+  "base_candidate_sha256": "8d5ac3dddb8bfebb77ef608fefcb484e8c648625ff5d7e84f876cd6fe0536d78",
+  "base_surface_pair_count_from_existing_159": 1697,
+  "boundary_node_count": 45,
+  "candidate_face_domain_unchanged": true,
+  "exact_geometry_audit_run": false,
+  "face_count": 41733,
+  "mutable_boundary_node_count": 0,
+  "mutable_component_count": 17,
+  "mutable_component_sizes_descending": [
+    551,
+    474,
+    421,
+    386,
+    234,
+    232,
+    183,
+    170,
+    129,
+    109,
+    99,
+    69,
+    59,
+    47,
+    7,
+    5,
+    2
+  ],
+  "mutable_component_sizes_top20_by_min_node": [
+    {
+      "min_node": 7255,
+      "size": 551
+    },
+    {
+      "min_node": 4797,
+      "size": 474
+    },
+    {
+      "min_node": 7752,
+      "size": 421
+    },
+    {
+      "min_node": 4731,
+      "size": 386
+    },
+    {
+      "min_node": 6985,
+      "size": 234
+    },
+    {
+      "min_node": 5884,
+      "size": 232
+    },
+    {
+      "min_node": 9185,
+      "size": 183
+    },
+    {
+      "min_node": 5212,
+      "size": 170
+    },
+    {
+      "min_node": 4238,
+      "size": 129
+    },
+    {
+      "min_node": 5696,
+      "size": 109
+    },
+    {
+      "min_node": 4376,
+      "size": 99
+    },
+    {
+      "min_node": 2706,
+      "size": 69
+    },
+    {
+      "min_node": 4748,
+      "size": 59
+    },
+    {
+      "min_node": 7278,
+      "size": 47
+    },
+    {
+      "min_node": 9699,
+      "size": 7
+    },
+    {
+      "min_node": 8787,
+      "size": 5
+    },
+    {
+      "min_node": 13108,
+      "size": 2
+    }
+  ],
+  "mutable_node_count": 3177,
+  "native_admission": false,
+  "node_count": 20889,
+  "raw_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+  "raw_candidate_sha256": "ae456cebd0f320956bbb139b32adcba8f941bd57ed8a6d256655dad1c27fb439",
+  "scope": "array-only mutable-node connectivity; not an audit or candidate check",
+  "self_or_bone_clearance_claim": false
+}

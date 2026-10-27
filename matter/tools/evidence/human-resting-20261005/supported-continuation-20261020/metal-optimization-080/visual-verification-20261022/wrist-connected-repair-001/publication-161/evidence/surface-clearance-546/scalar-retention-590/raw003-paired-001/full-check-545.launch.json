@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/582-witness-retention/candidate.npz",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/final/state.json",
+    "--trust-mm",
+    "4",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/full-check-545"
+  ],
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/final/state.json",
+  "baseline_state_sha256": "7c922fb005c4de5dcfde91c996f5d6c3a86ae2a985041aefcdaf2c93b99990ab",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/582-witness-retention/candidate.npz",
+  "candidate_sha256": "2e70bd8cd6ad9630aedad453bae9f5936d9aca3eab089c2e637e9d77ffa23583",
+  "checker": "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+  "checker_sha256": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+  "context": "post-590 emitted 582 candidate; wrapper serialization failure preserved separately",
+  "created_unix": 1793062302.396972,
+  "execution": "outer runner unwrapped; audit-130 and audit-159 children use shared geometry lock",
+  "output_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/scalar-retention-590/raw003-paired-001/full-check-545",
+  "trust_mm": 4.0
+}

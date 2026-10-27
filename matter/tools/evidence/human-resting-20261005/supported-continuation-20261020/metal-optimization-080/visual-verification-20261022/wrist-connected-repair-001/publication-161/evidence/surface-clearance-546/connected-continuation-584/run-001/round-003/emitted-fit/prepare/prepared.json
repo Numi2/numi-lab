@@ -1,0 +1,10 @@
+{
+  "accepted_physical_steps": 0,
+  "context": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/prepare/constraint-context.json",
+  "native_admission": false,
+  "state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/connected-topology/final/state.json",
+  "status": "FRESH_CONSTRAINTS_DEPTH_SURFACE_TARGETS_PREPARED",
+  "surface_target_builder_path": "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_targets_multi_source_546.py",
+  "surface_target_builder_sha256": "dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68",
+  "topology_aware_constraint_refresh": true
+}

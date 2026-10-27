@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "run_target588.py"
+  ],
+  "attempt": 1,
+  "classification": "launcher invocation error; 588 process did not start; no output candidate created",
+  "created_unix": 1793061319.7778718,
+  "exit_code": 126,
+  "output": "zsh:1: permission denied: /tmp/numi-human-geometry-slot.py"
+}

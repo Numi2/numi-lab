@@ -1,0 +1,21 @@
+waiting_for_human_geometry_slot pid=97383
+acquired_human_geometry_slot pid=97383
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/union-targets/nearest-union-exits.json",
+  "report_sha256": "bec2a3c3916e0abdfc5f70f0931edf614d9ce27af1cf6e9c5876f2cb40b94b55",
+  "npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/union-targets/nearest-union-exits.npz",
+  "npz_sha256": "a540e5549284179ae7317bad6acb0924e95df5252f3bceb060c3de41de0d157b",
+  "query_rows": 8,
+  "passing_targets": 8,
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY",
+  "seconds": 1.389138874830678
+}
+{
+  "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/union-targets/nearest-union-exits.json",
+  "report_sha256": "135551f0e7e3179284a4fa8e40590898694c0fe161c6073dee9640c5b3a969b7",
+  "target_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/edge-only-refinement-585/pilot-008/union-targets/nearest-union-exits.npz",
+  "target_npz_sha256": "a540e5549284179ae7317bad6acb0924e95df5252f3bceb060c3de41de0d157b",
+  "direction_mode": "direct-depth",
+  "multi_parent_face_count": 0,
+  "status": "PASS_FIRST_UNION_EXIT_TARGETS_ONLY"
+}
