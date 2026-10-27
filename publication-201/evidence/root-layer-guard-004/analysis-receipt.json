@@ -1,0 +1,52 @@
+{
+  "added_exact_pairs": [
+    [
+      8838,
+      41
+    ],
+    [
+      8839,
+      41
+    ],
+    [
+      8841,
+      41
+    ],
+    [
+      8849,
+      41
+    ]
+  ],
+  "added_pairs_absent_from_baseline": true,
+  "alpha060_candidate_points_sha256": "88c6a63f956f05684a46cd870149ab74c0177f3b3d46fc3e3c4bbc86c0323240",
+  "alpha060_candidate_sha256": "158e0dc7780ffa089efdd9d6adb4bfd0c066375c47a68d5820058e68716d91f8",
+  "analysis_report_sha256": "5f02a3a69cfcac4dd089ccc01b5d2e693b37525cdca994cb8de31635ac487afc",
+  "bank_input_pins": {
+    "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+  },
+  "baseline_audit159_sha256": "2e870a160a1514e7a5621ceb504845303e984871532f60278bac12b6bbf817a8",
+  "baseline_candidate_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "baseline_comparable_pair_count": 32,
+  "constraint_rows_sha256": "191d1ade6392e96875c4ad7733b38eda74cadecc3225e40f2ac8d6c879285604",
+  "intended_correction_projection_summary": {
+    "candidate_intersection_pairs_count": 4,
+    "minimum_candidate_clearance_to_preserved_margin_mm": -0.04069235063516108,
+    "negative_vertex_steps": 12,
+    "positive_vertex_steps": 0
+  },
+  "moving_support_node_count": 78,
+  "row_count": 12,
+  "schema": "numi.human.b61-97.targeted-bone-separation-witnesses.v1",
+  "self_union_sha256": "2640141f6089c80ec9120bc4a2b8aed4bd5de4cc0303f83bd3897abed5fd26e4",
+  "separation_method": "Choose the largest strictly positive SAT projection gap for each nonintersecting baseline skin/bone triangle pair. Add one fixed-bone halfspace row per supported source-face vertex, retaining 25 percent of the baseline projection gap.",
+  "status": "ROWS_READY",
+  "support_node_count": 81,
+  "target_bank": [
+    61,
+    97
+  ],
+  "unique_self_witness_pair_count": 18
+}

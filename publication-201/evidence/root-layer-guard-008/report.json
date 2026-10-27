@@ -1,0 +1,1668 @@
+{
+  "status": "PRIVATE_CANDIDATE_PENDING_EXACT_CHECKS",
+  "baseline_sha256": "4a72b5cd7c12012d4c6e8a4dccae4578ab07980796d53388e11a3e161ecc1d2d",
+  "bank": [
+    61,
+    97
+  ],
+  "target_inside_nodes": [
+    21166
+  ],
+  "target_movable_witnesses": 1,
+  "support_nodes": 93,
+  "affected_faces": 249,
+  "layer_guard": {
+    "rows": 1494,
+    "baseline_nonpositive_rows": 512,
+    "skipped_fixed_or_zero_rows": 0
+  },
+  "exact_self_witness_pairs": [],
+  "self_barrier_row_count": 0,
+  "fixed_witness_nodes": 0,
+  "point_depth_active_rows": 34,
+  "point_depth_report": {
+    "row_count": 34,
+    "unique_node_count": 34,
+    "support_rows": 93,
+    "support_membership": "all point-depth target nodes are in support",
+    "units_input": "metres",
+    "units_output": "millimetres",
+    "coordinate_order": "node-major xyz",
+    "input_row_count": 157,
+    "active_row_count": 34,
+    "passive_zero_row_count": 123,
+    "active_input_indices": [
+      107,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156
+    ],
+    "passive_zero_rows": [
+      {
+        "input_row": 0,
+        "typed_ids": [
+          20895,
+          43,
+          16,
+          140
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 1,
+        "typed_ids": [
+          20899,
+          43,
+          16,
+          133
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 2,
+        "typed_ids": [
+          20900,
+          43,
+          16,
+          140
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 3,
+        "typed_ids": [
+          20901,
+          43,
+          16,
+          133
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 4,
+        "typed_ids": [
+          20902,
+          43,
+          16,
+          133
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 5,
+        "typed_ids": [
+          20907,
+          43,
+          16,
+          144
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 6,
+        "typed_ids": [
+          20911,
+          59,
+          95,
+          211
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 7,
+        "typed_ids": [
+          20912,
+          59,
+          95,
+          302
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 8,
+        "typed_ids": [
+          20920,
+          109,
+          114,
+          115
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 9,
+        "typed_ids": [
+          20922,
+          57,
+          89,
+          190
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 10,
+        "typed_ids": [
+          20924,
+          43,
+          16,
+          135
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 11,
+        "typed_ids": [
+          20926,
+          43,
+          16,
+          135
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 12,
+        "typed_ids": [
+          20928,
+          43,
+          16,
+          135
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 13,
+        "typed_ids": [
+          20931,
+          43,
+          16,
+          135
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 14,
+        "typed_ids": [
+          20932,
+          43,
+          16,
+          130
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 15,
+        "typed_ids": [
+          20935,
+          124,
+          123,
+          33
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 16,
+        "typed_ids": [
+          20936,
+          124,
+          123,
+          33
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 17,
+        "typed_ids": [
+          20937,
+          124,
+          123,
+          33
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 18,
+        "typed_ids": [
+          20940,
+          115,
+          118,
+          285
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 19,
+        "typed_ids": [
+          20946,
+          65,
+          99,
+          173
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 20,
+        "typed_ids": [
+          20948,
+          65,
+          99,
+          173
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 21,
+        "typed_ids": [
+          20949,
+          64,
+          98,
+          278
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 22,
+        "typed_ids": [
+          20956,
+          43,
+          16,
+          133
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 23,
+        "typed_ids": [
+          20957,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 24,
+        "typed_ids": [
+          20960,
+          109,
+          114,
+          62
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 25,
+        "typed_ids": [
+          20961,
+          109,
+          114,
+          62
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 26,
+        "typed_ids": [
+          20964,
+          109,
+          114,
+          115
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 27,
+        "typed_ids": [
+          20965,
+          109,
+          114,
+          112
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 28,
+        "typed_ids": [
+          20968,
+          109,
+          114,
+          112
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 29,
+        "typed_ids": [
+          20969,
+          109,
+          114,
+          115
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 30,
+        "typed_ids": [
+          20970,
+          109,
+          114,
+          92
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 31,
+        "typed_ids": [
+          20972,
+          109,
+          114,
+          62
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 32,
+        "typed_ids": [
+          20979,
+          109,
+          114,
+          115
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 33,
+        "typed_ids": [
+          20980,
+          109,
+          114,
+          304
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 34,
+        "typed_ids": [
+          20986,
+          65,
+          99,
+          175
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 35,
+        "typed_ids": [
+          20987,
+          65,
+          99,
+          175
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 36,
+        "typed_ids": [
+          20989,
+          43,
+          16,
+          138
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 37,
+        "typed_ids": [
+          20990,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 38,
+        "typed_ids": [
+          20996,
+          65,
+          99,
+          103
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 39,
+        "typed_ids": [
+          20997,
+          65,
+          99,
+          176
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 40,
+        "typed_ids": [
+          20999,
+          65,
+          99,
+          176
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 41,
+        "typed_ids": [
+          21001,
+          65,
+          99,
+          174
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 42,
+        "typed_ids": [
+          21002,
+          65,
+          99,
+          183
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 43,
+        "typed_ids": [
+          21003,
+          65,
+          99,
+          174
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 44,
+        "typed_ids": [
+          21004,
+          65,
+          99,
+          183
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 45,
+        "typed_ids": [
+          21007,
+          65,
+          99,
+          173
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 46,
+        "typed_ids": [
+          21008,
+          65,
+          99,
+          173
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 47,
+        "typed_ids": [
+          21009,
+          65,
+          99,
+          173
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 48,
+        "typed_ids": [
+          21012,
+          65,
+          99,
+          226
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 49,
+        "typed_ids": [
+          21016,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 50,
+        "typed_ids": [
+          21019,
+          43,
+          16,
+          135
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 51,
+        "typed_ids": [
+          21022,
+          43,
+          16,
+          135
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 52,
+        "typed_ids": [
+          21025,
+          43,
+          16,
+          135
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 53,
+        "typed_ids": [
+          21026,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 54,
+        "typed_ids": [
+          21027,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 55,
+        "typed_ids": [
+          21030,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 56,
+        "typed_ids": [
+          21033,
+          124,
+          123,
+          31
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 57,
+        "typed_ids": [
+          21035,
+          109,
+          114,
+          115
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 58,
+        "typed_ids": [
+          21038,
+          109,
+          114,
+          115
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 59,
+        "typed_ids": [
+          21039,
+          109,
+          114,
+          115
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 60,
+        "typed_ids": [
+          21040,
+          109,
+          114,
+          111
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 61,
+        "typed_ids": [
+          21043,
+          109,
+          114,
+          116
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 62,
+        "typed_ids": [
+          21045,
+          109,
+          114,
+          115
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 63,
+        "typed_ids": [
+          21046,
+          109,
+          114,
+          92
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 64,
+        "typed_ids": [
+          21052,
+          109,
+          114,
+          62
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 65,
+        "typed_ids": [
+          21054,
+          114,
+          117,
+          329
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 66,
+        "typed_ids": [
+          21057,
+          57,
+          89,
+          300
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 67,
+        "typed_ids": [
+          21062,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 68,
+        "typed_ids": [
+          21064,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 69,
+        "typed_ids": [
+          21066,
+          43,
+          16,
+          135
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 70,
+        "typed_ids": [
+          21068,
+          43,
+          16,
+          135
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 71,
+        "typed_ids": [
+          21069,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 72,
+        "typed_ids": [
+          21071,
+          43,
+          16,
+          135
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 73,
+        "typed_ids": [
+          21080,
+          65,
+          99,
+          113
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 74,
+        "typed_ids": [
+          21083,
+          65,
+          99,
+          103
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 75,
+        "typed_ids": [
+          21084,
+          65,
+          99,
+          103
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 76,
+        "typed_ids": [
+          21085,
+          65,
+          99,
+          103
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 77,
+        "typed_ids": [
+          21087,
+          65,
+          99,
+          103
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 78,
+        "typed_ids": [
+          21088,
+          65,
+          99,
+          111
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 79,
+        "typed_ids": [
+          21091,
+          65,
+          99,
+          111
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 80,
+        "typed_ids": [
+          21092,
+          43,
+          16,
+          133
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 81,
+        "typed_ids": [
+          21093,
+          43,
+          16,
+          133
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 82,
+        "typed_ids": [
+          21094,
+          43,
+          16,
+          133
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 83,
+        "typed_ids": [
+          21095,
+          43,
+          16,
+          133
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 84,
+        "typed_ids": [
+          21096,
+          43,
+          16,
+          133
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 85,
+        "typed_ids": [
+          21103,
+          65,
+          99,
+          226
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 86,
+        "typed_ids": [
+          21105,
+          65,
+          99,
+          183
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 87,
+        "typed_ids": [
+          21108,
+          124,
+          123,
+          33
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 88,
+        "typed_ids": [
+          21110,
+          124,
+          123,
+          33
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 89,
+        "typed_ids": [
+          21112,
+          114,
+          117,
+          267
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 90,
+        "typed_ids": [
+          21113,
+          114,
+          117,
+          281
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 91,
+        "typed_ids": [
+          21125,
+          59,
+          95,
+          145
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 92,
+        "typed_ids": [
+          21131,
+          43,
+          16,
+          263
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 93,
+        "typed_ids": [
+          21134,
+          43,
+          16,
+          148
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 94,
+        "typed_ids": [
+          21137,
+          124,
+          123,
+          208
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 95,
+        "typed_ids": [
+          21140,
+          115,
+          118,
+          327
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 96,
+        "typed_ids": [
+          21141,
+          115,
+          118,
+          215
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 97,
+        "typed_ids": [
+          21147,
+          109,
+          114,
+          115
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 98,
+        "typed_ids": [
+          21150,
+          109,
+          114,
+          115
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 99,
+        "typed_ids": [
+          21156,
+          65,
+          99,
+          174
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 100,
+        "typed_ids": [
+          21158,
+          65,
+          99,
+          175
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 101,
+        "typed_ids": [
+          21159,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 102,
+        "typed_ids": [
+          21161,
+          124,
+          123,
+          33
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 103,
+        "typed_ids": [
+          21162,
+          124,
+          123,
+          30
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 104,
+        "typed_ids": [
+          21163,
+          124,
+          123,
+          30
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 105,
+        "typed_ids": [
+          21164,
+          115,
+          118,
+          215
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 106,
+        "typed_ids": [
+          21165,
+          114,
+          117,
+          329
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 108,
+        "typed_ids": [
+          21169,
+          65,
+          99,
+          176
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 109,
+        "typed_ids": [
+          21174,
+          109,
+          114,
+          115
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 110,
+        "typed_ids": [
+          21176,
+          109,
+          114,
+          112
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 111,
+        "typed_ids": [
+          21178,
+          109,
+          114,
+          88
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 112,
+        "typed_ids": [
+          21185,
+          65,
+          99,
+          173
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 113,
+        "typed_ids": [
+          21187,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 114,
+        "typed_ids": [
+          21188,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 115,
+        "typed_ids": [
+          21190,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 116,
+        "typed_ids": [
+          21191,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 117,
+        "typed_ids": [
+          21193,
+          43,
+          16,
+          137
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 118,
+        "typed_ids": [
+          21196,
+          59,
+          95,
+          147
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 119,
+        "typed_ids": [
+          21199,
+          65,
+          99,
+          183
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 120,
+        "typed_ids": [
+          21204,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 121,
+        "typed_ids": [
+          21205,
+          43,
+          16,
+          134
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 122,
+        "typed_ids": [
+          21209,
+          57,
+          89,
+          186
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      },
+      {
+        "input_row": 123,
+        "typed_ids": [
+          21210,
+          57,
+          89,
+          465
+        ],
+        "reason": "outside_selected_output_scope",
+        "lower_delta_m": 0.0,
+        "zero_displacement_feasible": true
+      }
+    ],
+    "control_scope_policy": "depth rows do not enlarge the original threatened/objective support or Q control set"
+  },
+  "solver": {
+    "success": true,
+    "status": 1,
+    "message": "solved",
+    "iterations": 10825,
+    "primal_residual": 7.611836714827014e-07,
+    "dual_residual": 8.196605923073021e-07,
+    "max_lower_violation": 6.881417034532156e-07,
+    "max_upper_violation": 7.611836714827014e-07
+  },
+  "geometry_admitted": false,
+  "physical_steps": 0,
+  "area_pass": true,
+  "min_linear_slack": -6.617900672873651e-05,
+  "source_max_mm": 11.999981854019131,
+  "max_move_mm": 0.4794497872220346,
+  "target_projected_progress_mm": [
+    0.399248596964965
+  ],
+  "target_projected_progress_sum_mm": 0.399248596964965,
+  "target_progress_min_mm": 0.399248596964965,
+  "target_slack_sum_mm": 0.0007485603114945291,
+  "changed_nodes": [
+    9535,
+    10299,
+    10317,
+    10334,
+    10337,
+    11490,
+    11492,
+    11498,
+    12105,
+    12106,
+    12107,
+    12108,
+    12109,
+    12110,
+    13588,
+    14074,
+    14618,
+    14619,
+    14620,
+    14621,
+    14622,
+    14623,
+    14624,
+    14625,
+    14626,
+    14627,
+    15273,
+    15274,
+    15275,
+    15285,
+    15286,
+    15867,
+    15868,
+    15870,
+    15871,
+    15874,
+    16340,
+    16341,
+    16342,
+    16343,
+    16344,
+    16345,
+    16348,
+    16349,
+    16350,
+    16354,
+    16355,
+    16357,
+    16358,
+    16362,
+    16363,
+    16366,
+    16367,
+    16368,
+    18548,
+    18549,
+    18550,
+    18551,
+    18552,
+    18941,
+    18942,
+    18943,
+    18944,
+    18945,
+    19448,
+    19449,
+    19450,
+    19451,
+    19678,
+    19728,
+    19729,
+    19730,
+    19733,
+    19734,
+    19735,
+    19736,
+    19737,
+    19738,
+    19739,
+    19740,
+    19741,
+    19742,
+    19743,
+    19744,
+    20943,
+    20944,
+    20992,
+    20993,
+    20994,
+    21123,
+    21166
+  ],
+  "elapsed_s": 0.764932667138055,
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b61-97/root-layer-guard-008/candidate-private.npz",
+  "candidate_sha256": "394c00d47b8a45fa8ee2bd6d8a948f4df2340f018fca06b301991c38a1f519f6"
+}

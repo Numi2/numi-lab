@@ -1,0 +1,7934 @@
+{
+  "all_incident_face_count_for_inside_nodes": 180,
+  "audit130_sha256": "0ec99fa47245355d60858b05e1240b0e562de229c13721ea11659f6f4acdf5cf",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_emitted": false,
+  "final_ancestry_complete": true,
+  "final_detail_union": [
+    8265,
+    8269
+  ],
+  "final_parent_union": [
+    18988,
+    18990,
+    18995,
+    18997,
+    18998,
+    18999,
+    19004,
+    19071,
+    19072,
+    19073,
+    19076,
+    19077,
+    19080,
+    19091,
+    19101,
+    19102,
+    19108,
+    19113,
+    19123,
+    19131,
+    19132,
+    19136,
+    19149,
+    19150,
+    19153,
+    19154,
+    19333,
+    19334,
+    19335,
+    19341,
+    19346,
+    19347,
+    19348,
+    19373,
+    19377,
+    19378,
+    19380,
+    19387,
+    19442,
+    19443,
+    19444,
+    19464,
+    19465,
+    19466,
+    19470,
+    19471,
+    19475
+  ],
+  "final_patch_face_count": 183,
+  "final_patch_face_rows": [
+    19197,
+    19199,
+    19200,
+    19203,
+    19204,
+    19206,
+    19212,
+    19213,
+    19214,
+    19215,
+    19219,
+    19220,
+    19221,
+    19222,
+    19224,
+    19225,
+    19226,
+    19227,
+    19229,
+    19230,
+    19237,
+    19238,
+    19239,
+    19240,
+    19309,
+    19310,
+    19311,
+    19312,
+    19313,
+    19314,
+    19315,
+    19316,
+    19317,
+    19318,
+    19319,
+    19320,
+    19324,
+    19325,
+    19326,
+    19327,
+    19328,
+    19329,
+    19330,
+    19331,
+    19336,
+    19337,
+    19338,
+    19339,
+    19352,
+    19353,
+    19354,
+    19355,
+    19367,
+    19368,
+    19369,
+    19370,
+    19371,
+    19372,
+    19373,
+    19374,
+    19381,
+    19382,
+    19383,
+    19384,
+    19389,
+    19390,
+    19391,
+    19392,
+    19403,
+    19404,
+    19405,
+    19406,
+    19417,
+    19418,
+    19419,
+    19420,
+    19421,
+    19422,
+    19423,
+    19424,
+    19429,
+    19430,
+    19431,
+    19432,
+    19446,
+    19447,
+    19448,
+    19449,
+    19450,
+    19451,
+    19452,
+    19453,
+    19457,
+    19458,
+    19459,
+    19460,
+    19461,
+    19462,
+    19463,
+    19464,
+    19646,
+    19647,
+    19648,
+    19649,
+    19650,
+    19651,
+    19652,
+    19653,
+    19654,
+    19655,
+    19656,
+    19657,
+    19664,
+    19665,
+    19666,
+    19667,
+    19674,
+    19675,
+    19676,
+    19677,
+    19678,
+    19679,
+    19680,
+    19681,
+    19682,
+    19683,
+    19684,
+    19685,
+    19717,
+    19719,
+    19720,
+    19725,
+    19726,
+    19727,
+    19728,
+    19729,
+    19730,
+    19731,
+    19732,
+    19735,
+    19736,
+    19737,
+    19738,
+    19747,
+    19748,
+    19749,
+    19750,
+    19808,
+    19809,
+    19810,
+    19811,
+    19812,
+    19813,
+    19814,
+    19815,
+    19816,
+    19817,
+    19818,
+    19819,
+    19840,
+    19841,
+    19842,
+    19843,
+    19844,
+    19845,
+    19846,
+    19847,
+    19848,
+    19849,
+    19850,
+    19851,
+    19857,
+    19858,
+    19859,
+    19860,
+    19861,
+    19862,
+    19863,
+    19864,
+    19870,
+    19871,
+    19872,
+    19873
+  ],
+  "final_per_face_ancestry": [
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19197,
+      "parent": [
+        18988
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19199,
+      "parent": [
+        18988
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19200,
+      "parent": [
+        18988
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19203,
+      "parent": [
+        18990
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19204,
+      "parent": [
+        18990
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19206,
+      "parent": [
+        18990
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19212,
+      "parent": [
+        18995
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19213,
+      "parent": [
+        18995
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19214,
+      "parent": [
+        18995
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19215,
+      "parent": [
+        18995
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19219,
+      "parent": [
+        18997
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19220,
+      "parent": [
+        18997
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19221,
+      "parent": [
+        18997
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19222,
+      "parent": [
+        18997
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19224,
+      "parent": [
+        18998
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19225,
+      "parent": [
+        18998
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19226,
+      "parent": [
+        18998
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19227,
+      "parent": [
+        18999
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19229,
+      "parent": [
+        18999
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19230,
+      "parent": [
+        18999
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19237,
+      "parent": [
+        19004
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19238,
+      "parent": [
+        19004
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19239,
+      "parent": [
+        19004
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19240,
+      "parent": [
+        19004
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19309,
+      "parent": [
+        19071
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19310,
+      "parent": [
+        19071
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19311,
+      "parent": [
+        19071
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19312,
+      "parent": [
+        19071
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19313,
+      "parent": [
+        19072
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19314,
+      "parent": [
+        19072
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19315,
+      "parent": [
+        19072
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19316,
+      "parent": [
+        19072
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19317,
+      "parent": [
+        19073
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19318,
+      "parent": [
+        19073
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19319,
+      "parent": [
+        19073
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19320,
+      "parent": [
+        19073
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19324,
+      "parent": [
+        19076
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19325,
+      "parent": [
+        19076
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19326,
+      "parent": [
+        19076
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19327,
+      "parent": [
+        19076
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19328,
+      "parent": [
+        19077
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19329,
+      "parent": [
+        19077
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19330,
+      "parent": [
+        19077
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19331,
+      "parent": [
+        19077
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19336,
+      "parent": [
+        19080
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19337,
+      "parent": [
+        19080
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19338,
+      "parent": [
+        19080
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19339,
+      "parent": [
+        19080
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19352,
+      "parent": [
+        19091
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19353,
+      "parent": [
+        19091
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19354,
+      "parent": [
+        19091
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19355,
+      "parent": [
+        19091
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19367,
+      "parent": [
+        19101
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19368,
+      "parent": [
+        19101
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19369,
+      "parent": [
+        19101
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19370,
+      "parent": [
+        19101
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19371,
+      "parent": [
+        19102
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19372,
+      "parent": [
+        19102
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19373,
+      "parent": [
+        19102
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19374,
+      "parent": [
+        19102
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19381,
+      "parent": [
+        19108
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19382,
+      "parent": [
+        19108
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19383,
+      "parent": [
+        19108
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19384,
+      "parent": [
+        19108
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19389,
+      "parent": [
+        19113
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19390,
+      "parent": [
+        19113
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19391,
+      "parent": [
+        19113
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19392,
+      "parent": [
+        19113
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19403,
+      "parent": [
+        19123
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19404,
+      "parent": [
+        19123
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19405,
+      "parent": [
+        19123
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19406,
+      "parent": [
+        19123
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19417,
+      "parent": [
+        19131
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19418,
+      "parent": [
+        19131
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19419,
+      "parent": [
+        19131
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19420,
+      "parent": [
+        19131
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19421,
+      "parent": [
+        19132
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19422,
+      "parent": [
+        19132
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19423,
+      "parent": [
+        19132
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19424,
+      "parent": [
+        19132
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19429,
+      "parent": [
+        19136
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19430,
+      "parent": [
+        19136
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19431,
+      "parent": [
+        19136
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19432,
+      "parent": [
+        19136
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19446,
+      "parent": [
+        19149
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19447,
+      "parent": [
+        19149
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19448,
+      "parent": [
+        19149
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19449,
+      "parent": [
+        19149
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19450,
+      "parent": [
+        19150
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19451,
+      "parent": [
+        19150
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19452,
+      "parent": [
+        19150
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19453,
+      "parent": [
+        19150
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19457,
+      "parent": [
+        19153
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19458,
+      "parent": [
+        19153
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19459,
+      "parent": [
+        19153
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19460,
+      "parent": [
+        19153
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19461,
+      "parent": [
+        19154
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19462,
+      "parent": [
+        19154
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19463,
+      "parent": [
+        19154
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8265
+      ],
+      "face_kind": 2,
+      "face_row": 19464,
+      "parent": [
+        19154
+      ],
+      "source": [
+        8265
+      ],
+      "subface": [
+        8267
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19646,
+      "parent": [
+        19333
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19647,
+      "parent": [
+        19333
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19648,
+      "parent": [
+        19333
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19649,
+      "parent": [
+        19333
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19650,
+      "parent": [
+        19334
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19651,
+      "parent": [
+        19334
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19652,
+      "parent": [
+        19334
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19653,
+      "parent": [
+        19334
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19654,
+      "parent": [
+        19335
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19655,
+      "parent": [
+        19335
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19656,
+      "parent": [
+        19335
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19657,
+      "parent": [
+        19335
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19664,
+      "parent": [
+        19341
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19665,
+      "parent": [
+        19341
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19666,
+      "parent": [
+        19341
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19667,
+      "parent": [
+        19341
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19674,
+      "parent": [
+        19346
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19675,
+      "parent": [
+        19346
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19676,
+      "parent": [
+        19346
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19677,
+      "parent": [
+        19346
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19678,
+      "parent": [
+        19347
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19679,
+      "parent": [
+        19347
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19680,
+      "parent": [
+        19347
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19681,
+      "parent": [
+        19347
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19682,
+      "parent": [
+        19348
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19683,
+      "parent": [
+        19348
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19684,
+      "parent": [
+        19348
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19685,
+      "parent": [
+        19348
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19717,
+      "parent": [
+        19373
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19719,
+      "parent": [
+        19373
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19720,
+      "parent": [
+        19373
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19725,
+      "parent": [
+        19377
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19726,
+      "parent": [
+        19377
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19727,
+      "parent": [
+        19377
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19728,
+      "parent": [
+        19377
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19729,
+      "parent": [
+        19378
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19730,
+      "parent": [
+        19378
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19731,
+      "parent": [
+        19378
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19732,
+      "parent": [
+        19378
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19735,
+      "parent": [
+        19380
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19736,
+      "parent": [
+        19380
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19737,
+      "parent": [
+        19380
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19738,
+      "parent": [
+        19380
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19747,
+      "parent": [
+        19387
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19748,
+      "parent": [
+        19387
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19749,
+      "parent": [
+        19387
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19750,
+      "parent": [
+        19387
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19808,
+      "parent": [
+        19442
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19809,
+      "parent": [
+        19442
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19810,
+      "parent": [
+        19442
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19811,
+      "parent": [
+        19442
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19812,
+      "parent": [
+        19443
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19813,
+      "parent": [
+        19443
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19814,
+      "parent": [
+        19443
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19815,
+      "parent": [
+        19443
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19816,
+      "parent": [
+        19444
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19817,
+      "parent": [
+        19444
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19818,
+      "parent": [
+        19444
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19819,
+      "parent": [
+        19444
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19840,
+      "parent": [
+        19464
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19841,
+      "parent": [
+        19464
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19842,
+      "parent": [
+        19464
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19843,
+      "parent": [
+        19464
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19844,
+      "parent": [
+        19465
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19845,
+      "parent": [
+        19465
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19846,
+      "parent": [
+        19465
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19847,
+      "parent": [
+        19465
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19848,
+      "parent": [
+        19466
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19849,
+      "parent": [
+        19466
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19850,
+      "parent": [
+        19466
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19851,
+      "parent": [
+        19466
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19857,
+      "parent": [
+        19470
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19858,
+      "parent": [
+        19470
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19859,
+      "parent": [
+        19470
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19860,
+      "parent": [
+        19470
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19861,
+      "parent": [
+        19471
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19862,
+      "parent": [
+        19471
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19863,
+      "parent": [
+        19471
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19864,
+      "parent": [
+        19471
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19870,
+      "parent": [
+        19475
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19871,
+      "parent": [
+        19475
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19872,
+      "parent": [
+        19475
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    },
+    {
+      "detail": [
+        8269
+      ],
+      "face_kind": 2,
+      "face_row": 19873,
+      "parent": [
+        19475
+      ],
+      "source": [
+        8269
+      ],
+      "subface": [
+        8271
+      ]
+    }
+  ],
+  "final_source_union": [
+    8265,
+    8269
+  ],
+  "final_subface_union": [
+    8267,
+    8271
+  ],
+  "final_topology": {
+    "boundary_components": [
+      [
+        9106,
+        9721,
+        14282,
+        14283,
+        14285,
+        14824,
+        14825,
+        15972,
+        17069,
+        17073,
+        17076,
+        17093,
+        18488,
+        18489,
+        18490,
+        18492,
+        18496,
+        18590,
+        18591,
+        18897,
+        19063,
+        19064,
+        19379,
+        19496,
+        19702,
+        19703,
+        19704,
+        19705,
+        20157,
+        20159,
+        20171,
+        20172,
+        20179,
+        20182,
+        20184,
+        20185,
+        20189,
+        20196,
+        20198,
+        20204,
+        20215,
+        20217,
+        20218,
+        20896,
+        20898,
+        20903,
+        20904,
+        20905,
+        20906,
+        20925,
+        20927,
+        20929,
+        20930,
+        20933,
+        20934,
+        20953,
+        20954,
+        20955,
+        20958,
+        20959,
+        20988,
+        20991,
+        21017,
+        21018,
+        21020,
+        21021,
+        21023,
+        21024,
+        21028,
+        21029,
+        21060,
+        21061,
+        21063,
+        21065,
+        21067,
+        21072,
+        21073,
+        21097,
+        21120,
+        21121,
+        21127,
+        21128,
+        21129,
+        21132,
+        21135,
+        21172,
+        21186,
+        21189,
+        21192,
+        21202,
+        21203
+      ]
+    ],
+    "boundary_cycles": [
+      [
+        9106,
+        20898,
+        18492,
+        21065,
+        18490,
+        21067,
+        20179,
+        21203,
+        20184,
+        20958,
+        14825,
+        20959,
+        20189,
+        21097,
+        18591,
+        20905,
+        9721,
+        20903,
+        20906,
+        20904,
+        18590,
+        20953,
+        14824,
+        20954,
+        21127,
+        20159,
+        21172,
+        20955,
+        19496,
+        21017,
+        17069,
+        21018,
+        20157,
+        21202,
+        20185,
+        21024,
+        17076,
+        21023,
+        20182,
+        21189,
+        19703,
+        21186,
+        19702,
+        20929,
+        14283,
+        20930,
+        20172,
+        21021,
+        17073,
+        21020,
+        20171,
+        21060,
+        18488,
+        21061,
+        20215,
+        20933,
+        14285,
+        20934,
+        20218,
+        21073,
+        18496,
+        21072,
+        20217,
+        20927,
+        14282,
+        20925,
+        19379,
+        21120,
+        18897,
+        21121,
+        20198,
+        21192,
+        19705,
+        21132,
+        19063,
+        21128,
+        21129,
+        19064,
+        21135,
+        20204,
+        20991,
+        15972,
+        20988,
+        19704,
+        21028,
+        17093,
+        21029,
+        20196,
+        21063,
+        18489,
+        20896
+      ]
+    ],
+    "boundary_degree_histogram": {
+      "2": 91
+    },
+    "boundary_edge_count": 91,
+    "boundary_edges": [
+      {
+        "edge": [
+          20185,
+          21202
+        ],
+        "inside_faces": [
+          19450
+        ],
+        "outside_faces": [
+          19195
+        ]
+      },
+      {
+        "edge": [
+          20157,
+          21202
+        ],
+        "inside_faces": [
+          19452
+        ],
+        "outside_faces": [
+          19196
+        ]
+      },
+      {
+        "edge": [
+          9721,
+          20903
+        ],
+        "inside_faces": [
+          19446
+        ],
+        "outside_faces": [
+          19198
+        ]
+      },
+      {
+        "edge": [
+          20903,
+          20906
+        ],
+        "inside_faces": [
+          19200
+        ],
+        "outside_faces": [
+          19198
+        ]
+      },
+      {
+        "edge": [
+          18590,
+          20904
+        ],
+        "inside_faces": [
+          19203
+        ],
+        "outside_faces": [
+          19201
+        ]
+      },
+      {
+        "edge": [
+          20904,
+          20906
+        ],
+        "inside_faces": [
+          19206
+        ],
+        "outside_faces": [
+          19205
+        ]
+      },
+      {
+        "edge": [
+          20157,
+          21018
+        ],
+        "inside_faces": [
+          19213
+        ],
+        "outside_faces": [
+          19207
+        ]
+      },
+      {
+        "edge": [
+          17069,
+          21018
+        ],
+        "inside_faces": [
+          19212
+        ],
+        "outside_faces": [
+          19208
+        ]
+      },
+      {
+        "edge": [
+          17069,
+          21017
+        ],
+        "inside_faces": [
+          19220
+        ],
+        "outside_faces": [
+          19216
+        ]
+      },
+      {
+        "edge": [
+          19496,
+          21017
+        ],
+        "inside_faces": [
+          19219
+        ],
+        "outside_faces": [
+          19217
+        ]
+      },
+      {
+        "edge": [
+          20159,
+          21172
+        ],
+        "inside_faces": [
+          19225
+        ],
+        "outside_faces": [
+          19218
+        ]
+      },
+      {
+        "edge": [
+          19496,
+          20955
+        ],
+        "inside_faces": [
+          19238
+        ],
+        "outside_faces": [
+          19223
+        ]
+      },
+      {
+        "edge": [
+          20955,
+          21172
+        ],
+        "inside_faces": [
+          19226
+        ],
+        "outside_faces": [
+          19223
+        ]
+      },
+      {
+        "edge": [
+          14824,
+          20954
+        ],
+        "inside_faces": [
+          19227
+        ],
+        "outside_faces": [
+          19261
+        ]
+      },
+      {
+        "edge": [
+          20954,
+          21127
+        ],
+        "inside_faces": [
+          19230
+        ],
+        "outside_faces": [
+          19228
+        ]
+      },
+      {
+        "edge": [
+          20159,
+          21127
+        ],
+        "inside_faces": [
+          19229
+        ],
+        "outside_faces": [
+          19231
+        ]
+      },
+      {
+        "edge": [
+          14824,
+          20953
+        ],
+        "inside_faces": [
+          19237
+        ],
+        "outside_faces": [
+          19235
+        ]
+      },
+      {
+        "edge": [
+          18590,
+          20953
+        ],
+        "inside_faces": [
+          19239
+        ],
+        "outside_faces": [
+          19236
+        ]
+      },
+      {
+        "edge": [
+          18488,
+          21060
+        ],
+        "inside_faces": [
+          19309
+        ],
+        "outside_faces": [
+          19307
+        ]
+      },
+      {
+        "edge": [
+          20171,
+          21060
+        ],
+        "inside_faces": [
+          19311
+        ],
+        "outside_faces": [
+          19308
+        ]
+      },
+      {
+        "edge": [
+          9106,
+          20898
+        ],
+        "inside_faces": [
+          19313
+        ],
+        "outside_faces": [
+          19342
+        ]
+      },
+      {
+        "edge": [
+          18492,
+          20898
+        ],
+        "inside_faces": [
+          19314
+        ],
+        "outside_faces": [
+          19341
+        ]
+      },
+      {
+        "edge": [
+          17073,
+          21020
+        ],
+        "inside_faces": [
+          19318
+        ],
+        "outside_faces": [
+          19322
+        ]
+      },
+      {
+        "edge": [
+          20171,
+          21020
+        ],
+        "inside_faces": [
+          19319
+        ],
+        "outside_faces": [
+          19321
+        ]
+      },
+      {
+        "edge": [
+          18492,
+          21065
+        ],
+        "inside_faces": [
+          19325
+        ],
+        "outside_faces": [
+          19341
+        ]
+      },
+      {
+        "edge": [
+          18490,
+          21065
+        ],
+        "inside_faces": [
+          19326
+        ],
+        "outside_faces": [
+          19340
+        ]
+      },
+      {
+        "edge": [
+          14283,
+          20930
+        ],
+        "inside_faces": [
+          19329
+        ],
+        "outside_faces": [
+          19333
+        ]
+      },
+      {
+        "edge": [
+          20172,
+          20930
+        ],
+        "inside_faces": [
+          19330
+        ],
+        "outside_faces": [
+          19332
+        ]
+      },
+      {
+        "edge": [
+          17073,
+          21021
+        ],
+        "inside_faces": [
+          19336
+        ],
+        "outside_faces": [
+          19334
+        ]
+      },
+      {
+        "edge": [
+          20172,
+          21021
+        ],
+        "inside_faces": [
+          19338
+        ],
+        "outside_faces": [
+          19335
+        ]
+      },
+      {
+        "edge": [
+          18490,
+          21067
+        ],
+        "inside_faces": [
+          19352
+        ],
+        "outside_faces": [
+          19360
+        ]
+      },
+      {
+        "edge": [
+          20179,
+          21067
+        ],
+        "inside_faces": [
+          19353
+        ],
+        "outside_faces": [
+          19359
+        ]
+      },
+      {
+        "edge": [
+          20184,
+          21203
+        ],
+        "inside_faces": [
+          19389
+        ],
+        "outside_faces": [
+          19362
+        ]
+      },
+      {
+        "edge": [
+          20179,
+          21203
+        ],
+        "inside_faces": [
+          19391
+        ],
+        "outside_faces": [
+          19363
+        ]
+      },
+      {
+        "edge": [
+          19702,
+          20929
+        ],
+        "inside_faces": [
+          19368
+        ],
+        "outside_faces": [
+          19400
+        ]
+      },
+      {
+        "edge": [
+          14283,
+          20929
+        ],
+        "inside_faces": [
+          19369
+        ],
+        "outside_faces": [
+          19399
+        ]
+      },
+      {
+        "edge": [
+          19703,
+          21186
+        ],
+        "inside_faces": [
+          19372
+        ],
+        "outside_faces": [
+          19376
+        ]
+      },
+      {
+        "edge": [
+          19702,
+          21186
+        ],
+        "inside_faces": [
+          19373
+        ],
+        "outside_faces": [
+          19375
+        ]
+      },
+      {
+        "edge": [
+          19703,
+          21189
+        ],
+        "inside_faces": [
+          19381
+        ],
+        "outside_faces": [
+          19425
+        ]
+      },
+      {
+        "edge": [
+          20182,
+          21189
+        ],
+        "inside_faces": [
+          19383
+        ],
+        "outside_faces": [
+          19426
+        ]
+      },
+      {
+        "edge": [
+          20182,
+          21023
+        ],
+        "inside_faces": [
+          19403
+        ],
+        "outside_faces": [
+          19410
+        ]
+      },
+      {
+        "edge": [
+          17076,
+          21023
+        ],
+        "inside_faces": [
+          19405
+        ],
+        "outside_faces": [
+          19411
+        ]
+      },
+      {
+        "edge": [
+          9721,
+          20905
+        ],
+        "inside_faces": [
+          19462
+        ],
+        "outside_faces": [
+          19413
+        ]
+      },
+      {
+        "edge": [
+          18591,
+          20905
+        ],
+        "inside_faces": [
+          19461
+        ],
+        "outside_faces": [
+          19414
+        ]
+      },
+      {
+        "edge": [
+          18591,
+          21097
+        ],
+        "inside_faces": [
+          19418
+        ],
+        "outside_faces": [
+          19414
+        ]
+      },
+      {
+        "edge": [
+          20189,
+          21097
+        ],
+        "inside_faces": [
+          19417
+        ],
+        "outside_faces": [
+          19415
+        ]
+      },
+      {
+        "edge": [
+          14825,
+          20959
+        ],
+        "inside_faces": [
+          19421
+        ],
+        "outside_faces": [
+          19483
+        ]
+      },
+      {
+        "edge": [
+          20189,
+          20959
+        ],
+        "inside_faces": [
+          19422
+        ],
+        "outside_faces": [
+          19482
+        ]
+      },
+      {
+        "edge": [
+          14825,
+          20958
+        ],
+        "inside_faces": [
+          19429
+        ],
+        "outside_faces": [
+          19436
+        ]
+      },
+      {
+        "edge": [
+          20184,
+          20958
+        ],
+        "inside_faces": [
+          19431
+        ],
+        "outside_faces": [
+          19437
+        ]
+      },
+      {
+        "edge": [
+          17076,
+          21024
+        ],
+        "inside_faces": [
+          19457
+        ],
+        "outside_faces": [
+          19455
+        ]
+      },
+      {
+        "edge": [
+          20185,
+          21024
+        ],
+        "inside_faces": [
+          19459
+        ],
+        "outside_faces": [
+          19456
+        ]
+      },
+      {
+        "edge": [
+          9106,
+          20896
+        ],
+        "inside_faces": [
+          19844
+        ],
+        "outside_faces": [
+          19643
+        ]
+      },
+      {
+        "edge": [
+          18489,
+          20896
+        ],
+        "inside_faces": [
+          19846
+        ],
+        "outside_faces": [
+          19644
+        ]
+      },
+      {
+        "edge": [
+          18489,
+          21063
+        ],
+        "inside_faces": [
+          19646
+        ],
+        "outside_faces": [
+          19644
+        ]
+      },
+      {
+        "edge": [
+          20196,
+          21063
+        ],
+        "inside_faces": [
+          19648
+        ],
+        "outside_faces": [
+          19645
+        ]
+      },
+      {
+        "edge": [
+          14282,
+          20925
+        ],
+        "inside_faces": [
+          19650
+        ],
+        "outside_faces": [
+          19671
+        ]
+      },
+      {
+        "edge": [
+          19379,
+          20925
+        ],
+        "inside_faces": [
+          19651
+        ],
+        "outside_faces": [
+          19670
+        ]
+      },
+      {
+        "edge": [
+          17093,
+          21029
+        ],
+        "inside_faces": [
+          19655
+        ],
+        "outside_faces": [
+          19659
+        ]
+      },
+      {
+        "edge": [
+          20196,
+          21029
+        ],
+        "inside_faces": [
+          19656
+        ],
+        "outside_faces": [
+          19658
+        ]
+      },
+      {
+        "edge": [
+          19379,
+          21120
+        ],
+        "inside_faces": [
+          19665
+        ],
+        "outside_faces": [
+          19669
+        ]
+      },
+      {
+        "edge": [
+          18897,
+          21120
+        ],
+        "inside_faces": [
+          19666
+        ],
+        "outside_faces": [
+          19668
+        ]
+      },
+      {
+        "edge": [
+          15972,
+          20988
+        ],
+        "inside_faces": [
+          19674
+        ],
+        "outside_faces": [
+          19694
+        ]
+      },
+      {
+        "edge": [
+          19704,
+          20988
+        ],
+        "inside_faces": [
+          19675
+        ],
+        "outside_faces": [
+          19693
+        ]
+      },
+      {
+        "edge": [
+          19704,
+          21028
+        ],
+        "inside_faces": [
+          19678
+        ],
+        "outside_faces": [
+          19692
+        ]
+      },
+      {
+        "edge": [
+          17093,
+          21028
+        ],
+        "inside_faces": [
+          19679
+        ],
+        "outside_faces": [
+          19691
+        ]
+      },
+      {
+        "edge": [
+          18897,
+          21121
+        ],
+        "inside_faces": [
+          19683
+        ],
+        "outside_faces": [
+          19687
+        ]
+      },
+      {
+        "edge": [
+          20198,
+          21121
+        ],
+        "inside_faces": [
+          19684
+        ],
+        "outside_faces": [
+          19686
+        ]
+      },
+      {
+        "edge": [
+          19063,
+          21128
+        ],
+        "inside_faces": [
+          19717
+        ],
+        "outside_faces": [
+          19714
+        ]
+      },
+      {
+        "edge": [
+          21128,
+          21129
+        ],
+        "inside_faces": [
+          19720
+        ],
+        "outside_faces": [
+          19718
+        ]
+      },
+      {
+        "edge": [
+          19064,
+          21129
+        ],
+        "inside_faces": [
+          19719
+        ],
+        "outside_faces": [
+          19771
+        ]
+      },
+      {
+        "edge": [
+          19063,
+          21132
+        ],
+        "inside_faces": [
+          19731
+        ],
+        "outside_faces": [
+          19723
+        ]
+      },
+      {
+        "edge": [
+          19705,
+          21132
+        ],
+        "inside_faces": [
+          19730
+        ],
+        "outside_faces": [
+          19724
+        ]
+      },
+      {
+        "edge": [
+          20204,
+          21135
+        ],
+        "inside_faces": [
+          19725
+        ],
+        "outside_faces": [
+          19733
+        ]
+      },
+      {
+        "edge": [
+          19064,
+          21135
+        ],
+        "inside_faces": [
+          19727
+        ],
+        "outside_faces": [
+          19734
+        ]
+      },
+      {
+        "edge": [
+          20204,
+          20991
+        ],
+        "inside_faces": [
+          19736
+        ],
+        "outside_faces": [
+          19740
+        ]
+      },
+      {
+        "edge": [
+          15972,
+          20991
+        ],
+        "inside_faces": [
+          19737
+        ],
+        "outside_faces": [
+          19739
+        ]
+      },
+      {
+        "edge": [
+          19705,
+          21192
+        ],
+        "inside_faces": [
+          19747
+        ],
+        "outside_faces": [
+          19741
+        ]
+      },
+      {
+        "edge": [
+          20198,
+          21192
+        ],
+        "inside_faces": [
+          19749
+        ],
+        "outside_faces": [
+          19742
+        ]
+      },
+      {
+        "edge": [
+          20215,
+          21061
+        ],
+        "inside_faces": [
+          19816
+        ],
+        "outside_faces": [
+          19796
+        ]
+      },
+      {
+        "edge": [
+          18488,
+          21061
+        ],
+        "inside_faces": [
+          19818
+        ],
+        "outside_faces": [
+          19797
+        ]
+      },
+      {
+        "edge": [
+          14285,
+          20933
+        ],
+        "inside_faces": [
+          19808
+        ],
+        "outside_faces": [
+          19822
+        ]
+      },
+      {
+        "edge": [
+          20215,
+          20933
+        ],
+        "inside_faces": [
+          19810
+        ],
+        "outside_faces": [
+          19823
+        ]
+      },
+      {
+        "edge": [
+          14282,
+          20927
+        ],
+        "inside_faces": [
+          19840
+        ],
+        "outside_faces": [
+          19855
+        ]
+      },
+      {
+        "edge": [
+          20217,
+          20927
+        ],
+        "inside_faces": [
+          19842
+        ],
+        "outside_faces": [
+          19856
+        ]
+      },
+      {
+        "edge": [
+          18496,
+          21072
+        ],
+        "inside_faces": [
+          19848
+        ],
+        "outside_faces": [
+          19853
+        ]
+      },
+      {
+        "edge": [
+          20217,
+          21072
+        ],
+        "inside_faces": [
+          19849
+        ],
+        "outside_faces": [
+          19852
+        ]
+      },
+      {
+        "edge": [
+          14285,
+          20934
+        ],
+        "inside_faces": [
+          19862
+        ],
+        "outside_faces": [
+          19866
+        ]
+      },
+      {
+        "edge": [
+          20218,
+          20934
+        ],
+        "inside_faces": [
+          19863
+        ],
+        "outside_faces": [
+          19865
+        ]
+      },
+      {
+        "edge": [
+          18496,
+          21073
+        ],
+        "inside_faces": [
+          19870
+        ],
+        "outside_faces": [
+          19868
+        ]
+      },
+      {
+        "edge": [
+          20218,
+          21073
+        ],
+        "inside_faces": [
+          19872
+        ],
+        "outside_faces": [
+          19869
+        ]
+      }
+    ],
+    "boundary_nodes": [
+      9106,
+      9721,
+      14282,
+      14283,
+      14285,
+      14824,
+      14825,
+      15972,
+      17069,
+      17073,
+      17076,
+      17093,
+      18488,
+      18489,
+      18490,
+      18492,
+      18496,
+      18590,
+      18591,
+      18897,
+      19063,
+      19064,
+      19379,
+      19496,
+      19702,
+      19703,
+      19704,
+      19705,
+      20157,
+      20159,
+      20171,
+      20172,
+      20179,
+      20182,
+      20184,
+      20185,
+      20189,
+      20196,
+      20198,
+      20204,
+      20215,
+      20217,
+      20218,
+      20896,
+      20898,
+      20903,
+      20904,
+      20905,
+      20906,
+      20925,
+      20927,
+      20929,
+      20930,
+      20933,
+      20934,
+      20953,
+      20954,
+      20955,
+      20958,
+      20959,
+      20988,
+      20991,
+      21017,
+      21018,
+      21020,
+      21021,
+      21023,
+      21024,
+      21028,
+      21029,
+      21060,
+      21061,
+      21063,
+      21065,
+      21067,
+      21072,
+      21073,
+      21097,
+      21120,
+      21121,
+      21127,
+      21128,
+      21129,
+      21132,
+      21135,
+      21172,
+      21186,
+      21189,
+      21192,
+      21202,
+      21203
+    ],
+    "boundary_simple_loops": true,
+    "face_component_count": 1,
+    "face_component_sizes": [
+      183
+    ],
+    "face_count": 183,
+    "face_rows": [
+      19197,
+      19199,
+      19200,
+      19203,
+      19204,
+      19206,
+      19212,
+      19213,
+      19214,
+      19215,
+      19219,
+      19220,
+      19221,
+      19222,
+      19224,
+      19225,
+      19226,
+      19227,
+      19229,
+      19230,
+      19237,
+      19238,
+      19239,
+      19240,
+      19309,
+      19310,
+      19311,
+      19312,
+      19313,
+      19314,
+      19315,
+      19316,
+      19317,
+      19318,
+      19319,
+      19320,
+      19324,
+      19325,
+      19326,
+      19327,
+      19328,
+      19329,
+      19330,
+      19331,
+      19336,
+      19337,
+      19338,
+      19339,
+      19352,
+      19353,
+      19354,
+      19355,
+      19367,
+      19368,
+      19369,
+      19370,
+      19371,
+      19372,
+      19373,
+      19374,
+      19381,
+      19382,
+      19383,
+      19384,
+      19389,
+      19390,
+      19391,
+      19392,
+      19403,
+      19404,
+      19405,
+      19406,
+      19417,
+      19418,
+      19419,
+      19420,
+      19421,
+      19422,
+      19423,
+      19424,
+      19429,
+      19430,
+      19431,
+      19432,
+      19446,
+      19447,
+      19448,
+      19449,
+      19450,
+      19451,
+      19452,
+      19453,
+      19457,
+      19458,
+      19459,
+      19460,
+      19461,
+      19462,
+      19463,
+      19464,
+      19646,
+      19647,
+      19648,
+      19649,
+      19650,
+      19651,
+      19652,
+      19653,
+      19654,
+      19655,
+      19656,
+      19657,
+      19664,
+      19665,
+      19666,
+      19667,
+      19674,
+      19675,
+      19676,
+      19677,
+      19678,
+      19679,
+      19680,
+      19681,
+      19682,
+      19683,
+      19684,
+      19685,
+      19717,
+      19719,
+      19720,
+      19725,
+      19726,
+      19727,
+      19728,
+      19729,
+      19730,
+      19731,
+      19732,
+      19735,
+      19736,
+      19737,
+      19738,
+      19747,
+      19748,
+      19749,
+      19750,
+      19808,
+      19809,
+      19810,
+      19811,
+      19812,
+      19813,
+      19814,
+      19815,
+      19816,
+      19817,
+      19818,
+      19819,
+      19840,
+      19841,
+      19842,
+      19843,
+      19844,
+      19845,
+      19846,
+      19847,
+      19848,
+      19849,
+      19850,
+      19851,
+      19857,
+      19858,
+      19859,
+      19860,
+      19861,
+      19862,
+      19863,
+      19864,
+      19870,
+      19871,
+      19872,
+      19873
+    ],
+    "global_nonmanifold_or_open_edges": [],
+    "lineage_complete": true,
+    "lineage_failures": []
+  },
+  "geometry_changed": false,
+  "inside_node_star_face_rows": [
+    19197,
+    19199,
+    19200,
+    19203,
+    19204,
+    19206,
+    19212,
+    19213,
+    19214,
+    19215,
+    19219,
+    19220,
+    19221,
+    19222,
+    19224,
+    19225,
+    19226,
+    19227,
+    19229,
+    19230,
+    19238,
+    19239,
+    19240,
+    19309,
+    19310,
+    19311,
+    19312,
+    19313,
+    19315,
+    19316,
+    19317,
+    19318,
+    19320,
+    19324,
+    19325,
+    19326,
+    19327,
+    19328,
+    19329,
+    19330,
+    19331,
+    19336,
+    19337,
+    19338,
+    19339,
+    19352,
+    19353,
+    19354,
+    19355,
+    19367,
+    19368,
+    19369,
+    19370,
+    19371,
+    19372,
+    19373,
+    19374,
+    19381,
+    19382,
+    19383,
+    19384,
+    19389,
+    19390,
+    19391,
+    19392,
+    19403,
+    19404,
+    19405,
+    19406,
+    19417,
+    19418,
+    19419,
+    19420,
+    19421,
+    19422,
+    19423,
+    19424,
+    19429,
+    19430,
+    19431,
+    19432,
+    19446,
+    19447,
+    19448,
+    19449,
+    19450,
+    19451,
+    19452,
+    19453,
+    19457,
+    19458,
+    19459,
+    19460,
+    19461,
+    19462,
+    19463,
+    19464,
+    19646,
+    19647,
+    19648,
+    19649,
+    19650,
+    19651,
+    19652,
+    19653,
+    19654,
+    19655,
+    19656,
+    19657,
+    19664,
+    19665,
+    19666,
+    19667,
+    19674,
+    19675,
+    19676,
+    19677,
+    19678,
+    19679,
+    19680,
+    19681,
+    19682,
+    19683,
+    19684,
+    19685,
+    19717,
+    19719,
+    19720,
+    19725,
+    19726,
+    19727,
+    19728,
+    19729,
+    19730,
+    19731,
+    19732,
+    19735,
+    19736,
+    19737,
+    19738,
+    19747,
+    19748,
+    19749,
+    19750,
+    19808,
+    19809,
+    19810,
+    19811,
+    19812,
+    19813,
+    19814,
+    19815,
+    19816,
+    19817,
+    19818,
+    19819,
+    19840,
+    19841,
+    19842,
+    19843,
+    19844,
+    19845,
+    19846,
+    19847,
+    19848,
+    19849,
+    19850,
+    19851,
+    19857,
+    19858,
+    19859,
+    19860,
+    19861,
+    19862,
+    19863,
+    19864,
+    19870,
+    19871,
+    19872,
+    19873
+  ],
+  "inside_target_node_count": 43,
+  "inside_target_node_rows": [
+    20895,
+    20899,
+    20900,
+    20901,
+    20902,
+    20907,
+    20924,
+    20926,
+    20928,
+    20931,
+    20932,
+    20956,
+    20957,
+    20989,
+    20990,
+    21016,
+    21019,
+    21022,
+    21025,
+    21026,
+    21027,
+    21030,
+    21062,
+    21064,
+    21066,
+    21068,
+    21069,
+    21071,
+    21092,
+    21093,
+    21094,
+    21095,
+    21096,
+    21131,
+    21134,
+    21159,
+    21187,
+    21188,
+    21190,
+    21191,
+    21193,
+    21204,
+    21205
+  ],
+  "inside_target_witnesses": [
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.0016610067622294875",
+      "closest_y": "0.00027859199129677081",
+      "closest_z": "0.054521592962537689",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00059292999191255791",
+      "nearest_triangle": "140",
+      "node_kind": -1,
+      "output_node": 20895,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28209733963012695,
+        -0.8551380038261414,
+        0.13103075325489044
+      ],
+      "query_local_x": "-0.0015038872524311834",
+      "query_local_y": "1.5552087770070999e-05",
+      "query_local_z": "0.054013961753781932",
+      "query_row": "20895",
+      "signed_face_distance_m": "-0.00059292999191255802",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00095175223571387338",
+      "closest_y": "0.00077054222208046679",
+      "closest_z": "0.054269556093538854",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.0011080766051425519",
+      "nearest_triangle": "133",
+      "node_kind": -1,
+      "output_node": 20899,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2820223569869995,
+        -0.8544689416885376,
+        0.13165512681007385
+      ],
+      "query_local_x": "-0.00082392419658026354",
+      "query_local_y": "9.3379489595923904e-05",
+      "query_local_z": "0.053401832411132083",
+      "query_row": "20899",
+      "signed_face_distance_m": "-0.0011080766051425519",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.0016319970423342471",
+      "closest_y": "0.00028246043508400702",
+      "closest_z": "0.054528567391665894",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00059403957642058811",
+      "nearest_triangle": "140",
+      "node_kind": -1,
+      "output_node": 20900,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2821034789085388,
+        -0.8551400899887085,
+        0.1310601532459259
+      ],
+      "query_local_x": "-0.0014745835056249089",
+      "query_local_y": "1.8928289630050499e-05",
+      "query_local_z": "0.054019986222994615",
+      "query_row": "20900",
+      "signed_face_distance_m": "-0.00059403957642058811",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.0010522109523535481",
+      "closest_y": "0.0013943901893550936",
+      "closest_z": "0.053767912489979246",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.001256873321404964",
+      "nearest_triangle": "133",
+      "node_kind": -1,
+      "output_node": 20901,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28235048055648804,
+        -0.8537353277206421,
+        0.13149017095565796
+      ],
+      "query_local_x": "-0.00090721768079731358",
+      "query_local_y": "0.00062629548474753965",
+      "query_local_z": "0.052783667590568129",
+      "query_row": "20901",
+      "signed_face_distance_m": "-0.001256873321404964",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00094098260647356433",
+      "closest_y": "0.00078580541366483707",
+      "closest_z": "0.05425923137368463",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.0011002530714838451",
+      "nearest_triangle": "133",
+      "node_kind": -1,
+      "output_node": 20902,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28204071521759033,
+        -0.8544583320617676,
+        0.13166332244873047
+      ],
+      "query_local_x": "-0.00081405709245604019",
+      "query_local_y": "0.00011342376346776956",
+      "query_local_z": "0.053397634222064866",
+      "query_row": "20902",
+      "signed_face_distance_m": "-0.0011002530714838451",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.001649640110900143",
+      "closest_y": "-0.0007580445168281361",
+      "closest_z": "0.054779552963294939",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00016701386468731118",
+      "nearest_triangle": "144",
+      "node_kind": -1,
+      "output_node": 20907,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28152936697006226,
+        -0.8559747338294983,
+        0.13109424710273743
+      ],
+      "query_local_x": "-0.0015406454485250168",
+      "query_local_y": "-0.0007695237625223797",
+      "query_local_z": "0.054653529070759377",
+      "query_row": "20907",
+      "signed_face_distance_m": "-0.00016701386468731121",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "5.1843766910056658e-05",
+      "closest_y": "0.00093350691161986224",
+      "closest_z": "0.054080662432055698",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00077272509533711845",
+      "nearest_triangle": "135",
+      "node_kind": -1,
+      "output_node": 20924,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28236818313598633,
+        -0.8544822931289673,
+        0.13237108290195465
+      ],
+      "query_local_x": "-9.9008208570818858e-05",
+      "query_local_y": "0.00037404129447722589",
+      "query_local_z": "0.053569442344722967",
+      "query_row": "20924",
+      "signed_face_distance_m": "-0.00077272509533711834",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "0.00011569183598754766",
+      "closest_y": "0.00087824296481761241",
+      "closest_z": "0.05412230138811383",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00071734744807630567",
+      "nearest_triangle": "135",
+      "node_kind": -1,
+      "output_node": 20926,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28237923979759216,
+        -0.8545544147491455,
+        0.1324523687362671
+      ],
+      "query_local_x": "-2.434927345935662e-05",
+      "query_local_y": "0.00035887167072418819",
+      "query_local_z": "0.053647718088999555",
+      "query_row": "20926",
+      "signed_face_distance_m": "-0.00071734744807630557",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-5.4589275935938909e-05",
+      "closest_y": "0.0012278607078369482",
+      "closest_z": "0.053789935997058683",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00059020285887180252",
+      "nearest_triangle": "135",
+      "node_kind": -1,
+      "output_node": 20928,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2827243208885193,
+        -0.8542054891586304,
+        0.13225993514060974
+      ],
+      "query_local_x": "-0.00016980912285501516",
+      "query_local_y": "0.00080054417745559214",
+      "query_local_z": "0.05339946911708135",
+      "query_row": "20928",
+      "signed_face_distance_m": "-0.00059020285887180241",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-6.2923614595249578e-05",
+      "closest_y": "0.0012197855338564358",
+      "closest_z": "0.053801232567339707",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00060748890019313195",
+      "nearest_triangle": "135",
+      "node_kind": -1,
+      "output_node": 20931,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28270411491394043,
+        -0.8542122840881348,
+        0.1322496086359024
+      ],
+      "query_local_x": "-0.00018151805552881015",
+      "query_local_y": "0.00077995362661706369",
+      "query_local_z": "0.053399329574303211",
+      "query_row": "20931",
+      "signed_face_distance_m": "-0.00060748890019313195",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "0.001203425400211578",
+      "closest_y": "0.0017235341477144003",
+      "closest_z": "0.052552480089057732",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.0016387081817894492",
+      "nearest_triangle": "130",
+      "node_kind": -1,
+      "output_node": 20932,
+      "outside_rays": "0",
+      "point_m": [
+        -0.282073438167572,
+        -0.8525698184967041,
+        0.13267311453819275
+      ],
+      "query_local_x": "0.00036622735212536641",
+      "query_local_y": "0.00061562594983418512",
+      "query_local_z": "0.051682420689698048",
+      "query_row": "20932",
+      "signed_face_distance_m": "-0.001638708181789449",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00093215929853311696",
+      "closest_y": "0.00034152529171619511",
+      "closest_z": "0.054607242858956559",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "4.2909638570260511e-06",
+      "nearest_triangle": "133",
+      "node_kind": -1,
+      "output_node": 20956,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2825997471809387,
+        -0.8555563688278198,
+        0.1316245198249817
+      ],
+      "query_local_x": "-0.00093166429169578169",
+      "query_local_y": "0.00033890301741049123",
+      "query_local_z": "0.054603882648171662",
+      "query_row": "20956",
+      "signed_face_distance_m": "-4.2909638570260519e-06",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00043192826553405627",
+      "closest_y": "0.00046243908401869308",
+      "closest_z": "0.054547935831483582",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00055335796530970921",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 20957,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2822599411010742,
+        -0.8551174402236938,
+        0.1320917010307312
+      ],
+      "query_local_x": "-0.0004399222774916162",
+      "query_local_y": "0.00010821813782534856",
+      "query_local_z": "0.054122884475971786",
+      "query_row": "20957",
+      "signed_face_distance_m": "-0.00055335796530970921",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "0.00052949742517508988",
+      "closest_y": "0.00063732691290654107",
+      "closest_z": "0.054331512300661494",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.000966617982841072",
+      "nearest_triangle": "138",
+      "node_kind": -1,
+      "output_node": 20989,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28197145462036133,
+        -0.854714035987854,
+        0.13297294080257416
+      ],
+      "query_local_x": "0.00046255108949954781",
+      "query_local_y": "-0.00011028209378095843",
+      "query_local_z": "0.053722456239193347",
+      "query_row": "20989",
+      "signed_face_distance_m": "-0.000966617982841072",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00026629235471212936",
+      "closest_y": "-0.00017095638704510462",
+      "closest_z": "0.055072667360346793",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00054088689437984284",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 20990,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2818126976490021,
+        -0.8558131456375122,
+        0.13242506980895996
+      ],
+      "query_local_x": "-0.0001903322707229706",
+      "query_local_y": "-0.00053879625520206198",
+      "query_local_z": "0.054683459794199238",
+      "query_row": "20990",
+      "signed_face_distance_m": "-0.00053333028960335642",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00048476445701860747",
+      "closest_y": "0.00065063320856658335",
+      "closest_z": "0.05439209600916587",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00013738864117884088",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21016,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28274005651474,
+        -0.8551489114761353,
+        0.132028266787529
+      ],
+      "query_local_x": "-0.00048674922367829016",
+      "query_local_y": "0.00056268663957240866",
+      "query_local_z": "0.054286563547674499",
+      "query_row": "21016",
+      "signed_face_distance_m": "-0.00013738864117884088",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "6.8361639525586044e-05",
+      "closest_y": "0.0013601841934577645",
+      "closest_z": "0.053608844073396431",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00044820448779134058",
+      "nearest_triangle": "135",
+      "node_kind": -1,
+      "output_node": 21019,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2829301357269287,
+        -0.8540416359901428,
+        0.1323879063129425
+      ],
+      "query_local_x": "-1.9137178373191017e-05",
+      "query_local_y": "0.0010356768079963358",
+      "query_local_z": "0.053312320589463703",
+      "query_row": "21019",
+      "signed_face_distance_m": "-0.00044820448779134053",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "6.771959979099906e-05",
+      "closest_y": "0.00096113308509032029",
+      "closest_z": "0.054045744408713604",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00021547019308040461",
+      "nearest_triangle": "135",
+      "node_kind": -1,
+      "output_node": 21022,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28288185596466064,
+        -0.8546668887138367,
+        0.13249287009239197
+      ],
+      "query_local_x": "2.565534630736676e-05",
+      "query_local_y": "0.00080512913844098949",
+      "query_local_z": "0.053903193465837718",
+      "query_row": "21022",
+      "signed_face_distance_m": "-0.00021547019308040458",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "5.8854340864784033e-05",
+      "closest_y": "0.0009690167536844683",
+      "closest_z": "0.0540397327128328",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00021560296687009046",
+      "nearest_triangle": "135",
+      "node_kind": -1,
+      "output_node": 21025,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28288719058036804,
+        -0.8546596765518188,
+        0.13248305022716522
+      ],
+      "query_local_x": "1.676416718186368e-05",
+      "query_local_y": "0.00081291667663813821",
+      "query_local_z": "0.053897093929366813",
+      "query_row": "21025",
+      "signed_face_distance_m": "-0.00021560296687009043",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00023591898570628382",
+      "closest_y": "0.00036476615040864201",
+      "closest_z": "0.054625646202255899",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00059856522549844437",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21026,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2821590304374695,
+        -0.8551763892173767,
+        0.1322975754737854
+      ],
+      "query_local_x": "-0.00024456607831176581",
+      "query_local_y": "-1.8393312048579913e-05",
+      "query_local_z": "0.054165869752994991",
+      "query_row": "21026",
+      "signed_face_distance_m": "-0.00059856522549844437",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.0003233157040853823",
+      "closest_y": "0.00035427359442011513",
+      "closest_z": "0.054636033967086571",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00060969044581698042",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21027,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28213921189308167,
+        -0.8551912307739258,
+        0.13221174478530884
+      ],
+      "query_local_x": "-0.00033212351570067761",
+      "query_local_y": "-3.6007453547558244e-05",
+      "query_local_z": "0.054167711892257386",
+      "query_row": "21027",
+      "signed_face_distance_m": "-0.00060969044581698042",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00043977183194665522",
+      "closest_y": "6.471720443244032e-05",
+      "closest_z": "0.054879528991333228",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00043766082502040012",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21030,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28207138180732727,
+        -0.8556112051010132,
+        0.13213887810707092
+      ],
+      "query_local_x": "-0.00044609444061572984",
+      "query_local_y": "-0.0002154425497760612",
+      "query_local_z": "0.0545433481850712",
+      "query_row": "21030",
+      "signed_face_distance_m": "-0.00043766082502040012",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00033660203174248925",
+      "closest_y": "0.0008476280695813201",
+      "closest_z": "0.054225141787416033",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00087899981850333628",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21062,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28226733207702637,
+        -0.854512095451355,
+        0.1321263313293457
+      ],
+      "query_local_x": "-0.0003493003852501975",
+      "query_local_y": "0.0002849540557722588",
+      "query_local_z": "0.053549954860016596",
+      "query_row": "21062",
+      "signed_face_distance_m": "-0.00087899981850333628",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.0003814703825596546",
+      "closest_y": "0.00071025649456595919",
+      "closest_z": "0.054340465657765624",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00082074844371247859",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21064,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28221601247787476,
+        -0.8546973466873169,
+        0.13210132718086243
+      ],
+      "query_local_x": "-0.00039332721535958407",
+      "query_local_y": "0.00018487092402333372",
+      "query_local_z": "0.053710023411689102",
+      "query_row": "21064",
+      "signed_face_distance_m": "-0.0008207484437124787",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00017063610005437722",
+      "closest_y": "0.0011548219980053159",
+      "closest_z": "0.053904110969803472",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00059251711386465965",
+      "nearest_triangle": "135",
+      "node_kind": -1,
+      "output_node": 21066,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2826806902885437,
+        -0.8543449640274048,
+        0.13215753436088562
+      ],
+      "query_local_x": "-0.00028630773757731213",
+      "query_local_y": "0.00072582990912894302",
+      "query_local_z": "0.053512113023154825",
+      "query_row": "21066",
+      "signed_face_distance_m": "-0.00059251711386465965",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00043253995049386408",
+      "closest_y": "0.0016299943287012082",
+      "closest_z": "0.053461378233697732",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.0012099025104133456",
+      "nearest_triangle": "135",
+      "node_kind": -1,
+      "output_node": 21068,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2824467718601227,
+        -0.8535599112510681,
+        0.1317097246646881
+      ],
+      "query_local_x": "-0.00066873803042744821",
+      "query_local_y": "0.000754005107236215",
+      "query_local_z": "0.052660929962029063",
+      "query_row": "21068",
+      "signed_face_distance_m": "-0.0012099025104133456",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00055938119886018013",
+      "closest_y": "0.00095905275539867694",
+      "closest_z": "0.054136474717366802",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.0011215924655053207",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21069,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2821369767189026,
+        -0.8542829751968384,
+        0.13188287615776062
+      ],
+      "query_local_x": "-0.00057558413465010842",
+      "query_local_y": "0.00024108794910505243",
+      "query_local_z": "0.053274944880115735",
+      "query_row": "21069",
+      "signed_face_distance_m": "-0.0011215924655053207",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-7.1150595204483378e-05",
+      "closest_y": "0.0011822464686814678",
+      "closest_z": "0.053844741954183768",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00022484638875797065",
+      "nearest_triangle": "135",
+      "node_kind": -1,
+      "output_node": 21071,
+      "outside_rays": "0",
+      "point_m": [
+        -0.283021479845047,
+        -0.8544212579727173,
+        0.13232305645942688
+      ],
+      "query_local_x": "-0.00011504527667471984",
+      "query_local_y": "0.0010194540028901355",
+      "query_local_z": "0.053695987900263531",
+      "query_row": "21071",
+      "signed_face_distance_m": "-0.00022484638875797065",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00085192579975125167",
+      "closest_y": "-9.1511694299552867e-05",
+      "closest_z": "0.054957000052050134",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "3.8881773187142433e-05",
+      "nearest_triangle": "133",
+      "node_kind": -1,
+      "output_node": 21092,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2822617292404175,
+        -0.8559855222702026,
+        0.1317625641822815
+      ],
+      "query_local_x": "-0.00084744038709883788",
+      "query_local_y": "-0.00011527294659299109",
+      "query_local_z": "0.054926552125208368",
+      "query_row": "21092",
+      "signed_face_distance_m": "-3.888177318714244e-05",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00065832702045707072",
+      "closest_y": "0.00011972617130838405",
+      "closest_z": "0.054820672024658595",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00010220476973085635",
+      "nearest_triangle": "133",
+      "node_kind": -1,
+      "output_node": 21093,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28238117694854736,
+        -0.8557405471801758,
+        0.1319369673728943
+      ],
+      "query_local_x": "-0.00064653664852415155",
+      "query_local_y": "5.7267257526881499e-05",
+      "query_local_z": "0.05474063649395719",
+      "query_row": "21093",
+      "signed_face_distance_m": "-0.00010220476973085635",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.0010003624751276031",
+      "closest_y": "0.00021515512895961997",
+      "closest_z": "0.054695813550235645",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "2.2838762301532503e-05",
+      "nearest_triangle": "133",
+      "node_kind": -1,
+      "output_node": 21094,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2824867367744446,
+        -0.8556722402572632,
+        0.1315734088420868
+      ],
+      "query_local_x": "-0.00099772778887243386",
+      "query_local_y": "0.00020119800847273606",
+      "query_local_z": "0.054677928744407307",
+      "query_row": "21094",
+      "signed_face_distance_m": "-2.2838762301532503e-05",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00093508394145449744",
+      "closest_y": "6.7476574500953011e-05",
+      "closest_z": "0.054820676847873243",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "9.9696668994927715e-06",
+      "nearest_triangle": "133",
+      "node_kind": -1,
+      "output_node": 21095,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2823944687843323,
+        -0.8558348417282104,
+        0.13165631890296936
+      ],
+      "query_local_x": "-0.00093393383778417067",
+      "query_local_y": "6.1383957033631087e-05",
+      "query_local_z": "0.054812869701657677",
+      "query_row": "21095",
+      "signed_face_distance_m": "-9.9696668994927715e-06",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00085110144118053508",
+      "closest_y": "0.00022084017383932849",
+      "closest_z": "0.054713365272140053",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00016600300684480661",
+      "nearest_triangle": "133",
+      "node_kind": -1,
+      "output_node": 21096,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2823878228664398,
+        -0.8555899262428284,
+        0.1317363679409027
+      ],
+      "query_local_x": "-0.00083195128607684108",
+      "query_local_y": "0.00011939317171512365",
+      "query_local_z": "0.054583369981452148",
+      "query_row": "21096",
+      "signed_face_distance_m": "-0.00016600300684480661",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "0.0038652813263175393",
+      "closest_y": "-0.0060797271292082275",
+      "closest_z": "0.053031569112660826",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.0014084583609136072",
+      "nearest_triangle": "263",
+      "node_kind": -1,
+      "output_node": 21131,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2773684859275818,
+        -0.8551826477050781,
+        0.13595132529735565
+      ],
+      "query_local_x": "0.0031985988280781264",
+      "query_local_y": "-0.0048396662961434148",
+      "query_local_z": "0.053070793228550198",
+      "query_row": "21131",
+      "signed_face_distance_m": "-0.0014084583609136072",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "0.0033711182990408491",
+      "closest_y": "-0.00084471442355883968",
+      "closest_z": "0.055187570575942306",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.0017782188299526765",
+      "nearest_triangle": "148",
+      "node_kind": -1,
+      "output_node": 21134,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2802256941795349,
+        -0.8557940721511841,
+        0.1352575719356537
+      ],
+      "query_local_x": "0.0025661339076185679",
+      "query_local_y": "-0.0022350476361399987",
+      "query_local_z": "0.054425313470525427",
+      "query_row": "21134",
+      "signed_face_distance_m": "-0.0017782188299526763",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00041291540331220354",
+      "closest_y": "0.00042129442205054144",
+      "closest_z": "0.054581866583281444",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00067603022181086123",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21159,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2821287512779236,
+        -0.8550922870635986,
+        0.13211196660995483
+      ],
+      "query_local_x": "-0.00042268158364323644",
+      "query_local_y": "-1.1452696157314424e-05",
+      "query_local_z": "0.054062586876181137",
+      "query_row": "21159",
+      "signed_face_distance_m": "-0.00067603022181086123",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00052958251414209176",
+      "closest_y": "0.00080852723320706875",
+      "closest_z": "0.054261356290303063",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00064901778261113041",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21187,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28242459893226624,
+        -0.8547020554542542,
+        0.13194701075553894
+      ],
+      "query_local_x": "-0.00053895846287711855",
+      "query_local_y": "0.00039307158340152332",
+      "query_local_z": "0.053762825672611994",
+      "query_row": "21187",
+      "signed_face_distance_m": "-0.00064901778261113041",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00056589093244628001",
+      "closest_y": "0.00066972407447021625",
+      "closest_z": "0.054377712197680242",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00056985908318702306",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21188,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2823899984359741,
+        -0.8548994064331055,
+        0.1319313645362854
+      ],
+      "query_local_x": "-0.00057412332559990831",
+      "query_local_y": "0.00030494027031841009",
+      "query_local_z": "0.053939985823535097",
+      "query_row": "21188",
+      "signed_face_distance_m": "-0.00056985908318702306",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00048164846207828074",
+      "closest_y": "0.00055809978239198491",
+      "closest_z": "0.054469151094506861",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00061228738927703453",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21190,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28227755427360535,
+        -0.8549872636795044,
+        0.13202808797359467
+      ],
+      "query_local_x": "-0.00049049379009050934",
+      "query_local_y": "0.00016615635342087653",
+      "query_local_z": "0.053998834227143577",
+      "query_row": "21190",
+      "signed_face_distance_m": "-0.00061228738927703453",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00024189425180628574",
+      "closest_y": "-2.0317688223733268e-06",
+      "closest_z": "0.054931433422258785",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00013795991713506082",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21191,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2822805345058441,
+        -0.8558262586593628,
+        0.13235366344451904
+      ],
+      "query_local_x": "-0.00024388727132778915",
+      "query_local_y": "-9.0344028603410453e-05",
+      "query_local_z": "0.054825462146049303",
+      "query_row": "21191",
+      "signed_face_distance_m": "-0.00013795991713506085",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "0.00069150737204619122",
+      "closest_y": "-0.00040494550421915388",
+      "closest_z": "0.055517636572234352",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.0013710436161720296",
+      "nearest_triangle": "137",
+      "node_kind": -1,
+      "output_node": 21193,
+      "outside_rays": "0",
+      "point_m": [
+        -0.28104686737060547,
+        -0.8558057546615601,
+        0.13356608152389526
+      ],
+      "query_local_x": "0.00091496517673371729",
+      "query_local_y": "-0.0013432306896121252",
+      "query_local_z": "0.054543240288455322",
+      "query_row": "21193",
+      "signed_face_distance_m": "-0.0013710436161720298",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00045785927113538673",
+      "closest_y": "0.00047250631368904428",
+      "closest_z": "0.054540033890207604",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00058084988467377828",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21204,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2822433114051819,
+        -0.855094313621521,
+        0.13206376135349274
+      ],
+      "query_local_x": "-0.00046625044143512335",
+      "query_local_y": "0.00010068696953216549",
+      "query_local_z": "0.054093865141753288",
+      "query_row": "21204",
+      "signed_face_distance_m": "-0.00058084988467377828",
+      "source_row": -1
+    },
+    {
+      "ambiguous": "0",
+      "bank_body": "43",
+      "bank_stable_id": "16",
+      "classification": "inside",
+      "closest_x": "-0.00035581528178016403",
+      "closest_y": "0.0005643693616548454",
+      "closest_z": "0.054461559710066269",
+      "inside_rays": "3",
+      "nearest_bone": "16",
+      "nearest_distance_m": "0.00035637500013385324",
+      "nearest_triangle": "134",
+      "node_kind": -1,
+      "output_node": 21205,
+      "outside_rays": "0",
+      "point_m": [
+        -0.2824999690055847,
+        -0.8551073670387268,
+        0.132160484790802
+      ],
+      "query_local_x": "-0.00036096360563387612",
+      "query_local_y": "0.00033624308958354193",
+      "query_local_z": "0.054187817058159865",
+      "query_row": "21205",
+      "signed_face_distance_m": "-0.00035637500013385324",
+      "source_row": -1
+    }
+  ],
+  "prior_434_patch_equals_starting_union": false,
+  "prior_434_patch_face_count": 434,
+  "prior_patch_overlap_count": 183,
+  "schema": "numi.human.b43-16.bulk-crossing-inside-star-patch.v1",
+  "stages": [
+    {
+      "stage": "crossings_plus_inside_node_stars",
+      "topology": {
+        "boundary_components": [
+          [
+            9106,
+            9721,
+            14282,
+            14283,
+            14285,
+            14824,
+            14825,
+            15972,
+            17069,
+            17073,
+            17076,
+            17093,
+            18488,
+            18489,
+            18490,
+            18492,
+            18496,
+            18590,
+            18591,
+            18897,
+            19063,
+            19064,
+            19379,
+            19496,
+            19702,
+            19703,
+            19704,
+            19705,
+            20157,
+            20159,
+            20171,
+            20172,
+            20179,
+            20182,
+            20184,
+            20185,
+            20189,
+            20196,
+            20198,
+            20204,
+            20215,
+            20217,
+            20218,
+            20896,
+            20898,
+            20903,
+            20904,
+            20905,
+            20906,
+            20925,
+            20927,
+            20929,
+            20930,
+            20933,
+            20934,
+            20953,
+            20954,
+            20955,
+            20958,
+            20959,
+            20988,
+            20991,
+            21017,
+            21018,
+            21020,
+            21021,
+            21023,
+            21024,
+            21028,
+            21029,
+            21060,
+            21061,
+            21063,
+            21065,
+            21067,
+            21072,
+            21073,
+            21097,
+            21120,
+            21121,
+            21127,
+            21128,
+            21129,
+            21132,
+            21135,
+            21172,
+            21186,
+            21189,
+            21192,
+            21202,
+            21203
+          ]
+        ],
+        "boundary_cycles": [
+          [
+            9106,
+            20898,
+            18492,
+            21065,
+            18490,
+            21067,
+            20179,
+            21203,
+            20184,
+            20958,
+            14825,
+            20959,
+            20189,
+            21097,
+            18591,
+            20905,
+            9721,
+            20903,
+            20906,
+            20904,
+            18590,
+            20953,
+            14824,
+            20954,
+            21127,
+            20159,
+            21172,
+            20955,
+            19496,
+            21017,
+            17069,
+            21018,
+            20157,
+            21202,
+            20185,
+            21024,
+            17076,
+            21023,
+            20182,
+            21189,
+            19703,
+            21186,
+            19702,
+            20929,
+            14283,
+            20930,
+            20172,
+            21021,
+            17073,
+            21020,
+            20171,
+            21060,
+            18488,
+            21061,
+            20215,
+            20933,
+            14285,
+            20934,
+            20218,
+            21073,
+            18496,
+            21072,
+            20217,
+            20927,
+            14282,
+            20925,
+            19379,
+            21120,
+            18897,
+            21121,
+            20198,
+            21192,
+            19705,
+            21132,
+            19063,
+            21128,
+            21129,
+            19064,
+            21135,
+            20204,
+            20991,
+            15972,
+            20988,
+            19704,
+            21028,
+            17093,
+            21029,
+            20196,
+            21063,
+            18489,
+            20896
+          ]
+        ],
+        "boundary_degree_histogram": {
+          "2": 91
+        },
+        "boundary_edge_count": 91,
+        "boundary_edges": [
+          {
+            "edge": [
+              20185,
+              21202
+            ],
+            "inside_faces": [
+              19450
+            ],
+            "outside_faces": [
+              19195
+            ]
+          },
+          {
+            "edge": [
+              20157,
+              21202
+            ],
+            "inside_faces": [
+              19452
+            ],
+            "outside_faces": [
+              19196
+            ]
+          },
+          {
+            "edge": [
+              9721,
+              20903
+            ],
+            "inside_faces": [
+              19446
+            ],
+            "outside_faces": [
+              19198
+            ]
+          },
+          {
+            "edge": [
+              20903,
+              20906
+            ],
+            "inside_faces": [
+              19200
+            ],
+            "outside_faces": [
+              19198
+            ]
+          },
+          {
+            "edge": [
+              18590,
+              20904
+            ],
+            "inside_faces": [
+              19203
+            ],
+            "outside_faces": [
+              19201
+            ]
+          },
+          {
+            "edge": [
+              20904,
+              20906
+            ],
+            "inside_faces": [
+              19206
+            ],
+            "outside_faces": [
+              19205
+            ]
+          },
+          {
+            "edge": [
+              20157,
+              21018
+            ],
+            "inside_faces": [
+              19213
+            ],
+            "outside_faces": [
+              19207
+            ]
+          },
+          {
+            "edge": [
+              17069,
+              21018
+            ],
+            "inside_faces": [
+              19212
+            ],
+            "outside_faces": [
+              19208
+            ]
+          },
+          {
+            "edge": [
+              17069,
+              21017
+            ],
+            "inside_faces": [
+              19220
+            ],
+            "outside_faces": [
+              19216
+            ]
+          },
+          {
+            "edge": [
+              19496,
+              21017
+            ],
+            "inside_faces": [
+              19219
+            ],
+            "outside_faces": [
+              19217
+            ]
+          },
+          {
+            "edge": [
+              20159,
+              21172
+            ],
+            "inside_faces": [
+              19225
+            ],
+            "outside_faces": [
+              19218
+            ]
+          },
+          {
+            "edge": [
+              19496,
+              20955
+            ],
+            "inside_faces": [
+              19238
+            ],
+            "outside_faces": [
+              19223
+            ]
+          },
+          {
+            "edge": [
+              20955,
+              21172
+            ],
+            "inside_faces": [
+              19226
+            ],
+            "outside_faces": [
+              19223
+            ]
+          },
+          {
+            "edge": [
+              14824,
+              20954
+            ],
+            "inside_faces": [
+              19227
+            ],
+            "outside_faces": [
+              19261
+            ]
+          },
+          {
+            "edge": [
+              20954,
+              21127
+            ],
+            "inside_faces": [
+              19230
+            ],
+            "outside_faces": [
+              19228
+            ]
+          },
+          {
+            "edge": [
+              20159,
+              21127
+            ],
+            "inside_faces": [
+              19229
+            ],
+            "outside_faces": [
+              19231
+            ]
+          },
+          {
+            "edge": [
+              14824,
+              20953
+            ],
+            "inside_faces": [
+              19237
+            ],
+            "outside_faces": [
+              19235
+            ]
+          },
+          {
+            "edge": [
+              18590,
+              20953
+            ],
+            "inside_faces": [
+              19239
+            ],
+            "outside_faces": [
+              19236
+            ]
+          },
+          {
+            "edge": [
+              18488,
+              21060
+            ],
+            "inside_faces": [
+              19309
+            ],
+            "outside_faces": [
+              19307
+            ]
+          },
+          {
+            "edge": [
+              20171,
+              21060
+            ],
+            "inside_faces": [
+              19311
+            ],
+            "outside_faces": [
+              19308
+            ]
+          },
+          {
+            "edge": [
+              9106,
+              20898
+            ],
+            "inside_faces": [
+              19313
+            ],
+            "outside_faces": [
+              19342
+            ]
+          },
+          {
+            "edge": [
+              18492,
+              20898
+            ],
+            "inside_faces": [
+              19314
+            ],
+            "outside_faces": [
+              19341
+            ]
+          },
+          {
+            "edge": [
+              17073,
+              21020
+            ],
+            "inside_faces": [
+              19318
+            ],
+            "outside_faces": [
+              19322
+            ]
+          },
+          {
+            "edge": [
+              20171,
+              21020
+            ],
+            "inside_faces": [
+              19319
+            ],
+            "outside_faces": [
+              19321
+            ]
+          },
+          {
+            "edge": [
+              18492,
+              21065
+            ],
+            "inside_faces": [
+              19325
+            ],
+            "outside_faces": [
+              19341
+            ]
+          },
+          {
+            "edge": [
+              18490,
+              21065
+            ],
+            "inside_faces": [
+              19326
+            ],
+            "outside_faces": [
+              19340
+            ]
+          },
+          {
+            "edge": [
+              14283,
+              20930
+            ],
+            "inside_faces": [
+              19329
+            ],
+            "outside_faces": [
+              19333
+            ]
+          },
+          {
+            "edge": [
+              20172,
+              20930
+            ],
+            "inside_faces": [
+              19330
+            ],
+            "outside_faces": [
+              19332
+            ]
+          },
+          {
+            "edge": [
+              17073,
+              21021
+            ],
+            "inside_faces": [
+              19336
+            ],
+            "outside_faces": [
+              19334
+            ]
+          },
+          {
+            "edge": [
+              20172,
+              21021
+            ],
+            "inside_faces": [
+              19338
+            ],
+            "outside_faces": [
+              19335
+            ]
+          },
+          {
+            "edge": [
+              18490,
+              21067
+            ],
+            "inside_faces": [
+              19352
+            ],
+            "outside_faces": [
+              19360
+            ]
+          },
+          {
+            "edge": [
+              20179,
+              21067
+            ],
+            "inside_faces": [
+              19353
+            ],
+            "outside_faces": [
+              19359
+            ]
+          },
+          {
+            "edge": [
+              20184,
+              21203
+            ],
+            "inside_faces": [
+              19389
+            ],
+            "outside_faces": [
+              19362
+            ]
+          },
+          {
+            "edge": [
+              20179,
+              21203
+            ],
+            "inside_faces": [
+              19391
+            ],
+            "outside_faces": [
+              19363
+            ]
+          },
+          {
+            "edge": [
+              19702,
+              20929
+            ],
+            "inside_faces": [
+              19368
+            ],
+            "outside_faces": [
+              19400
+            ]
+          },
+          {
+            "edge": [
+              14283,
+              20929
+            ],
+            "inside_faces": [
+              19369
+            ],
+            "outside_faces": [
+              19399
+            ]
+          },
+          {
+            "edge": [
+              19703,
+              21186
+            ],
+            "inside_faces": [
+              19372
+            ],
+            "outside_faces": [
+              19376
+            ]
+          },
+          {
+            "edge": [
+              19702,
+              21186
+            ],
+            "inside_faces": [
+              19373
+            ],
+            "outside_faces": [
+              19375
+            ]
+          },
+          {
+            "edge": [
+              19703,
+              21189
+            ],
+            "inside_faces": [
+              19381
+            ],
+            "outside_faces": [
+              19425
+            ]
+          },
+          {
+            "edge": [
+              20182,
+              21189
+            ],
+            "inside_faces": [
+              19383
+            ],
+            "outside_faces": [
+              19426
+            ]
+          },
+          {
+            "edge": [
+              20182,
+              21023
+            ],
+            "inside_faces": [
+              19403
+            ],
+            "outside_faces": [
+              19410
+            ]
+          },
+          {
+            "edge": [
+              17076,
+              21023
+            ],
+            "inside_faces": [
+              19405
+            ],
+            "outside_faces": [
+              19411
+            ]
+          },
+          {
+            "edge": [
+              9721,
+              20905
+            ],
+            "inside_faces": [
+              19462
+            ],
+            "outside_faces": [
+              19413
+            ]
+          },
+          {
+            "edge": [
+              18591,
+              20905
+            ],
+            "inside_faces": [
+              19461
+            ],
+            "outside_faces": [
+              19414
+            ]
+          },
+          {
+            "edge": [
+              18591,
+              21097
+            ],
+            "inside_faces": [
+              19418
+            ],
+            "outside_faces": [
+              19414
+            ]
+          },
+          {
+            "edge": [
+              20189,
+              21097
+            ],
+            "inside_faces": [
+              19417
+            ],
+            "outside_faces": [
+              19415
+            ]
+          },
+          {
+            "edge": [
+              14825,
+              20959
+            ],
+            "inside_faces": [
+              19421
+            ],
+            "outside_faces": [
+              19483
+            ]
+          },
+          {
+            "edge": [
+              20189,
+              20959
+            ],
+            "inside_faces": [
+              19422
+            ],
+            "outside_faces": [
+              19482
+            ]
+          },
+          {
+            "edge": [
+              14825,
+              20958
+            ],
+            "inside_faces": [
+              19429
+            ],
+            "outside_faces": [
+              19436
+            ]
+          },
+          {
+            "edge": [
+              20184,
+              20958
+            ],
+            "inside_faces": [
+              19431
+            ],
+            "outside_faces": [
+              19437
+            ]
+          },
+          {
+            "edge": [
+              17076,
+              21024
+            ],
+            "inside_faces": [
+              19457
+            ],
+            "outside_faces": [
+              19455
+            ]
+          },
+          {
+            "edge": [
+              20185,
+              21024
+            ],
+            "inside_faces": [
+              19459
+            ],
+            "outside_faces": [
+              19456
+            ]
+          },
+          {
+            "edge": [
+              9106,
+              20896
+            ],
+            "inside_faces": [
+              19844
+            ],
+            "outside_faces": [
+              19643
+            ]
+          },
+          {
+            "edge": [
+              18489,
+              20896
+            ],
+            "inside_faces": [
+              19846
+            ],
+            "outside_faces": [
+              19644
+            ]
+          },
+          {
+            "edge": [
+              18489,
+              21063
+            ],
+            "inside_faces": [
+              19646
+            ],
+            "outside_faces": [
+              19644
+            ]
+          },
+          {
+            "edge": [
+              20196,
+              21063
+            ],
+            "inside_faces": [
+              19648
+            ],
+            "outside_faces": [
+              19645
+            ]
+          },
+          {
+            "edge": [
+              14282,
+              20925
+            ],
+            "inside_faces": [
+              19650
+            ],
+            "outside_faces": [
+              19671
+            ]
+          },
+          {
+            "edge": [
+              19379,
+              20925
+            ],
+            "inside_faces": [
+              19651
+            ],
+            "outside_faces": [
+              19670
+            ]
+          },
+          {
+            "edge": [
+              17093,
+              21029
+            ],
+            "inside_faces": [
+              19655
+            ],
+            "outside_faces": [
+              19659
+            ]
+          },
+          {
+            "edge": [
+              20196,
+              21029
+            ],
+            "inside_faces": [
+              19656
+            ],
+            "outside_faces": [
+              19658
+            ]
+          },
+          {
+            "edge": [
+              19379,
+              21120
+            ],
+            "inside_faces": [
+              19665
+            ],
+            "outside_faces": [
+              19669
+            ]
+          },
+          {
+            "edge": [
+              18897,
+              21120
+            ],
+            "inside_faces": [
+              19666
+            ],
+            "outside_faces": [
+              19668
+            ]
+          },
+          {
+            "edge": [
+              15972,
+              20988
+            ],
+            "inside_faces": [
+              19674
+            ],
+            "outside_faces": [
+              19694
+            ]
+          },
+          {
+            "edge": [
+              19704,
+              20988
+            ],
+            "inside_faces": [
+              19675
+            ],
+            "outside_faces": [
+              19693
+            ]
+          },
+          {
+            "edge": [
+              19704,
+              21028
+            ],
+            "inside_faces": [
+              19678
+            ],
+            "outside_faces": [
+              19692
+            ]
+          },
+          {
+            "edge": [
+              17093,
+              21028
+            ],
+            "inside_faces": [
+              19679
+            ],
+            "outside_faces": [
+              19691
+            ]
+          },
+          {
+            "edge": [
+              18897,
+              21121
+            ],
+            "inside_faces": [
+              19683
+            ],
+            "outside_faces": [
+              19687
+            ]
+          },
+          {
+            "edge": [
+              20198,
+              21121
+            ],
+            "inside_faces": [
+              19684
+            ],
+            "outside_faces": [
+              19686
+            ]
+          },
+          {
+            "edge": [
+              19063,
+              21128
+            ],
+            "inside_faces": [
+              19717
+            ],
+            "outside_faces": [
+              19714
+            ]
+          },
+          {
+            "edge": [
+              21128,
+              21129
+            ],
+            "inside_faces": [
+              19720
+            ],
+            "outside_faces": [
+              19718
+            ]
+          },
+          {
+            "edge": [
+              19064,
+              21129
+            ],
+            "inside_faces": [
+              19719
+            ],
+            "outside_faces": [
+              19771
+            ]
+          },
+          {
+            "edge": [
+              19063,
+              21132
+            ],
+            "inside_faces": [
+              19731
+            ],
+            "outside_faces": [
+              19723
+            ]
+          },
+          {
+            "edge": [
+              19705,
+              21132
+            ],
+            "inside_faces": [
+              19730
+            ],
+            "outside_faces": [
+              19724
+            ]
+          },
+          {
+            "edge": [
+              20204,
+              21135
+            ],
+            "inside_faces": [
+              19725
+            ],
+            "outside_faces": [
+              19733
+            ]
+          },
+          {
+            "edge": [
+              19064,
+              21135
+            ],
+            "inside_faces": [
+              19727
+            ],
+            "outside_faces": [
+              19734
+            ]
+          },
+          {
+            "edge": [
+              20204,
+              20991
+            ],
+            "inside_faces": [
+              19736
+            ],
+            "outside_faces": [
+              19740
+            ]
+          },
+          {
+            "edge": [
+              15972,
+              20991
+            ],
+            "inside_faces": [
+              19737
+            ],
+            "outside_faces": [
+              19739
+            ]
+          },
+          {
+            "edge": [
+              19705,
+              21192
+            ],
+            "inside_faces": [
+              19747
+            ],
+            "outside_faces": [
+              19741
+            ]
+          },
+          {
+            "edge": [
+              20198,
+              21192
+            ],
+            "inside_faces": [
+              19749
+            ],
+            "outside_faces": [
+              19742
+            ]
+          },
+          {
+            "edge": [
+              20215,
+              21061
+            ],
+            "inside_faces": [
+              19816
+            ],
+            "outside_faces": [
+              19796
+            ]
+          },
+          {
+            "edge": [
+              18488,
+              21061
+            ],
+            "inside_faces": [
+              19818
+            ],
+            "outside_faces": [
+              19797
+            ]
+          },
+          {
+            "edge": [
+              14285,
+              20933
+            ],
+            "inside_faces": [
+              19808
+            ],
+            "outside_faces": [
+              19822
+            ]
+          },
+          {
+            "edge": [
+              20215,
+              20933
+            ],
+            "inside_faces": [
+              19810
+            ],
+            "outside_faces": [
+              19823
+            ]
+          },
+          {
+            "edge": [
+              14282,
+              20927
+            ],
+            "inside_faces": [
+              19840
+            ],
+            "outside_faces": [
+              19855
+            ]
+          },
+          {
+            "edge": [
+              20217,
+              20927
+            ],
+            "inside_faces": [
+              19842
+            ],
+            "outside_faces": [
+              19856
+            ]
+          },
+          {
+            "edge": [
+              18496,
+              21072
+            ],
+            "inside_faces": [
+              19848
+            ],
+            "outside_faces": [
+              19853
+            ]
+          },
+          {
+            "edge": [
+              20217,
+              21072
+            ],
+            "inside_faces": [
+              19849
+            ],
+            "outside_faces": [
+              19852
+            ]
+          },
+          {
+            "edge": [
+              14285,
+              20934
+            ],
+            "inside_faces": [
+              19862
+            ],
+            "outside_faces": [
+              19866
+            ]
+          },
+          {
+            "edge": [
+              20218,
+              20934
+            ],
+            "inside_faces": [
+              19863
+            ],
+            "outside_faces": [
+              19865
+            ]
+          },
+          {
+            "edge": [
+              18496,
+              21073
+            ],
+            "inside_faces": [
+              19870
+            ],
+            "outside_faces": [
+              19868
+            ]
+          },
+          {
+            "edge": [
+              20218,
+              21073
+            ],
+            "inside_faces": [
+              19872
+            ],
+            "outside_faces": [
+              19869
+            ]
+          }
+        ],
+        "boundary_nodes": [
+          9106,
+          9721,
+          14282,
+          14283,
+          14285,
+          14824,
+          14825,
+          15972,
+          17069,
+          17073,
+          17076,
+          17093,
+          18488,
+          18489,
+          18490,
+          18492,
+          18496,
+          18590,
+          18591,
+          18897,
+          19063,
+          19064,
+          19379,
+          19496,
+          19702,
+          19703,
+          19704,
+          19705,
+          20157,
+          20159,
+          20171,
+          20172,
+          20179,
+          20182,
+          20184,
+          20185,
+          20189,
+          20196,
+          20198,
+          20204,
+          20215,
+          20217,
+          20218,
+          20896,
+          20898,
+          20903,
+          20904,
+          20905,
+          20906,
+          20925,
+          20927,
+          20929,
+          20930,
+          20933,
+          20934,
+          20953,
+          20954,
+          20955,
+          20958,
+          20959,
+          20988,
+          20991,
+          21017,
+          21018,
+          21020,
+          21021,
+          21023,
+          21024,
+          21028,
+          21029,
+          21060,
+          21061,
+          21063,
+          21065,
+          21067,
+          21072,
+          21073,
+          21097,
+          21120,
+          21121,
+          21127,
+          21128,
+          21129,
+          21132,
+          21135,
+          21172,
+          21186,
+          21189,
+          21192,
+          21202,
+          21203
+        ],
+        "boundary_simple_loops": true,
+        "face_component_count": 1,
+        "face_component_sizes": [
+          183
+        ],
+        "face_count": 183,
+        "face_rows": [
+          19197,
+          19199,
+          19200,
+          19203,
+          19204,
+          19206,
+          19212,
+          19213,
+          19214,
+          19215,
+          19219,
+          19220,
+          19221,
+          19222,
+          19224,
+          19225,
+          19226,
+          19227,
+          19229,
+          19230,
+          19237,
+          19238,
+          19239,
+          19240,
+          19309,
+          19310,
+          19311,
+          19312,
+          19313,
+          19314,
+          19315,
+          19316,
+          19317,
+          19318,
+          19319,
+          19320,
+          19324,
+          19325,
+          19326,
+          19327,
+          19328,
+          19329,
+          19330,
+          19331,
+          19336,
+          19337,
+          19338,
+          19339,
+          19352,
+          19353,
+          19354,
+          19355,
+          19367,
+          19368,
+          19369,
+          19370,
+          19371,
+          19372,
+          19373,
+          19374,
+          19381,
+          19382,
+          19383,
+          19384,
+          19389,
+          19390,
+          19391,
+          19392,
+          19403,
+          19404,
+          19405,
+          19406,
+          19417,
+          19418,
+          19419,
+          19420,
+          19421,
+          19422,
+          19423,
+          19424,
+          19429,
+          19430,
+          19431,
+          19432,
+          19446,
+          19447,
+          19448,
+          19449,
+          19450,
+          19451,
+          19452,
+          19453,
+          19457,
+          19458,
+          19459,
+          19460,
+          19461,
+          19462,
+          19463,
+          19464,
+          19646,
+          19647,
+          19648,
+          19649,
+          19650,
+          19651,
+          19652,
+          19653,
+          19654,
+          19655,
+          19656,
+          19657,
+          19664,
+          19665,
+          19666,
+          19667,
+          19674,
+          19675,
+          19676,
+          19677,
+          19678,
+          19679,
+          19680,
+          19681,
+          19682,
+          19683,
+          19684,
+          19685,
+          19717,
+          19719,
+          19720,
+          19725,
+          19726,
+          19727,
+          19728,
+          19729,
+          19730,
+          19731,
+          19732,
+          19735,
+          19736,
+          19737,
+          19738,
+          19747,
+          19748,
+          19749,
+          19750,
+          19808,
+          19809,
+          19810,
+          19811,
+          19812,
+          19813,
+          19814,
+          19815,
+          19816,
+          19817,
+          19818,
+          19819,
+          19840,
+          19841,
+          19842,
+          19843,
+          19844,
+          19845,
+          19846,
+          19847,
+          19848,
+          19849,
+          19850,
+          19851,
+          19857,
+          19858,
+          19859,
+          19860,
+          19861,
+          19862,
+          19863,
+          19864,
+          19870,
+          19871,
+          19872,
+          19873
+        ],
+        "global_nonmanifold_or_open_edges": [],
+        "lineage_complete": true,
+        "lineage_failures": []
+      }
+    }
+  ],
+  "starting_union_face_count": 183,
+  "status": "BULK_PATCH_TOPOLOGY_READY_FOR_EXACT_BOUNDARY_CHECK",
+  "target_bank": [
+    43,
+    16
+  ],
+  "target_crossing_face_rows": [
+    19197,
+    19199,
+    19200,
+    19203,
+    19204,
+    19206,
+    19212,
+    19213,
+    19214,
+    19215,
+    19219,
+    19220,
+    19221,
+    19222,
+    19224,
+    19225,
+    19226,
+    19227,
+    19229,
+    19230,
+    19237,
+    19238,
+    19239,
+    19240,
+    19309,
+    19310,
+    19311,
+    19312,
+    19313,
+    19314,
+    19315,
+    19316,
+    19317,
+    19318,
+    19319,
+    19320,
+    19324,
+    19325,
+    19326,
+    19327,
+    19328,
+    19329,
+    19330,
+    19331,
+    19336,
+    19337,
+    19338,
+    19339,
+    19352,
+    19353,
+    19354,
+    19355,
+    19367,
+    19368,
+    19369,
+    19370,
+    19371,
+    19372,
+    19373,
+    19374,
+    19381,
+    19382,
+    19383,
+    19384,
+    19389,
+    19390,
+    19391,
+    19392,
+    19403,
+    19404,
+    19405,
+    19406,
+    19417,
+    19418,
+    19419,
+    19420,
+    19421,
+    19422,
+    19423,
+    19424,
+    19429,
+    19430,
+    19431,
+    19432,
+    19446,
+    19447,
+    19448,
+    19449,
+    19450,
+    19451,
+    19452,
+    19453,
+    19457,
+    19458,
+    19459,
+    19460,
+    19461,
+    19462,
+    19463,
+    19464,
+    19646,
+    19647,
+    19648,
+    19649,
+    19650,
+    19651,
+    19652,
+    19653,
+    19654,
+    19655,
+    19656,
+    19657,
+    19664,
+    19665,
+    19666,
+    19667,
+    19674,
+    19675,
+    19676,
+    19677,
+    19678,
+    19679,
+    19680,
+    19681,
+    19682,
+    19683,
+    19684,
+    19685,
+    19717,
+    19719,
+    19720,
+    19725,
+    19726,
+    19727,
+    19728,
+    19729,
+    19730,
+    19731,
+    19732,
+    19735,
+    19736,
+    19737,
+    19738,
+    19747,
+    19748,
+    19749,
+    19750,
+    19808,
+    19809,
+    19810,
+    19811,
+    19812,
+    19813,
+    19814,
+    19815,
+    19816,
+    19817,
+    19818,
+    19819,
+    19840,
+    19841,
+    19842,
+    19843,
+    19844,
+    19845,
+    19846,
+    19847,
+    19848,
+    19849,
+    19850,
+    19851,
+    19857,
+    19858,
+    19859,
+    19860,
+    19861,
+    19862,
+    19863,
+    19864,
+    19870,
+    19871,
+    19872,
+    19873
+  ],
+  "target_exact_pair_count": 249,
+  "target_unique_crossing_face_count": 183
+}

@@ -1,0 +1,141 @@
+{
+  "prior_candidate_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "candidate_sha256": "c65ba99363fe98d403d2ce2bbf6fea2eff89b6ae1758bcd40e7274e6a2b9f8ed",
+  "all_bank_raw_before_after": [
+    983,
+    983
+  ],
+  "raw_added": [],
+  "raw_removed": [],
+  "all_bank_parent_before_after": [
+    651,
+    651
+  ],
+  "parent_added": [],
+  "parent_removed": [],
+  "inside_before_after": [
+    125,
+    125
+  ],
+  "inside_added": [],
+  "inside_removed": [],
+  "common_depth_worsening_over_0_00001mm": [],
+  "per_bank": [
+    {
+      "bank": [
+        43,
+        16
+      ],
+      "parent_before": 149,
+      "parent_after": 149,
+      "raw_before": 249,
+      "raw_after": 249
+    },
+    {
+      "bank": [
+        57,
+        89
+      ],
+      "parent_before": 59,
+      "parent_after": 59,
+      "raw_before": 73,
+      "raw_after": 73
+    },
+    {
+      "bank": [
+        59,
+        95
+      ],
+      "parent_before": 33,
+      "parent_after": 33,
+      "raw_before": 45,
+      "raw_after": 45
+    },
+    {
+      "bank": [
+        61,
+        97
+      ],
+      "parent_before": 26,
+      "parent_after": 26,
+      "raw_before": 32,
+      "raw_after": 32
+    },
+    {
+      "bank": [
+        64,
+        98
+      ],
+      "parent_before": 32,
+      "parent_after": 32,
+      "raw_before": 38,
+      "raw_after": 38
+    },
+    {
+      "bank": [
+        65,
+        99
+      ],
+      "parent_before": 84,
+      "parent_after": 84,
+      "raw_before": 148,
+      "raw_after": 148
+    },
+    {
+      "bank": [
+        74,
+        104
+      ],
+      "parent_before": 19,
+      "parent_after": 19,
+      "raw_before": 25,
+      "raw_after": 25
+    },
+    {
+      "bank": [
+        109,
+        114
+      ],
+      "parent_before": 119,
+      "parent_after": 119,
+      "raw_before": 187,
+      "raw_after": 187
+    },
+    {
+      "bank": [
+        114,
+        117
+      ],
+      "parent_before": 42,
+      "parent_after": 42,
+      "raw_before": 58,
+      "raw_after": 58
+    },
+    {
+      "bank": [
+        115,
+        118
+      ],
+      "parent_before": 34,
+      "parent_after": 34,
+      "raw_before": 46,
+      "raw_after": 46
+    },
+    {
+      "bank": [
+        124,
+        123
+      ],
+      "parent_before": 54,
+      "parent_after": 54,
+      "raw_before": 82,
+      "raw_after": 82
+    }
+  ],
+  "surface_self_before_after": [
+    0,
+    0
+  ],
+  "geometry_admitted": false,
+  "accepted_physical_steps": 0
+}

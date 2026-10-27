@@ -1,0 +1,186 @@
+{
+  "schema": "numi.human.bulk_boundary_fan_preflight.v1",
+  "status": "BASELINE_FAN_TOPOLOGY_AND_SHAPE_PREFLIGHT",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "audit130_sha256": "0ec99fa47245355d60858b05e1240b0e562de229c13721ea11659f6f4acdf5cf",
+  "bulk_patch_topology_sha256": "4458a452a349dacec292f197b8fad814a66b37d4e3cdfc0c355bb607bf7ba0f1",
+  "patch_parent_count": 183,
+  "crossing_pair_count": 249,
+  "crossing_parent_count": 183,
+  "inside_source_node_count": 43,
+  "parent_boundary": {
+    "edge_count": 91,
+    "degree_histogram": {
+      "2": 91
+    },
+    "is_one_loop": true
+  },
+  "fan_output": {
+    "face_count": 549,
+    "center_count": 183,
+    "fixed_boundary_edges_identical": true,
+    "boundary_edge_count": 91,
+    "zero_step_source_float32_bitwise": true
+  },
+  "all_fan_children_shape": {
+    "existing_gates": {
+      "area_ratio_min": 0.1,
+      "orientation_positive": true,
+      "min_angle_deg": 0.5,
+      "aspect_max": 50.0
+    },
+    "passing_parent_count": 167,
+    "excluded_parent_count": 16,
+    "excluded_faces": [
+      {
+        "parent_face": 19309,
+        "min_child_area_ratio": 0.17004853882230458,
+        "min_child_angle_deg": 0.27525794577307405,
+        "max_child_aspect": 72.75147152846209,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19310,
+        "min_child_area_ratio": 0.1700458858927402,
+        "min_child_angle_deg": 0.27532573362240276,
+        "max_child_aspect": 72.73340906961177,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19311,
+        "min_child_area_ratio": 0.17004927049230145,
+        "min_child_angle_deg": 0.27519343878223096,
+        "max_child_aspect": 72.7684649977043,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19312,
+        "min_child_area_ratio": 0.17004853882230458,
+        "min_child_angle_deg": 0.27525794577307405,
+        "max_child_aspect": 72.75147152846209,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19352,
+        "min_child_area_ratio": 0.16887606566757435,
+        "min_child_angle_deg": 0.13614379921279965,
+        "max_child_aspect": 146.16772969050612,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19353,
+        "min_child_area_ratio": 0.16887606566757435,
+        "min_child_angle_deg": 0.13614379921279965,
+        "max_child_aspect": 146.16772969050612,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19354,
+        "min_child_area_ratio": 0.16888978279504516,
+        "min_child_angle_deg": 0.13598919860000186,
+        "max_child_aspect": 146.89510875575857,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19355,
+        "min_child_area_ratio": 0.16887606566757435,
+        "min_child_angle_deg": 0.13614379921279965,
+        "max_child_aspect": 146.16772969050612,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19417,
+        "min_child_area_ratio": 0.16807053384777967,
+        "min_child_angle_deg": 0.16045217451835755,
+        "max_child_aspect": 123.89431450104023,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19418,
+        "min_child_area_ratio": 0.16807569098831698,
+        "min_child_angle_deg": 0.16111597734185926,
+        "max_child_aspect": 123.38358065757696,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19419,
+        "min_child_area_ratio": 0.16806808267742146,
+        "min_child_angle_deg": 0.16060073029398608,
+        "max_child_aspect": 123.77932984707535,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19420,
+        "min_child_area_ratio": 0.16807053384777967,
+        "min_child_angle_deg": 0.16045217451835755,
+        "max_child_aspect": 123.89431450104023,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19870,
+        "min_child_area_ratio": 0.16865072873045842,
+        "min_child_angle_deg": 0.09329072394630765,
+        "max_child_aspect": 214.03418280912146,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19871,
+        "min_child_area_ratio": 0.1686452945545885,
+        "min_child_angle_deg": 0.093708484626884,
+        "max_child_aspect": 212.84789369635303,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19872,
+        "min_child_area_ratio": 0.16864012113311835,
+        "min_child_angle_deg": 0.09355417872388327,
+        "max_child_aspect": 213.42869992020312,
+        "orientation_positive": true
+      },
+      {
+        "parent_face": 19873,
+        "min_child_area_ratio": 0.1686542454000924,
+        "min_child_angle_deg": 0.09362422114304475,
+        "max_child_aspect": 213.27411221753016,
+        "orientation_positive": true
+      }
+    ],
+    "minimum_child_area_ratio": 0.16806808267742146
+  },
+  "complete_parent_ancestry": {
+    "source": {
+      "rows_nonempty": 183,
+      "minimum_entries_per_parent": 1,
+      "output_entries_if_3way_fan": 549
+    },
+    "fine_subface": {
+      "rows_nonempty": 183,
+      "minimum_entries_per_parent": 1,
+      "output_entries_if_3way_fan": 549
+    },
+    "fine_detail": {
+      "rows_nonempty": 183,
+      "minimum_entries_per_parent": 1,
+      "output_entries_if_3way_fan": 549
+    },
+    "immediate_parent": {
+      "rows_nonempty": 183,
+      "minimum_entries_per_parent": 1,
+      "output_entries_if_3way_fan": 549
+    },
+    "prior_parent": {
+      "rows_nonempty": 183,
+      "minimum_entries_per_parent": 1,
+      "output_entries_if_3way_fan": 579
+    },
+    "generation002_parent": {
+      "rows_nonempty": 183,
+      "minimum_entries_per_parent": 1,
+      "output_entries_if_3way_fan": 549
+    }
+  },
+  "candidate_emitted": false,
+  "geometry_changed": false,
+  "elapsed_seconds": 0.029017210006713867
+}

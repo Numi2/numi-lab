@@ -1,0 +1,77 @@
+{
+  "added_failure_count": 6,
+  "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-200-stage-001/evidence/layer/guarded-65-quarter/skin-fat-layers-541.npz",
+  "baseline_sha256": "78916a0c05eb130e5efb02174342295c2d8d4444eae963c7b36fc43a2a1b17fc",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-022-a69-rebase-checks-001/skin-fat-layers-a69-rebased.npz",
+  "candidate_sha256": "0612a47ba4c6731187180da661f7bab26919fc6a0245ecdb49333f4f09e07cdb",
+  "per_layer_failure_identity_delta": {
+    "fat": {
+      "authored_orientation": {
+        "added": [],
+        "baseline_count": 8530,
+        "candidate_count": 8530,
+        "removed": []
+      },
+      "f32_conditioned_tets": {
+        "added": [
+          100737,
+          100780,
+          104120,
+          104123
+        ],
+        "baseline_count": 128,
+        "candidate_count": 124,
+        "removed": [
+          98838,
+          103905,
+          104115,
+          104118,
+          104121,
+          104124,
+          105241,
+          106282
+        ]
+      },
+      "f32_nonpositive_tets": {
+        "added": [],
+        "baseline_count": 2,
+        "candidate_count": 2,
+        "removed": []
+      }
+    },
+    "skin": {
+      "authored_orientation": {
+        "added": [
+          32988
+        ],
+        "baseline_count": 7612,
+        "candidate_count": 7610,
+        "removed": [
+          34706,
+          34707,
+          34708
+        ]
+      },
+      "f32_conditioned_tets": {
+        "added": [
+          98965
+        ],
+        "baseline_count": 52,
+        "candidate_count": 50,
+        "removed": [
+          100213,
+          100739,
+          104229
+        ]
+      },
+      "f32_nonpositive_tets": {
+        "added": [],
+        "baseline_count": 2,
+        "candidate_count": 2,
+        "removed": []
+      }
+    }
+  },
+  "source_layer_outer_matches_a69": true,
+  "transfer": "same inherited offsets reanchored by rebased Float32 outer displacement"
+}

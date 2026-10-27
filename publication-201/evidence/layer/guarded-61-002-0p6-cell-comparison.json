@@ -1,0 +1,48 @@
+{
+  "status": "DIAGNOSTIC_NO_PHYSICAL_ADMISSION",
+  "baseline_sha256": "78916a0c05eb130e5efb02174342295c2d8d4444eae963c7b36fc43a2a1b17fc",
+  "candidate_sha256": "4cb956525161c2e654d1811fc62b267a2b3febf4740dc93d3be2f1ff3290acba",
+  "per_layer": {
+    "skin": {
+      "authored_fail": {
+        "before": 7612,
+        "after": 7612,
+        "added": [],
+        "removed": []
+      },
+      "f32_nonpositive": {
+        "before": 2,
+        "after": 2,
+        "added": [],
+        "removed": []
+      },
+      "f32_conditioned_fail": {
+        "before": 52,
+        "after": 52,
+        "added": [],
+        "removed": []
+      }
+    },
+    "fat": {
+      "authored_fail": {
+        "before": 8530,
+        "after": 8530,
+        "added": [],
+        "removed": []
+      },
+      "f32_nonpositive": {
+        "before": 2,
+        "after": 2,
+        "added": [],
+        "removed": []
+      },
+      "f32_conditioned_fail": {
+        "before": 128,
+        "after": 128,
+        "added": [],
+        "removed": []
+      }
+    }
+  },
+  "caution": "Orientation and conditioning checks are diagnostics for the inherited offset-prism construction; no physical mass, global layer collision, or native admission is established."
+}

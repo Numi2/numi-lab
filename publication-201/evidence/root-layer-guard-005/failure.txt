@@ -1,0 +1,1 @@
+No candidate emitted: deliberately pinned layer identity check failed. The requested 002 layer SHA was mistakenly set to the 001-layer SHA. Corrected in 006.

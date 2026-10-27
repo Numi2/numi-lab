@@ -1,0 +1,127 @@
+{
+  "candidate": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-022-a69-rebase-checks-001/candidate-a69-rebased.npz",
+    "sha256": "cb09fe74130f8994905cf44783365b8250de7791de2e7e00370cbf1219d5f271"
+  },
+  "elapsed_s": 1.1630016658455133,
+  "geometry_admitted": false,
+  "layer_check": {
+    "added_failure_count": 6,
+    "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-200-stage-001/evidence/layer/guarded-65-quarter/skin-fat-layers-541.npz",
+    "baseline_sha256": "78916a0c05eb130e5efb02174342295c2d8d4444eae963c7b36fc43a2a1b17fc",
+    "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-022-a69-rebase-checks-001/skin-fat-layers-a69-rebased.npz",
+    "candidate_sha256": "0612a47ba4c6731187180da661f7bab26919fc6a0245ecdb49333f4f09e07cdb",
+    "per_layer_failure_identity_delta": {
+      "fat": {
+        "authored_orientation": {
+          "added": [],
+          "baseline_count": 8530,
+          "candidate_count": 8530,
+          "removed": []
+        },
+        "f32_conditioned_tets": {
+          "added": [
+            100737,
+            100780,
+            104120,
+            104123
+          ],
+          "baseline_count": 128,
+          "candidate_count": 124,
+          "removed": [
+            98838,
+            103905,
+            104115,
+            104118,
+            104121,
+            104124,
+            105241,
+            106282
+          ]
+        },
+        "f32_nonpositive_tets": {
+          "added": [],
+          "baseline_count": 2,
+          "candidate_count": 2,
+          "removed": []
+        }
+      },
+      "skin": {
+        "authored_orientation": {
+          "added": [
+            32988
+          ],
+          "baseline_count": 7612,
+          "candidate_count": 7610,
+          "removed": [
+            34706,
+            34707,
+            34708
+          ]
+        },
+        "f32_conditioned_tets": {
+          "added": [
+            98965
+          ],
+          "baseline_count": 52,
+          "candidate_count": 50,
+          "removed": [
+            100213,
+            100739,
+            104229
+          ]
+        },
+        "f32_nonpositive_tets": {
+          "added": [],
+          "baseline_count": 2,
+          "candidate_count": 2,
+          "removed": []
+        }
+      }
+    },
+    "source_layer_outer_matches_a69": true,
+    "transfer": "same inherited offsets reanchored by rebased Float32 outer displacement"
+  },
+  "physical_steps": 0,
+  "pins": {
+    "a69_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+    "base653_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+    "increment_backtrack_report_sha256": "de63476770d31fddb6b107606e4c1687430d38ae6588589f38c3c37606439fd2",
+    "increment_fit_report_sha256": "b72f3148735002659489949ebe5be62761dd2f1d48c679bff637f1b922d34701",
+    "increment_sha256": "6a38d42d2161cde3d5972291c4f2cf19c163c395f1a022b6ee330e4dd3a0aa64",
+    "layer_a69_sha256": "78916a0c05eb130e5efb02174342295c2d8d4444eae963c7b36fc43a2a1b17fc",
+    "layer_report_a69_sha256": "172a05971715852352afec6a21575c4524b3cacb7d0d942214ed25d780bbc31e"
+  },
+  "schema": "numi.human.b109-114.a69-rebase-check.v1",
+  "shape_against_a69": {
+    "affected_faces": 2392,
+    "anchors_unchanged": true,
+    "changed_nodes": 1130,
+    "max_displacement_mm": 0.041699107136735795,
+    "maximum_aspect_ratio": 1.0388670481244586,
+    "maximum_normal_rotation_degrees": 6.126469052517846,
+    "metadata_identical": true,
+    "minimum_angle_ratio": 0.9619881390169777,
+    "minimum_area_ratio": 0.9929794558265898,
+    "minimum_normal_dot": 0.9942887469921036,
+    "pass": true,
+    "thresholds": {
+      "area_ratio_floor": 0.95,
+      "aspect_ratio_ceiling": 1.05,
+      "max_trust_mm": 3.0,
+      "minimum_angle_ratio_floor": 0.95,
+      "positive_orientation": true
+    },
+    "violating_faces": 0
+  },
+  "status": "STOP_ADDED_LAYER_FAILURE",
+  "support": {
+    "a69_changed_nodes_vs_653": 646,
+    "displacement_rule": "Add the Float64 difference between each emitted Float32 increment point and its 653 Float32 baseline point to the a69 Float32 point, then round once to Float32.",
+    "increment_changed_nodes_vs_653": 1130,
+    "increment_moved_nodes_after_f32_rebase": 1130,
+    "max_rebased_displacement_mm": 0.0416991071367358,
+    "sum_rebased_displacement_mm": 12.20981903047572,
+    "support_intersection_count": 0
+  }
+}

@@ -1,0 +1,333 @@
+{
+  "added_exact_pairs": [
+    [
+      8838,
+      41
+    ],
+    [
+      8839,
+      41
+    ],
+    [
+      8841,
+      41
+    ],
+    [
+      8849,
+      41
+    ]
+  ],
+  "added_pairs_absent_from_baseline": true,
+  "alpha060_candidate_points_sha256": "88c6a63f956f05684a46cd870149ab74c0177f3b3d46fc3e3c4bbc86c0323240",
+  "alpha060_candidate_sha256": "158e0dc7780ffa089efdd9d6adb4bfd0c066375c47a68d5820058e68716d91f8",
+  "bank_input_pins": {
+    "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+  },
+  "baseline_audit159_sha256": "2e870a160a1514e7a5621ceb504845303e984871532f60278bac12b6bbf817a8",
+  "baseline_candidate_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "baseline_comparable_pair_count": 32,
+  "intended_correction_projection_summary": {
+    "candidate_intersection_pairs_count": 4,
+    "minimum_candidate_clearance_to_preserved_margin_mm": -0.04069235063516108,
+    "negative_vertex_steps": 12,
+    "positive_vertex_steps": 0
+  },
+  "moving_support_node_count": 78,
+  "obstructions": [],
+  "pairs": [
+    {
+      "baseline_bone_barycentric": [
+        0.36166726054314613,
+        0.026785510963619093,
+        0.6115472284932347
+      ],
+      "baseline_closest_distance_mm": 0.082402424103482,
+      "baseline_closest_points_mm": [
+        [
+          -0.6924010225592914,
+          -11.257730984963413,
+          -0.9440140744862927
+        ],
+        [
+          -0.7485761646270447,
+          -11.265424938449007,
+          -1.0038080205975786
+        ]
+      ],
+      "baseline_pair_absent": true,
+      "baseline_projected_gap_mm": 0.08240242410348175,
+      "baseline_skin_barycentric": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "bone_triangle_row": 41,
+      "bone_triangle_stable_id": 41,
+      "pair": [
+        8838,
+        41
+      ],
+      "preserved_margin_mm": 0.020600606025870438,
+      "separating_axis_local": [
+        0.6817171057638809,
+        0.09337047507159982,
+        0.7256333386041612
+      ],
+      "separating_axis_world": [
+        -0.7150940092100486,
+        0.16163106971797297,
+        0.6800852559008487
+      ],
+      "vertex_rows": [
+        {
+          "base_clearance_mm": 1.828150411078815,
+          "candidate_clearance_mm": 1.7944295928375018,
+          "candidate_projected_delta_mm": -0.013120212215442559,
+          "in_support": true,
+          "node": 19450,
+          "required_delta_lower_mm": -1.8075498050529446
+        },
+        {
+          "base_clearance_mm": 0.08240242410348175,
+          "candidate_clearance_mm": -0.0281987083074956,
+          "candidate_projected_delta_mm": -0.090000526385107,
+          "in_support": true,
+          "node": 20993,
+          "required_delta_lower_mm": -0.061801818077611426
+        },
+        {
+          "base_clearance_mm": 2.8384354342907514,
+          "candidate_clearance_mm": 2.7990204494726774,
+          "candidate_projected_delta_mm": -0.018814378792203833,
+          "in_support": true,
+          "node": 21166,
+          "required_delta_lower_mm": -2.817834828264881
+        }
+      ]
+    },
+    {
+      "baseline_bone_barycentric": [
+        0.3990739075355911,
+        0.0,
+        0.6009260924644089
+      ],
+      "baseline_closest_distance_mm": 0.02631547120343358,
+      "baseline_closest_points_mm": [
+        [
+          -0.6737012708752048,
+          -11.286935069613515,
+          -1.0465094136156368
+        ],
+        [
+          -0.6974449215005321,
+          -11.29822669488032,
+          -1.0476239890842263
+        ]
+      ],
+      "baseline_pair_absent": true,
+      "baseline_projected_gap_mm": 0.026315471203433027,
+      "baseline_skin_barycentric": [
+        0.9631371378712097,
+        0.03686286212879036,
+        0.0
+      ],
+      "bone_triangle_row": 41,
+      "bone_triangle_stable_id": 41,
+      "pair": [
+        8839,
+        41
+      ],
+      "preserved_margin_mm": 0.006578867800858257,
+      "separating_axis_local": [
+        0.9022696360546143,
+        0.42908694963178556,
+        0.04235438005169652
+      ],
+      "separating_axis_world": [
+        -0.00254174075201545,
+        0.4264309132580605,
+        0.9045165646752116
+      ],
+      "vertex_rows": [
+        {
+          "base_clearance_mm": 0.026315471203433027,
+          "candidate_clearance_mm": -0.04069235063516108,
+          "candidate_projected_delta_mm": -0.06042895403773664,
+          "in_support": true,
+          "node": 20993,
+          "required_delta_lower_mm": -0.019736603402574993
+        },
+        {
+          "base_clearance_mm": 0.026315471203433027,
+          "candidate_clearance_mm": 0.019166315498663655,
+          "candidate_projected_delta_mm": -0.0005702879039113733,
+          "in_support": true,
+          "node": 16343,
+          "required_delta_lower_mm": -0.019736603402574993
+        },
+        {
+          "base_clearance_mm": 3.144930576678984,
+          "candidate_clearance_mm": 3.1318268824373083,
+          "candidate_projected_delta_mm": -0.0065248264408173245,
+          "in_support": true,
+          "node": 20994,
+          "required_delta_lower_mm": -3.138351708878126
+        }
+      ]
+    },
+    {
+      "baseline_bone_barycentric": [
+        0.36166726054314613,
+        0.026785510963619093,
+        0.6115472284932347
+      ],
+      "baseline_closest_distance_mm": 0.082402424103482,
+      "baseline_closest_points_mm": [
+        [
+          -0.6924010225592914,
+          -11.257730984963413,
+          -0.9440140744862927
+        ],
+        [
+          -0.7485761646270447,
+          -11.265424938449007,
+          -1.0038080205975786
+        ]
+      ],
+      "baseline_pair_absent": true,
+      "baseline_projected_gap_mm": 0.08240242410348175,
+      "baseline_skin_barycentric": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "bone_triangle_row": 41,
+      "bone_triangle_stable_id": 41,
+      "pair": [
+        8841,
+        41
+      ],
+      "preserved_margin_mm": 0.020600606025870438,
+      "separating_axis_local": [
+        0.6817171057638809,
+        0.09337047507159982,
+        0.7256333386041612
+      ],
+      "separating_axis_world": [
+        -0.7150940092100486,
+        0.16163106971797297,
+        0.6800852559008487
+      ],
+      "vertex_rows": [
+        {
+          "base_clearance_mm": 0.08240242410348175,
+          "candidate_clearance_mm": -0.0281987083074956,
+          "candidate_projected_delta_mm": -0.090000526385107,
+          "in_support": true,
+          "node": 20993,
+          "required_delta_lower_mm": -0.061801818077611426
+        },
+        {
+          "base_clearance_mm": 1.092697581375536,
+          "candidate_clearance_mm": 1.0616734726457353,
+          "candidate_projected_delta_mm": -0.010423502703930505,
+          "in_support": true,
+          "node": 20994,
+          "required_delta_lower_mm": -1.0720969753496656
+        },
+        {
+          "base_clearance_mm": 2.8384354342907514,
+          "candidate_clearance_mm": 2.7990204494726774,
+          "candidate_projected_delta_mm": -0.018814378792203833,
+          "in_support": true,
+          "node": 21166,
+          "required_delta_lower_mm": -2.817834828264881
+        }
+      ]
+    },
+    {
+      "baseline_bone_barycentric": [
+        0.36166726054314613,
+        0.026785510963619093,
+        0.6115472284932347
+      ],
+      "baseline_closest_distance_mm": 0.082402424103482,
+      "baseline_closest_points_mm": [
+        [
+          -0.6924010225592914,
+          -11.257730984963413,
+          -0.9440140744862927
+        ],
+        [
+          -0.7485761646270447,
+          -11.265424938449007,
+          -1.0038080205975786
+        ]
+      ],
+      "baseline_pair_absent": true,
+      "baseline_projected_gap_mm": 0.08240242410348175,
+      "baseline_skin_barycentric": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "bone_triangle_row": 41,
+      "bone_triangle_stable_id": 41,
+      "pair": [
+        8849,
+        41
+      ],
+      "preserved_margin_mm": 0.020600606025870438,
+      "separating_axis_local": [
+        0.6817171057638809,
+        0.09337047507159982,
+        0.7256333386041612
+      ],
+      "separating_axis_world": [
+        -0.7150940092100486,
+        0.16163106971797297,
+        0.6800852559008487
+      ],
+      "vertex_rows": [
+        {
+          "base_clearance_mm": 0.08240242410348175,
+          "candidate_clearance_mm": -0.0281987083074956,
+          "candidate_projected_delta_mm": -0.090000526385107,
+          "in_support": true,
+          "node": 20993,
+          "required_delta_lower_mm": -0.061801818077611426
+        },
+        {
+          "base_clearance_mm": 1.828150411078815,
+          "candidate_clearance_mm": 1.7944295928375018,
+          "candidate_projected_delta_mm": -0.013120212215442559,
+          "in_support": true,
+          "node": 19450,
+          "required_delta_lower_mm": -1.8075498050529446
+        },
+        {
+          "base_clearance_mm": 0.9933247722491874,
+          "candidate_clearance_mm": 0.9576929510882873,
+          "candidate_projected_delta_mm": -0.01503121513502959,
+          "in_support": true,
+          "node": 21123,
+          "required_delta_lower_mm": -0.972724166223317
+        }
+      ]
+    }
+  ],
+  "row_count": 12,
+  "schema": "numi.human.b61-97.targeted-bone-separation-witnesses.v1",
+  "self_union_sha256": "2640141f6089c80ec9120bc4a2b8aed4bd5de4cc0303f83bd3897abed5fd26e4",
+  "separation_method": "Choose the largest strictly positive SAT projection gap for each nonintersecting baseline skin/bone triangle pair. Add one fixed-bone halfspace row per supported source-face vertex, retaining 25 percent of the baseline projection gap.",
+  "status": "ROWS_READY",
+  "support_node_count": 81,
+  "target_bank": [
+    61,
+    97
+  ],
+  "unique_self_witness_pair_count": 18
+}

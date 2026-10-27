@@ -1,0 +1,983 @@
+{
+  "alpha025_candidate_sha256": "e0a8d6314f051e001d87cbe254caf9f3ba7e45427de661a8c85e2da392ace3c4",
+  "baseline_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_direction_summary": {
+    "maximum_alpha025_row_slack_mm": -0.0085519069598477,
+    "minimum_alpha025_row_slack_mm": -0.03564202160764592,
+    "rows_already_satisfied_by_alpha025": 0,
+    "rows_violated_by_alpha025": 15
+  },
+  "closest_feature_source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-017-bone-witness-constraints-001/bone-separation-analysis.json",
+  "closest_feature_source_sha256": "353ab76f96aee0e5e84e0d338afbcdfb18d448c5d52b0a1651be725ff3e69388",
+  "constraint_semantics": "For each exact baseline closest skin/bone feature pair, constrain only the barycentric skin witness displacement along its bone-to-skin closest normal to retain 25 percent of the initial feature distance; bone remains fixed.",
+  "fixed_barycentric_contributions": [],
+  "margin_fraction": 0.25,
+  "moving_support_nodes": 1133,
+  "pair_count": 15,
+  "pairs": [
+    {
+      "baseline_distance_mm": 0.03445078312241881,
+      "bone_barycentric": [
+        0.07278610876782718,
+        0.0,
+        0.9272138912321728
+      ],
+      "bone_triangle_id": 112,
+      "candidate_alpha025_row_slack_mm": -0.012633279469308527,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.038471366811122634,
+      "closest_points_local_mm": [
+        [
+          -1.3145629781501478,
+          -20.399649770066823,
+          -5.144927383724438
+        ],
+        [
+          -1.3456266135738875,
+          -20.411563897048026,
+          -5.135985315155886
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          0.019550290543948627,
+          0.032501298938909615,
+          0.08049799109163219
+        ],
+        [
+          0.20015091743008473,
+          0.33274005752849195,
+          0.82411802177825
+        ]
+      ],
+      "constraint_nodes": [
+        19555,
+        20965
+      ],
+      "normal_local_bone_to_skin": [
+        0.9016815470741814,
+        0.3458303673059381,
+        -0.2595606763647968
+      ],
+      "normal_world_bone_to_skin": [
+        0.21970120797403336,
+        0.3652413564674016,
+        0.9046160128698822
+      ],
+      "pair": [
+        34565,
+        112
+      ],
+      "required_delta_lower_mm": -0.025838087341814107,
+      "skin_barycentric": [
+        0.08898581270549633,
+        0.9110141872945037,
+        0.0
+      ],
+      "skin_face_nodes": [
+        19555,
+        20965,
+        21143
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.02943183594212549,
+      "bone_barycentric": [
+        0.1019297561919984,
+        0.0,
+        0.8980702438080016
+      ],
+      "bone_triangle_id": 112,
+      "candidate_alpha025_row_slack_mm": -0.017620483349633106,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.03969436030622722,
+      "closest_points_local_mm": [
+        [
+          -1.2595482112202174,
+          -20.61174929338535,
+          -5.2153954589763085
+        ],
+        [
+          -1.287462536168754,
+          -20.62059743472124,
+          -5.2124401545094505
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          0.022801395682505225,
+          0.10565530811268581,
+          0.330121877383833
+        ],
+        [
+          0.042839371584814684,
+          0.19850569970241977,
+          0.6202345667977472
+        ]
+      ],
+      "constraint_nodes": [
+        21042,
+        21145
+      ],
+      "normal_local_bone_to_skin": [
+        0.9484398120262361,
+        0.300631647760204,
+        -0.10041182862901499
+      ],
+      "normal_world_bone_to_skin": [
+        0.0656407672673199,
+        0.3041610078151056,
+        0.9503564441815802
+      ],
+      "pair": [
+        34595,
+        112
+      ],
+      "required_delta_lower_mm": -0.022073876956594116,
+      "skin_barycentric": [
+        0.3473663796409825,
+        0.6526336203590175,
+        0.0
+      ],
+      "skin_face_nodes": [
+        21042,
+        21145,
+        21040
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.03173641433477954,
+      "bone_barycentric": [
+        0.2549073969371035,
+        0.7450926030628965,
+        0.0
+      ],
+      "bone_triangle_id": 116,
+      "candidate_alpha025_row_slack_mm": -0.016348698462754666,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.04015100921383932,
+      "closest_points_local_mm": [
+        [
+          -1.2204406924202824,
+          -20.659072722237656,
+          -4.987691136705951
+        ],
+        [
+          -1.2505653173330646,
+          -20.66852849502302,
+          -4.984482503083272
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          0.042362516310936044,
+          0.19183349569462815,
+          0.6050537536270798
+        ],
+        [
+          0.024229681251970732,
+          0.10972116056600313,
+          0.34606677948703374
+        ]
+      ],
+      "constraint_nodes": [
+        21042,
+        21145
+      ],
+      "normal_local_bone_to_skin": [
+        0.9492132474388899,
+        0.2979471053539735,
+        -0.1011025879871764
+      ],
+      "normal_world_bone_to_skin": [
+        0.06659219756290677,
+        0.30155465626063127,
+        0.9511205331141135
+      ],
+      "pair": [
+        34595,
+        116
+      ],
+      "required_delta_lower_mm": -0.023802310751084656,
+      "skin_barycentric": [
+        0.6361483456213921,
+        0.36385165437860795,
+        0.0
+      ],
+      "skin_face_nodes": [
+        21042,
+        21145,
+        21040
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.01173640989692856,
+      "bone_barycentric": [
+        0.051853049610564285,
+        0.0,
+        0.9481469503894357
+      ],
+      "bone_triangle_id": 149,
+      "candidate_alpha025_row_slack_mm": -0.020848965138368036,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.029651272561064458,
+      "closest_points_local_mm": [
+        [
+          -0.651426615529653,
+          -18.609681591532375,
+          -7.31989959883613
+        ],
+        [
+          -0.6629750213009508,
+          -18.611698228611974,
+          -7.320457107848941
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          -0.06774962753878211,
+          0.1584838472006433,
+          0.968723103448596
+        ],
+        [
+          -0.0011060435844896855,
+          0.0025873211235172234,
+          0.015814846703074856
+        ]
+      ],
+      "constraint_nodes": [
+        19195,
+        21147
+      ],
+      "normal_local_bone_to_skin": [
+        0.9839811213751171,
+        0.17182742400014936,
+        0.04750251718425117
+      ],
+      "normal_world_bone_to_skin": [
+        -0.06885567112327179,
+        0.16107116832416052,
+        0.9845379501516709
+      ],
+      "pair": [
+        34694,
+        149
+      ],
+      "required_delta_lower_mm": -0.00880230742269642,
+      "skin_barycentric": [
+        0.0,
+        0.9839367830354955,
+        0.01606321696450455
+      ],
+      "skin_face_nodes": [
+        20969,
+        19195,
+        21147
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.01173640989692856,
+      "bone_barycentric": [
+        0.05185304961056427,
+        0.0,
+        0.9481469503894357
+      ],
+      "bone_triangle_id": 149,
+      "candidate_alpha025_row_slack_mm": -0.020848965138368036,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.029651272561064455,
+      "closest_points_local_mm": [
+        [
+          -0.651426615529653,
+          -18.609681591532375,
+          -7.31989959883613
+        ],
+        [
+          -0.6629750213009508,
+          -18.611698228611974,
+          -7.320457107848941
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          -0.06774962753878211,
+          0.15848384720064332,
+          0.9687231034485961
+        ],
+        [
+          -0.001106043584489676,
+          0.002587321123517201,
+          0.01581484670307472
+        ]
+      ],
+      "constraint_nodes": [
+        19195,
+        21147
+      ],
+      "normal_local_bone_to_skin": [
+        0.9839811213751171,
+        0.17182742400014936,
+        0.04750251718425117
+      ],
+      "normal_world_bone_to_skin": [
+        -0.06885567112327179,
+        0.16107116832416052,
+        0.9845379501516709
+      ],
+      "pair": [
+        34697,
+        149
+      ],
+      "required_delta_lower_mm": -0.00880230742269642,
+      "skin_barycentric": [
+        0.9839367830354956,
+        0.0,
+        0.016063216964504412
+      ],
+      "skin_face_nodes": [
+        19195,
+        20918,
+        21147
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.026545480568071336,
+      "bone_barycentric": [
+        0.0,
+        0.916697430665261,
+        0.08330256933473905
+      ],
+      "bone_triangle_id": 115,
+      "candidate_alpha025_row_slack_mm": -0.008589643929171796,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.028498754355225298,
+      "closest_points_local_mm": [
+        [
+          -0.657606505863605,
+          -18.655289239401878,
+          -7.267296481512117
+        ],
+        [
+          -0.6838816750023514,
+          -18.658976879153183,
+          -7.2681207013764215
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          -0.047565115889785764,
+          0.1255401272474378,
+          0.9568035133351436
+        ],
+        [
+          -0.001665173882682204,
+          0.00439494653193781,
+          0.033496065161619674
+        ]
+      ],
+      "constraint_nodes": [
+        19197,
+        21150
+      ],
+      "normal_local_bone_to_skin": [
+        0.9898170451790549,
+        0.13891779965516776,
+        0.031049348012015966
+      ],
+      "normal_world_bone_to_skin": [
+        -0.04923028977246797,
+        0.1299350737793756,
+        0.9902995784967633
+      ],
+      "pair": [
+        34702,
+        115
+      ],
+      "required_delta_lower_mm": -0.019909110426053502,
+      "skin_barycentric": [
+        0.0,
+        0.9661758260944981,
+        0.03382417390550182
+      ],
+      "skin_face_nodes": [
+        20919,
+        19197,
+        21150
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.00014508239548730753,
+      "bone_barycentric": [
+        0.053398121609614824,
+        0.0,
+        0.9466018783903851
+      ],
+      "bone_triangle_id": 149,
+      "candidate_alpha025_row_slack_mm": -0.02836153145653813,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.02847034325315361,
+      "closest_points_local_mm": [
+        [
+          -0.6589904343040701,
+          -18.633017752496272,
+          -7.32282325120875
+        ],
+        [
+          -0.6591332040675522,
+          -18.633042731610562,
+          -7.322829711856157
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          -0.06566546561840086,
+          0.16105213982627078,
+          0.9806294661314362
+        ],
+        [
+          -0.000268107004884358,
+          0.0006575634000673035,
+          0.004003834079144522
+        ]
+      ],
+      "constraint_nodes": [
+        19197,
+        21150
+      ],
+      "normal_local_bone_to_skin": [
+        0.9840598716508824,
+        0.17217191793663691,
+        0.04453088456867526
+      ],
+      "normal_world_bone_to_skin": [
+        -0.06593357262328522,
+        0.1617097032263381,
+        0.9846333002105807
+      ],
+      "pair": [
+        34702,
+        149
+      ],
+      "required_delta_lower_mm": -0.00010881179661548064,
+      "skin_barycentric": [
+        0.0,
+        0.9959336800022016,
+        0.004066319997798403
+      ],
+      "skin_face_nodes": [
+        20919,
+        19197,
+        21150
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.02653256984455984,
+      "bone_barycentric": [
+        0.0,
+        0.9167742911433358,
+        0.08322570885666428
+      ],
+      "bone_triangle_id": 115,
+      "candidate_alpha025_row_slack_mm": -0.0085519069598477,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.02845133434326758,
+      "closest_points_local_mm": [
+        [
+          -0.6577190955812449,
+          -18.654586689897993,
+          -7.267266357624691
+        ],
+        [
+          -0.6839813467828919,
+          -18.658272325442745,
+          -7.2680955228731765
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          -0.04798717883160709,
+          0.1261153212598604,
+          0.9613881034331375
+        ],
+        [
+          -0.0014427875807499799,
+          0.0037917965524610683,
+          0.028905196131273694
+        ]
+      ],
+      "constraint_nodes": [
+        19197,
+        21045
+      ],
+      "normal_local_bone_to_skin": [
+        0.9898118182861122,
+        0.13890985932927138,
+        0.031250845784753116
+      ],
+      "normal_world_bone_to_skin": [
+        -0.049429966412357064,
+        0.12990711781232148,
+        0.9902932995644113
+      ],
+      "pair": [
+        34705,
+        115
+      ],
+      "required_delta_lower_mm": -0.01989942738341988,
+      "skin_barycentric": [
+        0.970811479645487,
+        0.029188520354513036,
+        0.0
+      ],
+      "skin_face_nodes": [
+        19197,
+        21045,
+        21150
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.02584852144498597,
+      "bone_barycentric": [
+        0.0814141168205843,
+        0.0328705471298311,
+        0.8857153360495846
+      ],
+      "bone_triangle_id": 88,
+      "candidate_alpha025_row_slack_mm": -0.018838206814795574,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.03822459789853505,
+      "closest_points_local_mm": [
+        [
+          -1.7171747199839063,
+          -19.230530967360526,
+          -4.7147216721592935
+        ],
+        [
+          -1.7412947673660935,
+          -19.239824476040106,
+          -4.714730133572834
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          -0.040398506830853505,
+          0.3528125399017644,
+          0.9348215189724204
+        ]
+      ],
+      "constraint_nodes": [
+        21178
+      ],
+      "normal_local_bone_to_skin": [
+        0.9331306408965201,
+        0.3595373414049769,
+        0.0003273461330661956
+      ],
+      "normal_world_bone_to_skin": [
+        -0.040398506830853505,
+        0.3528125399017644,
+        0.9348215189724204
+      ],
+      "pair": [
+        34784,
+        88
+      ],
+      "required_delta_lower_mm": -0.019386391083739477,
+      "skin_barycentric": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "skin_face_nodes": [
+        21050,
+        19558,
+        21178
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.020659701943288936,
+      "bone_barycentric": [
+        0.12442729733514091,
+        0.0,
+        0.8755727026648591
+      ],
+      "bone_triangle_id": 88,
+      "candidate_alpha025_row_slack_mm": -0.022788943148772566,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.03828371960623927,
+      "closest_points_local_mm": [
+        [
+          -1.7279516452299357,
+          -19.21723643860006,
+          -4.63324572004322
+        ],
+        [
+          -1.7473999807494232,
+          -19.224052077869086,
+          -4.634706059476882
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          -0.09393219658024507,
+          0.27638148031780113,
+          0.8236893559159872
+        ],
+        [
+          -0.013555916094584898,
+          0.03988626151294784,
+          0.1188715286484432
+        ]
+      ],
+      "constraint_nodes": [
+        21178,
+        20704
+      ],
+      "normal_local_bone_to_skin": [
+        0.9413657357145465,
+        0.32990017415226186,
+        0.07068540667576241
+      ],
+      "normal_world_bone_to_skin": [
+        -0.10748811267482997,
+        0.31626774183074896,
+        0.9425608845644304
+      ],
+      "pair": [
+        34785,
+        88
+      ],
+      "required_delta_lower_mm": -0.015494776457466702,
+      "skin_barycentric": [
+        0.0,
+        0.8738845091122414,
+        0.1261154908877587
+      ],
+      "skin_face_nodes": [
+        21052,
+        21178,
+        20704
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.02584852144498597,
+      "bone_barycentric": [
+        0.0814141168205843,
+        0.0328705471298311,
+        0.8857153360495846
+      ],
+      "bone_triangle_id": 88,
+      "candidate_alpha025_row_slack_mm": -0.018838206814795574,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.03822459789853505,
+      "closest_points_local_mm": [
+        [
+          -1.7171747199839063,
+          -19.230530967360526,
+          -4.7147216721592935
+        ],
+        [
+          -1.7412947673660935,
+          -19.239824476040106,
+          -4.714730133572834
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          -0.040398506830853505,
+          0.3528125399017644,
+          0.9348215189724204
+        ]
+      ],
+      "constraint_nodes": [
+        21178
+      ],
+      "normal_local_bone_to_skin": [
+        0.9331306408965201,
+        0.3595373414049769,
+        0.0003273461330661956
+      ],
+      "normal_world_bone_to_skin": [
+        -0.040398506830853505,
+        0.3528125399017644,
+        0.9348215189724204
+      ],
+      "pair": [
+        34786,
+        88
+      ],
+      "required_delta_lower_mm": -0.019386391083739477,
+      "skin_barycentric": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "skin_face_nodes": [
+        21050,
+        21178,
+        21052
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.02584852144498597,
+      "bone_barycentric": [
+        0.0814141168205843,
+        0.0328705471298311,
+        0.8857153360495846
+      ],
+      "bone_triangle_id": 88,
+      "candidate_alpha025_row_slack_mm": -0.018838206814795574,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.03822459789853505,
+      "closest_points_local_mm": [
+        [
+          -1.7171747199839063,
+          -19.230530967360526,
+          -4.7147216721592935
+        ],
+        [
+          -1.7412947673660935,
+          -19.239824476040106,
+          -4.714730133572834
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          -0.040398506830853505,
+          0.3528125399017644,
+          0.9348215189724204
+        ]
+      ],
+      "constraint_nodes": [
+        21178
+      ],
+      "normal_local_bone_to_skin": [
+        0.9331306408965201,
+        0.3595373414049769,
+        0.0003273461330661956
+      ],
+      "normal_world_bone_to_skin": [
+        -0.040398506830853505,
+        0.3528125399017644,
+        0.9348215189724204
+      ],
+      "pair": [
+        34787,
+        88
+      ],
+      "required_delta_lower_mm": -0.019386391083739477,
+      "skin_barycentric": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "skin_face_nodes": [
+        19558,
+        20970,
+        21178
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.020659701943289147,
+      "bone_barycentric": [
+        0.12442729733514094,
+        0.0,
+        0.8755727026648591
+      ],
+      "bone_triangle_id": 88,
+      "candidate_alpha025_row_slack_mm": -0.022788943148772386,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.03828371960623925,
+      "closest_points_local_mm": [
+        [
+          -1.7279516452299357,
+          -19.21723643860006,
+          -4.63324572004322
+        ],
+        [
+          -1.7473999807494234,
+          -19.224052077869086,
+          -4.634706059476882
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          -0.09393219658024413,
+          0.2763814803177982,
+          0.8236893559159881
+        ],
+        [
+          -0.013555916094584784,
+          0.03988626151294748,
+          0.11887152864844351
+        ]
+      ],
+      "constraint_nodes": [
+        21178,
+        20704
+      ],
+      "normal_local_bone_to_skin": [
+        0.9413657357145476,
+        0.3299001741522585,
+        0.07068540667576168
+      ],
+      "normal_world_bone_to_skin": [
+        -0.10748811267482891,
+        0.3162677418307457,
+        0.9425608845644317
+      ],
+      "pair": [
+        34789,
+        88
+      ],
+      "required_delta_lower_mm": -0.015494776457466861,
+      "skin_barycentric": [
+        0.8738845091122411,
+        0.0,
+        0.12611549088775886
+      ],
+      "skin_face_nodes": [
+        21178,
+        20973,
+        20704
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.02584852144498597,
+      "bone_barycentric": [
+        0.0814141168205843,
+        0.0328705471298311,
+        0.8857153360495846
+      ],
+      "bone_triangle_id": 88,
+      "candidate_alpha025_row_slack_mm": -0.018838206814795574,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.03822459789853505,
+      "closest_points_local_mm": [
+        [
+          -1.7171747199839063,
+          -19.230530967360526,
+          -4.7147216721592935
+        ],
+        [
+          -1.7412947673660935,
+          -19.239824476040106,
+          -4.714730133572834
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          -0.040398506830853505,
+          0.3528125399017644,
+          0.9348215189724204
+        ]
+      ],
+      "constraint_nodes": [
+        21178
+      ],
+      "normal_local_bone_to_skin": [
+        0.9331306408965201,
+        0.3595373414049769,
+        0.0003273461330661956
+      ],
+      "normal_world_bone_to_skin": [
+        -0.040398506830853505,
+        0.3528125399017644,
+        0.9348215189724204
+      ],
+      "pair": [
+        34790,
+        88
+      ],
+      "required_delta_lower_mm": -0.019386391083739477,
+      "skin_barycentric": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "skin_face_nodes": [
+        20970,
+        20973,
+        21178
+      ]
+    },
+    {
+      "baseline_distance_mm": 0.0003161787311755476,
+      "bone_barycentric": [
+        0.0,
+        0.7674753858791975,
+        0.23252461412080253
+      ],
+      "bone_triangle_id": 92,
+      "candidate_alpha025_row_slack_mm": -0.03564202160764592,
+      "candidate_alpha025_satisfies_row": false,
+      "candidate_alpha025_witness_delta_mm": -0.03587915565602758,
+      "closest_points_local_mm": [
+        [
+          -1.2456922970168856,
+          -19.57574310037303,
+          -3.7404397144448596
+        ],
+        [
+          -1.2459622584835364,
+          -19.575887163318875,
+          -3.740360117559207
+        ]
+      ],
+      "constraint_coefficients": [
+        [
+          0.16595392370986953,
+          0.39095001729082807,
+          0.7070874290250337
+        ],
+        [
+          0.035242220669170356,
+          0.08302272384994494,
+          0.15015813214312437
+        ]
+      ],
+      "constraint_nodes": [
+        20973,
+        21178
+      ],
+      "normal_local_bone_to_skin": [
+        0.8538255108023927,
+        0.45563768730057613,
+        -0.2517464895771448
+      ],
+      "normal_world_bone_to_skin": [
+        0.20119614437903988,
+        0.473972741140773,
+        0.8572455611681581
+      ],
+      "pair": [
+        34790,
+        92
+      ],
+      "required_delta_lower_mm": -0.0002371340483816607,
+      "skin_barycentric": [
+        0.0,
+        0.8248365008288807,
+        0.1751634991711193
+      ],
+      "skin_face_nodes": [
+        20970,
+        20973,
+        21178
+      ]
+    }
+  ],
+  "row_count": 15,
+  "schema": "numi.human.b109-114.closest-feature-barrier-rows.v1",
+  "self_witness_pair_count": 32,
+  "self_witness_union_sha256": "7f461cb82f9d972cfba9dc3bcc46867cb9ff2f38a3533ddf298efa8627887815",
+  "status": "ROWS_READY",
+  "support_rings": 8,
+  "target_bank": [
+    109,
+    114
+  ],
+  "total_support_nodes": 1133,
+  "typed_body_transform_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+  "typed_body_transform_sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90"
+}

@@ -1,0 +1,6755 @@
+{
+  "schema": "numi.human.bank43_16.selective-sparse-lp.v1",
+  "status": "PRIVATE_REJECTED_NO_STRICT_EXACT_IDENTITY_REDUCTION_OR_SELF_REGRESSION",
+  "candidate_modified": false,
+  "geometry_or_native_admission": false,
+  "physical_transfer_steps": 0,
+  "fit_parameters": {
+    "clearance_mm": 0.05,
+    "trust_region_per_node_l1_mm": 3.0,
+    "area_floor": 0.1,
+    "min_angle_degrees": 0.5,
+    "max_aspect": 50.0,
+    "bone_slack_penalty_per_mm": 1000.0,
+    "linprog_method": "highs",
+    "time_limit_seconds": 90.0
+  },
+  "output_directory": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-022-bulk-boundary-centroid-fan-001",
+  "input_pins": {
+    "candidate.npz": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+    "audit-159/report.json": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+    "audit-130/summary.json": "0ec99fa47245355d60858b05e1240b0e562de229c13721ea11659f6f4acdf5cf",
+    "bulk-patch-topology.json": "4458a452a349dacec292f197b8fad814a66b37d4e3cdfc0c355bb607bf7ba0f1",
+    "local-diagnostic.json": "e501298d17a590d3db0b6b9569d8f4e2881163000d780ba914975cc203c6d0b4",
+    "fan-parent-rows.npy": "7293b1c391de64905dd1f322d5ee8dbad588624f8a9e2a9997402daa669ff24e"
+  },
+  "baseline_exact_pair_count": 249,
+  "fan_classification": {
+    "good_parent_faces": 167,
+    "excluded_parent_faces": 16,
+    "crossing_pairs_targetable": 233,
+    "crossing_pairs_excluded_unresolved": 16,
+    "excluded_pairs": [
+      [
+        19309,
+        135
+      ],
+      [
+        19310,
+        145
+      ],
+      [
+        19311,
+        135
+      ],
+      [
+        19312,
+        135
+      ],
+      [
+        19352,
+        144
+      ],
+      [
+        19353,
+        144
+      ],
+      [
+        19354,
+        130
+      ],
+      [
+        19355,
+        144
+      ],
+      [
+        19417,
+        144
+      ],
+      [
+        19418,
+        144
+      ],
+      [
+        19419,
+        135
+      ],
+      [
+        19420,
+        144
+      ],
+      [
+        19870,
+        130
+      ],
+      [
+        19871,
+        245
+      ],
+      [
+        19872,
+        130
+      ],
+      [
+        19873,
+        130
+      ]
+    ],
+    "excluded_source_rows": [
+      19309,
+      19310,
+      19311,
+      19312,
+      19352,
+      19353,
+      19354,
+      19355,
+      19417,
+      19418,
+      19419,
+      19420,
+      19870,
+      19871,
+      19872,
+      19873
+    ],
+    "known_inside_nodes_frozen_by_exclusions": [
+      20895,
+      20899,
+      20900,
+      20902,
+      20928,
+      20931,
+      21022,
+      21025
+    ],
+    "known_inside_nodes_frozen_count": 8,
+    "source_anchor_rows_in_patch": [],
+    "source_anchor_rows_frozen": true
+  },
+  "patch_topology": {
+    "source_parent_disk": {
+      "vertices": 138,
+      "edges": 320,
+      "faces": 183,
+      "boundary_edges": 91,
+      "boundary_nodes": 91,
+      "boundary_degree_histogram": {
+        "2": 91
+      },
+      "components": 1,
+      "euler_characteristic": 1,
+      "is_single_disk": true
+    },
+    "selective_output_disk": {
+      "vertices": 305,
+      "edges": 821,
+      "faces": 517,
+      "boundary_edges": 91,
+      "boundary_nodes": 91,
+      "boundary_degree_histogram": {
+        "2": 91
+      },
+      "components": 1,
+      "euler_characteristic": 1,
+      "is_single_disk": true
+    },
+    "patch_face_count_after_selective_fan": 517,
+    "fan_child_count": 501,
+    "preserved_source_ancestry_entries": 517,
+    "preserved_immediate_parent_entries": 517,
+    "preserved_prior_parent_entries": 543,
+    "preserved_generation002_parent_entries": 517,
+    "fixed_boundary_edges": 91,
+    "excluded_source_faces_bitwise_unchanged": true,
+    "zero_step_source_coordinate_bitwise_control": true,
+    "source_anchor_rows_in_patch": []
+  },
+  "baseline_emitted_f32_fan_shape": {
+    "face_count": 501,
+    "minimum_unsigned_parent_area_ratio": 0.17188989197330537,
+    "minimum_signed_orientation_ratio": 0.17188989194897977,
+    "minimum_angle_degrees": 0.5419888261573705,
+    "maximum_aspect_measure": 38.65669259333712,
+    "orientation_positive": true
+  },
+  "sparse_lp": {
+    "movable_points": 206,
+    "coordinate_dofs": 618,
+    "absolute_motion_slacks": 618,
+    "penalized_bone_witness_slacks": 643,
+    "variables": 1879,
+    "inequality_rows": 4028,
+    "matrix_nnz": 12979,
+    "targetable_exact_pair_count": 233,
+    "exact_endpoint_constraint_count": 466,
+    "inside_or_boundary_plane_count": 177,
+    "area_rows": 501,
+    "trust_rows": 1648,
+    "fixed_only_violated_planes": [
+      {
+        "row": 466,
+        "kind": "inside_or_boundary_point",
+        "source_face": -1,
+        "bone_triangle": 140,
+        "margin_mm": -0.642929991912557
+      },
+      {
+        "row": 467,
+        "kind": "inside_or_boundary_point",
+        "source_face": -1,
+        "bone_triangle": 133,
+        "margin_mm": -1.1580766051425526
+      },
+      {
+        "row": 468,
+        "kind": "inside_or_boundary_point",
+        "source_face": -1,
+        "bone_triangle": 140,
+        "margin_mm": -0.6440395764205873
+      },
+      {
+        "row": 470,
+        "kind": "inside_or_boundary_point",
+        "source_face": -1,
+        "bone_triangle": 133,
+        "margin_mm": -1.1502530714838435
+      },
+      {
+        "row": 474,
+        "kind": "inside_or_boundary_point",
+        "source_face": -1,
+        "bone_triangle": 135,
+        "margin_mm": -0.6402028588718116
+      },
+      {
+        "row": 475,
+        "kind": "inside_or_boundary_point",
+        "source_face": -1,
+        "bone_triangle": 135,
+        "margin_mm": -0.657488900193133
+      },
+      {
+        "row": 483,
+        "kind": "inside_or_boundary_point",
+        "source_face": -1,
+        "bone_triangle": 135,
+        "margin_mm": -0.26547019308040315
+      },
+      {
+        "row": 484,
+        "kind": "inside_or_boundary_point",
+        "source_face": -1,
+        "bone_triangle": 135,
+        "margin_mm": -0.2656029668701018
+      }
+    ],
+    "initial_worst_plane_margin_mm": -1.9845221168433373,
+    "slack_penalty_per_mm": 1000.0,
+    "hard_constraints": [
+      "3 mm per-node L1 displacement trust region",
+      "fixed boundary bitwise",
+      "excluded source-face vertices bitwise",
+      "linearized child projected area ratio >= 0.10"
+    ]
+  },
+  "lp_result": {
+    "success": true,
+    "status": 0,
+    "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "iterations": 1482,
+    "objective": 12467.339561359971
+  },
+  "shape_backtracking": {
+    "direction": "single LP optimum direction; scale only, no reoptimization",
+    "tested_alphas": [
+      1.0,
+      0.5,
+      0.25,
+      0.125,
+      0.0625
+    ],
+    "trials": [
+      {
+        "alpha": 1.0,
+        "pass": false,
+        "shape": {
+          "face_count": 501,
+          "minimum_unsigned_parent_area_ratio": 0.04430871477352367,
+          "minimum_signed_orientation_ratio": -18.68271503930446,
+          "minimum_angle_degrees": 0.32590116630968624,
+          "maximum_aspect_measure": 69.1800244342427,
+          "orientation_positive": false
+        }
+      },
+      {
+        "alpha": 0.5,
+        "pass": false,
+        "shape": {
+          "face_count": 501,
+          "minimum_unsigned_parent_area_ratio": 0.14310565790631738,
+          "minimum_signed_orientation_ratio": -4.413680565570719,
+          "minimum_angle_degrees": 0.4685135345065293,
+          "maximum_aspect_measure": 48.2885932421108,
+          "orientation_positive": false
+        }
+      },
+      {
+        "alpha": 0.25,
+        "pass": false,
+        "shape": {
+          "face_count": 501,
+          "minimum_unsigned_parent_area_ratio": 0.143010207926119,
+          "minimum_signed_orientation_ratio": -0.8186701874646951,
+          "minimum_angle_degrees": 0.5025421957623597,
+          "maximum_aspect_measure": 44.74716282199329,
+          "orientation_positive": false
+        }
+      },
+      {
+        "alpha": 0.125,
+        "pass": false,
+        "shape": {
+          "face_count": 501,
+          "minimum_unsigned_parent_area_ratio": 0.1521205629678901,
+          "minimum_signed_orientation_ratio": 0.09173746354895088,
+          "minimum_angle_degrees": 0.4966792352959646,
+          "maximum_aspect_measure": 41.06563757723604,
+          "orientation_positive": true
+        }
+      },
+      {
+        "alpha": 0.0625,
+        "pass": true,
+        "shape": {
+          "face_count": 501,
+          "minimum_unsigned_parent_area_ratio": 0.16749579104578644,
+          "minimum_signed_orientation_ratio": 0.16739747830265606,
+          "minimum_angle_degrees": 0.5324533554546317,
+          "maximum_aspect_measure": 38.83123179810985,
+          "orientation_positive": true
+        }
+      }
+    ],
+    "alpha_selected": 0.0625,
+    "exact_bone_or_self_checks_used_to_select_alpha": false
+  },
+  "emission": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-022-bulk-boundary-centroid-fan-001/selective-sparse-lp-patch.npz",
+    "sha256": "79f8cad94d63847e54cc2e9bb0323e91f20e3375b661876b7b66aa35192de740",
+    "shape_backtrack_alpha": 0.0625,
+    "zero_step_source_coordinate_bitwise_control": true,
+    "float32_emission_rule": "(base_f32 promoted to float64 + delta_m_world) cast once",
+    "max_l1_displacement_mm": 0.18750000000000003,
+    "max_euclidean_displacement_mm": 0.1645856335791976,
+    "trust_region_pass": true,
+    "fixed_boundary_bitwise": true,
+    "excluded_nodes_bitwise": true,
+    "candidate_file_modified": false
+  },
+  "emitted_f32_new_child_shape_gate": {
+    "face_count": 501,
+    "minimum_unsigned_parent_area_ratio": 0.16749579104578644,
+    "minimum_signed_orientation_ratio": 0.16739747830265606,
+    "minimum_angle_degrees": 0.5324533554546317,
+    "maximum_aspect_measure": 38.83123179810985,
+    "orientation_positive": true,
+    "pass": true
+  },
+  "affected_old_face_gate": {
+    "excluded_parent_faces_unchanged": true,
+    "outside_patch_old_face_count": 0,
+    "outside_old_faces_nonworsened": true
+  },
+  "exact_local_bone_check": {
+    "raw_emitted_child_bone_pair_count": 491,
+    "unique_mapped_parent_bone_pair_count": 259,
+    "baseline_parent_bone_pair_count": 249,
+    "new_parent_bone_pairs": [
+      [
+        19203,
+        133
+      ],
+      [
+        19203,
+        140
+      ],
+      [
+        19206,
+        133
+      ],
+      [
+        19214,
+        133
+      ],
+      [
+        19214,
+        140
+      ],
+      [
+        19215,
+        133
+      ],
+      [
+        19221,
+        133
+      ],
+      [
+        19221,
+        140
+      ],
+      [
+        19222,
+        133
+      ],
+      [
+        19239,
+        133
+      ],
+      [
+        19317,
+        134
+      ],
+      [
+        19320,
+        128
+      ],
+      [
+        19320,
+        135
+      ],
+      [
+        19453,
+        133
+      ]
+    ],
+    "remaining_parent_bone_pairs": [
+      [
+        19197,
+        144
+      ],
+      [
+        19199,
+        133
+      ],
+      [
+        19199,
+        144
+      ],
+      [
+        19200,
+        144
+      ],
+      [
+        19203,
+        133
+      ],
+      [
+        19203,
+        140
+      ],
+      [
+        19203,
+        144
+      ],
+      [
+        19204,
+        133
+      ],
+      [
+        19204,
+        144
+      ],
+      [
+        19206,
+        133
+      ],
+      [
+        19206,
+        144
+      ],
+      [
+        19212,
+        134
+      ],
+      [
+        19212,
+        135
+      ],
+      [
+        19213,
+        133
+      ],
+      [
+        19213,
+        134
+      ],
+      [
+        19214,
+        133
+      ],
+      [
+        19214,
+        140
+      ],
+      [
+        19214,
+        144
+      ],
+      [
+        19215,
+        133
+      ],
+      [
+        19215,
+        134
+      ],
+      [
+        19219,
+        133
+      ],
+      [
+        19219,
+        134
+      ],
+      [
+        19220,
+        135
+      ],
+      [
+        19221,
+        133
+      ],
+      [
+        19221,
+        140
+      ],
+      [
+        19221,
+        144
+      ],
+      [
+        19222,
+        133
+      ],
+      [
+        19222,
+        134
+      ],
+      [
+        19222,
+        135
+      ],
+      [
+        19224,
+        133
+      ],
+      [
+        19224,
+        140
+      ],
+      [
+        19225,
+        133
+      ],
+      [
+        19226,
+        133
+      ],
+      [
+        19227,
+        133
+      ],
+      [
+        19227,
+        140
+      ],
+      [
+        19229,
+        133
+      ],
+      [
+        19230,
+        133
+      ],
+      [
+        19237,
+        133
+      ],
+      [
+        19237,
+        140
+      ],
+      [
+        19239,
+        133
+      ],
+      [
+        19239,
+        140
+      ],
+      [
+        19240,
+        133
+      ],
+      [
+        19240,
+        140
+      ],
+      [
+        19309,
+        135
+      ],
+      [
+        19310,
+        145
+      ],
+      [
+        19311,
+        135
+      ],
+      [
+        19312,
+        135
+      ],
+      [
+        19313,
+        142
+      ],
+      [
+        19313,
+        144
+      ],
+      [
+        19313,
+        145
+      ],
+      [
+        19314,
+        133
+      ],
+      [
+        19314,
+        140
+      ],
+      [
+        19314,
+        144
+      ],
+      [
+        19315,
+        133
+      ],
+      [
+        19315,
+        134
+      ],
+      [
+        19315,
+        135
+      ],
+      [
+        19316,
+        133
+      ],
+      [
+        19316,
+        144
+      ],
+      [
+        19317,
+        133
+      ],
+      [
+        19317,
+        134
+      ],
+      [
+        19317,
+        140
+      ],
+      [
+        19318,
+        130
+      ],
+      [
+        19319,
+        128
+      ],
+      [
+        19319,
+        130
+      ],
+      [
+        19319,
+        134
+      ],
+      [
+        19319,
+        135
+      ],
+      [
+        19320,
+        128
+      ],
+      [
+        19320,
+        130
+      ],
+      [
+        19320,
+        134
+      ],
+      [
+        19320,
+        135
+      ],
+      [
+        19324,
+        130
+      ],
+      [
+        19325,
+        140
+      ],
+      [
+        19325,
+        144
+      ],
+      [
+        19326,
+        144
+      ],
+      [
+        19327,
+        144
+      ],
+      [
+        19328,
+        144
+      ],
+      [
+        19329,
+        130
+      ],
+      [
+        19330,
+        130
+      ],
+      [
+        19331,
+        130
+      ],
+      [
+        19336,
+        130
+      ],
+      [
+        19337,
+        140
+      ],
+      [
+        19338,
+        130
+      ],
+      [
+        19339,
+        130
+      ],
+      [
+        19352,
+        144
+      ],
+      [
+        19353,
+        144
+      ],
+      [
+        19354,
+        130
+      ],
+      [
+        19355,
+        144
+      ],
+      [
+        19367,
+        144
+      ],
+      [
+        19368,
+        130
+      ],
+      [
+        19368,
+        147
+      ],
+      [
+        19369,
+        130
+      ],
+      [
+        19370,
+        130
+      ],
+      [
+        19371,
+        144
+      ],
+      [
+        19372,
+        147
+      ],
+      [
+        19373,
+        147
+      ],
+      [
+        19374,
+        147
+      ],
+      [
+        19381,
+        146
+      ],
+      [
+        19381,
+        147
+      ],
+      [
+        19382,
+        144
+      ],
+      [
+        19383,
+        146
+      ],
+      [
+        19384,
+        146
+      ],
+      [
+        19389,
+        144
+      ],
+      [
+        19390,
+        147
+      ],
+      [
+        19391,
+        144
+      ],
+      [
+        19392,
+        144
+      ],
+      [
+        19403,
+        138
+      ],
+      [
+        19403,
+        146
+      ],
+      [
+        19404,
+        144
+      ],
+      [
+        19405,
+        135
+      ],
+      [
+        19405,
+        138
+      ],
+      [
+        19406,
+        138
+      ],
+      [
+        19417,
+        144
+      ],
+      [
+        19418,
+        144
+      ],
+      [
+        19419,
+        135
+      ],
+      [
+        19420,
+        144
+      ],
+      [
+        19421,
+        144
+      ],
+      [
+        19422,
+        144
+      ],
+      [
+        19423,
+        146
+      ],
+      [
+        19424,
+        144
+      ],
+      [
+        19429,
+        144
+      ],
+      [
+        19430,
+        146
+      ],
+      [
+        19431,
+        144
+      ],
+      [
+        19432,
+        144
+      ],
+      [
+        19446,
+        144
+      ],
+      [
+        19447,
+        144
+      ],
+      [
+        19448,
+        134
+      ],
+      [
+        19449,
+        144
+      ],
+      [
+        19450,
+        134
+      ],
+      [
+        19451,
+        144
+      ],
+      [
+        19452,
+        133
+      ],
+      [
+        19453,
+        133
+      ],
+      [
+        19453,
+        134
+      ],
+      [
+        19457,
+        135
+      ],
+      [
+        19458,
+        144
+      ],
+      [
+        19459,
+        134
+      ],
+      [
+        19459,
+        135
+      ],
+      [
+        19460,
+        135
+      ],
+      [
+        19461,
+        144
+      ],
+      [
+        19462,
+        144
+      ],
+      [
+        19463,
+        134
+      ],
+      [
+        19464,
+        144
+      ],
+      [
+        19646,
+        145
+      ],
+      [
+        19647,
+        147
+      ],
+      [
+        19648,
+        142
+      ],
+      [
+        19648,
+        145
+      ],
+      [
+        19649,
+        145
+      ],
+      [
+        19650,
+        147
+      ],
+      [
+        19651,
+        147
+      ],
+      [
+        19652,
+        142
+      ],
+      [
+        19653,
+        147
+      ],
+      [
+        19654,
+        147
+      ],
+      [
+        19655,
+        142
+      ],
+      [
+        19656,
+        142
+      ],
+      [
+        19657,
+        142
+      ],
+      [
+        19664,
+        142
+      ],
+      [
+        19665,
+        147
+      ],
+      [
+        19666,
+        147
+      ],
+      [
+        19667,
+        147
+      ],
+      [
+        19674,
+        142
+      ],
+      [
+        19674,
+        145
+      ],
+      [
+        19675,
+        142
+      ],
+      [
+        19675,
+        144
+      ],
+      [
+        19676,
+        138
+      ],
+      [
+        19677,
+        142
+      ],
+      [
+        19678,
+        144
+      ],
+      [
+        19679,
+        142
+      ],
+      [
+        19679,
+        144
+      ],
+      [
+        19680,
+        138
+      ],
+      [
+        19681,
+        144
+      ],
+      [
+        19682,
+        142
+      ],
+      [
+        19683,
+        138
+      ],
+      [
+        19683,
+        146
+      ],
+      [
+        19683,
+        147
+      ],
+      [
+        19684,
+        138
+      ],
+      [
+        19685,
+        138
+      ],
+      [
+        19717,
+        152
+      ],
+      [
+        19717,
+        154
+      ],
+      [
+        19717,
+        156
+      ],
+      [
+        19717,
+        167
+      ],
+      [
+        19717,
+        168
+      ],
+      [
+        19717,
+        169
+      ],
+      [
+        19719,
+        265
+      ],
+      [
+        19719,
+        267
+      ],
+      [
+        19720,
+        169
+      ],
+      [
+        19720,
+        263
+      ],
+      [
+        19720,
+        264
+      ],
+      [
+        19720,
+        265
+      ],
+      [
+        19725,
+        145
+      ],
+      [
+        19725,
+        245
+      ],
+      [
+        19725,
+        246
+      ],
+      [
+        19725,
+        247
+      ],
+      [
+        19726,
+        152
+      ],
+      [
+        19727,
+        247
+      ],
+      [
+        19727,
+        248
+      ],
+      [
+        19727,
+        250
+      ],
+      [
+        19727,
+        267
+      ],
+      [
+        19728,
+        247
+      ],
+      [
+        19729,
+        145
+      ],
+      [
+        19730,
+        147
+      ],
+      [
+        19730,
+        148
+      ],
+      [
+        19731,
+        148
+      ],
+      [
+        19731,
+        151
+      ],
+      [
+        19731,
+        152
+      ],
+      [
+        19732,
+        148
+      ],
+      [
+        19735,
+        147
+      ],
+      [
+        19736,
+        145
+      ],
+      [
+        19737,
+        145
+      ],
+      [
+        19738,
+        145
+      ],
+      [
+        19747,
+        147
+      ],
+      [
+        19748,
+        145
+      ],
+      [
+        19749,
+        138
+      ],
+      [
+        19749,
+        146
+      ],
+      [
+        19749,
+        147
+      ],
+      [
+        19750,
+        147
+      ],
+      [
+        19808,
+        162
+      ],
+      [
+        19809,
+        245
+      ],
+      [
+        19810,
+        129
+      ],
+      [
+        19810,
+        162
+      ],
+      [
+        19811,
+        162
+      ],
+      [
+        19812,
+        245
+      ],
+      [
+        19813,
+        245
+      ],
+      [
+        19814,
+        129
+      ],
+      [
+        19815,
+        245
+      ],
+      [
+        19816,
+        129
+      ],
+      [
+        19816,
+        130
+      ],
+      [
+        19817,
+        145
+      ],
+      [
+        19817,
+        245
+      ],
+      [
+        19818,
+        128
+      ],
+      [
+        19818,
+        130
+      ],
+      [
+        19818,
+        135
+      ],
+      [
+        19819,
+        130
+      ],
+      [
+        19840,
+        147
+      ],
+      [
+        19841,
+        145
+      ],
+      [
+        19842,
+        147
+      ],
+      [
+        19843,
+        147
+      ],
+      [
+        19844,
+        145
+      ],
+      [
+        19844,
+        245
+      ],
+      [
+        19845,
+        130
+      ],
+      [
+        19846,
+        145
+      ],
+      [
+        19847,
+        145
+      ],
+      [
+        19848,
+        130
+      ],
+      [
+        19848,
+        147
+      ],
+      [
+        19849,
+        147
+      ],
+      [
+        19850,
+        145
+      ],
+      [
+        19851,
+        147
+      ],
+      [
+        19857,
+        245
+      ],
+      [
+        19858,
+        245
+      ],
+      [
+        19859,
+        130
+      ],
+      [
+        19860,
+        245
+      ],
+      [
+        19861,
+        245
+      ],
+      [
+        19862,
+        129
+      ],
+      [
+        19862,
+        162
+      ],
+      [
+        19863,
+        129
+      ],
+      [
+        19863,
+        130
+      ],
+      [
+        19864,
+        129
+      ],
+      [
+        19870,
+        130
+      ],
+      [
+        19871,
+        245
+      ],
+      [
+        19872,
+        130
+      ],
+      [
+        19873,
+        130
+      ]
+    ],
+    "excluded_pairs_remaining": [
+      [
+        19309,
+        135
+      ],
+      [
+        19310,
+        145
+      ],
+      [
+        19311,
+        135
+      ],
+      [
+        19312,
+        135
+      ],
+      [
+        19352,
+        144
+      ],
+      [
+        19353,
+        144
+      ],
+      [
+        19354,
+        130
+      ],
+      [
+        19355,
+        144
+      ],
+      [
+        19417,
+        144
+      ],
+      [
+        19418,
+        144
+      ],
+      [
+        19419,
+        135
+      ],
+      [
+        19420,
+        144
+      ],
+      [
+        19870,
+        130
+      ],
+      [
+        19871,
+        245
+      ],
+      [
+        19872,
+        130
+      ],
+      [
+        19873,
+        130
+      ]
+    ],
+    "excluded_pair_count_remaining": 16,
+    "strict_exact_identity_reduction": false,
+    "inside_or_boundary_emitted_point_count": 171,
+    "inside_or_boundary_emitted_points": [
+      {
+        "node": 45,
+        "source_node_row": 20895,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 49,
+        "source_node_row": 20899,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 50,
+        "source_node_row": 20900,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 51,
+        "source_node_row": 20901,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 52,
+        "source_node_row": 20902,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 57,
+        "source_node_row": 20907,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 58,
+        "source_node_row": 20924,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 60,
+        "source_node_row": 20926,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 62,
+        "source_node_row": 20928,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 65,
+        "source_node_row": 20931,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 66,
+        "source_node_row": 20932,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 72,
+        "source_node_row": 20956,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 73,
+        "source_node_row": 20957,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 77,
+        "source_node_row": 20989,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 78,
+        "source_node_row": 20990,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 80,
+        "source_node_row": 21016,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 83,
+        "source_node_row": 21019,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 86,
+        "source_node_row": 21022,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 89,
+        "source_node_row": 21025,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 90,
+        "source_node_row": 21026,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 91,
+        "source_node_row": 21027,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 94,
+        "source_node_row": 21030,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 97,
+        "source_node_row": 21062,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 99,
+        "source_node_row": 21064,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 101,
+        "source_node_row": 21066,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 103,
+        "source_node_row": 21068,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 104,
+        "source_node_row": 21069,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 106,
+        "source_node_row": 21071,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 109,
+        "source_node_row": 21092,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 110,
+        "source_node_row": 21093,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 113,
+        "source_node_row": 21096,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 120,
+        "source_node_row": 21131,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 122,
+        "source_node_row": 21134,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 124,
+        "source_node_row": 21159,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 127,
+        "source_node_row": 21187,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 128,
+        "source_node_row": 21188,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 130,
+        "source_node_row": 21190,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 131,
+        "source_node_row": 21191,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 133,
+        "source_node_row": 21193,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 136,
+        "source_node_row": 21204,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 137,
+        "source_node_row": 21205,
+        "parent_face_row": -1,
+        "location": "inside"
+      },
+      {
+        "node": 139,
+        "source_node_row": -1,
+        "parent_face_row": 19199,
+        "location": "inside"
+      },
+      {
+        "node": 142,
+        "source_node_row": -1,
+        "parent_face_row": 19204,
+        "location": "inside"
+      },
+      {
+        "node": 146,
+        "source_node_row": -1,
+        "parent_face_row": 19214,
+        "location": "inside"
+      },
+      {
+        "node": 147,
+        "source_node_row": -1,
+        "parent_face_row": 19215,
+        "location": "inside"
+      },
+      {
+        "node": 150,
+        "source_node_row": -1,
+        "parent_face_row": 19221,
+        "location": "inside"
+      },
+      {
+        "node": 151,
+        "source_node_row": -1,
+        "parent_face_row": 19222,
+        "location": "inside"
+      },
+      {
+        "node": 161,
+        "source_node_row": -1,
+        "parent_face_row": 19240,
+        "location": "inside"
+      },
+      {
+        "node": 163,
+        "source_node_row": -1,
+        "parent_face_row": 19314,
+        "location": "inside"
+      },
+      {
+        "node": 164,
+        "source_node_row": -1,
+        "parent_face_row": 19315,
+        "location": "inside"
+      },
+      {
+        "node": 165,
+        "source_node_row": -1,
+        "parent_face_row": 19316,
+        "location": "inside"
+      },
+      {
+        "node": 166,
+        "source_node_row": -1,
+        "parent_face_row": 19317,
+        "location": "inside"
+      },
+      {
+        "node": 167,
+        "source_node_row": -1,
+        "parent_face_row": 19318,
+        "location": "inside"
+      },
+      {
+        "node": 169,
+        "source_node_row": -1,
+        "parent_face_row": 19320,
+        "location": "inside"
+      },
+      {
+        "node": 170,
+        "source_node_row": -1,
+        "parent_face_row": 19324,
+        "location": "inside"
+      },
+      {
+        "node": 171,
+        "source_node_row": -1,
+        "parent_face_row": 19325,
+        "location": "inside"
+      },
+      {
+        "node": 172,
+        "source_node_row": -1,
+        "parent_face_row": 19326,
+        "location": "inside"
+      },
+      {
+        "node": 173,
+        "source_node_row": -1,
+        "parent_face_row": 19327,
+        "location": "inside"
+      },
+      {
+        "node": 174,
+        "source_node_row": -1,
+        "parent_face_row": 19328,
+        "location": "inside"
+      },
+      {
+        "node": 177,
+        "source_node_row": -1,
+        "parent_face_row": 19331,
+        "location": "inside"
+      },
+      {
+        "node": 179,
+        "source_node_row": -1,
+        "parent_face_row": 19337,
+        "location": "inside"
+      },
+      {
+        "node": 181,
+        "source_node_row": -1,
+        "parent_face_row": 19339,
+        "location": "inside"
+      },
+      {
+        "node": 182,
+        "source_node_row": -1,
+        "parent_face_row": 19367,
+        "location": "inside"
+      },
+      {
+        "node": 183,
+        "source_node_row": -1,
+        "parent_face_row": 19368,
+        "location": "inside"
+      },
+      {
+        "node": 185,
+        "source_node_row": -1,
+        "parent_face_row": 19370,
+        "location": "inside"
+      },
+      {
+        "node": 186,
+        "source_node_row": -1,
+        "parent_face_row": 19371,
+        "location": "inside"
+      },
+      {
+        "node": 187,
+        "source_node_row": -1,
+        "parent_face_row": 19372,
+        "location": "inside"
+      },
+      {
+        "node": 188,
+        "source_node_row": -1,
+        "parent_face_row": 19373,
+        "location": "inside"
+      },
+      {
+        "node": 189,
+        "source_node_row": -1,
+        "parent_face_row": 19374,
+        "location": "inside"
+      },
+      {
+        "node": 190,
+        "source_node_row": -1,
+        "parent_face_row": 19381,
+        "location": "inside"
+      },
+      {
+        "node": 191,
+        "source_node_row": -1,
+        "parent_face_row": 19382,
+        "location": "inside"
+      },
+      {
+        "node": 192,
+        "source_node_row": -1,
+        "parent_face_row": 19383,
+        "location": "inside"
+      },
+      {
+        "node": 193,
+        "source_node_row": -1,
+        "parent_face_row": 19384,
+        "location": "inside"
+      },
+      {
+        "node": 194,
+        "source_node_row": -1,
+        "parent_face_row": 19389,
+        "location": "inside"
+      },
+      {
+        "node": 195,
+        "source_node_row": -1,
+        "parent_face_row": 19390,
+        "location": "inside"
+      },
+      {
+        "node": 196,
+        "source_node_row": -1,
+        "parent_face_row": 19391,
+        "location": "inside"
+      },
+      {
+        "node": 197,
+        "source_node_row": -1,
+        "parent_face_row": 19392,
+        "location": "inside"
+      },
+      {
+        "node": 198,
+        "source_node_row": -1,
+        "parent_face_row": 19403,
+        "location": "inside"
+      },
+      {
+        "node": 199,
+        "source_node_row": -1,
+        "parent_face_row": 19404,
+        "location": "inside"
+      },
+      {
+        "node": 201,
+        "source_node_row": -1,
+        "parent_face_row": 19406,
+        "location": "inside"
+      },
+      {
+        "node": 202,
+        "source_node_row": -1,
+        "parent_face_row": 19421,
+        "location": "inside"
+      },
+      {
+        "node": 203,
+        "source_node_row": -1,
+        "parent_face_row": 19422,
+        "location": "inside"
+      },
+      {
+        "node": 204,
+        "source_node_row": -1,
+        "parent_face_row": 19423,
+        "location": "inside"
+      },
+      {
+        "node": 205,
+        "source_node_row": -1,
+        "parent_face_row": 19424,
+        "location": "inside"
+      },
+      {
+        "node": 206,
+        "source_node_row": -1,
+        "parent_face_row": 19429,
+        "location": "inside"
+      },
+      {
+        "node": 207,
+        "source_node_row": -1,
+        "parent_face_row": 19430,
+        "location": "inside"
+      },
+      {
+        "node": 208,
+        "source_node_row": -1,
+        "parent_face_row": 19431,
+        "location": "inside"
+      },
+      {
+        "node": 209,
+        "source_node_row": -1,
+        "parent_face_row": 19432,
+        "location": "inside"
+      },
+      {
+        "node": 211,
+        "source_node_row": -1,
+        "parent_face_row": 19447,
+        "location": "inside"
+      },
+      {
+        "node": 212,
+        "source_node_row": -1,
+        "parent_face_row": 19448,
+        "location": "inside"
+      },
+      {
+        "node": 213,
+        "source_node_row": -1,
+        "parent_face_row": 19449,
+        "location": "inside"
+      },
+      {
+        "node": 215,
+        "source_node_row": -1,
+        "parent_face_row": 19451,
+        "location": "inside"
+      },
+      {
+        "node": 217,
+        "source_node_row": -1,
+        "parent_face_row": 19453,
+        "location": "inside"
+      },
+      {
+        "node": 219,
+        "source_node_row": -1,
+        "parent_face_row": 19458,
+        "location": "inside"
+      },
+      {
+        "node": 220,
+        "source_node_row": -1,
+        "parent_face_row": 19459,
+        "location": "inside"
+      },
+      {
+        "node": 221,
+        "source_node_row": -1,
+        "parent_face_row": 19460,
+        "location": "inside"
+      },
+      {
+        "node": 222,
+        "source_node_row": -1,
+        "parent_face_row": 19461,
+        "location": "inside"
+      },
+      {
+        "node": 224,
+        "source_node_row": -1,
+        "parent_face_row": 19463,
+        "location": "inside"
+      },
+      {
+        "node": 225,
+        "source_node_row": -1,
+        "parent_face_row": 19464,
+        "location": "inside"
+      },
+      {
+        "node": 226,
+        "source_node_row": -1,
+        "parent_face_row": 19646,
+        "location": "inside"
+      },
+      {
+        "node": 227,
+        "source_node_row": -1,
+        "parent_face_row": 19647,
+        "location": "inside"
+      },
+      {
+        "node": 228,
+        "source_node_row": -1,
+        "parent_face_row": 19648,
+        "location": "inside"
+      },
+      {
+        "node": 229,
+        "source_node_row": -1,
+        "parent_face_row": 19649,
+        "location": "inside"
+      },
+      {
+        "node": 231,
+        "source_node_row": -1,
+        "parent_face_row": 19651,
+        "location": "inside"
+      },
+      {
+        "node": 232,
+        "source_node_row": -1,
+        "parent_face_row": 19652,
+        "location": "inside"
+      },
+      {
+        "node": 233,
+        "source_node_row": -1,
+        "parent_face_row": 19653,
+        "location": "inside"
+      },
+      {
+        "node": 234,
+        "source_node_row": -1,
+        "parent_face_row": 19654,
+        "location": "inside"
+      },
+      {
+        "node": 235,
+        "source_node_row": -1,
+        "parent_face_row": 19655,
+        "location": "inside"
+      },
+      {
+        "node": 236,
+        "source_node_row": -1,
+        "parent_face_row": 19656,
+        "location": "inside"
+      },
+      {
+        "node": 237,
+        "source_node_row": -1,
+        "parent_face_row": 19657,
+        "location": "inside"
+      },
+      {
+        "node": 238,
+        "source_node_row": -1,
+        "parent_face_row": 19664,
+        "location": "inside"
+      },
+      {
+        "node": 239,
+        "source_node_row": -1,
+        "parent_face_row": 19665,
+        "location": "inside"
+      },
+      {
+        "node": 240,
+        "source_node_row": -1,
+        "parent_face_row": 19666,
+        "location": "inside"
+      },
+      {
+        "node": 241,
+        "source_node_row": -1,
+        "parent_face_row": 19667,
+        "location": "inside"
+      },
+      {
+        "node": 242,
+        "source_node_row": -1,
+        "parent_face_row": 19674,
+        "location": "inside"
+      },
+      {
+        "node": 243,
+        "source_node_row": -1,
+        "parent_face_row": 19675,
+        "location": "inside"
+      },
+      {
+        "node": 244,
+        "source_node_row": -1,
+        "parent_face_row": 19676,
+        "location": "inside"
+      },
+      {
+        "node": 245,
+        "source_node_row": -1,
+        "parent_face_row": 19677,
+        "location": "inside"
+      },
+      {
+        "node": 246,
+        "source_node_row": -1,
+        "parent_face_row": 19678,
+        "location": "inside"
+      },
+      {
+        "node": 247,
+        "source_node_row": -1,
+        "parent_face_row": 19679,
+        "location": "inside"
+      },
+      {
+        "node": 248,
+        "source_node_row": -1,
+        "parent_face_row": 19680,
+        "location": "inside"
+      },
+      {
+        "node": 249,
+        "source_node_row": -1,
+        "parent_face_row": 19681,
+        "location": "inside"
+      },
+      {
+        "node": 250,
+        "source_node_row": -1,
+        "parent_face_row": 19682,
+        "location": "inside"
+      },
+      {
+        "node": 251,
+        "source_node_row": -1,
+        "parent_face_row": 19683,
+        "location": "inside"
+      },
+      {
+        "node": 252,
+        "source_node_row": -1,
+        "parent_face_row": 19684,
+        "location": "inside"
+      },
+      {
+        "node": 253,
+        "source_node_row": -1,
+        "parent_face_row": 19685,
+        "location": "inside"
+      },
+      {
+        "node": 254,
+        "source_node_row": -1,
+        "parent_face_row": 19717,
+        "location": "inside"
+      },
+      {
+        "node": 257,
+        "source_node_row": -1,
+        "parent_face_row": 19725,
+        "location": "inside"
+      },
+      {
+        "node": 258,
+        "source_node_row": -1,
+        "parent_face_row": 19726,
+        "location": "inside"
+      },
+      {
+        "node": 260,
+        "source_node_row": -1,
+        "parent_face_row": 19728,
+        "location": "inside"
+      },
+      {
+        "node": 261,
+        "source_node_row": -1,
+        "parent_face_row": 19729,
+        "location": "inside"
+      },
+      {
+        "node": 262,
+        "source_node_row": -1,
+        "parent_face_row": 19730,
+        "location": "inside"
+      },
+      {
+        "node": 263,
+        "source_node_row": -1,
+        "parent_face_row": 19731,
+        "location": "inside"
+      },
+      {
+        "node": 264,
+        "source_node_row": -1,
+        "parent_face_row": 19732,
+        "location": "inside"
+      },
+      {
+        "node": 265,
+        "source_node_row": -1,
+        "parent_face_row": 19735,
+        "location": "inside"
+      },
+      {
+        "node": 267,
+        "source_node_row": -1,
+        "parent_face_row": 19737,
+        "location": "inside"
+      },
+      {
+        "node": 268,
+        "source_node_row": -1,
+        "parent_face_row": 19738,
+        "location": "inside"
+      },
+      {
+        "node": 269,
+        "source_node_row": -1,
+        "parent_face_row": 19747,
+        "location": "inside"
+      },
+      {
+        "node": 270,
+        "source_node_row": -1,
+        "parent_face_row": 19748,
+        "location": "inside"
+      },
+      {
+        "node": 271,
+        "source_node_row": -1,
+        "parent_face_row": 19749,
+        "location": "inside"
+      },
+      {
+        "node": 272,
+        "source_node_row": -1,
+        "parent_face_row": 19750,
+        "location": "inside"
+      },
+      {
+        "node": 273,
+        "source_node_row": -1,
+        "parent_face_row": 19808,
+        "location": "inside"
+      },
+      {
+        "node": 274,
+        "source_node_row": -1,
+        "parent_face_row": 19809,
+        "location": "inside"
+      },
+      {
+        "node": 275,
+        "source_node_row": -1,
+        "parent_face_row": 19810,
+        "location": "inside"
+      },
+      {
+        "node": 276,
+        "source_node_row": -1,
+        "parent_face_row": 19811,
+        "location": "inside"
+      },
+      {
+        "node": 277,
+        "source_node_row": -1,
+        "parent_face_row": 19812,
+        "location": "inside"
+      },
+      {
+        "node": 278,
+        "source_node_row": -1,
+        "parent_face_row": 19813,
+        "location": "inside"
+      },
+      {
+        "node": 279,
+        "source_node_row": -1,
+        "parent_face_row": 19814,
+        "location": "inside"
+      },
+      {
+        "node": 280,
+        "source_node_row": -1,
+        "parent_face_row": 19815,
+        "location": "inside"
+      },
+      {
+        "node": 281,
+        "source_node_row": -1,
+        "parent_face_row": 19816,
+        "location": "inside"
+      },
+      {
+        "node": 282,
+        "source_node_row": -1,
+        "parent_face_row": 19817,
+        "location": "inside"
+      },
+      {
+        "node": 283,
+        "source_node_row": -1,
+        "parent_face_row": 19818,
+        "location": "inside"
+      },
+      {
+        "node": 284,
+        "source_node_row": -1,
+        "parent_face_row": 19819,
+        "location": "inside"
+      },
+      {
+        "node": 286,
+        "source_node_row": -1,
+        "parent_face_row": 19841,
+        "location": "inside"
+      },
+      {
+        "node": 287,
+        "source_node_row": -1,
+        "parent_face_row": 19842,
+        "location": "inside"
+      },
+      {
+        "node": 288,
+        "source_node_row": -1,
+        "parent_face_row": 19843,
+        "location": "inside"
+      },
+      {
+        "node": 289,
+        "source_node_row": -1,
+        "parent_face_row": 19844,
+        "location": "inside"
+      },
+      {
+        "node": 290,
+        "source_node_row": -1,
+        "parent_face_row": 19845,
+        "location": "inside"
+      },
+      {
+        "node": 291,
+        "source_node_row": -1,
+        "parent_face_row": 19846,
+        "location": "inside"
+      },
+      {
+        "node": 292,
+        "source_node_row": -1,
+        "parent_face_row": 19847,
+        "location": "inside"
+      },
+      {
+        "node": 293,
+        "source_node_row": -1,
+        "parent_face_row": 19848,
+        "location": "inside"
+      },
+      {
+        "node": 294,
+        "source_node_row": -1,
+        "parent_face_row": 19849,
+        "location": "inside"
+      },
+      {
+        "node": 295,
+        "source_node_row": -1,
+        "parent_face_row": 19850,
+        "location": "inside"
+      },
+      {
+        "node": 296,
+        "source_node_row": -1,
+        "parent_face_row": 19851,
+        "location": "inside"
+      },
+      {
+        "node": 298,
+        "source_node_row": -1,
+        "parent_face_row": 19858,
+        "location": "inside"
+      },
+      {
+        "node": 299,
+        "source_node_row": -1,
+        "parent_face_row": 19859,
+        "location": "inside"
+      },
+      {
+        "node": 300,
+        "source_node_row": -1,
+        "parent_face_row": 19860,
+        "location": "inside"
+      },
+      {
+        "node": 301,
+        "source_node_row": -1,
+        "parent_face_row": 19861,
+        "location": "inside"
+      },
+      {
+        "node": 302,
+        "source_node_row": -1,
+        "parent_face_row": 19862,
+        "location": "inside"
+      },
+      {
+        "node": 303,
+        "source_node_row": -1,
+        "parent_face_row": 19863,
+        "location": "inside"
+      },
+      {
+        "node": 304,
+        "source_node_row": -1,
+        "parent_face_row": 19864,
+        "location": "inside"
+      }
+    ],
+    "pass_zero_pairs_and_zero_inside": false
+  },
+  "exact_local_self_check": {
+    "patch_internal_pair_count": 88,
+    "patch_internal_pairs": [
+      [
+        42,
+        51
+      ],
+      [
+        42,
+        52
+      ],
+      [
+        42,
+        57
+      ],
+      [
+        42,
+        59
+      ],
+      [
+        44,
+        57
+      ],
+      [
+        44,
+        59
+      ],
+      [
+        51,
+        60
+      ],
+      [
+        51,
+        61
+      ],
+      [
+        52,
+        61
+      ],
+      [
+        52,
+        71
+      ],
+      [
+        53,
+        60
+      ],
+      [
+        53,
+        61
+      ],
+      [
+        53,
+        71
+      ],
+      [
+        88,
+        101
+      ],
+      [
+        88,
+        102
+      ],
+      [
+        88,
+        111
+      ],
+      [
+        89,
+        102
+      ],
+      [
+        91,
+        122
+      ],
+      [
+        93,
+        102
+      ],
+      [
+        93,
+        118
+      ],
+      [
+        93,
+        120
+      ],
+      [
+        93,
+        122
+      ],
+      [
+        97,
+        102
+      ],
+      [
+        99,
+        102
+      ],
+      [
+        101,
+        127
+      ],
+      [
+        101,
+        129
+      ],
+      [
+        102,
+        127
+      ],
+      [
+        102,
+        129
+      ],
+      [
+        102,
+        130
+      ],
+      [
+        102,
+        131
+      ],
+      [
+        102,
+        133
+      ],
+      [
+        102,
+        134
+      ],
+      [
+        102,
+        135
+      ],
+      [
+        111,
+        127
+      ],
+      [
+        111,
+        129
+      ],
+      [
+        118,
+        130
+      ],
+      [
+        118,
+        131
+      ],
+      [
+        118,
+        132
+      ],
+      [
+        118,
+        134
+      ],
+      [
+        120,
+        130
+      ],
+      [
+        120,
+        131
+      ],
+      [
+        120,
+        134
+      ],
+      [
+        122,
+        124
+      ],
+      [
+        122,
+        125
+      ],
+      [
+        122,
+        130
+      ],
+      [
+        122,
+        131
+      ],
+      [
+        122,
+        132
+      ],
+      [
+        122,
+        134
+      ],
+      [
+        122,
+        135
+      ],
+      [
+        191,
+        255
+      ],
+      [
+        192,
+        255
+      ],
+      [
+        193,
+        255
+      ],
+      [
+        193,
+        257
+      ],
+      [
+        194,
+        202
+      ],
+      [
+        194,
+        252
+      ],
+      [
+        195,
+        252
+      ],
+      [
+        197,
+        202
+      ],
+      [
+        197,
+        252
+      ],
+      [
+        197,
+        253
+      ],
+      [
+        197,
+        257
+      ],
+      [
+        197,
+        261
+      ],
+      [
+        197,
+        263
+      ],
+      [
+        200,
+        208
+      ],
+      [
+        201,
+        208
+      ],
+      [
+        203,
+        208
+      ],
+      [
+        207,
+        265
+      ],
+      [
+        207,
+        266
+      ],
+      [
+        208,
+        255
+      ],
+      [
+        208,
+        265
+      ],
+      [
+        208,
+        266
+      ],
+      [
+        208,
+        275
+      ],
+      [
+        209,
+        265
+      ],
+      [
+        209,
+        275
+      ],
+      [
+        465,
+        500
+      ],
+      [
+        466,
+        500
+      ],
+      [
+        468,
+        495
+      ],
+      [
+        468,
+        496
+      ],
+      [
+        468,
+        497
+      ],
+      [
+        468,
+        499
+      ],
+      [
+        468,
+        509
+      ],
+      [
+        470,
+        499
+      ],
+      [
+        474,
+        499
+      ],
+      [
+        476,
+        499
+      ],
+      [
+        476,
+        500
+      ],
+      [
+        500,
+        514
+      ],
+      [
+        509,
+        513
+      ],
+      [
+        509,
+        515
+      ],
+      [
+        509,
+        516
+      ]
+    ],
+    "complement_aabb_active_count": 613,
+    "patch_vs_complement_pair_count": 8,
+    "patch_vs_complement_pairs": [
+      [
+        32,
+        19779
+      ],
+      [
+        32,
+        19781
+      ],
+      [
+        64,
+        19779
+      ],
+      [
+        64,
+        19781
+      ],
+      [
+        65,
+        19779
+      ],
+      [
+        65,
+        19781
+      ],
+      [
+        69,
+        19779
+      ],
+      [
+        69,
+        19781
+      ]
+    ],
+    "pass_zero_local_self_pairs": false
+  },
+  "bone_slack_residuals": [
+    {
+      "kind": "exact_intersection",
+      "source_face": 19197,
+      "bone_triangle": 144,
+      "slack_mm": 0.0410374870934818
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19197,
+      "bone_triangle": 144,
+      "slack_mm": 0.045928645168801546
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19199,
+      "bone_triangle": 133,
+      "slack_mm": 0.042787061827593176
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19199,
+      "bone_triangle": 133,
+      "slack_mm": 0.04999999999999999
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19199,
+      "bone_triangle": 144,
+      "slack_mm": 0.049999999999994764
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19199,
+      "bone_triangle": 144,
+      "slack_mm": 0.04687396865478246
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19200,
+      "bone_triangle": 144,
+      "slack_mm": 0.04687396865478246
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19200,
+      "bone_triangle": 144,
+      "slack_mm": 0.0410374870934818
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19203,
+      "bone_triangle": 144,
+      "slack_mm": 0.025395872609518685
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19203,
+      "bone_triangle": 144,
+      "slack_mm": 0.049546317998018556
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19204,
+      "bone_triangle": 133,
+      "slack_mm": 0.040326684580229366
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19204,
+      "bone_triangle": 133,
+      "slack_mm": 0.04999999999999999
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19204,
+      "bone_triangle": 144,
+      "slack_mm": 0.049999999999994764
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19204,
+      "bone_triangle": 144,
+      "slack_mm": 0.04143183124783957
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19206,
+      "bone_triangle": 144,
+      "slack_mm": 0.04143183124783957
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19206,
+      "bone_triangle": 144,
+      "slack_mm": 0.025395872609518685
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19212,
+      "bone_triangle": 134,
+      "slack_mm": 0.044363128213571676
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19212,
+      "bone_triangle": 134,
+      "slack_mm": 0.045770008924291054
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19212,
+      "bone_triangle": 135,
+      "slack_mm": 0.045770008924291054
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19212,
+      "bone_triangle": 135,
+      "slack_mm": 0.045131852338813824
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19213,
+      "bone_triangle": 133,
+      "slack_mm": 0.040326684580229366
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19213,
+      "bone_triangle": 133,
+      "slack_mm": 0.04687300619285334
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19213,
+      "bone_triangle": 134,
+      "slack_mm": 0.04687300619285334
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19213,
+      "bone_triangle": 134,
+      "slack_mm": 0.04686631742397545
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19214,
+      "bone_triangle": 144,
+      "slack_mm": 0.04985900715658105
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19214,
+      "bone_triangle": 144,
+      "slack_mm": 0.049546317998018556
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19215,
+      "bone_triangle": 134,
+      "slack_mm": 0.04686631742397545
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19215,
+      "bone_triangle": 134,
+      "slack_mm": 0.044363128213571676
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19219,
+      "bone_triangle": 133,
+      "slack_mm": 0.01680765421573272
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19219,
+      "bone_triangle": 133,
+      "slack_mm": 0.0343509482489448
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19219,
+      "bone_triangle": 134,
+      "slack_mm": 0.0343509482489448
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19219,
+      "bone_triangle": 134,
+      "slack_mm": 0.034046693746113584
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19220,
+      "bone_triangle": 135,
+      "slack_mm": 0.04686869936855212
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19220,
+      "bone_triangle": 135,
+      "slack_mm": 0.045131852338813824
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19221,
+      "bone_triangle": 144,
+      "slack_mm": 0.04985900715658105
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19221,
+      "bone_triangle": 144,
+      "slack_mm": 0.049480716765441676
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19222,
+      "bone_triangle": 134,
+      "slack_mm": 0.034046693746113584
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19222,
+      "bone_triangle": 134,
+      "slack_mm": 0.04444914091526616
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19222,
+      "bone_triangle": 135,
+      "slack_mm": 0.04444914091526616
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19222,
+      "bone_triangle": 135,
+      "slack_mm": 0.04686869936855212
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19224,
+      "bone_triangle": 133,
+      "slack_mm": 0.04687079365900896
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19224,
+      "bone_triangle": 133,
+      "slack_mm": 0.04822923091598308
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19224,
+      "bone_triangle": 140,
+      "slack_mm": 0.051422073428735664
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19224,
+      "bone_triangle": 140,
+      "slack_mm": 0.04687079365900896
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19225,
+      "bone_triangle": 133,
+      "slack_mm": 0.04812022726844203
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19225,
+      "bone_triangle": 133,
+      "slack_mm": 0.04837973715570917
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19226,
+      "bone_triangle": 133,
+      "slack_mm": 0.04822923091598308
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19226,
+      "bone_triangle": 133,
+      "slack_mm": 0.04812022726844203
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19227,
+      "bone_triangle": 133,
+      "slack_mm": 0.04687051813717414
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19227,
+      "bone_triangle": 133,
+      "slack_mm": 0.04836128529577013
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19227,
+      "bone_triangle": 140,
+      "slack_mm": 0.051422073428735664
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19227,
+      "bone_triangle": 140,
+      "slack_mm": 0.04687051813717414
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19229,
+      "bone_triangle": 133,
+      "slack_mm": 0.0481612094281568
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19229,
+      "bone_triangle": 133,
+      "slack_mm": 0.04837973715570917
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19230,
+      "bone_triangle": 133,
+      "slack_mm": 0.04836128529577013
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19230,
+      "bone_triangle": 133,
+      "slack_mm": 0.0481612094281568
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19237,
+      "bone_triangle": 133,
+      "slack_mm": 0.04688131464355381
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19237,
+      "bone_triangle": 133,
+      "slack_mm": 0.049999999999994556
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19237,
+      "bone_triangle": 140,
+      "slack_mm": 0.05
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19237,
+      "bone_triangle": 140,
+      "slack_mm": 0.04688131464355381
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19238,
+      "bone_triangle": 133,
+      "slack_mm": 0.02670452249965529
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19238,
+      "bone_triangle": 133,
+      "slack_mm": 0.01680765421573272
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19239,
+      "bone_triangle": 140,
+      "slack_mm": 0.0480512653112471
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19239,
+      "bone_triangle": 140,
+      "slack_mm": 0.03306027562735261
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19239,
+      "bone_triangle": 144,
+      "slack_mm": 0.049480716765441676
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19239,
+      "bone_triangle": 144,
+      "slack_mm": 0.0480512653112471
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19240,
+      "bone_triangle": 133,
+      "slack_mm": 0.049999999999994556
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19240,
+      "bone_triangle": 133,
+      "slack_mm": 0.02670452249965529
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19240,
+      "bone_triangle": 140,
+      "slack_mm": 0.03306027562735261
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19240,
+      "bone_triangle": 140,
+      "slack_mm": 0.05
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19313,
+      "bone_triangle": 142,
+      "slack_mm": 0.04687433902895337
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19313,
+      "bone_triangle": 142,
+      "slack_mm": 0.042491405882616996
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19313,
+      "bone_triangle": 144,
+      "slack_mm": 0.042491405882616996
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19313,
+      "bone_triangle": 144,
+      "slack_mm": 0.05000000000000524
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19313,
+      "bone_triangle": 145,
+      "slack_mm": 0.050000000000004347
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19313,
+      "bone_triangle": 145,
+      "slack_mm": 0.04687433902895337
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19314,
+      "bone_triangle": 133,
+      "slack_mm": 0.033957238766641085
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19314,
+      "bone_triangle": 133,
+      "slack_mm": 0.013940845749734143
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19314,
+      "bone_triangle": 140,
+      "slack_mm": 0.04432120755187177
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19314,
+      "bone_triangle": 140,
+      "slack_mm": 0.033957238766641085
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19314,
+      "bone_triangle": 144,
+      "slack_mm": 0.04238411766019211
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19314,
+      "bone_triangle": 144,
+      "slack_mm": 0.04432120755187177
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19315,
+      "bone_triangle": 133,
+      "slack_mm": 0.014239615456988791
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19315,
+      "bone_triangle": 133,
+      "slack_mm": 0.02077644931300965
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19315,
+      "bone_triangle": 134,
+      "slack_mm": 0.02077644931300965
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19315,
+      "bone_triangle": 134,
+      "slack_mm": 0.0468679796269414
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19315,
+      "bone_triangle": 135,
+      "slack_mm": 0.0468679796269414
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19315,
+      "bone_triangle": 135,
+      "slack_mm": 0.05
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19316,
+      "bone_triangle": 133,
+      "slack_mm": 0.013940845749734143
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19316,
+      "bone_triangle": 133,
+      "slack_mm": 0.014239615456988791
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19316,
+      "bone_triangle": 144,
+      "slack_mm": 0.05000000000000524
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19316,
+      "bone_triangle": 144,
+      "slack_mm": 0.04238411766019211
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19317,
+      "bone_triangle": 133,
+      "slack_mm": 0.037439670319751886
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19317,
+      "bone_triangle": 133,
+      "slack_mm": 0.011065687683559894
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19317,
+      "bone_triangle": 140,
+      "slack_mm": 0.04687377932072478
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19317,
+      "bone_triangle": 140,
+      "slack_mm": 0.037439670319751886
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19318,
+      "bone_triangle": 130,
+      "slack_mm": 0.04687385704083048
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19318,
+      "bone_triangle": 130,
+      "slack_mm": 0.04551102630056475
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19319,
+      "bone_triangle": 128,
+      "slack_mm": 0.03918113419718468
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19319,
+      "bone_triangle": 128,
+      "slack_mm": 0.04688056704650799
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19319,
+      "bone_triangle": 130,
+      "slack_mm": 0.04688056704650799
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19319,
+      "bone_triangle": 130,
+      "slack_mm": 0.046875297931110047
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19319,
+      "bone_triangle": 134,
+      "slack_mm": 0.015340433994269265
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19319,
+      "bone_triangle": 134,
+      "slack_mm": 0.026123954741930248
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19319,
+      "bone_triangle": 135,
+      "slack_mm": 0.026123954741930248
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19319,
+      "bone_triangle": 135,
+      "slack_mm": 0.03918113419718468
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19320,
+      "bone_triangle": 130,
+      "slack_mm": 0.046875297931110047
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19320,
+      "bone_triangle": 130,
+      "slack_mm": 0.04687385704083048
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19320,
+      "bone_triangle": 133,
+      "slack_mm": 0.011065687683559894
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19320,
+      "bone_triangle": 133,
+      "slack_mm": 0.011411452064873005
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19320,
+      "bone_triangle": 134,
+      "slack_mm": 0.011411452064873005
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19320,
+      "bone_triangle": 134,
+      "slack_mm": 0.015340433994269265
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19324,
+      "bone_triangle": 130,
+      "slack_mm": 0.03975600460818366
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19324,
+      "bone_triangle": 130,
+      "slack_mm": 0.04687580962892706
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19325,
+      "bone_triangle": 140,
+      "slack_mm": 0.04576614222376792
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19325,
+      "bone_triangle": 140,
+      "slack_mm": 0.04176618790107647
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19325,
+      "bone_triangle": 144,
+      "slack_mm": 0.04687547369638805
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19325,
+      "bone_triangle": 144,
+      "slack_mm": 0.04576614222376792
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19326,
+      "bone_triangle": 144,
+      "slack_mm": 0.048100070839486614
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19326,
+      "bone_triangle": 144,
+      "slack_mm": 0.04623093742038732
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19327,
+      "bone_triangle": 144,
+      "slack_mm": 0.04623093742038732
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19327,
+      "bone_triangle": 144,
+      "slack_mm": 0.04687547369638805
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19328,
+      "bone_triangle": 144,
+      "slack_mm": 0.05000000000000496
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19328,
+      "bone_triangle": 144,
+      "slack_mm": 0.048100070839486614
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19329,
+      "bone_triangle": 130,
+      "slack_mm": 0.0499999999999998
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19329,
+      "bone_triangle": 130,
+      "slack_mm": 0.05
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19330,
+      "bone_triangle": 130,
+      "slack_mm": 0.04687580962892706
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19330,
+      "bone_triangle": 130,
+      "slack_mm": 0.04662374020634805
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19331,
+      "bone_triangle": 130,
+      "slack_mm": 0.04662374020634805
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19331,
+      "bone_triangle": 130,
+      "slack_mm": 0.0499999999999998
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19336,
+      "bone_triangle": 130,
+      "slack_mm": 0.0418624943345595
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19336,
+      "bone_triangle": 130,
+      "slack_mm": 0.04551102630056475
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19337,
+      "bone_triangle": 140,
+      "slack_mm": 0.04687377932072478
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19337,
+      "bone_triangle": 140,
+      "slack_mm": 0.04176618790107647
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19338,
+      "bone_triangle": 130,
+      "slack_mm": 0.03975600460818366
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19338,
+      "bone_triangle": 130,
+      "slack_mm": 0.042126999720958305
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19339,
+      "bone_triangle": 130,
+      "slack_mm": 0.042126999720958305
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19339,
+      "bone_triangle": 130,
+      "slack_mm": 0.0418624943345595
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19367,
+      "bone_triangle": 144,
+      "slack_mm": 0.05
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19367,
+      "bone_triangle": 144,
+      "slack_mm": 0.04687497847781941
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19368,
+      "bone_triangle": 130,
+      "slack_mm": 0.04687517733209705
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19368,
+      "bone_triangle": 130,
+      "slack_mm": 0.03415393970331864
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19368,
+      "bone_triangle": 147,
+      "slack_mm": 0.04687517733209705
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19368,
+      "bone_triangle": 147,
+      "slack_mm": 0.04925359932277251
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19369,
+      "bone_triangle": 130,
+      "slack_mm": 0.05000000000000015
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19369,
+      "bone_triangle": 130,
+      "slack_mm": 0.05000000000000354
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19370,
+      "bone_triangle": 130,
+      "slack_mm": 0.03415393970331864
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19370,
+      "bone_triangle": 130,
+      "slack_mm": 0.05000000000000015
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19371,
+      "bone_triangle": 144,
+      "slack_mm": 0.04687497847781941
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19371,
+      "bone_triangle": 144,
+      "slack_mm": 0.04532689462463286
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19372,
+      "bone_triangle": 147,
+      "slack_mm": 0.04980665249850903
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19372,
+      "bone_triangle": 147,
+      "slack_mm": 0.04950084660072941
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19373,
+      "bone_triangle": 147,
+      "slack_mm": 0.04953720450718509
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19373,
+      "bone_triangle": 147,
+      "slack_mm": 0.04925359932277251
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19374,
+      "bone_triangle": 147,
+      "slack_mm": 0.04950084660072941
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19374,
+      "bone_triangle": 147,
+      "slack_mm": 0.04953720450718509
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19381,
+      "bone_triangle": 146,
+      "slack_mm": 0.049171245573334424
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19381,
+      "bone_triangle": 146,
+      "slack_mm": 0.04956064005437879
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19381,
+      "bone_triangle": 147,
+      "slack_mm": 0.04988216076382858
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19381,
+      "bone_triangle": 147,
+      "slack_mm": 0.049171245573334424
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19382,
+      "bone_triangle": 144,
+      "slack_mm": 0.04804489354341571
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19382,
+      "bone_triangle": 144,
+      "slack_mm": 0.048275753401335456
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19383,
+      "bone_triangle": 146,
+      "slack_mm": 0.04944679294111268
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19383,
+      "bone_triangle": 146,
+      "slack_mm": 0.04761129708895926
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19384,
+      "bone_triangle": 146,
+      "slack_mm": 0.04956064005437879
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19384,
+      "bone_triangle": 146,
+      "slack_mm": 0.04944679294111268
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19389,
+      "bone_triangle": 144,
+      "slack_mm": 0.04599437189107847
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19389,
+      "bone_triangle": 144,
+      "slack_mm": 0.04804489354341571
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19390,
+      "bone_triangle": 147,
+      "slack_mm": 0.04980665249850903
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19390,
+      "bone_triangle": 147,
+      "slack_mm": 0.04988216076382858
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19391,
+      "bone_triangle": 144,
+      "slack_mm": 0.04532689462463286
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19391,
+      "bone_triangle": 144,
+      "slack_mm": 0.046874525843186535
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19392,
+      "bone_triangle": 144,
+      "slack_mm": 0.046874525843186535
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19392,
+      "bone_triangle": 144,
+      "slack_mm": 0.04599437189107847
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19403,
+      "bone_triangle": 138,
+      "slack_mm": 0.010542502051602926
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19403,
+      "bone_triangle": 138,
+      "slack_mm": 0.0468736051647675
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19403,
+      "bone_triangle": 146,
+      "slack_mm": 0.0468736051647675
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19403,
+      "bone_triangle": 146,
+      "slack_mm": 0.046713395856980616
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19404,
+      "bone_triangle": 144,
+      "slack_mm": 0.05000000000000014
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19404,
+      "bone_triangle": 144,
+      "slack_mm": 0.04696557462993498
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19405,
+      "bone_triangle": 135,
+      "slack_mm": 0.05000000000000016
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19405,
+      "bone_triangle": 135,
+      "slack_mm": 0.046876213072613776
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19405,
+      "bone_triangle": 138,
+      "slack_mm": 0.046876213072613776
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19405,
+      "bone_triangle": 138,
+      "slack_mm": 0.050000000000004374
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19406,
+      "bone_triangle": 138,
+      "slack_mm": 0.050000000000004374
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19406,
+      "bone_triangle": 138,
+      "slack_mm": 0.010542502051602926
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19421,
+      "bone_triangle": 144,
+      "slack_mm": 0.048341390968432506
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19421,
+      "bone_triangle": 144,
+      "slack_mm": 0.04761285050420005
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19422,
+      "bone_triangle": 144,
+      "slack_mm": 0.04766585131214191
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19422,
+      "bone_triangle": 144,
+      "slack_mm": 0.04696557462993498
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19423,
+      "bone_triangle": 146,
+      "slack_mm": 0.046713395856980616
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19423,
+      "bone_triangle": 146,
+      "slack_mm": 0.04805377878856886
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19424,
+      "bone_triangle": 144,
+      "slack_mm": 0.04761285050420005
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19424,
+      "bone_triangle": 144,
+      "slack_mm": 0.04766585131214191
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19429,
+      "bone_triangle": 144,
+      "slack_mm": 0.048636999984068736
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19429,
+      "bone_triangle": 144,
+      "slack_mm": 0.048341390968432506
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19430,
+      "bone_triangle": 146,
+      "slack_mm": 0.04805377878856886
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19430,
+      "bone_triangle": 146,
+      "slack_mm": 0.04761129708895926
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19431,
+      "bone_triangle": 144,
+      "slack_mm": 0.048275753401335456
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19431,
+      "bone_triangle": 144,
+      "slack_mm": 0.04778751565932447
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19432,
+      "bone_triangle": 144,
+      "slack_mm": 0.04778751565932447
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19432,
+      "bone_triangle": 144,
+      "slack_mm": 0.048636999984068736
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19446,
+      "bone_triangle": 144,
+      "slack_mm": 0.03843441452226602
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19446,
+      "bone_triangle": 144,
+      "slack_mm": 0.03982590768524409
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19447,
+      "bone_triangle": 144,
+      "slack_mm": 0.04688260822846624
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19447,
+      "bone_triangle": 144,
+      "slack_mm": 0.0468873656693761
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19448,
+      "bone_triangle": 134,
+      "slack_mm": 0.04493989793662283
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19448,
+      "bone_triangle": 134,
+      "slack_mm": 0.048504331353863596
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19449,
+      "bone_triangle": 144,
+      "slack_mm": 0.03982590768524409
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19449,
+      "bone_triangle": 144,
+      "slack_mm": 0.04688260822846624
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19450,
+      "bone_triangle": 134,
+      "slack_mm": 0.04395393119158857
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19450,
+      "bone_triangle": 134,
+      "slack_mm": 0.04493989793662283
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19451,
+      "bone_triangle": 144,
+      "slack_mm": 0.0468873656693761
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19451,
+      "bone_triangle": 144,
+      "slack_mm": 0.045928645168801546
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19452,
+      "bone_triangle": 133,
+      "slack_mm": 0.042787061827593176
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19452,
+      "bone_triangle": 133,
+      "slack_mm": 0.044905706584520644
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19452,
+      "bone_triangle": 134,
+      "slack_mm": 0.044905706584520644
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19452,
+      "bone_triangle": 134,
+      "slack_mm": 0.0453889854287149
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19453,
+      "bone_triangle": 134,
+      "slack_mm": 0.0453889854287149
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19453,
+      "bone_triangle": 134,
+      "slack_mm": 0.04395393119158857
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19457,
+      "bone_triangle": 135,
+      "slack_mm": 0.05000000000000002
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19457,
+      "bone_triangle": 135,
+      "slack_mm": 0.05
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19458,
+      "bone_triangle": 144,
+      "slack_mm": 0.049999999999994625
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19458,
+      "bone_triangle": 144,
+      "slack_mm": 0.04848476535779884
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19459,
+      "bone_triangle": 134,
+      "slack_mm": 0.046472966397092794
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19459,
+      "bone_triangle": 134,
+      "slack_mm": 0.04661790961244381
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19459,
+      "bone_triangle": 135,
+      "slack_mm": 0.04661790961244381
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19459,
+      "bone_triangle": 135,
+      "slack_mm": 0.046537131067300334
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19460,
+      "bone_triangle": 135,
+      "slack_mm": 0.046537131067300334
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19460,
+      "bone_triangle": 135,
+      "slack_mm": 0.05000000000000002
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19461,
+      "bone_triangle": 144,
+      "slack_mm": 0.04112941912047406
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19461,
+      "bone_triangle": 144,
+      "slack_mm": 0.04848476535779884
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19462,
+      "bone_triangle": 144,
+      "slack_mm": 0.03843441452226602
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19462,
+      "bone_triangle": 144,
+      "slack_mm": 0.039792547356103304
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19463,
+      "bone_triangle": 134,
+      "slack_mm": 0.046472966397092794
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19463,
+      "bone_triangle": 134,
+      "slack_mm": 0.048504331353863596
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19464,
+      "bone_triangle": 144,
+      "slack_mm": 0.039792547356103304
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19464,
+      "bone_triangle": 144,
+      "slack_mm": 0.04112941912047406
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19646,
+      "bone_triangle": 145,
+      "slack_mm": 0.05001353289647111
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19646,
+      "bone_triangle": 145,
+      "slack_mm": 0.05001381962750495
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19647,
+      "bone_triangle": 147,
+      "slack_mm": 0.02489144155329177
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19647,
+      "bone_triangle": 147,
+      "slack_mm": 0.04433877593516561
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19648,
+      "bone_triangle": 142,
+      "slack_mm": 0.04998273811733133
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19648,
+      "bone_triangle": 142,
+      "slack_mm": 0.04970694994886201
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19648,
+      "bone_triangle": 145,
+      "slack_mm": 0.04998538411447781
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19648,
+      "bone_triangle": 145,
+      "slack_mm": 0.04998273811733133
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19649,
+      "bone_triangle": 145,
+      "slack_mm": 0.05001381962750495
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19649,
+      "bone_triangle": 145,
+      "slack_mm": 0.04998538411447781
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19650,
+      "bone_triangle": 147,
+      "slack_mm": 0.046590416716316405
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19650,
+      "bone_triangle": 147,
+      "slack_mm": 0.04433877593516561
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19651,
+      "bone_triangle": 147,
+      "slack_mm": 0.04996730193223836
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19651,
+      "bone_triangle": 147,
+      "slack_mm": 0.046872102581789754
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19652,
+      "bone_triangle": 142,
+      "slack_mm": 0.04970694994886201
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19652,
+      "bone_triangle": 142,
+      "slack_mm": 0.04957763167627565
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19653,
+      "bone_triangle": 147,
+      "slack_mm": 0.046872102581789754
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19653,
+      "bone_triangle": 147,
+      "slack_mm": 0.046590416716316405
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19654,
+      "bone_triangle": 147,
+      "slack_mm": 0.04996730193223836
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19654,
+      "bone_triangle": 147,
+      "slack_mm": 0.04984763241822927
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19655,
+      "bone_triangle": 142,
+      "slack_mm": 0.04846087984631308
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19655,
+      "bone_triangle": 142,
+      "slack_mm": 0.04728052231212577
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19656,
+      "bone_triangle": 142,
+      "slack_mm": 0.04957763167627565
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19656,
+      "bone_triangle": 142,
+      "slack_mm": 0.04798839205203826
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19657,
+      "bone_triangle": 142,
+      "slack_mm": 0.04798839205203826
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19657,
+      "bone_triangle": 142,
+      "slack_mm": 0.04846087984631308
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19664,
+      "bone_triangle": 142,
+      "slack_mm": 0.04728052231212577
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19664,
+      "bone_triangle": 142,
+      "slack_mm": 0.04696289961140136
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19665,
+      "bone_triangle": 147,
+      "slack_mm": 0.04984763241822927
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19665,
+      "bone_triangle": 147,
+      "slack_mm": 0.046874656469007056
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19666,
+      "bone_triangle": 147,
+      "slack_mm": 0.04770977819872029
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19666,
+      "bone_triangle": 147,
+      "slack_mm": 0.045687902695981664
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19667,
+      "bone_triangle": 147,
+      "slack_mm": 0.046874656469007056
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19667,
+      "bone_triangle": 147,
+      "slack_mm": 0.04770977819872029
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19674,
+      "bone_triangle": 142,
+      "slack_mm": 0.0485939410546491
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19674,
+      "bone_triangle": 142,
+      "slack_mm": 0.04590204134890422
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19674,
+      "bone_triangle": 145,
+      "slack_mm": 0.0485939410546491
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19674,
+      "bone_triangle": 145,
+      "slack_mm": 0.04883371985672895
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19675,
+      "bone_triangle": 142,
+      "slack_mm": 0.046875416164152126
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19675,
+      "bone_triangle": 142,
+      "slack_mm": 0.045441001617816966
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19675,
+      "bone_triangle": 144,
+      "slack_mm": 0.045441001617816966
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19675,
+      "bone_triangle": 144,
+      "slack_mm": 0.039243860297146944
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19676,
+      "bone_triangle": 138,
+      "slack_mm": 0.030994964536605423
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19676,
+      "bone_triangle": 138,
+      "slack_mm": 0.038228382942883325
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19677,
+      "bone_triangle": 142,
+      "slack_mm": 0.04590204134890422
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19677,
+      "bone_triangle": 142,
+      "slack_mm": 0.046875416164152126
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19678,
+      "bone_triangle": 144,
+      "slack_mm": 0.04349308853113453
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19678,
+      "bone_triangle": 144,
+      "slack_mm": 0.039243860297146944
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19679,
+      "bone_triangle": 142,
+      "slack_mm": 0.04575500178651477
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19679,
+      "bone_triangle": 142,
+      "slack_mm": 0.04396117984034478
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19679,
+      "bone_triangle": 144,
+      "slack_mm": 0.04396117984034478
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19679,
+      "bone_triangle": 144,
+      "slack_mm": 0.038381369988913054
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19680,
+      "bone_triangle": 138,
+      "slack_mm": 0.030994964536605423
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19680,
+      "bone_triangle": 138,
+      "slack_mm": 0.030649069184622464
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19681,
+      "bone_triangle": 144,
+      "slack_mm": 0.038381369988913054
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19681,
+      "bone_triangle": 144,
+      "slack_mm": 0.04349308853113453
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19682,
+      "bone_triangle": 142,
+      "slack_mm": 0.04696289961140136
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19682,
+      "bone_triangle": 142,
+      "slack_mm": 0.04575500178651477
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19683,
+      "bone_triangle": 138,
+      "slack_mm": 0.03907219972947118
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19683,
+      "bone_triangle": 138,
+      "slack_mm": 0.04433593752600298
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19683,
+      "bone_triangle": 146,
+      "slack_mm": 0.04433593752600298
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19683,
+      "bone_triangle": 146,
+      "slack_mm": 0.04687321316817668
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19683,
+      "bone_triangle": 147,
+      "slack_mm": 0.04687321316817668
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19683,
+      "bone_triangle": 147,
+      "slack_mm": 0.045687902695981664
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19684,
+      "bone_triangle": 138,
+      "slack_mm": 0.030649069184622464
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19684,
+      "bone_triangle": 138,
+      "slack_mm": 0.03793053847089312
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19685,
+      "bone_triangle": 138,
+      "slack_mm": 0.03793053847089312
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19685,
+      "bone_triangle": 138,
+      "slack_mm": 0.03907219972947118
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19717,
+      "bone_triangle": 152,
+      "slack_mm": 0.0468744521185624
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19717,
+      "bone_triangle": 152,
+      "slack_mm": 0.03900426877345583
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19717,
+      "bone_triangle": 154,
+      "slack_mm": 0.03900426877345583
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19717,
+      "bone_triangle": 154,
+      "slack_mm": 0.04600088451086283
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19717,
+      "bone_triangle": 156,
+      "slack_mm": 0.04600088451086283
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19717,
+      "bone_triangle": 156,
+      "slack_mm": 0.04405880408191704
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19717,
+      "bone_triangle": 167,
+      "slack_mm": 0.041262695255410355
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19717,
+      "bone_triangle": 167,
+      "slack_mm": 0.04405880408191704
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19717,
+      "bone_triangle": 168,
+      "slack_mm": 0.024805501449409153
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19717,
+      "bone_triangle": 168,
+      "slack_mm": 0.041262695255410355
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19717,
+      "bone_triangle": 169,
+      "slack_mm": 0.01357993064662806
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19717,
+      "bone_triangle": 169,
+      "slack_mm": 0.024805501449409153
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19719,
+      "bone_triangle": 265,
+      "slack_mm": 0.005389744096612276
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19719,
+      "bone_triangle": 267,
+      "slack_mm": 0.005389744096612276
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19720,
+      "bone_triangle": 169,
+      "slack_mm": 0.027343537249745822
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19720,
+      "bone_triangle": 169,
+      "slack_mm": 0.01357993064662806
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19720,
+      "bone_triangle": 263,
+      "slack_mm": 0.0027323486759858115
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19720,
+      "bone_triangle": 263,
+      "slack_mm": 0.02960096615797601
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19720,
+      "bone_triangle": 264,
+      "slack_mm": 0.02960096615797601
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19720,
+      "bone_triangle": 264,
+      "slack_mm": 0.027343537249745822
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19720,
+      "bone_triangle": 265,
+      "slack_mm": 0.0027323486759858115
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19725,
+      "bone_triangle": 145,
+      "slack_mm": 0.03353281253042521
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19725,
+      "bone_triangle": 145,
+      "slack_mm": 0.03830853678654158
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19725,
+      "bone_triangle": 245,
+      "slack_mm": 0.03830853678654158
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19725,
+      "bone_triangle": 245,
+      "slack_mm": 0.040001808142422955
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19725,
+      "bone_triangle": 246,
+      "slack_mm": 0.040001808142422955
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19725,
+      "bone_triangle": 246,
+      "slack_mm": 0.043379527777360954
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19725,
+      "bone_triangle": 247,
+      "slack_mm": 0.043379527777360954
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19725,
+      "bone_triangle": 247,
+      "slack_mm": 0.046870571012231445
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19726,
+      "bone_triangle": 152,
+      "slack_mm": 0.027580313483588706
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19726,
+      "bone_triangle": 152,
+      "slack_mm": 0.0468744521185624
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19727,
+      "bone_triangle": 247,
+      "slack_mm": 0.04013776503461114
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19727,
+      "bone_triangle": 247,
+      "slack_mm": 0.04350373242021832
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19727,
+      "bone_triangle": 248,
+      "slack_mm": 0.04350373242021832
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19727,
+      "bone_triangle": 248,
+      "slack_mm": 0.04094757745553239
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19727,
+      "bone_triangle": 250,
+      "slack_mm": 0.04094757745553239
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19727,
+      "bone_triangle": 250,
+      "slack_mm": 0.03297726564738123
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19727,
+      "bone_triangle": 267,
+      "slack_mm": 0.03297726564738123
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19728,
+      "bone_triangle": 247,
+      "slack_mm": 0.046870571012231445
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19728,
+      "bone_triangle": 247,
+      "slack_mm": 0.04013776503461114
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19729,
+      "bone_triangle": 145,
+      "slack_mm": 0.04496503095783034
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19729,
+      "bone_triangle": 145,
+      "slack_mm": 0.03353281253042521
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19730,
+      "bone_triangle": 147,
+      "slack_mm": 0.038191415449989226
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19730,
+      "bone_triangle": 147,
+      "slack_mm": 0.041302656754428534
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19730,
+      "bone_triangle": 148,
+      "slack_mm": 0.041302656754428534
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19730,
+      "bone_triangle": 148,
+      "slack_mm": 0.04122623293156775
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19731,
+      "bone_triangle": 148,
+      "slack_mm": 0.038737148736698535
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19731,
+      "bone_triangle": 148,
+      "slack_mm": 0.03927616349652514
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19731,
+      "bone_triangle": 151,
+      "slack_mm": 0.03927616349652514
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19731,
+      "bone_triangle": 151,
+      "slack_mm": 0.03611832113390271
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19731,
+      "bone_triangle": 152,
+      "slack_mm": 0.03611832113390271
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19731,
+      "bone_triangle": 152,
+      "slack_mm": 0.027580313483588706
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19732,
+      "bone_triangle": 148,
+      "slack_mm": 0.04122623293156775
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19732,
+      "bone_triangle": 148,
+      "slack_mm": 0.038737148736698535
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19735,
+      "bone_triangle": 147,
+      "slack_mm": 0.043704803051945657
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19735,
+      "bone_triangle": 147,
+      "slack_mm": 0.038191415449989226
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19736,
+      "bone_triangle": 145,
+      "slack_mm": 0.04687607799329268
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19736,
+      "bone_triangle": 145,
+      "slack_mm": 0.04496503095783034
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19737,
+      "bone_triangle": 145,
+      "slack_mm": 0.04913166163209267
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19737,
+      "bone_triangle": 145,
+      "slack_mm": 0.031646078683591684
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19738,
+      "bone_triangle": 145,
+      "slack_mm": 0.031646078683591684
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19738,
+      "bone_triangle": 145,
+      "slack_mm": 0.04687607799329268
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19747,
+      "bone_triangle": 147,
+      "slack_mm": 0.04687503599309734
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19747,
+      "bone_triangle": 147,
+      "slack_mm": 0.043704803051945657
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19748,
+      "bone_triangle": 145,
+      "slack_mm": 0.04913166163209267
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19748,
+      "bone_triangle": 145,
+      "slack_mm": 0.04883371985672895
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19749,
+      "bone_triangle": 138,
+      "slack_mm": 0.038228382942883325
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19749,
+      "bone_triangle": 138,
+      "slack_mm": 0.04614828998741096
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19749,
+      "bone_triangle": 146,
+      "slack_mm": 0.04614828998741096
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19749,
+      "bone_triangle": 146,
+      "slack_mm": 0.04701076301811359
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19749,
+      "bone_triangle": 147,
+      "slack_mm": 0.04701076301811359
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19749,
+      "bone_triangle": 147,
+      "slack_mm": 0.04595390709057431
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19750,
+      "bone_triangle": 147,
+      "slack_mm": 0.04595390709057431
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19750,
+      "bone_triangle": 147,
+      "slack_mm": 0.04687503599309734
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19808,
+      "bone_triangle": 162,
+      "slack_mm": 0.04168013398692209
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19808,
+      "bone_triangle": 162,
+      "slack_mm": 0.031194370609932725
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19809,
+      "bone_triangle": 245,
+      "slack_mm": 0.0467244937788453
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19809,
+      "bone_triangle": 245,
+      "slack_mm": 0.046863290248873236
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19810,
+      "bone_triangle": 129,
+      "slack_mm": 0.04490588548137837
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19810,
+      "bone_triangle": 129,
+      "slack_mm": 0.04602955833008664
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19810,
+      "bone_triangle": 162,
+      "slack_mm": 0.04602955833008664
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19810,
+      "bone_triangle": 162,
+      "slack_mm": 0.046346311403757307
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19811,
+      "bone_triangle": 162,
+      "slack_mm": 0.046346311403757307
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19811,
+      "bone_triangle": 162,
+      "slack_mm": 0.04168013398692209
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19812,
+      "bone_triangle": 245,
+      "slack_mm": 0.0467244937788453
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19813,
+      "bone_triangle": 245,
+      "slack_mm": 0.04687748778876734
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19814,
+      "bone_triangle": 129,
+      "slack_mm": 0.045979093660537304
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19814,
+      "bone_triangle": 129,
+      "slack_mm": 0.04490588548137837
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19816,
+      "bone_triangle": 129,
+      "slack_mm": 0.04501173432476104
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19816,
+      "bone_triangle": 129,
+      "slack_mm": 0.045979093660537304
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19816,
+      "bone_triangle": 130,
+      "slack_mm": 0.047961388677981664
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19816,
+      "bone_triangle": 130,
+      "slack_mm": 0.04501173432476104
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19817,
+      "bone_triangle": 145,
+      "slack_mm": 0.03681278335113369
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19817,
+      "bone_triangle": 145,
+      "slack_mm": 0.05000000000000472
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19817,
+      "bone_triangle": 245,
+      "slack_mm": 0.04687748778876734
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19817,
+      "bone_triangle": 245,
+      "slack_mm": 0.03681278335113369
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19818,
+      "bone_triangle": 128,
+      "slack_mm": 0.02579999575683802
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19818,
+      "bone_triangle": 128,
+      "slack_mm": 0.04687341259529029
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19818,
+      "bone_triangle": 130,
+      "slack_mm": 0.04687341259529029
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19818,
+      "bone_triangle": 130,
+      "slack_mm": 0.05
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19818,
+      "bone_triangle": 135,
+      "slack_mm": 0.05000000000000002
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19818,
+      "bone_triangle": 135,
+      "slack_mm": 0.02579999575683802
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19819,
+      "bone_triangle": 130,
+      "slack_mm": 0.05
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19819,
+      "bone_triangle": 130,
+      "slack_mm": 0.047961388677981664
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19840,
+      "bone_triangle": 147,
+      "slack_mm": 0.032304416012836165
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19840,
+      "bone_triangle": 147,
+      "slack_mm": 0.02489144155329177
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19841,
+      "bone_triangle": 145,
+      "slack_mm": 0.049992492271628976
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19841,
+      "bone_triangle": 145,
+      "slack_mm": 0.05001353289647111
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19842,
+      "bone_triangle": 147,
+      "slack_mm": 0.04687568847714306
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19842,
+      "bone_triangle": 147,
+      "slack_mm": 0.042814074390793176
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19843,
+      "bone_triangle": 147,
+      "slack_mm": 0.042814074390793176
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19843,
+      "bone_triangle": 147,
+      "slack_mm": 0.032304416012836165
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19844,
+      "bone_triangle": 145,
+      "slack_mm": 0.0443619254733126
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19844,
+      "bone_triangle": 145,
+      "slack_mm": 0.05
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19844,
+      "bone_triangle": 245,
+      "slack_mm": 0.049999999999999954
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19844,
+      "bone_triangle": 245,
+      "slack_mm": 0.0443619254733126
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19845,
+      "bone_triangle": 130,
+      "slack_mm": 0.04566831688703329
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19845,
+      "bone_triangle": 130,
+      "slack_mm": 0.049999999999999746
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19846,
+      "bone_triangle": 145,
+      "slack_mm": 0.044290304471472704
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19846,
+      "bone_triangle": 145,
+      "slack_mm": 0.04999321195676552
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19847,
+      "bone_triangle": 145,
+      "slack_mm": 0.05
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19847,
+      "bone_triangle": 145,
+      "slack_mm": 0.044290304471472704
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19848,
+      "bone_triangle": 130,
+      "slack_mm": 0.04574288040720647
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19848,
+      "bone_triangle": 130,
+      "slack_mm": 0.04566831688703329
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19848,
+      "bone_triangle": 147,
+      "slack_mm": 0.04641325658085243
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19848,
+      "bone_triangle": 147,
+      "slack_mm": 0.04574288040720647
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19849,
+      "bone_triangle": 147,
+      "slack_mm": 0.04687568847714306
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19849,
+      "bone_triangle": 147,
+      "slack_mm": 0.046319820805932096
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19850,
+      "bone_triangle": 145,
+      "slack_mm": 0.04999321195676552
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19850,
+      "bone_triangle": 145,
+      "slack_mm": 0.049992492271628976
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19851,
+      "bone_triangle": 147,
+      "slack_mm": 0.046319820805932096
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19851,
+      "bone_triangle": 147,
+      "slack_mm": 0.04641325658085243
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19857,
+      "bone_triangle": 245,
+      "slack_mm": 0.05000000000000005
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19858,
+      "bone_triangle": 245,
+      "slack_mm": 0.046804911400395804
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19859,
+      "bone_triangle": 130,
+      "slack_mm": 0.05000000000000369
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19859,
+      "bone_triangle": 130,
+      "slack_mm": 0.0413457527370715
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19861,
+      "bone_triangle": 245,
+      "slack_mm": 0.046863290248873236
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19861,
+      "bone_triangle": 245,
+      "slack_mm": 0.046804911400395804
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19862,
+      "bone_triangle": 129,
+      "slack_mm": 0.04671996623578805
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19862,
+      "bone_triangle": 129,
+      "slack_mm": 0.04643798543215627
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19862,
+      "bone_triangle": 162,
+      "slack_mm": 0.04643798543215627
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19862,
+      "bone_triangle": 162,
+      "slack_mm": 0.031194370609932725
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19863,
+      "bone_triangle": 129,
+      "slack_mm": 0.04629994682392304
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19863,
+      "bone_triangle": 129,
+      "slack_mm": 0.046366875383520696
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19863,
+      "bone_triangle": 130,
+      "slack_mm": 0.0413457527370715
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19863,
+      "bone_triangle": 130,
+      "slack_mm": 0.04629994682392304
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19864,
+      "bone_triangle": 129,
+      "slack_mm": 0.046366875383520696
+    },
+    {
+      "kind": "exact_intersection",
+      "source_face": 19864,
+      "bone_triangle": 129,
+      "slack_mm": 0.04671996623578805
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 140,
+      "slack_mm": 0.642929991912557
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 133,
+      "slack_mm": 1.1580766051425526
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 140,
+      "slack_mm": 0.6440395764205873
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 133,
+      "slack_mm": 1.2204124796385838
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 133,
+      "slack_mm": 1.1502530714838435
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 144,
+      "slack_mm": 0.2034367032055498
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 135,
+      "slack_mm": 0.7724927469595064
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 135,
+      "slack_mm": 0.71939222225331
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 135,
+      "slack_mm": 0.6402028588718116
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 135,
+      "slack_mm": 0.657488900193133
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 130,
+      "slack_mm": 1.6116847450185514
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 133,
+      "slack_mm": 0.05224284941401853
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.49392305669034037
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 138,
+      "slack_mm": 0.9507064960972721
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.498247690312045
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.1688198001803164
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 135,
+      "slack_mm": 0.46659200095657033
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 135,
+      "slack_mm": 0.26547019308040315
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 135,
+      "slack_mm": 0.2656029668701018
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.5484654328113242
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.5466354587223229
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.3875361600915894
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.8709429070988455
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.8105808464165748
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 135,
+      "slack_mm": 0.5988046286629091
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 135,
+      "slack_mm": 1.181161132741721
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 1.1214294992394274
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 135,
+      "slack_mm": 0.23681415851911536
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 133,
+      "slack_mm": 0.07900497174499076
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 133,
+      "slack_mm": 0.140651933712392
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 133,
+      "slack_mm": 0.030123326329139773
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 133,
+      "slack_mm": 0.049380321568576364
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 133,
+      "slack_mm": 0.20249861118906792
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 263,
+      "slack_mm": 1.36730204885983
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 148,
+      "slack_mm": 1.7258511338614648
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.6528098744042122
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.5865387283416945
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.4835665871036415
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.5376515163567652
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.12351604839168591
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 137,
+      "slack_mm": 1.3322190558363363
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.4912467435443952
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": -1,
+      "bone_triangle": 134,
+      "slack_mm": 0.2902378936789331
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19199,
+      "bone_triangle": 140,
+      "slack_mm": 0.14921449420549043
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19203,
+      "bone_triangle": 144,
+      "slack_mm": 0.04587344757316142
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19204,
+      "bone_triangle": 133,
+      "slack_mm": 0.13894568750216013
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19214,
+      "bone_triangle": 133,
+      "slack_mm": 0.1307884572436659
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19215,
+      "bone_triangle": 134,
+      "slack_mm": 0.08579268496034725
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19221,
+      "bone_triangle": 133,
+      "slack_mm": 0.13607647617778854
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19222,
+      "bone_triangle": 134,
+      "slack_mm": 0.09880211037504723
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19227,
+      "bone_triangle": 133,
+      "slack_mm": 0.04102566176922136
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19240,
+      "bone_triangle": 133,
+      "slack_mm": 0.05954797605299058
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19314,
+      "bone_triangle": 144,
+      "slack_mm": 0.11569814631302303
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19315,
+      "bone_triangle": 133,
+      "slack_mm": 0.1590272231237348
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19316,
+      "bone_triangle": 140,
+      "slack_mm": 0.4006669146992507
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19317,
+      "bone_triangle": 133,
+      "slack_mm": 0.21175356961293795
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19318,
+      "bone_triangle": 130,
+      "slack_mm": 0.17036178781946765
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19320,
+      "bone_triangle": 135,
+      "slack_mm": 0.23615838144291468
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19324,
+      "bone_triangle": 135,
+      "slack_mm": 0.32236331128325
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19325,
+      "bone_triangle": 140,
+      "slack_mm": 0.19110883576934573
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19326,
+      "bone_triangle": 144,
+      "slack_mm": 0.3289246454059537
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19327,
+      "bone_triangle": 134,
+      "slack_mm": 0.48414733706459084
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19328,
+      "bone_triangle": 134,
+      "slack_mm": 0.6786960528707148
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19331,
+      "bone_triangle": 135,
+      "slack_mm": 0.4756844772850117
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19337,
+      "bone_triangle": 134,
+      "slack_mm": 0.39577555403540726
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19339,
+      "bone_triangle": 135,
+      "slack_mm": 0.31746258767831737
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19367,
+      "bone_triangle": 133,
+      "slack_mm": 0.6986689590966637
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19368,
+      "bone_triangle": 130,
+      "slack_mm": 0.19115468828807108
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19370,
+      "bone_triangle": 135,
+      "slack_mm": 0.5174208922849939
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19371,
+      "bone_triangle": 133,
+      "slack_mm": 0.6360214882210525
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19372,
+      "bone_triangle": 138,
+      "slack_mm": 0.17037936578519186
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19373,
+      "bone_triangle": 135,
+      "slack_mm": 0.2163899458249729
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19374,
+      "bone_triangle": 134,
+      "slack_mm": 0.5779107956236424
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19381,
+      "bone_triangle": 138,
+      "slack_mm": 0.06292127765596163
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19382,
+      "bone_triangle": 133,
+      "slack_mm": 0.6105301863693168
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19383,
+      "bone_triangle": 138,
+      "slack_mm": 0.146248531043583
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19384,
+      "bone_triangle": 134,
+      "slack_mm": 0.5003573520086001
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19389,
+      "bone_triangle": 144,
+      "slack_mm": 0.2514369803331498
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19390,
+      "bone_triangle": 134,
+      "slack_mm": 0.5498889586749249
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19391,
+      "bone_triangle": 144,
+      "slack_mm": 0.23291210973391596
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19392,
+      "bone_triangle": 133,
+      "slack_mm": 0.6299090835123999
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19403,
+      "bone_triangle": 138,
+      "slack_mm": 0.053671273276609574
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19404,
+      "bone_triangle": 134,
+      "slack_mm": 0.3788213770387365
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19406,
+      "bone_triangle": 135,
+      "slack_mm": 0.21181407392098928
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19421,
+      "bone_triangle": 144,
+      "slack_mm": 0.24906670959952842
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19422,
+      "bone_triangle": 144,
+      "slack_mm": 0.2367350606936609
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19423,
+      "bone_triangle": 134,
+      "slack_mm": 0.4047346314931754
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19424,
+      "bone_triangle": 133,
+      "slack_mm": 0.477371780896517
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19429,
+      "bone_triangle": 144,
+      "slack_mm": 0.22401354740411866
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19430,
+      "bone_triangle": 134,
+      "slack_mm": 0.4660381754554571
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19431,
+      "bone_triangle": 144,
+      "slack_mm": 0.22894942419074776
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19432,
+      "bone_triangle": 133,
+      "slack_mm": 0.5608869093607347
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19447,
+      "bone_triangle": 144,
+      "slack_mm": 0.07603800710691365
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19448,
+      "bone_triangle": 133,
+      "slack_mm": 0.2455858053832316
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19449,
+      "bone_triangle": 144,
+      "slack_mm": 0.13827172036653504
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19451,
+      "bone_triangle": 140,
+      "slack_mm": 0.12337972084947255
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19453,
+      "bone_triangle": 133,
+      "slack_mm": 0.08755794897203728
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19458,
+      "bone_triangle": 133,
+      "slack_mm": 0.2998514947454095
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19459,
+      "bone_triangle": 135,
+      "slack_mm": 0.05898276944511752
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19460,
+      "bone_triangle": 135,
+      "slack_mm": 0.16122583416896602
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19461,
+      "bone_triangle": 144,
+      "slack_mm": 0.06007176436502446
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19463,
+      "bone_triangle": 133,
+      "slack_mm": 0.27335022020676525
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19464,
+      "bone_triangle": 144,
+      "slack_mm": 0.14189050609512488
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19646,
+      "bone_triangle": 144,
+      "slack_mm": 0.3759600542533461
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19647,
+      "bone_triangle": 135,
+      "slack_mm": 0.5931738693980608
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19648,
+      "bone_triangle": 144,
+      "slack_mm": 0.36727247797391893
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19649,
+      "bone_triangle": 134,
+      "slack_mm": 0.8328812600686393
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19651,
+      "bone_triangle": 138,
+      "slack_mm": 0.20032403120736242
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19652,
+      "bone_triangle": 133,
+      "slack_mm": 0.7874983254467103
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19653,
+      "bone_triangle": 135,
+      "slack_mm": 0.5658004912311145
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19654,
+      "bone_triangle": 134,
+      "slack_mm": 0.5873796750349102
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19655,
+      "bone_triangle": 144,
+      "slack_mm": 0.25690107813569407
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19656,
+      "bone_triangle": 144,
+      "slack_mm": 0.274245376755753
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19657,
+      "bone_triangle": 133,
+      "slack_mm": 0.7007888309353154
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19664,
+      "bone_triangle": 134,
+      "slack_mm": 0.6687028188726561
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19665,
+      "bone_triangle": 138,
+      "slack_mm": 0.16569302382782913
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19666,
+      "bone_triangle": 138,
+      "slack_mm": 0.1483132879366078
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19667,
+      "bone_triangle": 134,
+      "slack_mm": 0.557766731227683
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19674,
+      "bone_triangle": 142,
+      "slack_mm": 0.2689344758528001
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19675,
+      "bone_triangle": 144,
+      "slack_mm": 0.1416298805789504
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19676,
+      "bone_triangle": 137,
+      "slack_mm": 0.27791803264489123
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19677,
+      "bone_triangle": 140,
+      "slack_mm": 0.43033881745420477
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19678,
+      "bone_triangle": 144,
+      "slack_mm": 0.09824972210148225
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19679,
+      "bone_triangle": 144,
+      "slack_mm": 0.18659085954874355
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19680,
+      "bone_triangle": 134,
+      "slack_mm": 0.21554369947157404
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19681,
+      "bone_triangle": 133,
+      "slack_mm": 0.350395261019604
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19682,
+      "bone_triangle": 133,
+      "slack_mm": 0.5886353546587768
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19683,
+      "bone_triangle": 138,
+      "slack_mm": 0.13766010177194038
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19684,
+      "bone_triangle": 138,
+      "slack_mm": 0.06705288822894911
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19685,
+      "bone_triangle": 134,
+      "slack_mm": 0.42156983148063754
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19717,
+      "bone_triangle": 168,
+      "slack_mm": 0.6057973020021329
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19725,
+      "bone_triangle": 145,
+      "slack_mm": 0.236434551155414
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19726,
+      "bone_triangle": 152,
+      "slack_mm": 1.71735839193422
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19728,
+      "bone_triangle": 261,
+      "slack_mm": 1.8605077264592476
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19729,
+      "bone_triangle": 145,
+      "slack_mm": 1.5062350699511702
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19730,
+      "bone_triangle": 147,
+      "slack_mm": 0.31149674484239703
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19731,
+      "bone_triangle": 148,
+      "slack_mm": 0.3482586815640446
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19732,
+      "bone_triangle": 147,
+      "slack_mm": 1.220403159809897
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19735,
+      "bone_triangle": 146,
+      "slack_mm": 0.9158522584388792
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19737,
+      "bone_triangle": 145,
+      "slack_mm": 0.48089216546283603
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19738,
+      "bone_triangle": 137,
+      "slack_mm": 1.2313663335390121
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19747,
+      "bone_triangle": 147,
+      "slack_mm": 0.22432612280267666
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19748,
+      "bone_triangle": 134,
+      "slack_mm": 0.8346576601709009
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19749,
+      "bone_triangle": 138,
+      "slack_mm": 0.19138286186956233
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19750,
+      "bone_triangle": 138,
+      "slack_mm": 0.6499195309336602
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19808,
+      "bone_triangle": 162,
+      "slack_mm": 0.29696432241758886
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19809,
+      "bone_triangle": 134,
+      "slack_mm": 1.5966244435062031
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19810,
+      "bone_triangle": 130,
+      "slack_mm": 0.3471433867713592
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19811,
+      "bone_triangle": 130,
+      "slack_mm": 1.1623069328441966
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19812,
+      "bone_triangle": 245,
+      "slack_mm": 0.39703838771875377
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19813,
+      "bone_triangle": 245,
+      "slack_mm": 0.12330398675045946
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19814,
+      "bone_triangle": 128,
+      "slack_mm": 1.0326676665809653
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19815,
+      "bone_triangle": 133,
+      "slack_mm": 1.2592159194204111
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19816,
+      "bone_triangle": 130,
+      "slack_mm": 0.4225733230776114
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19817,
+      "bone_triangle": 144,
+      "slack_mm": 0.7694084672578503
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19818,
+      "bone_triangle": 135,
+      "slack_mm": 0.11146774563694484
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19819,
+      "bone_triangle": 135,
+      "slack_mm": 0.8090586816448703
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19841,
+      "bone_triangle": 134,
+      "slack_mm": 0.876791314241306
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19842,
+      "bone_triangle": 147,
+      "slack_mm": 0.12812175154985805
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19843,
+      "bone_triangle": 135,
+      "slack_mm": 0.6476132586260079
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19844,
+      "bone_triangle": 145,
+      "slack_mm": 0.09621113613442633
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19845,
+      "bone_triangle": 135,
+      "slack_mm": 0.8426209602082654
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19846,
+      "bone_triangle": 144,
+      "slack_mm": 0.3465979736199076
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19847,
+      "bone_triangle": 133,
+      "slack_mm": 1.0271826347156667
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19848,
+      "bone_triangle": 130,
+      "slack_mm": 0.15077383842023043
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19849,
+      "bone_triangle": 147,
+      "slack_mm": 0.16936602322658112
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19850,
+      "bone_triangle": 133,
+      "slack_mm": 0.8954248644028748
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19851,
+      "bone_triangle": 135,
+      "slack_mm": 0.7328633086752849
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19857,
+      "bone_triangle": 245,
+      "slack_mm": 0.03638925848776689
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19858,
+      "bone_triangle": 245,
+      "slack_mm": 0.317575210981092
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19859,
+      "bone_triangle": 135,
+      "slack_mm": 0.9532455168793028
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19860,
+      "bone_triangle": 133,
+      "slack_mm": 1.1789689466918851
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19861,
+      "bone_triangle": 133,
+      "slack_mm": 1.5211911915515346
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19862,
+      "bone_triangle": 162,
+      "slack_mm": 0.410612300818257
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19863,
+      "bone_triangle": 130,
+      "slack_mm": 0.35422660151173435
+    },
+    {
+      "kind": "inside_or_boundary_point",
+      "source_face": 19864,
+      "bone_triangle": 130,
+      "slack_mm": 1.1071929813032224
+    }
+  ],
+  "exact_hit_mapping": {
+    "targetable_pair_count": 233,
+    "enumerated_intersection_endpoint_count": 466,
+    "max_initial_endpoint_mapping_residual_m": 2.2771883168781045e-08,
+    "tolerance_m": 1e-06
+  },
+  "limitations": [
+    "Excluded/frozen 16 exact bank-pair witnesses and inside source nodes remain unresolved when reported.",
+    "This output is a private patch artifact, not a full candidate and not geometry or physical admission.",
+    "Only 43/16 exact local bone plus local skin self are checked; no 185-bank no-worsening audit or whole-body self audit is run.",
+    "A strict mapped parent-bone identity reduction with no new identities is required to retain as a useful repair trial."
+  ],
+  "elapsed_seconds": 4.934651791816577,
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-022-bulk-boundary-centroid-fan-001/selective_sparse_fit.py",
+  "script_sha256": "5bcb8cc5d5f65eace1e1d2e6c0a8fb811281a02cde02a4f840f813df3e269e14",
+  "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-022-bulk-boundary-centroid-fan-001/fit-report.json"
+}
