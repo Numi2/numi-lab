@@ -1,0 +1,232 @@
+{
+  "status": "FULL_STATIC_DEPTH_IMPROVEMENT_ONLY",
+  "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_sha256": "3a44414f773071ee26d5abfd82e0132428549135774263790f7cbece01699a81",
+  "per_bank": [
+    {
+      "bank": [
+        59,
+        95
+      ],
+      "inside_nodes": 4,
+      "improved_nodes": 4,
+      "depth_before_sum_mm": 5.596728823718852,
+      "depth_after_sum_mm": 5.396733211175667,
+      "min_improvement_of_changed_mm": 0.04999576213501866
+    },
+    {
+      "bank": [
+        64,
+        98
+      ],
+      "inside_nodes": 1,
+      "improved_nodes": 1,
+      "depth_before_sum_mm": 2.8236461198332248,
+      "depth_after_sum_mm": 2.6736372431222466,
+      "min_improvement_of_changed_mm": 0.15000887671097818
+    },
+    {
+      "bank": [
+        114,
+        117
+      ],
+      "inside_nodes": 4,
+      "improved_nodes": 4,
+      "depth_before_sum_mm": 6.234280451508884,
+      "depth_after_sum_mm": 5.634264251245534,
+      "min_improvement_of_changed_mm": 0.15000090477484496
+    },
+    {
+      "bank": [
+        124,
+        123
+      ],
+      "inside_nodes": 10,
+      "improved_nodes": 10,
+      "depth_before_sum_mm": 13.254899758483822,
+      "depth_after_sum_mm": 11.005118518812099,
+      "min_improvement_of_changed_mm": 0.2249608330780457
+    }
+  ],
+  "all_inside_pairs_before_after": [
+    125,
+    125
+  ],
+  "inside_added": 0,
+  "inside_removed": 0,
+  "all_bank_surface_pairs_before_after": [
+    985,
+    985
+  ],
+  "raw_pairs_added": [
+    [
+      114,
+      117,
+      41141,
+      281
+    ],
+    [
+      114,
+      117,
+      41154,
+      267
+    ],
+    [
+      114,
+      117,
+      41157,
+      182
+    ],
+    [
+      124,
+      123,
+      26877,
+      107
+    ],
+    [
+      124,
+      123,
+      26895,
+      35
+    ],
+    [
+      124,
+      123,
+      26900,
+      33
+    ],
+    [
+      124,
+      123,
+      26904,
+      33
+    ]
+  ],
+  "raw_pairs_removed": [
+    [
+      114,
+      117,
+      41154,
+      282
+    ],
+    [
+      114,
+      117,
+      41155,
+      281
+    ],
+    [
+      114,
+      117,
+      41189,
+      181
+    ],
+    [
+      124,
+      123,
+      26877,
+      108
+    ],
+    [
+      124,
+      123,
+      26880,
+      108
+    ],
+    [
+      124,
+      123,
+      26897,
+      32
+    ],
+    [
+      124,
+      123,
+      27380,
+      108
+    ]
+  ],
+  "parent_pairs_before_after": [
+    653,
+    653
+  ],
+  "parent_pairs_added": [
+    [
+      114,
+      117,
+      40537,
+      281
+    ],
+    [
+      114,
+      117,
+      40545,
+      182
+    ],
+    [
+      124,
+      123,
+      26471,
+      107
+    ],
+    [
+      124,
+      123,
+      26480,
+      33
+    ],
+    [
+      124,
+      123,
+      26481,
+      33
+    ]
+  ],
+  "parent_pairs_removed": [
+    [
+      114,
+      117,
+      40544,
+      282
+    ],
+    [
+      114,
+      117,
+      40572,
+      181
+    ],
+    [
+      124,
+      123,
+      26471,
+      108
+    ],
+    [
+      124,
+      123,
+      26472,
+      108
+    ],
+    [
+      124,
+      123,
+      26926,
+      108
+    ]
+  ],
+  "self_pairs": 0,
+  "changed_nodes": 544,
+  "changed_faces": 1402,
+  "maximum_displacement_mm": 0.23537734982886996,
+  "minimum_face_area_ratio": 0.8853582574806498,
+  "maximum_face_area_ratio": 1.175091462321174,
+  "minimum_face_normal_cosine": 0.9614254255522194,
+  "all_nonposition_metadata_identical": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "limitations": [
+    "reference-pose construction only; surface pairs remain unresolved",
+    "inside-node samples do not establish solid clearance",
+    "skin-fat cell quality, mass, mechanical transfer, motion and native run remain untested"
+  ]
+}

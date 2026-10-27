@@ -1,0 +1,279 @@
+{
+  "cell_checks": {
+    "bone_clearance_run": false,
+    "exact_global_self_audit_run": false,
+    "fat": {
+      "actual_thickness_max_m": 0.009933762505155314,
+      "actual_thickness_min_m": 0.00016518403726564326,
+      "authored_prism_orientation_fail_count": 8530,
+      "f32_area_min_m2": 5.00530974813375e-10,
+      "f32_area_nonpositive_count": 0,
+      "f32_conditioned_fail_count_lt_1e-5": 128,
+      "f32_min_tet_volume_m3": -1.0003475112466687e-14,
+      "f32_normalized_det_min": -2.5587918101245428e-06,
+      "f32_outer_area_min_m2": 8.848338149330281e-11,
+      "f32_outer_area_nonpositive_count": 0,
+      "f64_prism_volume_m3": 0.011282573424786913,
+      "face_count": 42379,
+      "first_bad_face_rows": [
+        40,
+        144,
+        284,
+        290,
+        445,
+        446,
+        498,
+        499,
+        500,
+        501,
+        525,
+        606,
+        672,
+        676,
+        677,
+        679,
+        684,
+        685,
+        688,
+        689
+      ],
+      "nonpositive_f32_tet_count": 2,
+      "positive_f64_tet_count": 63596,
+      "tet_count": 127137
+    },
+    "skin": {
+      "actual_thickness_max_m": 0.002499801122454758,
+      "actual_thickness_min_m": 0.0005002264353692146,
+      "authored_prism_orientation_fail_count": 7613,
+      "f32_area_min_m2": 8.848338149330281e-11,
+      "f32_area_nonpositive_count": 0,
+      "f32_conditioned_fail_count_lt_1e-5": 53,
+      "f32_min_tet_volume_m3": -7.667303252972204e-15,
+      "f32_normalized_det_min": -1.2575744526334653e-06,
+      "f32_outer_area_min_m2": 1.152496231387922e-09,
+      "f32_outer_area_nonpositive_count": 0,
+      "f64_prism_volume_m3": 0.0034681543625403174,
+      "face_count": 42379,
+      "first_bad_face_rows": [
+        445,
+        446,
+        498,
+        499,
+        500,
+        501,
+        672,
+        676,
+        677,
+        695,
+        698,
+        699,
+        711,
+        712,
+        784,
+        814,
+        824,
+        828,
+        889,
+        895
+      ],
+      "nonpositive_f32_tet_count": 2,
+      "positive_f64_tet_count": 63556,
+      "tet_count": 127137
+    }
+  },
+  "csr_lineage": {
+    "146_R0_geometry_difference_max_abs_m": 0.004301124377749599,
+    "146_layer_outer_max_abs_match_m": 0.0,
+    "compose_source_reference_408_max_abs_match_m": 0.0,
+    "levels": [
+      {
+        "columns": 13518,
+        "level": 0,
+        "max_row_sum_error": 2.220446049250313e-16,
+        "nnz": 33646,
+        "prefix": "",
+        "rows": 21212
+      },
+      {
+        "columns": 10145,
+        "level": 1,
+        "max_row_sum_error": 0.0,
+        "nnz": 18450,
+        "prefix": "prior_input_006__",
+        "rows": 13518
+      },
+      {
+        "columns": 8776,
+        "level": 2,
+        "max_row_sum_error": 0.0,
+        "nnz": 12193,
+        "prefix": "prior_run028__",
+        "rows": 10145
+      }
+    ],
+    "nnz": 44430,
+    "owner_receipts": [
+      {
+        "columns": 13518,
+        "kind": "csr_level",
+        "level": 0,
+        "max_row_sum_error": 2.220446049250313e-16,
+        "nnz": 33646,
+        "prefix": "",
+        "rows": 21212
+      },
+      {
+        "columns": 10145,
+        "kind": "csr_level",
+        "level": 1,
+        "max_row_sum_error": 0.0,
+        "nnz": 18450,
+        "prefix": "prior_input_006__",
+        "rows": 13518
+      },
+      {
+        "columns": 8776,
+        "kind": "csr_level",
+        "level": 2,
+        "max_row_sum_error": 0.0,
+        "nnz": 12193,
+        "prefix": "prior_run028__",
+        "rows": 10145
+      },
+      {
+        "composed_nnz": 44430,
+        "composed_shape": [
+          21212,
+          8776
+        ],
+        "kind": "composed_source_base",
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+        "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+        "shape": [
+          8776,
+          3
+        ]
+      }
+    ],
+    "prefix_order": [
+      "",
+      "prior_input_006__",
+      "prior_run028__"
+    ],
+    "shape": [
+      21212,
+      8776
+    ]
+  },
+  "face_winding": {
+    "layer_convention_signed_volume_m3": 0.0686124223163594,
+    "per_face_vertex_permutation": [
+      0,
+      2,
+      1
+    ],
+    "rationale": "Pinned 146/R0 source surface winding is inward (negative signed volume), while the matched 128 outer layer triangles use the opposite positive layer winding; reversing each face preserves adjacency and matches that layer convention.",
+    "raw_source_signed_volume_m3": -0.0686124223163594
+  },
+  "identity": {
+    "128_outer_triangles_match_146_unoriented": true,
+    "146_R0_coarse_edge_and_face_keys_equal": [
+      "coarse_boundary_edge_endpoints",
+      "coarse_boundary_edge_path_indptr",
+      "coarse_boundary_edge_path_output_nodes",
+      "coarse_boundary_edge_path_source_nodes",
+      "coarse_boundary_edge_path_parameters",
+      "selected_coarse_face_rows",
+      "selected_fine_subface_rows",
+      "face_kind",
+      "parent_coarse_face_row"
+    ],
+    "146_R0_typed_node_provenance_equal": true,
+    "current_output_faces": 42379,
+    "current_output_rows": 21212,
+    "verified_typed_node_keys": [
+      "node_kind",
+      "node_source_row",
+      "node_source_virtual_row",
+      "node_parent_coarse_face_row",
+      "node_parent_coarse_edge_a",
+      "node_parent_coarse_edge_b",
+      "node_parent_coarse_edge_parameter"
+    ]
+  },
+  "limits": [
+    "The output is a transferred geometric layer candidate and prescribed prism decomposition check only.",
+    "P@depth is a scalar interpolation check; actual layer thickness is the norm of transferred displacement and may differ from the scalar field.",
+    "No donor cell-volume partition or conservative mass ancestry was supplied, so physical FEM assembly and mass transfer are not qualified.",
+    "No global self-intersection, bone-clearance, TetGen, or native solver run was performed."
+  ],
+  "material_mass": {
+    "available_surface_face_ancestry_rows": 42625,
+    "conservative_cell_mass_transfer": false,
+    "reason": "The 128 layer source has no volume-cell mesh or per-cell material/mass ancestry; the 541 ancestry arrays describe surface faces only and contain no volume fractions. No aggregate or invented density is represented as conservative transfer.",
+    "surface_face_ancestry_max_source_row": 108986
+  },
+  "output": {
+    "bytes": 3357631,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/physical-layer-diagnostic-001/layer-guarded-008/skin-fat-layers-541.npz",
+    "sha256": "044c2d170456f878c70ded87d66560ae2efc396ca7f72eabc2cc370e5854c943"
+  },
+  "physical_or_native_admission": false,
+  "pins": {
+    "128_layer_source": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/coupled-layer-trial-128/run-004-full146-baseline-offset/layer-candidate.npz",
+      "sha256": "301328142aae18bef98b1dfd9fff974533728aa5e084317d53fcda9dad5b7950"
+    },
+    "128_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/coupled-layer-trial-128/run-004-full146-baseline-offset/report.json",
+      "sha256": "5d3da4061589d2a3d8a00ce554846f98fe4258ca48fe9fc71423eca7e7420d52"
+    },
+    "408_composer": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-127/sources/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+      "sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+    },
+    "current_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b124-123/root-layer-self-barrier-008/candidate-private.npz",
+      "sha256": "01e4b88d02bd4368306706187b83ed08e5f815aec322b7038734bfcb0fc73360"
+    },
+    "r0_source": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31"
+    },
+    "source_146_outer_input": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/connected-source-unfold-146/run-002-corrected-metadata/candidate.npz",
+      "sha256": "4a393af65cc12181e00f2b578f73ad209f87e5f2107f4808e9ce083f46a2b3da"
+    }
+  },
+  "status": "LAYER_TRANSFER_AND_LOCAL_CELL_CHECK_COMPLETE",
+  "transfer": {
+    "fat_actual_norm_range_m": [
+      0.00016518403726564326,
+      0.009933762505155314
+    ],
+    "fat_actual_vs_transferred_depth_max_abs_m": 0.005112409267459971,
+    "fat_depth_range_source_m": [
+      0.00016518403726564326,
+      0.009933762505155314
+    ],
+    "fat_depth_range_transferred_m": [
+      0.00016518403726564326,
+      0.009933762505155314
+    ],
+    "method": "P from the exact 408 three-level source_prolongation CSR chain; apply P to original 128 I-O and D-I displacement vectors and scalar skin/fat depth fields, then reanchor at current 541 Float32 outer coordinates",
+    "outer_reanchored_to_current_candidate": true,
+    "skin_actual_norm_range_m": [
+      0.0005002264353692146,
+      0.002499801122454758
+    ],
+    "skin_actual_vs_transferred_depth_max_abs_m": 0.001316694999208288,
+    "skin_depth_range_source_m": [
+      0.0005002264353692146,
+      0.002499801122454758
+    ],
+    "skin_depth_range_transferred_m": [
+      0.0005002264353692146,
+      0.002499801122454758
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+waiting_for_human_geometry_slot pid=6459
+acquired_human_geometry_slot pid=6459
+{
+  "status": "PRIVATE_CANDIDATE_PENDING_EXACT_CHECKS",
+  "solver": {
+    "success": true,
+    "status": 1,
+    "message": "solved",
+    "iterations": 21700,
+    "primal_residual": 5.737974456135096e-06,
+    "dual_residual": 1.9594023449945906e-06,
+    "max_lower_violation": 5.73797445613442e-06,
+    "max_upper_violation": 1.853162032111428e-11
+  },
+  "target_movable_witnesses": 10,
+  "support_nodes": 182,
+  "affected_faces": 479,
+  "area_pass": true,
+  "min_linear_slack": -3.3117852936894116e-05,
+  "source_max_mm": 11.999981854019131,
+  "max_move_mm": 0.15709581273604517,
+  "target_projected_progress_sum_mm": 1.4998458278547044,
+  "target_progress_min_mm": 0.14997504782294258,
+  "target_slack_sum_mm": 0.00013810014995254837,
+  "candidate_sha256": "8d3faeb6f5218cad8a5c1dae033f59c651cabedf5bffdba982a3f9d09e813a11",
+  "elapsed_s": 2.0293858328368515
+}

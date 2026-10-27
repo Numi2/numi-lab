@@ -1,0 +1,21 @@
+{
+  "versus_prior": {
+    "changed_nodes": 169,
+    "changed_faces": 401,
+    "min_area_ratio": 0.9177471578085915,
+    "max_area_ratio": 1.125708275083257,
+    "min_normal_cos": 0.9849052410110364,
+    "worst_min_angle_change_degrees": -2.4107029354830587
+  },
+  "versus_original": {
+    "changed_nodes": 544,
+    "changed_faces": 1402,
+    "min_area_ratio": 0.8476780079280273,
+    "max_area_ratio": 1.2483405606738416,
+    "min_normal_cos": 0.9389692458884761,
+    "worst_min_angle_change_degrees": -4.721720381212293
+  },
+  "metadata_equal": true,
+  "admitted": false,
+  "shape_gate_pass": true
+}

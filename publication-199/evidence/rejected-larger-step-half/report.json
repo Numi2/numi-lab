@@ -1,0 +1,8 @@
+{
+  "status": "PRIVATE_BACKTRACK_PENDING_LAYER_AND_SURFACE_CHECKS",
+  "candidate_sha256": "3a44414f773071ee26d5abfd82e0132428549135774263790f7cbece01699a81",
+  "alpha": 0.5,
+  "base_sha256": "8d3faeb6f5218cad8a5c1dae033f59c651cabedf5bffdba982a3f9d09e813a11",
+  "trial_sha256": "01e4b88d02bd4368306706187b83ed08e5f815aec322b7038734bfcb0fc73360",
+  "physical_admission": false
+}

@@ -1,0 +1,196 @@
+{
+  "status": "FULL_STATIC_DEPTH_IMPROVEMENT_ONLY",
+  "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_sha256": "8d3faeb6f5218cad8a5c1dae033f59c651cabedf5bffdba982a3f9d09e813a11",
+  "per_bank": [
+    {
+      "bank": [
+        59,
+        95
+      ],
+      "inside_nodes": 4,
+      "improved_nodes": 4,
+      "depth_before_sum_mm": 5.596728823718852,
+      "depth_after_sum_mm": 5.396733211175667,
+      "min_improvement_of_changed_mm": 0.04999576213501866
+    },
+    {
+      "bank": [
+        64,
+        98
+      ],
+      "inside_nodes": 1,
+      "improved_nodes": 1,
+      "depth_before_sum_mm": 2.8236461198332248,
+      "depth_after_sum_mm": 2.6736372431222466,
+      "min_improvement_of_changed_mm": 0.15000887671097818
+    },
+    {
+      "bank": [
+        114,
+        117
+      ],
+      "inside_nodes": 4,
+      "improved_nodes": 4,
+      "depth_before_sum_mm": 6.234280451508884,
+      "depth_after_sum_mm": 5.634264251245534,
+      "min_improvement_of_changed_mm": 0.15000090477484496
+    },
+    {
+      "bank": [
+        124,
+        123
+      ],
+      "inside_nodes": 10,
+      "improved_nodes": 10,
+      "depth_before_sum_mm": 13.254899758483822,
+      "depth_after_sum_mm": 11.755054061500054,
+      "min_improvement_of_changed_mm": 0.149975034685096
+    }
+  ],
+  "all_inside_pairs_before_after": [
+    125,
+    125
+  ],
+  "inside_added": 0,
+  "inside_removed": 0,
+  "all_bank_surface_pairs_before_after": [
+    985,
+    983
+  ],
+  "raw_pairs_added": [
+    [
+      114,
+      117,
+      41141,
+      281
+    ],
+    [
+      114,
+      117,
+      41154,
+      267
+    ],
+    [
+      114,
+      117,
+      41157,
+      182
+    ],
+    [
+      124,
+      123,
+      26877,
+      107
+    ]
+  ],
+  "raw_pairs_removed": [
+    [
+      114,
+      117,
+      41154,
+      282
+    ],
+    [
+      114,
+      117,
+      41155,
+      281
+    ],
+    [
+      114,
+      117,
+      41189,
+      181
+    ],
+    [
+      124,
+      123,
+      26877,
+      108
+    ],
+    [
+      124,
+      123,
+      26880,
+      108
+    ],
+    [
+      124,
+      123,
+      27380,
+      108
+    ]
+  ],
+  "parent_pairs_before_after": [
+    653,
+    651
+  ],
+  "parent_pairs_added": [
+    [
+      114,
+      117,
+      40537,
+      281
+    ],
+    [
+      114,
+      117,
+      40545,
+      182
+    ],
+    [
+      124,
+      123,
+      26471,
+      107
+    ]
+  ],
+  "parent_pairs_removed": [
+    [
+      114,
+      117,
+      40544,
+      282
+    ],
+    [
+      114,
+      117,
+      40572,
+      181
+    ],
+    [
+      124,
+      123,
+      26471,
+      108
+    ],
+    [
+      124,
+      123,
+      26472,
+      108
+    ],
+    [
+      124,
+      123,
+      26926,
+      108
+    ]
+  ],
+  "self_pairs": 0,
+  "changed_nodes": 544,
+  "changed_faces": 1402,
+  "maximum_displacement_mm": 0.15709581273604517,
+  "minimum_face_area_ratio": 0.9236509214064185,
+  "maximum_face_area_ratio": 1.1089378911970018,
+  "minimum_face_normal_cosine": 0.9746465660125544,
+  "all_nonposition_metadata_identical": true,
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "limitations": [
+    "reference-pose construction only; surface pairs remain unresolved",
+    "inside-node samples do not establish solid clearance",
+    "skin-fat cell quality, mass, mechanical transfer, motion and native run remain untested"
+  ]
+}
