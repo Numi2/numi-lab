@@ -1,0 +1,22 @@
+waiting_for_human_geometry_slot pid=9982
+acquired_human_geometry_slot pid=9982
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/run_depthmax_targets589_v2.py", line 211, in <module>
+    if __name__=='__main__': main()
+                             ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/run_depthmax_targets589_v2.py", line 181, in main
+    builder.main(argv)
+    ~~~~~~~~~~~~^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_direct_depth_targets545.py", line 779, in main
+    report, paths = run(args)
+                    ~~~^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_direct_depth_targets545.py", line 514, in run
+    source_normals, normal_provenance = vertex_source_outward_normals(
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        z, source303, detail, base, orientation, target_rows
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/run_depthmax_targets589_v2.py", line 177, in checked_vertex_normals
+    raise ValueError('current/source outward-normal disagreement retained at '+','.join(str(x['query_row']) for x in result['witnesses']))
+ValueError: current/source outward-normal disagreement retained at 20893,20896,20927,20928,20934,20946,20966,20971,20974,20977,20978,20986,21001,21003,21006,21007,21013,21015,21031,21033,21040,21041,21042,21045,21060,21064,21071,21073,21075,21078,21080,21091,21106,21116,21121,21123,21128,21138,21140,21142,21144,21147,21154,21157,21158,21173,21179,21196,21203,21208,21213,21218,21220,21223,21224,21226,21228,21232,21235,21240,21247,21260,21268,21272,21279,21283,21299,21301,21302,21304,21306,21308,21310,21316,21317,21335,21344,21351,21354,21355,21356,21358,21360,21365,21369,21373,21384,21401,21405,21408,21410,21432,21433,21441,21444,21449,21450,21458,21461,21483,21484,21487,21500,21506,21530,21532,21536,21541,21575,21591,21602,21604,21609,21629,21650,21663,21664,21674,21696,21707,21713,21730,21745,21754,21757,21767,21773,21777,21781,21782,21783,21817,21823,21824,21830,21836,21839,21849,21853,21855,21865,21868,21869,21883,21890,21909,21910,21925

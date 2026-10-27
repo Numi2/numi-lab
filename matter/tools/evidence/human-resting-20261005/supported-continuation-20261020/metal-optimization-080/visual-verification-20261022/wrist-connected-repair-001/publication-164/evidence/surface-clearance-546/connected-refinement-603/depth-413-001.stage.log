@@ -1,0 +1,14 @@
+waiting_for_human_geometry_slot pid=7968
+acquired_human_geometry_slot pid=7968
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py", line 432, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py", line 427, in main
+    print(json.dumps(build(args), indent=2))
+                     ~~~~~^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py", line 223, in build
+    owner_sha = require_hash(owner, args.expected_owner_sha256, "357 owner")
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py", line 46, in require_hash
+    raise ValueError(f"{label} SHA mismatch: expected {expected}, got {actual}")
+ValueError: 357 owner SHA mismatch: expected ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f, got dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1

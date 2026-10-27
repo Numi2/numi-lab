@@ -1,0 +1,108 @@
+{
+  "actual_f32_direction_dots": {
+    "vs_current_outward": {
+      "below0_05": 177,
+      "current_normals_resolved": 422,
+      "max": 0.9899460037373469,
+      "median": 0.1363470108341311,
+      "min": -0.9775759061796119,
+      "negative": 163,
+      "p10": -0.6865491865929048,
+      "p90": 0.775747379275954
+    },
+    "vs_depth": {
+      "below0_05": 0,
+      "min": 0.12067039974975183,
+      "nonpositive": 0
+    },
+    "vs_source": {
+      "below0_05": 107,
+      "min": 0.04971596839358722,
+      "nonpositive": 0
+    }
+  },
+  "classification": "array-only endpoint feasibility; no rays, fit, geometry audit, or input mutations",
+  "current_outward_vs_registered_source": {
+    "max": 0.9954763361853532,
+    "median": 0.40804112152221905,
+    "min": -0.9955200729886026,
+    "negative": 148,
+    "p10": -0.7278445242163449,
+    "p90": 0.9082055062649361
+  },
+  "current_source_distance_mm": {
+    "max": 10.030280298423568,
+    "median": 3.7766692792218093,
+    "min": 0.6651256660072393,
+    "over12mm": 0,
+    "p90": 6.909868215385078,
+    "p95": 7.879928080026742,
+    "p99": 9.12701708698126
+  },
+  "emitted_endpoint_source_distance_mm": {
+    "max": 10.390273587933475,
+    "median": 4.377314341603229,
+    "min": 2.1573893080887045,
+    "over12mm": 0,
+    "p90": 7.749562541994716,
+    "p95": 8.843780523454251,
+    "p99": 9.836562255093854
+  },
+  "inputs": {
+    "R0_path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+    "R0_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+    "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/candidate.npz",
+    "candidate_sha256": "16a7f33f4b3d3ea7cf61bf55d01a1dca00fe9a32ee2cb7c4fa5f930531bb674e",
+    "current_normal_diagnostic_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/point-targets-589-v2-001.current-source-normal-audit.json",
+    "current_normal_diagnostic_sha256": "e1668870e17fc04781304e0cfbeecc0b98fe7642c2f018019e342cb1ce2cd014",
+    "source_reference_owner_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+    "source_reference_owner_sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "target_npz_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-depth-targets-606/targets-603-filtered-001/nearest-union-exits.npz",
+    "target_npz_sha256": "c8fcb14c6f1a280a2f264567896a98e2111f717f6fc761aa206125a656f18a58",
+    "target_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-depth-targets-606/targets-603-filtered-001/nearest-union-exits.emitted-f32-v2.json",
+    "target_report_sha256": "e4453b6417fa153a32096361cef9527f5365f9e1eb0bef93f07231c89b8be850"
+  },
+  "interpretation": "No exact emitted endpoint lies outside the configured 12mm source cap. This only rules out those exact endpoints under that cap; it does not rule out alternative endpoints or multi-step paths. Three endpoints exceed the 4mm single-step trust bound. Current-normal direction opposition remains common.",
+  "row_count": 422,
+  "schema": "numi.surface-clearance-546.endpoint-feasibility-census606.v1",
+  "source_reference_composition": {
+    "composed_nnz": 46574,
+    "composed_shape": [
+      21928,
+      8776
+    ],
+    "levels": [
+      {
+        "columns": 13518,
+        "max_row_sum_error": 2.220446049250313e-16,
+        "nnz": 35798,
+        "prefix": "",
+        "rows": 21928
+      },
+      {
+        "columns": 10145,
+        "max_row_sum_error": 0.0,
+        "nnz": 18450,
+        "prefix": "prior_input_006__",
+        "rows": 13518
+      },
+      {
+        "columns": 8776,
+        "max_row_sum_error": 0.0,
+        "nnz": 12193,
+        "prefix": "prior_run028__",
+        "rows": 10145
+      }
+    ],
+    "method": "unchanged 408.compose_source_reference(candidate,R0)"
+  },
+  "step_from_current_mm": {
+    "max": 8.402170008109433,
+    "median": 0.9183387788141846,
+    "min": 0.05012133987909328,
+    "over4mm_one_step_trust": 3,
+    "p90": 2.137720092505056,
+    "p95": 2.6495406123199565,
+    "p99": 3.3858913292001542
+  }
+}

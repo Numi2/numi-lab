@@ -1,0 +1,63 @@
+{
+  "all_archives_verified": true,
+  "all_originals_retained": true,
+  "compression": "zstd -1 -T1",
+  "files": [
+    {
+      "allocated_bytes": 36753408,
+      "atime_ns": 1793067245356245639,
+      "bytes": 36750259,
+      "compressed_bytes": 3903907,
+      "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-164/evidence/compression-preservation/607-fit-report/fit-report.json.zst",
+      "compressed_sha256": "435a06d7c89fdc7c3413c9975926d31ed6bacc17e394dc7dcf71420689dd8419",
+      "mode": 420,
+      "mtime_ns": 1793067229901086649,
+      "original_allocated_bytes": 36753408,
+      "original_atime_ns": 1793067245356245639,
+      "original_bytes": 36750259,
+      "original_dev": 16777231,
+      "original_ino": 5211391,
+      "original_mode": 420,
+      "original_mtime_ns": 1793067229901086649,
+      "original_nlink": 1,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/fit/report.json",
+      "original_sha256": "a285e08cedc7deb77c1e84278ccbac9f9d1dc5d0129194aa6e86afeea157b618",
+      "package_compressed_relative_path": "evidence/compression-preservation/607-fit-report/fit-report.json.zst",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/fit/report.json",
+      "relative_path": "evidence/surface-clearance-546/refined-fit-604/matched-607-002/fit/report.json",
+      "sha256": "a285e08cedc7deb77c1e84278ccbac9f9d1dc5d0129194aa6e86afeea157b618"
+    }
+  ],
+  "fresh_destination_restore_pending": false,
+  "generated_utc": "2026-10-27T02:31:34.959270+00:00",
+  "restore_command_from_package": "python3 evidence/compression-preservation/607-fit-report/restore_compressed_text_mirrors.py --receipt evidence/compression-preservation/607-fit-report/receipt.json --compressed-root <P164-package-root> --destination-root <empty-restoration-root>",
+  "restore_helper_package_path": "evidence/compression-preservation/607-fit-report/restore_compressed_text_mirrors.py",
+  "restore_helper_sha256": "32476471781c11fa5eb1c6d5add247130168d45ef860554173984fd2ec41a99e",
+  "restore_helper_tests": [
+    {
+      "bytes": 36750259,
+      "mode": 420,
+      "mtime_ns": 1793067229901086649,
+      "sha256": "a285e08cedc7deb77c1e84278ccbac9f9d1dc5d0129194aa6e86afeea157b618",
+      "status": "PASS_FRESH_DESTINATION_RESTORE",
+      "temporary_destination_removed": true,
+      "verified_path": "evidence/surface-clearance-546/refined-fit-604/matched-607-002/fit/report.json"
+    }
+  ],
+  "restore_helper_tests_passed": true,
+  "restore_validation": {
+    "method": "fresh temporary destination using packaged restore helper; exact SHA-256, byte count, mode and mtime verified; temporary restoration tree then removed",
+    "result": {
+      "bytes": 36750259,
+      "mode": 420,
+      "mtime_ns": 1793067229901086649,
+      "sha256": "a285e08cedc7deb77c1e84278ccbac9f9d1dc5d0129194aa6e86afeea157b618",
+      "status": "PASS_FRESH_DESTINATION_RESTORE",
+      "temporary_destination_removed": true,
+      "verified_path": "evidence/surface-clearance-546/refined-fit-604/matched-607-002/fit/report.json"
+    }
+  },
+  "retirement_policy": "Retain original until independent remote download and fresh restoration with metadata/hash verification; recheck live consumers before retirement.",
+  "schema": "numi.human.surface_clearance.p164.compressed_text_preservation.v1",
+  "stream_restore_sha256_size_passed": true
+}

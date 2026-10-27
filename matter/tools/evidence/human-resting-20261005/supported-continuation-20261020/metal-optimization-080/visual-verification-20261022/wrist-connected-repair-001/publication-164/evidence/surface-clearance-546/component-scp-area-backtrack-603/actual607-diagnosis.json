@@ -1,0 +1,330 @@
+{
+  "actual_607_self_witnesses": {
+    "new_pair_set_sha256": "d9a3e6beed323aa455c339ac39597f8473b3938fc6ae4237699f28ac4816e87f",
+    "new_pairs_absent_from_seed_pool": 3940,
+    "overlap_with_preexisting_seed_pairs": 0,
+    "rows": 3940,
+    "unique_unordered_pairs": 3940
+  },
+  "candidate": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/fit/candidate.npz",
+    "sha256": "0c4f09204f4b014f12851ae5c15b858dbef1cef837feed47c1f44d43602359b3"
+  },
+  "classification": "failed_direct_exact_self_check; construction proposal only",
+  "component_scp_alpha_diagnosis": [
+    {
+      "components": [
+        {
+          "component": 0,
+          "nodes": 886,
+          "reason": "accepted",
+          "selected_alpha": 0.5,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "area_bad_current_faces": 35,
+              "area_bad_fixed037_faces": 2,
+              "failure_reason": "emitted_gate",
+              "min_edge_slack_mm": -3.9638497628335934e-05
+            },
+            {
+              "accepted": true,
+              "alpha": 0.5,
+              "area_bad_current_faces": 0,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "accepted",
+              "min_edge_slack_mm": 0.0015816040125007764
+            }
+          ]
+        },
+        {
+          "component": 1,
+          "nodes": 7,
+          "reason": "NO_COMPONENT_DELTA",
+          "selected_alpha": null,
+          "trials": []
+        },
+        {
+          "component": 2,
+          "nodes": 1,
+          "reason": "NO_COMPONENT_DELTA",
+          "selected_alpha": null,
+          "trials": []
+        },
+        {
+          "component": 3,
+          "nodes": 18,
+          "reason": "NO_COMPONENT_DELTA",
+          "selected_alpha": null,
+          "trials": []
+        },
+        {
+          "component": 4,
+          "nodes": 632,
+          "reason": "accepted",
+          "selected_alpha": 0.5,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "area_bad_current_faces": 16,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "emitted_gate",
+              "min_edge_slack_mm": -3.488240522109276e-05
+            },
+            {
+              "accepted": true,
+              "alpha": 0.5,
+              "area_bad_current_faces": 0,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "accepted",
+              "min_edge_slack_mm": 0.0015816040125007764
+            }
+          ]
+        },
+        {
+          "component": 5,
+          "nodes": 393,
+          "reason": "accepted",
+          "selected_alpha": 0.5,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "area_bad_current_faces": 1,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "emitted_gate",
+              "min_edge_slack_mm": -1.6291132436813127e-05
+            },
+            {
+              "accepted": true,
+              "alpha": 0.5,
+              "area_bad_current_faces": 0,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "accepted",
+              "min_edge_slack_mm": 0.0015816040125007764
+            }
+          ]
+        },
+        {
+          "component": 6,
+          "nodes": 508,
+          "reason": "accepted",
+          "selected_alpha": 0.5,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "area_bad_current_faces": 1,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "emitted_gate",
+              "min_edge_slack_mm": -2.3675594314515047e-05
+            },
+            {
+              "accepted": true,
+              "alpha": 0.5,
+              "area_bad_current_faces": 0,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "accepted",
+              "min_edge_slack_mm": 0.0015816040125007764
+            }
+          ]
+        },
+        {
+          "component": 7,
+          "nodes": 795,
+          "reason": "accepted",
+          "selected_alpha": 0.5,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "area_bad_current_faces": 0,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "emitted_gate",
+              "min_edge_slack_mm": -1.3512614012500812e-05
+            },
+            {
+              "accepted": true,
+              "alpha": 0.5,
+              "area_bad_current_faces": 0,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "accepted",
+              "min_edge_slack_mm": 0.0015816040125007764
+            }
+          ]
+        },
+        {
+          "component": 8,
+          "nodes": 855,
+          "reason": "accepted",
+          "selected_alpha": 0.5,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "area_bad_current_faces": 36,
+              "area_bad_fixed037_faces": 1,
+              "failure_reason": "emitted_gate",
+              "min_edge_slack_mm": -7.739637657530607e-05
+            },
+            {
+              "accepted": true,
+              "alpha": 0.5,
+              "area_bad_current_faces": 0,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "accepted",
+              "min_edge_slack_mm": 0.0015816040125007764
+            }
+          ]
+        },
+        {
+          "component": 9,
+          "nodes": 515,
+          "reason": "accepted",
+          "selected_alpha": 0.5,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "area_bad_current_faces": 0,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "emitted_gate",
+              "min_edge_slack_mm": -1.3519281292673213e-05
+            },
+            {
+              "accepted": true,
+              "alpha": 0.5,
+              "area_bad_current_faces": 0,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "accepted",
+              "min_edge_slack_mm": 0.0015816040125007764
+            }
+          ]
+        },
+        {
+          "component": 10,
+          "nodes": 790,
+          "reason": "accepted",
+          "selected_alpha": 0.5,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "area_bad_current_faces": 36,
+              "area_bad_fixed037_faces": 1,
+              "failure_reason": "emitted_gate",
+              "min_edge_slack_mm": -2.1982902360495604e-05
+            },
+            {
+              "accepted": true,
+              "alpha": 0.5,
+              "area_bad_current_faces": 0,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "accepted",
+              "min_edge_slack_mm": 0.0015816040125007764
+            }
+          ]
+        },
+        {
+          "component": 11,
+          "nodes": 1923,
+          "reason": "accepted",
+          "selected_alpha": 0.5,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "area_bad_current_faces": 15,
+              "area_bad_fixed037_faces": 1,
+              "failure_reason": "emitted_gate",
+              "min_edge_slack_mm": -5.132090282583546e-05
+            },
+            {
+              "accepted": true,
+              "alpha": 0.5,
+              "area_bad_current_faces": 0,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "accepted",
+              "min_edge_slack_mm": 0.0015816040125007764
+            }
+          ]
+        },
+        {
+          "component": 12,
+          "nodes": 1208,
+          "reason": "accepted",
+          "selected_alpha": 0.5,
+          "trials": [
+            {
+              "accepted": false,
+              "alpha": 1.0,
+              "area_bad_current_faces": 58,
+              "area_bad_fixed037_faces": 3,
+              "failure_reason": "emitted_gate",
+              "min_edge_slack_mm": -3.6063411165247056e-05
+            },
+            {
+              "accepted": true,
+              "alpha": 0.5,
+              "area_bad_current_faces": 0,
+              "area_bad_fixed037_faces": 0,
+              "failure_reason": "accepted",
+              "min_edge_slack_mm": 0.0007808138907937899
+            }
+          ]
+        },
+        {
+          "component": 13,
+          "nodes": 331,
+          "reason": "NO_COMPONENT_DELTA",
+          "selected_alpha": null,
+          "trials": []
+        }
+      ],
+      "fallback_reason": null,
+      "iteration": 0,
+      "min_hard_residual_before_mm": null,
+      "min_hard_residual_emitted_f32_diagnostic_mm": null,
+      "min_hard_residual_raw_lp_mm": null,
+      "status": "ACCEPTED_COMPONENTWISE"
+    },
+    {
+      "components": [],
+      "fallback_reason": null,
+      "iteration": 1,
+      "min_hard_residual_before_mm": null,
+      "min_hard_residual_emitted_f32_diagnostic_mm": null,
+      "min_hard_residual_raw_lp_mm": null,
+      "status": "GLOBAL_408_FALLBACK_PREFLIGHT_REJECTED"
+    }
+  ],
+  "direct_check": {
+    "audit130_summary": {
+      "candidate_sha256": "0c4f09204f4b014f12851ae5c15b858dbef1cef837feed47c1f44d43602359b3",
+      "complete_surface_audit": true,
+      "exact_PLC_surface_pairs": 3940,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/direct-fit-full-check/audit-130/summary.json",
+      "sha256": "e0888110fa82129be8a9518ee93b0feeedfb6ff3de338672abdd4c721bd3b00a"
+    },
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/direct-fit-full-check/report.json",
+    "self_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/direct-fit-full-check/audit-130/surface-self-pairs.npy",
+    "self_pairs_sha256": "8208d53f623c91d3e9ca16c4c6cb98d4fedf347c4be94c57fc97d91453dbad37",
+    "sha256": "646c19b2b1aa5cfd0616e0c39c6c55ae3ee6a4737fb148231c2368980bf584e9",
+    "status": "FAILED"
+  },
+  "fit_report": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/fit/report.json",
+    "sha256": "a285e08cedc7deb77c1e84278ccbac9f9d1dc5d0129194aa6e86afeea157b618"
+  },
+  "geometry_or_solver_jobs_run_by_this_diagnostic": false,
+  "no_609_source_changes": true,
+  "preexisting_self_seeds": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/preparation-603-001/constraints/self-seeds/merged-self-pair-seeds.npy",
+    "rows": 20417,
+    "sha256": "8907d3901ed0a1a62b3274be522a728f65bb0a4d4939ad29e695cc443dbdaebe",
+    "unique_unordered_pairs": 20417
+  },
+  "schema": "numi.human.connected_fit_diagnosis_607.v1"
+}

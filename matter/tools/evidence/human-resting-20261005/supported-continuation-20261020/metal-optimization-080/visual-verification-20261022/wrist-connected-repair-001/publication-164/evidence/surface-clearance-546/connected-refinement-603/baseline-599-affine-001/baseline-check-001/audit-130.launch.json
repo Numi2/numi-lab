@@ -1,0 +1,20 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-001/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-001/baseline-check-001/audit-130"
+  ],
+  "geometry_admitted": false,
+  "native_admission": false,
+  "operation": "exact geometry baseline audit for affine-refined candidate; diagnostic only",
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-001/candidate.npz": "f5392ccc260a170c8aff4ec84fc2f550dd0c8325d861084f505ef7cf28906e32",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-001/report.json": "036168d8d5f3af3ebc266887e1e951ca6050383c82c4f42ea08b0df12dcdca79",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/audit-130/query/points-world.npz",
+  "input_sha256": "c4a5a47cd48ac5669db56dca1bfae8ab0903216934debac39ecc9ea0fc97631c",
+  "field": "points_world_f32",
+  "query_count": 21928,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/audit-130/query/points.csv",
+  "output_sha256": "a82e91f720b8e8b276e5b6a314359addde9ff1b8e5838b06dc1de6059cb725db",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

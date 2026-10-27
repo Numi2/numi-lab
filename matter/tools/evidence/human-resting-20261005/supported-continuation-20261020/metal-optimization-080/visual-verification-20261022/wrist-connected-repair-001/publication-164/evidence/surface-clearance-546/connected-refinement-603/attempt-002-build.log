@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/filter_exact_self_edges603.py", line 119, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/filter_exact_self_edges603.py", line 68, in main
+    {"edge": e.tolist(), "reason": "midpoint row participates in exact 130 self-intersection witness"},
+             ^
+NameError: name 'e' is not defined

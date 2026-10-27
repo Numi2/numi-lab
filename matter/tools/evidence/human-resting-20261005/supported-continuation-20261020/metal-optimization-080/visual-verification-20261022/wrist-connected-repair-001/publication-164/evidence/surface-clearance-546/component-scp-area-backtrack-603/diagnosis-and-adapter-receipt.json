@@ -1,0 +1,145 @@
+{
+  "accepted_physical_steps": 0,
+  "fit_launched": false,
+  "fit_metrics": {
+    "component_count": 14,
+    "face_rows": 2601,
+    "face_unmet_fraction": 0.9205475801933883,
+    "final_edge_slack_mm": 0.0028340210880825585,
+    "minimum_fixed037_ratio": 0.10009356948026137,
+    "native_admission": false,
+    "point_rows": 8,
+    "point_unmet_fraction": 0.7817163934200386,
+    "solver_global_stage2_optimality_claim": false,
+    "source_after_mm": 11.999488145959182,
+    "source_before_mm": 11.999365547963421,
+    "weight_mass_face": 0.5,
+    "weight_mass_point": 0.5
+  },
+  "fit_report": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-refined-595/run-002/fit/report.json",
+    "sha256": "42b19aad79baee4f83e9792b35b40b23c7f1a0e257b6517a87f398c545c6e78d"
+  },
+  "geometry_audits_run": false,
+  "global_backtrack_trials": [
+    [
+      {
+        "alpha": 1.0,
+        "bad_current_faces": 83,
+        "bad_fixed037_faces": 15,
+        "edge_pass": false,
+        "source_trust_pass": true
+      },
+      {
+        "alpha": 0.5,
+        "bad_fixed037_faces": [
+          18714,
+          32738
+        ],
+        "edge_pass": true,
+        "edge_slack_mm": 0.0018646435723319935,
+        "min_fixed037_ratio": 0.09728392242106364,
+        "source_trust_pass": true
+      },
+      {
+        "alpha": 0.25,
+        "bad_fixed037_faces": [
+          18714
+        ],
+        "edge_pass": true,
+        "min_fixed037_ratio": 0.0996265205349895,
+        "source_trust_pass": true
+      },
+      {
+        "accepted": true,
+        "alpha": 0.125,
+        "min_fixed037_ratio": 0.10009356948026137
+      }
+    ],
+    [
+      {
+        "alpha": 1.0,
+        "bad_current_faces": 80,
+        "bad_fixed037_faces": 13,
+        "edge_pass": false,
+        "source_trust_pass": true
+      },
+      {
+        "alpha": 0.5,
+        "bad_fixed037_faces": [
+          18714,
+          32738
+        ],
+        "edge_pass": true,
+        "edge_slack_mm": 0.0016328359055220783,
+        "min_fixed037_ratio": 0.09787639050728865,
+        "source_trust_pass": true
+      },
+      {
+        "alpha": 0.25,
+        "bad_fixed037_faces": [
+          18714,
+          32738
+        ],
+        "edge_pass": true,
+        "min_fixed037_ratio": 0.09966712456002473,
+        "source_trust_pass": true
+      },
+      {
+        "accepted": true,
+        "alpha": 0.125,
+        "min_fixed037_ratio": 0.10009356948026137
+      }
+    ]
+  ],
+  "hook": "New 564-derived entry captures A/b/C/h/weights/Q/q. It validates the 549 complete face/self-stencil partition, one-hot full-coordinate Q, and single-component ownership of A/C/edge rows; then calls unchanged 408 backtracker on a target masked to one component at a time. Per-component alpha receipt has no scalar accepted alpha. Frozen 545 exact checks remain required.",
+  "limiter": "Face 18714 in component 0 fails fixed-037 area floor at alpha .25; face 32738 in component 12 also fails at .5. At alpha .5/.25 edge, source and trust pass; 408 global backtracking accepts .125 twice. This is a global alpha bottleneck from area, not source cap or edge at the accepted levels.",
+  "lp_control_sizes": [
+    2232,
+    21,
+    3,
+    54,
+    1713,
+    1128,
+    1458,
+    2208,
+    2061,
+    1464,
+    1986,
+    5196,
+    2982,
+    993
+  ],
+  "native_admission": false,
+  "schema": "numi.human.component_scp_backtracking603.review.v1",
+  "source_pins": {
+    "408": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "549": "523b1aef89d92eef09bf63e9de2d4f3fa6bd938ef53a45915f9ea138f5b8f249",
+    "564_parent": "bce28ca873ba9fdc75427e16443fdf047587742cfbef1f83e48a31df28caa4d9",
+    "frozen_helper_copy": "f02aed5e462779e85a5d4df46a38a68bcf7eb3972c9dbf565830c4919b387be6",
+    "helper": "f02aed5e462779e85a5d4df46a38a68bcf7eb3972c9dbf565830c4919b387be6",
+    "joint_objective_copy": "09ce0c4f47e69142de6ce394576edd3ef0ee6f4b946824a476f5425919c492c8",
+    "new_entry": "38c3dfa9ddd961250111c87f56d6184075bde43be07c46e09d239f057b06d692",
+    "tests": "5abe5e3b7f70bf464cde57e5584fed8a7955fa0546cd98effa51f56846f6e136",
+    "timeout_copy": "a24aa58178394e25d7b38c7c35a36c93eaf109a666ace7773c0ca13d33250818"
+  },
+  "stencil_component_node_sizes": [
+    744,
+    7,
+    1,
+    18,
+    571,
+    376,
+    486,
+    736,
+    687,
+    488,
+    662,
+    1732,
+    994,
+    331
+  ],
+  "syntax_compile_passed": true,
+  "test_command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-scp-area-backtrack-603/test_component_scp_backtracking603.py",
+  "tests_passed": 6
+}

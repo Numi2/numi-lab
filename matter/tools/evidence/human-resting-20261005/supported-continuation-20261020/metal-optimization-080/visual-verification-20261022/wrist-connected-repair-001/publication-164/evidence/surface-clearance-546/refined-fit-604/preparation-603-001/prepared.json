@@ -1,0 +1,14 @@
+{
+  "accepted_physical_steps": 0,
+  "face_compatibility": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/preparation-603-001/face-fit-compatibility.json",
+  "face_compatibility_sha256": "436a09f6f87f2ceae0b5675e1d547a5f1c387d837f83277627ee36e5b448d9cd",
+  "face_targets": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/preparation-603-001/joint-face-targets",
+  "native_admission": false,
+  "parent_context": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/parent-context-599-001/constraint-context.json",
+  "parent_context_sha256": "5cd1216c173e203ac4ae66bf58e6ea7af2b5e2960cdab7d8b5791573e29de98d",
+  "refresh_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/preparation-603-001/constraints/refresh-report.json",
+  "refresh_report_sha256": "7ffe6c9e367bd0c4e79c86a09047344b2a9bee7243ff52af764fcffbda6afb75",
+  "state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/baseline-state.json",
+  "state_sha256": "80f63f628ab61dd5bdefdafefb9f210d02af20daf944727b706985efea609e0a",
+  "status": "CURRENT_TOPOLOGY_GUARDS_AND_FACE_TARGETS_PREPARED"
+}

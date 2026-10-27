@@ -1,0 +1,23 @@
+{
+  "accepted_physical_steps": 0,
+  "constraint_context_sha256": "5cd1216c173e203ac4ae66bf58e6ea7af2b5e2960cdab7d8b5791573e29de98d",
+  "native_admission": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/run-001/final/state.json": "7ada7daac43f76970af74ab8c73d7d24a739be162f282c82b63bac316c75c792",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/run-001/full-check/audit-130/summary.json": "6aaa96b2eb745bbf2b61c8bac987d5b1227fbafb383f6c4a22b05bf8635b5e31",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/run-001/full-check/audit-159/report.json": "2eedcda0de5ec8ce7cb543c7b489f4e0579271a7b4b76cc265409ca7fd76a785",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/run-001/lineage/candidate.npz": "05b499db61f22492f4ee4611951bdb4e02e196a3175205dda862bc08befc7729",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/prepare-001/constraint-context.json": "5dffcf314290ca4f14a2171d4e2a1be7a513be1d5cb9d6ae4241d8eb5aef6695",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/prepare-001/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz": "d5e53a0a7844c200b4f4bca3747cb92506caf8ed75b5adaeb050626eab9ae4e0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/prepare-001/constraints/refresh-541/fixed-guards/report.json": "d263ebc13d11448902867cfa8380fa80a1419f835dee017d3b38394be3e28054",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/prepare-001/constraints/self-seeds/merged-self-pair-seeds.npy": "42742957f9fdc69b85282abf6973247e4cfb512c765779a647629cb91957d042",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/prepare-001/constraints/self-seeds/seed-preflight.json": "856056b06f3dc5767cc7ea925cd973af41915f5ef4c048d8f6273d98d3b3a8b5",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-596/run-001/full-check/audit-159/report.json": "ab8fa125ad55cc64d57bb4c56b1d445d9b62a66d94538ea4fb6ca13fd61ffebd",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-596/run-001/lineage/candidate.npz": "2c963e10e3eda97b6e550ec1592936a7f75fa7968afb3112884b5f7a74001ae2",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prepare_surface546.py": "84bcd87e6ba2c877eeabf853ff2db7739041e6c96838a6b625ddea878c72e2a0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/prepare_parent_context604.py": "af00c171298ef952ed09a531719acdb202a515a6c7862387e0c24a8d3a65ba54",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_guards_multi_parent_546.py": "090e368e693bc6f7d12c403812c1b691dc8de6d3e409cfae8d869f910aae076f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refresh_surface_constraints546.py": "a9586a81d92f117040e774c980b6028168432386b2e9babd96a7b7f725175d09"
+  },
+  "status": "EXISTING_CONSTRAINT_CONTEXT_REFRESHED_ONLY"
+}

@@ -1,0 +1,31 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/build_joint_outward_targets597_v4.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/candidate.npz",
+    "--surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/audit-159/report.json",
+    "--query-receipt",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/audit-130/query/query-receipt.json",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/preparation-603-001/joint-face-targets",
+    "--clearance-m",
+    ".00005",
+    "--direction-mode",
+    "source-outward"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/audit-130/query/query-receipt.json": "d0c6ccdfceecc93d3c86641cbdf1615aa69412af3f5c8a5aa8fc4f8f1fb9e791",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/audit-159/report.json": "f4a816aac50fc71013045466b52af7b02381584c83f2ebbf7b424852d61fbdeb",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/baseline-state.json": "80f63f628ab61dd5bdefdafefb9f210d02af20daf944727b706985efea609e0a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/candidate.npz": "16a7f33f4b3d3ea7cf61bf55d01a1dca00fe9a32ee2cb7c4fa5f930531bb674e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/angular_joint_direction597.py": "4df66319908259efdc9faacdec5774876780fcf47c3f00ec0248a1a79810f092",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/build_joint_outward_targets597_v4.py": "bb8ac0b2ba3be3b6bade10aae06184507319078761fdddb4ebadc10892f7a2e3"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/retention-582-001/candidate.npz",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/baseline-state.json",
+    "--point-summary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/retention-582-001/full-check-545/audit-130/summary.json",
+    "--surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/retention-582-001/full-check-545/audit-159/report.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/retention-582-001/point-continuation-finalize",
+    "--point-continuation",
+    "--trust-mm",
+    "4"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/baseline-state.json": "80f63f628ab61dd5bdefdafefb9f210d02af20daf944727b706985efea609e0a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py": "db2f38e24d6057f79f39e7e911e2671a379fdc950a9ebf1f007b6a3db4ddb781",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/retention-582-001/candidate.npz": "59e20ae8b6bb8a0768686f015a7180d89aeb23c05777ab5b437737a1e617885e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/retention-582-001/full-check-545/audit-130/summary.json": "f1bca0e8f536c5b091f4c52fd9869e96c962d0d8a7aff88c22ec175af15e9cdd",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/retention-582-001/full-check-545/audit-159/report.json": "40e8f0af94adcd642169aa3c9ac2de9f0b85f16fe5645ecd212ffbc11fa55475"
+  }
+}

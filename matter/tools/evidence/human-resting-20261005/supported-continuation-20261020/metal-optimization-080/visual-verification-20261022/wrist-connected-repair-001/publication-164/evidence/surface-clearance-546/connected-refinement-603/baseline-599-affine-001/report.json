@@ -1,0 +1,9550 @@
+{
+  "adapter": "connected_refinement_adapter546",
+  "adapter_sha256": "06081873eaf0d5452fbf4beee3d580a0eba97c3a546a9f7e7a06a0c9f548cbc6",
+  "added_face_centroids": 0,
+  "added_nodes_are_only_edge_midpoints": true,
+  "affected_parent_face_count": 1034,
+  "area_reference_037_sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+  "area_reference_faces_match_candidate_exactly": true,
+  "area_reference_sha256": "0853407a1ce7fb9aed2d91a51ea712f8a85dadfcfb4b048e29979453dabab4dc",
+  "area_reference_uses_same_Q": true,
+  "boundary_components_after": 2,
+  "boundary_components_before": 2,
+  "boundary_edges_after": 45,
+  "boundary_edges_before": 45,
+  "candidate_sha256": "05b499db61f22492f4ee4611951bdb4e02e196a3175205dda862bc08befc7729",
+  "child_barycentric_reconstruction_tolerance_m": 9.5367431640625e-07,
+  "composed_QP_nnz": 35807,
+  "composed_QP_shape": [
+    21931,
+    13518
+  ],
+  "construction_face_selection": {
+    "excluded_crossed_face_rows": [],
+    "frozen_face_rows": [],
+    "original_validated_crossed_face_rows": null,
+    "selected_crossed_face_rows": null
+  },
+  "containment_or_clearance_claim": false,
+  "crossing_bank_triangle_pair_count": 1577,
+  "crossing_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/run-001/full-check/audit-159/report.json",
+  "crossing_report_sha256": "2eedcda0de5ec8ce7cb543c7b489f4e0579271a7b4b76cc265409ca7fd76a785",
+  "edge_midpoint_parent_edges_sha256": "7d5d8ca7d7c0aca04c9003b2bc158ca1be1f3cfed3e3df08f5fae573d8e8ce6d",
+  "edge_midpoint_rows": [
+    20889,
+    20890,
+    20891,
+    20892,
+    20893,
+    20894,
+    20895,
+    20896,
+    20897,
+    20898,
+    20899,
+    20900,
+    20901,
+    20902,
+    20903,
+    20904,
+    20905,
+    20906,
+    20907,
+    20908,
+    20909,
+    20910,
+    20911,
+    20912,
+    20913,
+    20914,
+    20915,
+    20916,
+    20917,
+    20918,
+    20919,
+    20920,
+    20921,
+    20922,
+    20923,
+    20924,
+    20925,
+    20926,
+    20927,
+    20928,
+    20929,
+    20930,
+    20931,
+    20932,
+    20933,
+    20934,
+    20935,
+    20936,
+    20937,
+    20938,
+    20939,
+    20940,
+    20941,
+    20942,
+    20943,
+    20944,
+    20945,
+    20946,
+    20947,
+    20948,
+    20949,
+    20950,
+    20951,
+    20952,
+    20953,
+    20954,
+    20955,
+    20956,
+    20957,
+    20958,
+    20959,
+    20960,
+    20961,
+    20962,
+    20963,
+    20964,
+    20965,
+    20966,
+    20967,
+    20968,
+    20969,
+    20970,
+    20971,
+    20972,
+    20973,
+    20974,
+    20975,
+    20976,
+    20977,
+    20978,
+    20979,
+    20980,
+    20981,
+    20982,
+    20983,
+    20984,
+    20985,
+    20986,
+    20987,
+    20988,
+    20989,
+    20990,
+    20991,
+    20992,
+    20993,
+    20994,
+    20995,
+    20996,
+    20997,
+    20998,
+    20999,
+    21000,
+    21001,
+    21002,
+    21003,
+    21004,
+    21005,
+    21006,
+    21007,
+    21008,
+    21009,
+    21010,
+    21011,
+    21012,
+    21013,
+    21014,
+    21015,
+    21016,
+    21017,
+    21018,
+    21019,
+    21020,
+    21021,
+    21022,
+    21023,
+    21024,
+    21025,
+    21026,
+    21027,
+    21028,
+    21029,
+    21030,
+    21031,
+    21032,
+    21033,
+    21034,
+    21035,
+    21036,
+    21037,
+    21038,
+    21039,
+    21040,
+    21041,
+    21042,
+    21043,
+    21044,
+    21045,
+    21046,
+    21047,
+    21048,
+    21049,
+    21050,
+    21051,
+    21052,
+    21053,
+    21054,
+    21055,
+    21056,
+    21057,
+    21058,
+    21059,
+    21060,
+    21061,
+    21062,
+    21063,
+    21064,
+    21065,
+    21066,
+    21067,
+    21068,
+    21069,
+    21070,
+    21071,
+    21072,
+    21073,
+    21074,
+    21075,
+    21076,
+    21077,
+    21078,
+    21079,
+    21080,
+    21081,
+    21082,
+    21083,
+    21084,
+    21085,
+    21086,
+    21087,
+    21088,
+    21089,
+    21090,
+    21091,
+    21092,
+    21093,
+    21094,
+    21095,
+    21096,
+    21097,
+    21098,
+    21099,
+    21100,
+    21101,
+    21102,
+    21103,
+    21104,
+    21105,
+    21106,
+    21107,
+    21108,
+    21109,
+    21110,
+    21111,
+    21112,
+    21113,
+    21114,
+    21115,
+    21116,
+    21117,
+    21118,
+    21119,
+    21120,
+    21121,
+    21122,
+    21123,
+    21124,
+    21125,
+    21126,
+    21127,
+    21128,
+    21129,
+    21130,
+    21131,
+    21132,
+    21133,
+    21134,
+    21135,
+    21136,
+    21137,
+    21138,
+    21139,
+    21140,
+    21141,
+    21142,
+    21143,
+    21144,
+    21145,
+    21146,
+    21147,
+    21148,
+    21149,
+    21150,
+    21151,
+    21152,
+    21153,
+    21154,
+    21155,
+    21156,
+    21157,
+    21158,
+    21159,
+    21160,
+    21161,
+    21162,
+    21163,
+    21164,
+    21165,
+    21166,
+    21167,
+    21168,
+    21169,
+    21170,
+    21171,
+    21172,
+    21173,
+    21174,
+    21175,
+    21176,
+    21177,
+    21178,
+    21179,
+    21180,
+    21181,
+    21182,
+    21183,
+    21184,
+    21185,
+    21186,
+    21187,
+    21188,
+    21189,
+    21190,
+    21191,
+    21192,
+    21193,
+    21194,
+    21195,
+    21196,
+    21197,
+    21198,
+    21199,
+    21200,
+    21201,
+    21202,
+    21203,
+    21204,
+    21205,
+    21206,
+    21207,
+    21208,
+    21209,
+    21210,
+    21211,
+    21212,
+    21213,
+    21214,
+    21215,
+    21216,
+    21217,
+    21218,
+    21219,
+    21220,
+    21221,
+    21222,
+    21223,
+    21224,
+    21225,
+    21226,
+    21227,
+    21228,
+    21229,
+    21230,
+    21231,
+    21232,
+    21233,
+    21234,
+    21235,
+    21236,
+    21237,
+    21238,
+    21239,
+    21240,
+    21241,
+    21242,
+    21243,
+    21244,
+    21245,
+    21246,
+    21247,
+    21248,
+    21249,
+    21250,
+    21251,
+    21252,
+    21253,
+    21254,
+    21255,
+    21256,
+    21257,
+    21258,
+    21259,
+    21260,
+    21261,
+    21262,
+    21263,
+    21264,
+    21265,
+    21266,
+    21267,
+    21268,
+    21269,
+    21270,
+    21271,
+    21272,
+    21273,
+    21274,
+    21275,
+    21276,
+    21277,
+    21278,
+    21279,
+    21280,
+    21281,
+    21282,
+    21283,
+    21284,
+    21285,
+    21286,
+    21287,
+    21288,
+    21289,
+    21290,
+    21291,
+    21292,
+    21293,
+    21294,
+    21295,
+    21296,
+    21297,
+    21298,
+    21299,
+    21300,
+    21301,
+    21302,
+    21303,
+    21304,
+    21305,
+    21306,
+    21307,
+    21308,
+    21309,
+    21310,
+    21311,
+    21312,
+    21313,
+    21314,
+    21315,
+    21316,
+    21317,
+    21318,
+    21319,
+    21320,
+    21321,
+    21322,
+    21323,
+    21324,
+    21325,
+    21326,
+    21327,
+    21328,
+    21329,
+    21330,
+    21331,
+    21332,
+    21333,
+    21334,
+    21335,
+    21336,
+    21337,
+    21338,
+    21339,
+    21340,
+    21341,
+    21342,
+    21343,
+    21344,
+    21345,
+    21346,
+    21347,
+    21348,
+    21349,
+    21350,
+    21351,
+    21352,
+    21353,
+    21354,
+    21355,
+    21356,
+    21357,
+    21358,
+    21359,
+    21360,
+    21361,
+    21362,
+    21363,
+    21364,
+    21365,
+    21366,
+    21367,
+    21368,
+    21369,
+    21370,
+    21371,
+    21372,
+    21373,
+    21374,
+    21375,
+    21376,
+    21377,
+    21378,
+    21379,
+    21380,
+    21381,
+    21382,
+    21383,
+    21384,
+    21385,
+    21386,
+    21387,
+    21388,
+    21389,
+    21390,
+    21391,
+    21392,
+    21393,
+    21394,
+    21395,
+    21396,
+    21397,
+    21398,
+    21399,
+    21400,
+    21401,
+    21402,
+    21403,
+    21404,
+    21405,
+    21406,
+    21407,
+    21408,
+    21409,
+    21410,
+    21411,
+    21412,
+    21413,
+    21414,
+    21415,
+    21416,
+    21417,
+    21418,
+    21419,
+    21420,
+    21421,
+    21422,
+    21423,
+    21424,
+    21425,
+    21426,
+    21427,
+    21428,
+    21429,
+    21430,
+    21431,
+    21432,
+    21433,
+    21434,
+    21435,
+    21436,
+    21437,
+    21438,
+    21439,
+    21440,
+    21441,
+    21442,
+    21443,
+    21444,
+    21445,
+    21446,
+    21447,
+    21448,
+    21449,
+    21450,
+    21451,
+    21452,
+    21453,
+    21454,
+    21455,
+    21456,
+    21457,
+    21458,
+    21459,
+    21460,
+    21461,
+    21462,
+    21463,
+    21464,
+    21465,
+    21466,
+    21467,
+    21468,
+    21469,
+    21470,
+    21471,
+    21472,
+    21473,
+    21474,
+    21475,
+    21476,
+    21477,
+    21478,
+    21479,
+    21480,
+    21481,
+    21482,
+    21483,
+    21484,
+    21485,
+    21486,
+    21487,
+    21488,
+    21489,
+    21490,
+    21491,
+    21492,
+    21493,
+    21494,
+    21495,
+    21496,
+    21497,
+    21498,
+    21499,
+    21500,
+    21501,
+    21502,
+    21503,
+    21504,
+    21505,
+    21506,
+    21507,
+    21508,
+    21509,
+    21510,
+    21511,
+    21512,
+    21513,
+    21514,
+    21515,
+    21516,
+    21517,
+    21518,
+    21519,
+    21520,
+    21521,
+    21522,
+    21523,
+    21524,
+    21525,
+    21526,
+    21527,
+    21528,
+    21529,
+    21530,
+    21531,
+    21532,
+    21533,
+    21534,
+    21535,
+    21536,
+    21537,
+    21538,
+    21539,
+    21540,
+    21541,
+    21542,
+    21543,
+    21544,
+    21545,
+    21546,
+    21547,
+    21548,
+    21549,
+    21550,
+    21551,
+    21552,
+    21553,
+    21554,
+    21555,
+    21556,
+    21557,
+    21558,
+    21559,
+    21560,
+    21561,
+    21562,
+    21563,
+    21564,
+    21565,
+    21566,
+    21567,
+    21568,
+    21569,
+    21570,
+    21571,
+    21572,
+    21573,
+    21574,
+    21575,
+    21576,
+    21577,
+    21578,
+    21579,
+    21580,
+    21581,
+    21582,
+    21583,
+    21584,
+    21585,
+    21586,
+    21587,
+    21588,
+    21589,
+    21590,
+    21591,
+    21592,
+    21593,
+    21594,
+    21595,
+    21596,
+    21597,
+    21598,
+    21599,
+    21600,
+    21601,
+    21602,
+    21603,
+    21604,
+    21605,
+    21606,
+    21607,
+    21608,
+    21609,
+    21610,
+    21611,
+    21612,
+    21613,
+    21614,
+    21615,
+    21616,
+    21617,
+    21618,
+    21619,
+    21620,
+    21621,
+    21622,
+    21623,
+    21624,
+    21625,
+    21626,
+    21627,
+    21628,
+    21629,
+    21630,
+    21631,
+    21632,
+    21633,
+    21634,
+    21635,
+    21636,
+    21637,
+    21638,
+    21639,
+    21640,
+    21641,
+    21642,
+    21643,
+    21644,
+    21645,
+    21646,
+    21647,
+    21648,
+    21649,
+    21650,
+    21651,
+    21652,
+    21653,
+    21654,
+    21655,
+    21656,
+    21657,
+    21658,
+    21659,
+    21660,
+    21661,
+    21662,
+    21663,
+    21664,
+    21665,
+    21666,
+    21667,
+    21668,
+    21669,
+    21670,
+    21671,
+    21672,
+    21673,
+    21674,
+    21675,
+    21676,
+    21677,
+    21678,
+    21679,
+    21680,
+    21681,
+    21682,
+    21683,
+    21684,
+    21685,
+    21686,
+    21687,
+    21688,
+    21689,
+    21690,
+    21691,
+    21692,
+    21693,
+    21694,
+    21695,
+    21696,
+    21697,
+    21698,
+    21699,
+    21700,
+    21701,
+    21702,
+    21703,
+    21704,
+    21705,
+    21706,
+    21707,
+    21708,
+    21709,
+    21710,
+    21711,
+    21712,
+    21713,
+    21714,
+    21715,
+    21716,
+    21717,
+    21718,
+    21719,
+    21720,
+    21721,
+    21722,
+    21723,
+    21724,
+    21725,
+    21726,
+    21727,
+    21728,
+    21729,
+    21730,
+    21731,
+    21732,
+    21733,
+    21734,
+    21735,
+    21736,
+    21737,
+    21738,
+    21739,
+    21740,
+    21741,
+    21742,
+    21743,
+    21744,
+    21745,
+    21746,
+    21747,
+    21748,
+    21749,
+    21750,
+    21751,
+    21752,
+    21753,
+    21754,
+    21755,
+    21756,
+    21757,
+    21758,
+    21759,
+    21760,
+    21761,
+    21762,
+    21763,
+    21764,
+    21765,
+    21766,
+    21767,
+    21768,
+    21769,
+    21770,
+    21771,
+    21772,
+    21773,
+    21774,
+    21775,
+    21776,
+    21777,
+    21778,
+    21779,
+    21780,
+    21781,
+    21782,
+    21783,
+    21784,
+    21785,
+    21786,
+    21787,
+    21788,
+    21789,
+    21790,
+    21791,
+    21792,
+    21793,
+    21794,
+    21795,
+    21796,
+    21797,
+    21798,
+    21799,
+    21800,
+    21801,
+    21802,
+    21803,
+    21804,
+    21805,
+    21806,
+    21807,
+    21808,
+    21809,
+    21810,
+    21811,
+    21812,
+    21813,
+    21814,
+    21815,
+    21816,
+    21817,
+    21818,
+    21819,
+    21820,
+    21821,
+    21822,
+    21823,
+    21824,
+    21825,
+    21826,
+    21827,
+    21828,
+    21829,
+    21830,
+    21831,
+    21832,
+    21833,
+    21834,
+    21835,
+    21836,
+    21837,
+    21838,
+    21839,
+    21840,
+    21841,
+    21842,
+    21843,
+    21844,
+    21845,
+    21846,
+    21847,
+    21848,
+    21849,
+    21850,
+    21851,
+    21852,
+    21853,
+    21854,
+    21855,
+    21856,
+    21857,
+    21858,
+    21859,
+    21860,
+    21861,
+    21862,
+    21863,
+    21864,
+    21865,
+    21866,
+    21867,
+    21868,
+    21869,
+    21870,
+    21871,
+    21872,
+    21873,
+    21874,
+    21875,
+    21876,
+    21877,
+    21878,
+    21879,
+    21880,
+    21881,
+    21882,
+    21883,
+    21884,
+    21885,
+    21886,
+    21887,
+    21888,
+    21889,
+    21890,
+    21891,
+    21892,
+    21893,
+    21894,
+    21895,
+    21896,
+    21897,
+    21898,
+    21899,
+    21900,
+    21901,
+    21902,
+    21903,
+    21904,
+    21905,
+    21906,
+    21907,
+    21908,
+    21909,
+    21910,
+    21911,
+    21912,
+    21913,
+    21914,
+    21915,
+    21916,
+    21917,
+    21918,
+    21919,
+    21920,
+    21921,
+    21922,
+    21923,
+    21924,
+    21925,
+    21926,
+    21927,
+    21928,
+    21929,
+    21930
+  ],
+  "edge_midpoint_rows_count": 1042,
+  "edge_midpoint_rows_sha256": "fa79978a38db68be7ed75a71b376f085df947abd7ae670ba420908937e7f4786",
+  "edge_midpoint_rows_sha256_encoding": "sha256 of C-contiguous little-endian int64 row IDs as raw bytes",
+  "edge_only_refinement585_sha256": "07d466ba25c7d565bb8be61c9ff87a7725699f13e4080587a48cbbeec24056a3",
+  "existing_node_coordinates_moved": false,
+  "existing_prior_input_parent_namespace_preserved_under": "prior_input_parent_546__",
+  "face_ancestry_parent_row_stats": {
+    "face_fine_detail_ancestry_indptr": {
+      "parent_rows_with_empty_ancestry": 6852,
+      "parent_rows_with_multi_parent_union": 126
+    },
+    "face_fine_subface_ancestry_indptr": {
+      "parent_rows_with_empty_ancestry": 6846,
+      "parent_rows_with_multi_parent_union": 132
+    },
+    "face_source_ancestry_indptr": {
+      "parent_rows_with_empty_ancestry": 0,
+      "parent_rows_with_multi_parent_union": 132
+    }
+  },
+  "face_centroid_count": 0,
+  "geometry_admitted": false,
+  "geometry_moved": false,
+  "historical_maps_preserved": [],
+  "historical_namespace_migrations": {
+    "prior_input_parent__": "prior_input_parent_546__"
+  },
+  "historical_prior_keys_preserved": [
+    "prior_input_006__refinement_boundary_semantics",
+    "prior_input_006__refinement_face_parent_barycentric",
+    "prior_input_006__refinement_face_parent_barycentric_semantics",
+    "prior_input_006__refinement_face_parent_face_row",
+    "prior_input_006__refinement_input_candidate_sha256",
+    "prior_input_006__refinement_input_face_report_sha256",
+    "prior_input_006__refinement_node_kind",
+    "prior_input_006__refinement_node_kind_semantics",
+    "prior_input_006__refinement_node_parent_edge_rows",
+    "prior_input_006__refinement_node_parent_edge_weights",
+    "prior_input_006__refinement_node_parent_face_barycentric",
+    "prior_input_006__refinement_node_parent_face_indptr",
+    "prior_input_006__refinement_node_parent_face_rows",
+    "prior_input_006__source_prolongation_indptr",
+    "prior_input_006__source_prolongation_node_rows",
+    "prior_input_006__source_prolongation_semantics",
+    "prior_input_006__source_prolongation_weights",
+    "prior_input_parent__refinement_boundary_semantics",
+    "prior_input_parent__refinement_face_parent_barycentric",
+    "prior_input_parent__refinement_face_parent_barycentric_semantics",
+    "prior_input_parent__refinement_face_parent_face_row",
+    "prior_input_parent__refinement_input_candidate_sha256",
+    "prior_input_parent__refinement_input_face_report_sha256",
+    "prior_input_parent__refinement_node_kind",
+    "prior_input_parent__refinement_node_kind_semantics",
+    "prior_input_parent__refinement_node_parent_edge_rows",
+    "prior_input_parent__refinement_node_parent_edge_weights",
+    "prior_input_parent__refinement_node_parent_face_barycentric",
+    "prior_input_parent__refinement_node_parent_face_indptr",
+    "prior_input_parent__refinement_node_parent_face_rows",
+    "prior_input_parent__source_prolongation_indptr",
+    "prior_input_parent__source_prolongation_node_rows",
+    "prior_input_parent__source_prolongation_semantics",
+    "prior_input_parent__source_prolongation_weights",
+    "prior_run028__refinement_boundary_semantics",
+    "prior_run028__refinement_face_parent_barycentric",
+    "prior_run028__refinement_face_parent_barycentric_semantics",
+    "prior_run028__refinement_face_parent_face_row",
+    "prior_run028__refinement_input_candidate_sha256",
+    "prior_run028__refinement_input_face_report_sha256",
+    "prior_run028__refinement_node_kind",
+    "prior_run028__refinement_node_kind_semantics",
+    "prior_run028__refinement_node_parent_edge_rows",
+    "prior_run028__refinement_node_parent_edge_weights",
+    "prior_run028__refinement_node_parent_face_barycentric",
+    "prior_run028__refinement_node_parent_face_indptr",
+    "prior_run028__refinement_node_parent_face_rows",
+    "prior_run028__source_prolongation_indptr",
+    "prior_run028__source_prolongation_node_rows",
+    "prior_run028__source_prolongation_semantics",
+    "prior_run028__source_prolongation_weights"
+  ],
+  "historical_prior_keys_preserved_count": 51,
+  "immediate_Q_nnz": 22973,
+  "immediate_Q_shape": [
+    21931,
+    20889
+  ],
+  "input_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/run-001/lineage/candidate.npz",
+  "input_candidate_sha256": "05b499db61f22492f4ee4611951bdb4e02e196a3175205dda862bc08befc7729",
+  "input_points": 20889,
+  "max_child_barycentric_parent_reconstruction_error_m": 5.960464477539063e-08,
+  "max_parent_area_relative_drift_037_reference": 0.0005196711574952586,
+  "max_parent_area_relative_drift_current_geometry": 0.00306619863663613,
+  "new_face_count": 43817,
+  "new_faces_inherit_full_parent_union": true,
+  "new_immediate_parent_csr_singleton_child_to_input_face": true,
+  "new_immediate_parent_namespace": "prior_input_parent__",
+  "new_node_count": 21931,
+  "new_nodes_created_by_affine_subdivision": true,
+  "old_face_count": 41733,
+  "old_input_immediate_parent_csr_archive_prefix": "prior_input_parent_546__input_",
+  "old_input_immediate_parent_csr_archived": true,
+  "old_node_count": 20889,
+  "old_point_prefix_bitwise_unchanged": true,
+  "output_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-001/candidate.npz",
+  "output_candidate_sha256": "f5392ccc260a170c8aff4ec84fc2f550dd0c8325d861084f505ef7cf28906e32",
+  "p037_refiner_sha256": "d3a6e0c31e34f2165d853ffaf411ad67faaa1d307a3af1a6c79ba41a129f4f31",
+  "p084_owner_sha256": "eab8deda28164964051a6fa6ff346b8d94bc8bede04e896411dfdd02d46594f6",
+  "parent_P_shape": [
+    20889,
+    13518
+  ],
+  "parent_prefix_node_count": 20889,
+  "parent_prefix_points_bytes_sha256": "bf46890d7daab64bad03a991e9dc762b260d5c0c4829cb182205239141a359e6",
+  "physical_steps": 0,
+  "pinned_037_refiner_sha256": "d3a6e0c31e34f2165d853ffaf411ad67faaa1d307a3af1a6c79ba41a129f4f31",
+  "pinned_084_owner_sha256": "eab8deda28164964051a6fa6ff346b8d94bc8bede04e896411dfdd02d46594f6",
+  "pinned_270_sha256": "70e391867c4aa5680dacdcba1244ec15962a5dc74dc9d67c31467cdaffb608db",
+  "pinned_546_adapter_sha256": "06081873eaf0d5452fbf4beee3d580a0eba97c3a546a9f7e7a06a0c9f548cbc6",
+  "protected_faces_proven_unchanged": [],
+  "refinement_method": "conforming edge-only affine midpoint bisection; no face-centroid nodes",
+  "scope_limit": "conforming affine subdivision and ancestry only; no bone clearance, mass transfer, material, native runtime, or physical admission",
+  "selected_edge_count": 1042,
+  "selected_edge_subset_policy": {
+    "candidate_edge_count": 1042,
+    "crossed_skin_face_count": 508,
+    "crossing_pair_count": 1577,
+    "excluded_candidate_edge_count": 0,
+    "max_edges": null,
+    "mode": "all_edges_of_validated_crossed_faces",
+    "ranking_basis": "sum of exact bank triangle-pair witness counts on incident crossed skin faces; not a claim of edge-triangle intersection",
+    "selected_edge_count": 1042,
+    "selected_edges_ranked": [
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          10503,
+          18706
+        ],
+        "pair_weighted_face_incidence": 23
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18706,
+          19762
+        ],
+        "pair_weighted_face_incidence": 21
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19450,
+          19735
+        ],
+        "pair_weighted_face_incidence": 18
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18492,
+          20171
+        ],
+        "pair_weighted_face_incidence": 17
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12694,
+          19092
+        ],
+        "pair_weighted_face_incidence": 16
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13609,
+          19900
+        ],
+        "pair_weighted_face_incidence": 16
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19061,
+          19063
+        ],
+        "pair_weighted_face_incidence": 16
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16343,
+          19450
+        ],
+        "pair_weighted_face_incidence": 15
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19063,
+          19064
+        ],
+        "pair_weighted_face_incidence": 15
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13609,
+          19260
+        ],
+        "pair_weighted_face_incidence": 14
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18018,
+          18835
+        ],
+        "pair_weighted_face_incidence": 14
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13609,
+          19890
+        ],
+        "pair_weighted_face_incidence": 13
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15084,
+          18831
+        ],
+        "pair_weighted_face_incidence": 13
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19030,
+          20087
+        ],
+        "pair_weighted_face_incidence": 13
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12694,
+          20329
+        ],
+        "pair_weighted_face_incidence": 13
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19092,
+          20329
+        ],
+        "pair_weighted_face_incidence": 13
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14795,
+          19692
+        ],
+        "pair_weighted_face_incidence": 12
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17073,
+          18492
+        ],
+        "pair_weighted_face_incidence": 12
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18422,
+          20864
+        ],
+        "pair_weighted_face_incidence": 12
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          10503,
+          19762
+        ],
+        "pair_weighted_face_incidence": 12
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          9106,
+          20171
+        ],
+        "pair_weighted_face_incidence": 11
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16748,
+          18729
+        ],
+        "pair_weighted_face_incidence": 11
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17073,
+          20171
+        ],
+        "pair_weighted_face_incidence": 11
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19149,
+          19405
+        ],
+        "pair_weighted_face_incidence": 11
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19576,
+          20849
+        ],
+        "pair_weighted_face_incidence": 11
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19823,
+          19830
+        ],
+        "pair_weighted_face_incidence": 11
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19890,
+          19900
+        ],
+        "pair_weighted_face_incidence": 11
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          10503,
+          18703
+        ],
+        "pair_weighted_face_incidence": 11
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18703,
+          18706
+        ],
+        "pair_weighted_face_incidence": 11
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14792,
+          19484
+        ],
+        "pair_weighted_face_incidence": 10
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14795,
+          19484
+        ],
+        "pair_weighted_face_incidence": 10
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14979,
+          19534
+        ],
+        "pair_weighted_face_incidence": 10
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17406,
+          18614
+        ],
+        "pair_weighted_face_incidence": 10
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18422,
+          20863
+        ],
+        "pair_weighted_face_incidence": 10
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18492,
+          20172
+        ],
+        "pair_weighted_face_incidence": 10
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18766,
+          19625
+        ],
+        "pair_weighted_face_incidence": 10
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18789,
+          20791
+        ],
+        "pair_weighted_face_incidence": 10
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18822,
+          20747
+        ],
+        "pair_weighted_face_incidence": 10
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18929,
+          19723
+        ],
+        "pair_weighted_face_incidence": 10
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19442,
+          20666
+        ],
+        "pair_weighted_face_incidence": 10
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          20747,
+          20751
+        ],
+        "pair_weighted_face_incidence": 10
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16343,
+          19735
+        ],
+        "pair_weighted_face_incidence": 10
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13468,
+          19228
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14366,
+          19405
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14447,
+          20666
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14728,
+          19993
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14792,
+          19483
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14981,
+          19534
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15665,
+          20761
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16696,
+          19605
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16748,
+          19476
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17966,
+          20704
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18789,
+          19641
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18799,
+          20521
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18831,
+          20773
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18834,
+          19667
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18835,
+          19668
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18835,
+          20773
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19063,
+          20204
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19131,
+          20470
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19414,
+          20791
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19443,
+          20673
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19577,
+          20849
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19625,
+          20416
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          20286,
+          20294
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          20849,
+          20853
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          9106,
+          18492
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13609,
+          19261
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18706,
+          19603
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19061,
+          19064
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19261,
+          19900
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19603,
+          19762
+        ],
+        "pair_weighted_face_incidence": 9
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          9721,
+          20185
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13468,
+          19231
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13468,
+          20810
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14450,
+          20733
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14979,
+          20486
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14981,
+          19131
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14981,
+          20464
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15073,
+          19191
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15665,
+          19667
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15919,
+          18866
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16987,
+          20087
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17782,
+          20521
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17960,
+          20677
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18423,
+          20870
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18490,
+          20172
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18591,
+          20185
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18695,
+          19842
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18831,
+          20758
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18834,
+          20758
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18929,
+          18930
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18945,
+          19450
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18966,
+          19818
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19091,
+          20318
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19146,
+          19149
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19213,
+          20766
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19256,
+          20258
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19542,
+          20546
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19641,
+          20792
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19649,
+          20488
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19664,
+          20766
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19682,
+          19823
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13609,
+          19891
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14623,
+          19450
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14623,
+          19735
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17406,
+          19522
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18614,
+          19522
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19260,
+          19891
+        ],
+        "pair_weighted_face_incidence": 8
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          9106,
+          18488
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          9106,
+          20215
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          9721,
+          18587
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          11851,
+          18937
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          11851,
+          20686
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13103,
+          19178
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13103,
+          20629
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14259,
+          19363
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14285,
+          18491
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14363,
+          18799
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14446,
+          20670
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14450,
+          18826
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14728,
+          19003
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14979,
+          19649
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15073,
+          19555
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15919,
+          19347
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16641,
+          19899
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16751,
+          20007
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17070,
+          20163
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17961,
+          19724
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17965,
+          19723
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18422,
+          20791
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18587,
+          20185
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18730,
+          20016
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18766,
+          20415
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18797,
+          20807
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18822,
+          18824
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18826,
+          18830
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18827,
+          20771
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18910,
+          20523
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18966,
+          19823
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19104,
+          20366
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19122,
+          20416
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19126,
+          20425
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19137,
+          20488
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19153,
+          20546
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19211,
+          20751
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19226,
+          20802
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19367,
+          20318
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19405,
+          20521
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19446,
+          20733
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19462,
+          19818
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19524,
+          20366
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19534,
+          20463
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19555,
+          20677
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19558,
+          20704
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19643,
+          20807
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19692,
+          20073
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          20182,
+          20189
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          20755,
+          20761
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15084,
+          20773
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15904,
+          19823
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15904,
+          19830
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18018,
+          19668
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18018,
+          20773
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18422,
+          20871
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18729,
+          19476
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18789,
+          19414
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19030,
+          19691
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19061,
+          20203
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19063,
+          20203
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19081,
+          20286
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19081,
+          20294
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19440,
+          19443
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19440,
+          20673
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19483,
+          19484
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19484,
+          19692
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19576,
+          20853
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19577,
+          19578
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19578,
+          20849
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19691,
+          20087
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20864,
+          20871
+        ],
+        "pair_weighted_face_incidence": 7
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          9721,
+          20157
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          10442,
+          18692
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          10442,
+          18695
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          10442,
+          19462
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          10555,
+          18729
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          11124,
+          20771
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12105,
+          18943
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12266,
+          18966
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12694,
+          19091
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12787,
+          20412
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12792,
+          20416
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12939,
+          19136
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12939,
+          19137
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13103,
+          19181
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13168,
+          20696
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13639,
+          18973
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13869,
+          20643
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14259,
+          19364
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14278,
+          19376
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14303,
+          19387
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14367,
+          18807
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14367,
+          19407
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14450,
+          20730
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14824,
+          19051
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14824,
+          20164
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14825,
+          20182
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14926,
+          18767
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15070,
+          17966
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15074,
+          19558
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15074,
+          20703
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15919,
+          19997
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16558,
+          18970
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16558,
+          19833
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16641,
+          18439
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16696,
+          18710
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16716,
+          18457
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16751,
+          19010
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17076,
+          18591
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17094,
+          20204
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17282,
+          19367
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17282,
+          20317
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17402,
+          20362
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17789,
+          20537
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17793,
+          19542
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17793,
+          20545
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17960,
+          18641
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17966,
+          18642
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17966,
+          20699
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18010,
+          19211
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18346,
+          18798
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18491,
+          20218
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18573,
+          19469
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18587,
+          20157
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18590,
+          20157
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18600,
+          20275
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18600,
+          20281
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18730,
+          20021
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18859,
+          19970
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18875,
+          20077
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18933,
+          20686
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18934,
+          18937
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19101,
+          20362
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19117,
+          20412
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19120,
+          20411
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19120,
+          20412
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19121,
+          20421
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19121,
+          20425
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19149,
+          20523
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19178,
+          20629
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19181,
+          20629
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19226,
+          20797
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19227,
+          19643
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19271,
+          19860
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19387,
+          20353
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19438,
+          20666
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19538,
+          20523
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19684,
+          19964
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19703,
+          20184
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19705,
+          20204
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19724,
+          20682
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19842,
+          19847
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          20406,
+          20412
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          20544,
+          20545
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13468,
+          19234
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14366,
+          19149
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14447,
+          19442
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14981,
+          20470
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15084,
+          20758
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16987,
+          19030
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18490,
+          18492
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18766,
+          20416
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18789,
+          20792
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18822,
+          20751
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18930,
+          19723
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19064,
+          20204
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19213,
+          19664
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19228,
+          19234
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19260,
+          19890
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19534,
+          20464
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19534,
+          20486
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19667,
+          20758
+        ],
+        "pair_weighted_face_incidence": 6
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          9106,
+          18496
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          10555,
+          20016
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          10806,
+          20406
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12105,
+          18944
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12105,
+          18945
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12105,
+          19730
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12625,
+          20237
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12694,
+          20322
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12939,
+          19141
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13029,
+          19153
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13029,
+          20551
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13103,
+          20628
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13179,
+          20743
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13638,
+          19834
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13869,
+          19178
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14175,
+          19942
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14187,
+          19347
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14282,
+          20196
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14303,
+          20352
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14304,
+          20374
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14447,
+          19188
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14715,
+          18861
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14715,
+          19932
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14865,
+          19508
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14865,
+          20262
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15073,
+          20684
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15152,
+          18793
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15911,
+          19684
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15972,
+          19705
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15972,
+          20198
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15984,
+          19105
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16563,
+          18972
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16710,
+          18460
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16710,
+          19941
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16716,
+          19338
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16716,
+          19958
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16717,
+          19964
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16749,
+          19006
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16751,
+          19011
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16751,
+          19613
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16756,
+          19011
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17069,
+          18590
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17070,
+          19054
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17074,
+          19702
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17076,
+          20189
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17093,
+          18897
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17093,
+          20198
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17224,
+          19365
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17224,
+          20282
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17282,
+          18480
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17401,
+          18500
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17401,
+          20353
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17401,
+          20354
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17408,
+          20373
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17623,
+          19136
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17859,
+          20628
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17863,
+          18841
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17863,
+          20639
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17955,
+          19438
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17960,
+          20676
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17961,
+          19194
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17965,
+          19197
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18489,
+          18496
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18491,
+          20215
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18573,
+          19979
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18603,
+          19508
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18708,
+          19338
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18708,
+          19907
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18763,
+          20415
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18767,
+          20406
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18767,
+          20427
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18793,
+          20804
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18797,
+          20804
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18798,
+          20819
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18821,
+          18824
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18859,
+          19967
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18875,
+          18879
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18879,
+          20073
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18945,
+          19736
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18970,
+          19268
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19003,
+          19999
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19006,
+          19999
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19104,
+          19105
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19105,
+          20370
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19105,
+          20378
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19121,
+          20420
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19125,
+          20421
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19126,
+          20424
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19195,
+          20696
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19197,
+          20696
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19202,
+          19446
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19203,
+          20743
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19209,
+          20755
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19211,
+          20755
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19215,
+          20766
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19218,
+          20766
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19222,
+          20802
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19227,
+          20802
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19339,
+          19958
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19339,
+          19965
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19363,
+          20282
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19379,
+          20196
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19390,
+          20373
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19407,
+          20532
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19438,
+          20663
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19469,
+          19967
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19538,
+          20508
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19579,
+          20242
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19684,
+          19970
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19702,
+          20176
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19703,
+          20176
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19704,
+          20198
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19715,
+          20870
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19942,
+          20013
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          20182,
+          20184
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          20358,
+          20374
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          20508,
+          20509
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14363,
+          20521
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14446,
+          19440
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14450,
+          18830
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14728,
+          19478
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14795,
+          20073
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14979,
+          20488
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16343,
+          18945
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16696,
+          19913
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17960,
+          19555
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17966,
+          19558
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18423,
+          19246
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18488,
+          20215
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18966,
+          19462
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19104,
+          19524
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19146,
+          19405
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19191,
+          19555
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19231,
+          20810
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19246,
+          20870
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19440,
+          20670
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19478,
+          19993
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19605,
+          19913
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19667,
+          20761
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20791,
+          20863
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20863,
+          20864
+        ],
+        "pair_weighted_face_incidence": 5
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          9106,
+          18491
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          9106,
+          20218
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          9913,
+          18623
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          9913,
+          20512
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          9913,
+          20544
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          10442,
+          19841
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          10806,
+          18767
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          10806,
+          20427
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          11124,
+          18830
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12367,
+          19965
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12694,
+          19094
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12782,
+          19104
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12792,
+          20421
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          12792,
+          20424
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13639,
+          19860
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          13761,
+          19121
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14282,
+          18489
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14283,
+          18490
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14283,
+          20179
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14303,
+          18763
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14304,
+          19390
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14305,
+          19101
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14363,
+          20480
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14369,
+          19411
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14369,
+          19412
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14445,
+          18821
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14445,
+          20663
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14446,
+          18933
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14447,
+          20673
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14824,
+          19496
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14824,
+          20159
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14865,
+          18745
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          14865,
+          20278
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15070,
+          19553
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15074,
+          19195
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15344,
+          19847
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15528,
+          19123
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15528,
+          19631
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15605,
+          19223
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15605,
+          19641
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15666,
+          19215
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15666,
+          19668
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15914,
+          18995
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          15914,
+          19950
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16555,
+          19462
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16563,
+          19847
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16707,
+          18570
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16707,
+          19470
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16707,
+          19933
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16710,
+          19341
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16710,
+          19343
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16713,
+          18864
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16713,
+          19686
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16713,
+          19949
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16717,
+          19002
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16749,
+          19688
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16756,
+          20021
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          16987,
+          19487
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17046,
+          20122
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17070,
+          20164
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17093,
+          19379
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17170,
+          19071
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17217,
+          20263
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17401,
+          19391
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17402,
+          18501
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17406,
+          19524
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17406,
+          20365
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17408,
+          18901
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17408,
+          20378
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17620,
+          20469
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17623,
+          20480
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17859,
+          19181
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          17961,
+          20684
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18480,
+          19364
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18489,
+          20217
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18501,
+          20358
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18517,
+          19407
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18517,
+          19411
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18565,
+          19972
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18569,
+          19979
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18570,
+          19934
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18571,
+          19934
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18571,
+          19972
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18572,
+          19972
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18572,
+          19979
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18590,
+          19496
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18602,
+          20275
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18603,
+          20281
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18623,
+          20512
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18623,
+          20544
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18628,
+          20509
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18628,
+          20512
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18629,
+          20544
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18710,
+          19907
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18725,
+          19613
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18725,
+          20013
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18771,
+          20427
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18793,
+          20819
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18821,
+          20746
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18856,
+          19967
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18861,
+          19948
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18864,
+          19948
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18934,
+          19724
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18995,
+          19343
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          18999,
+          19965
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19002,
+          19965
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19071,
+          19579
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19071,
+          20237
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19101,
+          19391
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19123,
+          20424
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19181,
+          20628
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19202,
+          20742
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19206,
+          20742
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19206,
+          20743
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19215,
+          20779
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19223,
+          20797
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19268,
+          19834
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19338,
+          19956
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19341,
+          19942
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19343,
+          19945
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19365,
+          20286
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19391,
+          20355
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19403,
+          20480
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19411,
+          20533
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19412,
+          20537
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19412,
+          20542
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19470,
+          19932
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19483,
+          19487
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19497,
+          20164
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19553,
+          20676
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19556,
+          20684
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19571,
+          20849
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19579,
+          20236
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19598,
+          19847
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19613,
+          20006
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19631,
+          20431
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19668,
+          20774
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19686,
+          19950
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19688,
+          19997
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          19702,
+          20179
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 2,
+        "edge": [
+          20427,
+          20431
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          9721,
+          18591
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          10442,
+          19842
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          10555,
+          16748
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          11124,
+          18827
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          11851,
+          18933
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          11851,
+          18934
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12694,
+          20318
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12792,
+          19122
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12939,
+          20488
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13103,
+          19184
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13639,
+          19854
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13869,
+          19315
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14229,
+          18875
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14229,
+          20077
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14285,
+          20218
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14450,
+          19446
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14825,
+          20189
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14979,
+          20463
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15070,
+          20699
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15665,
+          20755
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16641,
+          19261
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17070,
+          19700
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17073,
+          20172
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17076,
+          20185
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17402,
+          19101
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17782,
+          18799
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17782,
+          19405
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17789,
+          19409
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17793,
+          20544
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17793,
+          20546
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17961,
+          20682
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17965,
+          18929
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18415,
+          19576
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18415,
+          20849
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18562,
+          19890
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18562,
+          19900
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18642,
+          20704
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18692,
+          19462
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18695,
+          19847
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18710,
+          19605
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18797,
+          19643
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18824,
+          20747
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18866,
+          19347
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18866,
+          19997
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18910,
+          19538
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18966,
+          19682
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18973,
+          19854
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19003,
+          19993
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19010,
+          20007
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19051,
+          20164
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19091,
+          19367
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19121,
+          19126
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19153,
+          19542
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19178,
+          19184
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19211,
+          20747
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19256,
+          19586
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19256,
+          20252
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19261,
+          19899
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19271,
+          19599
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19315,
+          20643
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19363,
+          19364
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19409,
+          20537
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19438,
+          19442
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19558,
+          20703
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19586,
+          20258
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19599,
+          19860
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19625,
+          20415
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19682,
+          19830
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19700,
+          20163
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20016,
+          20021
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20252,
+          20258
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20275,
+          20281
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20730,
+          20733
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20797,
+          20802
+        ],
+        "pair_weighted_face_incidence": 4
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          9106,
+          18489
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          9721,
+          18590
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          10555,
+          18730
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          10806,
+          20412
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12105,
+          18941
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12266,
+          19818
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12266,
+          19823
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12625,
+          19068
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12787,
+          19117
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12787,
+          19120
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12939,
+          17623
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13029,
+          19156
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13029,
+          20546
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13103,
+          19179
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13168,
+          19195
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13168,
+          19197
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13179,
+          19203
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13468,
+          19229
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13638,
+          19846
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13869,
+          20629
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14175,
+          20013
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14187,
+          15919
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14259,
+          20282
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14278,
+          19370
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14278,
+          19371
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14282,
+          19379
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14285,
+          20215
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14303,
+          20353
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14304,
+          20358
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14366,
+          20521
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14367,
+          20532
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14367,
+          20558
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14728,
+          19999
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14792,
+          14795
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14865,
+          18603
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14865,
+          19507
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14926,
+          20406
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14926,
+          20427
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14981,
+          20463
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15152,
+          20804
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15664,
+          18827
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15664,
+          20771
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15665,
+          18834
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15911,
+          19964
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15972,
+          19704
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15972,
+          20204
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15984,
+          20378
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16558,
+          19268
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16558,
+          19593
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16563,
+          19846
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16641,
+          19265
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16717,
+          19684
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16749,
+          19999
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16751,
+          16756
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17069,
+          20157
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17073,
+          19377
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17074,
+          20176
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17076,
+          20182
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17094,
+          19063
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17094,
+          19705
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17282,
+          20318
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17401,
+          19387
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17408,
+          19390
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17859,
+          19670
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17863,
+          19672
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17863,
+          20638
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17955,
+          20663
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18010,
+          20751
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18010,
+          20755
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18346,
+          20819
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18346,
+          20820
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18423,
+          19715
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18439,
+          19265
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18439,
+          19899
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18457,
+          19338
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18457,
+          19958
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18460,
+          19941
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18480,
+          20317
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18500,
+          20354
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18573,
+          19967
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18641,
+          20676
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18641,
+          20677
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18662,
+          19579
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18662,
+          20242
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18763,
+          18766
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18798,
+          20820
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18807,
+          19407
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18807,
+          20558
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18821,
+          18822
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18841,
+          20638
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18859,
+          19684
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18861,
+          19932
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18875,
+          20073
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18897,
+          20198
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18910,
+          19149
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18937,
+          20686
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18941,
+          18944
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18943,
+          18945
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18943,
+          19730
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18970,
+          19833
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18972,
+          19846
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19054,
+          20163
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19068,
+          20237
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19092,
+          20322
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19104,
+          20370
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19115,
+          19120
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19115,
+          20411
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19117,
+          20406
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19121,
+          19125
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19122,
+          19625
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19131,
+          19134
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19134,
+          20470
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19136,
+          19141
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19137,
+          19649
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19146,
+          20523
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19156,
+          20551
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19179,
+          20628
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19188,
+          20666
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19191,
+          20684
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19194,
+          19724
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19197,
+          19723
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19202,
+          20733
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19209,
+          20761
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19215,
+          19218
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19222,
+          19226
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19227,
+          20807
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19228,
+          20810
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19229,
+          19231
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19338,
+          19907
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19365,
+          20282
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19367,
+          20317
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19370,
+          19376
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19371,
+          19376
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19377,
+          20171
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19387,
+          20352
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19450,
+          19736
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19469,
+          19979
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19507,
+          20262
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19538,
+          20509
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19593,
+          19833
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19613,
+          20007
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19641,
+          20791
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19643,
+          20802
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19670,
+          20628
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19672,
+          20639
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19703,
+          20182
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19834,
+          19846
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19958,
+          19965
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19967,
+          19970
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20157,
+          20185
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20176,
+          20184
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20411,
+          20412
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20420,
+          20421
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20424,
+          20425
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20804,
+          20807
+        ],
+        "pair_weighted_face_incidence": 3
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          9913,
+          18628
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          9913,
+          18629
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          10442,
+          16555
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          10806,
+          18771
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          11124,
+          18826
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          11849,
+          18929
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          11849,
+          18930
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12105,
+          19736
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12367,
+          18999
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12367,
+          19002
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12625,
+          19071
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12782,
+          19105
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12782,
+          20366
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12792,
+          19123
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12792,
+          19125
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          12792,
+          19126
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13179,
+          19206
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13638,
+          19268
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13639,
+          19271
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13761,
+          20420
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          13761,
+          20425
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14175,
+          19341
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14187,
+          18463
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14259,
+          18480
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14282,
+          20217
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14283,
+          19702
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14283,
+          20172
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14303,
+          20415
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14304,
+          20373
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14305,
+          19391
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14305,
+          20362
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14363,
+          19403
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14369,
+          20533
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14369,
+          20542
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14445,
+          19438
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14445,
+          20746
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14446,
+          20686
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14447,
+          19443
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14715,
+          19470
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14715,
+          19948
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14792,
+          19487
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14824,
+          18590
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14824,
+          19497
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          14825,
+          20184
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15070,
+          20676
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15073,
+          19556
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15073,
+          20677
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15074,
+          20696
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15074,
+          20704
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15152,
+          20819
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15344,
+          19598
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15344,
+          19842
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15528,
+          20424
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15528,
+          20431
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15605,
+          20792
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15605,
+          20797
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15666,
+          20774
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15666,
+          20779
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15911,
+          19970
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15914,
+          19343
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15914,
+          19686
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15919,
+          19688
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          15984,
+          20370
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16015,
+          19715
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16015,
+          20870
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16555,
+          19818
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16563,
+          19598
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16696,
+          19907
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16707,
+          19932
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16707,
+          19934
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16710,
+          19942
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16710,
+          19945
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16713,
+          19948
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16713,
+          19950
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16716,
+          19339
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16716,
+          19956
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16717,
+          19965
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16748,
+          18576
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16749,
+          19997
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16751,
+          20006
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16756,
+          18730
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          16987,
+          19483
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17046,
+          18485
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17046,
+          19373
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17069,
+          19496
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17070,
+          19497
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17074,
+          20179
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17093,
+          19704
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17093,
+          20196
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17170,
+          19579
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17170,
+          20237
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17217,
+          18601
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17217,
+          19507
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17221,
+          18602
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17221,
+          20275
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17224,
+          19363
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17224,
+          20286
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17282,
+          19364
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17401,
+          20355
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17402,
+          20358
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17406,
+          20366
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17408,
+          19105
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17620,
+          19134
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17620,
+          19709
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17623,
+          19403
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17789,
+          19412
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17859,
+          20629
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17955,
+          20666
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17960,
+          19553
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17961,
+          19556
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17965,
+          20696
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          17966,
+          19553
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18422,
+          19414
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18460,
+          19343
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18463,
+          19347
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18485,
+          20122
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18488,
+          20171
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18489,
+          20196
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18490,
+          20179
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18496,
+          20217
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18496,
+          20218
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18500,
+          20353
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18501,
+          20362
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18501,
+          20374
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18517,
+          20532
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18517,
+          20533
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18565,
+          18571
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18565,
+          18572
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18569,
+          18572
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18569,
+          18573
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18570,
+          18571
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18570,
+          19933
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18576,
+          19476
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18591,
+          20189
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18600,
+          18602
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18600,
+          18603
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18601,
+          20263
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18614,
+          20365
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18628,
+          20508
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18629,
+          20545
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18642,
+          20699
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18692,
+          19841
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18695,
+          19841
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18708,
+          18710
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18708,
+          19956
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18725,
+          19942
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18725,
+          20006
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18729,
+          20016
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18745,
+          20262
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18745,
+          20278
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18763,
+          20352
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18771,
+          20431
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18793,
+          18797
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18793,
+          18798
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18799,
+          20480
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18821,
+          20663
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18824,
+          20746
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18826,
+          20730
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18830,
+          20771
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18831,
+          18834
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18831,
+          18835
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18835,
+          20774
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18841,
+          20639
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18856,
+          18859
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18856,
+          19469
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18861,
+          18864
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18864,
+          19949
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18879,
+          19692
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18879,
+          20077
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18897,
+          19379
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18901,
+          20373
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18901,
+          20378
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18933,
+          20670
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18934,
+          20682
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18937,
+          19724
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18944,
+          19730
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18970,
+          19834
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18972,
+          19847
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18973,
+          19860
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18995,
+          19945
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18995,
+          19950
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          18999,
+          19339
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19002,
+          19964
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19003,
+          19006
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19006,
+          19688
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19010,
+          19011
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19011,
+          20021
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19051,
+          20159
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19054,
+          20164
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19071,
+          20236
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19091,
+          19094
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19094,
+          20322
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19101,
+          20355
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19123,
+          19631
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19131,
+          20464
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19134,
+          20469
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19136,
+          20480
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19137,
+          19141
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19153,
+          20551
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19178,
+          20643
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19188,
+          20673
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19194,
+          20684
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19195,
+          20703
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19202,
+          19206
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19203,
+          19726
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19209,
+          19211
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19213,
+          19218
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19215,
+          19668
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19222,
+          19227
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19223,
+          19226
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19223,
+          19641
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19341,
+          19941
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19365,
+          20294
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19373,
+          20122
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19390,
+          20374
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19391,
+          20354
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19407,
+          19411
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19411,
+          19412
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19446,
+          20742
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19470,
+          19933
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19487,
+          20087
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19496,
+          20159
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19507,
+          20263
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19508,
+          20278
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19508,
+          20281
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19524,
+          20365
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19542,
+          20545
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19571,
+          19577
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19571,
+          20853
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19613,
+          20013
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19631,
+          20427
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19649,
+          20486
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19664,
+          20764
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19686,
+          19949
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19702,
+          19703
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19705,
+          20198
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19709,
+          20469
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19726,
+          20743
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19934,
+          19972
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          19972,
+          19979
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20236,
+          20242
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20416,
+          20421
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20508,
+          20523
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20509,
+          20512
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20512,
+          20544
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20537,
+          20542
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20742,
+          20743
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20764,
+          20766
+        ],
+        "pair_weighted_face_incidence": 2
+      },
+      {
+        "crossed_face_incidence": 1,
+        "edge": [
+          20766,
+          20779
+        ],
+        "pair_weighted_face_incidence": 2
+      }
+    ],
+    "unselected_edge_rows_remain_unresolved": false
+  },
+  "status": "REFINEMENT_CONSTRUCTION_READY",
+  "unique_crossed_parent_face_count": 508
+}

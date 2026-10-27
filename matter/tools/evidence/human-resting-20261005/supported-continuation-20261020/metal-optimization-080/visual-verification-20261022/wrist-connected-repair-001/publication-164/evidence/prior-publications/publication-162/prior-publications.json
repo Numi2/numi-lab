@@ -1,0 +1,21 @@
+{
+  "P095_orientation_dependency": {
+    "local_source_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-095/evidence/target-004/source-path-orientation-audit-112.json",
+    "package_path": "evidence/prior-publications/publication-095/source-path-orientation-audit-112.json",
+    "remote_presence_claimed": false,
+    "sha256": "e43908188f134182635ac36a9a1602abad1918df374a04f3f7cc9eb1812d7497"
+  },
+  "P160": {
+    "commit": "23e1c2a55842cafd62be2d441ee33be53a6829bd",
+    "prefix": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-160"
+  },
+  "P161": {
+    "commit": "ce7e5a0b18455b56a40866e609b008b972554537",
+    "commit_subject": "Publish offline construction evidence through 1595 surface pairs",
+    "manifest_member_count": 641,
+    "manifest_sha256": "f4b5869ecb9f826a6cb6e203ec49d3f267ece6dfc0bb3e03b13c349fc5e467c6",
+    "prefix": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161"
+  },
+  "parent_main_commit": "ce7e5a0b18455b56a40866e609b008b972554537",
+  "schema": "numi.human.surface_clearance.p162.prior_publications.v1"
+}

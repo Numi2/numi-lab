@@ -1,0 +1,28 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/baseline-state.json",
+    "--target",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/fit/candidate.npz",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/retention-582-001",
+    "--trust-mm",
+    "4",
+    "--max-edge-gradient",
+    ".5"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/baseline-state.json": "80f63f628ab61dd5bdefdafefb9f210d02af20daf944727b706985efea609e0a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py": "08bb82034180636d0ff798ad503735b6a50327bf52cc3c62bffb75d0265ff57a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/check607.py": "ca0c8936b348cbde5276d3cd868fb646d0c129ba0804a7dba703af5bedf7ef45",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/fit/candidate.npz": "0c4f09204f4b014f12851ae5c15b858dbef1cef837feed47c1f44d43602359b3",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-607-002/target-selection.json": "ab943dfb68d0242d830d2c73afee0de00e1b351974095286402e01a669d5b14f"
+  }
+}
