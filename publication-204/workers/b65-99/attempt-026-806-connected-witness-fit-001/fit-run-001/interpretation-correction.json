@@ -1,0 +1,44 @@
+{
+  "alpha_one_layer_violations": 155,
+  "alpha_one_shape_pass": true,
+  "backtrack_trial_count": 17,
+  "eligible_shape_and_layer_pass_count": 0,
+  "emitted_layer_fail_count": 17,
+  "emitted_layer_pass_count": 0,
+  "emitted_shape_fail_count": 1,
+  "emitted_shape_pass_count": 16,
+  "geometry_or_native_admission": false,
+  "largest_shape_passing_alpha": 1.0,
+  "next_bounded_correction": "Freeze only the five movable nodes incident to the three face rows (14093,14105,14106) that account for all 18 worst-scale layer violations; rerun the same single-step witness fit once.",
+  "preserved_source_status": "PRIVATE_REJECTED_NO_BACKTRACKED_HARD_SHAPE_FEASIBLE",
+  "schema": "numi.human.bank65_99.connected_fit.interpretation_correction.v1",
+  "smallest_alpha": 1.52587890625e-05,
+  "smallest_alpha_layer_violations": 18,
+  "smallest_alpha_violating_faces": [
+    14093,
+    14105,
+    14106
+  ],
+  "smallest_alpha_worst_existing_nonpositive_cell_delta_mm3": -3.1581344800066247e-06,
+  "source_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/fit-run-001/report.json",
+  "source_report_sha256": "bcc1e4b00d968816fc68aeb0e97fafb55de523c7c9a47ffa753c7f4c92254fc5",
+  "status": "REJECTED_NO_EMITTED_LAYER_NONREGRESSION_STEP",
+  "status_clarification": "PRIVATE_REJECTED_NO_BACKTRACKED_HARD_SHAPE_FEASIBLE refers to the combined shape-plus-layer eligibility predicate; it must not be read as a shape-only failure.",
+  "target_result_at_alpha_one": {
+    "inside_nodes_before_after": [
+      29,
+      29
+    ],
+    "mapped_new_identities": 3,
+    "mapped_parent_pairs_before_after": [
+      84,
+      87
+    ],
+    "mapped_removed_identities": 0,
+    "raw_pairs_before_after": [
+      148,
+      152
+    ],
+    "strict_improvement": false
+  }
+}

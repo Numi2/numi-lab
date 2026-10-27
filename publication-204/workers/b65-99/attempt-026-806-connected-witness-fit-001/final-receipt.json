@@ -1,0 +1,295 @@
+{
+  "baseline": {
+    "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/audit-159/report.json",
+    "audit159_sha256": "4cc8fd5d5e8fb651733fd380001e2b9847a0040960d7c8865c37f25fe5b8a09d",
+    "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz",
+    "candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+    "full_skin_self_pairs": 0,
+    "inside_patch_nodes": 29,
+    "mapped_parent_pairs": 84,
+    "raw_pairs": 148,
+    "target_bank": [
+      65,
+      99
+    ]
+  },
+  "candidate_admitted": false,
+  "first_connected_fit": {
+    "alpha_one_diagnostic": {
+      "diagnostic_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/fit-run-001/diagnostic-alpha-1-shape-only.npz",
+      "diagnostic_candidate_sha256": "fb8bc1d2977a8fa88d2e3b68bf79befcc0f3f81fda947d55f808a30a1faab4a0",
+      "executed_script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/screen_saved_direction_alpha1.executed.py",
+      "executed_script_sha256": "e4f3188d7403e1e8acc4590eec2d7d7ec0bb18f4dbcd4078a46c201dc28d9a8e",
+      "inside_nodes_before_after": [
+        29,
+        29
+      ],
+      "mapped_added": [
+        [
+          13989,
+          95
+        ],
+        [
+          13996,
+          95
+        ],
+        [
+          13997,
+          104
+        ]
+      ],
+      "mapped_pairs_before_after": [
+        84,
+        87
+      ],
+      "mapped_removed": [],
+      "new_inside_nodes": [],
+      "normalized_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/fit-run-001/saved-direction-alpha-1-screen.json",
+      "normalized_report_sha256": "93c445db9eaee66cd7f1a71966ad82c19859b5e6dc9194c7a33bfd978f385b6b",
+      "raw_pairs_before_after": [
+        148,
+        152
+      ],
+      "raw_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/fit-run-001/saved-direction-alpha-1-screen.raw.json",
+      "raw_report_sha256": "24ac851c45e16eab1188cdf139eb23d4e3c115f69f91c4e321dbfca1a101b1db",
+      "resolved_inside_nodes": []
+    },
+    "corrected_gate_counts": {
+      "backtracks": 17,
+      "combined_shape_and_layer_pass": 0,
+      "emitted_layer_fail": 17,
+      "emitted_layer_pass": 0,
+      "emitted_shape_fail": 1,
+      "emitted_shape_pass": 16
+    },
+    "first_layer_failure_witnesses": {
+      "alpha_one_min_positive_cell_ratio": 0.0989576473979791,
+      "alpha_one_violations": 155,
+      "skin_and_fat_face_rows": [
+        14093,
+        14105,
+        14106
+      ],
+      "smallest_alpha": 1.52587890625e-05,
+      "tetra_violations": 18,
+      "worst_existing_nonpositive_cell_delta_mm3": -3.1581344800066247e-06
+    },
+    "interpretation_correction_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/fit-run-001/interpretation-correction.json",
+    "interpretation_correction_sha256": "b553cd920398f415e24705f22ae23d2728efeb669737f16cd777b32e8ef3c33d",
+    "lp": {
+      "direction_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/fit-run-001/lp-direction.npz",
+      "direction_sha256": "8304a756036e9e36133e14ac11beb6eeb8b26fae4748506daa6e69da87118641",
+      "iterations": 1257,
+      "positive_witness_slacks": 4,
+      "rows": 4473,
+      "slack_max_mm": 0.028892085665008286,
+      "slack_sum_mm": 0.11353273315833867,
+      "success": true,
+      "variables": 860
+    },
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/fit-run-001/report.json",
+    "report_sha256": "bcc1e4b00d968816fc68aeb0e97fafb55de523c7c9a47ffa753c7f4c92254fc5",
+    "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/fit_current_806_connected_witnesses.py",
+    "script_sha256": "962f523939bfe7da1b4683e21cd2d999c3541f18e16c00a91dc0137fd9b7fa7c"
+  },
+  "fresh_witnesses": {
+    "builder_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/build_current_806_endpoints.py",
+    "builder_sha256": "f47a7d1e917a8af7cd9d7a4a2b7e966c1ddc6e296e9fe487057fe855e4c366ad",
+    "distinct_exact_point_count": 148,
+    "endpoint_receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/current-exact-endpoints.json",
+    "endpoint_receipt_sha256": "e96c4eee2df586b34cb146adb416e94b451a88f9daf4396cc16f6f9ab334f7fc",
+    "mapped_parent_identity_count": 84,
+    "pair_count": 148,
+    "pair_manifest_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/current-pair-manifest.json",
+    "pair_manifest_sha256": "9262198695b2a1ea6a403615d7561c2fa712146754be4bcdbef88ca6bf1ff165",
+    "rational_endpoint_count": 296,
+    "rebuilt_from_current_806_audit159": true
+  },
+  "geometry_or_native_admission": false,
+  "layer_transfer_tooling": {
+    "baseline_806_parity_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-024-topology-independent-layer-transfer-001/generic-parity-806-final-002/report.json",
+    "baseline_806_parity_report_sha256": "0791b4cf854731479b75554c19075d4b57e34a45836a06813e12b04d50718806",
+    "limitations": [
+      "No parent-tet/material/mass ownership is present in the pinned inputs.",
+      "Parity and negative schema tests do not establish physical admission."
+    ],
+    "negative_tests_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-024-topology-independent-layer-transfer-001/chart-rejection-tests-001/negative-tests-report.json",
+    "negative_tests_report_sha256": "5d398641eb8287869010148fa8835f65c4bc359d3d1b9cf4f4751a8d0809a0a0",
+    "negative_tests_status": "PASS_NEGATIVE_TESTS",
+    "parity_arrays_equal": 27,
+    "parity_layer_output_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-024-topology-independent-layer-transfer-001/generic-parity-806-final-002/skin-fat-layers-541.npz",
+    "parity_layer_output_sha256": "f4c36a5ae70ed92e5322bff850e9745455edaa0e0c1e76053338d6d47dfd76cd",
+    "parity_status": "PARITY_PASS_DIAGNOSTIC",
+    "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-024-topology-independent-layer-transfer-001/transfer_topology_independent_541.py",
+    "script_sha256": "fb53b372fd534a1f81e29944a1455ef249b674d4c8c043940fca442c3a7aad51"
+  },
+  "next_direction": "This one-step witness fit has no useful displacement at current Float32 resolution under the local layer gate. Any new method must produce a measurable target mapped-identity reduction, resolve inside nodes, and maintain emitted layer-cell nonregression; stop this LP/freeze variant here.",
+  "no_full_audit_or_promotion": true,
+  "schema": "numi.human.bank65_99.bounded-current806-work-receipt.v1",
+  "shared_baseline_modified": false,
+  "status": "REJECTED_NO_65_99_REPAIR_PROGRESS",
+  "targeted_layer_witness_freeze_fit": {
+    "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/fit-run-002/candidate-private-iteration-01.npz",
+    "candidate_remains_private_and_rejected": true,
+    "candidate_sha256": "a6bdea76aeee9e088062aec0d8748dd7a9105d90717e335d9ed5133f2b374e9c",
+    "construction_only_freeze": true,
+    "emitted_layer_gate": {
+      "baseline_nonpositive_count": 933,
+      "baseline_positive_count": 447,
+      "checked_tetrahedra": 1380,
+      "first_violations": [],
+      "minimum_baseline_positive_new_to_old_ratio": 0.9999435810798295,
+      "minimum_margin_mm3": 0.0,
+      "pass": true,
+      "tolerance_mm3": 1e-09,
+      "violation_count": 0,
+      "worst_baseline_nonpositive_change_mm3": 0.0
+    },
+    "emitted_shape": {
+      "face_count": 230,
+      "maximum_aspect_measure": 25.036546159215828,
+      "minimum_angle_degrees": 0.9009779387434572,
+      "minimum_signed_orientation_ratio": 0.9999798903934675,
+      "minimum_unsigned_parent_area_ratio": 0.999979890484083,
+      "orientation_positive": true,
+      "p05_angle_degrees": 2.2197936152756625
+    },
+    "exact_local_target": {
+      "affected_child_pair_count": 147,
+      "inside_node_rows": [
+        20946,
+        20948,
+        20986,
+        20987,
+        20996,
+        20997,
+        20999,
+        21001,
+        21002,
+        21003,
+        21004,
+        21007,
+        21008,
+        21009,
+        21012,
+        21080,
+        21083,
+        21084,
+        21085,
+        21087,
+        21088,
+        21091,
+        21103,
+        21105,
+        21156,
+        21158,
+        21169,
+        21185,
+        21199
+      ],
+      "inside_nodes_before_after": [
+        29,
+        29
+      ],
+      "mapped_added": [],
+      "mapped_pairs_before_after": [
+        84,
+        84
+      ],
+      "mapped_removed": [],
+      "new_inside_nodes": [],
+      "raw_pairs_before_after": [
+        148,
+        148
+      ],
+      "resolved_inside_nodes": []
+    },
+    "freeze_source_report_sha256": "bcc1e4b00d968816fc68aeb0e97fafb55de523c7c9a47ffa753c7f4c92254fc5",
+    "frozen_layer_failure_faces": [
+      14093,
+      14105,
+      14106
+    ],
+    "frozen_patch_node_rows": [
+      18568,
+      18570,
+      18571,
+      21081,
+      21083
+    ],
+    "local_self_gate": "not run because target mapped identities did not strictly decrease",
+    "lp": {
+      "direction_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/fit-run-002/lp-direction.npz",
+      "direction_sha256": "0c7de31516bbd092d2ab97a8278829b2307207effac5809ea16f6e3e27aef18a",
+      "iterations": 1240,
+      "positive_slacks": 22,
+      "rows": 4342,
+      "slack_max_mm": 0.050000000000000634,
+      "slack_sum_mm": 0.923762092567905,
+      "success": true,
+      "variables": 830,
+      "witness_constraints": 296
+    },
+    "node_motion_max_mm": 5.6927541248751985e-06,
+    "node_motion_rms_mm": 1.7835138602457182e-06,
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/fit-run-002/report.json",
+    "report_sha256": "af8849c7567449d7e68ca1002b01d189a522931c75ed1c0c8e8e6998540f75a7",
+    "runtime_force_or_lock_added": false,
+    "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-026-806-connected-witness-fit-001/fit_current_806_targeted_layer_freeze.py",
+    "script_sha256": "03b88a1b640c0f0d461b375541b1f3cf4da253c133ccdd12aeb3c368734efa80",
+    "selected_alpha": 1.52587890625e-05,
+    "status": "PRIVATE_REJECTED_NO_MAPPED_PARENT_IDENTITY_IMPROVEMENT"
+  },
+  "unresolved_witnesses": {
+    "baseline_skin_and_fat_layer_invalid_cells_globally": {
+      "fat": {
+        "authored": 8530,
+        "f32_conditioned": 128,
+        "f32_nonpositive": 2
+      },
+      "previous_local_volume_violations_on_frozen_faces": [
+        14093,
+        14105,
+        14106
+      ],
+      "skin": {
+        "authored": 7612,
+        "f32_conditioned": 52,
+        "f32_nonpositive": 2
+      }
+    },
+    "inside_nodes_65_99": [
+      20946,
+      20948,
+      20986,
+      20987,
+      20996,
+      20997,
+      20999,
+      21001,
+      21002,
+      21003,
+      21004,
+      21007,
+      21008,
+      21009,
+      21012,
+      21080,
+      21083,
+      21084,
+      21085,
+      21087,
+      21088,
+      21091,
+      21103,
+      21105,
+      21156,
+      21158,
+      21169,
+      21185,
+      21199
+    ],
+    "local_self_pairs_for_candidate": "not checked",
+    "other_bank_crossing_identities": "not checked"
+  }
+}

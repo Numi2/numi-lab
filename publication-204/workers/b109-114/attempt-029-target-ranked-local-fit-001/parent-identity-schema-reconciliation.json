@@ -1,0 +1,99 @@
+{
+  "bank_local_bone_triangle_rows": true,
+  "baseline_immediate_refinement_ancestry_identity_count": 119,
+  "baseline_mapped_parent_identity_count": 119,
+  "baseline_raw_pair_count": 184,
+  "baseline_source_ancestry_identity_count": 39,
+  "candidate_trials": [
+    {
+      "alpha": 1.0,
+      "candidate_sha256": "bf6f8c5eebe207fee09670eff20ed91e9a3ad2cea9fd6ee802aa95784185bc8f",
+      "mapped_immediate_generation_count": 119,
+      "mapped_immediate_generation_set_equal": true,
+      "mapped_parent_added": [],
+      "mapped_parent_identity_count": 119,
+      "mapped_parent_identity_set_equal": true,
+      "mapped_parent_key_schema": "(body=109, stable_bone_id=114, refinement_face_parent_face_row[skin_child_face], bank_local_bone_triangle_row)",
+      "mapped_parent_removed": [],
+      "raw_pair_count": 184,
+      "raw_pair_set_equal": true,
+      "upstream_source_ancestry_count": 39,
+      "upstream_source_ancestry_set_equal": true
+    },
+    {
+      "alpha": 0.5,
+      "candidate_sha256": "6695ce6199e8ebc4cc89fa8423a97d5ae0d82e0d1f7341abb471f2f7547e37f2",
+      "mapped_immediate_generation_count": 119,
+      "mapped_immediate_generation_set_equal": true,
+      "mapped_parent_added": [],
+      "mapped_parent_identity_count": 119,
+      "mapped_parent_identity_set_equal": true,
+      "mapped_parent_key_schema": "(body=109, stable_bone_id=114, refinement_face_parent_face_row[skin_child_face], bank_local_bone_triangle_row)",
+      "mapped_parent_removed": [],
+      "raw_pair_count": 184,
+      "raw_pair_set_equal": true,
+      "upstream_source_ancestry_count": 39,
+      "upstream_source_ancestry_set_equal": true
+    },
+    {
+      "alpha": 0.25,
+      "candidate_sha256": "e09d08936361dbfab4d6f92ecb5fcde3bfbeaeb1ac11a26f2e01fa3eeee18771",
+      "mapped_immediate_generation_count": 119,
+      "mapped_immediate_generation_set_equal": true,
+      "mapped_parent_added": [],
+      "mapped_parent_identity_count": 119,
+      "mapped_parent_identity_set_equal": true,
+      "mapped_parent_key_schema": "(body=109, stable_bone_id=114, refinement_face_parent_face_row[skin_child_face], bank_local_bone_triangle_row)",
+      "mapped_parent_removed": [],
+      "raw_pair_count": 184,
+      "raw_pair_set_equal": true,
+      "upstream_source_ancestry_count": 39,
+      "upstream_source_ancestry_set_equal": true
+    },
+    {
+      "alpha": 0.125,
+      "candidate_sha256": "62e1358a120a97ef22d23281ea32e63c33ab26b3609f1777696c1c09c399f6b5",
+      "mapped_immediate_generation_count": 119,
+      "mapped_immediate_generation_set_equal": true,
+      "mapped_parent_added": [],
+      "mapped_parent_identity_count": 119,
+      "mapped_parent_identity_set_equal": true,
+      "mapped_parent_key_schema": "(body=109, stable_bone_id=114, refinement_face_parent_face_row[skin_child_face], bank_local_bone_triangle_row)",
+      "mapped_parent_removed": [],
+      "raw_pair_count": 184,
+      "raw_pair_set_equal": true,
+      "upstream_source_ancestry_count": 39,
+      "upstream_source_ancestry_set_equal": true
+    },
+    {
+      "alpha": 0.0625,
+      "candidate_sha256": "bd07a7ee105c7144a06e23d36147228fc761dc67d2027bbd6565144aa7c187f8",
+      "mapped_immediate_generation_count": 119,
+      "mapped_immediate_generation_set_equal": true,
+      "mapped_parent_added": [],
+      "mapped_parent_identity_count": 119,
+      "mapped_parent_identity_set_equal": true,
+      "mapped_parent_key_schema": "(body=109, stable_bone_id=114, refinement_face_parent_face_row[skin_child_face], bank_local_bone_triangle_row)",
+      "mapped_parent_removed": [],
+      "raw_pair_count": 184,
+      "raw_pair_set_equal": true,
+      "upstream_source_ancestry_count": 39,
+      "upstream_source_ancestry_set_equal": true
+    }
+  ],
+  "construction_only": true,
+  "parent_mapping_bytewise_same_for_position_only_candidates": true,
+  "physical_steps": 0,
+  "reconciliation": "The earlier count 39 used the upstream face_source_ancestry domain. It is not the audit-159 mapped-parent identity definition. Using the same scalar refinement_face_parent_face_row definition as combined-d071/compare_full.py yields 119. Raw exact pair identity set is independently recorded as unchanged at all five backtracks.",
+  "schema": "numi.human.b109-114.parent-identity-schema-reconciliation.v1",
+  "schemas": {
+    "immediate_refinement": "(109,114,refinement_face_parent_ancestry_face_row,bank_local_bone_triangle_row)",
+    "mapped_parent": "(109,114,refinement_face_parent_face_row[child_skin_face],bank_local_bone_triangle_row)",
+    "upstream_source": "(109,114,face_source_ancestry_face_row,bank_local_bone_triangle_row)"
+  },
+  "source_parent_count_39_is_different_schema": true,
+  "target_bank": [
+    109,
+    114
+  ]
+}

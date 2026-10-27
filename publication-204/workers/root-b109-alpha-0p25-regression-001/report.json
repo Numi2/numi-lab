@@ -1,0 +1,51 @@
+{
+  "status": "POSITION_ONLY_LAYER_FLAG_COMPARISON",
+  "baseline_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "candidate_sha256": "e09d08936361dbfab4d6f92ecb5fcde3bfbeaeb1ac11a26f2e01fa3eeee18771",
+  "layer_sha256": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57",
+  "owner_sha256": "fb53b372fd534a1f81e29944a1455ef249b674d4c8c043940fca442c3a7aad51",
+  "method": "Compare all Boolean prism flags on identical triangles after applying each outer-node displacement equally to its two inner positions; no new layer fitting. Same unchanged offset ancestry was asserted.",
+  "physical_admission": false,
+  "results": {
+    "skin": {
+      "authored_bad": {
+        "before_count": 7612,
+        "after_count": 7612,
+        "added": [],
+        "removed": []
+      },
+      "conditioned": {
+        "before_count": 51,
+        "after_count": 51,
+        "added": [],
+        "removed": []
+      },
+      "nonpositive": {
+        "before_count": 2,
+        "after_count": 2,
+        "added": [],
+        "removed": []
+      }
+    },
+    "fat": {
+      "authored_bad": {
+        "before_count": 8530,
+        "after_count": 8530,
+        "added": [],
+        "removed": []
+      },
+      "conditioned": {
+        "before_count": 126,
+        "after_count": 126,
+        "added": [],
+        "removed": []
+      },
+      "nonpositive": {
+        "before_count": 2,
+        "after_count": 2,
+        "added": [],
+        "removed": []
+      }
+    }
+  }
+}

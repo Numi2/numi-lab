@@ -1,0 +1,699 @@
+{
+  "audit130_sha256": "1291c50ddd6ac65e031f04bc586dfd7d7d3806b16338e245dbe65f9aabfc0eb4",
+  "audit159_sha256": "4cc8fd5d5e8fb651733fd380001e2b9847a0040960d7c8865c37f25fe5b8a09d",
+  "bone_mesh_topology": {
+    "components": 1,
+    "edge_use_counts": {
+      "2": 588
+    },
+    "edges": 588,
+    "faces": 392,
+    "orientation_conflicts": 0,
+    "positive_volume_mm3": [
+      2587.845366864983
+    ],
+    "vertices": 198
+  },
+  "candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "operation": "ranked local outward-normal patch trial with fixed outer ring; exact Float32 crossing, shape, layer checks.",
+  "raw_pairs": 184,
+  "schema": "numi.human.b109-114.target-ranking.v1",
+  "selected_4ring_faces": 25,
+  "selected_nodes": 21,
+  "selected_seed_face": 35385,
+  "target_bank": [
+    109,
+    114
+  ],
+  "target_inside_identities": 24,
+  "top_skin_faces": [
+    {
+      "bone_stable_ids": [
+        111,
+        112,
+        113,
+        114,
+        115,
+        116
+      ],
+      "bone_triangle_rows": [
+        111,
+        112,
+        113,
+        114,
+        115,
+        116
+      ],
+      "mean_outward_normal": [
+        -0.865639224632028,
+        -0.30726766377553627,
+        0.3952914311952454
+      ],
+      "most_inward_plane_distance_mm": -2.7027685203110066,
+      "nodes": [
+        21152,
+        20755,
+        20981
+      ],
+      "normal_min_alignment": 0.6796337239343286,
+      "pair_count": 6,
+      "parent_face": 34794,
+      "skin_face": 35385
+    },
+    {
+      "bone_stable_ids": [
+        92,
+        111,
+        112,
+        115,
+        116
+      ],
+      "bone_triangle_rows": [
+        92,
+        111,
+        112,
+        115,
+        116
+      ],
+      "mean_outward_normal": [
+        -0.9410177297907641,
+        -0.2970245259023863,
+        0.16205574112600632
+      ],
+      "most_inward_plane_distance_mm": -0.6212883424265058,
+      "nodes": [
+        21046,
+        21122,
+        18930
+      ],
+      "normal_min_alignment": 0.8363044789322585,
+      "pair_count": 5,
+      "parent_face": 34167,
+      "skin_face": 34724
+    },
+    {
+      "bone_stable_ids": [
+        62,
+        90,
+        115,
+        149,
+        150
+      ],
+      "bone_triangle_rows": [
+        62,
+        90,
+        115,
+        149,
+        150
+      ],
+      "mean_outward_normal": [
+        -0.7976779419590839,
+        -0.11100551782954766,
+        -0.5927796183433724
+      ],
+      "most_inward_plane_distance_mm": -1.4851785850700066,
+      "nodes": [
+        21049,
+        17966,
+        20960
+      ],
+      "normal_min_alignment": 0.9597910207576444,
+      "pair_count": 5,
+      "parent_face": 34176,
+      "skin_face": 34736
+    },
+    {
+      "bone_stable_ids": [
+        138,
+        140,
+        257,
+        261,
+        304
+      ],
+      "bone_triangle_rows": [
+        138,
+        140,
+        257,
+        261,
+        304
+      ],
+      "mean_outward_normal": [
+        0.4340425725875828,
+        0.19602142218571492,
+        -0.8793080502451018
+      ],
+      "most_inward_plane_distance_mm": -3.6845277209639486,
+      "nodes": [
+        19667,
+        21151,
+        20980
+      ],
+      "normal_min_alignment": 0.903059524910264,
+      "pair_count": 5,
+      "parent_face": 34753,
+      "skin_face": 35339
+    },
+    {
+      "bone_stable_ids": [
+        254,
+        255,
+        256,
+        298,
+        302
+      ],
+      "bone_triangle_rows": [
+        254,
+        255,
+        256,
+        298,
+        302
+      ],
+      "mean_outward_normal": [
+        0.9419896814249581,
+        -0.07547603409629162,
+        0.32704557536527135
+      ],
+      "most_inward_plane_distance_mm": -1.3487351305469526,
+      "nodes": [
+        21116,
+        18834,
+        21117
+      ],
+      "normal_min_alignment": 0.823388137656993,
+      "pair_count": 5,
+      "parent_face": 34831,
+      "skin_face": 35429
+    },
+    {
+      "bone_stable_ids": [
+        111,
+        112,
+        115,
+        116
+      ],
+      "bone_triangle_rows": [
+        111,
+        112,
+        115,
+        116
+      ],
+      "mean_outward_normal": [
+        -0.959782142999476,
+        -0.25080861428905965,
+        0.12614783778462188
+      ],
+      "most_inward_plane_distance_mm": -1.509835331579393,
+      "nodes": [
+        21175,
+        21039,
+        20677
+      ],
+      "normal_min_alignment": 0.8618063251010197,
+      "pair_count": 4,
+      "parent_face": 34047,
+      "skin_face": 34550
+    },
+    {
+      "bone_stable_ids": [
+        111,
+        112,
+        115,
+        116
+      ],
+      "bone_triangle_rows": [
+        111,
+        112,
+        115,
+        116
+      ],
+      "mean_outward_normal": [
+        -0.959782142999476,
+        -0.25080861428905965,
+        0.12614783778462188
+      ],
+      "most_inward_plane_distance_mm": -0.2893436018227217,
+      "nodes": [
+        21042,
+        19724,
+        21145
+      ],
+      "normal_min_alignment": 0.8618063251010197,
+      "pair_count": 4,
+      "parent_face": 34078,
+      "skin_face": 34593
+    },
+    {
+      "bone_stable_ids": [
+        89,
+        90,
+        109,
+        140
+      ],
+      "bone_triangle_rows": [
+        89,
+        90,
+        109,
+        140
+      ],
+      "mean_outward_normal": [
+        -0.28857193464197617,
+        0.08917252529787893,
+        -0.9532966480949077
+      ],
+      "most_inward_plane_distance_mm": -3.641774980599357,
+      "nodes": [
+        21151,
+        19209,
+        20979
+      ],
+      "normal_min_alignment": 0.9206850360227475,
+      "pair_count": 4,
+      "parent_face": 34753,
+      "skin_face": 35340
+    },
+    {
+      "bone_stable_ids": [
+        90,
+        115,
+        149,
+        150
+      ],
+      "bone_triangle_rows": [
+        90,
+        115,
+        149,
+        150
+      ],
+      "mean_outward_normal": [
+        -0.7829635368422765,
+        -0.0717153750048673,
+        -0.6179199017375507
+      ],
+      "most_inward_plane_distance_mm": -2.0901844004962538,
+      "nodes": [
+        19209,
+        21152,
+        20979
+      ],
+      "normal_min_alignment": 0.9617229908226101,
+      "pair_count": 4,
+      "parent_face": 34794,
+      "skin_face": 35384
+    },
+    {
+      "bone_stable_ids": [
+        298,
+        302,
+        305,
+        331
+      ],
+      "bone_triangle_rows": [
+        298,
+        302,
+        305,
+        331
+      ],
+      "mean_outward_normal": [
+        0.997912222419943,
+        0.0614173897278366,
+        -0.019977501943664117
+      ],
+      "most_inward_plane_distance_mm": -2.630763499188873,
+      "nodes": [
+        21116,
+        20980,
+        18834
+      ],
+      "normal_min_alignment": 0.5896320089869366,
+      "pair_count": 4,
+      "parent_face": 34836,
+      "skin_face": 35437
+    },
+    {
+      "bone_stable_ids": [
+        91,
+        92,
+        111
+      ],
+      "bone_triangle_rows": [
+        91,
+        92,
+        111
+      ],
+      "mean_outward_normal": [
+        -0.729733890839912,
+        -0.39754396141416576,
+        0.5562798282364512
+      ],
+      "most_inward_plane_distance_mm": -2.328760596620996,
+      "nodes": [
+        21098,
+        18641,
+        21035
+      ],
+      "normal_min_alignment": 0.935937587671211,
+      "pair_count": 3,
+      "parent_face": 34035,
+      "skin_face": 34519
+    },
+    {
+      "bone_stable_ids": [
+        111,
+        112,
+        116
+      ],
+      "bone_triangle_rows": [
+        111,
+        112,
+        116
+      ],
+      "mean_outward_normal": [
+        -0.9138851796466309,
+        -0.2813741748773798,
+        0.2926473169778238
+      ],
+      "most_inward_plane_distance_mm": -0.2622683993008209,
+      "nodes": [
+        20965,
+        21175,
+        20967
+      ],
+      "normal_min_alignment": 0.9398381893751917,
+      "pair_count": 3,
+      "parent_face": 34046,
+      "skin_face": 34547
+    },
+    {
+      "bone_stable_ids": [
+        115,
+        149,
+        150
+      ],
+      "bone_triangle_rows": [
+        115,
+        149,
+        150
+      ],
+      "mean_outward_normal": [
+        -0.82729316861847,
+        -0.08489572538248522,
+        -0.555318583309611
+      ],
+      "most_inward_plane_distance_mm": -0.6865427898835726,
+      "nodes": [
+        21037,
+        17960,
+        21039
+      ],
+      "normal_min_alignment": 0.9477937853349636,
+      "pair_count": 3,
+      "parent_face": 34047,
+      "skin_face": 34549
+    },
+    {
+      "bone_stable_ids": [
+        115,
+        149,
+        150
+      ],
+      "bone_triangle_rows": [
+        115,
+        149,
+        150
+      ],
+      "mean_outward_normal": [
+        -0.82729316861847,
+        -0.08489572538248522,
+        -0.555318583309611
+      ],
+      "most_inward_plane_distance_mm": -1.7109374823579941,
+      "nodes": [
+        19197,
+        21149,
+        21045
+      ],
+      "normal_min_alignment": 0.9477937853349636,
+      "pair_count": 3,
+      "parent_face": 34132,
+      "skin_face": 34666
+    },
+    {
+      "bone_stable_ids": [
+        115,
+        149,
+        150
+      ],
+      "bone_triangle_rows": [
+        115,
+        149,
+        150
+      ],
+      "mean_outward_normal": [
+        -0.82729316861847,
+        -0.08489572538248522,
+        -0.555318583309611
+      ],
+      "most_inward_plane_distance_mm": -1.7316124996618774,
+      "nodes": [
+        19195,
+        20969,
+        21148
+      ],
+      "normal_min_alignment": 0.9477937853349636,
+      "pair_count": 3,
+      "parent_face": 34194,
+      "skin_face": 34761
+    },
+    {
+      "bone_stable_ids": [
+        139,
+        190,
+        191
+      ],
+      "bone_triangle_rows": [
+        139,
+        190,
+        191
+      ],
+      "mean_outward_normal": [
+        -0.04656961735790335,
+        -0.32973476987098194,
+        0.9429243088802352
+      ],
+      "most_inward_plane_distance_mm": -3.8140722980782784,
+      "nodes": [
+        20980,
+        20979,
+        15665
+      ],
+      "normal_min_alignment": 0.963798588418192,
+      "pair_count": 3,
+      "parent_face": 34753,
+      "skin_face": 35341
+    },
+    {
+      "bone_stable_ids": [
+        110,
+        113,
+        139
+      ],
+      "bone_triangle_rows": [
+        110,
+        113,
+        139
+      ],
+      "mean_outward_normal": [
+        -0.30841284828008003,
+        -0.36107021609280476,
+        0.8800623921441386
+      ],
+      "most_inward_plane_distance_mm": -2.554134560769089,
+      "nodes": [
+        20979,
+        20981,
+        15665
+      ],
+      "normal_min_alignment": 0.9972853634787533,
+      "pair_count": 3,
+      "parent_face": 34794,
+      "skin_face": 35386
+    },
+    {
+      "bone_stable_ids": [
+        91,
+        110
+      ],
+      "bone_triangle_rows": [
+        91,
+        110
+      ],
+      "mean_outward_normal": [
+        -0.3977654286421187,
+        -0.4160247516884982,
+        0.8177445015160145
+      ],
+      "most_inward_plane_distance_mm": -2.393278298207357,
+      "nodes": [
+        20676,
+        21098,
+        21038
+      ],
+      "normal_min_alignment": 0.9977711381143637,
+      "pair_count": 2,
+      "parent_face": 34035,
+      "skin_face": 34518
+    },
+    {
+      "bone_stable_ids": [
+        90,
+        150
+      ],
+      "bone_triangle_rows": [
+        90,
+        150
+      ],
+      "mean_outward_normal": [
+        -0.619793353484919,
+        -0.026688125166981724,
+        -0.7843111263720474
+      ],
+      "most_inward_plane_distance_mm": -1.3234001540493656,
+      "nodes": [
+        21038,
+        21035,
+        17960
+      ],
+      "normal_min_alignment": 0.999958623795335,
+      "pair_count": 2,
+      "parent_face": 34035,
+      "skin_face": 34520
+    },
+    {
+      "bone_stable_ids": [
+        91,
+        110
+      ],
+      "bone_triangle_rows": [
+        91,
+        110
+      ],
+      "mean_outward_normal": [
+        -0.3977654286421187,
+        -0.4160247516884982,
+        0.8177445015160145
+      ],
+      "most_inward_plane_distance_mm": -2.2291735832534387,
+      "nodes": [
+        20962,
+        20961,
+        15070
+      ],
+      "normal_min_alignment": 0.9977711381143637,
+      "pair_count": 2,
+      "parent_face": 34041,
+      "skin_face": 34531
+    },
+    {
+      "bone_stable_ids": [
+        88,
+        92
+      ],
+      "bone_triangle_rows": [
+        88,
+        92
+      ],
+      "mean_outward_normal": [
+        -0.8980530629066928,
+        -0.41465180696532095,
+        0.14684881744264044
+      ],
+      "most_inward_plane_distance_mm": -1.0534008457222148,
+      "nodes": [
+        20963,
+        20960,
+        20699
+      ],
+      "normal_min_alignment": 0.9870355680417536,
+      "pair_count": 2,
+      "parent_face": 34042,
+      "skin_face": 34534
+    },
+    {
+      "bone_stable_ids": [
+        91,
+        92
+      ],
+      "bone_triangle_rows": [
+        91,
+        92
+      ],
+      "mean_outward_normal": [
+        -0.6833373161210811,
+        -0.4585628825041697,
+        0.5681286783695265
+      ],
+      "most_inward_plane_distance_mm": -1.6233123707311259,
+      "nodes": [
+        20960,
+        20963,
+        15070
+      ],
+      "normal_min_alignment": 0.9491594676858326,
+      "pair_count": 2,
+      "parent_face": 34042,
+      "skin_face": 34535
+    },
+    {
+      "bone_stable_ids": [
+        62,
+        88
+      ],
+      "bone_triangle_rows": [
+        62,
+        88
+      ],
+      "mean_outward_normal": [
+        -0.913962137587318,
+        -0.32053794008674663,
+        -0.24885465641969734
+      ],
+      "most_inward_plane_distance_mm": -0.8980746214300098,
+      "nodes": [
+        20960,
+        21051,
+        20699
+      ],
+      "normal_min_alignment": 0.9681728956096957,
+      "pair_count": 2,
+      "parent_face": 34042,
+      "skin_face": 34536
+    },
+    {
+      "bone_stable_ids": [
+        112,
+        115
+      ],
+      "bone_triangle_rows": [
+        112,
+        115
+      ],
+      "mean_outward_normal": [
+        -0.9578804424072576,
+        -0.18674013159190211,
+        -0.2181586150183297
+      ],
+      "most_inward_plane_distance_mm": -0.08257266192942575,
+      "nodes": [
+        20965,
+        19555,
+        21175
+      ],
+      "normal_min_alignment": 0.9835545623351656,
+      "pair_count": 2,
+      "parent_face": 34046,
+      "skin_face": 34545
+    }
+  ],
+  "unique_bone_triangle_rows": 31,
+  "unique_skin_faces": 111
+}

@@ -1,0 +1,272 @@
+{
+  "area_rows": [],
+  "pair_rows": [
+    {
+      "label": "normal-turn+:34430",
+      "lower": -0.459364894870889,
+      "movable_coefficient_norm": 1.1102230246251565e-16,
+      "zero_motion_slack": 0.459364894870889
+    },
+    {
+      "label": "normal-turn-:34430",
+      "lower": -0.459364894870889,
+      "movable_coefficient_norm": 1.1102230246251565e-16,
+      "zero_motion_slack": 0.459364894870889
+    },
+    {
+      "label": "normal-turn+:34457",
+      "lower": -0.1346514163955673,
+      "movable_coefficient_norm": 1.1775693440128312e-16,
+      "zero_motion_slack": 0.1346514163955673
+    },
+    {
+      "label": "normal-turn-:34457",
+      "lower": -0.1346514163955673,
+      "movable_coefficient_norm": 1.1775693440128312e-16,
+      "zero_motion_slack": 0.1346514163955673
+    },
+    {
+      "label": "normal-turn+:34488",
+      "lower": -0.16436945728174346,
+      "movable_coefficient_norm": 3.1031676915590914e-17,
+      "zero_motion_slack": 0.16436945728174346
+    },
+    {
+      "label": "normal-turn-:34488",
+      "lower": -0.16436945728174346,
+      "movable_coefficient_norm": 3.1031676915590914e-17,
+      "zero_motion_slack": 0.16436945728174346
+    },
+    {
+      "label": "normal-turn+:34597",
+      "lower": -0.014606972517064411,
+      "movable_coefficient_norm": 0.0,
+      "zero_motion_slack": 0.014606972517064411
+    },
+    {
+      "label": "normal-turn-:34597",
+      "lower": -0.014606972517064411,
+      "movable_coefficient_norm": 0.0,
+      "zero_motion_slack": 0.014606972517064411
+    },
+    {
+      "label": "normal-turn+:34598",
+      "lower": -0.010255030913586682,
+      "movable_coefficient_norm": 1.1102230246251565e-16,
+      "zero_motion_slack": 0.010255030913586682
+    },
+    {
+      "label": "normal-turn-:34598",
+      "lower": -0.010255030913586682,
+      "movable_coefficient_norm": 1.1102230246251565e-16,
+      "zero_motion_slack": 0.010255030913586682
+    },
+    {
+      "label": "normal-turn+:34641",
+      "lower": -0.12992333229886283,
+      "movable_coefficient_norm": 0.0,
+      "zero_motion_slack": 0.12992333229886283
+    },
+    {
+      "label": "normal-turn-:34641",
+      "lower": -0.12992333229886283,
+      "movable_coefficient_norm": 0.0,
+      "zero_motion_slack": 0.12992333229886283
+    },
+    {
+      "label": "normal-turn+:34646",
+      "lower": -0.08342533798507351,
+      "movable_coefficient_norm": 2.7755575615628914e-17,
+      "zero_motion_slack": 0.08342533798507351
+    },
+    {
+      "label": "normal-turn-:34646",
+      "lower": -0.08342533798507351,
+      "movable_coefficient_norm": 2.7755575615628914e-17,
+      "zero_motion_slack": 0.08342533798507351
+    },
+    {
+      "label": "normal-turn+:34647",
+      "lower": -0.016192259445981114,
+      "movable_coefficient_norm": 8.673617379884035e-19,
+      "zero_motion_slack": 0.016192259445981114
+    },
+    {
+      "label": "normal-turn-:34647",
+      "lower": -0.016192259445981114,
+      "movable_coefficient_norm": 8.673617379884035e-19,
+      "zero_motion_slack": 0.016192259445981114
+    },
+    {
+      "label": "normal-turn+:34666",
+      "lower": -0.1043968699327342,
+      "movable_coefficient_norm": 2.7755575615628914e-17,
+      "zero_motion_slack": 0.1043968699327342
+    },
+    {
+      "label": "normal-turn-:34666",
+      "lower": -0.1043968699327342,
+      "movable_coefficient_norm": 2.7755575615628914e-17,
+      "zero_motion_slack": 0.1043968699327342
+    },
+    {
+      "label": "normal-turn+:34667",
+      "lower": -0.10437931269787781,
+      "movable_coefficient_norm": 3.925231146709438e-17,
+      "zero_motion_slack": 0.10437931269787781
+    },
+    {
+      "label": "normal-turn-:34667",
+      "lower": -0.10437931269787781,
+      "movable_coefficient_norm": 3.925231146709438e-17,
+      "zero_motion_slack": 0.10437931269787781
+    },
+    {
+      "label": "normal-turn+:34712",
+      "lower": -0.0010505034190866505,
+      "movable_coefficient_norm": 9.813077866773595e-18,
+      "zero_motion_slack": 0.0010505034190866505
+    },
+    {
+      "label": "normal-turn-:34712",
+      "lower": -0.0010505034190866505,
+      "movable_coefficient_norm": 9.813077866773595e-18,
+      "zero_motion_slack": 0.0010505034190866505
+    },
+    {
+      "label": "normal-turn+:34721",
+      "lower": -0.09461106202106827,
+      "movable_coefficient_norm": 0.0,
+      "zero_motion_slack": 0.09461106202106827
+    },
+    {
+      "label": "normal-turn-:34721",
+      "lower": -0.09461106202106827,
+      "movable_coefficient_norm": 0.0,
+      "zero_motion_slack": 0.09461106202106827
+    },
+    {
+      "label": "normal-turn+:34732",
+      "lower": -0.0965655146380036,
+      "movable_coefficient_norm": 0.0,
+      "zero_motion_slack": 0.0965655146380036
+    },
+    {
+      "label": "normal-turn-:34732",
+      "lower": -0.0965655146380036,
+      "movable_coefficient_norm": 0.0,
+      "zero_motion_slack": 0.0965655146380036
+    },
+    {
+      "label": "normal-turn+:34733",
+      "lower": -0.1396714571442807,
+      "movable_coefficient_norm": 0.0,
+      "zero_motion_slack": 0.1396714571442807
+    },
+    {
+      "label": "normal-turn-:34733",
+      "lower": -0.1396714571442807,
+      "movable_coefficient_norm": 0.0,
+      "zero_motion_slack": 0.1396714571442807
+    },
+    {
+      "label": "normal-turn+:34737",
+      "lower": -0.1411441383608039,
+      "movable_coefficient_norm": 5.721958498152797e-17,
+      "zero_motion_slack": 0.1411441383608039
+    },
+    {
+      "label": "normal-turn-:34737",
+      "lower": -0.1411441383608039,
+      "movable_coefficient_norm": 5.721958498152797e-17,
+      "zero_motion_slack": 0.1411441383608039
+    },
+    {
+      "label": "normal-turn+:34783",
+      "lower": -0.07101249779956585,
+      "movable_coefficient_norm": 2.7755575615628914e-17,
+      "zero_motion_slack": 0.07101249779956585
+    },
+    {
+      "label": "normal-turn-:34783",
+      "lower": -0.07101249779956585,
+      "movable_coefficient_norm": 2.7755575615628914e-17,
+      "zero_motion_slack": 0.07101249779956585
+    },
+    {
+      "label": "normal-turn+:34784",
+      "lower": -0.07112379855462074,
+      "movable_coefficient_norm": 2.7755575615628914e-17,
+      "zero_motion_slack": 0.07112379855462074
+    },
+    {
+      "label": "normal-turn-:34784",
+      "lower": -0.07112379855462074,
+      "movable_coefficient_norm": 2.7755575615628914e-17,
+      "zero_motion_slack": 0.07112379855462074
+    },
+    {
+      "label": "normal-turn+:34787",
+      "lower": -0.07673928407857636,
+      "movable_coefficient_norm": 5.551115123125783e-17,
+      "zero_motion_slack": 0.07673928407857636
+    },
+    {
+      "label": "normal-turn-:34787",
+      "lower": -0.07673928407857636,
+      "movable_coefficient_norm": 5.551115123125783e-17,
+      "zero_motion_slack": 0.07673928407857636
+    },
+    {
+      "label": "normal-turn+:34811",
+      "lower": -0.012968053364321417,
+      "movable_coefficient_norm": 6.206335383118183e-17,
+      "zero_motion_slack": 0.012968053364321417
+    },
+    {
+      "label": "normal-turn-:34811",
+      "lower": -0.012968053364321417,
+      "movable_coefficient_norm": 6.206335383118183e-17,
+      "zero_motion_slack": 0.012968053364321417
+    },
+    {
+      "label": "normal-turn+:34813",
+      "lower": -0.006175110454603656,
+      "movable_coefficient_norm": 5.551115123125783e-17,
+      "zero_motion_slack": 0.006175110454603656
+    },
+    {
+      "label": "normal-turn-:34813",
+      "lower": -0.006175110454603656,
+      "movable_coefficient_norm": 5.551115123125783e-17,
+      "zero_motion_slack": 0.006175110454603656
+    },
+    {
+      "label": "normal-turn+:34855",
+      "lower": -0.014238595299864725,
+      "movable_coefficient_norm": 0.0,
+      "zero_motion_slack": 0.014238595299864725
+    },
+    {
+      "label": "normal-turn-:34855",
+      "lower": -0.014238595299864725,
+      "movable_coefficient_norm": 0.0,
+      "zero_motion_slack": 0.014238595299864725
+    },
+    {
+      "label": "normal-turn+:34856",
+      "lower": -0.020413673161094298,
+      "movable_coefficient_norm": 1.4304896245381992e-17,
+      "zero_motion_slack": 0.020413673161094298
+    },
+    {
+      "label": "normal-turn-:34856",
+      "lower": -0.020413673161094298,
+      "movable_coefficient_norm": 1.4304896245381992e-17,
+      "zero_motion_slack": 0.020413673161094298
+    }
+  ],
+  "schema": "numi.human.b109-114.zero-row-preflight.v1",
+  "status": "PASS",
+  "tolerance": 1e-14
+}

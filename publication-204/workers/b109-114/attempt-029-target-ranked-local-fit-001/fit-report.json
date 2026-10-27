@@ -1,0 +1,608 @@
+{
+  "affected_face_count": 374,
+  "area_guard_rows": 374,
+  "backtrack_trials": [
+    {
+      "alpha": 1.0,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-029-target-ranked-local-fit-001/candidate-alpha-1p0.npz",
+      "candidate_sha256": "bf6f8c5eebe207fee09670eff20ed91e9a3ad2cea9fd6ee802aa95784185bc8f",
+      "changed_nodes": 107,
+      "max_step_mm": 0.02309956841641905,
+      "min_target_witness_progress_mm": 0.019998070712767727,
+      "shape": {
+        "affected_face_count": 374,
+        "limits": {
+          "area_ratio": 0.95,
+          "aspect_ratio": 1.05,
+          "min_angle_ratio": 0.95,
+          "normal_dot": 0.9510565162951535
+        },
+        "max_aspect_ratio": 1.0408821720492758,
+        "max_normal_turn_deg": 1.40331057788229,
+        "min_area_ratio": 0.9622157635787002,
+        "min_min_angle_ratio": 0.9607138502013279,
+        "min_normal_dot": 0.9997000764093066,
+        "pass": true,
+        "violating_face_count": 0,
+        "violating_face_rows": []
+      },
+      "target_witness_progress_mm": [
+        0.020744734765432683,
+        0.019998070712767727,
+        0.020631475951933247,
+        0.019998817292789958,
+        0.02129070725100985,
+        0.02166435108293424
+      ]
+    },
+    {
+      "alpha": 0.5,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-029-target-ranked-local-fit-001/candidate-alpha-0p5.npz",
+      "candidate_sha256": "6695ce6199e8ebc4cc89fa8423a97d5ae0d82e0d1f7341abb471f2f7547e37f2",
+      "changed_nodes": 105,
+      "max_step_mm": 0.011541697264417576,
+      "min_target_witness_progress_mm": 0.009997000493525372,
+      "shape": {
+        "affected_face_count": 374,
+        "limits": {
+          "area_ratio": 0.95,
+          "aspect_ratio": 1.05,
+          "min_angle_ratio": 0.95,
+          "normal_dot": 0.9510565162951535
+        },
+        "max_aspect_ratio": 1.0190565365718067,
+        "max_normal_turn_deg": 0.7442522708648093,
+        "min_area_ratio": 0.9820572940102963,
+        "min_min_angle_ratio": 0.9812908238980022,
+        "min_normal_dot": 0.9999156356490198,
+        "pass": true,
+        "violating_face_count": 0,
+        "violating_face_rows": []
+      },
+      "target_witness_progress_mm": [
+        0.01036779564775648,
+        0.009997000493525372,
+        0.010311824204131903,
+        0.009997913856111108,
+        0.01064134665813968,
+        0.010827806755704954
+      ]
+    },
+    {
+      "alpha": 0.25,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-029-target-ranked-local-fit-001/candidate-alpha-0p25.npz",
+      "candidate_sha256": "e09d08936361dbfab4d6f92ecb5fcde3bfbeaeb1ac11a26f2e01fa3eeee18771",
+      "changed_nodes": 104,
+      "max_step_mm": 0.005778980775513043,
+      "min_target_witness_progress_mm": 0.005000535109621177,
+      "shape": {
+        "affected_face_count": 374,
+        "limits": {
+          "area_ratio": 0.95,
+          "aspect_ratio": 1.05,
+          "min_angle_ratio": 0.95,
+          "normal_dot": 0.9510565162951535
+        },
+        "max_aspect_ratio": 1.009228710293827,
+        "max_normal_turn_deg": 0.3721003147978062,
+        "min_area_ratio": 0.9912275120506917,
+        "min_min_angle_ratio": 0.9908527553202922,
+        "min_normal_dot": 0.9999789116166377,
+        "pass": true,
+        "violating_face_count": 0,
+        "violating_face_rows": []
+      },
+      "target_witness_progress_mm": [
+        0.0051930821191058935,
+        0.005000535109621177,
+        0.0051631456864603045,
+        0.005004623092213205,
+        0.005329293413707918,
+        0.005423867428195165
+      ]
+    },
+    {
+      "alpha": 0.125,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-029-target-ranked-local-fit-001/candidate-alpha-0p125.npz",
+      "candidate_sha256": "62e1358a120a97ef22d23281ea32e63c33ab26b3609f1777696c1c09c399f6b5",
+      "changed_nodes": 98,
+      "max_step_mm": 0.002900066120064405,
+      "min_target_witness_progress_mm": 0.0025062420206471846,
+      "shape": {
+        "affected_face_count": 374,
+        "limits": {
+          "area_ratio": 0.95,
+          "aspect_ratio": 1.05,
+          "min_angle_ratio": 0.95,
+          "normal_dot": 0.9510565162951535
+        },
+        "max_aspect_ratio": 1.005046173151807,
+        "max_normal_turn_deg": 0.16200565944956719,
+        "min_area_ratio": 0.9951642432926606,
+        "min_min_angle_ratio": 0.9949805606604641,
+        "min_normal_dot": 0.9999960025335933,
+        "pass": true,
+        "violating_face_count": 0,
+        "violating_face_rows": []
+      },
+      "target_witness_progress_mm": [
+        0.002599304145916823,
+        0.002512392413366923,
+        0.002585352111351306,
+        0.0025062420206471846,
+        0.002668191680772645,
+        0.002713795666638834
+      ]
+    },
+    {
+      "alpha": 0.0625,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-029-target-ranked-local-fit-001/candidate-alpha-0p0625.npz",
+      "candidate_sha256": "bd07a7ee105c7144a06e23d36147228fc761dc67d2027bbd6565144aa7c187f8",
+      "changed_nodes": 79,
+      "max_step_mm": 0.0014394861073176053,
+      "min_target_witness_progress_mm": 0.001244071348127127,
+      "shape": {
+        "affected_face_count": 374,
+        "limits": {
+          "area_ratio": 0.95,
+          "aspect_ratio": 1.05,
+          "min_angle_ratio": 0.95,
+          "normal_dot": 0.9510565162951535
+        },
+        "max_aspect_ratio": 1.0027304440496905,
+        "max_normal_turn_deg": 0.08413164652250917,
+        "min_area_ratio": 0.9973776005044055,
+        "min_min_angle_ratio": 0.9972717846220113,
+        "min_normal_dot": 0.9999989219387438,
+        "pass": true,
+        "violating_face_count": 0,
+        "violating_face_rows": []
+      },
+      "target_witness_progress_mm": [
+        0.0012933710172393842,
+        0.001244071348127127,
+        0.0012894365412344042,
+        0.0012498687410606253,
+        0.0013281208028416325,
+        0.0013520884488940747
+      ]
+    }
+  ],
+  "baseline_audit159_sha256": "4cc8fd5d5e8fb651733fd380001e2b9847a0040960d7c8865c37f25fe5b8a09d",
+  "baseline_layer_sha256": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57",
+  "baseline_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "candidate_candidates": [
+    {
+      "alpha": 1.0,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-029-target-ranked-local-fit-001/candidate-alpha-1p0.npz",
+      "candidate_sha256": "bf6f8c5eebe207fee09670eff20ed91e9a3ad2cea9fd6ee802aa95784185bc8f",
+      "changed_nodes": 107,
+      "max_step_mm": 0.02309956841641905,
+      "min_target_witness_progress_mm": 0.019998070712767727,
+      "shape": {
+        "affected_face_count": 374,
+        "limits": {
+          "area_ratio": 0.95,
+          "aspect_ratio": 1.05,
+          "min_angle_ratio": 0.95,
+          "normal_dot": 0.9510565162951535
+        },
+        "max_aspect_ratio": 1.0408821720492758,
+        "max_normal_turn_deg": 1.40331057788229,
+        "min_area_ratio": 0.9622157635787002,
+        "min_min_angle_ratio": 0.9607138502013279,
+        "min_normal_dot": 0.9997000764093066,
+        "pass": true,
+        "violating_face_count": 0,
+        "violating_face_rows": []
+      },
+      "target_witness_progress_mm": [
+        0.020744734765432683,
+        0.019998070712767727,
+        0.020631475951933247,
+        0.019998817292789958,
+        0.02129070725100985,
+        0.02166435108293424
+      ]
+    },
+    {
+      "alpha": 0.5,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-029-target-ranked-local-fit-001/candidate-alpha-0p5.npz",
+      "candidate_sha256": "6695ce6199e8ebc4cc89fa8423a97d5ae0d82e0d1f7341abb471f2f7547e37f2",
+      "changed_nodes": 105,
+      "max_step_mm": 0.011541697264417576,
+      "min_target_witness_progress_mm": 0.009997000493525372,
+      "shape": {
+        "affected_face_count": 374,
+        "limits": {
+          "area_ratio": 0.95,
+          "aspect_ratio": 1.05,
+          "min_angle_ratio": 0.95,
+          "normal_dot": 0.9510565162951535
+        },
+        "max_aspect_ratio": 1.0190565365718067,
+        "max_normal_turn_deg": 0.7442522708648093,
+        "min_area_ratio": 0.9820572940102963,
+        "min_min_angle_ratio": 0.9812908238980022,
+        "min_normal_dot": 0.9999156356490198,
+        "pass": true,
+        "violating_face_count": 0,
+        "violating_face_rows": []
+      },
+      "target_witness_progress_mm": [
+        0.01036779564775648,
+        0.009997000493525372,
+        0.010311824204131903,
+        0.009997913856111108,
+        0.01064134665813968,
+        0.010827806755704954
+      ]
+    },
+    {
+      "alpha": 0.25,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-029-target-ranked-local-fit-001/candidate-alpha-0p25.npz",
+      "candidate_sha256": "e09d08936361dbfab4d6f92ecb5fcde3bfbeaeb1ac11a26f2e01fa3eeee18771",
+      "changed_nodes": 104,
+      "max_step_mm": 0.005778980775513043,
+      "min_target_witness_progress_mm": 0.005000535109621177,
+      "shape": {
+        "affected_face_count": 374,
+        "limits": {
+          "area_ratio": 0.95,
+          "aspect_ratio": 1.05,
+          "min_angle_ratio": 0.95,
+          "normal_dot": 0.9510565162951535
+        },
+        "max_aspect_ratio": 1.009228710293827,
+        "max_normal_turn_deg": 0.3721003147978062,
+        "min_area_ratio": 0.9912275120506917,
+        "min_min_angle_ratio": 0.9908527553202922,
+        "min_normal_dot": 0.9999789116166377,
+        "pass": true,
+        "violating_face_count": 0,
+        "violating_face_rows": []
+      },
+      "target_witness_progress_mm": [
+        0.0051930821191058935,
+        0.005000535109621177,
+        0.0051631456864603045,
+        0.005004623092213205,
+        0.005329293413707918,
+        0.005423867428195165
+      ]
+    },
+    {
+      "alpha": 0.125,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-029-target-ranked-local-fit-001/candidate-alpha-0p125.npz",
+      "candidate_sha256": "62e1358a120a97ef22d23281ea32e63c33ab26b3609f1777696c1c09c399f6b5",
+      "changed_nodes": 98,
+      "max_step_mm": 0.002900066120064405,
+      "min_target_witness_progress_mm": 0.0025062420206471846,
+      "shape": {
+        "affected_face_count": 374,
+        "limits": {
+          "area_ratio": 0.95,
+          "aspect_ratio": 1.05,
+          "min_angle_ratio": 0.95,
+          "normal_dot": 0.9510565162951535
+        },
+        "max_aspect_ratio": 1.005046173151807,
+        "max_normal_turn_deg": 0.16200565944956719,
+        "min_area_ratio": 0.9951642432926606,
+        "min_min_angle_ratio": 0.9949805606604641,
+        "min_normal_dot": 0.9999960025335933,
+        "pass": true,
+        "violating_face_count": 0,
+        "violating_face_rows": []
+      },
+      "target_witness_progress_mm": [
+        0.002599304145916823,
+        0.002512392413366923,
+        0.002585352111351306,
+        0.0025062420206471846,
+        0.002668191680772645,
+        0.002713795666638834
+      ]
+    },
+    {
+      "alpha": 0.0625,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-029-target-ranked-local-fit-001/candidate-alpha-0p0625.npz",
+      "candidate_sha256": "bd07a7ee105c7144a06e23d36147228fc761dc67d2027bbd6565144aa7c187f8",
+      "changed_nodes": 79,
+      "max_step_mm": 0.0014394861073176053,
+      "min_target_witness_progress_mm": 0.001244071348127127,
+      "shape": {
+        "affected_face_count": 374,
+        "limits": {
+          "area_ratio": 0.95,
+          "aspect_ratio": 1.05,
+          "min_angle_ratio": 0.95,
+          "normal_dot": 0.9510565162951535
+        },
+        "max_aspect_ratio": 1.0027304440496905,
+        "max_normal_turn_deg": 0.08413164652250917,
+        "min_area_ratio": 0.9973776005044055,
+        "min_min_angle_ratio": 0.9972717846220113,
+        "min_normal_dot": 0.9999989219387438,
+        "pass": true,
+        "violating_face_count": 0,
+        "violating_face_rows": []
+      },
+      "target_witness_progress_mm": [
+        0.0012933710172393842,
+        0.001244071348127127,
+        0.0012894365412344042,
+        0.0012498687410606253,
+        0.0013281208028416325,
+        0.0013520884488940747
+      ]
+    }
+  ],
+  "edge_gradient_cap": 0.1,
+  "edge_gradient_receipt": {
+    "active_edges": 496,
+    "enabled": true,
+    "inequality_rows": 2976,
+    "max_component_gradient": 0.1,
+    "maximum_reference_edge_length_mm": 7.32312527264607,
+    "minimum_reference_edge_length_mm": 0.015335199028852555,
+    "semantics": "componentwise |d_i-d_j| <= cap * reference_edge_length; nonsupport displacement is zero",
+    "unique_mesh_edges": 63591
+  },
+  "elapsed_solve_s": 2.5458782501518726,
+  "fixed_anchor_count": 0,
+  "geometry_admitted": false,
+  "layer_guard_receipt": {
+    "baseline_nonpositive_rows": 1083,
+    "rows": 2244,
+    "skipped_fixed_or_zero_rows": 0
+  },
+  "normal_turn_bound_degrees": 10.0,
+  "normal_turn_rows": 1452,
+  "physical_steps": 0,
+  "schema": "numi.human.b109-114.exact-three-witness-connected-fit.v1",
+  "solver": {
+    "dual_residual": 3.1678098660285064e-08,
+    "iterations": 20675,
+    "primal_residual": 8.74256575196e-08,
+    "status": "solved",
+    "status_val": 1,
+    "success": true
+  },
+  "source_bound_receipt": {
+    "bound_semantics": "per-node component cube with radius <= min(trust, source_cap - base_source_distance)/sqrt(3)",
+    "maximum_base_source_displacement_mm": 11.999981854019131,
+    "maximum_component_bound_mm": 0.08660254037844387,
+    "minimum_remaining_source_cap_mm_on_support": 2.230228197771206,
+    "source_cap_norm_guarantee_mm": 12.0,
+    "trust_norm_guarantee_mm": 0.15
+  },
+  "source_cap_mm": 12.0,
+  "status": "SHAPE_PASS_CANDIDATES_EMITTED",
+  "support_nodes": 123,
+  "support_rings": 4,
+  "target_bank": [
+    109,
+    114
+  ],
+  "target_bone_triangle_rows": [
+    111,
+    112,
+    116
+  ],
+  "target_exact_witnesses": [
+    {
+      "bone_triangle_row": 111,
+      "bone_triangle_stable_id_in_039": 111,
+      "endpoints": [
+        {
+          "exact_local_mm": [
+            [
+              -10854795260402975860568856295717165153738485395957185,
+              8177928125436693255292755122334345658062541120602112
+            ],
+            [
+              -163076979628031078226785153991361568271419545412105,
+              7986257934996770757121831174154634431701700313088
+            ],
+            [
+              -168248932750850120575951595857310761888047612235,
+              33840075995749028631872165992180654371617374208
+            ]
+          ],
+          "outward_normal_local": [
+            -0.8057004119482529,
+            -0.27511386833428375,
+            0.5245561987400034
+          ],
+          "outward_normal_world": [
+            -0.49085881397432773,
+            -0.32179300526278987,
+            -0.8096337977799953
+          ],
+          "skin_barycentric": [
+            0.39076727352617124,
+            0.480967072994993,
+            0.12826565347883576
+          ]
+        },
+        {
+          "exact_local_mm": [
+            [
+              -511865839529313410175330580812986253030307,
+              415656565295011554337138907436084239532032
+            ],
+            [
+              -66472413616100562110020675838341523431471,
+              3247316916367277768258897714344408121344
+            ],
+            [
+              -504086871444213809048662732182654231457149,
+              103914141323752888584284726859021059883008
+            ]
+          ],
+          "outward_normal_local": [
+            -0.8057004119482529,
+            -0.27511386833428375,
+            0.5245561987400034
+          ],
+          "outward_normal_world": [
+            -0.49085881397432773,
+            -0.32179300526278987,
+            -0.8096337977799953
+          ],
+          "skin_barycentric": [
+            0.757519779981287,
+            2.5542465639886766e-15,
+            0.24248022001871047
+          ]
+        }
+      ],
+      "exact_intersection_vertex_count": 2,
+      "skin_face_row": 34547
+    },
+    {
+      "bone_triangle_row": 112,
+      "bone_triangle_stable_id_in_039": 112,
+      "endpoints": [
+        {
+          "exact_local_mm": [
+            [
+              -1772400377849955781935878497253646190542423,
+              1310034610771067170797545001173531798536192
+            ],
+            [
+              -119268946692476074912355274620447566345815,
+              5848368798085121298203325898096124100608
+            ],
+            [
+              -208126528041911837654469092617833055903949,
+              40938581586595849087423281286672868704256
+            ]
+          ],
+          "outward_normal_local": [
+            -0.9667209222293883,
+            -0.2511270752273762,
+            -0.048845169788880774
+          ],
+          "outward_normal_world": [
+            0.0780188553485149,
+            -0.2399316443005997,
+            -0.9676496598838434
+          ],
+          "skin_barycentric": [
+            0.5357243305291908,
+            0.4642756694708096,
+            -4.2570776066477947e-16
+          ]
+        },
+        {
+          "exact_local_mm": [
+            [
+              -47486577384188905908707675691065711247648308571772865,
+              35082704941132488446155215556735254860885325611270144
+            ],
+            [
+              -349514637657531297459088390119870660561168011783075,
+              17130227022037347874099226346062136162541662896128
+            ],
+            [
+              -21502707404780013541352844945997709915908444068515,
+              4282556755509336968524806586515534040635415724032
+            ]
+          ],
+          "outward_normal_local": [
+            -0.9667209222293883,
+            -0.2511270752273762,
+            -0.048845169788880774
+          ],
+          "outward_normal_world": [
+            0.0780188553485149,
+            -0.2399316443005997,
+            -0.9676496598838434
+          ],
+          "skin_barycentric": [
+            0.33928856581297956,
+            0.5833664892446722,
+            0.07734494494234827
+          ]
+        }
+      ],
+      "exact_intersection_vertex_count": 2,
+      "skin_face_row": 34547
+    },
+    {
+      "bone_triangle_row": 116,
+      "bone_triangle_stable_id_in_039": 116,
+      "endpoints": [
+        {
+          "exact_local_mm": [
+            [
+              -10854795260402975860568856295717165153738485395957185,
+              8177928125436693255292755122334345658062541120602112
+            ],
+            [
+              -163076979628031078226785153991361568271419545412105,
+              7986257934996770757121831174154634431701700313088
+            ],
+            [
+              -168248932750850120575951595857310761888047612235,
+              33840075995749028631872165992180654371617374208
+            ]
+          ],
+          "outward_normal_local": [
+            -0.8807547684327254,
+            -0.2906398345739859,
+            0.3738977459705024
+          ],
+          "outward_normal_world": [
+            -0.3390643945194842,
+            -0.32183186444638234,
+            -0.8840020290678642
+          ],
+          "skin_barycentric": [
+            0.39076727352617124,
+            0.480967072994993,
+            0.12826565347883576
+          ]
+        },
+        {
+          "exact_local_mm": [
+            [
+              -47486577384188905908707675691065711247648308571772865,
+              35082704941132488446155215556735254860885325611270144
+            ],
+            [
+              -349514637657531297459088390119870660561168011783075,
+              17130227022037347874099226346062136162541662896128
+            ],
+            [
+              -21502707404780013541352844945997709915908444068515,
+              4282556755509336968524806586515534040635415724032
+            ]
+          ],
+          "outward_normal_local": [
+            -0.8807547684327254,
+            -0.2906398345739859,
+            0.3738977459705024
+          ],
+          "outward_normal_world": [
+            -0.3390643945194842,
+            -0.32183186444638234,
+            -0.8840020290678642
+          ],
+          "skin_barycentric": [
+            0.33928856581297956,
+            0.5833664892446722,
+            0.07734494494234827
+          ]
+        }
+      ],
+      "exact_intersection_vertex_count": 2,
+      "skin_face_row": 34547
+    }
+  ],
+  "target_row_count": 6,
+  "target_skin_face_row": 34547,
+  "trust_mm": 0.15
+}

@@ -1,0 +1,735 @@
+{
+  "status": "OFFLINE_REFERENCE_POSE_QUERY_DEPTH_SUMMARY",
+  "candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "summary_sha256": "1291c50ddd6ac65e031f04bc586dfd7d7d3806b16338e245dbe65f9aabfc0eb4",
+  "pairs_csv_sha256": "fa97fe226a60ff75b65807d54aa3708e3b8119c83272600a42ab3fb25042b66f",
+  "inside_node_bank_rows": 125,
+  "banks": [
+    {
+      "body": 43,
+      "stable_bone_id": 16,
+      "count": 43,
+      "minimum_distance_m": 4.290963857026051e-06,
+      "median_distance_m": 0.0005929299919125579,
+      "maximum_distance_m": 0.0017782188299526765,
+      "samples": [
+        {
+          "query_row": 20895,
+          "nearest_distance_m": 0.0005929299919125579,
+          "nearest_bone_triangle": 140
+        },
+        {
+          "query_row": 20899,
+          "nearest_distance_m": 0.001108076605142552,
+          "nearest_bone_triangle": 133
+        },
+        {
+          "query_row": 20900,
+          "nearest_distance_m": 0.0005940395764205881,
+          "nearest_bone_triangle": 140
+        },
+        {
+          "query_row": 20901,
+          "nearest_distance_m": 0.001256873321404964,
+          "nearest_bone_triangle": 133
+        },
+        {
+          "query_row": 20902,
+          "nearest_distance_m": 0.0011002530714838451,
+          "nearest_bone_triangle": 133
+        },
+        {
+          "query_row": 20907,
+          "nearest_distance_m": 0.00016701386468731118,
+          "nearest_bone_triangle": 144
+        },
+        {
+          "query_row": 20924,
+          "nearest_distance_m": 0.0007727250953371184,
+          "nearest_bone_triangle": 135
+        },
+        {
+          "query_row": 20926,
+          "nearest_distance_m": 0.0007173474480763057,
+          "nearest_bone_triangle": 135
+        },
+        {
+          "query_row": 20928,
+          "nearest_distance_m": 0.0005902028588718025,
+          "nearest_bone_triangle": 135
+        },
+        {
+          "query_row": 20931,
+          "nearest_distance_m": 0.0006074889001931319,
+          "nearest_bone_triangle": 135
+        },
+        {
+          "query_row": 20932,
+          "nearest_distance_m": 0.0016387081817894492,
+          "nearest_bone_triangle": 130
+        },
+        {
+          "query_row": 20956,
+          "nearest_distance_m": 4.290963857026051e-06,
+          "nearest_bone_triangle": 133
+        },
+        {
+          "query_row": 20957,
+          "nearest_distance_m": 0.0005533579653097092,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 20989,
+          "nearest_distance_m": 0.000966617982841072,
+          "nearest_bone_triangle": 138
+        },
+        {
+          "query_row": 20990,
+          "nearest_distance_m": 0.0005408868943798428,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21016,
+          "nearest_distance_m": 0.00013738864117884088,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21019,
+          "nearest_distance_m": 0.0004482044877913406,
+          "nearest_bone_triangle": 135
+        },
+        {
+          "query_row": 21022,
+          "nearest_distance_m": 0.0002154701930804046,
+          "nearest_bone_triangle": 135
+        },
+        {
+          "query_row": 21025,
+          "nearest_distance_m": 0.00021560296687009046,
+          "nearest_bone_triangle": 135
+        },
+        {
+          "query_row": 21026,
+          "nearest_distance_m": 0.0005985652254984444,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21027,
+          "nearest_distance_m": 0.0006096904458169804,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21030,
+          "nearest_distance_m": 0.0004376608250204001,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21062,
+          "nearest_distance_m": 0.0008789998185033363,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21064,
+          "nearest_distance_m": 0.0008207484437124786,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21066,
+          "nearest_distance_m": 0.0005925171138646597,
+          "nearest_bone_triangle": 135
+        },
+        {
+          "query_row": 21068,
+          "nearest_distance_m": 0.0012099025104133456,
+          "nearest_bone_triangle": 135
+        },
+        {
+          "query_row": 21069,
+          "nearest_distance_m": 0.0011215924655053207,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21071,
+          "nearest_distance_m": 0.00022484638875797065,
+          "nearest_bone_triangle": 135
+        },
+        {
+          "query_row": 21092,
+          "nearest_distance_m": 3.888177318714243e-05,
+          "nearest_bone_triangle": 133
+        },
+        {
+          "query_row": 21093,
+          "nearest_distance_m": 0.00010220476973085635,
+          "nearest_bone_triangle": 133
+        },
+        {
+          "query_row": 21094,
+          "nearest_distance_m": 2.2838762301532503e-05,
+          "nearest_bone_triangle": 133
+        },
+        {
+          "query_row": 21095,
+          "nearest_distance_m": 9.969666899492771e-06,
+          "nearest_bone_triangle": 133
+        },
+        {
+          "query_row": 21096,
+          "nearest_distance_m": 0.0001660030068448066,
+          "nearest_bone_triangle": 133
+        },
+        {
+          "query_row": 21131,
+          "nearest_distance_m": 0.0014084583609136072,
+          "nearest_bone_triangle": 263
+        },
+        {
+          "query_row": 21134,
+          "nearest_distance_m": 0.0017782188299526765,
+          "nearest_bone_triangle": 148
+        },
+        {
+          "query_row": 21159,
+          "nearest_distance_m": 0.0006760302218108612,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21187,
+          "nearest_distance_m": 0.0006490177826111304,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21188,
+          "nearest_distance_m": 0.0005698590831870231,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21190,
+          "nearest_distance_m": 0.0006122873892770345,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21191,
+          "nearest_distance_m": 0.00013795991713506082,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21193,
+          "nearest_distance_m": 0.0013710436161720296,
+          "nearest_bone_triangle": 137
+        },
+        {
+          "query_row": 21204,
+          "nearest_distance_m": 0.0005808498846737783,
+          "nearest_bone_triangle": 134
+        },
+        {
+          "query_row": 21205,
+          "nearest_distance_m": 0.00035637500013385324,
+          "nearest_bone_triangle": 134
+        }
+      ]
+    },
+    {
+      "body": 57,
+      "stable_bone_id": 89,
+      "count": 4,
+      "minimum_distance_m": 0.0008282819363728313,
+      "median_distance_m": 0.001292393939825949,
+      "maximum_distance_m": 0.0020504255892813475,
+      "samples": [
+        {
+          "query_row": 20922,
+          "nearest_distance_m": 0.0020504255892813475,
+          "nearest_bone_triangle": 190
+        },
+        {
+          "query_row": 21057,
+          "nearest_distance_m": 0.0008282819363728313,
+          "nearest_bone_triangle": 300
+        },
+        {
+          "query_row": 21209,
+          "nearest_distance_m": 0.0015551393223185326,
+          "nearest_bone_triangle": 186
+        },
+        {
+          "query_row": 21210,
+          "nearest_distance_m": 0.0010296485573333654,
+          "nearest_bone_triangle": 465
+        }
+      ]
+    },
+    {
+      "body": 59,
+      "stable_bone_id": 95,
+      "count": 4,
+      "minimum_distance_m": 6.666963527023916e-05,
+      "median_distance_m": 0.001471101626800348,
+      "maximum_distance_m": 0.0023878603223047327,
+      "samples": [
+        {
+          "query_row": 20911,
+          "nearest_distance_m": 0.0023878603223047327,
+          "nearest_bone_triangle": 211
+        },
+        {
+          "query_row": 20912,
+          "nearest_distance_m": 0.0017714052213189475,
+          "nearest_bone_triangle": 302
+        },
+        {
+          "query_row": 21125,
+          "nearest_distance_m": 0.0011707980322817485,
+          "nearest_bone_triangle": 145
+        },
+        {
+          "query_row": 21196,
+          "nearest_distance_m": 6.666963527023916e-05,
+          "nearest_bone_triangle": 147
+        }
+      ]
+    },
+    {
+      "body": 61,
+      "stable_bone_id": 97,
+      "count": 2,
+      "minimum_distance_m": 2.0608567585858938e-05,
+      "median_distance_m": 0.00037027332463433944,
+      "maximum_distance_m": 0.00071993808168282,
+      "samples": [
+        {
+          "query_row": 20993,
+          "nearest_distance_m": 2.0608567585858938e-05,
+          "nearest_bone_triangle": 41
+        },
+        {
+          "query_row": 21166,
+          "nearest_distance_m": 0.00071993808168282,
+          "nearest_bone_triangle": 176
+        }
+      ]
+    },
+    {
+      "body": 64,
+      "stable_bone_id": 98,
+      "count": 1,
+      "minimum_distance_m": 0.0026736372431222467,
+      "median_distance_m": 0.0026736372431222467,
+      "maximum_distance_m": 0.0026736372431222467,
+      "samples": [
+        {
+          "query_row": 20949,
+          "nearest_distance_m": 0.0026736372431222467,
+          "nearest_bone_triangle": 278
+        }
+      ]
+    },
+    {
+      "body": 65,
+      "stable_bone_id": 99,
+      "count": 29,
+      "minimum_distance_m": 0.0005590507084788644,
+      "median_distance_m": 0.0016529957189382507,
+      "maximum_distance_m": 0.0020752720811574466,
+      "samples": [
+        {
+          "query_row": 20946,
+          "nearest_distance_m": 0.0015314305793890303,
+          "nearest_bone_triangle": 173
+        },
+        {
+          "query_row": 20948,
+          "nearest_distance_m": 0.0014892585841220168,
+          "nearest_bone_triangle": 173
+        },
+        {
+          "query_row": 20986,
+          "nearest_distance_m": 0.0017980448741553624,
+          "nearest_bone_triangle": 175
+        },
+        {
+          "query_row": 20987,
+          "nearest_distance_m": 0.001788988908236197,
+          "nearest_bone_triangle": 175
+        },
+        {
+          "query_row": 20996,
+          "nearest_distance_m": 0.0013385367303820562,
+          "nearest_bone_triangle": 103
+        },
+        {
+          "query_row": 20997,
+          "nearest_distance_m": 0.001663085146534239,
+          "nearest_bone_triangle": 176
+        },
+        {
+          "query_row": 20999,
+          "nearest_distance_m": 0.0016916271454396092,
+          "nearest_bone_triangle": 176
+        },
+        {
+          "query_row": 21001,
+          "nearest_distance_m": 0.00204744684852368,
+          "nearest_bone_triangle": 174
+        },
+        {
+          "query_row": 21002,
+          "nearest_distance_m": 0.0020489595985827675,
+          "nearest_bone_triangle": 183
+        },
+        {
+          "query_row": 21003,
+          "nearest_distance_m": 0.0020064444901916785,
+          "nearest_bone_triangle": 174
+        },
+        {
+          "query_row": 21004,
+          "nearest_distance_m": 0.0020491347835333734,
+          "nearest_bone_triangle": 183
+        },
+        {
+          "query_row": 21007,
+          "nearest_distance_m": 0.0015437692981164143,
+          "nearest_bone_triangle": 173
+        },
+        {
+          "query_row": 21008,
+          "nearest_distance_m": 0.0013530119173651024,
+          "nearest_bone_triangle": 173
+        },
+        {
+          "query_row": 21009,
+          "nearest_distance_m": 0.0014904667594530542,
+          "nearest_bone_triangle": 173
+        },
+        {
+          "query_row": 21012,
+          "nearest_distance_m": 0.0012818381647416645,
+          "nearest_bone_triangle": 226
+        },
+        {
+          "query_row": 21080,
+          "nearest_distance_m": 0.0008441129498933326,
+          "nearest_bone_triangle": 113
+        },
+        {
+          "query_row": 21083,
+          "nearest_distance_m": 0.0012857844590100861,
+          "nearest_bone_triangle": 103
+        },
+        {
+          "query_row": 21084,
+          "nearest_distance_m": 0.001199857762433783,
+          "nearest_bone_triangle": 103
+        },
+        {
+          "query_row": 21085,
+          "nearest_distance_m": 0.0012507026300756106,
+          "nearest_bone_triangle": 103
+        },
+        {
+          "query_row": 21087,
+          "nearest_distance_m": 0.001118738587247652,
+          "nearest_bone_triangle": 103
+        },
+        {
+          "query_row": 21088,
+          "nearest_distance_m": 0.0007955959691471189,
+          "nearest_bone_triangle": 111
+        },
+        {
+          "query_row": 21091,
+          "nearest_distance_m": 0.0005590507084788644,
+          "nearest_bone_triangle": 111
+        },
+        {
+          "query_row": 21103,
+          "nearest_distance_m": 0.0018489607683208184,
+          "nearest_bone_triangle": 226
+        },
+        {
+          "query_row": 21105,
+          "nearest_distance_m": 0.0020752720811574466,
+          "nearest_bone_triangle": 183
+        },
+        {
+          "query_row": 21156,
+          "nearest_distance_m": 0.002066051841600142,
+          "nearest_bone_triangle": 174
+        },
+        {
+          "query_row": 21158,
+          "nearest_distance_m": 0.0019507455750578287,
+          "nearest_bone_triangle": 175
+        },
+        {
+          "query_row": 21169,
+          "nearest_distance_m": 0.0017219223188776138,
+          "nearest_bone_triangle": 176
+        },
+        {
+          "query_row": 21185,
+          "nearest_distance_m": 0.0016529957189382507,
+          "nearest_bone_triangle": 173
+        },
+        {
+          "query_row": 21199,
+          "nearest_distance_m": 0.002029279353834,
+          "nearest_bone_triangle": 183
+        }
+      ]
+    },
+    {
+      "body": 109,
+      "stable_bone_id": 114,
+      "count": 24,
+      "minimum_distance_m": 2.554812443325522e-05,
+      "median_distance_m": 0.0005368349654780401,
+      "maximum_distance_m": 0.001868012043450434,
+      "samples": [
+        {
+          "query_row": 20920,
+          "nearest_distance_m": 0.0007082142744636955,
+          "nearest_bone_triangle": 115
+        },
+        {
+          "query_row": 20960,
+          "nearest_distance_m": 0.0006343749418480949,
+          "nearest_bone_triangle": 62
+        },
+        {
+          "query_row": 20961,
+          "nearest_distance_m": 0.000832700960201997,
+          "nearest_bone_triangle": 62
+        },
+        {
+          "query_row": 20964,
+          "nearest_distance_m": 0.0003184236684988608,
+          "nearest_bone_triangle": 115
+        },
+        {
+          "query_row": 20965,
+          "nearest_distance_m": 6.076053346377947e-05,
+          "nearest_bone_triangle": 112
+        },
+        {
+          "query_row": 20968,
+          "nearest_distance_m": 0.0001310277343839312,
+          "nearest_bone_triangle": 112
+        },
+        {
+          "query_row": 20969,
+          "nearest_distance_m": 0.0008134890071980309,
+          "nearest_bone_triangle": 115
+        },
+        {
+          "query_row": 20970,
+          "nearest_distance_m": 0.000199942295552008,
+          "nearest_bone_triangle": 92
+        },
+        {
+          "query_row": 20972,
+          "nearest_distance_m": 0.0007687540229964861,
+          "nearest_bone_triangle": 62
+        },
+        {
+          "query_row": 20979,
+          "nearest_distance_m": 0.0018252358922190444,
+          "nearest_bone_triangle": 115
+        },
+        {
+          "query_row": 20980,
+          "nearest_distance_m": 0.001868012043450434,
+          "nearest_bone_triangle": 304
+        },
+        {
+          "query_row": 21035,
+          "nearest_distance_m": 0.00021260921590630206,
+          "nearest_bone_triangle": 115
+        },
+        {
+          "query_row": 21038,
+          "nearest_distance_m": 0.0008518103903935552,
+          "nearest_bone_triangle": 115
+        },
+        {
+          "query_row": 21039,
+          "nearest_distance_m": 0.0002284109832299515,
+          "nearest_bone_triangle": 115
+        },
+        {
+          "query_row": 21040,
+          "nearest_distance_m": 7.776966062901623e-05,
+          "nearest_bone_triangle": 111
+        },
+        {
+          "query_row": 21043,
+          "nearest_distance_m": 8.732426108892821e-05,
+          "nearest_bone_triangle": 116
+        },
+        {
+          "query_row": 21045,
+          "nearest_distance_m": 0.0007701358397534114,
+          "nearest_bone_triangle": 115
+        },
+        {
+          "query_row": 21046,
+          "nearest_distance_m": 0.0004392949891079852,
+          "nearest_bone_triangle": 92
+        },
+        {
+          "query_row": 21052,
+          "nearest_distance_m": 0.00012428064512155635,
+          "nearest_bone_triangle": 62
+        },
+        {
+          "query_row": 21147,
+          "nearest_distance_m": 0.0006667459137134726,
+          "nearest_bone_triangle": 115
+        },
+        {
+          "query_row": 21150,
+          "nearest_distance_m": 0.0006653209592427199,
+          "nearest_bone_triangle": 115
+        },
+        {
+          "query_row": 21174,
+          "nearest_distance_m": 0.001081904751193727,
+          "nearest_bone_triangle": 115
+        },
+        {
+          "query_row": 21176,
+          "nearest_distance_m": 0.00011526324464848432,
+          "nearest_bone_triangle": 112
+        },
+        {
+          "query_row": 21178,
+          "nearest_distance_m": 2.554812443325522e-05,
+          "nearest_bone_triangle": 88
+        }
+      ]
+    },
+    {
+      "body": 114,
+      "stable_bone_id": 117,
+      "count": 4,
+      "minimum_distance_m": 0.00024729037074981746,
+      "median_distance_m": 0.001656160682516815,
+      "maximum_distance_m": 0.002074652515462086,
+      "samples": [
+        {
+          "query_row": 21054,
+          "nearest_distance_m": 0.0020553397429350236,
+          "nearest_bone_triangle": 329
+        },
+        {
+          "query_row": 21112,
+          "nearest_distance_m": 0.00024729037074981746,
+          "nearest_bone_triangle": 267
+        },
+        {
+          "query_row": 21113,
+          "nearest_distance_m": 0.0012569816220986065,
+          "nearest_bone_triangle": 281
+        },
+        {
+          "query_row": 21165,
+          "nearest_distance_m": 0.002074652515462086,
+          "nearest_bone_triangle": 329
+        }
+      ]
+    },
+    {
+      "body": 115,
+      "stable_bone_id": 118,
+      "count": 4,
+      "minimum_distance_m": 0.00040675826752048207,
+      "median_distance_m": 0.0011336358551623865,
+      "maximum_distance_m": 0.0014170420122881031,
+      "samples": [
+        {
+          "query_row": 20940,
+          "nearest_distance_m": 0.0014170420122881031,
+          "nearest_bone_triangle": 285
+        },
+        {
+          "query_row": 21140,
+          "nearest_distance_m": 0.00040675826752048207,
+          "nearest_bone_triangle": 327
+        },
+        {
+          "query_row": 21141,
+          "nearest_distance_m": 0.0013207761859935206,
+          "nearest_bone_triangle": 215
+        },
+        {
+          "query_row": 21164,
+          "nearest_distance_m": 0.0009464955243312523,
+          "nearest_bone_triangle": 215
+        }
+      ]
+    },
+    {
+      "body": 124,
+      "stable_bone_id": 123,
+      "count": 10,
+      "minimum_distance_m": 0.00044519233396424543,
+      "median_distance_m": 0.0011884033664092716,
+      "maximum_distance_m": 0.0019151882751813998,
+      "samples": [
+        {
+          "query_row": 20935,
+          "nearest_distance_m": 0.0012451429999030315,
+          "nearest_bone_triangle": 33
+        },
+        {
+          "query_row": 20936,
+          "nearest_distance_m": 0.0009702401423975862,
+          "nearest_bone_triangle": 33
+        },
+        {
+          "query_row": 20937,
+          "nearest_distance_m": 0.001224041269456219,
+          "nearest_bone_triangle": 33
+        },
+        {
+          "query_row": 21033,
+          "nearest_distance_m": 0.0006476745745533563,
+          "nearest_bone_triangle": 31
+        },
+        {
+          "query_row": 21108,
+          "nearest_distance_m": 0.0011527654633623242,
+          "nearest_bone_triangle": 33
+        },
+        {
+          "query_row": 21110,
+          "nearest_distance_m": 0.0009696523296568665,
+          "nearest_bone_triangle": 33
+        },
+        {
+          "query_row": 21137,
+          "nearest_distance_m": 0.0013456394971797343,
+          "nearest_bone_triangle": 208
+        },
+        {
+          "query_row": 21161,
+          "nearest_distance_m": 0.00044519233396424543,
+          "nearest_bone_triangle": 33
+        },
+        {
+          "query_row": 21162,
+          "nearest_distance_m": 0.001839517175845291,
+          "nearest_bone_triangle": 30
+        },
+        {
+          "query_row": 21163,
+          "nearest_distance_m": 0.0019151882751813998,
+          "nearest_bone_triangle": 30
+        }
+      ]
+    }
+  ],
+  "interpretation": "Distances are point-to-nearest-bone-surface magnitudes for query rows classified inside. They are displacement lower bounds for clearance against the fixed bone, not proof of a feasible repair or physical/native qualification."
+}
