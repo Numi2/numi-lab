@@ -1,0 +1,115 @@
+{
+  "schema": "numi.human.bank65_99.attempt035.final-archive-receipt.v1",
+  "disposition": "REJECTED_DIAGNOSTIC_ONLY",
+  "pins": {
+    "baseline_outer": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz",
+      "sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756"
+    },
+    "baseline_layer_541": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/skin-fat-layers-541.npz",
+      "sha256": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57"
+    },
+    "trial_outer": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-032-shape-pass-exact-diagnostic-001/candidate-rejected-layer-gate.npz",
+      "sha256": "5c98028c91d1adac1052c660d7e1c7715ef3ed2aeb643fe282bfa6c5a1292107",
+      "note": "Alpha 0.0625 shape-pass diagnostic; outer coordinates held fixed in attempt 035."
+    },
+    "archived_executed_script": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-035-coupled-layer-correction-001/coupled_layer_b65.py",
+      "sha256": "2b734787e88b06bad77bfd9878ea8278c616479cc5c1729b1b51aa5f74d41c5b",
+      "verified_matches": "/tmp/coupled_layer_b65.py"
+    },
+    "trial_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-035-coupled-layer-correction-001/coupled-layer-correction-report.json",
+      "sha256": "336a0a014123a793d88acb5af6661c3e25db6cff50db068a403251f8121115fc"
+    },
+    "trial_layer_output": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-035-coupled-layer-correction-001/skin-fat-layers-rejected.npz",
+      "sha256": "e50b42d452566b2683422e922afac8a9b1a9844add3c420ffec52ccd1ec11965",
+      "note": "Identical to carried-offset artifact; LP produced no update."
+    }
+  },
+  "baseline_65_99": {
+    "raw_crossing_pairs": 148,
+    "mapped_parent_bone_identities": 84,
+    "skin_self_pairs": 0,
+    "sampled_inside_nodes": 29,
+    "inside_distance_mm": {
+      "min": 0.5590507,
+      "median": 1.6529957,
+      "max": 2.0752721
+    }
+  },
+  "candidate_and_gate_results": [
+    {
+      "attempt": "031 partial-slack connected fit / 127 layer reconstruction",
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-031-partial-inside-slack-layer-fit-001/fit-run-001/report.json",
+      "report_sha256": "982c113b81e1f6e959bcf8cb96c12476ed1f44c9b0cceb84f10bea50e64c43a0",
+      "result": "QP feasible with explicit slacks, but reconstructed layer gate failed; active skin/fat normal depths included negative values."
+    },
+    {
+      "attempt": "032 shape-pass outer diagnostic with reconstructed layer",
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-032-shape-pass-exact-diagnostic-001/exact-diagnostic-report.json",
+      "report_sha256": "3a56ac0783b3dc06f017a9ac1f98a9e3e321bb2ff9158b18b4db5ea67cd08b45",
+      "result": "Float32 outer shape passed at alpha 0.0625, max displacement 0.1232938 mm; layer gate failed with 29 skin and 43 fat authored-bad additions, no added nonpositive tets; minimum active skin/fat normal depths were -0.001111/-0.003522 m.",
+      "target_65_99": {
+        "before_raw_pairs": 148,
+        "after_raw_pairs": 148,
+        "before_mapped_identities": 84,
+        "after_mapped_identities": 84,
+        "mapped_added": 0,
+        "mapped_removed": 0,
+        "raw_added": [
+          [
+            14214,
+            173
+          ]
+        ],
+        "raw_removed": [
+          [
+            14217,
+            174
+          ]
+        ]
+      },
+      "inside": {
+        "before_count": 29,
+        "after_count": 29,
+        "newly_inside": 0,
+        "resolved": 0,
+        "median_depth_mm_before": 1.6529957,
+        "median_depth_mm_after": 1.5991151,
+        "max_depth_mm_before": 2.0752721,
+        "max_depth_mm_after": 2.0676643
+      },
+      "self_check": "Not run; no strict mapped reduction and layer gate failed."
+    },
+    {
+      "attempt": "034 original 541 offsets carried with diagnostic outer",
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-034-offset-carry-layer-self-screen-001/offset-carry-cell-self-report.json",
+      "report_sha256": "d24d034da5ff3e165c15a8b6c5004bbada99c31e7fcc4654320fcac790921509",
+      "affected_flags_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-034-offset-carry-layer-self-screen-001/affected-cell-flag-counts.json",
+      "affected_flags_sha256": "f2858ff47ca4caae9c81230721d5e61d31ebacaf7bbf741711711b50d42fa189",
+      "result": "Skin Boolean flags unchanged; fat added authored-bad face 14076 and three conditioned tet failures (one removed); 453 per-tet volume nonregressions failed, worst signed-volume delta -0.1341032 mm^3. Exact self check not run."
+    },
+    {
+      "attempt": "035 coupled layer-only correction, fixed outer",
+      "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-035-coupled-layer-correction-001/coupled-layer-correction-report.json",
+      "report_sha256": "336a0a014123a793d88acb5af6661c3e25db6cff50db068a403251f8121115fc",
+      "result": "HiGHS LP infeasible at iteration 1; 564 correction variables, 2550 tet constraints, 4054 total rows. No layer movement or emitted-Float32 coupled gate results.",
+      "patch": {
+        "faces": 248,
+        "nodes": 156,
+        "fixed_shared_boundary_nodes": 62,
+        "movable_layer_nodes": 94
+      },
+      "self_check": "Not run because coupled layer gate did not pass."
+    }
+  ],
+  "limitations": [
+    "No candidate promoted.",
+    "The approximately 0.054 mm median-depth decrease belongs to the outer diagnostic and was not produced by the layer-only correction; all 29 inside samples remained.",
+    "No native physical admission or cell-mass ownership is established."
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "admission": false,
+  "changed_face_rows": 221,
+  "changed_face_rows_sha256": "bb8fd29e86d1cccdb4ddc5585bc502658f61a478e128bad47a926e9dac485de5",
+  "changed_nodes": 85,
+  "fat": {
+    "authored_bad_added_face_rows": [
+      14076
+    ],
+    "authored_bad_faces_after": 156,
+    "authored_bad_faces_before": 155,
+    "authored_bad_removed_face_rows": [],
+    "conditioned_added_face_tets": [
+      [
+        14074,
+        2
+      ],
+      [
+        14076,
+        0
+      ],
+      [
+        14242,
+        2
+      ]
+    ],
+    "conditioned_removed_face_tets": [
+      [
+        14073,
+        1
+      ]
+    ],
+    "conditioned_tets_after": 3,
+    "conditioned_tets_before": 1,
+    "nonpositive_added_face_tets": [],
+    "nonpositive_removed_face_tets": [],
+    "nonpositive_tets_after": 0,
+    "nonpositive_tets_before": 0
+  },
+  "pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-024-topology-independent-layer-transfer-001/transfer_topology_independent_541.py": "fb53b372fd534a1f81e29944a1455ef249b674d4c8c043940fca442c3a7aad51",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-032-shape-pass-exact-diagnostic-001/candidate-rejected-layer-gate.npz": "5c98028c91d1adac1052c660d7e1c7715ef3ed2aeb643fe282bfa6c5a1292107",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-034-offset-carry-layer-self-screen-001/skin-fat-layers-offset-carried.npz": "e50b42d452566b2683422e922afac8a9b1a9844add3c420ffec52ccd1ec11965",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/skin-fat-layers-541.npz": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57"
+  },
+  "schema": "numi.human.bank65_99.offset-carry-affected-cell-flag-counts.v1",
+  "scope": "Exact Float32 Boolean layer flags on every face incident to any changed candidate node; unchanged outer/inner/deep rows imply all other cells are unchanged.",
+  "skin": {
+    "authored_bad_added_face_rows": [],
+    "authored_bad_faces_after": 162,
+    "authored_bad_faces_before": 162,
+    "authored_bad_removed_face_rows": [],
+    "conditioned_added_face_tets": [],
+    "conditioned_removed_face_tets": [],
+    "conditioned_tets_after": 0,
+    "conditioned_tets_before": 0,
+    "nonpositive_added_face_tets": [],
+    "nonpositive_removed_face_tets": [],
+    "nonpositive_tets_after": 0,
+    "nonpositive_tets_before": 0
+  }
+}

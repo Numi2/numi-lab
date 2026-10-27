@@ -1,0 +1,96 @@
+{
+  "schema": "numi.human.b43-16.local-tet-splice-feasibility.v1",
+  "date": "2026-10-27",
+  "disposition": "NO_DEFENSIBLE_CANDIDATE_MISSING_CURRENT_VOLUME_AND_CELL_OWNERSHIP",
+  "candidate_emitted": false,
+  "geometry_modified": false,
+  "physical_admission": false,
+  "pinned_current_inputs": {
+    "candidate_806": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz",
+      "sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+      "points": 21212,
+      "surface_faces": 42379,
+      "tet_cell_material_or_volume_keys": []
+    },
+    "matching_layer_541": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/skin-fat-layers-541.npz",
+      "sha256": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57",
+      "contains": "O/I/D surface points, matched face arrays, transferred/actual thickness arrays, node source CSR",
+      "tet_cell_material_or_volume_keys": []
+    }
+  },
+  "43_16_patch": {
+    "topology_receipt": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-027-cdt-owner-current-806-001/bulk-patch-topology.json",
+      "sha256": "9bbe5a000612ff48200ffec14c10a4642bb87b66d0b105c6b637cb4e7f4c704b",
+      "baseline_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+      "patch_faces": 182,
+      "patch_nodes": 137,
+      "interior_patch_nodes": 47,
+      "single_clear_boundary_nodes": 90,
+      "ancestry_complete": true
+    },
+    "boundary_and_inside_receipt": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-027-cdt-owner-current-806-001/exact-source-boundary-checks.json",
+      "sha256": "71c062c31a2d45c7a62b6e72b439ffee9136f17cfe082848819e7b3c1d132766",
+      "boundary_node_count": 90,
+      "boundary_nodes_inside_any_of_185_banks": 0,
+      "exact_boundary_edge_hits_any_of_185_banks": 0,
+      "target_bank_inside_nodes": 43,
+      "inside_rows": [20895, 20899, 20900, 20901, 20902, 20907, 20924, 20926, 20928, 20931, 20932, 20956, 20957, 20989, 20990, 21016, 21019, 21022, 21025, 21026, 21027, 21030, 21062, 21064, 21066, 21068, 21069, 21071, 21092, 21093, 21094, 21095, 21096, 21131, 21134, 21159, 21187, 21188, 21190, 21191, 21193, 21204, 21205]
+    },
+    "cdt_preflight": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-027-cdt-owner-current-806-001/cdt-owner-preflight-v2.json",
+      "sha256": "8e05f0961b6f9f7c989a5c44bbc103b0284e751dac7f3809a10fa5b5a1455cd5",
+      "result": "STOP_FIXED_INSIDE_NODES",
+      "owner_limit": "planar single-source-chart triangulation; no 3D layer-volume, collision, or ancestry writer"
+    }
+  },
+  "native_owner_compatibility": {
+    "receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-028-native-cell-owner-compatibility-001/receipt.json",
+    "receipt_sha256": "19a7a7a3dbafc1af0f8c0d0945eefb1ff67a89bab7fb158ce5e384bfe7854516",
+    "disposition": "NO_MATCHED_DONOR_OR_CONSERVATIVE_806_VOLUME_MAP",
+    "missing_from_806_and_541": [
+      "exact current 806 to 2411 registered O/I/D boundary mapping",
+      "parent tetrahedron row plus barycentric ancestry for current/generated patch nodes",
+      "current FEM tet connectivity and material/donor/source-face labels",
+      "per-cell mass ancestry or exact conservative parent-child volume overlap"
+    ],
+    "additional_confirmed_gaps": {
+      "806_nodes_without_direct_node_source_row": 12458,
+      "complete_node_map_to_2411_rows": false,
+      "retained_native_per_tet_mass_files": [],
+      "native_identity_candidate_matches_806": false
+    }
+  },
+  "owner_contracts": {
+    "local_tet_splice_header": {
+      "path": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/NumiHumanSkinFatLocalTetSplice.hpp",
+      "sha256": "816044407147596cf08d52244dae4342fbb1be10ddc5f153d15596d0278e8c38",
+      "requires": "live FEM ObjectSource; replaced parent tet rows; old material and donor/source labels; exact cavity boundary and material interface; parent-tet barycentrics for appended nodes; child material/source identity"
+    },
+    "unpaired_volume_header": {
+      "path": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "sha256": "f3b39b990ffb780227a876bae7ec6ea63cf923776db96bb0e6e115b64c2ce754",
+      "limitation": "caller-supplied ancestry CSR alone establishes neither geometric overlap nor conservative pullback"
+    },
+    "parent_mass_transfer_header": {
+      "path": "/Users/numi/Work/unpaired-skin-fat-mass-ownership-070/apps/NumiHumanParentReferenceMassTransfer.hpp",
+      "sha256": "f9bbaf5c4e4d19e470235517e2e14a99e0fa5aaf134d63499034fe326da270be"
+    }
+  },
+  "nearest_python_cavity_prototype": {
+    "script_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-070/evidence/source-topology/retessellate_volume_cavities_001.py",
+    "script_sha256": "670cf1f6a890f98acc2c9dea9bb4428dae42078e1dd4802fe4af5ff6e9cdc6a1",
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-070/evidence/source-topology/retessellation-001/volume-cavity-001/report.json",
+    "report_sha256": "3950f7b57b79051889661422f984919852d1e2eacc54fc3a0e076a23ed38c2d0",
+    "incompatibility": "operates on a different 2411-column O/I/D and 28632-tet native domain; replacement pairing is bookkeeping, not conservative mass ancestry; cannot splice current 806 without the missing current-volume map"
+  },
+  "next_required_input": "one exact no-step donor export for the current 806 geometry: matched current FEM nodes/reference nodes, tetrahedra, material/donor/source labels, cavity parent rows and node parent-tet barycentrics, plus authoritative per-tet mass or exact conservative overlap measures. Do not synthesize missing cell ownership from surface prolongation.",
+  "limitations": [
+    "The 90-node patch boundary is geometrically clear, but the 43 inside target-bank skin nodes remain unresolved inside it.",
+    "The current surface and layer artifacts do not provide the FEM volume domain the local splice owner consumes.",
+    "No candidate was constructed and no geometry or product state was changed."
+  ]
+}

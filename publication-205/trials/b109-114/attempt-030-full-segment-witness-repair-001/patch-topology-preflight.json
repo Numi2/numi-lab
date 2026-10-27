@@ -1,0 +1,318 @@
+{
+  "candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "construction_only": true,
+  "faces": 42379,
+  "inside_sample_count": 24,
+  "inside_sample_nodes": [
+    20920,
+    20960,
+    20961,
+    20964,
+    20965,
+    20968,
+    20969,
+    20970,
+    20972,
+    20979,
+    20980,
+    21035,
+    21038,
+    21039,
+    21040,
+    21043,
+    21045,
+    21046,
+    21052,
+    21147,
+    21150,
+    21174,
+    21176,
+    21178
+  ],
+  "nodes": 21212,
+  "physical_steps": 0,
+  "rings": [
+    {
+      "boundary": {
+        "all_boundary_degree_two": false,
+        "boundary_components": [
+          59,
+          11
+        ],
+        "boundary_degree_histogram": {
+          "2": 68,
+          "4": 2
+        },
+        "boundary_edges": 72,
+        "boundary_vertices": 70
+      },
+      "component_boundaries": [
+        {
+          "all_boundary_degree_two": true,
+          "boundary_components": [
+            26
+          ],
+          "boundary_degree_histogram": {
+            "2": 26
+          },
+          "boundary_edges": 26,
+          "boundary_vertices": 26
+        },
+        {
+          "all_boundary_degree_two": true,
+          "boundary_components": [
+            18
+          ],
+          "boundary_degree_histogram": {
+            "2": 18
+          },
+          "boundary_edges": 18,
+          "boundary_vertices": 18
+        },
+        {
+          "all_boundary_degree_two": true,
+          "boundary_components": [
+            17
+          ],
+          "boundary_degree_histogram": {
+            "2": 17
+          },
+          "boundary_edges": 17,
+          "boundary_vertices": 17
+        },
+        {
+          "all_boundary_degree_two": true,
+          "boundary_components": [
+            11
+          ],
+          "boundary_degree_histogram": {
+            "2": 11
+          },
+          "boundary_edges": 11,
+          "boundary_vertices": 11
+        }
+      ],
+      "component_face_counts": [
+        44,
+        28,
+        27,
+        13
+      ],
+      "faces": 112,
+      "nodes": 94,
+      "ring": 0
+    },
+    {
+      "boundary": {
+        "all_boundary_degree_two": false,
+        "boundary_components": [
+          38,
+          12
+        ],
+        "boundary_degree_histogram": {
+          "2": 48,
+          "4": 2
+        },
+        "boundary_edges": 52,
+        "boundary_vertices": 50
+      },
+      "component_boundaries": [
+        {
+          "all_boundary_degree_two": false,
+          "boundary_components": [
+            38
+          ],
+          "boundary_degree_histogram": {
+            "2": 36,
+            "4": 2
+          },
+          "boundary_edges": 40,
+          "boundary_vertices": 38
+        },
+        {
+          "all_boundary_degree_two": true,
+          "boundary_components": [
+            12
+          ],
+          "boundary_degree_histogram": {
+            "2": 12
+          },
+          "boundary_edges": 12,
+          "boundary_vertices": 12
+        }
+      ],
+      "component_face_counts": [
+        154,
+        24
+      ],
+      "faces": 178,
+      "nodes": 115,
+      "ring": 1
+    },
+    {
+      "boundary": {
+        "all_boundary_degree_two": false,
+        "boundary_components": [
+          34,
+          16
+        ],
+        "boundary_degree_histogram": {
+          "2": 49,
+          "4": 1
+        },
+        "boundary_edges": 51,
+        "boundary_vertices": 50
+      },
+      "component_boundaries": [
+        {
+          "all_boundary_degree_two": false,
+          "boundary_components": [
+            34
+          ],
+          "boundary_degree_histogram": {
+            "2": 33,
+            "4": 1
+          },
+          "boundary_edges": 35,
+          "boundary_vertices": 34
+        },
+        {
+          "all_boundary_degree_two": true,
+          "boundary_components": [
+            16
+          ],
+          "boundary_degree_histogram": {
+            "2": 16
+          },
+          "boundary_edges": 16,
+          "boundary_vertices": 16
+        }
+      ],
+      "component_face_counts": [
+        183,
+        36
+      ],
+      "faces": 219,
+      "nodes": 136,
+      "ring": 2
+    },
+    {
+      "boundary": {
+        "all_boundary_degree_two": true,
+        "boundary_components": [
+          35,
+          15
+        ],
+        "boundary_degree_histogram": {
+          "2": 50
+        },
+        "boundary_edges": 50,
+        "boundary_vertices": 50
+      },
+      "component_boundaries": [
+        {
+          "all_boundary_degree_two": true,
+          "boundary_components": [
+            35
+          ],
+          "boundary_degree_histogram": {
+            "2": 35
+          },
+          "boundary_edges": 35,
+          "boundary_vertices": 35
+        },
+        {
+          "all_boundary_degree_two": true,
+          "boundary_components": [
+            15
+          ],
+          "boundary_degree_histogram": {
+            "2": 15
+          },
+          "boundary_edges": 15,
+          "boundary_vertices": 15
+        }
+      ],
+      "component_face_counts": [
+        211,
+        47
+      ],
+      "faces": 258,
+      "nodes": 156,
+      "ring": 3
+    },
+    {
+      "boundary": {
+        "all_boundary_degree_two": true,
+        "boundary_components": [
+          31,
+          20
+        ],
+        "boundary_degree_histogram": {
+          "2": 51
+        },
+        "boundary_edges": 51,
+        "boundary_vertices": 51
+      },
+      "component_boundaries": [
+        {
+          "all_boundary_degree_two": true,
+          "boundary_components": [
+            31
+          ],
+          "boundary_degree_histogram": {
+            "2": 31
+          },
+          "boundary_edges": 31,
+          "boundary_vertices": 31
+        },
+        {
+          "all_boundary_degree_two": true,
+          "boundary_components": [
+            20
+          ],
+          "boundary_degree_histogram": {
+            "2": 20
+          },
+          "boundary_edges": 20,
+          "boundary_vertices": 20
+        }
+      ],
+      "component_face_counts": [
+        239,
+        60
+      ],
+      "faces": 299,
+      "nodes": 177,
+      "ring": 4
+    }
+  ],
+  "schema": "numi.human.b109-114.full-target-segment-patch-topology.v1",
+  "seed_union_component_counts": [
+    44,
+    28,
+    27,
+    13
+  ],
+  "seed_union_face_count": 112,
+  "self_witness_pairs": [
+    [
+      34537,
+      34698
+    ],
+    [
+      34537,
+      34701
+    ],
+    [
+      34698,
+      34744
+    ],
+    [
+      34701,
+      34744
+    ]
+  ],
+  "target_raw_pair_count": 184,
+  "target_skin_face_count": 111
+}

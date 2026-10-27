@@ -1,0 +1,82 @@
+{
+  "candidate_outer_unchanged": true,
+  "elapsed_seconds": 2.2585728329140693,
+  "exact_skin_self_screen": {
+    "reason": "coupled layer gate did not pass",
+    "run": false
+  },
+  "fixed_outer_candidate_sha256": "5c98028c91d1adac1052c660d7e1c7715ef3ed2aeb643fe282bfa6c5a1292107",
+  "iterations": [
+    {
+      "LP_rows": 4054,
+      "baseline_nonpositive_tets": 1444,
+      "baseline_positive_tets": 1106,
+      "initial_min_volume_margin_mm3": -0.1341031697073174,
+      "iteration": 1,
+      "message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)",
+      "solver_status": 2,
+      "solver_success": false,
+      "status": "LP_INFEASIBLE_OR_FAILED",
+      "tet_constraint_count": 2550,
+      "variable_count": 564
+    }
+  ],
+  "limits": {
+    "exact_margin_tolerance_mm3": 1e-07,
+    "max_steps": 2,
+    "normalized_det_floor": 1e-05,
+    "per_step_component_trust_mm": 0.2,
+    "positive_tet_volume_floor_fraction": 0.2,
+    "skin_fat_thickness_absolute_tolerance_mm": 0.02,
+    "skin_fat_thickness_relative_tolerance": 0.1
+  },
+  "local_layer_artifact": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-035-coupled-layer-correction-001/skin-fat-layers-rejected.npz",
+    "sha256": "e50b42d452566b2683422e922afac8a9b1a9844add3c420ffec52ccd1ec11965"
+  },
+  "method": "At fixed outer Float32 points, adjust only patch interior I/D nodes by a two-step relinearized HiGHS L1 fit. Hard constraints cover baseline-positive tet volume retention, nonworsening signed volume for baseline-invalid tets, baseline/new conditioning floors, per-node 541 thickness norms, and fixed shared O/I/D boundary.",
+  "outer_target_and_inside_metrics_inherited_from_exact_diagnostic": {
+    "baseline_child_pairs": 148,
+    "baseline_mapped_identity_count": 84,
+    "child_pairs_added": [
+      [
+        14214,
+        173
+      ]
+    ],
+    "child_pairs_removed": [
+      [
+        14217,
+        174
+      ]
+    ],
+    "exact_affected_patch_pair_count": 148,
+    "mapped_identity_added": [],
+    "mapped_identity_net_delta": 0,
+    "mapped_identity_removed": [],
+    "strict_mapped_improvement": false,
+    "updated_child_pairs": 148,
+    "updated_mapped_identity_count": 84
+  },
+  "patch": {
+    "boundary_node_count": 62,
+    "face_count": 248,
+    "is_single_disk": true,
+    "layer_face_count": 425,
+    "movable_layer_node_count": 94,
+    "node_count": 156
+  },
+  "physical_or_native_admission": false,
+  "pins": {
+    "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/matter/tools/human_skin_fat_bone_audit.py": "ea833990d8b1ffb309d4960e62fb8c67e5cf0ecdbcdc0d8e9ad40c20eaf4c6db",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-024-topology-independent-layer-transfer-001/transfer_topology_independent_541.py": "fb53b372fd534a1f81e29944a1455ef249b674d4c8c043940fca442c3a7aad51",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-031-partial-inside-slack-layer-fit-001/fit_806_reconstruct_layers_partial_inside_slack.py": "75616ba4c841619049e8f9752a4cf703ad03a4be004286442f82d1fba45ab122",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-032-shape-pass-exact-diagnostic-001/candidate-rejected-layer-gate.npz": "5c98028c91d1adac1052c660d7e1c7715ef3ed2aeb643fe282bfa6c5a1292107",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-032-shape-pass-exact-diagnostic-001/exact-diagnostic-report.json": "3a56ac0783b3dc06f017a9ac1f98a9e3e321bb2ff9158b18b4db5ea67cd08b45",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/skin-fat-layers-541.npz": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+  },
+  "schema": "numi.human.bank65_99.coupled-layer-correction.v1",
+  "status": "REJECTED_LOCAL_LAYER_GATES"
+}

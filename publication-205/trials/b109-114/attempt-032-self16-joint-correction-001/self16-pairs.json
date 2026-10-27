@@ -1,0 +1,103 @@
+{
+  "pair_file_sha256": "8915aa862bb6d41f36b8e977009a666269ae06d67a0c2e466910e3b8d99a0a05",
+  "pair_ids": [
+    {
+      "skin_face_rows": [
+        34694,
+        34705
+      ]
+    },
+    {
+      "skin_face_rows": [
+        34695,
+        34705
+      ]
+    },
+    {
+      "skin_face_rows": [
+        34695,
+        34707
+      ]
+    },
+    {
+      "skin_face_rows": [
+        34695,
+        34708
+      ]
+    },
+    {
+      "skin_face_rows": [
+        34696,
+        34705
+      ]
+    },
+    {
+      "skin_face_rows": [
+        34697,
+        34705
+      ]
+    },
+    {
+      "skin_face_rows": [
+        34699,
+        34705
+      ]
+    },
+    {
+      "skin_face_rows": [
+        34699,
+        34707
+      ]
+    },
+    {
+      "skin_face_rows": [
+        34699,
+        34708
+      ]
+    },
+    {
+      "skin_face_rows": [
+        34700,
+        34705
+      ]
+    },
+    {
+      "skin_face_rows": [
+        35358,
+        35386
+      ]
+    },
+    {
+      "skin_face_rows": [
+        35358,
+        35393
+      ]
+    },
+    {
+      "skin_face_rows": [
+        35386,
+        35395
+      ]
+    },
+    {
+      "skin_face_rows": [
+        35386,
+        35399
+      ]
+    },
+    {
+      "skin_face_rows": [
+        35393,
+        35395
+      ]
+    },
+    {
+      "skin_face_rows": [
+        35393,
+        35399
+      ]
+    }
+  ],
+  "schema": "numi.human.b109-114.exact-self16-barrier-input.v1",
+  "source_candidate_sha256": "35e3d7ff8d18f7873dd4256524b1dfc5cc3aacf3abdd36f6f46d818f72ef8b4f"
+}

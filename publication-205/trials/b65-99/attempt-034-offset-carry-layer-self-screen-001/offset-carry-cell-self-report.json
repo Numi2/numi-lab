@@ -1,0 +1,393 @@
+{
+  "baseline_candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "carried_layer_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-034-offset-carry-layer-self-screen-001/skin-fat-layers-offset-carried.npz",
+  "carried_layer_sha256": "e50b42d452566b2683422e922afac8a9b1a9844add3c420ffec52ccd1ec11965",
+  "changed_cell_scope": {
+    "all_unaffected_coordinates_and_cells_unchanged": true,
+    "changed_face_count": 221,
+    "changed_face_rows_sha256": "bb8fd29e86d1cccdb4ddc5585bc502658f61a478e128bad47a926e9dac485de5",
+    "every_face_incident_to_changed_node_checked": true
+  },
+  "elapsed_seconds": 2.2502660409081727,
+  "exact_skin_self_screen": {
+    "reason": "offset cell gate added/worsened a failure",
+    "run": false
+  },
+  "fat_flags": {
+    "authored_bad_added_face_rows": [
+      14076
+    ],
+    "authored_bad_removed_face_rows": [],
+    "changed_face_min_normalized_det_after": 7.708678521801977e-07,
+    "changed_face_min_normalized_det_before": 6.448625871346492e-06,
+    "changed_tet_volume_delta_mm3_max": 0.1341031697073177,
+    "changed_tet_volume_delta_mm3_min": -0.1331729874869694,
+    "conditioned_added_face_tets": [
+      [
+        14074,
+        2
+      ],
+      [
+        14076,
+        0
+      ],
+      [
+        14242,
+        2
+      ]
+    ],
+    "conditioned_removed_face_tets": [
+      [
+        14073,
+        1
+      ]
+    ],
+    "layer": "fat",
+    "nonpositive_added_face_tets": [],
+    "nonpositive_removed_face_tets": []
+  },
+  "limits": [
+    "Only changed-node incident layer cells were compared; identical unaffected outer/inner/deep Float32 rows imply unchanged prism cells elsewhere.",
+    "No all-185-bank recheck was run; target mapped crossings remain unchanged from the exact diagnostic.",
+    "No native physical-cell mass/material mapping or admission is established."
+  ],
+  "no_added_or_worsened_invalid_cell_gate": false,
+  "offset_method": "Carry the baseline transferred Float32 skin and fat offsets along with the same emitted Float32 outer displacement; do not use local 127 reconstruction.",
+  "old_new_per_tet_volume_gate": {
+    "baseline_nonpositive_count": 944,
+    "baseline_positive_count": 382,
+    "checked_tetrahedra": 1326,
+    "first_violations": [
+      {
+        "baseline_positive": false,
+        "face_row": 14050,
+        "layer": "skin",
+        "margin_mm3": -0.003997945821828872,
+        "new_oriented_volume_mm3": -0.05444826850401909,
+        "old_oriented_volume_mm3": -0.05045032268219022,
+        "required_min_mm3": -0.05045032268219022
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14050,
+        "layer": "skin",
+        "margin_mm3": -0.003998068647464853,
+        "new_oriented_volume_mm3": -0.05407740670072201,
+        "old_oriented_volume_mm3": -0.05007933805325716,
+        "required_min_mm3": -0.05007933805325716
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14050,
+        "layer": "skin",
+        "margin_mm3": -0.003985086833762114,
+        "new_oriented_volume_mm3": -0.054215551412690015,
+        "old_oriented_volume_mm3": -0.0502304645789279,
+        "required_min_mm3": -0.0502304645789279
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14054,
+        "layer": "skin",
+        "margin_mm3": -0.0020897024067553123,
+        "new_oriented_volume_mm3": -0.029781145193974585,
+        "old_oriented_volume_mm3": -0.027691442787219273,
+        "required_min_mm3": -0.027691442787219273
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14054,
+        "layer": "skin",
+        "margin_mm3": -0.002088908230172746,
+        "new_oriented_volume_mm3": -0.02975216463844596,
+        "old_oriented_volume_mm3": -0.027663256408273214,
+        "required_min_mm3": -0.027663256408273214
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14054,
+        "layer": "skin",
+        "margin_mm3": -0.002081629416503177,
+        "new_oriented_volume_mm3": -0.0294682999875015,
+        "old_oriented_volume_mm3": -0.027386670570998323,
+        "required_min_mm3": -0.027386670570998323
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14055,
+        "layer": "skin",
+        "margin_mm3": -0.0014415990283613012,
+        "new_oriented_volume_mm3": -0.029111864672557164,
+        "old_oriented_volume_mm3": -0.027670265644195863,
+        "required_min_mm3": -0.027670265644195863
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14055,
+        "layer": "skin",
+        "margin_mm3": -0.0014440198321574033,
+        "new_oriented_volume_mm3": -0.029121380241392478,
+        "old_oriented_volume_mm3": -0.027677360409235074,
+        "required_min_mm3": -0.027677360409235074
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14055,
+        "layer": "skin",
+        "margin_mm3": -0.00143274076438989,
+        "new_oriented_volume_mm3": -0.028751464984629063,
+        "old_oriented_volume_mm3": -0.027318724220239173,
+        "required_min_mm3": -0.027318724220239173
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14056,
+        "layer": "skin",
+        "margin_mm3": -0.0014128739402591954,
+        "new_oriented_volume_mm3": -0.02908855062057809,
+        "old_oriented_volume_mm3": -0.027675676680318895,
+        "required_min_mm3": -0.027675676680318895
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14056,
+        "layer": "skin",
+        "margin_mm3": -0.0014381404759647547,
+        "new_oriented_volume_mm3": -0.028836166355910308,
+        "old_oriented_volume_mm3": -0.027398025879945553,
+        "required_min_mm3": -0.027398025879945553
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14056,
+        "layer": "skin",
+        "margin_mm3": -0.0014196615158210552,
+        "new_oriented_volume_mm3": -0.028760827258910646,
+        "old_oriented_volume_mm3": -0.02734116574308959,
+        "required_min_mm3": -0.02734116574308959
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14057,
+        "layer": "skin",
+        "margin_mm3": -0.0025920770930358446,
+        "new_oriented_volume_mm3": -0.030262342737231707,
+        "old_oriented_volume_mm3": -0.027670265644195863,
+        "required_min_mm3": -0.027670265644195863
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14057,
+        "layer": "skin",
+        "margin_mm3": -0.0026008292535309938,
+        "new_oriented_volume_mm3": -0.029991444354050188,
+        "old_oriented_volume_mm3": -0.027390615100519194,
+        "required_min_mm3": -0.027390615100519194
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14057,
+        "layer": "skin",
+        "margin_mm3": -0.0025955217686107306,
+        "new_oriented_volume_mm3": -0.02995846977615091,
+        "old_oriented_volume_mm3": -0.02736294800754018,
+        "required_min_mm3": -0.02736294800754018
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14058,
+        "layer": "skin",
+        "margin_mm3": -0.0020594336492465483,
+        "new_oriented_volume_mm3": -0.030006037826875196,
+        "old_oriented_volume_mm3": -0.027946604177628648,
+        "required_min_mm3": -0.027946604177628648
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14058,
+        "layer": "skin",
+        "margin_mm3": -0.002050797117479318,
+        "new_oriented_volume_mm3": -0.02941212798368382,
+        "old_oriented_volume_mm3": -0.027361330866204504,
+        "required_min_mm3": -0.027361330866204504
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14058,
+        "layer": "skin",
+        "margin_mm3": -0.0020487099183021072,
+        "new_oriented_volume_mm3": -0.029517071580220156,
+        "old_oriented_volume_mm3": -0.02746836166191805,
+        "required_min_mm3": -0.02746836166191805
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14065,
+        "layer": "skin",
+        "margin_mm3": -0.0009453778029261672,
+        "new_oriented_volume_mm3": -0.06858584845031791,
+        "old_oriented_volume_mm3": -0.06764047064739175,
+        "required_min_mm3": -0.06764047064739175
+      },
+      {
+        "baseline_positive": false,
+        "face_row": 14065,
+        "layer": "skin",
+        "margin_mm3": -0.0009576643926939715,
+        "new_oriented_volume_mm3": -0.06819808640265142,
+        "old_oriented_volume_mm3": -0.06724042200995745,
+        "required_min_mm3": -0.06724042200995745
+      }
+    ],
+    "minimum_baseline_positive_new_to_old_ratio": -1.8448948219764427,
+    "minimum_margin_mm3": -0.1341031697073174,
+    "pass": false,
+    "tolerance_mm3": 1e-09,
+    "violation_count": 453,
+    "worst_baseline_nonpositive_change_mm3": -0.1341031697073174
+  },
+  "outer_candidate_coordinate_diff": {
+    "all_noncoordinate_npz_arrays_bitwise_unchanged": true,
+    "changed_node_rows": [
+      16710,
+      18460,
+      18565,
+      18568,
+      18570,
+      18571,
+      18572,
+      18724,
+      18725,
+      18861,
+      18864,
+      18995,
+      19341,
+      19343,
+      19470,
+      19613,
+      19686,
+      19932,
+      19933,
+      19941,
+      19942,
+      19945,
+      19949,
+      19950,
+      19972,
+      20013,
+      20945,
+      20946,
+      20947,
+      20948,
+      20984,
+      20985,
+      20986,
+      20987,
+      20996,
+      20997,
+      20998,
+      20999,
+      21000,
+      21001,
+      21002,
+      21003,
+      21004,
+      21005,
+      21006,
+      21007,
+      21008,
+      21009,
+      21010,
+      21011,
+      21012,
+      21013,
+      21058,
+      21059,
+      21078,
+      21079,
+      21080,
+      21081,
+      21082,
+      21083,
+      21084,
+      21085,
+      21087,
+      21088,
+      21089,
+      21091,
+      21103,
+      21104,
+      21105,
+      21118,
+      21119,
+      21155,
+      21156,
+      21157,
+      21158,
+      21169,
+      21170,
+      21179,
+      21180,
+      21184,
+      21185,
+      21198,
+      21199,
+      21200,
+      21201
+    ],
+    "changed_nodes": 85,
+    "maximum_displacement_mm": 0.12329176670648949,
+    "noncoordinate_differences": [],
+    "topology_unchanged": true
+  },
+  "outer_candidate_sha256": "5c98028c91d1adac1052c660d7e1c7715ef3ed2aeb643fe282bfa6c5a1292107",
+  "physical_or_native_admission": false,
+  "pins": {
+    "/Users/numi/Work/generic-static-query-042-freeze/queryrow-tet-edge-043/matter/tools/human_skin_fat_bone_audit.py": "ea833990d8b1ffb309d4960e62fb8c67e5cf0ecdbcdc0d8e9ad40c20eaf4c6db",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-031-partial-inside-slack-layer-fit-001/fit_806_reconstruct_layers_partial_inside_slack.py": "75616ba4c841619049e8f9752a4cf703ad03a4be004286442f82d1fba45ab122",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-032-shape-pass-exact-diagnostic-001/candidate-rejected-layer-gate.npz": "5c98028c91d1adac1052c660d7e1c7715ef3ed2aeb643fe282bfa6c5a1292107",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-032-shape-pass-exact-diagnostic-001/exact-diagnostic-report.json": "3a56ac0783b3dc06f017a9ac1f98a9e3e321bb2ff9158b18b4db5ea67cd08b45",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/audit-130/surface-self-pairs.npy": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/skin-fat-layers-541.npz": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+  },
+  "schema": "numi.human.bank65_99.offset-carry-cell-self-screen.v1",
+  "skin_flags": {
+    "authored_bad_added_face_rows": [],
+    "authored_bad_removed_face_rows": [],
+    "changed_face_min_normalized_det_after": 0.00013778085927656868,
+    "changed_face_min_normalized_det_before": 0.00012359131464037763,
+    "changed_tet_volume_delta_mm3_max": 0.04143700794341262,
+    "changed_tet_volume_delta_mm3_min": -0.04357569518374868,
+    "conditioned_added_face_tets": [],
+    "conditioned_removed_face_tets": [],
+    "layer": "skin",
+    "nonpositive_added_face_tets": [],
+    "nonpositive_removed_face_tets": []
+  },
+  "status": "OFFSET_CARRY_CHECK_COMPLETE",
+  "target_crossing_baseline_and_candidate": {
+    "baseline_child_pairs": 148,
+    "baseline_mapped_identity_count": 84,
+    "child_pairs_added": [
+      [
+        14214,
+        173
+      ]
+    ],
+    "child_pairs_removed": [
+      [
+        14217,
+        174
+      ]
+    ],
+    "exact_affected_patch_pair_count": 148,
+    "mapped_identity_added": [],
+    "mapped_identity_net_delta": 0,
+    "mapped_identity_removed": [],
+    "strict_mapped_improvement": false,
+    "updated_child_pairs": 148,
+    "updated_mapped_identity_count": 84
+  }
+}

@@ -1,0 +1,272 @@
+{
+  "accepted_physical_steps": 0,
+  "alpha": 0.0625,
+  "baseline_candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "changed_face_rows_sha256": "a400f5e014980770053b3a24ccbacf07554b5fceb46dd304b5fda60bf05cd72b",
+  "changed_faces": 827,
+  "changed_nodes": 371,
+  "direction_sha256": "3a871195ee0203184b3f3b18ea02fd7b713f76214e0a29cc625c2e04dfedb37d",
+  "elapsed_s": 3.2271568751893938,
+  "emission": "(base_world_float32 promoted to float64 + alpha*delta_mm/1000) cast once to float32",
+  "exact_43_16": {
+    "aabb_baseline": {
+      "bank_aabb_active": 331,
+      "skin_aabb_active": 703
+    },
+    "aabb_candidate": {
+      "bank_aabb_active": 331,
+      "skin_aabb_active": 703
+    },
+    "baseline_changed_face_exact_control_pairs": 247,
+    "baseline_mapped": 149,
+    "baseline_raw": 247,
+    "candidate_changed_face_pairs": 249,
+    "candidate_mapped": 151,
+    "candidate_raw": 249,
+    "new_mapped": [
+      [
+        18990,
+        140
+      ],
+      [
+        18995,
+        140
+      ],
+      [
+        18997,
+        140
+      ]
+    ],
+    "new_raw": [
+      [
+        19203,
+        140
+      ],
+      [
+        19214,
+        140
+      ],
+      [
+        19221,
+        140
+      ]
+    ],
+    "removed_mapped": [
+      [
+        19004,
+        144
+      ]
+    ],
+    "removed_raw": [
+      [
+        19239,
+        144
+      ]
+    ]
+  },
+  "exact_self": {
+    "count": 0,
+    "pairs": [],
+    "scope": "all full-surface triangles, pairs touching any changed face"
+  },
+  "geometry_admitted": false,
+  "inside_point_query": {
+    "all_bank_baseline_inside_pair_count": 43,
+    "all_bank_candidate_inside_pair_count": 43,
+    "banks_per_node": [
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185,
+      185
+    ],
+    "baseline_depth_abs_mm": {
+      "max": 1.7782188299526762,
+      "median": 0.592929991912558,
+      "min": 0.004290963857026052
+    },
+    "baseline_target_inside_count": 43,
+    "candidate_inside_depth_abs_mm": {
+      "max": 1.7763831509770502,
+      "median": 0.5910540558358343,
+      "min": 0.0027353539024429587
+    },
+    "candidate_target_inside_count": 43,
+    "invalid_or_ambiguous": 0,
+    "new_inside_pairs": [],
+    "node_count": 43,
+    "nodes": [
+      20895,
+      20899,
+      20900,
+      20901,
+      20902,
+      20907,
+      20924,
+      20926,
+      20928,
+      20931,
+      20932,
+      20956,
+      20957,
+      20989,
+      20990,
+      21016,
+      21019,
+      21022,
+      21025,
+      21026,
+      21027,
+      21030,
+      21062,
+      21064,
+      21066,
+      21068,
+      21069,
+      21071,
+      21092,
+      21093,
+      21094,
+      21095,
+      21096,
+      21131,
+      21134,
+      21159,
+      21187,
+      21188,
+      21190,
+      21191,
+      21193,
+      21204,
+      21205
+    ],
+    "query_points_npz_sha256": "3341e496926a8fb6bee5192ce9fcdf5b51740b4f146bc1a09692338831a26484",
+    "removed_inside_pairs": []
+  },
+  "layer_gate": {
+    "intervals": [
+      {
+        "baseline_nonpositive_cells": 0,
+        "cell_witnesses": [
+          {
+            "baseline_mm3": 9.05071115404573e-08,
+            "change_mm3": -5.408316392881912e-06,
+            "face_row": 19121,
+            "layer_interval": 0,
+            "tetra_slot": 1,
+            "trial_mm3": -5.3178092813414545e-06
+          }
+        ],
+        "layer": "skin",
+        "minimum_positive_trial_baseline_ratio": -58.755706494559355,
+        "new_authored_orientation_failures": 0,
+        "new_float32_conditioned_cells": 0,
+        "new_float32_nonpositive_cells": 1,
+        "nonpositive_worsening_cells": 0,
+        "positive_cells": 2481,
+        "positive_floor_failures": 1,
+        "worst_nonpositive_worsening_mm3": 0.0
+      },
+      {
+        "baseline_nonpositive_cells": 1,
+        "cell_witnesses": [
+          {
+            "baseline_mm3": -1.0003475112466687e-05,
+            "change_mm3": -1.6416345638968188e-06,
+            "face_row": 19873,
+            "layer_interval": 1,
+            "tetra_slot": 1,
+            "trial_mm3": -1.1645109676363506e-05
+          }
+        ],
+        "layer": "fat",
+        "minimum_positive_trial_baseline_ratio": 0.8441899548626189,
+        "new_authored_orientation_failures": 0,
+        "new_float32_conditioned_cells": 0,
+        "new_float32_nonpositive_cells": 0,
+        "nonpositive_worsening_cells": 1,
+        "positive_cells": 2480,
+        "positive_floor_failures": 0,
+        "worst_nonpositive_worsening_mm3": -1.6416345638968188e-06
+      }
+    ],
+    "pass": false
+  },
+  "layer_pass": false,
+  "limitations": [
+    "alpha 0.0625 fails local skin/fat prism gate; exact checks are diagnostic, not candidate qualification",
+    "point-query classification changes at nodes do not establish clearance of the full skin surface",
+    "neighbor-bank intersections and full whole-body audits remain required before any proposal",
+    "no physical or native admission"
+  ],
+  "native_admission": false,
+  "not_run": {
+    "complete_185_bank_face_audit": "not run",
+    "complete_body_self_audit": "not run beyond exact changed-face-touching scope",
+    "exact_neighbor_bank_triangle_audit": "not required for rejected layer-failing diagnostic; no promotion"
+  },
+  "projection_report_sha256": "653727a95441ca7ead5aaa4d76f8009fc9e7f3ea3bdb8087766306204fc3a0a8",
+  "schema": "numi.human.b43-16.contact-feature-alpha00625-diagnostic.v1",
+  "shape": {
+    "face_count": 827,
+    "maximum_aspect_ratio_ratio": 1.0176541565594062,
+    "maximum_normal_turn_deg": 0.33172437394432275,
+    "min_angle_after_deg": 0.12672398346313005,
+    "min_angle_before_deg": 0.126091493830086,
+    "minimum_area_ratio": 0.9827129225136659,
+    "minimum_min_angle_delta_deg": -0.0386977840846745,
+    "zero_area_after": 0,
+    "zero_area_before": 0
+  },
+  "shape_pass": {
+    "face_count": 827,
+    "maximum_aspect_ratio_ratio": 1.0176541565594062,
+    "maximum_normal_turn_deg": 0.33172437394432275,
+    "min_angle_after_deg": 0.12672398346313005,
+    "min_angle_before_deg": 0.126091493830086,
+    "minimum_area_ratio": 0.9827129225136659,
+    "minimum_min_angle_delta_deg": -0.0386977840846745,
+    "zero_area_after": 0,
+    "zero_area_before": 0
+  },
+  "status": "REJECTED_LAYER_GATE_DIAGNOSTIC_ONLY",
+  "zero_motion_bitwise_identical": true
+}

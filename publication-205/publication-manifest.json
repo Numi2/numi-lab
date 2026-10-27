@@ -1,0 +1,748 @@
+{
+  "version": 1,
+  "status": "offline reference-pose construction and diagnostic evidence only",
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "members": [
+    {
+      "path": "README.md",
+      "bytes": 5488,
+      "sha256": "58661da6ea3505ce8d8d15ba673d081c321960492d2125c91887d7574349c971"
+    },
+    {
+      "path": "trials/b109-114/attempt-030-full-segment-witness-repair-001/alpha1-self-witness-barrier-preflight.json",
+      "bytes": 32076,
+      "sha256": "805626acb0d09769b951b54fc7d7ebc364cacb198c6949144951dcb4a7a60fed"
+    },
+    {
+      "path": "trials/b109-114/attempt-030-full-segment-witness-repair-001/exact-segment-boundary-preflight.json",
+      "bytes": 538673,
+      "sha256": "238cee2dcd394379fb9e01bff244840da913cf85434ca7b15be9294f9bcc745d"
+    },
+    {
+      "path": "trials/b109-114/attempt-030-full-segment-witness-repair-001/fit-partial-report.json",
+      "bytes": 130743,
+      "sha256": "cf93d73a8a640c28c0d62cd6b49e4dbfcec3fafd5b1cff4744c5bb726ffc4b32"
+    },
+    {
+      "path": "trials/b109-114/attempt-030-full-segment-witness-repair-001/fit-report.json",
+      "bytes": 62173,
+      "sha256": "d11b9a20dfb64f05ec04e7033e6588805452e1ef3c8c0c2f9aca6d8c1996ee5b"
+    },
+    {
+      "path": "trials/b109-114/attempt-030-full-segment-witness-repair-001/patch-topology-preflight.json",
+      "bytes": 6500,
+      "sha256": "5b3943c5130340e1b53a54b311f1270350dd3adf982b1e7ba88352bacd34e80b"
+    },
+    {
+      "path": "trials/b109-114/attempt-030-full-segment-witness-repair-001/patch_topology_preflight.py",
+      "bytes": 3972,
+      "sha256": "e5dc45d76f1bb69f5984053bbf49ec5364b5919bac4d96fb631dc4d2c8aeba32"
+    },
+    {
+      "path": "trials/b109-114/attempt-030-full-segment-witness-repair-001/segment_boundary_preflight.py",
+      "bytes": 9624,
+      "sha256": "4311e428428795809da13189bb51b1ce540b72b85eb777c357ef94313e06b838"
+    },
+    {
+      "path": "trials/b109-114/attempt-030-full-segment-witness-repair-001/self_witness_barrier_preflight.py",
+      "bytes": 3936,
+      "sha256": "688ac219b22af391379ab1ef00fc3d61cc4b38f203e6adcda5cd6f62b35c6c72"
+    },
+    {
+      "path": "trials/b109-114/attempt-030-full-segment-witness-repair-001/solve_full_segment_fit.py",
+      "bytes": 23592,
+      "sha256": "1a8a8087ee7b4239d8667bed6236534fe062576daf50c62bede6568445dbbcd6"
+    },
+    {
+      "path": "trials/b109-114/attempt-030-full-segment-witness-repair-001/solve_full_segment_partial_fit.py",
+      "bytes": 25640,
+      "sha256": "8ad7d43215248a0bc5107096f57cd345dbd259310363e0a666fecd5f405f16c6"
+    },
+    {
+      "path": "trials/b109-114/attempt-030-full-segment-witness-repair-001/zero-movable-partial-preflight.json",
+      "bytes": 21000,
+      "sha256": "3a6d4ffea52aa86e1811109435fdbd75441d9d04c28973e44943ef9330ed3ccf"
+    },
+    {
+      "path": "trials/b109-114/attempt-030-full-segment-witness-repair-001/zero-movable-preflight.json",
+      "bytes": 36308,
+      "sha256": "469e9d693a475b6a436c3c52b0e96e22f0acab95e31e891165a02f41e6bad71c"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/alpha1-self-witness-barrier-preflight.json",
+      "bytes": 32076,
+      "sha256": "805626acb0d09769b951b54fc7d7ebc364cacb198c6949144951dcb4a7a60fed"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/audit-130/summary.json",
+      "bytes": 433,
+      "sha256": "e272a84fd9bafa54fc01ef6a292ec6028748d10b5fc89b03ac06cab60f4bd165"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/audit-130/surface-self-pairs.npy",
+      "bytes": 384,
+      "sha256": "8915aa862bb6d41f36b8e977009a666269ae06d67a0c2e466910e3b8d99a0a05"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/candidate-segment-partial-alpha-0p0625.npz",
+      "bytes": 7499175,
+      "sha256": "35e3d7ff8d18f7873dd4256524b1dfc5cc3aacf3abdd36f6f46d818f72ef8b4f"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/exact-segment-boundary-preflight.json",
+      "bytes": 541977,
+      "sha256": "ac1b00a72a66c6141687131f4c9422c4bb51fe44c2964cfe27f1ec64503af450"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/fit-partial-report.json",
+      "bytes": 134534,
+      "sha256": "f7ba04e3284faac411956e244c1e5933e0b457699debe6217a7be30b4ed03007"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/inside-sample-depth-report.json",
+      "bytes": 12408,
+      "sha256": "cf02b3ea973c5a0c5912a38c03aa71757cd866acd8fff9446afb723226738902"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/inside-sample-points.csv",
+      "bytes": 3526,
+      "sha256": "bb97dea5c126a6c96effffe8ea456ebb67946b573c3bd6d7fcb73668805e841d"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/inside-sample-points.npz",
+      "bytes": 738,
+      "sha256": "28faedb57455a8cab120cd992a60e93198178218224104277f25be299ce758e1"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/inside-sample-query-nodes.csv",
+      "bytes": 1134,
+      "sha256": "68b067bbcc85ed3fe388663df75a82c4063cbf88fbf7f1abec526e3462089185"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/inside-sample-query-pairs.csv",
+      "bytes": 10505,
+      "sha256": "e0e9b17183d23112a8cc69e8ae232c89c867409f97cd9c534c49751e326df809"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/patch-topology-preflight.json",
+      "bytes": 7812,
+      "sha256": "15db65137dcfb3c058209d09ccb4a43ae956b9ed3cafb2d1dfb5d478913c6310"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/patch_topology_with_16_self.py",
+      "bytes": 3990,
+      "sha256": "bad0ca0477a2f1567bb61a3e36d0cdad3eaa667658efa0e5325c0f1a8e164828"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/query_inside_samples.py",
+      "bytes": 5012,
+      "sha256": "bbb31b34688d4dcfc49faa376a2bc44cdfada47174b5ed64c947c3d80f369272"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/screen_target.py",
+      "bytes": 6567,
+      "sha256": "629c20365e2dcc07a367324b817d27ed7515d2bf633d99c2e3a083d09a059bfd"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/segment_boundary_with_16_self.py",
+      "bytes": 9642,
+      "sha256": "27193c66e57472ea25395f32441a76b44e8678bded3254df1983434f6d0468ee"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/self16-barrier-preflight.json",
+      "bytes": 19685,
+      "sha256": "22c264bcfe31376ba529859e191b2e625eb9ddffac281571f5b5dee31ed1206a"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/self16_barrier_preflight.py",
+      "bytes": 2118,
+      "sha256": "3788f863fe5f2e5c7daef2a989ce4ccf477208ef56984ca1d802938904e71a0e"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/solve_scaled_backtrack.py",
+      "bytes": 25653,
+      "sha256": "27c273e38510264ff54bdc35bb24fdd8db54199c965570746ef7729fb72505be"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/target-identity-backtrack-screen.json",
+      "bytes": 5909,
+      "sha256": "8ed8b93b7fe396e872acb9eb9d57e66206a11ee802eb6f0d913e58ed24757aa7"
+    },
+    {
+      "path": "trials/b109-114/attempt-031-alpha-scaled-progress-screen-001/zero-movable-partial-preflight.json",
+      "bytes": 21000,
+      "sha256": "3a6d4ffea52aa86e1811109435fdbd75441d9d04c28973e44943ef9330ed3ccf"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/audit-130/query/nodes.csv",
+      "bytes": 498114,
+      "sha256": "168a9b206d1041cb8bcd3c55b0dd9fbd6a88440702c8e8fae01f8fa52e2b8d1e"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/audit-130/query/pairs.csv",
+      "bytes": 2781365,
+      "sha256": "24ed463f53c661baf6b8b7f1444aaabad2fc9f91698242f8b0a30c329678f66a"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/audit-130/query/points-world.npz",
+      "bytes": 228659,
+      "sha256": "3fac317338d5205630eace1e6b6d426e7c3bb49c565d0cdf5b02b08bbfc68829"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/audit-130/query/points.csv",
+      "bytes": 1608501,
+      "sha256": "0f952140509fc7007f167a92116459df7cf3c2ab5798bc3e888813226db23250"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/audit-130/query/query-receipt.json",
+      "bytes": 1804,
+      "sha256": "35efd40715abd20b23e69c1f273ba738b7cfabe205adaf0e4c95efe4066ec30d"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/audit-130/summary.json",
+      "bytes": 106417,
+      "sha256": "94e54f4c33e950ace86b36550b06ae705097d0c82ce75fa078025e5bf9961245"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/audit-130/surface-self-pairs.npy",
+      "bytes": 128,
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/candidate-segment-partial-alpha-0p0625.npz",
+      "bytes": 7499181,
+      "sha256": "5633c4434d25d3abf2541a39107d3096810e634148eec81998f549b71f463151"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/compare_inside_queries.py",
+      "bytes": 3998,
+      "sha256": "af748483f1b2e25fd50aa9e5faf0bec57776362da7938d1279a549ee0e9f4ca7"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/correct_offset_carry_layer_cells.py",
+      "bytes": 14694,
+      "sha256": "3c1636a019533fed7c01ef26f46a4fff1fea6372fb74a72a517b511ace6b172a"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/diagnose_layer_cells.py",
+      "bytes": 2773,
+      "sha256": "3f013b4f3bafb80f8bf8519f77079f23b4b445e7e8efee5ed98547bf8aaaf5b4"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/exact-segment-boundary-preflight.json",
+      "bytes": 541977,
+      "sha256": "ac1b00a72a66c6141687131f4c9422c4bb51fe44c2964cfe27f1ec64503af450"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/fit-partial-report.json",
+      "bytes": 150372,
+      "sha256": "986e47b1b1bfbfa220f2e372ddac85792dc085087b64cf4c1cb203f92c823c78"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/inside-query-comparison.json",
+      "bytes": 11120,
+      "sha256": "72ba0ae6715ab188347270b0ef1ed2d2acf6af729496933499ae46ee4e120813"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/layer-reconstruction-and-cell-report.json",
+      "bytes": 21769,
+      "sha256": "637f50b259583545cc506939f806f4f33a187d7a41965bbdb388e6c7d145c06d"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/layer-target-cell-diagnostic.json",
+      "bytes": 4408,
+      "sha256": "4bbe7502e1afda7986a7583daa2465acb358fa940ea7d50dc001517ac36358cd"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/reconstruct_and_check_layers.py",
+      "bytes": 9771,
+      "sha256": "fa12841544ef666d8033809bc3f205d58deb2465a365a00d37287a5aaea0a2e4"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/screen_target.py",
+      "bytes": 6562,
+      "sha256": "d73f997a17392fef50be5d6f920c26af62b72442172908b256a711472f20ccc6"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/self16-pairs.json",
+      "bytes": 1491,
+      "sha256": "f55550c4c3d9594f6b78c43fb29b0b236a37c217c1dd1f00a365994f83b83d0d"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/skin-fat-layers-local-reconstruction.npz",
+      "bytes": 3411439,
+      "sha256": "5821f716d57e95e10e784af910144316068018dea322efbfad7dfc4efed81e6d"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/solve_self16_joint.py",
+      "bytes": 25623,
+      "sha256": "8f6a5830a71ce5e983dd46c72779f17d48883774e22f872c6faaca00163e1635"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/target-identity-backtrack-screen.json",
+      "bytes": 5935,
+      "sha256": "3921b2633367393e5b7f2480a756a08b30781ac91e344aeaa1e650be8ef3fb6c"
+    },
+    {
+      "path": "trials/b109-114/attempt-032-self16-joint-correction-001/zero-movable-partial-preflight.json",
+      "bytes": 23222,
+      "sha256": "d0b63821fb337c45174fb53e72d91a39beca6c29d9de311de41367de8050178a"
+    },
+    {
+      "path": "trials/b43-16/attempt-031-contact-feature-fit-001/fit_contact_features.py",
+      "bytes": 21951,
+      "sha256": "a7f49745b3ddf470a2dc9e802d10151fb4fdbdea293fe8ff590479f22310e50c"
+    },
+    {
+      "path": "trials/b43-16/attempt-031-contact-feature-fit-001/projection-001/contact-feature-alpha00625-diagnostic.json",
+      "bytes": 6684,
+      "sha256": "f90c2bb63845ab24900a0a6d1acfd59d3991f1f0c723b73aaa5b0efa02376f3e"
+    },
+    {
+      "path": "trials/b43-16/attempt-031-contact-feature-fit-001/projection-001/contact-feature-direction.npz",
+      "bytes": 10165,
+      "sha256": "3a871195ee0203184b3f3b18ea02fd7b713f76214e0a29cc625c2e04dfedb37d"
+    },
+    {
+      "path": "trials/b43-16/attempt-031-contact-feature-fit-001/projection-001/diagnose_alpha00625.py",
+      "bytes": 8972,
+      "sha256": "2a9918cbf18c2089f0bb7284e8043a607c3534705e78f15e4655c6352b2483ef"
+    },
+    {
+      "path": "trials/b43-16/attempt-031-contact-feature-fit-001/projection-001/inside-query-43/nodes.csv",
+      "bytes": 1029,
+      "sha256": "f25b9036322832ffe3c71416e4e5cad7ef1bc7c728cf47c08f6dc2528bad9830"
+    },
+    {
+      "path": "trials/b43-16/attempt-031-contact-feature-fit-001/projection-001/inside-query-43/pairs.csv",
+      "bytes": 9253,
+      "sha256": "c3885681372b9f28475d6b06037afcd97e352a119ffab2d841ca6ec826580ea9"
+    },
+    {
+      "path": "trials/b43-16/attempt-031-contact-feature-fit-001/projection-001/inside-query-43/points-world.npz",
+      "bytes": 704,
+      "sha256": "3341e496926a8fb6bee5192ce9fcdf5b51740b4f146bc1a09692338831a26484"
+    },
+    {
+      "path": "trials/b43-16/attempt-031-contact-feature-fit-001/projection-001/inside-query-43/points.csv",
+      "bytes": 3213,
+      "sha256": "c55aeeff1939c0587e0a9d0abcc182ff4ab02ce1408ad9f5a2d34c966f299ff7"
+    },
+    {
+      "path": "trials/b43-16/attempt-031-contact-feature-fit-001/projection-001/project_contacts.py",
+      "bytes": 19082,
+      "sha256": "c72ac4d78c1d8f46839343bf624aad10c401904b6a2a59d7034d1f6677c6bacb"
+    },
+    {
+      "path": "trials/b43-16/attempt-031-contact-feature-fit-001/projection-001/report-lp-before-direction-export.json",
+      "bytes": 19788,
+      "sha256": "ea9d9e2c4f0ddd46aae7e2fb7fcde110a35ee32228911b6f1d1307180dcebc54"
+    },
+    {
+      "path": "trials/b43-16/attempt-031-contact-feature-fit-001/projection-001/report.json",
+      "bytes": 19788,
+      "sha256": "653727a95441ca7ead5aaa4d76f8009fc9e7f3ea3bdb8087766306204fc3a0a8"
+    },
+    {
+      "path": "trials/b43-16/attempt-031-contact-feature-fit-001/report.json",
+      "bytes": 407740,
+      "sha256": "fd5a43484aef7465e4ee6a38ecf75401cb2964e959a87a5868d0b788376cc0c7"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/correction-vector-v2-unscaled.npz",
+      "bytes": 1355,
+      "sha256": "450360962998ae39d94a963d952ef0f273b0766fb7ba9104d0bd747df1a48848"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/correction-vector.npz",
+      "bytes": 1376,
+      "sha256": "a8784f55504aaae38dd7af0c585464bec4444e15f7273ab9b6dcc7399f543064"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/inside-query-43/nodes.csv",
+      "bytes": 1029,
+      "sha256": "f25b9036322832ffe3c71416e4e5cad7ef1bc7c728cf47c08f6dc2528bad9830"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/inside-query-43/pairs.csv",
+      "bytes": 9253,
+      "sha256": "c3885681372b9f28475d6b06037afcd97e352a119ffab2d841ca6ec826580ea9"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/inside-query-43/points-world.npz",
+      "bytes": 704,
+      "sha256": "2edab5cb98fa91d089f9b32cb060d43fe24122202f2478799f1342bfae843600"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/inside-query-43/points.csv",
+      "bytes": 3213,
+      "sha256": "c55aeeff1939c0587e0a9d0abcc182ff4ab02ce1408ad9f5a2d34c966f299ff7"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/inside-query-43-v3/nodes.csv",
+      "bytes": 1029,
+      "sha256": "f25b9036322832ffe3c71416e4e5cad7ef1bc7c728cf47c08f6dc2528bad9830"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/inside-query-43-v3/pairs.csv",
+      "bytes": 9251,
+      "sha256": "df351347b8409faaa1a3494bbf1ad8f1e230c826b02527bea11df8c44cadcc8b"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/inside-query-43-v3/points-world.npz",
+      "bytes": 704,
+      "sha256": "2edab5cb98fa91d089f9b32cb060d43fe24122202f2478799f1342bfae843600"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/inside-query-43-v3/points.csv",
+      "bytes": 3213,
+      "sha256": "ff1d239e16c5d8a23f354dd770a6b69377d8d7bdee540b9e071e1ed00a1c8bd2"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/report-frozen-removed-face-infeasible.json",
+      "bytes": 5517,
+      "sha256": "822c1e72f3de1a1f62d62f70587acbbbf9b24fe1b9c660905ec83f7e5f8357ca"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/report-v2-unscaled-cell-lp.json",
+      "bytes": 9529,
+      "sha256": "b74291125c1236adca00ba1293c57e7c0e17b109fd2bb0e9c16cf48cbeb79528"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/report.json",
+      "bytes": 9349,
+      "sha256": "abdd3306f872e12bc32fd47933bd87139fcce3dd6dc82f75b9f83d4b98f61466"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/run_joint.py",
+      "bytes": 17394,
+      "sha256": "bda27d0ad514f0d697ce2e92038b4267e6d8a02faf81f478144a57854486b916"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/run_joint_v2.py",
+      "bytes": 17390,
+      "sha256": "5cb3f2a8b901b441e5dc28d7d807e6f288051019b1bcd14cfa6db12a319d6d6f"
+    },
+    {
+      "path": "trials/b43-16/attempt-032-targeted-contact-layer-constraint-001/run_joint_v3.py",
+      "bytes": 17464,
+      "sha256": "253781ac6250a5f3e4fa113716fc339923ca924d817534a2ea2de7f802e8de91"
+    },
+    {
+      "path": "trials/b43-16/attempt-033-local-tet-splice-assessment-001/receipt.json",
+      "bytes": 6712,
+      "sha256": "7369c79c401c35fd43d9eac12f0615fa97eca4505a0748e6bd3e3e53004e8e80"
+    },
+    {
+      "path": "trials/b65-99/attempt-028-source-faithful-layer-reconstruction-fit-001/fit-run-001/report.json",
+      "bytes": 21336,
+      "sha256": "306f1e40d937097f9861296e14380f62a37cc371f05b95dee545d9bc237c7f70"
+    },
+    {
+      "path": "trials/b65-99/attempt-028-source-faithful-layer-reconstruction-fit-001/fit_806_reconstruct_layers_and_inside.py",
+      "bytes": 51538,
+      "sha256": "72077c4abcfc4297fcfa40220a4ab822273e943479a2bd5df8286ffd189442e6"
+    },
+    {
+      "path": "trials/b65-99/attempt-031-partial-inside-slack-layer-fit-001/fit-run-001/lp-direction.npz",
+      "bytes": 4378,
+      "sha256": "bd1b65d70fa42a0f45062069c6a0f2e7dee45e9bc4feab07882e53dec11bd82a"
+    },
+    {
+      "path": "trials/b65-99/attempt-031-partial-inside-slack-layer-fit-001/fit-run-001/report.json",
+      "bytes": 147000,
+      "sha256": "982c113b81e1f6e959bcf8cb96c12476ed1f44c9b0cceb84f10bea50e64c43a0"
+    },
+    {
+      "path": "trials/b65-99/attempt-031-partial-inside-slack-layer-fit-001/fit_806_reconstruct_layers_partial_inside_slack.py",
+      "bytes": 52312,
+      "sha256": "75616ba4c841619049e8f9752a4cf703ad03a4be004286442f82d1fba45ab122"
+    },
+    {
+      "path": "trials/b65-99/attempt-032-shape-pass-exact-diagnostic-001/candidate-rejected-layer-gate.npz",
+      "bytes": 7305271,
+      "sha256": "5c98028c91d1adac1052c660d7e1c7715ef3ed2aeb643fe282bfa6c5a1292107"
+    },
+    {
+      "path": "trials/b65-99/attempt-032-shape-pass-exact-diagnostic-001/exact-diagnostic-report.json",
+      "bytes": 16482,
+      "sha256": "3a56ac0783b3dc06f017a9ac1f98a9e3e321bb2ff9158b18b4db5ea67cd08b45"
+    },
+    {
+      "path": "trials/b65-99/attempt-032-shape-pass-exact-diagnostic-001/skin-fat-layers-rejected.npz",
+      "bytes": 2951545,
+      "sha256": "a3a226c004129dbdddc9924ac9d0f44f372c5893ffcb00bc06f8abe85039e689"
+    },
+    {
+      "path": "trials/b65-99/attempt-034-offset-carry-layer-self-screen-001/affected-cell-flag-counts.json",
+      "bytes": 2937,
+      "sha256": "f2858ff47ca4caae9c81230721d5e61d31ebacaf7bbf741711711b50d42fa189"
+    },
+    {
+      "path": "trials/b65-99/attempt-034-offset-carry-layer-self-screen-001/offset-carry-cell-self-report.json",
+      "bytes": 13649,
+      "sha256": "d24d034da5ff3e165c15a8b6c5004bbada99c31e7fcc4654320fcac790921509"
+    },
+    {
+      "path": "trials/b65-99/attempt-034-offset-carry-layer-self-screen-001/skin-fat-layers-offset-carried.npz",
+      "bytes": 2951476,
+      "sha256": "e50b42d452566b2683422e922afac8a9b1a9844add3c420ffec52ccd1ec11965"
+    },
+    {
+      "path": "trials/b65-99/attempt-035-coupled-layer-correction-001/coupled-layer-correction-report.json",
+      "bytes": 4690,
+      "sha256": "336a0a014123a793d88acb5af6661c3e25db6cff50db068a403251f8121115fc"
+    },
+    {
+      "path": "trials/b65-99/attempt-035-coupled-layer-correction-001/coupled_layer_b65.py",
+      "bytes": 18303,
+      "sha256": "2b734787e88b06bad77bfd9878ea8278c616479cc5c1729b1b51aa5f74d41c5b"
+    },
+    {
+      "path": "trials/b65-99/attempt-035-coupled-layer-correction-001/final-archive-receipt.json",
+      "bytes": 6773,
+      "sha256": "8c5924ccdb98defe175270ff1db471c8482f8af652d76686b3c03066742d9279"
+    },
+    {
+      "path": "trials/b65-99/attempt-035-coupled-layer-correction-001/skin-fat-layers-rejected.npz",
+      "bytes": 2951476,
+      "sha256": "e50b42d452566b2683422e922afac8a9b1a9844add3c420ffec52ccd1ec11965"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/centroids-baseline/nodes.csv",
+      "bytes": 216,
+      "sha256": "679b3761970b54217a03809c24bcc85af8c7451892da284bceaf98027280e479"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/centroids-baseline/pairs.csv",
+      "bytes": 1067,
+      "sha256": "61066dfde0b35ae36432a0512351c4020e8a9d634671eccb366400173aa9c8b4"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/centroids-baseline/points.csv",
+      "bytes": 350,
+      "sha256": "4d866238ddf42c46dd2a94c586012a93bb052edd307ba64a026e9f5141dbd346"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/centroids-baseline/points.npz",
+      "bytes": 279,
+      "sha256": "e6aa635768fe71be20e97b47f72b3cfcfad5081485fa8dbccffee4f29d281045"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/centroids-candidate/nodes.csv",
+      "bytes": 216,
+      "sha256": "679b3761970b54217a03809c24bcc85af8c7451892da284bceaf98027280e479"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/centroids-candidate/pairs.csv",
+      "bytes": 1066,
+      "sha256": "f719f4d271f31cb78db5c25272336e6762fe34755e59eb8e38bda9ea350cfe86"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/centroids-candidate/points.csv",
+      "bytes": 351,
+      "sha256": "24e718ff5c2a03e619336f02e7a7db8e017d7d9cf2f49c0bb84d496f3d81fd89"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/centroids-candidate/points.npz",
+      "bytes": 279,
+      "sha256": "2942caa335af40a2aaf3d90bc01c8ef0fadea08ae3f6de736f92d77c3fea9be4"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/fit-direction-slsqp-line-search-stop.npz",
+      "bytes": 5141,
+      "sha256": "83a5ae671e3471deb650542729ad2f26d06cdfac2047d1cd636e5c314a370f13"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/fit-direction.npz",
+      "bytes": 5141,
+      "sha256": "83a5ae671e3471deb650542729ad2f26d06cdfac2047d1cd636e5c314a370f13"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/report-slsqp-line-search-stop.json",
+      "bytes": 20281,
+      "sha256": "a9b2f084f865da109ba92dca73e3892177ff2717f2b3fbcfa982229ec1ebb126"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/report-v2-backtracks.json",
+      "bytes": 32550,
+      "sha256": "8d7121f065ec94fb3c7a940c462cbbebcc9b64643efa19f48e7a020a82e3bb30"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/report.json",
+      "bytes": 24980,
+      "sha256": "05d3d773e405c1be6e2904f7fefb03a6ec3e9e56d29cbb0643e0033126f2e27c"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/run_fit.py",
+      "bytes": 22146,
+      "sha256": "c69f509417df361be756596b059e909394aa7bfd8323bf469859ef8645a6aa66"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/run_fit_v2.py",
+      "bytes": 22127,
+      "sha256": "e451eb4dc506b6d8e11991444d9a5d7a3cc64e57f6117bf3afccc7a737f73782"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/run_fit_v3.py",
+      "bytes": 22119,
+      "sha256": "7ca777dc4eb8f46e1e8e9a705bf2bcf0ec0877e479908c00e30cea8fa35f90e6"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/screen-alpha0125-absolute-001/centroids-alpha0125/nodes.csv",
+      "bytes": 216,
+      "sha256": "679b3761970b54217a03809c24bcc85af8c7451892da284bceaf98027280e479"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/screen-alpha0125-absolute-001/centroids-alpha0125/pairs.csv",
+      "bytes": 1068,
+      "sha256": "26ed40ec55267ebcda4c13ae022cda0dc1ac988805dd03881e9aa969903c7c42"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/screen-alpha0125-absolute-001/centroids-alpha0125/points.csv",
+      "bytes": 351,
+      "sha256": "ec71e32c055e0bfd2b445f46d4fdfc58038829fd3dc546b14f0f0c722516650b"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/screen-alpha0125-absolute-001/centroids-alpha0125/points.npz",
+      "bytes": 279,
+      "sha256": "9c150a7db0e6b3947bb900504f9d0e3dcec7b1f343ab1d6c91185c46d74f4fae"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/screen-alpha0125-absolute-001/centroids-baseline/nodes.csv",
+      "bytes": 216,
+      "sha256": "679b3761970b54217a03809c24bcc85af8c7451892da284bceaf98027280e479"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/screen-alpha0125-absolute-001/centroids-baseline/pairs.csv",
+      "bytes": 1067,
+      "sha256": "61066dfde0b35ae36432a0512351c4020e8a9d634671eccb366400173aa9c8b4"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/screen-alpha0125-absolute-001/centroids-baseline/points.csv",
+      "bytes": 350,
+      "sha256": "4d866238ddf42c46dd2a94c586012a93bb052edd307ba64a026e9f5141dbd346"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/screen-alpha0125-absolute-001/centroids-baseline/points.npz",
+      "bytes": 279,
+      "sha256": "e6aa635768fe71be20e97b47f72b3cfcfad5081485fa8dbccffee4f29d281045"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/screen-alpha0125-absolute-001/report.json",
+      "bytes": 4256,
+      "sha256": "86375ae5a67784cc82eb42374822410cc153c00f75bcc1ca9ed7940494a3eeb2"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/screen-alpha0125-absolute-001/run.py",
+      "bytes": 10502,
+      "sha256": "7347a1dd0f440b078388db94553390c46a25b5f903fb55be08a3e06aee5a64db"
+    },
+    {
+      "path": "trials/b74-104/attempt-001-contact-feature-local-fit-806-001/trial-points-world-f32.npy",
+      "bytes": 254672,
+      "sha256": "7b8a592931d28f6204c4d833a6678173ef4cb3895f78904de084c2c96041d616"
+    },
+    {
+      "path": "trials/root-b109-joint-alpha00625-audit-159-001/progress.json",
+      "bytes": 98,
+      "sha256": "0b3c62d40450d7863fded691c683e984e1bb6514f0cb252c58521492f10b97ef"
+    },
+    {
+      "path": "trials/root-b109-joint-alpha00625-audit-159-001/report.json",
+      "bytes": 119980,
+      "sha256": "2fec8c0ce49d1b73d29c707056a2b8195f52234c418ef21236db15aa2b520bf5"
+    },
+    {
+      "path": "trials/root-material-chart-validation-001/b109-alpha1.json",
+      "bytes": 822,
+      "sha256": "00261af5b9b00805c01af21b5c6c07073f3f0816c23be6e3e73b12ce05c066d0"
+    },
+    {
+      "path": "trials/root-material-chart-validation-001/b109-joint-alpha00625.json",
+      "bytes": 822,
+      "sha256": "f29905ab6b016fb026fc93b811f9904ecf6d4ccc9811e35dfc2a491ac89756f9"
+    },
+    {
+      "path": "trials/root-material-chart-validation-001/b43-attempt028-chart-validation.json",
+      "bytes": 823,
+      "sha256": "5c2d68acc1c1c67e2f51abcb1522ecf860fa8216bb64fb6d2d8496ea65514cc9"
+    },
+    {
+      "path": "trials/root-material-chart-validation-001/b65-to-19343.json",
+      "bytes": 823,
+      "sha256": "8723d01e7598383a2950bf175c930fd6d71903051e64f02f3517d672aaaa0a13"
+    },
+    {
+      "path": "trials/root-material-chart-validation-001/b65-to-19945.json",
+      "bytes": 823,
+      "sha256": "7284380697e3d8da419037e304ecc5d63911c33b70918cd17ea4469175cfc1a7"
+    },
+    {
+      "path": "trials/root-material-chart-validation-001/d071-chart-validation-v2.json",
+      "bytes": 823,
+      "sha256": "0b30b7d96fa09cd2516f9f23fd479a27ca3531a014b719c7ca148aaa89ffaad1"
+    },
+    {
+      "path": "trials/root-material-chart-validation-001/d071-chart-validation.json",
+      "bytes": 823,
+      "sha256": "c0d57e4266aca6db2aff299393dcf5a3073f3135201dbabe64f2231c471166e3"
+    },
+    {
+      "path": "trials/root-material-chart-validation-001/d071-overlap-mapped-v2.npz",
+      "bytes": 7499192,
+      "sha256": "26d356522000b35a4737a0c3ecbfb0e267b0e364675a143bb3e399bedf20e269"
+    },
+    {
+      "path": "trials/root-material-chart-validation-001/d071-overlap-mapped.npz",
+      "bytes": 7499192,
+      "sha256": "26d356522000b35a4737a0c3ecbfb0e267b0e364675a143bb3e399bedf20e269"
+    },
+    {
+      "path": "trials/root-material-chart-validation-001/identity-parity.json",
+      "bytes": 822,
+      "sha256": "1ad851e7b81d774da71d644e508f9751cf411b2430c371e4a810d7476597186c"
+    },
+    {
+      "path": "trials/root-material-chart-validation-001/test_real_flip_ancestry.py",
+      "bytes": 2216,
+      "sha256": "e88e7251085b8fba8983a077c3a16344fa76afd16fcd36f11995ac92e409fa8a"
+    },
+    {
+      "path": "trials/root-material-chart-validation-001/test_validate_charts.py",
+      "bytes": 3520,
+      "sha256": "bd012afbdbba2e18807182fd1381cbe20dc8113e52e36f54d9f00c7cf8e791a9"
+    },
+    {
+      "path": "trials/root-material-chart-validation-001/validate_charts.py",
+      "bytes": 8585,
+      "sha256": "d46adbce768094f9c2d9a0c39cbb56f42700b1f915ec881678f9d3f640d8ad25"
+    },
+    {
+      "path": "trials/root-topology-aware-comparison-002/alpha025-v2.json",
+      "bytes": 1981,
+      "sha256": "145774ba4ddf1c636e4d4cc59f5dfd7402b426075df0176212fe6c6f358f8b42"
+    },
+    {
+      "path": "trials/root-topology-aware-comparison-002/b109-joint-alpha00625.json",
+      "bytes": 2915,
+      "sha256": "f3efbc4f49f0dfed8ed48285c486959edf49f26c744b68b42d9b6e986602317d"
+    },
+    {
+      "path": "trials/root-topology-aware-comparison-002/compare_changed_topology.py",
+      "bytes": 13219,
+      "sha256": "2ac813f87aa526eaafefcfd2ab26a905f643f938492d00e865d31cf7b8ee8f66"
+    },
+    {
+      "path": "trials/root-topology-aware-comparison-002/identity-parity-v7.json",
+      "bytes": 1899,
+      "sha256": "8613237fc593da79dcb741d22e48f6d44fd5352cbd214ef24fa517b8505eee84"
+    },
+    {
+      "path": "trials/root-topology-aware-comparison-002/test_compare_changed_topology.py",
+      "bytes": 4162,
+      "sha256": "3dc806684c1980312de3f2f9ad6cb6cf66df9294b7c4d1f1768aa767958d1191"
+    }
+  ]
+}

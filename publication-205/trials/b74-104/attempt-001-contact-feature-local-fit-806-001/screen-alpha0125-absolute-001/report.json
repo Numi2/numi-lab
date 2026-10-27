@@ -1,0 +1,129 @@
+{
+  "absolute_geometry": {
+    "degenerate_face_rows": [],
+    "face_count": 74,
+    "full_area_gate": {
+      "area_floor": 0.1,
+      "bad_current_oriented_face_count": 0,
+      "bad_current_oriented_face_rows_first_64": [],
+      "bad_current_oriented_face_rows_truncated": false,
+      "bad_fixed_037_reference_face_count": 0,
+      "bad_fixed_037_reference_face_rows_first_64": [],
+      "bad_fixed_037_reference_face_rows_truncated": false,
+      "faces_checked": 42379,
+      "minimum_current_oriented_ratio": 0.9680838547692993,
+      "minimum_fixed_037_reference_magnitude_ratio": 0.10000963829086307,
+      "pass": true
+    },
+    "inverted_face_rows": [],
+    "max_normal_turn_deg": 4.0263524392925625,
+    "maximum_aspect_ratio_ratio": 1.030447509114549,
+    "min_angle_after_deg": 1.673851949339284,
+    "min_angle_before_deg": 1.6738544919204799,
+    "min_signed_area_ratio": 0.9680838547692993,
+    "minimum_area_ratio": 0.9704791319927077,
+    "minimum_per_face_min_angle_delta_deg": -0.13317863690966902,
+    "zero_area_after": 0,
+    "zero_area_before": 0
+  },
+  "accepted_physical_steps": 0,
+  "alpha": 0.125,
+  "anchors_bitwise_same": true,
+  "baseline_candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "candidate_emitted": false,
+  "changed_faces": 74,
+  "changed_nodes": 24,
+  "direction_sha256": "83a5ae671e3471deb650542729ad2f26d06cdfac2047d1cd636e5c314a370f13",
+  "elapsed_s": 3.4752370840869844,
+  "emission": "(base_world_float32 promoted to float64 + alpha*delta_mm/1000) cast once to float32",
+  "exact_self_touching_changed_faces": {
+    "count": 0,
+    "pairs": []
+  },
+  "exact_target_74_104": {
+    "aabb_after": {
+      "bank_aabb_active": 46,
+      "skin_aabb_active": 72
+    },
+    "aabb_before": {
+      "bank_aabb_active": 46,
+      "skin_aabb_active": 72
+    },
+    "changed_face_baseline_pairs": 25,
+    "changed_face_candidate_pairs": 25,
+    "mapped_after": 19,
+    "mapped_before": 19,
+    "new_mapped": [],
+    "new_raw": [],
+    "raw_after": 25,
+    "raw_before": 25,
+    "removed_mapped": [],
+    "removed_raw": []
+  },
+  "face_centroid_query": {
+    "baseline_inside_count": 3,
+    "baseline_points_sha256": "e6aa635768fe71be20e97b47f72b3cfcfad5081485fa8dbccffee4f29d281045",
+    "candidate_inside_count": 3,
+    "candidate_points_sha256": "9c150a7db0e6b3947bb900504f9d0e3dcec7b1f343ab1d6c91185c46d74f4fae",
+    "faces": [
+      22587,
+      22588,
+      22589,
+      22590
+    ],
+    "new_inside": [],
+    "removed_inside": [],
+    "target_baseline": [
+      "inside",
+      "inside",
+      "outside",
+      "inside"
+    ],
+    "target_candidate": [
+      "inside",
+      "inside",
+      "outside",
+      "inside"
+    ]
+  },
+  "geometry_admitted": false,
+  "layer_gate": {
+    "intervals": [
+      {
+        "baseline_nonpositive_cells": 0,
+        "cell_witnesses": [],
+        "layer": "skin",
+        "minimum_positive_trial_baseline_ratio": 0.8704834205710084,
+        "new_authored_orientation_failures": 0,
+        "new_float32_conditioned_cells": 0,
+        "new_float32_nonpositive_cells": 0,
+        "nonpositive_worsening_cells": 0,
+        "positive_cells": 222,
+        "positive_floor_failures": 0,
+        "worst_nonpositive_worsening_mm3": 0.0
+      },
+      {
+        "baseline_nonpositive_cells": 0,
+        "cell_witnesses": [],
+        "layer": "fat",
+        "minimum_positive_trial_baseline_ratio": 0.8678593044425691,
+        "new_authored_orientation_failures": 0,
+        "new_float32_conditioned_cells": 0,
+        "new_float32_nonpositive_cells": 0,
+        "nonpositive_worsening_cells": 0,
+        "positive_cells": 222,
+        "positive_floor_failures": 0,
+        "worst_nonpositive_worsening_mm3": 0.0
+      }
+    ],
+    "pass": true
+  },
+  "native_admission": false,
+  "not_run": {
+    "all_185_neighbor_bank_face_audit": "not run because this is a non-improving diagnostic",
+    "complete_body_self": "only exact pairs touching changed faces run"
+  },
+  "schema": "numi.human.b74-104.contact-feature-alpha0125-absolute-screen.v1",
+  "solver_status_from_direction_receipt": "SLSQP positive directional derivative; feasible iterate preserved, optimizer did not report success",
+  "status": "DIAGNOSTIC_ABSOLUTE_SHAPE_AND_LAYER_SCREEN"
+}

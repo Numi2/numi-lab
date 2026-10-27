@@ -1,0 +1,841 @@
+{
+  "rows": [
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34522",
+      "lower": -0.3762682843243303,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.3762682843243303
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34522",
+      "lower": -0.3762682843243303,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.3762682843243303
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34523",
+      "lower": -0.5605502478868261,
+      "movable_norm": 5.721958498152797e-17,
+      "zero_motion_slack": 0.5605502478868261
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34523",
+      "lower": -0.5605502478868261,
+      "movable_norm": 5.721958498152797e-17,
+      "zero_motion_slack": 0.5605502478868261
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34561",
+      "lower": -0.245485354300993,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.245485354300993
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34561",
+      "lower": -0.245485354300993,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.245485354300993
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34562",
+      "lower": -0.048901422550767265,
+      "movable_norm": 5.551115123125783e-17,
+      "zero_motion_slack": 0.048901422550767265
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34562",
+      "lower": -0.048901422550767265,
+      "movable_norm": 5.551115123125783e-17,
+      "zero_motion_slack": 0.048901422550767265
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34571",
+      "lower": -0.07231999234999599,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.07231999234999599
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34571",
+      "lower": -0.07231999234999599,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.07231999234999599
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34571",
+      "lower": -0.07231999234999599,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.07231999234999599
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34571",
+      "lower": -0.07231999234999599,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.07231999234999599
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34575",
+      "lower": -0.29776716328600517,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.29776716328600517
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34575",
+      "lower": -0.29776716328600517,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.29776716328600517
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34575",
+      "lower": -0.29776716328600517,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.29776716328600517
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34575",
+      "lower": -0.29776716328600517,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.29776716328600517
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34577",
+      "lower": -0.16121798809926977,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.16121798809926977
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34577",
+      "lower": -0.16121798809926977,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.16121798809926977
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34577",
+      "lower": -0.16121798809926977,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.16121798809926977
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34577",
+      "lower": -0.16121798809926977,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.16121798809926977
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34580",
+      "lower": -0.005802707527987365,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.005802707527987365
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34580",
+      "lower": -0.005802707527987365,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.005802707527987365
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34580",
+      "lower": -0.005802707527987365,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.005802707527987365
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34580",
+      "lower": -0.005802707527987365,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.005802707527987365
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34582",
+      "lower": -0.014711120152364096,
+      "movable_norm": 5.551115123125783e-17,
+      "zero_motion_slack": 0.014711120152364096
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34582",
+      "lower": -0.014711120152364096,
+      "movable_norm": 5.551115123125783e-17,
+      "zero_motion_slack": 0.014711120152364096
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34583",
+      "lower": -0.03281902502808076,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.03281902502808076
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34583",
+      "lower": -0.03281902502808076,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.03281902502808076
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34583",
+      "lower": -0.03281902502808076,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.03281902502808076
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34583",
+      "lower": -0.03281902502808076,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.03281902502808076
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34587",
+      "lower": -0.07863930556698592,
+      "movable_norm": 7.850462293418876e-17,
+      "zero_motion_slack": 0.07863930556698592
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34587",
+      "lower": -0.07863930556698592,
+      "movable_norm": 7.850462293418876e-17,
+      "zero_motion_slack": 0.07863930556698592
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34588",
+      "lower": -0.004354030148525895,
+      "movable_norm": 6.938893903907228e-18,
+      "zero_motion_slack": 0.004354030148525895
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34588",
+      "lower": -0.004354030148525895,
+      "movable_norm": 6.938893903907228e-18,
+      "zero_motion_slack": 0.004354030148525895
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34589",
+      "lower": -0.049270231137141844,
+      "movable_norm": 1.1102230246251565e-16,
+      "zero_motion_slack": 0.049270231137141844
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34589",
+      "lower": -0.049270231137141844,
+      "movable_norm": 1.1102230246251565e-16,
+      "zero_motion_slack": 0.049270231137141844
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34590",
+      "lower": -0.5430088818435785,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.5430088818435785
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34590",
+      "lower": -0.5430088818435785,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.5430088818435785
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34598",
+      "lower": -0.010255030913586682,
+      "movable_norm": 1.1102230246251565e-16,
+      "zero_motion_slack": 0.010255030913586682
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34598",
+      "lower": -0.010255030913586682,
+      "movable_norm": 1.1102230246251565e-16,
+      "zero_motion_slack": 0.010255030913586682
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34621",
+      "lower": -0.17580950075630045,
+      "movable_norm": 1.1102230246251565e-16,
+      "zero_motion_slack": 0.17580950075630045
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34621",
+      "lower": -0.17580950075630045,
+      "movable_norm": 1.1102230246251565e-16,
+      "zero_motion_slack": 0.17580950075630045
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34645",
+      "lower": -0.014009911929186302,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.014009911929186302
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34645",
+      "lower": -0.014009911929186302,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.014009911929186302
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34645",
+      "lower": -0.014009911929186302,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.014009911929186302
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34645",
+      "lower": -0.014009911929186302,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.014009911929186302
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34672",
+      "lower": -0.10079166927061402,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.10079166927061402
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34672",
+      "lower": -0.10079166927061402,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.10079166927061402
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34673",
+      "lower": -0.18114979176586482,
+      "movable_norm": 1.962615573354719e-17,
+      "zero_motion_slack": 0.18114979176586482
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34673",
+      "lower": -0.18114979176586482,
+      "movable_norm": 1.962615573354719e-17,
+      "zero_motion_slack": 0.18114979176586482
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34677",
+      "lower": -0.05580812007020285,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.05580812007020285
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34677",
+      "lower": -0.05580812007020285,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.05580812007020285
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34677",
+      "lower": -0.05580812007020285,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.05580812007020285
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34677",
+      "lower": -0.05580812007020285,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.05580812007020285
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34692",
+      "lower": -0.07026470931784892,
+      "movable_norm": 5.551115123125783e-17,
+      "zero_motion_slack": 0.07026470931784892
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34692",
+      "lower": -0.07026470931784892,
+      "movable_norm": 5.551115123125783e-17,
+      "zero_motion_slack": 0.07026470931784892
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34713",
+      "lower": -0.15817248364018144,
+      "movable_norm": 1.3877787807814457e-17,
+      "zero_motion_slack": 0.15817248364018144
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34713",
+      "lower": -0.15817248364018144,
+      "movable_norm": 1.3877787807814457e-17,
+      "zero_motion_slack": 0.15817248364018144
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34714",
+      "lower": -0.12415009834227464,
+      "movable_norm": 5.551115123125783e-17,
+      "zero_motion_slack": 0.12415009834227464
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34714",
+      "lower": -0.12415009834227464,
+      "movable_norm": 5.551115123125783e-17,
+      "zero_motion_slack": 0.12415009834227464
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34727",
+      "lower": -0.051935358565617915,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.051935358565617915
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34727",
+      "lower": -0.051935358565617915,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.051935358565617915
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:34727",
+      "lower": -0.051935358565617915,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.051935358565617915
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:34727",
+      "lower": -0.051935358565617915,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.051935358565617915
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35355",
+      "lower": -0.06318190209104864,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.06318190209104864
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35355",
+      "lower": -0.06318190209104864,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.06318190209104864
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35355",
+      "lower": -0.06318190209104864,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.06318190209104864
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35355",
+      "lower": -0.06318190209104864,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.06318190209104864
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35360",
+      "lower": -0.5327311108526397,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.5327311108526397
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35360",
+      "lower": -0.5327311108526397,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.5327311108526397
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35360",
+      "lower": -0.5327311108526397,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.5327311108526397
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35360",
+      "lower": -0.5327311108526397,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.5327311108526397
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35363",
+      "lower": -1.2736252650369304,
+      "movable_norm": 8.95090418262362e-16,
+      "zero_motion_slack": 1.2736252650369304
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35363",
+      "lower": -1.2736252650369304,
+      "movable_norm": 8.95090418262362e-16,
+      "zero_motion_slack": 1.2736252650369304
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35365",
+      "lower": -2.0428986359618015,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 2.0428986359618015
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35365",
+      "lower": -2.0428986359618015,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 2.0428986359618015
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35365",
+      "lower": -2.0428986359618015,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 2.0428986359618015
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35365",
+      "lower": -2.0428986359618015,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 2.0428986359618015
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35377",
+      "lower": -0.44600280295853106,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.44600280295853106
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35377",
+      "lower": -0.44600280295853106,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.44600280295853106
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35377",
+      "lower": -0.44600280295853106,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.44600280295853106
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35377",
+      "lower": -0.44600280295853106,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.44600280295853106
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35383",
+      "lower": -1.2034035641629108,
+      "movable_norm": 2.3551386880256624e-16,
+      "zero_motion_slack": 1.2034035641629108
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35383",
+      "lower": -1.2034035641629108,
+      "movable_norm": 2.3551386880256624e-16,
+      "zero_motion_slack": 1.2034035641629108
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35400",
+      "lower": -0.2147498593943248,
+      "movable_norm": 3.1031676915590914e-17,
+      "zero_motion_slack": 0.2147498593943248
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35400",
+      "lower": -0.2147498593943248,
+      "movable_norm": 3.1031676915590914e-17,
+      "zero_motion_slack": 0.2147498593943248
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35401",
+      "lower": -0.42564727154733156,
+      "movable_norm": 4.710277376051325e-16,
+      "zero_motion_slack": 0.42564727154733156
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35401",
+      "lower": -0.42564727154733156,
+      "movable_norm": 4.710277376051325e-16,
+      "zero_motion_slack": 0.42564727154733156
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35402",
+      "lower": -0.7462318598600303,
+      "movable_norm": 1.1102230246251565e-16,
+      "zero_motion_slack": 0.7462318598600303
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35402",
+      "lower": -0.7462318598600303,
+      "movable_norm": 1.1102230246251565e-16,
+      "zero_motion_slack": 0.7462318598600303
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35406",
+      "lower": -0.9086406440383025,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.9086406440383025
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35406",
+      "lower": -0.9086406440383025,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.9086406440383025
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35406",
+      "lower": -0.9086406440383025,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.9086406440383025
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35406",
+      "lower": -0.9086406440383025,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.9086406440383025
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35425",
+      "lower": -1.0988874260134862,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 1.0988874260134862
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35425",
+      "lower": -1.0988874260134862,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 1.0988874260134862
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35425",
+      "lower": -1.0988874260134862,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 1.0988874260134862
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35425",
+      "lower": -1.0988874260134862,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 1.0988874260134862
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35513",
+      "lower": -0.7340782458817449,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.7340782458817449
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35513",
+      "lower": -0.7340782458817449,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.7340782458817449
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal+:35513",
+      "lower": -0.7340782458817449,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.7340782458817449
+    },
+    {
+      "kind": "witness/self/shape",
+      "label": "normal-:35513",
+      "lower": -0.7340782458817449,
+      "movable_norm": 0.0,
+      "zero_motion_slack": 0.7340782458817449
+    },
+    {
+      "face_row": 34571,
+      "kind": "area",
+      "lower": -0.11600710634430189,
+      "movable_norm": 0.0,
+      "row_index": 53,
+      "zero_motion_slack": 0.11600710634430189
+    },
+    {
+      "face_row": 34575,
+      "kind": "area",
+      "lower": -0.47764256956759277,
+      "movable_norm": 0.0,
+      "row_index": 54,
+      "zero_motion_slack": 0.47764256956759277
+    },
+    {
+      "face_row": 34577,
+      "kind": "area",
+      "lower": -0.25860666853413217,
+      "movable_norm": 0.0,
+      "row_index": 55,
+      "zero_motion_slack": 0.25860666853413217
+    },
+    {
+      "face_row": 34580,
+      "kind": "area",
+      "lower": -0.009308011345277041,
+      "movable_norm": 0.0,
+      "row_index": 56,
+      "zero_motion_slack": 0.009308011345277041
+    },
+    {
+      "face_row": 34583,
+      "kind": "area",
+      "lower": -0.05264436572564268,
+      "movable_norm": 0.0,
+      "row_index": 58,
+      "zero_motion_slack": 0.05264436572564268
+    },
+    {
+      "face_row": 34645,
+      "kind": "area",
+      "lower": -0.02247302979759659,
+      "movable_norm": 0.0,
+      "row_index": 101,
+      "zero_motion_slack": 0.02247302979759659
+    },
+    {
+      "face_row": 34677,
+      "kind": "area",
+      "lower": -0.08952073015339512,
+      "movable_norm": 0.0,
+      "row_index": 114,
+      "zero_motion_slack": 0.08952073015339512
+    },
+    {
+      "face_row": 34727,
+      "kind": "area",
+      "lower": -0.08330850804012035,
+      "movable_norm": 0.0,
+      "row_index": 153,
+      "zero_motion_slack": 0.08330850804012035
+    },
+    {
+      "face_row": 35355,
+      "kind": "area",
+      "lower": -0.10134887182288205,
+      "movable_norm": 0.0,
+      "row_index": 215,
+      "zero_motion_slack": 0.10134887182288205
+    },
+    {
+      "face_row": 35360,
+      "kind": "area",
+      "lower": -0.8545437108249878,
+      "movable_norm": 0.0,
+      "row_index": 218,
+      "zero_motion_slack": 0.8545437108249878
+    },
+    {
+      "face_row": 35365,
+      "kind": "area",
+      "lower": -3.276974341558587,
+      "movable_norm": 0.0,
+      "row_index": 221,
+      "zero_motion_slack": 3.276974341558587
+    },
+    {
+      "face_row": 35377,
+      "kind": "area",
+      "lower": -0.7154245031204001,
+      "movable_norm": 0.0,
+      "row_index": 227,
+      "zero_motion_slack": 0.7154245031204001
+    },
+    {
+      "face_row": 35406,
+      "kind": "area",
+      "lower": -1.4575329503849446,
+      "movable_norm": 0.0,
+      "row_index": 252,
+      "zero_motion_slack": 1.4575329503849446
+    },
+    {
+      "face_row": 35425,
+      "kind": "area",
+      "lower": -1.7627041478796537,
+      "movable_norm": 0.0,
+      "row_index": 259,
+      "zero_motion_slack": 1.7627041478796537
+    },
+    {
+      "face_row": 35513,
+      "kind": "area",
+      "lower": -1.1775207707837518,
+      "movable_norm": 0.0,
+      "row_index": 275,
+      "zero_motion_slack": 1.1775207707837518
+    }
+  ],
+  "schema": "numi.human.b109-114.partial-segment-zero-support-preflight.v1",
+  "status": "PASS",
+  "tolerance": 1e-14
+}

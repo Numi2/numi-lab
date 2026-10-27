@@ -1,0 +1,133 @@
+{
+  "status": "COMPLETE_TOPOLOGY_AWARE_STATIC_COMPARISON",
+  "baseline_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "candidate_sha256": "5633c4434d25d3abf2541a39107d3096810e634148eec81998f549b71f463151",
+  "comparator_sha256": "2ac813f87aa526eaafefcfd2ab26a905f643f938492d00e865d31cf7b8ee8f66",
+  "audit_sha256": {
+    "baseline130": "1291c50ddd6ac65e031f04bc586dfd7d7d3806b16338e245dbe65f9aabfc0eb4",
+    "baseline159": "4cc8fd5d5e8fb651733fd380001e2b9847a0040960d7c8865c37f25fe5b8a09d",
+    "candidate130": "94e54f4c33e950ace86b36550b06ae705097d0c82ce75fa078025e5bf9961245",
+    "candidate159": "2fec8c0ce49d1b73d29c707056a2b8195f52234c418ef21236db15aa2b520bf5"
+  },
+  "baseline_face_count": 42379,
+  "candidate_face_count": 42379,
+  "baseline_node_count": 21212,
+  "candidate_node_count": 21212,
+  "banks": 185,
+  "face_map_policy": "same face identity",
+  "node_map_policy": "same typed node identity",
+  "raw_crossings": {
+    "before": 977,
+    "after": 977,
+    "identity_comparison_valid": true,
+    "added": [
+      [
+        109,
+        114,
+        34702,
+        149
+      ],
+      [
+        109,
+        114,
+        34705,
+        149
+      ],
+      [
+        109,
+        114,
+        34790,
+        92
+      ]
+    ],
+    "removed": [
+      [
+        109,
+        114,
+        34666,
+        150
+      ],
+      [
+        109,
+        114,
+        34705,
+        150
+      ],
+      [
+        109,
+        114,
+        34789,
+        91
+      ]
+    ],
+    "added_count": 3,
+    "removed_count": 3
+  },
+  "mapped_parent_pairs": {
+    "before": 651,
+    "after": 651,
+    "added_count": 2,
+    "removed_count": 2,
+    "added": [
+      [
+        109,
+        114,
+        34157,
+        149
+      ],
+      [
+        109,
+        114,
+        34158,
+        149
+      ]
+    ],
+    "removed": [
+      [
+        109,
+        114,
+        34132,
+        150
+      ],
+      [
+        109,
+        114,
+        34158,
+        150
+      ]
+    ]
+  },
+  "inside": {
+    "before": 125,
+    "after": 125,
+    "retained_old_identity_added": [],
+    "retained_old_identity_removed": [],
+    "deleted_or_merged_old_inside_witnesses_unresolved": [],
+    "deleted_or_merged_old_inside_count": 0
+  },
+  "self_pairs": {
+    "before": 0,
+    "after": 0
+  },
+  "per_changed_bank": [
+    {
+      "bank": [
+        109,
+        114
+      ],
+      "raw_before": 184,
+      "raw_after": 184,
+      "mapped_before": 119,
+      "mapped_after": 119,
+      "mapped_added": 2,
+      "mapped_removed": 2
+    }
+  ],
+  "limitations": [
+    "Candidate-supplied geometric face ancestry and node correspondence require independent validation.",
+    "A deleted/merged inside node is unresolved, not a proven clearance.",
+    "Surface-only diagnostics do not certify solid containment, tissue mass, contact dynamics, or native physical admission."
+  ],
+  "geometry_admitted": false,
+  "physical_steps": 0
+}

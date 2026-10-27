@@ -1,0 +1,1190 @@
+{
+  "accepted_physical_steps": 0,
+  "all_bank_changed_face_audit": null,
+  "backtracks": [
+    {
+      "affected_face_count": 52,
+      "alpha": 0.03125,
+      "area_gate": {
+        "area_floor": 0.1,
+        "bad_current_oriented_face_count": 0,
+        "bad_current_oriented_face_rows_first_64": [],
+        "bad_current_oriented_face_rows_truncated": false,
+        "bad_fixed_037_reference_face_count": 0,
+        "bad_fixed_037_reference_face_rows_first_64": [],
+        "bad_fixed_037_reference_face_rows_truncated": false,
+        "faces_checked": 42379,
+        "minimum_current_oriented_ratio": 0.9919707765013008,
+        "minimum_fixed_037_reference_magnitude_ratio": 0.10000963829086307,
+        "pass": true
+      },
+      "exact_checked": true,
+      "layer_gate": {
+        "intervals": [
+          {
+            "baseline_nonpositive_cells": 0,
+            "cell_witnesses": [],
+            "layer": "skin",
+            "minimum_positive_trial_baseline_ratio": 0.967454252695567,
+            "new_authored_orientation_failures": 0,
+            "new_float32_conditioned_cells": 0,
+            "new_float32_nonpositive_cells": 0,
+            "nonpositive_worsening_cells": 0,
+            "positive_cells": 156,
+            "positive_floor_failures": 0,
+            "worst_nonpositive_worsening_mm3": 0.0
+          },
+          {
+            "baseline_nonpositive_cells": 0,
+            "cell_witnesses": [],
+            "layer": "fat",
+            "minimum_positive_trial_baseline_ratio": 0.9667947050310525,
+            "new_authored_orientation_failures": 0,
+            "new_float32_conditioned_cells": 0,
+            "new_float32_nonpositive_cells": 0,
+            "nonpositive_worsening_cells": 0,
+            "positive_cells": 156,
+            "positive_floor_failures": 0,
+            "worst_nonpositive_worsening_mm3": 0.0
+          }
+        ],
+        "pass": true
+      },
+      "moved_node_count": 16,
+      "self_touching_changed_faces": {
+        "count": 0,
+        "pairs": []
+      },
+      "shape_metrics": {
+        "face_count": 52,
+        "maximum_aspect_ratio_ratio": 1.0079515837642672,
+        "maximum_normal_turn_deg": 0.9885619341184034,
+        "min_angle_after_deg": 1.913662517128423,
+        "min_angle_before_deg": 1.91384447811326,
+        "minimum_area_ratio": 0.9921184441147493,
+        "minimum_min_angle_delta_deg": -0.033266989841308714,
+        "zero_area_after": 0,
+        "zero_area_before": 0
+      },
+      "shape_pass": true,
+      "status": "LOCAL_TARGET_EXACT_COMPLETE",
+      "target_exact": {
+        "aabb_after": {
+          "bank_aabb_active": 46,
+          "skin_aabb_active": 50
+        },
+        "aabb_before": {
+          "bank_aabb_active": 46,
+          "skin_aabb_active": 50
+        },
+        "changed_face_baseline_pairs": 25,
+        "changed_face_candidate_pairs": 25,
+        "mapped_after": 19,
+        "mapped_before": 19,
+        "new_mapped": [],
+        "new_raw": [],
+        "raw_after": 25,
+        "raw_before": 25,
+        "removed_mapped": [],
+        "removed_raw": []
+      }
+    }
+  ],
+  "bank_input_pins": {
+    "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+    "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+  },
+  "baseline_audit130_sha256": "1291c50ddd6ac65e031f04bc586dfd7d7d3806b16338e245dbe65f9aabfc0eb4",
+  "baseline_audit159_sha256": "4cc8fd5d5e8fb651733fd380001e2b9847a0040960d7c8865c37f25fe5b8a09d",
+  "baseline_candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "baseline_mapped_identities": 19,
+  "baseline_mapped_identity_list": [
+    [
+      22189,
+      71
+    ],
+    [
+      22189,
+      72
+    ],
+    [
+      22189,
+      73
+    ],
+    [
+      22189,
+      74
+    ],
+    [
+      22189,
+      75
+    ],
+    [
+      22189,
+      76
+    ],
+    [
+      22189,
+      77
+    ],
+    [
+      22189,
+      122
+    ],
+    [
+      22189,
+      123
+    ],
+    [
+      22189,
+      124
+    ],
+    [
+      22189,
+      126
+    ],
+    [
+      22189,
+      225
+    ],
+    [
+      22189,
+      228
+    ],
+    [
+      22189,
+      231
+    ],
+    [
+      22189,
+      232
+    ],
+    [
+      22189,
+      233
+    ],
+    [
+      22189,
+      234
+    ],
+    [
+      22189,
+      235
+    ],
+    [
+      22189,
+      236
+    ]
+  ],
+  "baseline_raw_pairs": 25,
+  "baseline_raw_pairs_list": [
+    [
+      22587,
+      73
+    ],
+    [
+      22587,
+      74
+    ],
+    [
+      22587,
+      75
+    ],
+    [
+      22587,
+      76
+    ],
+    [
+      22587,
+      77
+    ],
+    [
+      22587,
+      124
+    ],
+    [
+      22588,
+      122
+    ],
+    [
+      22588,
+      123
+    ],
+    [
+      22588,
+      124
+    ],
+    [
+      22588,
+      225
+    ],
+    [
+      22588,
+      228
+    ],
+    [
+      22588,
+      231
+    ],
+    [
+      22588,
+      232
+    ],
+    [
+      22588,
+      233
+    ],
+    [
+      22588,
+      234
+    ],
+    [
+      22588,
+      235
+    ],
+    [
+      22588,
+      236
+    ],
+    [
+      22589,
+      71
+    ],
+    [
+      22589,
+      72
+    ],
+    [
+      22589,
+      126
+    ],
+    [
+      22589,
+      231
+    ],
+    [
+      22590,
+      72
+    ],
+    [
+      22590,
+      73
+    ],
+    [
+      22590,
+      124
+    ],
+    [
+      22590,
+      231
+    ]
+  ],
+  "baseline_sampled_inside_nodes": 0,
+  "candidate_emitted": false,
+  "candidate_path": null,
+  "candidate_sha256": null,
+  "centroid_point_query": {
+    "all_bank_baseline_inside_pair_count": 3,
+    "all_bank_candidate_inside_pair_count": 3,
+    "baseline_points_sha256": "e6aa635768fe71be20e97b47f72b3cfcfad5081485fa8dbccffee4f29d281045",
+    "candidate_points_sha256": "2942caa335af40a2aaf3d90bc01c8ef0fadea08ae3f6de736f92d77c3fea9be4",
+    "faces": [
+      22587,
+      22588,
+      22589,
+      22590
+    ],
+    "new_inside_pairs": [],
+    "removed_inside_pairs": [],
+    "target_baseline_classifications": [
+      "inside",
+      "inside",
+      "outside",
+      "inside"
+    ],
+    "target_candidate_classifications": [
+      "inside",
+      "inside",
+      "outside",
+      "inside"
+    ]
+  },
+  "elapsed_s": 3.6771147921681404,
+  "exact_endpoint_count": 50,
+  "exact_endpoint_features": [
+    {
+      "bone_normal_world": [
+        -0.9636908976606805,
+        -0.02980018024778606,
+        -0.26535222445487666
+      ],
+      "bone_triangle": 73,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.0,
+        0.11280747892282184,
+        0.8871925210771782
+      ],
+      "skin_face": 22587
+    },
+    {
+      "bone_normal_world": [
+        -0.9636908976606805,
+        -0.02980018024778606,
+        -0.26535222445487666
+      ],
+      "bone_triangle": 73,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.18294308443311913,
+        0.03619919679103712,
+        0.7808577187758438
+      ],
+      "skin_face": 22587
+    },
+    {
+      "bone_normal_world": [
+        -0.9889089809863449,
+        -0.05200756881953724,
+        0.1391195173583848
+      ],
+      "bone_triangle": 74,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.22758950701225644,
+        0.03576086862565071,
+        0.7366496243620928
+      ],
+      "skin_face": 22587
+    },
+    {
+      "bone_normal_world": [
+        -0.9889089809863449,
+        -0.05200756881953724,
+        0.1391195173583848
+      ],
+      "bone_triangle": 74,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.5359118537811784,
+        0.021492790450187604,
+        0.442595355768634
+      ],
+      "skin_face": 22587
+    },
+    {
+      "bone_normal_world": [
+        -0.5396298794483386,
+        -0.15983515217795485,
+        0.8265907798510831
+      ],
+      "bone_triangle": 75,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.5359118537811784,
+        0.021492790450187604,
+        0.442595355768634
+      ],
+      "skin_face": 22587
+    },
+    {
+      "bone_normal_world": [
+        -0.5396298794483386,
+        -0.15983515217795485,
+        0.8265907798510831
+      ],
+      "bone_triangle": 75,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.5787557509315582,
+        0.0977330421989959,
+        0.32351120686944596
+      ],
+      "skin_face": 22587
+    },
+    {
+      "bone_normal_world": [
+        -0.1674979916007429,
+        -0.049737863941062624,
+        0.9846169649667315
+      ],
+      "bone_triangle": 76,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.5787557509315582,
+        0.09773304219899596,
+        0.32351120686944596
+      ],
+      "skin_face": 22587
+    },
+    {
+      "bone_normal_world": [
+        -0.1674979916007429,
+        -0.049737863941062624,
+        0.9846169649667315
+      ],
+      "bone_triangle": 76,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.604828299487259,
+        0.39435897673702835,
+        0.0008127237757125682
+      ],
+      "skin_face": 22587
+    },
+    {
+      "bone_normal_world": [
+        -0.9829045002247567,
+        -0.048875515647129796,
+        0.17751035859393824
+      ],
+      "bone_triangle": 77,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.18294308443311913,
+        0.03619919679103712,
+        0.7808577187758438
+      ],
+      "skin_face": 22587
+    },
+    {
+      "bone_normal_world": [
+        -0.9829045002247567,
+        -0.048875515647129796,
+        0.17751035859393824
+      ],
+      "bone_triangle": 77,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.22758950701225644,
+        0.03576086862565071,
+        0.7366496243620928
+      ],
+      "skin_face": 22587
+    },
+    {
+      "bone_normal_world": [
+        0.7251923542879932,
+        0.0468084798001701,
+        0.6869534303728563
+      ],
+      "bone_triangle": 124,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.0,
+        0.9979674474119535,
+        0.002032552588046476
+      ],
+      "skin_face": 22587
+    },
+    {
+      "bone_normal_world": [
+        0.7251923542879932,
+        0.0468084798001701,
+        0.6869534303728563
+      ],
+      "bone_triangle": 124,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.6048282994872589,
+        0.3943589767370285,
+        0.0008127237757125258
+      ],
+      "skin_face": 22587
+    },
+    {
+      "bone_normal_world": [
+        0.717189223517336,
+        -0.15720949091773562,
+        0.6789144229105663
+      ],
+      "bone_triangle": 122,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.35846075173526676,
+        0.6393070555874871,
+        0.002232192677246094
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.717189223517336,
+        -0.15720949091773562,
+        0.6789144229105663
+      ],
+      "bone_triangle": 122,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.3600212086466937,
+        0.6379564444749716,
+        0.0020223468783347243
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.5966070483287207,
+        -0.2422366197572285,
+        0.7651022480251143
+      ],
+      "bone_triangle": 123,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.36002120864669374,
+        0.6379564444749711,
+        0.002022346878335148
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.5966070483287207,
+        -0.2422366197572285,
+        0.7651022480251143
+      ],
+      "bone_triangle": 123,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.5322438576661176,
+        0.4647773116590497,
+        0.0029788306748327717
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.7251923542879932,
+        0.0468084798001701,
+        0.6869534303728563
+      ],
+      "bone_triangle": 124,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.997963339838369,
+        0.0,
+        0.0020366601616309543
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.7251923542879932,
+        0.0468084798001701,
+        0.6869534303728563
+      ],
+      "bone_triangle": 124,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.5322438576661179,
+        0.4647773116590495,
+        0.0029788306748326026
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.9939002648256459,
+        0.10210202875930735,
+        -0.04168260191908433
+      ],
+      "bone_triangle": 225,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.35846075173526676,
+        0.6393070555874871,
+        0.002232192677246094
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.9939002648256459,
+        0.10210202875930735,
+        -0.04168260191908433
+      ],
+      "bone_triangle": 225,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.35608192671204314,
+        0.639622535886025,
+        0.004295537401931846
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.9171831333807456,
+        0.02231169971400278,
+        -0.3978407820947338
+      ],
+      "bone_triangle": 228,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.35608192671204303,
+        0.6396225358860255,
+        0.004295537401931507
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.9171831333807456,
+        0.02231169971400278,
+        -0.3978407820947338
+      ],
+      "bone_triangle": 228,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.1320406201284846,
+        0.590574641321774,
+        0.27738473854974144
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        -0.26781935873138374,
+        0.07106591367095533,
+        -0.9608446424905654
+      ],
+      "bone_triangle": 231,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.09141177559231034,
+        0.0,
+        0.9085882244076897
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        -0.26781935873138374,
+        0.07106591367095533,
+        -0.9608446424905654
+      ],
+      "bone_triangle": 231,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.05525005525857307,
+        0.08759691880156048,
+        0.8571530259398664
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        -0.2144536153790753,
+        0.05504452336403662,
+        -0.9751819047226368
+      ],
+      "bone_triangle": 232,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.05525005525857318,
+        0.08759691880156065,
+        0.8571530259398662
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        -0.2144536153790753,
+        0.05504452336403662,
+        -0.9751819047226368
+      ],
+      "bone_triangle": 232,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.022862767695789765,
+        0.18238353412164537,
+        0.7947536981825649
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.18639087035278534,
+        0.0699473247482872,
+        -0.9799825586252485
+      ],
+      "bone_triangle": 233,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.031941573261398126,
+        0.2937663260000699,
+        0.674292100738532
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.18639087035278534,
+        0.0699473247482872,
+        -0.9799825586252485
+      ],
+      "bone_triangle": 233,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.04697779063993546,
+        0.45552060725981247,
+        0.49750160210025207
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.46643526966373855,
+        0.03674461368648398,
+        -0.8837918151797665
+      ],
+      "bone_triangle": 234,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.04697779063993546,
+        0.45552060725981247,
+        0.49750160210025207
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.46643526966373855,
+        0.03674461368648398,
+        -0.8837918151797665
+      ],
+      "bone_triangle": 234,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.05794985795495228,
+        0.47538515456463537,
+        0.46666498748041235
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.505044196084901,
+        0.027832688336358092,
+        -0.8626445974217465
+      ],
+      "bone_triangle": 235,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.1320406201284846,
+        0.590574641321774,
+        0.27738473854974144
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.505044196084901,
+        0.027832688336358092,
+        -0.8626445974217465
+      ],
+      "bone_triangle": 235,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.05794985795495228,
+        0.47538515456463537,
+        0.46666498748041235
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.1745691633195525,
+        0.06652368931217108,
+        -0.9823951373954419
+      ],
+      "bone_triangle": 236,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.031941573261398126,
+        0.2937663260000699,
+        0.674292100738532
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        0.1745691633195525,
+        0.06652368931217108,
+        -0.9823951373954419
+      ],
+      "bone_triangle": 236,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.022862767695789765,
+        0.18238353412164537,
+        0.7947536981825649
+      ],
+      "skin_face": 22588
+    },
+    {
+      "bone_normal_world": [
+        -0.7736555210878827,
+        0.04983449479149324,
+        -0.6316436161468849
+      ],
+      "bone_triangle": 71,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.6488569900086736,
+        0.30108347698786997,
+        0.05005953300345641
+      ],
+      "skin_face": 22589
+    },
+    {
+      "bone_normal_world": [
+        -0.7736555210878827,
+        0.04983449479149324,
+        -0.6316436161468849
+      ],
+      "bone_triangle": 71,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.5406021104260611,
+        0.39118772055546663,
+        0.06821016901847231
+      ],
+      "skin_face": 22589
+    },
+    {
+      "bone_normal_world": [
+        -0.9161940198488444,
+        0.042246522757243436,
+        -0.3985018811851922
+      ],
+      "bone_triangle": 72,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.757389181469411,
+        0.24261081853058894,
+        0.0
+      ],
+      "skin_face": 22589
+    },
+    {
+      "bone_normal_world": [
+        -0.9161940198488444,
+        0.042246522757243436,
+        -0.3985018811851922
+      ],
+      "bone_triangle": 72,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.6488569900086736,
+        0.30108347698787025,
+        0.05005953300345616
+      ],
+      "skin_face": 22589
+    },
+    {
+      "bone_normal_world": [
+        -0.6628746886308764,
+        0.018887562153629956,
+        -0.7484920889150476
+      ],
+      "bone_triangle": 126,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.18140790378704166,
+        0.7819954717961636,
+        0.03659662441679477
+      ],
+      "skin_face": 22589
+    },
+    {
+      "bone_normal_world": [
+        -0.6628746886308764,
+        0.018887562153629956,
+        -0.7484920889150476
+      ],
+      "bone_triangle": 126,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.5406021104260611,
+        0.39118772055546663,
+        0.06821016901847231
+      ],
+      "skin_face": 22589
+    },
+    {
+      "bone_normal_world": [
+        -0.26781935873138374,
+        0.07106591367095533,
+        -0.9608446424905654
+      ],
+      "bone_triangle": 231,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.15567869771717413,
+        0.8443213022828259,
+        0.0
+      ],
+      "skin_face": 22589
+    },
+    {
+      "bone_normal_world": [
+        -0.26781935873138374,
+        0.07106591367095533,
+        -0.9608446424905654
+      ],
+      "bone_triangle": 231,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.18140790378704152,
+        0.7819954717961638,
+        0.036596624416794676
+      ],
+      "skin_face": 22589
+    },
+    {
+      "bone_normal_world": [
+        -0.9161940198488444,
+        0.042246522757243436,
+        -0.3985018811851922
+      ],
+      "bone_triangle": 72,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.0,
+        0.24261081853058908,
+        0.7573891814694109
+      ],
+      "skin_face": 22590
+    },
+    {
+      "bone_normal_world": [
+        -0.9161940198488444,
+        0.042246522757243436,
+        -0.3985018811851922
+      ],
+      "bone_triangle": 72,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.10842241372146144,
+        0.007544259602833554,
+        0.884033326675705
+      ],
+      "skin_face": 22590
+    },
+    {
+      "bone_normal_world": [
+        -0.9636908976606805,
+        -0.02980018024778606,
+        -0.26535222445487666
+      ],
+      "bone_triangle": 73,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.11280747892282188,
+        0.0,
+        0.8871925210771782
+      ],
+      "skin_face": 22590
+    },
+    {
+      "bone_normal_world": [
+        -0.9636908976606805,
+        -0.02980018024778606,
+        -0.26535222445487666
+      ],
+      "bone_triangle": 73,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.10842241372146144,
+        0.007544259602833554,
+        0.884033326675705
+      ],
+      "skin_face": 22590
+    },
+    {
+      "bone_normal_world": [
+        0.7251923542879932,
+        0.0468084798001701,
+        0.6869534303728563
+      ],
+      "bone_triangle": 124,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.997963339838369,
+        0.0020366601616309066,
+        0.0
+      ],
+      "skin_face": 22590
+    },
+    {
+      "bone_normal_world": [
+        0.7251923542879932,
+        0.0468084798001701,
+        0.6869534303728563
+      ],
+      "bone_triangle": 124,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.9979674474119535,
+        0.0,
+        0.0020325525880464657
+      ],
+      "skin_face": 22590
+    },
+    {
+      "bone_normal_world": [
+        -0.26781935873138374,
+        0.07106591367095533,
+        -0.9608446424905654
+      ],
+      "bone_triangle": 231,
+      "endpoint": 0,
+      "skin_barycentric": [
+        0.0914117755923104,
+        0.9085882244076896,
+        0.0
+      ],
+      "skin_face": 22590
+    },
+    {
+      "bone_normal_world": [
+        -0.26781935873138374,
+        0.07106591367095533,
+        -0.9608446424905654
+      ],
+      "bone_triangle": 231,
+      "endpoint": 1,
+      "skin_barycentric": [
+        0.0,
+        0.8443213022828259,
+        0.15567869771717413
+      ],
+      "skin_face": 22590
+    }
+  ],
+  "geometry_admitted": false,
+  "layer_bundle_sha256": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57",
+  "native_admission": false,
+  "schema": "numi.human.b74-104.contact-feature-fit-806.v1",
+  "seed_face_rows": [
+    22587,
+    22588,
+    22589,
+    22590
+  ],
+  "seed_patch_nodes": [
+    12694,
+    19092,
+    19094,
+    20914,
+    20915,
+    21136
+  ],
+  "solver": {
+    "anchors_in_support": [],
+    "constraints": 50,
+    "contact_margin_mm": 0.03,
+    "fixed_corners": [
+      12694,
+      19092,
+      19094
+    ],
+    "graph_edges": 267,
+    "iterations": 203,
+    "max_node_move_mm": 0.16722224381904907,
+    "max_predicted_endpoint_motion_mm": 0.1650718691372653,
+    "message": "Positive directional derivative for linesearch",
+    "minimum_predicted_endpoint_motion_mm": 0.029999998978119637,
+    "objective": 0.17362781467331606,
+    "ring_node_counts": [
+      18,
+      38
+    ],
+    "seed_patch_nodes": [
+      12694,
+      19092,
+      19094,
+      20914,
+      20915,
+      21136
+    ],
+    "smoothness_weight": 5.0,
+    "status": 8,
+    "success": false,
+    "support_nodes": 62,
+    "trust_limit_mm": 3.0,
+    "variable_nodes": [
+      5696,
+      9083,
+      9092,
+      9093,
+      9765,
+      9768,
+      9769,
+      10707,
+      10708,
+      10709,
+      10710,
+      10711,
+      10712,
+      10713,
+      12659,
+      12660,
+      12689,
+      12693,
+      12696,
+      12701,
+      12704,
+      14261,
+      14263,
+      14879,
+      14887,
+      15481,
+      15483,
+      15959,
+      17225,
+      17277,
+      17281,
+      17282,
+      17283,
+      17284,
+      17285,
+      17286,
+      18885,
+      18886,
+      19091,
+      19093,
+      19095,
+      19367,
+      19368,
+      19697,
+      19698,
+      20318,
+      20319,
+      20320,
+      20321,
+      20322,
+      20323,
+      20324,
+      20327,
+      20328,
+      20329,
+      20330,
+      20914,
+      20915,
+      21136
+    ],
+    "variables": 177
+  },
+  "source_chart_rows": [
+    22189
+  ],
+  "status": "REJECTED_NO_LOCAL_TARGET_IDENTITY_REDUCTION_OR_GATE",
+  "target_bank": [
+    74,
+    104
+  ]
+}

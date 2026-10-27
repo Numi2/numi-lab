@@ -1,0 +1,756 @@
+{
+  "baseline": {
+    "inside_or_boundary_node_ids": [
+      20946,
+      20948,
+      20986,
+      20987,
+      20996,
+      20997,
+      20999,
+      21001,
+      21002,
+      21003,
+      21004,
+      21007,
+      21008,
+      21009,
+      21012,
+      21080,
+      21083,
+      21084,
+      21085,
+      21087,
+      21088,
+      21091,
+      21103,
+      21105,
+      21156,
+      21158,
+      21169,
+      21185,
+      21199
+    ],
+    "maximum_aspect_cap": 31.295682699019785,
+    "minimum_angle_floor": 0.8108801448691115,
+    "patch_node_location_counts": {
+      "inside": 29,
+      "outside": 127
+    },
+    "shape": {
+      "face_count": 235,
+      "maximum_aspect_measure": 25.036546159215828,
+      "minimum_angle_degrees": 0.9009779387434572,
+      "minimum_signed_orientation_ratio": 1.0,
+      "minimum_unsigned_parent_area_ratio": 0.9999999999999998,
+      "orientation_positive": true,
+      "p05_angle_degrees": 2.276606275314034
+    }
+  },
+  "baseline_guard_witnesses": {
+    "layer_baseline_failure_counts": {
+      "fat": {
+        "authored_fail": 8530,
+        "f32_conditioned_fail": 128,
+        "f32_nonpositive": 2
+      },
+      "skin": {
+        "authored_fail": 7612,
+        "f32_conditioned_fail": 52,
+        "f32_nonpositive": 2
+      }
+    },
+    "layer_guard_scope": "local O/I/D reconstruction after emitted-Float32 outer fit; compare authored, nonpositive and conditioned prism identities on every face incident to the active patch; no cell-mass mapping or physical admission",
+    "surface_self_pair_count": 0,
+    "surface_self_pair_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/audit-130/surface-self-pairs.npy"
+  },
+  "cached_witnesses": {
+    "deduplicated_rational_anchor_count": 296,
+    "distinct_exact_points": 148,
+    "endpoint_coordinates_emitted": false,
+    "exact_pair_count": 148,
+    "inside_node_constraint_count": 29,
+    "inside_node_constraints": [
+      {
+        "baseline_audit_nearest_distance_mm": 1.5314305793890304,
+        "baseline_signed_plane_depth_mm": -1.5314305793890304,
+        "closest_local_m": [
+          0.002608370182761872,
+          -0.023543224688851436,
+          0.0008791407213170051
+        ],
+        "nearest_bone_triangle": 173,
+        "node": 20946
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.489258584122017,
+        "baseline_signed_plane_depth_mm": -1.4892585841220196,
+        "closest_local_m": [
+          0.0028015598800969817,
+          -0.02333517808010234,
+          0.0010344384279334787
+        ],
+        "nearest_bone_triangle": 173,
+        "node": 20948
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.7980448741553625,
+        "baseline_signed_plane_depth_mm": -1.7980448741553625,
+        "closest_local_m": [
+          0.0021994536424661476,
+          -0.024043534470553705,
+          0.004638985191961401
+        ],
+        "nearest_bone_triangle": 175,
+        "node": 20986
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.788988908236197,
+        "baseline_signed_plane_depth_mm": -1.7889889082361965,
+        "closest_local_m": [
+          0.0022802380896087167,
+          -0.023934398534261256,
+          0.004641797595368501
+        ],
+        "nearest_bone_triangle": 175,
+        "node": 20987
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.3385367303820563,
+        "baseline_signed_plane_depth_mm": -1.3385367303820555,
+        "closest_local_m": [
+          0.004060953883324603,
+          -0.023923349824060604,
+          0.0036960412742070735
+        ],
+        "nearest_bone_triangle": 103,
+        "node": 20996
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.6630851465342391,
+        "baseline_signed_plane_depth_mm": -1.66308514653424,
+        "closest_local_m": [
+          0.003472238807180331,
+          -0.024205312549812338,
+          0.004192907293514303
+        ],
+        "nearest_bone_triangle": 176,
+        "node": 20997
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.6916271454396092,
+        "baseline_signed_plane_depth_mm": -1.6916271454396095,
+        "closest_local_m": [
+          0.0034538952345838534,
+          -0.024263217204297187,
+          0.004198044325468796
+        ],
+        "nearest_bone_triangle": 176,
+        "node": 20999
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 2.04744684852368,
+        "baseline_signed_plane_depth_mm": -2.04744684852368,
+        "closest_local_m": [
+          0.0011230255316838356,
+          -0.025314854180385267,
+          0.00037464623726823345
+        ],
+        "nearest_bone_triangle": 174,
+        "node": 21001
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 2.0489595985827673,
+        "baseline_signed_plane_depth_mm": -2.0489595985827673,
+        "closest_local_m": [
+          0.0012843112425036099,
+          -0.02599386236718035,
+          0.004413777611935494
+        ],
+        "nearest_bone_triangle": 183,
+        "node": 21002
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 2.0064444901916785,
+        "baseline_signed_plane_depth_mm": -2.0064444901916785,
+        "closest_local_m": [
+          0.0014135166005848352,
+          -0.025115924750427784,
+          0.00040679355032638225
+        ],
+        "nearest_bone_triangle": 174,
+        "node": 21003
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 2.0491347835333733,
+        "baseline_signed_plane_depth_mm": -2.049134783533373,
+        "closest_local_m": [
+          0.0012434487687637478,
+          -0.026067168954643668,
+          0.0044029217200338925
+        ],
+        "nearest_bone_triangle": 183,
+        "node": 21004
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.5437692981164144,
+        "baseline_signed_plane_depth_mm": -1.5437692981164148,
+        "closest_local_m": [
+          0.002449441635381742,
+          -0.023427053330078353,
+          0.000883434571898721
+        ],
+        "nearest_bone_triangle": 173,
+        "node": 21007
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.3530119173651023,
+        "baseline_signed_plane_depth_mm": -1.353011917365103,
+        "closest_local_m": [
+          0.002623742584705091,
+          -0.023038288904207636,
+          0.0011159531433320065
+        ],
+        "nearest_bone_triangle": 173,
+        "node": 21008
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.4904667594530543,
+        "baseline_signed_plane_depth_mm": -1.4904667594530567,
+        "closest_local_m": [
+          0.0024060563554223575,
+          -0.023156974987633288,
+          0.0009941570010710428
+        ],
+        "nearest_bone_triangle": 173,
+        "node": 21009
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.2818381647416646,
+        "baseline_signed_plane_depth_mm": -1.2818381647416646,
+        "closest_local_m": [
+          -0.002704360091892337,
+          -0.023804966268199137,
+          0.0017268801150852088
+        ],
+        "nearest_bone_triangle": 226,
+        "node": 21012
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 0.8441129498933325,
+        "baseline_signed_plane_depth_mm": -0.8441129498933332,
+        "closest_local_m": [
+          0.004467614307761946,
+          -0.02449134435584309,
+          0.00318086632412741
+        ],
+        "nearest_bone_triangle": 113,
+        "node": 21080
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.2857844590100862,
+        "baseline_signed_plane_depth_mm": -1.2857844590100853,
+        "closest_local_m": [
+          0.004238613895261308,
+          -0.023895769032966984,
+          0.0034715528665744677
+        ],
+        "nearest_bone_triangle": 103,
+        "node": 21083
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.199857762433783,
+        "baseline_signed_plane_depth_mm": -1.199857762433782,
+        "closest_local_m": [
+          0.004287412858521354,
+          -0.024304032527629617,
+          0.003369904841711622
+        ],
+        "nearest_bone_triangle": 103,
+        "node": 21084
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.2507026300756106,
+        "baseline_signed_plane_depth_mm": -1.250131969387785,
+        "closest_local_m": [
+          0.004273634600959345,
+          -0.024498218692075982,
+          0.0033688478936898377
+        ],
+        "nearest_bone_triangle": 103,
+        "node": 21085
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.118738587247652,
+        "baseline_signed_plane_depth_mm": -1.1098911457125622,
+        "closest_local_m": [
+          0.004277658040143955,
+          -0.024465583795554444,
+          0.0033668419945767324
+        ],
+        "nearest_bone_triangle": 103,
+        "node": 21087
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 0.7955959691471188,
+        "baseline_signed_plane_depth_mm": -0.7955959691471197,
+        "closest_local_m": [
+          0.00459519007035711,
+          -0.02348701005653056,
+          0.0024629273294512325
+        ],
+        "nearest_bone_triangle": 111,
+        "node": 21088
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 0.5590507084788644,
+        "baseline_signed_plane_depth_mm": -0.5590507084788644,
+        "closest_local_m": [
+          0.004592092585936784,
+          -0.02347938076663867,
+          0.002438727648195225
+        ],
+        "nearest_bone_triangle": 111,
+        "node": 21091
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.8489607683208185,
+        "baseline_signed_plane_depth_mm": -1.8489607683208185,
+        "closest_local_m": [
+          -0.0012431980108487477,
+          -0.022988166487535707,
+          0.001334639259302418
+        ],
+        "nearest_bone_triangle": 226,
+        "node": 21103
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 2.0752720811574465,
+        "baseline_signed_plane_depth_mm": -2.075272081157446,
+        "closest_local_m": [
+          0.0003654702716469689,
+          -0.024492688586718082,
+          0.004806937947308567
+        ],
+        "nearest_bone_triangle": 183,
+        "node": 21105
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 2.0660518416001423,
+        "baseline_signed_plane_depth_mm": -2.0660518416001428,
+        "closest_local_m": [
+          0.0008840142186336046,
+          -0.024513187970117985,
+          0.0005149733505932868
+        ],
+        "nearest_bone_triangle": 174,
+        "node": 21156
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.9507455750578286,
+        "baseline_signed_plane_depth_mm": -1.9507455750578282,
+        "closest_local_m": [
+          0.0022422813393021546,
+          -0.024525662695048477,
+          0.004552160998784259
+        ],
+        "nearest_bone_triangle": 175,
+        "node": 21158
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.7219223188776138,
+        "baseline_signed_plane_depth_mm": -1.7219223188776138,
+        "closest_local_m": [
+          0.0034721178922622925,
+          -0.023980431995876298,
+          0.004213956895320868
+        ],
+        "nearest_bone_triangle": 176,
+        "node": 21169
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 1.6529957189382507,
+        "baseline_signed_plane_depth_mm": -1.6529957189382505,
+        "closest_local_m": [
+          0.002776009603482508,
+          -0.02284355887340804,
+          0.0012524885544658404
+        ],
+        "nearest_bone_triangle": 173,
+        "node": 21185
+      },
+      {
+        "baseline_audit_nearest_distance_mm": 2.029279353834,
+        "baseline_signed_plane_depth_mm": -2.0292793538339993,
+        "closest_local_m": [
+          0.000762226966390671,
+          -0.02489661563858736,
+          0.0046865976970170775
+        ],
+        "nearest_bone_triangle": 183,
+        "node": 21199
+      }
+    ]
+  },
+  "candidate_modified": false,
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/combined-d071-b109-b61-001/candidate.npz",
+  "elapsed_seconds": 1.1469661670271307,
+  "geometry_or_native_admission": false,
+  "input_note": "Current 806 exact pair endpoints were rebuilt from audit-159 on the pinned Float32 baseline; target constraints use all 148 current child pairs and 84 immediate-parent identities. Existing layer guard covers every affected transferred skin/fat prism, including baseline invalid identities; exact local self gate is run if and only if strict mapped-pair reduction with no new mapped identities occurs.",
+  "input_pins": {
+    "audit159_sha256": "4cc8fd5d5e8fb651733fd380001e2b9847a0040960d7c8865c37f25fe5b8a09d",
+    "baseline_self_pair_artifact_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "bone_inventory_count": 342,
+    "candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+    "current_endpoint_receipt_sha256": "e96c4eee2df586b34cb146adb416e94b451a88f9daf4396cc16f6f9ab334f7fc",
+    "current_exact_endpoint_receipt_sha256": "e96c4eee2df586b34cb146adb416e94b451a88f9daf4396cc16f6f9ab334f7fc",
+    "current_pair_manifest_sha256": "9262198695b2a1ea6a403615d7561c2fa712146754be4bcdbef88ca6bf1ff165",
+    "inside130_sha256": "1291c50ddd6ac65e031f04bc586dfd7d7d3806b16338e245dbe65f9aabfc0eb4",
+    "layer_file_sha256": "eb41bf0d1c11f1ee0a94672058063c51350e8e0dca1483a6ae7568cb03a78b57",
+    "layer_report_sha256": "dbd46128636b61740ca45ed4e6061acef6cbb94b00e9564676c7a5a26e318306",
+    "reconstruction_owner_sha256": "2a7f7ed02a5c90af11e09ffd8b8d2a34b2f3ff9c3b08ecb08514cccb29dc565e",
+    "shape_layer_report_sha256": "dbd46128636b61740ca45ed4e6061acef6cbb94b00e9564676c7a5a26e318306",
+    "sparse_lp_helper_sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "transfer_flag_owner_sha256": "fb53b372fd534a1f81e29944a1455ef249b674d4c8c043940fca442c3a7aad51",
+    "witness_preflight_sha256": "579ab33b2a1922af8075d7825b93a2a132e0f84aaf072b85c56a2196f9083855"
+  },
+  "limits": {
+    "backtrack_trial_count": 17,
+    "clearance_halfspace_mm": 0.05,
+    "max_cumulative_node_motion_mm": 3.0,
+    "max_outer_iterations": 1,
+    "minimum_backtrack_factor": 1.52587890625e-05,
+    "shape_area_ratio_floor": 0.1,
+    "trust_step_mm": 2.5
+  },
+  "optimizer_parameters": {
+    "area_floor": 0.1,
+    "inside_target_node_count": 29,
+    "layer_method": "connected normal-depth O/I/D reconstruction anchored at the fixed 62-node patch boundary",
+    "objective": "minimum incremental displacement with graph Laplacian smoothing",
+    "outer_iterations": 1,
+    "shape_gate_max_aspect": 31.295682699019785,
+    "shape_gate_min_angle_deg": 0.8108801448691115,
+    "total_movement_cap_mm": 3.0,
+    "trust_step_mm": 2.5
+  },
+  "rounds": [
+    {
+      "LP_rows": 3092,
+      "LP_variables": 889,
+      "edge_gradient": {
+        "active_edges": 328,
+        "enabled": true,
+        "inequality_rows": 1968,
+        "max_component_gradient": 0.5,
+        "maximum_reference_edge_length_mm": 5.567418517314745,
+        "minimum_reference_edge_length_mm": 0.06720403601633249,
+        "semantics": "componentwise |d_i-d_j| <= cap * reference_edge_length; nonsupport displacement is zero",
+        "unique_mesh_edges": 377
+      },
+      "final_min_double_shape_constraint": 0.8999999999999996,
+      "final_min_witness_scaled": -2.1252720811574464,
+      "hard_edge_gradient_rows": 1968,
+      "hard_layer_guard_rows": 0,
+      "initial_min_witness_scaled": -2.1252720811574464,
+      "iteration": 1,
+      "iterations": 0,
+      "layer_guard": {
+        "linearized_inherited_offset_rows": 0,
+        "mode": "post-emission connected O/I/D reconstruction"
+      },
+      "linearized_area_rows_hard": 235,
+      "message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)",
+      "objective": null,
+      "shape_constraint_count": 235,
+      "solver": "HiGHS sparse LP",
+      "solver_status": 2,
+      "solver_success": false,
+      "status": "HIGHS_FAILED",
+      "witness_constraint_count": 325,
+      "witness_slack_max_mm": 0.0,
+      "witness_slack_positive_count": 0,
+      "witness_slack_sum_mm": 0.0,
+      "witnesses_predicted_full_clearance": 325
+    }
+  ],
+  "schema": "numi.human.bank65_99.layer-guarded-exact-witness-fit.v1",
+  "scope": "Private one-step 248-face disk fit on current 806; 148 exact crossing pairs plus 29 audited inside-node closest-plane constraints; area/edge/trust and fixed-boundary rows are hard; after each emitted Float32 outer trial, reconstruct local O/I/D with the pinned owner, exact fixed boundary layers and transferred scalar thickness fields; require emitted shape and changed-cell nonregression before exact target screen. Candidate remains private diagnostic only.",
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-028-source-faithful-layer-reconstruction-fit-001/fit_806_reconstruct_layers_and_inside.py",
+  "script_sha256": "72077c4abcfc4297fcfa40220a4ab822273e943479a2bd5df8286ffd189442e6",
+  "status": "PRIVATE_REJECTED_HIGHS",
+  "topology": {
+    "all_faces_have_source_face_csr": true,
+    "base_parent_face_count": 241,
+    "boundary_degree_histogram": {
+      "2": 62
+    },
+    "boundary_edge_count": 62,
+    "boundary_loop_count": 1,
+    "boundary_vertex_count": 62,
+    "changed_incident_face_row_count": 235,
+    "connected_components": 1,
+    "edge_count": 403,
+    "euler_characteristic": 1,
+    "face_count": 248,
+    "face_ids_and_csr_ancestry_preserved": true,
+    "fixed_boundary_node_count": 62,
+    "fixed_patch_node_count": 62,
+    "is_single_disk": true,
+    "measured_added_face_count": 7,
+    "movable_patch_node_count": 94,
+    "patch_face_rows": [
+      14048,
+      14049,
+      14050,
+      14051,
+      14052,
+      14053,
+      14054,
+      14055,
+      14056,
+      14057,
+      14058,
+      14059,
+      14060,
+      14061,
+      14062,
+      14063,
+      14064,
+      14065,
+      14066,
+      14067,
+      14068,
+      14069,
+      14070,
+      14071,
+      14072,
+      14073,
+      14074,
+      14075,
+      14076,
+      14077,
+      14078,
+      14079,
+      14080,
+      14081,
+      14082,
+      14083,
+      14084,
+      14085,
+      14086,
+      14087,
+      14088,
+      14089,
+      14090,
+      14091,
+      14092,
+      14093,
+      14094,
+      14097,
+      14102,
+      14104,
+      14105,
+      14106,
+      14110,
+      14111,
+      14112,
+      14113,
+      14125,
+      14126,
+      14127,
+      14128,
+      14129,
+      14130,
+      14131,
+      14132,
+      14133,
+      14140,
+      14141,
+      14142,
+      14143,
+      14144,
+      14145,
+      14146,
+      14147,
+      14148,
+      14149,
+      14150,
+      14151,
+      14152,
+      14153,
+      14154,
+      14155,
+      14156,
+      14157,
+      14158,
+      14159,
+      14160,
+      14161,
+      14162,
+      14163,
+      14164,
+      14165,
+      14166,
+      14169,
+      14170,
+      14171,
+      14172,
+      14173,
+      14174,
+      14175,
+      14176,
+      14177,
+      14178,
+      14179,
+      14180,
+      14181,
+      14182,
+      14183,
+      14184,
+      14185,
+      14186,
+      14189,
+      14190,
+      14191,
+      14192,
+      14193,
+      14194,
+      14195,
+      14196,
+      14197,
+      14201,
+      14212,
+      14213,
+      14214,
+      14215,
+      14216,
+      14217,
+      14218,
+      14219,
+      14220,
+      14221,
+      14222,
+      14223,
+      14224,
+      14225,
+      14226,
+      14227,
+      14228,
+      14229,
+      14230,
+      14231,
+      14232,
+      14233,
+      14234,
+      14235,
+      14236,
+      14237,
+      14238,
+      14239,
+      14240,
+      14241,
+      14242,
+      14243,
+      14244,
+      14245,
+      14246,
+      14247,
+      14248,
+      14249,
+      14250,
+      14251,
+      14254,
+      14264,
+      14265,
+      14266,
+      14397,
+      14398,
+      14399,
+      14400,
+      14401,
+      14402,
+      14403,
+      14404,
+      14405,
+      14406,
+      14407,
+      14408,
+      14409,
+      14410,
+      14411,
+      14412,
+      14413,
+      14414,
+      14415,
+      14416,
+      14426,
+      14427,
+      14429,
+      14430,
+      14431,
+      14436,
+      14438,
+      14439,
+      14440,
+      14450,
+      14452,
+      14453,
+      14454,
+      14455,
+      14456,
+      14457,
+      14458,
+      15063,
+      15064,
+      15065,
+      15066,
+      15067,
+      15068,
+      15070,
+      15071,
+      15072,
+      15073,
+      15074,
+      15075,
+      15078,
+      15081,
+      15082,
+      15084,
+      15085,
+      15086,
+      15087,
+      15088,
+      15101,
+      15102,
+      15103,
+      15104,
+      15106,
+      15107,
+      15108,
+      15109,
+      15111,
+      15123,
+      15124,
+      15125,
+      15126,
+      15127,
+      15128,
+      15129,
+      15130,
+      15131,
+      15132,
+      15133,
+      15149,
+      15163,
+      15164,
+      15185,
+      15186,
+      15187,
+      15188
+    ],
+    "patch_face_rows_sha256": "09d6f9205cfbc4c267607717a4358751d939882aa2e99759c73fb6d4b190b3fe",
+    "typed_anchor_overlap_count": 0,
+    "vertex_count": 156
+  }
+}

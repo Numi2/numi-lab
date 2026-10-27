@@ -1,0 +1,21 @@
+{
+  "status": "MATERIAL_CHART_VALIDATED",
+  "baseline_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "candidate_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "validator_sha256": "1101cd8ab7454dda85f043cbbaca5633645304c1ea63027f6ac4fea6d9e71fe5",
+  "nodes_before": 21212,
+  "nodes_after": 21212,
+  "faces_before": 42379,
+  "faces_after": 42379,
+  "historical_charts": 41745,
+  "altered_charts": 0,
+  "overlap_ancestry_pairs_checked": 0,
+  "deleted_nodes": 0,
+  "unmapped_new_nodes": 0,
+  "limitations": [
+    "Reference material-chart coverage is not physical-volume ownership.",
+    "Removed inside-node witnesses remain unresolved until physical containment is checked.",
+    "No simulation or native admission was performed."
+  ],
+  "physical_steps": 0
+}

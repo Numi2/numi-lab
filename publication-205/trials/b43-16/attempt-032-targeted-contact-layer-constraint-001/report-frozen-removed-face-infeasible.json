@@ -1,0 +1,273 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline_sha256": "806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",
+  "candidate_emitted": false,
+  "contact_endpoint_rows": 6,
+  "contact_feature_rows": [
+    {
+      "bone_triangle": 140,
+      "endpoint": 0,
+      "movable_weight_sum": 0.042693283218923926,
+      "outward_normal_world": [
+        -0.6608155793530566,
+        -0.7155541593914164,
+        -0.22650610380722147
+      ],
+      "skin_barycentric": [
+        0.042693283218923926,
+        0.0,
+        0.957306716781076
+      ],
+      "skin_face": 19203
+    },
+    {
+      "bone_triangle": 140,
+      "endpoint": 1,
+      "movable_weight_sum": 0.01885092087309255,
+      "outward_normal_world": [
+        -0.6608155793530566,
+        -0.7155541593914164,
+        -0.22650610380722147
+      ],
+      "skin_barycentric": [
+        0.014324665203412912,
+        0.004526255669679638,
+        0.9811490791269074
+      ],
+      "skin_face": 19203
+    },
+    {
+      "bone_triangle": 140,
+      "endpoint": 0,
+      "movable_weight_sum": 0.04269328321892396,
+      "outward_normal_world": [
+        -0.6608155793530566,
+        -0.7155541593914164,
+        -0.22650610380722147
+      ],
+      "skin_barycentric": [
+        0.0,
+        0.04269328321892396,
+        0.957306716781076
+      ],
+      "skin_face": 19214
+    },
+    {
+      "bone_triangle": 140,
+      "endpoint": 1,
+      "movable_weight_sum": 0.006303074194837938,
+      "outward_normal_world": [
+        -0.6608155793530566,
+        -0.7155541593914164,
+        -0.22650610380722147
+      ],
+      "skin_barycentric": [
+        0.004159755473206683,
+        0.0021433187216312547,
+        0.9936969258051621
+      ],
+      "skin_face": 19214
+    },
+    {
+      "bone_triangle": 140,
+      "endpoint": 0,
+      "movable_weight_sum": 0.0,
+      "outward_normal_world": [
+        -0.6608155793530566,
+        -0.7155541593914164,
+        -0.22650610380722147
+      ],
+      "skin_barycentric": [
+        0.02217495321900584,
+        0.0,
+        0.9778250467809941
+      ],
+      "skin_face": 19221
+    },
+    {
+      "bone_triangle": 140,
+      "endpoint": 1,
+      "movable_weight_sum": 0.003868684771484884,
+      "outward_normal_world": [
+        -0.6608155793530566,
+        -0.7155541593914164,
+        -0.22650610380722147
+      ],
+      "skin_barycentric": [
+        0.002586994580195623,
+        0.003868684771484884,
+        0.9935443206483195
+      ],
+      "skin_face": 19221
+    }
+  ],
+  "contact_margin_mm": 0.001,
+  "diagnostic_alpha": 0.0625,
+  "diagnostic_direction_sha256": "3a871195ee0203184b3f3b18ea02fd7b713f76214e0a29cc625c2e04dfedb37d",
+  "frozen_removed_face_nodes": [
+    18590,
+    20953,
+    21094
+  ],
+  "geometry_admitted": false,
+  "inside_nodes": [
+    20895,
+    20899,
+    20900,
+    20901,
+    20902,
+    20907,
+    20924,
+    20926,
+    20928,
+    20931,
+    20932,
+    20956,
+    20957,
+    20989,
+    20990,
+    21016,
+    21019,
+    21022,
+    21025,
+    21026,
+    21027,
+    21030,
+    21062,
+    21064,
+    21066,
+    21068,
+    21069,
+    21071,
+    21092,
+    21093,
+    21094,
+    21095,
+    21096,
+    21131,
+    21134,
+    21159,
+    21187,
+    21188,
+    21190,
+    21191,
+    21193,
+    21204,
+    21205
+  ],
+  "inside_nonregression_rows": 43,
+  "layer_cells": {
+    "current_trial_mm3": [
+      -5.3178092813414545e-06,
+      -1.1645109676363506e-05
+    ],
+    "fat_face_19873_slot_1_baseline_mm3": -1.0003475112466687e-05,
+    "gradient_rows_per_mm": [
+      [
+        1.0635618562682909e-11,
+        1.0635618562682909e-11,
+        -1.0635618562682912e-11,
+        -1.0635618562682909e-11,
+        -1.0635618562682909e-11,
+        -7.79375470614358e-12,
+        -1.0635618562682909e-11,
+        -1.0635618562682909e-11,
+        1.0635618562682912e-11,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.329021935272701e-11,
+        2.329021935272701e-11,
+        2.329021935272701e-11,
+        -2.329021935272701e-11,
+        -2.329021935272701e-11,
+        -2.329021935272701e-11,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -4.268580697789757e-12,
+        -2.849072962776672e-12,
+        -9.336158786757655e-13,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "required_trial_mm3": [
+      1.810142230809146e-08,
+      -1.0003475112466687e-05
+    ],
+    "skin_face_19121_slot_1_baseline_mm3": 9.05071115404573e-08
+  },
+  "native_admission": false,
+  "new_raw_pairs_targeted": [
+    [
+      19203,
+      140
+    ],
+    [
+      19214,
+      140
+    ],
+    [
+      19221,
+      140
+    ]
+  ],
+  "removed_raw_pair_preservation": [
+    19239,
+    144
+  ],
+  "schema": "numi.human.b43-16.targeted-contact-layer-correction.v1",
+  "solver": {
+    "constraints": 105,
+    "iterations": 0,
+    "message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)",
+    "method": "bounded_sparse-input_L1_LP_highs",
+    "status": 2,
+    "success": false,
+    "variables": 54
+  },
+  "status": "REJECTED_LOCAL_CONSTRAINTS_INFEASIBLE",
+  "variable_count": 27,
+  "variable_nodes": [
+    18486,
+    19370,
+    20145,
+    20899,
+    20902,
+    20906,
+    21016,
+    21073,
+    21095
+  ]
+}
