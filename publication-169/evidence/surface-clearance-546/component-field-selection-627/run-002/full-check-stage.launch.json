@@ -1,0 +1,27 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-field-selection-627/run-002/candidate.npz",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/contained-field-retention-622/from-1173-001/final/state.json",
+    "--trust-mm",
+    "4",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-field-selection-627/run-002/full-check"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/run_candidate_checks545.py": "0c6ce073c8ab615330f0ec993db44087c43d84d1283c4fb6458cf81a49d2195a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-field-selection-627/component_field_selection627.py": "3559c71ab36ea5d60792698bf67713b962be5a3ad747fc9ea8b87e3fec053b9c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-field-selection-627/run-002/candidate.npz": "1f6109634173e156a976bb104c656a375b9c15dacc2bcc3c48b042dafbacdb11",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-field-selection-627/run-002/selection-report.json": "bcb1230c1b3eeaad6bdad4e5263563a35b257a55bd8607bb383a9dfb6cff791e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-field-selection-627/run_component_selection627.py": "44b02c1f4909f67ece5e569c0dd3701716582f24e41e7fda76e1260fb60fcd9f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-field-selection-627/test_component_field_selection627.py": "69b325198f0f7c15627bac6452598c8bf576f60001388eced443f62c5a620a2f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/contained-field-retention-622/from-1173-001/final/state.json": "e47556ccd1a882ac79da2955cf9ff9d7a2d2979063bcedb1a3c3ae0da8e2127a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continue_surface_round546.py": "b2fb1407bcbcf8d44cb7138ff2cb9dc6ce43f9a6fcddb64ed6624df672123d17"
+  }
+}

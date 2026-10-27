@@ -1,0 +1,10 @@
+{
+  "area_scp_iterations": 1,
+  "time_limit_s": 90,
+  "trust_mm": 4,
+  "source_envelope_mm": 12,
+  "original_argv": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/prepared/fit-argv.json",
+  "original_argv_sha256": "1705f0e6341f56e54d1d994ef69c38220a5b4965ab3eaeaa39696ec8bc8b2895",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

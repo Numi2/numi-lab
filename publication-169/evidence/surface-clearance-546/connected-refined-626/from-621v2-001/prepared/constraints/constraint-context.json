@@ -1,0 +1,17 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621-v2/from-1231-001/candidate.npz",
+  "candidate_sha256": "399c59ed50c689840b1d659bc83fa3205e8dfeadfccc81db1cee6c3c5d654c2e",
+  "guard_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/prepared/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+  "guard_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/prepared/constraints/refresh-541/fixed-guards/report.json",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621-v2/from-1231-001/audit-130/summary.json",
+  "point_summary_sha256": "49fb0cf8406cf5d259b05d68878dbdcb9a061a0887ee6829a2add203ab6b7d5e",
+  "refresh_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/prepared/constraints/refresh-report.json",
+  "refresh_report_sha256": "830c051949a1a0bd962fcee78176b7bfce9abcfb09b06db6f533d033db573545",
+  "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/prepared/constraints/self-seeds/merged-self-pair-seeds.npy",
+  "seed_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/prepared/constraints/self-seeds/seed-preflight.json",
+  "seed_report_sha256": "53c4de8b39d2623251cfe44c369b79a337776c6b6fbaa08304632b779f04b4d7",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621-v2/from-1231-001/audit-159/report.json",
+  "surface_report_sha256": "666093ed04b8f97856553c195e43b0055e3a26f50467a95fcee960d4db289757"
+}

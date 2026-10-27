@@ -1,0 +1,31 @@
+{"base_sha256":"ea65e93df9ba3d7617450bc7ff2f6bbd56529be354d772a731e98ead686d10e4","event":"fit-start","fit":0,"round":1}
+{"event":"fit-checked","fit":0,"round":1,"self_pairs":333,"status":"FAILED"}
+{"base_sha256":"ea65e93df9ba3d7617450bc7ff2f6bbd56529be354d772a731e98ead686d10e4","event":"fit-start","fit":1,"round":1}
+{"event":"fit-checked","fit":1,"round":1,"self_pairs":91,"status":"FAILED"}
+{"base_sha256":"ea65e93df9ba3d7617450bc7ff2f6bbd56529be354d772a731e98ead686d10e4","event":"fit-start","fit":2,"round":1}
+{"event":"fit-checked","fit":2,"round":1,"self_pairs":10,"status":"FAILED"}
+{"event":"retention-start","round":1,"target_sha256":"63606d98128d995a3f3dc0edfaf05cfbf66302aab53aa886a4cb2de355b33d3d"}
+{"event":"strict-pass","round":1,"state":"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-001/final/state.json","surface_pairs":1089}
+{"base_sha256":"8dafe0a3c242df023875bf482e8023710f4d09a7bacf7ff11ca3cf416d2b0fde","event":"fit-start","fit":0,"round":2}
+{"event":"fit-checked","fit":0,"round":2,"self_pairs":270,"status":"FAILED"}
+{"event":"cut-budget-stop","fit_index":1,"free_bytes":237182976,"reason":"additional cut fit below 250 MiB; preserve completed proposal for retention","round":2,"stage":"before_cut_merge"}
+{"event":"retention-start","round":2,"target_sha256":"5ded8e682967cc1e31ce4a81156e84e1e2c22fc9f625437898fe0a4574a8cbc1"}
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v5.py", line 555, in <module>
+    if __name__=="__main__": raise SystemExit(main())
+                                              ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v5.py", line 554, in main
+    result=run(a);emit("complete",status=result["status"],rounds=len(result["rounds"]));return 0
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v5.py", line 495, in run
+    stage(build_finalizer546_argv(retained,current_state,raudit,rcdir/"audit-159/report.json",final),
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          rd/"finalize-stage",slot=False,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          sources=owner_paths+(current_state,retained,raudit,rcdir/"audit-159/report.json"),timeout=600)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v5.py", line 133, in stage
+    return M.run_stage(argv,stem,slot=slot,source_paths=tuple(sources),timeout=timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continue_surface_round546.py", line 181, in run_stage
+    raise RuntimeError(f"stage failed: {stem}; see {log_path}")
+RuntimeError: stage failed: /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-002/finalize-stage; see /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-002/finalize-stage.log

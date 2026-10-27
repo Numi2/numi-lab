@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py", line 297, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py", line 225, in main
+    raise ValueError("zero containment must be preserved")
+ValueError: zero containment must be preserved

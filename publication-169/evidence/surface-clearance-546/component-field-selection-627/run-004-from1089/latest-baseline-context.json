@@ -1,0 +1,7 @@
+{
+  "reason": "An independently validated newer strict checkpoint629 now exists. Evaluate the same unadmitted proposal from this current checkpoint without altering gates or relabeling the retained1149-baseline failure.",
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/contained-field-retention-629/from1093-001/final/state.json",
+  "prior_failed_check": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-field-selection-627/run-004-from1089/full-check/report.json",
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

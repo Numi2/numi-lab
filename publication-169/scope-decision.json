@@ -1,0 +1,95 @@
+{
+  "publication": "P169",
+  "status": "REVIEW_DRAFT_NO_PUSH",
+  "included_groups": [
+    {
+      "path": "evidence/surface-clearance-546/component-field-selection-627",
+      "scope": "initial empty-directory failure noted without an original receipt; complete run-002 full exact checks and strict finalization, with source/test and reproducibility evidence"
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-batch-619/run_connected_batch619_v6.py",
+      "scope": "frozen v6 coordinator source and test source only"
+    },
+    {
+      "path": "evidence/surface-clearance-546/sparse-field-transfer-625",
+      "scope": "complete frozen proposal, 1178/2/0 retention, restoration, and 1169/0/0 exact negative result"
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-refined-626",
+      "scope": "complete frozen raw-fit/cut/slot failure evidence and salvage 1261/50/0 temporary continuation"
+    },
+    {
+      "path": "evidence/publication-history/P168-push-receipt.json",
+      "scope": "lineage receipt for the published P168 parent"
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-004-from1149",
+      "scope": "complete strict 1095/0/0 result, refreshed ancestry, coordinates unchanged"
+    },
+    {
+      "path": "evidence/surface-clearance-546/component-field-selection-627/run-003-root-reproduction",
+      "scope": "reproducibility rerun; candidate SHA and NPZ arrays match run-002; not the original invocation receipt"
+    },
+    {
+      "path": "evidence/surface-clearance-546/component-field-selection-627/root-reproducibility-receipt.json",
+      "scope": "pins exact reproduction and comparison"
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-batch-619/run-003",
+      "scope": "complete frozen v5 run with round-001 strict 1089/0/0 pass, round-002 1093/1/0 strict failure, overall STOPPED status, four fit reports represented by losslessly restorable archives"
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-field-reuse-628",
+      "scope": "frozen arithmetic-only baseline comparison; no candidate geometry admission"
+    },
+    {
+      "path": "evidence/surface-clearance-546/component-field-selection-627/run-004-from1089",
+      "scope": "predicted 1084 branch and failed Float32 area/orientation checks, including latest-629 13-face rejection"
+    },
+    {
+      "path": "evidence/surface-clearance-546/contained-field-retention-629",
+      "scope": "complete strict 1088/0/0 checkpoint after restoring the nonzero-containment witness"
+    },
+    {
+      "path": "evidence/resource-retirement/published-fit-retirement-20261027",
+      "scope": "ten-report plan, root review, independent fresh GitHub filesystem recovery, and completed 20-alias retirement receipts"
+    }
+  ],
+  "excluded_groups": [
+    {
+      "path": "all __pycache__ and .pytest_cache",
+      "reason": "generated caches"
+    },
+    {
+      "path": "prior P168 evidence payloads",
+      "reason": "referenced by exact P168 commit and manifest rather than duplicated"
+    },
+    {
+      "path": "P169 source deletion",
+      "reason": "none performed by this publication; the separately completed ten-report retirement is represented by its included receipts"
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-batch-619/run-004 and later",
+      "reason": "future work beyond frozen run-003"
+    },
+    {
+      "path": "evidence/surface-clearance-546/component-field-selection-627/run-005 and later",
+      "reason": "future work beyond frozen run-004"
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-refined-626/component0-crop-628",
+      "reason": "unqualified diagnostic child explicitly excluded"
+    },
+    {
+      "path": "evidence/surface-clearance-546/topology replay after round 004",
+      "reason": "future work outside frozen cutoff"
+    }
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "source_deletion": false,
+  "publication_action": {
+    "ref_update": "not performed during P169 review packaging",
+    "source_deletion": "none performed by P169"
+  }
+}

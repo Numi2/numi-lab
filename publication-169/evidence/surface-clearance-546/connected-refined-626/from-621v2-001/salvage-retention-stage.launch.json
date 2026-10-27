@@ -1,0 +1,30 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621-v2/from-1231-001/baseline-state.json",
+    "--target",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/fit-000/candidate.npz",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/salvage-fit-000/retention",
+    "--max-edge-gradient",
+    ".5",
+    "--trust-mm",
+    "4"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/check-fit-000/report.json": "a71e2089642d24e231536cace6e98f22279eff7c5a990cc39674cd59261969ca",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/cut-merge-001/fit/report.json": "044a5b6a582d412eef92b00c8fb0364bd4ffacdad2ac884cd38f0c308cb42aa1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/fit-000/candidate.npz": "fc39c58cf90a6d8fa2e1fa38c1787e7c4c5b8db6c9f678dcb7cab2ed2ba33907",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/fit-000/report.json": "7a3730a7a7cf35685ca22bc13d7ff9ab03410d9510e56eaca890f4d631383f4c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continue_surface_round546.py": "b2fb1407bcbcf8d44cb7138ff2cb9dc6ce43f9a6fcddb64ed6624df672123d17",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py": "08bb82034180636d0ff798ad503735b6a50327bf52cc3c62bffb75d0265ff57a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621-v2/from-1231-001/baseline-state.json": "7ea5d1b4c5e2aeec127b79a393a6cd1e025dc5490bb6548447f85a4bc546d500"
+  }
+}

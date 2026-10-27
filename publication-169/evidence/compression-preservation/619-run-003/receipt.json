@@ -1,0 +1,61 @@
+{
+  "schema": "numi.lossless-compressed-text-preservation.v1",
+  "created_utc": "2026-10-27T05:12:21Z",
+  "source_deleted": false,
+  "restoration_method": "zstd archive; P168 restore_compressed_text_mirrors.py; exact SHA/size/mode/mtime verification",
+  "restore_command": "python restore_compressed_text_mirrors.py --receipt receipt.json --destination-root <empty-root> --compressed-root <P169-package-root>",
+  "files": [
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-001/fit-000/report.json",
+      "relative_path": "evidence/surface-clearance-546/connected-batch-619/run-003/round-001/fit-000/report.json",
+      "original_sha256": "5879ec1794202b0a02d05c3b7da1c173f9b9c3fbb79735a4422dd58e389da92b",
+      "original_bytes": 47049620,
+      "original_mode": 420,
+      "original_atime_ns": 1793076933592109175,
+      "original_mtime_ns": 1793076932914590301,
+      "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-169/evidence/compression-preservation/619-run-003/round001-fit000-report.json.zst",
+      "compressed_sha256": "6996947b62dc1d97f37f3c542686b29d15ed2b8f18c52345c2bce640b038f8af",
+      "compressed_bytes": 5519020,
+      "package_compressed_relative_path": "evidence/compression-preservation/619-run-003/round001-fit000-report.json.zst"
+    },
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-001/cut-merge-001/fit/report.json",
+      "relative_path": "evidence/surface-clearance-546/connected-batch-619/run-003/round-001/cut-merge-001/fit/report.json",
+      "original_sha256": "9749b6d32d52200c4aa0bedf0db71b62b53cbb6820e030de10f8fcec2b0137c1",
+      "original_bytes": 47410776,
+      "original_mode": 420,
+      "original_atime_ns": 1793077092327702580,
+      "original_mtime_ns": 1793077091693187768,
+      "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-169/evidence/compression-preservation/619-run-003/round001-cutmerge001-fit-report.json.zst",
+      "compressed_sha256": "e27342520182fbd0d1eded6ee59bc77e9c196ece8256b6352d05d891e0ff5237",
+      "compressed_bytes": 5555747,
+      "package_compressed_relative_path": "evidence/compression-preservation/619-run-003/round001-cutmerge001-fit-report.json.zst"
+    },
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-001/cut-merge-002/fit/report.json",
+      "relative_path": "evidence/surface-clearance-546/connected-batch-619/run-003/round-001/cut-merge-002/fit/report.json",
+      "original_sha256": "72e6b9e39611569752bc7725ed09a77c3e0f5287285dd48fd3e8122519dd982d",
+      "original_bytes": 47518627,
+      "original_mode": 420,
+      "original_atime_ns": 1793077191650698890,
+      "original_mtime_ns": 1793077191468568045,
+      "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-169/evidence/compression-preservation/619-run-003/round001-cutmerge002-fit-report.json.zst",
+      "compressed_sha256": "df16688d33ab701ae86d671480d812084cb4d70bb1a5517d905e251f9cceba66",
+      "compressed_bytes": 5565713,
+      "package_compressed_relative_path": "evidence/compression-preservation/619-run-003/round001-cutmerge002-fit-report.json.zst"
+    },
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-002/fit-000/report.json",
+      "relative_path": "evidence/surface-clearance-546/connected-batch-619/run-003/round-002/fit-000/report.json",
+      "original_sha256": "31ad2c50121c944546d5373874ff2f835d1705bf666f2c2391eda92072a21f1b",
+      "original_bytes": 47731506,
+      "original_mode": 420,
+      "original_atime_ns": 1793077645042158225,
+      "original_mtime_ns": 1793077636155633416,
+      "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-169/evidence/compression-preservation/619-run-003/round002-fit000-report.json.zst",
+      "compressed_sha256": "3b00a5341a7eb505dd41733da6e4b9e1ae2575a64d1035d61e8cbbae78fb4364",
+      "compressed_bytes": 5583431,
+      "package_compressed_relative_path": "evidence/compression-preservation/619-run-003/round002-fit000-report.json.zst"
+    }
+  ]
+}

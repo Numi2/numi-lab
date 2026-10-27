@@ -1,0 +1,32 @@
+{
+  "accepted_physical_steps": 0,
+  "artifact_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-002/prepared/surface-targets/report.json": "f093f6ce87487a461cb7fda19729e2b4b7b05738177bac23fb90f35620a691aa",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-002/prepared/surface-targets/target-records.jsonl": "dae3a26256ddcafe6b42be342114cbb6be079eb63c9552e584857daae94049be",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-002/prepared/surface-targets/targets.npz": "ef333b2c751c5ec87437c30f569777a08374b8eb2db8df60d9133e2c51093ae0"
+  },
+  "candidate_sha256": "8dafe0a3c242df023875bf482e8023710f4d09a7bacf7ff11ca3cf416d2b0fde",
+  "classification": "unchanged 597 independent certification of completed construction targets; no geometry or physical admission",
+  "exact_endpoint_bank_count": 185,
+  "joint_source_current_targets": 1081,
+  "minimum_actual_joint_current_cosine": 0.04916622667666391,
+  "minimum_actual_joint_source_cosine": 0.0490024688184368,
+  "native_admission": false,
+  "source_only_exception_faces": [
+    19064,
+    19065
+  ],
+  "source_only_exception_targets": 8,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_nearest_union_targets_500.py": "454501303db7c6420ff3744729c62c723c208aaf9348a53534137c62b7e6afbf",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_targets_multi_source_546.py": "dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/verify_joint_targets604.py": "fec8143430e2e43ce149c1d6a11bcfe2b5c8382c7b14bc97292c103b992ed161",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/angular_joint_direction597.py": "4df66319908259efdc9faacdec5774876780fcf47c3f00ec0248a1a79810f092",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/build_joint_outward_targets597_v4.py": "bb8ac0b2ba3be3b6bade10aae06184507319078761fdddb4ebadc10892f7a2e3",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-current-targets-597/verify_recovered_targets597.py": "b4b9b8b38b75f1313b5606e4399a4be061ba115a6a5490073766d8d33f766f73"
+  },
+  "state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-003/round-001/final/state.json",
+  "state_sha256": "485d87236c0d934d3c4c138a3efdd77d3fb2d740482f21e4429ad0220873f519",
+  "status": "PASS_CERTIFIED_DIRECTION_TARGETS_ONLY",
+  "target_count": 1089
+}

@@ -1,0 +1,128 @@
+{
+  "deletion_performed": false,
+  "plan_sha256": "9abb29c2fb4f24a45a21fc555c15a71d14da542c73939a634b032dc9b7935368",
+  "results": [
+    {
+      "bytes": 43448213,
+      "fresh_filesystem_restore": true,
+      "git_blob_sha1": "efc79e4e646bfac4ceb3794bd9ac29c5d8e4675a",
+      "json_object_decoded": true,
+      "mode": 420,
+      "mtime_ns": 1793046714157406038,
+      "sha256": "e884b49155de915e488600e0edd34521e24ca8c98908f0e7b8ead66192ad1e27",
+      "source_commit": "9c3ad556f85edffd79d37e63e4a61de9f6b61314",
+      "temporary_recovery_removed": true,
+      "tree_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-151/surface-clearance-546/round-013-full-plane-trust4/fit/report.json"
+    },
+    {
+      "bytes": 43399941,
+      "fresh_filesystem_restore": true,
+      "git_blob_sha1": "608d1476e0fea94d1daf5d800d2399e4928366f1",
+      "json_object_decoded": true,
+      "mode": 420,
+      "mtime_ns": 1793048493707120656,
+      "sha256": "0b774e1cc8688bf40b3ff78a47e68efc01ade3cd02f04d4d6fb63fe91b8ac11e",
+      "source_commit": "2711e98612d86a3d0edf0a8002b0b56644826172",
+      "temporary_recovery_removed": true,
+      "tree_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-152/surface-clearance-546/round-018-coherent-witness550/fit/report.json"
+    },
+    {
+      "bytes": 43316425,
+      "fresh_filesystem_restore": true,
+      "git_blob_sha1": "d32645924737dfc001cdbc5d476249dc3ca97a98",
+      "json_object_decoded": true,
+      "mode": 420,
+      "mtime_ns": 1793047224074775101,
+      "sha256": "b83fb6e7d212cfa9d4563598ee2811a802ee55765494bc86045ab85405155955",
+      "source_commit": "9c3ad556f85edffd79d37e63e4a61de9f6b61314",
+      "temporary_recovery_removed": true,
+      "tree_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-151/surface-clearance-546/round-015-one-scp-component/fit/report.json"
+    },
+    {
+      "bytes": 43311928,
+      "fresh_filesystem_restore": true,
+      "git_blob_sha1": "fe9766397ebdf68daa475928764e231114ba1494",
+      "json_object_decoded": true,
+      "mode": 420,
+      "mtime_ns": 1793047869717341018,
+      "sha256": "0420e9e3da2f900c25638454c1cae8aebd65d2338cff8759ca36fe0a3ffd513d",
+      "source_commit": "2711e98612d86a3d0edf0a8002b0b56644826172",
+      "temporary_recovery_removed": true,
+      "tree_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-152/surface-clearance-546/round-017-coherent-exit550/fit/report.json"
+    },
+    {
+      "bytes": 43204266,
+      "fresh_filesystem_restore": true,
+      "git_blob_sha1": "980ca11fdbff9afb18206ee2aea08aa31e0afdb1",
+      "json_object_decoded": true,
+      "mode": 420,
+      "mtime_ns": 1793046376145553347,
+      "sha256": "e0d2656fbcfa1a79ea0332d154a1db3ff5608cdec7d20ed1c7cd2a388c8b4ecf",
+      "source_commit": "9c3ad556f85edffd79d37e63e4a61de9f6b61314",
+      "temporary_recovery_removed": true,
+      "tree_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-151/surface-clearance-546/round-011-full-plane-trust4/fit/report.json"
+    },
+    {
+      "bytes": 43191262,
+      "fresh_filesystem_restore": true,
+      "git_blob_sha1": "598366800cfacff1330aa37eb7cf94d4b5c89160",
+      "json_object_decoded": true,
+      "mode": 420,
+      "mtime_ns": 1793046586575204978,
+      "sha256": "9c7dc9c777ba65bd99f4b130070d5e4800366fcd3f04c6cd70783d4b2067f865",
+      "source_commit": "9c3ad556f85edffd79d37e63e4a61de9f6b61314",
+      "temporary_recovery_removed": true,
+      "tree_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-151/surface-clearance-546/round-012-full-plane-trust4/fit/report.json"
+    },
+    {
+      "bytes": 43187061,
+      "fresh_filesystem_restore": true,
+      "git_blob_sha1": "b30f794e5e7007a42eabadab9575be013c46beeb",
+      "json_object_decoded": true,
+      "mode": 420,
+      "mtime_ns": 1793048718159844079,
+      "sha256": "0aa33f3e1e49ebb3d11bbfdd1afb710cc7d21f2163a28a4c9bc5855b1449d988",
+      "source_commit": "2711e98612d86a3d0edf0a8002b0b56644826172",
+      "temporary_recovery_removed": true,
+      "tree_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-152/surface-clearance-546/round-019-pair-sat551/fit/report.json"
+    },
+    {
+      "bytes": 43070738,
+      "fresh_filesystem_restore": true,
+      "git_blob_sha1": "dd31d9f106759e2cd3d0730fc8e9fdc4f575c445",
+      "json_object_decoded": true,
+      "mode": 420,
+      "mtime_ns": 1793045967586028310,
+      "sha256": "0c2da08a6721064982cf1e51eee9251bcc81382b999dfe43e1652e70b602525b",
+      "source_commit": "9c3ad556f85edffd79d37e63e4a61de9f6b61314",
+      "temporary_recovery_removed": true,
+      "tree_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-151/surface-clearance-546/round-010-full-plane-trust4/fit/report.json"
+    },
+    {
+      "bytes": 40030890,
+      "fresh_filesystem_restore": true,
+      "git_blob_sha1": "f4e1b1212c00e094502d979edddcaa73ee3f0980",
+      "json_object_decoded": true,
+      "mode": 420,
+      "mtime_ns": 1793043842480660043,
+      "sha256": "9dacea662878b9fc892e7eb80656eee661b623eda9ff8408d897dc3f4893ab90",
+      "source_commit": "943a3f73e04da968fde212bed3504c9718e7faf1",
+      "temporary_recovery_removed": true,
+      "tree_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-149/surface-clearance-546/round-008-barycentric/fit/report.json"
+    },
+    {
+      "bytes": 34699578,
+      "fresh_filesystem_restore": true,
+      "git_blob_sha1": "4f589cda58b5de42f6f12e82cbf6f73a0779170e",
+      "json_object_decoded": true,
+      "mode": 420,
+      "mtime_ns": 1793041744829245133,
+      "sha256": "0f6f71f5a196a3c8e3380a9010d684d8a860b4637871f33f5d5248aac7ff0665",
+      "source_commit": "943a3f73e04da968fde212bed3504c9718e7faf1",
+      "temporary_recovery_removed": true,
+      "tree_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-149/surface-clearance-546/refined-point-001/point-fit-001/report.json"
+    }
+  ],
+  "root_review_sha256": "d071a259ec668fbd73e37837ef05d3325851a99abe7480e51addc915793a4f56",
+  "status": "ROOT_INDEPENDENT_REMOTE_FRESH_FILESYSTEM_RECOVERY_PASS"
+}

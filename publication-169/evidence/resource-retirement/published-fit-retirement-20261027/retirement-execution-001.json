@@ -1,0 +1,380 @@
+{
+  "completed_utc": "2026-10-27T05:10:56Z",
+  "df_after_receipt_correction": "/dev/disk3s5   239311296 195490744    615412   100%  949700 6154120   13%   /System/Volumes/Data",
+  "df_after_receipt_write": "/dev/disk3s5   239311296 195483528    622628   100%  949675 6226280   13%   /System/Volumes/Data",
+  "df_after_unlinks_before_final_receipt": "/dev/disk3s5   239311296 195483528    622628   100%  949675 6226280   13%   /System/Volumes/Data",
+  "df_before": "/dev/disk3s5   239311296 195894452    211704   100%  949684 2117040   31%   /System/Volumes/Data",
+  "events": [
+    {
+      "event": "about_to_unlink_first_name",
+      "expected_nlink": 2,
+      "index": 1,
+      "member": "surface-clearance-546/round-013-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-013-full-plane-trust4/fit/report.json",
+      "sha256": "e884b49155de915e488600e0edd34521e24ca8c98908f0e7b8ead66192ad1e27"
+    },
+    {
+      "ctime_ns_after_first_unlink": 1793077855006102302,
+      "event": "removed_first_name",
+      "index": 1,
+      "member": "surface-clearance-546/round-013-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-013-full-plane-trust4/fit/report.json",
+      "remaining_nlink": 1,
+      "remaining_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-013-full-plane-trust4/fit/report.json",
+      "remaining_sha256": "e884b49155de915e488600e0edd34521e24ca8c98908f0e7b8ead66192ad1e27"
+    },
+    {
+      "event": "about_to_unlink_second_name",
+      "expected_nlink": 1,
+      "index": 1,
+      "member": "surface-clearance-546/round-013-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-013-full-plane-trust4/fit/report.json"
+    },
+    {
+      "event": "removed_second_name_inode_deleted",
+      "index": 1,
+      "inode": 5158544,
+      "member": "surface-clearance-546/round-013-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-013-full-plane-trust4/fit/report.json",
+      "unique_allocated_bytes": 43450368
+    },
+    {
+      "event": "about_to_unlink_first_name",
+      "expected_nlink": 2,
+      "index": 2,
+      "member": "surface-clearance-546/round-018-coherent-witness550/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-018-coherent-witness550/fit/report.json",
+      "sha256": "0b774e1cc8688bf40b3ff78a47e68efc01ade3cd02f04d4d6fb63fe91b8ac11e"
+    },
+    {
+      "ctime_ns_after_first_unlink": 1793077855119202202,
+      "event": "removed_first_name",
+      "index": 2,
+      "member": "surface-clearance-546/round-018-coherent-witness550/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-018-coherent-witness550/fit/report.json",
+      "remaining_nlink": 1,
+      "remaining_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-152/surface-clearance-546/round-018-coherent-witness550/fit/report.json",
+      "remaining_sha256": "0b774e1cc8688bf40b3ff78a47e68efc01ade3cd02f04d4d6fb63fe91b8ac11e"
+    },
+    {
+      "event": "about_to_unlink_second_name",
+      "expected_nlink": 1,
+      "index": 2,
+      "member": "surface-clearance-546/round-018-coherent-witness550/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-152/surface-clearance-546/round-018-coherent-witness550/fit/report.json"
+    },
+    {
+      "event": "removed_second_name_inode_deleted",
+      "index": 2,
+      "inode": 5164211,
+      "member": "surface-clearance-546/round-018-coherent-witness550/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-152/surface-clearance-546/round-018-coherent-witness550/fit/report.json",
+      "unique_allocated_bytes": 43401216
+    },
+    {
+      "event": "about_to_unlink_first_name",
+      "expected_nlink": 2,
+      "index": 3,
+      "member": "surface-clearance-546/round-015-one-scp-component/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-015-one-scp-component/fit/report.json",
+      "sha256": "b83fb6e7d212cfa9d4563598ee2811a802ee55765494bc86045ab85405155955"
+    },
+    {
+      "ctime_ns_after_first_unlink": 1793077855232169059,
+      "event": "removed_first_name",
+      "index": 3,
+      "member": "surface-clearance-546/round-015-one-scp-component/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-015-one-scp-component/fit/report.json",
+      "remaining_nlink": 1,
+      "remaining_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-015-one-scp-component/fit/report.json",
+      "remaining_sha256": "b83fb6e7d212cfa9d4563598ee2811a802ee55765494bc86045ab85405155955"
+    },
+    {
+      "event": "about_to_unlink_second_name",
+      "expected_nlink": 1,
+      "index": 3,
+      "member": "surface-clearance-546/round-015-one-scp-component/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-015-one-scp-component/fit/report.json"
+    },
+    {
+      "event": "removed_second_name_inode_deleted",
+      "index": 3,
+      "inode": 5160364,
+      "member": "surface-clearance-546/round-015-one-scp-component/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-015-one-scp-component/fit/report.json",
+      "unique_allocated_bytes": 43319296
+    },
+    {
+      "event": "about_to_unlink_first_name",
+      "expected_nlink": 2,
+      "index": 4,
+      "member": "surface-clearance-546/round-017-coherent-exit550/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-017-coherent-exit550/fit/report.json",
+      "sha256": "0420e9e3da2f900c25638454c1cae8aebd65d2338cff8759ca36fe0a3ffd513d"
+    },
+    {
+      "ctime_ns_after_first_unlink": 1793077855346035587,
+      "event": "removed_first_name",
+      "index": 4,
+      "member": "surface-clearance-546/round-017-coherent-exit550/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-017-coherent-exit550/fit/report.json",
+      "remaining_nlink": 1,
+      "remaining_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-152/surface-clearance-546/round-017-coherent-exit550/fit/report.json",
+      "remaining_sha256": "0420e9e3da2f900c25638454c1cae8aebd65d2338cff8759ca36fe0a3ffd513d"
+    },
+    {
+      "event": "about_to_unlink_second_name",
+      "expected_nlink": 1,
+      "index": 4,
+      "member": "surface-clearance-546/round-017-coherent-exit550/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-152/surface-clearance-546/round-017-coherent-exit550/fit/report.json"
+    },
+    {
+      "event": "removed_second_name_inode_deleted",
+      "index": 4,
+      "inode": 5162173,
+      "member": "surface-clearance-546/round-017-coherent-exit550/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-152/surface-clearance-546/round-017-coherent-exit550/fit/report.json",
+      "unique_allocated_bytes": 43315200
+    },
+    {
+      "event": "about_to_unlink_first_name",
+      "expected_nlink": 2,
+      "index": 5,
+      "member": "surface-clearance-546/round-011-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-011-full-plane-trust4/fit/report.json",
+      "sha256": "e0d2656fbcfa1a79ea0332d154a1db3ff5608cdec7d20ed1c7cd2a388c8b4ecf"
+    },
+    {
+      "ctime_ns_after_first_unlink": 1793077855459271696,
+      "event": "removed_first_name",
+      "index": 5,
+      "member": "surface-clearance-546/round-011-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-011-full-plane-trust4/fit/report.json",
+      "remaining_nlink": 1,
+      "remaining_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-011-full-plane-trust4/fit/report.json",
+      "remaining_sha256": "e0d2656fbcfa1a79ea0332d154a1db3ff5608cdec7d20ed1c7cd2a388c8b4ecf"
+    },
+    {
+      "event": "about_to_unlink_second_name",
+      "expected_nlink": 1,
+      "index": 5,
+      "member": "surface-clearance-546/round-011-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-011-full-plane-trust4/fit/report.json"
+    },
+    {
+      "event": "removed_second_name_inode_deleted",
+      "index": 5,
+      "inode": 5158208,
+      "member": "surface-clearance-546/round-011-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-011-full-plane-trust4/fit/report.json",
+      "unique_allocated_bytes": 43204608
+    },
+    {
+      "event": "about_to_unlink_first_name",
+      "expected_nlink": 2,
+      "index": 6,
+      "member": "surface-clearance-546/round-012-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-012-full-plane-trust4/fit/report.json",
+      "sha256": "9c7dc9c777ba65bd99f4b130070d5e4800366fcd3f04c6cd70783d4b2067f865"
+    },
+    {
+      "ctime_ns_after_first_unlink": 1793077855577098368,
+      "event": "removed_first_name",
+      "index": 6,
+      "member": "surface-clearance-546/round-012-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-012-full-plane-trust4/fit/report.json",
+      "remaining_nlink": 1,
+      "remaining_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-012-full-plane-trust4/fit/report.json",
+      "remaining_sha256": "9c7dc9c777ba65bd99f4b130070d5e4800366fcd3f04c6cd70783d4b2067f865"
+    },
+    {
+      "event": "about_to_unlink_second_name",
+      "expected_nlink": 1,
+      "index": 6,
+      "member": "surface-clearance-546/round-012-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-012-full-plane-trust4/fit/report.json"
+    },
+    {
+      "event": "removed_second_name_inode_deleted",
+      "index": 6,
+      "inode": 5158352,
+      "member": "surface-clearance-546/round-012-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-012-full-plane-trust4/fit/report.json",
+      "unique_allocated_bytes": 43192320
+    },
+    {
+      "event": "about_to_unlink_first_name",
+      "expected_nlink": 2,
+      "index": 7,
+      "member": "surface-clearance-546/round-019-pair-sat551/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-019-pair-sat551/fit/report.json",
+      "sha256": "0aa33f3e1e49ebb3d11bbfdd1afb710cc7d21f2163a28a4c9bc5855b1449d988"
+    },
+    {
+      "ctime_ns_after_first_unlink": 1793077855688768094,
+      "event": "removed_first_name",
+      "index": 7,
+      "member": "surface-clearance-546/round-019-pair-sat551/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-019-pair-sat551/fit/report.json",
+      "remaining_nlink": 1,
+      "remaining_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-152/surface-clearance-546/round-019-pair-sat551/fit/report.json",
+      "remaining_sha256": "0aa33f3e1e49ebb3d11bbfdd1afb710cc7d21f2163a28a4c9bc5855b1449d988"
+    },
+    {
+      "event": "about_to_unlink_second_name",
+      "expected_nlink": 1,
+      "index": 7,
+      "member": "surface-clearance-546/round-019-pair-sat551/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-152/surface-clearance-546/round-019-pair-sat551/fit/report.json"
+    },
+    {
+      "event": "removed_second_name_inode_deleted",
+      "index": 7,
+      "inode": 5164456,
+      "member": "surface-clearance-546/round-019-pair-sat551/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-152/surface-clearance-546/round-019-pair-sat551/fit/report.json",
+      "unique_allocated_bytes": 43188224
+    },
+    {
+      "event": "about_to_unlink_first_name",
+      "expected_nlink": 2,
+      "index": 8,
+      "member": "surface-clearance-546/round-010-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-010-full-plane-trust4/fit/report.json",
+      "sha256": "0c2da08a6721064982cf1e51eee9251bcc81382b999dfe43e1652e70b602525b"
+    },
+    {
+      "ctime_ns_after_first_unlink": 1793077855800480987,
+      "event": "removed_first_name",
+      "index": 8,
+      "member": "surface-clearance-546/round-010-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-010-full-plane-trust4/fit/report.json",
+      "remaining_nlink": 1,
+      "remaining_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-010-full-plane-trust4/fit/report.json",
+      "remaining_sha256": "0c2da08a6721064982cf1e51eee9251bcc81382b999dfe43e1652e70b602525b"
+    },
+    {
+      "event": "about_to_unlink_second_name",
+      "expected_nlink": 1,
+      "index": 8,
+      "member": "surface-clearance-546/round-010-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-010-full-plane-trust4/fit/report.json"
+    },
+    {
+      "event": "removed_second_name_inode_deleted",
+      "index": 8,
+      "inode": 5157939,
+      "member": "surface-clearance-546/round-010-full-plane-trust4/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-151/surface-clearance-546/round-010-full-plane-trust4/fit/report.json",
+      "unique_allocated_bytes": 43073536
+    },
+    {
+      "event": "about_to_unlink_first_name",
+      "expected_nlink": 2,
+      "index": 9,
+      "member": "surface-clearance-546/round-008-barycentric/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-008-barycentric/fit/report.json",
+      "sha256": "9dacea662878b9fc892e7eb80656eee661b623eda9ff8408d897dc3f4893ab90"
+    },
+    {
+      "ctime_ns_after_first_unlink": 1793077855911173959,
+      "event": "removed_first_name",
+      "index": 9,
+      "member": "surface-clearance-546/round-008-barycentric/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/round-008-barycentric/fit/report.json",
+      "remaining_nlink": 1,
+      "remaining_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-149/surface-clearance-546/round-008-barycentric/fit/report.json",
+      "remaining_sha256": "9dacea662878b9fc892e7eb80656eee661b623eda9ff8408d897dc3f4893ab90"
+    },
+    {
+      "event": "about_to_unlink_second_name",
+      "expected_nlink": 1,
+      "index": 9,
+      "member": "surface-clearance-546/round-008-barycentric/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-149/surface-clearance-546/round-008-barycentric/fit/report.json"
+    },
+    {
+      "event": "removed_second_name_inode_deleted",
+      "index": 9,
+      "inode": 5151392,
+      "member": "surface-clearance-546/round-008-barycentric/fit/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-149/surface-clearance-546/round-008-barycentric/fit/report.json",
+      "unique_allocated_bytes": 40034304
+    },
+    {
+      "event": "about_to_unlink_first_name",
+      "expected_nlink": 2,
+      "index": 10,
+      "member": "surface-clearance-546/refined-point-001/point-fit-001/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/point-fit-001/report.json",
+      "sha256": "0f6f71f5a196a3c8e3380a9010d684d8a860b4637871f33f5d5248aac7ff0665"
+    },
+    {
+      "ctime_ns_after_first_unlink": 1793077856018635541,
+      "event": "removed_first_name",
+      "index": 10,
+      "member": "surface-clearance-546/refined-point-001/point-fit-001/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-point-001/point-fit-001/report.json",
+      "remaining_nlink": 1,
+      "remaining_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-149/surface-clearance-546/refined-point-001/point-fit-001/report.json",
+      "remaining_sha256": "0f6f71f5a196a3c8e3380a9010d684d8a860b4637871f33f5d5248aac7ff0665"
+    },
+    {
+      "event": "about_to_unlink_second_name",
+      "expected_nlink": 1,
+      "index": 10,
+      "member": "surface-clearance-546/refined-point-001/point-fit-001/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-149/surface-clearance-546/refined-point-001/point-fit-001/report.json"
+    },
+    {
+      "event": "removed_second_name_inode_deleted",
+      "index": 10,
+      "inode": 5147952,
+      "member": "surface-clearance-546/refined-point-001/point-fit-001/report.json",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-149/surface-clearance-546/refined-point-001/point-fit-001/report.json",
+      "unique_allocated_bytes": 34701312
+    }
+  ],
+  "final_path_absence_check": {
+    "all_absent": true,
+    "checked": 20
+  },
+  "fresh_reference_matches": [],
+  "fresh_reference_roots": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/publication-168",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/publication-169",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-field-selection-627",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-616",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-004-from1149",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/contained-field-retention-620",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/contained-field-retention-622",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-point-targets-624",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-field-retention-623",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621-v2",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-168"
+  ],
+  "logical_bytes": 420860302,
+  "physical_df_delta_kib": 410924,
+  "plan_sha256": "9abb29c2fb4f24a45a21fc555c15a71d14da542c73939a634b032dc9b7935368",
+  "planned_aliases": 20,
+  "planned_unique_inodes": 10,
+  "remote_recovery_sha256": "fdac01e47bb1df72bac54d3e4457ad0750b25d3584454548d419c7edd4cb350f",
+  "removed_alias_count": 20,
+  "removed_alias_count_correction": {
+    "basis": "10 removed_first_name events plus 10 removed_second_name_inode_deleted events; all 20 exact planned paths are absent.",
+    "previous_receipt_sha256": "c798a31a2cd7aae92780193c53bdfc614ad60562f6c565e3198a24dd3125f155",
+    "previously_recorded": 10,
+    "verified_count": 20
+  },
+  "removed_inode_count": 10,
+  "root_review_sha256": "d071a259ec668fbd73e37837ef05d3325851a99abe7480e51addc915793a4f56",
+  "started_utc": "2026-10-27T05:10:54Z",
+  "status": "COMPLETED_EXACT_TWENTY_ALIAS_RETIREMENT",
+  "unique_allocated_bytes_before": 420880384,
+  "unique_allocated_bytes_unlinked": 420880384
+}

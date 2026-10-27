@@ -1,0 +1,38 @@
+{
+  "receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-169/evidence/compression-preservation/619-run-003/receipt.json",
+  "restored_count": 4,
+  "results": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-169-restore-check/evidence/surface-clearance-546/connected-batch-619/run-003/round-001/fit-000/report.json",
+      "status": "restored_and_verified",
+      "sha256": "5879ec1794202b0a02d05c3b7da1c173f9b9c3fbb79735a4422dd58e389da92b",
+      "bytes": 47049620,
+      "mode": 420,
+      "mtime_ns": 1793076932914590301
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-169-restore-check/evidence/surface-clearance-546/connected-batch-619/run-003/round-001/cut-merge-001/fit/report.json",
+      "status": "restored_and_verified",
+      "sha256": "9749b6d32d52200c4aa0bedf0db71b62b53cbb6820e030de10f8fcec2b0137c1",
+      "bytes": 47410776,
+      "mode": 420,
+      "mtime_ns": 1793077091693187768
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-169-restore-check/evidence/surface-clearance-546/connected-batch-619/run-003/round-001/cut-merge-002/fit/report.json",
+      "status": "restored_and_verified",
+      "sha256": "72e6b9e39611569752bc7725ed09a77c3e0f5287285dd48fd3e8122519dd982d",
+      "bytes": 47518627,
+      "mode": 420,
+      "mtime_ns": 1793077191468568045
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-169-restore-check/evidence/surface-clearance-546/connected-batch-619/run-003/round-002/fit-000/report.json",
+      "status": "restored_and_verified",
+      "sha256": "31ad2c50121c944546d5373874ff2f835d1705bf666f2c2391eda92072a21f1b",
+      "bytes": 47731506,
+      "mode": 420,
+      "mtime_ns": 1793077636155633416
+    }
+  ]
+}

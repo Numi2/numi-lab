@@ -1,0 +1,39 @@
+{
+  "created_utc": "2026-10-27T05:03:24Z",
+  "repository": "Numi2/numi-lab",
+  "branch": "main",
+  "parent_commit": "f21e352a79c7dcf14b671c969138afffdea278f3",
+  "commit": "928bbd8599c11a9a58ed4121a64c05c815083301",
+  "tree": "d410f8b44d5bbeb9f254da555333eddaeb90d9fc",
+  "publication_prefix": "publication-168/",
+  "commit_subject": "Publish P168 connected-surface construction evidence through strict 622",
+  "publication_manifest_sha256": "e841bb1e631409b4476578c2f53829e1bcdd46c49e35d1432ab0d5b1bde25140",
+  "manifest_members": 298,
+  "published_paths_including_manifest": 299,
+  "member_bytes_excluding_manifest": 160802744,
+  "unique_sha256_count_including_manifest": 287,
+  "remote_verification": {
+    "main_ref_matches_commit": true,
+    "exact_paths_and_modes_verified": 299,
+    "all_remote_git_blob_sha1_verified": 299,
+    "all_remote_sha256_and_sizes_verified": 299,
+    "modes": "100644",
+    "zstd_archive_path": "publication-168/evidence/compression-preservation/619-run-002-fit-000/fit-report.json.zst",
+    "zstd_archive_bytes": 3433846,
+    "zstd_archive_sha256": "033b4df407805e9a3df922b3c35c9df6e95cfc9c87fa1d4c4db97559dd94ad38",
+    "decompressed_original_bytes": 46531768,
+    "decompressed_original_sha256": "6bb4b0bd0ca665237bebedb1fa233254e32e8d7204884f8b523d42e4e95b6e7d"
+  },
+  "shared_checkout_preservation": {
+    "repo": "/Users/n/numi-human-aortic-contact-opt-20261019",
+    "head_before": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "head_after": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "branch_before": "numi-human-aortic-contact-perf",
+    "branch_after": "numi-human-aortic-contact-perf",
+    "index_sha256_before": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "index_sha256_after": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "git_status_porcelain_uall_sha256_before": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814",
+    "git_status_porcelain_uall_sha256_after": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "source_deletion": "none"
+}

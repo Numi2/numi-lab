@@ -1,0 +1,35 @@
+{
+  "scope": "new source and test files included directly in P169; other inherited helpers are referenced by P168 and exact launch provenance",
+  "pins": [
+    {
+      "path": "evidence/surface-clearance-546/component-field-selection-627/component_field_selection627.py",
+      "bytes": 11650,
+      "sha256": "3559c71ab36ea5d60792698bf67713b962be5a3ad747fc9ea8b87e3fec053b9c",
+      "mode": 420
+    },
+    {
+      "path": "evidence/surface-clearance-546/component-field-selection-627/run_component_selection627.py",
+      "bytes": 9873,
+      "sha256": "44b02c1f4909f67ece5e569c0dd3701716582f24e41e7fda76e1260fb60fcd9f",
+      "mode": 420
+    },
+    {
+      "path": "evidence/surface-clearance-546/component-field-selection-627/test_component_field_selection627.py",
+      "bytes": 2570,
+      "sha256": "69b325198f0f7c15627bac6452598c8bf576f60001388eced443f62c5a620a2f",
+      "mode": 420
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-batch-619/run_connected_batch619_v6.py",
+      "bytes": 49806,
+      "sha256": "3da13b22e46aa0cd8f8070b3e1e8f177d315c8732e38b646c711e4fdab45da6f",
+      "mode": 420
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-batch-619/test_run_connected_batch619_v6.py",
+      "bytes": 9433,
+      "sha256": "4e6774e0e49405af02d4045cade146247c8ee7ff700041efddec65293023686f",
+      "mode": 420
+    }
+  ]
+}

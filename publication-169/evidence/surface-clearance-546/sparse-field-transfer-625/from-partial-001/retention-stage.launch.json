@@ -1,0 +1,29 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/contained-field-retention-622/from-1173-001/final/state.json",
+    "--target",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/sparse-field-transfer-625/from-partial-001/candidate.npz",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/sparse-field-transfer-625/from-partial-001/retention",
+    "--max-edge-gradient",
+    ".5",
+    "--trust-mm",
+    "4"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/contained-field-retention-622/from-1173-001/final/state.json": "e47556ccd1a882ac79da2955cf9ff9d7a2d2979063bcedb1a3c3ae0da8e2127a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continue_surface_round546.py": "b2fb1407bcbcf8d44cb7138ff2cb9dc6ce43f9a6fcddb64ed6624df672123d17",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py": "08bb82034180636d0ff798ad503735b6a50327bf52cc3c62bffb75d0265ff57a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/sparse-field-transfer-625/from-partial-001/adopted-node-mask.npy": "e952aaec11d4ada1d617e3b5e9e8ee2a45428d2e1bcd9cdc797b9fb18c6996d6",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/sparse-field-transfer-625/from-partial-001/candidate.npz": "2d34da74562b8b04e08b7dc269a5c207bdc4d73d5a038c9cab5d6f5d9f9a94db",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/sparse-field-transfer-625/from-partial-001/report.json": "546c7b9f464ad07900af06fe1a57a02888bdd403068cce0b2777e0565e63e397"
+  }
+}

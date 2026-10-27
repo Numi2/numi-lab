@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/sparse-field-transfer-625/from-partial-001/full-check/audit-130/query/points-world.npz",
+  "input_sha256": "32ea302ec86f2d9a0555fe9071bb2af40d17cdba50186471bff929ab17e4ff19",
+  "field": "points_world_f32",
+  "query_count": 20889,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/sparse-field-transfer-625/from-partial-001/full-check/audit-130/query/points.csv",
+  "output_sha256": "f098a6bfc269a88bd05d5cfcd0675ab2dc82eaf8dd17e468671a089addc4f0bf",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

@@ -1,0 +1,10 @@
+{
+  "original_argv": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/cut-merge-001/fit-argv.json",
+  "original_argv_sha256": "4cfa824050a0752fe19cf6985af42ccb882aa9e3f99e385425b9488c9647845e",
+  "corrected_argv": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refined-626/from-621v2-001/cut-merge-001/fit-argv-unwrapped.json",
+  "corrected_argv_sha256": "e45cde72bb86c76cdb1817c836c04d842d2c92b492c2764048090ff94ede2d7f",
+  "change": "remove duplicate external slot scheduling wrapper; solver flags and output unchanged",
+  "terminated_stalled_pid": 24072,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}
