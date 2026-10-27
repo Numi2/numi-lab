@@ -1,0 +1,63 @@
+{
+  "589": {
+    "after_disagreement_count": 7,
+    "after_status": "CURRENT_SOURCE_OUTWARD_DISAGREEMENT",
+    "before_disagreement_count": 12,
+    "remaining_disagreement_rows": [
+      20933,
+      20938,
+      20941,
+      20996,
+      20997,
+      21000,
+      21009
+    ]
+  },
+  "accepted_physical_steps": 0,
+  "bounded_attempt_result": "REJECTED_UNADMITTED_SELF_AND_BANK_CROSSINGS_REMAIN_OR_WORSEN",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/candidate-037-blend-001.npz",
+  "candidate_sha256": "079ac4faee99eb198b30f3b73fabfc765515efcb21f5b5de93306096af59affa",
+  "exact_130": {
+    "before_complete": true,
+    "before_self_pairs": 0,
+    "candidate_self_pairs": 290,
+    "candidate_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/candidate-audit-130-retry-001/summary.json",
+    "candidate_summary_sha256": "e19e4ff801713a74f7431bbf66cf86e384fc9dee281065029d38d1af7371648d",
+    "complete_surface_audit": true,
+    "self_pair_rows": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/candidate-audit-130-retry-001/surface-self-pairs.npy",
+    "self_pair_rows_sha256": "654f1234400a5664079ce1d3458652a29b599ee2a0b93232e0351cbbc9962422",
+    "self_pairs_touching_changed_faces": 290,
+    "status": "STOPPED_AT_SURFACE_GATE",
+    "stopped_at_surface_gate": true
+  },
+  "exact_159": {
+    "aggregate_bank_pairs_after": 899,
+    "aggregate_bank_pairs_before": 895,
+    "bank_count": 185,
+    "bank_pair_deltas": {
+      "(109, 114)": 4
+    },
+    "body109_bone114_after": 192,
+    "body109_bone114_before_refined_blend": 188,
+    "complete": true,
+    "report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/candidate-audit-159-retry-001/report.json",
+    "report_sha256": "25662d7cd556b08be86bd8114d82606cdd1d2c35fa9b403e55c30a1567f31437"
+  },
+  "execution_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/exact-audit-retry-001-execution.json",
+  "execution_receipt_sha256": "c2f8df4a1ff05457aec2ddc5698a1bfe3d1dec47d0f28f99635585d222c1ec34",
+  "geometry_admitted": false,
+  "native_admission": false,
+  "next_executable_step": "Keep the passing source-normal rows fixed and discard or redesign the 037 displacement field around the 290 self-pair witnesses before another candidate; rerun 589 and both exact owners via the shared slot.",
+  "pre_refinement_bank_pair_count_from_585_selection": 120,
+  "reconstruction": {
+    "ancestry_arrays_unchanged": true,
+    "anchors_unchanged": true,
+    "changed_face_count": 613,
+    "changed_node_count": 219,
+    "max_displacement_m": 0.0040471697586644505,
+    "max_midpoint_affine_residual_m": 5.960464477539063e-08
+  },
+  "reconstruction_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/reconstruction-037-blend-001.json",
+  "reconstruction_receipt_sha256": "ee3e3d8dcbb1722c845193a27182e6879b9f99814e80cacf6d3c80c1561a9e3b",
+  "schema": "numi.human.per_bank_109_114.bounded_candidate_gate_summary.v1"
+}

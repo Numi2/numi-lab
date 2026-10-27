@@ -1,0 +1,41 @@
+{
+  "trials": [
+    {
+      "min_area_ratio": 0.7621474853529461,
+      "max_area_ratio": 1.3353075636659026,
+      "min_normal_cos": 0.9154132313213976,
+      "alpha": 1.0,
+      "pass": false
+    },
+    {
+      "min_area_ratio": 0.7861381627764807,
+      "max_area_ratio": 1.2948519411588106,
+      "min_normal_cos": 0.9273812565274432,
+      "alpha": 0.75,
+      "pass": true
+    },
+    {
+      "min_area_ratio": 0.8101393400060112,
+      "max_area_ratio": 1.2552156595110397,
+      "min_normal_cos": 0.938898809413075,
+      "alpha": 0.5,
+      "pass": true
+    },
+    {
+      "min_area_ratio": 0.834284608593788,
+      "max_area_ratio": 1.2173778028738345,
+      "min_normal_cos": 0.9501937861438272,
+      "alpha": 0.25,
+      "pass": true
+    }
+  ],
+  "selected": {
+    "min_area_ratio": 0.7861381627764807,
+    "max_area_ratio": 1.2948519411588106,
+    "min_normal_cos": 0.9273812565274432,
+    "alpha": 0.75,
+    "pass": true
+  },
+  "candidate_sha256": "2e6b219fb6092ac9edf7b9efa8ee18a388c9ef2ed9a5ebd4b1bbedfd24080b3e",
+  "physical_admission": false
+}

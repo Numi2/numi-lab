@@ -1,0 +1,62 @@
+{
+  "area_reference_points_same_as_current_fraction": 0.05826890439373939,
+  "bank61_97_child_face_count": 12,
+  "candidate_parent_face_count": 42379,
+  "candidate_point_count": 21212,
+  "candidate_refinement_input_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+  "generation002_candidate_sha256": "308bf33379272a1b5563411820e10d0eb667a8864b7ff1496a7b9022b484320d",
+  "generation002_refinement_input_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+  "guard_face_count": 31,
+  "immediate_parent_face_count": 42183,
+  "immediate_parent_point_count": 21114,
+  "input_below_10pct": 4,
+  "input_min_oriented_area_ratio": -10.627989182719398,
+  "reference_and_current_face_rows_equal_fraction": 1.0,
+  "refined_parent_rows_from_witness": [
+    8834,
+    8835,
+    8841
+  ],
+  "worst_rows": [
+    [
+      8833,
+      -10.627989182719398
+    ],
+    [
+      8830,
+      -0.963859713084465
+    ],
+    [
+      8824,
+      -0.2448674911992772
+    ],
+    [
+      8864,
+      0.0755676847485392
+    ],
+    [
+      8832,
+      0.14798958222514214
+    ],
+    [
+      8825,
+      0.17501563778712068
+    ],
+    [
+      8865,
+      0.956627929577344
+    ],
+    [
+      8829,
+      1.7255654020695552
+    ],
+    [
+      8844,
+      3.5065423958296016
+    ],
+    [
+      8860,
+      4.184222694986743
+    ]
+  ]
+}

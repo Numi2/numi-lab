@@ -1,0 +1,79 @@
+{
+  "candidate_unchanged": true,
+  "complete_130": false,
+  "complete_159": false,
+  "geometry_admitted": false,
+  "input_pins_after": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/candidate-037-blend-001.npz": {
+      "bytes": 7278931,
+      "sha256": "079ac4faee99eb198b30f3b73fabfc765515efcb21f5b5de93306096af59affa"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/reconstruction-037-blend-001.json": {
+      "bytes": 88506,
+      "sha256": "ee3e3d8dcbb1722c845193a27182e6879b9f99814e80cacf6d3c80c1561a9e3b"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py": {
+      "bytes": 5152,
+      "sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py": {
+      "bytes": 4925,
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+    },
+    "/Users/numi/numi-human-anatomy-finish-1378/.venv/bin/python": {
+      "bytes": 18085152,
+      "sha256": "83deb939c9034c3e85a377eeb04e7d9992f8881652a22289cd0eeeb83b98a565"
+    },
+    "/tmp/numi-human-geometry-slot.py": {
+      "bytes": 692,
+      "sha256": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1"
+    }
+  },
+  "input_pins_before": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/candidate-037-blend-001.npz": {
+      "bytes": 7278931,
+      "sha256": "079ac4faee99eb198b30f3b73fabfc765515efcb21f5b5de93306096af59affa"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/reconstruction-037-blend-001.json": {
+      "bytes": 88506,
+      "sha256": "ee3e3d8dcbb1722c845193a27182e6879b9f99814e80cacf6d3c80c1561a9e3b"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py": {
+      "bytes": 5152,
+      "sha256": "52d45f287162d22dca417793c1393bcfbbe506c5ce85b828f009b4fd7ccd94b9"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py": {
+      "bytes": 4925,
+      "sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+    },
+    "/Users/numi/numi-human-anatomy-finish-1378/.venv/bin/python": {
+      "bytes": 18085152,
+      "sha256": "83deb939c9034c3e85a377eeb04e7d9992f8881652a22289cd0eeeb83b98a565"
+    },
+    "/tmp/numi-human-geometry-slot.py": {
+      "bytes": 692,
+      "sha256": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1"
+    }
+  },
+  "launch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/exact-audit-launch.json",
+  "launch_sha256": "ab1170dcc4c7a9c42ed93317a2f3c72e4bb008e74d4882cce48fae279de27683",
+  "native_admission": false,
+  "results": [
+    {
+      "argv": [
+        "/Users/numi/numi-human-anatomy-finish-1378/.venv/bin/python",
+        "/tmp/numi-human-geometry-slot.py",
+        "/Users/numi/numi-human-anatomy-finish-1378/.venv/bin/python",
+        "/Users/numi/Work/numi-human-connected-surface-069/audit_connected_outer_geometry_130.py",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/candidate-037-blend-001.npz",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/candidate-audit-130"
+      ],
+      "elapsed_s": 0.039093971252441406,
+      "log_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/audit-130.log",
+      "log_sha256": "cab0852328de7975f9c6255b2e0284bc9634832dc525300adb707dee5ffbb3fe",
+      "name": "audit-130",
+      "returncode": 1
+    }
+  ],
+  "schema": "numi.human.per_bank_109_114.exact_audit_execution.v1"
+}

@@ -1,0 +1,165 @@
+{
+  "accepted_physical_steps": 0,
+  "all_refinement_children_updated_from_parent_weights": true,
+  "alpha": 0.5,
+  "anchors_unchanged": true,
+  "body": 64,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b64-98/candidate-source037-half-blend-001.npz",
+  "candidate_bytes": 7303226,
+  "candidate_sha256": "74a68e5c89339a6257e7497bd28921f7d92e5e3c7a2112c8ec0e284fa5aaa810",
+  "changed_node_count": 8,
+  "changed_node_rows": [
+    14795,
+    16987,
+    20949,
+    20950,
+    20951,
+    20952,
+    21014,
+    21015
+  ],
+  "changed_parent_rows": [
+    14795,
+    16987
+  ],
+  "changed_refinement_child_rows": [
+    20949,
+    20950,
+    20951,
+    20952,
+    21014,
+    21015
+  ],
+  "cheap_area_screen": {
+    "area_ratio_below_0_25_count": 0,
+    "flipped_face_count": 0,
+    "minimum_face_area_ratio": 0.5577245622352675
+  },
+  "classification": "bounded unadmitted reconstruction trial; no physical or native admission",
+  "exact_gate_comparison_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b64-98/exact-trial-comparison-001.json",
+  "exact_gate_comparison_sha256": "8e13e61717dddfd4368d005829aaab7363e498a097128022c066b0d98ae19303",
+  "exact_gates": {
+    "audit_130_summary_sha256": "2b9213a1fe07dced85af5becd5706f99c3ab47fa21672e7d95b82c192e634610",
+    "audit_159_report_sha256": "184db9893c3566a368cffce10cd47668ec42e81cdb34079d5ef2946bdd2edc4b",
+    "inside_node_bank_pairs_after": 130,
+    "inside_node_bank_pairs_before": 127,
+    "target_bank_64_98_added_pairs": 38,
+    "target_bank_64_98_crossings_after": 52,
+    "target_bank_64_98_crossings_before": 38,
+    "target_bank_64_98_removed_pairs": 24,
+    "target_row_depth_after_m": 0.003080869928558176,
+    "target_row_depth_before_m": 0.002823646119833225,
+    "worsened_other_banks": []
+  },
+  "exact_gates_pending": [
+    "audit-130 connected surface self/containment comparison",
+    "audit-159 all 185 typed skin-bone banks"
+  ],
+  "geometry_admitted": false,
+  "input_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz",
+  "input_candidate_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "inside_witness": {
+    "clearance_ray_world_unit": [
+      0.866214721318655,
+      -0.18781340554196516,
+      0.4630315121777072
+    ],
+    "closest_point_world_m": [
+      -0.3124869538999748,
+      -0.9607908563924898,
+      0.11511031383350578
+    ],
+    "closest_triangle_id": 278,
+    "depth_m": 0.002823646119833225,
+    "query_point_world_m": [
+      -0.31004107,
+      -0.961321175,
+      0.116417751
+    ]
+  },
+  "max_parent_displacement_m": 0.0032127269593198856,
+  "maximum_refinement_parent_reconstruction_error_m": 0.0,
+  "method": "blend only the two unanchored parent vertices on inside midpoint 20949 halfway toward pinned reference-037 coordinates; rebuild every child touching those parents with stored edge weights and emit F32 coordinates",
+  "native_admission": false,
+  "noncoordinate_arrays_unchanged": true,
+  "normal_evidence": {
+    "clearance_ray_dot_reference037": -0.4691012203315943,
+    "clearance_ray_dot_registered_source": -0.9619731508867917,
+    "current_source_dot_before": -0.03705934415914591,
+    "reference037_dot_from_pinned_diagnostic": 0.6713250165627951,
+    "reference037_outward_normal_world_unit": [
+      -0.5288957915648832,
+      -0.7779430528242021,
+      -0.3392253649530296
+    ],
+    "registered_source_outward_normal_world_unit": [
+      -0.8141504503900336,
+      -0.05748406549781093,
+      -0.5778015458127027
+    ]
+  },
+  "schema": "numi.human.per_bank_64_98.source037_half_blend.v1",
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-130/summary.json": {
+      "bytes": 108102,
+      "sha256": "2bcd8e1516fb4016a79109565758d4e7c1b19cd3d39ac0b37157e9a6ac3751bd"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-159/report.json": {
+      "bytes": 121174,
+      "sha256": "8b0a7557a8b79a3a5e6b8c2cb75cf94047a2b207c86532a77765c8d1c65d1723"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz": {
+      "bytes": 7303229,
+      "sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/depth-413/365-compatible-report.json": {
+      "bytes": 6374718,
+      "sha256": "ae0960eaa705d05a847b882061aa83f480fea98d8ebf7d3e6593525678ff742d"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/point-targets-589.current-source-normal-audit.json": {
+      "bytes": 122207,
+      "sha256": "4d78616bfecbd3c12a610147cd72f3964eb122c3ccc3f7973967deb9ea73100b"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/reference037-vs-current-normal-diagnostic-root.json": {
+      "bytes": 25601,
+      "sha256": "8ce9c3da4614a43cd781a444e53a146e0e7ddb6bd72d7e3b1acf056583ee3a7e"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/refinement-report.json": {
+      "bytes": 34208,
+      "sha256": "850c610ec376af305ebb074931e9b9bad250efd73579d3029c5cfa28dbbfb42c"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b64-98/build_source037_half_blend_6498.py": {
+      "bytes": 9705,
+      "sha256": "ffb506f9856e3e376e2be6c00b61c24e7e1da43874c97de5e8b2738c8aa22bb6"
+    },
+    "/tmp/numi-human-geometry-slot.py": {
+      "bytes": 692,
+      "sha256": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1"
+    }
+  },
+  "stable_bone_id": 98,
+  "status": "REJECTED_EXACT_BANK_AND_CONTAINMENT_REGRESSION",
+  "target_parent_edge_rows": [
+    14795,
+    16987
+  ],
+  "target_row": 20949,
+  "target_row_after_world_m": [
+    -0.30954423546791077,
+    -0.9602022767066956,
+    0.11683465540409088
+  ],
+  "target_row_before_world_m": [
+    -0.31004106998443604,
+    -0.9613211750984192,
+    0.11641775071620941
+  ],
+  "target_row_displacement_dot_clearance_ray_m": 0.0004132612629321129,
+  "target_row_displacement_dot_reference037_m": -0.0012746375604491813,
+  "target_row_displacement_m": [
+    0.0004968345165252686,
+    0.0011188983917236328,
+    0.0004169046878814697
+  ],
+  "target_row_displacement_norm_m": 0.0012932856090555462
+}

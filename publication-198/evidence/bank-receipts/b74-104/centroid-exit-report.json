@@ -1,0 +1,1076 @@
+{
+  "schema": "numi.human.per_bank_worker_trial.v1",
+  "status": "NO_PASS_CENTROID_EXIT_TRIAL",
+  "input_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz",
+  "input_candidate_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "body": 74,
+  "stable_bone_id": 104,
+  "method": "fixed original face corners plus three shared edge-midpoint moves solved from exact nearest-boundary exits of inside subface centroids; source face topology/ancestry retained; Float32 replay before exact check",
+  "source_bank_pins": {
+    "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df"
+  },
+  "source_fine_detail_face": 10342,
+  "input_parent_face_row": 22189,
+  "fixed_corner_nodes": [
+    12694,
+    19092,
+    19094
+  ],
+  "movable_edge_midpoint_nodes": [
+    20914,
+    20915,
+    21136
+  ],
+  "target_child_faces": [
+    22587,
+    22588,
+    22589,
+    22590
+  ],
+  "changed_face_rows_examined_for_bank": [
+    22587,
+    22588,
+    22589,
+    22590,
+    22591,
+    22592,
+    22602,
+    22603,
+    22629,
+    22630
+  ],
+  "anchor_identity_intersection": [],
+  "baseline_raw_child_pairs": 25,
+  "baseline_comparable_parent_identities": 19,
+  "baseline_centroid_states": [
+    {
+      "face": 22587,
+      "location": "inside",
+      "nearest_distance_mm": 1.0744033250155232,
+      "closest_bank_triangle": 76,
+      "exit_direction_body_local": [
+        0.9854425084368447,
+        -0.0606932079951023,
+        0.15880616193637617
+      ]
+    },
+    {
+      "face": 22588,
+      "location": "inside",
+      "nearest_distance_mm": 1.1809164915271164,
+      "closest_bank_triangle": 235,
+      "exit_direction_body_local": [
+        -0.8645346445417595,
+        0.0732047775008156,
+        -0.49721314236261854
+      ]
+    },
+    {
+      "face": 22589,
+      "location": "outside",
+      "nearest_distance_mm": 0.9691897136306544,
+      "closest_bank_triangle": 126,
+      "exit_direction_body_local": [
+        -0.7462648796686363,
+        -0.051414253216808946,
+        0.663660533661083
+      ]
+    },
+    {
+      "face": 22590,
+      "location": "inside",
+      "nearest_distance_mm": 1.411341140962587,
+      "closest_bank_triangle": 126,
+      "exit_direction_body_local": [
+        -0.7462648796686361,
+        -0.051414253216806094,
+        0.6636605336610836
+      ]
+    }
+  ],
+  "trial_sweep": [
+    {
+      "outward_margin_mm": 0.1,
+      "raw_target_child_pairs_after": 24,
+      "target_face_centroid_locations": [
+        "inside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "target_source_face_node_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "midpoint_world_moves_mm": {
+        "20914": 3.960672931997111,
+        "20915": 3.4075963006834638,
+        "21136": 0.444982823904576
+      },
+      "max_midpoint_move_mm": 3.960672931997111,
+      "pair_rows_after": [
+        [
+          22587,
+          74
+        ],
+        [
+          22587,
+          75
+        ],
+        [
+          22587,
+          76
+        ],
+        [
+          22588,
+          228
+        ],
+        [
+          22588,
+          232
+        ],
+        [
+          22588,
+          233
+        ],
+        [
+          22588,
+          234
+        ],
+        [
+          22588,
+          235
+        ],
+        [
+          22588,
+          236
+        ],
+        [
+          22590,
+          71
+        ],
+        [
+          22590,
+          72
+        ],
+        [
+          22590,
+          73
+        ],
+        [
+          22590,
+          74
+        ],
+        [
+          22590,
+          77
+        ],
+        [
+          22590,
+          126
+        ],
+        [
+          22590,
+          231
+        ],
+        [
+          22590,
+          232
+        ],
+        [
+          22591,
+          124
+        ],
+        [
+          22591,
+          228
+        ],
+        [
+          22591,
+          229
+        ],
+        [
+          22591,
+          230
+        ],
+        [
+          22591,
+          237
+        ],
+        [
+          22592,
+          76
+        ],
+        [
+          22592,
+          124
+        ]
+      ]
+    },
+    {
+      "outward_margin_mm": 0.25,
+      "raw_target_child_pairs_after": 24,
+      "target_face_centroid_locations": [
+        "inside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "target_source_face_node_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "midpoint_world_moves_mm": {
+        "20914": 4.43879805454094,
+        "20915": 3.824882267462508,
+        "21136": 0.47596987907625254
+      },
+      "max_midpoint_move_mm": 4.43879805454094,
+      "pair_rows_after": [
+        [
+          22587,
+          74
+        ],
+        [
+          22587,
+          75
+        ],
+        [
+          22587,
+          76
+        ],
+        [
+          22588,
+          228
+        ],
+        [
+          22588,
+          233
+        ],
+        [
+          22588,
+          234
+        ],
+        [
+          22588,
+          235
+        ],
+        [
+          22588,
+          236
+        ],
+        [
+          22590,
+          71
+        ],
+        [
+          22590,
+          72
+        ],
+        [
+          22590,
+          73
+        ],
+        [
+          22590,
+          74
+        ],
+        [
+          22590,
+          77
+        ],
+        [
+          22590,
+          126
+        ],
+        [
+          22590,
+          231
+        ],
+        [
+          22590,
+          232
+        ],
+        [
+          22590,
+          236
+        ],
+        [
+          22591,
+          122
+        ],
+        [
+          22591,
+          123
+        ],
+        [
+          22591,
+          124
+        ],
+        [
+          22591,
+          225
+        ],
+        [
+          22591,
+          228
+        ],
+        [
+          22592,
+          76
+        ],
+        [
+          22592,
+          124
+        ]
+      ]
+    },
+    {
+      "outward_margin_mm": 0.5,
+      "raw_target_child_pairs_after": 24,
+      "target_face_centroid_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "target_source_face_node_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "midpoint_world_moves_mm": {
+        "20914": 5.235696275948908,
+        "20915": 4.5204639704976195,
+        "21136": 0.5283020798089197
+      },
+      "max_midpoint_move_mm": 5.235696275948908,
+      "pair_rows_after": [
+        [
+          22587,
+          75
+        ],
+        [
+          22587,
+          76
+        ],
+        [
+          22588,
+          228
+        ],
+        [
+          22588,
+          233
+        ],
+        [
+          22588,
+          234
+        ],
+        [
+          22588,
+          235
+        ],
+        [
+          22588,
+          236
+        ],
+        [
+          22590,
+          71
+        ],
+        [
+          22590,
+          72
+        ],
+        [
+          22590,
+          73
+        ],
+        [
+          22590,
+          74
+        ],
+        [
+          22590,
+          75
+        ],
+        [
+          22590,
+          77
+        ],
+        [
+          22590,
+          126
+        ],
+        [
+          22590,
+          231
+        ],
+        [
+          22590,
+          232
+        ],
+        [
+          22590,
+          236
+        ],
+        [
+          22591,
+          122
+        ],
+        [
+          22591,
+          123
+        ],
+        [
+          22591,
+          124
+        ],
+        [
+          22591,
+          225
+        ],
+        [
+          22591,
+          228
+        ],
+        [
+          22592,
+          76
+        ],
+        [
+          22592,
+          124
+        ]
+      ]
+    },
+    {
+      "outward_margin_mm": 0.75,
+      "raw_target_child_pairs_after": 24,
+      "target_face_centroid_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "target_source_face_node_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "midpoint_world_moves_mm": {
+        "20914": 6.0326198153512465,
+        "20915": 5.216152505918974,
+        "21136": 0.5812590553894924
+      },
+      "max_midpoint_move_mm": 6.0326198153512465,
+      "pair_rows_after": [
+        [
+          22587,
+          75
+        ],
+        [
+          22587,
+          76
+        ],
+        [
+          22588,
+          228
+        ],
+        [
+          22588,
+          233
+        ],
+        [
+          22588,
+          234
+        ],
+        [
+          22588,
+          235
+        ],
+        [
+          22588,
+          236
+        ],
+        [
+          22590,
+          71
+        ],
+        [
+          22590,
+          72
+        ],
+        [
+          22590,
+          73
+        ],
+        [
+          22590,
+          74
+        ],
+        [
+          22590,
+          75
+        ],
+        [
+          22590,
+          77
+        ],
+        [
+          22590,
+          126
+        ],
+        [
+          22590,
+          231
+        ],
+        [
+          22590,
+          232
+        ],
+        [
+          22590,
+          236
+        ],
+        [
+          22591,
+          122
+        ],
+        [
+          22591,
+          123
+        ],
+        [
+          22591,
+          124
+        ],
+        [
+          22591,
+          225
+        ],
+        [
+          22591,
+          228
+        ],
+        [
+          22592,
+          76
+        ],
+        [
+          22592,
+          124
+        ]
+      ]
+    },
+    {
+      "outward_margin_mm": 1.0,
+      "raw_target_child_pairs_after": 24,
+      "target_face_centroid_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "target_source_face_node_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "midpoint_world_moves_mm": {
+        "20914": 6.829554804799929,
+        "20915": 5.911921786334393,
+        "21136": 0.6347125383186117
+      },
+      "max_midpoint_move_mm": 6.829554804799929,
+      "pair_rows_after": [
+        [
+          22587,
+          75
+        ],
+        [
+          22587,
+          76
+        ],
+        [
+          22588,
+          228
+        ],
+        [
+          22588,
+          233
+        ],
+        [
+          22588,
+          234
+        ],
+        [
+          22588,
+          235
+        ],
+        [
+          22588,
+          236
+        ],
+        [
+          22590,
+          71
+        ],
+        [
+          22590,
+          72
+        ],
+        [
+          22590,
+          73
+        ],
+        [
+          22590,
+          74
+        ],
+        [
+          22590,
+          75
+        ],
+        [
+          22590,
+          77
+        ],
+        [
+          22590,
+          126
+        ],
+        [
+          22590,
+          231
+        ],
+        [
+          22590,
+          232
+        ],
+        [
+          22590,
+          236
+        ],
+        [
+          22591,
+          122
+        ],
+        [
+          22591,
+          123
+        ],
+        [
+          22591,
+          124
+        ],
+        [
+          22591,
+          225
+        ],
+        [
+          22591,
+          228
+        ],
+        [
+          22592,
+          76
+        ],
+        [
+          22592,
+          124
+        ]
+      ]
+    },
+    {
+      "outward_margin_mm": 1.5,
+      "raw_target_child_pairs_after": 24,
+      "target_face_centroid_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "target_source_face_node_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "midpoint_world_moves_mm": {
+        "20914": 8.423459844137954,
+        "20915": 7.303572799251309,
+        "21136": 0.7426246458174146
+      },
+      "max_midpoint_move_mm": 8.423459844137954,
+      "pair_rows_after": [
+        [
+          22587,
+          76
+        ],
+        [
+          22588,
+          228
+        ],
+        [
+          22588,
+          233
+        ],
+        [
+          22588,
+          234
+        ],
+        [
+          22588,
+          235
+        ],
+        [
+          22590,
+          71
+        ],
+        [
+          22590,
+          72
+        ],
+        [
+          22590,
+          73
+        ],
+        [
+          22590,
+          74
+        ],
+        [
+          22590,
+          75
+        ],
+        [
+          22590,
+          76
+        ],
+        [
+          22590,
+          77
+        ],
+        [
+          22590,
+          126
+        ],
+        [
+          22590,
+          231
+        ],
+        [
+          22590,
+          232
+        ],
+        [
+          22590,
+          233
+        ],
+        [
+          22590,
+          236
+        ],
+        [
+          22591,
+          122
+        ],
+        [
+          22591,
+          123
+        ],
+        [
+          22591,
+          124
+        ],
+        [
+          22591,
+          225
+        ],
+        [
+          22591,
+          228
+        ],
+        [
+          22592,
+          76
+        ],
+        [
+          22592,
+          124
+        ]
+      ]
+    },
+    {
+      "outward_margin_mm": 2.0,
+      "raw_target_child_pairs_after": 24,
+      "target_face_centroid_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "target_source_face_node_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "midpoint_world_moves_mm": {
+        "20914": 10.017391430607713,
+        "20915": 8.695307019883325,
+        "21136": 0.8514542055990725
+      },
+      "max_midpoint_move_mm": 10.017391430607713,
+      "pair_rows_after": [
+        [
+          22587,
+          76
+        ],
+        [
+          22588,
+          228
+        ],
+        [
+          22588,
+          233
+        ],
+        [
+          22588,
+          234
+        ],
+        [
+          22588,
+          235
+        ],
+        [
+          22590,
+          71
+        ],
+        [
+          22590,
+          72
+        ],
+        [
+          22590,
+          73
+        ],
+        [
+          22590,
+          74
+        ],
+        [
+          22590,
+          75
+        ],
+        [
+          22590,
+          76
+        ],
+        [
+          22590,
+          77
+        ],
+        [
+          22590,
+          126
+        ],
+        [
+          22590,
+          231
+        ],
+        [
+          22590,
+          232
+        ],
+        [
+          22590,
+          233
+        ],
+        [
+          22590,
+          236
+        ],
+        [
+          22591,
+          122
+        ],
+        [
+          22591,
+          123
+        ],
+        [
+          22591,
+          124
+        ],
+        [
+          22591,
+          225
+        ],
+        [
+          22591,
+          228
+        ],
+        [
+          22592,
+          76
+        ],
+        [
+          22592,
+          124
+        ]
+      ]
+    },
+    {
+      "outward_margin_mm": 3.0,
+      "raw_target_child_pairs_after": 24,
+      "target_face_centroid_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "outside"
+      ],
+      "target_source_face_node_locations": [
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "outside",
+        "inside"
+      ],
+      "midpoint_world_moves_mm": {
+        "20914": 13.20527375764701,
+        "20915": 11.478965194374036,
+        "21136": 1.0708115947338317
+      },
+      "max_midpoint_move_mm": 13.20527375764701,
+      "pair_rows_after": [
+        [
+          22587,
+          76
+        ],
+        [
+          22588,
+          228
+        ],
+        [
+          22588,
+          233
+        ],
+        [
+          22588,
+          234
+        ],
+        [
+          22588,
+          235
+        ],
+        [
+          22590,
+          71
+        ],
+        [
+          22590,
+          72
+        ],
+        [
+          22590,
+          73
+        ],
+        [
+          22590,
+          74
+        ],
+        [
+          22590,
+          75
+        ],
+        [
+          22590,
+          76
+        ],
+        [
+          22590,
+          77
+        ],
+        [
+          22590,
+          126
+        ],
+        [
+          22590,
+          231
+        ],
+        [
+          22590,
+          232
+        ],
+        [
+          22590,
+          233
+        ],
+        [
+          22590,
+          236
+        ],
+        [
+          22591,
+          122
+        ],
+        [
+          22591,
+          123
+        ],
+        [
+          22591,
+          124
+        ],
+        [
+          22591,
+          225
+        ],
+        [
+          22591,
+          228
+        ],
+        [
+          22592,
+          76
+        ],
+        [
+          22592,
+          124
+        ]
+      ]
+    }
+  ],
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "scope_limit": "bounded one-face one-bank construction trial only; no global audit yet",
+  "next_specific_method": "Use local interior remeshing on source face ancestry 10342 / input face 22189: preserve the six current face-boundary nodes and their typed identities, add one or more interior Steiner nodes with explicit source-face barycentric ancestry, place them by a constrained fit to the pinned bone-104 exterior, and retriangulate only this face patch. Exact witnesses all lie strictly inside the original face; its boundary points classify outside, so a fixed-boundary interior degree of freedom is the next bounded method. Evaluate all new patch triangles against bone 104 and neighboring surface faces before any global audit."
+}

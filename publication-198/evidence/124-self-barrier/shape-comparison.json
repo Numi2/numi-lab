@@ -1,0 +1,22 @@
+{
+  "versus_prior": {
+    "changed_nodes": 176,
+    "changed_faces": 459,
+    "max_move_mm": 0.1566407415670579,
+    "min_area_ratio": 0.8879562857923492,
+    "max_area_ratio": 1.1302283546066632,
+    "min_normal_cos": 0.9862552688977179,
+    "max_normal_turn_degrees": 9.510524108761263
+  },
+  "versus_original": {
+    "changed_nodes": 596,
+    "changed_faces": 1618,
+    "max_move_mm": 0.3924795880276712,
+    "min_area_ratio": 0.7621474853529461,
+    "max_area_ratio": 1.3353075636659026,
+    "min_normal_cos": 0.9154132313213976,
+    "max_normal_turn_degrees": 23.735520311829042
+  },
+  "metadata_equal": true,
+  "admitted": false
+}

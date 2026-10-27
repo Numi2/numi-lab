@@ -1,0 +1,230 @@
+{
+  "status": "LOCAL_BONE_SURFACE_DIRECTION_DIAGNOSTIC",
+  "bank_triangles": 314,
+  "rows": [
+    {
+      "node": 12694,
+      "point_body_local_m": [
+        -0.009245844363552764,
+        -0.023426106142139445,
+        0.003921323317060991
+      ],
+      "closest_triangle_id": 71,
+      "closest_point_body_local_m": [
+        -0.007075641410667217,
+        -0.02331458755288514,
+        0.0013229456973567356
+      ],
+      "unsigned_distance_mm": 3.387297375053211,
+      "point_minus_closest_dot_triangle_normal_mm": 3.3869134647492696,
+      "closest_triangle_normal": [
+        -0.6291948332757853,
+        -0.03100759113540178,
+        0.7766288631457348
+      ],
+      "point_location_diagnostic": "outside"
+    },
+    {
+      "node": 19092,
+      "point_body_local_m": [
+        -0.008705827141688131,
+        -0.02959626000785968,
+        -0.006256806396802384
+      ],
+      "closest_triangle_id": 229,
+      "closest_point_body_local_m": [
+        -0.008078824459047975,
+        -0.030099926509699667,
+        -0.004895010803146649
+      ],
+      "unsigned_distance_mm": 1.5815497298579817,
+      "point_minus_closest_dot_triangle_normal_mm": 1.581549729857982,
+      "closest_triangle_normal": [
+        -0.3964482879058491,
+        0.3184639043156827,
+        -0.8610513902575924
+      ],
+      "point_location_diagnostic": "outside"
+    },
+    {
+      "node": 19094,
+      "point_body_local_m": [
+        -0.0008427774750680613,
+        -0.02495286677938548,
+        0.002037523775658335
+      ],
+      "closest_triangle_id": 76,
+      "closest_point_body_local_m": [
+        -0.002552811112434254,
+        -0.024847546147950653,
+        0.0017619482079238023
+      ],
+      "unsigned_distance_mm": 1.7352951823427312,
+      "point_minus_closest_dot_triangle_normal_mm": 1.7352951823427312,
+      "closest_triangle_normal": [
+        0.9854425084368448,
+        -0.06069320799510233,
+        0.1588061619363762
+      ],
+      "point_location_diagnostic": "outside"
+    },
+    {
+      "node": 20914,
+      "point_body_local_m": [
+        -0.008975835700659502,
+        -0.026511184559532323,
+        -0.0011677267129333291
+      ],
+      "closest_triangle_id": 231,
+      "closest_point_body_local_m": [
+        -0.008596237709789727,
+        -0.026526474421541664,
+        -0.0012769883806768377
+      ],
+      "unsigned_distance_mm": 0.39530561163576705,
+      "point_minus_closest_dot_triangle_normal_mm": 0.39530561163576705,
+      "closest_triangle_normal": [
+        -0.9602646147597208,
+        0.03867858578094257,
+        0.2763979678694314
+      ],
+      "point_location_diagnostic": "outside"
+    },
+    {
+      "node": 20915,
+      "point_body_local_m": [
+        -0.005044310919310412,
+        -0.024189486460762463,
+        0.0029794235463596634
+      ],
+      "closest_triangle_id": 72,
+      "closest_point_body_local_m": [
+        -0.004855774129439873,
+        -0.024153595934890366,
+        0.002499621548201278
+      ],
+      "unsigned_distance_mm": 0.51676320342962,
+      "point_minus_closest_dot_triangle_normal_mm": 0.5164024222589942,
+      "closest_triangle_normal": [
+        -0.3955208683217526,
+        -0.05145973641168585,
+        0.9170142519342034
+      ],
+      "point_location_diagnostic": "outside"
+    },
+    {
+      "node": 21136,
+      "point_body_local_m": [
+        -0.004774302256417151,
+        -0.02727456487815534,
+        -0.0021096264836346574
+      ],
+      "closest_triangle_id": 124,
+      "closest_point_body_local_m": [
+        -0.0047791207965727795,
+        -0.02727542868240625,
+        -0.002104563025472346
+      ],
+      "unsigned_distance_mm": 0.007042946512417543,
+      "point_minus_closest_dot_triangle_normal_mm": 0.007042946512417543,
+      "closest_triangle_normal": [
+        0.6841653769673023,
+        0.12264813446851966,
+        -0.7189403118970176
+      ],
+      "point_location_diagnostic": "outside"
+    }
+  ],
+  "face_centroids": [
+    {
+      "face": 22587,
+      "nodes": [
+        19094,
+        21136,
+        20915
+      ],
+      "centroid_body_local_m": [
+        -0.0035537968835985417,
+        -0.025472306039434428,
+        0.0009691069461277804
+      ],
+      "normal_body_local": [
+        0.0396389993542539,
+        0.8553966730335082,
+        -0.5164545299379211
+      ],
+      "centroid_location_diagnostic": "inside"
+    },
+    {
+      "face": 22588,
+      "nodes": [
+        21136,
+        19092,
+        20914
+      ],
+      "centroid_body_local_m": [
+        -0.007485321699588261,
+        -0.027794003148515784,
+        -0.0031780531977901234
+      ],
+      "normal_body_local": [
+        0.039639866576951344,
+        0.8553982142688807,
+        -0.5164519106396753
+      ],
+      "centroid_location_diagnostic": "inside"
+    },
+    {
+      "face": 22589,
+      "nodes": [
+        20915,
+        20914,
+        12694
+      ],
+      "centroid_body_local_m": [
+        -0.007755330327840894,
+        -0.024708925720811407,
+        0.0019110067168291087
+      ],
+      "normal_body_local": [
+        0.03963899935425393,
+        0.8553966730335081,
+        -0.5164545299379212
+      ],
+      "centroid_location_diagnostic": "outside"
+    },
+    {
+      "face": 22590,
+      "nodes": [
+        21136,
+        20914,
+        20915
+      ],
+      "centroid_body_local_m": [
+        -0.006264816292129022,
+        -0.025991745299483376,
+        -9.930988340277437e-05
+      ],
+      "normal_body_local": [
+        0.039638999354253905,
+        0.8553966730335082,
+        -0.5164545299379211
+      ],
+      "centroid_location_diagnostic": "inside"
+    }
+  ],
+  "mean_node_radial_direction_body_local": [
+    -0.7369219574649185,
+    0.3369732414861337,
+    0.585999200620957
+  ],
+  "node_radial_directions_dot_mean": [
+    0.9105603359194903,
+    -0.10511016389373284,
+    -0.6535859253723223,
+    0.8826427162444757,
+    0.7895421695529206,
+    -0.8841457974562439
+  ],
+  "scope": "diagnostic only; orientation of source meshes and solid closure are not established by these values"
+}

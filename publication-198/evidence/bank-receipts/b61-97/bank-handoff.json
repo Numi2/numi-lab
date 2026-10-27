@@ -1,0 +1,78 @@
+{
+  "schema": "numi.human.bank61_97.worker_handoff.v1",
+  "status": "STOPPED_AT_LOCAL_CONSTRUCTION_GATE",
+  "classification": "bounded construction only; no geometry admission and no physical steps",
+  "bank": [61, 97],
+  "worker_directory": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b61-97",
+  "source_candidates": {
+    "fraction_small_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz",
+      "sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35"
+    },
+    "immediate_parent_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002/candidate.npz",
+      "sha256": "308bf33379272a1b5563411820e10d0eb667a8864b7ff1496a7b9022b484320d"
+    },
+    "fixed_refined_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz",
+      "sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8"
+    }
+  },
+  "witness_cluster": {
+    "triangle_pair_count": 32,
+    "crossing_child_faces": [8835, 8836, 8837, 8838, 8839, 8840, 8841, 8848, 8849, 8851],
+    "connected_parent_faces": [8834, 8835, 8841],
+    "support_nodes": [16343, 19450, 19735, 20943, 20944, 20992, 20993, 20994, 21123, 21166],
+    "contained_nodes": [20993, 21166],
+    "nearest_face_rows": [41, 176],
+    "nearest_face_exit_margins_mm": [0.13240242410348194, 0.7716801225549326],
+    "normal_alignment_finding": "Node 20993 nearest-face outward normal matches the short certified exit direction; node 21166 nearest-face outward normal opposes its registered skin outward normal (dot approximately -0.99), explaining why the source-compatible ray asks for 8.163 mm."
+  },
+  "bounded_fit_attempts": [
+    {
+      "attempt": 1,
+      "status": "FAILED_BEFORE_OPTIMIZATION",
+      "reason": "local row IDs were used as variable-array indices in the smoothing term",
+      "script": "fit_bank61_97_patch_attempt001_failed.py",
+      "script_sha256": "c6b77490b978fd5c9ed365063fae04879c529875a2e07b3ef85f29df082d647e",
+      "log": "fit-attempt-001.log",
+      "log_sha256": "d7b32e62d5e15021915c8f5548f3f4958f7a3b5c8f6edefbb8361f2981d4f1a9"
+    },
+    {
+      "attempt": 2,
+      "status": "FIT_FAILED_NO_CANDIDATE",
+      "solver": "SLSQP, 30 variables, 10-node connected support; 0.090 s solver wall time; status 8 Positive directional derivative for linesearch after 20 iterations",
+      "minimum_plane_slack_mm": -0.5960344788245066,
+      "source_outward_normal_dots": [0.1774868402725044, 0.06268890884641208],
+      "minimum_area_ratio_at_returned_iterate": -8.18614247597714,
+      "candidate_emitted": false,
+      "execution_receipt": "fit-attempt-002-execution.json",
+      "execution_receipt_sha256": "3d53486be5f85584ed2530bcc4cfe3120659f7842345a0bcd17d7ad3f3a3e51d",
+      "execution_log": "fit-attempt-002.log",
+      "execution_log_sha256": "042ddee382329e5d725576704d49bcdc70744d8e24e30910b395c6b1562f8d29",
+      "fit_report": "fit-report.json",
+      "fit_report_sha256": "4f964d5a3360597efaaca2c6d7921305cde0c6c71a8d598a93b4dd188f37828c"
+    }
+  ],
+  "mapping_check": {
+    "status": "PASS_037_PARENT_CHILD_ANCESTRY",
+    "receipt": "037-ancestry-diagnostic.json",
+    "receipt_sha256": "25bbf2c7d85967f55c013f17defe97a4d5f050714180090669d63319a07bba14",
+    "correct_quality_reference": "Use the immediate parent candidate's 037 points and the current refinement_face_parent_face_row plus refinement_face_parent_barycentric mapping.",
+    "crossing_component_child_faces": 12,
+    "minimum_initial_037_oriented_area_ratio_on_component": 17.543603733533022,
+    "component_faces_below_10_percent": 0,
+    "support_star_faces": 31,
+    "preexisting_star_faces_below_10_percent": 4,
+    "minimum_initial_037_oriented_area_ratio_on_full_star": -10.627989182719398,
+    "quality_gate_correction": "Do not demand a new 10-percent 037 area floor on every one-ring face: four of 31 star faces already fail that threshold on the fixed refined input. Keep the 10-percent floor on the 12 ancestry-mapped child faces of the three exact witness parents, and guard the full one-ring against degradation relative to the fixed input."
+  },
+  "owner_checks": {
+    "audit130_candidate": "not run; no fitted candidate was emitted",
+    "audit159_candidate": "not run; no fitted candidate was emitted",
+    "geometry_admitted": false,
+    "accepted_physical_steps": 0
+  },
+  "source_pins_unchanged": true,
+  "next_change": "Rebuild the local fit with correctly ancestry-mapped 037 child triangles for the three witness parent faces and no-degradation constraints on the full one-ring; then emit one candidate and run matching owner checks in order, stopping at the first failed gate."
+}

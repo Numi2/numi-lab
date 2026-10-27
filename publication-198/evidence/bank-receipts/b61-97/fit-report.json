@@ -1,0 +1,157 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate_path": null,
+  "candidate_sha256": null,
+  "classification": "bounded local construction trial; no native geometry admission or physical steps",
+  "constraints": {
+    "boundary_anchor_rows_in_support": [],
+    "minimum_037_oriented_child_area_ratio": 0.1,
+    "minimum_037_oriented_child_area_ratio_observed": -8.18614247597714,
+    "nearest_face_signed_distance_and_50um_margin_mm": [
+      0.13240242410348194,
+      0.7716801225549326
+    ],
+    "plane_margin_min_mm": -0.5960344788245066,
+    "source_outward_normal_dot_floor": 0.05,
+    "source_outward_normal_dots": [
+      0.1774868402725044,
+      0.06268890884641208
+    ],
+    "trust_bounds_mm": {
+      "baseline_source_nodes": 0.5,
+      "refinement_nodes": 1.0
+    }
+  },
+  "float32_emission": {
+    "input_bits_sha256": "90ee8879de6ef17ff1260f4a163c7a80e0135e224bfb87602b9644edc97392c9",
+    "input_dtype": "float32",
+    "noncoordinate_arrays_preserved": true
+  },
+  "geometry_admitted": false,
+  "input_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz",
+  "input_candidate_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "input_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-130/summary.json": "2bcd8e1516fb4016a79109565758d4e7c1b19cd3d39ac0b37157e9a6ac3751bd",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-159/report.json": "8b0a7557a8b79a3a5e6b8c2cb75cf94047a2b207c86532a77765c8d1c65d1723",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/point-targets-589.current-source-normal-audit.json": "4d78616bfecbd3c12a610147cd72f3964eb122c3ccc3f7973967deb9ea73100b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b61-97/witness-normal-derivation.json": "7a9826cca095a8a73b51dd17dabdc86c8e251245f65578ef40960373ec8e50b2"
+  },
+  "movement": {
+    "changed_node_count": 10,
+    "changed_node_rows": [
+      16343,
+      19450,
+      19735,
+      20943,
+      20944,
+      20992,
+      20993,
+      20994,
+      21123,
+      21166
+    ],
+    "max_displacement_mm": 0.8660254037844386,
+    "node_displacements_mm": [
+      [
+        -0.10630429405597397,
+        0.0069420532720414485,
+        0.06488346046592142
+      ],
+      [
+        0.0018871146301080444,
+        -0.0035149940719065853,
+        0.006163205868745081
+      ],
+      [
+        -0.5,
+        -0.5,
+        -0.5
+      ],
+      [
+        -0.005401415930009534,
+        -0.023738243093703204,
+        0.022106785632672654
+      ],
+      [
+        -0.07384082764355071,
+        -0.09144102615493921,
+        -0.04691575222727806
+      ],
+      [
+        -0.012753872481596318,
+        -0.0034299906050136997,
+        0.008055753193758619
+      ],
+      [
+        0.023530492937993586,
+        -0.02380936322731486,
+        -0.013912776157297913
+      ],
+      [
+        -0.07432173609873871,
+        -0.07803484291923724,
+        -0.03658153332710867
+      ],
+      [
+        0.0019994256419408885,
+        -0.004856059701069171,
+        4.824360894417623e-05
+      ],
+      [
+        0.03774355751602343,
+        -0.05538704611853973,
+        0.1807633588111912
+      ]
+    ]
+  },
+  "schema": "numi.human.bank61_97_connected_witness_patch_fit.v1",
+  "solver": {
+    "iterations": 20,
+    "message": "Positive directional derivative for linesearch",
+    "method": "SciPy SLSQP closest-displacement fit on one connected 10-node triangle-witness patch",
+    "objective": 3.455778570294036,
+    "status": 8,
+    "success": false,
+    "wall_seconds": 0.09003400802612305
+  },
+  "status": "FIT_FAILED_NO_CANDIDATE",
+  "witnesses": {
+    "child_face_rows": [
+      8835,
+      8836,
+      8837,
+      8838,
+      8839,
+      8840,
+      8841,
+      8848,
+      8849,
+      8851
+    ],
+    "connected_support_node_rows": [
+      16343,
+      19450,
+      19735,
+      20943,
+      20944,
+      20992,
+      20993,
+      20994,
+      21123,
+      21166
+    ],
+    "nearest_face_rows": [
+      41,
+      176
+    ],
+    "pair_count": 32,
+    "parent_component_rows": [
+      8834,
+      8835,
+      8841
+    ],
+    "quality_guard_child_face_rows_count": 31
+  },
+  "worker_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b61-97"
+}

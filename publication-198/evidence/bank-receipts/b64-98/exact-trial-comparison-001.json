@@ -1,0 +1,372 @@
+{
+  "accepted_physical_steps": 0,
+  "audit_130": {
+    "bank_64_98_inside_witnesses_after": 4,
+    "bank_64_98_inside_witnesses_before": 1,
+    "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-130/summary.json",
+    "baseline_sha256": "2bcd8e1516fb4016a79109565758d4e7c1b19cd3d39ac0b37157e9a6ac3751bd",
+    "baseline_status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC",
+    "exact_PLC_surface_pairs_after": 0,
+    "exact_PLC_surface_pairs_before": 0,
+    "inside_node_bank_pairs_after": 130,
+    "inside_node_bank_pairs_before": 127,
+    "inside_nodes_after": 130,
+    "inside_nodes_before": 127,
+    "target_row_20949_after": [
+      {
+        "ambiguous": "0",
+        "bank_body": "64",
+        "bank_stable_id": "98",
+        "classification": "inside",
+        "closest_x": "0.0002354129235734425",
+        "closest_y": "-0.018859292710705647",
+        "closest_z": "0.0093532291831411856",
+        "inside_rays": "3",
+        "nearest_bone": "98",
+        "nearest_distance_m": "0.0030808699285581761",
+        "nearest_triangle": "277",
+        "node_kind": -1,
+        "output_node": 20949,
+        "outside_rays": "0",
+        "point_m": [
+          -0.30954423546791077,
+          -0.9602022767066956,
+          0.11683465540409088
+        ],
+        "query_local_x": "0.00036050833579616296",
+        "query_local_y": "-0.019288749685032514",
+        "query_local_z": "0.0063050039024677082",
+        "query_row": "20949",
+        "signed_face_distance_m": "-0.0030808699285581756",
+        "source_row": -1
+      }
+    ],
+    "target_row_20949_before": [
+      {
+        "ambiguous": "0",
+        "bank_body": "64",
+        "bank_stable_id": "98",
+        "classification": "inside",
+        "closest_x": "-0.0013504488819236593",
+        "closest_y": "-0.020177164363517033",
+        "closest_z": "0.009179498056704951",
+        "inside_rays": "3",
+        "nearest_bone": "98",
+        "nearest_distance_m": "0.0028236461198332249",
+        "nearest_triangle": "278",
+        "node_kind": -1,
+        "output_node": 20949,
+        "outside_rays": "0",
+        "point_m": [
+          -0.31004106998443604,
+          -0.9613211750984192,
+          0.11641775071620941
+        ],
+        "query_local_x": "-4.8783813108961723e-05",
+        "query_local_y": "-0.02045388323954845",
+        "query_local_z": "0.0066891020796915031",
+        "query_row": "20949",
+        "signed_face_distance_m": "-0.0028236461198332249",
+        "source_row": -1
+      }
+    ],
+    "trial_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b64-98/audit-130/summary.json",
+    "trial_sha256": "2b9213a1fe07dced85af5becd5706f99c3ab47fa21672e7d95b82c192e634610",
+    "trial_status": "OUTER_NODE_CLEARANCE_DIAGNOSTIC"
+  },
+  "audit_159": {
+    "all_changed_banks": [
+      {
+        "after": 52,
+        "bank": [
+          64,
+          98
+        ],
+        "before": 38,
+        "delta": 14
+      }
+    ],
+    "bank_count": 185,
+    "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-159/report.json",
+    "baseline_sha256": "8b0a7557a8b79a3a5e6b8c2cb75cf94047a2b207c86532a77765c8d1c65d1723",
+    "complete": true,
+    "improved_banks": [],
+    "target_bank_64_98_after": 52,
+    "target_bank_64_98_before": 38,
+    "target_bank_64_98_delta": 14,
+    "target_bank_added_triangle_pairs": [
+      [
+        17533,
+        346
+      ],
+      [
+        17533,
+        347
+      ],
+      [
+        17533,
+        350
+      ],
+      [
+        17533,
+        351
+      ],
+      [
+        17534,
+        134
+      ],
+      [
+        17534,
+        135
+      ],
+      [
+        17539,
+        353
+      ],
+      [
+        17540,
+        353
+      ],
+      [
+        17540,
+        366
+      ],
+      [
+        17540,
+        367
+      ],
+      [
+        17547,
+        346
+      ],
+      [
+        17547,
+        349
+      ],
+      [
+        17548,
+        136
+      ],
+      [
+        17548,
+        137
+      ],
+      [
+        17548,
+        138
+      ],
+      [
+        17548,
+        139
+      ],
+      [
+        17548,
+        222
+      ],
+      [
+        17548,
+        224
+      ],
+      [
+        17548,
+        225
+      ],
+      [
+        17549,
+        134
+      ],
+      [
+        17549,
+        135
+      ],
+      [
+        17549,
+        349
+      ],
+      [
+        17549,
+        354
+      ],
+      [
+        17549,
+        355
+      ],
+      [
+        17560,
+        353
+      ],
+      [
+        17561,
+        353
+      ],
+      [
+        17561,
+        357
+      ],
+      [
+        17563,
+        275
+      ],
+      [
+        17595,
+        134
+      ],
+      [
+        17595,
+        135
+      ],
+      [
+        17602,
+        134
+      ],
+      [
+        17609,
+        134
+      ],
+      [
+        17610,
+        132
+      ],
+      [
+        17610,
+        134
+      ],
+      [
+        17610,
+        143
+      ],
+      [
+        17668,
+        136
+      ],
+      [
+        17669,
+        136
+      ],
+      [
+        17669,
+        225
+      ]
+    ],
+    "target_bank_removed_triangle_pairs": [
+      [
+        17539,
+        350
+      ],
+      [
+        17539,
+        351
+      ],
+      [
+        17539,
+        367
+      ],
+      [
+        17560,
+        349
+      ],
+      [
+        17560,
+        350
+      ],
+      [
+        17560,
+        367
+      ],
+      [
+        17563,
+        280
+      ],
+      [
+        17563,
+        281
+      ],
+      [
+        17563,
+        367
+      ],
+      [
+        17571,
+        134
+      ],
+      [
+        17571,
+        135
+      ],
+      [
+        17571,
+        349
+      ],
+      [
+        17571,
+        354
+      ],
+      [
+        17571,
+        355
+      ],
+      [
+        17572,
+        138
+      ],
+      [
+        17572,
+        139
+      ],
+      [
+        17572,
+        222
+      ],
+      [
+        17572,
+        224
+      ],
+      [
+        17573,
+        134
+      ],
+      [
+        17573,
+        137
+      ],
+      [
+        17573,
+        138
+      ],
+      [
+        17573,
+        143
+      ],
+      [
+        17574,
+        134
+      ],
+      [
+        17574,
+        138
+      ]
+    ],
+    "trial_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b64-98/audit-159/report.json",
+    "trial_sha256": "184db9893c3566a368cffce10cd47668ec42e81cdb34079d5ef2946bdd2edc4b",
+    "trial_status": "COMPLETE_TYPED_BANK_SURFACE_CROSSING_AUDIT",
+    "unchanged_bank_count": 184,
+    "worsened_banks": [
+      {
+        "after": 52,
+        "bank": [
+          64,
+          98
+        ],
+        "before": 38,
+        "delta": 14
+      }
+    ]
+  },
+  "baseline_candidate_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "geometry_admitted": false,
+  "native_admission": false,
+  "result": "Exact self/surface-pair audit found 0 PLC self pairs; 184/185 typed banks were unchanged. The target bank worsened from 38 to 52 crossing pairs (+14), with 38 added and 24 removed pairs. The sampled containment diagnostic increased from 127 to 130 inside node-bank pairs; row 20949 remained inside and deepened from 2.823646 mm to 3.080870 mm. Reject this reconstruction candidate.",
+  "schema": "numi.human.per_bank_64_98.exact_trial_comparison.v1",
+  "status": "REJECTED_BANK_64_98_REGRESSION",
+  "trial_candidate_sha256": "74a68e5c89339a6257e7497bd28921f7d92e5e3c7a2112c8ec0e284fa5aaa810"
+}

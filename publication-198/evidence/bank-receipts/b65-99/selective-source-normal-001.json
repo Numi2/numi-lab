@@ -1,0 +1,291 @@
+{
+  "accepted_physical_steps": 0,
+  "after_589_disagreement_count": 49,
+  "area_ratio_below_0_25_count": 0,
+  "bank_after_disagreement_rows": [
+    20997,
+    21002,
+    21004,
+    21007,
+    21008,
+    21009,
+    21084,
+    21156
+  ],
+  "bank_before_disagreement_rows": [
+    20997,
+    21002,
+    21004,
+    21007,
+    21008,
+    21009,
+    21084,
+    21156
+  ],
+  "before_589_disagreement_count": 49,
+  "body": 65,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/candidate-selective-source-normal-001.npz",
+  "candidate_sha256": "9b8bef155a4f992d9b3ed629123ce2e1067a92876b06b026ce160b39c4c0d4ed",
+  "changed_face_count": 162,
+  "changed_node_count": 85,
+  "classification": "bounded unadmitted reconstruction attempt; not physical or native admission",
+  "detail": "area, source-normal, or target-displacement screen failed",
+  "flipped_face_count": 54,
+  "flipped_face_rows": [
+    14073,
+    14074,
+    14075,
+    14076,
+    14077,
+    14078,
+    14079,
+    14130,
+    14131,
+    14132,
+    14133,
+    14141,
+    14142,
+    14170,
+    14179,
+    14189,
+    14196,
+    14209,
+    14218,
+    14219,
+    14225,
+    14226,
+    14236,
+    14237,
+    14238,
+    14239,
+    14240,
+    14242,
+    14243,
+    14264,
+    14265,
+    14272,
+    14280,
+    14399,
+    14403,
+    14404,
+    14413,
+    14416,
+    14430,
+    14452,
+    14453,
+    15070,
+    15071,
+    15072,
+    15073,
+    15123,
+    15126,
+    15168,
+    15171,
+    15174,
+    15181,
+    15186,
+    15187,
+    15190
+  ],
+  "geometry_admitted": false,
+  "input_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz",
+  "input_candidate_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "limitations": [
+    "A 037 point-reference blend was not used as a target.",
+    "Two inside nodes with current and reference normal disagreement were held at baseline.",
+    "Exact surface and typed bank audits are required before any geometry admission."
+  ],
+  "minimum_face_area_ratio": 0.30696109112543596,
+  "native_admission": false,
+  "new_disagreement_rows": [],
+  "schema": "numi.human.per_bank_65_99.selective_source_normal.v1",
+  "solver": {
+    "iterations": 2,
+    "max_parent_displacement_m": 0.0039438446377552255,
+    "objective": 6.352971839722221e-05,
+    "status": 0,
+    "success": true
+  },
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-130/summary.json": {
+      "bytes": 108102,
+      "sha256": "2bcd8e1516fb4016a79109565758d4e7c1b19cd3d39ac0b37157e9a6ac3751bd"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-159/report.json": {
+      "bytes": 121174,
+      "sha256": "8b0a7557a8b79a3a5e6b8c2cb75cf94047a2b207c86532a77765c8d1c65d1723"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz": {
+      "bytes": 7303229,
+      "sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/point-targets-589.current-source-normal-audit.json": {
+      "bytes": 122207,
+      "sha256": "4d78616bfecbd3c12a610147cd72f3964eb122c3ccc3f7973967deb9ea73100b"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/reference037-vs-current-normal-diagnostic-root.json": {
+      "bytes": 25601,
+      "sha256": "8ce9c3da4614a43cd781a444e53a146e0e7ddb6bd72d7e3b1acf056583ee3a7e"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/refinement-report.json": {
+      "bytes": 34208,
+      "sha256": "850c610ec376af305ebb074931e9b9bad250efd73579d3029c5cfa28dbbfb42c"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/build_selective_source_normal_b65_99.py": {
+      "bytes": 14053,
+      "sha256": "ed3e754fc64b644aab64707c8fc9fc7c87fcfbdc260c4e0990ea2bce9ac39f4e"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/run_source_outward_targets589.py": {
+      "bytes": 13330,
+      "sha256": "11f8a4a4b906294e9832173b63601f438c9c4bf1f57e488e8fd95f398f0038ec"
+    },
+    "/tmp/numi-human-geometry-slot.py": {
+      "bytes": 692,
+      "sha256": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1"
+    }
+  },
+  "stable_bone_id": 99,
+  "status": "CHEAP_PREFLIGHT_REJECTED",
+  "target_displacement_checks": {
+    "20946": {
+      "actual_source_normal_displacement_m": 0.0018051872158159868,
+      "required_m": 0.0018051585156225632,
+      "slack_m": 2.8700193423648185e-08
+    },
+    "20948": {
+      "actual_source_normal_displacement_m": 0.0028744998597426408,
+      "required_m": 0.001739258584122017,
+      "slack_m": 0.0011352412756206237
+    },
+    "20986": {
+      "actual_source_normal_displacement_m": 0.0020855252334345442,
+      "required_m": 0.002085528665957591,
+      "slack_m": -3.4325230466140944e-09
+    },
+    "20987": {
+      "actual_source_normal_displacement_m": 0.0020744598772632393,
+      "required_m": 0.0020744627108913757,
+      "slack_m": -2.8336281363873506e-09
+    },
+    "20996": {
+      "actual_source_normal_displacement_m": 0.0015886576355156562,
+      "required_m": 0.001588536730382056,
+      "slack_m": 1.2090513360017013e-07
+    },
+    "20999": {
+      "actual_source_normal_displacement_m": 0.0019417378284150063,
+      "required_m": 0.001941627145439609,
+      "slack_m": 1.1068297539737135e-07
+    },
+    "21001": {
+      "actual_source_normal_displacement_m": 0.0022974883077265373,
+      "required_m": 0.00229744684852368,
+      "slack_m": 4.145920285726634e-08
+    },
+    "21002": {
+      "actual_source_normal_displacement_m": 0.0026561766176835793,
+      "required_m": 0.002298959598582768,
+      "slack_m": 0.00035721701910081116
+    },
+    "21003": {
+      "actual_source_normal_displacement_m": 0.00253060735087423,
+      "required_m": 0.002275715408942023,
+      "slack_m": 0.0002548919419322073
+    },
+    "21004": {
+      "actual_source_normal_displacement_m": 0.0022991151090867197,
+      "required_m": 0.002299134783533373,
+      "slack_m": -1.967444665344764e-08
+    },
+    "21007": {
+      "actual_source_normal_displacement_m": 0.0018343302164628653,
+      "required_m": 0.0018311815681000393,
+      "slack_m": 3.148648362826011e-06
+    },
+    "21008": {
+      "actual_source_normal_displacement_m": 0.0016412357302666742,
+      "required_m": 0.0016413229702570656,
+      "slack_m": -8.723999039145225e-08
+    },
+    "21009": {
+      "actual_source_normal_displacement_m": 0.0017780874077551736,
+      "required_m": 0.0017780891301654375,
+      "slack_m": -1.7224102638949135e-09
+    },
+    "21012": {
+      "actual_source_normal_displacement_m": 0.001531857809710273,
+      "required_m": 0.0015318381647416645,
+      "slack_m": 1.964496860844267e-08
+    },
+    "21080": {
+      "actual_source_normal_displacement_m": 0.0015001024371734141,
+      "required_m": 0.0010941129498933326,
+      "slack_m": 0.00040598948728008157
+    },
+    "21083": {
+      "actual_source_normal_displacement_m": 0.0015886535918941804,
+      "required_m": 0.0015357844590100861,
+      "slack_m": 5.286913288409423e-05
+    },
+    "21085": {
+      "actual_source_normal_displacement_m": 0.0015001901604777856,
+      "required_m": 0.0015001319693877862,
+      "slack_m": 5.819108999933868e-08
+    },
+    "21087": {
+      "actual_source_normal_displacement_m": 0.001981302482637678,
+      "required_m": 0.0013624223300797108,
+      "slack_m": 0.0006188801525579672
+    },
+    "21088": {
+      "actual_source_normal_displacement_m": 0.0011128777989371744,
+      "required_m": 0.0011128412945664596,
+      "slack_m": 3.650437071481445e-08
+    },
+    "21089": {
+      "actual_source_normal_displacement_m": 0.00045251958653108994,
+      "required_m": 0.0004525404747492977,
+      "slack_m": -2.0888218207741095e-08
+    },
+    "21091": {
+      "actual_source_normal_displacement_m": 0.0009331589067644382,
+      "required_m": 0.0009331977575749704,
+      "slack_m": -3.885081053221773e-08
+    },
+    "21103": {
+      "actual_source_normal_displacement_m": 0.0020989425179929093,
+      "required_m": 0.0020989607683208184,
+      "slack_m": -1.8250327909075797e-08
+    },
+    "21105": {
+      "actual_source_normal_displacement_m": 0.0023252756506113885,
+      "required_m": 0.002325272081157447,
+      "slack_m": 3.5694539416222804e-09
+    },
+    "21156": {
+      "actual_source_normal_displacement_m": 0.002315974254266376,
+      "required_m": 0.0023160518416001424,
+      "slack_m": -7.75873337664941e-08
+    },
+    "21158": {
+      "actual_source_normal_displacement_m": 0.0022382839056117234,
+      "required_m": 0.002238226842379434,
+      "slack_m": 5.7063232289551735e-08
+    },
+    "21169": {
+      "actual_source_normal_displacement_m": 0.0019719590360555784,
+      "required_m": 0.0019719223188776136,
+      "slack_m": 3.671717796471796e-08
+    },
+    "21185": {
+      "actual_source_normal_displacement_m": 0.0019383101837225003,
+      "required_m": 0.0019383543798857977,
+      "slack_m": -4.41961632974535e-08
+    },
+    "21199": {
+      "actual_source_normal_displacement_m": 0.002279190273171327,
+      "required_m": 0.002279279353834,
+      "slack_m": -8.908066267271364e-08
+    }
+  }
+}

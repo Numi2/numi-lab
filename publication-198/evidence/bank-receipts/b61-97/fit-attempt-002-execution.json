@@ -1,0 +1,84 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate_exists": false,
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b61-97/candidate-bank61-97-connected-patch-001.npz",
+  "elapsed_seconds": 7.3905699253082275,
+  "fit_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b61-97/fit-report.json",
+  "fit_report_sha256": "4f964d5a3360597efaaca2c6d7921305cde0c6c71a8d598a93b4dd188f37828c",
+  "fit_status": "FIT_FAILED_NO_CANDIDATE",
+  "geometry_admitted": false,
+  "launch_sha256": "7a65a8eae2fab345d5014bf97d58d527015dfec08e5e00083200827305c84f54",
+  "log_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b61-97/fit-attempt-002.log",
+  "log_sha256": "042ddee382329e5d725576704d49bcdc70744d8e24e30910b395c6b1562f8d29",
+  "returncode": 0,
+  "schema": "numi.human.bank61_97.connected_patch_fit.execution.v1",
+  "source_pins_after": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-130/summary.json": {
+      "bytes": 108102,
+      "sha256": "2bcd8e1516fb4016a79109565758d4e7c1b19cd3d39ac0b37157e9a6ac3751bd"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-159/report.json": {
+      "bytes": 121174,
+      "sha256": "8b0a7557a8b79a3a5e6b8c2cb75cf94047a2b207c86532a77765c8d1c65d1723"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz": {
+      "bytes": 7303229,
+      "sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/point-targets-589.current-source-normal-audit.json": {
+      "bytes": 122207,
+      "sha256": "4d78616bfecbd3c12a610147cd72f3964eb122c3ccc3f7973967deb9ea73100b"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b61-97/fit_bank61_97_patch.py": {
+      "bytes": 11029,
+      "sha256": "8fbe58b6d088e304885e82533a10cf011032ef728fbd11b708838a8832027895"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b61-97/witness-normal-derivation.json": {
+      "bytes": 3183,
+      "sha256": "7a9826cca095a8a73b51dd17dabdc86c8e251245f65578ef40960373ec8e50b2"
+    },
+    "/Users/numi/numi-human-anatomy-finish-1378/.venv/bin/python": {
+      "bytes": 18085152,
+      "sha256": "83deb939c9034c3e85a377eeb04e7d9992f8881652a22289cd0eeeb83b98a565"
+    },
+    "/tmp/numi-human-geometry-slot.py": {
+      "bytes": 692,
+      "sha256": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1"
+    }
+  },
+  "source_pins_before": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-130/summary.json": {
+      "bytes": 108102,
+      "sha256": "2bcd8e1516fb4016a79109565758d4e7c1b19cd3d39ac0b37157e9a6ac3751bd"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/audit-159/report.json": {
+      "bytes": 121174,
+      "sha256": "8b0a7557a8b79a3a5e6b8c2cb75cf94047a2b207c86532a77765c8d1c65d1723"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz": {
+      "bytes": 7303229,
+      "sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/point-targets-589.current-source-normal-audit.json": {
+      "bytes": 122207,
+      "sha256": "4d78616bfecbd3c12a610147cd72f3964eb122c3ccc3f7973967deb9ea73100b"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b61-97/fit_bank61_97_patch.py": {
+      "bytes": 11029,
+      "sha256": "8fbe58b6d088e304885e82533a10cf011032ef728fbd11b708838a8832027895"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b61-97/witness-normal-derivation.json": {
+      "bytes": 3183,
+      "sha256": "7a9826cca095a8a73b51dd17dabdc86c8e251245f65578ef40960373ec8e50b2"
+    },
+    "/Users/numi/numi-human-anatomy-finish-1378/.venv/bin/python": {
+      "bytes": 18085152,
+      "sha256": "83deb939c9034c3e85a377eeb04e7d9992f8881652a22289cd0eeeb83b98a565"
+    },
+    "/tmp/numi-human-geometry-slot.py": {
+      "bytes": 692,
+      "sha256": "716fbdeea6fac8f3426e2c083ed4573e8554017ea75f4d4d20318400fa74c8e1"
+    }
+  },
+  "source_pins_unchanged": true
+}

@@ -1,0 +1,623 @@
+{
+  "schema": "numi.human.per_bank_worker_steiner_remesh.v1",
+  "status": "FAIL_EXACT_LOCAL_SKIN_BONE",
+  "input_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/edge-refinement-661-threebank-001/generation-002-all-banks-001/candidate.npz",
+  "input_candidate_sha256": "d367af1383d920645c22552569e95614797de8aea8a757b658def68bad4412d8",
+  "body": 74,
+  "stable_bone_id": 104,
+  "source_fine_detail_face": 10342,
+  "pre_refinement_input_face_row": 22189,
+  "pre_refinement_parent_face_vertices": [
+    19094,
+    19092,
+    12694
+  ],
+  "source_face_barycentric_steiner": [
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333
+  ],
+  "boundary_nodes_in_source_order": [
+    19094,
+    21136,
+    19092,
+    20914,
+    12694,
+    20915
+  ],
+  "boundary_coordinates_preserved_bitwise": true,
+  "replacement_fan_rows": [
+    22587,
+    22588,
+    22589,
+    22590,
+    42379,
+    42380
+  ],
+  "replacement_fan_faces": [
+    [
+      21212,
+      19094,
+      21136
+    ],
+    [
+      21212,
+      21136,
+      19092
+    ],
+    [
+      21212,
+      19092,
+      20914
+    ],
+    [
+      21212,
+      20914,
+      12694
+    ],
+    [
+      21212,
+      12694,
+      20915
+    ],
+    [
+      21212,
+      20915,
+      19094
+    ]
+  ],
+  "steiner_output_node_row": 21212,
+  "steiner_world_f32_m": [
+    -0.28906726837158203,
+    -0.9594312906265259,
+    0.08487164974212646
+  ],
+  "steiner_affine_source_world_m": [
+    -0.28799915313720703,
+    -0.9594617088635763,
+    0.08607772986094157
+  ],
+  "steiner_delta_world_m": [
+    -0.001068115234375,
+    3.0418237050411356e-05,
+    -0.0012060801188151088
+  ],
+  "steiner_displacement_m": 0.0016113425073677797,
+  "construction_trust_limit_m": 0.004,
+  "nearest_bone_triangle_row": 126,
+  "nearest_bone_point_body74_local_m": [
+    -0.007318055567706809,
+    -0.026064307699158025,
+    0.0008373360170114293
+  ],
+  "nearest_boundary_distance_m": 0.0014113477260310448,
+  "outward_margin_m": 0.0002,
+  "source_center_point_location": "inside",
+  "fan_test_point_locations": [
+    "outside",
+    "inside",
+    "inside",
+    "inside",
+    "outside",
+    "outside",
+    "inside"
+  ],
+  "raw_fan_child_pairs_after": 25,
+  "fan_pair_rows_after": [
+    [
+      22587,
+      76
+    ],
+    [
+      22587,
+      124
+    ],
+    [
+      22587,
+      126
+    ],
+    [
+      22588,
+      122
+    ],
+    [
+      22588,
+      123
+    ],
+    [
+      22588,
+      124
+    ],
+    [
+      22588,
+      126
+    ],
+    [
+      22588,
+      225
+    ],
+    [
+      22588,
+      228
+    ],
+    [
+      22588,
+      235
+    ],
+    [
+      22589,
+      126
+    ],
+    [
+      22589,
+      231
+    ],
+    [
+      22589,
+      232
+    ],
+    [
+      22589,
+      233
+    ],
+    [
+      22589,
+      234
+    ],
+    [
+      22589,
+      235
+    ],
+    [
+      22589,
+      236
+    ],
+    [
+      42380,
+      71
+    ],
+    [
+      42380,
+      72
+    ],
+    [
+      42380,
+      73
+    ],
+    [
+      42380,
+      74
+    ],
+    [
+      42380,
+      75
+    ],
+    [
+      42380,
+      76
+    ],
+    [
+      42380,
+      77
+    ],
+    [
+      42380,
+      126
+    ]
+  ],
+  "residual_exact_intersection_witnesses": [
+    {
+      "fan_face_row": 22587,
+      "stable_bone_triangle_row": 76,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.002576763554188325,
+          -0.025246484620228344,
+          0.001758112705683511
+        ],
+        [
+          -0.002396643179648459,
+          -0.025868469107668022,
+          0.00040269610881814657
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22587,
+      "stable_bone_triangle_row": 124,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.002396643179648459,
+          -0.025868469107668022,
+          0.00040269610881814657
+        ],
+        [
+          -0.004779153818428409,
+          -0.027272403101961405,
+          -0.002104078299019853
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22587,
+      "stable_bone_triangle_row": 126,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.0071586879163170886,
+          -0.026022347099352815,
+          0.0010197905219116316
+        ],
+        [
+          -0.007332386487174752,
+          -0.026134724641279142,
+          0.0008157661094168281
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22588,
+      "stable_bone_triangle_row": 122,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.007297718405170768,
+          -0.0287589418728933,
+          -0.004759187567583722
+        ],
+        [
+          -0.007292036444922491,
+          -0.02875608103096873,
+          -0.004754243261292185
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22588,
+      "stable_bone_triangle_row": 123,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.007292036444922491,
+          -0.02875608103096873,
+          -0.004754243261292185
+        ],
+        [
+          -0.006702086359629195,
+          -0.028405514056917987,
+          -0.004127303019673649
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22588,
+      "stable_bone_triangle_row": 124,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.004779153818428409,
+          -0.027272403101961405,
+          -0.002104078299019853
+        ],
+        [
+          -0.006702086359629195,
+          -0.028405514056917987,
+          -0.004127303019673649
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22588,
+      "stable_bone_triangle_row": 126,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.007332386487174752,
+          -0.026134724641279142,
+          0.0008157661094168281
+        ],
+        [
+          -0.007534418642881356,
+          -0.02626543217278248,
+          0.0005784614566588156
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22588,
+      "stable_bone_triangle_row": 225,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.007297718405170768,
+          -0.0287589418728933,
+          -0.004759187567583722
+        ],
+        [
+          -0.007306347729357231,
+          -0.028759623666868385,
+          -0.004758924348632218
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22588,
+      "stable_bone_triangle_row": 228,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.007306347729357231,
+          -0.028759623666868385,
+          -0.004758924348632218
+        ],
+        [
+          -0.008265590429910099,
+          -0.02864300963645972,
+          -0.004321422961623424
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22588,
+      "stable_bone_triangle_row": 235,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.008265590429910099,
+          -0.02864300963645972,
+          -0.004321422961623424
+        ],
+        [
+          -0.008347975435011857,
+          -0.028578730745743727,
+          -0.004168711364674712
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22589,
+      "stable_bone_triangle_row": 126,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.007534418642881356,
+          -0.02626543217278248,
+          0.0005784614566588156
+        ],
+        [
+          -0.00830819475446657,
+          -0.026362813394353406,
+          -0.000299169033697356
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22589,
+      "stable_bone_triangle_row": 231,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.008718544722422306,
+          -0.026924149300292327,
+          -0.0016462588034809908
+        ],
+        [
+          -0.00830819475446657,
+          -0.026362813394353406,
+          -0.000299169033697356
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22589,
+      "stable_bone_triangle_row": 232,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.008718544722422306,
+          -0.026924149300292327,
+          -0.0016462588034809908
+        ],
+        [
+          -0.008833313271855846,
+          -0.027139291119147986,
+          -0.0021235976485283943
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22589,
+      "stable_bone_triangle_row": 233,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.00876329744716771,
+          -0.027524878240191262,
+          -0.0027264134149402705
+        ],
+        [
+          -0.008662942729355248,
+          -0.028043300807545673,
+          -0.0035312010711790014
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22589,
+      "stable_bone_triangle_row": 234,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.008662942729355248,
+          -0.028043300807545673,
+          -0.0035312010711790014
+        ],
+        [
+          -0.008616658420543254,
+          -0.028127925417626508,
+          -0.003635163816290855
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22589,
+      "stable_bone_triangle_row": 235,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.008347975435011857,
+          -0.028578730745743727,
+          -0.004168711364674712
+        ],
+        [
+          -0.008616658420543254,
+          -0.028127925417626508,
+          -0.003635163816290855
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 22589,
+      "stable_bone_triangle_row": 236,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.00876329744716771,
+          -0.027524878240191262,
+          -0.0027264134149402705
+        ],
+        [
+          -0.008833313271855846,
+          -0.027139291119147986,
+          -0.0021235976485283943
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 42380,
+      "stable_bone_triangle_row": 71,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.006459704458839388,
+          -0.025349856905317197,
+          0.00174069420398441
+        ],
+        [
+          -0.006800400258588416,
+          -0.025618766552414903,
+          0.0014539391168654928
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 42380,
+      "stable_bone_triangle_row": 72,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.006459704458839388,
+          -0.025349856905317197,
+          0.00174069420398441
+        ],
+        [
+          -0.005161581219590101,
+          -0.024781483130331534,
+          0.002332487836717982
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 42380,
+      "stable_bone_triangle_row": 73,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.004268241970117028,
+          -0.024505172853234353,
+          0.0026136956959527838
+        ],
+        [
+          -0.005161581219590101,
+          -0.024781483130331534,
+          0.002332487836717982
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 42380,
+      "stable_bone_triangle_row": 74,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.004073392412611772,
+          -0.024538377071843746,
+          0.0025724272596990877
+        ],
+        [
+          -0.002793315301188232,
+          -0.0247026431999736,
+          0.0023604461081777896
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 42380,
+      "stable_bone_triangle_row": 75,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.002793315301188232,
+          -0.0247026431999736,
+          0.0023604461081777896
+        ],
+        [
+          -0.002585254177134313,
+          -0.025173143498952492,
+          0.0018388295276630664
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 42380,
+      "stable_bone_triangle_row": 76,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.002585254177134313,
+          -0.025173143498952492,
+          0.0018388295276630664
+        ],
+        [
+          -0.002576763554188325,
+          -0.025246484620228344,
+          0.001758112705683511
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 42380,
+      "stable_bone_triangle_row": 77,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.004268241970117028,
+          -0.024505172853234353,
+          0.0026136956959527838
+        ],
+        [
+          -0.004073392412611772,
+          -0.024538377071843746,
+          0.0025724272596990877
+        ]
+      ]
+    },
+    {
+      "fan_face_row": 42380,
+      "stable_bone_triangle_row": 126,
+      "intersection_vertices_body74_local_m": [
+        [
+          -0.0071586879163170886,
+          -0.026022347099352815,
+          0.0010197905219116316
+        ],
+        [
+          -0.006800400258588416,
+          -0.025618766552414903,
+          0.0014539391168654928
+        ]
+      ]
+    }
+  ],
+  "bank_input_pins": {
+    "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac",
+    "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+    "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+    "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df"
+  },
+  "accepted_physical_steps": 0,
+  "geometry_admitted": false,
+  "local_self_test_run": false,
+  "full_audits_run": false,
+  "failed_trial_geometry_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b74-104/steiner-remesh-failed-local-trial.npz",
+  "failed_trial_geometry_sha256": "0069c0f2c7d1bca844c7a6b8c38f1ac1ed50d5b6aadadfb31b0da2f1e50284bb",
+  "next_specific_method": "Use a multi-Steiner interior patch with independent bone-exterior points around the residual intersection locus; retain the same six fixed boundary nodes. This one-center fan failed its exact bank-local gate, so stop this worker here."
+}
