@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-lp-system-capture-639/probe_alternative_43_16_axes641_v3.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-lp-system-capture-639/alt-axis-43-16-002/report.json"
+  ],
+  "log_sha256": "7760be7130b1cdbe78e27e98e4955f1a42d425e688a087a40948e1efe2b36c88",
+  "result_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-lp-system-capture-639/alt-axis-43-16-002/report.json",
+  "result_sha256": "ab0b8f5f4a7858156e117fc60c8cf80711c0c929639d2ed7232055756e7165a4",
+  "schema": "numi.human.alt_axis_probe_execution641.v2",
+  "script_sha256": "63425e5f9eda4647853fccf454a785a621780fb317b7733f9734c39a2319a7a2",
+  "status": "COMPLETED"
+}

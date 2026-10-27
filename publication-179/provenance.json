@@ -1,0 +1,14 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline_675_sha256": "b6bde2d74ea54cc3cbbd332cfd5e331b08771c6a2554d9aacc176d06db189257",
+  "candidate_original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/candidate.npz",
+  "candidate_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+  "device": "Apple M6",
+  "exact_comparison_receipt_sha256": "cb36efcf11488431e3d5f6ad39adcb1962265e20d10afe683edbe7fa190a8329",
+  "hostname": "numi.local",
+  "native_admission": false,
+  "os_version": "27.0",
+  "parent_commit": "4155ce4ffa88e54285a27557e47ee621991d7479",
+  "repository": "Numi2/numi-lab",
+  "tests": "15 passed: component retention, hard LP capture, axis-probe reporting and witness helper tests"
+}

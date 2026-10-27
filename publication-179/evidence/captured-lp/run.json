@@ -1,0 +1,15 @@
+{
+  "accepted_physical_steps": 0,
+  "calls": [
+    {
+      "call_index": 1,
+      "captured": true,
+      "status": "captured-before-solver"
+    }
+  ],
+  "capture_complete": true,
+  "error": null,
+  "native_admission": false,
+  "run_status": "returned",
+  "schema": "numi.human.hard_lp_system_capture639.v1"
+}

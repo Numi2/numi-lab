@@ -1,0 +1,72 @@
+{
+  "accepted_physical_steps": 0,
+  "all_pins_unchanged": true,
+  "checks": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-485/component_lp_decomposition_485.py": {
+      "actual": "b8632e0734ff0163e854b9c0c5fbfe33c6d12c7b17cbb7935c5028c8df78ef74",
+      "expected": "b8632e0734ff0163e854b9c0c5fbfe33c6d12c7b17cbb7935c5028c8df78ef74"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-490/run_matched_component_fit_490.py": {
+      "actual": "7719b5042d06abc8211400bd82fc5fed89d3d388e5a1c0794ddd7a0e084bf693",
+      "expected": "7719b5042d06abc8211400bd82fc5fed89d3d388e5a1c0794ddd7a0e084bf693"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/run_grouped_fit_458.py": {
+      "actual": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93",
+      "expected": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/box_aware_sat637.py": {
+      "actual": "a226a8f7e5b4afaeeb9d484883f6a213b84220bb639a15388f3c37dd944069bd",
+      "expected": "a226a8f7e5b4afaeeb9d484883f6a213b84220bb639a15388f3c37dd944069bd"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run_box_aware_sat637.py": {
+      "actual": "3a142578939683981274ebef061d797b471594ce6694cd888b0e450bbaf6bff2",
+      "expected": "3a142578939683981274ebef061d797b471594ce6694cd888b0e450bbaf6bff2"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/run_axis_map_sat_fit638.py": {
+      "actual": "42dc5c6b6447e0bac2256cd746e6247a66aee2b1555d498521a4c9df9faed649",
+      "expected": "42dc5c6b6447e0bac2256cd746e6247a66aee2b1555d498521a4c9df9faed649"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/sat_axis_map_adapter638.py": {
+      "actual": "d49c33a0f3108e1005b6fc64357f9edc796a0c469d9ba61ac7378915939365f6",
+      "expected": "d49c33a0f3108e1005b6fc64357f9edc796a0c469d9ba61ac7378915939365f6"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-scp-area-backtrack-603/frozen-v1/component_lp_partial_timeout564.py": {
+      "actual": "a24aa58178394e25d7b38c7c35a36c93eaf109a666ace7773c0ca13d33250818",
+      "expected": "a24aa58178394e25d7b38c7c35a36c93eaf109a666ace7773c0ca13d33250818"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-scp-area-backtrack-603/frozen-v1/component_scp_backtracking603.py": {
+      "actual": "f02aed5e462779e85a5d4df46a38a68bcf7eb3972c9dbf565830c4919b387be6",
+      "expected": "f02aed5e462779e85a5d4df46a38a68bcf7eb3972c9dbf565830c4919b387be6"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-scp-area-backtrack-603/frozen-v1/run_joint_full_coordinate_fit603.py": {
+      "actual": "38c3dfa9ddd961250111c87f56d6184075bde43be07c46e09d239f057b06d692",
+      "expected": "38c3dfa9ddd961250111c87f56d6184075bde43be07c46e09d239f057b06d692"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-objective-full-coordinate-560/joint_objective_560.py": {
+      "actual": "09ce0c4f47e69142de6ce394576edd3ef0ee6f4b946824a476f5425919c492c8",
+      "expected": "09ce0c4f47e69142de6ce394576edd3ef0ee6f4b946824a476f5425919c492c8"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/raw-joint-capture-563/raw_joint_capture563.py": {
+      "actual": "fa7df8771a37200c4ed30e61d92ebf1b6227eed9da8a5ff45ab54b4ff299975e",
+      "expected": "fa7df8771a37200c4ed30e61d92ebf1b6227eed9da8a5ff45ab54b4ff299975e"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/surface_objective_546.py": {
+      "actual": "dd6f70afab9cb51f3658d8f4fc9d65a13a6f70517e536a9e81c4c2a098750516",
+      "expected": "dd6f70afab9cb51f3658d8f4fc9d65a13a6f70517e536a9e81c4c2a098750516"
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py": {
+      "actual": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+      "expected": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2"
+    },
+    "capture_helper": {
+      "actual": "e10a9859c6433b84c04d7b891be9104a509f6e2b8e9fd25d297cfb96ba5caa0b",
+      "expected": "e10a9859c6433b84c04d7b891be9104a509f6e2b8e9fd25d297cfb96ba5caa0b"
+    },
+    "launcher": {
+      "actual": "e5f97df6ea23404f493dbf5d260e9756c6449cda1766da0892bf788e5b121970",
+      "expected": "e5f97df6ea23404f493dbf5d260e9756c6449cda1766da0892bf788e5b121970"
+    }
+  },
+  "native_admission": false,
+  "schema": "numi.human.hard_lp_system_capture639.source_integrity.v1"
+}

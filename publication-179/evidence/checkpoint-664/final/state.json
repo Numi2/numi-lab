@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-self-witness-001/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "d3edd7802b6c3482472275ba56f1b2fb1514f6e2c52d790b8895cc78b8f727fa",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-self-witness-001/full-check/audit-130/summary.json",
+  "point_summary_sha256": "315a98a67326bec7d07a7695a19dada3ee56d391b3401ea6bc21b4c3ba6cbbee",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-self-witness-001/full-check/audit-159/report.json",
+  "surface_report_sha256": "8c3adbcaf904917655a4b36f9d8601128077f6b35932aa6c8a2a6558c9a1b65a",
+  "temporary_unselected_construction": false
+}

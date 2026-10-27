@@ -1,0 +1,38 @@
+{
+  "accepted_physical_steps": 0,
+  "all_nonpoint_arrays_bitwise_baseline": true,
+  "anchors_bitwise_baseline": true,
+  "baseline_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/root-combined-001/candidate.npz",
+  "baseline_candidate_sha256": "b6bde2d74ea54cc3cbbd332cfd5e331b08771c6a2554d9aacc176d06db189257",
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/root-combined-001/final/state.json",
+  "baseline_state_sha256": "d7b4ddb111e4515b75346100cf891924e3ff2223cb9d9912b4eb8fe313dc0c28",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-self-witness-no114-117-001/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "7d774cd65a8079adbe2cd64f1852a50a805490c173c25e871603d83dab8c56ba",
+  "component_delta_evidence": {
+    "5883": {
+      "43/16": -12
+    },
+    "7273": {
+      "114/117": 1
+    }
+  },
+  "copied_changed_rows": 513,
+  "limitations": [
+    "Component deltas predict only endpoint pair-count changes; the new candidate requires a fresh full 545 check.",
+    "No physical admission or anatomy completion is claimed."
+  ],
+  "method": "From valid 675 baseline, copy the prior 631-v2 self-witness-retained point rows except the one exact-audit component whose 185-bank delta caused the sole +1 regression.",
+  "native_admission": false,
+  "prior_retained_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-self-witness-001/candidate.npz",
+  "prior_retained_candidate_sha256": "d3edd7802b6c3482472275ba56f1b2fb1514f6e2c52d790b8895cc78b8f727fa",
+  "prior_retained_full_check": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-self-witness-001/full-check/report.json",
+  "prior_retained_full_check_sha256": "0cada42561ab9a9514a71a0f98339456e0c58095e204a5b549457c1dabcd5fa1",
+  "prior_surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-self-witness-001/full-check/audit-159/report.json",
+  "prior_surface_report_sha256": "8c3adbcaf904917655a4b36f9d8601128077f6b35932aa6c8a2a6558c9a1b65a",
+  "reverted_component": 7273,
+  "reverted_component_rows": 184,
+  "selector631_v2": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/select_components631_v2.py",
+  "selector631_v2_sha256": "31e9dc21071aed2f27399c2ef35da6133d4444e7a300870ffa5c9c541b3e269b",
+  "status": "COMPONENT_PROPOSAL_PENDING_FRESH_545"
+}

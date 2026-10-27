@@ -1,0 +1,11 @@
+{
+  "accepted_physical_steps": 0,
+  "native_admission": false,
+  "outcome": {
+    "solver_message": "all sparse components solved and global original-space certificate passed",
+    "solver_status": 0,
+    "status": "returned",
+    "success": true
+  },
+  "schema": "numi.human.hard_lp_system_capture639.v1"
+}
