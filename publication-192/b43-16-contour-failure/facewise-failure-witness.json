@@ -1,0 +1,243 @@
+{
+  "schema": "numi.human.bank43_16.facewise-failure-witness.v1",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "endpoint_graph_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-005-exact-endpoint-identity/receipt.json",
+  "endpoint_graph_receipt_sha256": "2fdc19702ad61b3c7853b30b9f1f80045ff3e7352508ea0726f600a6b3ff256e",
+  "facewise_trial_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-005-exact-endpoint-identity/patch-trial-001/report.json",
+  "facewise_trial_report_sha256": "219d9769baf2e828bc89e6d2c9d6dc54cff23b25e26fb3bc680962300e216d49",
+  "endpoint_graph": {
+    "pair_dimensions": {
+      "segment": 249
+    },
+    "endpoint_records": 498,
+    "exact_feature_roots": 249,
+    "degree_histogram": {
+      "2": 249
+    },
+    "connected_cycle_count": 3,
+    "cycle_vertex_counts": [
+      [
+        8,
+        1
+      ],
+      [
+        108,
+        1
+      ],
+      [
+        133,
+        1
+      ]
+    ],
+    "coordinate_conflict_components": [],
+    "world_conflict_components": []
+  },
+  "float32_endpoint_recheck": {
+    "scope": "rounded exact endpoint coordinates in world metres only; no patch interior vertices emitted",
+    "canonical_components_with_consistent_exact_world_position": 249,
+    "components_with_conflicting_exact_world_positions": [],
+    "distinct_exact_components_collapsed_to_one_Float32_point": [
+      [
+        262,
+        445
+      ]
+    ],
+    "endpoint_pair_checks_failing_skin_triangle": 498,
+    "endpoint_pair_checks_failing_bone_triangle": 498,
+    "components_still_on_every_incident_skin_and_bone_triangle": 0,
+    "components_checked_after_emission": 249
+  },
+  "distinct_exact_roots_collapsed": [
+    262,
+    445
+  ],
+  "exact_sub_ulp_witnesses": [
+    {
+      "canonical_exact_root": 262,
+      "endpoint_record_ids": [
+        262,
+        444
+      ],
+      "incident_pair_endpoints": [
+        {
+          "skin_face": 19646,
+          "bone_triangle": 145,
+          "endpoint_ordinal": 0,
+          "skin_feature": [
+            "skin-edge",
+            18489,
+            20924,
+            "10150608922619219598643171/76881355603154024877381155259"
+          ],
+          "bone_feature": null
+        },
+        {
+          "skin_face": 19841,
+          "bone_triangle": 145,
+          "endpoint_ordinal": 0,
+          "skin_feature": [
+            "skin-edge",
+            18489,
+            20924,
+            "10150608922619219598643171/76881355603154024877381155259"
+          ],
+          "bone_feature": null
+        }
+      ],
+      "exact_world_endpoint_m": [
+        "-90610915360673319918227452620972871/322463777331731339159299289027444736",
+        "-552053441462989877372310033818828815/644927554663462678318598578054889472",
+        "224718055022439176535797937225556081/1719806812435900475516262874813038592"
+      ],
+      "emitted_world_f32_m": [
+        -0.280995637178421,
+        -0.8559929728507996,
+        0.13066470623016357
+      ],
+      "emitted_f32_bits": [
+        3197099689,
+        3210420827,
+        1040567544
+      ],
+      "exact_squared_separation_from_anchor_m2": "0/1",
+      "separation_from_anchor_m": 0.0
+    },
+    {
+      "canonical_exact_root": 445,
+      "endpoint_record_ids": [
+        445,
+        467
+      ],
+      "incident_pair_endpoints": [
+        {
+          "skin_face": 19841,
+          "bone_triangle": 145,
+          "endpoint_ordinal": 1,
+          "skin_feature": [
+            "skin-edge",
+            18489,
+            21064,
+            "30451826767857658795929513/196745043255182867098497011030"
+          ],
+          "bone_feature": null
+        },
+        {
+          "skin_face": 19850,
+          "bone_triangle": 145,
+          "endpoint_ordinal": 1,
+          "skin_feature": [
+            "skin-edge",
+            18489,
+            21064,
+            "30451826767857658795929513/196745043255182867098497011030"
+          ],
+          "bone_feature": null
+        }
+      ],
+      "exact_world_endpoint_m": [
+        "-371008004405448486239718028172427441/1320333635048618432324311051761876992",
+        "-70637267794070991611445631958755621/82520852190538652020269440735117312",
+        "345042010127212916126071914097509675/2640667270097236864648622103523753984"
+      ],
+      "emitted_world_f32_m": [
+        -0.280995637178421,
+        -0.8559929728507996,
+        0.13066470623016357
+      ],
+      "emitted_f32_bits": [
+        3197099689,
+        3210420827,
+        1040567544
+      ],
+      "exact_squared_separation_from_anchor_m2": "2829973683833414951584276056377444934150881884577521408691140444399151337959120201249153260277150785095604895329157/41216340572179489808119256242294178001520092961071085559354802696216986326337497351588402124503587441663142908439285133773149044736",
+      "separation_from_anchor_m": 8.286220454991253e-09
+    }
+  ],
+  "facewise_failure": "ValueError('degenerate reference triangle (2, 3, 0) area2=0.0')",
+  "facewise_traceback": "Traceback (most recent call last):\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-005-exact-endpoint-identity/patch-trial-001/exact_endpoint_patch_43_16.py\", line 404, in <module>\n    tris,flips=constrained_triangulate(p2,constraints)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-005-exact-endpoint-identity/patch-trial-001/exact_endpoint_patch_43_16.py\", line 113, in constrained_triangulate\n    T = [make_tri(*map(int,t), p2) for t in Delaunay(p2).simplices]\n         ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-005-exact-endpoint-identity/patch-trial-001/exact_endpoint_patch_43_16.py\", line 92, in make_tri\n    raise ValueError(f\"degenerate reference triangle {(a,b,c)} area2={o}\")\nValueError: degenerate reference triangle (2, 3, 0) area2=0.0\n",
+  "retained_patch": {
+    "seed_faces": 434,
+    "ring_additions": [
+      40,
+      28
+    ],
+    "final_faces": 502,
+    "boundary_edges": 38,
+    "boundary_nodes": 38,
+    "boundary_loop_node_counts": [
+      38
+    ],
+    "boundary_degree_histogram": {
+      "2": 38
+    }
+  },
+  "source_csr_ancestry": {
+    "source": {
+      "parent_faces": 502,
+      "empty_parent_rows": 0,
+      "negative_parent_rows": 0,
+      "distinct_ancestry_id_count": 2,
+      "common_ancestry_sets_top10": [
+        [
+          [
+            8265
+          ],
+          301
+        ],
+        [
+          [
+            8269
+          ],
+          201
+        ]
+      ]
+    },
+    "fine_detail": {
+      "parent_faces": 502,
+      "empty_parent_rows": 0,
+      "negative_parent_rows": 0,
+      "distinct_ancestry_id_count": 2,
+      "common_ancestry_sets_top10": [
+        [
+          [
+            8265
+          ],
+          301
+        ],
+        [
+          [
+            8269
+          ],
+          201
+        ]
+      ]
+    },
+    "fine_subface": {
+      "parent_faces": 502,
+      "empty_parent_rows": 0,
+      "negative_parent_rows": 0,
+      "distinct_ancestry_id_count": 2,
+      "common_ancestry_sets_top10": [
+        [
+          [
+            8267
+          ],
+          301
+        ],
+        [
+          [
+            8271
+          ],
+          201
+        ]
+      ]
+    },
+    "all_valid": true
+  },
+  "patch_candidate_emitted": false,
+  "geometry_changed": false,
+  "full_or_all_bank_audit_run": false,
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

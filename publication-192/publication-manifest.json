@@ -1,0 +1,57 @@
+{
+  "schema": "numi.human.p192_evidence_manifest.v1",
+  "parent_commit": "3b42c2ceeb58e3563f865504cb69fd45c53fc06b",
+  "status": "construction evidence only; no physical or native admission",
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "a4a6c57cb99185815c7e9972eccc5085fa3be2e3816a26afc7605fb9fe8a5be8",
+      "bytes": 1578
+    },
+    {
+      "path": "b115-118-f32-diagnostic/diagnose.py",
+      "sha256": "0cf0bd7bd5cf7c6f6e705a6c5a9674c33408dee0fae0f289440e7953ae9f7652",
+      "bytes": 5920
+    },
+    {
+      "path": "b115-118-f32-diagnostic/receipt.json",
+      "sha256": "fc6bea66c2b3e5d5fc7a49c55d7af5c6d6d5585d483a3e670f69bb8c5842f3ae",
+      "bytes": 6355
+    },
+    {
+      "path": "b43-16-contour-failure/exact_endpoint_check_43_16.log",
+      "sha256": "18d7d6211de4c3f277a6ea40225b8456890170be5bb1f78e87896a65ed678677",
+      "bytes": 651
+    },
+    {
+      "path": "b43-16-contour-failure/exact_endpoint_check_43_16.py",
+      "sha256": "324f6162d2ef553a1d70826489434d2338c77724f5c9068dd72d6e64d11633fd",
+      "bytes": 21492
+    },
+    {
+      "path": "b43-16-contour-failure/facewise-failure-witness.json",
+      "sha256": "a13bcda6df8d45015a69b4b31f6442f91a215ca9de5af80f436f86a1db7fa090",
+      "bytes": 7988
+    },
+    {
+      "path": "b43-16-contour-failure/patch-trial-001/exact_endpoint_patch_43_16.log",
+      "sha256": "9f7f28b018efe0123fcd3eca59c14fb018b7f8684eec0c3b6b297902d37f246f",
+      "bytes": 3506
+    },
+    {
+      "path": "b43-16-contour-failure/patch-trial-001/exact_endpoint_patch_43_16.py",
+      "sha256": "823d0cf04dcdd5d15b87f79c096e63b64778024a7b06d2b4b394824a941498f7",
+      "bytes": 33695
+    },
+    {
+      "path": "b43-16-contour-failure/patch-trial-001/report.json",
+      "sha256": "219d9769baf2e828bc89e6d2c9d6dc54cff23b25e26fb3bc680962300e216d49",
+      "bytes": 3425
+    },
+    {
+      "path": "b43-16-contour-failure/receipt.json",
+      "sha256": "2fdc19702ad61b3c7853b30b9f1f80045ff3e7352508ea0726f600a6b3ff256e",
+      "bytes": 789434
+    }
+  ]
+}

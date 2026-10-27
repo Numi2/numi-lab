@@ -1,0 +1,153 @@
+{
+  "schema": "numi.human.wide-fit.float32-inversion-diagnostic.v1",
+  "purpose": "Read-only rowwise comparison of saved SLSQP double coordinates and emitted Float32; no fit or geometry audit.",
+  "pins": {
+    "candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+      "sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af"
+    },
+    "topology": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/wider-fit-trial-001/topology/patch-candidate.npz",
+      "sha256": "67c90a682da5213bb7f26d166565b1a7e36d502dff504ab2ffd7ebf734ed14e4"
+    },
+    "fit_patch": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/wider-fit-trial-001/explicit-fit/private-constrained-fit-patch.npz",
+      "sha256": "f675fa8e8dbb53f02862b0d9654d758c9002204b95718948c09ba905839cfb22"
+    },
+    "fit_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/wider-fit-trial-001/explicit-fit/report.json",
+      "sha256": "48fa2e05255cee37069676cdb5b2d836f76b3aa9bb9d204565eb5c66c1ccc903"
+    },
+    "fit_script": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b115-118/attempt-006-exact-endpoint-identity/wider-fit-trial-001/explicit-fit/constrained_exterior_fit.py",
+      "sha256": "4c33077dfaae121504260ab8a3d6343a126eb75004e0f4a5ed626001cd036491"
+    }
+  },
+  "constraints": {
+    "area_ratio_floor": 1e-06,
+    "SLSQP_ftol": 1e-08,
+    "double_min_constraint_reported": -3.8487511919988576e-13,
+    "SLSQP_success": true,
+    "iterations": 95
+  },
+  "face_mapping_checks": {
+    "faces_identical": true,
+    "parent_rows_identical": true,
+    "node_count_matches": true,
+    "parent_indices_valid": true,
+    "emitted_inverted_rows_reproduced": true
+  },
+  "affected_faces": [
+    {
+      "child_row": 13,
+      "patch_vertex_rows": [
+        70,
+        69,
+        11
+      ],
+      "parent_candidate_face_row": 29834,
+      "source_parent_vertex_rows": [
+        20941,
+        14366,
+        20940
+      ],
+      "double_signed_projected_area_ratio": 1.0000001115493636e-06,
+      "double_constraint_residual_after_1e-6_floor": 1.1154936363174696e-13,
+      "double_unsigned_area_ratio": 0.005357713614801616,
+      "double_inside_configured_ftol_of_floor": true,
+      "emitted_f32_signed_orientation_ratio": -2.6429461197418546e-06,
+      "emitted_f32_unsigned_area_ratio": 0.005354718030177024,
+      "emitted_inverted": true,
+      "max_f32_vertex_rounding_error_um": 0.02011602582151458
+    },
+    {
+      "child_row": 58,
+      "patch_vertex_rows": [
+        86,
+        88,
+        63
+      ],
+      "parent_candidate_face_row": 31367,
+      "source_parent_vertex_rows": [
+        21142,
+        21173,
+        21140
+      ],
+      "double_signed_projected_area_ratio": 1.0000005377627147e-06,
+      "double_constraint_residual_after_1e-6_floor": 5.377627147770225e-13,
+      "double_unsigned_area_ratio": 0.002183363643643097,
+      "double_inside_configured_ftol_of_floor": true,
+      "emitted_f32_signed_orientation_ratio": -7.959966995991215e-07,
+      "emitted_f32_unsigned_area_ratio": 0.0022184185062074507,
+      "emitted_inverted": true,
+      "max_f32_vertex_rounding_error_um": 0.05234741131255006
+    },
+    {
+      "child_row": 98,
+      "patch_vertex_rows": [
+        98,
+        76,
+        62
+      ],
+      "parent_candidate_face_row": 31453,
+      "source_parent_vertex_rows": [
+        21114,
+        19405,
+        21164
+      ],
+      "double_signed_projected_area_ratio": 1.0000007895172006e-06,
+      "double_constraint_residual_after_1e-6_floor": 7.895172006502904e-13,
+      "double_unsigned_area_ratio": 0.007274086599072406,
+      "double_inside_configured_ftol_of_floor": true,
+      "emitted_f32_signed_orientation_ratio": -3.0908018040429487e-06,
+      "emitted_f32_unsigned_area_ratio": 0.007226202112183689,
+      "emitted_inverted": true,
+      "max_f32_vertex_rounding_error_um": 0.05813808341600796
+    },
+    {
+      "child_row": 102,
+      "patch_vertex_rows": [
+        96,
+        99,
+        95
+      ],
+      "parent_candidate_face_row": 31453,
+      "source_parent_vertex_rows": [
+        21114,
+        19405,
+        21164
+      ],
+      "double_signed_projected_area_ratio": 1.000000049254898e-06,
+      "double_constraint_residual_after_1e-6_floor": 4.9254898120201784e-14,
+      "double_unsigned_area_ratio": 0.0005023075110624931,
+      "double_inside_configured_ftol_of_floor": true,
+      "emitted_f32_signed_orientation_ratio": -1.078671312346283e-06,
+      "emitted_f32_unsigned_area_ratio": 0.0005096212810395749,
+      "emitted_inverted": true,
+      "max_f32_vertex_rounding_error_um": 0.0575048139463089
+    },
+    {
+      "child_row": 116,
+      "patch_vertex_rows": [
+        94,
+        103,
+        91
+      ],
+      "parent_candidate_face_row": 31455,
+      "source_parent_vertex_rows": [
+        21114,
+        21164,
+        21115
+      ],
+      "double_signed_projected_area_ratio": 9.999998842772235e-07,
+      "double_constraint_residual_after_1e-6_floor": -1.1572277648979007e-13,
+      "double_unsigned_area_ratio": 0.002442012238783719,
+      "double_inside_configured_ftol_of_floor": true,
+      "emitted_f32_signed_orientation_ratio": -1.3828520203421282e-06,
+      "emitted_f32_unsigned_area_ratio": 0.002424384320306631,
+      "emitted_inverted": true,
+      "max_f32_vertex_rounding_error_um": 0.04984132214782859
+    }
+  ],
+  "interpretation": "No indexing mismatch: fit and topology patch faces and parent rows match, and all five reported inversions reproduce. The double signed area constraints sit within SLSQP ftol of the 1e-6 floor, so solver termination accepts near-degenerate faces; Float32 emission then changes orientation sign. Both tolerance and rounding contribute."
+}
