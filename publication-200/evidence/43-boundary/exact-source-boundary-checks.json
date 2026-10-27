@@ -1,0 +1,1542 @@
+{
+  "accepted_physical_steps": 0,
+  "all_185_bank_count_per_node_verified": true,
+  "all_185_point_query_binary_sha256": "5dc7b5ce2a96f58bd03ccc85e38645d9da2ec8be105a532c461a3e0cc6d25460",
+  "all_185_point_query_exporter_sha256": "0e09fecb9cf0d2c5e9049356b822d138819e1560a2a2049bcbd4d8602336a1ee",
+  "audit130_sha256": "0ec99fa47245355d60858b05e1240b0e562de229c13721ea11659f6f4acdf5cf",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "baseline_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "baseline_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "boundary_node_count": 18,
+  "boundary_node_ids": [
+    5884,
+    5888,
+    5889,
+    9104,
+    9105,
+    9106,
+    10742,
+    10743,
+    10748,
+    10749,
+    10756,
+    10757,
+    14274,
+    14280,
+    18481,
+    18488,
+    18751,
+    20895
+  ],
+  "boundary_node_query_results": [
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 5884,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 5888,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 5889,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 9104,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 9105,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 9106,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 10742,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 10743,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 10748,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 10749,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 10756,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 10757,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 14274,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 14280,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 18481,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 18488,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 0,
+      "inside_banks": [],
+      "invalid_banks": 0,
+      "node_row": 18751,
+      "total_bone_banks": 185
+    },
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 1,
+      "inside_banks": [
+        {
+          "bank_body": 43,
+          "classification": "inside",
+          "stable_bone_id": 16
+        }
+      ],
+      "invalid_banks": 0,
+      "node_row": 20895,
+      "total_bone_banks": 185
+    }
+  ],
+  "boundary_nodes_with_inside_banks": [
+    {
+      "ambiguous_banks": 0,
+      "inside_bank_count": 1,
+      "inside_banks": [
+        {
+          "bank_body": 43,
+          "classification": "inside",
+          "stable_bone_id": 16
+        }
+      ],
+      "invalid_banks": 0,
+      "node_row": 20895,
+      "total_bone_banks": 185
+    }
+  ],
+  "candidate_emitted": false,
+  "elapsed_seconds": 4.092352083185688,
+  "exact_boundary_edge_count": 18,
+  "exact_boundary_edge_hit_count": 2,
+  "exact_boundary_edge_scope": "all source-8265 boundary edges against every triangle in all 185 typed bone banks using exact rational segment-triangle predicates after body-local Float64 transform of baseline F32 points and pinned bank triangles",
+  "exact_boundary_segment_triangle_hits": [
+    {
+      "bank_body": 43,
+      "bone_triangle_row": 135,
+      "edge_node_rows": [
+        18488,
+        20895
+      ],
+      "intersection_kind": "point",
+      "intersection_point_local_m": [
+        "-406705534052523195941216260041409219590312937/928447664922355577246433713506154310828801654784",
+        "4513068938562323949220566086593605964410631/3626748691102951473618881693383415276675006464",
+        "27918196024150465511445992460815126536047319/518106955871850210516983099054773610953572352"
+      ],
+      "stable_bone_id": 16
+    },
+    {
+      "bank_body": 43,
+      "bone_triangle_row": 145,
+      "edge_node_rows": [
+        9106,
+        20895
+      ],
+      "intersection_kind": "point",
+      "intersection_point_local_m": [
+        "-371502782462145913709469340198681642552863449/154451126382797112682010810978311646193240768512",
+        "-35418310286876761783378221351412197851137815133/34597052309746553240770421659141808747285932146688",
+        "3657220613461153748577180381896337783068375245/67572367792473736798379729803011345209542836224"
+      ],
+      "stable_bone_id": 16
+    }
+  ],
+  "exact_edge_aabb_candidate_tests": 51,
+  "geometry_changed": false,
+  "per_bank_edge_stats": [
+    {
+      "bank_body": 1,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 1,
+      "triangle_count": 9922
+    },
+    {
+      "bank_body": 4,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 168,
+      "triangle_count": 3892
+    },
+    {
+      "bank_body": 10,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 167,
+      "triangle_count": 3512
+    },
+    {
+      "bank_body": 13,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 166,
+      "triangle_count": 3272
+    },
+    {
+      "bank_body": 16,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 165,
+      "triangle_count": 3214
+    },
+    {
+      "bank_body": 19,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 164,
+      "triangle_count": 2972
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 26,
+      "triangle_count": 4624
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 27,
+      "triangle_count": 2546
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 36,
+      "triangle_count": 3276
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 37,
+      "triangle_count": 5594
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 38,
+      "triangle_count": 7254
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 39,
+      "triangle_count": 8832
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 40,
+      "triangle_count": 9710
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 41,
+      "triangle_count": 10246
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 42,
+      "triangle_count": 10032
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 43,
+      "triangle_count": 8336
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 44,
+      "triangle_count": 7576
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 45,
+      "triangle_count": 6820
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 46,
+      "triangle_count": 4866
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 47,
+      "triangle_count": 2818
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 48,
+      "triangle_count": 4728
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 49,
+      "triangle_count": 8800
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 50,
+      "triangle_count": 11942
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 51,
+      "triangle_count": 8850
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 52,
+      "triangle_count": 9710
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 53,
+      "triangle_count": 10264
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 54,
+      "triangle_count": 10032
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 55,
+      "triangle_count": 8336
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 56,
+      "triangle_count": 7576
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 57,
+      "triangle_count": 6826
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 58,
+      "triangle_count": 4866
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 59,
+      "triangle_count": 2818
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 169,
+      "triangle_count": 1700
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 170,
+      "triangle_count": 1938
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 171,
+      "triangle_count": 2038
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 172,
+      "triangle_count": 2066
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 173,
+      "triangle_count": 2280
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 174,
+      "triangle_count": 2248
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 175,
+      "triangle_count": 2574
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 176,
+      "triangle_count": 2424
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 177,
+      "triangle_count": 2586
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 178,
+      "triangle_count": 2790
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 179,
+      "triangle_count": 2674
+    },
+    {
+      "bank_body": 20,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 180,
+      "triangle_count": 2772
+    },
+    {
+      "bank_body": 23,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 28,
+      "triangle_count": 13002
+    },
+    {
+      "bank_body": 23,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 29,
+      "triangle_count": 13210
+    },
+    {
+      "bank_body": 23,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 30,
+      "triangle_count": 4928
+    },
+    {
+      "bank_body": 23,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 31,
+      "triangle_count": 4936
+    },
+    {
+      "bank_body": 23,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 32,
+      "triangle_count": 14510
+    },
+    {
+      "bank_body": 23,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 33,
+      "triangle_count": 12450
+    },
+    {
+      "bank_body": 23,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 34,
+      "triangle_count": 8154
+    },
+    {
+      "bank_body": 23,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 35,
+      "triangle_count": 5576
+    },
+    {
+      "bank_body": 26,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 70,
+      "triangle_count": 2094
+    },
+    {
+      "bank_body": 26,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 71,
+      "triangle_count": 2288
+    },
+    {
+      "bank_body": 26,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 181,
+      "triangle_count": 2030
+    },
+    {
+      "bank_body": 26,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 182,
+      "triangle_count": 2410
+    },
+    {
+      "bank_body": 26,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 183,
+      "triangle_count": 2196
+    },
+    {
+      "bank_body": 26,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 184,
+      "triangle_count": 2374
+    },
+    {
+      "bank_body": 26,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 185,
+      "triangle_count": 1820
+    },
+    {
+      "bank_body": 29,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 8,
+      "triangle_count": 1146
+    },
+    {
+      "bank_body": 34,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 10,
+      "triangle_count": 26172
+    },
+    {
+      "bank_body": 41,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 12,
+      "triangle_count": 3784
+    },
+    {
+      "bank_body": 42,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 14,
+      "triangle_count": 834
+    },
+    {
+      "bank_body": 43,
+      "exact_aabb_candidate_tests": 49,
+      "exact_segment_triangle_hits": 2,
+      "stable_bone_id": 16,
+      "triangle_count": 672
+    },
+    {
+      "bank_body": 45,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 75,
+      "triangle_count": 332
+    },
+    {
+      "bank_body": 46,
+      "exact_aabb_candidate_tests": 2,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 74,
+      "triangle_count": 322
+    },
+    {
+      "bank_body": 47,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 76,
+      "triangle_count": 190
+    },
+    {
+      "bank_body": 48,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 72,
+      "triangle_count": 170
+    },
+    {
+      "bank_body": 49,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 77,
+      "triangle_count": 428
+    },
+    {
+      "bank_body": 50,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 78,
+      "triangle_count": 434
+    },
+    {
+      "bank_body": 52,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 88,
+      "triangle_count": 566
+    },
+    {
+      "bank_body": 53,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 93,
+      "triangle_count": 612
+    },
+    {
+      "bank_body": 54,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 94,
+      "triangle_count": 240
+    },
+    {
+      "bank_body": 55,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 79,
+      "triangle_count": 360
+    },
+    {
+      "bank_body": 56,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 80,
+      "triangle_count": 522
+    },
+    {
+      "bank_body": 57,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 89,
+      "triangle_count": 748
+    },
+    {
+      "bank_body": 59,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 95,
+      "triangle_count": 386
+    },
+    {
+      "bank_body": 60,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 96,
+      "triangle_count": 264
+    },
+    {
+      "bank_body": 61,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 97,
+      "triangle_count": 210
+    },
+    {
+      "bank_body": 62,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 90,
+      "triangle_count": 702
+    },
+    {
+      "bank_body": 64,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 98,
+      "triangle_count": 458
+    },
+    {
+      "bank_body": 65,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 99,
+      "triangle_count": 342
+    },
+    {
+      "bank_body": 66,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 100,
+      "triangle_count": 174
+    },
+    {
+      "bank_body": 67,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 91,
+      "triangle_count": 536
+    },
+    {
+      "bank_body": 69,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 101,
+      "triangle_count": 376
+    },
+    {
+      "bank_body": 70,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 102,
+      "triangle_count": 316
+    },
+    {
+      "bank_body": 71,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 103,
+      "triangle_count": 112
+    },
+    {
+      "bank_body": 72,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 92,
+      "triangle_count": 506
+    },
+    {
+      "bank_body": 74,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 104,
+      "triangle_count": 314
+    },
+    {
+      "bank_body": 75,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 105,
+      "triangle_count": 208
+    },
+    {
+      "bank_body": 76,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 106,
+      "triangle_count": 186
+    },
+    {
+      "bank_body": 79,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 9,
+      "triangle_count": 1176
+    },
+    {
+      "bank_body": 84,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 11,
+      "triangle_count": 28106
+    },
+    {
+      "bank_body": 91,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 13,
+      "triangle_count": 3844
+    },
+    {
+      "bank_body": 92,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 15,
+      "triangle_count": 824
+    },
+    {
+      "bank_body": 93,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 17,
+      "triangle_count": 632
+    },
+    {
+      "bank_body": 95,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 82,
+      "triangle_count": 314
+    },
+    {
+      "bank_body": 96,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 81,
+      "triangle_count": 312
+    },
+    {
+      "bank_body": 97,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 83,
+      "triangle_count": 210
+    },
+    {
+      "bank_body": 98,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 73,
+      "triangle_count": 304
+    },
+    {
+      "bank_body": 99,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 84,
+      "triangle_count": 402
+    },
+    {
+      "bank_body": 100,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 85,
+      "triangle_count": 356
+    },
+    {
+      "bank_body": 102,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 107,
+      "triangle_count": 578
+    },
+    {
+      "bank_body": 103,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 112,
+      "triangle_count": 346
+    },
+    {
+      "bank_body": 104,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 113,
+      "triangle_count": 268
+    },
+    {
+      "bank_body": 105,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 86,
+      "triangle_count": 398
+    },
+    {
+      "bank_body": 106,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 87,
+      "triangle_count": 452
+    },
+    {
+      "bank_body": 107,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 108,
+      "triangle_count": 774
+    },
+    {
+      "bank_body": 109,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 114,
+      "triangle_count": 392
+    },
+    {
+      "bank_body": 110,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 115,
+      "triangle_count": 306
+    },
+    {
+      "bank_body": 111,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 116,
+      "triangle_count": 328
+    },
+    {
+      "bank_body": 112,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 109,
+      "triangle_count": 708
+    },
+    {
+      "bank_body": 114,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 117,
+      "triangle_count": 460
+    },
+    {
+      "bank_body": 115,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 118,
+      "triangle_count": 384
+    },
+    {
+      "bank_body": 116,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 119,
+      "triangle_count": 266
+    },
+    {
+      "bank_body": 117,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 110,
+      "triangle_count": 528
+    },
+    {
+      "bank_body": 119,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 120,
+      "triangle_count": 376
+    },
+    {
+      "bank_body": 120,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 121,
+      "triangle_count": 340
+    },
+    {
+      "bank_body": 121,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 122,
+      "triangle_count": 196
+    },
+    {
+      "bank_body": 122,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 111,
+      "triangle_count": 500
+    },
+    {
+      "bank_body": 124,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 123,
+      "triangle_count": 274
+    },
+    {
+      "bank_body": 125,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 124,
+      "triangle_count": 254
+    },
+    {
+      "bank_body": 126,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 125,
+      "triangle_count": 198
+    },
+    {
+      "bank_body": 128,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 18,
+      "triangle_count": 2374
+    },
+    {
+      "bank_body": 128,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 19,
+      "triangle_count": 2332
+    },
+    {
+      "bank_body": 131,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 2,
+      "triangle_count": 3102
+    },
+    {
+      "bank_body": 136,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 4,
+      "triangle_count": 1664
+    },
+    {
+      "bank_body": 136,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 20,
+      "triangle_count": 1142
+    },
+    {
+      "bank_body": 137,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 22,
+      "triangle_count": 1380
+    },
+    {
+      "bank_body": 138,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 6,
+      "triangle_count": 1262
+    },
+    {
+      "bank_body": 138,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 60,
+      "triangle_count": 716
+    },
+    {
+      "bank_body": 138,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 61,
+      "triangle_count": 952
+    },
+    {
+      "bank_body": 138,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 62,
+      "triangle_count": 450
+    },
+    {
+      "bank_body": 138,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 63,
+      "triangle_count": 626
+    },
+    {
+      "bank_body": 138,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 64,
+      "triangle_count": 932
+    },
+    {
+      "bank_body": 138,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 126,
+      "triangle_count": 1122
+    },
+    {
+      "bank_body": 138,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 127,
+      "triangle_count": 752
+    },
+    {
+      "bank_body": 138,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 128,
+      "triangle_count": 700
+    },
+    {
+      "bank_body": 138,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 129,
+      "triangle_count": 674
+    },
+    {
+      "bank_body": 138,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 130,
+      "triangle_count": 794
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 131,
+      "triangle_count": 486
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 132,
+      "triangle_count": 440
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 133,
+      "triangle_count": 414
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 134,
+      "triangle_count": 264
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 135,
+      "triangle_count": 200
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 136,
+      "triangle_count": 422
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 137,
+      "triangle_count": 292
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 138,
+      "triangle_count": 260
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 139,
+      "triangle_count": 438
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 140,
+      "triangle_count": 350
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 141,
+      "triangle_count": 244
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 142,
+      "triangle_count": 406
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 143,
+      "triangle_count": 136
+    },
+    {
+      "bank_body": 139,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 144,
+      "triangle_count": 210
+    },
+    {
+      "bank_body": 142,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 24,
+      "triangle_count": 306
+    },
+    {
+      "bank_body": 145,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 3,
+      "triangle_count": 3204
+    },
+    {
+      "bank_body": 150,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 5,
+      "triangle_count": 1692
+    },
+    {
+      "bank_body": 150,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 21,
+      "triangle_count": 1124
+    },
+    {
+      "bank_body": 151,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 23,
+      "triangle_count": 1356
+    },
+    {
+      "bank_body": 152,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 7,
+      "triangle_count": 1288
+    },
+    {
+      "bank_body": 152,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 65,
+      "triangle_count": 744
+    },
+    {
+      "bank_body": 152,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 66,
+      "triangle_count": 996
+    },
+    {
+      "bank_body": 152,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 67,
+      "triangle_count": 466
+    },
+    {
+      "bank_body": 152,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 68,
+      "triangle_count": 680
+    },
+    {
+      "bank_body": 152,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 69,
+      "triangle_count": 886
+    },
+    {
+      "bank_body": 152,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 145,
+      "triangle_count": 1172
+    },
+    {
+      "bank_body": 152,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 146,
+      "triangle_count": 774
+    },
+    {
+      "bank_body": 152,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 147,
+      "triangle_count": 742
+    },
+    {
+      "bank_body": 152,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 148,
+      "triangle_count": 772
+    },
+    {
+      "bank_body": 152,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 149,
+      "triangle_count": 864
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 150,
+      "triangle_count": 516
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 151,
+      "triangle_count": 378
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 152,
+      "triangle_count": 380
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 153,
+      "triangle_count": 324
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 154,
+      "triangle_count": 240
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 155,
+      "triangle_count": 408
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 156,
+      "triangle_count": 294
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 157,
+      "triangle_count": 336
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 158,
+      "triangle_count": 438
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 159,
+      "triangle_count": 284
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 160,
+      "triangle_count": 226
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 161,
+      "triangle_count": 396
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 162,
+      "triangle_count": 226
+    },
+    {
+      "bank_body": 153,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 163,
+      "triangle_count": 220
+    },
+    {
+      "bank_body": 156,
+      "exact_aabb_candidate_tests": 0,
+      "exact_segment_triangle_hits": 0,
+      "stable_bone_id": 25,
+      "triangle_count": 310
+    }
+  ],
+  "physical_admission": false,
+  "schema": "numi.human.b43-16.source8265-exact-boundary-checks.v1",
+  "source_boundary_preflight_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-018-source8265-full-boundary-001/source8265-boundary-preflight.json",
+  "source_boundary_preflight_sha256": "59733408bb319f57a104b9f1876ee001f812e726a0bfd4da0503b288a8c8ea2f",
+  "source_descendant_face_count": 408,
+  "source_fine_detail_row": 8265,
+  "status": "BOUNDARY_CHECKS_COMPLETE"
+}

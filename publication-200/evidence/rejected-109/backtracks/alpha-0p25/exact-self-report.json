@@ -1,0 +1,13 @@
+{
+  "audit159_script_sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+  "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_face_count": 42379,
+  "candidate_sha256": "e0a8d6314f051e001d87cbe254caf9f3ba7e45427de661a8c85e2da392ace3c4",
+  "complete_surface_audit": true,
+  "complete_surface_face_count": 42379,
+  "exact_self_pair_count": 0,
+  "exact_self_pairs": [],
+  "pair_file_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+  "shape_pass": true,
+  "status": "EXACT_FULL_SURFACE_SELF_COMPLETE"
+}

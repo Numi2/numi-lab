@@ -1,0 +1,181 @@
+{
+  "accepted_physical_steps": 0,
+  "alphas_attempted": [
+    0.25
+  ],
+  "baseline_audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "elapsed_seconds": 10.08165558311157,
+  "fit_report_sha256": "18c66b53b89aee2615e618e4ec628b7d26eb30f502bf94fb3919eae708857e25",
+  "geometry_admitted": false,
+  "schema": "numi.human.b109-114.self-barrier-backtrack-check.v1",
+  "selected_alpha": null,
+  "selected_candidate_sha256": null,
+  "self_barrier_direction_sha256": "f702633b0bc8085930a035e966012c165b25cb27d3b64e248f0aab9a41c40547",
+  "status": "NO_BACKTRACK_PASSED",
+  "trials": [
+    {
+      "alpha": 0.25,
+      "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-016-self-barrier-union-001/backtracks-scoped-001/alpha-0p25/candidate.npz",
+      "candidate_sha256": "e0a8d6314f051e001d87cbe254caf9f3ba7e45427de661a8c85e2da392ace3c4",
+      "full_surface_self": {
+        "complete_face_count": 42379,
+        "complete_surface_audit": true,
+        "exact_pair_count": 0,
+        "pair_file_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+        "pairs": []
+      },
+      "shape": {
+        "affected_faces": 1671,
+        "alpha": 0.25,
+        "anchors_unchanged": true,
+        "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+        "candidate_sha256": "e0a8d6314f051e001d87cbe254caf9f3ba7e45427de661a8c85e2da392ace3c4",
+        "changed_nodes": 715,
+        "max_displacement_mm": 0.042462330217406856,
+        "maximum_aspect_ratio": 1.0160466434670248,
+        "maximum_normal_rotation_degrees": 3.9377570701770743,
+        "metadata_identical": true,
+        "minimum_angle_ratio": 0.9823157754618408,
+        "minimum_area_ratio": 0.9870640218677043,
+        "minimum_normal_dot": 0.997639241141655,
+        "pass": true,
+        "thresholds": {
+          "area_ratio_floor": 0.95,
+          "aspect_ratio_ceiling": 1.05,
+          "max_trust_mm": 3.0,
+          "minimum_angle_ratio_floor": 0.95,
+          "positive_orientation": true
+        },
+        "violating_faces": 0
+      },
+      "status": "STOP_BONE_CROSSING_FAILURE",
+      "target_bone_crossing": {
+        "aabb_active_bone_faces": 234,
+        "aabb_active_skin_faces": 1558,
+        "added_pairs": [
+          [
+            34565,
+            112
+          ],
+          [
+            34595,
+            112
+          ],
+          [
+            34595,
+            116
+          ],
+          [
+            34694,
+            149
+          ],
+          [
+            34697,
+            149
+          ],
+          [
+            34702,
+            115
+          ],
+          [
+            34702,
+            149
+          ],
+          [
+            34705,
+            115
+          ],
+          [
+            34784,
+            88
+          ],
+          [
+            34785,
+            88
+          ],
+          [
+            34786,
+            88
+          ],
+          [
+            34787,
+            88
+          ],
+          [
+            34789,
+            88
+          ],
+          [
+            34790,
+            88
+          ],
+          [
+            34790,
+            92
+          ]
+        ],
+        "bank_input_pins": {
+          "all-bank-containment.csv.banks.csv": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df",
+          "exact-emitted.bodies.csv": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90",
+          "exact-emitted.nodes.csv": "99e58d6afb68e0939670f69d4132bfa730cf3e988a7f70a179a41a89eac3802c",
+          "exact-emitted.triangles.csv": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+        },
+        "baseline_comparable_pair_count": 187,
+        "candidate_comparable_pair_count": 191,
+        "changed_skin_face_count": 1671,
+        "predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d",
+        "removed_pairs": [
+          [
+            34545,
+            115
+          ],
+          [
+            34593,
+            111
+          ],
+          [
+            34593,
+            115
+          ],
+          [
+            34666,
+            149
+          ],
+          [
+            34666,
+            150
+          ],
+          [
+            34694,
+            150
+          ],
+          [
+            34705,
+            150
+          ],
+          [
+            34761,
+            150
+          ],
+          [
+            34779,
+            62
+          ],
+          [
+            34779,
+            88
+          ],
+          [
+            34789,
+            91
+          ]
+        ],
+        "target": [
+          109,
+          114
+        ]
+      }
+    }
+  ]
+}

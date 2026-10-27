@@ -1,0 +1,444 @@
+{
+  "541_offset_transfer": {
+    "baseline_layers_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/physical-layer-diagnostic-001/baseline/skin-fat-layers-541.npz",
+    "baseline_layers_sha256": "bdf5395d0a6fc6d93b9e4e4021bd44f5792034517e83b9e72cfce069f8eaa80e",
+    "baseline_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/physical-layer-diagnostic-001/baseline/report.json",
+    "baseline_report_sha256": "8a6d706add2bf0622cfc7a45ff4f55d064f1e97405d1dae823c80c4b7598a02b",
+    "candidate_layers_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-018-rebased-continuation-002/quadratic-fit-step2-007/layer-transfer-541/skin-fat-layers-541.npz",
+    "candidate_layers_sha256": "c9fcbf5e007c3ec95ba1e6e527580a2a7ada004f0dd03008fb818922a3a2e54c",
+    "candidate_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-018-rebased-continuation-002/quadratic-fit-step2-007/layer-transfer-541/report.json",
+    "candidate_report_sha256": "0032bcd25a6441f0d3dfae7844b34ddfafad6aec2ce52ceeeb3bc80aacaf2d05",
+    "comparable_face_rows": 42363,
+    "diagnostic_scope": "Recomputed the existing 541 authored prism orientation mask and emitted-F32 nonpositive/conditioned tet masks from the owner's transferred skin/fat layers. Compared complete face-row/tet-subprism identity sets outside the 16 changed-connectivity rows; failures on those 16 rows are reported separately.",
+    "failure_identity_arrays_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-018-rebased-continuation-002/quadratic-fit-step2-007/layer-failure-identity-comparison/failure-identities.npz",
+    "failure_identity_arrays_sha256": "87542c76abd98fa55a02c8be5b223a9031ec8230176891096ae097df0b05a2a8",
+    "fat": {
+      "authored_orientation": {
+        "added_outside_topology_rows": [
+          14073,
+          14075,
+          14076
+        ],
+        "added_outside_topology_rows_count": 3,
+        "baseline_failures_on_16_topology_changed_rows": [
+          14060,
+          14061,
+          14126,
+          14128,
+          14192,
+          14193,
+          14221,
+          14223,
+          14248,
+          14251,
+          14456,
+          14457,
+          15101,
+          15104
+        ],
+        "baseline_total": 8532,
+        "candidate_failures_on_16_topology_changed_rows": [
+          14060,
+          14061,
+          14126,
+          14128,
+          14192,
+          14193,
+          14221,
+          14223,
+          14248,
+          14251,
+          14456,
+          14457,
+          15101,
+          15104
+        ],
+        "candidate_total": 8535,
+        "comparable_face_rows_baseline": 8518,
+        "comparable_face_rows_candidate": 8521,
+        "count_delta": 3,
+        "excluded_topology_changed_face_rows": [
+          14060,
+          14061,
+          14126,
+          14128,
+          14172,
+          14174,
+          14192,
+          14193,
+          14221,
+          14223,
+          14248,
+          14251,
+          14456,
+          14457,
+          15101,
+          15104
+        ],
+        "removed_outside_topology_rows": [],
+        "removed_outside_topology_rows_count": 0
+      },
+      "conditioned_f32_tet": {
+        "added_outside_topology_rows": [
+          [
+            14073,
+            2
+          ],
+          [
+            14074,
+            2
+          ]
+        ],
+        "added_outside_topology_rows_count": 2,
+        "baseline_failures_on_16_topology_changed_rows": [],
+        "baseline_total": 129,
+        "candidate_failures_on_16_topology_changed_rows": [],
+        "candidate_total": 130,
+        "comparable_face_rows_baseline": 129,
+        "comparable_face_rows_candidate": 130,
+        "count_delta": 1,
+        "excluded_topology_changed_face_rows": [
+          14060,
+          14061,
+          14126,
+          14128,
+          14172,
+          14174,
+          14192,
+          14193,
+          14221,
+          14223,
+          14248,
+          14251,
+          14456,
+          14457,
+          15101,
+          15104
+        ],
+        "removed_outside_topology_rows": [
+          [
+            14073,
+            1
+          ]
+        ],
+        "removed_outside_topology_rows_count": 1
+      },
+      "nonpositive_f32_tet": {
+        "added_outside_topology_rows": [],
+        "added_outside_topology_rows_count": 0,
+        "baseline_failures_on_16_topology_changed_rows": [],
+        "baseline_total": 2,
+        "candidate_failures_on_16_topology_changed_rows": [],
+        "candidate_total": 2,
+        "comparable_face_rows_baseline": 2,
+        "comparable_face_rows_candidate": 2,
+        "count_delta": 0,
+        "excluded_topology_changed_face_rows": [
+          14060,
+          14061,
+          14126,
+          14128,
+          14172,
+          14174,
+          14192,
+          14193,
+          14221,
+          14223,
+          14248,
+          14251,
+          14456,
+          14457,
+          15101,
+          15104
+        ],
+        "removed_outside_topology_rows": [],
+        "removed_outside_topology_rows_count": 0
+      }
+    },
+    "nodewise_actual_vs_transferred_depth_residuals": {
+      "fat": {
+        "baseline_max_abs_depth_residual_m": 0.005112409267459971,
+        "candidate_max_abs_depth_residual_m": 0.005112409267459971,
+        "max_abs_residual_change_on_moved_nodes_m": 0.0,
+        "max_abs_residual_change_on_unmoved_nodes_m": 0.0,
+        "moved_node_count": 94
+      },
+      "skin": {
+        "baseline_max_abs_depth_residual_m": 0.001316694999208288,
+        "candidate_max_abs_depth_residual_m": 0.001316694999208288,
+        "max_abs_residual_change_on_moved_nodes_m": 0.0,
+        "max_abs_residual_change_on_unmoved_nodes_m": 0.0,
+        "moved_node_count": 94
+      }
+    },
+    "physical_or_native_admission": false,
+    "skin": {
+      "authored_orientation": {
+        "added_outside_topology_rows": [],
+        "added_outside_topology_rows_count": 0,
+        "baseline_failures_on_16_topology_changed_rows": [
+          14060,
+          14061,
+          14126,
+          14128,
+          14192,
+          14193,
+          14221,
+          14223,
+          14248,
+          14251,
+          14456,
+          14457,
+          15101,
+          15104
+        ],
+        "baseline_total": 7613,
+        "candidate_failures_on_16_topology_changed_rows": [
+          14060,
+          14061,
+          14126,
+          14128,
+          14192,
+          14193,
+          14221,
+          14223,
+          14248,
+          14251,
+          14456,
+          14457,
+          15101,
+          15104
+        ],
+        "candidate_total": 7613,
+        "comparable_face_rows_baseline": 7599,
+        "comparable_face_rows_candidate": 7599,
+        "count_delta": 0,
+        "excluded_topology_changed_face_rows": [
+          14060,
+          14061,
+          14126,
+          14128,
+          14172,
+          14174,
+          14192,
+          14193,
+          14221,
+          14223,
+          14248,
+          14251,
+          14456,
+          14457,
+          15101,
+          15104
+        ],
+        "removed_outside_topology_rows": [],
+        "removed_outside_topology_rows_count": 0
+      },
+      "conditioned_f32_tet": {
+        "added_outside_topology_rows": [],
+        "added_outside_topology_rows_count": 0,
+        "baseline_failures_on_16_topology_changed_rows": [],
+        "baseline_total": 52,
+        "candidate_failures_on_16_topology_changed_rows": [],
+        "candidate_total": 52,
+        "comparable_face_rows_baseline": 52,
+        "comparable_face_rows_candidate": 52,
+        "count_delta": 0,
+        "excluded_topology_changed_face_rows": [
+          14060,
+          14061,
+          14126,
+          14128,
+          14172,
+          14174,
+          14192,
+          14193,
+          14221,
+          14223,
+          14248,
+          14251,
+          14456,
+          14457,
+          15101,
+          15104
+        ],
+        "removed_outside_topology_rows": [],
+        "removed_outside_topology_rows_count": 0
+      },
+      "nonpositive_f32_tet": {
+        "added_outside_topology_rows": [],
+        "added_outside_topology_rows_count": 0,
+        "baseline_failures_on_16_topology_changed_rows": [],
+        "baseline_total": 2,
+        "candidate_failures_on_16_topology_changed_rows": [],
+        "candidate_total": 2,
+        "comparable_face_rows_baseline": 2,
+        "comparable_face_rows_candidate": 2,
+        "count_delta": 0,
+        "excluded_topology_changed_face_rows": [
+          14060,
+          14061,
+          14126,
+          14128,
+          14172,
+          14174,
+          14192,
+          14193,
+          14221,
+          14223,
+          14248,
+          14251,
+          14456,
+          14457,
+          15101,
+          15104
+        ],
+        "removed_outside_topology_rows": [],
+        "removed_outside_topology_rows_count": 0
+      }
+    },
+    "topology_changed_face_rows": [
+      14060,
+      14061,
+      14126,
+      14128,
+      14172,
+      14174,
+      14192,
+      14193,
+      14221,
+      14223,
+      14248,
+      14251,
+      14456,
+      14457,
+      15101,
+      15104
+    ],
+    "transfer_owner_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-018-rebased-continuation-002/transfer_candidate2_541.py",
+    "transfer_owner_sha256": "f455ed98837adea18229417065430a1012a8d0caa267249cb14dabf9ac0bd187"
+  },
+  "baseline_653_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "baseline_653_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-018-rebased-continuation-002/quadratic-fit-step2-007/candidate-private.npz",
+  "candidate_sha256": "822e0482feab1bd3b0566421a588d7fe69004e1a38bd61b3970b5f9fc3422822",
+  "full_audit_130": {
+    "inside_node_bank_pairs": 125,
+    "self_pair_count": 0,
+    "self_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-018-rebased-continuation-002/quadratic-fit-step2-007/audit-130-full/surface-self-pairs.npy",
+    "self_pairs_sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de",
+    "summary_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-018-rebased-continuation-002/quadratic-fit-step2-007/audit-130-full/summary.json",
+    "summary_sha256": "c5eab98ee9f67507afd561f872e4b256c291889eda9f273eb264809c4e25f132"
+  },
+  "full_audit_159": {
+    "bank_count": 185,
+    "baseline_raw_pair_count": 985,
+    "candidate_raw_pair_count": 984,
+    "complete": true,
+    "raw_pair_additions": [
+      [
+        65,
+        99,
+        14126,
+        102
+      ],
+      [
+        65,
+        99,
+        14128,
+        173
+      ],
+      [
+        65,
+        99,
+        14174,
+        180
+      ],
+      [
+        65,
+        99,
+        14193,
+        183
+      ],
+      [
+        65,
+        99,
+        14217,
+        173
+      ],
+      [
+        65,
+        99,
+        14457,
+        113
+      ]
+    ],
+    "raw_pair_removals": [
+      [
+        65,
+        99,
+        14126,
+        173
+      ],
+      [
+        65,
+        99,
+        14128,
+        102
+      ],
+      [
+        65,
+        99,
+        14172,
+        175
+      ],
+      [
+        65,
+        99,
+        14192,
+        180
+      ],
+      [
+        65,
+        99,
+        14215,
+        174
+      ],
+      [
+        65,
+        99,
+        14456,
+        111
+      ],
+      [
+        65,
+        99,
+        14456,
+        113
+      ]
+    ],
+    "raw_pairs_exactly_match_scoped_replacement": true,
+    "report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-018-rebased-continuation-002/quadratic-fit-step2-007/audit-159-full/report.json",
+    "report_sha256": "cc17cfe0d091342c9d39f7a3868bd910924d2630cb63a0750189804c4b1cba4b",
+    "target_65_99_full_child_pair_manifest_matches": true,
+    "target_65_99_mapped_parent_count": 84,
+    "target_65_99_mapped_source_count": 34,
+    "target_65_99_raw_pair_count": 147,
+    "target_mapped_sets_match_scoped_identity_report": true
+  },
+  "limitations": [
+    "Full audits and local transfer cell diagnostic are construction evidence only; no native/physical admission.",
+    "Layer transfer is interpolated offset geometry and does not certify globally collision-free skin/fat solids.",
+    "Topology-changed rows are not used for direct rowwise failure identity comparisons; their baseline and candidate failures are retained separately."
+  ],
+  "pins": {
+    "baseline_audit159": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+    "baseline_layer_report": "8a6d706add2bf0622cfc7a45ff4f55d064f1e97405d1dae823c80c4b7598a02b",
+    "candidate_audit159": "cc17cfe0d091342c9d39f7a3868bd910924d2630cb63a0750189804c4b1cba4b",
+    "candidate_layer_report": "0032bcd25a6441f0d3dfae7844b34ddfafad6aec2ce52ceeeb3bc80aacaf2d05",
+    "identity_delta": "be424297d2370d003127454e60e2ce90da8308d82e9c9993d9cd4f41693bb847",
+    "scoped_exact_report": "c4135e8f20d6a9630c8f80171e7667d345355d78862bff52834ae37576e8db25",
+    "target_pair_manifest": "fbf455086079f6dc4cef2b6b59862b2dab2c3a1efbdbb878506fdf20da3f51a9"
+  },
+  "schema": "numi.human.b65_99.full-audit-and-541-offset-identity-crosscheck.v1"
+}

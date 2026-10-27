@@ -1,0 +1,181 @@
+{
+  "baseline_candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "baseline_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-018-rebased-continuation-002/quadratic-fit-step2-007/candidate-private.npz",
+  "candidate_sha256": "822e0482feab1bd3b0566421a588d7fe69004e1a38bd61b3970b5f9fc3422822",
+  "layer_output_hashes": {
+    "baseline": "bdf5395d0a6fc6d93b9e4e4021bd44f5792034517e83b9e72cfce069f8eaa80e",
+    "candidate": "c9fcbf5e007c3ec95ba1e6e527580a2a7ada004f0dd03008fb818922a3a2e54c"
+  },
+  "new_or_traded_fat_failure_faces": [
+    {
+      "baseline_face_vertices": [
+        16707,
+        20997,
+        20999
+      ],
+      "candidate_face_vertices": [
+        16707,
+        20997,
+        20999
+      ],
+      "face_row": 14073,
+      "incident_moved_node_ids": [
+        20997,
+        20999
+      ],
+      "incident_vertex_displacement_mm": [
+        {
+          "node": 16707,
+          "norm_mm": 0.0
+        },
+        {
+          "node": 20997,
+          "norm_mm": 0.025403478669264113
+        },
+        {
+          "node": 20999,
+          "norm_mm": 0.02627485038885306
+        }
+      ],
+      "outer_geometry_bitwise_changed": true,
+      "topology_unchanged_for_row": true,
+      "witness_categories": [
+        "new_fat_authored_orientation_failure",
+        "new_fat_conditioned_tet_subprism_2",
+        "removed_fat_conditioned_tet_subprism_1"
+      ]
+    },
+    {
+      "baseline_face_vertices": [
+        20999,
+        21170,
+        19933
+      ],
+      "candidate_face_vertices": [
+        20999,
+        21170,
+        19933
+      ],
+      "face_row": 14075,
+      "incident_moved_node_ids": [
+        20999,
+        21170,
+        19933
+      ],
+      "incident_vertex_displacement_mm": [
+        {
+          "node": 20999,
+          "norm_mm": 0.02627485038885306
+        },
+        {
+          "node": 21170,
+          "norm_mm": 0.009549543169904076
+        },
+        {
+          "node": 19933,
+          "norm_mm": 0.009309124043364453
+        }
+      ],
+      "outer_geometry_bitwise_changed": true,
+      "topology_unchanged_for_row": true,
+      "witness_categories": [
+        "new_fat_authored_orientation_failure"
+      ]
+    },
+    {
+      "baseline_face_vertices": [
+        20997,
+        21170,
+        20999
+      ],
+      "candidate_face_vertices": [
+        20997,
+        21170,
+        20999
+      ],
+      "face_row": 14076,
+      "incident_moved_node_ids": [
+        20997,
+        21170,
+        20999
+      ],
+      "incident_vertex_displacement_mm": [
+        {
+          "node": 20997,
+          "norm_mm": 0.025403478669264113
+        },
+        {
+          "node": 21170,
+          "norm_mm": 0.009549543169904076
+        },
+        {
+          "node": 20999,
+          "norm_mm": 0.02627485038885306
+        }
+      ],
+      "outer_geometry_bitwise_changed": true,
+      "topology_unchanged_for_row": true,
+      "witness_categories": [
+        "new_fat_authored_orientation_failure"
+      ]
+    },
+    {
+      "baseline_face_vertices": [
+        20997,
+        19470,
+        21170
+      ],
+      "candidate_face_vertices": [
+        20997,
+        19470,
+        21170
+      ],
+      "face_row": 14074,
+      "incident_moved_node_ids": [
+        20997,
+        19470,
+        21170
+      ],
+      "incident_vertex_displacement_mm": [
+        {
+          "node": 20997,
+          "norm_mm": 0.025403478669264113
+        },
+        {
+          "node": 19470,
+          "norm_mm": 0.00969080838999501
+        },
+        {
+          "node": 21170,
+          "norm_mm": 0.009549543169904076
+        }
+      ],
+      "outer_geometry_bitwise_changed": true,
+      "topology_unchanged_for_row": true,
+      "witness_categories": [
+        "new_fat_conditioned_tet_subprism_2"
+      ]
+    }
+  ],
+  "physical_or_native_admission": false,
+  "schema": "numi.human.b65_99.new_fat_transfer_failure_face_vertices.v1",
+  "topology_changed_face_rows": [
+    14060,
+    14061,
+    14126,
+    14128,
+    14172,
+    14174,
+    14192,
+    14193,
+    14221,
+    14223,
+    14248,
+    14251,
+    14456,
+    14457,
+    15101,
+    15104
+  ]
+}

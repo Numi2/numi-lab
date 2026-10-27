@@ -1,0 +1,8 @@
+{
+  "status": "PRIVATE_BACKTRACK_PENDING_SHAPE_LAYER_SURFACE_CHECKS",
+  "candidate_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "base_sha256": "8d3faeb6f5218cad8a5c1dae033f59c651cabedf5bffdba982a3f9d09e813a11",
+  "trial_sha256": "2aeef82dfaaea387253a815f2856b2eb94d2accd63af3551f117e191cead1acb",
+  "alpha": 0.25,
+  "admitted": false
+}

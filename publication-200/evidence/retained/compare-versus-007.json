@@ -1,0 +1,115 @@
+{
+  "comparison": "layer-aware 65/99 candidate versus 007",
+  "old_sha256": "8d3faeb6f5218cad8a5c1dae033f59c651cabedf5bffdba982a3f9d09e813a11",
+  "new_sha256": "a69f3b0db4c84cfae63177dd5aa96ec339b128870f4d0261c43d56e39d2a64db",
+  "inside_count": 125,
+  "inside_added": 0,
+  "inside_removed": 0,
+  "improved_samples_gt_0_001_mm": [
+    {
+      "node": 20946,
+      "bank": [
+        65,
+        99
+      ],
+      "depth_before_mm": 1.555158515622563,
+      "depth_after_mm": 1.5314305793890304,
+      "improvement_mm": 0.02372793623353253
+    },
+    {
+      "node": 20986,
+      "bank": [
+        65,
+        99
+      ],
+      "depth_before_mm": 1.835528665957591,
+      "depth_after_mm": 1.7980448741553625,
+      "improvement_mm": 0.03748379180222838
+    },
+    {
+      "node": 20987,
+      "bank": [
+        65,
+        99
+      ],
+      "depth_before_mm": 1.8244627108913756,
+      "depth_after_mm": 1.788988908236197,
+      "improvement_mm": 0.03547380265517863
+    },
+    {
+      "node": 21003,
+      "bank": [
+        65,
+        99
+      ],
+      "depth_before_mm": 2.0257154089420224,
+      "depth_after_mm": 2.0064444901916785,
+      "improvement_mm": 0.019270918750343924
+    },
+    {
+      "node": 21007,
+      "bank": [
+        65,
+        99
+      ],
+      "depth_before_mm": 1.5811815681000392,
+      "depth_after_mm": 1.5437692981164144,
+      "improvement_mm": 0.03741226998362479
+    },
+    {
+      "node": 21008,
+      "bank": [
+        65,
+        99
+      ],
+      "depth_before_mm": 1.3913229702570655,
+      "depth_after_mm": 1.3530119173651023,
+      "improvement_mm": 0.03831105289196324
+    },
+    {
+      "node": 21009,
+      "bank": [
+        65,
+        99
+      ],
+      "depth_before_mm": 1.5280891301654376,
+      "depth_after_mm": 1.4904667594530543,
+      "improvement_mm": 0.03762237071238328
+    },
+    {
+      "node": 21158,
+      "bank": [
+        65,
+        99
+      ],
+      "depth_before_mm": 1.9882268423794331,
+      "depth_after_mm": 1.9507455750578286,
+      "improvement_mm": 0.037481267321604506
+    },
+    {
+      "node": 21185,
+      "bank": [
+        65,
+        99
+      ],
+      "depth_before_mm": 1.6883543798857974,
+      "depth_after_mm": 1.6529957189382507,
+      "improvement_mm": 0.035358660947546694
+    }
+  ],
+  "max_sample_worsening_mm": -0.0,
+  "surface_self_pairs_before_after": [
+    0,
+    0
+  ],
+  "all_bank_raw_pairs_before_after": [
+    983,
+    983
+  ],
+  "all_bank_parent_pairs_before_after": [
+    651,
+    651
+  ],
+  "native_admission": false,
+  "accepted_physical_steps": 0
+}

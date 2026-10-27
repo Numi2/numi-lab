@@ -1,0 +1,34 @@
+{
+  "audit159_script_sha256": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1",
+  "baseline_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "candidate_face_count": 42379,
+  "candidate_sha256": "06e9a459999dd0a76c23b55128cb416f593dba55114685f4061fb78d9e39a45d",
+  "complete_surface_audit": true,
+  "complete_surface_face_count": 42379,
+  "exact_self_pair_count": 5,
+  "exact_self_pairs": [
+    [
+      34583,
+      34628
+    ],
+    [
+      34589,
+      34628
+    ],
+    [
+      34598,
+      34628
+    ],
+    [
+      34628,
+      34640
+    ],
+    [
+      34628,
+      34641
+    ]
+  ],
+  "nonposition_metadata_identical": true,
+  "pair_file_sha256": "2b6da6c0868925883b353fad42099bd176ec3193f3bc3e0b8918f2c10cf48ab9",
+  "status": "EXACT_FULL_SURFACE_SELF_COMPLETE"
+}
