@@ -1,0 +1,56 @@
+{
+  "baseline_sha256": "668ae678559450363eaaa99a1bb0d6d3323cb1fde0056104b664d85836facbdd",
+  "candidate_sha256": "47ec88d0442188e5e71cb8edf4e6adc05af7f13dbac965deff99ac2a253a8220",
+  "changed_face_involved_vertices_world_m_bbox": {
+    "max": [
+      0.24237820506095886,
+      -0.9539248943328857,
+      0.0950048565864563
+    ],
+    "min": [
+      0.23375333845615387,
+      -0.9568924903869629,
+      0.08680275827646255
+    ]
+  },
+  "classification": "array-level comparison only; no geometry audit, fit, or admission",
+  "points_world_m": {
+    "bitwise_equal": true,
+    "changed_rows": 0,
+    "dtype": "float32",
+    "shape": [
+      20889,
+      3
+    ]
+  },
+  "source_O_faces": {
+    "changed_row_count": 19,
+    "changed_rows": [
+      26574,
+      26575,
+      26594,
+      26595,
+      26600,
+      26601,
+      26604,
+      26605,
+      26609,
+      26610,
+      26612,
+      26613,
+      26614,
+      26615,
+      26616,
+      26619,
+      26620,
+      26621,
+      26622
+    ],
+    "dtype": "int64",
+    "involved_vertex_count": 17,
+    "shape": [
+      41733,
+      3
+    ]
+  }
+}

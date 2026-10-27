@@ -1,0 +1,14 @@
+{
+  "accepted_physical_steps": 0,
+  "anchor_corner_occurrences": 0,
+  "audit_sha256": "b657310527aa6d4f15a2b19f8db24c0ed8796415bca51878c12752adcc23c670",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-009-from772/lineage/candidate.npz",
+  "candidate_sha256": "47ec88d0442188e5e71cb8edf4e6adc05af7f13dbac965deff99ac2a253a8220",
+  "construction_check_sha256": "31b9dd874a318bdf04f64d11afc8361a7de19977e92f85b8b1f7476ca34374f0",
+  "native_admission": false,
+  "objective_sha256": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0",
+  "pair_count": 766,
+  "positive_anchored_corner_count": 0,
+  "positive_anchored_corners": [],
+  "runner_sha256": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93"
+}

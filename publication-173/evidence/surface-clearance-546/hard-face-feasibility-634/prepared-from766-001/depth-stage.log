@@ -1,0 +1,21 @@
+waiting_for_human_geometry_slot pid=52621
+acquired_human_geometry_slot pid=52621
+{
+  "status": "PASS",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-009-from772/lineage/candidate.npz",
+  "candidate_sha256": "47ec88d0442188e5e71cb8edf4e6adc05af7f13dbac965deff99ac2a253a8220",
+  "output_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/depth-413",
+  "rows_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/depth-413/point-depth-rows.npz",
+  "rows_npz_sha256": "1fbaa6e1130d828e1befc34fb3bcee32e39a624f60181a7a84c339c98b751430",
+  "raw_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/depth-413/report.json",
+  "raw_report_sha256": "09fe7402324a2a2b771b6a96fe80bb1fdd8f922807921bf3a7fc383789bd2ee0",
+  "compatible_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/depth-413/365-compatible-report.json",
+  "compatible_report_sha256": "62d3debe50b79ebae341f3fd2c48987203bdd898647b0c8c15f7354bb13de272",
+  "validation": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/depth-413/365-validation.json",
+  "validation_sha256": "6c918a5a05bf2ed764dc24998246ed67fd448d8111815de42b4dec79bf8d026b",
+  "inside": 0,
+  "outside": 5060,
+  "row_count": 5060,
+  "unique_nodes": 4972,
+  "max_zero_step_violation_m": 0.0
+}

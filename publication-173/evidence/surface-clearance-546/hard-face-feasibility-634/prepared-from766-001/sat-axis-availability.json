@@ -1,0 +1,696 @@
+{
+  "408_owner_sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+  "accepted_physical_steps": 0,
+  "audit_sha256": "b657310527aa6d4f15a2b19f8db24c0ed8796415bca51878c12752adcc23c670",
+  "axes_feasible_count_histogram": {
+    "0": 50,
+    "1": 21,
+    "2": 23,
+    "3": 30,
+    "4": 20,
+    "5": 18,
+    "6": 17,
+    "7": 18,
+    "8": 12,
+    "9": 10,
+    "10": 18,
+    "11": 23,
+    "12": 22,
+    "13": 32,
+    "14": 40,
+    "15": 44,
+    "16": 42,
+    "17": 38,
+    "18": 53,
+    "19": 54,
+    "20": 44,
+    "21": 48,
+    "22": 89
+  },
+  "bounding_policy": {
+    "bound_semantics": "per-node component cube with radius <= min(trust, source_cap - base_source_distance)/sqrt(3)",
+    "maximum_base_source_displacement_mm": 11.99997064287232,
+    "maximum_component_bound_mm": 2.3094010767585034,
+    "minimum_remaining_source_cap_mm_on_support": 0.00018698314241660796,
+    "source_cap_norm_guarantee_mm": 12.0,
+    "trust_norm_guarantee_mm": 4.0
+  },
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-009-from772/lineage/candidate.npz",
+  "candidate_sha256": "47ec88d0442188e5e71cb8edf4e6adc05af7f13dbac965deff99ac2a253a8220",
+  "check_sha256": "31b9dd874a318bdf04f64d11afc8361a7de19977e92f85b8b1f7476ca34374f0",
+  "classification": "per-pair necessary and sufficient feasibility of three independent corner inequalities for one fixed SAT axis under 408 component boxes only; shared-node, area, edge, self, other-triangle constraints and actual triangle validity are not assessed",
+  "native_admission": false,
+  "pair_count": 766,
+  "pairs_without_box_feasible_candidate_axis": 50,
+  "runner_sha256": "08cd0e2681bb5ae16a85a0384514bb30739f8d62a06ea2ab1bdfcd896be4ef93",
+  "sat466_sha256": "cf4df8cd8a3f2773f0992a5f9a1d9b899d64db781b0a58cc2ed618285fa11cf3",
+  "sat551_sha256": "27431e9ed3e92886394b59f1156a743e508fba8c81cf8b1ff94a7d80e3ef201f",
+  "source_base_sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+  "source_reference_provenance": [
+    {
+      "columns": 13518,
+      "kind": "csr_level",
+      "level": 0,
+      "max_row_sum_error": 2.220446049250313e-16,
+      "nnz": 32638,
+      "prefix": "",
+      "rows": 20889
+    },
+    {
+      "columns": 10145,
+      "kind": "csr_level",
+      "level": 1,
+      "max_row_sum_error": 0.0,
+      "nnz": 18450,
+      "prefix": "prior_input_006__",
+      "rows": 13518
+    },
+    {
+      "columns": 8776,
+      "kind": "csr_level",
+      "level": 2,
+      "max_row_sum_error": 0.0,
+      "nnz": 12193,
+      "prefix": "prior_run028__",
+      "rows": 10145
+    },
+    {
+      "composed_nnz": 43457,
+      "composed_shape": [
+        20889,
+        8776
+      ],
+      "kind": "composed_source_base",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/full-connected-clearance-150/run-009-certified-source-normal-union-rays/endpoint-candidate.npz",
+      "sha256": "70215460195063d68eaa13e2031ba9cc538ce52aede248c43a3b7679e8e68a31",
+      "shape": [
+        8776,
+        3
+      ]
+    }
+  ],
+  "tolerance_mm": 2e-07,
+  "unavailable_pairs": [
+    {
+      "body": 43,
+      "bone_id": 16,
+      "bone_triangle_id": 169,
+      "face_row": 19361,
+      "skin_nodes": [
+        19063,
+        19061,
+        19064
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 43,
+      "bone_id": 16,
+      "bone_triangle_id": 263,
+      "face_row": 19361,
+      "skin_nodes": [
+        19063,
+        19061,
+        19064
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 43,
+      "bone_id": 16,
+      "bone_triangle_id": 264,
+      "face_row": 19361,
+      "skin_nodes": [
+        19063,
+        19061,
+        19064
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 43,
+      "bone_id": 16,
+      "bone_triangle_id": 246,
+      "face_row": 19365,
+      "skin_nodes": [
+        20204,
+        19063,
+        19064
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 186,
+      "face_row": 11035,
+      "skin_nodes": [
+        18706,
+        10503,
+        19762
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 294,
+      "face_row": 11035,
+      "skin_nodes": [
+        18706,
+        10503,
+        19762
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 303,
+      "face_row": 11035,
+      "skin_nodes": [
+        18706,
+        10503,
+        19762
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 458,
+      "face_row": 11035,
+      "skin_nodes": [
+        18706,
+        10503,
+        19762
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 459,
+      "face_row": 11035,
+      "skin_nodes": [
+        18706,
+        10503,
+        19762
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 460,
+      "face_row": 11035,
+      "skin_nodes": [
+        18706,
+        10503,
+        19762
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 461,
+      "face_row": 11035,
+      "skin_nodes": [
+        18706,
+        10503,
+        19762
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 462,
+      "face_row": 11035,
+      "skin_nodes": [
+        18706,
+        10503,
+        19762
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 463,
+      "face_row": 11035,
+      "skin_nodes": [
+        18706,
+        10503,
+        19762
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 464,
+      "face_row": 11035,
+      "skin_nodes": [
+        18706,
+        10503,
+        19762
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 465,
+      "face_row": 11035,
+      "skin_nodes": [
+        18706,
+        10503,
+        19762
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 469,
+      "face_row": 11035,
+      "skin_nodes": [
+        18706,
+        10503,
+        19762
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 552,
+      "face_row": 11035,
+      "skin_nodes": [
+        18706,
+        10503,
+        19762
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 91,
+      "face_row": 13129,
+      "skin_nodes": [
+        13609,
+        18437,
+        19890
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 187,
+      "face_row": 13129,
+      "skin_nodes": [
+        13609,
+        18437,
+        19890
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 188,
+      "face_row": 13129,
+      "skin_nodes": [
+        13609,
+        18437,
+        19890
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 306,
+      "face_row": 13129,
+      "skin_nodes": [
+        13609,
+        18437,
+        19890
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 461,
+      "face_row": 13129,
+      "skin_nodes": [
+        13609,
+        18437,
+        19890
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 465,
+      "face_row": 13129,
+      "skin_nodes": [
+        13609,
+        18437,
+        19890
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 467,
+      "face_row": 13129,
+      "skin_nodes": [
+        13609,
+        18437,
+        19890
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 468,
+      "face_row": 13129,
+      "skin_nodes": [
+        13609,
+        18437,
+        19890
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 187,
+      "face_row": 13130,
+      "skin_nodes": [
+        13609,
+        19890,
+        19900
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 190,
+      "face_row": 13130,
+      "skin_nodes": [
+        13609,
+        19890,
+        19900
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 192,
+      "face_row": 13130,
+      "skin_nodes": [
+        13609,
+        19890,
+        19900
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 305,
+      "face_row": 13130,
+      "skin_nodes": [
+        13609,
+        19890,
+        19900
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 307,
+      "face_row": 13130,
+      "skin_nodes": [
+        13609,
+        19890,
+        19900
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 308,
+      "face_row": 13130,
+      "skin_nodes": [
+        13609,
+        19890,
+        19900
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 462,
+      "face_row": 13130,
+      "skin_nodes": [
+        13609,
+        19890,
+        19900
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 463,
+      "face_row": 13130,
+      "skin_nodes": [
+        13609,
+        19890,
+        19900
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 464,
+      "face_row": 13130,
+      "skin_nodes": [
+        13609,
+        19890,
+        19900
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 466,
+      "face_row": 13130,
+      "skin_nodes": [
+        13609,
+        19890,
+        19900
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 57,
+      "bone_id": 89,
+      "bone_triangle_id": 469,
+      "face_row": 13130,
+      "skin_nodes": [
+        13609,
+        19890,
+        19900
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 59,
+      "bone_id": 95,
+      "bone_triangle_id": 302,
+      "face_row": 12145,
+      "skin_nodes": [
+        12266,
+        16555,
+        19462
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 59,
+      "bone_id": 95,
+      "bone_triangle_id": 303,
+      "face_row": 12145,
+      "skin_nodes": [
+        12266,
+        16555,
+        19462
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 59,
+      "bone_id": 95,
+      "bone_triangle_id": 251,
+      "face_row": 12146,
+      "skin_nodes": [
+        12266,
+        19462,
+        18966
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 59,
+      "bone_id": 95,
+      "bone_triangle_id": 303,
+      "face_row": 12146,
+      "skin_nodes": [
+        12266,
+        19462,
+        18966
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 59,
+      "bone_id": 95,
+      "bone_triangle_id": 304,
+      "face_row": 12146,
+      "skin_nodes": [
+        12266,
+        19462,
+        18966
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 59,
+      "bone_id": 95,
+      "bone_triangle_id": 67,
+      "face_row": 12173,
+      "skin_nodes": [
+        19830,
+        19823,
+        18966
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 59,
+      "bone_id": 95,
+      "bone_triangle_id": 68,
+      "face_row": 12173,
+      "skin_nodes": [
+        19830,
+        19823,
+        18966
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 59,
+      "bone_id": 95,
+      "bone_triangle_id": 69,
+      "face_row": 12173,
+      "skin_nodes": [
+        19830,
+        19823,
+        18966
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 59,
+      "bone_id": 95,
+      "bone_triangle_id": 146,
+      "face_row": 12173,
+      "skin_nodes": [
+        19830,
+        19823,
+        18966
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 74,
+      "bone_id": 104,
+      "bone_triangle_id": 235,
+      "face_row": 22177,
+      "skin_nodes": [
+        19094,
+        19092,
+        12694
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 109,
+      "bone_id": 114,
+      "bone_triangle_id": 257,
+      "face_row": 34741,
+      "skin_nodes": [
+        19667,
+        19209,
+        15665
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 109,
+      "bone_id": 114,
+      "bone_triangle_id": 261,
+      "face_row": 34741,
+      "skin_nodes": [
+        19667,
+        19209,
+        15665
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 109,
+      "bone_id": 114,
+      "bone_triangle_id": 304,
+      "face_row": 34741,
+      "skin_nodes": [
+        19667,
+        19209,
+        15665
+      ],
+      "tested_axes": 22
+    },
+    {
+      "body": 109,
+      "bone_id": 114,
+      "bone_triangle_id": 304,
+      "face_row": 34824,
+      "skin_nodes": [
+        18834,
+        19667,
+        15665
+      ],
+      "tested_axes": 22
+    }
+  ],
+  "unique_nodes": 220
+}

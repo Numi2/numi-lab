@@ -1,0 +1,59 @@
+{
+  "excluded_groups": [
+    {
+      "path": "636 directional-bounds v2 sources and outputs",
+      "reason": "Independent review is still underway; excluded from this freeze."
+    },
+    {
+      "path": "632 solver probe and active/future geometry work",
+      "reason": "Outside the P173 frozen cutoff."
+    },
+    {
+      "path": "all __pycache__, .pytest_cache, .pyc and .pyo",
+      "reason": "Generated caches."
+    }
+  ],
+  "included_groups": [
+    {
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772",
+      "scope": "Complete frozen 766/0/0 candidate, lineage, exact full checks, construction search and stage evidence."
+    },
+    {
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001",
+      "scope": "Matched 766 target preparation, source/depth receipts and bounded per-node/single-row/axis diagnostics; directional files excluded."
+    },
+    {
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001",
+      "scope": "Exact predecessor preparation context and guard/seed inputs referenced by the 766 prepared output."
+    },
+    {
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634",
+      "scope": "Pinned source scripts for included preparation and feasibility diagnostics."
+    },
+    {
+      "path": "evidence/source-outward-proposal-500 and source-current-targets-597 and refined-fit-604",
+      "scope": "Exact pinned target generation and validation source versions used by the included target preparation."
+    },
+    {
+      "path": "evidence/clearance-objective-audit-633",
+      "scope": "Completed arithmetic-only diagnosis tied to the earlier 782 candidate."
+    },
+    {
+      "path": "evidence/target-comparison-766-vs-772",
+      "scope": "Reproducible point/face array comparison only; no geometry checker."
+    }
+  ],
+  "parent_commit": "43ea91a21d376c4bda8811803e946820d048e10e",
+  "parent_manifest_sha256": "938965267b9dda5eedc2230bd5440d9e10b1e28f3ff00d1526a202ac920fa1d9",
+  "parent_publication": "P172",
+  "publication": "P173",
+  "publication_limits": {
+    "accepted_physical_steps": 0,
+    "fit_run_for_766_preparation": false,
+    "native_admission": false,
+    "physical_or_anatomical_admission": false,
+    "selected_candidate_claim": false
+  },
+  "schema": "numi.human.connected_surface_publication_scope.v1",
+  "source_deletion": "none"
+}

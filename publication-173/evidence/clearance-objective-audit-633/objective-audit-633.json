@@ -1,0 +1,222 @@
+{
+  "603_backtracking_assessment": {
+    "current_emitted_violation_count": 1177,
+    "hard_row_implication": "If positive endpoint C/h rows are appended to A/b, the unchanged baseline is infeasible and 603 current-delta preflight will reject/fallback. If rows are kept outside A/b, 603 can accept an F32 output that violates them unless an explicit endpoint certificate is added.",
+    "no_dual_or_iis": "No IIS or dual data is present in the retained report.",
+    "observed_behavior": "603 checks A/b for current and raw LP deltas, audits A/C/edge row ownership, then passes each component target to original 408 backtracking. 408 tests strict F32 area, source cap, trust, anchors, and edge gradients; it does not receive a separately appended positive face C/h endpoint family. After component composition, 603 records A@delta-b minimum as a diagnostic and computes soft C/h slack but does not reject on either diagnostic.",
+    "required_fail_closed_check": "Keep original A/b baseline checks. Treat new positive C/h as a separate endpoint contract. Require raw LP C@delta>=h; after exact 408 F32 emission check row-owned C@delta_f32>=h with no arbitrary tolerance; after composition require every row. Do not apply endpoint h to the unchanged baseline. Preserve all 408 gates and the existing complete 545/185 checks.",
+    "source_location": "component_scp_backtracking603.py:96-128; original 408 backtrack at propose_joint_clearance_witnesses_408.py:734-905",
+    "uniform_alpha_emitted_violation_counts": {
+      "0.0625": 1205,
+      "0.25": 1184,
+      "0.5": 1159
+    }
+  },
+  "analysis_helper": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/clearance-objective-audit-633/analyze_objective_633.py",
+    "replay_command": "/Users/n/numi-human-prep-venv-20261005/bin/python /Users/numi/Work/numi-human-connected-surface-069/D/clearance-objective-audit-633/analyze_objective_633.py",
+    "sha256": "77681d71f9da04b74f59a6eccffa61120574c68d27e61e1c5d9ab61c8191f2ad"
+  },
+  "classification": "arithmetic-only diagnosis; no fit, geometry audit, or admission",
+  "component_alpha_receipts": [
+    {
+      "components": 13,
+      "example_trials": [
+        {
+          "accepted": false,
+          "alpha": 1.0,
+          "edge_gradient_pass": false,
+          "minimum_clearance_progress_mm": -0.1431591323273628,
+          "reason": "emitted_gate"
+        },
+        {
+          "accepted": true,
+          "alpha": 0.5,
+          "edge_gradient_pass": true,
+          "minimum_clearance_progress_mm": -0.0715795661636814,
+          "reason": "accepted"
+        }
+      ],
+      "iteration": 1,
+      "rejected_reason_counts": {
+        "NO_COMPONENT_DELTA": 4
+      },
+      "selected_alpha_counts": {
+        "0.0625": 1,
+        "0.25": 1,
+        "0.5": 7,
+        "none": 4
+      }
+    }
+  ],
+  "fit_construction_gates": {
+    "area_gate": null,
+    "emitted_f32_checks": {
+      "alpha": 1.0,
+      "anchors_bitwise_unchanged": true,
+      "edge_gradient_emission_pass": true,
+      "edge_gradient_minimum_emitted_slack_mm": 0.0010296927736333542,
+      "maximum_node_step_mm": 1.6323769653669997,
+      "maximum_source_displacement_mm": 11.99997624843778,
+      "strict_f32_emission_gate": {
+        "accepted_physical_steps": 0,
+        "anchors_bitwise_unchanged": true,
+        "exact_global_self_audit": "NOT_RUN_REQUIRED",
+        "full_mesh_strict_area_pass": true,
+        "maximum_node_step_mm": 1.6323769653669997,
+        "maximum_source_displacement_mm": 11.99997624843778,
+        "native_admission": false,
+        "outside_support_bitwise_unchanged": true,
+        "pass": true,
+        "source_cap_mm": 12.0,
+        "source_cap_pass": true,
+        "trust_mm": 4.0,
+        "trust_pass": true
+      }
+    },
+    "maximum_emitted_node_step_mm": 1.6323769653669997,
+    "maximum_source_displacement_mm": 11.99997624843778,
+    "source_cap_mm": 12.0,
+    "status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED"
+  },
+  "identity_check": {
+    "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-008-from796/full-check/audit-159/report.json",
+    "audit159_sha256": "c531b93f4653c0d2694b205ccc0d56385dc22ad95a3c75db2d5755ae9a94bd25",
+    "audit159_status": "COMPLETE_TYPED_BANK_SURFACE_CROSSING_AUDIT",
+    "rowwise_body_bone_skinface_triangle_equal": true,
+    "sat_rows": 782,
+    "target_rows": 782
+  },
+  "inputs": {
+    "458_owner": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/fixed_bone_outward_plane_458.py",
+      "sha256": "056c8e60dad54f92a9c3ab69498dbfac0dc2c0152be272eadea2a58a3b6ea0e0"
+    },
+    "audit159": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-008-from796/full-check/audit-159/report.json",
+      "sha256": "c531b93f4653c0d2694b205ccc0d56385dc22ad95a3c75db2d5755ae9a94bd25"
+    },
+    "base_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-008-from796/lineage/candidate.npz",
+      "sha256": "58488b5d329c3506134c290c6a3435518e1ad75878ac451fe2a0d3179996bc48"
+    },
+    "fit_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/fit-000/candidate.npz",
+      "sha256": "d8df80623f6a9bc34968ed62efa7d84ff9905563dd4cab027e1ec8480d86d59a"
+    },
+    "fit_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/fit-000/report.json",
+      "sha256": "bd8f0c62b8ec11418ec0e003b2c99df133e9513258925ce31f99afe9693d90d9"
+    },
+    "raw_basis": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/fit-000/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+      "sha256": "f9102af899a2c938482697ffcaebb2bdaddeca3446fc129eb896645d5d4a8fef"
+    },
+    "raw_candidate": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/fit-000/raw-joint-capture-563/raw-direction-001/candidate.npz",
+      "sha256": "fd9337a74a692b33feb101650317c8937dd182e1e511d6e8b107ebbe4288437d"
+    },
+    "sat_pairs": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/fit-000.sat-crossing-inputs-458.npz",
+      "sha256": "724a77943714b4ffc53ab1819138d2a4ebade87c1083c8a053d30234bc0f51c5"
+    },
+    "target_npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/prepared/surface-targets/targets.npz",
+      "sha256": "5f1033ab73ae09bdbdd2046ef63ec939b663d0ac87ab5aa2f27007e7e92c4e04"
+    },
+    "target_report": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/prepared/surface-targets/report.json",
+      "sha256": "aef02f6c2ab8e29ee65b4556ebc15f004e8360014ea73c491c1f3a41ab1885e4"
+    }
+  },
+  "interpretation": {
+    "alphas": "Uniform alpha rows are arithmetic-only demonstrations from the raw direction. 603 component alpha is nonuniform and each component trial calls frozen 408 backtracking; the component receipts are preserved separately.",
+    "limitation": "The component alpha receipt does not contain every trial coordinate array; alpha-scaled raw-field metrics are not a reconstruction of nonuniform componentwise emissions.",
+    "measured_emission": "The accepted F32 endpoint passes the recorded area/source/trust/anchor/edge gates, yet its rebuilt 458 positive rows remain unsatisfied; therefore 603 can emit a point violating added positive C/h endpoint rows unless they are separately checked.",
+    "recommended_certificate": "Keep original 408 A/b gate rows unchanged and distinguish any new C/h endpoint rows. Verify raw LP endpoint C/h and row-owner partition. For each component, check its F32-emitted rows against their endpoint rhs inside the alpha trial before accepting; after composition require all emitted F32 C/h rows pass. Do not demand the positive endpoint rows of the unchanged baseline, and do not treat a damped component as certified if it misses its rhs. If a full endpoint cannot pass all C/h, retain the failed witness and do not claim hard-face clearance. Full 545 plus complete185/self audits remain mandatory.",
+    "soft_vs_hard": "458 C/h rows are soft normalized-slack objectives in this run. They are not clearance certificates; default 408/603 area/source/trust/anchor/edge gates do not enforce them."
+  },
+  "objective_rebuild": {
+    "fit_emitted_F32": {
+      "minimum_progress_fraction": -1.4738764015252839,
+      "minimum_progress_mm": -0.5176162791630164,
+      "minimum_target_slack_mm": -13.439445681977046,
+      "pairs_with_positive_rows": 782,
+      "rows": 1216,
+      "satisfied_pairs_all_positive_rows": 6,
+      "satisfied_rows": 39,
+      "violated_rows": 1177,
+      "weighted_unmet_fraction": 0.8596414120134663
+    },
+    "pairs_with_positive_targets": 782,
+    "raw_capture_F32": {
+      "minimum_progress_fraction": -0.3265574406566593,
+      "minimum_progress_mm": -1.0894812005888148,
+      "minimum_target_slack_mm": -13.44443838290714,
+      "pairs_with_positive_rows": 782,
+      "rows": 1216,
+      "satisfied_pairs_all_positive_rows": 60,
+      "satisfied_rows": 177,
+      "violated_rows": 1039,
+      "weighted_unmet_fraction": 0.7266082681612789
+    },
+    "raw_lp_delta": {
+      "minimum_progress_fraction": -0.3265554107963807,
+      "minimum_progress_mm": -1.0894812083126797,
+      "minimum_target_slack_mm": -13.444433675312274,
+      "pairs_with_positive_rows": 782,
+      "rows": 1216,
+      "satisfied_pairs_all_positive_rows": 76,
+      "satisfied_rows": 214,
+      "violated_rows": 1002,
+      "weighted_unmet_fraction": 0.7256026704462013
+    },
+    "report_weighted_unmet": 0.8596414120134663,
+    "rows": 1216,
+    "uniform_alpha_emitted_F32_from_raw_delta": {
+      "0.0625": {
+        "minimum_progress_fraction": -0.023869619450335947,
+        "minimum_progress_mm": -0.06809278987130932,
+        "minimum_target_slack_mm": -13.508310801119931,
+        "pairs_with_positive_rows": 782,
+        "rows": 1216,
+        "satisfied_pairs_all_positive_rows": 2,
+        "satisfied_rows": 11,
+        "violated_rows": 1205,
+        "weighted_unmet_fraction": 0.9637646182919943
+      },
+      "0.25": {
+        "minimum_progress_fraction": -0.25261590143053936,
+        "minimum_progress_mm": -0.2723704106706102,
+        "minimum_target_slack_mm": -13.478802007463747,
+        "pairs_with_positive_rows": 782,
+        "rows": 1216,
+        "satisfied_pairs_all_positive_rows": 6,
+        "satisfied_rows": 32,
+        "violated_rows": 1184,
+        "weighted_unmet_fraction": 0.8996965184635961
+      },
+      "0.5": {
+        "minimum_progress_fraction": -1.4738764015252839,
+        "minimum_progress_mm": -0.5447443220401513,
+        "minimum_target_slack_mm": -13.439445681977046,
+        "pairs_with_positive_rows": 782,
+        "rows": 1216,
+        "satisfied_pairs_all_positive_rows": 14,
+        "satisfied_rows": 57,
+        "violated_rows": 1159,
+        "weighted_unmet_fraction": 0.8370928872545547
+      }
+    },
+    "weights_sum": 1.0
+  },
+  "owners": {
+    "408_gate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-witness-basis-408/propose_joint_clearance_witnesses_408.py",
+    "408_gate_sha256": "5b259785752568963cad0f0738260d6f4889b84243815c842d02173ea638ebd2",
+    "466_triangle_sat_path": "/Users/numi/Work/numi-human-connected-surface-069/D/D/triangle-sat-rows-466/triangle_sat_rows_466.py",
+    "466_triangle_sat_sha256": "cf4df8cd8a3f2773f0992a5f9a1d9b899d64db781b0a58cc2ed618285fa11cf3",
+    "603_component_scp_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-scp-area-backtrack-603/frozen-v1/component_scp_backtracking603.py",
+    "603_component_scp_sha256": "f02aed5e462779e85a5d4df46a38a68bcf7eb3972c9dbf565830c4919b387be6"
+  },
+  "schema": "numi.human.clearance_objective_audit_633.v1"
+}

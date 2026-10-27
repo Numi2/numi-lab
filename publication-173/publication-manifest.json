@@ -1,0 +1,1060 @@
+{
+  "accepted_physical_steps": 0,
+  "best_in_scope_construction_checkpoint": "Frozen 766/0/0 strict topology result compared against 772 input; state records candidate_selected=false. Target preparation fit_not_run=true.",
+  "created_utc": "2026-10-27T09:19:10.584041+00:00",
+  "member_bytes": 63269658,
+  "member_count": 174,
+  "members": [
+    {
+      "bytes": 3250,
+      "mode": 420,
+      "path": "README.md",
+      "sha256": "1b1cfad051f21c7db3ea8ee7ec656bab538f4f01c90ffe639bfa1ca2eec6baf4"
+    },
+    {
+      "bytes": 14432,
+      "mode": 420,
+      "path": "evidence/clearance-objective-audit-633/analyze_objective_633.py",
+      "sha256": "77681d71f9da04b74f59a6eccffa61120574c68d27e61e1c5d9ab61c8191f2ad"
+    },
+    {
+      "bytes": 12334,
+      "mode": 420,
+      "path": "evidence/clearance-objective-audit-633/objective-audit-633.json",
+      "sha256": "dcb99204d8faec1c56fa94ba6a64c6143f64fd8c0a99c2fd7480b7228bf4b3fb"
+    },
+    {
+      "bytes": 58131,
+      "mode": 420,
+      "path": "evidence/source-outward-proposal-500/build_outward_nearest_union_targets_500.py",
+      "sha256": "454501303db7c6420ff3744729c62c723c208aaf9348a53534137c62b7e6afbf"
+    },
+    {
+      "bytes": 14151,
+      "mode": 420,
+      "path": "evidence/source-outward-proposal-500/build_outward_targets_multi_source_546.py",
+      "sha256": "dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68"
+    },
+    {
+      "bytes": 13213,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/final/arithmetic/report.json",
+      "sha256": "6f9a5065e9f826f5d75ce82602e310282470f73bcc81c15c3acdde2688811612"
+    },
+    {
+      "bytes": 149,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/final/arithmetic.log",
+      "sha256": "9b4fce33fd5b74592212c7966f910aa577022955e03be26caa63e4f650594a3c"
+    },
+    {
+      "bytes": 5471,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/final/report.json",
+      "sha256": "0b7e27a8f494bc187b0c00b788a059e0165d81061f2ed6e69a542b2856f810b9"
+    },
+    {
+      "bytes": 952,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/final/state.json",
+      "sha256": "64f8e823435d02677908e06fcb367db9bca11ccadc7e42e0e35f26e793bc4695"
+    },
+    {
+      "bytes": 149,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/final-stage.execution.json",
+      "sha256": "9de18c1e932825397b9430759eef4c57f445f328c6565437f5d551729f2b7fe8"
+    },
+    {
+      "bytes": 2191,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/final-stage.launch.json",
+      "sha256": "212ea227f3b651e5cd7dcdcedfcd8b60d3e6b6464039780f9232638aa7c387c6"
+    },
+    {
+      "bytes": 268,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/final-stage.log",
+      "sha256": "fd6f2b4eb69e8d371d567001299da951076b49fc3d36c6c2f0d950e9bd233011"
+    },
+    {
+      "bytes": 490362,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/audit-130/query/nodes.csv",
+      "sha256": "e7ee59f22b96b5ade3baaa20c31dcf54093cd1c781b2fcd34f843fc136e748b4"
+    },
+    {
+      "bytes": 2722726,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/audit-130/query/pairs.csv",
+      "sha256": "33a2e217304a005d972614d55f1043645f5f5cd70c69bb93e4d3cb8de74b2460"
+    },
+    {
+      "bytes": 225325,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/audit-130/query/points-world.npz",
+      "sha256": "39d41a0ef47dea179f3fd51eade1797fdb2a9610fc48c4a85cf37bd78ae98ee4"
+    },
+    {
+      "bytes": 1583814,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/audit-130/query/points.csv",
+      "sha256": "3223e6274445aaf88e4af130ace41d61467044c6326fc099ae512e9d3bd4bb0d"
+    },
+    {
+      "bytes": 680,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/audit-130/query/prepare.log",
+      "sha256": "ad1d12176cffdb16b4eb6e95e563e435e6b5f1eb5b9c90ef3505fd6489d6244d"
+    },
+    {
+      "bytes": 1648,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/audit-130/query/query-receipt.json",
+      "sha256": "2bf506544e3b3f930a0e09f9d82229bbe3c79c1a270a05d4c8020631d295a9df"
+    },
+    {
+      "bytes": 134,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/audit-130/query/query.log",
+      "sha256": "48bb9dbd067d6743d94125c179627352b5aac98d6ee1e34e48b140a5eb69ec5f"
+    },
+    {
+      "bytes": 593,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/audit-130/summary.json",
+      "sha256": "f5bc7f51860bdeb52ec771e79c3ab7211cdb5bd758444a9ff4636ebb54a93449"
+    },
+    {
+      "bytes": 128,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/audit-130/surface-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    },
+    {
+      "bytes": 648,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/audit-130.log",
+      "sha256": "9ea0baf423a944720615af19c0c314cdc85d4e1aa742980d1e8db5a3e091d1f4"
+    },
+    {
+      "bytes": 98,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/audit-159/progress.json",
+      "sha256": "c8f8107cabbd25ff35f056e98e405e01888ff8448544fcf1e33c2a9c6cfd6076"
+    },
+    {
+      "bytes": 107343,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/audit-159/report.json",
+      "sha256": "b657310527aa6d4f15a2b19f8db24c0ed8796415bca51878c12752adcc23c670"
+    },
+    {
+      "bytes": 937,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/audit-159.log",
+      "sha256": "fc0de1a23c287042d780c71f76eb6558701a18a354b9021b62d4ede5a6b64021"
+    },
+    {
+      "bytes": 14982,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check/report.json",
+      "sha256": "31b9dd874a318bdf04f64d11afc8361a7de19977e92f85b8b1f7476ca34374f0"
+    },
+    {
+      "bytes": 148,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check-stage.execution.json",
+      "sha256": "7002df89faac0de68718066c82890e27f8c1aabbb3a2a293b52cec270200b531"
+    },
+    {
+      "bytes": 1402,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check-stage.launch.json",
+      "sha256": "98c4882547156bc1e8132b2a760698bac24b1b19f50ffd1438ef7e2938e8aee3"
+    },
+    {
+      "bytes": 259,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/full-check-stage.log",
+      "sha256": "2ad30072cabc3ddf112a5d083a512d509d4a6590986b48dacd84096a1c289835"
+    },
+    {
+      "bytes": 6667269,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/lineage/candidate.npz",
+      "sha256": "47ec88d0442188e5e71cb8edf4e6adc05af7f13dbac965deff99ac2a253a8220"
+    },
+    {
+      "bytes": 3656,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/lineage/report.json",
+      "sha256": "eafe4da1c10237f0f32d7804b5251dd5b53f38ff0946323e432ef8e03a419941"
+    },
+    {
+      "bytes": 148,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/lineage-stage.execution.json",
+      "sha256": "a21be64fbf8ddde4ceea621bb32d579c72f2a6a776447535d3079879e0d27a94"
+    },
+    {
+      "bytes": 1548,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/lineage-stage.launch.json",
+      "sha256": "2479dfe3fe7593756a209d5c97a8c33f5d90971313a30887958795fd8e0c02b9"
+    },
+    {
+      "bytes": 652,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/lineage-stage.log",
+      "sha256": "27d9b250d42121b1371145f2941359c42576507b38e183b1d4f7f5c0d244a85f"
+    },
+    {
+      "bytes": 6667269,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/search/candidate.npz",
+      "sha256": "47ec88d0442188e5e71cb8edf4e6adc05af7f13dbac965deff99ac2a253a8220"
+    },
+    {
+      "bytes": 363931,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/search/progress.jsonl",
+      "sha256": "231afba7843c9debdab83e0e0f560ebd100c1d75792bbbc0bb9e8a1b462c589e"
+    },
+    {
+      "bytes": 15694,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/search/report.json",
+      "sha256": "71b3b97ba7560569b8ba0d631dde3238827d898f7c9af252b0e12836ff4eb1fb"
+    },
+    {
+      "bytes": 148,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/search-stage.execution.json",
+      "sha256": "78807c98a459497d5f02876c2e6d0332ef9d8fa3c39e11fc0cdea39e7d30a623"
+    },
+    {
+      "bytes": 1651,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/search-stage.launch.json",
+      "sha256": "62288ec0d2287bd733e27f815dc30ae77c492b2aa42b8aa4e3c5bcdc3264d5bb"
+    },
+    {
+      "bytes": 364459,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-009-from772/search-stage.log",
+      "sha256": "db3563c280b544da3a79962125581f8419462f19237bddbf5314fed9dfb170a5"
+    },
+    {
+      "bytes": 2316,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/check_anchored_face_goals.py",
+      "sha256": "40cbbfcd896a3b04d1c6110f4e863f61326fa35b1c6985514bfc04b125ef7da9"
+    },
+    {
+      "bytes": 4191,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/node_face_feasibility.py",
+      "sha256": "6730524389768b650ab2b285a6d7e5af716dd74276ab041c5b10e47662eb836d"
+    },
+    {
+      "bytes": 4874,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/node_face_single_row_proof.py",
+      "sha256": "28eb87361c180e61812f97d53954f9259a3e2e27530a6d963136df8d4908aeb3"
+    },
+    {
+      "bytes": 4894,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/node_sat_selected_feasibility.py",
+      "sha256": "8d3980a3fc26150907114446e6fdbd9e48f95373e9b79575437ade45a659c4fc"
+    },
+    {
+      "bytes": 3774,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepare_from766.py",
+      "sha256": "684f73875f4295741d7bdfed40bd5147706a17391a911daa1a50e48d1931c5db"
+    },
+    {
+      "bytes": 3741,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepare_from772.py",
+      "sha256": "98c8294e82f0a6f6e2b9cc6f2dbd17296caf7472e1fd5d905adaa0d32281fb72"
+    },
+    {
+      "bytes": 798,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/anchored-positive-corners.json",
+      "sha256": "97598d4d8c4654737bc279d01c300018e6c9cc889444ba346c829eb5c92ebdfc"
+    },
+    {
+      "bytes": 2695,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/current-inputs.json",
+      "sha256": "481cfce602ad038374eb4527ced63bd37661a04557d079f933687179f5cbc4e0"
+    },
+    {
+      "bytes": 6100468,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/depth-413/365-compatible-report.json",
+      "sha256": "62d3debe50b79ebae341f3fd2c48987203bdd898647b0c8c15f7354bb13de272"
+    },
+    {
+      "bytes": 2737,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/depth-413/365-validation.json",
+      "sha256": "6c918a5a05bf2ed764dc24998246ed67fd448d8111815de42b4dec79bf8d026b"
+    },
+    {
+      "bytes": 146461,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/depth-413/point-depth-rows.npz",
+      "sha256": "1fbaa6e1130d828e1befc34fb3bcee32e39a624f60181a7a84c339c98b751430"
+    },
+    {
+      "bytes": 6099604,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/depth-413/report.json",
+      "sha256": "09fe7402324a2a2b771b6a96fe80bb1fdd8f922807921bf3a7fc383789bd2ee0"
+    },
+    {
+      "bytes": 149,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/depth-stage.execution.json",
+      "sha256": "c7f2c9c5a4182434b006739de89804bff38c9c65a83ed383646f8696e4678a28"
+    },
+    {
+      "bytes": 11685,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/depth-stage.launch.json",
+      "sha256": "b8ccfe753822aea8e80c05fdc3393698c22628f083a26b259a2f9ef1f84adec4"
+    },
+    {
+      "bytes": 1666,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/depth-stage.log",
+      "sha256": "06abdcc91e80f01fc9fe01d32cd0b7b408301e1ad501330c6d09679c1d9f3530"
+    },
+    {
+      "bytes": 268316,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/node-face-feasibility.json",
+      "sha256": "62cfd7afd0e0913b44740786608d97477670e566c10600b0372a921835fcc3d8"
+    },
+    {
+      "bytes": 624264,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/node-face-single-row-proof.json",
+      "sha256": "492455a2cbf2e82b95f2bb53c34c5c5711075b44f4e12842a9fbddbd64338fc7"
+    },
+    {
+      "bytes": 279322,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/node-sat-selected-feasibility.json",
+      "sha256": "2900333c9bbbcb8a454850ca7d19e78ca22f8e6d218a21810bda2e978ebf6e21"
+    },
+    {
+      "bytes": 149,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepare-stage.execution.json",
+      "sha256": "cdb91d9a4204c3a239f487b967b90deddf16aae89c17a2abf1b66183dfef435a"
+    },
+    {
+      "bytes": 12342,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepare-stage.launch.json",
+      "sha256": "d883d3acb6da0de60f23efa4db1a990f34aed908868ffc9597f63e46a74a6923"
+    },
+    {
+      "bytes": 230,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepare-stage.log",
+      "sha256": "5f1105e7ccaeca8007e540bb5d84e60e69f0393a5de1400831a29d7e90eb2c68"
+    },
+    {
+      "bytes": 566992,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/augmentation/augmented-prior-guard-report.json",
+      "sha256": "c33ab373f5d776a6e720b58419719440fec34a07d9d44c864b62b4b277005bf4"
+    },
+    {
+      "bytes": 22300,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/augmentation/augmented-prior-guard.npz",
+      "sha256": "5d75d13bba1b0ef5d7f63fc7400d3675a95e56dfcd569e819ac7fcbc0ccb2831"
+    },
+    {
+      "bytes": 8390,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/augmentation/prior-surface-pair-remap.npz",
+      "sha256": "1617b627697b2812787a994f914c6962808abc597f34896e36efb6d3b2d23292"
+    },
+    {
+      "bytes": 2015,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/constraint-context.json",
+      "sha256": "b5e511bffbaa38522023ed9e7e8cc99fda21373a1adf8b00441024099b342b11"
+    },
+    {
+      "bytes": 363966,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-541/fixed-guards/fixed-guard-313-rows.npz",
+      "sha256": "334dc222e44f3aeba36d7029e1d90b3f6e69d047d293bc945c73098aa52cc87f"
+    },
+    {
+      "bytes": 22264,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+      "sha256": "7bbe924a04f68a98bccf595a169faa31f94171ab8a97b51ee8afb13e5c4cdff9"
+    },
+    {
+      "bytes": 564344,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-541/fixed-guards/report.json",
+      "sha256": "08b47198e3cf638de1566728e8c102f97a7fc3ff46c0edcf98b6988a1dddfbb7"
+    },
+    {
+      "bytes": 600,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-541/fixed-guards/validation.json",
+      "sha256": "37d097350a6c5caab0f1950709a5feb5758d12e267e42e740038fcd6b1c1ce1c"
+    },
+    {
+      "bytes": 4733,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-541/refresh-report.json",
+      "sha256": "ab2538ddbf72b914b5f9a238d78b21404df16a7fee18a01d3574aec210db1b6d"
+    },
+    {
+      "bytes": 128,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-541/self-guards/current-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    },
+    {
+      "bytes": 771,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-541/self-guards/current-self-rows.npz",
+      "sha256": "425fde3f5c66ea12847da674f61aea388c27d1c1204f0180a1ce7e560a5f1f3b"
+    },
+    {
+      "bytes": 128,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-541/self-guards/mapped-trial-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    },
+    {
+      "bytes": 771,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-541/self-guards/mapped-trial-self-rows.npz",
+      "sha256": "425fde3f5c66ea12847da674f61aea388c27d1c1204f0180a1ce7e560a5f1f3b"
+    },
+    {
+      "bytes": 2045,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-541/self-guards/mapped-trial-self-seeds-report.json",
+      "sha256": "874b99049e6376fa0b95848745ea22f934640d3b18411cd6a4113b6baff7adbd"
+    },
+    {
+      "bytes": 149,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-541.execution.json",
+      "sha256": "0956f1d04d9e78472679f539fba4be9988e15e5317774c3fec6ddc25ddae640c"
+    },
+    {
+      "bytes": 9286,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-541.launch.json",
+      "sha256": "be4daa7a01b3b5a62dd13d8c9479a0498a5405193011d5c823e0612c82d555c1"
+    },
+    {
+      "bytes": 4733,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-541.log",
+      "sha256": "ab2538ddbf72b914b5f9a238d78b21404df16a7fee18a01d3574aec210db1b6d"
+    },
+    {
+      "bytes": 8685,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/refresh-report.json",
+      "sha256": "5a63af2c799d83be1d91b95a51616e1787cff36fff5621532e292254d2e7f43a"
+    },
+    {
+      "bytes": 2272,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/self-seeds/failed-trial-remap.npz",
+      "sha256": "ecca3b6e4b6cb70b01fe5c2174fe6739c3173c344944447bdaa5b6154ecf64ad"
+    },
+    {
+      "bytes": 3132178,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/self-seeds/merged-self-pair-rows.npz",
+      "sha256": "7950cc7acad722e453ebe906c8d4bf351ae6d756422dbc036c8c0890323711d5"
+    },
+    {
+      "bytes": 471280,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/self-seeds/merged-self-pair-seeds.npy",
+      "sha256": "68815c45475618a872b6faf1487647d07fc9dd88b500341cf2a84d3d554053a3"
+    },
+    {
+      "bytes": 264876,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/self-seeds/prior-context-remap.npz",
+      "sha256": "132794fcdfef569ab757861e0fd93ee0b61ad41f51a09729775ed376a4975022"
+    },
+    {
+      "bytes": 4369,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/constraints/self-seeds/seed-preflight.json",
+      "sha256": "d1533811ff3a85e4be7a483a3d45e257e6f7d22787f3f77a6fc739a292348326"
+    },
+    {
+      "bytes": 150,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/face-compat-stage.execution.json",
+      "sha256": "8cedf914816480d8a869b9772bbcedbbc69712e366f574a5a9017871760ef77f"
+    },
+    {
+      "bytes": 2403,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/face-compat-stage.launch.json",
+      "sha256": "b2100e46037eaf7b40afb86e71ecd09c8b6fd401605b125ab4432c00ca52034b"
+    },
+    {
+      "bytes": 316,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/face-compat-stage.log",
+      "sha256": "dcac6b482984b7c35302a73e141eeacd75e4c3d586dd7538e29c9d8db86a9aca"
+    },
+    {
+      "bytes": 9281,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/face-fit-compatibility.json",
+      "sha256": "466458243e08de82ffc2f39a30ab50630947871b5e99813f364bf848c3a4612d"
+    },
+    {
+      "bytes": 148,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/face-target-stage.execution.json",
+      "sha256": "879ab7233ce431bfc05623a8c8d3494a03d8493c5b319db77118e197e06914da"
+    },
+    {
+      "bytes": 2694,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/face-target-stage.launch.json",
+      "sha256": "9a9ee915c2196b6c2d2138f685b632cf1be44b8a01f356c59ed1f8013aebb734"
+    },
+    {
+      "bytes": 890,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/face-target-stage.log",
+      "sha256": "54001cfcceaf1aaeb364178d68c51cb5c5d0aa5f958cbde512163dc7846307ba"
+    },
+    {
+      "bytes": 149,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/face-verification-stage.execution.json",
+      "sha256": "d1de8dab3e279aca4fae2b8e61b0235d58699dd33b6ed24b2d73b79ec4c1ab3c"
+    },
+    {
+      "bytes": 1706,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/face-verification-stage.launch.json",
+      "sha256": "f49c5161ed4ab9c4badbabee3989c41885b4b1a88098b49cf21d5871b36b6ad7"
+    },
+    {
+      "bytes": 146,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/face-verification-stage.log",
+      "sha256": "e72ff699c4a6035cff4dcd26ffc081a87d76a25482e2fef455e5b583c786ed70"
+    },
+    {
+      "bytes": 2858,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/face-verification.json",
+      "sha256": "c8555b6404477858eff606ee85e6dfa6b2a7cbaa39da594897a971c981097340"
+    },
+    {
+      "bytes": 4707,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/fit-argv.json",
+      "sha256": "5285004c8adbd0ae20e4538427c72a22e0418f56b5c7448d2d2dec2b0d58a0f3"
+    },
+    {
+      "bytes": 2201,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/matched-inputs.json",
+      "sha256": "c1730ad1c0bfa94c6ed875804eeb10cff55e136d98fce684a20bb420bfc466da"
+    },
+    {
+      "bytes": 797,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/point-targets/nearest-union-exits.json",
+      "sha256": "13c5e7c4ab919a8353147af2f0ad127e65fa2e39c7ca13a2639dea3d9cd1c924"
+    },
+    {
+      "bytes": 2200,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/point-targets/nearest-union-exits.npz",
+      "sha256": "f6557b7e8840873f7700c053a404932372f3f1464bef617bcaedbd669b08df43"
+    },
+    {
+      "bytes": 14110,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/prepared.json",
+      "sha256": "68361cfff4c2ecad1a81b78f9cc1b14c624f623033a842619efa90c5d37eb8c8"
+    },
+    {
+      "bytes": 149,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/refresh-stage.execution.json",
+      "sha256": "6fb8f398f3c4b647fb2bb06629c3f94be38bc7d2d800479d00a73c96f273884e"
+    },
+    {
+      "bytes": 9634,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/refresh-stage.launch.json",
+      "sha256": "0776265384db722501e03a9658336a77dd6f3bfb527fd8c1b3c3efb04cd65925"
+    },
+    {
+      "bytes": 1168,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/refresh-stage.log",
+      "sha256": "359c93b202f1d69f0ccb9af4cd01925225e09425d710dbab2194cc73ff47f6d3"
+    },
+    {
+      "bytes": 6899,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/surface-targets/report.json",
+      "sha256": "3d2d8f79f1847fccff12342b1e9871a8e75877a298bbe35a12bd6fe1c5cd42c5"
+    },
+    {
+      "bytes": 3262503,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/surface-targets/target-records.jsonl",
+      "sha256": "55eb46735ee235d9caa01f4ad45284c6a9d2292e8d10ffda9864cf73cad0b149"
+    },
+    {
+      "bytes": 121460,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/prepared/surface-targets/targets.npz",
+      "sha256": "106f88173662cfada7539551facb4a3e76537b419c6114df7db25c2665cb877a"
+    },
+    {
+      "bytes": 13509,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/sat-axis-availability.json",
+      "sha256": "83b82b16e3ece7369ce689e8d51dbcc555ae0a98db5818adb47f3a943c9efc7a"
+    },
+    {
+      "bytes": 707,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from766-001/target-pair-identity.json",
+      "sha256": "b1a061138fc37c2d589778713917708bee02d92f401cae337ae4564c2f550218"
+    },
+    {
+      "bytes": 2737,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/current-inputs.json",
+      "sha256": "0c0a4f57229631974269f14c514f5266d48f82455eff9892ee1008f5cfcf42b8"
+    },
+    {
+      "bytes": 6100554,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/depth-413/365-compatible-report.json",
+      "sha256": "7f1336647f0183b8ac5992d798659935c8c008e8272099e8552bdf918ee3a186"
+    },
+    {
+      "bytes": 2746,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/depth-413/365-validation.json",
+      "sha256": "4c973821308988f0f50573b4b0d4a2f0830aa0d07d707db3f7939afb66280ade"
+    },
+    {
+      "bytes": 146461,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/depth-413/point-depth-rows.npz",
+      "sha256": "1fbaa6e1130d828e1befc34fb3bcee32e39a624f60181a7a84c339c98b751430"
+    },
+    {
+      "bytes": 6099690,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/depth-413/report.json",
+      "sha256": "f80fbf11361deebf54776f6085f8a8158eeba502bc85a905337a5b993535542a"
+    },
+    {
+      "bytes": 148,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/depth-stage.execution.json",
+      "sha256": "00b6c77b8703694f2fc042e77c499fd2a67b854abc475d365a6af0ca4ec2ab79"
+    },
+    {
+      "bytes": 11757,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/depth-stage.launch.json",
+      "sha256": "532a044d27fbb11c5b3632eeacef692a89a64462279830c28bd209b998ef56ef"
+    },
+    {
+      "bytes": 1675,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/depth-stage.log",
+      "sha256": "3df132618835fc139a40ab8299703fe083beb2445554becc0503e96a9e3ec1f0"
+    },
+    {
+      "bytes": 149,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepare-stage.execution.json",
+      "sha256": "d4c9040df2633565c80ea894c2543f9d7dfd6f3d4af9c6c0dd278ca87f7b1237"
+    },
+    {
+      "bytes": 12387,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepare-stage.launch.json",
+      "sha256": "5ffe12e2367cd13e84c2fdc7d03334d8d943f7fa144d922f7f1566fb752e95f1"
+    },
+    {
+      "bytes": 230,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepare-stage.log",
+      "sha256": "8a39e2f10b691a1044ed1b0d3569e0195b7485135f3f4dfdfd3bd279fc6a84ab"
+    },
+    {
+      "bytes": 566981,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/augmentation/augmented-prior-guard-report.json",
+      "sha256": "df14644953edd16f324861e6f646c7b9052ed94bd65494285cdb84d04a718c5b"
+    },
+    {
+      "bytes": 22300,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/augmentation/augmented-prior-guard.npz",
+      "sha256": "5d75d13bba1b0ef5d7f63fc7400d3675a95e56dfcd569e819ac7fcbc0ccb2831"
+    },
+    {
+      "bytes": 8582,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/augmentation/prior-surface-pair-remap.npz",
+      "sha256": "f37876ba50044999e51f90cc2df19a324baac61486db143fc58ec4c37307cfc6"
+    },
+    {
+      "bytes": 2038,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/constraint-context.json",
+      "sha256": "960b75006214db0567f5f8abf92652ceb215b2df4fd02ef5e7966810976a3e28"
+    },
+    {
+      "bytes": 364740,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-541/fixed-guards/fixed-guard-313-rows.npz",
+      "sha256": "7142844f4976a1dcb625009082a0136c2dafe5d5e6e9affc01c9892e166a6349"
+    },
+    {
+      "bytes": 22300,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+      "sha256": "5d75d13bba1b0ef5d7f63fc7400d3675a95e56dfcd569e819ac7fcbc0ccb2831"
+    },
+    {
+      "bytes": 565291,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-541/fixed-guards/report.json",
+      "sha256": "c2d1e99dfd2c160994c21b49505c023b65a20b9ac548bcfaf062bb89ef2cff36"
+    },
+    {
+      "bytes": 600,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-541/fixed-guards/validation.json",
+      "sha256": "6f6ad91c237159946bd93f28adbaccf4ca8870a43efc00890a0ab8a447b96713"
+    },
+    {
+      "bytes": 4756,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-541/refresh-report.json",
+      "sha256": "30ba97dc726b408a686fa013f93d7139b55b04afe1a46c35dfbe7e0bf88b8fb3"
+    },
+    {
+      "bytes": 128,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-541/self-guards/current-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    },
+    {
+      "bytes": 771,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-541/self-guards/current-self-rows.npz",
+      "sha256": "425fde3f5c66ea12847da674f61aea388c27d1c1204f0180a1ce7e560a5f1f3b"
+    },
+    {
+      "bytes": 128,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-541/self-guards/mapped-trial-self-pairs.npy",
+      "sha256": "55737cf1229ed3c3f82eb23b50874fb56749277d1c3a190bccfa1f3a991a57de"
+    },
+    {
+      "bytes": 771,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-541/self-guards/mapped-trial-self-rows.npz",
+      "sha256": "425fde3f5c66ea12847da674f61aea388c27d1c1204f0180a1ce7e560a5f1f3b"
+    },
+    {
+      "bytes": 2077,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-541/self-guards/mapped-trial-self-seeds-report.json",
+      "sha256": "3465b5e9c0ada48ec971fc643b5fc05aab51d2c0e3398fb97dfbb68440883d77"
+    },
+    {
+      "bytes": 148,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-541.execution.json",
+      "sha256": "b9416625442a24041b8e94976f74e544cedb3091de3d79d09f0ed29189d42227"
+    },
+    {
+      "bytes": 9349,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-541.launch.json",
+      "sha256": "984d5a974a20b6f80cf85ef2a25ea4d32ebbbec5df8f3894e3ed50db69f949f5"
+    },
+    {
+      "bytes": 4756,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-541.log",
+      "sha256": "30ba97dc726b408a686fa013f93d7139b55b04afe1a46c35dfbe7e0bf88b8fb3"
+    },
+    {
+      "bytes": 8693,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/refresh-report.json",
+      "sha256": "cd68c0d738a47a6c6f4729779601948b2d252d7f75160c1cc20019a32c75be5c"
+    },
+    {
+      "bytes": 2272,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/self-seeds/failed-trial-remap.npz",
+      "sha256": "ecca3b6e4b6cb70b01fe5c2174fe6739c3173c344944447bdaa5b6154ecf64ad"
+    },
+    {
+      "bytes": 3133883,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/self-seeds/merged-self-pair-rows.npz",
+      "sha256": "2b8897c4f53ffcfd0e3ef3305b9eadb5768b74a18a51f6199d00fc137de1d548"
+    },
+    {
+      "bytes": 471600,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/self-seeds/merged-self-pair-seeds.npy",
+      "sha256": "25a91e34988d0e1fc2bc06a9001bcd23473d408701f639a56df6dcac60002391"
+    },
+    {
+      "bytes": 264766,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/self-seeds/prior-context-remap.npz",
+      "sha256": "336fe8f64beae5949f5e0054e224661c62db9f6c1ff25e088a6377686a674ff1"
+    },
+    {
+      "bytes": 4371,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/constraints/self-seeds/seed-preflight.json",
+      "sha256": "520517044c2ae5bf350cc4e029af10c5689f64820688bd4df2f9d7c5e2f308cb"
+    },
+    {
+      "bytes": 150,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/face-compat-stage.execution.json",
+      "sha256": "7744ccde8772ebcd2832f6f506e6b73df33402ac807bec14afd7f5e3e8c1e5bc"
+    },
+    {
+      "bytes": 2403,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/face-compat-stage.launch.json",
+      "sha256": "798df9fde3c80a56da2832c9f56b818a87240985b38f31e814ac85e4b9dc37c7"
+    },
+    {
+      "bytes": 316,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/face-compat-stage.log",
+      "sha256": "9d101b45e749ec1d343797214c69297113083abc3397fff7281a3bd0ae249aa6"
+    },
+    {
+      "bytes": 9281,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/face-fit-compatibility.json",
+      "sha256": "d74869562a2ad7541eaf63c24a152df099b9cf32f20a2f4c4a2942d0ce58fcc0"
+    },
+    {
+      "bytes": 149,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/face-target-stage.execution.json",
+      "sha256": "fa1d5fdf3bb19446b19f909022c2336d7675672cf78b30e7596bf4466b9332bd"
+    },
+    {
+      "bytes": 2747,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/face-target-stage.launch.json",
+      "sha256": "df097962b67ec7c80e2745366caa8ef358b54db5ca1b2eeb3b6a6a555c92f7ed"
+    },
+    {
+      "bytes": 890,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/face-target-stage.log",
+      "sha256": "ab25cb10713ac18db1afd99fa2a1be8eea1fa24fc3608e45262e0cb57d864c1a"
+    },
+    {
+      "bytes": 150,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/face-verification-stage.execution.json",
+      "sha256": "24102435d16e844d99f1ad861b9ee1a5263fca633e11545aa791f5e86a332a6c"
+    },
+    {
+      "bytes": 1713,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/face-verification-stage.launch.json",
+      "sha256": "205191d6ce3be4af6ab55178259db900dd857c2ffe4476ac9cb0cd39901e24f1"
+    },
+    {
+      "bytes": 146,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/face-verification-stage.log",
+      "sha256": "1b4a4a5933e0ec361270b92719c57f5f3172fe080168b772a98220bdb4d8b874"
+    },
+    {
+      "bytes": 2865,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/face-verification.json",
+      "sha256": "4bd1d280a3102d417489740a7f4070ca18e1ec802eb246cc3c3536dcc8c33ec2"
+    },
+    {
+      "bytes": 4741,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/fit-argv.json",
+      "sha256": "9bcacec5eed63c5f3d994e6665ccdbac18b01d1314b35a017e44d17a3a563a2b"
+    },
+    {
+      "bytes": 2217,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/matched-inputs.json",
+      "sha256": "2997c390d654862c342565e78639fae33baf77ef5686ff6083e5a22b75182b09"
+    },
+    {
+      "bytes": 797,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/point-targets/nearest-union-exits.json",
+      "sha256": "1b0d38f7841cab3e08372642ad556cec0ea7f7d4e67c81951cb419d56c4e6993"
+    },
+    {
+      "bytes": 2200,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/point-targets/nearest-union-exits.npz",
+      "sha256": "f6557b7e8840873f7700c053a404932372f3f1464bef617bcaedbd669b08df43"
+    },
+    {
+      "bytes": 14160,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/prepared.json",
+      "sha256": "85c14aeb15e35810f09ad07e1febc1a6a68aee22369c9598109ad62d85f78fee"
+    },
+    {
+      "bytes": 149,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/refresh-stage.execution.json",
+      "sha256": "2f45406026c90abf0d2f63c13565e50827339d798193c160b24ffdc6472693e6"
+    },
+    {
+      "bytes": 9684,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/refresh-stage.launch.json",
+      "sha256": "73e2207c1e00752a2574f5e8c3c45bd1c6aac102b287882f02356cf45bed9fbf"
+    },
+    {
+      "bytes": 1168,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/refresh-stage.log",
+      "sha256": "9bf52979cd47ef3e35d7e5455efeaa49f88ab2575e018738e9f2385719c1ad65"
+    },
+    {
+      "bytes": 6899,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/surface-targets/report.json",
+      "sha256": "9388e8a2b1899ea2036b9d26dddec164bdf80d48ff5d38dcb85fd7dd8058b310"
+    },
+    {
+      "bytes": 3286750,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/surface-targets/target-records.jsonl",
+      "sha256": "34b17535362a80d00931f4ff6f505c6a218973c17adff187488e458019d95c67"
+    },
+    {
+      "bytes": 122318,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/prepared/surface-targets/targets.npz",
+      "sha256": "96623533c62bd329ed068969ea5a74f25a5f6eb8d8986507c738a63a38ab1901"
+    },
+    {
+      "bytes": 714,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/prepared-from772-001/target-pair-identity.json",
+      "sha256": "61c9b0aafedd0b288378de9ba92f982d3b8d507eb1aacedaeb5ad22f3bf48b19"
+    },
+    {
+      "bytes": 3800,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/hard-face-feasibility-634/sat_axis_availability.py",
+      "sha256": "371141c4105575d68990ec5c6af942bf7e2b1d9c747c51549a17fd9c15bc655c"
+    },
+    {
+      "bytes": 1115,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/refined-fit-604/verify_joint_targets604.py",
+      "sha256": "fec8143430e2e43ce149c1d6a11bcfe2b5c8382c7b14bc97292c103b992ed161"
+    },
+    {
+      "bytes": 2015,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/source-current-targets-597/angular_joint_direction597.py",
+      "sha256": "4df66319908259efdc9faacdec5774876780fcf47c3f00ec0248a1a79810f092"
+    },
+    {
+      "bytes": 8949,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/source-current-targets-597/build_joint_outward_targets597_v4.py",
+      "sha256": "bb8ac0b2ba3be3b6bade10aae06184507319078761fdddb4ebadc10892f7a2e3"
+    },
+    {
+      "bytes": 4766,
+      "mode": 420,
+      "path": "evidence/surface-clearance-546/source-current-targets-597/verify_recovered_targets597.py",
+      "sha256": "b4b9b8b38b75f1313b5606e4399a4be061ba115a6a5490073766d8d33f766f73"
+    },
+    {
+      "bytes": 1978,
+      "mode": 420,
+      "path": "evidence/target-comparison-766-vs-772/compare_candidate_arrays.py",
+      "sha256": "a5e9f5fa1394e1583a9b2907c4b294275a0dc5d315e74e87bba878a33e04cb9c"
+    },
+    {
+      "bytes": 1096,
+      "mode": 420,
+      "path": "evidence/target-comparison-766-vs-772/report.json",
+      "sha256": "f88650d9d7af7cfc59e284f554ba3d26887e3d7a052c45d5bae0173d18f2b495"
+    },
+    {
+      "bytes": 2419,
+      "mode": 420,
+      "path": "scope-decision.json",
+      "sha256": "7531ec254e8439d67ead288123725b9cf3957b0b2bcc0b4b3d37497895a5a12d"
+    },
+    {
+      "bytes": 75999,
+      "mode": 420,
+      "path": "source-pin-index.json",
+      "sha256": "3af15cd1a2b0e7528502ff8c873b748f27da8ccea50eb2e5d0e51fcc62392cd6"
+    }
+  ],
+  "native_admission": false,
+  "parent_commit": "43ea91a21d376c4bda8811803e946820d048e10e",
+  "parent_manifest_sha256": "938965267b9dda5eedc2230bd5440d9e10b1e28f3ff00d1526a202ac920fa1d9",
+  "parent_publication": "P172",
+  "physical_or_anatomical_admission": false,
+  "publication": "P173",
+  "schema": "numi.human.connected_surface_publication_manifest.v1"
+}
