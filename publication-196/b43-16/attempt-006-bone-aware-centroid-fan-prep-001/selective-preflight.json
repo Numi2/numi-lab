@@ -1,0 +1,1738 @@
+{
+  "audit159_witness_source": {
+    "exact_triangle_pair_count": 249,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json",
+    "sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e"
+  },
+  "fan_face_classification": {
+    "all_bad_face_source_rows": [
+      {
+        "children": [
+          {
+            "area_ratio": 0.4140751101099257,
+            "aspect": 120.7397954965219,
+            "min_angle": 0.16421841684788901,
+            "orientation": 0.4140750514863789
+          },
+          {
+            "area_ratio": 0.16908652597270776,
+            "aspect": 8.925068746244264,
+            "min_angle": 1.9418279625753874,
+            "orientation": 0.16908652595900037
+          },
+          {
+            "area_ratio": 0.41683848171321497,
+            "aspect": 121.8417675691705,
+            "min_angle": 0.16401868354717086,
+            "orientation": 0.4168384225546208
+          }
+        ],
+        "face_row": 19191,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 121.8417675691705,
+        "fan_min_angle_degrees": 0.16401868354717086,
+        "fan_min_area_ratio": 0.16908652597270776,
+        "fan_min_orientation_ratio": 0.16908652595900037,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 7.107842139626618e-08,
+        "parent_aspect": 50.78833740278746,
+        "parent_min_angle_degrees": 0.328237053872145
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.19850241445131803,
+            "aspect": 7.641172481047126,
+            "min_angle": 4.2659711727645355,
+            "orientation": 0.19850240890557952
+          },
+          {
+            "area_ratio": 0.417476211780701,
+            "aspect": 57.3599005013915,
+            "min_angle": 0.3852995859982941,
+            "orientation": 0.417476050383125
+          },
+          {
+            "area_ratio": 0.38402167438176393,
+            "aspect": 47.50582451248268,
+            "min_angle": 0.40606136544721905,
+            "orientation": 0.38402154071129546
+          }
+        ],
+        "face_row": 19195,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 57.3599005013915,
+        "fan_min_angle_degrees": 0.3852995859982941,
+        "fan_min_area_ratio": 0.19850241445131803,
+        "fan_min_orientation_ratio": 0.19850240890557952,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 3.862838999832865e-08,
+        "parent_aspect": 23.94639396943885,
+        "parent_min_angle_degrees": 0.7913606611538762
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.19502099619611782,
+            "aspect": 9.14681439333258,
+            "min_angle": 3.3902816590919653,
+            "orientation": 0.19502099172042145
+          },
+          {
+            "area_ratio": 0.4164689629531875,
+            "aspect": 73.07144701185946,
+            "min_angle": 0.2986448237781733,
+            "orientation": 0.41646879992859026
+          },
+          {
+            "area_ratio": 0.38851034586373456,
+            "aspect": 61.63643831981188,
+            "min_angle": 0.31406552026516854,
+            "orientation": 0.3885102083509883
+          }
+        ],
+        "face_row": 19196,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 73.07144701185946,
+        "fan_min_angle_degrees": 0.2986448237781733,
+        "fan_min_area_ratio": 0.19502099619611782,
+        "fan_min_orientation_ratio": 0.19502099172042145,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 3.862838999832865e-08,
+        "parent_aspect": 30.431989758517904,
+        "parent_min_angle_degrees": 0.612710115982383
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.292031105948627,
+            "aspect": 32.97078691864495,
+            "min_angle": 0.5023633562707239,
+            "orientation": 0.29203097451330695
+          },
+          {
+            "area_ratio": 0.41690712157664284,
+            "aspect": 91.64021254819072,
+            "min_angle": 0.360032710106104,
+            "orientation": 0.41690675626042323
+          },
+          {
+            "area_ratio": 0.2910623990500007,
+            "aspect": 32.64632299894145,
+            "min_angle": 0.5072649908596673,
+            "orientation": 0.29106226922626977
+          }
+        ],
+        "face_row": 19202,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 91.64021254819072,
+        "fan_min_angle_degrees": 0.360032710106104,
+        "fan_min_area_ratio": 0.2910623990500007,
+        "fan_min_orientation_ratio": 0.29106226922626977,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 2.4883227141769616e-08,
+        "parent_aspect": 38.20545723413793,
+        "parent_min_angle_degrees": 0.862395524815154
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.17427278940034804,
+            "aspect": 25.50167908569897,
+            "min_angle": 0.7738583459082644,
+            "orientation": 0.17427278821105277
+          },
+          {
+            "area_ratio": 0.4159458069541783,
+            "aspect": 306.0155334100557,
+            "min_angle": 0.06646914207503174,
+            "orientation": 0.4159452653999142
+          },
+          {
+            "area_ratio": 0.40978246333921475,
+            "aspect": 292.11253474986523,
+            "min_angle": 0.06752662201322009,
+            "orientation": 0.4097819463890331
+          }
+        ],
+        "face_row": 19231,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 306.0155334100557,
+        "fan_min_angle_degrees": 0.06646914207503174,
+        "fan_min_area_ratio": 0.17427278940034804,
+        "fan_min_orientation_ratio": 0.17427278821105277,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 7.121932949030477e-08,
+        "parent_aspect": 127.28587798475893,
+        "parent_min_angle_degrees": 0.1339955923626682
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.17406907604965402,
+            "aspect": 26.936085382257765,
+            "min_angle": 0.7289647698184438,
+            "orientation": 0.17406907594164617
+          },
+          {
+            "area_ratio": 0.4152961685366852,
+            "aspect": 325.41023736368726,
+            "min_angle": 0.06246216194752739,
+            "orientation": 0.4152961163095983
+          },
+          {
+            "area_ratio": 0.41063485751246925,
+            "aspect": 310.0617482820806,
+            "min_angle": 0.06362934744930882,
+            "orientation": 0.4106348077487556
+          }
+        ],
+        "face_row": 19232,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 325.41023736368726,
+        "fan_min_angle_degrees": 0.06246216194752739,
+        "fan_min_area_ratio": 0.17406907604965402,
+        "fan_min_orientation_ratio": 0.17406907594164617,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 7.119903364550552e-08,
+        "parent_aspect": 135.1416247797526,
+        "parent_min_angle_degrees": 0.126091493830086
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.35742490764150325,
+            "aspect": 36.485891967601745,
+            "min_angle": 0.5124333106147353,
+            "orientation": 0.357424905955074
+          },
+          {
+            "area_ratio": 0.22568490329928853,
+            "aspect": 10.399613023076121,
+            "min_angle": 2.181170074742968,
+            "orientation": 0.22568490304359443
+          },
+          {
+            "area_ratio": 0.41689019347807577,
+            "aspect": 53.58434798016558,
+            "min_angle": 0.45666539502631304,
+            "orientation": 0.41689019100133173
+          }
+        ],
+        "face_row": 19234,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 53.58434798016558,
+        "fan_min_angle_degrees": 0.45666539502631304,
+        "fan_min_area_ratio": 0.22568490329928853,
+        "fan_min_orientation_ratio": 0.22568490304359443,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.9083284935993086e-07,
+        "parent_aspect": 22.33878919684777,
+        "parent_min_angle_degrees": 0.9690987005105178
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.16899707952515683,
+            "aspect": 5.488960241748126,
+            "min_angle": 3.061432362058314,
+            "orientation": 0.16899707942405806
+          },
+          {
+            "area_ratio": 0.41498901115537273,
+            "aspect": 76.82211270187743,
+            "min_angle": 0.258752763809709,
+            "orientation": 0.4149885462408105
+          },
+          {
+            "area_ratio": 0.4160148405205888,
+            "aspect": 77.03211440444336,
+            "min_angle": 0.2587190001863753,
+            "orientation": 0.41601437433513144
+          }
+        ],
+        "face_row": 19307,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 77.03211440444336,
+        "fan_min_angle_degrees": 0.2587190001863753,
+        "fan_min_area_ratio": 0.16899707952515683,
+        "fan_min_orientation_ratio": 0.16899707942405806,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 4.634062728823259e-08,
+        "parent_aspect": 32.04650278892825,
+        "parent_min_angle_degrees": 0.5174711842044311
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.16901780149566892,
+            "aspect": 5.4565709711759185,
+            "min_angle": 3.078264280372087,
+            "orientation": 0.16901780149537285
+          },
+          {
+            "area_ratio": 0.4152630041877308,
+            "aspect": 76.3481853697876,
+            "min_angle": 0.2603749059485448,
+            "orientation": 0.4152630028350721
+          },
+          {
+            "area_ratio": 0.41571919702757115,
+            "aspect": 76.65056609119355,
+            "min_angle": 0.2600035138157768,
+            "orientation": 0.4157191956695552
+          }
+        ],
+        "face_row": 19308,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 76.65056609119355,
+        "fan_min_angle_degrees": 0.2600035138157768,
+        "fan_min_area_ratio": 0.16901780149566892,
+        "fan_min_orientation_ratio": 0.16901780149537285,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 4.636276251017218e-08,
+        "parent_aspect": 31.86511178713976,
+        "parent_min_angle_degrees": 0.5203784180645058
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.41361320513779043,
+            "aspect": 71.83210861287243,
+            "min_angle": 0.2761057370448122,
+            "orientation": 0.41361314225725404
+          },
+          {
+            "area_ratio": 0.41633838263443,
+            "aspect": 72.75147152846209,
+            "min_angle": 0.27525794577307405,
+            "orientation": 0.41633831894909984
+          },
+          {
+            "area_ratio": 0.17004853882230458,
+            "aspect": 5.399492467122238,
+            "min_angle": 3.243577573748525,
+            "orientation": 0.1700485387936461
+          }
+        ],
+        "face_row": 19309,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 72.75147152846209,
+        "fan_min_angle_degrees": 0.27525794577307405,
+        "fan_min_area_ratio": 0.17004853882230458,
+        "fan_min_orientation_ratio": 0.1700485387936461,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 2.350019157133735e-08,
+        "parent_aspect": 30.289229990434695,
+        "parent_min_angle_degrees": 0.5513635987414328
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.41351110147470266,
+            "aspect": 71.85013357451986,
+            "min_angle": 0.27603594052232466,
+            "orientation": 0.4135109483213018
+          },
+          {
+            "area_ratio": 0.4164433208919041,
+            "aspect": 72.73340906961177,
+            "min_angle": 0.27532573362240276,
+            "orientation": 0.4164431658557419
+          },
+          {
+            "area_ratio": 0.1700458858927402,
+            "aspect": 5.399492467122238,
+            "min_angle": 3.243577573748525,
+            "orientation": 0.17004588582295635
+          }
+        ],
+        "face_row": 19310,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 72.73340906961177,
+        "fan_min_angle_degrees": 0.27532573362240276,
+        "fan_min_area_ratio": 0.1700458858927402,
+        "fan_min_orientation_ratio": 0.17004588582295635,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 2.350055820386516e-08,
+        "parent_aspect": 30.289342412738463,
+        "parent_min_angle_degrees": 0.5513614694124227
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.413934079606061,
+            "aspect": 71.73714229942011,
+            "min_angle": 0.2764699063596852,
+            "orientation": 0.41393404942450646
+          },
+          {
+            "area_ratio": 0.41601671071242863,
+            "aspect": 72.7684649977043,
+            "min_angle": 0.27519343878223096,
+            "orientation": 0.41601668009697157
+          },
+          {
+            "area_ratio": 0.17004927049230145,
+            "aspect": 5.396514099241279,
+            "min_angle": 3.245445944335495,
+            "orientation": 0.17004927047852192
+          }
+        ],
+        "face_row": 19311,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 72.7684649977043,
+        "fan_min_angle_degrees": 0.27519343878223096,
+        "fan_min_area_ratio": 0.17004927049230145,
+        "fan_min_orientation_ratio": 0.17004927047852192,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 2.351306029538379e-08,
+        "parent_aspect": 30.27289745193744,
+        "parent_min_angle_degrees": 0.5516633047297442
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.17004853882230458,
+            "aspect": 5.399492467122238,
+            "min_angle": 3.243577573748525,
+            "orientation": 0.1700485387936461
+          },
+          {
+            "area_ratio": 0.41361320513779043,
+            "aspect": 71.83210861287243,
+            "min_angle": 0.2761057370448122,
+            "orientation": 0.41361314225725404
+          },
+          {
+            "area_ratio": 0.41633838263443,
+            "aspect": 72.75147152846209,
+            "min_angle": 0.27525794577307405,
+            "orientation": 0.41633831894909984
+          }
+        ],
+        "face_row": 19312,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 72.75147152846209,
+        "fan_min_angle_degrees": 0.27525794577307405,
+        "fan_min_area_ratio": 0.17004853882230458,
+        "fan_min_orientation_ratio": 0.1700485387936461,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 2.350019157133735e-08,
+        "parent_aspect": 30.289229990434695,
+        "parent_min_angle_degrees": 0.5513635987414328
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.16887606566757435,
+            "aspect": 10.70559651339782,
+            "min_angle": 1.6157832615310466,
+            "orientation": 0.16887606566491248
+          },
+          {
+            "area_ratio": 0.4179257019997035,
+            "aspect": 146.16772969050612,
+            "min_angle": 0.13666623044572468,
+            "orientation": 0.41792568838731525
+          },
+          {
+            "area_ratio": 0.41319825950966876,
+            "aspect": 145.62555650465325,
+            "min_angle": 0.13614379921279965,
+            "orientation": 0.41319824594777227
+          }
+        ],
+        "face_row": 19352,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 146.16772969050612,
+        "fan_min_angle_degrees": 0.13614379921279965,
+        "fan_min_area_ratio": 0.16887606566757435,
+        "fan_min_orientation_ratio": 0.16887606566491248,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.6777937970754735e-08,
+        "parent_aspect": 61.08725104060769,
+        "parent_min_angle_degrees": 0.2728100207338148
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.16887606566757435,
+            "aspect": 10.70559651339782,
+            "min_angle": 1.6157832615310466,
+            "orientation": 0.16887606566491248
+          },
+          {
+            "area_ratio": 0.4179257019997035,
+            "aspect": 146.16772969050612,
+            "min_angle": 0.13666623044572468,
+            "orientation": 0.41792568838731525
+          },
+          {
+            "area_ratio": 0.41319825950966876,
+            "aspect": 145.62555650465325,
+            "min_angle": 0.13614379921279965,
+            "orientation": 0.41319824594777227
+          }
+        ],
+        "face_row": 19353,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 146.16772969050612,
+        "fan_min_angle_degrees": 0.13614379921279965,
+        "fan_min_area_ratio": 0.16887606566757435,
+        "fan_min_orientation_ratio": 0.16887606566491248,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.6777937970754735e-08,
+        "parent_aspect": 61.08725104060769,
+        "parent_min_angle_degrees": 0.2728100207338148
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.16888978279504516,
+            "aspect": 10.704284580821552,
+            "min_angle": 1.6159809037258894,
+            "orientation": 0.16888978279414843
+          },
+          {
+            "area_ratio": 0.41584861101131676,
+            "aspect": 146.89510875575857,
+            "min_angle": 0.13598919860000186,
+            "orientation": 0.41584860640247484
+          },
+          {
+            "area_ratio": 0.4152616153495988,
+            "aspect": 144.8992618942313,
+            "min_angle": 0.13682588545061988,
+            "orientation": 0.41526161080337676
+          }
+        ],
+        "face_row": 19354,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 146.89510875575857,
+        "fan_min_angle_degrees": 0.13598919860000186,
+        "fan_min_area_ratio": 0.16888978279504516,
+        "fan_min_orientation_ratio": 0.16888978279414843,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.6777604989469957e-08,
+        "parent_aspect": 61.08612694043851,
+        "parent_min_angle_degrees": 0.2728150810459532
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.41319825950966876,
+            "aspect": 145.62555650465325,
+            "min_angle": 0.13614379921279965,
+            "orientation": 0.41319824594777227
+          },
+          {
+            "area_ratio": 0.16887606566757435,
+            "aspect": 10.70559651339782,
+            "min_angle": 1.6157832615310466,
+            "orientation": 0.16887606566491248
+          },
+          {
+            "area_ratio": 0.4179257019997035,
+            "aspect": 146.16772969050612,
+            "min_angle": 0.13666623044572468,
+            "orientation": 0.41792568838731525
+          }
+        ],
+        "face_row": 19355,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 146.16772969050612,
+        "fan_min_angle_degrees": 0.13614379921279965,
+        "fan_min_area_ratio": 0.16887606566757435,
+        "fan_min_orientation_ratio": 0.16887606566491248,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.6777937970754735e-08,
+        "parent_aspect": 61.08725104060769,
+        "parent_min_angle_degrees": 0.2728100207338148
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.1711653692142195,
+            "aspect": 8.561017923308672,
+            "min_angle": 2.135140666514179,
+            "orientation": 0.1711653692126134
+          },
+          {
+            "area_ratio": 0.41717903488162617,
+            "aspect": 110.5461673031361,
+            "min_angle": 0.1820701616653092,
+            "orientation": 0.4171790328620735
+          },
+          {
+            "area_ratio": 0.4116555999032731,
+            "aspect": 108.2694705129962,
+            "min_angle": 0.18275253007033848,
+            "orientation": 0.4116555979253131
+          }
+        ],
+        "face_row": 19359,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 110.5461673031361,
+        "fan_min_angle_degrees": 0.1820701616653092,
+        "fan_min_area_ratio": 0.1711653692142195,
+        "fan_min_orientation_ratio": 0.1711653692126134,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 5.381959989624209e-09,
+        "parent_aspect": 46.11754338538509,
+        "parent_min_angle_degrees": 0.36482268997348855
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.17114543224915044,
+            "aspect": 8.838529259949981,
+            "min_angle": 2.0651440502314893,
+            "orientation": 0.17114542719788936
+          },
+          {
+            "area_ratio": 0.41467858900223836,
+            "aspect": 115.01787082274154,
+            "min_angle": 0.17495669577280099,
+            "orientation": 0.41467198110777914
+          },
+          {
+            "area_ratio": 0.4141889885313213,
+            "aspect": 111.34420436649935,
+            "min_angle": 0.17771451945249767,
+            "orientation": 0.4141825916943315
+          }
+        ],
+        "face_row": 19360,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 115.01787082274154,
+        "fan_min_angle_degrees": 0.17495669577280099,
+        "fan_min_area_ratio": 0.17114543224915044,
+        "fan_min_orientation_ratio": 0.17114542719788936,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 5.381959989624209e-09,
+        "parent_aspect": 47.69544838281618,
+        "parent_min_angle_degrees": 0.3526656826640886
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.24259138899640761,
+            "aspect": 19.896905869781442,
+            "min_angle": 1.0098635046444242,
+            "orientation": 0.24259138543152794
+          },
+          {
+            "area_ratio": 0.3405306155352028,
+            "aspect": 50.36997766689158,
+            "min_angle": 0.36243005726463784,
+            "orientation": 0.34053060221783016
+          },
+          {
+            "area_ratio": 0.41687803479747176,
+            "aspect": 84.90010240710427,
+            "min_angle": 0.30887418450450693,
+            "orientation": 0.41687801235064204
+          }
+        ],
+        "face_row": 19364,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 84.90010240710427,
+        "fan_min_angle_degrees": 0.30887418450450693,
+        "fan_min_area_ratio": 0.24259138899640761,
+        "fan_min_orientation_ratio": 0.24259138543152794,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 6.052059954819236e-08,
+        "parent_aspect": 35.39298784557773,
+        "parent_min_angle_degrees": 0.6713042109636371
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.4168423082462289,
+            "aspect": 58.70930701310059,
+            "min_angle": 0.5337794210040641,
+            "orientation": 0.41684219263009764
+          },
+          {
+            "area_ratio": 0.2811738891845187,
+            "aspect": 19.41085464358975,
+            "min_angle": 0.8777243204652693,
+            "orientation": 0.28117385315582494
+          },
+          {
+            "area_ratio": 0.3019840010620611,
+            "aspect": 23.7891787724733,
+            "min_angle": 0.7137343517146107,
+            "orientation": 0.30198395421407753
+          }
+        ],
+        "face_row": 19380,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 58.70930701310059,
+        "fan_min_angle_degrees": 0.5337794210040641,
+        "fan_min_area_ratio": 0.2811738891845187,
+        "fan_min_orientation_ratio": 0.28117385315582494,
+        "intrinsic_angle_failure_for_any_interior_fan": false,
+        "parent_area_m2": 4.241821579686254e-08,
+        "parent_aspect": 24.47252305087737,
+        "parent_min_angle_degrees": 1.2475135139640174
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.291231617058937,
+            "aspect": 42.465119271929574,
+            "min_angle": 0.38959821183859755,
+            "orientation": 0.2912311700100092
+          },
+          {
+            "area_ratio": 0.2914779897014011,
+            "aspect": 42.571649233665035,
+            "min_angle": 0.38866668379782976,
+            "orientation": 0.2914775412957479
+          },
+          {
+            "area_ratio": 0.4172925389426416,
+            "aspect": 118.69854250121104,
+            "min_angle": 0.27850350539766766,
+            "orientation": 0.4172912886942429
+          }
+        ],
+        "face_row": 19413,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 118.69854250121104,
+        "fan_min_angle_degrees": 0.27850350539766766,
+        "fan_min_area_ratio": 0.291231617058937,
+        "fan_min_orientation_ratio": 0.2912311700100092,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.514902457615321e-08,
+        "parent_aspect": 49.532016169121405,
+        "parent_min_angle_degrees": 0.6671687568837108
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.41535278601311443,
+            "aspect": 59.42493927707172,
+            "min_angle": 0.3350221089184827,
+            "orientation": 0.4153525600086134
+          },
+          {
+            "area_ratio": 0.16957076846487668,
+            "aspect": 4.216455013745925,
+            "min_angle": 3.9468257873839687,
+            "orientation": 0.16957076838876356
+          },
+          {
+            "area_ratio": 0.41507689816794063,
+            "aspect": 59.57239864932436,
+            "min_angle": 0.33449606068727544,
+            "orientation": 0.415076671602623
+          }
+        ],
+        "face_row": 19414,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 59.57239864932436,
+        "fan_min_angle_degrees": 0.33449606068727544,
+        "fan_min_area_ratio": 0.16957076846487668,
+        "fan_min_orientation_ratio": 0.16957076838876356,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 7.586804629596479e-09,
+        "parent_aspect": 24.727126447785572,
+        "parent_min_angle_degrees": 0.6695178047388319
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.4149547049808423,
+            "aspect": 59.826630094268175,
+            "min_angle": 0.3327530504729341,
+            "orientation": 0.4149532951520702
+          },
+          {
+            "area_ratio": 0.16956492459162698,
+            "aspect": 4.243755444720042,
+            "min_angle": 3.92381770097368,
+            "orientation": 0.1695649241220436
+          },
+          {
+            "area_ratio": 0.41548319161201563,
+            "aspect": 59.871499513003705,
+            "min_angle": 0.3328400911978522,
+            "orientation": 0.41548178072588626
+          }
+        ],
+        "face_row": 19415,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 59.871499513003705,
+        "fan_min_angle_degrees": 0.3327530504729341,
+        "fan_min_area_ratio": 0.16956492459162698,
+        "fan_min_orientation_ratio": 0.1695649241220436,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 7.556789353610519e-09,
+        "parent_aspect": 24.875601704260024,
+        "parent_min_angle_degrees": 0.6655908809277883
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.16807053384777967,
+            "aspect": 8.658128798329894,
+            "min_angle": 1.9133517297718503,
+            "orientation": 0.1680705338398478
+          },
+          {
+            "area_ratio": 0.4169235310172591,
+            "aspect": 123.38237692832506,
+            "min_angle": 0.16115570261564224,
+            "orientation": 0.41692342968475066
+          },
+          {
+            "area_ratio": 0.4150061382283584,
+            "aspect": 123.89431450104023,
+            "min_angle": 0.16045217451835755,
+            "orientation": 0.4150060364754015
+          }
+        ],
+        "face_row": 19417,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 123.89431450104023,
+        "fan_min_angle_degrees": 0.16045217451835755,
+        "fan_min_area_ratio": 0.16807053384777967,
+        "fan_min_orientation_ratio": 0.1680705338398478,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.573053500942115e-08,
+        "parent_aspect": 51.44101625425968,
+        "parent_min_angle_degrees": 0.32160779862815825
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.16807569098831698,
+            "aspect": 8.624559386113534,
+            "min_angle": 1.9209974325258294,
+            "orientation": 0.16807569065131475
+          },
+          {
+            "area_ratio": 0.41688757319349934,
+            "aspect": 122.90015466602776,
+            "min_angle": 0.16179042392088125,
+            "orientation": 0.41688330280215385
+          },
+          {
+            "area_ratio": 0.41504529373558413,
+            "aspect": 123.38358065757696,
+            "min_angle": 0.16111597734185926,
+            "orientation": 0.4150410065465314
+          }
+        ],
+        "face_row": 19418,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 123.38358065757696,
+        "fan_min_angle_degrees": 0.16111597734185926,
+        "fan_min_area_ratio": 0.16807569098831698,
+        "fan_min_orientation_ratio": 0.16807569065131475,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.5794159800149826e-08,
+        "parent_aspect": 51.23554722382603,
+        "parent_min_angle_degrees": 0.3229030797440479
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.16806808267742146,
+            "aspect": 8.658128798329894,
+            "min_angle": 1.9133517297718503,
+            "orientation": 0.16806808262463452
+          },
+          {
+            "area_ratio": 0.4165351297622739,
+            "aspect": 123.49936990176225,
+            "min_angle": 0.16100255028621177,
+            "orientation": 0.41653445475021095
+          },
+          {
+            "area_ratio": 0.4153981391674008,
+            "aspect": 123.77932984707535,
+            "min_angle": 0.16060073029398608,
+            "orientation": 0.41539746262515453
+          }
+        ],
+        "face_row": 19419,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 123.77932984707535,
+        "fan_min_angle_degrees": 0.16060073029398608,
+        "fan_min_area_ratio": 0.16806808267742146,
+        "fan_min_orientation_ratio": 0.16806808262463452,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.5730764429668707e-08,
+        "parent_aspect": 51.44182606758961,
+        "parent_min_angle_degrees": 0.3216027581067492
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.4150061382283584,
+            "aspect": 123.89431450104023,
+            "min_angle": 0.16045217451835755,
+            "orientation": 0.4150060364754015
+          },
+          {
+            "area_ratio": 0.16807053384777967,
+            "aspect": 8.658128798329894,
+            "min_angle": 1.9133517297718503,
+            "orientation": 0.1680705338398478
+          },
+          {
+            "area_ratio": 0.4169235310172591,
+            "aspect": 123.38237692832506,
+            "min_angle": 0.16115570261564224,
+            "orientation": 0.41692342968475066
+          }
+        ],
+        "face_row": 19420,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 123.89431450104023,
+        "fan_min_angle_degrees": 0.16045217451835755,
+        "fan_min_area_ratio": 0.16807053384777967,
+        "fan_min_orientation_ratio": 0.1680705338398478,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.573053500942115e-08,
+        "parent_aspect": 51.44101625425968,
+        "parent_min_angle_degrees": 0.32160779862815825
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.19196946027630923,
+            "aspect": 11.325622576136082,
+            "min_angle": 2.5686833747367857,
+            "orientation": 0.19196945496167617
+          },
+          {
+            "area_ratio": 0.3913584870774006,
+            "aspect": 81.95466446908937,
+            "min_angle": 0.23688220663542808,
+            "orientation": 0.3913582815723073
+          },
+          {
+            "area_ratio": 0.416672502275326,
+            "aspect": 95.23625928116981,
+            "min_angle": 0.22673995306143926,
+            "orientation": 0.4166722634660166
+          }
+        ],
+        "face_row": 19433,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 95.23625928116981,
+        "fan_min_angle_degrees": 0.22673995306143926,
+        "fan_min_area_ratio": 0.19196946027630923,
+        "fan_min_orientation_ratio": 0.19196945496167617,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 2.7553441681043934e-08,
+        "parent_aspect": 39.68233046202676,
+        "parent_min_angle_degrees": 0.4636219053596216
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.4189382424623305,
+            "aspect": 115.36741217984385,
+            "min_angle": 0.1812833226850983,
+            "orientation": 0.4189376427792542
+          },
+          {
+            "area_ratio": 0.3985638526382966,
+            "aspect": 106.3268437293172,
+            "min_angle": 0.1841840173261446,
+            "orientation": 0.3985632999483635
+          },
+          {
+            "area_ratio": 0.18249906289601794,
+            "aspect": 11.58737097850057,
+            "min_angle": 2.0515928170437525,
+            "orientation": 0.18249905727238233
+          }
+        ],
+        "face_row": 19455,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 115.36741217984385,
+        "fan_min_angle_degrees": 0.1812833226850983,
+        "fan_min_area_ratio": 0.18249906289601794,
+        "fan_min_orientation_ratio": 0.18249905727238233,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 4.9824449506839096e-09,
+        "parent_aspect": 48.33182089605105,
+        "parent_min_angle_degrees": 0.3654668251146033
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.2966822266743851,
+            "aspect": 162.50420387258455,
+            "min_angle": 0.10287169307190633,
+            "orientation": 0.29668219539937773
+          },
+          {
+            "area_ratio": 0.4149108108766819,
+            "aspect": 435.6959062303625,
+            "min_angle": 0.07429643015700403,
+            "orientation": 0.4149107270241229
+          },
+          {
+            "area_ratio": 0.2884071057861905,
+            "aspect": 149.91170783477077,
+            "min_angle": 0.11157881686809452,
+            "orientation": 0.28840707757649936
+          }
+        ],
+        "face_row": 19456,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 435.6959062303625,
+        "fan_min_angle_degrees": 0.07429643015700403,
+        "fan_min_area_ratio": 0.2884071057861905,
+        "fan_min_orientation_ratio": 0.28840707757649936,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 4.994728328617271e-09,
+        "parent_aspect": 180.77494174969047,
+        "parent_min_angle_degrees": 0.17716809736164046
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.4165427264496506,
+            "aspect": 50.57177461247469,
+            "min_angle": 0.4099643744625085,
+            "orientation": 0.416542721828836
+          },
+          {
+            "area_ratio": 0.1802739613923128,
+            "aspect": 4.78332889787237,
+            "min_angle": 4.678089879967571,
+            "orientation": 0.18027396136060664
+          },
+          {
+            "area_ratio": 0.4031833210950777,
+            "aspect": 46.891253018949826,
+            "min_angle": 0.41886682069979764,
+            "orientation": 0.40318331681055747
+          }
+        ],
+        "face_row": 19466,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 50.57177461247469,
+        "fan_min_angle_degrees": 0.4099643744625085,
+        "fan_min_area_ratio": 0.1802739613923128,
+        "fan_min_orientation_ratio": 0.18027396136060664,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.8796324750916783e-07,
+        "parent_aspect": 21.06530487847743,
+        "parent_min_angle_degrees": 0.8288311861652159
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.41524904272637786,
+            "aspect": 48.05209907945603,
+            "min_angle": 0.4167517825388824,
+            "orientation": 0.41524899024509865
+          },
+          {
+            "area_ratio": 0.4139743052666928,
+            "aspect": 47.44483772819534,
+            "min_angle": 0.418766155902739,
+            "orientation": 0.413974253448649
+          },
+          {
+            "area_ratio": 0.17077675634106892,
+            "aspect": 3.545191782917319,
+            "min_angle": 4.891816746785127,
+            "orientation": 0.17077675630625236
+          }
+        ],
+        "face_row": 19474,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 48.05209907945603,
+        "fan_min_angle_degrees": 0.4167517825388824,
+        "fan_min_area_ratio": 0.17077675634106892,
+        "fan_min_orientation_ratio": 0.17077675630625236,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 7.804469712075783e-08,
+        "parent_aspect": 19.953588143737175,
+        "parent_min_angle_degrees": 0.8355178333551913
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.4010565107348433,
+            "aspect": 38.60086632630435,
+            "min_angle": 0.5078635340385339,
+            "orientation": 0.4010565107341416
+          },
+          {
+            "area_ratio": 0.18267564062998476,
+            "aspect": 4.188425176320413,
+            "min_angle": 5.618552797111947,
+            "orientation": 0.18267564062997757
+          },
+          {
+            "area_ratio": 0.4162678486366488,
+            "aspect": 42.251345183852564,
+            "min_angle": 0.494548217092024,
+            "orientation": 0.41626784863588084
+          }
+        ],
+        "face_row": 19498,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 42.251345183852564,
+        "fan_min_angle_degrees": 0.494548217092024,
+        "fan_min_area_ratio": 0.18267564062998476,
+        "fan_min_orientation_ratio": 0.18267564062997757,
+        "intrinsic_angle_failure_for_any_interior_fan": false,
+        "parent_area_m2": 3.5665964659776365e-07,
+        "parent_aspect": 17.58787656168674,
+        "parent_min_angle_degrees": 1.0024117511268213
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.1906832542709864,
+            "aspect": 8.407574199445419,
+            "min_angle": 3.360562433389594,
+            "orientation": 0.19068325424365623
+          },
+          {
+            "area_ratio": 0.41652820688469927,
+            "aspect": 72.42387174841679,
+            "min_angle": 0.2967806460079717,
+            "orientation": 0.41652820552882114
+          },
+          {
+            "area_ratio": 0.39278854140375374,
+            "aspect": 62.82807158761749,
+            "min_angle": 0.3094261014931703,
+            "orientation": 0.3927885402275227
+          }
+        ],
+        "face_row": 19499,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 72.42387174841679,
+        "fan_min_angle_degrees": 0.2967806460079717,
+        "fan_min_area_ratio": 0.1906832542709864,
+        "fan_min_orientation_ratio": 0.19068325424365623,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 5.8114552261796904e-08,
+        "parent_aspect": 30.166585435015474,
+        "parent_min_angle_degrees": 0.6062067456061244
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.4164348867396955,
+            "aspect": 48.850632695233664,
+            "min_angle": 0.45029929029608656,
+            "orientation": 0.4164348861695403
+          },
+          {
+            "area_ratio": 0.19734792128250547,
+            "aspect": 6.349447063121279,
+            "min_angle": 5.118401330567697,
+            "orientation": 0.19734792126438302
+          },
+          {
+            "area_ratio": 0.3862171930402117,
+            "aspect": 40.623667876643836,
+            "min_angle": 0.4755427410282838,
+            "orientation": 0.3862171925660767
+          }
+        ],
+        "face_row": 19663,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 48.850632695233664,
+        "fan_min_angle_degrees": 0.45029929029608656,
+        "fan_min_area_ratio": 0.19734792128250547,
+        "fan_min_orientation_ratio": 0.19734792126438302,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 6.377918954732858e-07,
+        "parent_aspect": 20.343107693602093,
+        "parent_min_angle_degrees": 0.9258420301236648
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.17801204120451025,
+            "aspect": 4.212735232136546,
+            "min_angle": 5.030335067502325,
+            "orientation": 0.1780120412040073
+          },
+          {
+            "area_ratio": 0.405614403370732,
+            "aspect": 44.089294682935794,
+            "min_angle": 0.4465387287231627,
+            "orientation": 0.4056144032728245
+          },
+          {
+            "area_ratio": 0.4163735556272787,
+            "aspect": 46.88255401610415,
+            "min_angle": 0.43873755333750125,
+            "orientation": 0.4163735555231683
+          }
+        ],
+        "face_row": 19686,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 46.88255401610415,
+        "fan_min_angle_degrees": 0.43873755333750125,
+        "fan_min_area_ratio": 0.17801204120451025,
+        "fan_min_orientation_ratio": 0.1780120412040073,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 7.946948515757809e-07,
+        "parent_aspect": 19.52065571257324,
+        "parent_min_angle_degrees": 0.8852762818446884
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.17851854667636186,
+            "aspect": 3.8976868826400017,
+            "min_angle": 5.48739995491793,
+            "orientation": 0.1785185466538068
+          },
+          {
+            "area_ratio": 0.40513459196821633,
+            "aspect": 40.31127582705975,
+            "min_angle": 0.48827354499660575,
+            "orientation": 0.40513458794266155
+          },
+          {
+            "area_ratio": 0.4163468696941551,
+            "aspect": 42.96563066597748,
+            "min_angle": 0.47945038444717536,
+            "orientation": 0.4163468654035317
+          }
+        ],
+        "face_row": 19687,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 42.96563066597748,
+        "fan_min_angle_degrees": 0.47945038444717536,
+        "fan_min_area_ratio": 0.17851854667636186,
+        "fan_min_orientation_ratio": 0.1785185466538068,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 7.944570520661629e-07,
+        "parent_aspect": 17.88860583221492,
+        "parent_min_angle_degrees": 0.9677239196517216
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.2250521276444814,
+            "aspect": 13.56853074683271,
+            "min_angle": 1.682574102975218,
+            "orientation": 0.2250521264712714
+          },
+          {
+            "area_ratio": 0.4165668638156029,
+            "aspect": 70.58473632377745,
+            "min_angle": 0.34573074806483284,
+            "orientation": 0.41656685219097883
+          },
+          {
+            "area_ratio": 0.35838102928179233,
+            "aspect": 48.23623987435944,
+            "min_angle": 0.38791583610682934,
+            "orientation": 0.3583810213377498
+          }
+        ],
+        "face_row": 19742,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 70.58473632377745,
+        "fan_min_angle_degrees": 0.34573074806483284,
+        "fan_min_area_ratio": 0.2250521276444814,
+        "fan_min_orientation_ratio": 0.2250521264712714,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.3805319452270667e-07,
+        "parent_aspect": 29.403262243647237,
+        "parent_min_angle_degrees": 0.7336465659229136
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.41622409864227444,
+            "aspect": 42.06924490224366,
+            "min_angle": 0.48628481128102474,
+            "orientation": 0.41622405144476127
+          },
+          {
+            "area_ratio": 0.1765443983013432,
+            "aspect": 3.642920769647805,
+            "min_angle": 5.592782065144669,
+            "orientation": 0.17654439812694042
+          },
+          {
+            "area_ratio": 0.4072315952709906,
+            "aspect": 39.97028835384774,
+            "min_angle": 0.4934710734371843,
+            "orientation": 0.4072315504282982
+          }
+        ],
+        "face_row": 19792,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 42.06924490224366,
+        "fan_min_angle_degrees": 0.48628481128102474,
+        "fan_min_area_ratio": 0.1765443983013432,
+        "fan_min_orientation_ratio": 0.17654439812694042,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 8.481069302935437e-08,
+        "parent_aspect": 17.510233539997472,
+        "parent_min_angle_degrees": 0.9797557752423416
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.41637873795912483,
+            "aspect": 54.03199458616135,
+            "min_angle": 0.38074449035236024,
+            "orientation": 0.4163786973469819
+          },
+          {
+            "area_ratio": 0.40565433192234024,
+            "aspect": 50.76262107082814,
+            "min_angle": 0.3877225079456089,
+            "orientation": 0.40565429376756107
+          },
+          {
+            "area_ratio": 0.17796700907987525,
+            "aspect": 4.861364710184741,
+            "min_angle": 4.369684242360194,
+            "orientation": 0.177967008885457
+          }
+        ],
+        "face_row": 19820,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 54.03199458616135,
+        "fan_min_angle_degrees": 0.38074449035236024,
+        "fan_min_area_ratio": 0.17796700907987525,
+        "fan_min_orientation_ratio": 0.177967008885457,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 7.047155364922165e-08,
+        "parent_aspect": 22.49777371520013,
+        "parent_min_angle_degrees": 0.7684669246953448
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.1766602112453498,
+            "aspect": 4.005153498245863,
+            "min_angle": 5.119640523687499,
+            "orientation": 0.1766602111678529
+          },
+          {
+            "area_ratio": 0.4069020816046769,
+            "aspect": 43.64618811733244,
+            "min_angle": 0.4517072710196525,
+            "orientation": 0.4069020621558897
+          },
+          {
+            "area_ratio": 0.4164377471676867,
+            "aspect": 45.98604328617306,
+            "min_angle": 0.4451918231969479,
+            "orientation": 0.41643772667625756
+          }
+        ],
+        "face_row": 19852,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 45.98604328617306,
+        "fan_min_angle_degrees": 0.4451918231969479,
+        "fan_min_area_ratio": 0.1766602112453498,
+        "fan_min_orientation_ratio": 0.1766602111678529,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.7652863625192426e-07,
+        "parent_aspect": 19.150324267249633,
+        "parent_min_angle_degrees": 0.8968990507226714
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.17704964563272851,
+            "aspect": 3.7408987961029005,
+            "min_angle": 5.517205852410972,
+            "orientation": 0.17704964555406766
+          },
+          {
+            "area_ratio": 0.4068399843509729,
+            "aspect": 40.392357688777885,
+            "min_angle": 0.48803019093205185,
+            "orientation": 0.406839966044874
+          },
+          {
+            "area_ratio": 0.41611040774726593,
+            "aspect": 42.68735474046505,
+            "min_angle": 0.48010803618258174,
+            "orientation": 0.41611038840105824
+          }
+        ],
+        "face_row": 19853,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 42.68735474046505,
+        "fan_min_angle_degrees": 0.48010803618258174,
+        "fan_min_area_ratio": 0.17704964563272851,
+        "fan_min_orientation_ratio": 0.17704964555406766,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.7649953933864022e-07,
+        "parent_aspect": 17.762652586707098,
+        "parent_min_angle_degrees": 0.9681381828367328
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.1679250680921485,
+            "aspect": 13.49467151908017,
+            "min_angle": 1.251619184057392,
+            "orientation": 0.16792506804862978
+          },
+          {
+            "area_ratio": 0.4149477267933977,
+            "aspect": 188.98982898701743,
+            "min_angle": 0.10499582027420458,
+            "orientation": 0.41494704528244203
+          },
+          {
+            "area_ratio": 0.41712856938796844,
+            "aspect": 189.32484348841146,
+            "min_angle": 0.10517819113599065,
+            "orientation": 0.4171278866689282
+          }
+        ],
+        "face_row": 19868,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 189.32484348841146,
+        "fan_min_angle_degrees": 0.10499582027420458,
+        "fan_min_area_ratio": 0.1679250680921485,
+        "fan_min_orientation_ratio": 0.16792506804862978,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 3.672728848339652e-08,
+        "parent_aspect": 78.97280111392212,
+        "parent_min_angle_degrees": 0.21017366681295335
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.1679290184647986,
+            "aspect": 13.392116646356847,
+            "min_angle": 1.2610970221463345,
+            "orientation": 0.16792901842164273
+          },
+          {
+            "area_ratio": 0.41462746542279383,
+            "aspect": 187.70990763005045,
+            "min_angle": 0.10571315070784353,
+            "orientation": 0.41462679179702033
+          },
+          {
+            "area_ratio": 0.4174448635501331,
+            "aspect": 187.7497627784163,
+            "min_angle": 0.10606044510058597,
+            "orientation": 0.4174441897813369
+          }
+        ],
+        "face_row": 19869,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 187.7497627784163,
+        "fan_min_angle_degrees": 0.10571315070784353,
+        "fan_min_area_ratio": 0.1679290184647986,
+        "fan_min_orientation_ratio": 0.16792901842164273,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 3.67487160007782e-08,
+        "parent_aspect": 78.37517410460585,
+        "parent_min_angle_degrees": 0.21177325287300539
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.41522882349027446,
+            "aspect": 211.4173325899968,
+            "min_angle": 0.09376355683078094,
+            "orientation": 0.4152194114878916
+          },
+          {
+            "area_ratio": 0.4161393897579481,
+            "aspect": 214.03418280912146,
+            "min_angle": 0.09329072394630765,
+            "orientation": 0.4161298612559754
+          },
+          {
+            "area_ratio": 0.16865072873045842,
+            "aspect": 15.562714717450541,
+            "min_angle": 1.1095173916551522,
+            "orientation": 0.16865072725613303
+          }
+        ],
+        "face_row": 19870,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 214.03418280912146,
+        "fan_min_angle_degrees": 0.09329072394630765,
+        "fan_min_area_ratio": 0.16865072873045842,
+        "fan_min_orientation_ratio": 0.16865072725613303,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.3326039976108993e-08,
+        "parent_aspect": 89.06805422152891,
+        "parent_min_angle_degrees": 0.18705001933570362
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.413947330871447,
+            "aspect": 211.54196733371487,
+            "min_angle": 0.093708484626884,
+            "orientation": 0.4139421045026113
+          },
+          {
+            "area_ratio": 0.4174178603937839,
+            "aspect": 212.84789369635303,
+            "min_angle": 0.09381136968732576,
+            "orientation": 0.41741260176072414
+          },
+          {
+            "area_ratio": 0.1686452945545885,
+            "aspect": 15.525632319622257,
+            "min_angle": 1.1122042264753822,
+            "orientation": 0.16864529373666454
+          }
+        ],
+        "face_row": 19871,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 212.84789369635303,
+        "fan_min_angle_degrees": 0.093708484626884,
+        "fan_min_area_ratio": 0.1686452945545885,
+        "fan_min_orientation_ratio": 0.16864529373666454,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.335917493032515e-08,
+        "parent_aspect": 88.84651237605524,
+        "parent_min_angle_degrees": 0.18751748935208054
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.4144366568455341,
+            "aspect": 211.62643748717394,
+            "min_angle": 0.09367101561148007,
+            "orientation": 0.41443622750475273
+          },
+          {
+            "area_ratio": 0.41692408442621653,
+            "aspect": 213.42869992020312,
+            "min_angle": 0.09355417872388327,
+            "orientation": 0.4169236514290636
+          },
+          {
+            "area_ratio": 0.16864012113311835,
+            "aspect": 15.547004002696136,
+            "min_angle": 1.1105481850331906,
+            "orientation": 0.16864012106618367
+          }
+        ],
+        "face_row": 19872,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 213.42869992020312,
+        "fan_min_angle_degrees": 0.09355417872388327,
+        "fan_min_area_ratio": 0.16864012113311835,
+        "fan_min_orientation_ratio": 0.16864012106618367,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.3338170554851585e-08,
+        "parent_aspect": 88.98356530450839,
+        "parent_min_angle_degrees": 0.18722500012772583
+      },
+      {
+        "children": [
+          {
+            "area_ratio": 0.1686542454000924,
+            "aspect": 15.525272738824352,
+            "min_angle": 1.112228568490689,
+            "orientation": 0.16865424493356962
+          },
+          {
+            "area_ratio": 0.4147696205408579,
+            "aspect": 211.1218083125254,
+            "min_angle": 0.09389531020129484,
+            "orientation": 0.41476664529324586
+          },
+          {
+            "area_ratio": 0.41658211535233974,
+            "aspect": 213.27411221753016,
+            "min_angle": 0.09362422114304475,
+            "orientation": 0.4165791097731845
+          }
+        ],
+        "face_row": 19873,
+        "fan_gate_pass": false,
+        "fan_max_aspect": 213.27411221753016,
+        "fan_min_angle_degrees": 0.09362422114304475,
+        "fan_min_area_ratio": 0.1686542454000924,
+        "fan_min_orientation_ratio": 0.16865424493356962,
+        "intrinsic_angle_failure_for_any_interior_fan": true,
+        "parent_area_m2": 1.3359318771268296e-08,
+        "parent_aspect": 88.846180817471,
+        "parent_min_angle_degrees": 0.18751818232823983
+      }
+    ],
+    "bad_faces_intrinsic_angle_proof": 47,
+    "bad_faces_nonintrinsic_for_this_center_only": 2,
+    "crossing_faces_excluded_unresolved": 16,
+    "crossing_faces_fan_good_targetable_by_face": 167,
+    "crossing_pair_count_on_excluded_faces": 16,
+    "excluded_exact_source_bone_pairs": [
+      [
+        19309,
+        135
+      ],
+      [
+        19310,
+        145
+      ],
+      [
+        19311,
+        135
+      ],
+      [
+        19312,
+        135
+      ],
+      [
+        19352,
+        144
+      ],
+      [
+        19353,
+        144
+      ],
+      [
+        19354,
+        130
+      ],
+      [
+        19355,
+        144
+      ],
+      [
+        19417,
+        144
+      ],
+      [
+        19418,
+        144
+      ],
+      [
+        19419,
+        135
+      ],
+      [
+        19420,
+        144
+      ],
+      [
+        19870,
+        130
+      ],
+      [
+        19871,
+        245
+      ],
+      [
+        19872,
+        130
+      ],
+      [
+        19873,
+        130
+      ]
+    ],
+    "fan_bad_excluded_faces": 49,
+    "half_incenter_half_centroid_fan_good_faces": 385,
+    "inside_nodes_frozen_by_bad_face_or_boundary": 8,
+    "inside_nodes_frozen_ids": [
+      20895,
+      20899,
+      20900,
+      20902,
+      20928,
+      20931,
+      21022,
+      21025
+    ],
+    "inside_nodes_not_frozen": 35,
+    "intrinsic_angle_rule": "For any interior center, the two child angles at each original corner partition that source corner angle; if the parent minimum angle is <1 degree, at least one child is <0.5 degree.",
+    "minimum_unresolved_pair_count_lower_bound": 16,
+    "targetable_exact_source_bone_pairs": 233
+  },
+  "limitations": [
+    "This is shape/topology accounting only; no target-bone point location, exact collision test, solver, or candidate emission occurred.",
+    "Crossing pairs are not attributed to individual skin faces in the retained compact witness, so feasible exact pair count remains unknown.",
+    "All inside nodes touching an excluded face are frozen and remain unresolved; these are not claimed cleared.",
+    "The one-edge-ring selective LP remains only a plan; exact witness-to-child barycentric mapping, point-location planes, sparse feasibility and exact emitted checks are unimplemented/unrun.",
+    "The 0.5 mm trust region and old-face linearization are proposed bounds, not achieved results."
+  ],
+  "parent_patch": {
+    "crossing_faces": 183,
+    "exact_pairs_total": 249,
+    "faces": 434,
+    "fixed_boundary_nodes": 54,
+    "inside_nodes": 43
+  },
+  "quality_gates": {
+    "all_selected_fan_children_pass_before_fit": true,
+    "exact_postfit_gate_required": true,
+    "excluded_faces_frozen_and_unchanged": true,
+    "new_child_max_aspect": 50.0,
+    "new_child_min_angle_degrees": 0.5,
+    "new_child_min_parent_relative_area_ratio": 0.1
+  },
+  "schema": "numi.human.bank43_16.selective_centroid_fan_preflight.v1",
+  "selective_active_region": {
+    "affected_fan_parent_faces_for_area_linearization": 300,
+    "affected_new_child_faces_for_quality_gates": 900,
+    "coordinate_dofs": 1026,
+    "good_crossing_core_faces": 167,
+    "movable_centers": 234,
+    "movable_points": 342,
+    "movable_source_nodes_after_boundary_and_excluded_face_freeze": 108,
+    "old_candidate_faces_outside_patch_touched_by_free_nodes": 0,
+    "one_edge_ring_good_fan_faces": 234,
+    "outside_old_face_nonworsening_rows": 0
+  },
+  "selective_topology": {
+    "boundary_edges": 54,
+    "boundary_preserved": true,
+    "euler_characteristic": 1,
+    "excluded_source_faces_remain_bitwise_original": true,
+    "expected_boundary_edges": 54,
+    "fan_child_faces": 1155,
+    "mixed_output_faces": 1204,
+    "new_centers": 385,
+    "source_ancestry_entries_if_each_child_inherits_parent": 1204,
+    "unchanged_excluded_faces": 49
+  },
+  "sparse_lp_upper_bound": {
+    "absolute_value_rows": 2052,
+    "additional_bone_planes_upper_bound_one_per_movable_point": 342,
+    "area_rows_for_touched_new_children": 900,
+    "endpoint_rows_exactly_targetable": "computed from exact intersections at authorized run",
+    "endpoint_rows_upper_bound_six_per_pair": 1398,
+    "estimated_nnz_upper_bound_including_abs_trust_bone_and_shape": 35760,
+    "inside_and_boundary_point_plane_rows_upper_bound": 342,
+    "inside_node_rows_for_free_known_inside_nodes": 35,
+    "l1_displacement_trust_rows": 2736,
+    "notes": [
+      "one sparse HiGHS LP is prepared with a 3 mm per-node L1 trust bound; no solver run occurred",
+      "all exact source-face/bone-face pairs on fan-good faces are included; exact intersection endpoints are enumerated at authorized run",
+      "bone witness and inside-node planes have explicit nonnegative slacks with high penalty; trust, fixed boundary and linearized area constraints stay hard",
+      "all excluded/frozen exact pairs and inside points remain unresolved and are reported",
+      "exact emitted Float32 shape and local bone/self checks remain mandatory"
+    ],
+    "outside_old_face_nonworsening_rows": 0,
+    "row_upper_bound_including_abs_trust_bone_and_shape": 7428,
+    "targetable_exact_source_bone_pair_count": 233,
+    "unresolved_exact_source_bone_pair_count": 16,
+    "variables_coordinate_delta_plus_abs_slack_plus_bone_slack": 3792
+  },
+  "status": "SELECTIVE_PREFLIGHT_ONLY_NO_FIT_OR_BONE_OR_SELF_AUDIT"
+}

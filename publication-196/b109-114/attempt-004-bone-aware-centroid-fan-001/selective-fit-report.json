@@ -1,0 +1,797 @@
+{
+  "admitted": false,
+  "crossing_slacks_are_explicit": true,
+  "elapsed_seconds": 21.837481167167425,
+  "failure": "RuntimeError('SLSQP failed: Positive directional derivative for linesearch')",
+  "max_node_trust_mm": 3.0,
+  "optimizer": {
+    "crossing_constraint_count": 318,
+    "crossing_slack_records": [
+      {
+        "bone_face_row": 110,
+        "endpoint_record_id": 175,
+        "pair_index": 87,
+        "root": 175,
+        "skin_parent_face_row": 34699,
+        "slack_mm": 0.04825128068597209
+      }
+    ],
+    "fixed_node_count": 75,
+    "iterations": 14,
+    "max_component_displacement_mm": 2.1794538278251814,
+    "max_crossing_slack_mm": 0.04825128068597209,
+    "max_displacement_mm": 2.1997476248196706,
+    "message": "Positive directional derivative for linesearch",
+    "minimum_area_constraint": -0.010698483724758484,
+    "minimum_hard_inside_margin_mm": -0.04450409796121681,
+    "minimum_trust_slack_mm2": 4.161110387100218,
+    "movable_node_count": 192,
+    "objective": 131.5553172943877,
+    "positive_crossing_slack_count": 1,
+    "private_patch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-004-bone-aware-centroid-fan-001/private-bone-aware-selective-patch.npz",
+    "private_patch_sha256": "01ac76bf8bcc500a01717bde8fec160d9de9c24799f9ad21506ba78837cbd6f6",
+    "rms_displacement_mm": 0.48484844409864136,
+    "success": false
+  },
+  "optimizer_preflight": {
+    "crossing_halfspaces": 318,
+    "initial_min_area_constraint": 0.07806020021505247,
+    "initial_min_crossing_clearance_slack_mm": -0.050014898313893774,
+    "inside_hard_halfspaces": 82,
+    "max_iterations": 250,
+    "shape_area_halfspaces": 467,
+    "slack_penalty": 1000.0,
+    "trust_balls": 192
+  },
+  "partial_fit": true,
+  "physical_steps": 0,
+  "preflight": {
+    "bank": [
+      109,
+      114
+    ],
+    "bone_closed_oriented": true,
+    "bone_triangle_count": 392,
+    "exact_witness_mapping_max_residual_m": 2.7720905581259366e-08,
+    "fit_source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-004-bone-aware-centroid-fan-001/selective-pre-fit-patch.npz",
+    "fit_source_sha256": "bb28a0b60494b98d0fbe5a4ab0fa6db8849737d1edee4949120d9dfa62c24dc5",
+    "frozen_inside_or_boundary_nodes": [
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.2149467436334632,
+        "parent_candidate_face_row": -1,
+        "patch_node": 132,
+        "source_candidate_node_row": 21035
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.23075972212126408,
+        "parent_candidate_face_row": -1,
+        "patch_node": 136,
+        "source_candidate_node_row": 21039
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.7729721839975007,
+        "parent_candidate_face_row": -1,
+        "patch_node": 142,
+        "source_candidate_node_row": 21045
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.667658519392191,
+        "parent_candidate_face_row": -1,
+        "patch_node": 163,
+        "source_candidate_node_row": 21150
+      }
+    ],
+    "frozen_inside_policy": "preserve these fixed nodes as explicit unresolved witnesses; continue fitting movable safe-crossing support and report exact residuals",
+    "frozen_source_node_count": 75,
+    "inside_or_boundary_node_count": 86,
+    "inside_or_boundary_nodes": [
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.7105513181074119,
+        "parent_candidate_face_row": -1,
+        "patch_node": 113,
+        "source_candidate_node_row": 20920
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 0.6367320503001784,
+        "parent_candidate_face_row": -1,
+        "patch_node": 114,
+        "source_candidate_node_row": 20960
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 0.8350462088925961,
+        "parent_candidate_face_row": -1,
+        "patch_node": 115,
+        "source_candidate_node_row": 20961
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.32065148104818725,
+        "parent_candidate_face_row": -1,
+        "patch_node": 118,
+        "source_candidate_node_row": 20964
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 112,
+        "nearest_distance_mm": 0.062181173555958806,
+        "parent_candidate_face_row": -1,
+        "patch_node": 119,
+        "source_candidate_node_row": 20965
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 112,
+        "nearest_distance_mm": 0.13260417924423556,
+        "parent_candidate_face_row": -1,
+        "patch_node": 122,
+        "source_candidate_node_row": 20968
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.8161190189116762,
+        "parent_candidate_face_row": -1,
+        "patch_node": 123,
+        "source_candidate_node_row": 20969
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 92,
+        "nearest_distance_mm": 0.20153659594495418,
+        "parent_candidate_face_row": -1,
+        "patch_node": 124,
+        "source_candidate_node_row": 20970
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 0.7710746053917693,
+        "parent_candidate_face_row": -1,
+        "patch_node": 126,
+        "source_candidate_node_row": 20972
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 1.8275810095400409,
+        "parent_candidate_face_row": -1,
+        "patch_node": 129,
+        "source_candidate_node_row": 20979
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 304,
+        "nearest_distance_mm": 1.870353489746934,
+        "parent_candidate_face_row": -1,
+        "patch_node": 130,
+        "source_candidate_node_row": 20980
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.2149467436334632,
+        "parent_candidate_face_row": -1,
+        "patch_node": 132,
+        "source_candidate_node_row": 21035
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.854657642550928,
+        "parent_candidate_face_row": -1,
+        "patch_node": 135,
+        "source_candidate_node_row": 21038
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.23075972212126408,
+        "parent_candidate_face_row": -1,
+        "patch_node": 136,
+        "source_candidate_node_row": 21039
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 111,
+        "nearest_distance_mm": 0.07914812945425297,
+        "parent_candidate_face_row": -1,
+        "patch_node": 137,
+        "source_candidate_node_row": 21040
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 116,
+        "nearest_distance_mm": 0.08899795649705758,
+        "parent_candidate_face_row": -1,
+        "patch_node": 140,
+        "source_candidate_node_row": 21043
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.7729721839975007,
+        "parent_candidate_face_row": -1,
+        "patch_node": 142,
+        "source_candidate_node_row": 21045
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 92,
+        "nearest_distance_mm": 0.44164070083001583,
+        "parent_candidate_face_row": -1,
+        "patch_node": 143,
+        "source_candidate_node_row": 21046
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 0.12662207867100075,
+        "parent_candidate_face_row": -1,
+        "patch_node": 149,
+        "source_candidate_node_row": 21052
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.6690734609306327,
+        "parent_candidate_face_row": -1,
+        "patch_node": 160,
+        "source_candidate_node_row": 21147
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.667658519392191,
+        "parent_candidate_face_row": -1,
+        "patch_node": 163,
+        "source_candidate_node_row": 21150
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 1.084885073240236,
+        "parent_candidate_face_row": -1,
+        "patch_node": 166,
+        "source_candidate_node_row": 21174
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 112,
+        "nearest_distance_mm": 0.11676294371128744,
+        "parent_candidate_face_row": -1,
+        "patch_node": 168,
+        "source_candidate_node_row": 21176
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 88,
+        "nearest_distance_mm": 0.025848521444987463,
+        "parent_candidate_face_row": -1,
+        "patch_node": 170,
+        "source_candidate_node_row": 21178
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 110,
+        "nearest_distance_mm": 0.4726464821415853,
+        "parent_candidate_face_row": 34518,
+        "patch_node": 172,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.6601334405292115,
+        "parent_candidate_face_row": 34521,
+        "patch_node": 173,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 110,
+        "nearest_distance_mm": 0.4052272671959902,
+        "parent_candidate_face_row": 34529,
+        "patch_node": 174,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.8268828036347494,
+        "parent_candidate_face_row": 34530,
+        "patch_node": 175,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 91,
+        "nearest_distance_mm": 0.35133673554611444,
+        "parent_candidate_face_row": 34531,
+        "patch_node": 176,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 1.0690839517341348,
+        "parent_candidate_face_row": 34532,
+        "patch_node": 177,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 0.14559481408846625,
+        "parent_candidate_face_row": 34533,
+        "patch_node": 178,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 88,
+        "nearest_distance_mm": 0.00768946786795224,
+        "parent_candidate_face_row": 34534,
+        "patch_node": 179,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 92,
+        "nearest_distance_mm": 0.2790690800386972,
+        "parent_candidate_face_row": 34535,
+        "patch_node": 180,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 0.3767648249027867,
+        "parent_candidate_face_row": 34536,
+        "patch_node": 181,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 90,
+        "nearest_distance_mm": 0.18934896514292665,
+        "parent_candidate_face_row": 34537,
+        "patch_node": 182,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 1.1222537181747159,
+        "parent_candidate_face_row": 34538,
+        "patch_node": 183,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.8172889976164471,
+        "parent_candidate_face_row": 34540,
+        "patch_node": 185,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 111,
+        "nearest_distance_mm": 0.24784490731966596,
+        "parent_candidate_face_row": 34566,
+        "patch_node": 191,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.06064641163012241,
+        "parent_candidate_face_row": 34568,
+        "patch_node": 193,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 111,
+        "nearest_distance_mm": 0.055757671450656285,
+        "parent_candidate_face_row": 34595,
+        "patch_node": 197,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 111,
+        "nearest_distance_mm": 0.26801168392625746,
+        "parent_candidate_face_row": 34602,
+        "patch_node": 199,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.11542710439012857,
+        "parent_candidate_face_row": 34604,
+        "patch_node": 201,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.07434874509641404,
+        "parent_candidate_face_row": 34607,
+        "patch_node": 204,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 111,
+        "nearest_distance_mm": 0.0912714288172378,
+        "parent_candidate_face_row": 34608,
+        "patch_node": 205,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 112,
+        "nearest_distance_mm": 0.06228792730929448,
+        "parent_candidate_face_row": 34611,
+        "patch_node": 208,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 111,
+        "nearest_distance_mm": 0.062356433351206164,
+        "parent_candidate_face_row": 34612,
+        "patch_node": 209,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 111,
+        "nearest_distance_mm": 0.00281736079099726,
+        "parent_candidate_face_row": 34613,
+        "patch_node": 210,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 112,
+        "nearest_distance_mm": 0.09492363702314968,
+        "parent_candidate_face_row": 34616,
+        "patch_node": 213,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.5038985286704952,
+        "parent_candidate_face_row": 34669,
+        "patch_node": 215,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.5933129455993673,
+        "parent_candidate_face_row": 34694,
+        "patch_node": 217,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 110,
+        "nearest_distance_mm": 0.2326625850748913,
+        "parent_candidate_face_row": 34695,
+        "patch_node": 218,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.8918795342429418,
+        "parent_candidate_face_row": 34696,
+        "patch_node": 219,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 150,
+        "nearest_distance_mm": 0.18975528489206028,
+        "parent_candidate_face_row": 34697,
+        "patch_node": 220,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.856948023273709,
+        "parent_candidate_face_row": 34699,
+        "patch_node": 222,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.522676755764336,
+        "parent_candidate_face_row": 34700,
+        "patch_node": 223,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.5210976620633013,
+        "parent_candidate_face_row": 34704,
+        "patch_node": 225,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.07119535659691145,
+        "parent_candidate_face_row": 34721,
+        "patch_node": 226,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 92,
+        "nearest_distance_mm": 0.18500700123684324,
+        "parent_candidate_face_row": 34724,
+        "patch_node": 229,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 90,
+        "nearest_distance_mm": 0.3139527312172723,
+        "parent_candidate_face_row": 34735,
+        "patch_node": 230,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 0.1360509582763259,
+        "parent_candidate_face_row": 34736,
+        "patch_node": 231,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 0.8803198474763358,
+        "parent_candidate_face_row": 34737,
+        "patch_node": 232,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 0.5914459630249482,
+        "parent_candidate_face_row": 34738,
+        "patch_node": 233,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.13364580076818527,
+        "parent_candidate_face_row": 34761,
+        "patch_node": 234,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 92,
+        "nearest_distance_mm": 0.8593070137196467,
+        "parent_candidate_face_row": 34762,
+        "patch_node": 235,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.06961928984856022,
+        "parent_candidate_face_row": 34763,
+        "patch_node": 236,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.6235886305790643,
+        "parent_candidate_face_row": 34764,
+        "patch_node": 237,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 92,
+        "nearest_distance_mm": 0.43089880817135084,
+        "parent_candidate_face_row": 34765,
+        "patch_node": 238,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 0.09143303935229288,
+        "parent_candidate_face_row": 34766,
+        "patch_node": 239,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 0.10190984690566461,
+        "parent_candidate_face_row": 34767,
+        "patch_node": 240,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 0.5061877695078418,
+        "parent_candidate_face_row": 34768,
+        "patch_node": 241,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 92,
+        "nearest_distance_mm": 0.004905063058161659,
+        "parent_candidate_face_row": 34781,
+        "patch_node": 244,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 0.02919733330885752,
+        "parent_candidate_face_row": 34782,
+        "patch_node": 245,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 88,
+        "nearest_distance_mm": 0.15700222795482144,
+        "parent_candidate_face_row": 34785,
+        "patch_node": 248,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 62,
+        "nearest_distance_mm": 0.029089621916963824,
+        "parent_candidate_face_row": 34786,
+        "patch_node": 249,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 88,
+        "nearest_distance_mm": 0.15665853201480007,
+        "parent_candidate_face_row": 34787,
+        "patch_node": 250,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 92,
+        "nearest_distance_mm": 0.08883806208989971,
+        "parent_candidate_face_row": 34790,
+        "patch_node": 253,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 90,
+        "nearest_distance_mm": 0.5351690583586779,
+        "parent_candidate_face_row": 35340,
+        "patch_node": 255,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 191,
+        "nearest_distance_mm": 1.7165483921073263,
+        "parent_candidate_face_row": 35341,
+        "patch_node": 256,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 140,
+        "nearest_distance_mm": 2.1926047863456937,
+        "parent_candidate_face_row": 35342,
+        "patch_node": 257,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 150,
+        "nearest_distance_mm": 0.34896609098601905,
+        "parent_candidate_face_row": 35384,
+        "patch_node": 258,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 111,
+        "nearest_distance_mm": 0.22290021466820845,
+        "parent_candidate_face_row": 35385,
+        "patch_node": 259,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 110,
+        "nearest_distance_mm": 0.45579992618875614,
+        "parent_candidate_face_row": 35386,
+        "patch_node": 260,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 115,
+        "nearest_distance_mm": 1.4105663596382056,
+        "parent_candidate_face_row": 35387,
+        "patch_node": 261,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 298,
+        "nearest_distance_mm": 0.33445652914066254,
+        "parent_candidate_face_row": 35437,
+        "patch_node": 263,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 191,
+        "nearest_distance_mm": 0.4836665497013876,
+        "parent_candidate_face_row": 35439,
+        "patch_node": 265,
+        "source_candidate_node_row": -1
+      },
+      {
+        "location": "inside",
+        "nearest_bone_face_row": 298,
+        "nearest_distance_mm": 1.657257728851822,
+        "parent_candidate_face_row": 35440,
+        "patch_node": 266,
+        "source_candidate_node_row": -1
+      }
+    ],
+    "local_faces": 467,
+    "local_nodes": 267,
+    "movable_node_count": 192,
+    "selected_crossing_parent_faces": 95,
+    "selected_exact_endpoint_constraints": 318
+  },
+  "schema": "numi.human.b109_114.selective_bone_aware_fan_fit.v1",
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-004-bone-aware-centroid-fan-001/selective_fit.py",
+  "script_sha256": "1037bc39d254741be6c2016a763f58d42235f7281f01e9bfd853b1542d57c5da",
+  "source_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "status": "PRIVATE_REJECTED_SLSQP",
+  "traceback": "Traceback (most recent call last):\n  File \"/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-004-bone-aware-centroid-fan-001/selective_fit.py\", line 227, in main\n    report['status']='PRIVATE_REJECTED_SLSQP';raise RuntimeError(f'SLSQP failed: {res.message}')\n                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: SLSQP failed: Positive directional derivative for linesearch\n"
+}

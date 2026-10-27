@@ -1,0 +1,45 @@
+{
+  "actual_crossing_witness_map_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-004-bone-aware-centroid-fan-001/actual-crossing-witness-map.json",
+  "actual_crossing_witness_map_sha256": "a81eef5507def4d62f36ec507f01f1cbfff4d5f0ec96627a8b780dcebe676d35",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "crossing_endpoint_constraint_count": 374,
+  "crossing_pair_count": 187,
+  "exact_graph_sha256": "524e1c62a7768b5ec9ae50a2b7bc5ac65bd2303ff9d03355486bf784cfc932ab",
+  "fan_center_count": 277,
+  "fan_child_face_count": 831,
+  "fan_source_patch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-004-bone-aware-centroid-fan-001/fan-source-patch.npz",
+  "fan_source_patch_sha256": "c018978b0b7a1163f657d739f4234ced7b389f96da04f53abbe316e0f8164a60",
+  "fit_or_geometry_audit_run": false,
+  "fixed_boundary_edge_count": 63,
+  "float32_fan_quality": {
+    "child_face_count": 831,
+    "maximum_aspect_measure": 149.0503705249141,
+    "min_parent_area_ratio": 0.16785458223554475,
+    "min_signed_orientation_ratio": 0.16785458218402746,
+    "minimum_child_angle_deg": 0.13332055607760518,
+    "orientation_all_positive": true
+  },
+  "geometry_admitted": false,
+  "parent_face_count": 277,
+  "physical_steps": 0,
+  "schema": "numi.human.b109_114.centroid_fan_setup_preflight.v1",
+  "source_component_face_files": [
+    {
+      "face_count": 239,
+      "fixed_boundary_edges": 49,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-001-boundary-feasibility/patch-components/component-00-face-rows.npy",
+      "sha256": "331294b1fa5cd727015db683181daebd80599b5f7217a0eef9b1b18a4ed3b84d"
+    },
+    {
+      "face_count": 38,
+      "fixed_boundary_edges": 14,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b109-114/attempt-001-boundary-feasibility/patch-components/component-01-face-rows.npy",
+      "sha256": "55af4b716aeacdcc8a25fb951f0b7fc84ad24908d996c5c9641ab08ac439c661"
+    }
+  ],
+  "source_vertex_count": 172,
+  "status": "SETUP_PREFLIGHT_READY",
+  "two_components_remain_disconnected": true,
+  "witness_mapping": "374 rational endpoint records mapped to fan children by parent-face barycentric coordinates; stable bone face and pair identities retained."
+}

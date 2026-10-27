@@ -1,0 +1,64 @@
+{
+  "candidate_emitted": false,
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "compiled": true,
+  "fit_command_after_slot_authorization": "ssh numi '/Users/numi/numi-human-prep-venv-20261005/bin/python /tmp/numi-human-geometry-slot.py /Users/numi/numi-human-prep-venv-20261005/bin/python /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-006-bone-aware-centroid-fan-prep-001/selective_sparse_fit.py --run-fit --slot-granted'",
+  "gates_not_run": [
+    "sparse LP",
+    "exact 43/16 emitted-bone",
+    "exact local self/complement",
+    "185-bank no-worsening",
+    "whole-body self audit"
+  ],
+  "geometry_admitted": false,
+  "guard_noop_invocation_verified": true,
+  "patch": {
+    "baseline_crossing_pairs": 249,
+    "excluded_chosen_center_only_faces": 2,
+    "excluded_intrinsic_angle_faces": 47,
+    "excluded_unresolved_pairs": 16,
+    "fan_good_faces": 385,
+    "known_inside_nodes_frozen_unresolved": [
+      20895,
+      20899,
+      20900,
+      20902,
+      20928,
+      20931,
+      21022,
+      21025
+    ],
+    "one_disk_boundary_edges_fixed": 54,
+    "source_parent_faces": 434,
+    "targetable_pairs": 233
+  },
+  "physical_transfer_steps": 0,
+  "readiness_notes": [
+    "The full fan fails baseline shape, so the script retains 49 original faces and freezes their vertices.",
+    "The selected mixed topology remains a one-disk with the pinned 54-edge boundary; every new baseline child passes current shape gates.",
+    "Exact crossing-pair ownership comes from pinned audit-159; the 16 excluded pairs and 8 frozen inside nodes remain explicit unresolved evidence.",
+    "The script is gated and must only be launched through the shared geometry slot after authorization."
+  ],
+  "schema": "numi.human.bank43_16.selective_sparse_lp_readiness.v1",
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-006-bone-aware-centroid-fan-prep-001/selective_sparse_fit.py",
+  "script_sha256": "0fa236eb5410161d2e5e7f8e6361dceaa67be4e26b6851b988caac009d5dcbba",
+  "selective_sparse_lp_upper_bound": {
+    "abs_rows": 2052,
+    "absolute_displacement_slack_variables": 1026,
+    "bone_rows_upper_bound": 1740,
+    "bone_slacks": "explicit, penalty 1000 objective units per mm",
+    "coordinate_dofs": 1026,
+    "endpoint_plane_slack_upper_bound": 1398,
+    "linearized_area_rows": 900,
+    "matrix_nnz_upper_bound": 35760,
+    "movable_points_before_dynamic_inside_center_expansion": 342,
+    "point_plane_slack_upper_bound": 342,
+    "shape": "hard linearized projected-area floor 0.10; exact emitted Float32 area/angle/aspect check",
+    "total_rows_upper_bound": 7428,
+    "total_variables_upper_bound": 3792,
+    "trust_region": "per-node L1 norm <= 3 mm (hard)",
+    "trust_region_rows": 2736
+  },
+  "status": "READY_GUARDED_PREPARED_NOT_RUN"
+}

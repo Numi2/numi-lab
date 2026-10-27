@@ -1,0 +1,3613 @@
+{
+  "all_three_vertex_halfspace_preflight": {
+    "constrained_unique_skin_nodes": 93,
+    "constraint_count": 148,
+    "constraint_node_violations": 60,
+    "crossing_faces_with_opposing_target_plane_normals": 0,
+    "crossing_pairs_all_three_vertices_outside_clearance_initially": 0,
+    "crossing_pairs_requiring_at_least_one_vertex_motion": 148,
+    "face_normal_conflicts": [],
+    "fixed_boundary_nodes_touched_by_crossing_constraints": 12,
+    "fixed_boundary_nodes_with_violated_halfspace": 4,
+    "fixed_boundary_violation_witnesses": [
+      {
+        "constraints": [
+          {
+            "bone_triangle_id": 175,
+            "fixed_boundary": true,
+            "normal": [
+              0.18067199973829876,
+              -0.1587500851637962,
+              0.9706472268394174
+            ],
+            "required_outward_mm": 0.047543435981701715,
+            "signed_distance_mm": 0.0024565640182982844,
+            "skin_face": 14110
+          },
+          {
+            "bone_triangle_id": 175,
+            "fixed_boundary": true,
+            "normal": [
+              0.18067199973829876,
+              -0.1587500851637962,
+              0.9706472268394174
+            ],
+            "required_outward_mm": 0.047543435981701715,
+            "signed_distance_mm": 0.0024565640182982844,
+            "skin_face": 14125
+          },
+          {
+            "bone_triangle_id": 175,
+            "fixed_boundary": true,
+            "normal": [
+              0.18067199973829876,
+              -0.1587500851637962,
+              0.9706472268394174
+            ],
+            "required_outward_mm": 0.047543435981701715,
+            "signed_distance_mm": 0.0024565640182982844,
+            "skin_face": 14130
+          },
+          {
+            "bone_triangle_id": 175,
+            "fixed_boundary": true,
+            "normal": [
+              0.18067199973829876,
+              -0.1587500851637962,
+              0.9706472268394174
+            ],
+            "required_outward_mm": 0.047543435981701715,
+            "signed_distance_mm": 0.0024565640182982844,
+            "skin_face": 14409
+          },
+          {
+            "bone_triangle_id": 176,
+            "fixed_boundary": true,
+            "normal": [
+              0.49655304739284056,
+              -0.08063012960975498,
+              0.8642533501954143
+            ],
+            "required_outward_mm": 0.10952095567938494,
+            "signed_distance_mm": -0.05952095567938494,
+            "skin_face": 14409
+          }
+        ],
+        "max_required_outward_mm": 0.10952095567938494,
+        "node": 19972
+      },
+      {
+        "constraints": [
+          {
+            "bone_triangle_id": 174,
+            "fixed_boundary": true,
+            "normal": [
+              -0.007532982274460881,
+              0.1702382350674523,
+              -0.9853741408719692
+            ],
+            "required_outward_mm": 0.022043045895780232,
+            "signed_distance_mm": 0.02795695410421977,
+            "skin_face": 14144
+          },
+          {
+            "bone_triangle_id": 174,
+            "fixed_boundary": true,
+            "normal": [
+              -0.007532982274460881,
+              0.1702382350674523,
+              -0.9853741408719692
+            ],
+            "required_outward_mm": 0.022043045895780232,
+            "signed_distance_mm": 0.02795695410421977,
+            "skin_face": 14147
+          },
+          {
+            "bone_triangle_id": 174,
+            "fixed_boundary": true,
+            "normal": [
+              -0.007532982274460881,
+              0.1702382350674523,
+              -0.9853741408719692
+            ],
+            "required_outward_mm": 0.022043045895780232,
+            "signed_distance_mm": 0.02795695410421977,
+            "skin_face": 14158
+          },
+          {
+            "bone_triangle_id": 174,
+            "fixed_boundary": true,
+            "normal": [
+              -0.007532982274460881,
+              0.1702382350674523,
+              -0.9853741408719692
+            ],
+            "required_outward_mm": 0.022043045895780232,
+            "signed_distance_mm": 0.02795695410421977,
+            "skin_face": 14181
+          },
+          {
+            "bone_triangle_id": 174,
+            "fixed_boundary": true,
+            "normal": [
+              -0.007532982274460881,
+              0.1702382350674523,
+              -0.9853741408719692
+            ],
+            "required_outward_mm": 0.022043045895780232,
+            "signed_distance_mm": 0.02795695410421977,
+            "skin_face": 14190
+          }
+        ],
+        "max_required_outward_mm": 0.022043045895780232,
+        "node": 16710
+      },
+      {
+        "constraints": [
+          {
+            "bone_triangle_id": 183,
+            "fixed_boundary": true,
+            "normal": [
+              0.09495374873497733,
+              -0.19742074152383882,
+              0.9757094016239427
+            ],
+            "required_outward_mm": 0.04497730081483957,
+            "signed_distance_mm": 0.005022699185160432,
+            "skin_face": 14145
+          },
+          {
+            "bone_triangle_id": 183,
+            "fixed_boundary": true,
+            "normal": [
+              0.09495374873497733,
+              -0.19742074152383882,
+              0.9757094016239427
+            ],
+            "required_outward_mm": 0.04497730081483957,
+            "signed_distance_mm": 0.005022699185160432,
+            "skin_face": 14149
+          }
+        ],
+        "max_required_outward_mm": 0.04497730081483957,
+        "node": 19941
+      },
+      {
+        "constraints": [
+          {
+            "bone_triangle_id": 304,
+            "fixed_boundary": true,
+            "normal": [
+              -0.9967310211138646,
+              0.04820986112553874,
+              0.06483117182011279
+            ],
+            "required_outward_mm": 0.3429209280404571,
+            "signed_distance_mm": -0.2929209280404571,
+            "skin_face": 15065
+          }
+        ],
+        "max_required_outward_mm": 0.3429209280404571,
+        "node": 16756
+      }
+    ],
+    "max_individual_required_outward_mm": 2.3912087933781825,
+    "minimum_same_face_target_normal_dot": 0.30986350462631834,
+    "nodes_exceeding_proposed_2mm_cap": 17,
+    "per_pair": [
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.7475484540632872,
+          -1.6505435047853976,
+          -1.655843112288299
+        ],
+        "max_required_mm": 1.705843112288299,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.7005435047853976,
+          1.705843112288299
+        ],
+        "skin_face": 14050,
+        "triangle_vertices": [
+          16713,
+          21007,
+          21009
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -2.3412087933781827,
+          0.02972652370167989,
+          0.02990940550586473
+        ],
+        "max_required_mm": 2.3912087933781825,
+        "required_outward_mm_per_vertex": [
+          2.3912087933781825,
+          0.020273476298320114,
+          0.020090594494135274
+        ],
+        "skin_face": 14051,
+        "triangle_vertices": [
+          21007,
+          18864,
+          21119
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -2.3409966380075407,
+          0.02990940550586473,
+          0.03012156087650727
+        ],
+        "max_required_mm": 2.3909966380075405,
+        "required_outward_mm_per_vertex": [
+          2.3909966380075405,
+          0.020090594494135274,
+          0.01987843912349273
+        ],
+        "skin_face": 14052,
+        "triangle_vertices": [
+          21009,
+          21119,
+          19949
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -2.3412087933781827,
+          0.02990940550586473,
+          -2.3409966380075407
+        ],
+        "max_required_mm": 2.3912087933781825,
+        "required_outward_mm_per_vertex": [
+          2.3912087933781825,
+          0.020090594494135274,
+          2.3909966380075405
+        ],
+        "skin_face": 14053,
+        "triangle_vertices": [
+          21007,
+          21119,
+          21009
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          0.728444611320077,
+          0.4846313646959811,
+          -1.4892585841220196
+        ],
+        "max_required_mm": 1.5392585841220197,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          1.5392585841220197
+        ],
+        "skin_face": 14054,
+        "triangle_vertices": [
+          14715,
+          20947,
+          20948
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          0.4846313646959811,
+          0.24080809607920986,
+          -1.7330818527387881
+        ],
+        "max_required_mm": 1.7830818527387882,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          1.7830818527387882
+        ],
+        "skin_face": 14055,
+        "triangle_vertices": [
+          20947,
+          19470,
+          21169
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -2.2154816425987334,
+          -1.8136501637701814,
+          0.23105813090860938
+        ],
+        "max_required_mm": 2.265481642598733,
+        "required_outward_mm_per_vertex": [
+          2.265481642598733,
+          1.8636501637701814,
+          0.0
+        ],
+        "skin_face": 14056,
+        "triangle_vertices": [
+          20948,
+          21169,
+          19932
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          0.4846313646959811,
+          -1.7330818527387881,
+          -1.4892585841220196
+        ],
+        "max_required_mm": 1.7830818527387882,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.7830818527387882,
+          1.5392585841220197
+        ],
+        "skin_face": 14057,
+        "triangle_vertices": [
+          20947,
+          21169,
+          20948
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          0.24080809607920986,
+          -1.8435462058402396,
+          -1.7330818527387881
+        ],
+        "max_required_mm": 1.8935462058402397,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.8935462058402397,
+          1.7830818527387882
+        ],
+        "skin_face": 14058,
+        "triangle_vertices": [
+          19470,
+          20997,
+          21169
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -1.7429710290654248,
+          0.3724224955201944,
+          0.3017372656133668
+        ],
+        "max_required_mm": 1.7929710290654248,
+        "required_outward_mm_per_vertex": [
+          1.7929710290654248,
+          0.0,
+          0.0
+        ],
+        "skin_face": 14059,
+        "triangle_vertices": [
+          20997,
+          16707,
+          20998
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -1.8136501637701814,
+          0.3017372656133668,
+          0.23105813090860938
+        ],
+        "max_required_mm": 1.8636501637701814,
+        "required_outward_mm_per_vertex": [
+          1.8636501637701814,
+          0.0,
+          0.0
+        ],
+        "skin_face": 14060,
+        "triangle_vertices": [
+          21169,
+          20998,
+          19932
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -1.7429710290654248,
+          0.3017372656133668,
+          -1.8136501637701814
+        ],
+        "max_required_mm": 1.8636501637701814,
+        "required_outward_mm_per_vertex": [
+          1.7929710290654248,
+          0.0,
+          1.8636501637701814
+        ],
+        "skin_face": 14061,
+        "triangle_vertices": [
+          20997,
+          20998,
+          21169
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          0.4139730257489452,
+          -1.7569958594670319,
+          0.31333980333477635
+        ],
+        "max_required_mm": 1.806995859467032,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.806995859467032,
+          0.0
+        ],
+        "skin_face": 14069,
+        "triangle_vertices": [
+          18570,
+          20996,
+          21082
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -1.599796298414681,
+          0.3724224955201944,
+          -1.7589759761638697
+        ],
+        "max_required_mm": 1.8089759761638697,
+        "required_outward_mm_per_vertex": [
+          1.649796298414681,
+          0.0,
+          1.8089759761638697
+        ],
+        "skin_face": 14070,
+        "triangle_vertices": [
+          20996,
+          16707,
+          20999
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          0.31333980333477635,
+          -1.8576040238284097,
+          0.2127336883859274
+        ],
+        "max_required_mm": 1.9076040238284098,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.9076040238284098,
+          0.0
+        ],
+        "skin_face": 14071,
+        "triangle_vertices": [
+          21082,
+          20999,
+          19933
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          -1.7569958594670319,
+          -1.8576040238284097,
+          0.31333980333477635
+        ],
+        "max_required_mm": 1.9076040238284098,
+        "required_outward_mm_per_vertex": [
+          1.806995859467032,
+          1.9076040238284098,
+          0.0
+        ],
+        "skin_face": 14072,
+        "triangle_vertices": [
+          20996,
+          20999,
+          21082
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.3724224955201944,
+          -1.7429710290654248,
+          -1.7589759761638697
+        ],
+        "max_required_mm": 1.8089759761638697,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.7929710290654248,
+          1.8089759761638697
+        ],
+        "skin_face": 14073,
+        "triangle_vertices": [
+          16707,
+          20997,
+          20999
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          -1.8435462058402396,
+          0.24080809607920986,
+          0.22678945696156655
+        ],
+        "max_required_mm": 1.8935462058402397,
+        "required_outward_mm_per_vertex": [
+          1.8935462058402397,
+          0.0,
+          0.0
+        ],
+        "skin_face": 14074,
+        "triangle_vertices": [
+          20997,
+          19470,
+          21170
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          -1.8576040238284097,
+          0.22678945696156655,
+          0.2127336883859274
+        ],
+        "max_required_mm": 1.9076040238284098,
+        "required_outward_mm_per_vertex": [
+          1.9076040238284098,
+          0.0,
+          0.0
+        ],
+        "skin_face": 14075,
+        "triangle_vertices": [
+          20999,
+          21170,
+          19933
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          -1.8435462058402396,
+          0.22678945696156655,
+          -1.8576040238284097
+        ],
+        "max_required_mm": 1.9076040238284098,
+        "required_outward_mm_per_vertex": [
+          1.8935462058402397,
+          0.0,
+          1.9076040238284098
+        ],
+        "skin_face": 14076,
+        "triangle_vertices": [
+          20997,
+          21170,
+          20999
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.3724224955201944,
+          -1.599796298414681,
+          0.22172473974027
+        ],
+        "max_required_mm": 1.649796298414681,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.649796298414681,
+          0.0
+        ],
+        "skin_face": 14087,
+        "triangle_vertices": [
+          16707,
+          20996,
+          21000
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          -1.7569958594670319,
+          0.4139730257489452,
+          -1.5199324060738062
+        ],
+        "max_required_mm": 1.806995859467032,
+        "required_outward_mm_per_vertex": [
+          1.806995859467032,
+          0.0,
+          1.5699324060738062
+        ],
+        "skin_face": 14088,
+        "triangle_vertices": [
+          20996,
+          18570,
+          21083
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.22172473974027,
+          -1.7504953723810452,
+          0.07105493934036176
+        ],
+        "max_required_mm": 1.8004953723810453,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.8004953723810453,
+          0.0
+        ],
+        "skin_face": 14089,
+        "triangle_vertices": [
+          21000,
+          21083,
+          19934
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -1.599796298414681,
+          -1.7504953723810452,
+          0.22172473974027
+        ],
+        "max_required_mm": 1.8004953723810453,
+        "required_outward_mm_per_vertex": [
+          1.649796298414681,
+          1.8004953723810453,
+          0.0
+        ],
+        "skin_face": 14090,
+        "triangle_vertices": [
+          20996,
+          21083,
+          21000
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          0.22981270283111183,
+          -1.6119804490710647,
+          0.3218607458283708
+        ],
+        "max_required_mm": 1.6619804490710648,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.6619804490710648,
+          0.0
+        ],
+        "skin_face": 14091,
+        "triangle_vertices": [
+          18571,
+          21084,
+          21081
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -1.7112230189569857,
+          0.07105493934036176,
+          -1.7504953723810452
+        ],
+        "max_required_mm": 1.8004953723810453,
+        "required_outward_mm_per_vertex": [
+          1.7612230189569857,
+          0.0,
+          1.8004953723810453
+        ],
+        "skin_face": 14092,
+        "triangle_vertices": [
+          21084,
+          19934,
+          21083
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          0.3218607458283708,
+          -1.5199324060738062,
+          0.4139730257489452
+        ],
+        "max_required_mm": 1.5699324060738062,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.5699324060738062,
+          0.0
+        ],
+        "skin_face": 14093,
+        "triangle_vertices": [
+          21081,
+          21083,
+          18570
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          -1.6119804490710647,
+          -1.5199324060738062,
+          0.3218607458283708
+        ],
+        "max_required_mm": 1.6619804490710648,
+        "required_outward_mm_per_vertex": [
+          1.6619804490710648,
+          1.5699324060738062,
+          0.0
+        ],
+        "skin_face": 14094,
+        "triangle_vertices": [
+          21084,
+          21083,
+          21081
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.0024565640182982844,
+          -1.6334522787299737,
+          -1.7120258666016037
+        ],
+        "max_required_mm": 1.7620258666016038,
+        "required_outward_mm_per_vertex": [
+          0.047543435981701715,
+          1.6834522787299737,
+          1.7620258666016038
+        ],
+        "skin_face": 14110,
+        "triangle_vertices": [
+          19972,
+          21080,
+          21087
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 102,
+        "initial_signed_distance_mm": [
+          -1.3497811036024165,
+          0.6855409813985819,
+          0.5245060823942178
+        ],
+        "max_required_mm": 1.3997811036024166,
+        "required_outward_mm_per_vertex": [
+          1.3997811036024166,
+          0.0,
+          0.0
+        ],
+        "skin_face": 14111,
+        "triangle_vertices": [
+          21080,
+          18565,
+          21079
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 102,
+        "initial_signed_distance_mm": [
+          -1.485472023939189,
+          0.5245060823942178,
+          0.4011288742785668
+        ],
+        "max_required_mm": 1.535472023939189,
+        "required_outward_mm_per_vertex": [
+          1.535472023939189,
+          0.0,
+          0.0
+        ],
+        "skin_face": 14112,
+        "triangle_vertices": [
+          21087,
+          21079,
+          18572
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 104,
+        "initial_signed_distance_mm": [
+          -1.4830912558522615,
+          0.5343151351205654,
+          0.36626421588668984
+        ],
+        "max_required_mm": 1.5330912558522616,
+        "required_outward_mm_per_vertex": [
+          1.5330912558522616,
+          0.0,
+          0.0
+        ],
+        "skin_face": 14112,
+        "triangle_vertices": [
+          21087,
+          21079,
+          18572
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 102,
+        "initial_signed_distance_mm": [
+          -1.3497811036024165,
+          0.5245060823942178,
+          -1.485472023939189
+        ],
+        "max_required_mm": 1.535472023939189,
+        "required_outward_mm_per_vertex": [
+          1.3997811036024166,
+          0.0,
+          1.535472023939189
+        ],
+        "skin_face": 14113,
+        "triangle_vertices": [
+          21080,
+          21079,
+          21087
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.0024565640182982844,
+          -1.745492933051561,
+          -1.6334522787299737
+        ],
+        "max_required_mm": 1.795492933051561,
+        "required_outward_mm_per_vertex": [
+          0.047543435981701715,
+          1.795492933051561,
+          1.6834522787299737
+        ],
+        "skin_face": 14125,
+        "triangle_vertices": [
+          19972,
+          21085,
+          21080
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 104,
+        "initial_signed_distance_mm": [
+          -1.5730921289779662,
+          0.2010171608329253,
+          0.4705918653310296
+        ],
+        "max_required_mm": 1.6230921289779663,
+        "required_outward_mm_per_vertex": [
+          1.6230921289779663,
+          0.0,
+          0.0
+        ],
+        "skin_face": 14126,
+        "triangle_vertices": [
+          21085,
+          18571,
+          21078
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          -1.6449961037244216,
+          0.22981270283111183,
+          0.36708668191523963
+        ],
+        "max_required_mm": 1.6949961037244217,
+        "required_outward_mm_per_vertex": [
+          1.6949961037244217,
+          0.0,
+          0.0
+        ],
+        "skin_face": 14126,
+        "triangle_vertices": [
+          21085,
+          18571,
+          21078
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 102,
+        "initial_signed_distance_mm": [
+          -1.3497811036024165,
+          0.47844986909643344,
+          0.6855409813985819
+        ],
+        "max_required_mm": 1.3997811036024166,
+        "required_outward_mm_per_vertex": [
+          1.3997811036024166,
+          0.0,
+          0.0
+        ],
+        "skin_face": 14127,
+        "triangle_vertices": [
+          21080,
+          21078,
+          18565
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 102,
+        "initial_signed_distance_mm": [
+          -1.5569006780622396,
+          0.47844986909643344,
+          -1.3497811036024165
+        ],
+        "max_required_mm": 1.6069006780622397,
+        "required_outward_mm_per_vertex": [
+          1.6069006780622397,
+          0.0,
+          1.3997811036024166
+        ],
+        "skin_face": 14128,
+        "triangle_vertices": [
+          21085,
+          21078,
+          21080
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 104,
+        "initial_signed_distance_mm": [
+          -1.5730921289779662,
+          0.4705918653310296,
+          -1.3034590306987686
+        ],
+        "max_required_mm": 1.6230921289779663,
+        "required_outward_mm_per_vertex": [
+          1.6230921289779663,
+          0.0,
+          1.3534590306987686
+        ],
+        "skin_face": 14128,
+        "triangle_vertices": [
+          21085,
+          21078,
+          21080
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.0024565640182982844,
+          0.03675575167932921,
+          -1.745492933051561
+        ],
+        "max_required_mm": 1.795492933051561,
+        "required_outward_mm_per_vertex": [
+          0.047543435981701715,
+          0.013244248320670796,
+          1.795492933051561
+        ],
+        "skin_face": 14130,
+        "triangle_vertices": [
+          19972,
+          21198,
+          21085
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.03675575167932921,
+          0.07105493934036176,
+          -1.7112230189569857
+        ],
+        "max_required_mm": 1.7612230189569857,
+        "required_outward_mm_per_vertex": [
+          0.013244248320670796,
+          0.0,
+          1.7612230189569857
+        ],
+        "skin_face": 14131,
+        "triangle_vertices": [
+          21198,
+          19934,
+          21084
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          -1.6449961037244216,
+          -1.6119804490710647,
+          0.22981270283111183
+        ],
+        "max_required_mm": 1.6949961037244217,
+        "required_outward_mm_per_vertex": [
+          1.6949961037244217,
+          1.6619804490710648,
+          0.0
+        ],
+        "skin_face": 14132,
+        "triangle_vertices": [
+          21085,
+          21084,
+          18571
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.03675575167932921,
+          -1.7112230189569857,
+          -1.745492933051561
+        ],
+        "max_required_mm": 1.795492933051561,
+        "required_outward_mm_per_vertex": [
+          0.013244248320670796,
+          1.7612230189569857,
+          1.795492933051561
+        ],
+        "skin_face": 14133,
+        "triangle_vertices": [
+          21198,
+          21084,
+          21085
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 183,
+        "initial_signed_distance_mm": [
+          0.005332330802484183,
+          -2.048959598582767,
+          0.005185997606485049
+        ],
+        "max_required_mm": 2.0989595985827667,
+        "required_outward_mm_per_vertex": [
+          0.044667669197515816,
+          2.0989595985827667,
+          0.044814002393514955
+        ],
+        "skin_face": 14143,
+        "triangle_vertices": [
+          19341,
+          21002,
+          21155
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          -2.0565862721850743,
+          0.02795695410421977,
+          -2.057886482175475
+        ],
+        "max_required_mm": 2.107886482175475,
+        "required_outward_mm_per_vertex": [
+          2.106586272185074,
+          0.022043045895780232,
+          2.107886482175475
+        ],
+        "skin_face": 14144,
+        "triangle_vertices": [
+          21002,
+          16710,
+          21004
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 183,
+        "initial_signed_distance_mm": [
+          0.005185997606485049,
+          -2.0491347835333733,
+          0.005022699185160432
+        ],
+        "max_required_mm": 2.099134783533373,
+        "required_outward_mm_per_vertex": [
+          0.044814002393514955,
+          2.099134783533373,
+          0.04497730081483957
+        ],
+        "skin_face": 14145,
+        "triangle_vertices": [
+          21155,
+          21004,
+          19941
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 183,
+        "initial_signed_distance_mm": [
+          -2.048959598582767,
+          -2.0491347835333733,
+          0.005185997606485049
+        ],
+        "max_required_mm": 2.099134783533373,
+        "required_outward_mm_per_vertex": [
+          2.0989595985827667,
+          2.099134783533373,
+          0.044814002393514955
+        ],
+        "skin_face": 14146,
+        "triangle_vertices": [
+          21002,
+          21004,
+          21155
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.02795695410421977,
+          -2.04744684852368,
+          -2.057886482175475
+        ],
+        "max_required_mm": 2.107886482175475,
+        "required_outward_mm_per_vertex": [
+          0.022043045895780232,
+          2.09744684852368,
+          2.107886482175475
+        ],
+        "skin_face": 14147,
+        "triangle_vertices": [
+          16710,
+          21001,
+          21004
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 183,
+        "initial_signed_distance_mm": [
+          -2.0516123255589065,
+          6.829296675067188e-05,
+          0.002545834992281979
+        ],
+        "max_required_mm": 2.1016123255589063,
+        "required_outward_mm_per_vertex": [
+          2.1016123255589063,
+          0.04993170703324933,
+          0.04745416500771803
+        ],
+        "skin_face": 14148,
+        "triangle_vertices": [
+          21001,
+          18460,
+          21059
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 183,
+        "initial_signed_distance_mm": [
+          -2.0491347835333733,
+          0.002545834992281979,
+          0.005022699185160432
+        ],
+        "max_required_mm": 2.099134783533373,
+        "required_outward_mm_per_vertex": [
+          2.099134783533373,
+          0.04745416500771803,
+          0.04497730081483957
+        ],
+        "skin_face": 14149,
+        "triangle_vertices": [
+          21004,
+          21059,
+          19941
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 183,
+        "initial_signed_distance_mm": [
+          -2.0516123255589065,
+          0.002545834992281979,
+          -2.0491347835333733
+        ],
+        "max_required_mm": 2.1016123255589063,
+        "required_outward_mm_per_vertex": [
+          2.1016123255589063,
+          0.04745416500771803,
+          2.099134783533373
+        ],
+        "skin_face": 14150,
+        "triangle_vertices": [
+          21001,
+          21059,
+          21004
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.02795695410421977,
+          -2.0565862721850743,
+          0.018461685722306408
+        ],
+        "max_required_mm": 2.106586272185074,
+        "required_outward_mm_per_vertex": [
+          0.022043045895780232,
+          2.106586272185074,
+          0.031538314277693595
+        ],
+        "skin_face": 14158,
+        "triangle_vertices": [
+          16710,
+          21002,
+          21005
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 183,
+        "initial_signed_distance_mm": [
+          -2.048959598582767,
+          0.005332330802484183,
+          -2.077128242297711
+        ],
+        "max_required_mm": 2.1271282422977107,
+        "required_outward_mm_per_vertex": [
+          2.0989595985827667,
+          0.044667669197515816,
+          2.1271282422977107
+        ],
+        "skin_face": 14159,
+        "triangle_vertices": [
+          21002,
+          19341,
+          21156
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.018461685722306408,
+          -2.0660518416001423,
+          0.008996116307240253
+        ],
+        "max_required_mm": 2.116051841600142,
+        "required_outward_mm_per_vertex": [
+          0.031538314277693595,
+          2.116051841600142,
+          0.04100388369275975
+        ],
+        "skin_face": 14160,
+        "triangle_vertices": [
+          21005,
+          21156,
+          19942
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          -2.0565862721850743,
+          -2.0660518416001423,
+          0.018461685722306408
+        ],
+        "max_required_mm": 2.116051841600142,
+        "required_outward_mm_per_vertex": [
+          2.106586272185074,
+          2.116051841600142,
+          0.031538314277693595
+        ],
+        "skin_face": 14161,
+        "triangle_vertices": [
+          21002,
+          21156,
+          21005
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.3161050030106611,
+          0.16337623483592198,
+          -1.8355286659575907
+        ],
+        "max_required_mm": 1.8855286659575907,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          1.8855286659575907
+        ],
+        "skin_face": 14171,
+        "triangle_vertices": [
+          15914,
+          20984,
+          20986
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.16337623483592198,
+          0.010669326839128938,
+          -1.9882268423794327
+        ],
+        "max_required_mm": 2.0382268423794327,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.03933067316087106,
+          2.0382268423794327
+        ],
+        "skin_face": 14172,
+        "triangle_vertices": [
+          20984,
+          19343,
+          21158
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 180,
+        "initial_signed_distance_mm": [
+          0.1630474113965279,
+          0.020014421784191397,
+          -2.0062818002373737
+        ],
+        "max_required_mm": 2.0562818002373735,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.029985578215808606,
+          2.0562818002373735
+        ],
+        "skin_face": 14172,
+        "triangle_vertices": [
+          20984,
+          19343,
+          21158
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          -2.197786616263047,
+          -2.039688701760768,
+          5.710789088077565e-05
+        ],
+        "max_required_mm": 2.247786616263047,
+        "required_outward_mm_per_vertex": [
+          2.247786616263047,
+          2.089688701760768,
+          0.04994289210911923
+        ],
+        "skin_face": 14173,
+        "triangle_vertices": [
+          20986,
+          21158,
+          19945
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.16337623483592198,
+          -1.9882268423794327,
+          -1.8355286659575907
+        ],
+        "max_required_mm": 2.0382268423794327,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          2.0382268423794327,
+          1.8855286659575907
+        ],
+        "skin_face": 14174,
+        "triangle_vertices": [
+          20984,
+          21158,
+          20986
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          0.0823377365201895,
+          -2.0008093838055863,
+          0.030288736856591864
+        ],
+        "max_required_mm": 2.050809383805586,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          2.050809383805586,
+          0.01971126314340814
+        ],
+        "skin_face": 14175,
+        "triangle_vertices": [
+          19950,
+          20987,
+          21200
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -1.824462710891376,
+          0.3161050030106611,
+          -1.8355286659575907
+        ],
+        "max_required_mm": 1.8855286659575907,
+        "required_outward_mm_per_vertex": [
+          1.874462710891376,
+          0.0,
+          1.8855286659575907
+        ],
+        "skin_face": 14176,
+        "triangle_vertices": [
+          20987,
+          15914,
+          20986
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          0.030288736856591864,
+          -2.0528604328817153,
+          -0.021787370272328313
+        ],
+        "max_required_mm": 2.102860432881715,
+        "required_outward_mm_per_vertex": [
+          0.01971126314340814,
+          2.102860432881715,
+          0.07178737027232832
+        ],
+        "skin_face": 14177,
+        "triangle_vertices": [
+          21200,
+          20986,
+          19945
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.004278184952709806,
+          -2.197786616263047,
+          5.710789088077565e-05
+        ],
+        "max_required_mm": 2.247786616263047,
+        "required_outward_mm_per_vertex": [
+          0.0457218150472902,
+          2.247786616263047,
+          0.04994289210911923
+        ],
+        "skin_face": 14177,
+        "triangle_vertices": [
+          21200,
+          20986,
+          19945
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          -2.0008093838055863,
+          -2.0528604328817153,
+          0.030288736856591864
+        ],
+        "max_required_mm": 2.102860432881715,
+        "required_outward_mm_per_vertex": [
+          2.050809383805586,
+          2.102860432881715,
+          0.01971126314340814
+        ],
+        "skin_face": 14178,
+        "triangle_vertices": [
+          20987,
+          20986,
+          21200
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 180,
+        "initial_signed_distance_mm": [
+          0.020014421784191397,
+          -2.0465510937200455,
+          -2.0062818002373737
+        ],
+        "max_required_mm": 2.0965510937200453,
+        "required_outward_mm_per_vertex": [
+          0.029985578215808606,
+          2.0965510937200453,
+          2.0562818002373735
+        ],
+        "skin_face": 14180,
+        "triangle_vertices": [
+          19343,
+          21003,
+          21158
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          -2.025715408942023,
+          0.02795695410421977,
+          0.013992181514127728
+        ],
+        "max_required_mm": 2.0757154089420227,
+        "required_outward_mm_per_vertex": [
+          2.0757154089420227,
+          0.022043045895780232,
+          0.03600781848587228
+        ],
+        "skin_face": 14181,
+        "triangle_vertices": [
+          21003,
+          16710,
+          21006
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          -2.039688701760768,
+          0.013992181514127728,
+          5.710789088077565e-05
+        ],
+        "max_required_mm": 2.089688701760768,
+        "required_outward_mm_per_vertex": [
+          2.089688701760768,
+          0.03600781848587228,
+          0.04994289210911923
+        ],
+        "skin_face": 14182,
+        "triangle_vertices": [
+          21158,
+          21006,
+          19945
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          -2.025715408942023,
+          0.013992181514127728,
+          -2.039688701760768
+        ],
+        "max_required_mm": 2.089688701760768,
+        "required_outward_mm_per_vertex": [
+          2.0757154089420227,
+          0.03600781848587228,
+          2.089688701760768
+        ],
+        "skin_face": 14183,
+        "triangle_vertices": [
+          21003,
+          21006,
+          21158
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.02795695410421977,
+          -2.025715408942023,
+          -2.04744684852368
+        ],
+        "max_required_mm": 2.09744684852368,
+        "required_outward_mm_per_vertex": [
+          0.022043045895780232,
+          2.0757154089420227,
+          2.09744684852368
+        ],
+        "skin_face": 14190,
+        "triangle_vertices": [
+          16710,
+          21003,
+          21001
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 180,
+        "initial_signed_distance_mm": [
+          -2.0465510937200455,
+          0.020014421784191397,
+          0.007620042475192483
+        ],
+        "max_required_mm": 2.0965510937200453,
+        "required_outward_mm_per_vertex": [
+          2.0965510937200453,
+          0.029985578215808606,
+          0.04237995752480752
+        ],
+        "skin_face": 14191,
+        "triangle_vertices": [
+          21003,
+          19343,
+          21058
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 180,
+        "initial_signed_distance_mm": [
+          -2.0589454730290457,
+          0.007620042475192483,
+          -0.004744884487193008
+        ],
+        "max_required_mm": 2.1089454730290456,
+        "required_outward_mm_per_vertex": [
+          2.1089454730290456,
+          0.04237995752480752,
+          0.05474488448719301
+        ],
+        "skin_face": 14192,
+        "triangle_vertices": [
+          21001,
+          21058,
+          18460
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 183,
+        "initial_signed_distance_mm": [
+          -2.0516123255589065,
+          5.739172572317812e-05,
+          6.829296675067188e-05
+        ],
+        "max_required_mm": 2.1016123255589063,
+        "required_outward_mm_per_vertex": [
+          2.1016123255589063,
+          0.04994260827427682,
+          0.04993170703324933
+        ],
+        "skin_face": 14192,
+        "triangle_vertices": [
+          21001,
+          21058,
+          18460
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 180,
+        "initial_signed_distance_mm": [
+          -2.0465510937200455,
+          0.007620042475192483,
+          -2.0589454730290457
+        ],
+        "max_required_mm": 2.1089454730290456,
+        "required_outward_mm_per_vertex": [
+          2.0965510937200453,
+          0.04237995752480752,
+          2.1089454730290456
+        ],
+        "skin_face": 14193,
+        "triangle_vertices": [
+          21003,
+          21058,
+          21001
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.7475484540632872,
+          0.7515285996167981,
+          -1.6505435047853976
+        ],
+        "max_required_mm": 1.7005435047853976,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          1.7005435047853976
+        ],
+        "skin_face": 14214,
+        "triangle_vertices": [
+          16713,
+          20945,
+          21007
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          0.7024215588426008,
+          0.728444611320077,
+          -1.5551585156225634
+        ],
+        "max_required_mm": 1.6051585156225634,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          1.6051585156225634
+        ],
+        "skin_face": 14215,
+        "triangle_vertices": [
+          20945,
+          14715,
+          20946
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.7515285996167981,
+          0.7554790187776522,
+          -1.6465930856245439
+        ],
+        "max_required_mm": 1.696593085624544,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          1.696593085624544
+        ],
+        "skin_face": 14215,
+        "triangle_vertices": [
+          20945,
+          14715,
+          20946
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -2.3412087933781827,
+          -2.316162082985427,
+          0.02972652370167989
+        ],
+        "max_required_mm": 2.3912087933781825,
+        "required_outward_mm_per_vertex": [
+          2.3912087933781825,
+          2.3661620829854266,
+          0.020273476298320114
+        ],
+        "skin_face": 14216,
+        "triangle_vertices": [
+          21007,
+          20946,
+          18864
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.7515285996167981,
+          -1.6465930856245439,
+          -1.6505435047853976
+        ],
+        "max_required_mm": 1.7005435047853976,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.696593085624544,
+          1.7005435047853976
+        ],
+        "skin_face": 14217,
+        "triangle_vertices": [
+          20945,
+          20946,
+          21007
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.23105813090860938,
+          0.13040696408837338,
+          -2.2154816425987334
+        ],
+        "max_required_mm": 2.265481642598733,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          2.265481642598733
+        ],
+        "skin_face": 14220,
+        "triangle_vertices": [
+          19932,
+          21118,
+          20948
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.13040696408837338,
+          0.02972652370167989,
+          -2.316162082985427
+        ],
+        "max_required_mm": 2.3661620829854266,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.020273476298320114,
+          2.3661620829854266
+        ],
+        "skin_face": 14221,
+        "triangle_vertices": [
+          21118,
+          18864,
+          20946
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          -1.4892585841220196,
+          -1.5551585156225634,
+          0.728444611320077
+        ],
+        "max_required_mm": 1.6051585156225634,
+        "required_outward_mm_per_vertex": [
+          1.5392585841220197,
+          1.6051585156225634,
+          0.0
+        ],
+        "skin_face": 14222,
+        "triangle_vertices": [
+          20948,
+          20946,
+          14715
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.13040696408837338,
+          -2.316162082985427,
+          -2.2154816425987334
+        ],
+        "max_required_mm": 2.3661620829854266,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          2.3661620829854266,
+          2.265481642598733
+        ],
+        "skin_face": 14223,
+        "triangle_vertices": [
+          21118,
+          20946,
+          20948
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.049863598509203605,
+          -2.3311293258854473,
+          0.039988872998599545
+        ],
+        "max_required_mm": 2.381129325885447,
+        "required_outward_mm_per_vertex": [
+          0.00013640149079639785,
+          2.381129325885447,
+          0.010011127001400458
+        ],
+        "skin_face": 14231,
+        "triangle_vertices": [
+          19686,
+          21008,
+          21184
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          -1.3913229702570664,
+          0.6763713988998021,
+          -1.5280891301654382
+        ],
+        "max_required_mm": 1.5780891301654383,
+        "required_outward_mm_per_vertex": [
+          1.4413229702570665,
+          0.0,
+          1.5780891301654383
+        ],
+        "skin_face": 14232,
+        "triangle_vertices": [
+          21008,
+          16713,
+          21009
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          -1.6221178255449746,
+          0.7475484540632872,
+          -1.655843112288299
+        ],
+        "max_required_mm": 1.705843112288299,
+        "required_outward_mm_per_vertex": [
+          1.6721178255449747,
+          0.0,
+          1.705843112288299
+        ],
+        "skin_face": 14232,
+        "triangle_vertices": [
+          21008,
+          16713,
+          21009
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.039988872998599545,
+          -2.3409966380075407,
+          0.03012156087650727
+        ],
+        "max_required_mm": 2.3909966380075405,
+        "required_outward_mm_per_vertex": [
+          0.010011127001400458,
+          2.3909966380075405,
+          0.01987843912349273
+        ],
+        "skin_face": 14233,
+        "triangle_vertices": [
+          21184,
+          21009,
+          19949
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -2.3311293258854473,
+          -2.3409966380075407,
+          0.039988872998599545
+        ],
+        "max_required_mm": 2.3909966380075405,
+        "required_outward_mm_per_vertex": [
+          2.381129325885447,
+          2.3909966380075405,
+          0.010011127001400458
+        ],
+        "skin_face": 14234,
+        "triangle_vertices": [
+          21008,
+          21009,
+          21184
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          0.6763713988998021,
+          -1.3913229702570664,
+          0.3793670967363928
+        ],
+        "max_required_mm": 1.4413229702570665,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.4413229702570665,
+          0.0
+        ],
+        "skin_face": 14244,
+        "triangle_vertices": [
+          16713,
+          21008,
+          21010
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          -2.3311293258854473,
+          0.049863598509203605,
+          -1.9575884380227984
+        ],
+        "max_required_mm": 2.381129325885447,
+        "required_outward_mm_per_vertex": [
+          2.381129325885447,
+          0.00013640149079639785,
+          2.007588438022798
+        ],
+        "skin_face": 14245,
+        "triangle_vertices": [
+          21008,
+          19686,
+          21185
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          0.3793670967363928,
+          -1.6883543798857985,
+          0.0823377365201895
+        ],
+        "max_required_mm": 1.7383543798857986,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.7383543798857986,
+          0.0
+        ],
+        "skin_face": 14246,
+        "triangle_vertices": [
+          21010,
+          21185,
+          19950
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          -1.3913229702570664,
+          -1.6883543798857985,
+          0.3793670967363928
+        ],
+        "max_required_mm": 1.7383543798857986,
+        "required_outward_mm_per_vertex": [
+          1.4413229702570665,
+          1.7383543798857986,
+          0.0
+        ],
+        "skin_face": 14247,
+        "triangle_vertices": [
+          21008,
+          21185,
+          21010
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.049863598509203605,
+          0.18298800745418747,
+          -1.9575884380227984
+        ],
+        "max_required_mm": 2.007588438022798,
+        "required_outward_mm_per_vertex": [
+          0.00013640149079639785,
+          0.0,
+          2.007588438022798
+        ],
+        "skin_face": 14248,
+        "triangle_vertices": [
+          19686,
+          20985,
+          21185
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.18298800745418747,
+          0.3161050030106611,
+          -1.824462710891376
+        ],
+        "max_required_mm": 1.874462710891376,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          1.874462710891376
+        ],
+        "skin_face": 14249,
+        "triangle_vertices": [
+          20985,
+          15914,
+          20987
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 173,
+        "initial_signed_distance_mm": [
+          -1.6883543798857985,
+          -2.0008093838055863,
+          0.0823377365201895
+        ],
+        "max_required_mm": 2.050809383805586,
+        "required_outward_mm_per_vertex": [
+          1.7383543798857986,
+          2.050809383805586,
+          0.0
+        ],
+        "skin_face": 14250,
+        "triangle_vertices": [
+          21185,
+          20987,
+          19950
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.18298800745418747,
+          -1.824462710891376,
+          -1.9575884380227984
+        ],
+        "max_required_mm": 2.007588438022798,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.874462710891376,
+          2.007588438022798
+        ],
+        "skin_face": 14251,
+        "triangle_vertices": [
+          20985,
+          20987,
+          21185
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 104,
+        "initial_signed_distance_mm": [
+          0.36626421588668984,
+          0.443610846128775,
+          -0.9865082015245052
+        ],
+        "max_required_mm": 1.0365082015245053,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          1.0365082015245053
+        ],
+        "skin_face": 14405,
+        "triangle_vertices": [
+          18572,
+          21086,
+          21088
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 102,
+        "initial_signed_distance_mm": [
+          0.45925652457411514,
+          0.5092188784336742,
+          -0.8413403797995123
+        ],
+        "max_required_mm": 0.8913403797995123,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          0.8913403797995123
+        ],
+        "skin_face": 14406,
+        "triangle_vertices": [
+          21086,
+          18573,
+          21091
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 104,
+        "initial_signed_distance_mm": [
+          0.443610846128775,
+          0.5126963137980671,
+          -0.8214012244706804
+        ],
+        "max_required_mm": 0.8714012244706805,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          0.8714012244706805
+        ],
+        "skin_face": 14406,
+        "triangle_vertices": [
+          21086,
+          18573,
+          21091
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 176,
+        "initial_signed_distance_mm": [
+          -1.3290574945483593,
+          -1.2529386161811096,
+          0.24187804633270404
+        ],
+        "max_required_mm": 1.3790574945483594,
+        "required_outward_mm_per_vertex": [
+          1.3790574945483594,
+          1.3029386161811096,
+          0.0
+        ],
+        "skin_face": 14407,
+        "triangle_vertices": [
+          21088,
+          21091,
+          19979
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 104,
+        "initial_signed_distance_mm": [
+          0.443610846128775,
+          -0.8214012244706804,
+          -0.9865082015245052
+        ],
+        "max_required_mm": 1.0365082015245053,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.8714012244706805,
+          1.0365082015245053
+        ],
+        "skin_face": 14408,
+        "triangle_vertices": [
+          21086,
+          21091,
+          21088
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 175,
+        "initial_signed_distance_mm": [
+          0.0024565640182982844,
+          -1.7120258666016037,
+          -0.0012478777983865059
+        ],
+        "max_required_mm": 1.7620258666016038,
+        "required_outward_mm_per_vertex": [
+          0.047543435981701715,
+          1.7620258666016038,
+          0.05124787779838651
+        ],
+        "skin_face": 14409,
+        "triangle_vertices": [
+          19972,
+          21087,
+          21201
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 176,
+        "initial_signed_distance_mm": [
+          -0.05952095567938494,
+          -1.3733672494888014,
+          0.08990250870425699
+        ],
+        "max_required_mm": 1.4233672494888014,
+        "required_outward_mm_per_vertex": [
+          0.10952095567938494,
+          1.4233672494888014,
+          0.0
+        ],
+        "skin_face": 14409,
+        "triangle_vertices": [
+          19972,
+          21087,
+          21201
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 104,
+        "initial_signed_distance_mm": [
+          -1.4830912558522615,
+          0.36626421588668984,
+          -0.9865082015245052
+        ],
+        "max_required_mm": 1.5330912558522616,
+        "required_outward_mm_per_vertex": [
+          1.5330912558522616,
+          0.0,
+          1.0365082015245053
+        ],
+        "skin_face": 14410,
+        "triangle_vertices": [
+          21087,
+          18572,
+          21088
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 176,
+        "initial_signed_distance_mm": [
+          0.08990250870425699,
+          -1.3290574945483593,
+          0.24187804633270404
+        ],
+        "max_required_mm": 1.3790574945483594,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.3790574945483594,
+          0.0
+        ],
+        "skin_face": 14411,
+        "triangle_vertices": [
+          21201,
+          21088,
+          19979
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 176,
+        "initial_signed_distance_mm": [
+          -1.3733672494888014,
+          -1.3290574945483593,
+          0.08990250870425699
+        ],
+        "max_required_mm": 1.4233672494888014,
+        "required_outward_mm_per_vertex": [
+          1.4233672494888014,
+          1.3790574945483594,
+          0.0
+        ],
+        "skin_face": 14412,
+        "triangle_vertices": [
+          21087,
+          21088,
+          21201
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 103,
+        "initial_signed_distance_mm": [
+          0.08706517585972348,
+          -0.7836148325738324,
+          0.3526007017886359
+        ],
+        "max_required_mm": 0.8336148325738324,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.8336148325738324,
+          0.0
+        ],
+        "skin_face": 14454,
+        "triangle_vertices": [
+          19979,
+          21091,
+          21168
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 176,
+        "initial_signed_distance_mm": [
+          0.24187804633270404,
+          -1.2529386161811096,
+          0.3573180251827216
+        ],
+        "max_required_mm": 1.3029386161811096,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.3029386161811096,
+          0.0
+        ],
+        "skin_face": 14454,
+        "triangle_vertices": [
+          19979,
+          21091,
+          21168
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 101,
+        "initial_signed_distance_mm": [
+          -0.5920980776078525,
+          -0.08076188717282189,
+          0.15425650169821667
+        ],
+        "max_required_mm": 0.6420980776078525,
+        "required_outward_mm_per_vertex": [
+          0.6420980776078525,
+          0.1307618871728219,
+          0.0
+        ],
+        "skin_face": 14455,
+        "triangle_vertices": [
+          21091,
+          18573,
+          21089
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 102,
+        "initial_signed_distance_mm": [
+          -0.8413403797995123,
+          0.5092188784336742,
+          -0.18738388683976015
+        ],
+        "max_required_mm": 0.8913403797995123,
+        "required_outward_mm_per_vertex": [
+          0.8913403797995123,
+          0.0,
+          0.23738388683976014
+        ],
+        "skin_face": 14455,
+        "triangle_vertices": [
+          21091,
+          18573,
+          21089
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 111,
+        "initial_signed_distance_mm": [
+          -0.559050708478864,
+          -0.20139239234989467,
+          0.17083805573565103
+        ],
+        "max_required_mm": 0.609050708478864,
+        "required_outward_mm_per_vertex": [
+          0.609050708478864,
+          0.2513923923498947,
+          0.0
+        ],
+        "skin_face": 14455,
+        "triangle_vertices": [
+          21091,
+          18573,
+          21089
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 103,
+        "initial_signed_distance_mm": [
+          0.3526007017886359,
+          -0.47805659144698104,
+          0.645020614031197
+        ],
+        "max_required_mm": 0.528056591446981,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.528056591446981,
+          0.0
+        ],
+        "skin_face": 14456,
+        "triangle_vertices": [
+          21168,
+          21089,
+          19469
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 111,
+        "initial_signed_distance_mm": [
+          -0.572538061442385,
+          0.17083805573565103,
+          0.10386569705637655
+        ],
+        "max_required_mm": 0.622538061442385,
+        "required_outward_mm_per_vertex": [
+          0.622538061442385,
+          0.0,
+          0.0
+        ],
+        "skin_face": 14456,
+        "triangle_vertices": [
+          21168,
+          21089,
+          19469
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 113,
+        "initial_signed_distance_mm": [
+          0.5014268024030096,
+          -0.6072366754061672,
+          0.7294283772219992
+        ],
+        "max_required_mm": 0.6572366754061673,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.6572366754061673,
+          0.0
+        ],
+        "skin_face": 14456,
+        "triangle_vertices": [
+          21168,
+          21089,
+          19469
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 103,
+        "initial_signed_distance_mm": [
+          -0.7836148325738324,
+          -0.47805659144698104,
+          0.3526007017886359
+        ],
+        "max_required_mm": 0.8336148325738324,
+        "required_outward_mm_per_vertex": [
+          0.8336148325738324,
+          0.528056591446981,
+          0.0
+        ],
+        "skin_face": 14457,
+        "triangle_vertices": [
+          21091,
+          21089,
+          21168
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 111,
+        "initial_signed_distance_mm": [
+          -0.559050708478864,
+          0.17083805573565103,
+          -0.572538061442385
+        ],
+        "max_required_mm": 0.622538061442385,
+        "required_outward_mm_per_vertex": [
+          0.609050708478864,
+          0.0,
+          0.622538061442385
+        ],
+        "skin_face": 14457,
+        "triangle_vertices": [
+          21091,
+          21089,
+          21168
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 306,
+        "initial_signed_distance_mm": [
+          0.21010947211322975,
+          0.7954148906313401,
+          -1.4716334585956732
+        ],
+        "max_required_mm": 1.5216334585956732,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          1.5216334585956732
+        ],
+        "skin_face": 15063,
+        "triangle_vertices": [
+          19613,
+          21180,
+          21012
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 314,
+        "initial_signed_distance_mm": [
+          0.3288749935053674,
+          0.8101182805257836,
+          -1.5039985110596872
+        ],
+        "max_required_mm": 1.5539985110596872,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          1.5539985110596872
+        ],
+        "skin_face": 15063,
+        "triangle_vertices": [
+          19613,
+          21180,
+          21012
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 304,
+        "initial_signed_distance_mm": [
+          -0.9822918825763,
+          0.4356473812608853,
+          0.07135867597245306
+        ],
+        "max_required_mm": 1.0322918825763,
+        "required_outward_mm_per_vertex": [
+          1.0322918825763,
+          0.0,
+          0.0
+        ],
+        "skin_face": 15064,
+        "triangle_vertices": [
+          21180,
+          20021,
+          21013
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 305,
+        "initial_signed_distance_mm": [
+          -0.4500520701934653,
+          0.9012197301639693,
+          -0.02014245008839502
+        ],
+        "max_required_mm": 0.5000520701934653,
+        "required_outward_mm_per_vertex": [
+          0.5000520701934653,
+          0.0,
+          0.07014245008839502
+        ],
+        "skin_face": 15064,
+        "triangle_vertices": [
+          21180,
+          20021,
+          21013
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 314,
+        "initial_signed_distance_mm": [
+          0.8101182805257836,
+          1.291361567546199,
+          -1.0227574758987783
+        ],
+        "max_required_mm": 1.0727574758987783,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          1.0727574758987783
+        ],
+        "skin_face": 15064,
+        "triangle_vertices": [
+          21180,
+          20021,
+          21013
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 315,
+        "initial_signed_distance_mm": [
+          0.07661731010548292,
+          1.2805167361179899,
+          -0.24907673832446314
+        ],
+        "max_required_mm": 0.29907673832446313,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          0.29907673832446313
+        ],
+        "skin_face": 15064,
+        "triangle_vertices": [
+          21180,
+          20021,
+          21013
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 300,
+        "initial_signed_distance_mm": [
+          -1.2781263041820534,
+          -0.9390083937969985,
+          1.0696878640329721
+        ],
+        "max_required_mm": 1.3281263041820535,
+        "required_outward_mm_per_vertex": [
+          1.3281263041820535,
+          0.9890083937969986,
+          0.0
+        ],
+        "skin_face": 15065,
+        "triangle_vertices": [
+          21012,
+          21013,
+          16756
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 301,
+        "initial_signed_distance_mm": [
+          -1.3833082369283882,
+          -0.07926795418452193,
+          0.3334931245223508
+        ],
+        "max_required_mm": 1.4333082369283883,
+        "required_outward_mm_per_vertex": [
+          1.4333082369283883,
+          0.12926795418452192,
+          0.0
+        ],
+        "skin_face": 15065,
+        "triangle_vertices": [
+          21012,
+          21013,
+          16756
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 303,
+        "initial_signed_distance_mm": [
+          -1.3226236228675006,
+          0.016132423189380567,
+          0.050493285724761104
+        ],
+        "max_required_mm": 1.3726236228675006,
+        "required_outward_mm_per_vertex": [
+          1.3726236228675006,
+          0.033867576810619436,
+          0.0
+        ],
+        "skin_face": 15065,
+        "triangle_vertices": [
+          21012,
+          21013,
+          16756
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 304,
+        "initial_signed_distance_mm": [
+          -1.3465731623642503,
+          0.07135867597245306,
+          -0.2929209280404571
+        ],
+        "max_required_mm": 1.3965731623642503,
+        "required_outward_mm_per_vertex": [
+          1.3965731623642503,
+          0.0,
+          0.3429209280404571
+        ],
+        "skin_face": 15065,
+        "triangle_vertices": [
+          21012,
+          21013,
+          16756
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 304,
+        "initial_signed_distance_mm": [
+          -0.9822918825763,
+          0.07135867597245306,
+          -1.3465731623642503
+        ],
+        "max_required_mm": 1.3965731623642503,
+        "required_outward_mm_per_vertex": [
+          1.0322918825763,
+          0.0,
+          1.3965731623642503
+        ],
+        "skin_face": 15066,
+        "triangle_vertices": [
+          21180,
+          21013,
+          21012
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 314,
+        "initial_signed_distance_mm": [
+          0.8101182805257836,
+          -1.0227574758987783,
+          -1.5039985110596872
+        ],
+        "max_required_mm": 1.5539985110596872,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.0727574758987783,
+          1.5539985110596872
+        ],
+        "skin_face": 15066,
+        "triangle_vertices": [
+          21180,
+          21013,
+          21012
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.006974853839176315,
+          -2.155316524658776,
+          -2.232365869503538
+        ],
+        "max_required_mm": 2.282365869503538,
+        "required_outward_mm_per_vertex": [
+          0.04302514616082369,
+          2.205316524658776,
+          2.282365869503538
+        ],
+        "skin_face": 15085,
+        "triangle_vertices": [
+          18725,
+          21105,
+          21103
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 183,
+        "initial_signed_distance_mm": [
+          -2.0752720811574457,
+          0.10104334992449941,
+          0.09846461597004465
+        ],
+        "max_required_mm": 2.1252720811574455,
+        "required_outward_mm_per_vertex": [
+          2.1252720811574455,
+          0.0,
+          0.0
+        ],
+        "skin_face": 15086,
+        "triangle_vertices": [
+          21105,
+          20013,
+          21179
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 184,
+        "initial_signed_distance_mm": [
+          -2.0739356070305845,
+          0.10378603645393895,
+          0.08480516243683306
+        ],
+        "max_required_mm": 2.1239356070305844,
+        "required_outward_mm_per_vertex": [
+          2.1239356070305844,
+          0.0,
+          0.0
+        ],
+        "skin_face": 15086,
+        "triangle_vertices": [
+          21105,
+          20013,
+          21179
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 184,
+        "initial_signed_distance_mm": [
+          -2.09291648104769,
+          0.08480516243683306,
+          0.06583569768051545
+        ],
+        "max_required_mm": 2.1429164810476897,
+        "required_outward_mm_per_vertex": [
+          2.1429164810476897,
+          0.0,
+          0.0
+        ],
+        "skin_face": 15087,
+        "triangle_vertices": [
+          21103,
+          21179,
+          19613
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 306,
+        "initial_signed_distance_mm": [
+          -2.0583564894161284,
+          -0.15300932918480697,
+          0.21010947211322975
+        ],
+        "max_required_mm": 2.108356489416128,
+        "required_outward_mm_per_vertex": [
+          2.108356489416128,
+          0.20300932918480696,
+          0.0
+        ],
+        "skin_face": 15087,
+        "triangle_vertices": [
+          21103,
+          21179,
+          19613
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 184,
+        "initial_signed_distance_mm": [
+          -2.0739356070305845,
+          0.08480516243683306,
+          -2.09291648104769
+        ],
+        "max_required_mm": 2.1429164810476897,
+        "required_outward_mm_per_vertex": [
+          2.1239356070305844,
+          0.0,
+          2.1429164810476897
+        ],
+        "skin_face": 15088,
+        "triangle_vertices": [
+          21105,
+          21179,
+          21103
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 183,
+        "initial_signed_distance_mm": [
+          0.005332330802484183,
+          0.05319378362813394,
+          -2.077128242297711
+        ],
+        "max_required_mm": 2.1271282422977107,
+        "required_outward_mm_per_vertex": [
+          0.044667669197515816,
+          0.0,
+          2.1271282422977107
+        ],
+        "skin_face": 15101,
+        "triangle_vertices": [
+          19341,
+          21157,
+          21156
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 183,
+        "initial_signed_distance_mm": [
+          0.05319378362813394,
+          0.10104334992449941,
+          -2.0292793538339993
+        ],
+        "max_required_mm": 2.079279353833999,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          0.0,
+          2.079279353833999
+        ],
+        "skin_face": 15102,
+        "triangle_vertices": [
+          21157,
+          20013,
+          21199
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          -2.0660518416001423,
+          -2.1542867838269957,
+          0.008996116307240253
+        ],
+        "max_required_mm": 2.2042867838269955,
+        "required_outward_mm_per_vertex": [
+          2.116051841600142,
+          2.2042867838269955,
+          0.04100388369275975
+        ],
+        "skin_face": 15103,
+        "triangle_vertices": [
+          21156,
+          21199,
+          19942
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 183,
+        "initial_signed_distance_mm": [
+          0.05319378362813394,
+          -2.0292793538339993,
+          -2.077128242297711
+        ],
+        "max_required_mm": 2.1271282422977107,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          2.079279353833999,
+          2.1271282422977107
+        ],
+        "skin_face": 15104,
+        "triangle_vertices": [
+          21157,
+          21199,
+          21156
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.006974853839176315,
+          -2.232365869503538,
+          0.01393964671251148
+        ],
+        "max_required_mm": 2.282365869503538,
+        "required_outward_mm_per_vertex": [
+          0.04302514616082369,
+          2.282365869503538,
+          0.03606035328748852
+        ],
+        "skin_face": 15106,
+        "triangle_vertices": [
+          18725,
+          21103,
+          21011
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 226,
+        "initial_signed_distance_mm": [
+          -0.02287920194901183,
+          -1.8489607683208182,
+          0.5442372493348367
+        ],
+        "max_required_mm": 1.8989607683208183,
+        "required_outward_mm_per_vertex": [
+          0.07287920194901183,
+          1.8989607683208183,
+          0.0
+        ],
+        "skin_face": 15106,
+        "triangle_vertices": [
+          18725,
+          21103,
+          21011
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 306,
+        "initial_signed_distance_mm": [
+          -2.0583564894161284,
+          0.21010947211322975,
+          -1.4716334585956732
+        ],
+        "max_required_mm": 2.108356489416128,
+        "required_outward_mm_per_vertex": [
+          2.108356489416128,
+          0.0,
+          1.5216334585956732
+        ],
+        "skin_face": 15107,
+        "triangle_vertices": [
+          21103,
+          19613,
+          21012
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 226,
+        "initial_signed_distance_mm": [
+          0.5442372493348367,
+          -1.2818381647416652,
+          1.1113598529139903
+        ],
+        "max_required_mm": 1.3318381647416653,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.3318381647416653,
+          0.0
+        ],
+        "skin_face": 15108,
+        "triangle_vertices": [
+          21011,
+          21012,
+          16756
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 300,
+        "initial_signed_distance_mm": [
+          0.5669623971411573,
+          -1.2781263041820534,
+          1.0696878640329721
+        ],
+        "max_required_mm": 1.3281263041820535,
+        "required_outward_mm_per_vertex": [
+          0.0,
+          1.3281263041820535,
+          0.0
+        ],
+        "skin_face": 15108,
+        "triangle_vertices": [
+          21011,
+          21012,
+          16756
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 226,
+        "initial_signed_distance_mm": [
+          -1.8489607683208182,
+          -1.2818381647416652,
+          0.5442372493348367
+        ],
+        "max_required_mm": 1.8989607683208183,
+        "required_outward_mm_per_vertex": [
+          1.8989607683208183,
+          1.3318381647416653,
+          0.0
+        ],
+        "skin_face": 15109,
+        "triangle_vertices": [
+          21103,
+          21012,
+          21011
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.006974853839176315,
+          0.007974868278301583,
+          -2.155316524658776
+        ],
+        "max_required_mm": 2.205316524658776,
+        "required_outward_mm_per_vertex": [
+          0.04302514616082369,
+          0.04202513172169842,
+          2.205316524658776
+        ],
+        "skin_face": 15130,
+        "triangle_vertices": [
+          18725,
+          21104,
+          21105
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.007974868278301583,
+          0.008996116307240253,
+          -2.1542867838269957
+        ],
+        "max_required_mm": 2.2042867838269955,
+        "required_outward_mm_per_vertex": [
+          0.04202513172169842,
+          0.04100388369275975,
+          2.2042867838269955
+        ],
+        "skin_face": 15131,
+        "triangle_vertices": [
+          21104,
+          19942,
+          21199
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 183,
+        "initial_signed_distance_mm": [
+          -2.0752720811574457,
+          -2.0292793538339993,
+          0.10104334992449941
+        ],
+        "max_required_mm": 2.1252720811574455,
+        "required_outward_mm_per_vertex": [
+          2.1252720811574455,
+          2.079279353833999,
+          0.0
+        ],
+        "skin_face": 15132,
+        "triangle_vertices": [
+          21105,
+          21199,
+          20013
+        ]
+      },
+      {
+        "all_three_already_outside_clearance": false,
+        "bone_triangle_id": 174,
+        "initial_signed_distance_mm": [
+          0.007974868278301583,
+          -2.1542867838269957,
+          -2.155316524658776
+        ],
+        "max_required_mm": 2.205316524658776,
+        "required_outward_mm_per_vertex": [
+          0.04202513172169842,
+          2.2042867838269955,
+          2.205316524658776
+        ],
+        "skin_face": 15133,
+        "triangle_vertices": [
+          21104,
+          21199,
+          21105
+        ]
+      }
+    ],
+    "shared_node_normal_conflicts": [
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.9848370105232628,
+        "node": 21007
+      },
+      {
+        "constraint_count": 7,
+        "minimum_normal_dot": -0.9848370105232628,
+        "node": 21009
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.8641411175611737,
+        "node": 20948
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.8641411175611737,
+        "node": 21169
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.8641411175611737,
+        "node": 20997
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.8641411175611737,
+        "node": 20996
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.8641411175611737,
+        "node": 20999
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.8641411175611737,
+        "node": 21083
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.8641411175611737,
+        "node": 21084
+      },
+      {
+        "constraint_count": 7,
+        "minimum_normal_dot": -0.7903826015664689,
+        "node": 21080
+      },
+      {
+        "constraint_count": 8,
+        "minimum_normal_dot": -0.7903826015664689,
+        "node": 21087
+      },
+      {
+        "constraint_count": 8,
+        "minimum_normal_dot": -0.8641411175611737,
+        "node": 21085
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.9957626568747359,
+        "node": 21002
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.9957626568747359,
+        "node": 21004
+      },
+      {
+        "constraint_count": 7,
+        "minimum_normal_dot": -0.9957626568747359,
+        "node": 21001
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.9957626568747359,
+        "node": 21156
+      },
+      {
+        "constraint_count": 7,
+        "minimum_normal_dot": -0.9848370105232628,
+        "node": 20986
+      },
+      {
+        "constraint_count": 7,
+        "minimum_normal_dot": -0.9925165497922402,
+        "node": 21158
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.8641411175611737,
+        "node": 20987
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.9925165497922402,
+        "node": 21003
+      },
+      {
+        "constraint_count": 7,
+        "minimum_normal_dot": -0.9848370105232628,
+        "node": 20946
+      },
+      {
+        "constraint_count": 7,
+        "minimum_normal_dot": -0.9848370105232628,
+        "node": 21008
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.8641411175611737,
+        "node": 21185
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.4572972274154654,
+        "node": 21088
+      },
+      {
+        "constraint_count": 11,
+        "minimum_normal_dot": -0.5463181275938768,
+        "node": 21091
+      },
+      {
+        "constraint_count": 8,
+        "minimum_normal_dot": -0.33073166040703506,
+        "node": 21089
+      },
+      {
+        "constraint_count": 12,
+        "minimum_normal_dot": -0.7677667564201607,
+        "node": 21012
+      },
+      {
+        "constraint_count": 10,
+        "minimum_normal_dot": -0.7677667564201607,
+        "node": 21013
+      },
+      {
+        "constraint_count": 7,
+        "minimum_normal_dot": -0.9957626568747359,
+        "node": 21105
+      },
+      {
+        "constraint_count": 8,
+        "minimum_normal_dot": -0.9931652033858503,
+        "node": 21103
+      },
+      {
+        "constraint_count": 6,
+        "minimum_normal_dot": -0.9957626568747359,
+        "node": 21199
+      }
+    ],
+    "shared_skin_nodes_with_opposing_target_plane_normals": 31
+  },
+  "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json",
+  "bank": [
+    65,
+    99
+  ],
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "constraints_proposed": {
+    "clearance_mm": 0.05,
+    "crossing_face_vertex_rule": "for each stored exact skin-face/stable-bone-triangle pair, constrain all three vertices of that skin face to the outward bone-triangle plane halfspace",
+    "fixed_boundary": "63-edge simple patch loop from pinned two-ring/fan topology",
+    "no contour roots will be inserted": "Use current patch vertices and face identities; no exact endpoints become nodes or edges.",
+    "per_node_movement_cap_mm": 2.0,
+    "shape_guards_for_later_fit": [
+      "max node displacement <= 2.0 mm",
+      "min angle >= max(0.5 deg, 0.9 * input patch min angle)",
+      "positive orientation",
+      "projected area ratio >= 0.10",
+      "same 241 source face identities"
+    ]
+  },
+  "elapsed_seconds": 0.814183667069301,
+  "inputs": {
+    "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+    "bone_triangle_count": 342,
+    "candidate_faces": 42379,
+    "candidate_points": 21212,
+    "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+    "sub_ulp_failure_witness_sha256": "7efd2c3806fc0f1b126efce261c38315a5181fe5e102a54b2f44d2c38447d60d",
+    "two_ring_fan_receipt_sha256": "2cf84019b3c58e9300b063e61d9b3001c3111e8dfa84985ca773b8bc020c0281"
+  },
+  "next_attempt_contract": {
+    "bone_constraints": "for every crossing face/stable bone triangle pair, require every vertex of the corresponding current skin face to satisfy that bone triangle outward plane; apply the same halfspace to those existing face vertices",
+    "fit_will_start_from": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+    "none_of_these_postfit_checks_was_run": true,
+    "required_after_authorization": "SLSQP feasibility/fit, emitted Float32 shape screen, exact local bone/inside screen, exact neighboring-skin self screen, then all-bank screen if warranted",
+    "shape": "preserve all 241 face identities and CSR; positive parent orientation, area ratio >=0.10, min angle >= max(0.5 degrees, 90% baseline min angle), max movement 2.0 mm",
+    "topology": "keep the existing 241-face patch and 63 fixed boundary edges; no extra contour vertices"
+  },
+  "patch": {
+    "all_crossing_faces_in_patch": true,
+    "all_patch_faces_have_source_face_csr": true,
+    "boundary_candidate_node_rows": [
+      8990,
+      9628,
+      10555,
+      11585,
+      12364,
+      12388,
+      13676,
+      14175,
+      14177,
+      14713,
+      14715,
+      14716,
+      14719,
+      15393,
+      15394,
+      15914,
+      16707,
+      16710,
+      16711,
+      16713,
+      16722,
+      16751,
+      16756,
+      18458,
+      18567,
+      18569,
+      18727,
+      18729,
+      18730,
+      18859,
+      18862,
+      18863,
+      18994,
+      18996,
+      18997,
+      18998,
+      19011,
+      19342,
+      19469,
+      19471,
+      19472,
+      19475,
+      19934,
+      19935,
+      19936,
+      19937,
+      19940,
+      19941,
+      19943,
+      19944,
+      19946,
+      19951,
+      19972,
+      19975,
+      19976,
+      19979,
+      20005,
+      20006,
+      20007,
+      20010,
+      20021,
+      21090,
+      21167
+    ],
+    "boundary_degree_histogram": {
+      "2": 63
+    },
+    "boundary_edge_count": 63,
+    "boundary_loop_count": 1,
+    "boundary_vertex_count": 63,
+    "connected_components": 1,
+    "crossing_face_count": 120,
+    "edge_count": 393,
+    "euler_characteristic": 1,
+    "face_count": 241,
+    "immediate_parent_face_ids_preserved": true,
+    "is_single_disk": true,
+    "nearest_pinned_boundary_distance_mm": 0.002456564018298625,
+    "source_face_count": 241,
+    "source_face_csr_id_count": 282,
+    "source_rows_sha256": "4035249bfcb5ea5c8c77dc0ce9739867c9706fede198c84b07bc6acfe09baaa4",
+    "stored_crossing_pair_count": 148,
+    "vertex_count": 153
+  },
+  "schema": "numi.human.bank65_99.bone-aware-connected-patch-preflight.v1",
+  "scope": "Read-only local preflight. No optimizer, vertex edits, exact re-audit, all-bank audit, or self screen.",
+  "shape_baseline": {
+    "all_source_faces_nondegenerate": true,
+    "max_aspect_measure": 25.036546159215828,
+    "max_triangle_area_m2": 2.5847507239045997e-06,
+    "min_angle_degrees": 0.9009779387434572,
+    "min_triangle_area_m2": 2.580835131620346e-09,
+    "p05_angle_degrees": 2.1169610496937694
+  },
+  "status": "PREPARED_LIGHT_PREFLIGHT_COMPLETE",
+  "sub_ulp_contour_root_caveat": {
+    "distinct_roots_collapsed_after_float32": [
+      116,
+      117
+    ],
+    "endpoint_topology_strategy": "do not emit or triangulate exact root coordinates; move existing patch vertices only",
+    "exact_root_separation_m": 1.3764884366052629e-08
+  },
+  "sub_ulp_witness_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-003-exact-endpoint-identity/facewise-failure-witness.json",
+  "topology_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-002/fan-hole-ancestry-check.json"
+}

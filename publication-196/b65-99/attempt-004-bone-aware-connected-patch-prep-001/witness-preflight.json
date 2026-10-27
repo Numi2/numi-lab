@@ -1,0 +1,261 @@
+{
+  "bank": [
+    65,
+    99
+  ],
+  "base_patch": {
+    "all_source_face_csr_rows_present": true,
+    "boundary_degree_histogram": {
+      "2": 63
+    },
+    "boundary_edge_count": 63,
+    "boundary_loop_count": 1,
+    "boundary_vertex_count": 63,
+    "connected_components": 1,
+    "edge_count": 393,
+    "euler_characteristic": 1,
+    "face_count": 241,
+    "fixed_boundary_node_count": 63,
+    "is_single_disk": true,
+    "source_face_count": 241,
+    "source_rows_sha256": "4035249bfcb5ea5c8c77dc0ce9739867c9706fede198c84b07bc6acfe09baaa4",
+    "vertex_count": 153
+  },
+  "cached_witnesses": {
+    "all_barycentrics_exactly_reconstruct": true,
+    "endpoint_count": 296,
+    "endpoint_nodes_are_not_emitted_or_inserted": true,
+    "exact_local_root_ids_116_117_f32_collapse_separation_m": 1.3764884366052629e-08,
+    "fixed_only_support_nodes_before_expansion": [],
+    "fixed_only_witness_endpoint_count_before_expansion": 0,
+    "max_equal_support_motion_lower_bound_mm_before_expansion": 35.57712080877697,
+    "pair_count": 148,
+    "support_nodes_selected_for_measured_expansion": [
+      16710,
+      19941,
+      19972
+    ],
+    "unique_exact_endpoint_points": 148,
+    "witness_endpoint_count_over_3mm_support_bound_before_expansion": 16,
+    "witness_node_opposing_normal_conflicts": [
+      {
+        "bone_triangle_ids": [
+          174,
+          175
+        ],
+        "constraint_count": 8,
+        "minimum_normal_dot": -0.984837010523263,
+        "node": 21007
+      },
+      {
+        "bone_triangle_ids": [
+          173,
+          174,
+          175
+        ],
+        "constraint_count": 10,
+        "minimum_normal_dot": -0.984837010523263,
+        "node": 21009
+      },
+      {
+        "bone_triangle_ids": [
+          174,
+          183
+        ],
+        "constraint_count": 8,
+        "minimum_normal_dot": -0.9957626568747361,
+        "node": 21002
+      },
+      {
+        "bone_triangle_ids": [
+          174,
+          183
+        ],
+        "constraint_count": 8,
+        "minimum_normal_dot": -0.9957626568747361,
+        "node": 21004
+      },
+      {
+        "bone_triangle_ids": [
+          174,
+          180,
+          183
+        ],
+        "constraint_count": 10,
+        "minimum_normal_dot": -0.9957626568747361,
+        "node": 21001
+      },
+      {
+        "bone_triangle_ids": [
+          174,
+          183
+        ],
+        "constraint_count": 8,
+        "minimum_normal_dot": -0.9957626568747361,
+        "node": 21156
+      },
+      {
+        "bone_triangle_ids": [
+          173,
+          174,
+          175
+        ],
+        "constraint_count": 10,
+        "minimum_normal_dot": -0.984837010523263,
+        "node": 20986
+      },
+      {
+        "bone_triangle_ids": [
+          174,
+          175,
+          180
+        ],
+        "constraint_count": 10,
+        "minimum_normal_dot": -0.9925165497922404,
+        "node": 21158
+      },
+      {
+        "bone_triangle_ids": [
+          174,
+          180
+        ],
+        "constraint_count": 8,
+        "minimum_normal_dot": -0.9925165497922404,
+        "node": 21003
+      },
+      {
+        "bone_triangle_ids": [
+          173,
+          174,
+          175
+        ],
+        "constraint_count": 10,
+        "minimum_normal_dot": -0.984837010523263,
+        "node": 20946
+      },
+      {
+        "bone_triangle_ids": [
+          173,
+          174,
+          175
+        ],
+        "constraint_count": 10,
+        "minimum_normal_dot": -0.9414868203320054,
+        "node": 21008
+      },
+      {
+        "bone_triangle_ids": [
+          174,
+          184,
+          226,
+          306
+        ],
+        "constraint_count": 12,
+        "minimum_normal_dot": -0.9963465198501538,
+        "node": 21103
+      },
+      {
+        "bone_triangle_ids": [
+          174,
+          183,
+          184
+        ],
+        "constraint_count": 10,
+        "minimum_normal_dot": -0.9957626568747361,
+        "node": 21105
+      },
+      {
+        "bone_triangle_ids": [
+          174,
+          183
+        ],
+        "constraint_count": 8,
+        "minimum_normal_dot": -0.9957626568747361,
+        "node": 21199
+      }
+    ],
+    "witness_node_opposing_normal_conflicts_count": 14
+  },
+  "clearance_mm": 0.05,
+  "elapsed_seconds": 0.8960567910689861,
+  "fit_contract": {
+    "conditional_gates": "stop before self check unless mapped parent-identity crossings are strictly below the original 148 identities and there are no inside/boundary vertices; if improved, run exact local patch self and neighboring-skin self; no native/physical admission",
+    "cumulative_patch_displacement_cap_mm": 3.0,
+    "fit_or_exact_reaudit_run": false,
+    "fixed_boundary": "the measured expanded patch boundary only; do not fix witness-only support nodes inside patch",
+    "method": "per-witness exact barycentric halfspaces on current crossing endpoints, no endpoint emission; local trust-region objective, re-audit exact Float32 patch against all 342 bank triangles each iteration, add only new exact witness constraints, cap at three iterations",
+    "shape_gates": [
+      "area ratio >= 0.10",
+      "max movement <= 3.0 mm",
+      "min angle >= max(0.5 degrees, 90% of preflight patch baseline)",
+      "positive parent-relative orientation",
+      "source face CSR and face identities preserved"
+    ],
+    "sub_ulp_coordinates_inserted": false,
+    "trust_step_mm": 0.5
+  },
+  "max_cumulative_movement_mm": 3.0,
+  "measured_expansion": {
+    "added_face_count": 7,
+    "added_face_rows": [
+      14141,
+      14164,
+      14170,
+      14399,
+      14400,
+      14401,
+      14402
+    ],
+    "added_face_rows_missing_ancestry": [],
+    "all_added_faces_have_source_face_csr": true,
+    "boundary_degree_histogram": {
+      "2": 62
+    },
+    "boundary_edge_count": 62,
+    "boundary_loop_count": 1,
+    "boundary_vertex_count": 62,
+    "connected_components": 1,
+    "edge_count": 403,
+    "euler_characteristic": 1,
+    "face_count": 248,
+    "fixed_only_witness_endpoints_after_expansion": 0,
+    "is_single_disk": true,
+    "max_equal_support_motion_lower_bound_mm_after_expansion": 1.2817900688057442,
+    "new_fixed_boundary_node_count": 62,
+    "over_cap_witness_count_before_expansion": 16,
+    "source_face_count": 248,
+    "source_rows_sha256": "09d6f9205cfbc4c267607717a4358751d939882aa2e99759c73fb6d4b190b3fe",
+    "stored_other_bank_crossing_pairs_in_expanded_patch": [],
+    "support_nodes_expanded": [
+      16710,
+      19941,
+      19972
+    ],
+    "vertex_count": 156,
+    "witnesses_with_partial_fixed_support_after_expansion": 54
+  },
+  "opposing_plane_finding": {
+    "bone_triangle_ids": [
+      174,
+      175
+    ],
+    "classification": "distinct non-edge-adjacent bone triangles with nearly opposing outward normals; supports witness-local constraints instead of imposing both planes on every shared skin vertex",
+    "normal_dot": -0.9848370105232628,
+    "shared_bone_edges": 0,
+    "shared_float32_vertices_between_bone_triangles": 0,
+    "skin_node_from_all_three_preflight": 21007
+  },
+  "pins": {
+    "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+    "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+    "exact_endpoint_graph_receipt_sha256": "e54f1e6572c508054ba3402401b03fd04d901927703e8e686e69037eec015349",
+    "sub_ulp_failure_witness_sha256": "7efd2c3806fc0f1b126efce261c38315a5181fe5e102a54b2f44d2c38447d60d",
+    "two_ring_fan_topology_receipt_sha256": "2cf84019b3c58e9300b063e61d9b3001c3111e8dfa84985ca773b8bc020c0281"
+  },
+  "schema": "numi.human.bank65_99.witness-barycentric-preflight.v1",
+  "scope": "Cached exact intersection witness reconstruction and combinatorial boundary expansion only. No optimizer or new exact intersection/self/all-bank audit.",
+  "script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b65-99/attempt-004-bone-aware-connected-patch-prep-001/prepare_b65_99_witnesses.py",
+  "script_sha256": "35b6a301b69fbcdc76caa661ccca5fd5efe0e48a529393435c8539099ccd56e8",
+  "status": "WITNESS_BARYCENTRICS_VERIFIED_BOUNDARY_EXPANSION_PREPARED",
+  "trust_step_mm": 0.5
+}

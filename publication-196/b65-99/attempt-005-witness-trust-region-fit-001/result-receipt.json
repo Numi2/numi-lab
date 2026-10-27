@@ -1,0 +1,51 @@
+{
+  "bank": [
+    65,
+    99
+  ],
+  "baseline": {
+    "inside_or_boundary_patch_nodes": 29,
+    "max_aspect": 25.036546159215828,
+    "minimum_angle_degrees": 0.9009779387434572
+  },
+  "cached_witnesses": {
+    "deduplicated_rational_anchor_count": 296,
+    "distinct_exact_points": 148,
+    "endpoint_coordinates_emitted": false,
+    "exact_pair_count": 148
+  },
+  "candidate_modified": false,
+  "emitted_float32_shape_check_run": false,
+  "exact_local_bone_check_run": false,
+  "first_gate_failure": {
+    "iterations": 86,
+    "message": "Positive directional derivative for linesearch",
+    "minimum_double_shape_residual": -9.31459163108217e-05,
+    "minimum_witness_residual_scaled": -0.02444844238669702,
+    "shape_constraints": 248,
+    "stage": "SLSQP before Float32 emission",
+    "success": false,
+    "witness_constraints": 296
+  },
+  "geometry_or_native_admission": false,
+  "local_self_check_run": false,
+  "method": "248-face connected disk, 62 fixed boundary nodes, 296 cached exact rational barycentric witness constraints; no endpoint coordinates emitted; 0.5 mm trust step, 3.0 mm cumulative cap, parent-oriented area guards",
+  "patch": {
+    "boundary_edges": 62,
+    "connected_components": 1,
+    "csr_ancestry_preserved": true,
+    "euler_characteristic": 1,
+    "face_count": 248
+  },
+  "pins": {
+    "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+    "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+    "endpoint_receipt_sha256": "e54f1e6572c508054ba3402401b03fd04d901927703e8e686e69037eec015349",
+    "full_report_sha256": "fdff13cd12588ee60c0c89c83ce19fd3be230e48029f998fe65ff594334fcd97",
+    "preflight_sha256": "579ab33b2a1922af8075d7825b93a2a132e0f84aaf072b85c56a2196f9083855",
+    "script_sha256": "0ae92b43817f021823acc31cfb7d8b883e6ef527484d9c1c1a66846f7a9e504e"
+  },
+  "private_candidate_files": [],
+  "schema": "numi.human.bank65_99.witnessed-trust-region-fit-receipt.v1",
+  "status": "PRIVATE_REJECTED_SLSQP"
+}

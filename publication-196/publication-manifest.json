@@ -1,0 +1,252 @@
+{
+  "schema": "numi.human.p196_evidence_manifest.v1",
+  "parent_commit": "5246f2e3120cc661213749d0e69aa0f97656f772",
+  "status": "construction evidence only; no physical or native admission",
+  "members": [
+    {
+      "path": "README.md",
+      "sha256": "0fcfba25464c2ef64e9b177b9ae22164c17d40d1fafdeb776eb7e6574569865b",
+      "bytes": 2180
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/actual-crossing-witness-map.json",
+      "sha256": "a81eef5507def4d62f36ec507f01f1cbfff4d5f0ec96627a8b780dcebe676d35",
+      "bytes": 497618
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/backtracking-001/backtrack.py",
+      "sha256": "544e115c7faa82caf44814e287bc667cf139765b1b2bddae573bab4ca661f574",
+      "bytes": 12671
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/backtracking-001/backtrack_corrected.py",
+      "sha256": "14d11ff657dafb07c5d878097d7b112092a641b9ce6bede162727f53610595c9",
+      "bytes": 15517
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/backtracking-001/backtracking-report-corrected.json",
+      "sha256": "f4c3721bf52ce893ae63441b558db025f8f204c17008c4ae8b03d71fd29d55b5",
+      "bytes": 13869
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/backtracking-001/backtracking-report-pre-fix.json",
+      "sha256": "b97a84c5a2bb05d78d08bec6fe6af4d1ce83a243b47bd727c534eddba765a9a5",
+      "bytes": 13231
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/backtracking-001/backtracking-report.json",
+      "sha256": "b97a84c5a2bb05d78d08bec6fe6af4d1ce83a243b47bd727c534eddba765a9a5",
+      "bytes": 13231
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/backtracking-002/per-face-tolerance-report.json",
+      "sha256": "a94f1a40b4c9dfabfaab0875a6a929f4bf54a28c1160e951997857e7461ef43c",
+      "bytes": 62389
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/backtracking-002/per_face_tolerance.py",
+      "sha256": "b2eb6225fda8236bd06e3baf6b43c13963d15d314e1c69451e9df89e4cee70cc",
+      "bytes": 16154
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/fan-quality-diagnostic.json",
+      "sha256": "16ad18f0b34660f98ebe94f545f9751aa20f1298419fc987865bf0f225a12fc1",
+      "bytes": 31496
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/fan-source-patch.npz",
+      "sha256": "c018978b0b7a1163f657d739f4234ced7b389f96da04f53abbe316e0f8164a60",
+      "bytes": 13665
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/private-bone-aware-selective-patch.npz",
+      "sha256": "01ac76bf8bcc500a01717bde8fec160d9de9c24799f9ad21506ba78837cbd6f6",
+      "bytes": 23524
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/selective-excluded-witnesses.json",
+      "sha256": "fd400ad49e8fae88c6d90fef60cc0efd8026e12fb71a26ee24338ddd99aaf4b8",
+      "bytes": 87224
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/selective-fit-preflight.json",
+      "sha256": "5ecf9d3b4c4e7c9bbb00c8ab69aeb0154671c2f801e40cb5d8d1f8330392aa7a",
+      "bytes": 8330
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/selective-fit-report.json",
+      "sha256": "1ec6596339e1a4cbfd649f1a6564a7e4bf8e4ae0f2c1e7758096437b8146f6a1",
+      "bytes": 26177
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/selective-pre-fit-patch.npz",
+      "sha256": "bb28a0b60494b98d0fbe5a4ab0fa6db8849737d1edee4949120d9dfa62c24dc5",
+      "bytes": 17740
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/selective_fit.py",
+      "sha256": "1037bc39d254741be6c2016a763f58d42235f7281f01e9bfd853b1542d57c5da",
+      "bytes": 24861
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/selective_fit_preflight.py",
+      "sha256": "2f85123163ff6854ad7e6ead2d3207fe7454f6febe101e124ad6da1534a3267d",
+      "bytes": 10352
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/setup-preflight.json",
+      "sha256": "2c7fbd6298fb4ad0f77a760267d6df199fb81eb6d6d7eb9ce8b463627f3eb8ed",
+      "bytes": 2701
+    },
+    {
+      "path": "b109-114/attempt-004-bone-aware-centroid-fan-001/setup_preflight.py",
+      "sha256": "676baa3d83f2ef46754f9f1c43b94fad23f67184161e426a591d7da33b3b74e1",
+      "bytes": 10283
+    },
+    {
+      "path": "b115-118/attempt-008-witness-guided-continuation-001/pre-fit-centroid-fan-patch.npz",
+      "sha256": "f2fdbb3e1074c11b4a78655a12e9a2e59d8bc2d671f94881e82b3196b765f814",
+      "bytes": 14685
+    },
+    {
+      "path": "b115-118/attempt-008-witness-guided-continuation-001/private-bone-aware-centroid-fan-patch.npz",
+      "sha256": "5bc2e3f253f85bac2c1ee2834d0b0da26d0ae1aab4e4ee59f7189b7ba135b182",
+      "bytes": 18719
+    },
+    {
+      "path": "b115-118/attempt-008-witness-guided-continuation-001/report.json",
+      "sha256": "7ec024668a31bcc857e9ec3209681d3e21c20ecf12c22b1ad437af214b7b37b4",
+      "bytes": 40746
+    },
+    {
+      "path": "b115-118/attempt-008-witness-guided-continuation-001/result-receipt.json",
+      "sha256": "be84459fc7e500ae0c566d85eed2c20346d9e375c781ff382ea698012f4b031b",
+      "bytes": 2399
+    },
+    {
+      "path": "b115-118/attempt-008-witness-guided-continuation-001/witness_continuation.py",
+      "sha256": "bfdb8908dd5f95b59ea105a83d6d3fe1723705d2c41d86831a4aca30162c30ee",
+      "bytes": 32600
+    },
+    {
+      "path": "b43-16/attempt-006-bone-aware-centroid-fan-prep-001/fit-readiness.json",
+      "sha256": "86da40663aa08ccdd6087c8589528190cc2643ca200edb3183361d855e48a2c0",
+      "bytes": 3212
+    },
+    {
+      "path": "b43-16/attempt-006-bone-aware-centroid-fan-prep-001/fit-report.json",
+      "sha256": "ac6572afd696d1b939378e65f366aa87a76267773f5445b06dfc83d402df7003",
+      "bytes": 140549
+    },
+    {
+      "path": "b43-16/attempt-006-bone-aware-centroid-fan-prep-001/fit-summary.json",
+      "sha256": "86521a88c6c0c293557a64cdf662372ea0b46d0dfa94cb8f472a35a54e1111c6",
+      "bytes": 9736
+    },
+    {
+      "path": "b43-16/attempt-006-bone-aware-centroid-fan-prep-001/preflight.json",
+      "sha256": "0213743b5813976c5b155ead5548a9aae039eac8efc42ebc047aca7df93abea4",
+      "bytes": 5254
+    },
+    {
+      "path": "b43-16/attempt-006-bone-aware-centroid-fan-prep-001/preflight.py",
+      "sha256": "5ef6311a8981a1dc33c281281cb16d17bdaf5e93d0c81cc2c50deba7ae8b8278",
+      "bytes": 13162
+    },
+    {
+      "path": "b43-16/attempt-006-bone-aware-centroid-fan-prep-001/selective-preflight.json",
+      "sha256": "e6f93186e79d449ae562d75b2bad1870a3dbb87933779e9013e69aefbf790973",
+      "bytes": 61585
+    },
+    {
+      "path": "b43-16/attempt-006-bone-aware-centroid-fan-prep-001/selective-sparse-lp-patch.npz",
+      "sha256": "024b2659c0d5823265f90509d0a3a2b1833d96eb3d98625c5654552bb4e07470",
+      "bytes": 56329
+    },
+    {
+      "path": "b43-16/attempt-006-bone-aware-centroid-fan-prep-001/selective_preflight.py",
+      "sha256": "381e0568f6f3b36cb3686e16daee3611679c7a86abc94599f8e81c5a51ea012d",
+      "bytes": 10982
+    },
+    {
+      "path": "b43-16/attempt-006-bone-aware-centroid-fan-prep-001/selective_sparse_fit.py",
+      "sha256": "03b74ed5365cb16925b62608e58b943a91b14cff69fe0e2806068e09404306e4",
+      "bytes": 39891
+    },
+    {
+      "path": "b65-99/attempt-004-bone-aware-connected-patch-prep-001/preflight.json",
+      "sha256": "8a1fbe8dab13f180d19be3a09eb5bbeb4aa7ba07d983f36c57f595ca37696efc",
+      "bytes": 95933
+    },
+    {
+      "path": "b65-99/attempt-004-bone-aware-connected-patch-prep-001/prepare_b65_99_patch.py",
+      "sha256": "039d845df1aaad0ec457bc05c7bfcd7de331d6cde55c6267315875bd4f6f4e5c",
+      "bytes": 13919
+    },
+    {
+      "path": "b65-99/attempt-004-bone-aware-connected-patch-prep-001/prepare_b65_99_witnesses.py",
+      "sha256": "35b6a301b69fbcdc76caa661ccca5fd5efe0e48a529393435c8539099ccd56e8",
+      "bytes": 16400
+    },
+    {
+      "path": "b65-99/attempt-004-bone-aware-connected-patch-prep-001/witness-preflight.json",
+      "sha256": "579ab33b2a1922af8075d7825b93a2a132e0f84aaf072b85c56a2196f9083855",
+      "bytes": 8194
+    },
+    {
+      "path": "b65-99/attempt-005-witness-trust-region-fit-001/fit_65_99_witnessed.py",
+      "sha256": "0ae92b43817f021823acc31cfb7d8b883e6ef527484d9c1c1a66846f7a9e504e",
+      "bytes": 23693
+    },
+    {
+      "path": "b65-99/attempt-005-witness-trust-region-fit-001/report.json",
+      "sha256": "fdff13cd12588ee60c0c89c83ce19fd3be230e48029f998fe65ff594334fcd97",
+      "bytes": 7439
+    },
+    {
+      "path": "b65-99/attempt-005-witness-trust-region-fit-001/result-receipt.json",
+      "sha256": "22bb069080b7c7933112458da941deee8889c4791360eba8f8f020006cf76ce3",
+      "bytes": 2030
+    },
+    {
+      "path": "b65-99/attempt-006-witness-trust-region-highs-001/fit_65_99_witnessed_highs.py",
+      "sha256": "d390f2401a84548369a3265dcdfd4164f4d80f9af028fa4f373783e548b44e62",
+      "bytes": 26702
+    },
+    {
+      "path": "b65-99/attempt-006-witness-trust-region-highs-001/report.json",
+      "sha256": "ced6d2090edeac44a75d311a141342babb601ac09bf97ea5832a3393c7ff3e40",
+      "bytes": 7774
+    },
+    {
+      "path": "b65-99/attempt-007-witness-trust-region-highs-corrected-001/fit_65_99_witnessed_highs.py",
+      "sha256": "6152421a6ec3d82c7a3a57e28fb8449a54df096e8312437d2b1fdd7e8e33dd49",
+      "bytes": 26718
+    },
+    {
+      "path": "b65-99/attempt-007-witness-trust-region-highs-corrected-001/report.json",
+      "sha256": "c2eefd9eae562778569838a5eae5f731673b46950e30a875533c9db5e97cf3cf",
+      "bytes": 8628
+    },
+    {
+      "path": "b65-99/attempt-008-witness-direction-backtrack-prepared-001/candidate-private-iteration-01.npz",
+      "sha256": "8931f3f240f595f2df17e91cb4f4c82688721e778e81bcbc4acc7f6264d61d70",
+      "bytes": 7303245
+    },
+    {
+      "path": "b65-99/attempt-008-witness-direction-backtrack-prepared-001/fit_65_99_witnessed_highs_backtrack.py",
+      "sha256": "dc017ff74bacb4e3f378dd789afa614c02d1023d9d5864963ca7fa6c79ea1899",
+      "bytes": 28594
+    },
+    {
+      "path": "b65-99/attempt-008-witness-direction-backtrack-prepared-001/lp-direction.npz",
+      "sha256": "de7d2414ef1c1a3a39e799c932a302db70b937c08f6f07030b9058dba0821ff4",
+      "bytes": 2675
+    },
+    {
+      "path": "b65-99/attempt-008-witness-direction-backtrack-prepared-001/report.json",
+      "sha256": "5ce52aa8e793a0ff8cf202e9efa00f9dee01823f6cf62144426725612c4a3d0e",
+      "bytes": 23132
+    }
+  ]
+}

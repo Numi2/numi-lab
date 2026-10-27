@@ -1,0 +1,62 @@
+{
+  "bank": [
+    115,
+    118
+  ],
+  "candidate_modified": false,
+  "exact_bone": {
+    "added_vs_original_count": 37,
+    "added_vs_seed_count": 4,
+    "child_pair_count": 75,
+    "inside_boundary_location_counts": {
+      "outside": 143
+    },
+    "mapped_parent_identity_pairs": 49,
+    "net_vs_original": 3,
+    "parent_identity_improved_vs_original": false,
+    "removed_vs_original_count": 34,
+    "removed_vs_seed_count": 6
+  },
+  "fit": {
+    "emitted_shape_gate": {
+      "face_count": 237,
+      "maximum_aspect_measure": 32.3752220883378,
+      "minimum_angle_degrees": 0.6473752125581463,
+      "minimum_signed_orientation_ratio": 0.09994972647011278,
+      "minimum_unsigned_parent_area_ratio": 0.1000074964241186,
+      "orientation_positive": true,
+      "p05_angle_degrees": 1.7718657711532715,
+      "p95_aspect_measure": 12.966267233799975,
+      "pass": true
+    },
+    "fixed_boundary_bitwise_preserved": true,
+    "iterations": 24,
+    "max_additional_node_displacement_mm": 0.08349670171805468,
+    "success": true,
+    "witness_halfspaces": 158
+  },
+  "geometry_or_native_admission": false,
+  "method": "one SLSQP witness-guided continuation using exact intersection-point halfspaces from the prior emitted Float32 patch; fixed 47-edge boundary and 237 parent-oriented child-area guards",
+  "original_audit": {
+    "exact_pairs": 46,
+    "parent_identity_pairs": 46
+  },
+  "pins": {
+    "attempt_patch_sha256": "5bc2e3f253f85bac2c1ee2834d0b0da26d0ae1aab4e4ee59f7189b7ba135b182",
+    "attempt_report_sha256": "7ec024668a31bcc857e9ec3209681d3e21c20ecf12c22b1ad437af214b7b37b4",
+    "attempt_script_sha256": "bfdb8908dd5f95b59ea105a83d6d3fe1723705d2c41d86831a4aca30162c30ee",
+    "original_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+    "seed_fit_patch_sha256": "2955e3b23a122c5ddbe2bb602179168796ff3a41d4339e9006eb7997ed8e7c1e",
+    "seed_report_sha256": "957e06a33273bb8d5fb13a417c66f059f4457c767bcee0d2ae68167d0897098d",
+    "wide_topology_sha256": "67c90a682da5213bb7f26d166565b1a7e36d502dff504ab2ffd7ebf734ed14e4"
+  },
+  "seed": {
+    "exact_child_pairs": 79,
+    "mapped_parent_identity_pairs": 51
+  },
+  "self_screen": {
+    "reason": "mapped identity count 49 is not strictly below original 46; instruction stops before local self screen",
+    "run": false
+  },
+  "status": "PRIVATE_REJECTED_NO_PARENT_IDENTITY_IMPROVEMENT"
+}

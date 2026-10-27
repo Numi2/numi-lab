@@ -1,0 +1,113 @@
+{
+  "active_region": {
+    "affected_child_faces_for_shape_linearization": 1185,
+    "affected_parent_faces_for_shape_linearization": 395,
+    "core_parent_faces": 183,
+    "fixed_boundary_nodes": 54,
+    "movable_coordinate_dofs": 1266,
+    "movable_fan_centers": 269,
+    "movable_source_nodes_excluding_fixed_boundary": 153,
+    "one_edge_ring_parent_faces": 269,
+    "total_movable_points": 422
+  },
+  "candidate": {
+    "dtype_faces": "int64",
+    "dtype_points": "float32",
+    "face_count": 42379,
+    "point_count": 21212
+  },
+  "center_float32_equals_parent_corner_count": 0,
+  "center_float32_equals_parent_corner_examples": [],
+  "emitted_baseline_shape": {
+    "face_count": 1302,
+    "maximum_aspect_measure": 435.6959062303625,
+    "minimum_angle_degrees": 0.06246216194752739,
+    "minimum_signed_orientation_ratio": 0.16792506804862978,
+    "minimum_unsigned_parent_area_ratio": 0.1679250680921485,
+    "orientation_positive": true,
+    "p05_angle_degrees": 0.3345223630988358,
+    "p95_aspect_measure": 59.86925604206693
+  },
+  "gates": {
+    "baseline_shape_gate_pass": false,
+    "bone_or_self_audit_run": false,
+    "candidate_emitted": false,
+    "constructor_reference_min_parent_area_ratio": 0.1,
+    "fit_authorized_or_run": false,
+    "max_aspect_measure": 50.0,
+    "min_angle_degrees": 0.5
+  },
+  "inputs": {
+    "attempt-001/complement-filled-patch-face-rows.npy": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-001/complement-filled-patch-face-rows.npy",
+      "sha256": "ad2fb608a536ab8396b781baab4b01f62fc8ae1da81ad533fcb6a4c281131085"
+    },
+    "attempt-001/final-disposition.json": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-001/final-disposition.json",
+      "sha256": "b651eef56622cb66eac52ec79eeef74cba9a4d869a8356caf044cb9fb39a94b6"
+    },
+    "attempt-001/local-diagnostic.json": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-001/local-diagnostic.json",
+      "sha256": "adcfeedb5219cb7547b377baa98cbfb83d7ecc64b08b2df1b153bef7ed1aedda"
+    },
+    "audit-159/report.json": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json",
+      "sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e"
+    },
+    "candidate.npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+      "sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af"
+    }
+  },
+  "limitations": [
+    "This is topology and shape preflight only; it does not check collision clearance or physical adequacy.",
+    "The LP size assumes a centroid fan over the saved one-disk patch and one-edge-ring movable support.",
+    "Exact pair-to-fan barycentric endpoint mapping and per-point bone normals must be reconstructed from the pinned exact witnesses before a solver run.",
+    "After any authorized fit, reject unless the exact emitted Float32 skin has strict net crossing reduction, zero new self pairs, all 185 bank no-worsening, ancestry/source/anchor and shape gates pass."
+  ],
+  "patch": {
+    "ancestry_entries_if_each_child_inherits_parent_span": 1302,
+    "ancestry_entries_min_max": [
+      1,
+      1
+    ],
+    "ancestry_parent_count": 434,
+    "boundary_degree_histogram": {
+      "2": 54
+    },
+    "boundary_edge_count": 54,
+    "boundary_node_count": 54,
+    "crossing_face_count": 183,
+    "crossing_faces_in_patch": 183,
+    "edge_count": 678,
+    "euler_characteristic": 1,
+    "exact_crossing_pair_count": 249,
+    "expanded_child_faces": 1302,
+    "face_edge_components": [
+      434
+    ],
+    "inside_nodes_not_on_boundary": 43,
+    "inside_source_node_count": 43,
+    "parent_face_count": 434,
+    "unique_source_vertex_count": 245
+  },
+  "schema": "numi.human.bank43_16.centroid_fan_prep.v1",
+  "sparse_lp_estimate": {
+    "absolute_value_rows": 2532,
+    "conservative_bone_row_bound": 920,
+    "crossing_endpoint_halfspace_rows": 498,
+    "estimated_nonzero_upper_bound": 21477,
+    "known_inside_source_halfspace_rows": 43,
+    "linearized_area_rows": 1185,
+    "notes": [
+      "one 0.5 mm trust-region LP with HiGHS is proposed; no solver run occurred",
+      "498 exact-pair endpoint rows are retained, with one halfspace per endpoint",
+      "point-location adds at most one plane per movable point; exact local classification is deferred",
+      "linearized child-area constraints are provisional; exact emitted Float32 area, angle, aspect, bone and self checks remain mandatory"
+    ],
+    "total_linear_inequality_row_bound": 4637,
+    "variables_coordinate_delta_plus_abs_slack": 2532,
+    "worst_case_point_inside_rows_for_every_movable_point": 422
+  },
+  "status": "PREFLIGHT_ONLY_NO_FIT_OR_BONE_OR_SELF_AUDIT"
+}

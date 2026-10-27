@@ -1,0 +1,514 @@
+{
+  "artifacts": {
+    "fit_report_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-006-bone-aware-centroid-fan-prep-001/fit-report.json",
+    "fit_report_sha256": "ac6572afd696d1b939378e65f366aa87a76267773f5445b06dfc83d402df7003",
+    "patch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-006-bone-aware-centroid-fan-prep-001/selective-sparse-lp-patch.npz",
+    "patch_sha256": "024b2659c0d5823265f90509d0a3a2b1833d96eb3d98625c5654552bb4e07470",
+    "solver_script_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/per-bank-workers-20261027/b43-16/attempt-006-bone-aware-centroid-fan-prep-001/selective_sparse_fit.py",
+    "solver_script_sha256": "03b74ed5365cb16925b62608e58b943a91b14cff69fe0e2806068e09404306e4"
+  },
+  "bone": {
+    "baseline_parent_bone_pairs": 249,
+    "emitted_inside_boundary_points": 174,
+    "excluded_unresolved_pairs": [
+      [
+        19309,
+        135
+      ],
+      [
+        19310,
+        145
+      ],
+      [
+        19311,
+        135
+      ],
+      [
+        19312,
+        135
+      ],
+      [
+        19352,
+        144
+      ],
+      [
+        19353,
+        144
+      ],
+      [
+        19354,
+        130
+      ],
+      [
+        19355,
+        144
+      ],
+      [
+        19417,
+        144
+      ],
+      [
+        19418,
+        144
+      ],
+      [
+        19419,
+        135
+      ],
+      [
+        19420,
+        144
+      ],
+      [
+        19870,
+        130
+      ],
+      [
+        19871,
+        245
+      ],
+      [
+        19872,
+        130
+      ],
+      [
+        19873,
+        130
+      ]
+    ],
+    "fixed_only_violated_plane_count": 8,
+    "frozen_inside_source_rows": [
+      20895,
+      20899,
+      20900,
+      20902,
+      20928,
+      20931,
+      21022,
+      21025
+    ],
+    "identity_reduction": false,
+    "inside_fan_centers": 131,
+    "inside_fan_parent_rows": [
+      19199,
+      19203,
+      19204,
+      19214,
+      19215,
+      19221,
+      19222,
+      19240,
+      19314,
+      19315,
+      19316,
+      19317,
+      19318,
+      19320,
+      19324,
+      19325,
+      19326,
+      19327,
+      19328,
+      19331,
+      19337,
+      19339,
+      19367,
+      19368
+    ],
+    "inside_source_examples": [
+      20895,
+      20899,
+      20900,
+      20901,
+      20902,
+      20907,
+      20924,
+      20926,
+      20928,
+      20931,
+      20932,
+      20956,
+      20957,
+      20989,
+      20990,
+      21016,
+      21019,
+      21022,
+      21025,
+      21026,
+      21027,
+      21030,
+      21062,
+      21064
+    ],
+    "inside_source_points": 43,
+    "max_slack": {
+      "bone_triangle": 261,
+      "kind": "inside_or_boundary_point",
+      "slack_mm": 1.8604874045944648,
+      "source_face": 19728
+    },
+    "new_parent_bone_pairs": [
+      [
+        19197,
+        140
+      ],
+      [
+        19203,
+        140
+      ],
+      [
+        19214,
+        140
+      ],
+      [
+        19221,
+        140
+      ],
+      [
+        19317,
+        134
+      ],
+      [
+        19320,
+        128
+      ],
+      [
+        19320,
+        135
+      ],
+      [
+        19451,
+        140
+      ]
+    ],
+    "positive_slack_count": 629,
+    "raw_child_bone_pairs": 486,
+    "remaining_pairs_count": 253,
+    "unique_mapped_parent_bone_pairs": 253
+  },
+  "elapsed_seconds": 8.558630833169445,
+  "limits": {
+    "all_185_bank_audit_run": false,
+    "candidate_file_modified": false,
+    "geometry_or_native_admission": false,
+    "physical_transfer_steps": 0,
+    "whole_body_self_audit_run": false
+  },
+  "lp": {
+    "absolute_motion_slacks": 1026,
+    "area_rows": 847,
+    "coordinate_dofs": 1026,
+    "exact_endpoint_constraint_count": 466,
+    "fixed_only_violated_planes": [
+      {
+        "bone_triangle": 140,
+        "kind": "inside_or_boundary_point",
+        "margin_mm": -0.642929991912557,
+        "row": 466,
+        "source_face": -1
+      },
+      {
+        "bone_triangle": 133,
+        "kind": "inside_or_boundary_point",
+        "margin_mm": -1.1580766051425526,
+        "row": 467,
+        "source_face": -1
+      },
+      {
+        "bone_triangle": 140,
+        "kind": "inside_or_boundary_point",
+        "margin_mm": -0.6440395764205873,
+        "row": 468,
+        "source_face": -1
+      },
+      {
+        "bone_triangle": 133,
+        "kind": "inside_or_boundary_point",
+        "margin_mm": -1.1502530714838435,
+        "row": 470,
+        "source_face": -1
+      },
+      {
+        "bone_triangle": 135,
+        "kind": "inside_or_boundary_point",
+        "margin_mm": -0.6402028588718116,
+        "row": 474,
+        "source_face": -1
+      },
+      {
+        "bone_triangle": 135,
+        "kind": "inside_or_boundary_point",
+        "margin_mm": -0.657488900193133,
+        "row": 475,
+        "source_face": -1
+      },
+      {
+        "bone_triangle": 135,
+        "kind": "inside_or_boundary_point",
+        "margin_mm": -0.26547019308040315,
+        "row": 483,
+        "source_face": -1
+      },
+      {
+        "bone_triangle": 135,
+        "kind": "inside_or_boundary_point",
+        "margin_mm": -0.2656029668701018,
+        "row": 484,
+        "source_face": -1
+      }
+    ],
+    "inequality_rows": 6278,
+    "initial_worst_plane_margin_mm": -1.9845221168433373,
+    "inside_or_boundary_plane_count": 177,
+    "matrix_nnz": 21940,
+    "movable_points": 342,
+    "penalized_bone_witness_slacks": 643,
+    "targetable_exact_pair_count": 233,
+    "trust_rows": 2736,
+    "variables": 2695
+  },
+  "lp_result": {
+    "iterations": 1900,
+    "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "objective": 7483.262882805503,
+    "status": 0,
+    "success": true
+  },
+  "max_displacement_mm": {
+    "L1": 0.1875,
+    "euclidean": 0.15740989324484492
+  },
+  "selected_shape": {
+    "face_count": 1155,
+    "maximum_aspect_measure": 49.00950763538057,
+    "minimum_angle_degrees": 0.5221986438992812,
+    "minimum_signed_orientation_ratio": 0.16726830928111786,
+    "minimum_unsigned_parent_area_ratio": 0.16731928343305916,
+    "orientation_positive": true,
+    "pass": true
+  },
+  "self": {
+    "distinct_parent_pair_count": 27,
+    "internal_pair_count": 51,
+    "internal_pair_examples": [
+      [
+        30,
+        64
+      ],
+      [
+        30,
+        175
+      ],
+      [
+        32,
+        64
+      ],
+      [
+        32,
+        175
+      ],
+      [
+        36,
+        64
+      ],
+      [
+        36,
+        175
+      ],
+      [
+        38,
+        64
+      ],
+      [
+        38,
+        65
+      ],
+      [
+        38,
+        67
+      ],
+      [
+        38,
+        69
+      ],
+      [
+        38,
+        172
+      ],
+      [
+        38,
+        173
+      ],
+      [
+        38,
+        175
+      ],
+      [
+        38,
+        177
+      ],
+      [
+        236,
+        274
+      ]
+    ],
+    "parent_pair_identities": [
+      [
+        19198,
+        19210
+      ],
+      [
+        19198,
+        19271
+      ],
+      [
+        19200,
+        19210
+      ],
+      [
+        19200,
+        19211
+      ],
+      [
+        19200,
+        19270
+      ],
+      [
+        19200,
+        19271
+      ],
+      [
+        19324,
+        19337
+      ],
+      [
+        19325,
+        19337
+      ],
+      [
+        19327,
+        19337
+      ],
+      [
+        19404,
+        19458
+      ],
+      [
+        19406,
+        19419
+      ],
+      [
+        19406,
+        19457
+      ],
+      [
+        19406,
+        19458
+      ],
+      [
+        19406,
+        19460
+      ],
+      [
+        19417,
+        19422
+      ],
+      [
+        19418,
+        19422
+      ],
+      [
+        19420,
+        19422
+      ],
+      [
+        19422,
+        19458
+      ],
+      [
+        19844,
+        19860
+      ],
+      [
+        19845,
+        19859
+      ],
+      [
+        19845,
+        19860
+      ],
+      [
+        19845,
+        19863
+      ],
+      [
+        19847,
+        19860
+      ],
+      [
+        19860,
+        19871
+      ],
+      [
+        19863,
+        19870
+      ],
+      [
+        19863,
+        19872
+      ],
+      [
+        19863,
+        19873
+      ]
+    ],
+    "patch_vs_complement_pair_count": 0
+  },
+  "shape_backtracking": {
+    "alpha_selected": 0.0625,
+    "trials": [
+      {
+        "alpha": 1.0,
+        "max_aspect": 90.47909776101791,
+        "min_angle_deg": 0.21590389583023062,
+        "min_area_ratio": 0.021140362063038255,
+        "min_signed_ratio": -5.927415693511134,
+        "pass": false
+      },
+      {
+        "alpha": 0.5,
+        "max_aspect": 49.00950763538057,
+        "min_angle_deg": 0.44156438021999145,
+        "min_area_ratio": 0.07116593096760322,
+        "min_signed_ratio": -1.2590760094054203,
+        "pass": false
+      },
+      {
+        "alpha": 0.25,
+        "max_aspect": 49.00950763538057,
+        "min_angle_deg": 0.4483815003728681,
+        "min_area_ratio": 0.1425593974704587,
+        "min_signed_ratio": -0.05535600609109918,
+        "pass": false
+      },
+      {
+        "alpha": 0.125,
+        "max_aspect": 49.00950763538057,
+        "min_angle_deg": 0.4912850743398847,
+        "min_area_ratio": 0.1522419551485204,
+        "min_signed_ratio": 0.1417582017642237,
+        "pass": false
+      },
+      {
+        "alpha": 0.0625,
+        "max_aspect": 49.00950763538057,
+        "min_angle_deg": 0.5221986438992812,
+        "min_area_ratio": 0.16731928343305916,
+        "min_signed_ratio": 0.16726830928111786,
+        "pass": true
+      }
+    ]
+  },
+  "status": "PRIVATE_REJECTED_NO_STRICT_EXACT_IDENTITY_REDUCTION_OR_SELF_REGRESSION"
+}
