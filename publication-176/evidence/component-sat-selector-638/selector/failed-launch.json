@@ -1,0 +1,34 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/run_connected_patch_sat_selector638.py",
+    "--prepared-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from697-001/prepared",
+    "--current-inputs-json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from697-001/current-inputs.json",
+    "--state-path",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from703-001/merit-631-001/final/state.json",
+    "--output",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/selector-697-001",
+    "--solve",
+    "--max-total-seconds",
+    "45",
+    "--component-seconds",
+    "2.5",
+    "--node-limit",
+    "10000"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/connected_patch_sat_selector638.py": "a188e5a55d2aebb0ce27848b0d3fb03d7aa2f8715ee6a8da7bbc57d781485a9a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/run_connected_patch_sat_selector638.py": "eb449989b3d813e05796871e1167d741f03f3a7873f51f25f8204e5d842f439c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from703-001/merit-631-001/final/state.json": "9bf1f410cff44ea2aed2d7ead980303b96c5d4626f7b356b1865ee871e6de7ee",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from697-001/current-inputs.json": "f5282590f274af03bdec49b4b5c107a982e2af5e0e6ded0e8b4510f4dd9b0c64",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from697-001/prepared/independent-typed-identity-check.json": "bbd109bdfe86df4b1dcebe3d9c903ce82dc563196077777deecdb01901149131",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/prepared-from697-001/prepared/prepared.json": "975b454c22fd7e1553ce2532b5124018bd5ba9b949768e53b6134ef63e923339"
+  }
+}

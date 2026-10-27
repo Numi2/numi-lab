@@ -1,0 +1,44 @@
+{
+  "component_merit_631": {
+    "accepted_physical_steps": 0,
+    "banks": 185,
+    "baseline_candidate_sha256": "22f8899a5646e479be697be2932ae93a7efdfc5216ace9d315889e7cdc5b432b",
+    "candidate_sha256": "0c84cfa08c1da9c944b6f0922d69ee3e83f0e41faf1ade705867ee4ef4487b48",
+    "contained_pairs": 0,
+    "native_admission": false,
+    "per_bank_deltas": {
+      "114/117": -2
+    },
+    "self_pairs": 0,
+    "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS",
+    "surface_delta": -2,
+    "surface_pairs": 695
+  },
+  "raw_fit": {
+    "candidate_sha256": "8fa30aebd090e096ffa5addf50d0ea76d91ae30d04398e70be37bead46e27b73",
+    "status": "CONSTRUCTION_PROPOSAL_WRITTEN_UNADMITTED"
+  },
+  "retained_582": {
+    "accepted_physical_steps": 0,
+    "banks": 185,
+    "candidate_sha256": "dd855a4792591b0acc34ee5c1926a75f7fdaa9309f269393871d0c1c19a02688",
+    "comparison_to_697_baseline": "regressed by 28 surface pairs",
+    "contained_pairs": 0,
+    "native_admission": false,
+    "self_pairs": 0,
+    "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS",
+    "surface_pairs": 725
+  },
+  "schema": "component-sat-selector-638-results-v1",
+  "selector": {
+    "input_crossing_pairs": 697,
+    "native_admission": false,
+    "scope": "box-only finite-axis selection; not a collision certificate",
+    "selected_pair_count": 680
+  },
+  "tests": {
+    "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q test_connected_patch_sat_selector638.py test_sat_axis_map_adapter638.py",
+    "integration_smoke": "actual 697-pair frozen-637 row builder plus adapter; diagnostic only, no solver/output geometry",
+    "result": "20 passed in 4.42s"
+  }
+}

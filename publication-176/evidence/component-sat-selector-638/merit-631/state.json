@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/merit-631-001/candidate.npz",
+  "candidate_selected": false,
+  "candidate_sha256": "0c84cfa08c1da9c944b6f0922d69ee3e83f0e41faf1ade705867ee4ef4487b48",
+  "continuation_mode": "strict_surface",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/merit-631-001/full-check/audit-130/summary.json",
+  "point_summary_sha256": "0d1a8a3ed89c85db80c3203419b89648d1f1e656a377c12d028f5b8813af1dd1",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/merit-631-001/full-check/audit-159/report.json",
+  "surface_report_sha256": "0767b6b451997e153b3bdad3b0ad8e30fdd5587a5d328475c806325f5eef75be",
+  "temporary_unselected_construction": false
+}

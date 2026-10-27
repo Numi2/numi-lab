@@ -1,0 +1,33 @@
+waiting_for_human_geometry_slot pid=59796
+acquired_human_geometry_slot pid=59796
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/run_axis_map_sat_fit638.py", line 92, in <module>
+    if __name__=="__main__":main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/run_axis_map_sat_fit638.py", line 81, in main
+    runner.main()
+    ~~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/box-aware-sat-fit-637/run_box_aware_sat637.py", line 87, in main
+    ns["main"]()
+    ~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-scp-area-backtrack-603/frozen-v1/run_joint_full_coordinate_fit603.py", line 387, in main
+    final_receipt = capture_records[-1]["fit_receipt"]
+        ^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-490/run_matched_component_fit_490.py", line 204, in main
+    runner.main()
+    ~~~~~~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-485/run_matched_component_fit_485.py", line 96, in main
+    w.main()
+    ~~~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/fixed-bone-outward-plane-458/run_grouped_fit_458.py", line 361, in main
+    state = install_objective(owner, objective, crossing)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/D/component-lp-decomposition-485/run_matched_component_fit_485.py", line 94, in install
+    return original(owner,objective,crossing)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-scp-area-backtrack-603/frozen-v1/run_joint_full_coordinate_fit603.py", line 308, in install_joint
+    build = owner.build_clearance_rows
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/sat_axis_map_adapter638.py", line 223, in install_axis_map_from_cli
+    audit=arg_value(argv,"--audit159-490");point=arg_value(argv,"--point-target-npz");face=arg_value(argv,"--face-target-npz")
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/sat_axis_map_adapter638.py", line 48, in arg_value
+    if argv.count(flag)!=1: raise ValueError(f"expected exactly one {flag}")
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: expected exactly one --audit159-490

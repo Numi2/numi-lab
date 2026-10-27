@@ -1,0 +1,3 @@
+waiting_for_human_geometry_slot pid=60088
+acquired_human_geometry_slot pid=60088
+{"candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/retention-582-001/candidate.npz", "iterations": 10, "alpha_counts": {"0.0078125": 1, "0.015625": 1, "0.0625": 7, "0.125": 5, "0.5": 23, "1.0": 845}, "seconds": 9.699875833000988}

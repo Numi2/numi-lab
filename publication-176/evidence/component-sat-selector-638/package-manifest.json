@@ -1,0 +1,367 @@
+{
+  "compressed_full_fit_report": {
+    "archive": "evidence/fit/full-fit-report.json.gz",
+    "archive_sha256": "2555b37c0ec9bd96db7c377acbd095bd594c28ffc38681da9a1d8c8d48e11c04",
+    "archive_size_bytes": 5437809,
+    "restore_sha256": "b9e8f14f4c543269540b2459d62b94c39cd5ca04683ab4f84e74cd0e57dfd8eb",
+    "restore_size_bytes": 52699583,
+    "restore_verified": true,
+    "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/fit/report.json",
+    "source_sha256": "b9e8f14f4c543269540b2459d62b94c39cd5ca04683ab4f84e74cd0e57dfd8eb",
+    "source_size_bytes": 52699583
+  },
+  "created_utc": "2026-10-27T10:16:44Z",
+  "files": {
+    "README.md": {
+      "same_inode_hardlink": false,
+      "sha256": "a9c864085eb350e0459ae1239bbe11f528d5b0e6d614fde1aa2beecff819a4fe",
+      "size_bytes": 1862,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/review-package-001/README.md"
+    },
+    "code/connected_patch_sat_selector638.py": {
+      "same_inode_hardlink": true,
+      "sha256": "a188e5a55d2aebb0ce27848b0d3fb03d7aa2f8715ee6a8da7bbc57d781485a9a",
+      "size_bytes": 13286,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/connected_patch_sat_selector638.py"
+    },
+    "code/run_axis_map_sat_fit638.py": {
+      "same_inode_hardlink": true,
+      "sha256": "42dc5c6b6447e0bac2256cd746e6247a66aee2b1555d498521a4c9df9faed649",
+      "size_bytes": 5126,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/run_axis_map_sat_fit638.py"
+    },
+    "code/run_connected_patch_sat_selector638.py": {
+      "same_inode_hardlink": true,
+      "sha256": "bbaf1ca9fef90f370c5a877dd1f0249779f0091a4dad8013a581820d110ed92f",
+      "size_bytes": 39967,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/run_connected_patch_sat_selector638.py"
+    },
+    "code/sat_axis_map_adapter638.py": {
+      "same_inode_hardlink": true,
+      "sha256": "d49c33a0f3108e1005b6fc64357f9edc796a0c469d9ba61ac7378915939365f6",
+      "size_bytes": 25091,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/sat_axis_map_adapter638.py"
+    },
+    "code/test_connected_patch_sat_selector638.py": {
+      "same_inode_hardlink": true,
+      "sha256": "69b4da47fba9b043dbd76ec9e5dad970a9fd78004993ddedca22c93d1cb358c9",
+      "size_bytes": 4201,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/test_connected_patch_sat_selector638.py"
+    },
+    "code/test_sat_axis_map_adapter638.py": {
+      "same_inode_hardlink": true,
+      "sha256": "87551082b0e7a8e2049a22b2b6aaca11fda5b1d39205a1fb61e56a608b1208e6",
+      "size_bytes": 14015,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/test_sat_axis_map_adapter638.py"
+    },
+    "evidence/baseline-697/audit-130-summary.json": {
+      "same_inode_hardlink": true,
+      "sha256": "9f535c21e5aed77a595e50b2c7cffbeade4c2c97aa34f64a6ea9b416dccc4adb",
+      "size_bytes": 593,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from703-001/merit-631-001/full-check/audit-130/summary.json"
+    },
+    "evidence/baseline-697/audit-159-report.json": {
+      "same_inode_hardlink": true,
+      "sha256": "a3b680f7feca98673911a2938747c8afffdb4ea96309aab50a71da4223a6b707",
+      "size_bytes": 103228,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from703-001/merit-631-001/full-check/audit-159/report.json"
+    },
+    "evidence/baseline-697/candidate.npz": {
+      "same_inode_hardlink": true,
+      "sha256": "22f8899a5646e479be697be2932ae93a7efdfc5216ace9d315889e7cdc5b432b",
+      "size_bytes": 6946852,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from703-001/merit-631-001/candidate.npz"
+    },
+    "evidence/baseline-697/full-check-report.json": {
+      "same_inode_hardlink": true,
+      "sha256": "194500db34136a1e0e873c0810b91a82fd0a5ce5240832e0e34208d991316781",
+      "size_bytes": 18236,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from703-001/merit-631-001/full-check/report.json"
+    },
+    "evidence/baseline-697/state.json": {
+      "same_inode_hardlink": true,
+      "sha256": "9bf1f410cff44ea2aed2d7ead980303b96c5d4626f7b356b1865ee871e6de7ee",
+      "size_bytes": 1013,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/hard-face-feasibility-634/fresh-fit-from703-001/merit-631-001/final/state.json"
+    },
+    "evidence/failed-fit/actual-argv.json": {
+      "same_inode_hardlink": true,
+      "sha256": "461f9a9fd66cac45596f307abfb8c5500721ebc8ed8a948a9464a365a29ff8f9",
+      "size_bytes": 5048,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-001/actual-fit-argv.json"
+    },
+    "evidence/failed-fit/execution.json": {
+      "same_inode_hardlink": true,
+      "sha256": "dc88f3d87018d7d9437a5994cf291f4f98f405e81de189716e8297ba2bce81eb",
+      "size_bytes": 149,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-001/fit-stage.execution.json"
+    },
+    "evidence/failed-fit/launch.json": {
+      "same_inode_hardlink": true,
+      "sha256": "2c28d8469fced4a1a94e8590a47f7071d86dfd9d03eb583fe1c0c9872a214e6e",
+      "size_bytes": 7581,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-001/fit-stage.launch.json"
+    },
+    "evidence/failed-fit/log": {
+      "same_inode_hardlink": true,
+      "sha256": "96a5c5e66665a47002219c6132bbaecb6c1305a98c7c569f698ca82119018fe0",
+      "size_bytes": 2608,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-001/fit-stage.log"
+    },
+    "evidence/fit/axis-map.json": {
+      "same_inode_hardlink": true,
+      "sha256": "0b8749635b3e63d9022eb952dae429042253e131eb22f59ee1a7b101953d72eb",
+      "size_bytes": 298196,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/fit/axis-map-638.json"
+    },
+    "evidence/fit/candidate.npz": {
+      "same_inode_hardlink": true,
+      "sha256": "8fa30aebd090e096ffa5addf50d0ea76d91ae30d04398e70be37bead46e27b73",
+      "size_bytes": 7031072,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/fit/candidate.npz"
+    },
+    "evidence/fit/execution.json": {
+      "same_inode_hardlink": true,
+      "sha256": "fb102e12efe1e74d425cfd9e9ed55549ef3d546b4f13f66c98c02b3cdeda45bf",
+      "size_bytes": 149,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/fit-stage.execution.json"
+    },
+    "evidence/fit/launch.json": {
+      "same_inode_hardlink": true,
+      "sha256": "e1d3238206306843cf4a5b0d36ed37e0ae302e3301c0a442a48cacb078f07591",
+      "size_bytes": 7581,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/fit-stage.launch.json"
+    },
+    "evidence/fit/log": {
+      "same_inode_hardlink": true,
+      "sha256": "35f6440d183f775f71bf9ddf51516769d8ebed32bcb5c3dc334ed2cce2bbf59d",
+      "size_bytes": 81,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/fit-stage.log"
+    },
+    "evidence/fit/pair-routing.json": {
+      "same_inode_hardlink": true,
+      "sha256": "4e626ec0bff93c5b2fcf2cf68e76e3a0df3f9734e25d211fd2da6683992b362b",
+      "size_bytes": 9800,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/fit/pair-sat-box-routing-637.json"
+    },
+    "evidence/fit/pair-routing.npz": {
+      "same_inode_hardlink": true,
+      "sha256": "66c959a98aa43e12c9c52b0546c0ca4afbadc3ed90163d7069660afb4d47dc67",
+      "size_bytes": 24998,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/fit/pair-sat-box-routing-637.npz"
+    },
+    "evidence/fit/raw-launch-argv.json": {
+      "same_inode_hardlink": true,
+      "sha256": "9b2e3b10eea8797f87781d2e5a387cd71991f0f1acaf7fd2fd6337326713c4e2",
+      "size_bytes": 5048,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/actual-fit-argv.json"
+    },
+    "evidence/fit/raw-lp-candidate.npz": {
+      "same_inode_hardlink": true,
+      "sha256": "a56b87aafac51f827df8bb9919121ccfade5022a692510678a763a35e7d50885",
+      "size_bytes": 7030582,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/fit/raw-lp-candidate.npz"
+    },
+    "evidence/merit-631/arithmetic-report.json": {
+      "same_inode_hardlink": true,
+      "sha256": "b78c56ba382bf33e20e97fcafae5ac807f4f8e73e562601d73341eb866e9326f",
+      "size_bytes": 14176,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/merit-631-001/final/arithmetic/report.json"
+    },
+    "evidence/merit-631/audit-130-summary.json": {
+      "same_inode_hardlink": true,
+      "sha256": "0d1a8a3ed89c85db80c3203419b89648d1f1e656a377c12d028f5b8813af1dd1",
+      "size_bytes": 593,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/merit-631-001/full-check/audit-130/summary.json"
+    },
+    "evidence/merit-631/audit-159-report.json": {
+      "same_inode_hardlink": true,
+      "sha256": "0767b6b451997e153b3bdad3b0ad8e30fdd5587a5d328475c806325f5eef75be",
+      "size_bytes": 103108,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/merit-631-001/full-check/audit-159/report.json"
+    },
+    "evidence/merit-631/candidate.npz": {
+      "same_inode_hardlink": true,
+      "sha256": "0c84cfa08c1da9c944b6f0922d69ee3e83f0e41faf1ade705867ee4ef4487b48",
+      "size_bytes": 6946847,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/merit-631-001/candidate.npz"
+    },
+    "evidence/merit-631/full-check-report.json": {
+      "same_inode_hardlink": true,
+      "sha256": "a5149b8a5e28bab4078e2ba0648ec635da27aebe6928b11496abf7625537dfa1",
+      "size_bytes": 15986,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/merit-631-001/full-check/report.json"
+    },
+    "evidence/merit-631/full-check.log": {
+      "same_inode_hardlink": true,
+      "sha256": "d20a775550d8b75cc685f5fd30cc7cc9d7a18acf2c6d4c8ea6df408efb3be26d",
+      "size_bytes": 260,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/merit-631-001/full-check-stage.log"
+    },
+    "evidence/merit-631/proposal-report.json": {
+      "same_inode_hardlink": true,
+      "sha256": "da58fd9667ffbde9a4677ae863836db29b0b7d312ba07e47b030f8e93f80afd0",
+      "size_bytes": 6268,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/merit-631-001/report.json"
+    },
+    "evidence/merit-631/state.json": {
+      "same_inode_hardlink": true,
+      "sha256": "500f1e6ee581040f6c4c42b37f280cea0227f583ec1257bba3e5e646c234d399",
+      "size_bytes": 986,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/merit-631-001/final/state.json"
+    },
+    "evidence/preflight-697.json": {
+      "same_inode_hardlink": true,
+      "sha256": "87a9cd0d535240b69c59a2bd88ed1c604daa3b824e90c43bb3611dec86fff351",
+      "size_bytes": 33147,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/preflight-697-002/preflight.json"
+    },
+    "evidence/retention/582-candidate.npz": {
+      "same_inode_hardlink": true,
+      "sha256": "dd855a4792591b0acc34ee5c1926a75f7fdaa9309f269393871d0c1c19a02688",
+      "size_bytes": 6946840,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/retention-582-001/candidate.npz"
+    },
+    "evidence/retention/582-execution.json": {
+      "same_inode_hardlink": true,
+      "sha256": "a818450281067224bea9df0cae8e549b99b7f7ddc84fcd437c576c933e994b3b",
+      "size_bytes": 149,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/retention-582-001-stage.execution.json"
+    },
+    "evidence/retention/582-launch.json": {
+      "same_inode_hardlink": true,
+      "sha256": "18b40de7f5dabe571fb81547850064cb4b974840074d320621f357a8e1886573",
+      "size_bytes": 1803,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/retention-582-001-stage.launch.json"
+    },
+    "evidence/retention/582-report.json": {
+      "same_inode_hardlink": true,
+      "sha256": "c4b24b7f8762715f2764df7cc9e99b0c0817b43a2222f6d23f863594fdd08f7d",
+      "size_bytes": 19191,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/retention-582-001/report.json"
+    },
+    "evidence/retention/582.log": {
+      "same_inode_hardlink": true,
+      "sha256": "0431f3335bc287fdc5cf37932b578831b494e0b205ca7281b564ef99033773d9",
+      "size_bytes": 388,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/retention-582-001-stage.log"
+    },
+    "evidence/retention/audit-130-summary.json": {
+      "same_inode_hardlink": true,
+      "sha256": "f1592b01ad9d04c4e9bd91a0567cb786e7237029b28a9accce0c920360fd11f0",
+      "size_bytes": 594,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/retention-582-001/full-check/audit-130/summary.json"
+    },
+    "evidence/retention/audit-159-report.json": {
+      "same_inode_hardlink": true,
+      "sha256": "92dd822b4854e559a98e6c00d8706dd9eb1a7bf31f0d68bb3a83144e28f9d123",
+      "size_bytes": 104906,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/retention-582-001/full-check/audit-159/report.json"
+    },
+    "evidence/retention/full-check.json": {
+      "same_inode_hardlink": true,
+      "sha256": "a6e09ecbedfd41741625f0f45d9c5167f66dc9181d303f4945234e674ff6d6da",
+      "size_bytes": 25020,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/retention-582-001/full-check/report.json"
+    },
+    "evidence/retention/full-check.log": {
+      "same_inode_hardlink": true,
+      "sha256": "6c75e87f65554c7f8e3953014bf679ee2b26450bd68681c22ffb642adedd1692",
+      "size_bytes": 259,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-697-003/retention-582-001/full-check-stage.log"
+    },
+    "evidence/selector/components.jsonl": {
+      "same_inode_hardlink": true,
+      "sha256": "0a730641ee08a4e56e8ff9bad597ab25988a85d47e64f9a33291a22036fb8144",
+      "size_bytes": 9655,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/selector-697-002/components.jsonl"
+    },
+    "evidence/selector/failed-execution.json": {
+      "same_inode_hardlink": true,
+      "sha256": "d0b061bd65301355e3d109a14ff77eaaf92e922776e8b75d11138d20e0e5109a",
+      "size_bytes": 150,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/selector-697-001-stage.execution.json"
+    },
+    "evidence/selector/failed-launch.json": {
+      "same_inode_hardlink": true,
+      "sha256": "14a4ea4189ff5744bab89011e5c958628f473feb7e4c89ead55411092228eabc",
+      "size_bytes": 2540,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/selector-697-001-stage.launch.json"
+    },
+    "evidence/selector/failed.log": {
+      "same_inode_hardlink": true,
+      "sha256": "18a3bc9f29a49b535c5244df92814ed5b26acbfb08fe4ca9d1e21775d2ff40fe",
+      "size_bytes": 2155,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/selector-697-001-stage.log"
+    },
+    "evidence/selector/report.json": {
+      "same_inode_hardlink": true,
+      "sha256": "3ab9beb0911272009d312df824d7b7c5e4004dea6cbbd998e4b5b1a75a8a54c7",
+      "size_bytes": 53234,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/selector-697-002/report.json"
+    },
+    "evidence/selector/row-specific-big-m.npz": {
+      "same_inode_hardlink": true,
+      "sha256": "793a85dceb46dd2cf9a4528505b48e9913f300f42f104c717e8b95131b5c253d",
+      "size_bytes": 519007,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/selector-697-002/row-specific-big-m.npz"
+    },
+    "evidence/selector/selection.npz": {
+      "same_inode_hardlink": true,
+      "sha256": "4fcc7d2181a1761010023ee31247ceef19271aa89c18014c60bac59fc11e9869",
+      "size_bytes": 16882,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/selector-697-002/selection.npz"
+    },
+    "evidence/selector/success-execution.json": {
+      "same_inode_hardlink": true,
+      "sha256": "1d8dcde17627279e1650d716e9a44a0ed76527464871bcef4b9891eefaf2a112",
+      "size_bytes": 148,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/selector-697-002-stage.execution.json"
+    },
+    "evidence/selector/success-launch.json": {
+      "same_inode_hardlink": true,
+      "sha256": "a25d8ecdb9faeb21297c0ce1b3d924f2d6cc542554b98e3c8f3c002a57e1a04b",
+      "size_bytes": 2540,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/selector-697-002-stage.launch.json"
+    },
+    "evidence/selector/success.log": {
+      "same_inode_hardlink": true,
+      "sha256": "be49317880100fec261f21e47e8758ade2740e4d4bd875e507596a64643c5f50",
+      "size_bytes": 541,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/selector-697-002-stage.log"
+    },
+    "evidence/tests/default-python-unavailable.log": {
+      "same_inode_hardlink": false,
+      "sha256": "91261a52dc9831bdd6bbecce144daade485ee68829348b92c14c4caaea612e22",
+      "size_bytes": 69,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/review-package-001/test-suite.log"
+    },
+    "evidence/tests/focused-pytest.log": {
+      "same_inode_hardlink": false,
+      "sha256": "6e1597a665f2d5b4bba7550e859720447a319a728da6254e44f2c913c809c5e5",
+      "size_bytes": 99,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/review-package-001/test-suite-rerun.log"
+    },
+    "evidence/tests/pycompile-receipt.json": {
+      "same_inode_hardlink": false,
+      "sha256": "119623193197f884c7f3374d75004a3fb84b997f644d124aa4d080f8b5972aaa",
+      "size_bytes": 1036,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/review-package-001/pycompile-receipt.json"
+    },
+    "evidence/tests/pycompile.log": {
+      "same_inode_hardlink": false,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/review-package-001/pycompile.log"
+    },
+    "results.json": {
+      "same_inode_hardlink": false,
+      "sha256": "44b351a9d03b93b62e1b387b558f17ce43969f9260af18e6ae89c3ed02fe9057",
+      "size_bytes": 1647,
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/review-package-001/results.json"
+    }
+  },
+  "package_root": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/review-package-001",
+  "schema": "component-sat-selector-638-review-package-v1",
+  "source_root": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638"
+}
