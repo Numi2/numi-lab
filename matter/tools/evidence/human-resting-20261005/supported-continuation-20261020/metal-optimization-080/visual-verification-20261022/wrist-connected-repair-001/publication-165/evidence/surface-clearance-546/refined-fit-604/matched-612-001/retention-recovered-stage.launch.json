@@ -1,0 +1,28 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/baseline-state.json",
+    "--target",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-612-001/fit/candidate.npz",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-612-001/retention-582-001",
+    "--trust-mm",
+    "4",
+    "--max-edge-gradient",
+    ".5"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/baseline-state.json": "80f63f628ab61dd5bdefdafefb9f210d02af20daf944727b706985efea609e0a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/local-witness-retention-582/retain_local_witnesses582.py": "08bb82034180636d0ff798ad503735b6a50327bf52cc3c62bffb75d0265ff57a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-612-001/direct-fit-full-check/audit-130/summary.json": "dc8bd5b3ed0c9199e54f4112e86438190bd62acb2c5d60752e1d7b207b546690",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-612-001/fit/candidate.npz": "1d146b8d7bfc41aeb5d1f29843a19736328d0632693f4b3b5ba22fce05afaff0",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-612-001/report-write-failure-salvage.json": "0e1efdb13368b0a4849ec037416fa4283f87e197ede524e3862cea1dffd58175"
+  }
+}

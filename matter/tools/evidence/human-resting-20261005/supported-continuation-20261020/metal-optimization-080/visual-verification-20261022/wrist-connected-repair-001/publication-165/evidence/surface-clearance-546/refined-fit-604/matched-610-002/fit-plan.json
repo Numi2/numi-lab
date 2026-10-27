@@ -1,0 +1,10 @@
+{
+  "accepted_physical_steps": 0,
+  "corrected_unlaunched_plan": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-610-001/fit-plan.json",
+  "correction": "Regenerated from valid608argv with existing546 unique flag-value replacement; rejected610001 overwrote flag tokens. Seed payload unchanged.",
+  "fit_argv_sha256": "39743ef88130d75594a7732ee00a0942596f72408be196c53a11c161f453f1ad",
+  "native_admission": false,
+  "seed_preflight_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-610-001/self-seeds/seed-preflight.json",
+  "seed_preflight_sha256": "75f5e3cd6124c442c49ca071e171f64afe7e8c535891bbc1dc8818eaabe201bb",
+  "status": "PREPARED_NOT_LAUNCHED"
+}

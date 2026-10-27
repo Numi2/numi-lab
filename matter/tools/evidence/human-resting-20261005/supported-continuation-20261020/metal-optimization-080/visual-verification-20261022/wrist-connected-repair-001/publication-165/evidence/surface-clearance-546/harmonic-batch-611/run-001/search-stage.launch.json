@@ -1,0 +1,41 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-batch-611/run_harmonic_batch611.py",
+    "--worker",
+    "--state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-topology-602/run-001/final/state.json",
+    "--seed",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-batch-611/seed-patches-602.json",
+    "--payload-helper",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py",
+    "--output",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-batch-611/run-001/search",
+    "--seconds",
+    "90.0"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/affine-ancestry-refresh-566/rebuild_affine_rows566.py": "79a808bb3fa0e0cb6216e9fe91752335cec214e7958a5bd08222519b407ebb65",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/changed-triangle-quality-572/changed_triangle_masks572.py": "6f046d1960e3626368ae210e9685d4d33276c149797fae7691de6ace85e948cf",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-star-569/star_candidates569.py": "81b33966ba0c2182c86d2a6d66862064105cf48e91c2efe0cfcc0ef6359d1b2c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continue_surface_round546.py": "b2fb1407bcbcf8d44cb7138ff2cb9dc6ce43f9a6fcddb64ed6624df672123d17",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-batch-611/run_harmonic_batch611.py": "0f8ce5efd536da2aa9667ea3d83e2e7758e2c1e96443fb81d00d3db56357222f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-batch-611/seed-patches-602.json": "90ec84144fb42eb9f26f0c716ac8e031d221ffc6b5d3b7774fb326112399f9ec",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-patch-577/harmonic_candidates577.py": "5352353ae6ef692d4ad340a82fd07494fa4dc0218fd997f6d9d5ebab93ca5803",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-patch-577/search_harmonic577.py": "49ae65ae9a73004f535f1ec2735b4af77ab98af4c27a9444b37f92d7ba527f88",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/regional-patch-571/regional_candidates571.py": "48d53b5516bc4e604a8c8bbfb7b100039e2646b3efcc2298010ed957fc9c3cfc",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/cached_counter569_v2.py": "1a19339d5f6004d36c38d0b22a29a5b6a644f911d3091194ee59396216f30e6e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/same-count-star-payload-568/same_count_patch_payload568.py": "91e60eda6c6ed4a39fb3d9cc226af87743101b22da9c32c5229030ac6cd4cd8a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-topology-602/run-001/final/state.json": "2ba987c45ed0dc1bc69b3dc34e991bfb87c60625dd59c9d3f373b5ca7ab2871f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-topology-602/run-001/full-check/audit-130/summary.json": "c8c2f84e46655ec872839badfacdaafae2a98b26262c2da34cdf180c49710664",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-topology-602/run-001/full-check/audit-159/report.json": "f1dcb6459277903a4de4a12fa528698406784a172a96ac33adf0f7485ecab154",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/saved-field-topology-602/run-001/merge/candidate.npz": "e7c2bfa57ab4e7311f85b441597141b8bcc840f7f51b147da43a73f254d0e9b3",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology-policy-root-v6/quality_policy025_variant.py": "2ce11405c178379325d98fe76171010015eac5bc46b2c12d9813676afcd9970a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/topology/topology-bone-aware-025.py": "9123965621161beb6408f6c9663d8d36968cf1113c3a97106e968ea1c754d84e"
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "all_exact_alias_paths_absent": true,
+  "all_npz_restore_tests_passed_before_unlink": true,
+  "candidate_count": 15,
+  "current612_pin_mentions_before_unlink": [],
+  "files": [
+    {
+      "bytes": 397934,
+      "github_blob_sha": "b6194c73077f4bfec4fff83f2185d342b5566e42",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+      "sha256": "c74587088f43746e3f83c32ac9dc7a8bb8d2171fd13ecc4c7c1b760d29f91409"
+    },
+    {
+      "bytes": 6665803,
+      "github_blob_sha": "3bc09a09cee5a10ca82e57a14bf629439bce1e75",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+      "sha256": "952d7dbe0378b30633441cdb56f3b20377625b9e6a58db2247a80998f4410d21"
+    },
+    {
+      "bytes": 397789,
+      "github_blob_sha": "d57469fb71bf53e3ec60891b26d85ecf249f6799",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+      "sha256": "c2ad3e6912097d3496f584130637c321131766fff524d8dc6cf6196c302d3a8c"
+    },
+    {
+      "bytes": 6665831,
+      "github_blob_sha": "ddb3630571374d8c7a903e1801763445d0ea3e6f",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+      "sha256": "ae456cebd0f320956bbb139b32adcba8f941bd57ed8a6d256655dad1c27fb439"
+    },
+    {
+      "bytes": 6782123,
+      "github_blob_sha": "4578b0051eaaf29d88f05055134ef5c44fb58f0b",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-lp-candidate.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-lp-candidate.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-lp-candidate.npz",
+      "sha256": "03bc4f37bdd8611c09e50bb934aaa5ad9b47c4cabc1c4f3374e0f28573de185f"
+    },
+    {
+      "bytes": 390750,
+      "github_blob_sha": "fbb6e03db96117de94cb77d0370bf16744f99b30",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+      "sha256": "4c72a20ec56ad8202ed32c1faf99acf8cae93808ac1a4c07ed7c153aef0a38d4"
+    },
+    {
+      "bytes": 6666001,
+      "github_blob_sha": "6e7dbb14b7c7dc476dba87e262dc01822a1ade80",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+      "sha256": "84c505719122af3495e1be74153dc3d7c94d53e6bd0e3fb83f53796a915548cc"
+    },
+    {
+      "bytes": 390844,
+      "github_blob_sha": "9bc7bf50c29829e82ed5654c4c63a1df2e62e330",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+      "sha256": "6ed03d8c99a8c55693d7df772a0f641f650b68314bc7d8267084ab06a9011236"
+    },
+    {
+      "bytes": 6666007,
+      "github_blob_sha": "1201227846fc0fd875a9bc2f78da49d0485f2c9d",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+      "sha256": "0be86a6b436bb4d6edc348c40de5fc4b2081d9fe5537426e0719190b2d9a57a1"
+    },
+    {
+      "bytes": 6779304,
+      "github_blob_sha": "9c9a004bce5ad65fe271ef8eb28e9b3bc9e530d2",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-lp-candidate.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-lp-candidate.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-lp-candidate.npz",
+      "sha256": "e056a22705f15278384b1a2f5efa872f324a6294a25cdab70c794de71b92a62d"
+    },
+    {
+      "bytes": 386453,
+      "github_blob_sha": "15c502eaf724a5963a5fad7e1d94814cb49e7d2b",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+      "sha256": "1d747a3ddeea81a9bde7cbd168238ea65487c2081e0fc413e33f462b70fe0e94"
+    },
+    {
+      "bytes": 6666113,
+      "github_blob_sha": "51bca527ec29463977748fa2ff2596a061f9cd9e",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+      "sha256": "892a86b3d4585ca717c1d51ba043f2994decd0f8b856c5984a23ba08b38d1acb"
+    },
+    {
+      "bytes": 386317,
+      "github_blob_sha": "49ef5abb66345af9304ab29d0fe41752f42d5e94",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+      "sha256": "88a3370669cbf6a27a08d61ca5097fab615e67967a559f2be901ff9ffd9409ad"
+    },
+    {
+      "bytes": 6666101,
+      "github_blob_sha": "8e6f8a4856c25f1b275e981cfcf0bc5ba4b9e22e",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+      "sha256": "81532082e061eba4155529300d9cac5fd147ad14d1652e03c24d783248ecf792"
+    },
+    {
+      "bytes": 6777386,
+      "github_blob_sha": "5a2d179df083ee46e8404c023bf30dbe5d395972",
+      "github_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-lp-candidate.npz",
+      "local_active_alias_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-lp-candidate.npz",
+      "local_publication_path": "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-lp-candidate.npz",
+      "sha256": "9b66182a71d7402778839a55b05b1ae1b43af15e50620b60f27b6eb4a1694f92"
+    }
+  ],
+  "free_bytes_after_unlink": 209653760,
+  "free_bytes_before_unlink": 146931712,
+  "free_bytes_delta": 62722048,
+  "github_repository": "Numi2/numi-lab",
+  "immutable_p164_commit": "392e6cc19544e08096ea28a7ff9411e706623ea1",
+  "local_alias_count": 30,
+  "open_consumer_pids_before_unlink": [],
+  "p161_manifest_sha256": "f4b5869ecb9f826a6cb6e203ec49d3f267ece6dfc0bb3e03b13c349fc5e467c6",
+  "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-164-cold-584-raw-npz-retirement-plan.json",
+  "plan_sha256": "76448422bfa43ed8f86744e987812a1d52c4295494d691ad5d246f7fe71ca926",
+  "restore_command_template": "gh api repos/Numi2/numi-lab/git/blobs/<github_blob_sha> --jq .content | base64 -D > <local_publication_path> ; verify shasum -a 256 against plan, then ln <local_publication_path> <local_active_alias_path> to restore the second hardlink",
+  "restore_source": "P164 immutable Git blob SHA in the plan file; repo Numi2/numi-lab; commit 392e6cc19544e08096ea28a7ff9411e706623ea1",
+  "schema": "numi.human.p164.cold584_raw_npz_retirement.v1",
+  "status": "LOCAL_ALIASES_RETIRED_AFTER_FRESH_P164_VERIFICATION",
+  "unlinked_paths": [
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-lp-candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-001/emitted-fit/fit/raw-lp-candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-lp-candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-002/emitted-fit/fit/raw-lp-candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/basis-and-delta.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-001/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/basis-and-delta.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-joint-capture-563/raw-direction-002/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/publication-161/evidence/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-lp-candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-continuation-584/run-001/round-003/emitted-fit/fit/raw-lp-candidate.npz"
+  ],
+  "unlinked_unique_allocated_bytes": 62722048
+}

@@ -1,0 +1,3 @@
+waiting_for_human_geometry_slot pid=17429
+acquired_human_geometry_slot pid=17429
+{"candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prefix-field-transfer-614/from-612-001/retention-582/candidate.npz", "iterations": 47, "alpha_counts": {"0.0001220703125": 2, "0.000244140625": 11, "0.00048828125": 3, "0.0009765625": 2, "0.001953125": 2, "0.00390625": 1, "0.0078125": 12, "0.015625": 18, "0.03125": 27, "0.0625": 16, "0.125": 34, "0.25": 74, "0.5": 94, "1.0": 2739}, "seconds": 46.589697083923966}

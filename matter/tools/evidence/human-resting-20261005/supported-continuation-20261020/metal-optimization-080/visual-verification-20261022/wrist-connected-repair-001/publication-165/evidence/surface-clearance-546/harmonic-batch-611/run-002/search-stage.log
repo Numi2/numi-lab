@@ -1,0 +1,10 @@
+waiting_for_human_geometry_slot pid=15177
+acquired_human_geometry_slot pid=15177
+{"banks": 185, "pairs": 1576, "parity_sample_faces": 16, "seconds": 1.7010950420517474, "stage": "prepared"}
+{"centers": 17, "pairs": 1576, "round": 1, "seconds": 1.8433701670728624, "stage": "round_started"}
+/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/repair_focused_clearance_541.py:69: RuntimeWarning: invalid value encountered in divide
+  cos=np.einsum('ij,ij->i',c,q)/(nc*nr);ratio=nc/nr
+/Users/numi/Work/numi-human-connected-surface-069/D/focused-clearance-541/topology/repair_focused_clearance_541.py:69: RuntimeWarning: divide by zero encountered in divide
+  cos=np.einsum('ij,ij->i',c,q)/(nc*nr);ratio=nc/nr
+{"accepted": 0, "centers_examined": 16, "exact_triangle_calls": 12, "rejections": {"exact_self_intersection": 1, "external_edge": 9, "patch_size_bound": 5, "quality_angle_loss_bound": 1, "quality_fixed037_area_floor": 27, "quality_new_face_not_aligned_to_fixed037": 97, "quality_nonfinite_quality_metrics": 8}, "round": 1, "seconds": 2.158967083087191, "stage": "scan_progress"}
+{"accepted": 0, "after_pairs": 1576, "before_pairs": 1576, "seconds": 2.8256550419609994, "stage": "complete"}

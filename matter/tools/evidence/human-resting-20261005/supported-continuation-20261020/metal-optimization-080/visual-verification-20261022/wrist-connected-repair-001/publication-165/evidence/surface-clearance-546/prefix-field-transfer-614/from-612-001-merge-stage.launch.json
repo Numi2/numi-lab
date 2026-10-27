@@ -1,0 +1,21 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "-B",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prefix-field-transfer-614/restrict_refined_field614.py",
+    "--parent-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-topology-599/run-001/final/state.json",
+    "--refined-baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-refinement-603/baseline-599-affine-filtered-002/baseline-check-001/baseline-state.json",
+    "--proposal-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-612-001/retention-582-001/point-continuation-finalize/state.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prefix-field-transfer-614/from-612-001/merge"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/prefix-field-transfer-614/restrict_refined_field614.py": "646eac03d8856fb10b6bc3b68a9bb25b3bda52e6b7c7bc191397f3f6985bcc1c"
+  }
+}

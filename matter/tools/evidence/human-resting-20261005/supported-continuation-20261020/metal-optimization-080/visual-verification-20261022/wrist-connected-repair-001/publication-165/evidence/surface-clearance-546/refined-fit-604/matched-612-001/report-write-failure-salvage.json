@@ -1,0 +1,13 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-612-001/fit/candidate.npz",
+  "candidate_sha256": "1d146b8d7bfc41aeb5d1f29843a19736328d0632693f4b3b5ba22fce05afaff0",
+  "failed_execution_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-612-001/fit-stage.execution.json",
+  "failed_execution_sha256": "0a859221f6a353e7c4329083d09fcc0afdb500425248634473b046f63454f825",
+  "fitter_full_report_available": false,
+  "fitter_success_not_claimed": true,
+  "fresh_545_required": true,
+  "native_admission": false,
+  "nonpoint_payload_checked": true,
+  "status": "COMPLETE_NPZ_RECOVERED_FROM_REPORT_WRITE_FAILURE_UNADMITTED"
+}

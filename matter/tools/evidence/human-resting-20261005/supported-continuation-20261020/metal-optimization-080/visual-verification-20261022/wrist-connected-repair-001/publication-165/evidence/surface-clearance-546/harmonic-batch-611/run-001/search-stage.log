@@ -1,0 +1,15 @@
+waiting_for_human_geometry_slot pid=15147
+acquired_human_geometry_slot pid=15147
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-batch-611/run_harmonic_batch611.py", line 248, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-batch-611/run_harmonic_batch611.py", line 243, in main
+    run_search_worker(args.state, args.seed, args.payload_helper, args.output, args.seconds)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-batch-611/run_harmonic_batch611.py", line 152, in run_search_worker
+    exec(compile(adapted, str(SEARCH577), "exec"), ns)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/harmonic-patch-577/search_harmonic577.py", line 10, in <module>
+    import harmonic_candidates577 as star
+ModuleNotFoundError: No module named 'harmonic_candidates577'

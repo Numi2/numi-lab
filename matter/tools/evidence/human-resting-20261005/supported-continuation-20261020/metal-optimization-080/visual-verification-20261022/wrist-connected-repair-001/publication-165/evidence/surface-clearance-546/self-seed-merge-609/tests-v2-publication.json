@@ -1,0 +1,9 @@
+{
+  "test": "self-seed-merge-609 v2",
+  "command": "PYTHONDONTWRITEBYTECODE=1 /Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q -p no:cacheprovider test_merge_self_seeds609_v2.py",
+  "exit_code": 0,
+  "stdout": ".......... [100%]\\n10 passed in 0.02s\\n",
+  "source_sha256": "2f067cefc48b76225b7b9689ce34d817e17dfb0a8f903446c1eb38bd4c7854b9",
+  "test_sha256": "6cef8de510aeed3156dbbbf24a934a67adf992f83c521af5e4a2a26d43de3d73",
+  "executed_utc": "2026-10-27T03:01:22.622923+00:00"
+}\n

@@ -1,0 +1,48 @@
+{
+  "compression": "zstd -1 -T1",
+  "generated_utc": "2026-10-27T03:18:12.871985+00:00",
+  "all_archives_verified": true,
+  "all_originals_retained": true,
+  "files": [
+    {
+      "relative_path": "610-002-fit-report/fit-report.json",
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/refined-fit-604/matched-610-002/fit/report.json",
+      "original_sha256": "a9065d22d5995b81e786daed56d6530724901923dfe1228f380ec0bf8fcaccec",
+      "original_bytes": 42392062,
+      "original_mode": 420,
+      "original_mtime_ns": 1793068507814671208,
+      "original_atime_ns": 1793070201818749026,
+      "original_dev": 16777231,
+      "original_ino": 5213137,
+      "original_nlink": 1,
+      "original_allocated_bytes": 42393600,
+      "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-165/evidence/compression-preservation/610-002-fit-report/fit-report.json.zst",
+      "compressed_sha256": "ba2c947d9c221acf1d904b906bc873f1ac8912351464885a600ed17a07d8cccf",
+      "compressed_bytes": 4476814,
+      "package_compressed_relative_path": "evidence/compression-preservation/610-002-fit-report/fit-report.json.zst",
+      "compression": "zstd -1 -T1"
+    }
+  ],
+  "restore_test": {
+    "status": "PASS_FRESH_DESTINATION",
+    "result": {
+      "receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-165/evidence/compression-preservation/610-002-fit-report/receipt.json",
+      "restored_count": 1,
+      "results": [
+        {
+          "path": "/tmp/p165-restore-610-002-fit-report/610-002-fit-report/fit-report.json",
+          "status": "restored_and_verified",
+          "sha256": "a9065d22d5995b81e786daed56d6530724901923dfe1228f380ec0bf8fcaccec",
+          "bytes": 42392062,
+          "mode": 420,
+          "mtime_ns": 1793068507814671208
+        }
+      ]
+    },
+    "sha256": "a9065d22d5995b81e786daed56d6530724901923dfe1228f380ec0bf8fcaccec",
+    "bytes": 42392062,
+    "mode": 420,
+    "mtime_ns": 1793068507814671208,
+    "destination_removed_after_test": true
+  }
+}
