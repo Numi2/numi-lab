@@ -1,0 +1,80 @@
+{
+  "accepted_physical_steps": 0,
+  "created_utc": "2026-10-27T12:12:46.028072+00:00",
+  "member_bytes": 35079,
+  "member_count": 11,
+  "members": [
+    {
+      "bytes": 793,
+      "mode": 420,
+      "path": "README.md",
+      "sha256": "f801bccf630f551d1c259b968c08ab5d9a68d7d0c704c990f7a10630837a9bd3"
+    },
+    {
+      "bytes": 636,
+      "mode": 420,
+      "path": "correction.json",
+      "sha256": "4cce29b8934e9c73c352f37172ebeb712a8df994ca7eb8991d31157fef2a4e8a"
+    },
+    {
+      "bytes": 4874,
+      "mode": 420,
+      "path": "corrections/retention-report.json",
+      "sha256": "412814134a7df9ccd02ce9a71c2493fddc2383fc5708cb3f02fafbf30ec94df9"
+    },
+    {
+      "bytes": 9595,
+      "mode": 420,
+      "path": "evidence/adapter-verification.json",
+      "sha256": "259a6b4b20c97c5f5e89080df5eb39908436e723ffb0544395765adb8cb82932"
+    },
+    {
+      "bytes": 2574,
+      "mode": 420,
+      "path": "evidence/component-attribution-631.json",
+      "sha256": "46faaed1febaffe8509bc2cd7cf29f75caca63a52105e62fbee65c2551f9add1"
+    },
+    {
+      "bytes": 2623,
+      "mode": 420,
+      "path": "evidence/component-regression-attribution-631.json",
+      "sha256": "23e3ab401e54239c56b8871ced9a9680cd248baf42303e04dccadc80a7ac5bde"
+    },
+    {
+      "bytes": 157,
+      "mode": 420,
+      "path": "parent-reference.json",
+      "sha256": "930094cfd2b23c0ab8633aebed5a71ba0c0477c2242ee4858a7062aba6763000"
+    },
+    {
+      "bytes": 3942,
+      "mode": 420,
+      "path": "sources/attribute_component_deltas_631.py",
+      "sha256": "4f4bec94bc54438df19568e7fea6dfcb8f2f2e37d34045468a5bd4e3e0bec53e"
+    },
+    {
+      "bytes": 3255,
+      "mode": 420,
+      "path": "sources/attribute_regression_component_631.py",
+      "sha256": "a6ecff8bff4e52a595c19d7fee9aa6ee9a45c6d3dbefbd7378c4729c84ef440d"
+    },
+    {
+      "bytes": 2841,
+      "mode": 420,
+      "path": "sources/keep_components_631.py",
+      "sha256": "ddcac1a2a4975d3a3540044f2b3e716560842d343a2307dc718c15ff12be9e7a"
+    },
+    {
+      "bytes": 3789,
+      "mode": 420,
+      "path": "sources/retain_selfsafe_components631.py",
+      "sha256": "a7d6a44f996de3338ab5b900d18503c45f0cd8963cd6739ab330a25f60f8aaf9"
+    }
+  ],
+  "native_admission": false,
+  "parent_commit": "d18de33e4939b60f66cc60b7023ce8bd419b4269",
+  "parent_publication": "P179",
+  "publication": "P180",
+  "repository": "Numi2/numi-lab",
+  "schema": "numi.human.publication.v1"
+}

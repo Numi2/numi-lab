@@ -1,0 +1,57 @@
+{
+  "accepted_physical_steps": 0,
+  "baseline_candidate_sha256": "b6bde2d74ea54cc3cbbd332cfd5e331b08771c6a2554d9aacc176d06db189257",
+  "baseline_state": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/root-combined-001/final/state.json",
+  "baseline_state_sha256": "d7b4ddb111e4515b75346100cf891924e3ff2223cb9d9912b4eb8fe313dc0c28",
+  "changed_component_node_counts": {
+    "12449": 2,
+    "12619": 3,
+    "14661": 7,
+    "15269": 1,
+    "16438": 1,
+    "18603": 1,
+    "18831": 3,
+    "18894": 1,
+    "2584": 2,
+    "4247": 1,
+    "4248": 57,
+    "4376": 50,
+    "4381": 67,
+    "5044": 59,
+    "5883": 251,
+    "7273": 184,
+    "7398": 2,
+    "7756": 2,
+    "8948": 2,
+    "9251": 1
+  },
+  "limitation": "Exact component attribution and endpoint pair identity comparison only; both candidates remain construction-only.",
+  "minimal_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-component-5883-only-001/candidate.npz",
+  "minimal_candidate_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+  "minimal_full_check_sha256": "9e10bf224466fa7e8b512628adba78fbbb0775a1856052074f60abe68844d9a9",
+  "minimal_surface_pairs": 663,
+  "minimal_surface_report_sha256": "546fe8614df45a1754ce5491efe4b5243add4b686710e8df4c69c7f8d1f118c9",
+  "native_admission": false,
+  "nonzero_component_bank_deltas": {
+    "5883": {
+      "43/16": -12
+    },
+    "7273": {
+      "114/117": 1
+    }
+  },
+  "per_bank_pair_identity_differences_regression_to_minimal": {
+    "114/117": {
+      "minimal_only": 3,
+      "regression_only": 4
+    }
+  },
+  "regression_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-self-witness-001/candidate.npz",
+  "regression_candidate_sha256": "d3edd7802b6c3482472275ba56f1b2fb1514f6e2c52d790b8895cc78b8f727fa",
+  "regression_full_check_sha256": "0cada42561ab9a9514a71a0f98339456e0c58095e204a5b549457c1dabcd5fa1",
+  "regression_surface_pairs": 664,
+  "regression_surface_report_sha256": "8c3adbcaf904917655a4b36f9d8601128077f6b35932aa6c8a2a6558c9a1b65a",
+  "selector631_v2": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/select_components631_v2.py",
+  "selector631_v2_sha256": "31e9dc21071aed2f27399c2ef35da6133d4444e7a300870ffa5c9c541b3e269b",
+  "status": "EXACT_REGRESSION_COMPONENT_ATTRIBUTION"
+}

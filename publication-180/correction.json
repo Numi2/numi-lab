@@ -1,0 +1,11 @@
+{
+  "original_publication": "P179",
+  "original_commit": "d18de33e4939b60f66cc60b7023ce8bd419b4269",
+  "original_relative_path": "evidence/checkpoint-663-minimal/retention-report.json",
+  "original_sha256": "a53da5159eae91faa5a4a7f9a3f0de495e2e20a7df8545dffed5f15a97a84e56",
+  "original_issue": "captured mid-write; JSON has trailing data",
+  "corrected_relative_path": "corrections/retention-report.json",
+  "corrected_sha256": "412814134a7df9ccd02ce9a71c2493fddc2383fc5708cb3f02fafbf30ec94df9",
+  "candidate_sha256": "f740435b74315d258a0bc9ea58255f6f676a437cf3a39709f9eafb8029b5b70b",
+  "candidate_and_exact_audits_modified": false
+}

@@ -1,0 +1,639 @@
+{
+  "accepted_physical_steps": 0,
+  "anchors_bitwise_baseline": true,
+  "baseline": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-010-from689/root-combined-001/candidate.npz",
+  "baseline_sha256": "b6bde2d74ea54cc3cbbd332cfd5e331b08771c6a2554d9aacc176d06db189257",
+  "changed_component_count": 26,
+  "excluded_rows": 2416,
+  "expected_candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/retained-631v2-self-witness-001/candidate.npz",
+  "expected_candidate_sha256": "d3edd7802b6c3482472275ba56f1b2fb1514f6e2c52d790b8895cc78b8f727fa",
+  "implicated_component_ids": [
+    4733,
+    4783,
+    6939,
+    7207,
+    7227,
+    7532
+  ],
+  "native_admission": false,
+  "pair_component_map": [
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11674,
+        12069
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11675,
+        12069
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11676,
+        12068
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11676,
+        12069
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11676,
+        12075
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11677,
+        12075
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11678,
+        12069
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11683,
+        12068
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11683,
+        12075
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11688,
+        12069
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11689,
+        12068
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11689,
+        12069
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11693,
+        12069
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11694,
+        12069
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11696,
+        12069
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11697,
+        12069
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11704,
+        12073
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11704,
+        12082
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11705,
+        12073
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        11705,
+        12082
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        12128,
+        12312
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        12128,
+        12313
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        12128,
+        12314
+      ]
+    },
+    {
+      "components": [
+        4733
+      ],
+      "faces": [
+        12128,
+        12315
+      ]
+    },
+    {
+      "components": [
+        4783
+      ],
+      "faces": [
+        14767,
+        14770
+      ]
+    },
+    {
+      "components": [
+        4783
+      ],
+      "faces": [
+        14767,
+        14773
+      ]
+    },
+    {
+      "components": [
+        4783
+      ],
+      "faces": [
+        14770,
+        14772
+      ]
+    },
+    {
+      "components": [
+        6939
+      ],
+      "faces": [
+        26910,
+        27020
+      ]
+    },
+    {
+      "components": [
+        6939
+      ],
+      "faces": [
+        26910,
+        27021
+      ]
+    },
+    {
+      "components": [
+        6939
+      ],
+      "faces": [
+        27019,
+        27021
+      ]
+    },
+    {
+      "components": [
+        6939
+      ],
+      "faces": [
+        27051,
+        27118
+      ]
+    },
+    {
+      "components": [
+        6939
+      ],
+      "faces": [
+        27051,
+        27119
+      ]
+    },
+    {
+      "components": [
+        6939
+      ],
+      "faces": [
+        27079,
+        27118
+      ]
+    },
+    {
+      "components": [
+        6939
+      ],
+      "faces": [
+        27079,
+        27119
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        28988,
+        29429
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        28988,
+        29430
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        29116,
+        29121
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        29116,
+        29122
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        29121,
+        29123
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        29252,
+        29429
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        29253,
+        29429
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        29373,
+        29384
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        29373,
+        31026
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        29384,
+        30967
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        30967,
+        31013
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        30967,
+        31026
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        30967,
+        31028
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        30967,
+        31031
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        31283,
+        31420
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        31283,
+        31428
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        31290,
+        31420
+      ]
+    },
+    {
+      "components": [
+        7207
+      ],
+      "faces": [
+        31290,
+        31428
+      ]
+    },
+    {
+      "components": [
+        7532
+      ],
+      "faces": [
+        34016,
+        34064
+      ]
+    },
+    {
+      "components": [
+        7532
+      ],
+      "faces": [
+        34017,
+        34020
+      ]
+    },
+    {
+      "components": [
+        7532
+      ],
+      "faces": [
+        34020,
+        34064
+      ]
+    },
+    {
+      "components": [
+        7532
+      ],
+      "faces": [
+        34070,
+        34094
+      ]
+    },
+    {
+      "components": [
+        7532
+      ],
+      "faces": [
+        34075,
+        34094
+      ]
+    },
+    {
+      "components": [
+        7532
+      ],
+      "faces": [
+        34080,
+        34094
+      ]
+    },
+    {
+      "components": [
+        7532
+      ],
+      "faces": [
+        34094,
+        34106
+      ]
+    },
+    {
+      "components": [
+        7532
+      ],
+      "faces": [
+        34094,
+        34107
+      ]
+    },
+    {
+      "components": [
+        7227
+      ],
+      "faces": [
+        40801,
+        40871
+      ]
+    },
+    {
+      "components": [
+        7227
+      ],
+      "faces": [
+        40801,
+        40872
+      ]
+    },
+    {
+      "components": [
+        7227
+      ],
+      "faces": [
+        40801,
+        40873
+      ]
+    },
+    {
+      "components": [
+        7227
+      ],
+      "faces": [
+        40801,
+        40880
+      ]
+    },
+    {
+      "components": [
+        7227
+      ],
+      "faces": [
+        40801,
+        40881
+      ]
+    }
+  ],
+  "rebuilt_arrays_bitwise_match_expected": true,
+  "retained_component_ids": [
+    2584,
+    4247,
+    4248,
+    4376,
+    4381,
+    5039,
+    5878,
+    7225,
+    7344,
+    7695,
+    8886,
+    9133,
+    12010,
+    12180,
+    13880,
+    14392,
+    15420,
+    17035,
+    17127,
+    17153
+  ],
+  "retained_rows": 697,
+  "selector631_v2": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/select_components631_v2.py",
+  "selector631_v2_sha256": "31e9dc21071aed2f27399c2ef35da6133d4444e7a300870ffa5c9c541b3e269b",
+  "self_pairs": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/fit-retry-002/full-check/audit-130/surface-self-pairs.npy",
+  "self_pairs_sha256": "0a09265e0cd95c9aa82b06ddd1e27f8d537a9fc7aec1904b41f4243b3b59d0c3",
+  "self_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/fit-retry-002/full-check/audit-130/summary.json",
+  "self_summary_sha256": "189bd02a78b31dc327f41b8d78eb6fc877559f7faf09becd5ef71f9bcf5bc237",
+  "status": "RECONSTRUCTION_VERIFIED",
+  "trial": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/outward-boneface-filter-640/root-bank43-selfcut-001/fit-retry-002/candidate.npz",
+  "trial_sha256": "b531b25bfae867070f90600a319751154a7f232e6b3a9329bcc22c7ea228e496"
+}
