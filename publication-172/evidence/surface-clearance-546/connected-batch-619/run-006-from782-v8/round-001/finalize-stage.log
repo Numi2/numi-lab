@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py", line 297, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/finalize_existing_checks546.py", line 227, in main
+    raise ValueError("not a strict surface reduction")
+ValueError: not a strict surface reduction

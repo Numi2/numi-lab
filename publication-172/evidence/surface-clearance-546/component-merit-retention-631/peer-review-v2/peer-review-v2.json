@@ -1,0 +1,145 @@
+{
+  "commands": {
+    "independent_array_recheck": "ssh numi 'set -o pipefail; /Users/n/numi-human-prep-venv-20261005/bin/python /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/peer-review-v2/verify_peer_review_v2.py | tee /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/peer-review-v2/verification-v2.json'",
+    "tests": "ssh numi 'set -o pipefail; cd /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631 && /Users/n/numi-human-prep-venv-20261005/bin/python -m pytest -q test_select_components631_v2.py | tee /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/peer-review-v2/pytest-v2.log'"
+  },
+  "independent_array_recheck": {
+    "baseline_candidate_sha256": "58488b5d329c3506134c290c6a3435518e1ad75878ac451fe2a0d3179996bc48",
+    "exact_gate": {
+      "arithmetic_pass": true,
+      "banks": 185,
+      "contained_pairs": 0,
+      "self_pairs": 0
+    },
+    "native_admission": false,
+    "nonpoint_payload_bitwise_baseline": true,
+    "outside_selected_coordinates_bitwise_baseline": true,
+    "per_bank_deltas": {
+      "115/118": -6,
+      "124/123": -4
+    },
+    "predicted_and_actual_pairs": [
+      772,
+      772
+    ],
+    "retained_components": [
+      6963,
+      7212
+    ],
+    "selected_rows": 1072,
+    "selection_candidate_sha256": "668ae678559450363eaaa99a1bb0d6d3323cb1fde0056104b664d85836facbdd",
+    "selector_sha256": "31e9dc21071aed2f27399c2ef35da6133d4444e7a300870ffa5c9c541b3e269b",
+    "status": "PASS_INDEPENDENT_ARRAY_AND_RECEIPT_CHECK",
+    "target_candidate_sha256": "ed4ff350e9f6f73896336a9545b96f10573e5bd734feda6c8687eb0b2edad676",
+    "target_changed_rows": 3500,
+    "test_sha256": "496d91473ba67eb63b9e6232ef9585f006497a481798c570f1907777001721ed",
+    "typed_anchor_rows": 237
+  },
+  "pins": {
+    "baseline_candidate": {
+      "bytes": 6667203,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-008-from796/lineage/candidate.npz",
+      "sha256": "58488b5d329c3506134c290c6a3435518e1ad75878ac451fe2a0d3179996bc48"
+    },
+    "baseline_state": {
+      "bytes": 952,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-008-from796/final/state.json",
+      "sha256": "786ead40926b2572215c698e842d35abd06d80ccd2f73d38cf8eb540405cc649"
+    },
+    "baseline_surface_report": {
+      "bytes": 108301,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-008-from796/full-check/audit-159/report.json",
+      "sha256": "c531b93f4653c0d2694b205ccc0d56385dc22ad95a3c75db2d5755ae9a94bd25"
+    },
+    "final_130_summary": {
+      "bytes": 594,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/from-run006-002/full-check/audit-130/summary.json",
+      "sha256": "6ad8f4ae23cb9583b5265ad3a0b658974a6fd5518eba2f414d16c0854d185778"
+    },
+    "final_159_report": {
+      "bytes": 107702,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/from-run006-002/full-check/audit-159/report.json",
+      "sha256": "a7e1bc73ff1084c999857f5cfa985f9d594c8eb34f450708b098724ce81e7242"
+    },
+    "final_check_report": {
+      "bytes": 26830,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/from-run006-002/full-check/report.json",
+      "sha256": "70229fad12ad162d9c761012b5aa5b3c4471234b6d8993bc6e6f2a6c4f55a789"
+    },
+    "final_state": {
+      "bytes": 975,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/from-run006-002/final/state.json",
+      "sha256": "7cedc8bf0fe3c4e2e3ac47a3183881f18cb90d91e2b229b3b722bca88bceb87a"
+    },
+    "pytest_output": {
+      "bytes": 98,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/peer-review-v2/pytest-v2.log",
+      "sha256": "e8826ddf071536d75e282d791d15a7e1d8c8d6b92c8b22ddeaf8b6d4ea1e8182"
+    },
+    "selection_candidate": {
+      "bytes": 6667225,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/from-run006-002/selection/candidate.npz",
+      "sha256": "668ae678559450363eaaa99a1bb0d6d3323cb1fde0056104b664d85836facbdd"
+    },
+    "selection_report": {
+      "bytes": 15541,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/from-run006-002/selection/report.json",
+      "sha256": "0750cb0f18441d7196c31113047044d2fe8407ae1eb1a9cb5c6919f3a338cd47"
+    },
+    "selector": {
+      "bytes": 7147,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/select_components631_v2.py",
+      "sha256": "31e9dc21071aed2f27399c2ef35da6133d4444e7a300870ffa5c9c541b3e269b"
+    },
+    "target_159": {
+      "bytes": 108421,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/retained-check/audit-159/report.json",
+      "sha256": "9b1747dd014abb06401f91dc93c2741d4014fee687199835a33c99e4cc426603"
+    },
+    "target_candidate": {
+      "bytes": 6667205,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/retention-582/candidate.npz",
+      "sha256": "ed4ff350e9f6f73896336a9545b96f10573e5bd734feda6c8687eb0b2edad676"
+    },
+    "target_check": {
+      "bytes": 53488,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/retained-check/report.json",
+      "sha256": "18293a3cf8670bea8da952aa104ce9343ff5b00f0b22d6169d4fcaed5c8f1591"
+    },
+    "tests": {
+      "bytes": 2239,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/test_select_components631_v2.py",
+      "sha256": "496d91473ba67eb63b9e6232ef9585f006497a481798c570f1907777001721ed"
+    },
+    "verification_output": {
+      "bytes": 942,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/peer-review-v2/verification-v2.json",
+      "sha256": "c8adc64ce33b2b061cd40b95ac1aa94b271aa3b93cf25055c757856617c1d2d8"
+    },
+    "verifier": {
+      "bytes": 6649,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/peer-review-v2/verify_peer_review_v2.py",
+      "sha256": "c7985ad6f3fea4f436e8393e7406a672e2ca6b5fa8ce5a105c6a3d26bf628c6f"
+    }
+  },
+  "scope": "Read-only selector/test/report review plus lightweight array and stored-receipt checks; no solver, geometry audit, native run, or admission.",
+  "status": "PASS_READ_ONLY_PEER_REVIEW",
+  "test_result": "........                                                                 [100%]\n8 passed in 0.08s",
+  "verified_properties": {
+    "accepted_physical_steps": 0,
+    "coordinates_outside_selected_rows_bitwise_equal_to_baseline": true,
+    "exact_final": {
+      "arithmetic_pass": true,
+      "complete_banks": 185,
+      "contained_pairs": 0,
+      "self_pairs": 0,
+      "status": "COMPLETE_EXACT_CONSTRUCTION_CHECKS"
+    },
+    "native_admission": false,
+    "nonpoint_arrays_bitwise_equal_to_baseline": true,
+    "per_bank_nonincrease": true,
+    "predicted_and_exact_final_surface_pairs": 772,
+    "typed_anchor_rows": 237,
+    "typed_anchor_rows_unique": true
+  }
+}

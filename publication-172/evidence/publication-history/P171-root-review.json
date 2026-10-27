@@ -1,0 +1,39 @@
+{
+  "archives": [
+    {
+      "archive": "evidence/compression-preservation/run-005-and-630/connected-batch-619/run-005-from878/round-001/cut-merge-001/fit/report.json.zst",
+      "fresh_root_filesystem_restore_exact": true,
+      "original_sha256": "2fc13464b25f75107ed0770eb7f2e9d4372a256b4c1b3342f2576ac565fc0da3"
+    },
+    {
+      "archive": "evidence/compression-preservation/run-005-and-630/connected-batch-619/run-005-from878/round-001/cut-merge-002/fit/report.json.zst",
+      "fresh_root_filesystem_restore_exact": true,
+      "original_sha256": "9875e25fcdbca10d4b8bf1714bbf7915176905fdb67f1ff6a9f9861de17debc6"
+    },
+    {
+      "archive": "evidence/compression-preservation/run-005-and-630/connected-batch-619/run-005-from878/round-001/fit-000/report.json.zst",
+      "fresh_root_filesystem_restore_exact": true,
+      "original_sha256": "865b3d8a57af96e2aed68a387d46d1fdeda97112f44f9b9068fecbcece893939"
+    },
+    {
+      "archive": "evidence/compression-preservation/run-005-and-630/connected-batch-619/run-005-from878/round-002/cut-merge-001/fit/report.json.zst",
+      "fresh_root_filesystem_restore_exact": true,
+      "original_sha256": "32e39093d9b745811763c11f177e08411e6e86bc750bbf071b3fca74e3d7c4eb"
+    },
+    {
+      "archive": "evidence/compression-preservation/run-005-and-630/connected-batch-619/run-005-from878/round-002/fit-000/report.json.zst",
+      "fresh_root_filesystem_restore_exact": true,
+      "original_sha256": "9a6b1b3d5bd007ff0a9b2145c9a19af9e85fb10bedf53b27232c275c7f236b47"
+    },
+    {
+      "archive": "evidence/compression-preservation/run-005-and-630/continued-self-cuts-630/from-run005-round1-001/cut-003/fit/report.json.zst",
+      "fresh_root_filesystem_restore_exact": true,
+      "original_sha256": "02b6626a6ced3753333b6eb49f8c567e2827a4020c854c79ba817aa3dc9b001b"
+    }
+  ],
+  "manifest_sha256": "f25ea591e67e1429538b96fa3e1f1a14b28e3251c3cfd81b4b3e1d61c0ce156a",
+  "member_bytes": 297761103,
+  "member_count": 473,
+  "scope_exclusions_checked": true,
+  "status": "ALL473_MEMBERS_AND6_ARCHIVE_RECOVERIES_ROOT_PASS"
+}

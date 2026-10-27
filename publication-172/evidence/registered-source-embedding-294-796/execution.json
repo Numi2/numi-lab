@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/registered-source-embedding-294-796/build_registered_source_embedding_796.py"
+  ],
+  "native_or_geometry_run": false,
+  "npz": {
+    "bytes": 76313,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/registered-source-embedding-294-796/crossing-source-rest.npz",
+    "sha256": "fd8d8721b6b56102ce0b5c386c502baa93b94d76dd41289b6e6bf9f7da1700d5"
+  },
+  "report": {
+    "bytes": 17372,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/registered-source-embedding-294-796/report.json",
+    "sha256": "e62898c7351310301656aaf76daf8bc46e65aa4466086a6024d013fb7848e0d4"
+  },
+  "return_code": 0,
+  "script_sha256": "208c6b809f24102462adeee2cb0fa3714a5c660ea184b182936f805c1a5efe33",
+  "status": "PASS_INERT_MAPPING_AND_PIN_ASSERTIONS"
+}

@@ -1,0 +1,14 @@
+{
+  "active_source_references": 0,
+  "archive_remote_published_at_retirement": false,
+  "archive_sha256": "e0f0df1f35ee2cb8c601c2c5a7aad9f08d6318ee247d40e367748cdf713e2692",
+  "backup_on_host_and_numi": true,
+  "free_after": 313835520,
+  "free_before": 190418944,
+  "lsof_consumers": 0,
+  "manifest_sha256": "73e3a122b7716c64707202699853c6908a164685d1a40faae26a24718c496319",
+  "originals_allocated_retired": 123584512,
+  "recovery_sha256": "551a099955862296af69599d1cfe1aec4c9dbb31725156ffcccfe5bca77329b0",
+  "sources_executables_research_assets_preserved": true,
+  "status": "RETIRED18_OBSOLETE_TEMP_OBJECTS_AFTER_FRESH_ARCHIVE_RECOVERY"
+}

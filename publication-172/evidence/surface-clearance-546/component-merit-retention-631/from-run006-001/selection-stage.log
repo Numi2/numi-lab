@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/select_components631.py", line 89, in <module>
+    if __name__=="__main__":main()
+                            ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/select_components631.py", line 88, in main
+    run(p.parse_args())
+    ~~~^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/select_components631.py", line 71, in run
+    bp=bank_pairs(readj(roles["surface_report"]),s["candidate_sha256"],len(f))
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/select_components631.py", line 34, in bank_pairs
+    if not isinstance(r,dict):raise ValueError("missing result")
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: missing result

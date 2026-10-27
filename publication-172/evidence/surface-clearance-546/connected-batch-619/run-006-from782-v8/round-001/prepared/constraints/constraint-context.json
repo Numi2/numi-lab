@@ -1,0 +1,17 @@
+{
+  "accepted_physical_steps": 0,
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-008-from796/lineage/candidate.npz",
+  "candidate_sha256": "58488b5d329c3506134c290c6a3435518e1ad75878ac451fe2a0d3179996bc48",
+  "guard_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/prepared/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+  "guard_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/prepared/constraints/refresh-541/fixed-guards/report.json",
+  "native_admission": false,
+  "point_summary": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-008-from796/full-check/audit-130/summary.json",
+  "point_summary_sha256": "1809c21724761ab763f23eca4efaa629ca27b38cdf0b7df7233d2ded9027cb6d",
+  "refresh_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/prepared/constraints/refresh-report.json",
+  "refresh_report_sha256": "e0b4f8474b17202f48c1cff7b41c6e06773b5160f95d9cb828cd37f52e52fa8c",
+  "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/prepared/constraints/self-seeds/merged-self-pair-seeds.npy",
+  "seed_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/prepared/constraints/self-seeds/seed-preflight.json",
+  "seed_report_sha256": "9de416e7470f77256b285062d4f750d5f32bd1775772548f3592017a0a2a5592",
+  "surface_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-topology-580/run-008-from796/full-check/audit-159/report.json",
+  "surface_report_sha256": "c531b93f4653c0d2694b205ccc0d56385dc22ad95a3c75db2d5755ae9a94bd25"
+}

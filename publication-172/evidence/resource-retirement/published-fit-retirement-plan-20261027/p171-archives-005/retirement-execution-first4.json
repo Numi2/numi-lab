@@ -1,0 +1,20 @@
+{
+  "active_source_references": 0,
+  "allocated_retired": 193765376,
+  "free_after": 515706880,
+  "free_before": 321994752,
+  "lsof_consumers": 0,
+  "pending_paths": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-001/cut-merge-002/fit/report.json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continued-self-cuts-630/from-run005-round1-001/cut-003/fit/report.json"
+  ],
+  "reason_for_pending": "preserve two diagnostics inputs while quantization adapter is prepared",
+  "recovery_sha256": "fe224094b71afb07c30d7ae1af93fe1701a704b14deb28cc51c53cfdcbec044e",
+  "retired_paths": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-001/cut-merge-001/fit/report.json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-001/fit-000/report.json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/cut-merge-001/fit/report.json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-005-from878/round-002/fit-000/report.json"
+  ],
+  "status": "RETIRED4_OF6_PUBLISHED_PLAINTEXT_REPORTS_AFTER_FRESH_REMOTE_RECOVERY"
+}

@@ -1,0 +1,60 @@
+{
+  "excluded_groups": [
+    {
+      "path": "all mutable quantization work and new/future jobs",
+      "reason": "Active or future experiments are outside the frozen cutoff."
+    },
+    {
+      "path": "connected-topology-580/run-009 and later; connected-batch-619/run-007 and later",
+      "reason": "Future work."
+    },
+    {
+      "path": "all __pycache__, .pytest_cache, .pyc and .pyo",
+      "reason": "Generated caches."
+    }
+  ],
+  "included_groups": [
+    {
+      "path": "evidence/surface-clearance-546/connected-topology-580/run-008-from796",
+      "scope": "Complete frozen 782/0/0 strict checkpoint and its stages/retry."
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-batch-619/run-006-from782-v8",
+      "scope": "Complete stopped v8 attempt: raw 221-self failure, 784/0/0 retained check with no strict progress over 782, disk-guard cut prepared but not run, and finalization stop."
+    },
+    {
+      "path": "evidence/surface-clearance-546/component-merit-retention-631",
+      "scope": "v1 empty-AABB/result-schema failure; v2 sources and 8 passing tests; strict 772/0/0 component proposal; independent peer-review-v2 records."
+    },
+    {
+      "path": "evidence/registered-source-embedding-294-796",
+      "scope": "Diagnostic only, tied to the P171 796 candidate; it is not sourced from the 782 candidate and does not select geometry."
+    },
+    {
+      "path": "evidence/resource-retirement/obsolete-temporary-object-cache-20261027",
+      "scope": "12MB archive, manifest, host recovery proof and execution record for 18 obsolete temporary object-cache files; host restoration passed before retirement."
+    },
+    {
+      "path": "evidence/publication-history/P171-* and evidence/resource-retirement/published-fit-retirement-plan-20261027/p171-archives-005",
+      "scope": "P171 publication receipts and proof of six fresh remote recoveries; four plaintext reports were retired and two remained pending quantization preparation."
+    },
+    {
+      "path": "evidence/compression-preservation/619-v8-run-006",
+      "scope": "One >15MiB fit report preserved losslessly as zstd with fresh filesystem restoration proof; original retained during packaging."
+    }
+  ],
+  "parent_publication": {
+    "commit": "61c81e589e7062d8cfb371afb2f6d0dfdc4fcfc1",
+    "id": "P171",
+    "manifest_sha256": "f25ea591e67e1429538b96fa3e1f1a14b28e3251c3cfd81b4b3e1d61c0ce156a"
+  },
+  "publication": "P172",
+  "publication_limits": {
+    "accepted_physical_steps": 0,
+    "native_admission": false,
+    "physical_or_anatomical_admission": false
+  },
+  "schema": "numi.human.publication_scope_decision.v1",
+  "source_deletion": false,
+  "status": "FROZEN_SCOPE"
+}

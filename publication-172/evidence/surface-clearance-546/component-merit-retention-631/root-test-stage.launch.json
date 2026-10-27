@@ -1,0 +1,19 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631",
+    "-p",
+    "test_select_components631.py"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/select_components631.py": "a68a29833a227795f9adadf6b99964669308fbe12eac83e1959669d3d956aa4f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-merit-retention-631/test_select_components631.py": "f7d6c92733234cc603def6c09988e3824ff5df01b6f58f01a10a2f1c05c5f5fd"
+  }
+}

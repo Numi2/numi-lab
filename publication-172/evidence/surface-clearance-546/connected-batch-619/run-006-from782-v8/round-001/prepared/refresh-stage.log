@@ -1,0 +1,12 @@
+waiting_for_human_geometry_slot pid=48373
+acquired_human_geometry_slot pid=48373
+{
+  "context": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/prepared/constraints/constraint-context.json",
+  "dropped_seed_count": 98,
+  "guard_npz": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/prepared/constraints/refresh-541/fixed-guards/fixed-skin-bone-guards.npz",
+  "guard_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/prepared/constraints/refresh-541/fixed-guards/report.json",
+  "mapped_seed_count": 29160,
+  "newly_cleared_prior_159_pair_count": 201,
+  "refresh_report": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/prepared/constraints/refresh-report.json",
+  "seed_pairs_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/prepared/constraints/self-seeds/merged-self-pair-seeds.npy"
+}

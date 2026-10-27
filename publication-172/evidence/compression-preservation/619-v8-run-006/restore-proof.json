@@ -1,0 +1,15 @@
+{
+  "files": [
+    {
+      "archive_path": "evidence/compression-preservation/619-v8-run-006/connected-batch-619/run-006-from782-v8/round-001/fit-000/report.json.zst",
+      "archive_sha256": "2f44fb0ab9dcd2a5acf1c129abf129495c6027b771de8f244a2262226574efc0",
+      "mode": 420,
+      "mtime_ns": 1793081056106861434,
+      "original_bytes": 49023657,
+      "original_sha256": "bd8f0c62b8ec11418ec0e003b2c99df133e9513258925ce31f99afe9693d90d9",
+      "status": "PASS"
+    }
+  ],
+  "schema": "numi.human.p172.archive_restore_proof.v1",
+  "source_report_retained": true
+}

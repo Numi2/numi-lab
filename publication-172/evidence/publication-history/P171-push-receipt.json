@@ -1,0 +1,40 @@
+{
+  "commit": "61c81e589e7062d8cfb371afb2f6d0dfdc4fcfc1",
+  "commit_message": "Publish P171 connected-surface construction evidence",
+  "manifest_member_bytes": 297761103,
+  "manifest_member_count": 473,
+  "manifest_sha256": "f25ea591e67e1429538b96fa3e1f1a14b28e3251c3cfd81b4b3e1d61c0ce156a",
+  "parent": "c1390f7f33f4bd90e5cf2306f137666e62eb5089",
+  "plaintext_report_retirement": "Not performed by publisher; all six sources still present after remote verification. Root may execute separately under approved recovery workflow.",
+  "prefix": "publication-171",
+  "publication": "P171",
+  "recorded_utc": "2026-10-27T06:15:55.233513+00:00",
+  "ref_update": {
+    "expected_parent": "c1390f7f33f4bd90e5cf2306f137666e62eb5089",
+    "force": false,
+    "ref": "refs/heads/main"
+  },
+  "remote_verification": {
+    "all_remote_raw_hashes_and_sizes_passed": true,
+    "archive_restore_count": 6,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-171-remote-verification.json",
+    "remote_path_count": 474,
+    "root_siblings_equal_parent": true,
+    "sha256": "df562b96377881634e5628a981e0b29436fdb2f8522ff0b556f8d5195ba65a5c"
+  },
+  "repository": "Numi2/numi-lab",
+  "root_review": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-171-root-review.json",
+    "sha256": "e9ce8f0a2f2a3be098bf295c9ef6eff8f0988ec120061c1a6c8bce897e293123"
+  },
+  "schema": "numi.human.publication_push_receipt.v1",
+  "shared_checkout_after": {
+    "branch": "numi-human-aortic-contact-perf",
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "index_sha256": "ed1e7a9d75da90d59c10303ba22ee9d90e90a73d0851ab28d48188be4d3a5e27",
+    "repository": "/Users/n/numi-human-aortic-contact-opt-20261019",
+    "status_bytes": 10012302,
+    "status_porcelain_v1_uall_sha256": "097d8595d1ff61634f390c9fa32a98c368e85884fd38be3f56b9f620d1af6814"
+  },
+  "tree": "d89b9097cb3019ab9db1e83d373504fc5ca9570d"
+}

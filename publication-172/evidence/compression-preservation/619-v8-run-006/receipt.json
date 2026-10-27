@@ -1,0 +1,26 @@
+{
+  "all_archives_fresh_restore_verified": true,
+  "all_originals_retained": true,
+  "files": [
+    {
+      "compressed_bytes": 4982467,
+      "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-172/evidence/compression-preservation/619-v8-run-006/connected-batch-619/run-006-from782-v8/round-001/fit-000/report.json.zst",
+      "compressed_sha256": "2f44fb0ab9dcd2a5acf1c129abf129495c6027b771de8f244a2262226574efc0",
+      "fresh_restore_status": "PASS",
+      "original_atime_ns": 1793081056679379909,
+      "original_bytes": 49023657,
+      "original_mode": 420,
+      "original_mtime_ns": 1793081056106861434,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/fit-000/report.json",
+      "original_sha256": "bd8f0c62b8ec11418ec0e003b2c99df133e9513258925ce31f99afe9693d90d9",
+      "package_compressed_relative_path": "evidence/compression-preservation/619-v8-run-006/connected-batch-619/run-006-from782-v8/round-001/fit-000/report.json.zst",
+      "relative_path": "evidence/surface-clearance-546/connected-batch-619/run-006-from782-v8/round-001/fit-000/report.json"
+    }
+  ],
+  "host": "numi",
+  "restoration_method": "zstd -1 single thread; decompressed into fresh temporary path and verified content, mode and mtime",
+  "restore_command": "python3 evidence/compression-preservation/restore_compressed_text_mirrors.py --receipt evidence/compression-preservation/619-v8-run-006/receipt.json --compressed-root <publication-172-root> --destination-root <empty-output-root>",
+  "schema": "numi.human.lossless_compressed_text_mirrors.v1",
+  "source_deleted": false,
+  "status": "compressed_and_fresh_restore_verified_original_retained"
+}
