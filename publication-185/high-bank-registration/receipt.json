@@ -1,0 +1,1201 @@
+{
+  "assessment": "No concrete registration or identity mismatch is demonstrated. The three typed pairs join to same-side expected anatomy under the stated name-join caveat; exported current transforms match the exact registered pose snapshot, and stored crossed skin faces lie nearest registered skin donors from the target bone or adjacent wrist/finger neighborhood. Safest interpretation is localized contour/topology clearance work while preserving the typed bank and pose.",
+  "checkpoint": {
+    "current_candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+    "recorded_refinement_input_sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35",
+    "source_paths_and_sha256": {
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/all-bank-containment.csv.banks.csv",
+        "sha256": "46568d191d84dd68f1fbcfe02b7938b15d4a7b3b786f268f46bcfe916070c6df"
+      },
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.bodies.csv",
+        "sha256": "dae52ab190e02586421b56381b03a4453aff1058edca7b6a42afcb9051b50b90"
+      },
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/exact-emitted.triangles.csv",
+        "sha256": "0d3418064af1d4f34d19a1ec91992afceacaaa70b6c982d4a2637ded1d829eac"
+      },
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/export-report-final.json": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/export-report-final.json",
+        "sha256": "48fec5abb489f9830cf033ea940244fd4c7d141f8ed1260a0c54afb7fb5601d7"
+      },
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/registered-skin-poses.json": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/registered-skin-poses.json",
+        "sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+      },
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/registered-skin.csv": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bone-clearance-fit-038-exact-bank-export-039/run-002/source-preflight/registered-skin.csv",
+        "sha256": "eccbc683f8450f27c8c2559471aff8fa8c62644871011d46fe3c3dbfdf3f2524"
+      },
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/fine-source-wholehand-repair-013/refinement-011-finite-sat/candidate-report.json": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/fine-source-wholehand-repair-013/refinement-011-finite-sat/candidate-report.json",
+        "sha256": "63075beb5456a26ab2e0b8d7e2caf0d029befe044bd77b8b125d657551de61ef"
+      },
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/fit-from-663-001/seed-retry-663-001/fraction-small-001/candidate.npz",
+        "sha256": "beaff5ca4deeba288662cbb614b1750516948c9400476618c6a9d45f823c9a35"
+      },
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json",
+        "sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e"
+      },
+      "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+        "sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af"
+      }
+    }
+  },
+  "identity_join": {
+    "exact_export_identity_contract": "body_index + bone_stable_id to unique verified BoneOwner sourceRecordIndex; member string is not present in this owner record",
+    "limitation": "Exact export supplies body_index + bone_stable_id -> sourceRecordIndex but no anatomical member string. Names are joined from the linked inventory by body_index and equal triangle count under the shared pose identity hash; they are not direct fields in the exact export.",
+    "named_inventory_identity_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+    "pose_snapshot_and_named_inventory_identity_match": true,
+    "pose_snapshot_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd"
+  },
+  "limitations": [
+    "Stored audit report only; no new exact crossing or self-intersection audit was run.",
+    "The name link is cross-file and uses body index plus triangle count; the exact exporter omits anatomical names.",
+    "No visual check or native physical admission was performed."
+  ],
+  "neighbor_records": {
+    "109": {
+      "body_index": 109,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.012478172779083252",
+        "max_y": "-0.0046757757663726807",
+        "max_z": "0.0042801499366760254",
+        "min_x": "-0.0057361721992492676",
+        "min_y": "-0.045571774244308472",
+        "min_z": "-0.010667324066162109"
+      },
+      "named_inventory_face_count": 392,
+      "owner_name_joined_from_named_inventory": "2proxph_l",
+      "side": "left",
+      "source_record_index": 74,
+      "stable_bone_id": 114,
+      "triangle_count": 392
+    },
+    "110": {
+      "body_index": 110,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.00721317483112216",
+        "max_y": "-0.0026032919995486736",
+        "max_z": "0.0045655965805053711",
+        "min_x": "-0.00501635717228055",
+        "min_y": "-0.028362661600112915",
+        "min_z": "-0.0038714411202818155"
+      },
+      "named_inventory_face_count": 306,
+      "owner_name_joined_from_named_inventory": "midph2_l",
+      "side": "left",
+      "source_record_index": 75,
+      "stable_bone_id": 115,
+      "triangle_count": 306
+    },
+    "111": {
+      "body_index": 111,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.005149484146386385",
+        "max_y": "-0.00013607770961243659",
+        "max_z": "0.0040663490071892738",
+        "min_x": "-0.0044727916829288006",
+        "min_y": "-0.019178301095962524",
+        "min_z": "-0.0025745027232915163"
+      },
+      "named_inventory_face_count": 328,
+      "owner_name_joined_from_named_inventory": "distph2_l",
+      "side": "left",
+      "source_record_index": 76,
+      "stable_bone_id": 116,
+      "triangle_count": 328
+    },
+    "114": {
+      "body_index": 114,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.0089539885520935059",
+        "max_y": "-0.0043181176297366619",
+        "max_z": "0.0041986103169620037",
+        "min_x": "-0.0066474974155426025",
+        "min_y": "-0.049375951290130615",
+        "min_z": "-0.01074826717376709"
+      },
+      "named_inventory_face_count": 460,
+      "owner_name_joined_from_named_inventory": "3proxph_l",
+      "side": "left",
+      "source_record_index": 78,
+      "stable_bone_id": 117,
+      "triangle_count": 460
+    },
+    "115": {
+      "body_index": 115,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.006548792589455843",
+        "max_y": "-0.0014324499061331153",
+        "max_z": "0.0045881872065365314",
+        "min_x": "-0.0058910246007144451",
+        "min_y": "-0.032219588756561279",
+        "min_z": "-0.0055450196377933025"
+      },
+      "named_inventory_face_count": 384,
+      "owner_name_joined_from_named_inventory": "midph3_l",
+      "side": "left",
+      "source_record_index": 79,
+      "stable_bone_id": 118,
+      "triangle_count": 384
+    },
+    "116": {
+      "body_index": 116,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.0051536858081817627",
+        "max_y": "-0.0015425237361341715",
+        "max_z": "0.0034403800964355469",
+        "min_x": "-0.0044159889221191406",
+        "min_y": "-0.019911736249923706",
+        "min_z": "-0.0028503537178039551"
+      },
+      "named_inventory_face_count": 266,
+      "owner_name_joined_from_named_inventory": "distph3_l",
+      "side": "left",
+      "source_record_index": 80,
+      "stable_bone_id": 119,
+      "triangle_count": 266
+    },
+    "41": {
+      "body_index": 41,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.063661158084869385",
+        "max_y": "0.038518786430358887",
+        "max_z": "0.16287875175476074",
+        "min_x": "-0.037894606590270996",
+        "min_y": "-0.017979741096496582",
+        "min_z": "-0.1608511209487915"
+      },
+      "named_inventory_face_count": 3784,
+      "owner_name_joined_from_named_inventory": "humerus_r",
+      "side": "right",
+      "source_record_index": 22,
+      "stable_bone_id": 12,
+      "triangle_count": 3784
+    },
+    "42": {
+      "body_index": 42,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.0043443143367767334",
+        "max_y": "0.01455804705619812",
+        "max_z": "0.14872109889984131",
+        "min_x": "-0.03158906102180481",
+        "min_y": "-0.021959066390991211",
+        "min_z": "-0.11341345310211182"
+      },
+      "named_inventory_face_count": 834,
+      "owner_name_joined_from_named_inventory": "ulna_r",
+      "side": "right",
+      "source_record_index": 23,
+      "stable_bone_id": 14,
+      "triangle_count": 834
+    },
+    "43": {
+      "body_index": 43,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.0065001840703189373",
+        "max_y": "0.03255811333656311",
+        "max_z": "0.057912286370992661",
+        "min_x": "-0.027333199977874756",
+        "min_y": "-0.010232626460492611",
+        "min_z": "-0.18684327602386475"
+      },
+      "named_inventory_face_count": 672,
+      "owner_name_joined_from_named_inventory": "radius_r",
+      "side": "right",
+      "source_record_index": 24,
+      "stable_bone_id": 16,
+      "triangle_count": 672
+    },
+    "45": {
+      "body_index": 45,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.015716612339019775",
+        "max_y": "0.009319651871919632",
+        "max_z": "0.0069730579853057861",
+        "min_x": "0.0023820996284484863",
+        "min_y": "-0.0070329718291759491",
+        "min_z": "-0.011362984776496887"
+      },
+      "named_inventory_face_count": 332,
+      "owner_name_joined_from_named_inventory": "lunate_r",
+      "side": "right",
+      "source_record_index": 25,
+      "stable_bone_id": 75,
+      "triangle_count": 332
+    },
+    "46": {
+      "body_index": 46,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.0066381692886352539",
+        "max_y": "0.0096076726913452148",
+        "max_z": "0.01141473650932312",
+        "min_x": "-0.0083612799644470215",
+        "min_y": "-0.008160710334777832",
+        "min_z": "-0.011392593383789062"
+      },
+      "named_inventory_face_count": 322,
+      "owner_name_joined_from_named_inventory": "scaphoid_r",
+      "side": "right",
+      "source_record_index": 26,
+      "stable_bone_id": 74,
+      "triangle_count": 322
+    },
+    "47": {
+      "body_index": 47,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.0045705437660217285",
+        "max_y": "0.0070635676383972168",
+        "max_z": "0.004828035831451416",
+        "min_x": "-0.0048123002052307129",
+        "min_y": "-0.0050103664398193359",
+        "min_z": "-0.0040213465690612793"
+      },
+      "named_inventory_face_count": 190,
+      "owner_name_joined_from_named_inventory": "pisiform_r",
+      "side": "right",
+      "source_record_index": 27,
+      "stable_bone_id": 76,
+      "triangle_count": 190
+    },
+    "48": {
+      "body_index": 48,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.0056290626525878906",
+        "max_y": "0.0081436634063720703",
+        "max_z": "0.0076651573181152344",
+        "min_x": "-0.0067887306213378906",
+        "min_y": "-0.0073569118976593018",
+        "min_z": "-0.0062426328659057617"
+      },
+      "named_inventory_face_count": 170,
+      "owner_name_joined_from_named_inventory": "triquetrum_r",
+      "side": "right",
+      "source_record_index": 28,
+      "stable_bone_id": 72,
+      "triangle_count": 170
+    },
+    "64": {
+      "body_index": 64,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.0078594088554382324",
+        "max_y": "-0.0032447879202663898",
+        "max_z": "0.010894715785980225",
+        "min_x": "-0.0076921582221984863",
+        "min_y": "-0.048394829034805298",
+        "min_z": "-0.004460752010345459"
+      },
+      "named_inventory_face_count": 458,
+      "owner_name_joined_from_named_inventory": "3proxph_r",
+      "side": "right",
+      "source_record_index": 41,
+      "stable_bone_id": 98,
+      "triangle_count": 458
+    },
+    "65": {
+      "body_index": 65,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.0058454573154449463",
+        "max_y": "-0.0006979115423746407",
+        "max_z": "0.0058881635777652264",
+        "min_x": "-0.006542503833770752",
+        "min_y": "-0.031503915786743164",
+        "min_z": "-0.0040981774218380451"
+      },
+      "named_inventory_face_count": 342,
+      "owner_name_joined_from_named_inventory": "midph3_r",
+      "side": "right",
+      "source_record_index": 42,
+      "stable_bone_id": 99,
+      "triangle_count": 342
+    },
+    "66": {
+      "body_index": 66,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.0050497055053710938",
+        "max_y": "-0.00049300474347546697",
+        "max_z": "0.0029271245002746582",
+        "min_x": "-0.0046557188034057617",
+        "min_y": "-0.018984466791152954",
+        "min_z": "-0.0031945705413818359"
+      },
+      "named_inventory_face_count": 174,
+      "owner_name_joined_from_named_inventory": "distph3_r",
+      "side": "right",
+      "source_record_index": 43,
+      "stable_bone_id": 100,
+      "triangle_count": 174
+    },
+    "69": {
+      "body_index": 69,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.0064297616481781006",
+        "max_y": "-0.0016590057639405131",
+        "max_z": "0.0061759650707244873",
+        "min_x": "-0.0088460743427276611",
+        "min_y": "-0.044007003307342529",
+        "min_z": "-0.0081782341003417969"
+      },
+      "named_inventory_face_count": 376,
+      "owner_name_joined_from_named_inventory": "4proxph_r",
+      "side": "right",
+      "source_record_index": 45,
+      "stable_bone_id": 101,
+      "triangle_count": 376
+    }
+  },
+  "pose_parity": {
+    "body_indices": [
+      41,
+      42,
+      43,
+      45,
+      46,
+      47,
+      48,
+      64,
+      65,
+      66,
+      69,
+      109,
+      110,
+      111,
+      114,
+      115,
+      116
+    ],
+    "max_abs_current_position_error_m": 3.93554677735608e-09,
+    "max_abs_current_quaternion_error": 4.270629405667137e-10,
+    "rest_current_by_body_index": {
+      "109": {
+        "current": {
+          "orientation_world_xyzw": [
+            -0.0370592438,
+            0.707914889,
+            -0.0335129425,
+            -0.704528153
+          ],
+          "position_world_m": [
+            0.250679046,
+            -0.942103326,
+            0.136280537
+          ]
+        },
+        "max_abs_export_current_position_error_m": 3.483886790167645e-10,
+        "max_abs_export_current_quaternion_error": 1.4120482560997516e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.50000006,
+            0.5,
+            0.49999997,
+            -0.49999997
+          ],
+          "position_world_m": [
+            0.188644066,
+            0.152867094,
+            0.849382877
+          ]
+        }
+      },
+      "110": {
+        "current": {
+          "orientation_world_xyzw": [
+            -0.0370592438,
+            0.707914889,
+            -0.0335129425,
+            -0.704528153
+          ],
+          "position_world_m": [
+            0.26204899,
+            -0.982479513,
+            0.143630356
+          ]
+        },
+        "max_abs_export_current_position_error_m": 4.656219299015163e-10,
+        "max_abs_export_current_quaternion_error": 1.4120482560997516e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.50000006,
+            0.5,
+            0.49999997,
+            -0.49999997
+          ],
+          "position_world_m": [
+            0.195970073,
+            0.145357102,
+            0.808109879
+          ]
+        }
+      },
+      "111": {
+        "current": {
+          "orientation_world_xyzw": [
+            -0.0370592438,
+            0.707914889,
+            -0.0335129425,
+            -0.704528153
+          ],
+          "position_world_m": [
+            0.265728891,
+            -1.00713909,
+            0.146850705
+          ]
+        },
+        "max_abs_export_current_position_error_m": 3.2766722668498005e-09,
+        "max_abs_export_current_quaternion_error": 1.4120482560997516e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.50000006,
+            0.5,
+            0.49999997,
+            -0.49999997
+          ],
+          "position_world_m": [
+            0.197190076,
+            0.1420241,
+            0.783221841
+          ]
+        }
+      },
+      "114": {
+        "current": {
+          "orientation_world_xyzw": [
+            -0.0370592438,
+            0.707914889,
+            -0.0335129425,
+            -0.704528153
+          ],
+          "position_world_m": [
+            0.251225471,
+            -0.941629112,
+            0.118816078
+          ]
+        },
+        "max_abs_export_current_position_error_m": 4.965820532554233e-10,
+        "max_abs_export_current_quaternion_error": 1.4120482560997516e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.50000006,
+            0.5,
+            0.49999997,
+            -0.49999997
+          ],
+          "position_world_m": [
+            0.18914707,
+            0.170336097,
+            0.849716902
+          ]
+        }
+      },
+      "115": {
+        "current": {
+          "orientation_world_xyzw": [
+            -0.0370592438,
+            0.707914889,
+            -0.0335129425,
+            -0.704528153
+          ],
+          "position_world_m": [
+            0.26182434,
+            -0.985007107,
+            0.120286517
+          ]
+        },
+        "max_abs_export_current_position_error_m": 3.7178038425622617e-10,
+        "max_abs_export_current_quaternion_error": 1.4120482560997516e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.50000006,
+            0.5,
+            0.49999997,
+            -0.49999997
+          ],
+          "position_world_m": [
+            0.195377082,
+            0.168686092,
+            0.805505872
+          ]
+        }
+      },
+      "116": {
+        "current": {
+          "orientation_world_xyzw": [
+            -0.0370592438,
+            0.707914889,
+            -0.0335129425,
+            -0.704528153
+          ],
+          "position_world_m": [
+            0.266658127,
+            -1.01372147,
+            0.121522769
+          ]
+        },
+        "max_abs_export_current_position_error_m": 3.93554677735608e-09,
+        "max_abs_export_current_quaternion_error": 1.4120482560997516e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.50000006,
+            0.5,
+            0.49999997,
+            -0.49999997
+          ],
+          "position_world_m": [
+            0.197331086,
+            0.167321086,
+            0.776458859
+          ]
+        }
+      },
+      "41": {
+        "current": {
+          "orientation_world_xyzw": [
+            0.235908449,
+            0.680679619,
+            -0.689014316,
+            0.0792581365
+          ],
+          "position_world_m": [
+            -0.196411699,
+            -0.465325296,
+            0.108320467
+          ]
+        },
+        "max_abs_export_current_position_error_m": 1.7405318852858898e-10,
+        "max_abs_export_current_quaternion_error": 3.948363858086168e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            0.221612081,
+            0.973177493,
+            0.00242900872,
+            -0.0617080554
+          ],
+          "position_world_m": [
+            -0.182218984,
+            0.181481048,
+            1.33405876
+          ]
+        }
+      },
+      "42": {
+        "current": {
+          "orientation_world_xyzw": [
+            -0.376787931,
+            0.570596635,
+            -0.427604467,
+            -0.591273785
+          ],
+          "position_world_m": [
+            -0.245541424,
+            -0.70783031,
+            0.104630291
+          ]
+        },
+        "max_abs_export_current_position_error_m": 4.619445798104138e-10,
+        "max_abs_export_current_quaternion_error": 3.62548879806468e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.689437032,
+            0.711689055,
+            0.0646854416,
+            -0.118284605
+          ],
+          "position_world_m": [
+            -0.206950992,
+            0.18372722,
+            1.08784878
+          ]
+        }
+      },
+      "43": {
+        "current": {
+          "orientation_world_xyzw": [
+            -0.387008011,
+            0.558348179,
+            -0.456324935,
+            -0.57466495
+          ],
+          "position_world_m": [
+            -0.26655829,
+            -0.803453982,
+            0.128371954
+          ]
+        },
+        "max_abs_export_current_position_error_m": 4.721069091218055e-10,
+        "max_abs_export_current_quaternion_error": 3.707886220283285e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.683550179,
+            0.722304463,
+            0.0359765999,
+            -0.0986975357
+          ],
+          "position_world_m": [
+            -0.218265012,
+            0.159410954,
+            0.990740657
+          ]
+        }
+      },
+      "45": {
+        "current": {
+          "orientation_world_xyzw": [
+            -0.202417076,
+            0.019190371,
+            -0.544206262,
+            -0.813940167
+          ],
+          "position_world_m": [
+            -0.285381585,
+            -0.871435583,
+            0.111428782
+          ]
+        },
+        "max_abs_export_current_position_error_m": 3.6221314836382135e-10,
+        "max_abs_export_current_quaternion_error": 4.270629405667137e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.698728442,
+            0.417289555,
+            -0.408400297,
+            -0.413348734
+          ],
+          "position_world_m": [
+            -0.230270639,
+            0.175931394,
+            0.921128631
+          ]
+        }
+      },
+      "46": {
+        "current": {
+          "orientation_world_xyzw": [
+            0.0333554409,
+            0.707361877,
+            0.0371846072,
+            -0.705084324
+          ],
+          "position_world_m": [
+            -0.281118423,
+            -0.867206037,
+            0.124697454
+          ]
+        },
+        "max_abs_export_current_position_error_m": 2.737007148700954e-10,
+        "max_abs_export_current_quaternion_error": 1.1694334389744654e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.5,
+            0.49999997,
+            0.50000006,
+            -0.5
+          ],
+          "position_world_m": [
+            -0.22641103,
+            0.162700057,
+            0.925835609
+          ]
+        }
+      },
+      "47": {
+        "current": {
+          "orientation_world_xyzw": [
+            0.0333554409,
+            0.707361877,
+            0.0371846072,
+            -0.705084324
+          ],
+          "position_world_m": [
+            -0.272276372,
+            -0.873396575,
+            0.0989622846
+          ]
+        },
+        "max_abs_export_current_position_error_m": 4.5089720845936654e-10,
+        "max_abs_export_current_quaternion_error": 1.1694334389744654e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.5,
+            0.49999997,
+            0.50000006,
+            -0.5
+          ],
+          "position_world_m": [
+            -0.217072025,
+            0.188433051,
+            0.920413613
+          ]
+        }
+      },
+      "48": {
+        "current": {
+          "orientation_world_xyzw": [
+            0.0333554409,
+            0.707361877,
+            0.0371846072,
+            -0.705084324
+          ],
+          "position_world_m": [
+            -0.281305283,
+            -0.870108068,
+            0.101552114
+          ]
+        },
+        "max_abs_export_current_position_error_m": 3.0802915773620043e-10,
+        "max_abs_export_current_quaternion_error": 1.1694334389744654e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.5,
+            0.49999997,
+            0.50000006,
+            -0.5
+          ],
+          "position_world_m": [
+            -0.226376027,
+            0.185829058,
+            0.92280066
+          ]
+        }
+      },
+      "64": {
+        "current": {
+          "orientation_world_xyzw": [
+            0.0333554447,
+            0.707361877,
+            0.0371846072,
+            -0.705084324
+          ],
+          "position_world_m": [
+            -0.301347733,
+            -0.941636145,
+            0.116600156
+          ]
+        },
+        "max_abs_export_current_position_error_m": 4.5605469400911147e-10,
+        "max_abs_export_current_quaternion_error": 1.1694334389744654e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.5,
+            0.49999997,
+            0.50000006,
+            -0.5
+          ],
+          "position_world_m": [
+            -0.239147022,
+            0.170336068,
+            0.849716544
+          ]
+        }
+      },
+      "65": {
+        "current": {
+          "orientation_world_xyzw": [
+            0.0333554447,
+            0.707361877,
+            0.0371846072,
+            -0.705084324
+          ],
+          "position_world_m": [
+            -0.311957002,
+            -0.985014379,
+            0.117985547
+          ]
+        },
+        "max_abs_export_current_position_error_m": 4.111022910979756e-10,
+        "max_abs_export_current_quaternion_error": 1.1694334389744654e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.5,
+            0.49999997,
+            0.50000006,
+            -0.5
+          ],
+          "position_world_m": [
+            -0.245377019,
+            0.168686062,
+            0.805505514
+          ]
+        }
+      },
+      "66": {
+        "current": {
+          "orientation_world_xyzw": [
+            0.0333554447,
+            0.707361877,
+            0.0371846072,
+            -0.705084324
+          ],
+          "position_world_m": [
+            -0.316799849,
+            -1.01372886,
+            0.119182989
+          ]
+        },
+        "max_abs_export_current_position_error_m": 2.959594791462905e-09,
+        "max_abs_export_current_quaternion_error": 1.1694334389744654e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.5,
+            0.49999997,
+            0.50000006,
+            -0.5
+          ],
+          "position_world_m": [
+            -0.247331023,
+            0.167321071,
+            0.776458502
+          ]
+        }
+      },
+      "69": {
+        "current": {
+          "orientation_world_xyzw": [
+            0.0333554447,
+            0.707361877,
+            0.0371846072,
+            -0.705084324
+          ],
+          "position_world_m": [
+            -0.295379192,
+            -0.940824568,
+            0.102031931
+          ]
+        },
+        "max_abs_export_current_position_error_m": 3.6296082805975516e-10,
+        "max_abs_export_current_quaternion_error": 1.1694334389744654e-10,
+        "rest": {
+          "orientation_world_xyzw": [
+            -0.5,
+            0.49999997,
+            0.50000006,
+            -0.5
+          ],
+          "position_world_m": [
+            -0.233332023,
+            0.184929058,
+            0.851037502
+          ]
+        }
+      }
+    }
+  },
+  "schema": "numi.human.skin_bone_registration_identity_check.v1",
+  "scope": "read-only parity check for banks 43/16, 109/114, 65/99; no new geometry audit; no source or candidate edits",
+  "stored_crossing_neighborhoods": {
+    "109/114": {
+      "first_skin_face_and_bone_triangle_pairs": [
+        [
+          34518,
+          91
+        ],
+        [
+          34518,
+          110
+        ],
+        [
+          34519,
+          91
+        ]
+      ],
+      "first_skin_face_centroid_world_m": [
+        0.2570193111896515,
+        -0.9615025520324707,
+        0.13579660654067993
+      ],
+      "first_skin_face_vertices": [
+        20676,
+        21098,
+        21038
+      ],
+      "nearest_registered_skin_donors": [
+        {
+          "distance_mm": 1.837726326226584,
+          "donor_body": 114,
+          "registered_vertex": 52278,
+          "world_m": [
+            0.25736504793167114,
+            -0.9609190821647644,
+            0.13408860564231873
+          ]
+        },
+        {
+          "distance_mm": 2.424543112147531,
+          "donor_body": 109,
+          "registered_vertex": 52279,
+          "world_m": [
+            0.2562665641307831,
+            -0.9592223763465881,
+            0.13546107709407806
+          ]
+        },
+        {
+          "distance_mm": 16.71463026952163,
+          "donor_body": 112,
+          "registered_vertex": 61010,
+          "world_m": [
+            0.25529664754867554,
+            -0.9468916654586792,
+            0.1278635561466217
+          ]
+        },
+        {
+          "distance_mm": 27.286037417097088,
+          "donor_body": 115,
+          "registered_vertex": 51817,
+          "world_m": [
+            0.2619251310825348,
+            -0.9866405725479126,
+            0.12638700008392334
+          ]
+        },
+        {
+          "distance_mm": 30.41638645856657,
+          "donor_body": 110,
+          "registered_vertex": 52702,
+          "world_m": [
+            0.2579483985900879,
+            -0.9913361072540283,
+            0.14164915680885315
+          ]
+        }
+      ],
+      "stored_exact_audit_pair_count": 187
+    },
+    "43/16": {
+      "first_skin_face_and_bone_triangle_pairs": [
+        [
+          19197,
+          144
+        ],
+        [
+          19199,
+          133
+        ],
+        [
+          19199,
+          144
+        ]
+      ],
+      "first_skin_face_centroid_world_m": [
+        -0.28163084387779236,
+        -0.8563361167907715,
+        0.1312246471643448
+      ],
+      "first_skin_face_vertices": [
+        18587,
+        20903,
+        21092
+      ],
+      "nearest_registered_skin_donors": [
+        {
+          "distance_mm": 6.5775710553541895,
+          "donor_body": 46,
+          "registered_vertex": 3357,
+          "world_m": [
+            -0.28605917096138,
+            -0.8514879941940308,
+            0.13161203265190125
+          ]
+        },
+        {
+          "distance_mm": 15.010771668700842,
+          "donor_body": 45,
+          "registered_vertex": 4851,
+          "world_m": [
+            -0.26982641220092773,
+            -0.8534815907478333,
+            0.12240249663591385
+          ]
+        },
+        {
+          "distance_mm": 17.058890919240852,
+          "donor_body": 43,
+          "registered_vertex": 1867,
+          "world_m": [
+            -0.2963714301586151,
+            -0.8647353649139404,
+            0.13300608098506927
+          ]
+        },
+        {
+          "distance_mm": 33.95726896413532,
+          "donor_body": 42,
+          "registered_vertex": 5723,
+          "world_m": [
+            -0.2521404027938843,
+            -0.8400723934173584,
+            0.13557220995426178
+          ]
+        },
+        {
+          "distance_mm": 225.58081762895532,
+          "donor_body": 41,
+          "registered_vertex": 7970,
+          "world_m": [
+            -0.19291548430919647,
+            -0.6490077972412109,
+            0.12563374638557434
+          ]
+        }
+      ],
+      "stored_exact_audit_pair_count": 249
+    },
+    "65/99": {
+      "first_skin_face_and_bone_triangle_pairs": [
+        [
+          14050,
+          174
+        ],
+        [
+          14051,
+          175
+        ],
+        [
+          14052,
+          175
+        ]
+      ],
+      "first_skin_face_centroid_world_m": [
+        -0.3158242702484131,
+        -1.0085391998291016,
+        0.11981716006994247
+      ],
+      "first_skin_face_vertices": [
+        16713,
+        21007,
+        21009
+      ],
+      "nearest_registered_skin_donors": [
+        {
+          "distance_mm": 1.4227532886487206,
+          "donor_body": 65,
+          "registered_vertex": 2759,
+          "world_m": [
+            -0.31452199816703796,
+            -1.0085639953613281,
+            0.12038961052894592
+          ]
+        },
+        {
+          "distance_mm": 3.3741946698646994,
+          "donor_body": 66,
+          "registered_vertex": 2758,
+          "world_m": [
+            -0.3148591220378876,
+            -1.008961796760559,
+            0.1230226382613182
+          ]
+        },
+        {
+          "distance_mm": 7.267045174400565,
+          "donor_body": 64,
+          "registered_vertex": 56174,
+          "world_m": [
+            -0.3191404640674591,
+            -1.0049084424972534,
+            0.11446642130613327
+          ]
+        },
+        {
+          "distance_mm": 30.68500237754052,
+          "donor_body": 69,
+          "registered_vertex": 4080,
+          "world_m": [
+            -0.30939340591430664,
+            -0.9825664162635803,
+            0.10479624569416046
+          ]
+        },
+        {
+          "distance_mm": 67.4208903693649,
+          "donor_body": 67,
+          "registered_vertex": 55804,
+          "world_m": [
+            -0.2965790927410126,
+            -0.9442828297615051,
+            0.12662293016910553
+          ]
+        }
+      ],
+      "stored_exact_audit_pair_count": 148
+    }
+  },
+  "target_typed_banks": {
+    "109/114": {
+      "body_index": 109,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.012478172779083252",
+        "max_y": "-0.0046757757663726807",
+        "max_z": "0.0042801499366760254",
+        "min_x": "-0.0057361721992492676",
+        "min_y": "-0.045571774244308472",
+        "min_z": "-0.010667324066162109"
+      },
+      "named_inventory_face_count": 392,
+      "owner_name_joined_from_named_inventory": "2proxph_l",
+      "side": "left",
+      "source_record_index": 74,
+      "stable_bone_id": 114,
+      "triangle_count": 392
+    },
+    "43/16": {
+      "body_index": 43,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.0065001840703189373",
+        "max_y": "0.03255811333656311",
+        "max_z": "0.057912286370992661",
+        "min_x": "-0.027333199977874756",
+        "min_y": "-0.010232626460492611",
+        "min_z": "-0.18684327602386475"
+      },
+      "named_inventory_face_count": 672,
+      "owner_name_joined_from_named_inventory": "radius_r",
+      "side": "right",
+      "source_record_index": 24,
+      "stable_bone_id": 16,
+      "triangle_count": 672
+    },
+    "65/99": {
+      "body_index": 65,
+      "join_status": "body_index + exact triangle count + shared pose identity hash",
+      "local_aabb_m": {
+        "max_x": "0.0058454573154449463",
+        "max_y": "-0.0006979115423746407",
+        "max_z": "0.0058881635777652264",
+        "min_x": "-0.006542503833770752",
+        "min_y": "-0.031503915786743164",
+        "min_z": "-0.0040981774218380451"
+      },
+      "named_inventory_face_count": 342,
+      "owner_name_joined_from_named_inventory": "midph3_r",
+      "side": "right",
+      "source_record_index": 42,
+      "stable_bone_id": 99,
+      "triangle_count": 342
+    }
+  }
+}

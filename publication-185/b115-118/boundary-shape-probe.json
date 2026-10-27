@@ -1,0 +1,150 @@
+{
+  "schema": "numi.human.bank115_118.boundary_shape_probe.v1",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "bank_115_118_triangle_count": 384,
+  "bank_exact_coordinate_edge_count": 576,
+  "bank_boundary_edge_count": 0,
+  "bank_nonmanifold_edge_count": 0,
+  "winding_test_available": true,
+  "fixed_outer_boundary_nodes": [
+    {
+      "node_row": 9226,
+      "winding": 0.0,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 11011,
+      "winding": 8.834874115176436e-18,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 13025,
+      "winding": -3.533949646070574e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 14363,
+      "winding": 0.0,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 17779,
+      "winding": 2.6504622345529306e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 17782,
+      "winding": 0.0,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 17785,
+      "winding": 0.0,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 18511,
+      "winding": 0.0,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 18512,
+      "winding": 3.533949646070574e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 18513,
+      "winding": -3.533949646070574e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 18801,
+      "winding": -5.300924469105861e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 18907,
+      "winding": -7.067899292141149e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 18910,
+      "winding": 1.766974823035287e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 19146,
+      "winding": 0.0,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 19149,
+      "winding": 1.236882376124701e-16,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 19404,
+      "winding": -3.533949646070574e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 19406,
+      "winding": -1.766974823035287e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 20480,
+      "winding": 0.0,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 20507,
+      "winding": -3.533949646070574e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 20508,
+      "winding": 7.067899292141149e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 20509,
+      "winding": -1.5902773407317583e-16,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 20517,
+      "winding": -3.533949646070574e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 20521,
+      "winding": 3.533949646070574e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 20523,
+      "winding": -1.766974823035287e-17,
+      "inside_by_abs_winding_gt_half": false
+    },
+    {
+      "node_row": 20528,
+      "winding": 0.0,
+      "inside_by_abs_winding_gt_half": false
+    }
+  ],
+  "boundary_inside_count": 0,
+  "boundary_min_abs_winding": 0.0,
+  "boundary_max_abs_winding": 1.5902773407317583e-16,
+  "one_ring_shape": {
+    "face_count": 57,
+    "min_current_area_mm2": 0.008303375567971406,
+    "max_current_area_mm2": 10.090479733315782,
+    "minimum_fixed_reference_magnitude_ratio": 0.19404666904207354,
+    "faces_below_0_1_magnitude_ratio": 0,
+    "orientation_vs_current_baseline": "1.0 by construction; candidate itself is the fixed local orientation baseline"
+  },
+  "limitations": [
+    "Winding is a local geometric classification only if bank mesh is closed and consistently oriented. It does not certify physical clearance or native acceptance."
+  ]
+}

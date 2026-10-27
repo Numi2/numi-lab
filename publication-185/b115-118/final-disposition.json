@@ -1,0 +1,73 @@
+{
+  "schema": "numi.human.bank115_118.contour_patch_disposition.v1",
+  "status": "NO_PATCH_CANDIDATE_EMITTED_ENDPOINT_IDENTITY_OBSTRUCTION",
+  "current_candidate": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+    "sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af"
+  },
+  "local_exact_crossings": {
+    "typed_bank": [115, 118],
+    "full_audit_complete_banks": 185,
+    "bank_exact_pair_count": 46,
+    "crossing_skin_face_count": 19,
+    "crossing_skin_face_rows": [29833, 29834, 29835, 29836, 29846, 29847, 29848, 29849, 31364, 31366, 31367, 31452, 31453, 31454, 31455, 31456, 31457, 31458, 31459],
+    "crossing_bone_face_rows": [80, 106, 107, 108, 109, 110, 111, 121, 123, 124, 148, 203, 214, 215, 279, 280, 281, 283, 284, 286, 290, 304, 307, 308, 327, 349],
+    "exact_predicate_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d"
+  },
+  "local_patch_feasibility": {
+    "crossing_faces_edge_connected": true,
+    "one_vertex_ring_face_count": 57,
+    "fixed_outer_boundary_edges": 25,
+    "outer_boundary_edges_with_crossings": 0,
+    "bank_surface_closed_manifold": true,
+    "outer_boundary_nodes_outside_bone_by_winding": 25,
+    "minimum_boundary_node_distance_mm": 0.10348130484672949,
+    "minimum_patch_area_magnitude_ratio_to_fixed_reference": 0.19404666904207354,
+    "source_ancestry_rows": [87944, 88498],
+    "immediate_parent_candidate_face_rows": [29373, 29383, 30897, 30979, 30980],
+    "fine_subface_ancestry_rows": [87952, 88506]
+  },
+  "contour_intersection_witnesses": {
+    "approximate_segment_count": 45,
+    "separate_point_contact_pair_skin_bone": [31456, 286],
+    "small_nonzero_segment_skin_bone": [31367, 281],
+    "small_segment_length_mm": 0.00048826305639674086,
+    "warning": "The point contact is separate from the short nonzero segment. The micron-quantized endpoint graph is approximate and is not an exact topology proof."
+  },
+  "bounded_trials": [
+    {
+      "path": "conforming-patch-001/report.json",
+      "sha256": "5930d60326c6608361fb1ddaff7f84af09f98adbb62fd5b6117c016a84c1a618",
+      "endpoint_bin_mm": 0.001,
+      "max_merged_endpoint_spread_mm": 0.00048826305639674086,
+      "outcome": "A real 0.000488 mm segment collapsed because both ends fell in the same 1 micron bin; this was a tolerance artifact, not the separate point contact. No patch mesh emitted."
+    },
+    {
+      "path": "conforming-patch-002/report.json",
+      "sha256": "2f7c355d17ec506f3f0aa5da73ebe717d68661fc22a55782a6730850ad2b7f20",
+      "endpoint_bin_mm": 0.00001,
+      "max_merged_endpoint_spread_mm": 0.0000007492423791308903,
+      "outcome": "Short segment preserved. Intermediate report failed on parent-order bookkeeping; corrected in the final local trial. No patch mesh emitted."
+    },
+    {
+      "path": "conforming-patch-003/report.json",
+      "sha256": "7f72e5c45cac788ee3c39813d3d36da01687f65272ff4ab36fc5daefc42320ad",
+      "endpoint_bin_mm": 0.00001,
+      "max_merged_endpoint_spread_mm": 0.0000007492423791308903,
+      "outcome": "Per-face coverage passed, but global patch boundary gate failed: no original outer edges were missing and 16 extra incidence-1 edges appeared. The approximate endpoint keys did not produce a conforming cross-face patch. No patch candidate emitted."
+    }
+  ],
+  "evidence_hashes": {
+    "local_topology_report.json": "d4d619da7a60667afb0a05e8e99cfdeccb9f9bd60adcf25f6acd9e673fa2aa7c",
+    "local_contour_geometry.json": "41db72c7c5cd40c6a3058a2edd3bddeb25c9f68e2742c829472f9bb901601a90",
+    "boundary_shape_probe.json": "0a15604ed4b0dc78557d515a681aca5e74bd00aaf51c7df650c646acb574839b",
+    "candidate_audit159_report.json": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e"
+  },
+  "next_method": "Build contour endpoint identities from the shared skin-edge and bone-edge topology plus exact rational edge parameters, rather than coordinate quantization. Preserve the short segment as two distinct nodes, weld only endpoints proven identical by shared topology, and rerun the same fixed-boundary 57-face CDT checks. The current patch has valid outer-boundary clearance and source ancestry, but the float-reconstructed contour did not preserve cross-face endpoint incidence.",
+  "limitations": [
+    "Only local bank 115/118 contour and 57-face patch geometry were checked.",
+    "No topology patch was emitted or applied to the full candidate.",
+    "No all-bank no-worsening or whole-body self-intersection audit was run in this turn.",
+    "No physical or native admission is claimed."
+  ]
+}

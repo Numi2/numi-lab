@@ -1,0 +1,264 @@
+{
+  "schema": "numi.human.bank115_118.local_topology.v1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/candidate.npz",
+  "candidate_sha256": "7f2cb323550b273ae772ffc92d1dd714ab047d7f973af7f60793367fe43222af",
+  "audit159_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/component-sat-selector-638/partial-midpoint-continuation-root-001/combined-43-57-65smooth-109-124-001/audit-159/report.json",
+  "audit159_sha256": "c480d498bc1fb0f361e817b7f785b7b425ba9f40c0e181f7176ae375103cce8e",
+  "bank": {
+    "body": 115,
+    "stable_bone_id": 118,
+    "exact_cross_pair_count": 46,
+    "crossing_skin_face_count": 19,
+    "crossing_skin_face_rows": [
+      29833,
+      29834,
+      29835,
+      29836,
+      29846,
+      29847,
+      29848,
+      29849,
+      31364,
+      31366,
+      31367,
+      31452,
+      31453,
+      31454,
+      31455,
+      31456,
+      31457,
+      31458,
+      31459
+    ],
+    "crossing_bone_face_rows": [
+      80,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      121,
+      123,
+      124,
+      148,
+      203,
+      214,
+      215,
+      279,
+      280,
+      281,
+      283,
+      284,
+      286,
+      290,
+      304,
+      307,
+      308,
+      327,
+      349
+    ]
+  },
+  "crossing_face_edge_connected_component_count": 1,
+  "crossing_face_vertex_connected_component_count": 1,
+  "crossing_face_vertex_components": [
+    [
+      29833,
+      29834,
+      29835,
+      29836,
+      29846,
+      29847,
+      29848,
+      29849,
+      31364,
+      31366,
+      31367,
+      31452,
+      31453,
+      31454,
+      31455,
+      31456,
+      31457,
+      31458,
+      31459
+    ]
+  ],
+  "crossing_components": [
+    {
+      "component": 0,
+      "crossing_face_rows": [
+        29833,
+        29834,
+        29835,
+        29836,
+        29846,
+        29847,
+        29848,
+        29849,
+        31364,
+        31366,
+        31367,
+        31452,
+        31453,
+        31454,
+        31455,
+        31456,
+        31457,
+        31458,
+        31459
+      ],
+      "crossing_pair_count": 46,
+      "crossing_bone_face_rows": [
+        80,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        121,
+        123,
+        124,
+        148,
+        203,
+        214,
+        215,
+        279,
+        280,
+        281,
+        283,
+        284,
+        286,
+        290,
+        304,
+        307,
+        308,
+        327,
+        349
+      ],
+      "crossing_node_rows": [
+        14366,
+        18799,
+        19145,
+        19405,
+        19538,
+        20516,
+        20940,
+        20941,
+        20942,
+        21114,
+        21115,
+        21139,
+        21140,
+        21141,
+        21142,
+        21164,
+        21173
+      ],
+      "crossing_edge_count": 35,
+      "internal_edges": 22,
+      "crossing_patch_boundary_edge_count": 13,
+      "edge_adjacent_non_crossing_faces": 13,
+      "one_vertex_ring_face_count": 57,
+      "two_vertex_ring_face_count": 151,
+      "parent_coarse_face_rows": [
+        -1
+      ],
+      "fine_detail_face_rows": [
+        -1
+      ],
+      "fine_subface_rows": [
+        -1
+      ],
+      "source_ancestry_rows": [
+        87944,
+        88498
+      ],
+      "fine_subface_ancestry_rows": [
+        87952,
+        88506
+      ],
+      "fine_detail_ancestry_rows": [
+        87944,
+        88498
+      ],
+      "patch_boundary_edges": [
+        [
+          19538,
+          20941
+        ],
+        [
+          14366,
+          20941
+        ],
+        [
+          19405,
+          21139
+        ],
+        [
+          19145,
+          21139
+        ],
+        [
+          19145,
+          21142
+        ],
+        [
+          19538,
+          21173
+        ],
+        [
+          21142,
+          21173
+        ],
+        [
+          18799,
+          21114
+        ],
+        [
+          18799,
+          21115
+        ],
+        [
+          19405,
+          21114
+        ],
+        [
+          20516,
+          21115
+        ],
+        [
+          14366,
+          20942
+        ],
+        [
+          20516,
+          20942
+        ]
+      ]
+    }
+  ],
+  "rings": {
+    "crossing_faces": 19,
+    "one_vertex_ring_faces": 57,
+    "two_vertex_ring_faces": 151,
+    "one_ring_faces_not_exact_crossing": 38,
+    "two_ring_faces_not_exact_crossing": 94,
+    "coarse_parent_rows_one_ring": [
+      -1
+    ],
+    "detail_ancestry_rows_crossing_faces": [
+      87944,
+      88498
+    ]
+  },
+  "shape_probe": {
+    "candidate_min_face_area_m2": 1.152496231387922e-09,
+    "local_ring_min_face_area_m2": 8.303375567971407e-09,
+    "outer_boundary_node_count": 0
+  },
+  "limitations": [
+    "Topology and source-ancestry only; no candidate remesh or physical admission."
+  ]
+}

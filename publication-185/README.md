@@ -1,0 +1,7 @@
+# Numi Human P185: hand patch topology and identity diagnostics
+
+This is construction evidence continuing P184, not an admitted scene or a functional skin/fat model. The 653 comparable parent skin/bone crossing identities and 125 sampled inside node/bank pairs remain; the previous full-surface self audit was zero. The 45 unresolved boundary edges remain. No native physical step, tissue transfer, mass validation or moving-pose qualification is implied.
+
+Bank 115/118 has 46 refined exact crossing pairs across 19 connected skin faces. Its 57-face, 25-edge surrounding patch has all boundary nodes outside the closed bone mesh, but the face-wise candidate failed topology. At a 0.001 mm coordinate bin a real 0.000488 mm contour segment collapsed; reducing bins to 0.00001 mm preserved it, but produced 16 extra incidence-one patch edges. No typed candidate was emitted. The stored endpoint contour reconstruction is approximate; the original pair audit uses the retained exact predicates. The next method needs topology-derived endpoint identity and exact shared-edge parameters.
+
+Read-only checks of 43/16, 109/114 and 65/99 found no demonstrated pose or owner identity swap. The anatomical names in the receipt are cross-file joins using shared pose identity, body index and triangle count; the exact export does not directly carry member-name fields. These diagnostics do not prove anatomical correctness. Source licensing and mixed-reference assembly attribution are in P182/P183.
