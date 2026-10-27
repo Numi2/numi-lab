@@ -1,0 +1,22 @@
+{
+  "schema": "numi.lossless-compressed-text-preservation.v1",
+  "created_utc": "2026-10-27T04:50:58Z",
+  "source_deleted": false,
+  "restoration_method": "zstd archive; existing restore_compressed_text_mirrors.py; exact SHA/size/mode/mtime verification",
+  "restore_command": "python restore_compressed_text_mirrors.py --receipt receipt.json --destination-root <empty-root> --compressed-root <archive-directory>",
+  "files": [
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-002/round-001/fit-000/report.json",
+      "relative_path": "evidence/surface-clearance-546/connected-batch-619/run-002/round-001/fit-000/report.json",
+      "original_sha256": "6bb4b0bd0ca665237bebedb1fa233254e32e8d7204884f8b523d42e4e95b6e7d",
+      "original_bytes": 46531768,
+      "original_mode": 420,
+      "original_atime_ns": 1793075069629964064,
+      "original_mtime_ns": 1793075068901570138,
+      "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-168/evidence/compression-preservation/619-run-002-fit-000/fit-report.json.zst",
+      "compressed_sha256": "033b4df407805e9a3df922b3c35c9df6e95cfc9c87fa1d4c4db97559dd94ad38",
+      "compressed_bytes": 3433846,
+      "package_compressed_relative_path": "fit-report.json.zst"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/contained-field-retention-620/restore_inside_rows620.py",
+    "--baseline-state",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/strict-final-002/state.json",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-002/round-001/salvage-fit-000/retention/candidate.npz",
+    "--check-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-002/round-001/salvage-fit-000/full-check/report.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/contained-field-retention-622/from-1173-001/restore"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/strict-final-002/state.json": "23173ce9a80e4dbfc884d0ed65ccb4a955b298f53b38c7db5e256a347e2b991c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-002/round-001/salvage-fit-000/full-check/report.json": "46d2f26b1f5ff004e436b0c7f9610713a39667a745d70a19119df72e68f8c6d1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-002/round-001/salvage-fit-000/retention/candidate.npz": "ed78fb1f0f68072414a1190f92bbccf32602afa97856ab41d4a7aad173f5fd4c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/contained-field-retention-620/restore_inside_rows620.py": "5d733d43eadedfdb3ec853a5cf36286e78a5263c7c82e1ac8639be9e6dde8bf4"
+  }
+}

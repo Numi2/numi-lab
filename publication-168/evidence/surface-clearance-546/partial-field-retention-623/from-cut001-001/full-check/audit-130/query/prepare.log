@@ -1,0 +1,9 @@
+{
+  "input": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-field-retention-623/from-cut001-001/full-check/audit-130/query/points-world.npz",
+  "input_sha256": "1ae473888096025dcc165e4180d80781e6f0351203128b3598a55576d4e70886",
+  "field": "points_world_f32",
+  "query_count": 20889,
+  "output": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/partial-field-retention-623/from-cut001-001/full-check/audit-130/query/points.csv",
+  "output_sha256": "c46b4619b44569ed2068c790d2036ae1c3ab5a5276073237ed3d8e40ad55e089",
+  "semantics": "query row only; source global IDs are validated for uniqueness but intentionally not exported"
+}

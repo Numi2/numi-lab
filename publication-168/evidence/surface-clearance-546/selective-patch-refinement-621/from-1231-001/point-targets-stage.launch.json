@@ -1,0 +1,43 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/run_depthmax_targets589_v2.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/candidate.npz",
+    "--point-summary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/audit-130/summary.json",
+    "--query-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/audit-130/query",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/point-targets-589",
+    "--clearance-m",
+    "5e-5",
+    "--direction-mode",
+    "depth-maximizing",
+    "--minimum-depth-cosine",
+    ".05",
+    "--point-depth-rows-npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/depth-413/point-depth-rows.npz",
+    "--point-depth-rows-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/depth-413/365-compatible-report.json"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/contained-clearance-545/build_direct_depth_targets545.py": "2864d9547d2715c61c9c27b17bcfd11fac250197c47f4fd4870f8f6898cecb60",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_nearest_union_targets_500.py": "454501303db7c6420ff3744729c62c723c208aaf9348a53534137c62b7e6afbf",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/source-outward-proposal-500/build_outward_targets_multi_source_546.py": "dd61f0fb87f12c132166515a1e058e144d493a835cadbb2a47e6a2c8574e1e68",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/audit-130/query/query-receipt.json": "15dd6cf6250ff698678773f7bf121fe9f55b050b4ca7172a4a9a556966aa4f9f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/audit-130/summary.json": "e05f3122355aab9b8db7992ef6201346aefc241fb8ab3cfe3fe6847953572cff",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/candidate.npz": "aed22c2eb0c0f30cc06413ba023b2154bc0c81071cb646933e70a90667602c6c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/depth-413/365-compatible-report.json": "ffebad710b47225784fc832827f564c4440b06bfed6cfd238e99ccbfe96e29b9",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/depth-413/point-depth-rows.npz": "de77d2c3dbac6700cc1df7ec01282090d2725bf08878b09791abe29469a3c5b5",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/report.json": "cb269617086057959696b28604e5190d83eb308235132cd81a8eae66a66cff64",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-normal-audit-588/audit_midpoint_normals588.py": "a6f7b8c1cd333e117f9a8f6f31bb9cc40f8bf5569c6f01ea7cc2074a99c3b703",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/run_depthmax_targets589_v2.py": "cd64f5280dec578ef8441aa9e44b9c01d44ba703edbd3fde39167ed471c71200",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/source-outward-targets-589/run_source_outward_targets589.py": "11f8a4a4b906294e9832173b63601f438c9c4bf1f57e488e8fd95f398f0038ec"
+  }
+}

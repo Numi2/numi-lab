@@ -1,0 +1,22 @@
+{
+  "actual_target_builder_run_by_this_verification": false,
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "test_joint_point_targets624.py",
+    "test_joint_point_targets624_v2.py"
+  ],
+  "exit_code": 0,
+  "geometry_or_solver_run": false,
+  "py_compile": "run_joint_point_targets624_v2.py and test_joint_point_targets624_v2.py passed",
+  "result": "22 passed in 0.06s",
+  "schema": "numi.joint-point-targets-624.tests.v1",
+  "v1_source_preserved_unchanged": true,
+  "v1_source_sha256": "b139c0cece5079520518685cc590c0272c11583166c86c500e8819dcb2e4dc9a",
+  "v1_test_sha256": "6a6828aa12892cd103d25dece6dff6fa191215f0a2c45d135d4415c8d9ff42dd",
+  "v2_source_sha256": "3f45e683a80bd1ad8117b5e78d7507dde3b7fceae6d7bba4dcff511cc3e7cf6d",
+  "v2_test_sha256": "45035dc962ec1c4917d957a1ad9ac08c487e165e08c8d2bec6de1a82124b10f3",
+  "working_directory": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/joint-point-targets-624"
+}

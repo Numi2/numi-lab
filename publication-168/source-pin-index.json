@@ -1,0 +1,84 @@
+{
+  "external_dependencies": "Unchanged P167 dependencies are referenced through previous-publication-reference.json; source pins for all P168-local Python files are listed here.",
+  "schema": "numi.publication-168.source-pin-index.v1",
+  "source_count": 11,
+  "sources": [
+    {
+      "bytes": 3611,
+      "execution_status": "included_source_no_execution_claim",
+      "path": "evidence/compression-preservation/restore_compressed_text_mirrors.py",
+      "role": "restore_helper",
+      "sha256": "32476471781c11fa5eb1c6d5add247130168d45ef860554173984fd2ec41a99e"
+    },
+    {
+      "bytes": 40422,
+      "execution_status": "source_tested; coordinator execution reserved for later publication",
+      "path": "evidence/surface-clearance-546/connected-batch-619/run_connected_batch619_v5.py",
+      "role": "source",
+      "sha256": "abbe70735b70879b5ad7b8e35823fa37d6af43e8c2fa9a26af0e93c55836e431"
+    },
+    {
+      "bytes": 4448,
+      "execution_status": "included_source_no_execution_claim",
+      "path": "evidence/surface-clearance-546/connected-batch-619/test_run_connected_batch619_v5.py",
+      "role": "unit_test",
+      "sha256": "91e789474fa36568af26aef3953eccfd70df65c67e1976452a9da7b44de1c1f1"
+    },
+    {
+      "bytes": 33687,
+      "execution_status": "included_source_no_execution_claim",
+      "path": "evidence/surface-clearance-546/joint-point-targets-624/run_joint_point_targets624.py",
+      "role": "source",
+      "sha256": "b139c0cece5079520518685cc590c0272c11583166c86c500e8819dcb2e4dc9a"
+    },
+    {
+      "bytes": 34615,
+      "execution_status": "runner hash is recorded by the included 621-v2 624 target report",
+      "path": "evidence/surface-clearance-546/joint-point-targets-624/run_joint_point_targets624_v2.py",
+      "role": "source",
+      "sha256": "3f45e683a80bd1ad8117b5e78d7507dde3b7fceae6d7bba4dcff511cc3e7cf6d"
+    },
+    {
+      "bytes": 6834,
+      "execution_status": "included_source_no_execution_claim",
+      "path": "evidence/surface-clearance-546/joint-point-targets-624/test_joint_point_targets624.py",
+      "role": "unit_test",
+      "sha256": "6a6828aa12892cd103d25dece6dff6fa191215f0a2c45d135d4415c8d9ff42dd"
+    },
+    {
+      "bytes": 8621,
+      "execution_status": "included_source_no_execution_claim",
+      "path": "evidence/surface-clearance-546/joint-point-targets-624/test_joint_point_targets624_v2.py",
+      "role": "unit_test",
+      "sha256": "45035dc962ec1c4917d957a1ad9ac08c487e165e08c8d2bec6de1a82124b10f3"
+    },
+    {
+      "bytes": 14816,
+      "execution_status": "included_source_no_execution_claim",
+      "path": "evidence/surface-clearance-546/selective-patch-refinement-621/selective_patch_refinement621.py",
+      "role": "source",
+      "sha256": "574be9d48eb23cb72243614da3fa8c2a799403b17ec3d13c9e3521dd33aca966"
+    },
+    {
+      "bytes": 3738,
+      "execution_status": "included_source_no_execution_claim",
+      "path": "evidence/surface-clearance-546/selective-patch-refinement-621/test_selective_patch_refinement621.py",
+      "role": "unit_test",
+      "sha256": "f51617e66ebb03d9ee7effc283d191c65be2d71c8dd293c06f78bbb506c854f9"
+    },
+    {
+      "bytes": 11927,
+      "execution_status": "included_source_no_execution_claim",
+      "path": "evidence/surface-clearance-546/selective-patch-refinement-621-v2/selective_patch_refinement621_v2.py",
+      "role": "source",
+      "sha256": "4f02daeead6260ae8b486c3107a9768b491a202b149325312c616541288ea87d"
+    },
+    {
+      "bytes": 4951,
+      "execution_status": "included_source_no_execution_claim",
+      "path": "evidence/surface-clearance-546/selective-patch-refinement-621-v2/test_selective_patch_refinement621_v2.py",
+      "role": "unit_test",
+      "sha256": "88ad0e5f07596713762fcfdedea6b590ae6cb2509ff515f96fd8b5c5375e6ee5"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "P167_best_in_scope": {
+    "accepted_physical_steps": 0,
+    "bank_count": 185,
+    "candidate_sha256": "e40ccdbfead578d05bada7808c91564c45434b992a8ca498081160e81bd5f6c0",
+    "contained_pairs": 0,
+    "native_admission": false,
+    "self_pairs": 0,
+    "surface_pairs": 1231
+  },
+  "commit": "f21e352a79c7dcf14b671c969138afffdea278f3",
+  "main_after": "f21e352a79c7dcf14b671c969138afffdea278f3",
+  "manifest_sha256": "0b192fbbabc1b96a2568fca6ee1420bcf5c43f15760305b61b17df9ef2890981",
+  "parent": "3bbc427f60e7e5cf8ccd9a7ea2b1f08b1e2087c3",
+  "publication": "P167",
+  "push_receipt_bytes": 47806,
+  "push_receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-167-push-receipt.json",
+  "push_receipt_sha256": "34b914a67a1904185325030fe7f95b94f879debdd0d241774cdf70bdca835554"
+}

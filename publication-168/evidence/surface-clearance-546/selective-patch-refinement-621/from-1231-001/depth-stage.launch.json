@@ -1,0 +1,42 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py",
+    "--candidate",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/candidate.npz",
+    "--point-summary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/audit-130/summary.json",
+    "--surface-report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/audit-159/report.json",
+    "--query-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/audit-130/query",
+    "--output-dir",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/depth-413",
+    "--expected-candidate-sha256",
+    "aed22c2eb0c0f30cc06413ba023b2154bc0c81071cb646933e70a90667602c6c",
+    "--expected-point-summary-sha256",
+    "e05f3122355aab9b8db7992ef6201346aefc241fb8ab3cfe3fe6847953572cff",
+    "--expected-surface-report-sha256",
+    "68308318b5c28e0cf6184d58af09065d4135503a3e6c258b006bac4beb445f6f",
+    "--expected-query-receipt-sha256",
+    "15dd6cf6250ff698678773f7bf121fe9f55b050b4ca7172a4a9a556966aa4f9f",
+    "--expected-owner-sha256",
+    "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-barriers-357/point_depth_barriers_357.py": "dc8078515dd12b2edc62c0bc75759a7cb9472c9914e4704ecd41e04c4d5378e1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/point-depth-refresh-413/refresh_point_depth_rows.py": "ee327a03af99bcb9b89f6344d1f3a7d6ead074cbf489fd985f04c22362ecff3f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/strict-final-002/state.json": "23173ce9a80e4dbfc884d0ed65ccb4a955b298f53b38c7db5e256a347e2b991c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/audit-130/query/query-receipt.json": "15dd6cf6250ff698678773f7bf121fe9f55b050b4ca7172a4a9a556966aa4f9f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/audit-130/summary.json": "e05f3122355aab9b8db7992ef6201346aefc241fb8ab3cfe3fe6847953572cff",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/audit-159/report.json": "68308318b5c28e0cf6184d58af09065d4135503a3e6c258b006bac4beb445f6f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/baseline-state.json": "55297da2a0bccc750bb6d80be70118b91be965d5c5bffb77ab93dba94ac914e7",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/candidate.npz": "aed22c2eb0c0f30cc06413ba023b2154bc0c81071cb646933e70a90667602c6c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/report.json": "cb269617086057959696b28604e5190d83eb308235132cd81a8eae66a66cff64"
+  }
+}

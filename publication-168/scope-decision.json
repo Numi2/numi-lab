@@ -1,0 +1,60 @@
+{
+  "excluded_groups": [
+    "connected-batch-619/run-003 (active)",
+    "connected-batch-619-v5 execution (reserved for a later publication)",
+    "selective-patch-refinement-621-v2 matched fit/preparation work (active and separate from the included construct/audit/depth/624 tree)",
+    "sparse-field-transfer-625 retention/full-check and new restore outputs (active)",
+    "connected-refined-626 and all later active geometry/fit outputs",
+    "all __pycache__ and .pytest_cache files",
+    "all P167 payloads except the exact P167 push receipt",
+    "all source deletion/cleanup actions"
+  ],
+  "included_groups": [
+    {
+      "path": "evidence/surface-clearance-546/connected-batch-619/run-002",
+      "scope": "complete frozen run-002 failure, cut-merge/raw fit evidence, salvage fit and partial exact certification; fit-000/report.json is losslessly compressed with restore receipt"
+    },
+    {
+      "path": "evidence/surface-clearance-546/connected-batch-619/run_connected_batch619_v5.py",
+      "scope": "tested v5 source and test source; v5 execution is reserved for a later publication"
+    },
+    {
+      "path": "evidence/surface-clearance-546/contained-field-retention-622/from-1173-001",
+      "scope": "complete strict 622 arithmetic, exact checks, and 1168/0/0 final candidate"
+    },
+    {
+      "path": "evidence/surface-clearance-546/partial-field-retention-623/from-cut001-001",
+      "scope": "complete negative 623 candidate and 1206/2/0 exact result"
+    },
+    {
+      "path": "evidence/surface-clearance-546/selective-patch-refinement-621",
+      "scope": "v1 source/tests and full from-1231-001 failed 113-node branch, normal disagreement, and 50/4 cone feasibility record"
+    },
+    {
+      "path": "evidence/surface-clearance-546/selective-patch-refinement-621-v2",
+      "scope": "v2 source/tests and only construction, audit-130, audit-159, depth-413, and 624 point-target outputs"
+    },
+    {
+      "path": "evidence/surface-clearance-546/joint-point-targets-624",
+      "scope": "v1/v2 source and tests"
+    },
+    {
+      "path": "evidence/surface-clearance-546/sparse-field-transfer-625/from-partial-001",
+      "scope": "original sparse transfer proposal and failed arithmetic only"
+    },
+    {
+      "path": "evidence/resource-retirement/cold-92",
+      "scope": "historical 92-inode cleanup plan and receipt"
+    },
+    {
+      "path": "evidence/publication-history/P167-push-receipt.json",
+      "scope": "P167 publication lineage"
+    }
+  ],
+  "no_geometry_job_started_for_P168": true,
+  "no_git_ref_update": true,
+  "no_native_or_physical_admission": true,
+  "no_source_or_input_deletion": true,
+  "publication": "P168",
+  "status": "REVIEW_DRAFT_NO_PUSH_NO_SOURCE_RETIREMENT"
+}

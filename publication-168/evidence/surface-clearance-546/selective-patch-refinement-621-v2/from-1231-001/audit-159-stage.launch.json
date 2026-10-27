@@ -1,0 +1,30 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-human-geometry-slot.py",
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621-v2/from-1231-001/candidate.npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621-v2/from-1231-001/audit-159",
+    "--max-seconds",
+    "600"
+  ],
+  "native_admission": false,
+  "slot_wrapped": true,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/retained-check/report.json": "255fba431db93a5de8cafa6c3aae60b0fd03337c023e35c8e4cf5e60db906c87",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/strict-final-002/state.json": "23173ce9a80e4dbfc884d0ed65ccb4a955b298f53b38c7db5e256a347e2b991c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621-v2/from-1231-001/candidate.npz": "399c59ed50c689840b1d659bc83fa3205e8dfeadfccc81db1cee6c3c5d654c2e",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621-v2/from-1231-001/report.json": "4f112226234993f8402c6e0eea1c5badd563fbf584c5d8cdb0e2a0321b548c14",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621-v2/selective_patch_refinement621_v2.py": "4f02daeead6260ae8b486c3107a9768b491a202b149325312c616541288ea87d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/audit-130/summary.json": "e05f3122355aab9b8db7992ef6201346aefc241fb8ab3cfe3fe6847953572cff",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/baseline-state.json": "55297da2a0bccc750bb6d80be70118b91be965d5c5bffb77ab93dba94ac914e7",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/candidate.npz": "aed22c2eb0c0f30cc06413ba023b2154bc0c81071cb646933e70a90667602c6c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/joint-point-direction-feasibility.json": "e1c03947fcc5d63e19104ba2fcc33b0919561288f5661573d15b74692b34f829",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/point-targets-589.current-source-normal-audit.json": "a08402db6aff4410c6fe9bd691086d197175fbe83dfe7cdd8434b242a2c2c83f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/from-1231-001/report.json": "cb269617086057959696b28604e5190d83eb308235132cd81a8eae66a66cff64",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/selective-patch-refinement-621/selective_patch_refinement621.py": "574be9d48eb23cb72243614da3fa8c2a799403b17ec3d13c9e3521dd33aca966",
+    "/Users/numi/Work/numi-human-connected-surface-069/audit_skin_bone_surfaces_159.py": "de5f61b69d4b5621749df181f167b046a9d088daad081bf3dc453cef9f824ad1"
+  }
+}
