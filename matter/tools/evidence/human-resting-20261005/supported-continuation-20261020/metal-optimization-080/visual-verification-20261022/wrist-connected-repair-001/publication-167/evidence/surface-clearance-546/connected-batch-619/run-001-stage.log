@@ -1,0 +1,25 @@
+{"base_sha256":"0893ca8923060711782a8f6660cc07d972098161bd1d4ec7cd8e6df5b25367d7","event":"fit-start","fit":0,"round":1}
+{"event":"fit-checked","fit":0,"round":1,"self_pairs":465,"status":"FAILED"}
+{"event":"cut-budget-stop","fit_index":1,"free_bytes":233635840,"reason":"additional cut fit below 250 MiB; preserve completed proposal for retention","round":1,"stage":"before_cut_merge"}
+{"event":"retention-start","round":1,"target_sha256":"42f93fb5239ba800b889b552aac8a61eac452aad48db9cef5ad48c2bba8f3d9b"}
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v3.py", line 323, in <module>
+    if __name__=="__main__": raise SystemExit(main())
+                                              ~~~~^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v3.py", line 322, in main
+    result=run(a);emit("complete",status=result["status"],rounds=len(result["rounds"]));return 0
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v3.py", line 269, in run
+    stage([PY,FINAL546,"--candidate",retained,"--baseline-state",current_state,
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           "--point-summary",raudit,"--surface-report",rcdir/"audit-159/report.json","--out",final],
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          rd/"finalize-stage",slot=False,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          sources=owner_paths+(current_state,retained,raudit,rcdir/"audit-159/report.json"),timeout=600)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run_connected_batch619_v3.py", line 121, in stage
+    return M.run_stage(argv,stem,slot=slot,source_paths=tuple(sources),timeout=timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/continue_surface_round546.py", line 181, in run_stage
+    raise RuntimeError(f"stage failed: {stem}; see {log_path}")
+RuntimeError: stage failed: /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/finalize-stage; see /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/finalize-stage.log

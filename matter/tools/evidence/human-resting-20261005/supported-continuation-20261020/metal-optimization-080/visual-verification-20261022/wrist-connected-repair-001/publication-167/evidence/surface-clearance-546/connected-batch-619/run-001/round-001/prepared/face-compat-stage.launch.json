@@ -1,0 +1,26 @@
+{
+  "accepted_physical_steps": 0,
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/target-compatibility-001/compatibility_report598_v2.py",
+    "--report",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/prepared/surface-targets/report.json",
+    "--npz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/prepared/surface-targets/targets.npz",
+    "--records",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/prepared/surface-targets/target-records.jsonl",
+    "--recovery",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/prepared/face-verification.json",
+    "--out",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/prepared/face-fit-compatibility.json"
+  ],
+  "native_admission": false,
+  "slot_wrapped": false,
+  "source_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/prepared/face-verification.json": "1027da4ff2a91b334fb5bcf0081836b3cdf97bcdee2c11f72293e79f1d648435",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/prepared/surface-targets/report.json": "8a8946d0140d04550de0238b2f9ab3e69fd17325e5c24a1d942c0962ac1c6a06",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/prepared/surface-targets/target-records.jsonl": "e78d5b54cd670682151480ee2acac42ab55499cd20999661febb745ddc374019",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/prepared/surface-targets/targets.npz": "674d46ecc53b59a02d751b047987f2fdf98e1773039bfe9f232e7bf5aecdf50b",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-fit-598/target-compatibility-001/compatibility_report598_v2.py": "e6ded0558be2843f21660b8015417eed08d3058d0ddcc11bf8cf85e86d0484cc"
+  }
+}

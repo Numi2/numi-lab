@@ -1,0 +1,35 @@
+{
+  "command": "/Users/n/numi-human-prep-venv-20261005/bin/python -B -m pytest -p no:cacheprovider -q /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/test_run_connected_batch619.py /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/test_run_connected_batch619_v2.py /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/test_run_connected_batch619_v3.py /Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/test_run_connected_batch619_v4.py",
+  "completed_at_utc": "2026-10-27T04:14:09.133879+00:00",
+  "files": [
+    {
+      "runner": "run_connected_batch619.py",
+      "runner_sha256": "b13a362d06ef683319dea97c8eedec162479571721c9a29283abe41b065c34e5",
+      "test": "test_run_connected_batch619.py",
+      "test_sha256": "1035e673a57b5298c681f92327c3e4088938b1c35ce38a63548a04724bc43fa9"
+    },
+    {
+      "runner": "run_connected_batch619_v2.py",
+      "runner_sha256": "1d019b97160ace1cedcce314e957fa9f8925a5f8493f86e09eb0ad3bb87e757e",
+      "test": "test_run_connected_batch619_v2.py",
+      "test_sha256": "5017e5e11c65061231dbd3b4af9161494ad4ba6f936679f868d48b0dd303f3a4"
+    },
+    {
+      "runner": "run_connected_batch619_v3.py",
+      "runner_sha256": "e405e4fe3d51e8891d608ceafa1a9184d7782ebb8254b4cd32e32f447ac9e3b8",
+      "test": "test_run_connected_batch619_v3.py",
+      "test_sha256": "61c4a2a53901a98c4d83dfba3fee900eec793c5edb420b3ec895c26d48b5fc78"
+    },
+    {
+      "runner": "run_connected_batch619_v4.py",
+      "runner_sha256": "bcc61255e76fe844754d4f2f066da248bb1a46457da728b75066a1ba4edef9f8",
+      "test": "test_run_connected_batch619_v4.py",
+      "test_sha256": "4adccac2b7fa50b0638252419632586d2b283b81ceb0a305bd1e9ecafc13fd67"
+    }
+  ],
+  "geometry_run_note": "Tests are unit tests only. The v4 runner/test source passed these tests but v4 was not launched on a geometry run.",
+  "output": "........................................ [100%]\n40 passed in 0.08s\n",
+  "pytest_cache_disabled": true,
+  "python": "/Users/n/numi-human-prep-venv-20261005/bin/python -B",
+  "result": "40 passed"
+}

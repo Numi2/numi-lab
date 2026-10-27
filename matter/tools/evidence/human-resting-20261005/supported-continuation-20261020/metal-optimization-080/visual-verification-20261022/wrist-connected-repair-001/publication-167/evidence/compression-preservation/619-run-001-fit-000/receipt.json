@@ -1,0 +1,44 @@
+{
+  "all_archives_verified": true,
+  "all_originals_retained": true,
+  "compression": "zstd -1 -T1",
+  "files": [
+    {
+      "compressed_bytes": 4701968,
+      "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-167/evidence/compression-preservation/619-run-001-fit-000/fit-report.json.zst",
+      "compressed_sha256": "4c2b1bf79a589dda9d45e6763cfafbd6fed49c4088265be80b329c5926f9a2d3",
+      "compression": "zstd -1 -T1",
+      "original_allocated_bytes": 45887488,
+      "original_atime_ns": 1793074060733523161,
+      "original_bytes": 45886423,
+      "original_dev": 16777231,
+      "original_ino": 5217173,
+      "original_mode": 420,
+      "original_mtime_ns": 1793074059978090568,
+      "original_nlink": 1,
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/surface-clearance-546/connected-batch-619/run-001/round-001/fit-000/report.json",
+      "original_sha256": "eaa80890342e98628371ed9cac9eb0f03c822b842769c79fe849d7412e980b4f",
+      "package_compressed_relative_path": "evidence/compression-preservation/619-run-001-fit-000/fit-report.json.zst",
+      "relative_path": "surface-clearance-546/connected-batch-619/run-001/round-001/fit-000/report.json"
+    }
+  ],
+  "generated_utc": "2026-10-27T04:14:09.181203+00:00",
+  "restore_test": {
+    "destination_removed_after_test": true,
+    "result": {
+      "receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/publication-167/evidence/compression-preservation/619-run-001-fit-000/receipt.json",
+      "restored_count": 1,
+      "results": [
+        {
+          "bytes": 45886423,
+          "mode": 420,
+          "mtime_ns": 1793074059978090568,
+          "path": "/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/p167-restore-619-fit-report-s92xhjnv/surface-clearance-546/connected-batch-619/run-001/round-001/fit-000/report.json",
+          "sha256": "eaa80890342e98628371ed9cac9eb0f03c822b842769c79fe849d7412e980b4f",
+          "status": "restored_and_verified"
+        }
+      ]
+    },
+    "status": "PASS_FRESH_DESTINATION"
+  }
+}
