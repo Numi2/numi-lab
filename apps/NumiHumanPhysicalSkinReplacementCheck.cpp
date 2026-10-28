@@ -147,9 +147,107 @@ bool prepareFixtureBundle(Fixture& fixture,PhysicalSkinChildMassMappingBundle& b
                                                1.0,8u,error);
 }
 
+void checkVerifiedCookedParentBaseline() {
+    Fixture fixture;
+    auto world=worldFor();
+    PreparedOrganicFEM rawSkin,rawFat;
+    ExplicitUnpairedVolumeReport report;
+    std::string error;
+    assert(emit(fixture,world,report,error,&rawSkin,&rawFat));
+    assert(rawSkin.donorMassContributions.empty()&&rawFat.donorMassContributions.empty());
+    const auto material=numi::matter::parseMatterFile(std::filesystem::path(NUMI_TEST_MATERIAL_PATH));
+    assert(material.succeeded());
+    for(std::size_t row=0;row<world.materials.size();++row) {
+        const double density=world.materials[row].parameters.front().defaultValue;
+        world.materials[row]=material.material;
+        world.materials[row].name=row==0u?"skin":"fat";
+        const auto found=std::find_if(world.materials[row].parameters.begin(),
+            world.materials[row].parameters.end(),[](const auto& p){return p.name=="density";});
+        assert(found!=world.materials[row].parameters.end());
+        found->defaultValue=density;
+    }
+    numi::matter::CompileOptions options;options.maximumRateExponent=0u;
+    const auto compiled=numi::matter::compileWorld(world,options);
+    assert(compiled.succeeded());
+    PhysicalSkinChildMassMappingBundle bundle;
+    auto& parent=bundle.parent;
+    const auto& object=world.objects.front();
+    parent.referenceWorldPoints=object.femReferenceNodes;
+    parent.materialIndices=object.femMaterialIndices;
+    for(const auto& tet:object.tetrahedra)parent.tetrahedra.push_back(tet.nodes);
+    std::vector<metalrobo::NumiHumanTissueMassNode> rawRows=rawSkin.donorMassNodes;
+    rawRows.insert(rawRows.end(),rawFat.donorMassNodes.begin(),rawFat.donorMassNodes.end());
+    std::sort(rawRows.begin(),rawRows.end(),[](const auto& a,const auto& b){return a.nodeIndex<b.nodeIndex;});
+    assert(rawRows.size()==object.femNodes.size());
+    for(std::size_t row=0;row<rawRows.size();++row) {
+        const auto& state=compiled.world.fem.nodes[row].positionAndMass;
+        parent.currentWorldPoints.push_back({double(state.x),double(state.y),double(state.z)});
+        parent.compiledLumpedNodeMassKg.push_back(double(state.w));
+        parent.compiledGlobalNodeIndices.push_back(static_cast<std::uint32_t>(row));
+        parent.nodeFrameOwnerBodyIndices.push_back(rawRows[row].donorBody);
+        parent.nodeFrameOwnerLocalPoints.push_back(rawRows[row].localPosition);
+    }
+    CompiledSkinFatMassCaptureReport capture;
+    assert(captureCompiledSkinFatParentMassLedger(world,compiled.world,0u,
+        parent.nodeFrameOwnerBodyIndices,parent.nodeFrameOwnerLocalPoints,rawRows,
+        parent.tetrahedronMassKg,parent.sourceMassContributions,capture,error));
+    // A deliberate legacy cook-sized discrepancy must be reconciled only after
+    // independently compiling and matching the complete physical packet.
+    for(auto* raw:{&rawSkin,&rawFat})for(auto& row:raw->donorMassNodes)row.massKg*=1.00001;
+    PreparedOrganicFEM baselineSkin,baselineFat;
+    std::vector<RegisteredSkinFatDonorMomentDelta> deltas;
+    bool used=false;
+    assert(registered_skin_fat_replacement_detail::prepareVerifiedCookedParentBaseline(
+        world,0u,bundle,rawSkin,rawFat,baselineSkin,baselineFat,capture,deltas,used,error));
+    assert(used&&!deltas.empty()&&capture.maximumPreparedDonorMassClosureRelativeError>1.0e-6);
+    assert(baselineSkin.donorMassContributions.size()==parent.sourceMassContributions.size());
+    assert(baselineFat.donorMassContributions.empty());
+    assert(baselineSkin.massDebitKg==rawSkin.massDebitKg&&baselineFat.massDebitKg==rawFat.massDebitKg);
+    assert(baselineSkin.donorMassNodes.size()==rawSkin.donorMassNodes.size());
+    auto prefixedWorld=world;
+    prefixedWorld.objects.insert(prefixedWorld.objects.begin(),object);
+    const auto prefix=static_cast<std::uint32_t>(object.femNodes.size());
+    auto prefixedBundle=bundle;
+    for(auto& node:prefixedBundle.parent.compiledGlobalNodeIndices)node+=prefix;
+    auto prefixedSkin=rawSkin,prefixedFat=rawFat;
+    for(auto* prepared:{&prefixedSkin,&prefixedFat}) {
+        prepared->firstGlobalFEMNode+=prefix;
+        for(auto& row:prepared->donorMassNodes)row.nodeIndex+=prefix;
+    }
+    assert(registered_skin_fat_replacement_detail::prepareVerifiedCookedParentBaseline(
+        prefixedWorld,1u,prefixedBundle,prefixedSkin,prefixedFat,
+        baselineSkin,baselineFat,capture,deltas,used,error));
+    assert(used);
+    for(const auto& row:baselineSkin.donorMassContributions)assert(row.nodeIndex>=prefix);
+    auto wrongGlobal=prefixedBundle;
+    --wrongGlobal.parent.compiledGlobalNodeIndices.front();
+    assert(!registered_skin_fat_replacement_detail::prepareVerifiedCookedParentBaseline(
+        prefixedWorld,1u,wrongGlobal,prefixedSkin,prefixedFat,
+        baselineSkin,baselineFat,capture,deltas,used,error));
+    assert(error.find("compiled position/mass/global node")!=std::string::npos);
+    auto bad=bundle;
+    bad.parent.sourceMassContributions.front().massKg*=1.000001;
+    assert(!registered_skin_fat_replacement_detail::prepareVerifiedCookedParentBaseline(
+        world,0u,bad,rawSkin,rawFat,baselineSkin,baselineFat,capture,deltas,used,error));
+    assert(error.find("source row differs")!=std::string::npos);
+    bad=bundle;bad.parent.compiledLumpedNodeMassKg.front()*=1.000001;
+    assert(!registered_skin_fat_replacement_detail::prepareVerifiedCookedParentBaseline(
+        world,0u,bad,rawSkin,rawFat,baselineSkin,baselineFat,capture,deltas,used,error));
+    assert(error.find("compiled position/mass/global node")!=std::string::npos);
+    bad=bundle;std::swap(bad.parent.tetrahedra.front()[0],bad.parent.tetrahedra.front()[1]);
+    assert(!registered_skin_fat_replacement_detail::prepareVerifiedCookedParentBaseline(
+        world,0u,bad,rawSkin,rawFat,baselineSkin,baselineFat,capture,deltas,used,error));
+    assert(error.find("tetrahedron rows differ")!=std::string::npos);
+    for(auto* raw:{&rawSkin,&rawFat})for(auto& row:raw->donorMassNodes)row.massKg*=1.01;
+    assert(!registered_skin_fat_replacement_detail::prepareVerifiedCookedParentBaseline(
+        world,0u,bundle,rawSkin,rawFat,baselineSkin,baselineFat,capture,deltas,used,error));
+    assert(error.find("beyond the existing FP32 cook bound")!=std::string::npos);
+}
+
 } // namespace
 
 int main() {
+    checkVerifiedCookedParentBaseline();
     using namespace metalrobo::human::coarse_tissue;
 
     Fixture fixture;
@@ -269,6 +367,23 @@ int main() {
            1.0e-6*std::max(audit.sourceDonorDeltas.front().oldSourceMassKg,1.0e-12));
     for(double value:audit.sourceDonorDeltas.front().sourceFirstMomentDeltaKgM)
         assert(std::abs(value)<1.0e-7);
+
+    // Explicit I/D sidecars do not change the paired contact policy when
+    // the installed physical mesh is an exact identity re-encoding.
+    auto contactIdentityWorld=world;
+    contactIdentityWorld.objects.back().deformableSelfContact=false;
+    PreparedOrganicFEM contactIdentitySkin,contactIdentityFat;
+    ExplicitUnpairedVolumeReport contactIdentityReport;
+    RegisteredSkinFatReplacementAudit contactIdentityAudit;
+    assert(replaceLastPreparedRegisteredSkinFatUnpairedVolume(
+        contactIdentityWorld,1u,identityBundle,
+        0u,"skin","test skin material",newSkin.massDebitKg,
+        1u,"fat","test fat material",newFat.massDebitKg,
+        1u,"unpaired test shell",newSkin,newFat,&newReport,
+        contactIdentitySkin,contactIdentityFat,contactIdentityReport,contactIdentityAudit,error));
+    assert(contactIdentityAudit.preservedExactIdentityContactPolicy);
+    assert(!contactIdentityWorld.objects.back().deformableSelfContact);
+    assert(contactIdentityWorld.objects.back().deformableContact);
 
     auto staleAttachmentBundle=identityBundle;
     staleAttachmentBundle.stableDeepAttachments.push_back(

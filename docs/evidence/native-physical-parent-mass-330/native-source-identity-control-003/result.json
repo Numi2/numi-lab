@@ -1,0 +1,27 @@
+{
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_s": 10.420948333106935,
+  "source_identity_import_pass": true,
+  "mass_mapping_pass": true,
+  "source_identity_remap_pass": true,
+  "source_prepared_replacement_pass": true,
+  "source_capture_only": true,
+  "physical_steps": 0,
+  "repaired_volume_admitted": false,
+  "motion_qualified": false,
+  "binary_sha256": "890753d1171573f8da83c523fbcdb63346e9854a0997af77deecd28ec5dd7bfe",
+  "source_sha256": {
+    "NumiHumanPhysicalSkinChildIntegration.hpp": "e893293e8621e73f108a6d46246d2af2fe639d3ad9235ba9fc8c578d509dc53a",
+    "NumiHumanPhysicalSkinChildMassMapping.hpp": "2919510900c11631ce6ec99f409208582c0ccabf71186472df7548f51ce6d9ae",
+    "NumiHumanPhysicalSkinChildMassMappingCheck.cpp": "3aef154373b6a94d10238d2ca48fa90a582b26dc8c3db230aaa0e938d7ea4b6f",
+    "NumiHumanPhysicalSkinReplacement.hpp": "d9de40a0c30d904ed92144a4340e0b1d6e9d4044e2c0c65b089034099d213887",
+    "NumiHumanPhysicalSkinReplacementCheck.cpp": "3ff67a65144fa9dadab9ecb9fef11ec830417cde330cb14772950a13ca38d2d7",
+    "numilab_human_myosim_visual_probe.mm": "1ddee116030d6cededcebe66edef9594b353e7cc3a0d5bc6ff6b1a4fdc33be78"
+  },
+  "shaders_sha256": {
+    "NumiMatter.metallib": "76819990f8b17e27621b2e463ff953baa04f05f1bd0aaa94d27f51fbbac0979b",
+    "HumanRespiration.metallib": "9b96bb0eccab8d71cc2655cfff07622330267e95630a19776798beda36bbc3ff",
+    "MetalRobo.metallib": "b52b5c1c5736da382682e4412aa9b458603066c0c5728a8869d02627aef97672"
+  }
+}

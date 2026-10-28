@@ -48,6 +48,39 @@ inline bool validIdentityFiles(const PhysicalSkinChildIdentityImportFiles& files
     return true;
 }
 
+// TetGen files encode reference coordinates. Current coordinates come from
+// the pinned live-parent capture and must be checked independently.
+inline bool identityImportedNodeRowsMatch(
+        const PhysicalSkinChildMassMappingBundle& bundle,
+        const ExplicitUnpairedVolumeTopology& expected,
+        std::string& error) {
+    const auto count=expected.referenceWorldPoints.size();
+    if(count==0u || expected.currentWorldPoints.size()!=count ||
+       bundle.referenceWorldPoints.size()!=count || bundle.currentWorldPoints.size()!=count) {
+        error="imported child coordinates do not cover the live identity parent";
+        return false;
+    }
+    const auto emitted=[](const V3& point) {
+        return V3{static_cast<double>(static_cast<float>(point[0])),
+                  static_cast<double>(static_cast<float>(point[1])),
+                  static_cast<double>(static_cast<float>(point[2]))};
+    };
+    for(std::size_t node=0u;node<count;++node) {
+        if(bundle.referenceWorldPoints[node]!=emitted(expected.referenceWorldPoints[node])) {
+            error="imported TetGen reference is not the IEEE-F32 emission of live reference row "+
+                std::to_string(node);
+            return false;
+        }
+        if(bundle.currentWorldPoints[node]!=emitted(expected.currentWorldPoints[node])) {
+            error="imported current coordinate is not the IEEE-F32 emission of live current row "+
+                std::to_string(node);
+            return false;
+        }
+    }
+    error.clear();
+    return true;
+}
+
 inline bool makeIdentityLayerSurface(const RegisteredSurface& outer,
                                      const std::span<const V3> layerWorld,
                                      const std::span<const V3> layerLocal,
@@ -331,6 +364,9 @@ inline std::string exactLiveChildMeshSHA256(
             files.childLabelsCSV, measured.coordinateFrameSHA256, sourceBodyCount,
             maximumTransportDistanceM, bundle, measured.tetgen, error))
         return false;
+    // Only this exact-identity bridge can obtain current coordinates from the
+    // pinned parent capture; the generic TetGen reference importer stays unchanged.
+    bundle.currentWorldPoints=bundle.parent.currentWorldPoints;
     measured.importedTetGenMeshSHA256 = bundle.childMeshSHA256;
     report = std::move(measured);
     error.clear();
@@ -372,15 +408,11 @@ inline std::string exactLiveChildMeshSHA256(
         bundle.parent.currentWorldPoints.size() != expected.currentWorldPoints.size() ||
         bundle.parent.referenceWorldPoints.size() != expected.referenceWorldPoints.size())
         return fail("imported child node rows do not cover the live identity parent");
+    if(!physical_skin_child_integration_detail::identityImportedNodeRowsMatch(bundle,expected,error))
+        return false;
+    report.capturedParentCurrentExactF32Rows=0u;
+    report.capturedParentReferenceExactF64Rows=0u;
     for (std::size_t node = 0; node < expected.referenceWorldPoints.size(); ++node) {
-        const auto& reference = expected.referenceWorldPoints[node];
-        const V3 emitted{static_cast<double>(static_cast<float>(reference[0])),
-                         static_cast<double>(static_cast<float>(reference[1])),
-                         static_cast<double>(static_cast<float>(reference[2]))};
-        if (bundle.referenceWorldPoints[node] != emitted ||
-            bundle.currentWorldPoints[node] != emitted)
-            return fail("imported TetGen node row is not the IEEE-F32 emission of live reference row " +
-                std::to_string(node));
         const auto pointText = [](const V3& point) {
             std::ostringstream text;
             text << std::setprecision(17) << '[' << point[0] << ',' << point[1] << ',' << point[2] << ']';
@@ -420,9 +452,10 @@ inline std::string exactLiveChildMeshSHA256(
         !sameRows(bundle.childAnatomicalRegionIndices, bundle.parent.anatomicalRegionIndices) ||
         !sameRows(bundle.childStableSourceFaceIdentities, bundle.parent.stableSourceFaceIdentities))
         return fail("imported child identity rows do not exactly match the captured parent topology and labels");
-    // The file is a Float32 import representation. Downstream compilation owns
-    // the exact live doubles; never replace the parent reference/current state
-    // with the rounded importer coordinates.
+    // Preserve exact source current/reference coordinates together. The mass
+    // owner separately certifies that current source rows compile to the exact
+    // captured GPU-F32 positions; rounding only volume nodes would separate
+    // them from the registered source boundary.
     bundle.currentWorldPoints.assign(expected.currentWorldPoints.begin(),expected.currentWorldPoints.end());
     bundle.referenceWorldPoints.assign(expected.referenceWorldPoints.begin(),expected.referenceWorldPoints.end());
     report.exactLiveChildMeshSHA256 = physical_skin_child_integration_detail::

@@ -1,0 +1,84 @@
+{
+  "method": "indexed_vertex_connected_components_and_oriented_surface_volume",
+  "results": {
+    "originalI": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/geometry-worker/fixed-physical-O-local-nested-001/pilot-004-union/emitted-OID-joint-nesting-309/I-closed-F32-stage.npz",
+      "sha256": "3f54e84f12b3047ee5b848f9cb3eff6480b8f4dbb650ff764e8c4a950a2470c3",
+      "components": [
+        {
+          "index": 0,
+          "faces": 92530,
+          "vertices": 46267,
+          "signed_volume_m3": 0.0650345825503771,
+          "bounds_min_m": [
+            -0.32656702399253845,
+            -1.7435221672058105,
+            0.002375737065449357
+          ],
+          "bounds_max_m": [
+            0.2746642231941223,
+            -0.02874763123691082,
+            0.2924842834472656
+          ],
+          "vertex_mean_m": [
+            -0.0578412258082454,
+            -0.9373203992861664,
+            0.12844735222141268
+          ]
+        }
+      ],
+      "wall_s": 0.020361333154141903
+    },
+    "derivedI": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/geometry-worker/fixed-physical-O-local-nested-001/pilot-004-union/minimum-thickness-minkowski-328/attempt-003/candidate-I-after-fat-f64.npz",
+      "sha256": "3cb5d1ff07f50931963a145427d59c671f175da81596b1c09f9a457346c72c3e",
+      "components": [
+        {
+          "index": 0,
+          "faces": 206240,
+          "vertices": 103102,
+          "signed_volume_m3": 0.06510798216446373,
+          "bounds_min_m": [
+            -0.32656702399253845,
+            -1.7435221672058105,
+            0.002375737065449357
+          ],
+          "bounds_max_m": [
+            0.2746642231941223,
+            -0.027350419696703387,
+            0.2924842834472656
+          ],
+          "vertex_mean_m": [
+            -0.042934314505429824,
+            -0.8488421745386038,
+            0.12976329089596475
+          ]
+        },
+        {
+          "index": 1,
+          "faces": 1680,
+          "vertices": 842,
+          "signed_volume_m3": -7.911116406786053e-07,
+          "bounds_min_m": [
+            -0.046872981166237296,
+            -0.03478231723322866,
+            0.11274851802190844
+          ],
+          "bounds_max_m": [
+            -0.006002074557841162,
+            -0.031926424438937444,
+            0.1384665735406103
+          ],
+          "vertex_mean_m": [
+            -0.02789581436780923,
+            -0.032785055381070224,
+            0.12692100392043884
+          ]
+        }
+      ],
+      "wall_s": 0.037686875090003014
+    }
+  },
+  "physical_admission": false,
+  "clinical_or_anatomical_void_classification": "not_inferred_from_sign_alone"
+}

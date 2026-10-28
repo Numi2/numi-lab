@@ -1,4 +1,4 @@
-#include "NumiHumanPhysicalSkinChildTetGen.hpp"
+#include "NumiHumanPhysicalSkinChildIntegration.hpp"
 
 #include <bit>
 #include <chrono>
@@ -13,7 +13,7 @@ using namespace metalrobo::human::coarse_tissue;
 
 namespace {
 
-std::filesystem::path makePacket(const std::filesystem::path& directory) {
+std::filesystem::path makePacket(const std::filesystem::path& directory, double referenceOffset=0.005) {
     const auto mass=directory/"compiled-parent-cell-mass.csv";
     const auto nodes=std::filesystem::path(mass.string()+".nodes.csv");
     const auto sources=std::filesystem::path(mass.string()+".source.csv");
@@ -32,7 +32,7 @@ std::filesystem::path makePacket(const std::filesystem::path& directory) {
         for(std::uint32_t node=0;node<4u;++node){
             const auto& x=p[node];
             out<<node<<','<<(10u+node)<<','<<x[0]<<','<<x[1]<<','<<x[2]<<','
-               <<x[0]<<','<<x[1]<<','<<x[2]-0.005<<",25,7,"
+               <<x[0]<<','<<x[1]<<','<<x[2]-referenceOffset<<",25,7,"
                <<x[0]<<','<<x[1]<<','<<x[2]<<','<<bits<<'\n';
         }
     }
@@ -70,6 +70,34 @@ void fillOneChild(PhysicalSkinChildMassMappingBundle& bundle) {
 } // namespace
 
 int main() {
+    // Reference and current are distinct even for an unchanged topology.
+    // This catches accidentally using a rest .node file as the current shape.
+    std::string identityFrameError;
+    std::vector<V3> identityRest{{0.25,0.5,0.75},{1.0,0.0,0.0}};
+    std::vector<V3> identityCurrent{{0.375,0.5,0.75},{1.125,0.0,0.0}};
+    ExplicitUnpairedVolumeTopology identityFrame;
+    identityFrame.referenceWorldPoints=identityRest;
+    identityFrame.currentWorldPoints=identityCurrent;
+    PhysicalSkinChildMassMappingBundle identityCoordinates;
+    identityCoordinates.referenceWorldPoints=identityRest;
+    identityCoordinates.currentWorldPoints=identityCurrent;
+    if(!physical_skin_child_integration_detail::identityImportedNodeRowsMatch(
+            identityCoordinates,identityFrame,identityFrameError)) {
+        std::cerr<<"separate identity reference/current coordinate fixture rejected: "
+                 <<identityFrameError<<'\n';return 35;
+    }
+    identityCoordinates.currentWorldPoints=identityRest;
+    if(physical_skin_child_integration_detail::identityImportedNodeRowsMatch(
+            identityCoordinates,identityFrame,identityFrameError)) {
+        std::cerr<<"identity bridge accepted reference rows as current state\n";return 36;
+    }
+    identityCoordinates.currentWorldPoints=identityCurrent;
+    identityCoordinates.referenceWorldPoints=identityCurrent;
+    if(physical_skin_child_integration_detail::identityImportedNodeRowsMatch(
+            identityCoordinates,identityFrame,identityFrameError)) {
+        std::cerr<<"identity bridge accepted current rows as reference state\n";return 37;
+    }
+
     const auto directory=std::filesystem::temp_directory_path()/
         ("numi-physical-child-mass-check-"+
          std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
@@ -140,6 +168,158 @@ int main() {
         std::cerr<<"positive exact identity mapping did not preserve measured rest/current offset and receipt\n";return 6;
     }
     const auto exactPathHash=bundle.massMappingPathSHA256;
+
+    // Preserve a nontrivial parent current/reference translation while mapping
+    // an exact child whose current rows match the parent current rows and whose
+    // reference rows match the parent reference rows.
+    const auto referenceIdentityDirectory=directory/"reference-preserving-identity";
+    std::filesystem::create_directory(referenceIdentityDirectory);
+    const auto referenceIdentityMassCSV=makePacket(referenceIdentityDirectory,0.125001);
+    PhysicalSkinParentMassPacket referenceIdentityParent;
+    if(!loadCompiledSkinFatParentMassPacketCSV(referenceIdentityMassCSV,referenceIdentityParent,error)||
+       !attachExplicitParentMassMappingLabels(referenceIdentityParent,region,stableFace,error)){
+        std::cerr<<"reference-preserving parent fixture rejected: "<<error<<'\n';return 31;
+    }
+    const auto referenceIdentityLabels=std::filesystem::path(
+        referenceIdentityMassCSV.string()+".labels.csv");
+    std::ofstream(referenceIdentityLabels)<<labelHeader<<"0,0,7,3,901\n";
+    if(!loadCompiledSkinFatParentLabelsCSV(referenceIdentityLabels,referenceIdentityParent,error)){
+        std::cerr<<"reference-preserving parent labels rejected: "<<error<<'\n';return 32;
+    }
+    PhysicalSkinChildMassMappingBundle referenceIdentityBundle;
+    referenceIdentityBundle.parent=std::move(referenceIdentityParent);
+    fillOneChild(referenceIdentityBundle);
+    referenceIdentityBundle.referenceWorldPoints=
+        referenceIdentityBundle.parent.referenceWorldPoints;
+    referenceIdentityBundle.childMeshSHA256=std::string(64u,'d');
+    referenceIdentityBundle.regionLabelSHA256=std::string(64u,'e');
+    referenceIdentityBundle.coordinateFrameSHA256=std::string(64u,'f');
+    if(!preparePhysicalSkinChildMassMapping(referenceIdentityBundle,
+            densityLower,densityUpper,1.0,8u,error)||
+       !referenceIdentityBundle.exactTopologyIdentityTransportUsed||
+       referenceIdentityBundle.currentWorldPoints!=
+           referenceIdentityBundle.parent.currentWorldPoints||
+       referenceIdentityBundle.referenceWorldPoints!=
+           referenceIdentityBundle.parent.referenceWorldPoints||
+       referenceIdentityBundle.currentWorldPoints==
+           referenceIdentityBundle.referenceWorldPoints||
+       std::abs(referenceIdentityBundle.spatialMassTransportResult.maximumTransportDistanceUsedM)>1.0e-12||
+       std::abs(referenceIdentityBundle.spatialMassTransportResult.childMassKg[0]-100.0)>1.0e-10){
+        std::cerr<<"reference-preserving identity route lost the parent current/reference distinction: "
+            <<error<<'\n';return 33;
+    }
+
+    // Use a skew, non-binary reference tetrahedron so algebraically equivalent
+    // determinant formulas cannot silently produce a different receipt domain.
+    auto skewIdentity=referenceIdentityBundle;
+    skewIdentity.parent.referenceWorldPoints={
+        {0.0314159265359,-0.2718281828459,0.1618033988749},
+        {1.1732050807568,-0.1341640786499,0.3035533905933},
+        {0.2526457513111,0.7316624790355,0.2196152422707},
+        {0.1483239697419,-0.0123456789012,1.1180339887499}};
+    skewIdentity.parent.currentWorldPoints=skewIdentity.parent.referenceWorldPoints;
+    for(auto& point:skewIdentity.parent.currentWorldPoints)for(auto& value:point)
+        value=static_cast<double>(static_cast<float>(value));
+    skewIdentity.currentWorldPoints=skewIdentity.parent.currentWorldPoints;
+    skewIdentity.referenceWorldPoints=skewIdentity.parent.referenceWorldPoints;
+    skewIdentity.parent.referenceTetVolumeM3[0]=parentReferenceTetVolumeM3(
+        skewIdentity.parent.tetrahedra[0],skewIdentity.parent.referenceWorldPoints);
+    const std::array<double,1> skewLower{1.0},skewUpper{1000.0};
+    if(!preparePhysicalSkinChildMassMapping(skewIdentity,skewLower,skewUpper,1.0,8u,error)) {
+        std::cerr<<"skew reference identity rejected: "<<error<<'\n';return 42;
+    }
+    std::vector<SpatialMassTransportPoint> replayParentCentroids(1u),replayChildCentroids(1u);
+    std::array<double,1> replayParentVolumes{
+        parentReferenceTetVolumeM3(skewIdentity.parent.tetrahedra[0],skewIdentity.parent.referenceWorldPoints)};
+    std::array<double,1> replayChildVolumes{
+        parentReferenceTetVolumeM3(skewIdentity.childTetrahedra[0],skewIdentity.referenceWorldPoints)};
+    for(auto node:skewIdentity.parent.tetrahedra[0])for(unsigned axis=0;axis<3u;++axis)
+        replayParentCentroids[0][axis]+=skewIdentity.parent.referenceWorldPoints[node][axis]*0.25;
+    for(auto node:skewIdentity.childTetrahedra[0])for(unsigned axis=0;axis<3u;++axis)
+        replayChildCentroids[0][axis]+=skewIdentity.referenceWorldPoints[node][axis]*0.25;
+    std::vector<ConservativeSpatialMassTransportParentNodeSourceMass> replaySources;
+    for(const auto& row:skewIdentity.parent.sourceMassContributions)
+        replaySources.push_back({.parentNodeIndex=row.parentNodeIndex,.materialIndex=row.materialIndex,
+            .sourceDonorBodyIndex=row.donorBodyIndex,.massKg=row.massKg});
+    std::vector<std::uint32_t> replaySourceOffsets,replaySourceDonors;
+    std::vector<double> replaySourceMasses;
+    if(!assembleConservativeSpatialMassTransportParentSourceDonorSplits(
+            skewIdentity.parent.tetrahedronMassKg,skewIdentity.parent.materialIndices,
+            skewIdentity.parent.tetrahedra,replaySources,1.0e-10,5.0e-4,
+            replaySourceOffsets,replaySourceDonors,replaySourceMasses,error))return 43;
+    ConservativeSpatialMassTransportInput replayInput;
+    replayInput.parentCentroidsWorld=replayParentCentroids;
+    replayInput.parentReferenceVolumeM3=replayParentVolumes;
+    replayInput.parentMassKg=skewIdentity.parent.tetrahedronMassKg;
+    replayInput.parentMaterialIndices=skewIdentity.parent.materialIndices;
+    replayInput.parentDonorBodyIndices=skewIdentity.parent.donorBodyIndices;
+    replayInput.parentAnatomicalRegionIndices=skewIdentity.parent.anatomicalRegionIndices;
+    replayInput.parentSourceDonorOffsets=replaySourceOffsets;
+    replayInput.parentSourceDonorBodyIndices=replaySourceDonors;
+    replayInput.parentSourceDonorMassKg=replaySourceMasses;
+    replayInput.childCentroidsWorld=replayChildCentroids;
+    replayInput.childReferenceVolumeM3=replayChildVolumes;
+    replayInput.childMaterialIndices=skewIdentity.childMaterialIndices;
+    replayInput.childDonorBodyIndices=skewIdentity.childDonorBodyIndices;
+    replayInput.childAnatomicalRegionIndices=skewIdentity.childAnatomicalRegionIndices;
+    replayInput.materialDensityLowerKgM3=skewLower;
+    replayInput.materialDensityUpperKgM3=skewUpper;
+    std::string replayParentHash,replayChildHash,replayBoundsHash;
+    spatial_mass_transport_detail::hashInputArrays(replayInput,
+        replayParentHash,replayChildHash,replayBoundsHash);
+    if(replayParentHash!=skewIdentity.spatialMassTransportResult.parentDataSHA256||
+       replayChildHash!=skewIdentity.spatialMassTransportResult.childDataSHA256||
+       replayBoundsHash!=skewIdentity.spatialMassTransportResult.materialBoundsSHA256) {
+        std::cerr<<"mass-map receipt geometry differs from unpaired replay-owner arithmetic\n";return 44;
+    }
+
+    auto compilerEquivalentCurrent=referenceIdentityBundle;
+    compilerEquivalentCurrent.currentWorldPoints[1][0]+=1.0e-9;
+    if(!preparePhysicalSkinChildMassMapping(compilerEquivalentCurrent,
+            densityLower,densityUpper,1.0,8u,error)||
+       !compilerEquivalentCurrent.exactTopologyIdentityTransportUsed||
+       compilerEquivalentCurrent.currentWorldPoints[1][0]==
+           compilerEquivalentCurrent.parent.currentWorldPoints[1][0]||
+       compilerEquivalentCurrent.massMappingPathSHA256==referenceIdentityBundle.massMappingPathSHA256) {
+        std::cerr<<"compiler-equivalent source current lost exact identity or digest binding: "<<error<<'\n';return 40;
+    }
+    auto changedCompilerBits=referenceIdentityBundle;
+    changedCompilerBits.currentWorldPoints[1][0]=static_cast<double>(std::nextafterf(
+        1.0f,std::numeric_limits<float>::infinity()));
+    std::vector<SpatialMassTransportPoint> bitCentroids(1u);
+    std::vector<std::uint32_t> bitParentRows;
+    if(physical_skin_child_mass_mapping_detail::exactIdentityParentRows(
+            changedCompilerBits,bitCentroids,bitCentroids,1.0,bitParentRows)) {
+        std::cerr<<"changed GPU current bits passed exact identity\n";return 41;
+    }
+
+    auto changedNativeReference=referenceIdentityBundle;
+    changedNativeReference.referenceWorldPoints.front()[0]+=1.0e-12;
+    if(preparePhysicalSkinChildMassMapping(changedNativeReference,
+            densityLower,densityUpper,1.0,8u,error)) {
+        std::cerr<<"changed non-Float32 reference bypassed generic owner-coordinate gate\n";return 38;
+    }
+    auto changedNativeCurrent=referenceIdentityBundle;
+    changedNativeCurrent.currentWorldPoints.front()[0]+=1.0e-12;
+    if(preparePhysicalSkinChildMassMapping(changedNativeCurrent,
+            densityLower,densityUpper,1.0,8u,error)) {
+        std::cerr<<"non-Float32 current bypassed GPU owner-coordinate gate\n";return 39;
+    }
+
+    // A reference mesh that mixes the two allowed contracts node by node is
+    // not an identity case, even when every row matches one parent coordinate.
+    auto mixedReferenceIdentity=referenceIdentityBundle;
+    mixedReferenceIdentity.referenceWorldPoints.front()=
+        mixedReferenceIdentity.parent.currentWorldPoints.front();
+    std::vector<SpatialMassTransportPoint> mixedReferenceCentroids(1u);
+    std::vector<std::uint32_t> mixedReferenceParentRows;
+    if(physical_skin_child_mass_mapping_detail::exactIdentityParentRows(
+           mixedReferenceIdentity,mixedReferenceCentroids,mixedReferenceCentroids,
+           1.0,mixedReferenceParentRows)) {
+        std::cerr<<"mixed per-node reference contracts passed exact identity admission\n";
+        return 34;
+    }
+
     auto stalePath=bundle;
     stalePath.currentWorldPoints[0][0]=static_cast<double>(std::nextafterf(
         static_cast<float>(stalePath.currentWorldPoints[0][0]),

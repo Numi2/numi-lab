@@ -1,0 +1,39 @@
+{
+  "checks": [
+    {
+      "name": "numi-human-physical-skin-child-mass-mapping-check",
+      "exit_code": 0,
+      "wall_s": 0.0073499169666320086,
+      "binary_sha256": "8cdba4b5536ec6dcdcbde86230dadcb21293bc50f89a501f68f63846d9dfcb38"
+    },
+    {
+      "name": "numi-human-physical-skin-replacement-check",
+      "exit_code": 0,
+      "wall_s": 0.015177458990365267,
+      "binary_sha256": "5e884d09113db38fc2f83b9e321134f3960d9087717bb55ca19ba141fa0fbb5a"
+    },
+    {
+      "name": "numi-human-compiled-skin-fat-mass-capture-check",
+      "exit_code": 0,
+      "wall_s": 0.0022070000413805246,
+      "binary_sha256": "884e3a61340d2300b15f0dd30da3315b4462268f2716e08e6299172237da4d7c"
+    },
+    {
+      "name": "numi-human-unpaired-skin-fat-volume-check",
+      "exit_code": 0,
+      "wall_s": 0.014610750135034323,
+      "binary_sha256": "47e8c31f0d3eaabee8d07d0c2fcbc3fd29474db8adb3eb80aa09315e123b3ce8"
+    }
+  ],
+  "source_sha256": {
+    "NumiHumanPhysicalSkinChildIntegration.hpp": "e893293e8621e73f108a6d46246d2af2fe639d3ad9235ba9fc8c578d509dc53a",
+    "NumiHumanPhysicalSkinChildMassMapping.hpp": "2919510900c11631ce6ec99f409208582c0ccabf71186472df7548f51ce6d9ae",
+    "NumiHumanPhysicalSkinChildMassMappingCheck.cpp": "3aef154373b6a94d10238d2ca48fa90a582b26dc8c3db230aaa0e938d7ea4b6f",
+    "NumiHumanPhysicalSkinReplacement.hpp": "d9de40a0c30d904ed92144a4340e0b1d6e9d4044e2c0c65b089034099d213887",
+    "NumiHumanPhysicalSkinReplacementCheck.cpp": "3ff67a65144fa9dadab9ecb9fef11ec830417cde330cb14772950a13ca38d2d7"
+  },
+  "all_pass": true,
+  "physical_steps": 0,
+  "repaired_volume_admitted": false,
+  "motion_qualified": false
+}

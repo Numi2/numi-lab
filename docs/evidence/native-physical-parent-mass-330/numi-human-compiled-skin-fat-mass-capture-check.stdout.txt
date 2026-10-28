@@ -1,0 +1,1 @@
+compiled skin/fat mass capture PASS density_parent_kg=166.667 attributed_kg=166.667 explicit_parent_kg=0.2

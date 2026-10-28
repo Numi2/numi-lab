@@ -1,0 +1,16 @@
+{
+  "binary_sha256": "d08feffcb32f09f66d5a6559863687919a52451164a982fca2cbb1db812dbe99",
+  "source_sha256": {
+    "NumiHumanPhysicalSkinChildIntegration.hpp": "e893293e8621e73f108a6d46246d2af2fe639d3ad9235ba9fc8c578d509dc53a",
+    "NumiHumanPhysicalSkinChildMassMapping.hpp": "2919510900c11631ce6ec99f409208582c0ccabf71186472df7548f51ce6d9ae",
+    "NumiHumanPhysicalSkinChildMassMappingCheck.cpp": "3aef154373b6a94d10238d2ca48fa90a582b26dc8c3db230aaa0e938d7ea4b6f",
+    "NumiHumanPhysicalSkinReplacement.hpp": "edc3e951e762126ff566ccb97d12e4544b8d9be9bf3fd1272e2756c2f5f3280e",
+    "NumiHumanPhysicalSkinReplacementCheck.cpp": "ceca740cf97662a79fcc3857c58db0c99e3b34db512a73411360724cae91e2e5",
+    "numilab_human_myosim_visual_probe.mm": "a9f2c143007cd73ed3add7c5ba07f1dc1833c858207a970bd1118fbf23ace592"
+  },
+  "shaders_sha256": {
+    "NumiMatter.metallib": "76819990f8b17e27621b2e463ff953baa04f05f1bd0aaa94d27f51fbbac0979b",
+    "HumanRespiration.metallib": "9b96bb0eccab8d71cc2655cfff07622330267e95630a19776798beda36bbc3ff",
+    "MetalRobo.metallib": "b52b5c1c5736da382682e4412aa9b458603066c0c5728a8869d02627aef97672"
+  }
+}

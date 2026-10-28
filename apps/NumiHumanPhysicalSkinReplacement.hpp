@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NumiHumanPhysicalSkinChildMassMapping.hpp"
+#include "NumiHumanCompiledSkinFatMassCapture.hpp"
 
 #include <algorithm>
 #include <array>
@@ -34,6 +35,11 @@ struct RegisteredSkinFatReplacementAudit {
     double oldFatDebitKg=0.0;
     double newFatDebitKg=0.0;
     bool comparedSourceDonorClosure=false;
+    bool comparedVerifiedCookedParentBaseline=false;
+    bool preservedExactIdentityContactPolicy=false;
+    double maximumPreparedToCookedNodeMassErrorKg=0.0;
+    double maximumPreparedToCookedNodeMassRelativeError=0.0;
+    std::vector<RegisteredSkinFatDonorMomentDelta> sourceRawToCookedDeltas;
     bool inheritedSkinThicknessMetadata=false;
     bool inheritedFatThicknessMetadata=false;
     std::array<std::uint64_t,4> oldReferenceSourceIdentity{};
@@ -400,6 +406,22 @@ inline std::vector<RegisteredSkinFatDonorMomentDelta> momentDeltas(
     // This changes constitutive input semantics and belongs to the existing
     // owner policy, not to the generated topology. Retain it across replacement.
     candidateObject.femReferenceDisplacementGradient=oldObject.femReferenceDisplacementGradient;
+    // Supplying explicit I/D sidecars must not silently change contact policy
+    // for a byte-identical physical mesh. Changed geometry/topology retains
+    // the independent-volume builder's canonical contact policy.
+    bool exactPhysicalIdentity=candidateObject.femNodes==oldObject.femNodes&&
+        candidateObject.femReferenceNodes==oldObject.femReferenceNodes&&
+        candidateObject.femMaterialIndices==oldObject.femMaterialIndices&&
+        candidateObject.tetrahedra.size()==oldObject.tetrahedra.size();
+    if(exactPhysicalIdentity)
+        for(std::size_t cell=0u;cell<oldObject.tetrahedra.size();++cell)
+            if(candidateObject.tetrahedra[cell].nodes!=oldObject.tetrahedra[cell].nodes) {
+                exactPhysicalIdentity=false;break;
+            }
+    if(exactPhysicalIdentity) {
+        candidateObject.deformableContact=oldObject.deformableContact;
+        candidateObject.deformableSelfContact=oldObject.deformableSelfContact;
+    }
     if(candidateSkin.firstGlobalFEMNode!=globalNodeBase||
        candidateFat.firstGlobalFEMNode!=globalNodeBase)
         return fail("replacement candidate global node base mismatch: skin="+
@@ -460,6 +482,7 @@ inline std::vector<RegisteredSkinFatDonorMomentDelta> momentDeltas(
     const bool inheritedSkinThickness=preserveThicknessMetadata(oldSkin,candidateSkin,surface);
     const bool inheritedFatThickness=preserveThicknessMetadata(oldFat,candidateFat,surface);
     RegisteredSkinFatReplacementAudit candidateAudit;
+    candidateAudit.preservedExactIdentityContactPolicy=exactPhysicalIdentity;
     candidateAudit.inheritedSkinThicknessMetadata=inheritedSkinThickness;
     candidateAudit.inheritedFatThicknessMetadata=inheritedFatThickness;
     candidateAudit.replacedObjectIndex=static_cast<std::uint32_t>(oldObjectIndex);
@@ -510,6 +533,142 @@ inline std::vector<RegisteredSkinFatDonorMomentDelta> momentDeltas(
     return true;
 }
 
+namespace registered_skin_fat_replacement_detail {
+
+// Legacy paired reports precede Float32 cooking. Compare a remeshed child to
+// the actual physical parent ledger, after independently recooking and checking
+// every imported parent row. Keep the raw-to-cooked discrepancy in the audit.
+inline bool prepareVerifiedCookedParentBaseline(
+        const numi::matter::WorldSource& world,const std::size_t objectIndex,
+        const PhysicalSkinChildMassMappingBundle& bundle,
+        const PreparedOrganicFEM& oldSkin,const PreparedOrganicFEM& oldFat,
+        PreparedOrganicFEM& baselineSkin,PreparedOrganicFEM& baselineFat,
+        CompiledSkinFatMassCaptureReport& report,
+        std::vector<RegisteredSkinFatDonorMomentDelta>& rawToCooked,
+        bool& used,std::string& error) {
+    baselineSkin=oldSkin;baselineFat=oldFat;used=false;
+    if(!oldSkin.donorMassContributions.empty()||!oldFat.donorMassContributions.empty())
+        return true;
+    const auto fail=[&](std::string message) {error=std::move(message);return false;};
+    // Existing exact/source-ledger replacements need no cook reconciliation.
+    // Only the legacy raw-to-physical discrepancy requires the independent
+    // compiler proof below; the ordinary replacement gates remain mandatory.
+    std::map<std::uint32_t,DonorMoment> existing,imported;
+    if(!sourceDonorMoments(oldSkin,oldFat,existing,error))return false;
+    for(const auto& row:bundle.parent.sourceMassContributions) {
+        auto& moment=imported[row.donorBodyIndex];
+        moment.massKg+=row.massKg;
+        for(unsigned axis=0;axis<3u;++axis)
+            moment.firstMomentKgM[axis]+=row.massKg*row.donorLocalPosition[axis];
+    }
+    if(sameDonorMasses(existing,imported))return true;
+    if(objectIndex>=world.objects.size())
+        return fail("cooked-parent baseline has no original source object");
+    const auto& object=world.objects[objectIndex];
+    const auto& parent=bundle.parent;
+    const auto count=object.femNodes.size();
+    if(count==0u||parent.referenceWorldPoints!=object.femReferenceNodes||
+       parent.tetrahedra.size()!=object.tetrahedra.size()||
+       parent.materialIndices!=object.femMaterialIndices)
+        return fail("cooked-parent baseline reference/topology/material source does not match the imported parent");
+    for(std::size_t cell=0;cell<object.tetrahedra.size();++cell)
+        if(parent.tetrahedra[cell]!=object.tetrahedra[cell].nodes)
+            return fail("cooked-parent baseline tetrahedron rows differ from the original source");
+
+    // Scene constraints are not finalized at this preparation point. Cook the
+    // unchanged physical object with the unchanged material programs; restore
+    // and independently check its original global node namespace below.
+    std::uint64_t globalBase=0u;
+    for(std::size_t row=0u;row<objectIndex;++row)
+        globalBase+=world.objects[row].femNodes.size();
+    if(globalBase>std::numeric_limits<std::uint32_t>::max()||
+       count>std::numeric_limits<std::uint32_t>::max()-globalBase||
+       oldSkin.firstGlobalFEMNode!=globalBase)
+        return fail("cooked-parent baseline source global node prefix is invalid");
+    numi::matter::WorldSource massSource;
+    massSource.materials=world.materials;
+    massSource.objects.push_back(object);
+    numi::matter::CompileOptions options;options.maximumRateExponent=0u;
+    const auto compiled=numi::matter::compileWorld(massSource,options);
+    if(!compiled.succeeded()) {
+        std::string diagnostics;
+        for(const auto& diagnostic:compiled.diagnostics) {
+            if(diagnostics.size()>2048u)break;
+            diagnostics+="; "+diagnostic.message;
+        }
+        return fail("cooked-parent baseline could not compile the unchanged source object"+diagnostics);
+    }
+    if(compiled.world.objects.size()!=1u)
+        return fail("cooked-parent baseline compiler omitted the source object");
+    const auto& descriptor=compiled.world.objects.front();
+    const auto first=descriptor.stateOffset;
+    if(parent.currentWorldPoints.size()!=count||parent.compiledLumpedNodeMassKg.size()!=count||
+       parent.compiledGlobalNodeIndices.size()!=count||
+       parent.nodeFrameOwnerBodyIndices.size()!=count||parent.nodeFrameOwnerLocalPoints.size()!=count||
+       std::uint64_t(first)+count>compiled.world.fem.nodes.size())
+        return fail("cooked-parent baseline native node packet is incomplete");
+    std::map<std::uint32_t,NumiHumanTissueMassNode> byNode;
+    for(const auto* prepared:{&oldSkin,&oldFat})for(const auto& row:prepared->donorMassNodes) {
+        auto [found,inserted]=byNode.emplace(row.nodeIndex,row);
+        if(!inserted) {
+            if(found->second.donorBody!=row.donorBody||
+               norm(sub(found->second.localPosition,row.localPosition))>1.0e-7)
+                return fail("cooked-parent baseline source node has ambiguous donor ownership");
+            found->second.massKg+=row.massKg;
+        }
+    }
+    if(byNode.size()!=count)
+        return fail("cooked-parent baseline prepared reports do not cover the original node domain");
+    std::vector<NumiHumanTissueMassNode> preparedRows;
+    preparedRows.reserve(count);
+    for(const auto& [node,row]:byNode) {
+        if(node<globalBase||std::uint64_t(node)-globalBase>=count)
+            return fail("cooked-parent baseline prepared node is outside the original global domain");
+        auto local=row;
+        local.nodeIndex=static_cast<std::uint32_t>(std::uint64_t(node)-globalBase)+first;
+        preparedRows.push_back(local);
+    }
+    for(std::size_t node=0;node<count;++node) {
+        const auto& state=compiled.world.fem.nodes[first+node].positionAndMass;
+        const V3 current{double(state.x),double(state.y),double(state.z)};
+        if(parent.currentWorldPoints[node]!=current||
+           parent.compiledLumpedNodeMassKg[node]!=double(state.w)||
+           parent.compiledGlobalNodeIndices[node]!=globalBase+node)
+            return fail("cooked-parent baseline compiled position/mass/global node differs from the captured parent");
+    }
+    std::vector<double> capturedMass;
+    std::vector<ExplicitUnpairedVolumeSourceMassContribution> capturedSource;
+    if(!captureCompiledSkinFatParentMassLedger(massSource,compiled.world,0u,
+           parent.nodeFrameOwnerBodyIndices,parent.nodeFrameOwnerLocalPoints,preparedRows,
+           capturedMass,capturedSource,report,error))
+        return false;
+    if(capturedMass!=parent.tetrahedronMassKg||
+       capturedSource.size()!=parent.sourceMassContributions.size())
+        return fail("cooked-parent baseline captured cell/source masses differ from the imported parent");
+    for(std::size_t row=0;row<capturedSource.size();++row) {
+        const auto& actual=capturedSource[row];
+        const auto& expected=parent.sourceMassContributions[row];
+        if(actual.parentNodeIndex!=expected.parentNodeIndex||
+           actual.materialIndex!=expected.materialIndex||
+           actual.donorBodyIndex!=expected.donorBodyIndex||
+           actual.massKg!=expected.massKg||actual.donorLocalPosition!=expected.donorLocalPosition)
+            return fail("cooked-parent baseline source row differs from the imported physical ledger");
+    }
+    std::map<std::uint32_t,DonorMoment> raw,cooked;
+    if(!sourceDonorMoments(oldSkin,oldFat,raw,error))return false;
+    baselineSkin.donorMassContributions.clear();
+    baselineFat.donorMassContributions.clear();
+    for(const auto& row:capturedSource)
+        baselineSkin.donorMassContributions.push_back({
+            .nodeIndex=static_cast<std::uint32_t>(globalBase)+row.parentNodeIndex,.donorBody=row.donorBodyIndex,
+            .massKg=row.massKg,.localPosition=row.donorLocalPosition});
+    if(!sourceDonorMoments(baselineSkin,baselineFat,cooked,error))return false;
+    rawToCooked=momentDeltas(raw,cooked);
+    used=true;error.clear();return true;
+}
+
+} // namespace registered_skin_fat_replacement_detail
+
 // Bundle-aware transactional owner. The path digest binds the imported O/I/D
 // surfaces, exact boundary and attachment rows, source domains, node ancestry,
 // and cell labels. The existing replacement then replays the conservative
@@ -538,13 +697,25 @@ inline std::vector<RegisteredSkinFatDonorMomentDelta> momentDeltas(
         std::string& error) {
     if(!physical_skin_child_mass_mapping_detail::
            validatePreparedPhysicalSkinChildMassMappingPath(bundle,error))return false;
+    PreparedOrganicFEM baselineSkin,baselineFat;
+    CompiledSkinFatMassCaptureReport capture;
+    std::vector<RegisteredSkinFatDonorMomentDelta> rawToCooked;
+    bool usedCookedBaseline=false;
+    if(!registered_skin_fat_replacement_detail::prepareVerifiedCookedParentBaseline(
+           world,oldObjectIndex,bundle,oldSkin,oldFat,baselineSkin,baselineFat,
+           capture,rawToCooked,usedCookedBaseline,error))return false;
     const auto topology=bundle.topologyView();
-    return replaceLastRegisteredSkinFatUnpairedVolume(
+    if(!replaceLastRegisteredSkinFatUnpairedVolume(
         world,oldObjectIndex,bundle.outerSkin,bundle.boundaryMap,topology,
         skinMaterialIndex,skinMaterialName,skinMaterialProvenance,skinDonorDebitKg,
         fatMaterialIndex,fatMaterialName,fatMaterialProvenance,fatDonorDebitKg,
-        sourceBodyCount,objectName,oldSkin,oldFat,oldReport,
-        newSkin,newFat,newReport,audit,error);
+        sourceBodyCount,objectName,baselineSkin,baselineFat,oldReport,
+        newSkin,newFat,newReport,audit,error))return false;
+    audit.comparedVerifiedCookedParentBaseline=usedCookedBaseline;
+    audit.maximumPreparedToCookedNodeMassErrorKg=capture.maximumPreparedDonorMassClosureErrorKg;
+    audit.maximumPreparedToCookedNodeMassRelativeError=capture.maximumPreparedDonorMassClosureRelativeError;
+    audit.sourceRawToCookedDeltas=std::move(rawToCooked);
+    return true;
 }
 
 } // namespace metalrobo::human::coarse_tissue

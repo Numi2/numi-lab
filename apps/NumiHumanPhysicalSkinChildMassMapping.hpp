@@ -557,13 +557,36 @@ inline bool exactIdentityParentRows(
        parent.currentWorldPoints.size()!=nodeCount||
        parent.referenceWorldPoints.size()!=nodeCount)
         return false;
-    // Exact identity requires the emitted child F32 current and reference
-    // nodes to retain their parent-current node IDs and coordinates. Parent
-    // rest/current offsets remain present in the transport centroid distances.
-    for(std::size_t node=0;node<nodeCount;++node)
-        if(bundle.currentWorldPoints[node]!=parent.currentWorldPoints[node]||
-           bundle.referenceWorldPoints[node]!=parent.currentWorldPoints[node])
-            return false;
+    // Exact-topology transport has two explicit coordinate contracts:
+    // preserve the parent's reference frame, or rebase child reference onto the
+    // parent's current frame. In either case, child current coordinates remain
+    // the exact parent-current rows and the parent current/reference arrays are
+    // retained separately for centroid, density, and receipt checks.
+    bool referenceMatchesParentReference=true;
+    bool referenceMatchesParentCurrent=true;
+    bool currentMatchesParentCurrent=true;
+    bool currentCompilesToParentCurrent=true;
+    for(std::size_t node=0;node<nodeCount;++node) {
+        currentMatchesParentCurrent=currentMatchesParentCurrent&&
+            bundle.currentWorldPoints[node]==parent.currentWorldPoints[node];
+        for(unsigned axis=0;axis<3u;++axis) {
+            const double emitted=static_cast<double>(static_cast<float>(bundle.currentWorldPoints[node][axis]));
+            currentCompilesToParentCurrent=currentCompilesToParentCurrent&&
+                std::isfinite(emitted)&&emitted==parent.currentWorldPoints[node][axis];
+        }
+        referenceMatchesParentReference=referenceMatchesParentReference&&
+            bundle.referenceWorldPoints[node]==parent.referenceWorldPoints[node];
+        referenceMatchesParentCurrent=referenceMatchesParentCurrent&&
+            bundle.referenceWorldPoints[node]==parent.currentWorldPoints[node];
+    }
+    if(!referenceMatchesParentReference&&!referenceMatchesParentCurrent)
+        return false;
+    // Exact native source doubles can differ from their compiled GPU current
+    // positions. This representation contract is allowed only when every
+    // current row emits the captured parent bits and reference remains exact.
+    if(!currentMatchesParentCurrent&&
+       !(referenceMatchesParentReference&&currentCompilesToParentCurrent))
+        return false;
 
     std::map<ParentCellKey,std::uint32_t> parentByNodes;
     for(std::size_t row=0;row<parentCount;++row) {
@@ -1008,7 +1031,9 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
             parent.referenceWorldPoints[tet[3]]);
         if(!std::isfinite(volume)||volume<=0.0)
             return fail("physical child mapping parent contains a nonpositive reference tetrahedron");
-        parentVolumes[cell]=volume;
+        // The replay owner hashes this exact determinant evaluation. Equivalent
+        // algebra can round differently under FMA and is not receipt-identical.
+        parentVolumes[cell]=parentReferenceTetVolumeM3(tet,parent.referenceWorldPoints);
         for(const auto node:tet)for(unsigned axis=0;axis<3u;++axis)
             parentCentroids[cell][axis]+=parent.referenceWorldPoints[node][axis]*0.25;
         const auto material=parent.materialIndices[cell];
@@ -1019,6 +1044,7 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
            !std::isfinite(parent.tetrahedronMassKg[cell])||parent.tetrahedronMassKg[cell]<=0.0)
             return fail("physical child mapping parent labels or mass are outside their owning domains");
     }
+    bool requiresNativeIdentityRepresentation=false;
     for(std::size_t cell=0;cell<childCount;++cell){
         const auto tet=bundle.childTetrahedra[cell];
         std::array<std::uint32_t,4> sorted=tet;std::sort(sorted.begin(),sorted.end());
@@ -1032,13 +1058,17 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
             bundle.currentWorldPoints[tet[3]]);
         if(!std::isfinite(volume)||volume<=0.0||!std::isfinite(currentVolume)||currentVolume<=0.0)
             return fail("physical child mapping candidate contains a nonpositive current or reference tetrahedron");
-        for(const auto node:tet)for(unsigned axis=0;axis<3u;++axis)
+        for(const auto node:tet)for(unsigned axis=0;axis<3u;++axis) {
             if(!std::isfinite(bundle.referenceWorldPoints[node][axis])||
                !std::isfinite(bundle.currentWorldPoints[node][axis])||
-               double(static_cast<float>(bundle.referenceWorldPoints[node][axis]))!=bundle.referenceWorldPoints[node][axis]||
+               !std::isfinite(static_cast<float>(bundle.referenceWorldPoints[node][axis]))||
+               !std::isfinite(static_cast<float>(bundle.currentWorldPoints[node][axis])))
+                return fail("physical child mapping coordinates are not finite in their native and Float32 domains");
+            if(double(static_cast<float>(bundle.referenceWorldPoints[node][axis]))!=bundle.referenceWorldPoints[node][axis]||
                double(static_cast<float>(bundle.currentWorldPoints[node][axis]))!=bundle.currentWorldPoints[node][axis])
-                return fail("physical child mapping coordinates are not exact finite Float32 owner points");
-        childVolumes[cell]=volume;
+                requiresNativeIdentityRepresentation=true;
+        }
+        childVolumes[cell]=parentReferenceTetVolumeM3(tet,bundle.referenceWorldPoints);
         for(const auto node:tet)for(unsigned axis=0;axis<3u;++axis)
             childCentroids[cell][axis]+=bundle.referenceWorldPoints[node][axis]*0.25;
         const auto material=bundle.childMaterialIndices[cell];
@@ -1106,6 +1136,12 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
             usedExactTopologyIdentity=true;
         }
     }
+    // Retain exact native source doubles only for a fully certified identity:
+    // current coordinates compile to identical parent GPU bits and reference
+    // coordinates remain exact. Changed topology keeps both Float32 gates.
+    if(requiresNativeIdentityRepresentation &&
+       (!usedExactTopologyIdentity || bundle.referenceWorldPoints!=parent.referenceWorldPoints))
+        return fail("non-Float32 source coordinates require certified compiler-equivalent exact parent-reference identity");
     if(!usedExactTopologyIdentity) {
         if(!assembleConservativeSpatialMassTransport(input,transfer,error))
             return fail("physical child mass transport was not feasible: "+error);

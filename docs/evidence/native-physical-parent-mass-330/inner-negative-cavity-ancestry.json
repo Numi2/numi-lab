@@ -1,0 +1,12 @@
+{
+  "candidate_sha256": "3cb5d1ff07f50931963a145427d59c671f175da81596b1c09f9a457346c72c3e",
+  "negative_component_faces": 1680,
+  "origins": {
+    "3": 85,
+    "842957": 1595
+  },
+  "direct_original_I_cap_rows": [],
+  "original_I_faces": 85,
+  "face_row_sha256": "32014860f491b1acd2fee5454bfd14c36037c45b2ec60be8a32da77141cfefe7",
+  "physical_admission": false
+}
