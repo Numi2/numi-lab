@@ -1,0 +1,39 @@
+{
+  "evidence": {
+    "build.log": {
+      "gzip_sha256": "0c179795dabbfa55d4cdb24398462d2c1079d208d09913b02c779ea45afea8bc",
+      "sha256": "c2ed93ffd93c840755c0e91392ae593b1b52de9b7aaf6c208123feaceb1dde2e"
+    },
+    "numi-human-physical-skin-authoring-role-consumer-check.log": {
+      "gzip_sha256": "d44ec0310e478a188de7fa67d63b2eb277f986f93194da6466588813486b3af5",
+      "sha256": "590ff6a75946d3f782558c9dae3d41113e6a2f643c9c190dbfa1310f7a93501b"
+    },
+    "numi-human-physical-skin-child-mass-mapping-check.log": {
+      "gzip_sha256": "1783a388f53b80a47848237ab9e5f93cd6676473c491cdccaf05dc44db2449fe",
+      "sha256": "83efb44cb672029e122b1e948032f25536479e0050635cf83567e06c7f1a3413"
+    },
+    "numi-human-physical-skin-registered-volume-integration-check.log": {
+      "gzip_sha256": "bef7bbd252aaec197f0654f4d6559809705379e6bbdc4a361f6d2987899eb836",
+      "sha256": "20239f739813dd07838f1abaa562af74faaf28a6770831c4d476d12fea563ffa"
+    },
+    "numi-human-physical-skin-replacement-check.log": {
+      "gzip_sha256": "24805634ce30c5d48b339fd8eb28c18ef877f9d366e5678fa60d7bb3f874afab",
+      "sha256": "96b528f0abb645307c778e3354ae02f1768af8372aebf061502ac3802a6158b9"
+    },
+    "receipt.json": {
+      "gzip_sha256": "1029f851c8ed3e92a925e09ce6233229a927c645accd3bacd2b9a9cfd7ce6c95",
+      "sha256": "1632217d9eb69e463ffc7d5f7ed3c7f2abe669f3e2cbf4b6e1c3d6fed5a20d43"
+    }
+  },
+  "physical_admission": false,
+  "simulation_steps": 0,
+  "status": "PASS_FOCUSED_SOURCE_CHECKS",
+  "tested_source_sha256": {
+    "NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp": "e4b423b51a8f947e70b402c24c709c72eae27083da016ec1b2c7a61d7da18c4e",
+    "NumiHumanPhysicalSkinAuthoringRoleConsumerCheck.cpp": "46d09319a14a14aec6c0694494786b6fb12e81cb75c1a416fbd7431e60b19c3d",
+    "NumiHumanPhysicalSkinChildMassMapping.hpp": "0bf5e9c95887999aff128e39ea53485a3ed0bb5f506f188af693e9bbdc2611de",
+    "NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp": "a85ce991c06c193d2b6c98f712c8b29d8d8b43be0271ab7af63650d839b01271",
+    "NumiHumanPhysicalSkinReplacement.hpp": "3807437af76bee57ece6fd5e21c92f4e7e810a4aadf0829de96df65423908b9d",
+    "NumiHumanPhysicalSkinReplacementCheck.cpp": "1d1b5109ce30b2e7cc1f8011fe2a9b8646f330c99463ef23ea7687bbf1a30496"
+  }
+}

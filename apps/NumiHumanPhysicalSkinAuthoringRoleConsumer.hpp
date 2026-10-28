@@ -4,6 +4,7 @@
 // vertex IDs stay in their typed role namespace; they never enter the legacy
 // NHSKIN direct-source transfer arrays.
 #include "NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp"
+#include "NumiHumanAcceptedFEMSkinTransfer.hpp"
 
 #include <algorithm>
 #include <array>
@@ -13,6 +14,7 @@
 #include <fstream>
 #include <limits>
 #include <span>
+#include <set>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -54,6 +56,20 @@ struct PhysicalSkinAuthoringRoleConsumerReport {
     std::size_t bindingCount=0u;
     bool physicalAdmission=false;
 };
+
+// The O role is also the physical outer shell. This presentation domain keeps
+// the typed authoring namespace and exact volume-node map alongside the
+// one-hot transfer rows, so callers never substitute legacy NHSKIN row IDs.
+struct PhysicalSkinAuthoringOuterRoleRenderDomain {
+    using Transfer=numi::human::AcceptedFEMSkinTransfer;
+    PhysicalSkinSourceDomainRegistration sourceDomain;
+    std::vector<Transfer::Point> worldPoints;
+    std::vector<Transfer::Face> faces;
+    std::vector<Transfer::GPUTransferRow> transferRows;
+    std::vector<std::uint32_t> authoringVertexRows,volumeNodeRows,frameOwnerBodyIndices;
+    bool physicalAdmission=false;
+};
+
 
 namespace physical_skin_authoring_role_consumer_detail {
 
@@ -315,6 +331,101 @@ inline bool closeMatrix(const std::array<double,9>& a,const std::array<double,9>
     }
     next.physicalAdmission=false;measured.physicalAdmission=false;
     output=std::move(next);report=std::move(measured);error.clear();return true;
+}
+
+// Build a direct O render/motion-capture map after the import and full86
+// consumer have passed. It contains no projection, offset, or NHSKIN identity
+// conversion: authoring row i selects exactly the mapped imported volume node.
+[[nodiscard]] inline bool preparePhysicalSkinAuthoringOuterRoleRenderDomain(
+        const PhysicalSkinChildMassMappingBundle& bundle,
+        const PhysicalSkinAuthoringRoleConsumerState& roleState,
+        PhysicalSkinAuthoringOuterRoleRenderDomain& output,
+        std::string& error) {
+    const auto fail=[&](std::string message){error=std::move(message);return false;};
+    if(roleState.physicalAdmission||roleState.bindingBodyByLane.size()!=
+           kPhysicalSkinAuthoringFullWeightBindingCount)
+        return fail("direct O render mapping requires the non-admitting complete full86 role state");
+    const auto& role=roleState.roles[0];
+    const std::size_t count=role.authoringVertexRows.size();
+    if(role.sourceDomain.role!=PhysicalSkinSourceDomainRole::outerSurface||
+       role.sourceDomain.domain.empty()||
+       !validPhysicalSkinSourceDomainSHA256(role.sourceDomain.sourceSHA256)||
+       count==0u||role.sourceDomainIndices.size()!=count||
+       role.volumeNodeRows.size()!=count||role.frameOwnerBodyIndices.size()!=count||
+       role.currentWorldPoints.size()!=count||role.donorLocalPoints.size()!=count||
+       role.fullBodyWeights86.size()!=count||role.dominantBindingIndices.size()!=count||
+       role.parentGeometricDonorBodyIndices.size()!=count||
+       role.roleLocalFaces.empty()||role.roleLocalFaces!=bundle.outerSkin.faces||
+       bundle.outerSkin.worldPoints.size()!=count||
+       bundle.outerSkin.sourceVertexIndices.size()!=count||
+       bundle.outerSkin.sourceDomainIndices.size()!=count||
+       bundle.boundaryMap.outer.size()!=count||
+       bundle.volumeNodeSourceDomainIndices.size()!=bundle.currentWorldPoints.size()||
+       bundle.volumeNodeSourceVertexIndices.size()!=bundle.currentWorldPoints.size()||
+       bundle.volumeNodeSourceFaceIndices.size()!=bundle.currentWorldPoints.size()||
+       bundle.volumeNodeDonorBodyIndices.size()!=bundle.currentWorldPoints.size())
+        return fail("direct O render source, face, or volume-node rows are incomplete");
+    std::uint32_t domainIndex=NM_INVALID_INDEX;
+    for(std::size_t i=0u;i<bundle.sourceDomains.size();++i)
+        if(bundle.sourceDomains[i]==role.sourceDomain) {
+            if(domainIndex!=NM_INVALID_INDEX)
+                return fail("direct O render source registration is duplicated");
+            domainIndex=static_cast<std::uint32_t>(i);
+        }
+    if(domainIndex==NM_INVALID_INDEX)
+        return fail("direct O render source registry is absent from the imported volume bundle");
+    std::set<std::uint32_t> authoringRows,volumeRows;
+    PhysicalSkinAuthoringOuterRoleRenderDomain next;
+    next.sourceDomain=role.sourceDomain;
+    next.authoringVertexRows=role.authoringVertexRows;
+    next.volumeNodeRows=role.volumeNodeRows;
+    next.frameOwnerBodyIndices=role.frameOwnerBodyIndices;
+    next.worldPoints.reserve(count);next.transferRows.resize(count);
+    for(std::size_t row=0u;row<count;++row) {
+        const auto authoring=role.authoringVertexRows[row];
+        const auto volume=role.volumeNodeRows[row];
+        const auto owner=role.frameOwnerBodyIndices[row];
+        const auto dominant=role.dominantBindingIndices[row];
+        if(authoring>=role.sourceDomain.vertexCount||!authoringRows.insert(authoring).second||
+           volume>=bundle.currentWorldPoints.size()||!volumeRows.insert(volume).second||
+           volume!=bundle.boundaryMap.outer[row]||
+           role.sourceDomainIndices[row]!=domainIndex||
+           bundle.outerSkin.sourceDomainIndices[row]!=domainIndex)
+            return fail("direct O authoring row does not select its unique exact role boundary row");
+        if(bundle.outerSkin.sourceVertexIndices[row]!=authoring||
+           bundle.volumeNodeSourceDomainIndices[volume]!=domainIndex||
+           bundle.volumeNodeSourceVertexIndices[volume]!=authoring||
+           bundle.volumeNodeSourceFaceIndices[volume]!=NM_INVALID_INDEX)
+            return fail("direct O source registry differs from the imported volume-node identity");
+        if(bundle.volumeNodeDonorBodyIndices[volume]!=owner||
+           dominant>=roleState.bindingBodyByLane.size()||
+           roleState.bindingBodyByLane[dominant]!=owner)
+            return fail("direct O row uses a different source frame owner than its volume node");
+        if(role.currentWorldPoints[row]!=bundle.outerSkin.worldPoints[row]||
+           role.currentWorldPoints[row]!=bundle.currentWorldPoints[volume])
+            return fail("direct O role geometry differs from its exact imported volume-node coordinate");
+        for(const auto value:role.currentWorldPoints[row])
+            if(!std::isfinite(value))
+                return fail("direct O render source contains a nonfinite world point");
+        for(const auto value:role.fullBodyWeights86[row])
+            if(!std::isfinite(value)||value<0.0)
+                return fail("direct O render source contains an invalid full86 row");
+        next.worldPoints.push_back(role.currentWorldPoints[row]);
+        auto& transfer=next.transferRows[row];
+        transfer.coarseVertex[0]=transfer.coarseVertex[1]=transfer.coarseVertex[2]=
+            static_cast<std::uint32_t>(row);
+        transfer.donorBodyIndex=owner;
+        transfer.weight[0]=1.0f;transfer.weight[1]=transfer.weight[2]=0.0f;
+        transfer.restDistance=0.0f;
+    }
+    next.faces.reserve(role.roleLocalFaces.size());
+    for(const auto& face:role.roleLocalFaces) {
+        for(const auto vertex:face)
+            if(vertex>=count)return fail("direct O render face exceeds its typed role-local vertex domain");
+        next.faces.push_back(face);
+    }
+    next.physicalAdmission=false;
+    output=std::move(next);error.clear();return true;
 }
 
 } // namespace metalrobo::human::coarse_tissue

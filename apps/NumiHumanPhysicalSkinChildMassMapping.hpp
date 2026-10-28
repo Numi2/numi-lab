@@ -405,6 +405,16 @@ inline bool validSHA256(std::string_view value) {
     error.clear();return true;
 }
 
+struct PhysicalSkinChildStableDeepAttachment {
+    std::uint64_t stableAttachmentID=0u;
+    std::uint32_t donorBody=NM_INVALID_INDEX;
+    std::uint32_t stableSourceVertex=NM_INVALID_INDEX;
+    std::uint32_t deepSurfaceVertexRow=NM_INVALID_INDEX;
+    std::uint32_t volumeNodeRow=NM_INVALID_INDEX;
+    friend bool operator==(const PhysicalSkinChildStableDeepAttachment&,
+                           const PhysicalSkinChildStableDeepAttachment&)=default;
+};
+
 struct PhysicalSkinChildMassMappingBundle {
     PhysicalSkinParentMassPacket parent;
     RegisteredSurface outerSkin;
@@ -421,6 +431,9 @@ struct PhysicalSkinChildMassMappingBundle {
     std::vector<std::uint32_t> childRegisteredLayerFacetSourceFaceIdentities;
     std::vector<std::uint8_t> childAuthoredHeadSidewallFacetFlags;
     std::vector<std::uint32_t> childAuthoredHeadSidewallStableFaceIdentities;
+    // Stable attachment identities are retained as typed D-domain rows.
+    // They are source constraints, not mass or a permission to reuse old volume nodes.
+    std::vector<PhysicalSkinChildStableDeepAttachment> stableDeepAttachments;
 
     std::vector<std::uint32_t> volumeNodeDonorBodyIndices;
     std::vector<V3> volumeNodeDonorLocalPoints,volumeNodeDonorOriginWorld;
@@ -787,8 +800,47 @@ inline std::string massMappingPathSHA256(
         hash.string(name);hash.u64(values.size());
         for(const auto& tet:values)for(const auto node:tet)hash.u32(node);
     };
+    const auto hashFaces=[&](const std::string_view name,
+                             const std::vector<Face>& values) {
+        hash.string(name);hash.u64(values.size());
+        for(const auto& face:values)for(const auto node:face)hash.u32(node);
+    };
+    const auto hashBary3=[&](const std::string_view name,
+                             const std::vector<std::array<double,3>>& values) {
+        hash.string(name);hash.u64(values.size());
+        for(const auto& row:values)for(const auto value:row)hash.real(value);
+    };
+    const auto hashBary4=[&](const std::string_view name,
+                             const std::vector<std::array<double,4>>& values) {
+        hash.string(name);hash.u64(values.size());
+        for(const auto& row:values)for(const auto value:row)hash.real(value);
+    };
+    const auto hashMatrices=[&](const std::string_view name,
+                                const std::vector<std::array<double,9>>& values) {
+        hash.string(name);hash.u64(values.size());
+        for(const auto& row:values)for(const auto value:row)hash.real(value);
+    };
+    const auto hashSurface=[&](const std::string_view name,const RegisteredSurface& surface) {
+        hash.string(name);hash.string(surface.name);hash.string(surface.provider);
+        hash.string(surface.sourceMember);hash.string(surface.sourceMeshSHA256);
+        hash.string(surface.sourcePayloadSHA256);hash.u32(surface.stableIdentifier);
+        hash.u32(surface.sourceBodyIndex);hash.u32(surface.sourceLayer);
+        hash.u32(surface.aggregateIdentity?1u:0u);
+        hashPoints("surface.donor_local",surface.donorLocalPoints);
+        hashPoints("surface.world",surface.worldPoints);
+        hashFaces("surface.faces",surface.faces);
+        hashIndices("surface.source_vertices",surface.sourceVertexIndices);
+        hashIndices("surface.source_faces",surface.sourceFaceIndices);
+        hashIndices("surface.source_domains",surface.sourceDomainIndices);
+        hashIndices("surface.embedding_faces",surface.sourceEmbeddingFaceIndices);
+        hashBary3("surface.embedding_barycentric",surface.sourceEmbeddingBarycentric);
+        hashPoints("surface.embedding_residuals",surface.sourceEmbeddingResidualWorldM);
+        hashIndices("surface.donor_bodies",surface.donorBodyIndices);
+        hashMatrices("surface.world_to_donor",surface.worldToDonorLocalLinear);
+        hashPoints("surface.outward_normals",surface.outwardWorldNormals);
+    };
 
-    hash.string("physicalSkinChildMassMapping.path.v1");
+    hash.string("physicalSkinChildMassMapping.path.v2");
     hash.string(exactTopologyIdentity?"exact_topology_identity":"bounded_conservative_spatial");
     hash.string(bundle.spatialMassTransportResult.receiptSHA256);
     hash.string(bundle.parent.parentMassPacketSHA256);
@@ -819,6 +871,14 @@ inline std::string massMappingPathSHA256(
         for(const auto value:source.donorLocalPosition)hash.real(value);
     }
 
+    hashSurface("outer_surface",bundle.outerSkin);
+    hashSurface("independent_inner_surface",bundle.independentSkinInner);
+    hashSurface("independent_deep_surface",bundle.independentFatDeep);
+    hash.u64(bundle.boundaryMap.volumeNodeCount);
+    hashIndices("boundary.outer",bundle.boundaryMap.outer);
+    hashIndices("boundary.inner",bundle.boundaryMap.skinInner);
+    hashIndices("boundary.deep",bundle.boundaryMap.fatDeep);
+
     hashPoints("child.current_world_points",bundle.currentWorldPoints);
     hashPoints("child.reference_world_points",bundle.referenceWorldPoints);
     hashTetrahedra("child.tetrahedra",bundle.childTetrahedra);
@@ -826,7 +886,56 @@ inline std::string massMappingPathSHA256(
     hashIndices("child.donor_body_indices",bundle.childDonorBodyIndices);
     hashIndices("child.anatomical_region_indices",bundle.childAnatomicalRegionIndices);
     hashIndices("child.stable_source_face_identities",bundle.childStableSourceFaceIdentities);
+    hashIndices("child.dominant_parent_tetrahedra",bundle.childDominantParentTetrahedra);
+    hashIndices("child.parent_surface_faces",bundle.childParentSurfaceFaces);
+    hashIndices("child.registered_layer_facet_surface_faces",bundle.childRegisteredLayerFacetSurfaceFaces);
+    hashIndices("child.registered_layer_facet_source_faces",bundle.childRegisteredLayerFacetSourceFaceIdentities);
+    std::vector<std::uint32_t> sidewallFlags(bundle.childAuthoredHeadSidewallFacetFlags.begin(),
+                                              bundle.childAuthoredHeadSidewallFacetFlags.end());
+    hashIndices("child.authored_head_sidewall_flags",sidewallFlags);
+    hashIndices("child.authored_head_sidewall_stable_faces",bundle.childAuthoredHeadSidewallStableFaceIdentities);
+    hashIndices("volume.node_donors",bundle.volumeNodeDonorBodyIndices);
+    hashPoints("volume.node_donor_local",bundle.volumeNodeDonorLocalPoints);
+    hashPoints("volume.node_donor_origin",bundle.volumeNodeDonorOriginWorld);
+    hashMatrices("volume.node_donor_local_to_world",bundle.volumeNodeDonorLocalToWorldLinear);
+    hashMatrices("volume.registered_body_local_to_world",bundle.registeredBodyLocalToWorldLinear);
+    hashPoints("volume.registered_body_origin",bundle.registeredBodyOriginWorld);
+    hash.u64(bundle.detailedSourceVertexCount);hash.u64(bundle.detailedSourceFaceCount);
+    hash.u64(bundle.sourceDomains.size());
+    for(const auto& domain:bundle.sourceDomains) {
+        hash.string(domain.domain);hash.u32(static_cast<std::uint32_t>(domain.role));
+        hash.string(domain.sourceSHA256);hash.u32(domain.vertexCount);hash.u32(domain.faceCount);
+    }
+    hashIndices("volume.source_domain_indices",bundle.volumeNodeSourceDomainIndices);
+    hashIndices("volume.source_vertex_indices",bundle.volumeNodeSourceVertexIndices);
+    hashIndices("volume.source_face_indices",bundle.volumeNodeSourceFaceIndices);
+    hashBary3("volume.source_barycentric",bundle.volumeNodeSourceBarycentric);
+    hash.u64(bundle.retainedOriginalNodeCount);
+    hashIndices("volume.parent_tetrahedra",bundle.volumeNodeParentTetrahedra);
+    hashBary4("volume.parent_barycentric",bundle.volumeNodeParentBarycentric);
+    hashPoints("volume.parent_residuals",bundle.volumeNodeParentResidualWorldM);
+    hash.u64(bundle.stableDeepAttachments.size());
+    for(const auto& row:bundle.stableDeepAttachments) {
+        hash.u64(row.stableAttachmentID);hash.u32(row.donorBody);
+        hash.u32(row.stableSourceVertex);hash.u32(row.deepSurfaceVertexRow);
+        hash.u32(row.volumeNodeRow);
+    }
+    for(const auto word:bundle.referenceSourceIdentity)hash.u64(word);
+    for(const auto word:bundle.materialSourceIdentity)hash.u64(word);
     return hash.finish();
+}
+
+inline bool validatePreparedPhysicalSkinChildMassMappingPath(
+        const PhysicalSkinChildMassMappingBundle& bundle,std::string& error) {
+    if(!physical_skin_child_mass_detail::validSHA256(
+           bundle.spatialMassTransportResult.receiptSHA256)||
+       !physical_skin_child_mass_detail::validSHA256(bundle.massMappingPathSHA256)||
+       bundle.massMappingPathSHA256!=massMappingPathSHA256(
+           bundle,bundle.exactTopologyIdentityTransportUsed)) {
+        error="physical child mass mapping path receipt is missing or no longer binds its current inputs";
+        return false;
+    }
+    error.clear();return true;
 }
 } // namespace physical_skin_child_mass_mapping_detail
 
@@ -1038,13 +1147,8 @@ inline std::string massMappingPathSHA256(
         const std::size_t sourceBodyCount,const std::string_view objectName,
         PreparedOrganicFEM& preparedSkin,PreparedOrganicFEM& preparedFat,
         ExplicitUnpairedVolumeReport& report,std::string& error) {
-    if(bundle.spatialMassTransportResult.receiptSHA256.empty()||
-       bundle.massMappingPathSHA256.empty()||
-       bundle.massMappingPathSHA256!=physical_skin_child_mass_mapping_detail::massMappingPathSHA256(
-           bundle,bundle.exactTopologyIdentityTransportUsed)){
-        error="physical child mass mapping path receipt is missing or no longer binds its current inputs";
-        return false;
-    }
+    if(!physical_skin_child_mass_mapping_detail::validatePreparedPhysicalSkinChildMassMappingPath(
+           bundle,error))return false;
     const auto topology=bundle.topologyView();
     return appendRegisteredSkinFatUnpairedVolume(world,bundle.outerSkin,bundle.boundaryMap,
         topology,skinMaterialIndex,skinMaterialName,skinMaterialProvenance,skinDonorDebitKg,

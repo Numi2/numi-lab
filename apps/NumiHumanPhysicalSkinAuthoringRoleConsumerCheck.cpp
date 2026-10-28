@@ -160,6 +160,33 @@ int main() {
     if(!prepare(f,state,report,error)){std::cerr<<error<<std::endl;return 1;}
     assert(!state.physicalAdmission&&!report.physicalAdmission);
     assert(state.bindingBodyByLane.size()==86u&&report.bindingCount==86u);
+    PhysicalSkinAuthoringOuterRoleRenderDomain outerRender;
+    if(!preparePhysicalSkinAuthoringOuterRoleRenderDomain(
+            f.bundle,state,outerRender,error)) {
+        std::cerr<<"direct O role render map rejected: "<<error<<std::endl;return 2;
+    }
+    const auto& outerRole=state.roles[0];
+    assert(!outerRender.physicalAdmission);
+    assert(outerRender.sourceDomain==outerRole.sourceDomain);
+    assert(outerRender.worldPoints==outerRole.currentWorldPoints);
+    assert(outerRender.faces==outerRole.roleLocalFaces);
+    assert(outerRender.authoringVertexRows==outerRole.authoringVertexRows);
+    assert(outerRender.volumeNodeRows==outerRole.volumeNodeRows);
+    assert(outerRender.transferRows.size()==outerRole.volumeNodeRows.size());
+    for(std::size_t row=0;row<outerRender.transferRows.size();++row) {
+        const auto& transfer=outerRender.transferRows[row];
+        assert(transfer.coarseVertex[0]==row&&transfer.coarseVertex[1]==row&&
+               transfer.coarseVertex[2]==row);
+        assert(transfer.donorBodyIndex==outerRole.frameOwnerBodyIndices[row]);
+        assert(transfer.weight[0]==1.0f&&transfer.weight[1]==0.0f&&
+               transfer.weight[2]==0.0f&&transfer.restDistance==0.0f);
+    }
+    auto wrongOuterRows=state;
+    wrongOuterRows.roles[0].volumeNodeRows[0]=wrongOuterRows.roles[0].volumeNodeRows[1];
+    PhysicalSkinAuthoringOuterRoleRenderDomain untouchedOuter=outerRender;
+    assert(!preparePhysicalSkinAuthoringOuterRoleRenderDomain(
+        f.bundle,wrongOuterRows,untouchedOuter,error));
+    assert(untouchedOuter.volumeNodeRows==outerRender.volumeNodeRows);
     for(unsigned layer=0u;layer<3u;++layer) {
         assert(report.rows[layer]==3u&&report.faces[layer]==1u);
         assert(report.frameOwnerParentDonorDifferences[layer]==3u);

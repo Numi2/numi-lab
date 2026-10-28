@@ -617,6 +617,12 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
     if(!mapPhysicalSkinStableDeepAttachments(deepAttachments,nextBundle.independentFatDeep,
             registered.nodeSource[2],nextBundle.boundaryMap,nextSidecars.deepAttachments,error))
         return false;
+    nextBundle.stableDeepAttachments.clear();
+    nextBundle.stableDeepAttachments.reserve(nextSidecars.deepAttachments.size());
+    for(const auto& row:nextSidecars.deepAttachments)
+        nextBundle.stableDeepAttachments.push_back({
+            row.stableAttachmentID,row.donorBody,row.stableSourceVertex,
+            row.deepSurfaceVertexRow,row.volumeNodeRow});
     measured.volumeNodeCount=nodeCount;measured.registeredParentRows=nodeCount;
     measured.inferredCurrentParentRows=inferredRows;measured.sourceIdentityRows=sourceIdentityRows;
     measured.maximumCurrentParentReconstructionErrorM=maxCurrentError;

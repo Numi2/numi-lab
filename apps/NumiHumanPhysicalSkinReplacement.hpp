@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NumiHumanUnpairedSkinFatVolume.hpp"
+#include "NumiHumanPhysicalSkinChildMassMapping.hpp"
 
 #include <algorithm>
 #include <array>
@@ -508,6 +508,43 @@ inline std::vector<RegisteredSkinFatDonorMomentDelta> momentDeltas(
     audit=std::move(candidateAudit);
     error.clear();
     return true;
+}
+
+// Bundle-aware transactional owner. The path digest binds the imported O/I/D
+// surfaces, exact boundary and attachment rows, source domains, node ancestry,
+// and cell labels. The existing replacement then replays the conservative
+// transport receipt and performs all geometry, mass, donor, and thickness checks.
+[[nodiscard]] inline bool replaceLastPreparedRegisteredSkinFatUnpairedVolume(
+        numi::matter::WorldSource& world,
+        const std::size_t oldObjectIndex,
+        const PhysicalSkinChildMassMappingBundle& bundle,
+        const std::uint32_t skinMaterialIndex,
+        const std::string_view skinMaterialName,
+        const std::string_view skinMaterialProvenance,
+        const double skinDonorDebitKg,
+        const std::uint32_t fatMaterialIndex,
+        const std::string_view fatMaterialName,
+        const std::string_view fatMaterialProvenance,
+        const double fatDonorDebitKg,
+        const std::size_t sourceBodyCount,
+        const std::string_view objectName,
+        const PreparedOrganicFEM& oldSkin,
+        const PreparedOrganicFEM& oldFat,
+        const ExplicitUnpairedVolumeReport* oldReport,
+        PreparedOrganicFEM& newSkin,
+        PreparedOrganicFEM& newFat,
+        ExplicitUnpairedVolumeReport& newReport,
+        RegisteredSkinFatReplacementAudit& audit,
+        std::string& error) {
+    if(!physical_skin_child_mass_mapping_detail::
+           validatePreparedPhysicalSkinChildMassMappingPath(bundle,error))return false;
+    const auto topology=bundle.topologyView();
+    return replaceLastRegisteredSkinFatUnpairedVolume(
+        world,oldObjectIndex,bundle.outerSkin,bundle.boundaryMap,topology,
+        skinMaterialIndex,skinMaterialName,skinMaterialProvenance,skinDonorDebitKg,
+        fatMaterialIndex,fatMaterialName,fatMaterialProvenance,fatDonorDebitKg,
+        sourceBodyCount,objectName,oldSkin,oldFat,oldReport,
+        newSkin,newFat,newReport,audit,error);
 }
 
 } // namespace metalrobo::human::coarse_tissue
