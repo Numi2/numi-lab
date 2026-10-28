@@ -1,0 +1,39 @@
+{
+  "status": "TESTED_SOURCE_ONLY",
+  "physical_steps": 0,
+  "replacement_volume_admitted": false,
+  "native_full_build": "PASS",
+  "volume_owner_tests": "PASS",
+  "spatial_labels": "verified volume/source/material admission; mass receipt distinct from geometric ancestry",
+  "negative_tests": [
+    "missing owning materials",
+    "edited mass receipt",
+    "mass receipt as geometric ancestry",
+    "edited source child mass",
+    "edited compiled child mass",
+    "missing selected mass method"
+  ],
+  "legacy_native_source_regression": "all four exact parent geometry/mass/source CSVs byte-identical",
+  "contact_source_preparation": {
+    "seconds": 7.522554333,
+    "outer_slave_rows": 2411,
+    "deep_slave_rows": 2397,
+    "deep_attachments": 14,
+    "triangles": 469136,
+    "registered_bone_bodies": 86,
+    "sample_pairs": 413488,
+    "static_bvh_samples": 413997,
+    "physical_motion": false
+  },
+  "device": "Apple M6",
+  "build_head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "source_sha256": {
+    "apps/NumiHumanSkinFatReductionLabels.hpp": "f8a3eb278358bc3bbc87b231f7d66a28f5fc1de5fe9af3bb733dc9e8d40a25c2",
+    "apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp": "f9aa4b72bd70bb3f798bc77d9977ae319704d247e7ed32b7ce75a44b231d1f2f",
+    "apps/numilab_human_myosim_visual_probe.mm": "b695695209cf27090f267e3719634ba7d60cb29b5c4e1c5b72524b016ce05912"
+  },
+  "binary_sha256": {
+    "bin/numi-human-native": "656b1781de7b6233dad9223c7db9bbb4912e25fe3eac0cfdcfa3f3db1b023dfc",
+    "numi-human-unpaired-skin-fat-volume-check": "00b1aec5bad5b5120618c049515b4a1e35721377e30f13532aa960dfae33f20c"
+  }
+}

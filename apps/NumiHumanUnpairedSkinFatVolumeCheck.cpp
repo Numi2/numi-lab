@@ -802,6 +802,44 @@ int main() {
         for(const auto& closure:report.sourceMassClosure)
             assert(std::abs(closure.cookedParentMassKg-closure.childSourceMassKg)<1.0e-10);
 
+        RegisteredSkinFatReductionSourceLabels spatialLabels;
+        const auto sourceBinding=[](std::uint32_t,std::uint32_t donor){return donor==0u;};
+        const auto sourceParent=[](std::uint32_t){return NM_INVALID_INDEX;};
+        const std::function<bool(std::uint32_t,std::uint32_t)> embeddedBinding=
+            [](std::uint32_t,std::uint32_t donor){return donor==0u;};
+        assert(!buildRegisteredSkinFatUnpairedReductionSourceLabels(spatial.surface,
+            spatialWorld.objects.front(),spatial.boundary,spatial.topology,2u,
+            sourceBinding,sourceParent,spatialLabels,error,36u,embeddedBinding));
+        assert(error.find("owning materials")!=std::string::npos);
+        if(!buildRegisteredSkinFatUnpairedReductionSourceLabels(spatial.surface,
+            spatialWorld.objects.front(),spatial.boundary,spatial.topology,2u,
+            sourceBinding,sourceParent,spatialLabels,error,36u,embeddedBinding,&spatialWorld)) {
+            std::cerr<<"spatial source labels rejected: "<<error<<"\n";return 28;
+        }
+        assert(spatialLabels.massTransferKind==
+            UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport);
+        assert(spatialLabels.massTransferReceiptSHA256==spatialTransfer.receiptSHA256);
+        assert(spatialLabels.ancestryVerificationReceiptSHA256.empty());
+        assert(spatialLabels.tetrahedronParentAncestryOffsets.empty());
+        assert(validateRegisteredSkinFatRemeshNodeAncestry(
+            spatialWorld.objects.front(),spatialLabels,error));
+        auto badSpatialLabels=spatialLabels;
+        badSpatialLabels.massTransferReceiptSHA256[0]=
+            badSpatialLabels.massTransferReceiptSHA256[0]=='a'?'b':'a';
+        assert(!validateRegisteredSkinFatMassTransferLabels(
+            spatialWorld.objects.front(),badSpatialLabels,error));
+        badSpatialLabels=spatialLabels;
+        badSpatialLabels.ancestryVerificationReceiptSHA256=spatialTransfer.receiptSHA256;
+        assert(!validateRegisteredSkinFatMassTransferLabels(
+            spatialWorld.objects.front(),badSpatialLabels,error));
+        auto mismatchedMassShell=spatialWorld.objects.front();
+        mismatchedMassShell.femTetrahedronMassesKg[0]*=1.000001;
+        assert(!buildRegisteredSkinFatUnpairedReductionSourceLabels(spatial.surface,
+            mismatchedMassShell,spatial.boundary,spatial.topology,2u,
+            sourceBinding,sourceParent,badSpatialLabels,error,36u,embeddedBinding,&spatialWorld));
+        assert(error.find("admitted physical shell")!=std::string::npos);
+        assert(badSpatialLabels.sourceTetrahedronCount==0u);
+
         auto compilerSpatialWorld=spatialWorld;
 #ifndef NUMI_TEST_MATERIAL_PATH
 #error "NUMI_TEST_MATERIAL_PATH must identify the compiler integration test material"
@@ -827,6 +865,17 @@ int main() {
         assert(compiledSpatial.world.femTetrahedronMassesKg==
                spatialWorld.objects.front().femTetrahedronMassesKg);
         assert(compiledSpatial.world.fem.nodes.size()==spatialWorld.objects.front().femNodes.size());
+        assert(verifyRegisteredSkinFatCompiledShell(compiledSpatial.world,0u,
+            compilerSpatialWorld.objects.front(),spatialLabels,error));
+        auto tamperedCook=compiledSpatial.world;
+        tamperedCook.femTetrahedronMassesKg[0]*=1.000001;
+        assert(!verifyRegisteredSkinFatCompiledShell(tamperedCook,0u,
+            compilerSpatialWorld.objects.front(),spatialLabels,error));
+        assert(error.find("cell mass differs")!=std::string::npos);
+        badSpatialLabels=spatialLabels;
+        badSpatialLabels.massTransferKind=UnpairedVolumeMassTransferKind::none;
+        assert(!verifyRegisteredSkinFatCompiledShell(compiledSpatial.world,0u,
+            compilerSpatialWorld.objects.front(),badSpatialLabels,error));
         for(std::size_t child=0;child<spatialTransfer.childMassKg.size();++child)
             assert(spatialWorld.objects.front().femTetrahedronMassesKg[child]==
                    spatialTransfer.childMassKg[child]);

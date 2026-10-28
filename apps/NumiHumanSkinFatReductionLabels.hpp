@@ -69,6 +69,9 @@ struct RegisteredSkinFatReductionSourceLabels {
     // SHA-256 of independent method-specific ancestry verification; closure alone is not proof.
     VolumeAncestryVerificationKind ancestryVerificationKind=VolumeAncestryVerificationKind::unverified;
     std::string ancestryVerificationReceiptSHA256;
+    // Conservative mass coupling is distinct from geometric overlap ancestry.
+    UnpairedVolumeMassTransferKind massTransferKind=UnpairedVolumeMassTransferKind::none;
+    std::string massTransferReceiptSHA256;
     bool explicitUnpairedVolumeTopology = false;
     // Complete original donor-body ancestry, body first and root last.
     std::map<std::uint32_t, std::vector<std::uint32_t>> donorBodyAncestry;
@@ -718,6 +721,43 @@ struct RegisteredSkinFatBasisRegionAncestry {
 // for which the anatomical labels were authored. The physics fingerprint is
 // deliberately not reused here: the final world may include an additional
 // vascular payload and must receive a freshly built reduction basis.
+// Pin spatial mass metadata to the exact source-object mass receipt without
+// manufacturing geometric overlap ancestry.
+[[nodiscard]] inline bool validateRegisteredSkinFatMassTransferLabels(
+    const numi::matter::ObjectSource& shell,
+    const RegisteredSkinFatReductionSourceLabels& labels, std::string& error) {
+    const auto fail=[&](const char* message){error=message;return false;};
+    if(labels.massTransferKind==UnpairedVolumeMassTransferKind::none) {
+        if(!labels.massTransferReceiptSHA256.empty())
+            return fail("unselected skin/fat mass transfer carries a receipt");
+        return true;
+    }
+    if(labels.massTransferKind!=UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport||
+       !labels.explicitUnpairedVolumeTopology||
+       labels.ancestryVerificationKind!=VolumeAncestryVerificationKind::unverified||
+       !labels.ancestryVerificationReceiptSHA256.empty()||
+       !labels.tetrahedronParentAncestryOffsets.empty()||
+       !labels.tetrahedronParentAncestryIndices.empty()||
+       !labels.tetrahedronParentAncestryVolumeFractions.empty()||
+       labels.massTransferReceiptSHA256.size()!=64u||
+       shell.femTetrahedronMassesKg.size()!=shell.tetrahedra.size())
+        return fail("skin/fat spatial mass labels contain missing mass or false geometric ancestry");
+    for(std::size_t word=0;word<4u;++word) {
+        const auto* begin=labels.massTransferReceiptSHA256.data()+16u*word;
+        std::uint64_t expected=0u;
+        if(!std::all_of(begin,begin+16u,[](char c){return (c>='0'&&c<='9')||(c>='a'&&c<='f');}))
+            return fail("skin/fat spatial mass receipt is not a lowercase SHA-256");
+        const auto parsed=std::from_chars(begin,begin+16u,expected,16);
+        if(parsed.ec!=std::errc{}||parsed.ptr!=begin+16u||
+           expected!=shell.femTetrahedronMassSourceIdentity[word])
+            return fail("skin/fat spatial mass receipt differs from the exact source object");
+    }
+    for(const auto mass:shell.femTetrahedronMassesKg)
+        if(!std::isfinite(mass)||mass<=0.0)
+            return fail("skin/fat spatial mass labels reference invalid cell mass");
+    error.clear();return true;
+}
+
 [[nodiscard]] inline bool verifyRegisteredSkinFatCompiledShell(
     const numi::matter::CompiledWorld& world,
     const std::uint32_t objectIndex,
@@ -729,6 +769,9 @@ struct RegisteredSkinFatBasisRegionAncestry {
         error = message;
         return false;
     };
+    if(!validateRegisteredSkinFatMassTransferLabels(sourceShell,labels,error)) return false;
+    const bool spatialMassLabels=labels.massTransferKind==
+        UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport;
     if (objectIndex >= world.objects.size())
         return fail("shared compiled world lost the registered skin/fat object index");
     const auto& object = world.objects[objectIndex];
@@ -768,9 +811,18 @@ struct RegisteredSkinFatBasisRegionAncestry {
           labels.tetrahedronRegisteredLayerFacetSourceFaceIdentities.size()!=4u*sourceShell.tetrahedra.size() ||
           labels.tetrahedronAuthoredHeadSidewallFacetFlags.size()!=4u*sourceShell.tetrahedra.size() ||
           labels.tetrahedronAuthoredHeadSidewallStableFaceIdentities.size()!=4u*sourceShell.tetrahedra.size() ||
-          labels.ancestryVerificationReceiptSHA256.size()!=64u)))
+          (!spatialMassLabels&&labels.ancestryVerificationReceiptSHA256.size()!=64u))))
         return fail("retained skin/fat source labels no longer cover the exact source mesh");
 
+    if(spatialMassLabels) {
+        if(world.femTetrahedronMassSourceIdentities.size()!=world.objects.size()||
+           world.femTetrahedronMassSourceIdentities[objectIndex]!=sourceShell.femTetrahedronMassSourceIdentity||
+           tetEnd>world.femTetrahedronMassesKg.size())
+            return fail("compiled skin/fat spatial mass source identity or cell range differs");
+        for(std::size_t cell=0;cell<sourceShell.tetrahedra.size();++cell)
+            if(world.femTetrahedronMassesKg[object.elementOffset+cell]!=sourceShell.femTetrahedronMassesKg[cell])
+                return fail("compiled skin/fat spatial cell mass differs from the admitted source");
+    }
     if (!validateRegisteredSkinFatRemeshNodeAncestry(sourceShell,labels,error))
         return false;
     for (std::uint32_t local = 0u; local < object.stateCount; ++local) {
@@ -3045,7 +3097,8 @@ template<class VerifyBoundBody, class ParentBodyAt>
     RegisteredSkinFatReductionSourceLabels& output,
     std::string& error,
     const std::uint32_t maximumFacesPerBasisRegion=36u,
-    const std::function<bool(std::uint32_t,std::uint32_t)>& verifyEmbeddedBody={}
+    const std::function<bool(std::uint32_t,std::uint32_t)>& verifyEmbeddedBody={},
+    const numi::matter::WorldSource* materialSource=nullptr
 ) {
     output={};
     const auto fail=[&](std::string message){error=std::move(message);output={};return false;};
@@ -3100,10 +3153,19 @@ template<class VerifyBoundBody, class ParentBodyAt>
        (!topology.volumeNodeSourceBarycentric.empty()&&topology.volumeNodeSourceBarycentric.size()!=n)||
        (topology.volumeNodeSourceFaceIndices.empty()!=topology.volumeNodeSourceBarycentric.empty()))
         return fail("unpaired source-label surface map or detailed source ancestry has a mismatched row domain");
-    if(topology.childParentAncestryOffsets.size()!=nt+1u||
+    const bool spatialMass=topology.massTransferKind==
+        UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport;
+    if(spatialMass&&(materialSource==nullptr||topology.spatialMassTransportResult==nullptr||
+       topology.ancestryVerificationKind!=VolumeAncestryVerificationKind::unverified||
+       !topology.ancestryVerificationReceiptSHA256.empty()||
+       !topology.childParentAncestryOffsets.empty()||
+       !topology.childParentAncestryTetrahedra.empty()||
+       !topology.childParentAncestryVolumeFractions.empty()))
+        return fail("spatial mass labels require owning materials and a separate flow receipt without geometric ancestry");
+    if((!spatialMass&&(topology.childParentAncestryOffsets.size()!=nt+1u||
        topology.childParentAncestryOffsets.empty()||topology.childParentAncestryOffsets.front()!=0u||
        topology.childParentAncestryOffsets.back()!=topology.childParentAncestryTetrahedra.size()||
-       topology.childParentAncestryTetrahedra.size()!=topology.childParentAncestryVolumeFractions.size()||
+       topology.childParentAncestryTetrahedra.size()!=topology.childParentAncestryVolumeFractions.size()))||
        topology.childRegisteredLayerFacetSurfaceFaces.size()!=4u*nt||
        topology.childRegisteredLayerFacetSourceFaceIdentities.size()!=4u*nt||
        topology.childAuthoredHeadSidewallFacetFlags.size()!=4u*nt||
@@ -3115,10 +3177,10 @@ template<class VerifyBoundBody, class ParentBodyAt>
        topology.detailedSourceVertexCount==0u||topology.detailedSourceFaceCount==0u)
         return fail("unpaired source-label parent/facet ancestry is incomplete");
     const auto receipt=topology.ancestryVerificationReceiptSHA256;
-    if((topology.ancestryVerificationKind!=VolumeAncestryVerificationKind::exactGeometricOverlap&&
+    if(!spatialMass&&((topology.ancestryVerificationKind!=VolumeAncestryVerificationKind::exactGeometricOverlap&&
         topology.ancestryVerificationKind!=VolumeAncestryVerificationKind::conservativeReferencePullback)||
        receipt.size()!=64u||!std::all_of(receipt.begin(),receipt.end(),[](char c){
-        return (c>='0'&&c<='9')||(c>='a'&&c<='f');}))
+        return (c>='0'&&c<='9')||(c>='a'&&c<='f');})))
         return fail("unpaired source labels require a pinned ancestry verification receipt; CSR closure is not overlap proof");
     for(const auto& parentTet:topology.parentTetrahedra)
         for(auto node:parentTet)if(node>=topology.parentReferenceWorldPoints.size())
@@ -3241,6 +3303,36 @@ template<class VerifyBoundBody, class ParentBodyAt>
             return fail("unpaired labels interface lacks exactly one skin and one fat owner");
     }
 
+    if(spatialMass) {
+        // Reuse actual volume admission against current cells/materials/source
+        // and recorded flow. No flow solve or physical step runs here.
+        numi::matter::WorldSource validationWorld;
+        validationWorld.materials=materialSource->materials;
+        if(skinMaterial>=validationWorld.materials.size()||fatMaterial>=validationWorld.materials.size())
+            return fail("spatial mass labels cannot resolve their owning material definitions");
+        if(topology.parentTetrahedronMassKg.size()!=topology.parentTetrahedra.size())
+            return fail("spatial mass labels lack the authoritative parent cell ledger");
+        double skinDebit=0.0,fatDebit=0.0;
+        for(std::size_t p=0;p<topology.parentTetrahedra.size();++p) {
+            const auto material=topology.parentMaterialIndices[p];
+            if(material!=skinMaterial&&material!=fatMaterial)
+                return fail("spatial mass labels parent material is outside the skin/fat partition");
+            (material==skinMaterial?skinDebit:fatDebit)+=topology.parentTetrahedronMassKg[p];
+        }
+        PreparedOrganicFEM validatedSkin,validatedFat;ExplicitUnpairedVolumeReport report;
+        if(!appendRegisteredSkinFatUnpairedVolume(validationWorld,surface,boundaryMap,topology,
+               skinMaterial,validationWorld.materials[skinMaterial].name,"owning skin material",skinDebit,
+               fatMaterial,validationWorld.materials[fatMaterial].name,"owning fat material",fatDebit,
+               sourceBodyCount,shell.name,validatedSkin,validatedFat,report,error))
+            return fail("spatial mass labels failed current volume admission: "+error);
+        const auto& validated=validationWorld.objects.back();
+        if(validated.femTetrahedronMassesKg!=shell.femTetrahedronMassesKg||
+           validated.femTetrahedronMassSourceIdentity!=shell.femTetrahedronMassSourceIdentity||
+           validated.femContactNodes!=shell.femContactNodes||
+           validated.deformableSelfContact!=shell.deformableSelfContact)
+            return fail("spatial mass labels differ from the admitted physical shell");
+    }
+
     RegisteredSkinFatReductionSourceLabels next;
     next.explicitUnpairedVolumeTopology=true;
     next.registeredVertexCount=surfaceRows;next.registeredFaceCount=surface.faces.size();
@@ -3320,6 +3412,8 @@ template<class VerifyBoundBody, class ParentBodyAt>
     }
     if(std::count(next.sourceNodeLayerIndices.begin(),next.sourceNodeLayerIndices.end(),0u)!=static_cast<std::ptrdiff_t>(surfaceRows))
         return fail("unpaired labels outer-boundary row count differs from the registered surface");
+    next.massTransferKind=topology.massTransferKind;
+    if(spatialMass)next.massTransferReceiptSHA256=topology.spatialMassTransportResult->receiptSHA256;
     next.ancestryVerificationKind=topology.ancestryVerificationKind;
     next.ancestryVerificationReceiptSHA256=std::string(receipt);
     next.tetrahedronRegionLabels.assign(topology.childDonorBodyIndices.begin(),topology.childDonorBodyIndices.end());
@@ -3397,6 +3491,7 @@ template<class VerifyBoundBody, class ParentBodyAt>
             next.donorBodyAncestry.emplace(donor,std::move(chain));
         }
     }
+    if(!validateRegisteredSkinFatMassTransferLabels(shell,next,error))return false;
     output=std::move(next);error.clear();return true;
 }
 

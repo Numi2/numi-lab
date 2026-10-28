@@ -21693,6 +21693,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::vector<AcceptedSkinTransfer::Point> wholeBodySkinSourceRestByID;
     std::vector<std::uint32_t> wholeBodySkinRequiredSourceIDs;
     WholeBodySkinSourceConsumerRows wholeBodySkinSourceRows;
+    WholeBodySkinSourceConsumerRows wholeBodyFatDeepSourceRows;
+    std::vector<double> wholeBodySkinContactThicknessM,wholeBodyFatContactThicknessM;
+    std::vector<std::uint32_t> wholeBodyDeepAttachmentRows;
     std::vector<std::uint8_t> wholeBodySkinDetailUsed;
     std::vector<std::uint32_t> wholeBodySkinRepresentativeCoarseIndex;
     std::vector<AcceptedSkinTransfer::Pose> wholeBodySkinDonorRestPose;
@@ -22189,12 +22192,17 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     fatLayer.innerWorld.size()==region.worldPoints.size()&&
                     region.faces.size()==kWholeBodySkinFaces.size(),
                 "whole-body accepted boundary render geometry differs from the admitted FEM shell");
+            wholeBodyFatDeepSourceRows=wholeBodySkinSourceRows;
+            wholeBodySkinContactThicknessM=skinThickness;
+            wholeBodyFatContactThicknessM=fatThickness;
             wholeBodySkinInnerRest.reserve(skinLayer.innerWorld.size());
             wholeBodyFatDeepRest.reserve(fatLayer.innerWorld.size());
             for(const auto& point:skinLayer.innerWorld)wholeBodySkinInnerRest.push_back({point[0],point[1],point[2]});
             for(const auto& point:fatLayer.innerWorld)wholeBodyFatDeepRest.push_back({point[0],point[1],point[2]});
             wholeBodySkinBoundaryFaces.reserve(region.faces.size());
             for(const auto& face:region.faces)wholeBodySkinBoundaryFaces.push_back({face[0],face[1],face[2]});
+            wholeBodySkinInnerFaces=wholeBodySkinBoundaryFaces;
+            wholeBodyFatDeepFaces=wholeBodySkinBoundaryFaces;
             require(std::equal(wholeBodySkinBoundaryFaces.begin(),wholeBodySkinBoundaryFaces.end(),
                                kWholeBodySkinFaces.begin(),
                                [](const auto& a,const auto& b){return a[0]==b[0]&&a[1]==b[1]&&a[2]==b[2];}),
@@ -22963,6 +22971,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     shell.femFixedNodes.push_back(deepFatLocal);
                     skinReferenceAnchors.push_back({global,anchor});
                 }
+                wholeBodyDeepAttachmentRows.push_back(localVertex);
                 selected.push_back(region.worldPoints[localVertex]);
                 std::cout<<"whole_body_skin_attachment source_vertex="<<site.sourceVertex
                     <<" donor_body="<<site.donorBody<<" local_vertex="<<localVertex
@@ -24160,10 +24169,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     bones->sourceOwnerBindingsVerified&&
                     skin->bindings.size()==86u&&
                     wholeBodySkinCoarseRest.size()==wholeBodySkinCoarseNodeCount&&
-                    wholeBodyFatDeepRest.size()==wholeBodySkinCoarseNodeCount&&
-                    wholeBodySkinBoundaryFaces.size()==kWholeBodySkinFaces.size()&&
+                    wholeBodyFatDeepRest.size()==wholeBodySkinBoundaryNodeMap.fatDeep.size()&&
+                    !wholeBodySkinBoundaryFaces.empty()&&!wholeBodyFatDeepFaces.empty()&&
+                    wholeBodySkinContactThicknessM.size()==wholeBodySkinCoarseNodeCount&&
+                    wholeBodyFatContactThicknessM.size()==wholeBodyFatDeepRest.size()&&
+                    wholeBodyFatDeepSourceRows.fullBodyWeights86.size()==wholeBodyFatDeepRest.size()&&
                     wholeBodySkinSourceRows.fullBodyWeights86.size()==wholeBodySkinCoarseNodeCount,
-                "skin-bone triangle contact requires the exact retained ABI5 skin and ABI2 bone sources");
+                "skin-bone triangle contact requires exact ABI5 weights, role-local surfaces and ABI2 bone sources");
         using Triangle=NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU;
         using Range=NMNumiHumanFEMBodyContactNeighborhoodRangeGPU;
         namespace neighborhood=numi::matter::fem_body_contact_neighborhood;
@@ -24598,14 +24610,16 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             source.materials[wholeBodySkinMaterialIndex]);
         const double fatYoung=effectiveYoungModulus(
             source.materials[wholeBodyFatMaterialIndex]);
-        std::vector<double> outerArea(nodeCount,0.0),deepArea(nodeCount,0.0);
+        std::vector<double> outerArea(wholeBodySkinCoarseRest.size(),0.0);
+        std::vector<double> deepArea(wholeBodyFatDeepRest.size(),0.0);
         const auto accumulateArea=[&](
             std::span<const std::array<double,3>> points,
+            std::span<const std::array<std::uint32_t,3>> faces,
             std::vector<double>& area) {
-            require(points.size()==nodeCount&&area.size()==nodeCount,
-                    "skin-bone contact layer geometry is misaligned");
-            for(const auto& face:wholeBodySkinBoundaryFaces) {
-                require(face[0]<nodeCount&&face[1]<nodeCount&&face[2]<nodeCount,
+            require(!points.empty()&&area.size()==points.size(),
+                    "skin-bone contact role-local geometry is misaligned");
+            for(const auto& face:faces) {
+                require(face[0]<points.size()&&face[1]<points.size()&&face[2]<points.size(),
                         "skin-bone contact face has an invalid source vertex");
                 const V3 a{points[face[0]][0],points[face[0]][1],points[face[0]][2]};
                 const V3 b{points[face[1]][0],points[face[1]][1],points[face[1]][2]};
@@ -24616,14 +24630,14 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 for(const auto vertex:face)area[vertex]+=faceArea/3.0;
             }
         };
-        accumulateArea(wholeBodySkinCoarseRest,outerArea);
-        accumulateArea(wholeBodyFatDeepRest,deepArea);
+        accumulateArea(wholeBodySkinCoarseRest,wholeBodySkinBoundaryFaces,outerArea);
+        accumulateArea(wholeBodyFatDeepRest,wholeBodyFatDeepFaces,deepArea);
         fasciaBodyContactNeighborhoodRanges.resize(fasciaBodyContactSamples.size());
-        std::vector<std::uint8_t> deepAnchored(nodeCount,0u);
-        for(const auto& site:kWholeBodySkinDeepAttachmentSites) {
-            require(site.reducedVertex<nodeCount&&deepAnchored[site.reducedVertex]==0u,
-                    "skin-bone contact found duplicate or invalid retained deep attachment sites");
-            deepAnchored[site.reducedVertex]=1u;
+        std::vector<std::uint8_t> deepAnchored(wholeBodyFatDeepRest.size(),0u);
+        for(const auto row:wholeBodyDeepAttachmentRows) {
+            require(row<deepAnchored.size()&&deepAnchored[row]==0u,
+                    "skin-bone contact found duplicate or invalid admitted deep attachment rows");
+            deepAnchored[row]=1u;
         }
         std::size_t supportedOuter=0u,supportedDeep=0u;
         std::size_t positiveSupportBodiesWithoutInventory=0u;
@@ -24646,8 +24660,12 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             const auto& tributaryArea=layer==0u?outerArea:deepArea;
             const double young=layer==0u?skinYoung:fatYoung;
             const auto thickness=layer==0u
-                ?std::span<const double>(kWholeBodySkinThicknessM)
-                :std::span<const double>(kWholeBodyFatThicknessM);
+                ?std::span<const double>(wholeBodySkinContactThicknessM)
+                :std::span<const double>(wholeBodyFatContactThicknessM);
+            const auto& sourceRows=layer==0u?wholeBodySkinSourceRows:wholeBodyFatDeepSourceRows;
+            require(points.size()==sourceRows.fullBodyWeights86.size()&&
+                        points.size()==thickness.size()&&points.size()==tributaryArea.size(),
+                    "skin-bone contact role-local weights/thickness/area rows differ");
             std::size_t layerBound=0u,layerUnbound=0u,layerNoInventory=0u;
             std::size_t layerInvalidBankPotentialRows=0u;
             std::size_t layerNeighborhoodFailures=0u,layerNeighborhoodOverflows=0u;
@@ -24657,9 +24675,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             std::string firstNeighborhoodFailure="none";
             std::string firstInvalidBankPotential="none";
             std::string firstMultipleCandidateMasters="none";
-            for(std::size_t row=0u;row<nodeCount;++row) {
+            for(std::size_t row=0u;row<points.size();++row) {
                 if(layer==1u&&deepAnchored[row])continue;
-                const auto& weights=wholeBodySkinSourceRows.fullBodyWeights86[row];
+                const auto& weights=sourceRows.fullBodyWeights86[row];
                 require(weights.size()==skin->bindings.size(),
                         "skin-bone contact full-86 row differs from the candidate binding table");
                 std::vector<std::uint32_t> supportBodies;
@@ -24939,7 +24957,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 <<" motion_envelope_radius_m="<<kMotionEnvelopeRadiusM
                 <<" max_candidate_triangles="<<maximumCandidateCount<<"\n";
         }
-        const std::size_t totalRows=2u*nodeCount-kWholeBodySkinDeepAttachmentSites.size();
+        const std::size_t totalRows=wholeBodySkinCoarseRest.size()+wholeBodyFatDeepRest.size()-wholeBodyDeepAttachmentRows.size();
         const double meanRestDistance=(supportedOuter+supportedDeep)>0u
             ?nearestDistanceSum/static_cast<double>(supportedOuter+supportedDeep):0.0;
         std::cout<<"whole_body_skin_bone_triangle_contact_inventory=audited"

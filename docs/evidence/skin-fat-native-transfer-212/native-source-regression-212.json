@@ -1,0 +1,29 @@
+{
+  "scope": "source-only regression; no replacement volume and no physical steps",
+  "files": {
+    "compiled-parent-cell-mass.csv": {
+      "before_sha256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+      "after_sha256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+      "byte_equal": true
+    },
+    "compiled-parent-cell-mass.csv.nodes.csv": {
+      "before_sha256": "94da76e02d38359e7b5097cad0004cfef63fcf798e45e69aa45f458b82aebd63",
+      "after_sha256": "94da76e02d38359e7b5097cad0004cfef63fcf798e45e69aa45f458b82aebd63",
+      "byte_equal": true
+    },
+    "compiled-parent-cell-mass.csv.tets.csv": {
+      "before_sha256": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+      "after_sha256": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+      "byte_equal": true
+    },
+    "compiled-parent-cell-mass.csv.source.csv": {
+      "before_sha256": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f",
+      "after_sha256": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f",
+      "byte_equal": true
+    }
+  },
+  "contact_diagnostics": [
+    "whole_body_skin_anchor_quality minimum_incident_altitude_m=5.0000000000000002e-05 selected=14 hard_ties=0 elastic_attachments=14 shear_prior_pa=551.72413799999993 ownership=existing_FEM_body_interface inferred_sites=true identities=private_D28_candidate_source; six_stale_hand_sites_omitted"
+  ],
+  "pass": true
+}
