@@ -1,0 +1,18 @@
+{
+  "parent": "752442bdc9c3a87c8e2c1681fff43fc95cbaeddb",
+  "working_head_preserved": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "real_index_sha256_preserved": "9669f65dd401ac52bbf51d4e4059998658c23774109ed6f1b591236ecb300b2f",
+  "host": "ssh numi",
+  "physical_admission": false,
+  "physical_steps": 0,
+  "source_sha256": {
+    "apps/NumiHumanConservativeSpatialMassTransport.hpp": "617f760e5ec997ce6191eda64331cef342057af9c59a0620f7552140d6ad7640",
+    "apps/NumiHumanConservativeSpatialMassTransportCheck.cpp": "0923ee1ca4651d4af4a4b08a191605a5d386bed1f89388d7ed9d38150d5e431d",
+    "docs/evidence/physical-skin-mass-spatial-witness-301/README.md": "0a07b5152dfe404b821910da72f4c7fd1d0f4a18c187e688b01f2798c088751d",
+    "docs/evidence/physical-skin-mass-spatial-witness-301/check.log": "c7a1e78bdd135b3c19a1f585992ad5be4aa8cae2ccc73650779ce334c7a5c9ec",
+    "docs/evidence/physical-skin-mass-spatial-witness-301/actual-coarse-preflight.log": "6b6869bf96715dbb809534c524c8cea87e7cc649a70e763d4aa3e97a06ffea9e",
+    "docs/evidence/physical-skin-mass-spatial-witness-301/actual-coarse-preflight-receipt.json": "f39383cc316c0e2e0afaff42adacf42678069a220fea50149b1eba75fef692cd"
+  },
+  "check_binary_sha256": "ab73b02820c16b5e4299e23a79b0bdd7feb35f582d494baad5e0a992c6caa06f",
+  "cli_binary_sha256": "a68081be85464352c00841f5715bad2c8c873e6215d2381814e4eed4a9d23f89"
+}

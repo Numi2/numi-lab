@@ -341,6 +341,27 @@ int main() {
             return 14;
         }
 
+    // Total group capacity can be valid while a spatial component has too
+    // little supply for its density floor. Keep that partition in the failure
+    // witness and leave the prior accepted result unchanged.
+    auto disconnected = fixtureInput();
+    const std::vector<double> disconnectedVolumes{1.2e-6,0.8e-6,1.0e-6,1.0e-6};
+    disconnected.childReferenceVolumeM3 = disconnectedVolumes;
+    disconnected.maximumTransportDistanceM = 0.001;
+    auto untouched = result;
+    const auto previousReceipt = untouched.receiptSHA256;
+    if (assembleConservativeSpatialMassTransport(disconnected,untouched,error) ||
+        error.find("same-material/donor/region and distance bounds") == std::string::npos ||
+        error.find("material=15 donor=2 region=101") == std::string::npos ||
+        error.find("supply_kg=") == std::string::npos ||
+        error.find("sent_kg=") == std::string::npos ||
+        error.find("distance_m=0.001") == std::string::npos ||
+        untouched.receiptSHA256 != previousReceipt ||
+        untouched.childMassKg != result.childMassKg) {
+        std::cerr << "infeasible spatial partition lost its witness or mutated output: " << error << '\n';
+        return 19;
+    }
+
     std::cout << "conservative spatial mass transport PASS"
               << " cells=4 edges=" << result.transportEdgeCount
               << " groups=" << result.groupClosure.size()

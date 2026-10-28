@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/mass-group-witness-301/cli",
+    "--parent-mass-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-layer-capture-256/run-001/compiled-parent-cell-mass.csv",
+    "--labels-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-layer-capture-256/run-001/compiled-parent-cell-mass.csv.labels.csv",
+    "--child-node-file",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/coarse-transfer-mass-assets-299/mesh.node",
+    "--child-ele-file",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/coarse-transfer-mass-assets-299/mesh.ele",
+    "--child-labels-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/coarse-transfer-mass-assets-299/labels.csv",
+    "--coordinate-frame-sha256",
+    "eb2ae08f74852f08d5b08a18f3d7738b53b8e7265336f77646cbe8f949ece117",
+    "--source-body-count",
+    "157",
+    "--maximum-transport-distance-m",
+    "0.02"
+  ],
+  "exit_code": 6,
+  "elapsed_s": 15.57406216696836,
+  "physical_admission": false,
+  "native_steps": 0,
+  "binary_sha256": "a68081be85464352c00841f5715bad2c8c873e6215d2381814e4eed4a9d23f89"
+}

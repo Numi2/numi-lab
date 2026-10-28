@@ -12,6 +12,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <iomanip>
+#include <sstream>
 #include <map>
 #include <queue>
 #include <set>
@@ -735,6 +737,22 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
     std::size_t allCandidateEdges = 0u;
     const double radiusSquared = in.maximumTransportDistanceM * in.maximumTransportDistanceM;
     for (const auto& [group, parentRows] : parentsByGroup) {
+        // A failed preparation must retain the exact conservation partition.
+        // This is diagnostic context only; capacities and policy are unchanged.
+        const auto groupWitness = [&](const double supply, const double minimum,
+                const double maximum, const double sent) {
+            std::ostringstream context;
+            context << std::setprecision(17)
+                << " [material=" << std::get<0>(group)
+                << " donor=" << std::get<1>(group)
+                << " region=" << std::get<2>(group)
+                << " parent_rows=" << parentRows.size()
+                << " child_rows=" << childrenByGroup.at(group).size()
+                << " supply_kg=" << supply << " sent_kg=" << sent
+                << " child_min_kg=" << minimum << " child_max_kg=" << maximum
+                << " distance_m=" << in.maximumTransportDistanceM << ']';
+            return context.str();
+        };
         const auto& childRows = childrenByGroup[group];
         long double supplyLong = 0.0L, minimumLong = 0.0L, maximumLong = 0.0L;
         for (const auto p : parentRows) supplyLong += in.parentMassKg[p];
@@ -749,7 +767,8 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
         const double maximum = static_cast<double>(maximumLong);
         if (!std::isfinite(supply) || !std::isfinite(minimum) || !std::isfinite(maximum) ||
             supply < minimum || supply > maximum)
-            return fail("spatial transport parent supply is outside child volume times actual material density bounds for material/donor/region group");
+            return fail("spatial transport parent supply is outside child volume times actual material density bounds for material/donor/region group" +
+                groupWitness(supply,minimum,maximum,0.0));
 
         struct ParentCandidates {
             std::uint32_t parent = 0u;
@@ -848,7 +867,8 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
         next.augmentationCount += augmentations;
         if (std::abs(sent - supply) >
             std::max(in.absoluteMassToleranceKg, in.relativeClosureTolerance * supply))
-            return fail("spatial transport is infeasible under same-material/donor/region and distance bounds");
+            return fail("spatial transport is infeasible under same-material/donor/region and distance bounds" +
+                groupWitness(supply,minimum,maximum,sent));
 
         double groupOutputMass = 0.0;
         for (const auto& reference : references) {

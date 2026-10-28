@@ -1,0 +1,1 @@
+conservative spatial mass transport PASS cells=4 edges=4 groups=2 min_cost_distance_m=0.0001 parent_mass_closure_kg=0 parent_measure_closure_m3=0 source_donor_closure_kg=0 density_range_kg_m3=900:1000 receipt_sha256=9e7a09107d50412732551462b9eb7dae7dcd8d39e0f5180078d13a2eb3163c96
