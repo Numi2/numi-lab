@@ -428,6 +428,10 @@ struct PhysicalSkinChildMassMappingBundle {
     std::vector<std::array<double,9>> registeredBodyLocalToWorldLinear;
     std::vector<V3> registeredBodyOriginWorld;
     std::size_t detailedSourceVertexCount=0u,detailedSourceFaceCount=0u;
+    // Typed source namespaces preserve mixed O/I/D ancestry without treating
+    // role-local IDs as one canonical detailed payload index space.
+    std::vector<PhysicalSkinSourceDomainRegistration> sourceDomains;
+    std::vector<std::uint32_t> volumeNodeSourceDomainIndices;
     std::vector<std::uint32_t> volumeNodeSourceVertexIndices,volumeNodeSourceFaceIndices;
     std::vector<std::array<double,3>> volumeNodeSourceBarycentric;
     std::size_t retainedOriginalNodeCount=0u;
@@ -476,6 +480,8 @@ struct PhysicalSkinChildMassMappingBundle {
         topology.registeredBodyOriginWorld=registeredBodyOriginWorld;
         topology.detailedSourceVertexCount=detailedSourceVertexCount;
         topology.detailedSourceFaceCount=detailedSourceFaceCount;
+        topology.sourceDomains=sourceDomains;
+        topology.volumeNodeSourceDomainIndices=volumeNodeSourceDomainIndices;
         topology.volumeNodeSourceVertexIndices=volumeNodeSourceVertexIndices;
         topology.volumeNodeSourceFaceIndices=volumeNodeSourceFaceIndices;
         topology.volumeNodeSourceBarycentric=volumeNodeSourceBarycentric;

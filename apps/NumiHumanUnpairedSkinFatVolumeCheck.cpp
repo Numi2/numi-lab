@@ -1177,6 +1177,51 @@ int main() {
     assert(labels.sourceNodeLayerIndices.empty());
     deep.sourceFaceIndices=std::move(savedDeepFaceIds);
 
+    Fixture typedIndependent;RegisteredSurface typedInner,typedDeep;
+    independentInnerFixture(typedIndependent,typedInner,typedDeep);
+    typedIndependent.topology.independentSkinInnerSurface=&typedInner;
+    typedIndependent.topology.independentFatDeepSurface=&typedDeep;
+    const std::vector<PhysicalSkinSourceDomainRegistration> typedDomains{
+        {"fixture-detail",PhysicalSkinSourceDomainRole::outerSurface,std::string(64,'a'),6u,8u},
+        {"fixture-detail",PhysicalSkinSourceDomainRole::innerSurface,std::string(64,'b'),6u,8u},
+        {"fixture-detail",PhysicalSkinSourceDomainRole::deepSurface,std::string(64,'c'),6u,8u}};
+    typedIndependent.surface.sourceDomainIndices.assign(typedIndependent.surface.worldPoints.size(),0u);
+    typedInner.sourceDomainIndices.assign(typedInner.worldPoints.size(),1u);
+    typedDeep.sourceDomainIndices.assign(typedDeep.worldPoints.size(),2u);
+    std::vector<std::uint32_t> typedNodeDomains(typedIndependent.current.size(),kInvalid);
+    for(const auto node:typedIndependent.boundary.outer)typedNodeDomains[node]=0u;
+    for(const auto node:typedIndependent.boundary.skinInner)typedNodeDomains[node]=1u;
+    for(const auto node:typedIndependent.boundary.fatDeep)typedNodeDomains[node]=2u;
+    typedIndependent.topology.sourceDomains=typedDomains;
+    typedIndependent.topology.volumeNodeSourceDomainIndices=typedNodeDomains;
+    typedIndependent.topology.volumeNodeSourceVertexIndices=typedIndependent.sourceVertex;
+    typedIndependent.topology.volumeNodeSourceFaceIndices=typedIndependent.sourceFace;
+    typedIndependent.topology.volumeNodeSourceBarycentric=typedIndependent.sourceBary;
+    typedIndependent.topology.detailedSourceVertexCount=0u;
+    typedIndependent.topology.detailedSourceFaceCount=0u;
+    auto typedWorld=worldFor();
+    if(!emit(typedIndependent,typedWorld,report,error)){std::cerr<<"typed independent source domains: "<<error;return 3;}
+    auto typedLabels=RegisteredSkinFatReductionSourceLabels{};
+    const auto verifyTypedBinding=[](std::uint32_t domain,std::uint32_t vertex,std::uint32_t face,
+            const std::array<double,3>& bary,std::uint32_t donor){
+        return domain<3u&&donor==0u&&((vertex!=kInvalid&&face==kInvalid)||
+            (vertex==kInvalid&&face==0u&&std::abs(bary[0]+bary[1]+bary[2]-1.0)<1.0e-12));
+    };
+    assert(buildRegisteredSkinFatUnpairedReductionSourceLabels(typedIndependent.surface,
+        typedWorld.objects.front(),typedIndependent.boundary,typedIndependent.topology,1u,
+        [](std::uint32_t,std::uint32_t){return true;},[](std::uint32_t){return kInvalid;},
+        typedLabels,error,36u,[](std::uint32_t,std::uint32_t){return true;},nullptr,verifyTypedBinding));
+    assert(typedLabels.sourceDomains==typedDomains&&typedLabels.sourceDomainFingerprint!=0u);
+    assert(typedLabels.sourceNodeSourceDomainIndices.size()==typedIndependent.current.size());
+    assert(typedLabels.sourceNodeSourceDomainIndices[18]==kInvalid);
+    const auto rejectTypedBinding=[](std::uint32_t,std::uint32_t,std::uint32_t,
+            const std::array<double,3>&,std::uint32_t){return false;};
+    assert(!buildRegisteredSkinFatUnpairedReductionSourceLabels(typedIndependent.surface,
+        typedWorld.objects.front(),typedIndependent.boundary,typedIndependent.topology,1u,
+        [](std::uint32_t,std::uint32_t){return true;},[](std::uint32_t){return kInvalid;},
+        typedLabels,error,36u,[](std::uint32_t,std::uint32_t){return true;},nullptr,rejectTypedBinding));
+    assert(typedLabels.sourceNodeLayerIndices.empty());
+
     // Runtime compilation is covered by the separate owner integration receipt.\n    // Mismatched independent contracts must fail before source/density mutation.
     inner.sourceEmbeddingBarycentric.back()={.1,.1,.1};
     auto badIndependentBaryWorld=worldFor();

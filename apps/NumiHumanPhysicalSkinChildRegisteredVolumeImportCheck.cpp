@@ -159,6 +159,69 @@ int main() {
     assert(report.oneSourceDomain&&report.canonicalDetailedSourceMapPopulated);
     assert(report.sourceIdentityRows==9u);
     assert(rows[9].donorBody==156u&&rows[9].donorBinding==NM_INVALID_INDEX);
+    const std::vector<PhysicalSkinSourceDomainRegistration> typedDomains{
+        {"fixture-detail",PhysicalSkinSourceDomainRole::outerSurface,std::string(64,'1'),9u,16u},
+        {"fixture-detail",PhysicalSkinSourceDomainRole::innerSurface,std::string(64,'2'),9u,16u},
+        {"fixture-detail",PhysicalSkinSourceDomainRole::deepSurface,std::string(64,'3'),9u,16u}};
+    auto typedBundle=inputBundle;
+    PhysicalSkinRegisteredVolumeImportSidecars typedSidecars;
+    PhysicalSkinRegisteredVolumeImportReport typedReport;
+    std::string typedError;
+    if(!compilePhysicalSkinRegisteredVolumeImport(typedBundle,registered,rows,attachments,allBodyPoses,157u,0.1,
+        "",0u,0u,typedSidecars,typedReport,typedError,std::span<const PhysicalSkinSourceDomainRegistration>(typedDomains))){
+        std::cerr<<"typed mixed source import failed: "<<typedError<<std::endl;return 3;
+    }
+    assert(typedReport.typedSourceDomainMapPopulated&&!typedReport.canonicalDetailedSourceMapPopulated);
+    assert(!typedReport.oneSourceDomain&&typedReport.sourceDomainCount==3u);
+    assert(typedBundle.detailedSourceVertexCount==0u&&typedBundle.detailedSourceFaceCount==0u);
+    assert(typedBundle.volumeNodeSourceDomainIndices[0]==0u&&
+           typedBundle.volumeNodeSourceDomainIndices[3]==1u&&
+           typedBundle.volumeNodeSourceDomainIndices[6]==2u&&
+           typedBundle.volumeNodeSourceDomainIndices[9]==NM_INVALID_INDEX);
+    assert(typedBundle.outerSkin.sourceDomainIndices==std::vector<std::uint32_t>({0u,0u,0u}));
+    assert(typedBundle.independentSkinInner.sourceDomainIndices==std::vector<std::uint32_t>({1u,1u,1u}));
+    assert(typedBundle.independentFatDeep.sourceDomainIndices==std::vector<std::uint32_t>({2u,2u,2u}));
+    auto typedTopology=typedBundle.topologyView();
+    assert(validatePhysicalSkinSourceDomains(typedBundle.outerSkin,typedTopology,typedError));
+    const auto rejectsTyped=[&](const std::vector<PhysicalSkinRegisteredVolumeNodeRow>& badRows,
+            const std::vector<PhysicalSkinSourceDomainRegistration>& badDomains,
+            const std::string& expected){
+        auto badBundle=inputBundle;PhysicalSkinRegisteredVolumeImportSidecars badSidecars;
+        PhysicalSkinRegisteredVolumeImportReport badReport;std::string badError;
+        const bool accepted=compilePhysicalSkinRegisteredVolumeImport(badBundle,registered,badRows,attachments,
+            allBodyPoses,157u,0.1,"",0u,0u,badSidecars,badReport,badError,
+            std::span<const PhysicalSkinSourceDomainRegistration>(badDomains));
+        assert(!accepted);
+        if(badError.find(expected)==std::string::npos){
+            std::cerr<<"expected typed rejection: "<<expected<<" got: "<<badError<<std::endl;std::abort();
+        }
+    };
+    auto missingRoleDomains=typedDomains;missingRoleDomains.erase(missingRoleDomains.begin()+1);
+    rejectsTyped(rows,missingRoleDomains,"not pinned");
+    auto duplicateRoleDomains=typedDomains;duplicateRoleDomains.push_back(typedDomains.front());
+    rejectsTyped(rows,duplicateRoleDomains,"absent, duplicated, or ambiguous");
+    auto wrongHashDomains=typedDomains;wrongHashDomains[0].sourceSHA256[2]='g';
+    rejectsTyped(rows,wrongHashDomains,"invalid, unpinned, empty, or duplicate");
+    auto shortDomains=typedDomains;shortDomains[2].vertexCount=8u;
+    rejectsTyped(rows,shortDomains,"exceeds its pinned namespace");
+    auto fabricatedInterior=rows;fabricatedInterior[9].sourceDomain="fixture-detail";
+    fabricatedInterior[9].sourceMappingKind="vertex";fabricatedInterior[9].sourceVertex=0u;
+    rejectsTyped(fabricatedInterior,typedDomains,"interior node must carry explicit no-surface-ancestry");
+    auto mixedCanonicalBundle=inputBundle;PhysicalSkinRegisteredVolumeImportSidecars mixedCanonicalSidecars;
+    PhysicalSkinRegisteredVolumeImportReport mixedCanonicalReport;std::string mixedCanonicalError;
+    assert(!compilePhysicalSkinRegisteredVolumeImport(mixedCanonicalBundle,registered,rows,attachments,
+        allBodyPoses,157u,0.1,"fixture-detail",9u,16u,mixedCanonicalSidecars,mixedCanonicalReport,
+        mixedCanonicalError,std::span<const PhysicalSkinSourceDomainRegistration>(typedDomains)));
+    assert(mixedCanonicalError.find("cannot be mixed")!=std::string::npos);
+    auto wrongRoleBundle=typedBundle;wrongRoleBundle.independentFatDeep.sourceDomainIndices[0]=1u;
+    auto wrongRoleTopology=wrongRoleBundle.topologyView();
+    assert(!validatePhysicalSkinSourceDomains(wrongRoleBundle.outerSkin,wrongRoleTopology,typedError));
+    auto wrongBoundsBundle=typedBundle;wrongBoundsBundle.sourceDomains[2].vertexCount=8u;
+    auto wrongBoundsTopology=wrongBoundsBundle.topologyView();
+    assert(!validatePhysicalSkinSourceDomains(wrongBoundsBundle.outerSkin,wrongBoundsTopology,typedError));
+    auto missingNamespaceBundle=typedBundle;missingNamespaceBundle.volumeNodeSourceDomainIndices.clear();
+    auto missingNamespaceTopology=missingNamespaceBundle.topologyView();
+    assert(!validatePhysicalSkinSourceDomains(missingNamespaceBundle.outerSkin,missingNamespaceTopology,typedError));
     assert(rows[3].incidentMaterialMask==((1u<<15u)|(1u<<16u)));
 
     auto loadedTetGenBundle=inputBundle;

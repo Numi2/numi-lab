@@ -100,6 +100,8 @@ struct ExplicitUnpairedVolumeTopology {
     std::span<const V3> registeredBodyOriginWorld;
     std::size_t detailedSourceVertexCount=0;
     std::size_t detailedSourceFaceCount=0;
+    std::span<const PhysicalSkinSourceDomainRegistration> sourceDomains;
+    std::span<const std::uint32_t> volumeNodeSourceDomainIndices;
     std::span<const std::uint32_t> volumeNodeSourceVertexIndices;
     // Detailed-skin ancestry is distinct from parent-volume ancestry. Direct
     // source vertices use INVALID face IDs; projected rows provide face+bary.
@@ -123,6 +125,105 @@ struct ExplicitUnpairedVolumeTopology {
     std::array<std::uint64_t,4> referenceSourceIdentity{};
     std::array<std::uint64_t,4> materialSourceIdentity{};
 };
+
+// Shared namespace validator used by both volume admission and reduction-label
+// construction. An empty registry is the legacy canonical path; mixed domains
+// require complete pinned namespace metadata and never use canonical counts.
+[[nodiscard]] inline bool validatePhysicalSkinSourceDomains(
+        const RegisteredSurface& outer,const ExplicitUnpairedVolumeTopology& topology,
+        std::string& error) {
+    const auto fail=[&](std::string message){error=std::move(message);return false;};
+    const std::size_t nodeCount=topology.currentWorldPoints.size();
+    const std::array<const RegisteredSurface*,3> surfaces{
+        &outer,topology.independentSkinInnerSurface?topology.independentSkinInnerSurface:&outer,
+        topology.independentFatDeepSurface?topology.independentFatDeepSurface:&outer};
+    const bool anySurfaceDomains=std::any_of(surfaces.begin(),surfaces.end(),[](const auto* layer){
+        return !layer->sourceDomainIndices.empty();
+    });
+    const bool anyTyped=!topology.sourceDomains.empty()||
+        !topology.volumeNodeSourceDomainIndices.empty()||anySurfaceDomains;
+    if(!anyTyped){error.clear();return true;}
+    if(topology.sourceDomains.empty()||topology.sourceDomains.size()>std::numeric_limits<std::uint32_t>::max()||
+       topology.volumeNodeSourceDomainIndices.size()!=nodeCount||
+       topology.volumeNodeSourceVertexIndices.size()!=nodeCount||
+       topology.volumeNodeSourceFaceIndices.size()!=nodeCount||
+       topology.volumeNodeSourceBarycentric.size()!=nodeCount||
+       topology.detailedSourceVertexCount!=0u||topology.detailedSourceFaceCount!=0u)
+        return fail("typed source namespaces require complete per-node rows and zero canonical detail counts");
+    std::set<std::pair<std::string,std::uint8_t>> keys;
+    for(const auto& domain:topology.sourceDomains){
+        const auto role=static_cast<std::uint8_t>(domain.role);
+        if(domain.domain.empty()||role>3u||!validPhysicalSkinSourceDomainSHA256(domain.sourceSHA256)||
+           domain.vertexCount==0u||domain.faceCount==0u||
+           !keys.emplace(domain.domain,role).second)
+            return fail("typed source registry has an invalid, unpinned, empty, or duplicate role namespace");
+    }
+    const auto expectedRole=[](unsigned role){
+        return static_cast<PhysicalSkinSourceDomainRole>(role+1u);
+    };
+    for(unsigned role=0;role<3u;++role){
+        const auto& layer=*surfaces[role];
+        const std::size_t count=layer.worldPoints.size();
+        if(count==0u||layer.sourceDomainIndices.size()!=count||
+           layer.sourceVertexIndices.size()!=count||
+           (!layer.sourceEmbeddingFaceIndices.empty()&&layer.sourceEmbeddingFaceIndices.size()!=count)||
+           (!layer.sourceEmbeddingBarycentric.empty()&&layer.sourceEmbeddingBarycentric.size()!=count))
+            return fail("typed registered surface lacks one source namespace and source identity per node");
+        if(layer.sourceEmbeddingFaceIndices.empty()!=layer.sourceEmbeddingBarycentric.empty())
+            return fail("typed registered surface face and barycentric rows are incomplete");
+        if(!layer.sourceEmbeddingResidualWorldM.empty()&&layer.sourceEmbeddingResidualWorldM.size()!=count)
+            return fail("typed registered surface source residual rows are incomplete");
+        for(std::size_t row=0;row<count;++row){
+            const auto domainIndex=layer.sourceDomainIndices[row];
+            if(domainIndex>=topology.sourceDomains.size())
+                return fail("typed registered surface references an absent source namespace");
+            const auto& domain=topology.sourceDomains[domainIndex];
+            if(domain.role!=expectedRole(role)&&domain.role!=PhysicalSkinSourceDomainRole::detailedPayload)
+                return fail("typed registered surface source namespace has the wrong anatomical role");
+            const auto direct=layer.sourceVertexIndices[row];
+            const auto face=layer.sourceEmbeddingFaceIndices.empty()?NM_INVALID_INDEX:
+                layer.sourceEmbeddingFaceIndices[row];
+            if((direct==NM_INVALID_INDEX)==(face==NM_INVALID_INDEX))
+                return fail("typed registered surface node needs exactly one direct or face source identity");
+            if(direct!=NM_INVALID_INDEX){
+                if(direct>=domain.vertexCount)return fail("typed registered surface vertex ID exceeds its pinned namespace");
+                if(!layer.sourceEmbeddingBarycentric.empty()&&
+                   layer.sourceEmbeddingBarycentric[row]!=std::array<double,3>{})
+                    return fail("direct typed registered source vertex has nonzero barycentric placeholders");
+            }else{
+                if(face>=domain.faceCount)return fail("typed registered surface face ID exceeds its pinned namespace");
+                if(!validateBarycentricCoordinates(layer.sourceEmbeddingBarycentric[row],error))return false;
+            }
+            if(!layer.sourceEmbeddingResidualWorldM.empty()&&
+               !std::all_of(layer.sourceEmbeddingResidualWorldM[row].begin(),
+                            layer.sourceEmbeddingResidualWorldM[row].end(),[](double x){return std::isfinite(x);}))
+                return fail("typed registered surface source residual is nonfinite");
+        }
+    }
+    for(std::size_t node=0;node<nodeCount;++node){
+        const auto domainIndex=topology.volumeNodeSourceDomainIndices[node];
+        const auto direct=topology.volumeNodeSourceVertexIndices[node];
+        const auto face=topology.volumeNodeSourceFaceIndices[node];
+        const auto& bary=topology.volumeNodeSourceBarycentric[node];
+        if(domainIndex==NM_INVALID_INDEX){
+            if(direct!=NM_INVALID_INDEX||face!=NM_INVALID_INDEX||bary!=std::array<double,3>{})
+                return fail("source-free typed volume node carries direct, face, or barycentric ancestry");
+            continue;
+        }
+        if(domainIndex>=topology.sourceDomains.size())
+            return fail("typed volume node references an absent source namespace");
+        const auto& domain=topology.sourceDomains[domainIndex];
+        if((direct==NM_INVALID_INDEX)==(face==NM_INVALID_INDEX))
+            return fail("typed volume node needs exactly one direct or face source identity");
+        if(direct!=NM_INVALID_INDEX){
+            if(direct>=domain.vertexCount||bary!=std::array<double,3>{})
+                return fail("typed volume direct source ID or barycentric placeholder is invalid");
+        }else if(face>=domain.faceCount||!validateBarycentricCoordinates(bary,error)){
+            return fail("typed volume source face ID or barycentric embedding is invalid");
+        }
+    }
+    error.clear();return true;
+}
 
 struct ExplicitUnpairedVolumeDonorMassClosure {
     std::uint32_t materialIndex=NM_INVALID_INDEX;
@@ -216,6 +317,9 @@ struct ExplicitUnpairedVolumeReport {
     const auto invalid=NM_INVALID_INDEX;
     const std::size_t n=topology.currentWorldPoints.size();
     const std::size_t nt=topology.childTetrahedra.size();
+    const bool typedSourceDomains=!topology.sourceDomains.empty();
+    if(!validatePhysicalSkinSourceDomains(surface,topology,error))
+        return fail("unpaired source-domain validation failed: "+error);
     if(n<4u||n>std::numeric_limits<std::uint32_t>::max()||nt==0u||nt>kMaxUnpairedTets||
        topology.volumeNodeDonorBodyIndices.size()!=n||topology.volumeNodeDonorLocalPoints.size()!=n||
        topology.volumeNodeDonorLocalToWorldLinear.size()!=n||topology.volumeNodeDonorOriginWorld.size()!=n||
@@ -224,7 +328,8 @@ struct ExplicitUnpairedVolumeReport {
        (!topology.volumeNodeSourceFaceIndices.empty()&&topology.volumeNodeSourceFaceIndices.size()!=n)||
        (!topology.volumeNodeSourceBarycentric.empty()&&topology.volumeNodeSourceBarycentric.size()!=n)||
        (topology.volumeNodeSourceFaceIndices.empty()!=topology.volumeNodeSourceBarycentric.empty())||
-       topology.detailedSourceVertexCount==0u||topology.detailedSourceFaceCount==0u||
+       (!typedSourceDomains&&(topology.detailedSourceVertexCount==0u||topology.detailedSourceFaceCount==0u))||
+       (typedSourceDomains&&(topology.detailedSourceVertexCount!=0u||topology.detailedSourceFaceCount!=0u))||
        topology.childMaterialIndices.size()!=nt||topology.childDominantParentTetrahedra.size()!=nt||
        topology.childParentSurfaceFaces.size()!=nt||topology.childStableSourceFaceIdentities.size()!=nt||
        topology.childDonorBodyIndices.size()!=nt||surface.worldPoints.empty()||surface.faces.empty()||
@@ -259,7 +364,7 @@ struct ExplicitUnpairedVolumeReport {
                [&](auto id){return id==invalid;}))
             return fail("independent registered layer lacks exact source-face ancestry identities");
     }
-    if(independent)for(unsigned role=1u;role<3u;++role)
+    if(independent&&!typedSourceDomains)for(unsigned role=1u;role<3u;++role)
         if(!validateRegisteredSourceEmbedding(*roleSurfaces[role],topology.detailedSourceFaceCount,error))
             return false;
     if(boundaryMap.volumeNodeCount!=n)
@@ -380,14 +485,16 @@ struct ExplicitUnpairedVolumeReport {
             transformed[a]+=rotation[3u*a+b]*topology.volumeNodeDonorLocalPoints[i][b];
         if(norm(sub(transformed,current[i]))>1.0e-7)
             return fail("unpaired volume node donor-local point does not reproduce its current world coordinate at row "+std::to_string(i));
-        if(!topology.volumeNodeSourceVertexIndices.empty()&&topology.volumeNodeSourceVertexIndices[i]!=invalid&&
-           topology.volumeNodeSourceVertexIndices[i]>=topology.detailedSourceVertexCount)
-            return fail("unpaired volume node direct detailed-source identity is out of range at row "+std::to_string(i));
-        if(!topology.volumeNodeSourceFaceIndices.empty()&&topology.volumeNodeSourceFaceIndices[i]!=invalid){
-            if(topology.volumeNodeSourceFaceIndices[i]>=topology.detailedSourceFaceCount)
-                return fail("unpaired volume node detailed-source face identity is out of range at row "+std::to_string(i));
-            std::string baryError;if(!validateBarycentricCoordinates(topology.volumeNodeSourceBarycentric[i],baryError))
-                return fail("unpaired volume node detailed-source embedding is invalid at row "+std::to_string(i));
+        if(!typedSourceDomains){
+            if(!topology.volumeNodeSourceVertexIndices.empty()&&topology.volumeNodeSourceVertexIndices[i]!=invalid&&
+               topology.volumeNodeSourceVertexIndices[i]>=topology.detailedSourceVertexCount)
+                return fail("unpaired volume node direct detailed-source identity is out of range at row "+std::to_string(i));
+            if(!topology.volumeNodeSourceFaceIndices.empty()&&topology.volumeNodeSourceFaceIndices[i]!=invalid){
+                if(topology.volumeNodeSourceFaceIndices[i]>=topology.detailedSourceFaceCount)
+                    return fail("unpaired volume node detailed-source face identity is out of range at row "+std::to_string(i));
+                std::string baryError;if(!validateBarycentricCoordinates(topology.volumeNodeSourceBarycentric[i],baryError))
+                    return fail("unpaired volume node detailed-source embedding is invalid at row "+std::to_string(i));
+            }
         }
         if(i<topology.retainedOriginalNodeCount){
             if(topology.volumeNodeParentTetrahedra[i]!=invalid)
@@ -428,6 +535,18 @@ struct ExplicitUnpairedVolumeReport {
             if(volumeNodeLayer[node]!=invalid)
                 return fail("unpaired skin/fat boundary map aliases a volume node across surface roles");
             volumeNodeLayer[node]=role;volumeNodeSurfaceRow[node]=static_cast<std::uint32_t>(row);
+            if(typedSourceDomains){
+                if(topology.volumeNodeSourceDomainIndices[node]!=layer.sourceDomainIndices[row]||
+                   topology.volumeNodeSourceVertexIndices[node]!=layer.sourceVertexIndices[row])
+                    return fail("unpaired boundary source namespace or direct identity differs from its registered surface row");
+                const auto surfaceFace=layer.sourceEmbeddingFaceIndices.empty()?invalid:
+                    layer.sourceEmbeddingFaceIndices[row];
+                const auto volumeFace=topology.volumeNodeSourceFaceIndices[node];
+                const auto surfaceBary=layer.sourceEmbeddingBarycentric.empty()?std::array<double,3>{}:
+                    layer.sourceEmbeddingBarycentric[row];
+                if(volumeFace!=surfaceFace||topology.volumeNodeSourceBarycentric[node]!=surfaceBary)
+                    return fail("unpaired boundary source face/barycentric identity differs from its registered surface row");
+            }
             if(topology.volumeNodeDonorBodyIndices[node]!=layer.donorBodyIndices[row])
                 return fail("unpaired skin/fat mapped boundary donor differs from RegisteredSurface at row "+std::to_string(row));
             if(independent&&role!=0u&&
@@ -462,6 +581,9 @@ struct ExplicitUnpairedVolumeReport {
     for(const auto& counts:roleNodeByFace)
         if(std::any_of(counts.begin(),counts.end(),[](auto count){return count!=1u;}))
             return fail("unpaired skin/fat surface-row map is not one-to-one within a boundary layer");
+    if(typedSourceDomains)for(std::size_t node=0;node<n;++node)
+        if(volumeNodeLayer[node]==invalid&&topology.volumeNodeSourceDomainIndices[node]!=invalid)
+            return fail("unpaired interior volume node claims registered surface ancestry");
 
     std::array<std::map<Face,std::uint32_t>,3> registeredFaceByKey;
     for(unsigned role=0;role<3u;++role){

@@ -2399,11 +2399,13 @@ if(BUILD_TESTING)
 endif()
 
 # Narrow current-pose registered O/I/D volume import and exact TetGen-node map.
-foreach(_check IN ITEMS registered-volume-import registered-volume-csv registered-facet-maps)
+foreach(_check IN ITEMS registered-volume-import registered-volume-csv registered-facet-maps registered-volume-integration)
     if(_check STREQUAL "registered-volume-import")
         set(_source apps/NumiHumanPhysicalSkinChildRegisteredVolumeImportCheck.cpp)
     elseif(_check STREQUAL "registered-volume-csv")
         set(_source apps/NumiHumanPhysicalSkinChildRegisteredVolumeCSVCheck.cpp)
+    elseif(_check STREQUAL "registered-volume-integration")
+        set(_source apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp)
     else()
         set(_source apps/NumiHumanPhysicalSkinChildRegisteredFacetMapsCheck.cpp)
     endif()
@@ -2419,6 +2421,20 @@ foreach(_check IN ITEMS registered-volume-import registered-volume-csv registere
             COMMAND numi-human-physical-skin-${_check}-check)
     endif()
 endforeach()
+
+add_executable(numi-human-skin-fat-reduction-labels-check EXCLUDE_FROM_ALL
+    apps/NumiHumanSkinFatReductionLabelsCheck.cpp)
+target_include_directories(numi-human-skin-fat-reduction-labels-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+target_compile_features(numi-human-skin-fat-reduction-labels-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-skin-fat-reduction-labels-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+target_link_libraries(numi-human-skin-fat-reduction-labels-check PRIVATE metalrobo)
+if(BUILD_TESTING)
+    add_test(NAME numi_human_skin_fat_reduction_labels
+        COMMAND numi-human-skin-fat-reduction-labels-check)
+endif()
 
 add_executable(numi-human-physical-skin-child-mass-mapping-cli EXCLUDE_FROM_ALL
     apps/NumiHumanPhysicalSkinChildMassMappingCLI.cpp)

@@ -55,6 +55,53 @@ inline bool coplanarTriangleOverlap(const std::array<V3,3>& a,const Face& ia,
     return false;
 }
 
+enum class PhysicalSkinSourceDomainRole : std::uint8_t {
+    detailedPayload=0, outerSurface=1, innerSurface=2, deepSurface=3
+};
+
+// A pinned source namespace for source vertex/face IDs. The role is part of
+// the key because the same textual domain may use different I and D row IDs.
+struct PhysicalSkinSourceDomainRegistration {
+    std::string domain;
+    PhysicalSkinSourceDomainRole role=PhysicalSkinSourceDomainRole::detailedPayload;
+    std::string sourceSHA256;
+    std::uint32_t vertexCount=0u,faceCount=0u;
+    friend bool operator==(const PhysicalSkinSourceDomainRegistration&,
+                           const PhysicalSkinSourceDomainRegistration&)=default;
+};
+
+inline bool validPhysicalSkinSourceDomainSHA256(std::string_view value) {
+    return value.size()==64u&&std::all_of(value.begin(),value.end(),[](char c){
+        return (c>='0'&&c<='9')||(c>='a'&&c<='f');
+    });
+}
+
+// Resolve a row domain using its explicit anatomical role. A global detailed
+// payload may serve multiple layers only when no role-specific namespace with
+// the same name makes the identity ambiguous.
+inline bool resolvePhysicalSkinSourceDomainIndex(
+        const std::span<const PhysicalSkinSourceDomainRegistration> domains,
+        const std::string_view name,const PhysicalSkinSourceDomainRole role,
+        std::uint32_t& index,std::string& error) {
+    std::uint32_t exact=NM_INVALID_INDEX,detail=NM_INVALID_INDEX;
+    std::size_t exactCount=0u,detailCount=0u;
+    for(std::size_t i=0;i<domains.size();++i)if(domains[i].domain==name){
+        if(domains[i].role==role){exact=static_cast<std::uint32_t>(i);++exactCount;}
+        if(domains[i].role==PhysicalSkinSourceDomainRole::detailedPayload){
+            detail=static_cast<std::uint32_t>(i);++detailCount;
+        }
+    }
+    if(exactCount==1u&&detailCount==0u){index=exact;error.clear();return true;}
+    if(exactCount==0u&&detailCount==1u){
+        const bool otherRole=std::any_of(domains.begin(),domains.end(),[&](const auto& item){
+            return item.domain==name&&item.role!=PhysicalSkinSourceDomainRole::detailedPayload;
+        });
+        if(!otherRole){index=detail;error.clear();return true;}
+    }
+    error="source domain is absent, duplicated, or ambiguous for its declared role";
+    return false;
+}
+
 struct RegisteredSurface {
     std::string name, provider, sourceMember, sourceMeshSHA256, sourcePayloadSHA256;
     std::uint32_t stableIdentifier=0, sourceBodyIndex=NM_INVALID_INDEX, sourceLayer=0;
@@ -66,6 +113,9 @@ struct RegisteredSurface {
     // Optional exact parent ancestry maps for a bounded/reduced patch. Empty
     // maps mean identity indexing in this RegisteredSurface.
     std::vector<std::uint32_t> sourceVertexIndices, sourceFaceIndices;
+    // Optional namespace index per registered node, aligned to source IDs above.
+    // Mixed-domain imports require it for every node; legacy canonical inputs omit it.
+    std::vector<std::uint32_t> sourceDomainIndices;
     // Optional node-to-source-surface embedding. These arrays retain the exact
     // detailed source triangle and barycentric point for each coarse node;
     // sourceVertexIndices remains an identity label and is never a fallback.

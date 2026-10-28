@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cstddef>
 #include <charconv>
 #include <cmath>
@@ -40,6 +41,12 @@ struct RegisteredSkinFatReductionSourceLabels {
     std::vector<std::uint32_t> tetrahedronBasisRegionLabels;
     // Original registered source vertex and layer for each authored shell node.
     std::vector<std::uint32_t> sourceNodeVertexIndices;
+    // Typed source domains are independent of donor bodies and mass regions.
+    // Empty only on the legacy single-payload path.
+    std::vector<PhysicalSkinSourceDomainRegistration> sourceDomains;
+    std::vector<std::uint32_t> sourceNodeSourceDomainIndices;
+    std::array<std::vector<std::uint32_t>,3> registeredLayerSourceDomainIndices;
+    std::uint64_t sourceDomainFingerprint=0u;
     // Projected nodes retain INVALID direct IDs plus their exact source-face embedding.
     std::vector<std::uint32_t> sourceNodeEmbeddingFaceIndices;
     std::vector<std::array<double, 3>> sourceNodeEmbeddingBarycentric;
@@ -94,6 +101,93 @@ struct RegisteredSkinFatReductionSourceLabels {
     // Optional world residual added to barycentric source-parent reconstruction.
     std::vector<V3> sourceNodeParentResidualWorldM;
 };
+
+// Internal source-metadata checksum, separate from the compiled physics hash.
+// Pinned domain SHA-256 values remain the actual source identities.
+[[nodiscard]] inline std::uint64_t registeredSkinFatSourceDomainFingerprint(
+        const RegisteredSkinFatReductionSourceLabels& labels) {
+    std::uint64_t h=14695981039346656037ull;
+    const auto byte=[&](std::uint8_t x){h^=x;h*=1099511628211ull;};
+    const auto word=[&](std::uint64_t x){for(unsigned i=0;i<8u;++i)byte(std::uint8_t(x>>(8u*i)));};
+    const auto text=[&](const std::string& s){word(s.size());for(unsigned char c:s)byte(c);};
+    word(labels.sourceDomains.size());
+    for(const auto& domain:labels.sourceDomains){
+        text(domain.domain);word(static_cast<std::uint8_t>(domain.role));text(domain.sourceSHA256);
+        word(domain.vertexCount);word(domain.faceCount);
+    }
+    const auto ids=[&](const auto& values){word(values.size());for(auto x:values)word(x);};
+    ids(labels.sourceNodeSourceDomainIndices);ids(labels.sourceNodeVertexIndices);
+    ids(labels.sourceNodeEmbeddingFaceIndices);ids(labels.sourceNodeLayerIndices);
+    for(const auto& rows:labels.registeredLayerSourceDomainIndices)ids(rows);
+    for(const auto& rows:labels.registeredLayerVolumeNodeRows)ids(rows);
+    word(labels.sourceNodeEmbeddingBarycentric.size());
+    for(const auto& bary:labels.sourceNodeEmbeddingBarycentric)
+        for(double x:bary)word(std::bit_cast<std::uint64_t>(x));
+    return h;
+}
+
+[[nodiscard]] inline bool validateRegisteredSkinFatSourceDomainMetadata(
+        const RegisteredSkinFatReductionSourceLabels& labels,std::string& error) {
+    const auto fail=[&](const char* message){error=message;return false;};
+    if(labels.sourceDomains.empty()){
+        if(!labels.sourceNodeSourceDomainIndices.empty()||labels.sourceDomainFingerprint!=0u||
+           std::any_of(labels.registeredLayerSourceDomainIndices.begin(),labels.registeredLayerSourceDomainIndices.end(),
+               [](const auto& rows){return !rows.empty();}))
+            return fail("canonical source labels carry incomplete typed domain metadata");
+        return true;
+    }
+    const auto n=labels.sourceNodeVertexIndices.size();
+    if(!labels.explicitUnpairedVolumeTopology||labels.sourceNodeSourceDomainIndices.size()!=n||
+       labels.sourceNodeEmbeddingFaceIndices.size()!=n||labels.sourceNodeEmbeddingBarycentric.size()!=n||
+       labels.sourceNodeLayerIndices.size()!=n||labels.sourceDomainFingerprint==0u||
+       labels.sourceDomainFingerprint!=registeredSkinFatSourceDomainFingerprint(labels))
+        return fail("typed source labels have incomplete or changed domain metadata");
+    std::set<std::pair<std::string,std::uint8_t>> keys;
+    for(const auto& domain:labels.sourceDomains){
+        const auto role=static_cast<std::uint8_t>(domain.role);
+        if(domain.domain.empty()||role>3u||domain.sourceSHA256.size()!=64u||
+           !std::all_of(domain.sourceSHA256.begin(),domain.sourceSHA256.end(),[](char c){
+               return (c>='0'&&c<='9')||(c>='a'&&c<='f');})||
+           domain.vertexCount==0u||domain.faceCount==0u||
+           !keys.emplace(domain.domain,role).second)
+            return fail("typed source labels have an invalid or duplicated pinned namespace");
+    }
+    for(std::size_t node=0;node<n;++node){
+        const auto ns=labels.sourceNodeSourceDomainIndices[node];
+        const auto direct=labels.sourceNodeVertexIndices[node],face=labels.sourceNodeEmbeddingFaceIndices[node];
+        const auto role=labels.sourceNodeLayerIndices[node];
+        const auto& bary=labels.sourceNodeEmbeddingBarycentric[node];
+        if(!std::all_of(bary.begin(),bary.end(),[](double x){return std::isfinite(x);}))
+            return fail("typed source label has nonfinite source barycentric data");
+        if(ns==NM_INVALID_INDEX){
+            if(role!=NM_INVALID_INDEX||direct!=NM_INVALID_INDEX||face!=NM_INVALID_INDEX||
+               bary!=std::array<double,3>{})
+                return fail("source-free interior label claims boundary or surface ancestry");
+            continue;
+        }
+        if(ns>=labels.sourceDomains.size()||role>2u)
+            return fail("typed source label has an absent namespace or invalid role");
+        const auto& domain=labels.sourceDomains[ns];
+        if(domain.role!=PhysicalSkinSourceDomainRole::detailedPayload&&
+           static_cast<std::uint8_t>(domain.role)!=role+1u)
+            return fail("typed source label namespace aliases another anatomical layer");
+        if((direct!=NM_INVALID_INDEX)==(face!=NM_INVALID_INDEX)||
+           (direct!=NM_INVALID_INDEX&&(direct>=domain.vertexCount||bary!=std::array<double,3>{}))||
+           (face!=NM_INVALID_INDEX&&(face>=domain.faceCount||!validateBarycentricCoordinates(bary,error))))
+            return fail("typed source label identity is outside its pinned namespace");
+    }
+    for(unsigned role=0;role<3u;++role){
+        const auto& nodes=labels.registeredLayerVolumeNodeRows[role];
+        if(labels.registeredLayerSourceDomainIndices[role].size()!=nodes.size())
+            return fail("typed source label role/domain map has the wrong size");
+        for(std::size_t row=0;row<nodes.size();++row){
+            const auto node=nodes[row];
+            if(node>=n||labels.sourceNodeSourceDomainIndices[node]!=labels.registeredLayerSourceDomainIndices[role][row])
+                return fail("typed source label boundary namespace differs from its volume row");
+        }
+    }
+    error.clear();return true;
+}
 
 [[nodiscard]] inline bool collectExplicitRegisteredLayerFacetCoverage(
         const std::size_t registeredFaceCount,
@@ -169,6 +263,7 @@ struct RegisteredSkinFatReductionSourceLabels {
         const RegisteredSkinFatReductionSourceLabels& labels,
         std::string& error) {
     const auto fail=[&](const char* why){error=why;return false;};
+    if(!validateRegisteredSkinFatSourceDomainMetadata(labels,error))return false;
     const auto n=shell.femNodes.size(),old=labels.remeshedOriginalNodeCount;
     if(labels.explicitUnpairedVolumeTopology) {
         if(old>n||labels.sourceNodeParentTetrahedronIndices.size()!=n||
@@ -3098,12 +3193,16 @@ template<class VerifyBoundBody, class ParentBodyAt>
     std::string& error,
     const std::uint32_t maximumFacesPerBasisRegion=36u,
     const std::function<bool(std::uint32_t,std::uint32_t)>& verifyEmbeddedBody={},
-    const numi::matter::WorldSource* materialSource=nullptr
+    const numi::matter::WorldSource* materialSource=nullptr,
+    const std::function<bool(std::uint32_t,std::uint32_t,std::uint32_t,
+        const std::array<double,3>&,std::uint32_t)>& verifySourceDomainBody={}
 ) {
     output={};
     const auto fail=[&](std::string message){error=std::move(message);output={};return false;};
     const auto n=topology.currentWorldPoints.size(),nt=topology.childTetrahedra.size();
     const auto surfaceRows=surface.worldPoints.size();
+    const bool typedSourceDomains=!topology.sourceDomains.empty()||
+        !topology.volumeNodeSourceDomainIndices.empty();
     if(n==0u||nt==0u||surfaceRows==0u||sourceBodyCount==0u||
        shell.representation!=numi::matter::Representation::fem||
        shell.femNodes.size()!=n||shell.tetrahedra.size()!=nt||
@@ -3134,6 +3233,7 @@ template<class VerifyBoundBody, class ParentBodyAt>
         roleSurfaces[0]->worldPoints.size(),roleSurfaces[1]->worldPoints.size(),
         roleSurfaces[2]->worldPoints.size()};
     if(!numi::human::validateSkinBoundaryNodeMap(boundaryMap,roleSizes,error))return false;
+    if(!validatePhysicalSkinSourceDomains(surface,topology,error))return false;
     for(const auto* layer:roleSurfaces)
         if(layer->faces.empty()||
            (!layer->sourceVertexIndices.empty()&&layer->sourceVertexIndices.size()!=layer->worldPoints.size())||
@@ -3174,7 +3274,7 @@ template<class VerifyBoundBody, class ParentBodyAt>
        topology.parentMaterialIndices.size()!=topology.parentTetrahedra.size()||
        topology.parentDonorBodyIndices.size()!=topology.parentTetrahedra.size()||
        topology.parentStableSourceFaceIdentities.size()!=topology.parentTetrahedra.size()||
-       topology.detailedSourceVertexCount==0u||topology.detailedSourceFaceCount==0u)
+       (!typedSourceDomains&&(topology.detailedSourceVertexCount==0u||topology.detailedSourceFaceCount==0u)))
         return fail("unpaired source-label parent/facet ancestry is incomplete");
     const auto receipt=topology.ancestryVerificationReceiptSHA256;
     if(!spatialMass&&((topology.ancestryVerificationKind!=VolumeAncestryVerificationKind::exactGeometricOverlap&&
@@ -3188,7 +3288,7 @@ template<class VerifyBoundBody, class ParentBodyAt>
     if(topology.volumeNodeSourceVertexIndices.size()!=n||topology.volumeNodeSourceFaceIndices.size()!=n||
        topology.volumeNodeSourceBarycentric.size()!=n)
         return fail("unpaired labels require explicit direct-or-embedded detailed source identity for every volume row");
-    for(const auto* layer:roleSurfaces)
+    if(!typedSourceDomains)for(const auto* layer:roleSurfaces)
         if(!validateRegisteredSourceEmbedding(*layer,topology.detailedSourceFaceCount,error))return false;
     if(surface.donorBodyIndices.size()!=surfaceRows||surface.sourceVertexIndices.size()!=surfaceRows||
        surface.donorLocalPoints.size()!=surfaceRows||surface.faces.empty()||
@@ -3209,9 +3309,9 @@ template<class VerifyBoundBody, class ParentBodyAt>
         if(norm(sub(reconstructed,topology.currentWorldPoints[i]))>1.0e-7)
             return fail("unpaired labels registered donor frame does not reproduce current node coordinates");
         const auto src=topology.volumeNodeSourceVertexIndices[i],srcFace=topology.volumeNodeSourceFaceIndices[i];
-        if(src!=NM_INVALID_INDEX&&src>=topology.detailedSourceVertexCount)
+        if(!typedSourceDomains&&src!=NM_INVALID_INDEX&&src>=topology.detailedSourceVertexCount)
             return fail("unpaired labels direct detailed-source vertex is out of range");
-        if(srcFace!=NM_INVALID_INDEX&&(srcFace>=topology.detailedSourceFaceCount||
+        if(!typedSourceDomains&&srcFace!=NM_INVALID_INDEX&&(srcFace>=topology.detailedSourceFaceCount||
            !validateBarycentricCoordinates(topology.volumeNodeSourceBarycentric[i],error)))
             return fail("unpaired labels detailed-source face/barycentric identity is invalid");
         if(shell.femNodes[i]!=topology.currentWorldPoints[i]||
@@ -3388,7 +3488,16 @@ template<class VerifyBoundBody, class ParentBodyAt>
                 sourceBary=layer.sourceEmbeddingBarycentric[row];
             }
         }
-        if(next.sourceNodeVertexIndices[i]!=invalid){
+        if(typedSourceDomains){
+            const auto domain=topology.volumeNodeSourceDomainIndices[i];
+            if(domain!=invalid){
+                if(!verifySourceDomainBody||!verifySourceDomainBody(domain,next.sourceNodeVertexIndices[i],
+                        sourceFace,sourceBary,donor))
+                    return fail("unpaired typed node source-domain binding is not verified");
+            }else if(nodeLayer[i]!=invalid){
+                return fail("unpaired registered boundary row has no typed source namespace");
+            }
+        }else if(next.sourceNodeVertexIndices[i]!=invalid){
             if(!verifyBoundBody(next.sourceNodeVertexIndices[i],donor))return fail("unpaired label direct node source binding is not verified");
         }else if(sourceFace!=invalid){
             if(!verifyEmbeddedBody||!verifyEmbeddedBody(static_cast<std::uint32_t>(i),donor)||
@@ -3492,6 +3601,15 @@ template<class VerifyBoundBody, class ParentBodyAt>
         }
     }
     if(!validateRegisteredSkinFatMassTransferLabels(shell,next,error))return false;
+    if(typedSourceDomains){
+        next.sourceDomains.assign(topology.sourceDomains.begin(),topology.sourceDomains.end());
+        next.sourceNodeSourceDomainIndices.assign(topology.volumeNodeSourceDomainIndices.begin(),topology.volumeNodeSourceDomainIndices.end());
+        for(unsigned role=0;role<3u;++role)
+            next.registeredLayerSourceDomainIndices[role]=roleSurfaces[role]->sourceDomainIndices;
+        next.sourceDomainFingerprint=registeredSkinFatSourceDomainFingerprint(next);
+        if(!validateRegisteredSkinFatSourceDomainMetadata(next,error))return false;
+    }
+
     output=std::move(next);error.clear();return true;
 }
 

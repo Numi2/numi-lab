@@ -1496,7 +1496,50 @@ void runResidualEnrichmentWitnessChecks() {
         source,badMetric,preservedFine,4u,1u,8u,result,error));
 }
 
+void runTypedSourceDomainMetadataChecks() {
+    RegisteredSkinFatReductionSourceLabels labels;
+    labels.explicitUnpairedVolumeTopology=true;
+    labels.sourceDomains={
+        {"outer-reference",PhysicalSkinSourceDomainRole::outerSurface,std::string(64,'1'),4u,2u},
+        {"D37-parent",PhysicalSkinSourceDomainRole::innerSurface,std::string(64,'2'),4u,2u},
+        {"D37-parent",PhysicalSkinSourceDomainRole::deepSurface,std::string(64,'3'),4u,2u}};
+    labels.sourceNodeSourceDomainIndices={0u,1u,2u,NM_INVALID_INDEX};
+    labels.sourceNodeVertexIndices={0u,0u,0u,NM_INVALID_INDEX};
+    labels.sourceNodeEmbeddingFaceIndices.assign(4u,NM_INVALID_INDEX);
+    labels.sourceNodeEmbeddingBarycentric.resize(4u);
+    labels.sourceNodeLayerIndices={0u,1u,2u,NM_INVALID_INDEX};
+    for(unsigned role=0;role<3u;++role){
+        labels.registeredLayerVolumeNodeRows[role]={role};
+        labels.registeredLayerSourceDomainIndices[role]={role};
+    }
+    labels.sourceDomainFingerprint=registeredSkinFatSourceDomainFingerprint(labels);
+    std::string error;
+    assert(validateRegisteredSkinFatSourceDomainMetadata(labels,error));
+    const auto reject=[&](RegisteredSkinFatReductionSourceLabels bad,bool recalculate=true){
+        if(recalculate)bad.sourceDomainFingerprint=registeredSkinFatSourceDomainFingerprint(bad);
+        assert(!validateRegisteredSkinFatSourceDomainMetadata(bad,error));
+    };
+    auto bad=labels;bad.sourceDomains[0].sourceSHA256[0]='g';reject(bad);
+    bad=labels;bad.sourceDomains[0].vertexCount=0u;reject(bad);
+    bad=labels;bad.sourceDomains[1].role=PhysicalSkinSourceDomainRole::deepSurface;reject(bad);
+    bad=labels;bad.sourceNodeSourceDomainIndices[0]=1u;bad.registeredLayerSourceDomainIndices[0][0]=1u;reject(bad);
+    bad=labels;bad.sourceNodeVertexIndices[0]=4u;reject(bad);
+    bad=labels;bad.sourceNodeVertexIndices[0]=NM_INVALID_INDEX;bad.sourceNodeEmbeddingFaceIndices[0]=2u;reject(bad);
+    bad=labels;bad.sourceNodeSourceDomainIndices[3]=0u;bad.sourceNodeVertexIndices[3]=0u;reject(bad);
+    bad=labels;bad.sourceNodeVertexIndices[3]=0u;reject(bad);
+    bad=labels;bad.sourceNodeEmbeddingBarycentric[3][0]=1.0;reject(bad);
+    bad=labels;bad.registeredLayerSourceDomainIndices[1][0]=0u;reject(bad);
+    bad=labels;bad.sourceDomains[0].sourceSHA256[0]='2';reject(bad,false);
+    bad=labels;bad.sourceNodeEmbeddingBarycentric[0][0]=std::numeric_limits<double>::quiet_NaN();reject(bad);
+    RegisteredSkinFatReductionSourceLabels canonical;
+    assert(validateRegisteredSkinFatSourceDomainMetadata(canonical,error));
+    canonical.sourceNodeSourceDomainIndices={0u};
+    assert(!validateRegisteredSkinFatSourceDomainMetadata(canonical,error));
+    std::cout<<"typed_source_domain_metadata=PASS corruptions_rejected=13 source_role_namespaces=3\n";
+}
+
 int main() {
+    runTypedSourceDomainMetadataChecks();
     runHumanOpticOnlySelectorChecks();
     static_assert(numi::matter::kHumanPartitionedBasisMaximumRegionCount == 170u);
     static_assert(numi::matter::kHumanPartitionedBasisMaximumModeCount == 2040u);

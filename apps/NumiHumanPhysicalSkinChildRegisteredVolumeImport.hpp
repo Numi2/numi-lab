@@ -76,6 +76,8 @@ struct PhysicalSkinRegisteredVolumeImportReport {
     std::array<std::size_t,3> mappedBoundaryNodes{};
     std::size_t registeredParentRows=0,inferredCurrentParentRows=0,sourceIdentityRows=0;
     bool oneSourceDomain=false,canonicalDetailedSourceMapPopulated=false;
+    bool typedSourceDomainMapPopulated=false;
+    std::size_t sourceDomainCount=0u;
     double maximumCurrentParentReconstructionErrorM=0.0;
     double maximumReferenceParentReconstructionErrorM=0.0;
     double maximumReferenceResidualDifferenceM=0.0;
@@ -296,9 +298,14 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
         const std::string_view canonicalDetailedSourceDomain,
         const std::size_t detailedSourceVertexCount,const std::size_t detailedSourceFaceCount,
         PhysicalSkinRegisteredVolumeImportSidecars& sidecars,
-        PhysicalSkinRegisteredVolumeImportReport& report,std::string& error) {
+        PhysicalSkinRegisteredVolumeImportReport& report,std::string& error,
+        const std::span<const PhysicalSkinSourceDomainRegistration> declaredSourceDomains={}) {
     using namespace physical_skin_registered_volume_import_detail;
     const auto fail=[&](std::string message){error=std::move(message);return false;};
+    const bool typedSourceDomains=!declaredSourceDomains.empty();
+    if(typedSourceDomains&&(!canonicalDetailedSourceDomain.empty()||
+       detailedSourceVertexCount!=0u||detailedSourceFaceCount!=0u))
+        return fail("typed source registry and canonical detailed-source counts cannot be mixed");
     const std::size_t nodeCount=bundle.referenceWorldPoints.size();
     if(nodeCount<4u||nodeRows.size()!=nodeCount||nodeCount>std::numeric_limits<std::uint32_t>::max()||
        bundle.childTetrahedra.empty()||bundle.childMaterialIndices.size()!=bundle.childTetrahedra.size()||
@@ -347,6 +354,31 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
     nextBundle.outerSkin=registered.surfaces[0];
     nextBundle.independentSkinInner=registered.surfaces[1];
     nextBundle.independentFatDeep=registered.surfaces[2];
+    nextBundle.outerSkin.sourceDomainIndices.clear();
+    nextBundle.independentSkinInner.sourceDomainIndices.clear();
+    nextBundle.independentFatDeep.sourceDomainIndices.clear();
+    nextBundle.sourceDomains.clear();
+    nextBundle.volumeNodeSourceDomainIndices.clear();
+    if(typedSourceDomains){
+        nextBundle.sourceDomains.assign(declaredSourceDomains.begin(),declaredSourceDomains.end());
+        nextBundle.volumeNodeSourceDomainIndices.assign(nodeCount,NM_INVALID_INDEX);
+        const std::array<PhysicalSkinSourceDomainRole,3> sourceRoles{
+            PhysicalSkinSourceDomainRole::outerSurface,PhysicalSkinSourceDomainRole::innerSurface,
+            PhysicalSkinSourceDomainRole::deepSurface};
+        std::array<RegisteredSurface*,3> targetSurfaces{
+            &nextBundle.outerSkin,&nextBundle.independentSkinInner,&nextBundle.independentFatDeep};
+        for(unsigned layer=0;layer<3u;++layer){
+            const auto rowCount=registered.surfaces[layer].worldPoints.size();
+            targetSurfaces[layer]->sourceDomainIndices.resize(rowCount,NM_INVALID_INDEX);
+            for(std::size_t row=0;row<rowCount;++row){
+                std::uint32_t domainIndex=NM_INVALID_INDEX;
+                if(!resolvePhysicalSkinSourceDomainIndex(declaredSourceDomains,
+                        registered.nodeSource[layer][row].domain,sourceRoles[layer],domainIndex,error))
+                    return fail("registered surface source domain is not pinned for its anatomical role: "+error);
+                targetSurfaces[layer]->sourceDomainIndices[row]=domainIndex;
+            }
+        }
+    }
     nextBundle.boundaryMap.volumeNodeCount=static_cast<std::uint32_t>(nodeCount);
     nextBundle.boundaryMap.outer.assign(registered.surfaces[0].worldPoints.size(),NM_INVALID_INDEX);
     nextBundle.boundaryMap.skinInner.assign(registered.surfaces[1].worldPoints.size(),NM_INVALID_INDEX);
@@ -403,10 +435,28 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
             return fail("combined TetGen node row has invalid frame donor/binding, semantic donor, region, or all-bodies pose");
         if(!closePoint(row.currentWorldPoint,bundle.referenceWorldPoints[node],2.0e-8))
             return fail("current registration and TetGen reference node are not the same declared initialization-world target");
+        const auto layer=roleIndex(row.role);
         std::string sourceError;
         if(!validSourceIdentity(row,sourceError))return fail(sourceError);
         if(row.sourceMappingKind=="vertex"||row.sourceMappingKind=="face"){
             nonemptySourceDomains.insert(row.sourceDomain);++sourceIdentityRows;
+        }
+        if(typedSourceDomains){
+            if(layer<3u){
+                const std::array<PhysicalSkinSourceDomainRole,3> sourceRoles{
+                    PhysicalSkinSourceDomainRole::outerSurface,PhysicalSkinSourceDomainRole::innerSurface,
+                    PhysicalSkinSourceDomainRole::deepSurface};
+                std::uint32_t domainIndex=NM_INVALID_INDEX;
+                if(!resolvePhysicalSkinSourceDomainIndex(declaredSourceDomains,row.sourceDomain,
+                        sourceRoles[layer],domainIndex,error))
+                    return fail("volume node source domain is not pinned for its registered layer: "+error);
+                nextBundle.volumeNodeSourceDomainIndices[node]=domainIndex;
+            }else if(row.sourceDomain!="derived_volume_interior_no_surface_ancestry"||
+                     row.sourceMappingKind!="none"||row.sourceVertex!=NM_INVALID_INDEX||
+                     row.sourceFace!=NM_INVALID_INDEX||row.sourceBarycentric!=std::array<double,3>{}||
+                     row.sourceResidualWorldM!=V3{}){
+                return fail("typed mixed-source interior node must carry explicit no-surface-ancestry state");
+            }
         }
         const auto& frame=allBodyCurrentPoses[row.donorBody];
         V3 fromFrame=frame.currentOrigin;
@@ -414,7 +464,6 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
             fromFrame[a]+=frame.currentLocalToWorld[3*a+b]*row.donorLocalPoint[b];
         if(!closePoint(fromFrame,row.currentWorldPoint,1.0e-7))
             return fail("combined TetGen node donor-local point does not reconstruct its current-world position");
-        const auto layer=roleIndex(row.role);
         if(layer<3u){
             const auto& surface=registered.surfaces[layer];
             if(row.surfaceVertexRow>=surface.worldPoints.size())
@@ -517,11 +566,12 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
             {registered.surfaces[0].worldPoints.size(),registered.surfaces[1].worldPoints.size(),
              registered.surfaces[2].worldPoints.size()},mapError))
         return fail("combined TetGen O/I/D boundary maps are invalid: "+mapError);
-    if(nonemptySourceDomains.size()==1u)measured.oneSourceDomain=true;
+    measured.oneSourceDomain=nonemptySourceDomains.size()==1u&&
+        (!typedSourceDomains||declaredSourceDomains.size()==1u);
     bool canonicalSourceMap=!canonicalDetailedSourceDomain.empty()&&measured.oneSourceDomain;
     for(const auto& domain:nonemptySourceDomains)
         if(domain!=canonicalDetailedSourceDomain)canonicalSourceMap=false;
-    if(canonicalSourceMap){
+    if(canonicalSourceMap&&!typedSourceDomains){
         std::vector<std::uint32_t> vertexRows(nodeCount,NM_INVALID_INDEX),faceRows(nodeCount,NM_INVALID_INDEX);
         for(std::size_t node=0;node<nodeCount;++node){
             if(directSource[node]!=NM_INVALID_INDEX){
@@ -541,6 +591,16 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
         nextBundle.volumeNodeSourceFaceIndices=std::move(faceRows);
         nextBundle.volumeNodeSourceBarycentric=std::move(sourceBary);
         measured.canonicalDetailedSourceMapPopulated=true;
+    }
+    if(typedSourceDomains){
+        nextBundle.volumeNodeSourceVertexIndices=directSource;
+        nextBundle.volumeNodeSourceFaceIndices=faceSource;
+        nextBundle.volumeNodeSourceBarycentric=sourceBary;
+        const auto topology=nextBundle.topologyView();
+        if(!validatePhysicalSkinSourceDomains(nextBundle.outerSkin,topology,error))
+            return fail("typed registered volume source namespaces failed validation: "+error);
+        measured.typedSourceDomainMapPopulated=true;
+        measured.sourceDomainCount=nextBundle.sourceDomains.size();
     }
     nextBundle.retainedOriginalNodeCount=0u;
     nextBundle.registeredBodyLocalToWorldLinear.resize(sourceBodyCount);
