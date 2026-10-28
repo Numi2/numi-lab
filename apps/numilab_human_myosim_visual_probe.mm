@@ -24118,6 +24118,56 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             geometryTets<<','<<volume<<','<<parentMass[row]<<'\n';
         }
         geometryNodes.flush();geometryTets.flush();require(geometryNodes.good()&&geometryTets.good(),"parent volume geometry CSV write failed");
+        if(const char* weightsPath=std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_WEIGHTS_CSV")) {
+            // Capture the existing paired parent's interpolation basis in exact
+            // object-local node order, independently of cell mass donor labels.
+            require(weightsPath[0]!='\0'&&skin&&skin->bindings.size()==86u&&
+                        numi::human::isPairedSkinBoundaryNodeMap(wholeBodySkinBoundaryNodeMap)&&
+                        wholeBodySkinBoundaryNodeMap.volumeNodeCount==descriptor.stateCount&&
+                        wholeBodySkinSourceRows.fullBodyWeights86.size()==wholeBodySkinBoundaryNodeMap.outer.size(),
+                    "parent full-weight capture requires explicit complete paired boundary maps");
+            std::vector<std::array<double,86u>> parentWeights(descriptor.stateCount);
+            std::vector<std::uint8_t> weightCoverage(descriptor.stateCount,0u);
+            for(const auto* map:{&wholeBodySkinBoundaryNodeMap.outer,
+                                &wholeBodySkinBoundaryNodeMap.skinInner,
+                                &wholeBodySkinBoundaryNodeMap.fatDeep}) {
+                require(map->size()==wholeBodySkinSourceRows.fullBodyWeights86.size(),
+                        "parent full-weight capture has a mismatched role-local domain");
+                for(std::size_t row=0;row<map->size();++row) {
+                    const auto node=(*map)[row];
+                    require(node<parentWeights.size()&&weightCoverage[node]==0u,
+                            "parent full-weight capture has a duplicate or invalid node");
+                    const auto& weights=wholeBodySkinSourceRows.fullBodyWeights86[row];
+                    double sum=0.0;std::size_t dominant=0u;
+                    for(std::size_t binding=0;binding<weights.size();++binding) {
+                        require(std::isfinite(weights[binding])&&weights[binding]>=0.0,
+                                "parent full-weight capture contains invalid source weights");
+                        sum+=weights[binding];
+                        if(weights[binding]>weights[dominant])dominant=binding;
+                    }
+                    require(std::abs(sum-1.0)<=1.0e-4&&
+                                skin->bindings[dominant].bodyIndex==donorBodies[node],
+                            "parent full-weight capture differs from registered node frame ownership");
+                    parentWeights[node]=weights;weightCoverage[node]=1u;
+                }
+            }
+            require(std::all_of(weightCoverage.begin(),weightCoverage.end(),
+                        [](std::uint8_t count){return count==1u;}),
+                    "parent full-weight capture does not cover every volume node");
+            std::ofstream weights(weightsPath,std::ios::out|std::ios::binary|std::ios::trunc);
+            require(weights.good(),"could not create parent full-weight CSV");
+            weights<<"vertex";for(unsigned binding=0;binding<86u;++binding)weights<<",w"<<binding;
+            weights<<'\n'<<std::setprecision(17);
+            for(std::size_t node=0;node<parentWeights.size();++node) {
+                weights<<node;for(double value:parentWeights[node])weights<<','<<value;
+                weights<<'\n';
+            }
+            weights.flush();require(weights.good(),"parent full-weight CSV write failed");
+            std::cout<<"whole_body_parent_node_full_weights=PASS rows="<<parentWeights.size()
+                <<" binding_lanes=86 row_domain=object_local_parent_node_index"
+                <<" owner=registered_paired_column_source_weights source_values=unchanged"
+                <<" added_mass_kg=0 physical_steps=0"<<std::endl;
+        }
         require(skinFatReductionSourceLabels.has_value(),
                 "native parent mass labels lack the registered source owner");
         const auto& parentLabels=*skinFatReductionSourceLabels;
