@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/usr/bin/clang++",
+    "-std=c++23",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-Iinclude",
+    "-Imatter/include",
+    "-Iapps",
+    "-DNUMI_TEST_MATERIAL_PATH=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_skin_dermis_frequency_specific_effective.nmatter\"",
+    "apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp",
+    "-Lbuild-native/lib",
+    "-lmetalrobo",
+    "-Wl,-rpath,/Users/numi/Work/skin-fat-native-integration-209/build-native/lib",
+    "-o",
+    "build-native/numi-human-unpaired-skin-fat-volume-check"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 3.135467542,
+  "test_returncode": 0
+}

@@ -1,0 +1,61 @@
+{
+  "purpose": "one-shot conservative parent mass inputs for the candidate skin/fat child volume transfer",
+  "source_owner": "publication-070/evidence/mass/source-contribution-export-072/run-003/source-preflight",
+  "object_index": 15,
+  "parent_node_count": 7233,
+  "parent_tetrahedron_count": 28632,
+  "source_contribution_count": 9644,
+  "source_contribution_rows_per_parent_node_material": "one in this donor export",
+  "parent_cell_mass_rule": "compiled_bulk_x * inverse_rest_w_m3 from the compiled FEM tetrahedron export; per-cell quarter shares are accumulated by compiled source node and material",
+  "source_row_mass_rule": "compiled corner mass for each parent node/material; split by raw source contribution ratio only if source export contains multiple rows for that key",
+  "source_mass_semantics": [
+    "owner_layer_lumped_nodal_mass"
+  ],
+  "parent_cell_mass_kg": "13.939679738169952",
+  "compiled_lumped_node_mass_sum_kg": "13.939679726963099",
+  "raw_premerge_source_mass_kg": "13.939679740607836",
+  "source_pushforward_mass_kg": "13.939679738169952",
+  "maximum_compiled_node_reassembly_error_kg": "0",
+  "maximum_node_material_source_push_error_kg": "0",
+  "maximum_material_donor_source_push_error_kg": "3.3306690738754696e-15",
+  "parent_mass_kg_by_material": {
+    "15": "3.4525711587090568",
+    "16": "10.487108579460903"
+  },
+  "source_inputs": {
+    "compiled-skin-fem-nodes.csv.gz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-070/evidence/mass/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-nodes.csv.gz",
+      "sha256_compressed": "a3fc0c234ab012dc72d612f46a43a299eb7891f3cb5c392b7d871bcf41c700a9",
+      "bytes": 521582
+    },
+    "compiled-skin-fem-tets.csv.gz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-070/evidence/mass/source-contribution-export-072/run-003/source-preflight/compiled-skin-fem-tets.csv.gz",
+      "sha256_compressed": "32727fd24ab67925273b47249889efdbbf6805a6294e142c7eb26698bce68382",
+      "bytes": 4977751
+    },
+    "premerge-layer-contributions.csv.gz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-070/evidence/mass/source-contribution-export-072/run-003/source-preflight/premerge-layer-contributions.csv.gz",
+      "sha256_compressed": "aae8e8439a272bc41ec46ffdf5ace5e71abf8d6a55992c47e4d012f912b9f583",
+      "bytes": 529161
+    }
+  },
+  "outputs": {
+    "baseline-parent-cell-mass.csv.gz": {
+      "sha256_compressed": "e9585cfb4d781847776478b11536c38cce57eeaff08507789d1bbd8ef926575f",
+      "bytes": 1430540
+    },
+    "baseline-parent-node-source-mass.csv.gz": {
+      "sha256_compressed": "ccfce45ff3541a5f85bf6212c8358953e643e1d5f405d4f617c27275d301fa39",
+      "bytes": 554121
+    },
+    "baseline-compiled-parent-nodes.csv.gz": {
+      "sha256_compressed": "ca55936b5f954f5b2e98111ac2f256c5b3ea7f0fa42a7d2fdf877ec9db12c878",
+      "bytes": 600410
+    }
+  },
+  "limits": [
+    "No candidate 033-to-parent ancestry or child ancestry measure is included; geometry worker must provide an independently verified exact overlap or conservative reference pullback receipt.",
+    "This packet captures the authoritative compiled parent mass and existing donor/source labels only; it does not establish physical qualification or motion verification.",
+    "The parent is object 15 from the existing compiled donor export; constructing a new 806-bound child ancestry remains a separate geometry mapping step."
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "host": "SSH numi",
+  "source_revision": "868486402da2ff0a208bf60c267df0928e2f91e0",
+  "build": "native-build-002.json",
+  "physical_steps": 0,
+  "files": {
+    "build-native/bin/numi-human-native": {
+      "bytes": 8310368,
+      "sha256": "1637e283accafd9c857b263c0632b8e8008742ad18380e09afae80194da16dda"
+    },
+    "build-native/lib/libmetalrobo.dylib": {
+      "bytes": 10034800,
+      "sha256": "40904e53baf6417c6e461fe94ef9c673f6acfc4ef44ef6b81b1fcb64739c50f5"
+    },
+    "build-native/matter/shaders/NumiMatter.metallib": {
+      "bytes": 29328818,
+      "sha256": "76819990f8b17e27621b2e463ff953baa04f05f1bd0aaa94d27f51fbbac0979b"
+    },
+    "build-native/matter/shaders/HumanRespiration.metallib": {
+      "bytes": 527850,
+      "sha256": "9b96bb0eccab8d71cc2655cfff07622330267e95630a19776798beda36bbc3ff"
+    },
+    "apps/numilab_human_myosim_visual_probe.mm": {
+      "bytes": 2378330,
+      "sha256": "519e532061c52931a0268f8e09d9cfc1397a6fbf82e75f3b6bafd8990c8d86db"
+    },
+    "apps/NumiHumanCompiledSkinFatMassCapture.hpp": {
+      "bytes": 15819,
+      "sha256": "1d57512a385448babec649c118e142ea4a1e4593470c8af6330b37b8faade887"
+    },
+    "apps/NumiHumanCompiledSkinFatMassCaptureCheck.cpp": {
+      "bytes": 4963,
+      "sha256": "928c1295ac1ab6bd7ec8df67ddd6b28aa64503be394d2e6aa5def09a12c46546"
+    },
+    "apps/NumiHumanCompiledSkinFatMassCapturePacketCheck.cpp": {
+      "bytes": 20516,
+      "sha256": "3857b530c4dd6703d7013dc80a576f7acdef4566051677664e30fbd93cb7edf4"
+    },
+    "CMakeLists.txt": {
+      "bytes": 260626,
+      "sha256": "c2389f29155cf1d84b887149886482a61b9be02d57bae0592669c0d0195d3e54"
+    },
+    "build-native/numi-human-compiled-skin-fat-mass-capture-check": {
+      "bytes": 60944,
+      "sha256": "884e3a61340d2300b15f0dd30da3315b4462268f2716e08e6299172237da4d7c"
+    },
+    "build-native/numi-human-compiled-skin-fat-mass-packet-check": {
+      "bytes": 117248,
+      "sha256": "9614ab675fc8240a3f6874294f396433c4081b8b6540af265c0f917c0caf451a"
+    },
+    "build-native/numi-human-unpaired-skin-fat-volume-check": {
+      "bytes": 412280,
+      "sha256": "cf506a4180a76f7c727d36a6b38a439f5150782aae0c1efb22060ca4d33f0af6"
+    }
+  },
+  "final_rebuild_log": "native-capture-rebuild-003.log"
+}

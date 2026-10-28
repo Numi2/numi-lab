@@ -1,0 +1,8 @@
+ninja: Entering directory `/Users/numi/Work/skin-fat-native-integration-209/build-native'
+[0/2] Re-checking globbed directories...
+[1/7] Building CXX object CMakeFiles/numi-human-compiled-skin-fat-mass-capture-check.dir/apps/NumiHumanCompiledSkinFatMassCaptureCheck.cpp.o
+[2/7] Building CXX object CMakeFiles/numi-human-compiled-skin-fat-mass-packet-check.dir/apps/NumiHumanCompiledSkinFatMassCapturePacketCheck.cpp.o
+[3/7] Linking CXX executable numi-human-compiled-skin-fat-mass-capture-check
+[4/7] Linking CXX executable numi-human-compiled-skin-fat-mass-packet-check
+[5/7] Building OBJCXX object CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o
+[6/7] Linking OBJCXX executable bin/numi-human-native

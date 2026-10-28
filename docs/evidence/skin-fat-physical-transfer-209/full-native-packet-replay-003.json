@@ -1,0 +1,8 @@
+{
+  "binary": "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-compiled-skin-fat-mass-packet-check",
+  "returncode": 0,
+  "elapsed_seconds": 0.40151729199999997,
+  "stdout": "compiled skin/fat full donor packet replay PASS nodes=7233 tets=28632 source_rows=9644 parent_mass_kg=13.9397 exact_cell_rows=28632 exact_source_keys=9644 max_cell_error_kg=0 max_source_error_kg=0 max_node_packet_error_kg=0 compiled_nodal_closure_kg=0 prepared_donor_closure_kg=6.98581e-08\n",
+  "stderr": "",
+  "physical_steps": 0
+}

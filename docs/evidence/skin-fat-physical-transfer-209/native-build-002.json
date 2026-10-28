@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/ninja",
+    "-C",
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native",
+    "numi-human-native",
+    "-j2"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 93.93164499999999,
+  "free_bytes": 361758720,
+  "stop_reason": null
+}

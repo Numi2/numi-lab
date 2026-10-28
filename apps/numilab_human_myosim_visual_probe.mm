@@ -20,6 +20,7 @@
 #include "NumiHumanAcceptedFEMSkinTransfer.hpp"
 #include "NumiHumanSkinBoundaryNodeMap.hpp"
 #include "NumiHumanUnpairedSkinFatVolume.hpp"
+#include "NumiHumanCompiledSkinFatMassCapture.hpp"
 #include "NumiHumanUnpairedSkinFatContactDispatch.hpp"
 #include "NumiHumanElbowBaselineProlongation065.hpp"
 #include "NumiHumanWholeBodySkinEmbeddingConsumer.hpp"
@@ -23701,6 +23702,61 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::string detail;
     for(const auto& d:compiled.diagnostics)detail+=d.message+"; ";
     require(compiled.succeeded(),"resting fascia Matter compile failed: "+detail);
+    // Capture from this exact cook, before Runtime creation. Parent ledgers are
+    // never inferred from detailed render ancestry or from a different revision.
+    if(const char* ledgerPath=std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_MASS_LEDGER_CSV")) {
+        require(enableWholeBodySkinFat&&ledgerPath[0]!='\0',
+                "skin/fat parent mass capture requires the complete compiled shell and a path");
+        const auto& descriptor=compiled.world.objects.at(wholeBodySkinObjectIndex);
+        std::map<std::uint32_t,metalrobo::NumiHumanTissueMassNode> byNode;
+        for(const auto* prepared:{&preparedSkin,&preparedFat})
+            for(const auto& row:prepared->donorMassNodes) {
+                auto [found,inserted]=byNode.emplace(row.nodeIndex,row);
+                if(!inserted) {
+                    require(found->second.donorBody==row.donorBody&&
+                                norm(sub(found->second.localPosition,row.localPosition))<=1.0e-7,
+                            "skin/fat mass capture has ambiguous donor-frame ownership");
+                    found->second.massKg+=row.massKg;
+                }
+            }
+        std::vector<metalrobo::NumiHumanTissueMassNode> donorRows;
+        std::vector<std::uint32_t> donorBodies(descriptor.stateCount,NM_INVALID_INDEX);
+        std::vector<V3> donorLocal(descriptor.stateCount);
+        for(const auto& [global,row]:byNode) {
+            require(global>=descriptor.stateOffset&&global-descriptor.stateOffset<descriptor.stateCount,
+                    "skin/fat mass capture donor row is outside the compiled object");
+            const auto local=global-descriptor.stateOffset;
+            donorRows.push_back(row);donorBodies[local]=row.donorBody;donorLocal[local]=row.localPosition;
+        }
+        std::vector<double> parentMass;
+        std::vector<ExplicitUnpairedVolumeSourceMassContribution> sourceMass;
+        CompiledSkinFatMassCaptureReport captureReport;
+        std::string captureError;
+        require(captureCompiledSkinFatParentMassLedger(source,compiled.world,wholeBodySkinObjectIndex,
+                    donorBodies,donorLocal,donorRows,parentMass,sourceMass,captureReport,captureError),
+                "exact cooked skin/fat parent mass capture rejected: "+captureError);
+        std::ofstream ledger(ledgerPath,std::ios::out|std::ios::binary|std::ios::trunc);
+        require(ledger.good(),"could not create skin/fat parent mass ledger");
+        ledger<<"source_tet_row,material_index,mass_kg\n"<<std::setprecision(17);
+        const auto& object=source.objects.at(wholeBodySkinObjectIndex);
+        for(std::size_t row=0;row<parentMass.size();++row)
+            ledger<<row<<','<<(object.femMaterialIndices.empty()?object.materialIndex:object.femMaterialIndices[row])
+                  <<','<<parentMass[row]<<'\n';
+        ledger.flush();require(ledger.good(),"skin/fat parent mass ledger write failed");
+        std::ofstream contributions(std::string(ledgerPath)+".source.csv",std::ios::out|std::ios::binary|std::ios::trunc);
+        require(contributions.good(),"could not create skin/fat parent source-mass ledger");
+        contributions<<"object_local_node,material_index,donor_body,mass_kg,local_x_m,local_y_m,local_z_m\n"
+                     <<std::setprecision(17);
+        for(const auto& row:sourceMass)
+            contributions<<row.parentNodeIndex<<','<<row.materialIndex<<','<<row.donorBodyIndex<<','<<row.massKg
+                         <<','<<row.donorLocalPosition[0]<<','<<row.donorLocalPosition[1]<<','<<row.donorLocalPosition[2]<<'\n';
+        contributions.flush();require(contributions.good(),"skin/fat parent source-mass ledger write failed");
+        std::cout<<"whole_body_compiled_skin_fat_parent_mass=PASS nodes="<<captureReport.nodeCount
+                 <<" tets="<<captureReport.tetrahedronCount<<" mass_kg="<<std::setprecision(17)<<captureReport.parentMassKg
+                 <<" source_rows="<<sourceMass.size()<<" nodal_closure_error_kg="
+                 <<captureReport.maximumCompiledNodalMassClosureErrorKg
+                 <<" source_world_mutated=0 physical_steps=0"<<std::endl;
+    }
     if (useFEMSkinSupport) {
         const auto& descriptor =
             compiled.world.objects.at(wholeBodySkinObjectIndex);

@@ -1,0 +1,59 @@
+{
+  "vertices": 7233,
+  "cells": 28632,
+  "nonpositive_or_invalid_cells": 0,
+  "minimum_determinant_m3": 2.8270609957271546e-12,
+  "minimum_quality_det_over_longest_edge_cubed": 2.6016244143916926e-05,
+  "cells_below_q_1e_6": 0,
+  "nonmanifold_faces": 0,
+  "orientation_mismatched_internal_faces": 0,
+  "closed_boundary_bad_edge_incidence": 0,
+  "boundary_triangles": 9734,
+  "shared_skin_fat_interface_triangles": 4777,
+  "components": {
+    "union": {
+      "count": 1,
+      "largest_cell_counts": [
+        28632
+      ],
+      "largest_volumes_m3": [
+        0.015104913818870254
+      ]
+    },
+    "skin": {
+      "count": 1,
+      "largest_cell_counts": [
+        14316
+      ],
+      "largest_volumes_m3": [
+        0.0034525709483045675
+      ]
+    },
+    "fat": {
+      "count": 1,
+      "largest_cell_counts": [
+        14316
+      ],
+      "largest_volumes_m3": [
+        0.011652342870565682
+      ]
+    }
+  },
+  "material_reference_volume_m3": {
+    "1": 0.003452570948304563,
+    "2": 0.011652342870565699
+  },
+  "material_mass_at_declared_baseline_density_kg": {
+    "1": 3.452571158911391,
+    "2": 10.487108583509128
+  },
+  "density_policy": "No density renormalization; geometry-derived mass diagnostic only",
+  "native_admission": false,
+  "accepted_physical_steps": 0,
+  "static_topology_and_positivity_pass": true,
+  "source": "actual retained compiled donor packet",
+  "material_map": {
+    "15": 1,
+    "16": 2
+  }
+}
