@@ -1,0 +1,11 @@
+# Exact native skin/fat labels and real-parent mass control 217
+
+Native parent capture now exports the existing registered skin/fat source region and stable source-face identities beside the four-file mass packet, using an optional .labels.csv companion. The strict reader checks every row's parent/material/geometric-donor identity and publishes labels only after complete validation and SHA-256 hashing. Wrong-donor and truncated companion cases reject without changing the existing packet. The original four CSV headers and per-step physical owners remain unchanged.
+
+The Release native capture completed on SSH Numi in 9.549 seconds, before Runtime creation, with zero physical steps: 7,233 nodes, 28,632 cells, 9,644 split source-mass rows and 13.939678963460464 kg. Its 70 anatomical source-binding regions and 4,619 source-face identities retain 1,532 cells where the geometric donor differs from the source-region label.
+
+The existing conservative spatial mass owner mapped this real packet onto its matching Float32 current-node identity control in 3.897 seconds (4.248 seconds end-to-end CLI). All 28,632 child cells have eligible transport; all 28,632 dominant parents match their same-index cells. Total mass difference is 3.55e-15 kg; maximum source-donor budget error is 4.00e-15 kg across 148 groups. Maximum transport distance is 50.754 nm under the declared 1 um bound. Skin densities remain 1000.000003-1000.000120 kg/m3 and fat 899.999947-900.000053 kg/m3 under the existing material bounds. Stable-face-crossing count is zero for this identity control; stable-face equality is not added as a general spatial-transport restriction.
+
+The failed native014/015 receipts also show accepted Brain timestamps/roots remain at t0 while the rejected 125 us candidates exist, and accepted common coordinates equal their t0 values. This is first-failure Brain/common-state evidence only; it does not independently establish full tissue-buffer rollback.
+
+**Still pending:** this identity control is not the changed candidate033 volume. Positive repaired volume cells, conservative transfer onto those actual new cells, native replacement admission and accepted motion are not claimed. The full source geometry and material acceptance gates remain mandatory. No images were inspected.

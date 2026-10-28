@@ -1,0 +1,43 @@
+{
+  "scope": "ACTUAL_NATIVE_PARENT_LABEL_CAPTURE_AND_IDENTITY_MASS_TRANSFER_CONTROL_ONLY",
+  "fixture_return_code": 0,
+  "native_parent_capture": {
+    "return_code": 0,
+    "wall_seconds": 9.549030167,
+    "scope": "unchanged-geometry exact compiled parent mass and source-identity label capture; zero runtime creation and zero physical steps, no images",
+    "physical_steps": 0
+  },
+  "identity_control": {
+    "status": "completed",
+    "returncode": 0,
+    "elapsed_seconds": 4.248016625,
+    "command": [
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-child-mass-mapping-cli",
+      "--parent-mass-csv",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-label-capture-016/compiled-parent-cell-mass.csv",
+      "--labels-csv",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-label-capture-016/compiled-parent-cell-mass.csv.labels.csv",
+      "--identity-transfer-control"
+    ]
+  },
+  "new_skin_physical_admission": false,
+  "accepted_physical_motion": false,
+  "source_files": {
+    "apps/NumiHumanPhysicalSkinChildMassMapping.hpp": {
+      "sha256": "95e54ab1c45e98266c083a10dc1ed48f77271d4ddf5e6f506c4dca070db7215a",
+      "bytes": 39156
+    },
+    "apps/NumiHumanPhysicalSkinChildMassMappingCheck.cpp": {
+      "sha256": "2e2709454645313973e42b2ad53f1844cfb3e969c3006cde93e18b0c3fce1294",
+      "bytes": 7758
+    },
+    "apps/NumiHumanPhysicalSkinChildMassMappingCLI.cpp": {
+      "sha256": "06f2cd1bde744f9a7ae5fbc6a9686e72b4951298b9c8ddcbbd9ac4ae41fc19e1",
+      "bytes": 18428
+    },
+    "apps/numilab_human_myosim_visual_probe.mm": {
+      "sha256": "7e2c625b9a8b947793024cc0aac139591e71cf77c0fa9d43dad006025bca0ab9",
+      "bytes": 2407231
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "scope": "ACTUAL_NATIVE_REJECTION_BRAIN_AND_COMMON_STATE_EVIDENCE_ONLY",
+  "runs": [
+    {
+      "run": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-identity-bed-physical-control-014",
+      "failure_receipt_sha256": "2d1fac41f430f04c42552014658d965f79d27c14165d17cd79ad27b4918ba804",
+      "matter_status": 6,
+      "physical_steps_accepted": 0,
+      "brain_accepted_time_us": 0,
+      "brain_accepted_root": 8501366922290395583,
+      "brain_candidate_time_us": 125,
+      "brain_candidate_root": 16991401436507375019,
+      "accepted_common_coordinates_equal_t0": true,
+      "scope": "First-failure latch proves accepted Brain metadata/root and common coordinates remain at t0 while a rejected candidate exists; full tissue-buffer rollback not established by this receipt."
+    },
+    {
+      "run": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-identity-bed-physical-control-015",
+      "failure_receipt_sha256": "a0ac8bc991b87356d5859e8afda48ee6264db0dd1951234e403807bbda2ea643",
+      "matter_status": 10,
+      "physical_steps_accepted": 0,
+      "brain_accepted_time_us": 0,
+      "brain_accepted_root": 9389162486456976645,
+      "brain_candidate_time_us": 125,
+      "brain_candidate_root": 2052084729535756561,
+      "accepted_common_coordinates_equal_t0": true,
+      "scope": "First-failure latch proves accepted Brain metadata/root and common coordinates remain at t0 while a rejected candidate exists; full tissue-buffer rollback not established by this receipt."
+    }
+  ],
+  "full_transaction_rollback_qualified": false
+}

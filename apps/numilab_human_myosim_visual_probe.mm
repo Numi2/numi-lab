@@ -22448,7 +22448,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         source.objects.back().femNodes.size(),
                     "whole-body boundary map does not cover its physical volume nodes");
             if(partitionedReductionDiagnostic||
-               partitionedPreconditionerRequested||endpointCaptureRequested) {
+               partitionedPreconditionerRequested||endpointCaptureRequested||
+               std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_MASS_LEDGER_CSV")!=nullptr) {
                 RegisteredSkinFatReductionSourceLabels sourceLabels;
                 const auto verifiesOriginalBinding=[&](std::uint32_t sourceVertex,
                                                         std::uint32_t donorBody) {
@@ -24015,6 +24016,35 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             geometryTets<<','<<volume<<','<<parentMass[row]<<'\n';
         }
         geometryNodes.flush();geometryTets.flush();require(geometryNodes.good()&&geometryTets.good(),"parent volume geometry CSV write failed");
+        require(skinFatReductionSourceLabels.has_value(),
+                "native parent mass labels lack the registered source owner");
+        const auto& parentLabels=*skinFatReductionSourceLabels;
+        require(parentLabels.tetrahedronRegionLabels.size()==object.tetrahedra.size()&&
+                    parentLabels.tetrahedronOriginalSourceFaceIndices.size()==object.tetrahedra.size(),
+                "native parent mass labels do not cover the exact compiled source cells");
+        std::ofstream labels(std::string(ledgerPath)+".labels.csv",
+            std::ios::out|std::ios::binary|std::ios::trunc);
+        require(labels.good(),"could not create native parent mass identity labels");
+        labels<<"parent_tet_row,material_index,geometric_donor_body,anatomical_region_id,stable_source_face_id\n";
+        for(std::size_t row=0;row<object.tetrahedra.size();++row) {
+            const auto& corners=object.tetrahedra[row].nodes;
+            std::map<std::uint32_t,unsigned> counts;
+            for(const auto node:corners)++counts[donorBodies[node]];
+            std::uint32_t donor=NM_INVALID_INDEX;unsigned largest=0u;
+            for(const auto& [body,count]:counts)if(count>largest){donor=body;largest=count;}
+            const auto regionId=parentLabels.tetrahedronRegionLabels[row];
+            const auto sourceFace=parentLabels.tetrahedronOriginalSourceFaceIndices[row];
+            require(regionId!=NM_INVALID_INDEX&&sourceFace!=NM_INVALID_INDEX,
+                    "native parent mass identity labels contain an invalid source region or face");
+            labels<<row<<','<<(object.femMaterialIndices.empty()?object.materialIndex:object.femMaterialIndices[row])
+                <<','<<donor<<','<<regionId<<','<<sourceFace<<'\n';
+        }
+        labels.flush();require(labels.good(),"native parent mass identity labels write failed");
+        std::cout<<"whole_body_compiled_skin_fat_parent_labels=PASS rows="
+            <<object.tetrahedra.size()
+            <<" region_owner=dominant_original_registered_skin_binding_body_id"
+            <<" face_owner=registered_mechanical_face_original_source_identity"
+            <<" mass_state_added=0 physical_steps=0"<<std::endl;
         std::cout<<"whole_body_compiled_skin_fat_parent_mass=PASS nodes="<<captureReport.nodeCount
                  <<" tets="<<captureReport.tetrahedronCount<<" mass_kg="<<std::setprecision(17)<<captureReport.parentMassKg
                  <<" source_rows="<<sourceMass.size()<<" nodal_closure_error_kg="

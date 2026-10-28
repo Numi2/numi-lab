@@ -93,6 +93,30 @@ int main() {
         std::cerr<<"explicit parent labels rejected: "<<error<<'\n';return 4;
     }
 
+    const auto labels=std::filesystem::path(massCSV.string()+".labels.csv");
+    const std::string labelHeader="parent_tet_row,material_index,geometric_donor_body,"
+        "anatomical_region_id,stable_source_face_id\n";
+    std::ofstream(labels)<<labelHeader<<"0,0,7,3,901\n";
+    if(!loadCompiledSkinFatParentLabelsCSV(labels,packet,error)||
+       packet.anatomicalRegionIndices!=std::vector<std::uint32_t>{3u}||
+       packet.stableSourceFaceIdentities!=std::vector<std::uint32_t>{901u}||
+       packet.parentLabelSHA256.size()!=64u) {
+        std::cerr<<"native parent label roundtrip rejected: "<<error<<'\n';return 10;
+    }
+    const auto validLabelHash=packet.parentLabelSHA256;
+    std::ofstream(labels)<<labelHeader<<"0,0,8,4,902\n";
+    if(loadCompiledSkinFatParentLabelsCSV(labels,packet,error)||
+       packet.parentLabelSHA256!=validLabelHash||
+       packet.anatomicalRegionIndices!=std::vector<std::uint32_t>{3u}||
+       packet.stableSourceFaceIdentities!=std::vector<std::uint32_t>{901u}) {
+        std::cerr<<"foreign donor labels accepted or mutated source identity\n";return 11;
+    }
+    std::ofstream(labels)<<labelHeader;
+    if(loadCompiledSkinFatParentLabelsCSV(labels,packet,error)||
+       packet.parentLabelSHA256!=validLabelHash) {
+        std::cerr<<"truncated labels accepted or mutated parent packet\n";return 12;
+    }
+
     PhysicalSkinChildMassMappingBundle bundle;
     bundle.parent=std::move(packet);
     fillOneChild(bundle);

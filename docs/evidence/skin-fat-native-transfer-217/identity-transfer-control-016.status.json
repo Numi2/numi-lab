@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "returncode": 0,
+  "elapsed_seconds": 4.248016625,
+  "command": [
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-child-mass-mapping-cli",
+    "--parent-mass-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-label-capture-016/compiled-parent-cell-mass.csv",
+    "--labels-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-label-capture-016/compiled-parent-cell-mass.csv.labels.csv",
+    "--identity-transfer-control"
+  ]
+}

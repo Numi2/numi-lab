@@ -52,6 +52,7 @@ struct PhysicalSkinParentMassPacket {
     std::string parentMassPacketSHA256;
     std::string parentSourceContributionSHA256;
     std::string parentTopologySHA256;
+    std::string parentLabelSHA256;
     double maximumNodalMassClosureErrorKg=0.0;
     double maximumNodalMassClosureRelativeError=0.0;
     double totalMassKg=0.0;
@@ -360,6 +361,48 @@ inline bool validSHA256(std::string_view value) {
     packet.stableSourceFaceIdentities.assign(stableSourceFaceIdentities.begin(),stableSourceFaceIdentities.end());
     error.clear();
     return true;
+}
+
+// Optional companion to the existing native parent CSV capture. These labels
+// come from RegisteredSkinFatReductionSourceLabels at the same source cook;
+// source identities are never inferred from CSV row numbers.
+[[nodiscard]] inline bool loadCompiledSkinFatParentLabelsCSV(
+        const std::filesystem::path& labelCSV,
+        PhysicalSkinParentMassPacket& packet,std::string& error) {
+    using namespace physical_skin_child_mass_detail;
+    const auto fail=[&](std::string message){error=std::move(message);return false;};
+    std::ifstream input(labelCSV);
+    if(!input)return fail("cannot open native parent label CSV "+labelCSV.string());
+    if(!readHeader(input,labelCSV,{"parent_tet_row","material_index",
+            "geometric_donor_body","anatomical_region_id","stable_source_face_id"},error))
+        return false;
+    const auto count=packet.tetrahedra.size();
+    if(count==0u||packet.materialIndices.size()!=count||packet.donorBodyIndices.size()!=count)
+        return fail("native parent labels require a complete parsed parent packet");
+    std::vector<std::uint32_t> regions(count),faces(count);
+    std::string line;std::size_t row=0u;
+    while(std::getline(input,line)) {
+        const auto fields=splitCSV(line);
+        std::uint32_t cell=0u,material=0u,donor=0u,region=0u,face=0u;
+        if(row>=count||fields.size()!=5u||
+           !parseNumber(fields[0],cell)||!parseNumber(fields[1],material)||
+           !parseNumber(fields[2],donor)||!parseNumber(fields[3],region)||
+           !parseNumber(fields[4],face)||cell!=row||
+           material!=packet.materialIndices[row]||donor!=packet.donorBodyIndices[row]||
+           region==NM_INVALID_INDEX||face==NM_INVALID_INDEX)
+            return fail("native parent label row does not match current parent material/donor identity at row "+
+                std::to_string(row));
+        regions[row]=region;faces[row]=face;++row;
+    }
+    if(!input.eof()||row!=count)
+        return fail("native parent label CSV is incomplete or unreadable");
+    std::string digest;
+    if(!sha256File(labelCSV,digest,error))return false;
+    // Publish only after every row, identity and source hash has passed.
+    packet.anatomicalRegionIndices=std::move(regions);
+    packet.stableSourceFaceIdentities=std::move(faces);
+    packet.parentLabelSHA256=std::move(digest);
+    error.clear();return true;
 }
 
 struct PhysicalSkinChildMassMappingBundle {
