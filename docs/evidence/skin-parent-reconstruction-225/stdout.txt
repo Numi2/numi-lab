@@ -1,0 +1,3 @@
+baseline_parent_registration=EXPECTED_REJECT reason=physical skin layer 0 node 0 has no valid parent-cell registration
+actual_ID_parent_reconstruction=REJECT reason=physical skin layer 0 node 0 does not reconstruct from its current parent: error_m=2.74046e-08
+parent_reconstruction_guard_regressions=PASS native_physical_steps=0

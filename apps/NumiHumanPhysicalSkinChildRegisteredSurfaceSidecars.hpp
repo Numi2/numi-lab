@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -369,6 +370,90 @@ inline bool validateFrames(const RegisteredSurface& s,const std::vector<Physical
   for(const auto& row:next.nodeParent[l])(row.available?measured.parentMappedNodes[l]:measured.parentUnmappedNodes[l])++;
  }
  measured.payloadSHA256=next.payloadSHA256;output=std::move(next);report=std::move(measured);error.clear();return true;
+}
+
+
+// Import-time physical check, separate from parsing. A complete, numerically
+// bounded stencil must reconstruct the actual registered point in the pinned
+// current parent table; matching row counts and hashes alone cannot prove that.
+struct PhysicalSkinSurfaceParentRegistrationReport {
+    std::array<std::size_t,3> checkedNodes{};
+    std::array<double,3> maximumReconstructionErrorM{};
+    std::array<double,3> maximumRegistrationDistanceM{};
+};
+
+[[nodiscard]] inline bool validatePhysicalSkinSurfaceParentRegistration(
+        const PhysicalSkinRegisteredSurfaceCSVSet& surfaces,
+        const PhysicalSkinParentMassPacket& parent,
+        PhysicalSkinSurfaceParentRegistrationReport& report,
+        std::string& error) {
+    using namespace physical_skin_child_mass_detail;
+    const auto fail=[&](std::string message){error=std::move(message);return false;};
+    if(parent.currentWorldPoints.empty()||parent.tetrahedra.empty()||
+       parent.materialIndices.size()!=parent.tetrahedra.size())
+        return fail("physical skin registration requires a complete current parent table");
+    PhysicalSkinSurfaceParentRegistrationReport next;
+    for(unsigned layer=0;layer<3;++layer){
+        const auto& s=surfaces.surfaces[layer];const auto& rows=surfaces.nodeParent[layer];
+        if(s.worldPoints.empty()||rows.size()!=s.worldPoints.size())
+            return fail("physical skin registration does not cover every surface node");
+        for(std::size_t node=0;node<rows.size();++node){
+            const auto& row=rows[node];
+            const auto label=[&](std::string_view why){
+                return "physical skin layer "+std::to_string(layer)+" node "+
+                    std::to_string(node)+" "+std::string(why);};
+            if(!row.available||row.tet>=parent.tetrahedra.size())
+                return fail(label("has no valid parent-cell registration"));
+            const auto material=parent.materialIndices[row.tet];
+            if((layer==0&&material!=15u)||(layer==1&&material!=15u&&material!=16u)||
+               (layer==2&&material!=16u))
+                return fail(label("parent material does not match its skin/fat role"));
+            V3 reconstructed=row.residual;double sum=0.;
+            for(unsigned c=0;c<4;++c){
+                const auto v=parent.tetrahedra[row.tet][c];const auto beta=row.bary[c];
+                if(v>=parent.currentWorldPoints.size()||!std::isfinite(beta)||beta<-1e-8||beta>1.+1e-8)
+                    return fail(label("has an invalid parent corner or barycentric coefficient"));
+                sum+=beta;
+                for(unsigned a=0;a<3;++a){
+                    const auto value=parent.currentWorldPoints[v][a];
+                    if(!std::isfinite(value)||!std::isfinite(s.worldPoints[node][a])||!std::isfinite(row.residual[a]))
+                        return fail(label("has a nonfinite current point or residual"));
+                    reconstructed[a]+=beta*value;
+                }
+            }
+            const auto distance=norm(row.residual);
+            if(std::abs(sum-1.)>1e-8||!std::isfinite(row.distance)||row.distance<0.||
+               row.distance>0.02||std::abs(distance-row.distance)>2e-10)
+                return fail(label("violates the existing physical parent-distance or barycentric bounds"));
+            const auto delta=norm(sub(reconstructed,s.worldPoints[node]));
+            if(!std::isfinite(delta)||delta>2e-8){
+                std::ostringstream message;message<<label("does not reconstruct from its current parent: error_m=")<<delta;
+                return fail(message.str());
+            }
+            ++next.checkedNodes[layer];
+            next.maximumReconstructionErrorM[layer]=std::max(next.maximumReconstructionErrorM[layer],delta);
+            next.maximumRegistrationDistanceM[layer]=std::max(next.maximumRegistrationDistanceM[layer],distance);
+        }
+    }
+    report=std::move(next);error.clear();return true;
+}
+
+
+[[nodiscard]] inline bool loadPhysicalSkinRegisteredSurfaceCSVSetForParent(
+        const PhysicalSkinRegisteredSurfaceCSVFiles& files,
+        const PhysicalSkinParentMassPacket& parent,
+        PhysicalSkinRegisteredSurfaceCSVSet& output,
+        PhysicalSkinRegisteredSurfaceCSVReport& report,
+        PhysicalSkinSurfaceParentRegistrationReport& registrationReport,
+        std::string& error) {
+    PhysicalSkinRegisteredSurfaceCSVSet next;
+    PhysicalSkinRegisteredSurfaceCSVReport parsed;
+    PhysicalSkinSurfaceParentRegistrationReport checked;
+    if(!loadPhysicalSkinRegisteredSurfaceCSVSet(files,next,parsed,error)||
+       !validatePhysicalSkinSurfaceParentRegistration(next,parent,checked,error))
+        return false;
+    output=std::move(next);report=std::move(parsed);registrationReport=std::move(checked);
+    error.clear();return true;
 }
 
 } // namespace metalrobo::human::coarse_tissue

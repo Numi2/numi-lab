@@ -1,0 +1,13 @@
+{
+  "host": "numi",
+  "command": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-parent-reconstruction-225/check",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/volume-worker/registered-surface-sidecar-222/attempt-007-normalized-source-bary",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-label-capture-016/compiled-parent-cell-mass.csv"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 0.815604791,
+  "scope": "import-time point-parent reconstruction and atomic rejection; no new volume and no physical step",
+  "source_sha256": "f3350d980d72b3ff00205c4a0076f26bb95a18ab385be68dda7dc6ba524336ad",
+  "header_sha256": "940266dcd80afac444ce7c92a40158f6d7e6c84ee2fce3f3ee571a5a228a4cf0"
+}
