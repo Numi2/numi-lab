@@ -1,0 +1,57 @@
+{
+  "schema": "native-authoring-role-consumer-check.v1",
+  "status": "PASS",
+  "scope": "synthetic O/I/D initialization adapter fixture only; no actual changed child volume or physical admission",
+  "worktree": "/Users/numi/Work/skin-fat-native-integration-209",
+  "worktreeHead": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "pinnedMainRevision": "b3df9cf0fdfc3bae028fe02383788d606c0ec8d9",
+  "transitiveProjectHeaderCount": 28,
+  "transitiveProjectHeadersByteIdenticalToPinnedMain": true,
+  "sourceAndBinarySHA256": {
+    "header": "688cc667418a94b95588fabc3940d4d12e56b90cdcdc8ff2d042c2d823037aac",
+    "check": "3d91836d5e9dc1bed278b1d364c30de6a4d3afbf7ce56d4beaac885c6fcec87c",
+    "cmake": "0c5951d2b34a1a5870ba5fc5c5a9ad2bacb64a47c3a9516295f94b2f56d07548",
+    "binary": "91b1f573204e4e38bf22a07ed9ee73269e2e8103b952bed1c085d1321d5b36b9"
+  },
+  "logSHA256": {
+    "buildStdout": "c2ed93ffd93c840755c0e91392ae593b1b52de9b7aaf6c208123feaceb1dde2e",
+    "buildStderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runStdout": "590ff6a75946d3f782558c9dae3d41113e6a2f643c9c190dbfa1310f7a93501b",
+    "runStderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "invocation": [
+    "cd /Users/numi/Work/skin-fat-native-integration-209",
+    "cmake --build build-native --target numi-human-physical-skin-authoring-role-consumer-check -j1",
+    "build-native/numi-human-physical-skin-authoring-role-consumer-check"
+  ],
+  "stdout": "authoring_role_consumer=pass rows=3/3/3 bindings=86 parent_geometric_donor=150 frame_owners=distinct transactional_failures=11 physical_admission=false",
+  "stderr": "",
+  "actualSurfacePacketCompatibility": {
+    "packet": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/physical-outer-direct-placement-235/registered-surfaces-002",
+    "packetReceiptSHA256": "cffa38e8df49b1bbb11a1ac564935a78bc6d49eadd0fa91815144f8d498d0708",
+    "roleWeightFilesPresent": false,
+    "reason": "No parent-tet-full-weights-O/I/D CSVs are retained for these legacy mixed-source surfaces; direct derived-authoring row identity is not satisfied, so the adapter was not run on this packet."
+  },
+  "physicalAdmission": false,
+  "ctestEnabled": {
+    "buildDir": "/tmp/numi-authoring-role-consumer-248-build",
+    "status": "PASS",
+    "invocation": [
+      "cmake -S /Users/numi/Work/skin-fat-native-integration-209 -B /tmp/numi-authoring-role-consumer-248-build -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release",
+      "cmake --build /tmp/numi-authoring-role-consumer-248-build --target numi-human-physical-skin-authoring-role-consumer-check -j1",
+      "ctest --test-dir /tmp/numi-authoring-role-consumer-248-build -R ^human.physical-skin-authoring-role-consumer$ --output-on-failure"
+    ],
+    "stdout": "Test project /tmp/numi-authoring-role-consumer-248-build\n    Start 185: human.physical-skin-authoring-role-consumer\n1/1 Test #185: human.physical-skin-authoring-role-consumer ...   Passed    0.17 sec\n\n100% tests passed out of 1\n\nTotal Test time (real) =   0.17 sec",
+    "stderr": "",
+    "testBinarySHA256": "91b1f573204e4e38bf22a07ed9ee73269e2e8103b952bed1c085d1321d5b36b9",
+    "logSHA256": {
+      "configureStdout": "4cf218b44418525b25c51d14c5e47c384d5b8cc2fe0bc1bb60026a117b88cc5a",
+      "configureStderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "buildStdout": "2440a773eeb02af6935c526935382c84c6bfe2fe54f3cb9a85af1328730f6d6c",
+      "buildStderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ctestStdout": "ac777a3c19076fac9b6c236fe8939c074e8cad137c854583b89f8739759e7055",
+      "ctestStderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "existingBuildTestingOption": "OFF; the separately configured directory above enabled CTest and ran exactly this one test"
+  }
+}

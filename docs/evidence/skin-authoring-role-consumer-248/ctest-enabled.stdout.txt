@@ -1,0 +1,7 @@
+Test project /tmp/numi-authoring-role-consumer-248-build
+    Start 185: human.physical-skin-authoring-role-consumer
+1/1 Test #185: human.physical-skin-authoring-role-consumer ...   Passed    0.17 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.17 sec

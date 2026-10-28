@@ -7071,3 +7071,17 @@ if(BUILD_TESTING)
         COMMAND numi-human-accepted-skin-direct-position-check)
 endif()
 endif()
+
+# Isolated consumer for typed derived O/I/D authoring surfaces; no NHSKIN IDs or physical admission.
+add_executable(numi-human-physical-skin-authoring-role-consumer-check EXCLUDE_FROM_ALL
+    apps/NumiHumanPhysicalSkinAuthoringRoleConsumerCheck.cpp)
+target_include_directories(numi-human-physical-skin-authoring-role-consumer-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+target_compile_features(numi-human-physical-skin-authoring-role-consumer-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-physical-skin-authoring-role-consumer-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME human.physical-skin-authoring-role-consumer
+        COMMAND numi-human-physical-skin-authoring-role-consumer-check)
+endif()
