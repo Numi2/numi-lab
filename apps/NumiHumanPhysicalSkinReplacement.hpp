@@ -389,7 +389,7 @@ inline std::vector<RegisteredSkinFatDonorMomentDelta> momentDeltas(
         return fail("replacement candidate failed the registered volume builder: "+candidateError);
     if(scratch.objects.size()!=oldObjectIndex+1u)
         return fail("replacement builder did not emit exactly one final FEM object");
-    const auto& candidateObject=scratch.objects.back();
+    auto& candidateObject=scratch.objects.back();
     if(candidateObject.representation!=numi::matter::Representation::fem||
        candidateObject.name!=oldObject.name||
        !selectedMaterialPair(candidateObject,skinMaterialIndex,fatMaterialIndex))
@@ -397,6 +397,9 @@ inline std::vector<RegisteredSkinFatDonorMomentDelta> momentDeltas(
     if(candidateObject.femReferenceSourceIdentity!=topology.referenceSourceIdentity||
        candidateObject.femMaterialSourceIdentity!=topology.materialSourceIdentity)
         return fail("replacement builder did not install the pinned new reference/material source identities");
+    // This changes constitutive input semantics and belongs to the existing
+    // owner policy, not to the generated topology. Retain it across replacement.
+    candidateObject.femReferenceDisplacementGradient=oldObject.femReferenceDisplacementGradient;
     if(candidateSkin.firstGlobalFEMNode!=globalNodeBase||
        candidateFat.firstGlobalFEMNode!=globalNodeBase)
         return fail("replacement candidate global node base mismatch: skin="+

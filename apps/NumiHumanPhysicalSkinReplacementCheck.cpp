@@ -26,6 +26,7 @@ int main() {
     std::string error;
     PreparedOrganicFEM oldSkin,oldFat;
     assert(emit(fixture,world,oldReport,error,&oldSkin,&oldFat));
+    world.objects.back().femReferenceDisplacementGradient=true;
     oldSkin.layerThicknessMinM=0.002;
     oldSkin.layerThicknessMaxM=0.003;
     oldSkin.layerThicknessProvenance="synthetic accepted skin range";
@@ -62,6 +63,7 @@ int main() {
     assert(replaced.femNodes==originalObject.femNodes);
     assert(replaced.femReferenceNodes==originalObject.femReferenceNodes);
     assert(replaced.femMaterialIndices==originalObject.femMaterialIndices);
+    assert(replaced.femReferenceDisplacementGradient);
     assert(replaced.tetrahedra.size()==originalObject.tetrahedra.size());
     for(std::size_t cell=0;cell<replaced.tetrahedra.size();++cell)
         assert(replaced.tetrahedra[cell].nodes==originalObject.tetrahedra[cell].nodes);

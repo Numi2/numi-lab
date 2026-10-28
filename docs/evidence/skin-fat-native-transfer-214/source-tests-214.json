@@ -1,0 +1,58 @@
+{
+  "status": "TESTED_NATIVE_SOURCE_INITIALIZATION_ONLY",
+  "device": "Apple M6",
+  "physical_steps": 0,
+  "replacement_new_skin_volume_admitted": false,
+  "motion_qualification": false,
+  "native_result": {
+    "return_code": 0,
+    "wall_seconds": 8.957657208,
+    "physical_steps": 0,
+    "runtime_created": false,
+    "qualification": "source-only existing geometry FEM bed and unpaired identity preparation; new skin/fat volume pending"
+  },
+  "checks": {
+    "numi-human-fem-outer-ground-alignment-check": "whole-body FEM outer ground alignment check passed",
+    "numi-human-physical-skin-replacement-check": "transactional registered skin/fat replacement check passed"
+  },
+  "native_alignment": "resting_initial_FEM_outer_alignment=applied outer_nodes=2411 initial_min_gap_m=-1.9949231955251889e-07 aligned_min_gap_m=-5.7772275852130406e-09 maximum_common_translation_residual_m=2.2351741790771484e-08 legacy_nhcnt_witnesses=32 force_rows_added=0 geometry=registered_physical_outer",
+  "native_bed_gate": "resting_fem_skin_bed_compiled=validated pair_rows=2411 initial_outer_min_gap_m=-5.7772275852130406e-09 initial_outer_max_gap_m=0.29479482769966125 max_initial_penetration_m=5.7772275852130406e-09 initial_state=source_float32_position_against_compiled_plane",
+  "native_transactional_install": "whole_body_skin_fat_unpaired_identity_install=PASS object=15 nodes=7233 tets=28632 source_donors=74 maximum_source_mass_delta_kg=1.5099033134902129e-14 maximum_local_first_moment_delta_kg_m=1.2076865267462637e-15 source_world_mutated=1 control_geometry=unchanged candidate033_volume_admitted=0 motion_qualification=pending",
+  "source_sha256": {
+    "CMakeLists.txt": "1f64651cc5e67b3fea96434201d97b3f83165036ea743c3b8ea239e0b5ff79ef",
+    "apps/NumiHumanFEMOuterGroundAlignment.hpp": "d4859cbf228ab6af916b95c43d727ebd7a9682c292a6d69016738606bc1f9bd1",
+    "apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp": "e236c4787a9490dfe9b9220da346e5d22407a01e01e6f67cd6ff2a88f35625be",
+    "apps/NumiHumanPhysicalSkinReplacement.hpp": "f1577ecc7d035a690f540cadda94f417500e329d430548f3f678765e06b611dc",
+    "apps/NumiHumanPhysicalSkinReplacementCheck.cpp": "21e899887e634b81699bf35f0c6a4005e8eea0961b9e611162663fb5c5ad0c77",
+    "apps/numilab_human_myosim_visual_probe.mm": "665c847e5f6c2544d9c7af900dafeec010b1399bd423273669e647f5ec4978e1"
+  },
+  "binary_sha256": {
+    "bin/numi-human-native": "b9867296fc26ac6e202c9a194837655d9fd96877d1cb97a4f3e0f2bed117cacb",
+    "numi-human-fem-outer-ground-alignment-check": "00c394fefc9464af5f87167cf6c6225a38f77c5b94cb45c20f43418e12cbcda1",
+    "numi-human-physical-skin-replacement-check": "8f416ab289673a745c68af2dca2a0c5760c3c77e94a3ad5a403a2f6b1a6c5164"
+  },
+  "captured_parent_packet": {
+    "": {
+      "rows": 28632,
+      "sha256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679"
+    },
+    ".nodes.csv": {
+      "rows": 7233,
+      "sha256": "cfde650bc6d21c3d5c295a25e2a8a11e8e602f773e6e5de441b3fb0e4c57c905"
+    },
+    ".tets.csv": {
+      "rows": 28632,
+      "sha256": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992"
+    },
+    ".source.csv": {
+      "rows": 9644,
+      "sha256": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f"
+    }
+  },
+  "failed_diagnostic_command": "Historical D37 full-packet fixture replay cannot consume010 CSV names/schema; kept separate from010 parser validation.",
+  "limits": [
+    "Existing geometry installation control only; candidate033 volume not admitted.",
+    "Bed correction changes only initial common root translation, adds no physical rows or per-step correction.",
+    "Physical skin/fat closure, child mass transfer and motion remain required."
+  ]
+}

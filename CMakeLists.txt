@@ -2373,6 +2373,18 @@ if(BUILD_TESTING)
         COMMAND numi-human-physical-skin-replacement-check)
 endif()
 
+add_executable(numi-human-fem-outer-ground-alignment-check EXCLUDE_FROM_ALL
+    apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp)
+target_include_directories(numi-human-fem-outer-ground-alignment-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/apps")
+target_compile_features(numi-human-fem-outer-ground-alignment-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-fem-outer-ground-alignment-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME numi_human_fem_outer_ground_alignment
+        COMMAND numi-human-fem-outer-ground-alignment-check)
+endif()
+
 add_executable(numi-human-native EXCLUDE_FROM_ALL apps/numilab_human_myosim_visual_probe.mm)
 get_target_property(NUMI_HUMAN_VISUAL_DEFINITIONS metalrobo_numilab_human_myosim_visual_probe COMPILE_DEFINITIONS)
 target_compile_definitions(numi-human-native PRIVATE ${NUMI_HUMAN_VISUAL_DEFINITIONS}

@@ -21,6 +21,7 @@
 #include "NumiHumanSkinBoundaryNodeMap.hpp"
 #include "NumiHumanUnpairedSkinFatVolume.hpp"
 #include "NumiHumanPhysicalSkinReplacement.hpp"
+#include "NumiHumanFEMOuterGroundAlignment.hpp"
 #include "NumiHumanRegisteredSkinCandidateCSV.hpp"
 #include "NumiHumanCandidateSkin033.hpp"
 #include "NumiHumanCompiledSkinFatMassCapture.hpp"
@@ -20465,6 +20466,80 @@ struct PassiveFasciaRuntimeOwner {
     std::vector<std::uint32_t> wholeBodySkinSourceTetRegionLabels;
 };
 
+// Initialization only. Use the same registered-surface compiler and mechanical
+// delta owner as makeRestingPassiveFasciaOwner; no support force is applied here.
+bool evaluateRegisteredWholeBodySupportOuter(
+    const metalrobo::EngineModel& model,const LoadedSkin& skin,
+    const std::string& sourceMember,const std::string& payloadSHA256,
+    std::span<const float> q,std::vector<std::array<float,3>>& output,
+    std::string& error) {
+    using namespace metalrobo::human::coarse_tissue;
+    metalrobo::MetalArticulatedOperatorConfig config;config.pointJacobiansOnly=true;
+    const auto posesAt=[&](std::span<const float> coordinates,std::vector<MRBodyStateGPU>& poses) {
+        metalrobo::MetalArticulatedOperatorInput input;
+        input.articulationIndex=0u;input.environmentCount=1u;input.q=coordinates;
+        metalrobo::MetalArticulatedOperatorResult result;
+        const auto status=metalrobo::runMetalArticulatedOperator(model,input,result,config);
+        if(!status.succeeded()||result.bodyPoses.size()!=model.bodies.size()) {
+            error="physical support source-pose Metal FK failed: "+status.message;return false;
+        }
+        poses=visualBodyStates(model,result.bodyPoses);return true;
+    };
+    std::vector<MRBodyStateGPU> bodies,restBodies;
+    if(!posesAt(q,bodies)||!posesAt(model.defaultQ,restBodies))return false;
+    const auto pose=std::span<const MRBodyStateGPU>(bodies);
+    const auto rest=std::span<const MRBodyStateGPU>(restBodies);
+    const auto positionAt=[&](std::uint32_t i,const SkinVertex& v) {
+        const auto p=skinVertexWorld(skin,v,i,pose);return V3{p.x,p.y,p.z};
+    };
+    const auto normalAt=[&](std::uint32_t i,const SkinVertex& v) {
+        const auto p=skinVertexNormalWorld(skin,v,i,pose,rest);return V3{p.x,p.y,p.z};
+    };
+    const auto ownerAt=[&](std::uint32_t i,const SkinVertex&) {
+        return dominantSkinDonorBody(skin,i);
+    };
+    const auto localAt=[&](std::uint32_t,std::uint32_t body,const V3& world) {
+        require(body<pose.size(),"physical support source has an invalid donor body");
+        const auto& b=pose[body];const mr_float4 inverse{-b.orientation.x,-b.orientation.y,-b.orientation.z,b.orientation.w};
+        const auto p=rotatePoint(inverse,femSubtract({float(world[0]),float(world[1]),float(world[2]),1.f},b.position));
+        return V3{p.x,p.y,p.z};
+    };
+    const auto frameAt=[&](std::uint32_t,std::uint32_t body) {
+        require(body<pose.size(),"physical support source has an invalid donor frame");
+        const auto& q=pose[body].orientation;const mr_float4 inverse{-q.x,-q.y,-q.z,q.w};std::array<double,9> m{};
+        for(unsigned c=0;c<3;++c) {
+            const auto r=rotatePoint(inverse,{c==0?1.f:0.f,c==1?1.f:0.f,c==2?1.f:0.f,0.f});
+            m[c]=r.x;m[3+c]=r.y;m[6+c]=r.z;
+        }
+        return m;
+    };
+    RegisteredSurface region;RegisteredSkinRigidPlacement placement;
+    const auto seed=std::min<std::uint32_t>(10000u,static_cast<std::uint32_t>(skin.indices.size()/3u-1u));
+    if(!makeRegisteredSkinMechanicalRegion(skin,"BodyParts3D",sourceMember,payloadSHA256,
+        positionAt,normalAt,localAt,ownerAt,frameAt,seed,0u,region,error,&placement,
+        std::span<const std::uint32_t>(kWholeBodySkinSourceEmbeddingFaces),
+        std::span<const std::array<double,3>>(kWholeBodySkinSourceEmbeddingBarycentric),
+        std::span<const V3>(kWholeBodySkinSourceEmbeddingResidualWorldM),
+        kWholeBodySkinCandidateSourcePayloadSHA256,
+        std::span<const std::uint32_t>(kWholeBodySkinCandidateDonorBodies),
+        std::span<const WholeBodySkinDonorFrameV1>(kWholeBodySkinDonorFrames),
+        std::span<const V3>(kWholeBodySkinCandidateReferenceWorldPoints)))return false;
+    RegisteredSkinMechanicalDeltaAudit audit;
+    if(!applyRegisteredSkinMechanicalDeltas(region,kWholeBodySkinSourceVertices,
+        kWholeBodySkinMechanicalWorldDeltas,kWholeBodySkinMechanicalDonorLocalDeltas,
+        kWholeBodySkinMechanicalCapClass,kWholeBodySkinHeadHandDisplacementCapM,
+        kWholeBodySkinBodyDisplacementCapM,audit,error))return false;
+    if(region.worldPoints.size()!=kWholeBodySkinSourceVertexCount) {
+        error="physical support registered outer count differs from the retained compiler";return false;
+    }
+    std::vector<std::array<float,3>> next;next.reserve(region.worldPoints.size());
+    for(const auto& source:region.worldPoints) {
+        const auto p=placement.point(source);
+        next.push_back({float(p[0]),float(p[1]),float(p[2])});
+    }
+    output=std::move(next);error.clear();return true;
+}
+
 std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     const LoadedPectoralisFascia& fascia, LoadedSoftTissues& tissues,
     LoadedMuscles& muscles, metalrobo::EngineModel& model,
@@ -33375,8 +33450,41 @@ int main(int argc, char** argv) {
                 require(articulation.rootType == MR_ROOT_FLOATING &&
                             articulation.qOffset + 7u <= poseQ.size(),
                         "ground-aligned release placement requires a floating root pose");
-                const GroundAlignedSupport aligned = makeGroundAlignedSupport(
-                    rigid.model, *supportContactPayload, poseQ);
+                GroundAlignedSupport aligned;
+                if(femSkinSupportRequested()) {
+                    using namespace metalrobo::human::coarse_tissue;
+                    const char* wholeBodySetting=std::getenv("NUMI_HUMAN_RESTING_WHOLE_BODY_SKIN_FAT_FEM");
+                    require(wholeBodySetting&&std::string_view(wholeBodySetting)=="1"&&skinPayload&&skinPayloadPath,
+                            "FEM outer support alignment requires the retained whole-body physical source");
+                    const auto sourceMember=skinPayloadPath->string();
+                    const auto payloadSHA=loadedKneeSHA256Hex(loadedKneeFileSHA256(*skinPayloadPath));
+                    const auto evaluateOuter=[&](std::span<const float> q,
+                            std::vector<FEMOuterPointF32>& points,std::string& error) {
+                        return evaluateRegisteredWholeBodySupportOuter(rigid.model,*skinPayload,
+                            sourceMember,payloadSHA,q,points,error);
+                    };
+                    FEMOuterGroundAlignment physicalAlignment;std::string alignmentError;
+                    const auto& header=supportContactPayload->header;
+                    require(makeWholeBodyFEMGroundAlignedSupport(poseQ,articulation.qOffset,
+                                {header.groundPointX,header.groundPointY,header.groundPointZ},
+                                {header.groundNormalX,header.groundNormalY,header.groundNormalZ},
+                                kWholeBodySkinSourceVertexCount,header.contactCount,
+                                evaluateOuter,physicalAlignment,alignmentError),
+                            "physical outer first-touch placement rejected: "+alignmentError);
+                    aligned.q.assign(physicalAlignment.q.begin(),physicalAlignment.q.end());
+                    aligned.witnessCount=physicalAlignment.legacyNHCNTWitnessCount;
+                    aligned.seedTranslationMeters=physicalAlignment.seedTranslationMeters;
+                    std::cout<<std::setprecision(17)
+                        <<"resting_initial_FEM_outer_alignment=applied"
+                        <<" outer_nodes="<<physicalAlignment.outerNodeCount
+                        <<" initial_min_gap_m="<<physicalAlignment.initialMinimumGapM
+                        <<" aligned_min_gap_m="<<physicalAlignment.alignedMinimumGapM
+                        <<" maximum_common_translation_residual_m="<<physicalAlignment.maximumCommonTranslationResidualM
+                        <<" legacy_nhcnt_witnesses="<<physicalAlignment.legacyNHCNTWitnessCount
+                        <<" force_rows_added=0 geometry=registered_physical_outer"<<std::endl;
+                } else {
+                    aligned=makeGroundAlignedSupport(rigid.model,*supportContactPayload,poseQ);
+                }
                 require(aligned.q.size() == poseQ.size() &&
                             aligned.witnessCount == supportContactPayload->header.contactCount,
                         "support owner returned an incomplete authored release placement");
