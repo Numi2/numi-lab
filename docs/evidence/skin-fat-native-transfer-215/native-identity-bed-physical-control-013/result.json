@@ -1,0 +1,9 @@
+{
+  "return_code": 1,
+  "wall_seconds": 17.932512917,
+  "timeout_seconds": 180,
+  "timed_out": false,
+  "scope": "unchanged-geometry installation control, resting closed-loop owners; no selected-muscle forcing, no images; new skin/fat volume NOT admitted",
+  "accepted_physical_steps": "read trace before claiming",
+  "new_skin_motion_qualification": false
+}

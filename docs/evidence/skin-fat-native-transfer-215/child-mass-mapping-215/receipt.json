@@ -1,0 +1,42 @@
+{
+  "schema": "numi-human-physical-skin-child-mass-mapping-215",
+  "scope": "strict native parent packet parser, deterministic spatial mass transport adapter, owning-volume topology view, fixture check; no real child candidate was available",
+  "source_files": {
+    "apps/NumiHumanPhysicalSkinChildMassMapping.hpp": "ee49585123bda5d88989bdda4f91d3e545e2c3dbbb4c827706510edd24d11918",
+    "apps/NumiHumanPhysicalSkinChildMassMappingCheck.cpp": "3ec34adf2f2c3bb4a65a2e108e1d635294069a8ca12303ac63814a66911bfead",
+    "apps/NumiHumanPhysicalSkinChildMassMappingCLI.cpp": "a9179772dd85032705cc320b1cdf2332b36b635548dacf67d9c17e877b85a1ee",
+    "CMakeLists.txt": "c7d0dd857bf46713af55b5e4191aff3ea66938539939e42efc47fc00960b86a3"
+  },
+  "build_targets": [
+    "numi-human-physical-skin-child-mass-mapping-check",
+    "numi-human-physical-skin-child-mass-mapping-cli"
+  ],
+  "build_commands": [
+    "c++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -UNDEBUG -Iapps -Iinclude -Imatter/include apps/NumiHumanPhysicalSkinChildMassMappingCheck.cpp -o /tmp/NumiHumanPhysicalSkinChildMassMappingCheck-215",
+    "c++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -UNDEBUG -Iapps -Iinclude -Imatter/include apps/NumiHumanPhysicalSkinChildMassMappingCLI.cpp -o /tmp/NumiHumanPhysicalSkinChildMassMappingCLI-215",
+    "git diff --check -- CMakeLists.txt apps/NumiHumanPhysicalSkinChildMassMapping.hpp apps/NumiHumanPhysicalSkinChildMassMappingCheck.cpp apps/NumiHumanPhysicalSkinChildMassMappingCLI.cpp"
+  ],
+  "fixture_test": "PASS: parent CSV fixture roundtrip, source donor corner split, exact eligible group transfer, region barrier rejection and negative tet orientation rejection; explicitly fixture-only",
+  "real_parent_parse": {
+    "native_preflight": "native-fem-bed-identity-preflight-010/result.json return_code=0, physical_steps=0, runtime_created=false",
+    "inputs": {
+      "compiled-parent-cell-mass.csv": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+      "compiled-parent-cell-mass.csv.nodes.csv": "cfde650bc6d21c3d5c295a25e2a8a11e8e602f773e6e5de441b3fb0e4c57c905",
+      "compiled-parent-cell-mass.csv.source.csv": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f",
+      "compiled-parent-cell-mass.csv.tets.csv": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992"
+    },
+    "nodes": 7233,
+    "parent_tetrahedra": 28632,
+    "source_rows": 9644,
+    "compiled_mass_row_sum_kg": 13.939678963460464,
+    "maximum_nodal_mass_closure_error_kg": 1.7493581028205085e-09,
+    "maximum_nodal_mass_closure_relative_error": 5.804521039582662e-08,
+    "parse": "PASS"
+  },
+  "real_child_transfer": "NOT_RUN: no actual independent O/I/D plus positive TetGen child input and no native-provided parent/child region/source-frame label packet were available; no candidate or transfer claim",
+  "receipt_files": [
+    "check.stdout.txt",
+    "parent-parse.stdout.txt"
+  ],
+  "native_app_integration": "not performed; root owns giant app"
+}

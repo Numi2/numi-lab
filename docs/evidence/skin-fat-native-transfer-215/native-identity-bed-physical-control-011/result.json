@@ -1,0 +1,9 @@
+{
+  "return_code": 1,
+  "wall_seconds": 74.16636479200001,
+  "timeout_seconds": 180,
+  "timed_out": false,
+  "scope": "bounded physical control of unchanged skin geometry; new skin/fat volume NOT admitted",
+  "accepted_physical_steps": "read trace before claiming",
+  "new_skin_motion_qualification": false
+}
