@@ -443,6 +443,11 @@ struct PhysicalSkinChildMassMappingBundle {
     std::string childMeshSHA256,regionLabelSHA256,coordinateFrameSHA256;
     double maximumSpatialMassTransportDistanceM=0.0;
     ConservativeSpatialMassTransportResult spatialMassTransportResult;
+    // Audit metadata for the deterministic exact-topology shortcut. The
+    // transport receipt remains the existing receipt over physical inputs and
+    // flows; this separate digest binds which mapping algorithm was used.
+    bool exactTopologyIdentityTransportUsed=false;
+    std::string massMappingPathSHA256;
 
     [[nodiscard]] ExplicitUnpairedVolumeTopology topologyView() const {
         ExplicitUnpairedVolumeTopology topology;
@@ -498,7 +503,332 @@ struct PhysicalSkinChildMassMappingBundle {
         topology.materialSourceIdentity=materialSourceIdentity;
         return topology;
     }
+
 };
+
+namespace physical_skin_child_mass_mapping_detail {
+
+using ParentCellKey=std::array<std::uint32_t,4>;
+using GroupKey=spatial_mass_transport_detail::GroupKey;
+using SourceKey=std::pair<std::uint32_t,std::uint32_t>;
+
+inline bool evenTetNodePermutation(
+        const std::array<std::uint32_t,4>& parent,
+        const std::array<std::uint32_t,4>& child) {
+    std::array<unsigned,4> permutation{};
+    for(unsigned i=0;i<4u;++i) {
+        const auto found=std::find(parent.begin(),parent.end(),child[i]);
+        if(found==parent.end())return false;
+        permutation[i]=static_cast<unsigned>(found-parent.begin());
+    }
+    unsigned inversions=0u;
+    for(unsigned i=0;i<4u;++i)
+        for(unsigned j=i+1u;j<4u;++j)
+            inversions+=permutation[i]>permutation[j];
+    return (inversions&1u)==0u;
+}
+
+inline bool exactIdentityParentRows(
+        const PhysicalSkinChildMassMappingBundle& bundle,
+        const std::span<const SpatialMassTransportPoint> parentCentroids,
+        const std::span<const SpatialMassTransportPoint> childCentroids,
+        const double maximumTransportDistanceM,
+        std::vector<std::uint32_t>& childParentRows) {
+    const auto& parent=bundle.parent;
+    const auto parentCount=parent.tetrahedra.size();
+    const auto childCount=bundle.childTetrahedra.size();
+    const auto nodeCount=bundle.referenceWorldPoints.size();
+    if(parentCount==0u||parentCount!=childCount||
+       parentCentroids.size()!=parentCount||childCentroids.size()!=childCount||
+       bundle.currentWorldPoints.size()!=nodeCount||
+       parent.currentWorldPoints.size()!=nodeCount||
+       parent.referenceWorldPoints.size()!=nodeCount)
+        return false;
+    // Exact identity requires the emitted child F32 current and reference
+    // nodes to retain their parent-current node IDs and coordinates. Parent
+    // rest/current offsets remain present in the transport centroid distances.
+    for(std::size_t node=0;node<nodeCount;++node)
+        if(bundle.currentWorldPoints[node]!=parent.currentWorldPoints[node]||
+           bundle.referenceWorldPoints[node]!=parent.currentWorldPoints[node])
+            return false;
+
+    std::map<ParentCellKey,std::uint32_t> parentByNodes;
+    for(std::size_t row=0;row<parentCount;++row) {
+        auto key=parent.tetrahedra[row];
+        std::sort(key.begin(),key.end());
+        if(key.front()==key.back()||
+           std::adjacent_find(key.begin(),key.end())!=key.end()||
+           !parentByNodes.emplace(key,static_cast<std::uint32_t>(row)).second)
+            return false;
+    }
+    std::vector<std::uint32_t> rows(childCount,NM_INVALID_INDEX);
+    std::vector<std::uint8_t> usedParent(parentCount,0u);
+    for(std::size_t child=0;child<childCount;++child) {
+        auto key=bundle.childTetrahedra[child];
+        std::sort(key.begin(),key.end());
+        if(key.front()==key.back()||std::adjacent_find(key.begin(),key.end())!=key.end())
+            return false;
+        const auto found=parentByNodes.find(key);
+        if(found==parentByNodes.end()||usedParent[found->second])
+            return false;
+        const auto parentRow=found->second;
+        if(!evenTetNodePermutation(parent.tetrahedra[parentRow],bundle.childTetrahedra[child])||
+           parent.materialIndices[parentRow]!=bundle.childMaterialIndices[child]||
+           parent.donorBodyIndices[parentRow]!=bundle.childDonorBodyIndices[child]||
+           parent.anatomicalRegionIndices[parentRow]!=bundle.childAnatomicalRegionIndices[child]||
+           parent.stableSourceFaceIdentities[parentRow]!=bundle.childStableSourceFaceIdentities[child])
+            return false;
+        const auto distance=spatial_mass_transport_detail::distance(
+            parentCentroids[parentRow],childCentroids[child]);
+        if(!std::isfinite(distance)||distance>maximumTransportDistanceM)
+            return false;
+        usedParent[parentRow]=1u;
+        rows[child]=parentRow;
+    }
+    if(std::any_of(usedParent.begin(),usedParent.end(),[](std::uint8_t used){return used==0u;}))
+        return false;
+    childParentRows=std::move(rows);
+    return true;
+}
+
+inline bool buildExactIdentityTransport(
+        const ConservativeSpatialMassTransportInput& input,
+        const std::span<const std::uint32_t> childParentRows,
+        ConservativeSpatialMassTransportResult& output,
+        std::string& error) {
+    using namespace spatial_mass_transport_detail;
+    const auto fail=[&](std::string message){error=std::move(message);return false;};
+    const auto parentCount=input.parentMassKg.size();
+    const auto childCount=input.childReferenceVolumeM3.size();
+    if(parentCount==0u||childCount==0u||childParentRows.size()!=childCount||
+       childCount>input.maximumAllowedEdges||childCount>input.maximumAugmentations||
+       input.parentSourceDonorOffsets.size()!=parentCount+1u||
+       input.parentSourceDonorOffsets.empty()||
+       input.parentSourceDonorOffsets.front()!=0u||
+       input.parentSourceDonorOffsets.back()!=input.parentSourceDonorBodyIndices.size()||
+       input.parentSourceDonorBodyIndices.size()!=input.parentSourceDonorMassKg.size())
+        return fail("exact identity transport arrays or pinned edge/augmentation budget are invalid");
+
+    ConservativeSpatialMassTransportResult next;
+    next.method=UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport;
+    next.parentMassPacketSHA256=std::string(input.parentMassPacketSHA256);
+    next.parentSourceContributionSHA256=std::string(input.parentSourceContributionSHA256);
+    next.childMeshSHA256=std::string(input.childMeshSHA256);
+    next.regionLabelSHA256=std::string(input.regionLabelSHA256);
+    next.coordinateFrameSHA256=std::string(input.coordinateFrameSHA256);
+    next.maximumTransportDistanceM=input.maximumTransportDistanceM;
+    next.relativeClosureTolerance=input.relativeClosureTolerance;
+    next.absoluteMassToleranceKg=input.absoluteMassToleranceKg;
+    next.absoluteMeasureToleranceM3=input.absoluteMeasureToleranceM3;
+    next.maximumAllowedEdges=input.maximumAllowedEdges;
+    next.maximumAugmentations=input.maximumAugmentations;
+    hashInputArrays(input,next.parentDataSHA256,next.childDataSHA256,next.materialBoundsSHA256);
+
+    next.childParentOffsets.assign(childCount+1u,0u);
+    next.childParentRows.reserve(childCount);
+    next.childParentTransportMassKg.reserve(childCount);
+    next.childParentTransportMeasureM3.reserve(childCount);
+    next.childParentTransportDistanceM.reserve(childCount);
+    next.childParentVolumeFractions.reserve(childCount);
+    next.parentMassTransferredKg.assign(parentCount,0.0);
+    next.parentMeasureTransferredM3.assign(parentCount,0.0);
+    next.childAncestryMeasureVolumeM3.assign(childCount,0.0);
+    next.childMassKg.assign(childCount,0.0);
+    next.childImpliedDensityKgM3.assign(childCount,0.0);
+    next.childDominantParentRows.assign(childCount,NM_INVALID_INDEX);
+    next.childSourceDonorOffsets.assign(childCount+1u,0u);
+
+    std::map<GroupKey,ConservativeSpatialMassTransportGroupClosure> groups;
+    std::map<SourceKey,ConservativeSpatialMassTransportSourceDonorClosure> sourceGroups;
+    long double weightedDistance=0.0L,totalMass=0.0L;
+    next.minimumChildImpliedDensityKgM3=std::numeric_limits<double>::infinity();
+    next.maximumChildImpliedDensityKgM3=0.0;
+    for(std::size_t parent=0;parent<parentCount;++parent) {
+        const auto material=input.parentMaterialIndices[parent];
+        const GroupKey key{material,input.parentDonorBodyIndices[parent],
+                           input.parentAnatomicalRegionIndices[parent]};
+        auto& group=groups[key];
+        group.materialIndex=std::get<0>(key);
+        group.donorBodyIndex=std::get<1>(key);
+        group.anatomicalRegionIndex=std::get<2>(key);
+        group.parentMassKg+=input.parentMassKg[parent];
+        for(std::uint32_t source=input.parentSourceDonorOffsets[parent];
+            source<input.parentSourceDonorOffsets[parent+1u];++source) {
+            const SourceKey sourceKey{material,input.parentSourceDonorBodyIndices[source]};
+            auto& closure=sourceGroups[sourceKey];
+            closure.materialIndex=sourceKey.first;
+            closure.sourceDonorBodyIndex=sourceKey.second;
+            closure.parentMassKg+=input.parentSourceDonorMassKg[source];
+        }
+    }
+
+    for(std::size_t child=0;child<childCount;++child) {
+        const auto parent=childParentRows[child];
+        if(parent>=parentCount||next.parentMassTransferredKg[parent]!=0.0)
+            return fail("exact identity transport parent rows are not a bijection");
+        const auto material=input.childMaterialIndices[child];
+        const double mass=input.parentMassKg[parent];
+        const double parentDensity=mass/input.parentReferenceVolumeM3[parent];
+        const double measure=mass/parentDensity;
+        const double distance=spatial_mass_transport_detail::distance(
+            input.parentCentroidsWorld[parent],input.childCentroidsWorld[child]);
+        const double density=mass/input.childReferenceVolumeM3[child];
+        const double lower=input.materialDensityLowerKgM3[material];
+        const double upper=input.materialDensityUpperKgM3[material];
+        if(!std::isfinite(mass)||mass<=0.0||!std::isfinite(parentDensity)||
+           parentDensity<=0.0||!std::isfinite(measure)||measure<=0.0||
+           !std::isfinite(distance)||distance>input.maximumTransportDistanceM||
+           !std::isfinite(density)||!std::isfinite(lower)||!std::isfinite(upper)||
+           lower<=0.0||lower>upper||
+           density<lower-densityBoundRoundoff(lower,upper,density)||
+           density>upper+densityBoundRoundoff(lower,upper,density))
+            return fail("exact identity transport fails current centroid, source density, child density, or pinned distance checks");
+
+        const auto edge=static_cast<std::uint32_t>(next.childParentRows.size());
+        next.childParentOffsets[child]=edge;
+        next.childParentRows.push_back(parent);
+        next.childParentTransportMassKg.push_back(mass);
+        next.childParentTransportMeasureM3.push_back(measure);
+        next.childParentTransportDistanceM.push_back(distance);
+        next.childParentVolumeFractions.push_back(1.0);
+        next.parentMassTransferredKg[parent]=mass;
+        next.parentMeasureTransferredM3[parent]=measure;
+        next.childAncestryMeasureVolumeM3[child]=measure;
+        next.childMassKg[child]=mass;
+        next.childImpliedDensityKgM3[child]=density;
+        next.childDominantParentRows[child]=parent;
+        next.maximumTransportDistanceUsedM=std::max(next.maximumTransportDistanceUsedM,distance);
+        weightedDistance+=static_cast<long double>(mass)*distance;
+        totalMass+=mass;
+
+        const GroupKey groupKey{material,input.childDonorBodyIndices[child],
+                                input.childAnatomicalRegionIndices[child]};
+        auto foundGroup=groups.find(groupKey);
+        if(foundGroup==groups.end())
+            return fail("exact identity transport child group has no exact parent supply");
+        foundGroup->second.childMassKg+=mass;
+        foundGroup->second.childMinimumCapacityKg+=
+            input.childReferenceVolumeM3[child]*lower;
+        foundGroup->second.childMaximumCapacityKg+=
+            input.childReferenceVolumeM3[child]*upper;
+
+        next.childSourceDonorOffsets[child]=
+            static_cast<std::uint32_t>(next.childSourceDonorBodyIndices.size());
+        double sourceMassForChild=0.0;
+        for(std::uint32_t source=input.parentSourceDonorOffsets[parent];
+            source<input.parentSourceDonorOffsets[parent+1u];++source) {
+            const auto donor=input.parentSourceDonorBodyIndices[source];
+            const auto sourceMass=input.parentSourceDonorMassKg[source];
+            next.childSourceDonorBodyIndices.push_back(donor);
+            next.childSourceDonorMassKg.push_back(sourceMass);
+            sourceMassForChild+=sourceMass;
+            auto& closure=sourceGroups[{material,donor}];
+            closure.childMassKg+=sourceMass;
+        }
+        next.childSourceDonorOffsets[child+1u]=
+            static_cast<std::uint32_t>(next.childSourceDonorBodyIndices.size());
+        if(std::abs(sourceMassForChild-mass)>
+           std::max(input.absoluteMassToleranceKg,input.relativeClosureTolerance*mass))
+            return fail("exact identity transport source-donor rows do not close child mass");
+        next.minimumChildImpliedDensityKgM3=
+            std::min(next.minimumChildImpliedDensityKgM3,density);
+        next.maximumChildImpliedDensityKgM3=
+            std::max(next.maximumChildImpliedDensityKgM3,density);
+    }
+    next.childParentOffsets[childCount]=
+        static_cast<std::uint32_t>(next.childParentRows.size());
+    next.transportEdgeCount=next.childParentRows.size();
+    next.augmentationCount=childCount; // one direct exact assignment per child cell
+    next.massWeightedMeanTransportDistanceM=totalMass>0.0L?
+        static_cast<double>(weightedDistance/totalMass):0.0L;
+    next.maximumChildFractionSumError=0.0;
+    for(const auto& [key,group]:groups) {
+        (void)key;
+        next.groupClosure.push_back(group);
+    }
+    for(const auto& [key,source]:sourceGroups) {
+        (void)key;
+        next.sourceDonorClosure.push_back(source);
+        const auto errorMass=std::abs(source.parentMassKg-source.childMassKg);
+        next.maximumSourceDonorMassClosureErrorKg=
+            std::max(next.maximumSourceDonorMassClosureErrorKg,errorMass);
+    }
+    for(std::size_t parent=0;parent<parentCount;++parent) {
+        next.maximumParentMassClosureErrorKg=std::max(next.maximumParentMassClosureErrorKg,
+            std::abs(next.parentMassTransferredKg[parent]-input.parentMassKg[parent]));
+        next.maximumParentMeasureClosureErrorM3=std::max(next.maximumParentMeasureClosureErrorM3,
+            std::abs(next.parentMeasureTransferredM3[parent]-input.parentReferenceVolumeM3[parent]));
+    }
+    next.receiptSHA256=receiptSHA256(input,next);
+    output=std::move(next);
+    error.clear();
+    return true;
+}
+
+inline std::string massMappingPathSHA256(
+        const PhysicalSkinChildMassMappingBundle& bundle,
+        const bool exactTopologyIdentity) {
+    using spatial_mass_transport_detail::SHA256Builder;
+    SHA256Builder hash;
+    const auto hashPoints=[&](const std::string_view name,const std::vector<V3>& points) {
+        hash.string(name);hash.u64(points.size());
+        for(const auto& point:points)for(const auto value:point)hash.real(value);
+    };
+    const auto hashIndices=[&](const std::string_view name,const std::vector<std::uint32_t>& values) {
+        hash.string(name);hash.u64(values.size());
+        for(const auto value:values)hash.u32(value);
+    };
+    const auto hashScalars=[&](const std::string_view name,const std::vector<double>& values) {
+        hash.string(name);hash.u64(values.size());
+        for(const auto value:values)hash.real(value);
+    };
+    const auto hashTetrahedra=[&](const std::string_view name,
+                                  const std::vector<std::array<std::uint32_t,4>>& values) {
+        hash.string(name);hash.u64(values.size());
+        for(const auto& tet:values)for(const auto node:tet)hash.u32(node);
+    };
+
+    hash.string("physicalSkinChildMassMapping.path.v1");
+    hash.string(exactTopologyIdentity?"exact_topology_identity":"bounded_conservative_spatial");
+    hash.string(bundle.spatialMassTransportResult.receiptSHA256);
+    hash.string(bundle.parent.parentMassPacketSHA256);
+    hash.string(bundle.parent.parentSourceContributionSHA256);
+    hash.string(bundle.parent.parentTopologySHA256);
+    hash.string(bundle.parent.parentLabelSHA256);
+    hash.string(bundle.childMeshSHA256);
+    hash.string(bundle.regionLabelSHA256);
+    hash.string(bundle.coordinateFrameSHA256);
+    hash.real(bundle.maximumSpatialMassTransportDistanceM);
+
+    hashPoints("parent.current_world_points",bundle.parent.currentWorldPoints);
+    hashPoints("parent.reference_world_points",bundle.parent.referenceWorldPoints);
+    hashPoints("parent.node_frame_owner_local_points",bundle.parent.nodeFrameOwnerLocalPoints);
+    hashIndices("parent.compiled_global_node_indices",bundle.parent.compiledGlobalNodeIndices);
+    hashIndices("parent.node_frame_owner_body_indices",bundle.parent.nodeFrameOwnerBodyIndices);
+    hashTetrahedra("parent.tetrahedra",bundle.parent.tetrahedra);
+    hashScalars("parent.reference_tet_volumes_m3",bundle.parent.referenceTetVolumeM3);
+    hashScalars("parent.tetrahedron_mass_kg",bundle.parent.tetrahedronMassKg);
+    hashIndices("parent.material_indices",bundle.parent.materialIndices);
+    hashIndices("parent.donor_body_indices",bundle.parent.donorBodyIndices);
+    hashIndices("parent.anatomical_region_indices",bundle.parent.anatomicalRegionIndices);
+    hashIndices("parent.stable_source_face_identities",bundle.parent.stableSourceFaceIdentities);
+    hash.u64(bundle.parent.sourceMassContributions.size());
+    for(const auto& source:bundle.parent.sourceMassContributions) {
+        hash.u32(source.parentNodeIndex);hash.u32(source.materialIndex);
+        hash.u32(source.donorBodyIndex);hash.real(source.massKg);
+        for(const auto value:source.donorLocalPosition)hash.real(value);
+    }
+
+    hashPoints("child.current_world_points",bundle.currentWorldPoints);
+    hashPoints("child.reference_world_points",bundle.referenceWorldPoints);
+    hashTetrahedra("child.tetrahedra",bundle.childTetrahedra);
+    hashIndices("child.material_indices",bundle.childMaterialIndices);
+    hashIndices("child.donor_body_indices",bundle.childDonorBodyIndices);
+    hashIndices("child.anatomical_region_indices",bundle.childAnatomicalRegionIndices);
+    hashIndices("child.stable_source_face_identities",bundle.childStableSourceFaceIdentities);
+    return hash.finish();
+}
+} // namespace physical_skin_child_mass_mapping_detail
 
 [[nodiscard]] inline bool preparePhysicalSkinChildMassMapping(
         PhysicalSkinChildMassMappingBundle& bundle,
@@ -515,6 +845,9 @@ struct PhysicalSkinChildMassMappingBundle {
     const std::size_t nodeCount=bundle.referenceWorldPoints.size();
     if(parentCount==0u||childCount==0u||nodeCount<4u||sourceBodyCount==0u||
        parent.currentWorldPoints.size()!=parent.referenceWorldPoints.size()||
+       parent.nodeFrameOwnerBodyIndices.size()!=parent.referenceWorldPoints.size()||
+       parent.nodeFrameOwnerLocalPoints.size()!=parent.referenceWorldPoints.size()||
+       parent.compiledGlobalNodeIndices.size()!=parent.referenceWorldPoints.size()||
        parent.materialIndices.size()!=parentCount||parent.donorBodyIndices.size()!=parentCount||
        parent.tetrahedronMassKg.size()!=parentCount||parent.referenceTetVolumeM3.size()!=parentCount||
        parent.anatomicalRegionIndices.size()!=parentCount||
@@ -642,10 +975,34 @@ struct PhysicalSkinChildMassMappingBundle {
     input.maximumAugmentations=300'000u;
 
     ConservativeSpatialMassTransportResult transfer;
-    if(!assembleConservativeSpatialMassTransport(input,transfer,error))
-        return fail("physical child mass transport was not feasible: "+error);
-    if(!verifyRecordedConservativeSpatialMassTransport(input,transfer,error))
-        return fail("physical child mass transport receipt failed exact current-input verification: "+error);
+    bool usedExactTopologyIdentity=false;
+    std::vector<std::uint32_t> exactChildParentRows;
+    if(parentCount<=input.maximumAugmentations&&childCount<=input.maximumAugmentations&&
+       childCount<=input.maximumAllowedEdges&&
+       physical_skin_child_mass_mapping_detail::exactIdentityParentRows(bundle,
+           parentCentroids,childCentroids,maximumTransportDistanceM,exactChildParentRows)) {
+        ConservativeSpatialMassTransportResult exact;
+        std::string exactError;
+        if(physical_skin_child_mass_mapping_detail::buildExactIdentityTransport(
+               input,exactChildParentRows,exact,exactError)&&
+           verifyRecordedConservativeSpatialMassTransport(input,exact,exactError)) {
+            std::vector<std::uint32_t> revalidatedRows;
+            if(!physical_skin_child_mass_mapping_detail::exactIdentityParentRows(bundle,
+                   parentCentroids,childCentroids,maximumTransportDistanceM,revalidatedRows)||
+               revalidatedRows!=exactChildParentRows||
+               exact.childParentRows!=exactChildParentRows||
+               exact.transportEdgeCount!=childCount)
+                return fail("exact topology identity eligibility changed before receipt-bound mass mapping commit");
+            transfer=std::move(exact);
+            usedExactTopologyIdentity=true;
+        }
+    }
+    if(!usedExactTopologyIdentity) {
+        if(!assembleConservativeSpatialMassTransport(input,transfer,error))
+            return fail("physical child mass transport was not feasible: "+error);
+        if(!verifyRecordedConservativeSpatialMassTransport(input,transfer,error))
+            return fail("physical child mass transport receipt failed exact current-input verification: "+error);
+    }
     if(transfer.childDominantParentRows.size()!=childCount||
        transfer.childMassKg.size()!=childCount||
        std::any_of(transfer.childDominantParentRows.begin(),transfer.childDominantParentRows.end(),
@@ -661,6 +1018,9 @@ struct PhysicalSkinChildMassMappingBundle {
     }
     bundle.childDominantParentTetrahedra=transfer.childDominantParentRows;
     bundle.spatialMassTransportResult=std::move(transfer);
+    bundle.exactTopologyIdentityTransportUsed=usedExactTopologyIdentity;
+    bundle.massMappingPathSHA256=physical_skin_child_mass_mapping_detail::massMappingPathSHA256(
+        bundle,usedExactTopologyIdentity);
     error.clear();
     return true;
 }
@@ -678,8 +1038,11 @@ struct PhysicalSkinChildMassMappingBundle {
         const std::size_t sourceBodyCount,const std::string_view objectName,
         PreparedOrganicFEM& preparedSkin,PreparedOrganicFEM& preparedFat,
         ExplicitUnpairedVolumeReport& report,std::string& error) {
-    if(bundle.spatialMassTransportResult.receiptSHA256.empty()){
-        error="physical child mass mapping must pass the exact spatial transport gate before volume compilation";
+    if(bundle.spatialMassTransportResult.receiptSHA256.empty()||
+       bundle.massMappingPathSHA256.empty()||
+       bundle.massMappingPathSHA256!=physical_skin_child_mass_mapping_detail::massMappingPathSHA256(
+           bundle,bundle.exactTopologyIdentityTransportUsed)){
+        error="physical child mass mapping path receipt is missing or no longer binds its current inputs";
         return false;
     }
     const auto topology=bundle.topologyView();

@@ -1,0 +1,34 @@
+[
+  {
+    "target": "numi-human-physical-skin-registered-volume-integration-check",
+    "exit_code": 0,
+    "elapsed_s": 0.270261709112674,
+    "stdout": "registered_volume_file_import=PASS positive_TetGen_prism=6cells O/I/D=1/2/1 walls=12 exact_node_map_rows=12 malformed_csv_and_gzip_rejected atomic_failure_preserved=1 native_F32_exact_pins_and_roundoff_bound=PASS strict_default_unchanged=1 physical_admission=NOT_CLAIMED\n",
+    "stderr": "",
+    "binary_sha256": "e821faab3bab6ca0a3150f3e862274c9323a7015362e0b65da7294bf8bf86149"
+  },
+  {
+    "target": "numi-human-physical-skin-registered-volume-import-check",
+    "exit_code": 0,
+    "elapsed_s": 0.16137012490071356,
+    "stdout": "PASS registered volume import: same-target residual conversion on affine parent motion; exact O/I/D bijections; full current/rest 157-body pose table with one registered binding and 156 unbound test rows; incident material masks and parent semantic closure; interior unbound-body pose; stable deep source remap; no physical admission\n",
+    "stderr": "",
+    "binary_sha256": "c0780734e1fd9d44279b2ec4453b8e9f154dcfb5fce4ac2eabd3a7af6b342552"
+  },
+  {
+    "target": "numi-human-physical-skin-authoring-role-consumer-check",
+    "exit_code": 0,
+    "elapsed_s": 0.16855924995616078,
+    "stdout": "authoring_role_consumer=pass rows=3/3/3 bindings=86 parent_geometric_donor=150 frame_owners=distinct transactional_failures=11 physical_admission=false\n",
+    "stderr": "",
+    "binary_sha256": "eeaae39c60c91417a8d6a708730111bca9c9db6aba96b25597bddd8bb8b028b3"
+  },
+  {
+    "target": "numi-human-physical-skin-child-mass-mapping-check",
+    "exit_code": 0,
+    "elapsed_s": 0.010768416803330183,
+    "stdout": "physical_child_mass_mapping_fixture=PASS parent_csv_roundtrip=PASS exact_identity_receipt_replay=PASS measured_parent_rest_current_offset=PASS one_ulp_fallback=PASS strict_region_barrier=PASS duplicate_missing_inverted_tet_gates=PASS odd_orientation_parity=PASS truncated_path_receipt_rejections=PASS tetgen_reference_import=PASS transactional_import_rejections=PASS transfer=fixture_only\n",
+    "stderr": "",
+    "binary_sha256": "102a875cbc2ec35116f8ce0a93ad9e20bb42338f5b6c524f674e43b8c06867cd"
+  }
+]

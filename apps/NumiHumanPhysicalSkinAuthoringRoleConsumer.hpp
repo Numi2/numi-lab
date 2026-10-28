@@ -115,17 +115,13 @@ inline bool readPinnedWeights(const PhysicalSkinAuthoringFullWeightsCSV& asset,
     output=std::move(next);actualSHA256=std::move(hashAfter);error.clear();return true;
 }
 
-inline V3 expectedDonorLocal(const PhysicalSkinRegisteredBodyPose& pose,const V3& world) {
-    const V3 delta=sub(world,pose.currentOrigin);
-    const auto& m=pose.currentLocalToWorld;
-    return {m[0]*delta[0]+m[3]*delta[1]+m[6]*delta[2],
-            m[1]*delta[0]+m[4]*delta[1]+m[7]*delta[2],
-            m[2]*delta[0]+m[5]*delta[1]+m[8]*delta[2]};
-}
-
 inline std::array<double,9> expectedWorldToDonorLocal(const PhysicalSkinRegisteredBodyPose& pose) {
-    const auto& r=pose.currentLocalToWorld;
-    return {r[0],r[3],r[6],r[1],r[4],r[7],r[2],r[5],r[8]};
+    return physical_skin_registered_surface_csv_detail::worldToLocal(
+        pose.currentLocalToWorld,pose.arithmetic);
+}
+inline V3 expectedDonorLocal(const PhysicalSkinRegisteredBodyPose& pose,const V3& world) {
+    return physical_skin_registered_surface_csv_detail::mul(
+        expectedWorldToDonorLocal(pose),sub(world,pose.currentOrigin));
 }
 
 inline bool closeMatrix(const std::array<double,9>& a,const std::array<double,9>& b,

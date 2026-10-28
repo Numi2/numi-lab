@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -31,7 +32,7 @@ std::filesystem::path makePacket(const std::filesystem::path& directory) {
         for(std::uint32_t node=0;node<4u;++node){
             const auto& x=p[node];
             out<<node<<','<<(10u+node)<<','<<x[0]<<','<<x[1]<<','<<x[2]<<','
-               <<x[0]<<','<<x[1]<<','<<x[2]<<",25,7,"
+               <<x[0]<<','<<x[1]<<','<<x[2]-0.005<<",25,7,"
                <<x[0]<<','<<x[1]<<','<<x[2]<<','<<bits<<'\n';
         }
     }
@@ -127,9 +128,79 @@ int main() {
     if(bundle.spatialMassTransportResult.childMassKg.size()!=1u||
        std::abs(bundle.spatialMassTransportResult.childMassKg[0]-100.0)>1.0e-10||
        bundle.spatialMassTransportResult.childDominantParentRows!=std::vector<std::uint32_t>{0u}||
-       bundle.spatialMassTransportResult.maximumTransportDistanceUsedM!=0.0||
+       std::abs(bundle.spatialMassTransportResult.maximumTransportDistanceUsedM-0.005)>1.0e-12||
+       bundle.spatialMassTransportResult.transportEdgeCount!=1u||
+       bundle.spatialMassTransportResult.augmentationCount!=1u||
+       !bundle.exactTopologyIdentityTransportUsed||
+       bundle.spatialMassTransportResult.receiptSHA256.size()!=64u||
+       bundle.massMappingPathSHA256.size()!=64u||
+       bundle.massMappingPathSHA256!=physical_skin_child_mass_mapping_detail::massMappingPathSHA256(
+           bundle,true)||
        bundle.childDominantParentTetrahedra!=std::vector<std::uint32_t>{0u}){
-        std::cerr<<"positive mapping fixture did not close the single eligible child\n";return 6;
+        std::cerr<<"positive exact identity mapping did not preserve measured rest/current offset and receipt\n";return 6;
+    }
+    const auto exactPathHash=bundle.massMappingPathSHA256;
+    auto stalePath=bundle;
+    stalePath.currentWorldPoints[0][0]=static_cast<double>(std::nextafterf(
+        static_cast<float>(stalePath.currentWorldPoints[0][0]),
+        std::numeric_limits<float>::infinity()));
+    if(stalePath.massMappingPathSHA256==physical_skin_child_mass_mapping_detail::massMappingPathSHA256(
+           stalePath,stalePath.exactTopologyIdentityTransportUsed)){
+        std::cerr<<"mass mapping path digest did not bind current child geometry\n";return 23;
+    }
+    auto oddTetOrder=bundle;
+    std::swap(oddTetOrder.parent.tetrahedra[0][0],oddTetOrder.parent.tetrahedra[0][1]);
+    std::vector<SpatialMassTransportPoint> identityCentroids(1u);
+    std::vector<std::uint32_t> oddParentRows;
+    if(physical_skin_child_mass_mapping_detail::exactIdentityParentRows(
+           oddTetOrder,identityCentroids,identityCentroids,1.0,oddParentRows)){
+        std::cerr<<"odd child/parent node-order permutation passed exact identity orientation proof\n";return 28;
+    }
+
+    auto appendRejectsUnboundPathAtomically=[&](PhysicalSkinChildMassMappingBundle& candidate) {
+        numi::matter::WorldSource world;
+        numi::matter::ObjectSource sentinel;sentinel.name="sentinel";
+        world.objects.push_back(sentinel);
+        const auto before=world.objects.size();
+        PreparedOrganicFEM preparedSkin{},preparedFat{};
+        ExplicitUnpairedVolumeReport report;report.tetrahedronCount=777u;
+        std::string appendError;
+        const bool accepted=appendPreparedPhysicalSkinChildCandidate(world,candidate,
+            15u,"skin","test",0.0,16u,"fat","test",0.0,8u,
+            "stale-mapping-test",preparedSkin,preparedFat,report,appendError);
+        return !accepted&&appendError.find("path receipt")!=std::string::npos&&
+            world.objects.size()==before&&world.objects.front().name=="sentinel"&&
+            report.tetrahedronCount==777u;
+    };
+    auto truncatedReference=bundle;
+    truncatedReference.parent.referenceWorldPoints.pop_back();
+    auto truncatedLocalOwner=bundle;
+    truncatedLocalOwner.parent.nodeFrameOwnerLocalPoints.pop_back();
+    auto missingOwnerMetadata=bundle;
+    missingOwnerMetadata.parent.nodeFrameOwnerBodyIndices.clear();
+    if(!appendRejectsUnboundPathAtomically(truncatedReference)||
+       !appendRejectsUnboundPathAtomically(truncatedLocalOwner)||
+       !appendRejectsUnboundPathAtomically(missingOwnerMetadata)){
+        std::cerr<<"truncated parent reference or missing owner metadata was not rejected atomically before append\n";return 29;
+    }
+    auto missingOwnerPrepare=bundle;
+    missingOwnerPrepare.parent.nodeFrameOwnerLocalPoints.clear();
+    if(preparePhysicalSkinChildMassMapping(missingOwnerPrepare,densityLower,densityUpper,1.0,8u,error)||
+       error.find("missing")==std::string::npos){
+        std::cerr<<"missing owner-local metadata reached mass mapping: "<<error<<'\n';return 30;
+    }
+
+    auto wrongRegionFresh=bundle;
+    wrongRegionFresh.spatialMassTransportResult={};
+    wrongRegionFresh.childDominantParentTetrahedra.clear();
+    wrongRegionFresh.exactTopologyIdentityTransportUsed=false;
+    wrongRegionFresh.massMappingPathSHA256.clear();
+    wrongRegionFresh.childAnatomicalRegionIndices[0]=4u;
+    if(preparePhysicalSkinChildMassMapping(wrongRegionFresh,densityLower,densityUpper,1.0,8u,error)||
+       error.find("not feasible")==std::string::npos||
+       wrongRegionFresh.exactTopologyIdentityTransportUsed||
+       !wrongRegionFresh.massMappingPathSHA256.empty()){
+        std::cerr<<"label mismatch did not fall through to the bounded spatial transport gate: "<<error<<'\n';return 24;
     }
 
     auto wrongRegion=bundle;
@@ -137,8 +208,24 @@ int main() {
     const auto priorReceipt=bundle.spatialMassTransportResult.receiptSHA256;
     if(preparePhysicalSkinChildMassMapping(wrongRegion,densityLower,densityUpper,1.0,8u,error)||
        error.find("not feasible")==std::string::npos||
-       bundle.spatialMassTransportResult.receiptSHA256!=priorReceipt){
+       bundle.spatialMassTransportResult.receiptSHA256!=priorReceipt||
+       bundle.massMappingPathSHA256!=exactPathHash){
         std::cerr<<"region barrier negative case was not rejected transactionally: "<<error<<'\n';return 7;
+    }
+
+    auto oneULP=bundle;
+    const auto nextX=static_cast<double>(std::nextafterf(
+        static_cast<float>(oneULP.referenceWorldPoints[1][0]),
+        std::numeric_limits<float>::infinity()));
+    oneULP.currentWorldPoints[1][0]=nextX;
+    oneULP.referenceWorldPoints[1][0]=nextX;
+    if(!preparePhysicalSkinChildMassMapping(oneULP,densityLower,densityUpper,1.0,8u,error)||
+       oneULP.exactTopologyIdentityTransportUsed||
+       oneULP.massMappingPathSHA256==exactPathHash||
+       oneULP.spatialMassTransportResult.transportEdgeCount!=1u||
+       oneULP.spatialMassTransportResult.maximumTransportDistanceUsedM<=0.0||
+       oneULP.spatialMassTransportResult.maximumTransportDistanceUsedM>1.0){
+        std::cerr<<"one-ULP node change did not fall through to bounded spatial transport: "<<error<<'\n';return 25;
     }
 
     auto negativeTet=bundle;
@@ -146,6 +233,39 @@ int main() {
     if(preparePhysicalSkinChildMassMapping(negativeTet,densityLower,densityUpper,1.0,8u,error)||
        error.find("nonpositive")==std::string::npos){
         std::cerr<<"negative child orientation was not rejected: "<<error<<'\n';return 8;
+    }
+
+    auto duplicateTet=bundle;
+    duplicateTet.spatialMassTransportResult={};
+    duplicateTet.childDominantParentTetrahedra.clear();
+    duplicateTet.exactTopologyIdentityTransportUsed=false;
+    duplicateTet.massMappingPathSHA256.clear();
+    duplicateTet.childTetrahedra.push_back(duplicateTet.childTetrahedra[0]);
+    duplicateTet.childMaterialIndices.push_back(duplicateTet.childMaterialIndices[0]);
+    duplicateTet.childDonorBodyIndices.push_back(duplicateTet.childDonorBodyIndices[0]);
+    duplicateTet.childAnatomicalRegionIndices.push_back(duplicateTet.childAnatomicalRegionIndices[0]);
+    duplicateTet.childStableSourceFaceIdentities.push_back(duplicateTet.childStableSourceFaceIdentities[0]);
+    if(preparePhysicalSkinChildMassMapping(duplicateTet,densityLower,densityUpper,1.0,8u,error)||
+       duplicateTet.exactTopologyIdentityTransportUsed||
+       !duplicateTet.massMappingPathSHA256.empty()){
+        std::cerr<<"duplicate child tetrahedron was accepted or bypassed the bounded transport fallback: "<<error<<'\n';return 26;
+    }
+
+    auto missingTet=bundle;
+    missingTet.spatialMassTransportResult={};
+    missingTet.childDominantParentTetrahedra.clear();
+    missingTet.exactTopologyIdentityTransportUsed=false;
+    missingTet.massMappingPathSHA256.clear();
+    missingTet.childTetrahedra.clear();
+    missingTet.childMaterialIndices.clear();
+    missingTet.childDonorBodyIndices.clear();
+    missingTet.childAnatomicalRegionIndices.clear();
+    missingTet.childStableSourceFaceIdentities.clear();
+    if(preparePhysicalSkinChildMassMapping(missingTet,densityLower,densityUpper,1.0,8u,error)||
+       error.find("missing")==std::string::npos||
+       missingTet.exactTopologyIdentityTransportUsed||
+       !missingTet.massMappingPathSHA256.empty()){
+        std::cerr<<"missing child tetrahedron domain was accepted: "<<error<<'\n';return 27;
     }
 
     PhysicalSkinParentMassPacket unchanged=bundle.parent;
@@ -203,8 +323,11 @@ int main() {
 
     std::filesystem::remove_all(directory);
     std::cout<<"physical_child_mass_mapping_fixture=PASS "
-             <<"parent_csv_roundtrip=PASS strict_region_barrier=PASS "
-             <<"positive_tet_gate=PASS tetgen_reference_import=PASS transactional_import_rejections=PASS transfer=fixture_only\n";
+             <<"parent_csv_roundtrip=PASS exact_identity_receipt_replay=PASS "
+             <<"measured_parent_rest_current_offset=PASS one_ulp_fallback=PASS "
+             <<"strict_region_barrier=PASS duplicate_missing_inverted_tet_gates=PASS "
+             <<"odd_orientation_parity=PASS truncated_path_receipt_rejections=PASS "
+             <<"tetgen_reference_import=PASS transactional_import_rejections=PASS transfer=fixture_only\n";
     return 0;
 }
 

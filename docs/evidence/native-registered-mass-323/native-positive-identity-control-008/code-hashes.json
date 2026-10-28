@@ -1,0 +1,35 @@
+{
+  "control_receipt": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/parent-identity-control-009/receipt.json",
+    "sha256": "b773dbc8d176d8262ae154f94e0866e9bfddbd46fedb31e2b8df1d1c377cef4f"
+  },
+  "git_head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "headers": {
+    "NumiHumanPhysicalSkinChildMassMapping.hpp": "d8aab3834c659ed00d956bf15e6c0091c5d075386caaafc74cda38a87397627c",
+    "NumiHumanPhysicalSkinChildRegisteredFacetMaps.hpp": "b15543aa7bc60e9de7d59f0ebe43278a7a98273e6393ab138cc472cbcad13fd5",
+    "NumiHumanPhysicalSkinChildRegisteredSurfaceSidecars.hpp": "f2d526670d016fd331571b9f43be9291955837ee44477dbd2eaa4189f807d478",
+    "NumiHumanPhysicalSkinChildRegisteredVolumeCSV.hpp": "f731c6cd73dab8e37441f84913f2a79f5de12ea5e4597f8d99f01c3cd91f44c2",
+    "NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp": "8356630f8542cf5324410193837f50573b437deeadda2d493346d9f37580a75b",
+    "NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp": "ff049a45f6f08cbe57e60ffad3f439e2cca2a80d25f38388b733e74163dd534b"
+  },
+  "native_executable": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "sha256": "0e05cb49c814cf98c3390e4f7887994e69f3ecbe94c0d573f004c069e23701f1"
+  },
+  "native_object": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o",
+    "sha256": "fba68056e6f07ebd0fe39eb19645944e204f1d9f36eda2e969c66e36ad3c7cb6"
+  },
+  "native_source": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/numilab_human_myosim_visual_probe.mm",
+    "sha256": "e19048e494bb728e08ade04024b1c7a51cd89a99851639365704899828d95954"
+  },
+  "producer": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/export_parent_identity_control.py",
+    "sha256": "e704607a10fff29b65de573df67f1bbc5ded73dcb9e9bf41f919e5ca609ca833"
+  },
+  "source_registry": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/parent-identity-control-009/source-domain-registry.json",
+    "sha256": "566037cda009e360fb177e50ce50c038c1ecf01b45adf62c368309b655ebcbad"
+  }
+}

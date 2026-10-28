@@ -1,0 +1,69 @@
+{
+  "host": "ssh numi",
+  "utc": "2026-10-28T22:30:24.229078+00:00",
+  "base": "61afb2cf63e3f4b7ade3d3a5be5231c91068b2cb",
+  "development_head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "source_sha256": {
+    "apps/NumiHumanPhysicalSkinChildRegisteredSurfaceSidecars.hpp": "f2d526670d016fd331571b9f43be9291955837ee44477dbd2eaa4189f807d478",
+    "apps/NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp": "8356630f8542cf5324410193837f50573b437deeadda2d493346d9f37580a75b",
+    "apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp": "23c58641dff44dd9533a4cc777763fee914e9f33d4a6227be4cf06c869871802",
+    "apps/NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp": "f19506c28201255b21871a5e76fd99a0d9e66307d56cd6b5e7cc4e67b0086b54",
+    "apps/NumiHumanPhysicalSkinChildMassMapping.hpp": "d8aab3834c659ed00d956bf15e6c0091c5d075386caaafc74cda38a87397627c",
+    "apps/NumiHumanPhysicalSkinChildMassMappingCheck.cpp": "426373e7bf4690e122510dd9bc90d39f08147f3b63c1cd4d54afd94c8fceb54e",
+    "apps/NumiHumanPhysicalSkinChildMassMappingCLI.cpp": "9df518a770f3dd685191a2bbc0b6ebfdfc8293347aa419d66af027a44f044a6a",
+    "apps/numilab_human_myosim_visual_probe.mm": "e19048e494bb728e08ade04024b1c7a51cd89a99851639365704899828d95954"
+  },
+  "native_executable_sha256": "0e05cb49c814cf98c3390e4f7887994e69f3ecbe94c0d573f004c069e23701f1",
+  "native_object_sha256": "fba68056e6f07ebd0fe39eb19645944e204f1d9f36eda2e969c66e36ad3c7cb6",
+  "physical_steps": 0,
+  "physical_admission": false,
+  "scene_installation": false,
+  "native_motion_verified": false,
+  "whole_repaired_tissue_qualified": false,
+  "exact_evidence_compression": {
+    "docs/evidence/native-registered-mass-323/identity-control-producer.py": {
+      "uncompressed_sha256": "e704607a10fff29b65de573df67f1bbc5ded73dcb9e9bf41f919e5ca609ca833",
+      "compressed_sha256": "2ac9605e9191ed0aaa57bb135e416c35a320767201dcc30619cb11d84c9977fa"
+    },
+    "docs/evidence/native-registered-mass-323/native-positive-identity-control-008/stdout.txt": {
+      "uncompressed_sha256": "ddba7c0db302f89576af08234c680d17e5d25b8507f83247fde7f558574a0acb",
+      "compressed_sha256": "49c4356500f0cdce86a85c74657482462da6f0bcf7cc10f3183553ee943e2b3c"
+    },
+    "docs/evidence/native-registered-mass-323/native-positive-identity-control-008/stderr.txt": {
+      "uncompressed_sha256": "c56fe647984255c756d5c26d03053e9b11b9c81e38ef5daa9673851eb90a2396",
+      "compressed_sha256": "1917013878f585bfcbbbb0433cd34630b424cbdbbb53a77123b2a58b2daaf038"
+    },
+    "docs/evidence/native-registered-mass-323/identity-mass-mapping-003/stdout.txt": {
+      "uncompressed_sha256": "3fe94496933ae74acbbdbe76f4b21c38cbed7ae27ca570459f2b49219dd27ef6",
+      "compressed_sha256": "5d2fe4b31a6135e306602af1e8471033baa738645f4f03ad1df095e7b045d533"
+    },
+    "docs/evidence/native-registered-mass-323/identity-mass-mapping-003/stderr.txt": {
+      "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "docs/evidence/native-registered-mass-323/failed/native-positive-identity-control-002/stderr.txt": {
+      "uncompressed_sha256": "5483490d0cb4125fcf6b125407e5df7fbe26374c9111f4195e13f5c3206e3454",
+      "compressed_sha256": "1208b330bc559c2b255ac84f2bca8743464ce7c3bfa57bb65ba7f7f023fc5807"
+    },
+    "docs/evidence/native-registered-mass-323/failed/native-positive-identity-control-003/stderr.txt": {
+      "uncompressed_sha256": "5e6babdd5a7043c205b873344980a6441ac28d41e50bf4bd16b9f45252b65033",
+      "compressed_sha256": "8409b8567aef3b8e1807a851b669af28c2e8098a5f0f23a366b663d067f2294f"
+    },
+    "docs/evidence/native-registered-mass-323/failed/native-positive-identity-control-004/stderr.txt": {
+      "uncompressed_sha256": "5ca98ab43c79b028030346a1fe65e652d1ed518155b53fe4f308564337c794e2",
+      "compressed_sha256": "da425638417f93306f649758d8fdc843ef0678ce840c8df0b2f97f2131728a1d"
+    },
+    "docs/evidence/native-registered-mass-323/failed/native-positive-identity-control-005/stderr.txt": {
+      "uncompressed_sha256": "053643b1f19335f49db6cbb972a62da9eab82530c8d89679a8f4c9e1e64b8dac",
+      "compressed_sha256": "93798257930e0b915aa42df9742f75f046b112bf4a1e49e67aa725ff5d925318"
+    },
+    "docs/evidence/native-registered-mass-323/failed/native-positive-identity-control-006/stderr.txt": {
+      "uncompressed_sha256": "89fd66da99f5e1782fbdc1dec9e2375ebccfc39470e7538f8e37623fe433cc4a",
+      "compressed_sha256": "afe210edea2f9fea6fc12bd93ad81afa0a01a8411a39de8b0dcb3de36a39cee5"
+    },
+    "docs/evidence/native-registered-mass-323/failed/native-positive-identity-control-007/stderr.txt": {
+      "uncompressed_sha256": "dafa96ffd83efcf2df514ce5c199c613e72a3caff50edca333f6dbbf749cbdce",
+      "compressed_sha256": "83ef5f3ec30461548b9ec272c67fba87a0904d5a62ccbe2fa1b1b85ec4cc6c10"
+    }
+  }
+}

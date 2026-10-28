@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-child-mass-mapping-cli",
+    "--parent-mass-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/native-pose-matrix-capture-001/compiled-parent-cell-mass.csv",
+    "--labels-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/native-pose-matrix-capture-001/compiled-parent-cell-mass.csv.labels.csv",
+    "--child-node-file",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/parent-identity-control-007/volume/mesh.node",
+    "--child-ele-file",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/parent-identity-control-007/volume/mesh.ele",
+    "--child-labels-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/parent-identity-control-007/volume/child.labels.csv",
+    "--coordinate-frame-sha256",
+    "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a",
+    "--source-body-count",
+    "157",
+    "--maximum-transport-distance-m",
+    "0.02"
+  ],
+  "check_source_sha256": "426373e7bf4690e122510dd9bc90d39f08147f3b63c1cd4d54afd94c8fceb54e",
+  "claim": "parent identity source-control mass transport only; no candidate qualification or physical admission",
+  "cli_source_sha256": "9df518a770f3dd685191a2bbc0b6ebfdfc8293347aa419d66af027a44f044a6a",
+  "cwd": "/Users/numi/Work/skin-fat-native-integration-209",
+  "executable_sha256": "560d738e5c8e13cb0b14bbcd86ea28bd325e4b0b71b7b78234684ee981e54753",
+  "input_sha256": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/native-pose-matrix-capture-001/compiled-parent-cell-mass.csv": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/native-pose-matrix-capture-001/compiled-parent-cell-mass.csv.labels.csv": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/native-pose-matrix-capture-001/registered-skin-poses-100.json": "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/parent-identity-control-007/volume/child.labels.csv": "fc5c45635613c6280a8301646ba7c95daab1422dfdb22b8f25e0f45acc81b07a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/parent-identity-control-007/volume/combined-node-map.csv": "434cca0acd5949eb612df1c6c47e573709475eea4caadc795eeab6ad08ddea48",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/parent-identity-control-007/volume/mesh.ele": "49671889c6711fedd8dd5727bd264e9d652b3c8ef48e15783b6be7a44c32c347",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/physical-volume-producer-311/parent-identity-control-007/volume/mesh.node": "9ee7e933e79cf605133ce1d2173d89792d04b3f4f6844247ed86e66397738299"
+  },
+  "mass_mapping_header_sha256": "d8aab3834c659ed00d956bf15e6c0091c5d075386caaafc74cda38a87397627c",
+  "schema": "numi-human.physical-child-mass-mapping-cli-launch.v1"
+}

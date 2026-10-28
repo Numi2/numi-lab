@@ -68,6 +68,7 @@ struct PhysicalSkinRegisteredBodyPose {
     std::uint32_t bodyIndex=NM_INVALID_INDEX;
     std::uint32_t binding=NM_INVALID_INDEX;
     bool available=false;
+    PhysicalSkinPoseArithmetic arithmetic=PhysicalSkinPoseArithmetic::strictDouble;
     V3 currentOrigin{},restOrigin{};
     std::array<double,9> currentLocalToWorld{},restLocalToWorld{};
 };
@@ -323,13 +324,17 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
         const auto& pose=allBodyCurrentPoses[body];
         if(!pose.available||pose.bodyIndex!=body||!finitePoint(pose.currentOrigin)||
            !finitePoint(pose.restOrigin)||
-           !physical_skin_registered_surface_csv_detail::rotation(pose.currentLocalToWorld)||
-           !physical_skin_registered_surface_csv_detail::rotation(pose.restLocalToWorld))
+           !(pose.arithmetic==PhysicalSkinPoseArithmetic::nativeFloat32?
+             physical_skin_registered_surface_csv_detail::nativeFloat32Rotation(pose.currentLocalToWorld):
+             physical_skin_registered_surface_csv_detail::rotation(pose.currentLocalToWorld))||
+           !(pose.arithmetic==PhysicalSkinPoseArithmetic::nativeFloat32?
+             physical_skin_registered_surface_csv_detail::nativeFloat32Rotation(pose.restLocalToWorld):
+             physical_skin_registered_surface_csv_detail::rotation(pose.restLocalToWorld)))
             return fail("full native all-bodies current/rest pose table is incomplete or invalid");
         const auto& registeredFrame=registered.framesByDonor[body];
         if(registeredFrame.available){
             if(pose.binding==NM_INVALID_INDEX||!registeredBindings.insert(pose.binding).second||
-               pose.binding!=registeredFrame.binding||
+               pose.binding!=registeredFrame.binding||pose.arithmetic!=registeredFrame.arithmetic||
                registeredFrame.currentOrigin!=pose.currentOrigin||
                registeredFrame.currentR!=pose.currentLocalToWorld||
                registeredFrame.restOrigin!=pose.restOrigin||
@@ -474,15 +479,14 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
                 return fail("registered O/I/D source row is mapped to multiple TetGen volume nodes");
             const auto& sidecarFrame=registered.framesByDonor[row.donorBody];
             const auto& worldToLocal=surface.worldToDonorLocalLinear[row.surfaceVertexRow];
-            std::array<double,9> expectedWorldToLocal{
-                frame.currentLocalToWorld[0],frame.currentLocalToWorld[3],frame.currentLocalToWorld[6],
-                frame.currentLocalToWorld[1],frame.currentLocalToWorld[4],frame.currentLocalToWorld[7],
-                frame.currentLocalToWorld[2],frame.currentLocalToWorld[5],frame.currentLocalToWorld[8]};
+            const auto expectedWorldToLocal=physical_skin_registered_surface_csv_detail::worldToLocal(
+                frame.currentLocalToWorld,frame.arithmetic);
             if(!sidecarFrame.available||
                !closePoint(row.currentWorldPoint,surface.worldPoints[row.surfaceVertexRow],2.0e-8)||
                row.donorBody!=surface.donorBodyIndices[row.surfaceVertexRow]||
                !closePoint(row.donorLocalPoint,surface.donorLocalPoints[row.surfaceVertexRow],2.0e-8)||
-               worldToLocal!=expectedWorldToLocal||
+               !physical_skin_registered_surface_csv_detail::sameWorldToLocal(
+                   worldToLocal,expectedWorldToLocal,frame.arithmetic)||
                !compareSource(row,registered.nodeSource[layer][row.surfaceVertexRow],sourceError))
                 return fail(sourceError.empty()?"registered O/I/D TetGen node differs from its exact surface row":sourceError);
             const auto& parentRow=registered.nodeParent[layer][row.surfaceVertexRow];

@@ -262,12 +262,68 @@ void checkFailureIsAtomic(Fixture& fixture,const PhysicalSkinRegisteredVolumeAss
 }
 }
 
+void checkNativeFloat32FrameContract(const std::filesystem::path& root) {
+    using namespace physical_skin_registered_surface_csv_detail;
+    const std::array<double,9> rounded{double(1.0f+2.0f*std::numeric_limits<float>::epsilon()),0,0,0,1,0,0,0,1};
+    assert(!rotation(rounded)&&nativeFloat32Rotation(rounded));
+    const V3 point{2.0,-3.0,4.0};
+    const auto nativeInverse=worldToLocal(rounded,PhysicalSkinPoseArithmetic::nativeFloat32);
+    const auto exactLocal=mul(nativeInverse,point);
+    assert(norm(sub(mul(rounded,exactLocal),point))<1e-14);
+    assert(norm(sub(mul(rounded,mul(tr(rounded),point)),point))>1e-7);
+    assert(sameWorldToLocal(nativeInverse,nativeInverse,PhysicalSkinPoseArithmetic::nativeFloat32));
+    auto perturbedInverse=nativeInverse;perturbedInverse[0]+=1e-12;
+    assert(!sameWorldToLocal(perturbedInverse,nativeInverse,PhysicalSkinPoseArithmetic::nativeFloat32));
+    assert(worldToLocal(rounded,PhysicalSkinPoseArithmetic::strictDouble)==tr(rounded));
+    PhysicalSkinRegisteredSurfaceCSVFiles files;
+    files.donorCount=1u;files.donorFrames=root/"native-f32-frames.csv";
+    PhysicalSkinDonorFrameRow native;native.available=true;native.binding=0u;
+    native.currentR=rounded;native.restR=rounded;
+    const auto write=[&](const PhysicalSkinDonorFrameRow& row){
+        std::ofstream out(files.donorFrames);out<<std::setprecision(17);
+        out<<"binding,donor,current_x,current_y,current_z";
+        for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)out<<",current_R"<<i<<j;
+        out<<",rest_x,rest_y,rest_z";
+        for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)out<<",rest_R"<<i<<j;
+        out<<"\n0,0";
+        for(double x:row.currentOrigin)out<<','<<x;
+        for(double x:row.currentR)out<<','<<x;
+        for(double x:row.restOrigin)out<<','<<x;
+        for(double x:row.restR)out<<','<<x;
+        out<<'\n';
+    };
+    const auto read=[&](){PhysicalSkinRegisteredSurfaceCSVSet set;
+        PhysicalSkinRegisteredSurfaceCSVReport report;std::string error;
+        return readFrames(files,set,report,error);};
+    write(native);assert(!read()); // External/default SO3 gate is unchanged.
+    std::array<PhysicalSkinDonorFrameRow,1> pins{native};
+    files.nativeFloat32FramesByDonor=pins;assert(read());
+    auto wrong=native;wrong.currentR[0]=std::nextafter(float(wrong.currentR[0]),2.0f);
+    write(wrong);assert(!read()); // Even a bounded one-ULP mismatch is rejected.
+    wrong=native;wrong.currentOrigin[0]=double(std::numeric_limits<float>::epsilon());
+    write(wrong);assert(!read());
+    for(const unsigned kind:{0u,1u,2u,3u}) {
+        wrong=native;
+        if(kind==0u)wrong.currentR[0]=-1.0; // reflection
+        if(kind==1u)wrong.currentR[1]=0.01; // shear
+        if(kind==2u)wrong.currentR[0]=1.0+1e-9; // not native F32
+        if(kind==3u)wrong.currentR[0]=double(1.0f+32.0f*std::numeric_limits<float>::epsilon());
+        pins[0]=wrong;write(wrong);assert(!read()); // Pins alone cannot waive bound.
+    }
+    pins[0]=native;write(native);
+    files.nativeFloat32FramesByDonor=std::span<const PhysicalSkinDonorFrameRow>(pins.data(),0u);
+    assert(!read());
+    std::array<PhysicalSkinDonorFrameRow,2> badDomain{native,native};
+    files.nativeFloat32FramesByDonor=badDomain;assert(!read());
+}
+
 int main() {
     Fixture fixture;
     const auto root=std::filesystem::temp_directory_path()/
         ("numi-registered-volume-import-"+std::to_string(
             std::chrono::steady_clock::now().time_since_epoch().count()));
     std::filesystem::create_directories(root);
+    checkNativeFloat32FrameContract(root);
     PhysicalSkinRegisteredVolumeAssetFiles files;
     fixture.writeFiles(root,files);
 
@@ -302,6 +358,19 @@ int main() {
         bundle.childAuthoredHeadSidewallFacetFlags.end(),1u)==12);
     assert(report.inputSHA256==files.expectedSHA256);
 
+    // The complete native body table uses the same explicit arithmetic policy,
+    // including bodies without registered skin bindings. Default stays strict.
+    auto roundedPoses=fixture.poses;
+    roundedPoses[155u].currentLocalToWorld[0]=double(1.0f+2.0f*std::numeric_limits<float>::epsilon());
+    auto poseBundle=fixture.parentBundle;
+    assert(!importPhysicalSkinRegisteredVolumeFiles(files,std::string(64u,'0'),157u,0.02,
+        0.02,"",0u,0u,fixture.registered,attachments,roundedPoses,
+        poseBundle,sidecars,report,error,std::span<const PhysicalSkinSourceDomainRegistration>(typedDomains)));
+    roundedPoses[155u].arithmetic=PhysicalSkinPoseArithmetic::nativeFloat32;
+    assert(importPhysicalSkinRegisteredVolumeFiles(files,std::string(64u,'0'),157u,0.02,
+        0.02,"",0u,0u,fixture.registered,attachments,roundedPoses,
+        poseBundle,sidecars,report,error,std::span<const PhysicalSkinSourceDomainRegistration>(typedDomains)));
+
     auto badMap=files;
     badMap.combinedNodeMapCSV=root/"bad-map.csv";
     {std::ofstream out(badMap.combinedNodeMapCSV);out<<"not,the,existing,header\n";}
@@ -316,5 +385,6 @@ int main() {
     std::filesystem::remove_all(root);
     std::cout<<"registered_volume_file_import=PASS positive_TetGen_prism=6cells O/I/D=1/2/1 walls=12"
         <<" exact_node_map_rows=12 malformed_csv_and_gzip_rejected atomic_failure_preserved=1"
+        <<" native_F32_exact_pins_and_roundoff_bound=PASS strict_default_unchanged=1"
         <<" physical_admission=NOT_CLAIMED\n";
 }

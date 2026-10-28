@@ -14504,6 +14504,21 @@ mr_float4 rotatePoint(const mr_float4 quaternion, const mr_float4 point) {
     return {point.x + correction.x, point.y + correction.y, point.z + correction.z, 0.0f};
 }
 
+// Shared by source pose capture and strict registered-volume frame pins. One
+// native arithmetic implementation avoids compiler/context-dependent emulation.
+[[clang::noinline]] std::array<double,9> nativeSkinPoseLocalToWorld(
+    const mr_float4 orientation
+) {
+    std::array<double,9> matrix{};
+    for(unsigned column=0u;column<3u;++column) {
+        const mr_float4 basis{column==0u?1.0f:0.0f,
+            column==1u?1.0f:0.0f,column==2u?1.0f:0.0f,0.0f};
+        const auto rotated=rotatePoint(orientation,basis);
+        matrix[column]=rotated.x;matrix[3u+column]=rotated.y;matrix[6u+column]=rotated.z;
+    }
+    return matrix;
+}
+
 mr_float4 quaternionConjugate(const mr_float4 quaternion) {
     return {-quaternion.x, -quaternion.y, -quaternion.z, quaternion.w};
 }
@@ -15458,12 +15473,23 @@ void writeSkinPoseSnapshot(
            << ",\"binding_count\":" << skin.bindings.size()
            << ",\"payload_abi\":" << skin.header.payloadAbi
            << ",\"vertex_count\":" << skin.vertices.size() << ",\"bodies\":[";
-    const auto writePose = [&output](const MRBodyStateGPU& body) {
+    const char* allBodyEnv=std::getenv("NUMI_HUMAN_SKIN_REFERENCE_ALL_BODY_POSES");
+    require(allBodyEnv==nullptr||std::string_view(allBodyEnv)=="0"||std::string_view(allBodyEnv)=="1",
+            "all-body skin reference pose opt-in must be 0 or 1");
+    const bool nativeMatrices=allBodyEnv!=nullptr&&std::string_view(allBodyEnv)=="1";
+    const auto writePose = [&output,nativeMatrices](const MRBodyStateGPU& body) {
         output << "{\"position_world_m\":[" << body.position.x << ','
                << body.position.y << ',' << body.position.z
                << "],\"orientation_world_xyzw\":[" << body.orientation.x << ','
                << body.orientation.y << ',' << body.orientation.z << ','
-               << body.orientation.w << "]}";
+               << body.orientation.w << ']';
+        if(nativeMatrices) {
+            output << ",\"local_to_world_row_major_f32\":[" << std::setprecision(17);
+            const auto matrix=nativeSkinPoseLocalToWorld(body.orientation);
+            for(unsigned i=0u;i<9u;++i){if(i!=0u)output<<',';output<<matrix[i];}
+            output << ']' << std::setprecision(9);
+        }
+        output << '}';
     };
     std::vector<std::uint32_t> owners;
     for (const SkinBindingRecord& binding : skin.bindings) {
@@ -15478,10 +15504,7 @@ void writeSkinPoseSnapshot(
         writePose(restBodies[binding.bodyIndex]);
         output << '}';
     }
-    const char* allBodyEnv=std::getenv("NUMI_HUMAN_SKIN_REFERENCE_ALL_BODY_POSES");
-    require(allBodyEnv==nullptr||std::string_view(allBodyEnv)=="0"||std::string_view(allBodyEnv)=="1",
-            "all-body skin reference pose opt-in must be 0 or 1");
-    if(allBodyEnv!=nullptr&&std::string_view(allBodyEnv)=="1") {
+    if(nativeMatrices) {
         output << "],\"all_bodies\":[";
         for(std::size_t bodyIndex=0;bodyIndex<bodies.size();++bodyIndex) {
             if(bodyIndex!=0u) output << ',';
@@ -22176,29 +22199,18 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                                 skinRestBodies.size()==nativePoses.size()&&
                                 skin->bindings.size()==86u,
                             "registered-volume preflight needs the complete native 86-binding Human pose");
-                    const auto localToWorld=[&](const MRBodyStateGPU& body) {
-                        std::array<double,9> matrix{};
-                        for(unsigned column=0u;column<3u;++column) {
-                            const mr_float4 basis{column==0u?1.0f:0.0f,
-                                column==1u?1.0f:0.0f,column==2u?1.0f:0.0f,0.0f};
-                            const auto rotated=rotatePoint(body.orientation,basis);
-                            matrix[column]=rotated.x;
-                            matrix[3u+column]=rotated.y;
-                            matrix[6u+column]=rotated.z;
-                        }
-                        return matrix;
-                    };
                     for(std::size_t body=0u;body<nativePoses.size();++body) {
                         auto& pose=nativePoses[body];
                         pose.bodyIndex=static_cast<std::uint32_t>(body);
                         pose.binding=NM_INVALID_INDEX;
                         pose.available=true;
+                        pose.arithmetic=PhysicalSkinPoseArithmetic::nativeFloat32;
                         const auto& current=bodies[body];
                         const auto& rest=skinRestBodies[body];
                         pose.currentOrigin={current.position.x,current.position.y,current.position.z};
                         pose.restOrigin={rest.position.x,rest.position.y,rest.position.z};
-                        pose.currentLocalToWorld=localToWorld(current);
-                        pose.restLocalToWorld=localToWorld(rest);
+                        pose.currentLocalToWorld=nativeSkinPoseLocalToWorld(current.orientation);
+                        pose.restLocalToWorld=nativeSkinPoseLocalToWorld(rest.orientation);
                     }
                     for(std::size_t binding=0u;binding<skin->bindings.size();++binding) {
                         const auto body=skin->bindings[binding].bodyIndex;
@@ -22208,6 +22220,16 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         nativePoses[body].binding=static_cast<std::uint32_t>(binding);
                     }
 
+                    std::vector<PhysicalSkinDonorFrameRow> nativeFrames(nativePoses.size());
+                    for(std::size_t body=0u;body<nativePoses.size();++body) {
+                        const auto& pose=nativePoses[body];
+                        if(pose.binding==NM_INVALID_INDEX)continue;
+                        auto& frame=nativeFrames[body];
+                        frame.available=true;frame.binding=pose.binding;
+                        frame.currentOrigin=pose.currentOrigin;frame.restOrigin=pose.restOrigin;
+                        frame.currentR=pose.currentLocalToWorld;frame.restR=pose.restLocalToWorld;
+                    }
+                    surfaceFiles.nativeFloat32FramesByDonor=nativeFrames;
                     PhysicalSkinRegisteredSurfaceCSVSet registered;
                     PhysicalSkinRegisteredSurfaceCSVReport surfaceReport;
                     PhysicalSkinSurfaceParentRegistrationReport parentRegistrationReport;

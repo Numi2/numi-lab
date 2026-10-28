@@ -344,6 +344,9 @@ int main(int argc, char** argv) {
 
     std::cout << std::setprecision(17)
               << transferLabel << "=PASS method=conservativeSpatialMassTransport"
+              << " mapping_path=" << (bundle.exactTopologyIdentityTransportUsed?
+                    "exact_topology_identity":"bounded_conservative_spatial")
+              << " mapping_path_sha256=" << bundle.massMappingPathSHA256
               << " scope=" << (identityTransfer?"parent_geometry_identity_control":"explicit_child_reference_preparation")
               << " physical_admission=NOT_CLAIMED"
               << " source_body_count=" << sourceBodyCount

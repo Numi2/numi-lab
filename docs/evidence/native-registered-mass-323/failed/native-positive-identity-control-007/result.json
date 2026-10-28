@@ -1,0 +1,18 @@
+{
+  "duration_seconds": 6.214192250045016,
+  "exit_code": 1,
+  "launch_json_sha256": "e94e394f78c3d6498ba8af17227de38d7eeb175ec436238089f942aa7511f537",
+  "launch_manifest_sha256": "5eb9f7add569f96a95cada662e9d5cf4a96d3b27d2e9e1751289d03ef90ba600",
+  "native_executable_sha256": "0e05cb49c814cf98c3390e4f7887994e69f3ecbe94c0d573f004c069e23701f1",
+  "native_object_sha256": "fba68056e6f07ebd0fe39eb19645944e204f1d9f36eda2e969c66e36ad3c7cb6",
+  "native_source_sha256": "e19048e494bb728e08ade04024b1c7a51cd89a99851639365704899828d95954",
+  "physical_installation": false,
+  "preflight_pass": false,
+  "schema": "numi-human.parent-identity-native-preflight-run.v1",
+  "simulation_steps": 0,
+  "started_utc": "2026-10-28T22:26:03.850388+00:00",
+  "stderr_sha256": "dafa96ffd83efcf2df514ce5c199c613e72a3caff50edca333f6dbbf749cbdce",
+  "stdout_sha256": "93a6d36c23c11699ace65f12e0501a98dee9e6c46136e27cb8327e296eba77e4",
+  "timed_out": false,
+  "timeout_seconds": 240
+}

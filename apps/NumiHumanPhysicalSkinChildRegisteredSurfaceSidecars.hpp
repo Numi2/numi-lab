@@ -7,6 +7,8 @@
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <limits>
+#include <span>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -22,12 +24,23 @@ struct PhysicalSkinRegisteredLayerCSV {
     std::string nodesSHA256,facesSHA256,name,sourceMember;
     std::uint32_t stableIdentifier=0;
 };
+enum class PhysicalSkinPoseArithmetic { strictDouble, nativeFloat32 };
+struct PhysicalSkinDonorFrameRow {
+    bool available=false;
+    PhysicalSkinPoseArithmetic arithmetic=PhysicalSkinPoseArithmetic::strictDouble;
+    std::uint32_t binding=NM_INVALID_INDEX;
+    V3 currentOrigin{},restOrigin{};
+    std::array<double,9> currentR{},restR{};
+};
 struct PhysicalSkinRegisteredSurfaceCSVFiles {
     std::array<PhysicalSkinRegisteredLayerCSV,3> layers; // O,I,D
     std::filesystem::path nodeRegistration,donorFrames,outerFaceAncestry;
     std::string nodeRegistrationSHA256,donorFramesSHA256,outerFaceAncestrySHA256;
     std::size_t donorCount=0,d37InnerFaceCount=0,d37DeepFaceCount=0;
     double maxParentRegistrationDistanceM=0.02;
+    // Populated only by the live native owner, never by a CSV field. Every
+    // admitted F32 frame must exactly match this complete donor-indexed table.
+    std::span<const PhysicalSkinDonorFrameRow> nativeFloat32FramesByDonor{};
 };
 struct PhysicalSkinNodeSourceRow {
     std::int64_t vertex=-1,face=-1;
@@ -47,12 +60,7 @@ struct PhysicalSkinFaceSourceRow {
     std::uint32_t sourceFace=NM_INVALID_INDEX,parentTet=NM_INVALID_INDEX,material=NM_INVALID_INDEX;
     std::string role;
 };
-struct PhysicalSkinDonorFrameRow {
-    bool available=false;
-    std::uint32_t binding=NM_INVALID_INDEX;
-    V3 currentOrigin{},restOrigin{};
-    std::array<double,9> currentR{},restR{};
-};
+
 struct PhysicalSkinRegisteredSurfaceCSVSet {
     std::array<RegisteredSurface,3> surfaces;
     std::array<std::vector<PhysicalSkinNodeSourceRow>,3> nodeSource;
@@ -90,6 +98,44 @@ inline bool rotation(const std::array<double,9>& m){
   if(std::abs(v-(i==j?1.:0.))>2e-7)return false;}
  return std::abs(det(m)-1.)<=2e-7;
 }
+// rotatePoint constructs the native matrix in Float32. Casting its entries to
+// double does not restore exact orthogonality. Bound that arithmetic error only
+// for trusted native frames; the default external rotation contract stays strict.
+inline bool nativeFloat32Rotation(const std::array<double,9>& m){
+ // Stay inside the downstream physical owner's existing 1e-6 bound.
+ constexpr double bound=8.0*std::numeric_limits<float>::epsilon();
+ for(double x:m)if(!std::isfinite(x)||double(float(x))!=x)return false;
+ for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j){double v=0;
+  for(unsigned k=0;k<3;++k)v+=m[3*k+i]*m[3*k+j];
+  if(std::abs(v-(i==j?1.:0.))>bound)return false;}
+ return std::abs(det(m)-1.)<=bound;
+}
+inline bool exactNativeFrame(const PhysicalSkinDonorFrameRow& r,
+                             const PhysicalSkinDonorFrameRow& native){
+ return native.available&&r.binding==native.binding&&
+  r.currentOrigin==native.currentOrigin&&r.restOrigin==native.restOrigin&&
+  r.currentR==native.currentR&&r.restR==native.restR&&
+  nativeFloat32Rotation(r.currentR)&&nativeFloat32Rotation(r.restR);
+}
+// The trusted F32 matrix is near SO3, not exactly orthogonal. Transpose is
+// therefore not its inverse. Keep local-coordinate reconstruction in double.
+inline std::array<double,9> worldToLocal(const std::array<double,9>& m,
+                                       PhysicalSkinPoseArithmetic arithmetic){
+ if(arithmetic!=PhysicalSkinPoseArithmetic::nativeFloat32)return tr(m);
+ const double d=det(m);
+ return {(m[4]*m[8]-m[5]*m[7])/d,(m[2]*m[7]-m[1]*m[8])/d,(m[1]*m[5]-m[2]*m[4])/d,
+         (m[5]*m[6]-m[3]*m[8])/d,(m[0]*m[8]-m[2]*m[6])/d,(m[2]*m[3]-m[0]*m[5])/d,
+         (m[3]*m[7]-m[4]*m[6])/d,(m[1]*m[6]-m[0]*m[7])/d,(m[0]*m[4]-m[1]*m[3])/d};
+}
+inline bool sameWorldToLocal(const std::array<double,9>& m,const std::array<double,9>& expected,
+                             PhysicalSkinPoseArithmetic arithmetic){
+ if(arithmetic!=PhysicalSkinPoseArithmetic::nativeFloat32)return m==expected;
+ // Only last-bit differences between F64 inverse implementations are allowed.
+ constexpr double tolerance=8.0*std::numeric_limits<double>::epsilon();
+ for(unsigned i=0;i<9;++i)if(!std::isfinite(m[i])||
+    std::abs(m[i]-expected[i])>tolerance*std::max(1.0,std::abs(expected[i])))return false;
+ return true;
+}
 inline bool hash(const std::filesystem::path& p,std::string_view expected,std::string& got,std::string& e){
  if(!validSHA256(expected)){e="missing or invalid pinned SHA-256: "+p.string();return false;}
  if(!sha256File(p,got,e))return false;if(got!=expected){e="registered sidecar hash mismatch: "+p.string()+" got="+got+" expected="+std::string(expected);return false;}return true;
@@ -109,6 +155,8 @@ inline bool readFrames(const PhysicalSkinRegisteredSurfaceCSVFiles& f,PhysicalSk
  h.insert(h.end(),{"rest_x","rest_y","rest_z"});
  for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j)h.push_back("rest_R"+std::to_string(i)+std::to_string(j));
  if(!header(in,f.donorFrames,h,e))return false;
+ if(!f.nativeFloat32FramesByDonor.empty()&&f.nativeFloat32FramesByDonor.size()!=f.donorCount){
+  e="trusted native frame table has wrong donor domain";return false;}
  out.framesByDonor.assign(f.donorCount,{});
  std::vector<bool> bindings(4096,false),donors(f.donorCount,false);
  std::string line;std::size_t n=0;
@@ -122,7 +170,20 @@ inline bool readFrames(const PhysicalSkinRegisteredSurfaceCSVFiles& f,PhysicalSk
    e="nonfinite donor origin";return false;}
   for(unsigned k=0;k<9;++k)if(!number(v[5+k],r.currentR[k])||!number(v[17+k],r.restR[k])){
    e="nonfinite donor rotation";return false;}
-  if(!rotation(r.currentR)||!rotation(r.restR)){e="donor frame is not a proper rotation";return false;}
+  if(f.nativeFloat32FramesByDonor.empty()){
+   if(!rotation(r.currentR)||!rotation(r.restR)){e="donor frame is not a proper rotation";return false;}
+  }else if(!exactNativeFrame(r,f.nativeFloat32FramesByDonor[donor])){
+   const auto& pin=f.nativeFloat32FramesByDonor[donor];
+   e="donor frame differs from trusted native Float32 frame or exceeds its arithmetic bound: donor="+
+     std::to_string(donor)+" binding="+std::to_string(bind)+
+     " current_origin_equal="+std::to_string(r.currentOrigin==pin.currentOrigin)+
+     " rest_origin_equal="+std::to_string(r.restOrigin==pin.restOrigin)+
+     " current_matrix_equal="+std::to_string(r.currentR==pin.currentR)+
+     " rest_matrix_equal="+std::to_string(r.restR==pin.restR)+
+     " bounded="+std::to_string(nativeFloat32Rotation(r.currentR)&&nativeFloat32Rotation(r.restR));
+   return false;
+  }
+  if(!f.nativeFloat32FramesByDonor.empty())r.arithmetic=PhysicalSkinPoseArithmetic::nativeFloat32;
   bindings[bind]=donors[donor]=true;out.framesByDonor[donor]=r;++n;
  }
  if(!in.eof()||n==0){e="donor-frame CSV is incomplete";return false;}report.donorFrames=n;return true;
@@ -157,7 +218,7 @@ inline bool readID(const PhysicalSkinRegisteredLayerCSV& file,unsigned layer,con
   for(unsigned a=0;a<9;++a)if(!number(v[11+a],w2l[a]))return fail("I/D node transform is nonfinite");
   if(std::abs(norm(normal)-1.)>1e-5||donor>=frames.size()||!frames[donor].available)
    return fail("I/D node has invalid normal or missing donor frame");
-  auto expected=tr(frames[donor].currentR);
+  auto expected=worldToLocal(frames[donor].currentR,frames[donor].arithmetic);
   for(unsigned a=0;a<9;++a)if(std::abs(w2l[a]-expected[a])>2e-10)
    return fail("I/D node matrix differs from exact donor-frame table");
   if(norm(sub(mul(w2l,sub(p,frames[donor].currentOrigin)),local))>2e-8)
@@ -302,7 +363,7 @@ inline bool validateFrames(const RegisteredSurface& s,const std::vector<Physical
     s.worldPoints.size()!=s.worldToDonorLocalLinear.size()){e="RegisteredSurface donor rows incomplete";return false;}
  for(std::size_t i=0;i<s.worldPoints.size();++i){
   auto d=s.donorBodyIndices[i];if(d>=frames.size()||!frames[d].available){e="surface donor frame missing";return false;}
-  auto m=tr(frames[d].currentR);for(unsigned k=0;k<9;++k)if(std::abs(m[k]-s.worldToDonorLocalLinear[i][k])>2e-10){
+  auto m=worldToLocal(frames[d].currentR,frames[d].arithmetic);for(unsigned k=0;k<9;++k)if(std::abs(m[k]-s.worldToDonorLocalLinear[i][k])>2e-10){
    e="surface donor matrix differs from frame table";return false;}
   if(norm(sub(mul(m,sub(s.worldPoints[i],frames[d].currentOrigin)),s.donorLocalPoints[i]))>2e-8){
    e="surface donor-local point does not reconstruct";return false;}
