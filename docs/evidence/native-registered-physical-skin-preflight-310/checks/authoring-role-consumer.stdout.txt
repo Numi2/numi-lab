@@ -1,0 +1,1 @@
+authoring_role_consumer=pass rows=3/3/3 bindings=86 parent_geometric_donor=150 frame_owners=distinct transactional_failures=11 physical_admission=false

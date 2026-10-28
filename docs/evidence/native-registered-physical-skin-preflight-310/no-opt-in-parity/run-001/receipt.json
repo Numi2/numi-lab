@@ -1,0 +1,113 @@
+{
+  "exit_code": 0,
+  "preflight_gate": "unset",
+  "runtime_initialized": false,
+  "physical_steps": 0,
+  "source_only_parent_capture": true,
+  "byte_identical_files": 10,
+  "files": [
+    {
+      "file": "compiled-parent-cell-mass.csv",
+      "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-layer-capture-256/run-001/compiled-parent-cell-mass.csv",
+      "replay_path": "/tmp/numi-parent-capture-replay-20261028/compiled-parent-cell-mass.csv",
+      "baseline_bytes": 897942,
+      "replay_bytes": 897942,
+      "baseline_sha256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+      "replay_sha256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+      "byte_identical": true
+    },
+    {
+      "file": "compiled-parent-cell-mass.csv.nodes.csv",
+      "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-layer-capture-256/run-001/compiled-parent-cell-mass.csv.nodes.csv",
+      "replay_path": "/tmp/numi-parent-capture-replay-20261028/compiled-parent-cell-mass.csv.nodes.csv",
+      "baseline_bytes": 1694447,
+      "replay_bytes": 1694447,
+      "baseline_sha256": "7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044",
+      "replay_sha256": "7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044",
+      "byte_identical": true
+    },
+    {
+      "file": "compiled-parent-cell-mass.csv.source.csv",
+      "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-layer-capture-256/run-001/compiled-parent-cell-mass.csv.source.csv",
+      "replay_path": "/tmp/numi-parent-capture-replay-20261028/compiled-parent-cell-mass.csv.source.csv",
+      "baseline_bytes": 947346,
+      "replay_bytes": 947346,
+      "baseline_sha256": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f",
+      "replay_sha256": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f",
+      "byte_identical": true
+    },
+    {
+      "file": "compiled-parent-cell-mass.csv.tets.csv",
+      "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-layer-capture-256/run-001/compiled-parent-cell-mass.csv.tets.csv",
+      "replay_path": "/tmp/numi-parent-capture-replay-20261028/compiled-parent-cell-mass.csv.tets.csv",
+      "baseline_bytes": 2207254,
+      "replay_bytes": 2207254,
+      "baseline_sha256": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+      "replay_sha256": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+      "byte_identical": true
+    },
+    {
+      "file": "compiled-parent-cell-mass.csv.labels.csv",
+      "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-layer-capture-256/run-001/compiled-parent-cell-mass.csv.labels.csv",
+      "replay_path": "/tmp/numi-parent-capture-replay-20261028/compiled-parent-cell-mass.csv.labels.csv",
+      "baseline_bytes": 604836,
+      "replay_bytes": 604836,
+      "baseline_sha256": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457",
+      "replay_sha256": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457",
+      "byte_identical": true
+    },
+    {
+      "file": "compiled-parent-cell-mass.csv.weights.csv",
+      "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-layer-capture-256/run-001/compiled-parent-cell-mass.csv.weights.csv",
+      "replay_path": "/tmp/numi-parent-capture-replay-20261028/compiled-parent-cell-mass.csv.weights.csv",
+      "baseline_bytes": 14034485,
+      "replay_bytes": 14034485,
+      "baseline_sha256": "98205ae7de44401544b7969184788f5c2ee39cd4404cd34b8037377e7ae63a76",
+      "replay_sha256": "98205ae7de44401544b7969184788f5c2ee39cd4404cd34b8037377e7ae63a76",
+      "byte_identical": true
+    },
+    {
+      "file": "parent-layer-rows.csv",
+      "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-layer-capture-256/run-001/parent-layer-rows.csv",
+      "replay_path": "/tmp/numi-parent-capture-replay-20261028/parent-layer-rows.csv",
+      "baseline_bytes": 3030495,
+      "replay_bytes": 3030495,
+      "baseline_sha256": "ae8f0c96ce34f3dedf4b2950eb7009436f827998ad5a35b7f9287d2cf4cc384f",
+      "replay_sha256": "ae8f0c96ce34f3dedf4b2950eb7009436f827998ad5a35b7f9287d2cf4cc384f",
+      "byte_identical": true
+    },
+    {
+      "file": "parent-deep-attachments.csv",
+      "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-layer-capture-256/run-001/parent-deep-attachments.csv",
+      "replay_path": "/tmp/numi-parent-capture-replay-20261028/parent-deep-attachments.csv",
+      "baseline_bytes": 5838,
+      "replay_bytes": 5838,
+      "baseline_sha256": "a0bad61ae21a6fb952c589ab30a69c866866996c23842929d88d91576b29ba3f",
+      "replay_sha256": "a0bad61ae21a6fb952c589ab30a69c866866996c23842929d88d91576b29ba3f",
+      "byte_identical": true
+    },
+    {
+      "file": "registered-skin-100-native.csv",
+      "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-layer-capture-256/run-001/registered-skin-100-native.csv",
+      "replay_path": "/tmp/numi-parent-capture-replay-20261028/registered-skin-100-native.csv",
+      "baseline_bytes": 24147731,
+      "replay_bytes": 24147731,
+      "baseline_sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "replay_sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "byte_identical": true
+    },
+    {
+      "file": "registered-skin-poses-100.json",
+      "baseline_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-layer-capture-256/run-001/registered-skin-poses-100.json",
+      "replay_path": "/tmp/numi-parent-capture-replay-20261028/registered-skin-poses-100.json",
+      "baseline_bytes": 73341,
+      "replay_bytes": 73341,
+      "baseline_sha256": "eb2ae08f74852f08d5b08a18f3d7738b53b8e7265336f77646cbe8f949ece117",
+      "replay_sha256": "eb2ae08f74852f08d5b08a18f3d7738b53b8e7265336f77646cbe8f949ece117",
+      "byte_identical": true
+    }
+  ],
+  "source_sha256": "3bb70187b6cc6a9760171bc54e3f2577baf6901c4dc6b585c174efddded3f9c9",
+  "object_sha256": "57100c5612a244d6dd76b37c576c2975a1c2707c3a95e23f46f13077d0864e71",
+  "executable_sha256": "8ac4e3b41fbe12c937105c988ac914d7e6fc83b935fc598e2dd81173e81784a1"
+}

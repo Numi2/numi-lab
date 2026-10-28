@@ -1,0 +1,73 @@
+{
+  "revision": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "working_tree_scope": "shared dirty checkout; source change is not staged",
+  "source": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/numilab_human_myosim_visual_probe.mm",
+    "sha256": "3bb70187b6cc6a9760171bc54e3f2577baf6901c4dc6b585c174efddded3f9c9"
+  },
+  "object": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o",
+    "sha256": "57100c5612a244d6dd76b37c576c2975a1c2707c3a95e23f46f13077d0864e71"
+  },
+  "executable": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "sha256": "8ac4e3b41fbe12c937105c988ac914d7e6fc83b935fc598e2dd81173e81784a1"
+  },
+  "toolchain": {
+    "CMAKE_GENERATOR:INTERNAL": "Ninja",
+    "CMAKE_CXX_COMPILER:FILEPATH": "/usr/bin/c++",
+    "CMAKE_OBJCXX_COMPILER:FILEPATH": "/usr/bin/clang++",
+    "CMAKE_OBJCXX_COMPILER_ID:STRING": null,
+    "CMAKE_OBJCXX_COMPILER_VERSION:STRING": null
+  },
+  "compile_observation": "Final native target compiled and linked successfully after the source change; receipt logs record the up-to-date build verification.",
+  "build_commands": [
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        "build-native",
+        "--target",
+        "numi-human-native",
+        "--parallel",
+        "2"
+      ],
+      "returncode": 0,
+      "stdout": "[0/2] Re-checking globbed directories...\nninja: no work to do.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        "build-native",
+        "--target",
+        "numi-human-physical-skin-registered-volume-integration-check",
+        "numi-human-physical-skin-authoring-role-consumer-check",
+        "--parallel",
+        "2"
+      ],
+      "returncode": 0,
+      "stdout": "[0/2] Re-checking globbed directories...\nninja: no work to do.\n",
+      "stderr": ""
+    }
+  ],
+  "final_native_compile": {
+    "argv": [
+      "cmake",
+      "--build",
+      "build-native",
+      "--target",
+      "numi-human-native",
+      "--parallel",
+      "2"
+    ],
+    "returncode": 0,
+    "stdout_file": "final-native-compile.stdout.txt",
+    "stderr_file": "final-native-compile.stderr.txt",
+    "stdout": "[0/2] Re-checking globbed directories...\n[1/3] Building OBJCXX object CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o\n[2/3] Linking OBJCXX executable bin/numi-human-native\n",
+    "source_sha256": "3bb70187b6cc6a9760171bc54e3f2577baf6901c4dc6b585c174efddded3f9c9",
+    "object_sha256": "57100c5612a244d6dd76b37c576c2975a1c2707c3a95e23f46f13077d0864e71",
+    "executable_sha256": "8ac4e3b41fbe12c937105c988ac914d7e6fc83b935fc598e2dd81173e81784a1"
+  }
+}

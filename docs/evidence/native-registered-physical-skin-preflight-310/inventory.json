@@ -1,0 +1,121 @@
+{
+  "file_count": 30,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1529
+    },
+    {
+      "path": "bad-hash/run-001/launch.json",
+      "bytes": 14656
+    },
+    {
+      "path": "bad-hash/run-001/output/resting-coupled.csv",
+      "bytes": 1769
+    },
+    {
+      "path": "bad-hash/run-001/receipt.json",
+      "bytes": 5238
+    },
+    {
+      "path": "bad-hash/run-001/registered-skin-100-native.csv",
+      "bytes": 24147731
+    },
+    {
+      "path": "bad-hash/run-001/stderr.txt",
+      "bytes": 888
+    },
+    {
+      "path": "bad-hash/run-001/stdout.txt",
+      "bytes": 14829
+    },
+    {
+      "path": "build/build-1.stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "build/build-1.stdout.txt",
+      "bytes": 63
+    },
+    {
+      "path": "build/build-2.stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "build/build-2.stdout.txt",
+      "bytes": 63
+    },
+    {
+      "path": "build/build-receipt.json",
+      "bytes": 2784
+    },
+    {
+      "path": "build/final-native-compile.stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "build/final-native-compile.stdout.txt",
+      "bytes": 201
+    },
+    {
+      "path": "checks/authoring-role-consumer.stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "checks/authoring-role-consumer.stdout.txt",
+      "bytes": 152
+    },
+    {
+      "path": "checks/checks-receipt.json",
+      "bytes": 1434
+    },
+    {
+      "path": "checks/registered-volume-integration.stderr.txt",
+      "bytes": 0
+    },
+    {
+      "path": "checks/registered-volume-integration.stdout.txt",
+      "bytes": 198
+    },
+    {
+      "path": "missing-input/run-001/launch.json",
+      "bytes": 14045
+    },
+    {
+      "path": "missing-input/run-001/output/resting-coupled.csv",
+      "bytes": 1769
+    },
+    {
+      "path": "missing-input/run-001/receipt.json",
+      "bytes": 4836
+    },
+    {
+      "path": "missing-input/run-001/registered-skin-100-native.csv",
+      "bytes": 24147731
+    },
+    {
+      "path": "missing-input/run-001/stderr.txt",
+      "bytes": 652
+    },
+    {
+      "path": "missing-input/run-001/stdout.txt",
+      "bytes": 14829
+    },
+    {
+      "path": "no-opt-in-parity/run-001/launch.json",
+      "bytes": 12927
+    },
+    {
+      "path": "no-opt-in-parity/run-001/receipt.json",
+      "bytes": 6828
+    },
+    {
+      "path": "no-opt-in-parity/run-001/stderr.txt",
+      "bytes": 295
+    },
+    {
+      "path": "no-opt-in-parity/run-001/stdout.txt",
+      "bytes": 214107
+    }
+  ]
+}

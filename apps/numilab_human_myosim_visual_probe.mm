@@ -22,6 +22,8 @@
 #include "NumiHumanUnpairedSkinFatVolume.hpp"
 #include "NumiHumanPhysicalSkinReplacement.hpp"
 #include "NumiHumanPhysicalSkinChildIntegration.hpp"
+#include "NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp"
+#include "NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp"
 #include "NumiHumanFEMOuterGroundAlignment.hpp"
 #include "NumiHumanRegisteredSkinCandidateCSV.hpp"
 #include "NumiHumanCandidateSkin033.hpp"
@@ -22058,6 +22060,298 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             require(body<pose.size(),"registered skin frame body is outside the current Human pose");
             const auto& q=pose[body].orientation;const mr_float4 inverse{-q.x,-q.y,-q.z,q.w};std::array<double,9> m{};
             for(unsigned c=0;c<3;c++){mr_float4 e{c==0?1.0f:0.0f,c==1?1.0f:0.0f,c==2?1.0f:0.0f,0.0f};const auto r=rotatePoint(inverse,e);m[c]=r.x;m[3+c]=r.y;m[6+c]=r.z;}return m;};
+        // Registered-volume preparation is opt-in and transactional. Existing
+        // baseline source preparation may precede this check; it gates appending
+        // the registered candidate shell while the exact current/rest pose exists.
+        if(const char* preflightSetting=
+                std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT")) {
+            try {
+                const std::string_view setting(preflightSetting);
+                if(setting!="0"&&setting!="1")
+                    throw std::runtime_error(
+                        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT must be 0 or 1");
+                if(setting=="1") {
+                    const char* captureOnly=
+                        std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_MASS_CAPTURE_ONLY");
+                    require(preparationOnly&&enableWholeBodySkinFat&&captureOnly&&
+                                std::string_view(captureOnly)=="1",
+                            "registered-volume preflight requires source-only whole-body parent-mass capture");
+                    const char* installSetting=
+                        std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_INSTALL");
+                    require(!installSetting||std::string_view(installSetting)=="0",
+                            "registered-volume physical installation is disabled pending the full prepared contracts");
+                    constexpr std::string_view prefix=
+                        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_";
+                    const auto value=[&](const std::string_view suffix) {
+                        const std::string key=std::string(prefix)+std::string(suffix);
+                        const char* raw=std::getenv(key.c_str());
+                        if(!raw||raw[0]=='\0')
+                            throw std::runtime_error("missing pinned preflight setting "+key);
+                        return std::string(raw);
+                    };
+                    const auto pathValue=[&](const std::string_view suffix) {
+                        return std::filesystem::path(value(suffix));
+                    };
+                    const auto uintValue=[&](const std::string_view suffix) {
+                        const auto text=value(suffix);
+                        std::uint32_t result=0u;
+                        const auto parsed=std::from_chars(text.data(),text.data()+text.size(),result);
+                        if(parsed.ec!=std::errc{}||parsed.ptr!=text.data()+text.size())
+                            throw std::runtime_error("invalid unsigned preflight setting "+
+                                std::string(prefix)+std::string(suffix));
+                        return result;
+                    };
+                    const auto doubleValue=[&](const std::string_view suffix) {
+                        const auto text=value(suffix);
+                        char* end=nullptr;
+                        const double result=std::strtod(text.c_str(),&end);
+                        if(end==text.c_str()||!end||*end!='\0'||!std::isfinite(result)||result<=0.0)
+                            throw std::runtime_error("invalid positive preflight setting "+
+                                std::string(prefix)+std::string(suffix));
+                        return result;
+                    };
+                    const auto pinFile=[&](const std::filesystem::path& path,
+                                           const std::string_view suffix) {
+                        const auto expected=value(suffix);
+                        std::string actual,hashError;
+                        require(physical_skin_child_mass_detail::validSHA256(expected),
+                                "preflight SHA-256 pin is not lowercase hexadecimal");
+                        require(physical_skin_child_mass_detail::sha256File(path,actual,hashError),
+                                "preflight input hash failed: "+hashError);
+                        require(actual==expected,
+                                "preflight input SHA-256 differs from its declared pin: "+path.string());
+                        return expected;
+                    };
+
+                    const auto parentMassPath=pathValue("PARENT_PACKET_CSV");
+                    const auto parentLabelPath=pathValue("PARENT_LABELS_CSV");
+                    pinFile(parentMassPath,"PARENT_PACKET_SHA256");
+                    pinFile(std::filesystem::path(parentMassPath.string()+".nodes.csv"),
+                            "PARENT_NODES_SHA256");
+                    pinFile(std::filesystem::path(parentMassPath.string()+".source.csv"),
+                            "PARENT_SOURCE_SHA256");
+                    pinFile(std::filesystem::path(parentMassPath.string()+".tets.csv"),
+                            "PARENT_TETS_SHA256");
+                    const auto expectedParentLabels=pinFile(parentLabelPath,"PARENT_LABELS_SHA256");
+
+                    PhysicalSkinChildMassMappingBundle importedBundle;
+                    std::string preflightError;
+                    require(loadCompiledSkinFatParentMassPacketCSV(
+                                parentMassPath,importedBundle.parent,preflightError),
+                            "exact parent mass packet rejected: "+preflightError);
+                    require(loadCompiledSkinFatParentLabelsCSV(
+                                parentLabelPath,importedBundle.parent,preflightError),
+                            "exact parent cell labels rejected: "+preflightError);
+                    require(importedBundle.parent.parentLabelSHA256==expectedParentLabels,
+                            "parent cell-label digest changed during import");
+
+                    PhysicalSkinRegisteredSurfaceCSVFiles surfaceFiles;
+                    constexpr std::array<std::string_view,3> roleNames{"O","I","D"};
+                    for(unsigned layer=0u;layer<3u;++layer) {
+                        const std::string role(roleNames[layer]);
+                        const std::string assetPrefix="SURFACE_"+role+"_";
+                        auto& layerFiles=surfaceFiles.layers[layer];
+                        layerFiles.nodes=pathValue(assetPrefix+"NODES_CSV");
+                        layerFiles.nodesSHA256=value(assetPrefix+"NODES_SHA256");
+                        layerFiles.faces=pathValue(assetPrefix+"FACES_CSV");
+                        layerFiles.facesSHA256=value(assetPrefix+"FACES_SHA256");
+                        layerFiles.name="registered "+role+" surface";
+                        layerFiles.sourceMember=layerFiles.nodes.string();
+                        layerFiles.stableIdentifier=uintValue(assetPrefix+"STABLE_IDENTIFIER");
+                    }
+                    surfaceFiles.nodeRegistration=pathValue("NODE_REGISTRATION_CSV");
+                    surfaceFiles.nodeRegistrationSHA256=value("NODE_REGISTRATION_SHA256");
+                    surfaceFiles.donorFrames=pathValue("DONOR_FRAMES_CSV");
+                    surfaceFiles.donorFramesSHA256=value("DONOR_FRAMES_SHA256");
+                    surfaceFiles.outerFaceAncestry=pathValue("OUTER_FACE_ANCESTRY_CSV");
+                    surfaceFiles.outerFaceAncestrySHA256=value("OUTER_FACE_ANCESTRY_SHA256");
+                    surfaceFiles.donorCount=model.bodies.size();
+                    surfaceFiles.d37InnerFaceCount=uintValue("D37_INNER_FACE_COUNT");
+                    surfaceFiles.d37DeepFaceCount=uintValue("D37_DEEP_FACE_COUNT");
+                    surfaceFiles.maxParentRegistrationDistanceM=
+                        doubleValue("MAX_PARENT_REGISTRATION_DISTANCE_M");
+
+                    std::vector<PhysicalSkinRegisteredBodyPose> nativePoses(model.bodies.size());
+                    require(bodies.size()==nativePoses.size()&&
+                                skinRestBodies.size()==nativePoses.size()&&
+                                skin->bindings.size()==86u,
+                            "registered-volume preflight needs the complete native 86-binding Human pose");
+                    const auto localToWorld=[&](const MRBodyStateGPU& body) {
+                        std::array<double,9> matrix{};
+                        for(unsigned column=0u;column<3u;++column) {
+                            const mr_float4 basis{column==0u?1.0f:0.0f,
+                                column==1u?1.0f:0.0f,column==2u?1.0f:0.0f,0.0f};
+                            const auto rotated=rotatePoint(body.orientation,basis);
+                            matrix[column]=rotated.x;
+                            matrix[3u+column]=rotated.y;
+                            matrix[6u+column]=rotated.z;
+                        }
+                        return matrix;
+                    };
+                    for(std::size_t body=0u;body<nativePoses.size();++body) {
+                        auto& pose=nativePoses[body];
+                        pose.bodyIndex=static_cast<std::uint32_t>(body);
+                        pose.binding=NM_INVALID_INDEX;
+                        pose.available=true;
+                        const auto& current=bodies[body];
+                        const auto& rest=skinRestBodies[body];
+                        pose.currentOrigin={current.position.x,current.position.y,current.position.z};
+                        pose.restOrigin={rest.position.x,rest.position.y,rest.position.z};
+                        pose.currentLocalToWorld=localToWorld(current);
+                        pose.restLocalToWorld=localToWorld(rest);
+                    }
+                    for(std::size_t binding=0u;binding<skin->bindings.size();++binding) {
+                        const auto body=skin->bindings[binding].bodyIndex;
+                        require(body<nativePoses.size()&&
+                                    nativePoses[body].binding==NM_INVALID_INDEX,
+                                "registered Human source bindings are not one-to-one by body");
+                        nativePoses[body].binding=static_cast<std::uint32_t>(binding);
+                    }
+
+                    PhysicalSkinRegisteredSurfaceCSVSet registered;
+                    PhysicalSkinRegisteredSurfaceCSVReport surfaceReport;
+                    PhysicalSkinSurfaceParentRegistrationReport parentRegistrationReport;
+                    require(loadPhysicalSkinRegisteredSurfaceCSVSetForParent(
+                                surfaceFiles,importedBundle.parent,registered,surfaceReport,
+                                parentRegistrationReport,preflightError),
+                            "pinned O/I/D surface and parent registration rejected: "+preflightError);
+                    std::array<PhysicalSkinSourceDomainRegistration,3> sourceDomains{};
+                    std::array<std::filesystem::path,3> roleSourceAssets{};
+                    std::array<std::string,3> roleSourceAssetHashes{};
+                    constexpr std::array<PhysicalSkinSourceDomainRole,3> sourceRoles{
+                        PhysicalSkinSourceDomainRole::outerSurface,
+                        PhysicalSkinSourceDomainRole::innerSurface,
+                        PhysicalSkinSourceDomainRole::deepSurface};
+                    for(unsigned layer=0u;layer<3u;++layer) {
+                        require(!registered.nodeSource[layer].empty(),
+                                "registered O/I/D source-domain rows are empty");
+                        const std::string role(roleNames[layer]);
+                        const std::string rolePrefix="ROLE_"+role+"_";
+                        const std::string domain=registered.nodeSource[layer].front().domain;
+                        require(!domain.empty()&&std::all_of(registered.nodeSource[layer].begin(),
+                                    registered.nodeSource[layer].end(),
+                                    [&](const auto& row){return row.domain==domain;}),
+                                "each registered role must use one exact named source domain");
+                        require(domain==value(rolePrefix+"SOURCE_DOMAIN"),
+                                "registered row source domain differs from its pinned producer registry");
+                        roleSourceAssets[layer]=pathValue(rolePrefix+"SOURCE_ASSET");
+                        roleSourceAssetHashes[layer]=pinFile(
+                            roleSourceAssets[layer],rolePrefix+"SOURCE_ASSET_SHA256");
+                        const auto sourceVertexCount=uintValue(rolePrefix+"SOURCE_VERTEX_COUNT");
+                        const auto sourceFaceCount=uintValue(rolePrefix+"SOURCE_FACE_COUNT");
+                        require(sourceVertexCount>0u&&sourceFaceCount>0u,
+                                "pinned producer registry has empty source-domain counts");
+                        sourceDomains[layer]={domain,sourceRoles[layer],
+                            roleSourceAssetHashes[layer],sourceVertexCount,sourceFaceCount};
+                    }
+
+                    PhysicalSkinRegisteredVolumeAssetFiles volumeFiles;
+                    volumeFiles.tetgenNode=pathValue("TETGEN_NODE");
+                    volumeFiles.tetgenElements=pathValue("TETGEN_ELEMENTS");
+                    volumeFiles.childLabels=pathValue("CHILD_LABELS");
+                    volumeFiles.combinedNodeMapCSV=pathValue("COMBINED_NODE_MAP_CSV");
+                    volumeFiles.facetAncestryCSV=pathValue("FACET_ANCESTRY_CSV");
+                    constexpr std::array<std::string_view,5> volumePins{
+                        "TETGEN_NODE_SHA256","TETGEN_ELEMENTS_SHA256","CHILD_LABELS_SHA256",
+                        "COMBINED_NODE_MAP_SHA256","FACET_ANCESTRY_SHA256"};
+                    for(unsigned i=0u;i<volumePins.size();++i)
+                        volumeFiles.expectedSHA256[i]=value(volumePins[i]);
+                    const double maximumMassTransportDistanceM=
+                        doubleValue("MAXIMUM_MASS_TRANSPORT_DISTANCE_M");
+                    const auto coordinateFrameSHA256=value("COORDINATE_FRAME_SHA256");
+                    require(physical_skin_child_mass_detail::validSHA256(coordinateFrameSHA256),
+                            "coordinate-frame SHA-256 pin is invalid");
+                    PhysicalSkinRegisteredVolumeImportSidecars importSidecars;
+                    PhysicalSkinRegisteredVolumeFileImportReport importReport;
+                    const std::span<const PhysicalSkinStableDeepAttachmentRequest> noAttachments;
+                    require(importPhysicalSkinRegisteredVolumeFiles(volumeFiles,
+                                coordinateFrameSHA256,model.bodies.size(),
+                                maximumMassTransportDistanceM,
+                                surfaceFiles.maxParentRegistrationDistanceM,"",0u,0u,
+                                registered,noAttachments,nativePoses,importedBundle,
+                                importSidecars,importReport,preflightError,
+                                std::span<const PhysicalSkinSourceDomainRegistration>(sourceDomains)),
+                            "pinned registered-volume import rejected: "+preflightError);
+
+                    // These are the existing native material policy bounds used
+                    // by the current Human skin/fat mass mapping: skin 15 and fat 16.
+                    // Never infer a constitutive range from one captured mesh.
+                    std::vector<double> densityLower(17u,0.0);
+                    std::vector<double> densityUpper(17u,0.0);
+                    densityLower[15u]=900.0;densityUpper[15u]=1100.0;
+                    densityLower[16u]=850.0;densityUpper[16u]=950.0;
+                    for(const auto material:importedBundle.parent.materialIndices)
+                        require(material==15u||material==16u,
+                                "exact parent packet uses an unconfigured material density policy");
+                    for(const auto material:importedBundle.childMaterialIndices)
+                        require(material==15u||material==16u,
+                                "registered child volume uses an unconfigured material density policy");
+                    for(std::size_t cell=0u;cell<importedBundle.parent.tetrahedra.size();++cell) {
+                        const auto material=importedBundle.parent.materialIndices[cell];
+                        const double volume=importedBundle.parent.referenceTetVolumeM3[cell];
+                        const double mass=importedBundle.parent.tetrahedronMassKg[cell];
+                        require(std::isfinite(volume)&&volume>0.0&&std::isfinite(mass)&&mass>0.0,
+                                "exact parent packet has invalid material-specific mass density");
+                        const double density=mass/volume;
+                        require(std::isfinite(density)&&
+                                    density>=densityLower[material]&&density<=densityUpper[material],
+                                "exact parent packet density is outside the authoritative skin/fat material policy");
+                    }
+                    require(preparePhysicalSkinChildMassMapping(importedBundle,
+                                densityLower,densityUpper,maximumMassTransportDistanceM,
+                                model.bodies.size(),preflightError),
+                            "registered child mass mapping rejected: "+preflightError);
+
+                    std::array<PhysicalSkinAuthoringFullWeightsCSV,3> weightsFiles;
+                    for(unsigned layer=0u;layer<3u;++layer) {
+                        const std::string role(roleNames[layer]);
+                        weightsFiles[layer].path=pathValue("ROLE_"+role+"_FULL86_CSV");
+                        weightsFiles[layer].expectedSHA256=value("ROLE_"+role+"_FULL86_SHA256");
+                    }
+                    PhysicalSkinAuthoringRoleConsumerState roleState;
+                    PhysicalSkinAuthoringRoleConsumerReport roleReport;
+                    require(preparePhysicalSkinAuthoringRoleConsumerState(importedBundle,
+                                registered,importSidecars,nativePoses,weightsFiles,
+                                roleState,roleReport,preflightError),
+                            "registered O/I/D full86 role consumer rejected: "+preflightError);
+                    require(!roleState.physicalAdmission&&!roleReport.physicalAdmission&&
+                                !importReport.physicalAdmission,
+                            "registered-volume preparation must remain non-admitting");
+                    // Recheck parent inputs after every consumer has used them so
+                    // concurrent replacement cannot turn a parsed packet into a
+                    // different publication input.
+                    pinFile(parentMassPath,"PARENT_PACKET_SHA256");
+                    pinFile(std::filesystem::path(parentMassPath.string()+".nodes.csv"),
+                            "PARENT_NODES_SHA256");
+                    pinFile(std::filesystem::path(parentMassPath.string()+".source.csv"),
+                            "PARENT_SOURCE_SHA256");
+                    pinFile(std::filesystem::path(parentMassPath.string()+".tets.csv"),
+                            "PARENT_TETS_SHA256");
+                    pinFile(parentLabelPath,"PARENT_LABELS_SHA256");
+                    for(unsigned layer=0u;layer<3u;++layer) {
+                        const std::string role(roleNames[layer]);
+                        pinFile(roleSourceAssets[layer],"ROLE_"+role+"_SOURCE_ASSET_SHA256");
+                    }
+                    std::cout<<"registered_volume_native_preflight=PASS"
+                        <<" parent_nodes="<<importedBundle.parent.currentWorldPoints.size()
+                        <<" parent_tets="<<importedBundle.parent.tetrahedra.size()
+                        <<" O_rows="<<surfaceReport.nodes[0]
+                        <<" I_rows="<<surfaceReport.nodes[1]
+                        <<" D_rows="<<surfaceReport.nodes[2]
+                        <<" volume_nodes="<<importReport.tetgen.nodeCount
+                        <<" volume_tets="<<importReport.tetgen.cellCount
+                        <<" mass_mapping=PASS full86_bindings="<<roleReport.bindingCount
+                        <<" physical_admission=0 scene_installation=0 simulation_steps=0"
+                        <<std::endl;
+                }
+            } catch(const std::exception& error) {
+                std::cerr<<"registered_volume_native_preflight=FAIL"
+                    <<" physical_admission=0 scene_installation=0 simulation_steps=0"
+                    <<" reason="<<error.what()<<std::endl;
+                throw;
+            }
+        }
+
         // Optional source-pose inspection paired with the registered CSV. This
         // reuses the renderer's existing serializer and does not alter physics.
         if(const char* path=std::getenv("NUMI_HUMAN_SKIN_REFERENCE_POSE_DUMP")) {

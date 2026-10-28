@@ -1,0 +1,28 @@
+{
+  "checks": [
+    {
+      "name": "registered-volume-integration",
+      "argv": [
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-registered-volume-integration-check"
+      ],
+      "returncode": 0,
+      "executable_sha256": "35ab715391e872d1c323a1fc2ebcfcb287e622f5d0b7c24e7e20cbd123b7ce59",
+      "stdout": "registered_volume_file_import=PASS positive_TetGen_prism=6cells O/I/D=1/2/1 walls=12 exact_node_map_rows=12 malformed_csv_and_gzip_rejected atomic_failure_preserved=1 physical_admission=NOT_CLAIMED\n",
+      "stderr": ""
+    },
+    {
+      "name": "authoring-role-consumer",
+      "argv": [
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-authoring-role-consumer-check"
+      ],
+      "returncode": 0,
+      "executable_sha256": "91b1f573204e4e38bf22a07ed9ee73269e2e8103b952bed1c085d1321d5b36b9",
+      "stdout": "authoring_role_consumer=pass rows=3/3/3 bindings=86 parent_geometric_donor=150 frame_owners=distinct transactional_failures=11 physical_admission=false\n",
+      "stderr": ""
+    }
+  ],
+  "revision": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "source_sha256": "3bb70187b6cc6a9760171bc54e3f2577baf6901c4dc6b585c174efddded3f9c9",
+  "object_sha256": "57100c5612a244d6dd76b37c576c2975a1c2707c3a95e23f46f13077d0864e71",
+  "executable_sha256": "8ac4e3b41fbe12c937105c988ac914d7e6fc83b935fc598e2dd81173e81784a1"
+}
