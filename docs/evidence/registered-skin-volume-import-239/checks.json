@@ -1,0 +1,62 @@
+{
+  "utc": "2026-10-28T19:09:36.935955+00:00",
+  "host": "ssh numi",
+  "base_main": "b0a76558dc3bf18000588cb34d422cee63c96bc0",
+  "development_head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "source_sha256": {
+    "apps/NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp": "cd4f27e57208f5d6f3e7f41f130f2288a5d976e5dd818e4e02cd61c001b3b7aa",
+    "apps/NumiHumanPhysicalSkinChildRegisteredVolumeImportCheck.cpp": "d20c11d70dce5a7b4044221530a9dd6f277293f2165d39be175c1c731a677b68",
+    "apps/NumiHumanPhysicalSkinChildRegisteredVolumeCSV.hpp": "f731c6cd73dab8e37441f84913f2a79f5de12ea5e4597f8d99f01c3cd91f44c2",
+    "apps/NumiHumanPhysicalSkinChildRegisteredVolumeCSVCheck.cpp": "17c58e4a05ca8a51d610f87bd77a2fe4d8133ef6a2d0f8b0ab47c386f66bbffb",
+    "apps/NumiHumanPhysicalSkinChildRegisteredFacetMaps.hpp": "b15543aa7bc60e9de7d59f0ebe43278a7a98273e6393ab138cc472cbcad13fd5",
+    "apps/NumiHumanPhysicalSkinChildRegisteredFacetMapsCheck.cpp": "0254b0ce6c3d62505c3c3bc9bf01363a132bb027bed7c4675b0a2e9684005306",
+    "CMakeLists.txt": "34eaa11180adc310ca2f70cf7f5d7f14c98f12e26cb43d42f9593bce82ce31dc"
+  },
+  "checks": [
+    {
+      "command": [
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-registered-volume-import-check"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS registered volume import: same-target residual conversion on affine parent motion; exact O/I/D bijections; full current/rest 157-body pose table with one registered binding and 156 unbound test rows; incident material masks and parent semantic closure; interior unbound-body pose; stable deep source remap; no physical admission\n",
+      "stderr": "",
+      "binary_sha256": "fe88c4fb9b1b1e349bb269f2cc7e086d919fec552bb66e2a05063ab7419c233c"
+    },
+    {
+      "command": [
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-registered-volume-csv-check"
+      ],
+      "exit_code": 0,
+      "stdout": "physical_skin_registered_volume_csv=PASS shuffled_joint_rows=1 reciprocal_I_merge=1 corruptions_rejected=16 failure_transaction_preserved=1 physical_volume_admission=NOT_CLAIMED\n",
+      "stderr": "",
+      "binary_sha256": "1cd8433a9f4f7466168a6a2a6c0b7f62058d1a0df53189cea4a2b605385b5813"
+    },
+    {
+      "command": [
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-registered-facet-maps-check"
+      ],
+      "exit_code": 0,
+      "stdout": "physical_skin_registered_facet_maps=PASS positive_prism_cells=6 exact_O_I_D_uses=1,2,1 retained_wall_faces=12 corruptions_rejected=10 failure_transaction_preserved=1 csv_quoted_ancestry_roundtrip=PASS csv_corruptions_rejected=4 full_scene_admission=NOT_CLAIMED\n",
+      "stderr": "",
+      "binary_sha256": "534cd6211fe7e1b71f3425c9260e51bf05b51324c0b03f9b55e2c72cbbe6a078"
+    },
+    {
+      "command": [
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-registered-volume-csv-check",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/registered-volume-import-239/fixture-registered-node-map.csv",
+        "7",
+        "157"
+      ],
+      "exit_code": 0,
+      "stdout": "producer_node_map_cpp_reader=PASS nodes=7 source_rows=10 shared_I_pairs=3 physical_volume_admission=NOT_CLAIMED\n",
+      "stderr": "",
+      "input_sha256": "b183397c83ef330cb9eca5aa6132a79a7d640d5970952f3fe9331045a4d45379"
+    }
+  ],
+  "physical_admission": false,
+  "native_motion_verified": false,
+  "notes": [
+    "Checks use numerical fixtures; no body geometry is installed.",
+    "BUILD_TESTING is OFF in current cache; all listed binaries were executed directly."
+  ]
+}

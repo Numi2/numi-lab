@@ -2398,6 +2398,28 @@ if(BUILD_TESTING)
         COMMAND numi-human-physical-skin-child-mass-mapping-check)
 endif()
 
+# Narrow current-pose registered O/I/D volume import and exact TetGen-node map.
+foreach(_check IN ITEMS registered-volume-import registered-volume-csv registered-facet-maps)
+    if(_check STREQUAL "registered-volume-import")
+        set(_source apps/NumiHumanPhysicalSkinChildRegisteredVolumeImportCheck.cpp)
+    elseif(_check STREQUAL "registered-volume-csv")
+        set(_source apps/NumiHumanPhysicalSkinChildRegisteredVolumeCSVCheck.cpp)
+    else()
+        set(_source apps/NumiHumanPhysicalSkinChildRegisteredFacetMapsCheck.cpp)
+    endif()
+    add_executable(numi-human-physical-skin-${_check}-check EXCLUDE_FROM_ALL ${_source})
+    target_include_directories(numi-human-physical-skin-${_check}-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+    target_compile_features(numi-human-physical-skin-${_check}-check PRIVATE cxx_std_20)
+    target_compile_options(numi-human-physical-skin-${_check}-check PRIVATE
+        -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+    if(BUILD_TESTING)
+        add_test(NAME numi_human_physical_skin_${_check}
+            COMMAND numi-human-physical-skin-${_check}-check)
+    endif()
+endforeach()
+
 add_executable(numi-human-physical-skin-child-mass-mapping-cli EXCLUDE_FROM_ALL
     apps/NumiHumanPhysicalSkinChildMassMappingCLI.cpp)
 target_include_directories(numi-human-physical-skin-child-mass-mapping-cli PRIVATE
