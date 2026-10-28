@@ -1,0 +1,6 @@
+{
+  "return_code": 1,
+  "wall_seconds": 5.48335179197602,
+  "physical_steps": 0,
+  "scope": "legacy geometry source preparation; tests physical support map only, no repaired-volume or motion claim"
+}

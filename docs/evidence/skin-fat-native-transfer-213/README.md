@@ -1,0 +1,11 @@
+# Physical skin/fat installation control 213
+
+The existing unpaired-volume compiler can now transactionally replace the last skin/fat object in a native source world. It validates owning material programs, source-donor mass totals, debit/cell-mass closure, nonzero new geometry identities and the existing global node base before committing. Parent/new provenance and source/frame-owner mass moments remain separate; a new frame owner is not falsely treated as a new physical mass donor. Failure leaves the previous world and outputs unchanged. The standalone test covers failures and changed-identity cases.
+
+The native identity-install control replaces the legacy 7,233-node, 28,632-cell object through that path. Preparation completed in 8.087 seconds. Its four actual compiled parent geometry/mass/source CSVs are bitwise identical to the unchanged control. Maximum source-donor mass and first-moment differences before compilation are 1.51e-14 kg and 1.21e-15 kg m. This is a real source-object substitution test using unchanged geometry; it advances zero physical steps and does not install candidate033.
+
+FEM bed admission uses actual independent boundary-map counts while retaining the original NHCNT witness identity domain. The diagnostic old bed trial fails the unchanged first-touch gate: the legacy 32-witness alignment leaves a 5.686 micrometre positive gap at the actual physical outer surface. An attempted authored-root translation was removed by the legacy alignment stage; its failure is retained. No force, plane shape or penetration tolerance was changed.
+
+The replacement-volume blocker is now explicit: the 18 protected bone banks are clear, but D028 retains 9,922 exact crossings against omitted banks; I011 has 5,496. O033 has zero across all185. The temporary centroid fans used to close head loops also cross nearby source faces. A joint protected-envelope construction with valid temporary caps is being prepared. The outer surface's two anatomical boundary loops remain explicitly open; temporary construction caps do not classify anatomy as closed.
+
+**Not qualified:** replacement positive tetrahedra, actual child-cell mass transport, complete new-skin native scene, physical motion, integrated throughput or physiological performance. Existing Matter, Brain, circulation and accepted-state owners remain authoritative.

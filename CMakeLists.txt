@@ -2358,6 +2358,21 @@ if(BUILD_TESTING)
         COMMAND numi-human-unpaired-skin-fat-volume-check)
 endif()
 
+add_executable(numi-human-physical-skin-replacement-check EXCLUDE_FROM_ALL
+    apps/NumiHumanPhysicalSkinReplacementCheck.cpp)
+target_include_directories(numi-human-physical-skin-replacement-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/matter/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/apps")
+target_compile_definitions(numi-human-physical-skin-replacement-check PRIVATE
+    NUMI_TEST_MATERIAL_PATH="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_skin_dermis_frequency_specific_effective.nmatter")
+target_compile_options(numi-human-physical-skin-replacement-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+target_link_libraries(numi-human-physical-skin-replacement-check PRIVATE metalrobo)
+if(BUILD_TESTING)
+    add_test(NAME numi_human_physical_skin_replacement
+        COMMAND numi-human-physical-skin-replacement-check)
+endif()
+
 add_executable(numi-human-native EXCLUDE_FROM_ALL apps/numilab_human_myosim_visual_probe.mm)
 get_target_property(NUMI_HUMAN_VISUAL_DEFINITIONS metalrobo_numilab_human_myosim_visual_probe COMPILE_DEFINITIONS)
 target_compile_definitions(numi-human-native PRIVATE ${NUMI_HUMAN_VISUAL_DEFINITIONS}

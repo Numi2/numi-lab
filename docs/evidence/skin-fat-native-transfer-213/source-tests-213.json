@@ -1,0 +1,35 @@
+{
+  "status": "TESTED_SOURCE_INSTALLATION_CONTROL_ONLY",
+  "replacement_candidate033_volume_admitted": false,
+  "physical_steps": 0,
+  "motion_qualification": false,
+  "device": "Apple M6",
+  "native_build": "PASS",
+  "standalone_replacement_check": "PASS",
+  "native_identity_install_preflight": "PASS",
+  "native_identity_install_seconds": 8.087129832943901,
+  "parent_geometry_cell_mass_and_source_CSVs": "all four bitwise identical to native preflight004",
+  "native_source_donor_mass_max_delta_kg": 1.509903313490213e-14,
+  "native_source_first_moment_max_delta_kg_m": 1.2076865267462637e-15,
+  "source_sha256": {
+    "CMakeLists.txt": "8086af902c5aaa1d7196d384b5014f62ae33394d39732910df655486019cd28c",
+    "apps/NumiHumanPhysicalSkinReplacement.hpp": "c3e7b3125d3029cab4d4b2320bc0330106b7732d948a06208648c883291f993d",
+    "apps/NumiHumanPhysicalSkinReplacementCheck.cpp": "170d78235ce52c285713502509e0d77bcc3e9a5a517b6986e23bef7b3d6aca7c",
+    "apps/numilab_human_myosim_visual_probe.mm": "cd974fa9ece9c7cff01acf530e794601b7cae12b5852d0a8ea69143a09224822"
+  },
+  "binary_sha256": {
+    "bin/numi-human-native": "73002756d5db79c681d41fb11524787763956d7cca40d509d1c8a2b930185797",
+    "numi-human-physical-skin-replacement-check": "e39a99699b0cbf8cf594b1a2153bc9f4cfa169a8989a7d23a8a7760395643c76"
+  },
+  "failed_native_trials": {
+    "007": "diagnostic report names confused with owning material program identity; fixed",
+    "006_and_008": "legacy 32-witness ground alignment leaves actual FEM outer 5.686 micrometres above plane; existing first-touch gate rejects; source-only, no force or tolerance changes"
+  },
+  "geometry_blockers": {
+    "D028_self_pairs": 313,
+    "D028_all185_bone_pairs": 9922,
+    "I011_all185_bone_pairs": 5496,
+    "O033_all185_bone_pairs": 0,
+    "diagnosis": "18 buffered banks pass; omitted banks retain inner-layer penetration. Temporary centroid head caps also have exact crossing defects. New closed positive volume and child mass flow still required."
+  }
+}
