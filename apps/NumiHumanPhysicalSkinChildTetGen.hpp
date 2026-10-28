@@ -46,8 +46,9 @@ inline bool tokens(std::ifstream& input,std::vector<std::string>& row) {
         return fail("child TetGen import requires an empty child bundle to prevent stale physical metadata");
     std::ifstream nodes(nodePath),elements(elementPath),labels(labelsPath);
     if(!nodes||!elements||!labels)return fail("child TetGen import requires node, element, and explicit label files");
-    PhysicalSkinChildMassMappingBundle next;
-    next.parent=output.parent;
+    // Preserve only the caller's immutable registered-surface/frame/ancestry
+    // sidecars. Child tables are required empty above and are filled below.
+    PhysicalSkinChildMassMappingBundle next=output;
     PhysicalSkinChildTetGenImportReport measured;
     std::vector<std::string> row;
     std::size_t nodeCount=0u,dimension=0u,attributes=0u,markers=0u;

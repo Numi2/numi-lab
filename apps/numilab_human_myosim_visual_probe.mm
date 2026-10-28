@@ -21,6 +21,7 @@
 #include "NumiHumanSkinBoundaryNodeMap.hpp"
 #include "NumiHumanUnpairedSkinFatVolume.hpp"
 #include "NumiHumanPhysicalSkinReplacement.hpp"
+#include "NumiHumanPhysicalSkinChildIntegration.hpp"
 #include "NumiHumanFEMOuterGroundAlignment.hpp"
 #include "NumiHumanRegisteredSkinCandidateCSV.hpp"
 #include "NumiHumanCandidateSkin033.hpp"
@@ -22786,7 +22787,18 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             const bool installIdentity=identityInstallEnv&&std::string_view(identityInstallEnv)=="1";
             require(!installIdentity||(identityPreflightEnv&&std::string_view(identityPreflightEnv)=="1"),
                     "unpaired identity install requires the exact identity preflight");
+            const char* childIdentityImportEnv=std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_CHILD_IDENTITY_IMPORT");
+            require(childIdentityImportEnv==nullptr||std::string_view(childIdentityImportEnv)=="0"||
+                        std::string_view(childIdentityImportEnv)=="1",
+                    "physical child identity-import opt-in must be 0 or 1");
+            const bool importChildIdentity=childIdentityImportEnv&&
+                std::string_view(childIdentityImportEnv)=="1";
+            require(!importChildIdentity||(identityPreflightEnv&&
+                        std::string_view(identityPreflightEnv)=="1"),
+                    "physical child identity import requires the exact live-parent identity preflight");
             if(identityPreflightEnv!=nullptr&&std::string_view(identityPreflightEnv)=="1") {
+                PhysicalSkinChildMassMappingBundle importedChildBundle;
+                PhysicalSkinChildIdentityImportReport importedChildReport;
                 // Exercise the new volume-node owner against an exact clone of the
                 // already accepted paired object. This is a source-preparation
                 // compatibility check only; it does not qualify repaired anatomy.
@@ -23085,6 +23097,60 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 const auto identityDigest=loadedKneeSHA256(identityReceiptBytes.data(),identityReceiptBytes.size());
                 const auto identityReceipt=loadedKneeSHA256Hex(identityDigest);
                 identityTopology.ancestryVerificationReceiptSHA256=identityReceipt;
+
+                if(importChildIdentity) {
+                    RegisteredSurface identitySkinInner,identityFatDeep;
+                    require(physical_skin_child_integration_detail::makeIdentityLayerSurface(
+                                region,skinLayer.innerWorld,skinLayer.innerLocal,"skin-inner",
+                                identitySkinInner,tissueError),
+                            "physical child identity skin-inner surface rejected: "+tissueError);
+                    require(physical_skin_child_integration_detail::makeIdentityLayerSurface(
+                                region,fatLayer.innerWorld,fatLayer.innerLocal,"fat-deep",
+                                identityFatDeep,tissueError),
+                            "physical child identity fat-deep surface rejected: "+tissueError);
+                    constexpr double identityMassTransportBoundM=1.0e-6;
+                    require(physical_skin_child_integration_detail::initializeIdentitySidecars(
+                                importedChildBundle,region,identitySkinInner,identityFatDeep,
+                                wholeBodySkinBoundaryNodeMap,identityTopology,
+                                identityMassTransportBoundM,tissueError),
+                            "physical child identity sidecar preparation rejected: "+tissueError);
+                    const auto requiredChildPath=[&](const char* name) {
+                        const char* value=std::getenv(name);
+                        require(value!=nullptr&&value[0]!='\0',
+                                std::string("physical child identity import requires ")+name);
+                        return std::filesystem::path(value);
+                    };
+                    PhysicalSkinChildIdentityImportFiles childFiles;
+                    childFiles.parentMassCSV=requiredChildPath(
+                        "NUMI_HUMAN_PHYSICAL_SKIN_CHILD_PARENT_MASS_CSV");
+                    childFiles.parentLabelsCSV=requiredChildPath(
+                        "NUMI_HUMAN_PHYSICAL_SKIN_CHILD_PARENT_LABELS_CSV");
+                    childFiles.childNodeFile=requiredChildPath(
+                        "NUMI_HUMAN_PHYSICAL_SKIN_CHILD_NODE_FILE");
+                    childFiles.childElementFile=requiredChildPath(
+                        "NUMI_HUMAN_PHYSICAL_SKIN_CHILD_ELE_FILE");
+                    childFiles.childLabelsCSV=requiredChildPath(
+                        "NUMI_HUMAN_PHYSICAL_SKIN_CHILD_LABELS_CSV");
+                    require(loadPhysicalSkinChildIdentityImport(childFiles,bodies.size(),
+                                identityTopology,importedChildBundle,importedChildReport,
+                                tissueError,identityMassTransportBoundM),
+                            "physical child identity TetGen import rejected: "+tissueError);
+                    require(validatePhysicalSkinChildIdentityImport(importedChildBundle,
+                                identityTopology,importedChildReport,tissueError),
+                            "physical child identity table differs from live parent: "+tissueError);
+
+                    std::cout<<"whole_body_skin_fat_physical_child_identity_import=PASS"
+                        <<" nodes="<<importedChildReport.tetgen.nodeCount
+                        <<" tets="<<importedChildReport.tetgen.cellCount
+                        <<" imported_tetgen_mesh_sha256="<<importedChildReport.importedTetGenMeshSHA256
+                        <<" coordinate_frame_sha256="<<importedChildReport.coordinateFrameSHA256
+                        <<" parent_current_exact_f32_rows="<<importedChildReport.capturedParentCurrentExactF32Rows
+                        <<" parent_reference_exact_f64_rows="<<importedChildReport.capturedParentReferenceExactF64Rows
+                        <<" exact_live_child_mesh_sha256="<<importedChildReport.exactLiveChildMeshSHA256
+                        <<" imported_rows_only_validate_identity=1 native_identity_topology_retained=1"
+                        <<" spatial_mass_transport=not_applicable_exact_parent physical_qualification=not_claimed"
+                        <<std::endl;
+                }
 
                 // Clone only source objects/materials needed by the owner. The
                 // production WorldSource and its paired object remain untouched.
