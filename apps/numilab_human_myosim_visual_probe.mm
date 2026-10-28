@@ -7088,7 +7088,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 : std::optional<std::uint32_t>{24u},
             timestepSeconds,
             restingReleaseInitialization,
-            useWeightedSkinSupport
+            // Weighted skin queries identify source geometry. The FEM bed
+            // owns the physical support reaction, so its fresh release cannot
+            // recruit or warm-start a second set of rigid proxy reactions.
+            useWeightedSkinSupport && !useFEMSkinSupport
                 ? std::span<const metalrobo::NumiHumanStaticSupportContact>(
                       weightedCapture->staticSupports)
                 : std::span<const metalrobo::NumiHumanStaticSupportContact>{},
@@ -7105,6 +7108,34 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     compiledActivation.generalizedSupportForce.end(),
                     [](double force) { return force == 0.0; }),
                 "resting construction recruitment acquired a legacy support force");
+    }
+    if (useFEMSkinSupport) {
+        require(restingReleaseInitialization && !restingSupportedInitialization &&
+                    weightedCapture.has_value() &&
+                    compiledActivation.supportNormalForce.empty() &&
+                    compiledActivation.supportPlaneGapMeters.empty() &&
+                    compiledActivation.supportWitnessIdentity.empty() &&
+                    compiledActivation.generalizedSupportForce.size()==model.world.nv &&
+                    std::all_of(compiledActivation.generalizedSupportForce.begin(),
+                        compiledActivation.generalizedSupportForce.end(),
+                        [](double force){return force==0.0;}),
+                "FEM bed release acquired a duplicate static proxy reaction");
+        for(const auto& support:weightedCapture->staticSupports) {
+            require(support.weightedWitness.has_value(),
+                    "FEM bed release lost its observational source witness");
+            const auto& witness=*support.weightedWitness;
+            compiledActivation.supportNormalForce.push_back(0.0);
+            compiledActivation.supportPlaneGapMeters.push_back(weightedSupportPlaneGap(support));
+            compiledActivation.supportWitnessIdentity.push_back({
+                witness.sourceContactIndex,witness.pointQueryIndex,witness.sourceGeometryIndex});
+        }
+        std::cout<<"resting_FEM_bed_release_initialization=prepared"
+            <<" activation_limit="<<activation
+            <<" observational_witnesses="<<weightedCapture->staticSupports.size()
+            <<" static_proxy_reactions=0 rigid_support_seed_N=0"
+            <<" balanced="<<(compiledActivation.balanced?"true":"false")
+            <<" qualification=fresh_release_not_settled_rest"
+            <<" support_owner=existing_Matter_FEM_contact"<<std::endl;
     }
     if (useWeightedSkinSupport) {
         require(weightedCapture.has_value() &&
@@ -7220,6 +7251,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             require(std::isfinite(force) && force >= 0.0 &&
                         force <= static_cast<double>(std::numeric_limits<float>::max()),
                     "weighted skin support seed is invalid for the native contact owner");
+            require(!useFEMSkinSupport || force==0.0,
+                    "FEM bed source geometry cannot seed a rigid support force");
             queries.supportContacts[index].frictionSlopAndStabilization.w =
                 static_cast<float>(force);
         }
@@ -33479,6 +33512,7 @@ int main(int argc, char** argv) {
                         <<" outer_nodes="<<physicalAlignment.outerNodeCount
                         <<" initial_min_gap_m="<<physicalAlignment.initialMinimumGapM
                         <<" aligned_min_gap_m="<<physicalAlignment.alignedMinimumGapM
+                        <<" outward_rounding_steps="<<physicalAlignment.outwardRoundingSteps
                         <<" maximum_common_translation_residual_m="<<physicalAlignment.maximumCommonTranslationResidualM
                         <<" legacy_nhcnt_witnesses="<<physicalAlignment.legacyNHCNTWitnessCount
                         <<" force_rows_added=0 geometry=registered_physical_outer"<<std::endl;

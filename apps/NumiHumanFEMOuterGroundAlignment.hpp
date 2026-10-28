@@ -22,6 +22,7 @@ struct FEMOuterGroundAlignment {
     std::uint32_t legacyNHCNTWitnessCount=0u;
     double initialMinimumGapM=0.0;
     double alignedMinimumGapM=0.0;
+    std::uint32_t outwardRoundingSteps=0u;
     double seedTranslationMeters=0.0;
     double maximumCommonTranslationResidualM=0.0;
     std::array<double,3> rootTranslationDeltaM{};
@@ -97,6 +98,11 @@ template<class EvaluateOuterF32>
     if(!std::isfinite(initialGap)||initialGap<-1.0e-4||initialGap>0.25)
         return fail("FEM outer minimum ground gap is outside the existing bounded placement range: "+
             std::to_string(initialGap));
+    // The contact owner requires positive numerical clearance. Place the
+    // source 10 nm above the plane, then round the root outward if its
+    // Float32 evaluation falls below that margin. This is initialization
+    // geometry only: gravity and FEM contact determine all later reactions.
+    constexpr double firstTouchMarginM=1.0e-8;
     std::vector<float> aligned=seed;
     FEMOuterGroundAlignment candidate;
     candidate.outerNodeCount=static_cast<std::uint32_t>(expectedOuterCount);
@@ -105,7 +111,7 @@ template<class EvaluateOuterF32>
     candidate.seedTranslationMeters=initialGap;
     for(unsigned axis=0;axis<3u;++axis) {
         const auto index=static_cast<std::size_t>(rootQOffset)+axis;
-        const double coordinate=double(seed[index])-normal[axis]*initialGap;
+        const double coordinate=double(seed[index])-normal[axis]*(initialGap-firstTouchMarginM);
         if(!std::isfinite(coordinate)||!std::isfinite(static_cast<float>(coordinate)))
             return fail("FEM outer ground alignment produced a nonfinite floating-root translation");
         aligned[index]=static_cast<float>(coordinate);
@@ -117,10 +123,29 @@ template<class EvaluateOuterF32>
 
     std::vector<FEMOuterPointF32> outerAfter;
     if(!evaluate(aligned,outerAfter,"aligned"))return false;
-    const double finalGap=minimumGap(outerAfter);
-    if(!std::isfinite(finalGap)||std::abs(finalGap)>1.0e-6)
+    double finalGap=minimumGap(outerAfter);
+    const unsigned outwardAxis=static_cast<unsigned>(std::distance(normal.begin(),
+        std::max_element(normal.begin(),normal.end(),[](double a,double b){
+            return std::abs(a)<std::abs(b); })));
+    while(std::isfinite(finalGap)&&finalGap<firstTouchMarginM&&
+          candidate.outwardRoundingSteps<16u) {
+        const auto index=static_cast<std::size_t>(rootQOffset)+outwardAxis;
+        aligned[index]=std::nextafter(aligned[index],
+            normal[outwardAxis]>0.0?std::numeric_limits<float>::infinity():
+                -std::numeric_limits<float>::infinity());
+        if(!std::isfinite(aligned[index]))
+            return fail("FEM outer outward-rounded root coordinate is nonfinite");
+        ++candidate.outwardRoundingSteps;
+        if(!evaluate(aligned,outerAfter,"outward-rounded"))return false;
+        finalGap=minimumGap(outerAfter);
+    }
+    if(!std::isfinite(finalGap)||finalGap<firstTouchMarginM||finalGap>1.0e-6)
         return fail("aligned FEM outer minimum ground gap exceeds the existing 1um first-touch bound: "+
             std::to_string(finalGap));
+    for(unsigned axis=0;axis<3u;++axis)
+        candidate.rootTranslationDeltaM[axis]=
+            double(aligned[static_cast<std::size_t>(rootQOffset)+axis])-
+            double(seed[static_cast<std::size_t>(rootQOffset)+axis]);
     double maximumResidual=0.0;
     for(std::size_t row=0;row<outerAtSeed.size();++row)for(unsigned axis=0;axis<3u;++axis) {
         const double actual=double(outerAfter[row][axis])-double(outerAtSeed[row][axis]);

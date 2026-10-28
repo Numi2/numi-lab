@@ -951,6 +951,53 @@ int main() {
                 NumiHumanMuscleEquilibriumStatus::invalidConfiguration,
             "out-of-range static gravity scale was accepted");
 
+    Fixture zeroActivation = fixture;
+    zeroActivation.config.activationLimit = 0.0;
+    zeroActivation.config.poseSweeps = 0u;
+    NumiHumanMuscleEquilibriumResult zeroActivationResult;
+    const auto zeroActivationDiagnostics = zeroActivation.compile(
+        {separated}, zeroActivationResult);
+    const auto finiteDiagnostics = [](const auto& diagnostics) {
+        return std::isfinite(diagnostics.initialNormalizedResidualRms) &&
+            std::isfinite(diagnostics.normalizedResidualRms) &&
+            std::isfinite(diagnostics.maximumGeneralizedForceResidual) &&
+            std::isfinite(diagnostics.maximumGeneralizedAccelerationResidual) &&
+            std::isfinite(diagnostics.maximumFloatingRootAccelerationResidual) &&
+            std::isfinite(diagnostics.totalSupportForceNewtons);
+    };
+    require(zeroActivationDiagnostics.succeeded() &&
+                !zeroActivationResult.diagnostics.balanced &&
+                zeroActivationResult.diagnostics.floatingRootIncluded &&
+                zeroActivationResult.diagnostics.activeMuscleCount == 0u &&
+                zeroActivationResult.diagnostics.activationSweeps == 0u &&
+                zeroActivationResult.diagnostics.globalActivationPolishIterations == 0u &&
+                zeroActivationResult.activation.size() == 1u &&
+                zeroActivationResult.activation[0] == 0.0 &&
+                zeroActivationResult.diagnostics.maximumActivation == 0.0 &&
+                zeroActivationResult.supportNormalForce.size() == 1u &&
+                zeroActivationResult.supportNormalForce[0] == 0.0 &&
+                zeroActivationResult.muscleTendonForce[0] ==
+                    zeroActivationResult.passiveMuscleTendonForce[0] &&
+                zeroActivationResult.fiberLength[0] > 0.0 &&
+                zeroActivationResult.diagnostics.normalizedResidualRms >
+                    zeroActivation.config.balanceTolerance &&
+                finiteDiagnostics(zeroActivationResult.diagnostics),
+            "zero activation did not preserve passive force/fiber and honest unbalanced residual diagnostics");
+
+    Fixture unsupportedZeroActivationPoseSearch = zeroActivation;
+    unsupportedZeroActivationPoseSearch.config.poseSweeps = 1u;
+    NumiHumanMuscleEquilibriumResult preservedZeroActivation =
+        zeroActivationResult;
+    const auto zeroActivationPoseDiagnostics =
+        unsupportedZeroActivationPoseSearch.compile(
+            {separated}, preservedZeroActivation);
+    require(zeroActivationPoseDiagnostics.status ==
+                NumiHumanMuscleEquilibriumStatus::invalidConfiguration &&
+                preservedZeroActivation.activation == zeroActivationResult.activation &&
+                preservedZeroActivation.generalizedForceResidual ==
+                    zeroActivationResult.generalizedForceResidual,
+            "zero activation accepted unsupported pose/recruitment search or mutated the destination");
+
     auto weightedContact = touching;
     NumiHumanStaticSupportContact::WeightedWitness weightedWitness;
     weightedWitness.sourceContactIndex = 17u;

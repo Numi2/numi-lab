@@ -1,0 +1,38 @@
+{
+  "scope": "fixed-zero-activation source and unit checks; native control014 rejects initial contact before accepted motion",
+  "command": [
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/metalrobo_numi_human_static_support_test"
+  ],
+  "return_code": 0,
+  "test_binary_sha256": "c810ebaeb5e2da58daaa72870184803da8340969f148f147790c25f4c9a588da",
+  "sources": {
+    "apps/numilab_human_myosim_visual_probe.mm": {
+      "sha256": "1dcf96baf7a6ff904b0cf2ff0a6e8998074f64c2748a36eb85ecb97028a101a4",
+      "bytes": 2404850
+    },
+    "include/metalrobo/NumiHumanMuscleEquilibrium.hpp": {
+      "sha256": "62a697b6d7ea7eb08f4c9727bd47acd24222f8718ffe14ebd967f7ada78e2891",
+      "bytes": 19411
+    },
+    "src/core/NumiHumanMuscleEquilibrium.cpp": {
+      "sha256": "597d1fe457761d6727981f3f40b9b53828e788afac429edb57378d5ebb225add",
+      "bytes": 186770
+    },
+    "tests/numi_human_static_support_test.cpp": {
+      "sha256": "0eaaff6646fb3c2ba089a0f15e8a80273a0e0ae4821f7bc5fc5666a5df76976f",
+      "bytes": 97683
+    }
+  },
+  "native014_result": {
+    "return_code": 1,
+    "wall_seconds": 90.697756333,
+    "timeout_seconds": 180,
+    "timed_out": false,
+    "scope": "unchanged-geometry real FEM bed fresh-release compatibility control; exact zero muscle activation, no rigid proxy support reactions, no images; new skin/fat volume NOT admitted",
+    "accepted_physical_steps": "read trace before claiming",
+    "new_skin_motion_qualification": false
+  },
+  "physical_steps_accepted": 0,
+  "candidate033_physical_admission": false,
+  "no_visual_inspection": true
+}

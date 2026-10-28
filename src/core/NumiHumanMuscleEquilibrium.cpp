@@ -1358,6 +1358,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
         );
     }
     const std::uint32_t sampleCount = config.activationSamples;
+    const bool fixedZeroActivation = config.activationLimit == 0.0;
     std::vector<double> forceSamples(muscles.size() * sampleCount, 0.0);
     if (!initializeFromAcceptedState) {
         state.activation.assign(muscles.size(), 0.0);
@@ -1521,7 +1522,8 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     diagnostics = checkpointExactState();
     if (!diagnostics.succeeded()) return diagnostics;
     for (std::uint32_t sweep = 0u;
-         !initializeFromAcceptedState && sweep < config.activationSweeps;
+         !fixedZeroActivation && !initializeFromAcceptedState &&
+             sweep < config.activationSweeps;
          ++sweep) {
         double maximumChange = 0.0;
         for (std::size_t muscle = 0u; muscle < muscles.size(); ++muscle) {
@@ -1700,7 +1702,8 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     const std::size_t objectiveRowCount = projection.independentDofs.size();
     const double activationPenaltyScale = config.activationRegularization /
         static_cast<double>(muscles.size());
-    const std::uint32_t globalPolishIterations = enableGlobalPolish
+    const std::uint32_t globalPolishIterations =
+        enableGlobalPolish && !fixedZeroActivation
         ? config.globalActivationPolishIterations : 0u;
     for (std::uint32_t iteration = 0u;
          iteration < globalPolishIterations; ++iteration) {
@@ -2513,7 +2516,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
     auto config = requestedConfig;
     const bool validConfig = std::isfinite(config.timestep) &&
         config.timestep > 0.0 && std::isfinite(config.activationLimit) &&
-        config.activationLimit > 0.0 && config.activationLimit <= 1.0 &&
+        config.activationLimit >= 0.0 && config.activationLimit <= 1.0 &&
         std::isfinite(config.gravityScale) && config.gravityScale >= 0.0 &&
         config.gravityScale <= 1.0 &&
         config.activationSamples >= 2u && config.activationSamples <= 65u &&
@@ -2565,6 +2568,11 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         std::isfinite(config.supportForceConvergence) &&
         config.supportForceConvergence > 0.0;
     if (!validConfig) {
+        return failure(
+            NumiHumanMuscleEquilibriumStatus::invalidConfiguration
+        );
+    }
+    if (config.activationLimit == 0.0 && config.poseSweeps != 0u) {
         return failure(
             NumiHumanMuscleEquilibriumStatus::invalidConfiguration
         );

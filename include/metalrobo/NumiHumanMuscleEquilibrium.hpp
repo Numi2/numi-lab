@@ -46,6 +46,9 @@ struct NumiHumanMuscleEquilibriumConfig {
     // first initialized at zero-velocity equilibrium, so a stationary compile
     // is timestep independent within numerical tolerance.
     double timestep = 1.0e-4;
+    // Zero fixes every recruited muscle at exactly zero activation. The
+    // owner still evaluates passive muscle force and the complete residual;
+    // activation recruitment is skipped. Zero-cap pose search is rejected.
     double activationLimit = 1.0;
     std::uint32_t activationSamples = 9u;
     std::uint32_t activationSweeps = 160u;

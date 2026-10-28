@@ -1,0 +1,8 @@
+{
+  "source_tests": "fixed-zero-activation and outward-rounding checks PASS; native Release build PASS",
+  "physical_steps_accepted": 0,
+  "candidate033_admitted": false,
+  "native014": "initial contact rejected: -5.777227585e-9m vs1e-9m numerical floor",
+  "native015": "initial contact valid at+2.40250948e-8m; material limit rejects Newton5 tet29419 currentJ2.495642185 trialJ2.505839825 maximumJ2.5; no physical state accepted",
+  "no_visual_inspection": true
+}

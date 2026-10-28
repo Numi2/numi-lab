@@ -40,11 +40,11 @@ int main() {
     assert(makeWholeBodyFEMGroundAlignedSupport(seed,1u,{0.0,0.0,0.0},
         {0.0,0.0,1.0},sourceOuter.size(),32u,evaluate,result,error));
     assert(error.empty());
-    assert(evaluationCount==2u);
+    assert(evaluationCount>=2u&&evaluationCount<=18u);
     assert(result.outerNodeCount==4u);
     assert(result.legacyNHCNTWitnessCount==32u);
     assert(std::abs(result.initialMinimumGapM-5.686e-6)<1.0e-10);
-    assert(std::abs(result.alignedMinimumGapM)<=1.0e-6);
+    assert(result.alignedMinimumGapM>=1.0e-8&&result.alignedMinimumGapM<=1.0e-6);
     assert(result.maximumCommonTranslationResidualM<=1.0e-6);
     assert(std::abs(result.rootTranslationDeltaM[0])<1.0e-12);
     assert(std::abs(result.rootTranslationDeltaM[1])<1.0e-12);
@@ -81,6 +81,16 @@ int main() {
         {0.0,0.0,1.0},sourceOuter.size(),32u,stationary,unchanged,error));
     assert(error.find("1um first-touch bound")!=std::string::npos||
            error.find("common translation")!=std::string::npos);
+
+    // A callback that remains just below the contact floor must never be
+    // admitted merely because it fits the older +/-1 um placement tolerance.
+    auto immovablePenetration=[&](std::span<const float>,
+            std::vector<FEMOuterPointF32>& output,std::string&) {
+        output=sourceOuter;output[0][2]=-5.777e-9f;return true;
+    };
+    assert(!makeWholeBodyFEMGroundAlignedSupport(seed,1u,{0.0,0.0,0.0},
+        {0.0,0.0,1.0},sourceOuter.size(),32u,immovablePenetration,unchanged,error));
+    assert(unchanged.outerNodeCount==999u&&unchanged.q==std::vector<float>{9.0f});
 
     auto nonfinite=[&](std::span<const float>,std::vector<FEMOuterPointF32>& output,
                        std::string&) {

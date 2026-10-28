@@ -1,0 +1,4 @@
+stop_policy_probe weight=1e-05 residual=1.38887e-12 reaction=2.75 baseline=2.75
+stop_policy_probe weight=0.001 residual=1.38887e-12 reaction=2.75 baseline=2.75
+stop_policy_probe weight=1 residual=1.38887e-12 reaction=2.75 baseline=2.75
+stop_policy_probe weight=1000 residual=1.38887e-12 reaction=2.75 baseline=2.75
