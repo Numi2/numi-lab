@@ -34789,6 +34789,19 @@ int main(int argc, char** argv) {
                         restingHipCapsuleReference,restingScene->first.c_str(),
                         initialTissueQ,*muscleStepSeconds,
                         selectedMatterMetallib,true);
+                    const char* parentMassOnly=std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_MASS_CAPTURE_ONLY");
+                    require(!parentMassOnly||std::strcmp(parentMassOnly,"0")==0||
+                                std::strcmp(parentMassOnly,"1")==0,
+                            "parent mass capture-only setting must be 0 or 1");
+                    if(parentMassOnly&&std::strcmp(parentMassOnly,"1")==0) {
+                        const char* ledger=std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_MASS_LEDGER_CSV");
+                        require(restingPassiveFasciaOwner->preparationOnly&&
+                                    !restingPassiveFasciaOwner->runtime.valid()&&ledger&&ledger[0]!='\0',
+                                "capture-only exit requires the exact parent ledger and no active Runtime");
+                        std::cout<<"skin_fat_parent_mass_capture_only=PASS physical_steps=0"
+                                 <<" runtime_created=0 simulation_qualification=not_claimed"<<std::endl;
+                        return 0;
+                    }
                     if(restingPassiveFasciaOwner->aorticWall) {
                         const auto& wall=*restingPassiveFasciaOwner->aorticWall;
                         appendSource("resting_registered_aortic_wall_world_physics_fingerprint_v1",
@@ -35269,7 +35282,17 @@ int main(int argc, char** argv) {
                     std::optional<LoadedSkin> wristVisualSkin;
                     bool wristContourRepairApplied=false;
                     const LoadedSkin* visualSkin=&*skinPayload;
-                    if(restingWholeBodySkinFatFEMEnabled){
+                    const char* wristContourSetting=std::getenv("NUMI_HUMAN_WRIST_CONTOUR_ENABLE");
+                    require(!wristContourSetting||std::strcmp(wristContourSetting,"0")==0||
+                                std::strcmp(wristContourSetting,"1")==0,
+                            "NUMI_HUMAN_WRIST_CONTOUR_ENABLE must be 0 or 1");
+                    const bool wristContourRequested=wristContourSetting&&
+                        std::strcmp(wristContourSetting,"1")==0;
+                    if(restingWholeBodySkinFatFEMEnabled&&!wristContourRequested)
+                        std::cout<<"resting_wrist_contour_repair status=disabled"
+                            <<" reason=unqualified_render_only_edit source_vertices_moved=0"
+                            <<" skin_and_skin_fat_rest_geometry=shared_baseline"<<std::endl;
+                    if(restingWholeBodySkinFatFEMEnabled&&wristContourRequested){
                         wristVisualSkin.emplace(*skinPayload);
                         const auto repair=makeNumiHumanBilateralWristContourRepair(*wristVisualSkin);
                         wristContourRepairApplied=repair.enabled;

@@ -29,7 +29,7 @@ struct Fixture {
     std::vector<std::array<double,9>> nodeRotations,bodyRotations;
     std::vector<std::uint32_t> nodeDonor,childMaterial,dominant,parentSurface,childStable,childDonor;
     std::vector<std::array<std::uint32_t,4>> children,parentTets;
-    std::vector<std::uint32_t> parentMaterial,parentStable,parentDonor;
+    std::vector<std::uint32_t> parentMaterial,parentStable,parentDonor,parentRegion,childRegion;
     std::vector<ExplicitUnpairedVolumeSourceMassContribution> sourceMassContributions;
     std::vector<std::uint32_t> parentOffsets,parentRows;
     std::vector<double> parentFractions;
@@ -45,6 +45,12 @@ struct Fixture {
     static std::uint32_t surfaceRow(std::uint32_t id) { return id%6u; }
 
     void refreshChildMetadata() {
+        parentRegion.resize(parentMaterial.size());
+        for(std::size_t p=0;p<parentMaterial.size();++p)
+            parentRegion[p]=parentMaterial[p]==0u?101u:202u;
+        childRegion.resize(childMaterial.size());
+        for(std::size_t c=0;c<childMaterial.size();++c)
+            childRegion[c]=childMaterial[c]==0u?101u:202u;
         parentOffsets.assign(children.size()+1u,0u);parentRows.clear();parentFractions.clear();
         for(std::size_t c=0;c<children.size();++c) {
             parentRows.push_back(dominant[c]);parentFractions.push_back(1.0);
@@ -74,6 +80,7 @@ struct Fixture {
         topology.childTetrahedra=children;topology.childMaterialIndices=childMaterial;
         topology.childDominantParentTetrahedra=dominant;topology.childParentSurfaceFaces=parentSurface;
         topology.childStableSourceFaceIdentities=childStable;topology.childDonorBodyIndices=childDonor;
+        topology.childAnatomicalRegionIndices=childRegion;
         topology.childParentAncestryOffsets=parentOffsets;topology.childParentAncestryTetrahedra=parentRows;
         topology.childParentAncestryVolumeFractions=parentFractions;
         topology.childRegisteredLayerFacetSurfaceFaces=facetRows;
@@ -158,7 +165,7 @@ struct Fixture {
         topology.currentWorldPoints=current;topology.referenceWorldPoints=reference;
         topology.parentReferenceWorldPoints=parentPoints;topology.parentTetrahedra=parentTets;
         topology.parentMaterialIndices=parentMaterial;topology.parentStableSourceFaceIdentities=parentStable;
-        topology.parentDonorBodyIndices=parentDonor;
+        topology.parentDonorBodyIndices=parentDonor;topology.parentAnatomicalRegionIndices=parentRegion;
         topology.volumeNodeDonorBodyIndices=nodeDonor;topology.volumeNodeDonorLocalPoints=localPoints;
         topology.volumeNodeDonorLocalToWorldLinear=nodeRotations;topology.volumeNodeDonorOriginWorld=origins;
         topology.registeredBodyLocalToWorldLinear=bodyRotations;topology.registeredBodyOriginWorld=bodyOrigins;
@@ -344,6 +351,75 @@ std::vector<ExplicitUnpairedVolumeSourceMassContribution> sourceContributionFixt
         }
     }
     return rows;
+}
+
+bool buildSpatialTransportFixture(const Fixture& fixture,
+        const std::vector<double>& parentMass,
+        const std::vector<ExplicitUnpairedVolumeSourceMassContribution>& sourceRows,
+        const double maximumDistance,
+        ConservativeSpatialMassTransportResult& result,
+        std::string& error) {
+    const auto parentCount=fixture.parentTets.size();
+    const auto childCount=fixture.children.size();
+    if(parentMass.size()!=parentCount||sourceRows.empty()||
+       fixture.parentRegion.size()!=parentCount||fixture.childRegion.size()!=childCount) {
+        error="test spatial transfer inputs do not cover the fixture cells";
+        return false;
+    }
+    std::vector<SpatialMassTransportPoint> parentCentroids(parentCount),childCentroids(childCount);
+    std::vector<double> parentVolumes(parentCount),childVolumes(childCount);
+    for(std::size_t p=0;p<parentCount;++p){
+        const auto tet=fixture.parentTets[p];
+        parentVolumes[p]=parentReferenceTetVolumeM3(tet,fixture.parentPoints);
+        for(const auto node:tet)for(unsigned axis=0;axis<3u;++axis)
+            parentCentroids[p][axis]+=fixture.parentPoints[node][axis]*0.25;
+    }
+    for(std::size_t c=0;c<childCount;++c){
+        const auto tet=fixture.children[c];
+        childVolumes[c]=parentReferenceTetVolumeM3(tet,fixture.reference);
+        for(const auto node:tet)for(unsigned axis=0;axis<3u;++axis)
+            childCentroids[c][axis]+=fixture.reference[node][axis]*0.25;
+    }
+    std::vector<ConservativeSpatialMassTransportParentNodeSourceMass> sourceMassRows;
+    sourceMassRows.reserve(sourceRows.size());
+    for(const auto& row:sourceRows)
+        sourceMassRows.push_back({.parentNodeIndex=row.parentNodeIndex,
+            .materialIndex=row.materialIndex,.sourceDonorBodyIndex=row.donorBodyIndex,
+            .massKg=row.massKg});
+    std::vector<std::uint32_t> sourceOffsets,sourceDonors;
+    std::vector<double> sourceMasses;
+    if(!assembleConservativeSpatialMassTransportParentSourceDonorSplits(
+            parentMass,fixture.parentMaterial,fixture.parentTets,sourceMassRows,
+            1.0e-10,5.0e-4,sourceOffsets,sourceDonors,sourceMasses,error))
+        return false;
+    const std::array<double,2> densityLower{900.0,850.0};
+    const std::array<double,2> densityUpper{1100.0,950.0};
+    static const std::string parentHash(64u,'1'),sourceHash(64u,'2'),childHash(64u,'3'),
+        regionHash(64u,'4'),frameHash(64u,'5');
+    ConservativeSpatialMassTransportInput input;
+    input.parentCentroidsWorld=parentCentroids;
+    input.parentReferenceVolumeM3=parentVolumes;
+    input.parentMassKg=parentMass;
+    input.parentMaterialIndices=fixture.parentMaterial;
+    input.parentDonorBodyIndices=fixture.parentDonor;
+    input.parentAnatomicalRegionIndices=fixture.parentRegion;
+    input.parentSourceDonorOffsets=sourceOffsets;
+    input.parentSourceDonorBodyIndices=sourceDonors;
+    input.parentSourceDonorMassKg=sourceMasses;
+    input.childCentroidsWorld=childCentroids;
+    input.childReferenceVolumeM3=childVolumes;
+    input.childMaterialIndices=fixture.childMaterial;
+    input.childDonorBodyIndices=fixture.childDonor;
+    input.childAnatomicalRegionIndices=fixture.childRegion;
+    input.materialDensityLowerKgM3=densityLower;
+    input.materialDensityUpperKgM3=densityUpper;
+    input.parentMassPacketSHA256=parentHash;
+    input.parentSourceContributionSHA256=sourceHash;
+    input.childMeshSHA256=childHash;
+    input.regionLabelSHA256=regionHash;
+    input.coordinateFrameSHA256=frameHash;
+    input.maximumTransportDistanceM=maximumDistance;
+    return assembleConservativeSpatialMassTransport(input,result,error);
 }
 
 struct SourceMoments {
@@ -663,6 +739,121 @@ int main() {
             assert(decodedLedger.fem.nodes[node].positionAndMass.w==
                 cookedLedger.fem.nodes[node].positionAndMass.w);
         std::filesystem::remove(ledgerPackagePath);
+    }
+    {
+        Fixture spatial;
+        // The child flow retains source-donor contributions from both bodies;
+        // all compiled volume nodes still use body 0 as their rigid frame owner.
+        spatial.bodyRotations.push_back(kIdentity);
+        spatial.bodyOrigins.push_back({0.25,0.0,0.0});
+        spatial.topology.registeredBodyLocalToWorldLinear=spatial.bodyRotations;
+        spatial.topology.registeredBodyOriginWorld=spatial.bodyOrigins;
+        std::vector<double> parentMass(spatial.parentTets.size(),0.0);
+        for(std::size_t p=0;p<parentMass.size();++p){
+            const auto tet=spatial.parentTets[p];
+            parentMass[p]=parentReferenceTetVolumeM3(tet,spatial.parentPoints)*
+                (spatial.parentMaterial[p]==0u?1000.0:900.0);
+        }
+        const auto sourceRows=sourceContributionFixture(spatial,parentMass,1.0+1.0e-5);
+        ConservativeSpatialMassTransportResult spatialTransfer;
+        if(!buildSpatialTransportFixture(spatial,parentMass,sourceRows,5.0,
+                                         spatialTransfer,error)){
+            std::cerr<<"spatial transport fixture assembly failed: "<<error<<"\n";
+            return 26;
+        }
+        spatial.topology.ancestryVerificationKind=VolumeAncestryVerificationKind::unverified;
+        spatial.topology.ancestryVerificationReceiptSHA256={};
+        spatial.topology.massTransferKind=
+            UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport;
+        spatial.topology.spatialMassTransportResult=&spatialTransfer;
+        spatial.topology.maximumSpatialMassTransportDistanceM=5.0;
+        spatial.topology.parentTetrahedronMassKg=parentMass;
+        spatial.topology.childAncestryMeasureVolumeM3={};
+        spatial.topology.parentNodeSourceMassContributions=sourceRows;
+        spatial.topology.childParentAncestryOffsets={};
+        spatial.topology.childParentAncestryTetrahedra={};
+        spatial.topology.childParentAncestryVolumeFractions={};
+        spatial.topology.childDominantParentTetrahedra=spatialTransfer.childDominantParentRows;
+        double skinDebit=0.0,fatDebit=0.0;
+        for(std::size_t p=0;p<parentMass.size();++p)
+            (spatial.parentMaterial[p]==0u?skinDebit:fatDebit)+=parentMass[p];
+        auto spatialWorld=worldFor();PreparedOrganicFEM spatialSkin,spatialFat;
+        if(!appendRegisteredSkinFatUnpairedVolume(spatialWorld,spatial.surface,spatial.boundary,
+            spatial.topology,0u,"skin","test skin material",skinDebit,
+            1u,"fat","test fat material",fatDebit,2u,"spatial mass-transfer test",
+            spatialSkin,spatialFat,report,error)){
+            std::cerr<<"spatial append failed: "<<error<<"\n";
+            return 27;
+        }
+        assert(report.usesPerChildMassLedger&&report.usesParentNodeSourceMassContributions);
+        assert(report.massTransferKind==
+            UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport);
+        assert(!report.massCouplingIsGeometricAncestry);
+        assert(report.ancestryVerificationKind==VolumeAncestryVerificationKind::unverified);
+        assert(report.ancestryVerificationReceiptSHA256.empty());
+        assert(report.massTransferReceiptSHA256==spatialTransfer.receiptSHA256);
+        assert(report.massTransportEdgeCount==spatialTransfer.transportEdgeCount);
+        assert(spatialSkin.tetParentAncestryOffsets.empty());
+        assert(spatialFat.tetParentAncestryOffsets.empty());
+        assert(spatialWorld.objects.size()==1u);
+        assert(spatialWorld.objects.front().femTetrahedronMassesKg==spatialTransfer.childMassKg);
+        assert(spatialSkin.donorMassContributions.size()>spatialSkin.donorMassNodes.size());
+        assert(report.sourceMassClosure.size()==3u);
+        for(const auto& closure:report.sourceMassClosure)
+            assert(std::abs(closure.cookedParentMassKg-closure.childSourceMassKg)<1.0e-10);
+
+        auto compilerSpatialWorld=spatialWorld;
+#ifndef NUMI_TEST_MATERIAL_PATH
+#error "NUMI_TEST_MATERIAL_PATH must identify the compiler integration test material"
+#endif
+        const auto spatialMaterial=numi::matter::parseMatterFile(
+            std::filesystem::path(NUMI_TEST_MATERIAL_PATH));
+        assert(spatialMaterial.succeeded());
+        for(std::size_t material=0;material<compilerSpatialWorld.materials.size();++material){
+            compilerSpatialWorld.materials[material]=spatialMaterial.material;
+            compilerSpatialWorld.materials[material].name=material==0u?"skin":"fat";
+            auto density=std::find_if(compilerSpatialWorld.materials[material].parameters.begin(),
+                compilerSpatialWorld.materials[material].parameters.end(),
+                [](const auto& parameter){return parameter.name=="density";});
+            assert(density!=compilerSpatialWorld.materials[material].parameters.end());
+            density->defaultValue=spatialWorld.materials[material].parameters[0].defaultValue;
+        }
+        const auto compiledSpatial=numi::matter::compileWorld(compilerSpatialWorld);
+        if(!compiledSpatial.succeeded()){
+            for(const auto& diagnostic:compiledSpatial.diagnostics)
+                std::cerr<<diagnostic.message<<"; ";
+        }
+        assert(compiledSpatial.succeeded());
+        assert(compiledSpatial.world.femTetrahedronMassesKg==
+               spatialWorld.objects.front().femTetrahedronMassesKg);
+        assert(compiledSpatial.world.fem.nodes.size()==spatialWorld.objects.front().femNodes.size());
+        for(std::size_t child=0;child<spatialTransfer.childMassKg.size();++child)
+            assert(spatialWorld.objects.front().femTetrahedronMassesKg[child]==
+                   spatialTransfer.childMassKg[child]);
+
+        auto badFlow=spatialTransfer;
+        badFlow.childParentTransportDistanceM[0]+=1.0e-4;
+        auto badFlowTopology=spatial.topology;
+        badFlowTopology.spatialMassTransportResult=&badFlow;
+        auto badFlowWorld=worldFor();PreparedOrganicFEM badFlowSkin,badFlowFat;
+        assert(!appendRegisteredSkinFatUnpairedVolume(badFlowWorld,spatial.surface,
+            spatial.boundary,badFlowTopology,0u,"skin","test skin material",skinDebit,
+            1u,"fat","test fat material",fatDebit,2u,"bad recorded flow",
+            badFlowSkin,badFlowFat,report,error));
+        assert(error.find("edge distance differs from current cells")!=std::string::npos);
+        assert(badFlowWorld.objects.empty());
+
+        auto badRegion=spatial.topology;
+        auto changedRegions=spatial.childRegion;
+        changedRegions[0]=999u;
+        badRegion.childAnatomicalRegionIndices=changedRegions;
+        auto badRegionWorld=worldFor();PreparedOrganicFEM badRegionSkin,badRegionFat;
+        assert(!appendRegisteredSkinFatUnpairedVolume(badRegionWorld,spatial.surface,
+            spatial.boundary,badRegion,0u,"skin","test skin material",skinDebit,
+            1u,"fat","test fat material",fatDebit,2u,"bad region map",
+            badRegionSkin,badRegionFat,report,error));
+        assert(error.find("current-tet/material/region/source admission")!=std::string::npos);
+        assert(badRegionWorld.objects.empty());
     }
     {
         Fixture crossed;

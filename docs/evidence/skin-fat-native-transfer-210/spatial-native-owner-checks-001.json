@@ -1,0 +1,34 @@
+[
+  {
+    "target": "numi-human-conservative-spatial-mass-transport-check",
+    "code": 0,
+    "wall_seconds": 0.262639875,
+    "stdout": "conservative spatial mass transport PASS cells=4 edges=4 groups=2 min_cost_distance_m=0.0001 parent_mass_closure_kg=0 parent_measure_closure_m3=0 source_donor_closure_kg=0 density_range_kg_m3=900:1000 receipt_sha256=9e7a09107d50412732551462b9eb7dae7dcd8d39e0f5180078d13a2eb3163c96\n",
+    "stderr": "",
+    "binary_sha256": "5d8778029d52416ea6ba289ca263e335cd7010ab9490ed1bf9ed24548b2e4254"
+  },
+  {
+    "target": "numi-human-accepted-fem-skin-prepared-domain-check",
+    "code": 0,
+    "wall_seconds": 0.160818625,
+    "stdout": "prepared-domain owner check passed: 1 generated node, 2 child faces, 4 active rows, mechanics domain 5\n",
+    "stderr": "",
+    "binary_sha256": "1a7b7cd96b02acb644dfb9b33ecc24af4d9c06bc887b4e5b7c2f80454bb71ab7"
+  },
+  {
+    "target": "numi-human-unpaired-skin-fat-volume-check",
+    "code": 0,
+    "wall_seconds": 0.03292883400000002,
+    "stdout": "unpaired skin/fat volume owner tests passed\n",
+    "stderr": "",
+    "binary_sha256": "387af6de5a76dbc48dcf19da5fae80f4a16ae474c29f6c3fa624261f09c2b466"
+  },
+  {
+    "target": "numi-human-compiled-skin-fat-mass-capture-check",
+    "code": 0,
+    "wall_seconds": 0.004377208999999993,
+    "stdout": "compiled skin/fat mass capture PASS density_parent_kg=166.667 attributed_kg=166.667 explicit_parent_kg=0.2\n",
+    "stderr": "",
+    "binary_sha256": "884e3a61340d2300b15f0dd30da3315b4462268f2716e08e6299172237da4d7c"
+  }
+]

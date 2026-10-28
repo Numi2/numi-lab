@@ -6926,3 +6926,31 @@ if(BUILD_TESTING)
     set_tests_properties(human.registered_ligament_reference_catalog PROPERTIES
         LABELS "human;ligament;reference;cpu" TIMEOUT 30)
 endif()
+
+
+# Native accepted-geometry extraction; evidence only, no alternate skinning path.
+add_executable(numi-human-accepted-skin-export EXCLUDE_FROM_ALL
+    tools/human_accepted_skin_export.cpp)
+target_link_libraries(numi-human-accepted-skin-export PRIVATE metalrobo)
+target_compile_features(numi-human-accepted-skin-export PRIVATE cxx_std_20)
+target_compile_options(numi-human-accepted-skin-export PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+
+
+foreach(skin_check IN ITEMS conservative-spatial-mass-transport accepted-fem-skin-prepared-domain)
+    if(skin_check STREQUAL "conservative-spatial-mass-transport")
+        set(skin_check_source apps/NumiHumanConservativeSpatialMassTransportCheck.cpp)
+    else()
+        set(skin_check_source apps/NumiHumanAcceptedFEMSkinTransferPreparedDomainCheck.cpp)
+    endif()
+    add_executable(numi-human-${skin_check}-check EXCLUDE_FROM_ALL ${skin_check_source})
+    target_include_directories(numi-human-${skin_check}-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+    target_compile_features(numi-human-${skin_check}-check PRIVATE cxx_std_20)
+    target_compile_options(numi-human-${skin_check}-check PRIVATE
+        -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+    if(BUILD_TESTING)
+        add_test(NAME human.${skin_check} COMMAND numi-human-${skin_check}-check)
+    endif()
+endforeach()

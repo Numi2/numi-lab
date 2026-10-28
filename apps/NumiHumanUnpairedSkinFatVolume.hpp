@@ -4,6 +4,8 @@
 // tetrahedral node set is independent of its registered O/I/D boundary rows.
 // The legacy paired-layer builder remains unchanged.
 #include "NumiHumanCoarseTissuePreparation.hpp"
+#include "NumiHumanConservativeSpatialMassTransport.hpp"
+#include "NumiHumanParentReferenceMassTransfer.hpp"
 #include "NumiHumanSkinBoundaryNodeMap.hpp"
 
 #include <array>
@@ -54,12 +56,16 @@ struct ExplicitUnpairedVolumeTopology {
     std::span<const std::uint32_t> childParentSurfaceFaces;
     std::span<const std::uint32_t> childStableSourceFaceIdentities;
     std::span<const std::uint32_t> childDonorBodyIndices;
+    // Required only for conservative spatial mass transport. Region identity is
+    // checked as an exact barrier alongside material, donor and distance.
+    std::span<const std::uint32_t> childAnatomicalRegionIndices;
 
     std::span<const V3> parentReferenceWorldPoints;
     std::span<const std::array<std::uint32_t,4>> parentTetrahedra;
     std::span<const std::uint32_t> parentMaterialIndices;
     std::span<const std::uint32_t> parentStableSourceFaceIdentities;
     std::span<const std::uint32_t> parentDonorBodyIndices;
+    std::span<const std::uint32_t> parentAnatomicalRegionIndices;
     // CSR entry fractions sum to one per child and weighted child volume closes
     // each parent. The declared method requires its own independent verification receipt.
     std::span<const std::uint32_t> childParentAncestryOffsets;
@@ -107,6 +113,11 @@ struct ExplicitUnpairedVolumeTopology {
     std::span<const std::array<double,4>> volumeNodeParentBarycentric;
     std::span<const V3> volumeNodeParentResidualWorldM;
     VolumeAncestryVerificationKind ancestryVerificationKind=VolumeAncestryVerificationKind::unverified;
+    // Spatial mass coupling is an initialization-time transfer, not geometric
+    // ancestry. Its separately verified result never sets ancestryVerified.
+    UnpairedVolumeMassTransferKind massTransferKind=UnpairedVolumeMassTransferKind::none;
+    const ConservativeSpatialMassTransportResult* spatialMassTransportResult=nullptr;
+    double maximumSpatialMassTransportDistanceM=0.0;
     // SHA-256 of an external exact-overlap or conservative reference-pullback receipt.
     std::string_view ancestryVerificationReceiptSHA256;
     std::array<std::uint64_t,4> referenceSourceIdentity{};
@@ -173,6 +184,12 @@ struct ExplicitUnpairedVolumeReport {
     std::vector<ExplicitUnpairedVolumeNodeMassAttribution> nodeMassAttributionMismatches;
     VolumeAncestryVerificationKind ancestryVerificationKind=VolumeAncestryVerificationKind::unverified;
     std::string ancestryVerificationReceiptSHA256;
+    UnpairedVolumeMassTransferKind massTransferKind=UnpairedVolumeMassTransferKind::none;
+    bool massCouplingIsGeometricAncestry=false;
+    std::string massTransferReceiptSHA256;
+    std::size_t massTransportEdgeCount=0u;
+    double maximumMassTransportDistanceUsedM=0.0;
+    double massWeightedMeanTransportDistanceM=0.0;
 };
 
 [[nodiscard]] inline bool appendRegisteredSkinFatUnpairedVolume(
@@ -247,32 +264,61 @@ struct ExplicitUnpairedVolumeReport {
             return false;
     if(boundaryMap.volumeNodeCount!=n)
         return fail("unpaired skin/fat boundary map volume count differs from the exact source node table");
+    const bool hasSpatialMassTransfer=topology.massTransferKind==
+        UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport;
     const auto receipt=topology.ancestryVerificationReceiptSHA256;
-    if((topology.ancestryVerificationKind!=VolumeAncestryVerificationKind::exactGeometricOverlap&&
-        topology.ancestryVerificationKind!=VolumeAncestryVerificationKind::conservativeReferencePullback)||
-       receipt.size()!=64u||!std::all_of(receipt.begin(),receipt.end(),[](char c){
-            return (c>='0'&&c<='9')||(c>='a'&&c<='f');}))
-        return fail("unpaired skin/fat ancestry lacks a pinned exact-overlap or conservative-pullback verification receipt");
+    if(topology.massTransferKind!=UnpairedVolumeMassTransferKind::none&&!hasSpatialMassTransfer)
+        return fail("unpaired skin/fat mass transfer kind is unsupported");
+    if(hasSpatialMassTransfer){
+        if(topology.spatialMassTransportResult==nullptr||
+           !std::isfinite(topology.maximumSpatialMassTransportDistanceM)||
+           topology.maximumSpatialMassTransportDistanceM<=0.0||
+           topology.ancestryVerificationKind!=VolumeAncestryVerificationKind::unverified||
+           !topology.ancestryVerificationReceiptSHA256.empty())
+            return fail("spatial mass coupling requires its bounded recorded flow and keeps geometric ancestry unverified");
+    }else{
+        const auto receipt=topology.ancestryVerificationReceiptSHA256;
+        if((topology.ancestryVerificationKind!=VolumeAncestryVerificationKind::exactGeometricOverlap&&
+            topology.ancestryVerificationKind!=VolumeAncestryVerificationKind::conservativeReferencePullback)||
+           receipt.size()!=64u||!std::all_of(receipt.begin(),receipt.end(),[](char c){
+                return (c>='0'&&c<='9')||(c>='a'&&c<='f');}))
+            return fail("unpaired skin/fat ancestry lacks a pinned exact-overlap or conservative-pullback verification receipt");
+    }
     if(topology.referenceWorldPoints.size()!=n||topology.parentReferenceWorldPoints.empty()||
        topology.parentTetrahedra.empty()||topology.parentMaterialIndices.size()!=topology.parentTetrahedra.size()||
        topology.parentStableSourceFaceIdentities.size()!=topology.parentTetrahedra.size()||
        topology.parentDonorBodyIndices.size()!=topology.parentTetrahedra.size())
         return fail("unpaired skin/fat reference or parent source topology is incomplete");
+    if(hasSpatialMassTransfer&&
+       (topology.parentAnatomicalRegionIndices.size()!=topology.parentTetrahedra.size()||
+        topology.childAnatomicalRegionIndices.size()!=nt))
+        return fail("spatial mass coupling requires explicit parent and child anatomical region labels");
     const bool hasPerChildMassLedger=!topology.parentTetrahedronMassKg.empty()||
-        !topology.childAncestryMeasureVolumeM3.empty();
-    if(hasPerChildMassLedger&&
+        !topology.childAncestryMeasureVolumeM3.empty()||hasSpatialMassTransfer;
+    if(hasSpatialMassTransfer){
+        if(topology.parentTetrahedronMassKg.size()!=topology.parentTetrahedra.size()||
+           !topology.childAncestryMeasureVolumeM3.empty())
+            return fail("unpaired spatial mass coupling arrays do not match the selected transfer method");
+    }else if(hasPerChildMassLedger&&
        (topology.parentTetrahedronMassKg.size()!=topology.parentTetrahedra.size()||
         topology.childAncestryMeasureVolumeM3.size()!=nt))
         return fail("unpaired skin/fat per-child mass ledger requires one parent mass and one child ancestry measure per row");
     const bool hasParentNodeSourceMassLedger=!topology.parentNodeSourceMassContributions.empty();
     if(hasParentNodeSourceMassLedger&&!hasPerChildMassLedger)
         return fail("unpaired source-mass contributions require the authoritative per-child parent-mass ledger");
+    if(hasSpatialMassTransfer&&!hasParentNodeSourceMassLedger)
+        return fail("spatial mass coupling requires the authoritative parent node/material/source-donor ledger");
     if(topology.retainedOriginalNodeCount>n||
        topology.volumeNodeParentTetrahedra.size()!=n||
        topology.volumeNodeParentBarycentric.size()!=n||
        topology.volumeNodeParentResidualWorldM.size()!=n)
         return fail("unpaired skin/fat source-node parent ancestry does not cover the exact volume row domain");
-    if(topology.childParentAncestryOffsets.size()!=nt+1u||
+    if(hasSpatialMassTransfer){
+        if(!topology.childParentAncestryOffsets.empty()||
+           !topology.childParentAncestryTetrahedra.empty()||
+           !topology.childParentAncestryVolumeFractions.empty())
+            return fail("spatial mass coupling cannot be relabeled or duplicated as geometric parent ancestry");
+    }else if(topology.childParentAncestryOffsets.size()!=nt+1u||
        topology.childParentAncestryOffsets.front()!=0u||
        topology.childParentAncestryOffsets.back()!=topology.childParentAncestryTetrahedra.size()||
        topology.childParentAncestryTetrahedra.size()!=topology.childParentAncestryVolumeFractions.size())
@@ -548,7 +594,8 @@ struct ExplicitUnpairedVolumeReport {
 
     const bool hasAncestry=!topology.childParentAncestryOffsets.empty()||
         !topology.childParentAncestryTetrahedra.empty()||!topology.childParentAncestryVolumeFractions.empty();
-    if(!hasAncestry)return fail("unpaired skin/fat volume mesh requires complete parent-volume ancestry CSR");
+    if(!hasAncestry&&!hasSpatialMassTransfer)
+        return fail("unpaired skin/fat volume mesh requires complete parent-volume ancestry CSR");
     for(std::size_t i=1;i<topology.childParentAncestryOffsets.size();++i)
         if(topology.childParentAncestryOffsets[i]<topology.childParentAncestryOffsets[i-1u]||
            topology.childParentAncestryOffsets[i]>topology.childParentAncestryTetrahedra.size())
@@ -638,6 +685,97 @@ struct ExplicitUnpairedVolumeReport {
                 return fail("unpaired raw source-node mass differs from cooked parent-corner mass beyond the declared Float32 cook-rounding bound");
         }
     }
+    if(hasSpatialMassTransfer){
+        const auto& recorded=*topology.spatialMassTransportResult;
+        std::vector<SpatialMassTransportPoint> parentCentroids(topology.parentTetrahedra.size());
+        std::vector<double> parentTransportVolumes(topology.parentTetrahedra.size(),0.0);
+        for(std::size_t p=0;p<topology.parentTetrahedra.size();++p){
+            const auto tet=topology.parentTetrahedra[p];
+            parentTransportVolumes[p]=parentReferenceTetVolumeM3(
+                tet,topology.parentReferenceWorldPoints);
+            for(const auto node:tet)for(unsigned axis=0;axis<3u;++axis)
+                parentCentroids[p][axis]+=topology.parentReferenceWorldPoints[node][axis]*0.25;
+        }
+        std::vector<SpatialMassTransportPoint> childCentroids(nt);
+        std::vector<double> childReferenceVolumes(nt,0.0);
+        for(std::size_t c=0;c<nt;++c){
+            const auto tet=topology.childTetrahedra[c];
+            for(const auto node:tet)if(node>=reference.size())
+                return fail("spatial mass coupling child cell references an absent current source node");
+            childReferenceVolumes[c]=parentReferenceTetVolumeM3(tet,reference);
+            if(!std::isfinite(childReferenceVolumes[c])||childReferenceVolumes[c]<=0.0)
+                return fail("spatial mass coupling child cell has invalid current reference volume");
+            for(const auto node:tet)for(unsigned axis=0;axis<3u;++axis)
+                childCentroids[c][axis]+=reference[node][axis]*0.25;
+        }
+        std::vector<ConservativeSpatialMassTransportParentNodeSourceMass> sourceRows;
+        sourceRows.reserve(topology.parentNodeSourceMassContributions.size());
+        for(const auto& source:topology.parentNodeSourceMassContributions)
+            sourceRows.push_back({.parentNodeIndex=source.parentNodeIndex,
+                .materialIndex=source.materialIndex,.sourceDonorBodyIndex=source.donorBodyIndex,
+                .massKg=source.massKg});
+        std::vector<std::uint32_t> sourceDonorOffsets,sourceDonorBodyIndices;
+        std::vector<double> sourceDonorMassKg;
+        std::string splitError;
+        if(!assembleConservativeSpatialMassTransportParentSourceDonorSplits(
+                topology.parentTetrahedronMassKg,topology.parentMaterialIndices,
+                topology.parentTetrahedra,sourceRows,1.0e-10,5.0e-4,
+                sourceDonorOffsets,sourceDonorBodyIndices,sourceDonorMassKg,splitError))
+            return fail("spatial mass coupling cannot reconstruct cooked parent source-donor split: "+splitError);
+        std::vector<double> densityLower(world.materials.size(),
+            std::numeric_limits<double>::quiet_NaN());
+        std::vector<double> densityUpper(world.materials.size(),
+            std::numeric_limits<double>::quiet_NaN());
+        for(const auto materialIndex:std::array<std::uint32_t,2>{skinMaterialIndex,fatMaterialIndex}){
+            const auto& material=world.materials[materialIndex];
+            const auto density=std::find_if(material.parameters.begin(),material.parameters.end(),
+                [](const auto& parameter){return parameter.name=="density";});
+            if(density==material.parameters.end()||density->identifiable||
+               !std::isfinite(density->lower)||!std::isfinite(density->upper)||
+               density->lower<=0.0||density->lower>density->upper)
+                return fail("spatial mass coupling requires actual finite material density bounds");
+            densityLower[materialIndex]=density->lower;
+            densityUpper[materialIndex]=density->upper;
+        }
+        ConservativeSpatialMassTransportInput transportInput;
+        transportInput.parentCentroidsWorld=parentCentroids;
+        transportInput.parentReferenceVolumeM3=parentTransportVolumes;
+        transportInput.parentMassKg=topology.parentTetrahedronMassKg;
+        transportInput.parentMaterialIndices=topology.parentMaterialIndices;
+        transportInput.parentDonorBodyIndices=topology.parentDonorBodyIndices;
+        transportInput.parentAnatomicalRegionIndices=topology.parentAnatomicalRegionIndices;
+        transportInput.parentSourceDonorOffsets=sourceDonorOffsets;
+        transportInput.parentSourceDonorBodyIndices=sourceDonorBodyIndices;
+        transportInput.parentSourceDonorMassKg=sourceDonorMassKg;
+        transportInput.childCentroidsWorld=childCentroids;
+        transportInput.childReferenceVolumeM3=childReferenceVolumes;
+        transportInput.childMaterialIndices=topology.childMaterialIndices;
+        transportInput.childDonorBodyIndices=topology.childDonorBodyIndices;
+        transportInput.childAnatomicalRegionIndices=topology.childAnatomicalRegionIndices;
+        transportInput.materialDensityLowerKgM3=densityLower;
+        transportInput.materialDensityUpperKgM3=densityUpper;
+        transportInput.parentMassPacketSHA256=recorded.parentMassPacketSHA256;
+        transportInput.parentSourceContributionSHA256=recorded.parentSourceContributionSHA256;
+        transportInput.childMeshSHA256=recorded.childMeshSHA256;
+        transportInput.regionLabelSHA256=recorded.regionLabelSHA256;
+        transportInput.coordinateFrameSHA256=recorded.coordinateFrameSHA256;
+        transportInput.maximumTransportDistanceM=topology.maximumSpatialMassTransportDistanceM;
+        // Admission uses fixed conservative tolerances and work budgets. The
+        // candidate cannot widen these by editing the recorded receipt.
+        transportInput.relativeClosureTolerance=1.0e-10;
+        transportInput.absoluteMassToleranceKg=1.0e-13;
+        transportInput.absoluteMeasureToleranceM3=1.0e-15;
+        transportInput.maximumAllowedEdges=3'000'000u;
+        transportInput.maximumAugmentations=300'000u;
+        if(recorded.childDominantParentRows.size()!=nt||
+           !std::equal(recorded.childDominantParentRows.begin(),recorded.childDominantParentRows.end(),
+                       topology.childDominantParentTetrahedra.begin()))
+            return fail("spatial mass coupling dominant parent labels differ from the recorded child flow");
+        if(!verifyRecordedConservativeSpatialMassTransport(
+                transportInput,recorded,error))
+            return fail("spatial mass coupling recorded flow failed current-tet/material/region/source admission: "+error);
+    }
+
     double skinVolume=0.0,fatVolume=0.0;
     std::vector<double> nodalMass(n,0.0),skinNodeMass(n,0.0),fatNodeMass(n,0.0);
     std::vector<std::uint32_t> usedNodes(n,0u);
@@ -662,23 +800,25 @@ struct ExplicitUnpairedVolumeReport {
             return fail("unpaired skin/fat child loses positive emitted-Float32 current orientation at tet "+std::to_string(child));
         if(topology.childMaterialIndices[child]==skinMaterialIndex)skinVolume+=v;else fatVolume+=v;
         childVolumes[child]=v;
-        const double ancestryMeasure=hasPerChildMassLedger?topology.childAncestryMeasureVolumeM3[child]:v;
+        const double ancestryMeasure=hasPerChildMassLedger&&!hasSpatialMassTransfer?
+            topology.childAncestryMeasureVolumeM3[child]:v;
         if(!std::isfinite(ancestryMeasure)||ancestryMeasure<=0.0)
             return fail("unpaired skin/fat child ancestry measure is nonpositive or nonfinite at tet "+std::to_string(child));
-        if(hasPerChildMassLedger&&topology.ancestryVerificationKind==VolumeAncestryVerificationKind::exactGeometricOverlap&&
+        if(hasPerChildMassLedger&&!hasSpatialMassTransfer&&
+           topology.ancestryVerificationKind==VolumeAncestryVerificationKind::exactGeometricOverlap&&
            std::abs(ancestryMeasure-v)>1.0e-6*std::max(ancestryMeasure,v))
             return fail("exact geometric-overlap mass measure differs from emitted child reference volume at tet "+std::to_string(child));
         for(auto node:ids)++usedNodes[node];
-        if(topology.childParentAncestryOffsets[child]>=topology.childParentAncestryOffsets[child+1u])
+        if(hasAncestry&&topology.childParentAncestryOffsets[child]>=topology.childParentAncestryOffsets[child+1u])
             return fail("unpaired skin/fat child has an empty parent-volume CSR row");
         double sum=0.0;std::uint32_t prior=0u;
-        for(std::uint32_t e=topology.childParentAncestryOffsets[child];e<topology.childParentAncestryOffsets[child+1u];++e){
+        if(hasAncestry)for(std::uint32_t e=topology.childParentAncestryOffsets[child];e<topology.childParentAncestryOffsets[child+1u];++e){
             const auto parent=topology.childParentAncestryTetrahedra[e];const double f=topology.childParentAncestryVolumeFractions[e];
             if(parent>=parentVolume.size()||(e>topology.childParentAncestryOffsets[child]&&parent<=prior)||
                !std::isfinite(f)||f<=0.0||topology.parentMaterialIndices[parent]!=topology.childMaterialIndices[child])
                 return fail("unpaired skin/fat child parent CSR has invalid, duplicate, or cross-material ancestry");
             prior=parent;sum+=f;parentCovered[parent]+=ancestryMeasure*f;
-            if(hasPerChildMassLedger){
+            if(hasPerChildMassLedger&&!hasSpatialMassTransfer){
                 const double transferred=topology.parentTetrahedronMassKg[parent]*
                     (ancestryMeasure*f/parentVolume[parent]);
                 if(!std::isfinite(transferred)||transferred<0.0)
@@ -714,12 +854,46 @@ struct ExplicitUnpairedVolumeReport {
                 }
             }
         }
-        if(!std::isfinite(sum)||std::abs(sum-1.0)>1.0e-6)
+        if(hasAncestry&&(!std::isfinite(sum)||std::abs(sum-1.0)>1.0e-6))
             return fail("unpaired skin/fat child parent-volume fractions do not sum to one");
+    }
+    if(hasSpatialMassTransfer){
+        const auto& transfer=*topology.spatialMassTransportResult;
+        for(std::size_t child=0;child<nt;++child){
+            const auto material=topology.childMaterialIndices[child];
+            const double transferred=transfer.childMassKg[child];
+            childMassKg[child]=transferred;
+            childMassByMaterialKg[material]+=transferred;
+            childMassByDonorKg[{material,topology.childDonorBodyIndices[child]}]+=transferred;
+            const double nodeShare=0.25*transferred;
+            for(const auto node:topology.childTetrahedra[child]){
+                ancestryMassByNodeDonorKg[{material,node,topology.childDonorBodyIndices[child]}]+=nodeShare;
+                nodeOwnerMassByNodeDonorKg[{material,node,topology.volumeNodeDonorBodyIndices[node]}]+=nodeShare;
+            }
+            for(std::uint32_t edge=transfer.childParentOffsets[child];
+                edge<transfer.childParentOffsets[child+1u];++edge){
+                const auto parent=transfer.childParentRows[edge];
+                const double edgeMass=transfer.childParentTransportMassKg[edge];
+                const auto parentTet=topology.parentTetrahedra[parent];
+                const double childCornerMass=edgeMass*0.25;
+                for(const auto childNode:topology.childTetrahedra[child])
+                    for(const auto parentNode:parentTet){
+                        const NodeMaterialKey sourceKey{parentNode,material};
+                        const auto& sourceRows=sourceRowsByNodeMaterial[sourceKey];
+                        for(const auto sourceRow:sourceRows){
+                            const auto& source=topology.parentNodeSourceMassContributions[sourceRow];
+                            const double amount=childCornerMass*0.25*
+                                (source.massKg/rawSourceMassByNodeMaterial[sourceKey]);
+                            childSourceMassByOutputNodeRow[{childNode,sourceRow}]+=amount;
+                            childSourceMassByMaterialDonor[{material,source.donorBodyIndex}]+=amount;
+                        }
+                    }
+            }
+        }
     }
     if(std::any_of(usedNodes.begin(),usedNodes.end(),[](auto x){return x==0u;}))
         return fail("unpaired skin/fat volume node table contains an unused source row");
-    for(std::size_t p=0;p<parentVolume.size();++p)
+    if(hasAncestry)for(std::size_t p=0;p<parentVolume.size();++p)
         if(std::abs(parentCovered[p]-parentVolume[p])>1.0e-6*parentVolume[p])
             return fail("unpaired skin/fat CSR volume closure differs from original parent tet "+std::to_string(p));
 
@@ -796,7 +970,7 @@ struct ExplicitUnpairedVolumeReport {
                 const double child=childSourceMassByMaterialDonor[key];
                 if(!std::isfinite(raw)||!std::isfinite(cooked)||!std::isfinite(child)||
                    std::abs(cooked-child)>1.0e-6*std::max({std::abs(cooked),std::abs(child),1.0e-12}))
-                    return fail("unpaired source-donor mass does not close through the child ancestry CSR");
+                    return fail("unpaired source-donor mass does not close through the selected child transfer");
                 report.sourceMassClosure.push_back({.materialIndex=key.first,.donorBodyIndex=key.second,
                     .inputSourceMassKg=raw,.cookedParentMassKg=cooked,.childSourceMassKg=child});
             }
@@ -845,7 +1019,10 @@ struct ExplicitUnpairedVolumeReport {
             const bool isSkin=topology.childMaterialIndices[child]==skinMaterialIndex;
             const double lower=isSkin?skinDensityLower:fatDensityLower;
             const double upper=isSkin?skinDensityUpper:fatDensityUpper;
-            if(!std::isfinite(impliedDensity)||impliedDensity<lower||impliedDensity>upper)
+            const double densityTolerance=hasSpatialMassTransfer?
+                spatial_mass_transport_detail::densityBoundRoundoff(lower,upper,impliedDensity):0.0;
+            if(!std::isfinite(impliedDensity)||impliedDensity<lower-densityTolerance||
+               impliedDensity>upper+densityTolerance)
                 return fail("unpaired skin/fat per-child mass implies density outside material bounds at tet "+std::to_string(child));
             if(isSkin){skinMinChildDensity=std::min(skinMinChildDensity,impliedDensity);skinMaxChildDensity=std::max(skinMaxChildDensity,impliedDensity);}
             else{fatMinChildDensity=std::min(fatMinChildDensity,impliedDensity);fatMaxChildDensity=std::max(fatMaxChildDensity,impliedDensity);}
@@ -870,12 +1047,14 @@ struct ExplicitUnpairedVolumeReport {
     object.femMaterialSourceIdentity=topology.materialSourceIdentity;
     if(hasPerChildMassLedger){
         object.femTetrahedronMassesKg=childMassKg;
+        const auto massReceipt=hasSpatialMassTransfer?
+            std::string_view(topology.spatialMassTransportResult->receiptSHA256):receipt;
         for(std::size_t word=0;word<object.femTetrahedronMassSourceIdentity.size();++word){
-            const auto begin=receipt.data()+word*16u;
+            const auto begin=massReceipt.data()+word*16u;
             const auto parsed=std::from_chars(begin,begin+16u,
                 object.femTetrahedronMassSourceIdentity[word],16);
             if(parsed.ec!=std::errc{}||parsed.ptr!=begin+16u)
-                return fail("unpaired skin/fat mass source identity could not decode the pinned verification receipt");
+                return fail("unpaired skin/fat mass source identity could not decode the selected transfer receipt");
         }
     }
     const auto identityPresent=[](const auto& id){return std::any_of(id.begin(),id.end(),[](auto x){return x!=0u;});};
@@ -907,7 +1086,10 @@ struct ExplicitUnpairedVolumeReport {
     nextFat.sourceName=surface.name;nextFat.sourceMember=surface.sourceMember;nextFat.meshSHA256=surface.sourceMeshSHA256;nextFat.payloadSHA256=surface.sourcePayloadSHA256;
     nextFat.materialName=std::string(fatMaterialName);nextFat.materialProvenance=std::string(fatMaterialProvenance);nextFat.materialIndex=fatMaterialIndex;nextFat.firstGlobalFEMNode=static_cast<std::uint32_t>(firstGlobal);nextFat.volumeM3=fatVolume;nextFat.massDebitKg=fatDonorDebitKg;nextFat.densityKgM3=rhoFat;
     nextSkin.tetSourceFace.reserve(nt);nextFat.tetSourceFace.reserve(nt);
-    nextSkin.tetParentAncestryOffsets.push_back(0u);nextFat.tetParentAncestryOffsets.push_back(0u);
+    if(hasAncestry){
+        nextSkin.tetParentAncestryOffsets.push_back(0u);
+        nextFat.tetParentAncestryOffsets.push_back(0u);
+    }
     nextSkin.donorMassNodes.reserve(n);
     for(std::size_t node=0;node<n;++node){
         if(!std::isfinite(nodalMass[node])||nodalMass[node]<=0.0)return fail("unpaired skin/fat node has nonpositive combined density*volume mass");
@@ -940,19 +1122,22 @@ struct ExplicitUnpairedVolumeReport {
     for(std::size_t child=0;child<nt;++child){
         auto& prepared=topology.childMaterialIndices[child]==skinMaterialIndex?nextSkin:nextFat;
         prepared.tetChildIndex.push_back(static_cast<std::uint32_t>(child));
-        prepared.tetParentTetrahedron.push_back(topology.childDominantParentTetrahedra[child]);
+        prepared.tetParentTetrahedron.push_back(hasAncestry?
+            topology.childDominantParentTetrahedra[child]:invalid);
         prepared.tetParentSurfaceFace.push_back(topology.childParentSurfaceFaces[child]);
         prepared.tetParentMaterialIndex.push_back(topology.childMaterialIndices[child]);
         prepared.tetSourceFaceIdentity.push_back(topology.childStableSourceFaceIdentities[child]);
         prepared.tetSourceFace.push_back(topology.childStableSourceFaceIdentities[child]);
-        for(std::uint32_t entry=topology.childParentAncestryOffsets[child];
-            entry<topology.childParentAncestryOffsets[child+1u];++entry){
-            prepared.tetParentAncestryTetrahedra.push_back(topology.childParentAncestryTetrahedra[entry]);
-            prepared.tetParentAncestryVolumeFractions.push_back(topology.childParentAncestryVolumeFractions[entry]);
+        if(hasAncestry){
+            for(std::uint32_t entry=topology.childParentAncestryOffsets[child];
+                entry<topology.childParentAncestryOffsets[child+1u];++entry){
+                prepared.tetParentAncestryTetrahedra.push_back(topology.childParentAncestryTetrahedra[entry]);
+                prepared.tetParentAncestryVolumeFractions.push_back(topology.childParentAncestryVolumeFractions[entry]);
+            }
+            if(prepared.tetParentAncestryTetrahedra.size()>std::numeric_limits<std::uint32_t>::max())
+                return fail("unpaired skin/fat material ancestry entry count exceeds source format");
+            prepared.tetParentAncestryOffsets.push_back(static_cast<std::uint32_t>(prepared.tetParentAncestryTetrahedra.size()));
         }
-        if(prepared.tetParentAncestryTetrahedra.size()>std::numeric_limits<std::uint32_t>::max())
-            return fail("unpaired skin/fat material ancestry entry count exceeds source format");
-        prepared.tetParentAncestryOffsets.push_back(static_cast<std::uint32_t>(prepared.tetParentAncestryTetrahedra.size()));
     }
     if(!hasPerChildMassLedger){
         const auto setDensity=[&](std::uint32_t index,double rho){
@@ -1009,6 +1194,16 @@ struct ExplicitUnpairedVolumeReport {
     }
     report.ancestryVerificationKind=topology.ancestryVerificationKind;
     report.ancestryVerificationReceiptSHA256=std::string(receipt);
+    report.massTransferKind=topology.massTransferKind;
+    report.massCouplingIsGeometricAncestry=false;
+    if(hasSpatialMassTransfer){
+        report.massTransferReceiptSHA256=topology.spatialMassTransportResult->receiptSHA256;
+        report.massTransportEdgeCount=topology.spatialMassTransportResult->transportEdgeCount;
+        report.maximumMassTransportDistanceUsedM=
+            topology.spatialMassTransportResult->maximumTransportDistanceUsedM;
+        report.massWeightedMeanTransportDistanceM=
+            topology.spatialMassTransportResult->massWeightedMeanTransportDistanceM;
+    }
     report.inputVolumeRowToObjectLocalNode.resize(n);for(std::uint32_t i=0;i<n;++i)report.inputVolumeRowToObjectLocalNode[i]=i;
     preparedSkin=std::move(nextSkin);preparedFat=std::move(nextFat);error.clear();return true;
 }

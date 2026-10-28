@@ -1,0 +1,36 @@
+{
+  "scope": "native pack extraction only; legacy diagnostic source, no new physical or motion qualification",
+  "source_pack_sha256": "91b57ffc22208eead5c3ba24bc407a85d7e8bd07179fa60f1873db3f52fa66bf",
+  "binary_sha256": "e1cd749ce5096dd0b26a6a3de07cbe85d961027c98da7efb9be6d24c608b59d8",
+  "vertices": 61950,
+  "faces": 108987,
+  "active_vertices": 54551,
+  "negative_cases": [
+    {
+      "label": "split-triangle",
+      "return_code": 2,
+      "stderr": "source skin interval splits a native triangle"
+    },
+    {
+      "label": "out-of-range",
+      "return_code": 2,
+      "stderr": "source skin interval exceeds native pack"
+    },
+    {
+      "label": "empty",
+      "return_code": 2,
+      "stderr": "source skin interval exceeds native pack"
+    },
+    {
+      "label": "invalid-index",
+      "return_code": 2,
+      "stderr": "invalid vertex interval"
+    },
+    {
+      "label": "overwrite",
+      "return_code": 2,
+      "stderr": "refusing to overwrite geometry evidence"
+    }
+  ],
+  "physical_steps": 0
+}
