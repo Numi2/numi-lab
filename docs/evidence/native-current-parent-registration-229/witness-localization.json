@@ -1,0 +1,618 @@
+{
+  "candidate_csv_sha256": "0280ea7f3563304a9969e2facc8b9bb083bce44d5206b85179ccbdf4c809a462",
+  "classification": "summary of retained exact witnesses; no new intersection query or geometry change",
+  "components": [
+    {
+      "O033_parent_rows_minmax": [
+        50946,
+        51271
+      ],
+      "baseline_exact_face_rows": 2,
+      "derived_baseline_face_rows": 9,
+      "face_count": 11,
+      "face_rows_minmax": [
+        50598,
+        50900
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          0.2535315598294751,
+          -0.9646130813699915,
+          0.14063119158896686
+        ],
+        "min": [
+          0.2502567375841623,
+          -0.96560038231421,
+          0.13790114977011378
+        ]
+      },
+      "pair_count": 13,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          0.2558961510658264,
+          -0.9636537432670593,
+          0.14112108945846558
+        ],
+        "min": [
+          0.24975909292697906,
+          -0.9657503962516785,
+          0.1372954249382019
+        ]
+      },
+      "vertex_count": 14,
+      "vertex_rows_minmax": [
+        25562,
+        25718
+      ]
+    },
+    {
+      "O033_parent_rows_minmax": [
+        38452,
+        38494
+      ],
+      "baseline_exact_face_rows": 0,
+      "derived_baseline_face_rows": 6,
+      "face_count": 6,
+      "face_rows_minmax": [
+        38191,
+        38233
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          0.23831176744477003,
+          -0.9552053381068862,
+          0.09462235439100693
+        ],
+        "min": [
+          0.2383116425056278,
+          -0.9552055436011491,
+          0.094622201796515
+        ]
+      },
+      "pair_count": 8,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          0.23859670758247375,
+          -0.9550613760948181,
+          0.09462238848209381
+        ],
+        "min": [
+          0.2381412237882614,
+          -0.9552055597305298,
+          0.0944274514913559
+        ]
+      },
+      "vertex_count": 9,
+      "vertex_rows_minmax": [
+        19393,
+        19415
+      ]
+    },
+    {
+      "O033_parent_rows_minmax": [
+        47605,
+        48297
+      ],
+      "baseline_exact_face_rows": 0,
+      "derived_baseline_face_rows": 6,
+      "face_count": 6,
+      "face_rows_minmax": [
+        47286,
+        47965
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          0.2597145571763999,
+          -0.9811855501579607,
+          0.1254026887489624
+        ],
+        "min": [
+          0.2597145469769031,
+          -0.9811855637446195,
+          0.12540267676569197
+        ]
+      },
+      "pair_count": 8,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          0.2605503499507904,
+          -0.9808278679847717,
+          0.12639270722866058
+        ],
+        "min": [
+          0.2582016587257385,
+          -0.9829372763633728,
+          0.12498714029788971
+        ]
+      },
+      "vertex_count": 9,
+      "vertex_rows_minmax": [
+        23884,
+        24368
+      ]
+    },
+    {
+      "O033_parent_rows_minmax": [
+        4931,
+        5029
+      ],
+      "baseline_exact_face_rows": 0,
+      "derived_baseline_face_rows": 6,
+      "face_count": 6,
+      "face_rows_minmax": [
+        4925,
+        5023
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          -0.28858147030216447,
+          -0.9556714413409726,
+          0.09174190059794401
+        ],
+        "min": [
+          -0.28858155195857893,
+          -0.9556714797108116,
+          0.09174187061392704
+        ]
+      },
+      "pair_count": 7,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          -0.2881432771682739,
+          -0.9556031823158264,
+          0.09180330485105515
+        ],
+        "min": [
+          -0.2886064648628235,
+          -0.9558079838752747,
+          0.09174185246229172
+        ]
+      },
+      "vertex_count": 9,
+      "vertex_rows_minmax": [
+        2472,
+        2519
+      ]
+    },
+    {
+      "O033_parent_rows_minmax": [
+        51577,
+        51608
+      ],
+      "baseline_exact_face_rows": 0,
+      "derived_baseline_face_rows": 7,
+      "face_count": 7,
+      "face_rows_minmax": [
+        51200,
+        51231
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          0.2555236802297788,
+          -0.9620537196595343,
+          0.14594403485074378
+        ],
+        "min": [
+          0.25552359809776143,
+          -0.9620537653342814,
+          0.1459439326299859
+        ]
+      },
+      "pair_count": 7,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          0.2557251453399658,
+          -0.9618780016899109,
+          0.14617031812667847
+        ],
+        "min": [
+          0.2550126314163208,
+          -0.9626244306564331,
+          0.14575311541557312
+        ]
+      },
+      "vertex_count": 10,
+      "vertex_rows_minmax": [
+        25797,
+        25882
+      ]
+    },
+    {
+      "O033_parent_rows_minmax": [
+        16083,
+        16151
+      ],
+      "baseline_exact_face_rows": 0,
+      "derived_baseline_face_rows": 5,
+      "face_count": 5,
+      "face_rows_minmax": [
+        15920,
+        15987
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          -0.2978490798887599,
+          -0.9212230160835976,
+          0.12730736580093502
+        ],
+        "min": [
+          -0.29784909284689,
+          -0.9212230365258373,
+          0.12730735894833314
+        ]
+      },
+      "pair_count": 6,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          -0.29766350984573364,
+          -0.9210851788520813,
+          0.1274586319923401
+        ],
+        "min": [
+          -0.2981903553009033,
+          -0.9237537384033203,
+          0.127219557762146
+        ]
+      },
+      "vertex_count": 9,
+      "vertex_rows_minmax": [
+        8045,
+        8090
+      ]
+    },
+    {
+      "O033_parent_rows_minmax": [
+        15958,
+        21807
+      ],
+      "baseline_exact_face_rows": 0,
+      "derived_baseline_face_rows": 6,
+      "face_count": 6,
+      "face_rows_minmax": [
+        15795,
+        21605
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          -0.2929006398408655,
+          -0.9188663969074974,
+          0.12201621641509344
+        ],
+        "min": [
+          -0.2929006487988031,
+          -0.9188664046434002,
+          0.12201621292938795
+        ]
+      },
+      "pair_count": 5,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          -0.28725868463516235,
+          -0.9188215732574463,
+          0.1294894814491272
+        ],
+        "min": [
+          -0.2932018041610718,
+          -0.9200080633163452,
+          0.12199202179908752
+        ]
+      },
+      "vertex_count": 9,
+      "vertex_rows_minmax": [
+        7971,
+        11140
+      ]
+    },
+    {
+      "O033_parent_rows_minmax": [
+        35599,
+        35635
+      ],
+      "baseline_exact_face_rows": 0,
+      "derived_baseline_face_rows": 4,
+      "face_count": 4,
+      "face_rows_minmax": [
+        35368,
+        35404
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          0.23281857093143907,
+          -0.9541004539094003,
+          0.08721041120190691
+        ],
+        "min": [
+          0.2328181668168577,
+          -0.9541005480002123,
+          0.08720940599839938
+        ]
+      },
+      "pair_count": 4,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          0.2328214794397354,
+          -0.9540548324584961,
+          0.08733948320150375
+        ],
+        "min": [
+          0.23272818326950073,
+          -0.9543695449829102,
+          0.08720079809427261
+        ]
+      },
+      "vertex_count": 8,
+      "vertex_rows_minmax": [
+        17976,
+        17996
+      ]
+    },
+    {
+      "O033_parent_rows_minmax": [
+        39197,
+        39393
+      ],
+      "baseline_exact_face_rows": 4,
+      "derived_baseline_face_rows": 0,
+      "face_count": 4,
+      "face_rows_minmax": [
+        38936,
+        39132
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          0.2568793448390577,
+          -0.9987608194351196,
+          0.1148441166447126
+        ],
+        "min": [
+          0.2560189962387085,
+          -0.998896491109096,
+          0.11444025486707687
+        ]
+      },
+      "pair_count": 4,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          0.259708434343338,
+          -0.9967281222343445,
+          0.11541402339935303
+        ],
+        "min": [
+          0.2550150156021118,
+          -1.0017104148864746,
+          0.11444025486707687
+        ]
+      },
+      "vertex_count": 7,
+      "vertex_rows_minmax": [
+        19748,
+        19873
+      ]
+    },
+    {
+      "O033_parent_rows_minmax": [
+        42030,
+        42042
+      ],
+      "baseline_exact_face_rows": 0,
+      "derived_baseline_face_rows": 4,
+      "face_count": 4,
+      "face_rows_minmax": [
+        41752,
+        41764
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          0.26527505885922614,
+          -1.0022657396858206,
+          0.125755769004607
+        ],
+        "min": [
+          0.26527500973948714,
+          -1.0022658323518367,
+          0.12575567173152782
+        ]
+      },
+      "pair_count": 4,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          0.26538407802581787,
+          -1.0018996000289917,
+          0.12604793906211853
+        ],
+        "min": [
+          0.26513102650642395,
+          -1.0024994611740112,
+          0.12568658590316772
+        ]
+      },
+      "vertex_count": 8,
+      "vertex_rows_minmax": [
+        21078,
+        21183
+      ]
+    },
+    {
+      "O033_parent_rows_minmax": [
+        49387,
+        49444
+      ],
+      "baseline_exact_face_rows": 1,
+      "derived_baseline_face_rows": 4,
+      "face_count": 5,
+      "face_rows_minmax": [
+        49051,
+        49106
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          0.26442199827766016,
+          -0.9764253496598421,
+          0.12596587865260256
+        ],
+        "min": [
+          0.2644219982629059,
+          -0.9764253501494791,
+          0.1259658783690773
+        ]
+      },
+      "pair_count": 4,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          0.2644355595111847,
+          -0.9753868579864502,
+          0.12652795016765594
+        ],
+        "min": [
+          0.26207801699638367,
+          -0.9765248894691467,
+          0.12591922283172607
+        ]
+      },
+      "vertex_count": 8,
+      "vertex_rows_minmax": [
+        24779,
+        24839
+      ]
+    },
+    {
+      "O033_parent_rows_minmax": [
+        15544,
+        15555
+      ],
+      "baseline_exact_face_rows": 1,
+      "derived_baseline_face_rows": 3,
+      "face_count": 4,
+      "face_rows_minmax": [
+        15391,
+        15402
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          -0.2998150390260371,
+          -0.9232145696788658,
+          0.1224603926077906
+        ],
+        "min": [
+          -0.29981534952940236,
+          -0.9232148558620241,
+          0.12246035114140186
+        ]
+      },
+      "pair_count": 3,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          -0.29981452226638794,
+          -0.9232140779495239,
+          0.12258271872997284
+        ],
+        "min": [
+          -0.302532434463501,
+          -0.9257195591926575,
+          0.12198873609304428
+        ]
+      },
+      "vertex_count": 7,
+      "vertex_rows_minmax": [
+        7754,
+        7807
+      ]
+    },
+    {
+      "O033_parent_rows_minmax": [
+        35748,
+        35867
+      ],
+      "baseline_exact_face_rows": 4,
+      "derived_baseline_face_rows": 0,
+      "face_count": 4,
+      "face_rows_minmax": [
+        35517,
+        35636
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          0.23474246263504028,
+          -0.9540323615074158,
+          0.0856442979623439
+        ],
+        "min": [
+          0.23386669445425862,
+          -0.9541070457158524,
+          0.08447109907865524
+        ]
+      },
+      "pair_count": 3,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          0.23476919531822205,
+          -0.9538878202438354,
+          0.08602342754602432
+        ],
+        "min": [
+          0.23340174555778503,
+          -0.9542335867881775,
+          0.08447109907865524
+        ]
+      },
+      "vertex_count": 6,
+      "vertex_rows_minmax": [
+        18055,
+        18126
+      ]
+    },
+    {
+      "O033_parent_rows_minmax": [
+        27467,
+        27512
+      ],
+      "baseline_exact_face_rows": 0,
+      "derived_baseline_face_rows": 3,
+      "face_count": 3,
+      "face_rows_minmax": [
+        27256,
+        27301
+      ],
+      "intersection_xyz_bbox_m": {
+        "max": [
+          -0.2810332179069519,
+          -0.8569293022155762,
+          0.13068871200084686
+        ],
+        "min": [
+          -0.2814124524593353,
+          -0.8571767210960388,
+          0.1300492137670517
+        ]
+      },
+      "pair_count": 2,
+      "triangle_xyz_bbox_m": {
+        "max": [
+          -0.2810332179069519,
+          -0.8567966818809509,
+          0.13069012761116028
+        ],
+        "min": [
+          -0.2814810574054718,
+          -0.8571767210960388,
+          0.1300492137670517
+        ]
+      },
+      "vertex_count": 5,
+      "vertex_rows_minmax": [
+        13891,
+        13927
+      ]
+    }
+  ],
+  "exact_pair_count": 78,
+  "intersection_point_count_histogram": {
+    "2": 72,
+    "5": 6
+  },
+  "pair_graph_component_count": 14,
+  "self_report_sha256": "e33476ce3c3f88cffe92366ea3be8ef86329795e16ae2509c5723e08044dc23c",
+  "status": "WITNESS_LOCALIZATION_ONLY",
+  "unique_intersecting_face_count": 75,
+  "witness_rows_in_self_json": 78
+}

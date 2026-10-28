@@ -1,0 +1,1 @@
+current_parent_registration=PASS same_material_donor_region=checked different_region=reject different_donor=reject missing_donor=reject wrong_reconstruction=reject atomic_output=true physical_steps=0

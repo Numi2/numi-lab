@@ -22122,7 +22122,26 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 <<" common_placement_translation_m=["<<placementReport.placement.translation[0]<<','
                 <<placementReport.placement.translation[1]<<','<<placementReport.placement.translation[2]<<']'
                 <<" common_placement_vertices="<<placementReport.placement.validatedVertices
-                <<" force_rows_added=0 simulation_steps=0"<<std::endl;
+                <<" common_placement_rotation=[";
+            for(unsigned c=0;c<9;++c){if(c)std::cout<<',';std::cout<<placementReport.placement.rotation[c];}
+            std::cout<<"] force_rows_added=0 simulation_steps=0"<<std::endl;
+            if(const char* sourceDump=std::getenv("NUMI_HUMAN_SKIN_REFERENCE_DUMP")) {
+                // Existing source-observation CSV, now also for the exact native
+                // candidate points. This is preparation evidence only.
+                std::ofstream dump(std::string(sourceDump)+".candidate033.csv");
+                require(dump.good(),"cannot open candidate033 native source observation");
+                dump<<std::setprecision(17)<<"vertex,donor,wx,wy,wz,nx,ny,nz,lx,ly,lz,m00,m01,m02,m10,m11,m12,m20,m21,m22\n";
+                for(std::size_t row=0;row<replacement.worldPoints.size();++row) {
+                    const auto point=candidatePointAt(row);
+                    const auto normal=skinVertexNormalWorld(candidateSkin,candidateSkin.vertices[row],static_cast<std::uint32_t>(row),pose,restPose);
+                    const auto local=candidateLocalAt(row,point);
+                    dump<<row<<','<<replacement.donorBodyIndices[row];
+                    for(const auto& v:{point,V3{normal.x,normal.y,normal.z},local})for(double x:v)dump<<','<<x;
+                    for(double x:candidateFrameAt(row))dump<<','<<x;
+                    dump<<'\n';
+                }
+                require(dump.good(),"candidate033 native source observation write failed");
+            }
             std::cout<<"candidate033_native_source_preflight=PASS"
                 <<" outer_vertices="<<importReport.nodeRows<<" outer_faces="<<importReport.faceRows
                 <<" direct_predecessor_rows="<<importReport.directPredecessorRows

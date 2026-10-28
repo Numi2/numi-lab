@@ -41,6 +41,7 @@ struct PhysicalSkinParentRegistrationRow {
     std::array<double,4> bary{};
     V3 residual{};
     double distance=0;
+    bool inferredCurrentParent=false;
 };
 struct PhysicalSkinFaceSourceRow {
     std::uint32_t sourceFace=NM_INVALID_INDEX,parentTet=NM_INVALID_INDEX,material=NM_INVALID_INDEX;
@@ -252,7 +253,9 @@ inline bool readRegistrations(const PhysicalSkinRegisteredSurfaceCSVFiles& f,
       b!=src.bary[a]||r!=src.residual[a]){e="node registration source embedding differs from surface sidecar";return false;}}
   auto& r=out.nodeParent[l][row];r.available=pt>=0;
   if(r.available){
-   if(!parseNumber(v[3],r.tet)||tie<0||v[2]!="source_parent_tet_reference_registration"){
+   r.inferredCurrentParent=v[2]=="inferred_current_parent_tet_same_material_donor_region";
+   if(!parseNumber(v[3],r.tet)||tie<0||tie>std::numeric_limits<std::uint32_t>::max()||
+      (v[2]!="source_parent_tet_reference_registration"&&!r.inferredCurrentParent)){
     e="node parent registration has invalid cell or method";return false;}
    double sum=0;for(unsigned a=0;a<4;++a){if(!number(v[4+a],r.bary[a])||r.bary[a]<-1e-8||r.bary[a]>1+1e-8){
       e="node parent barycentric is out of range";return false;}sum+=r.bary[a];}
@@ -408,6 +411,16 @@ struct PhysicalSkinSurfaceParentRegistrationReport {
             if((layer==0&&material!=15u)||(layer==1&&material!=15u&&material!=16u)||
                (layer==2&&material!=16u))
                 return fail(label("parent material does not match its skin/fat role"));
+            // This narrow inference is valid only when the surface donor is
+            // itself the anatomical region. Other geometric/anatomical label
+            // combinations require an explicit separately typed region map.
+            if(row.inferredCurrentParent&&
+               (s.donorBodyIndices.size()!=s.worldPoints.size()||
+                parent.donorBodyIndices.size()!=parent.tetrahedra.size()||
+                parent.anatomicalRegionIndices.size()!=parent.tetrahedra.size()||
+                parent.donorBodyIndices[row.tet]!=s.donorBodyIndices[node]||
+                parent.anatomicalRegionIndices[row.tet]!=s.donorBodyIndices[node]))
+                return fail(label("inferred current parent violates its explicit same-donor-region restriction"));
             V3 reconstructed=row.residual;double sum=0.;
             for(unsigned c=0;c<4;++c){
                 const auto v=parent.tetrahedra[row.tet][c];const auto beta=row.bary[c];

@@ -1,0 +1,100 @@
+{
+  "canonical_faces_sha256": "77138f1ebf882611a57955f310cb974141334818dda3c059656ef003d25a8ad8",
+  "canonical_nodes_sha256": "9e1fcdcb2d8812718a2cabd37908b4064553d89f8e3bab54a151afb75045b3cd",
+  "canonical_preparation_receipt_sha256": "4e131369dc283da8185073e4611413386f44f2957c7cc3728d561b560a33a23f",
+  "classification": "actual native emitted geometry and pose parity audit only; no physical qualification",
+  "common_placement": {
+    "determinant": 1.0000000000000002,
+    "orthogonality_max_abs_error": 2.220446049250313e-16,
+    "rotation_row_major": [
+      0.9999999999999996,
+      -7.6046974895341e-10,
+      -3.195341290709369e-08,
+      7.604699335557185e-10,
+      1.0,
+      5.777232895524813e-09,
+      3.195341290270028e-08,
+      -5.77723291982442e-09,
+      0.9999999999999996
+    ],
+    "translation_m": [
+      1.188898923754067e-09,
+      -1.256228454593611e-10,
+      -5.654962409167019e-06
+    ]
+  },
+  "counts": {
+    "faces": 63959,
+    "flipped_orientation_faces": 0,
+    "native_donors_match_canonical": 32002,
+    "native_f32_exact_rows": 32002,
+    "native_nodes": 32002,
+    "native_or_expected_degenerate_faces": 0,
+    "repeated_index_faces": 0
+  },
+  "face_orientation": {
+    "bad_face_witnesses": [],
+    "min_cosine": 0.8821595705659993,
+    "min_native_area2_m2": 6.76082906595338e-13
+  },
+  "gates": {
+    "all_points_finite": true,
+    "current_body_pose_parity_under_2um_and_1e-6_rotation": true,
+    "donors_match_canonical": true,
+    "face_indices_valid": true,
+    "native_donor_frame_reconstruction_under_2um": true,
+    "no_face_orientation_flips": true,
+    "no_repeated_or_degenerate_faces": true,
+    "point_common_frame_residual_under_2um": true,
+    "source_rest_pose_parity_under_1e-6": true
+  },
+  "native_csv": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-kind-aware-source-preflight-226/run-006-native-emission/registered-skin-100-native.csv.candidate033.csv",
+  "native_csv_sha256": "0280ea7f3563304a9969e2facc8b9bb083bce44d5206b85179ccbdf4c809a462",
+  "native_emission_receipt": {
+    "binary_sha256": "ad7bc58599f985840aa7930c38fc6b7314eeb4f7fa9363866d0c373712bfb1ba",
+    "changed_child_volume_admitted": false,
+    "elapsed_s": 10.254425625083968,
+    "exit_code": 0,
+    "physical_steps": 0,
+    "runtime_created": false
+  },
+  "native_frame_reconstruction": {
+    "max_local_reconstruction_residual_m": 5.1159837806235057e-08,
+    "max_world_to_local_matrix_residual": 1.0422726814951488e-07,
+    "worst_local_vertex": 15250,
+    "worst_matrix_vertex": 16092
+  },
+  "native_pose_sha256": "eb2ae08f74852f08d5b08a18f3d7738b53b8e7265336f77646cbe8f949ece117",
+  "native_stdout_sha256": "631ce8ea45eb4bb1078b04efad3061af99a881ecba428273ebdb374c0170c71a",
+  "normal_parity": {
+    "max_vector_residual": 5.342734187638152e-07,
+    "min_cosine": 0.9999999999998576
+  },
+  "point_parity": {
+    "exact_expected_f32_rows": 435,
+    "float32_ulp_metric": "monotone ordered IEEE-754 binary32 bit distance",
+    "max_axis_residual_m": 4.1718269860879786e-07,
+    "max_euclidean_residual_m": 4.3438164656950413e-07,
+    "max_float32_ulp_delta": 4762290,
+    "p95_euclidean_residual_m": 2.0296945366142328e-07,
+    "worst_vertex_row": 13564
+  },
+  "pose_parity": {
+    "body_count": 86,
+    "max_current_position_body": 110,
+    "max_current_position_residual_m": 2.226411636643391e-08,
+    "max_current_rotation_body": 50,
+    "max_current_rotation_matrix_residual": 3.2369909880140824e-08,
+    "max_rest_position_body": 1,
+    "max_rest_position_residual_m": 0.0,
+    "max_rest_rotation_body": 1,
+    "max_rest_rotation_matrix_residual": 0.0
+  },
+  "source_pose_sha256": "0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",
+  "source_rest_orientation_from_canonical_preparation": {
+    "degenerate_faces": 0,
+    "flipped_faces": 179,
+    "minimum_face_cosine": -0.24191498363228048
+  },
+  "status": "CHEAP_GATES_COMPLETE"
+}

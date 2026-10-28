@@ -1,0 +1,2 @@
+actual_parent_registration=PASS checked=32002,15022,15022 max_error_m=2.22478e-16,1.38778e-17,2.77556e-17
+parent_reconstruction_guard_regressions=PASS native_physical_steps=0

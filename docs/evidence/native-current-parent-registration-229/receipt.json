@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-current-parent-registration-229/check",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/volume-worker/registered-surface-sidecar-222/attempt-018-native-current-reference",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-label-capture-016/compiled-parent-cell-mass.csv",
+    "--expect-pass"
+  ],
+  "exit_code": 0,
+  "physical_steps": 0,
+  "changed_volume_admitted": false,
+  "scope": "strict current-parent registration; not geometry or motion qualification",
+  "hashes": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-current-parent-registration-229/check.cpp": "482a5a4b3296d4e6b66dc21ff3b04a6ea8b5170984a181a65c0b3ea856b362fd",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-current-parent-registration-229/check": "a1e704305dc18b91472cb7c31617e3aa52456df40fe3ed1527f9b9e49e86887d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-current-parent-registration-229/stdout.txt": "9ad051ca9e2f23cc5f350b0df7f8d101116625e9873b0821ee25b301aa6cb96a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-current-parent-registration-229/stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "parent": "0431f308ba95fc06ce8736375f8863b384a1eba1",
+  "native_physical_steps": 0,
+  "changed_volume_admitted": false,
+  "native_source_self_intersections": 78,
+  "unit_command": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-current-parent-registration-229/current-parent-unit"
+  ],
+  "source_hashes": {
+    "apps/NumiHumanPhysicalSkinChildRegisteredSurfaceSidecars.hpp": "d3ed08d561c1a18ba328851fb0fa2ef79617af93ea768e02827a3dec5b091d90",
+    "tests/human_skin_current_parent_registration.cpp": "2112190d3002e0acd1d9589f05eafc09d057b7ac7413eea31d5f04bf919a7200"
+  },
+  "scoped_app_sha256": "0235add33f7c959872e3e3585efacead8bd5a0738d336282a756a526e6a0da21",
+  "files": {
+    "docs/evidence/native-current-parent-registration-229/README.md": "34358e641f191abeec32257b04c2d4b8f1b005121b52a54d797e1123fce7a637",
+    "docs/evidence/native-current-parent-registration-229/audit_native_emission_006.py": "e5221f9d77affa591de34f18f67c16be5505a78a93dbf37790154d12f7ad6b6b",
+    "docs/evidence/native-current-parent-registration-229/cheap-gates.json": "2657b550f4f06241f36979a0d2a9bd43a4afaa3f215fe0f4d67f2e9b6286d052",
+    "docs/evidence/native-current-parent-registration-229/check.cpp": "482a5a4b3296d4e6b66dc21ff3b04a6ea8b5170984a181a65c0b3ea856b362fd",
+    "docs/evidence/native-current-parent-registration-229/native-launch.json": "3e8d9695739ffb28823ef819b2f861d3bd974474d3a3d4598e1422c9caa53cc2",
+    "docs/evidence/native-current-parent-registration-229/native-receipt.json": "da0f4395f4b46a427560225d804723493ae8f3fc311309bc5dc94f2705dfdda4",
+    "docs/evidence/native-current-parent-registration-229/native-stderr.txt": "c56fe647984255c756d5c26d03053e9b11b9c81e38ef5daa9673851eb90a2396",
+    "docs/evidence/native-current-parent-registration-229/native-stdout.txt": "631ce8ea45eb4bb1078b04efad3061af99a881ecba428273ebdb374c0170c71a",
+    "docs/evidence/native-current-parent-registration-229/receipt.json": "9b8b3cde4b659866af1d89e6c4e88cbbb46da9d988bc151325aafdb4adcd3df8",
+    "docs/evidence/native-current-parent-registration-229/self.json": "e33476ce3c3f88cffe92366ea3be8ef86329795e16ae2509c5723e08044dc23c",
+    "docs/evidence/native-current-parent-registration-229/stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/evidence/native-current-parent-registration-229/stdout.txt": "9ad051ca9e2f23cc5f350b0df7f8d101116625e9873b0821ee25b301aa6cb96a",
+    "docs/evidence/native-current-parent-registration-229/unit.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/evidence/native-current-parent-registration-229/unit.stdout.txt": "46db4273f951caf2ebfccdfd981d08186c92ac0f78f0eb66c0090c2c9f07c695",
+    "docs/evidence/native-current-parent-registration-229/witness-localization.json": "44d403639542e5eed112c2d2b8ffdd157f7090b83ab405760f22897c39f71686"
+  }
+}
