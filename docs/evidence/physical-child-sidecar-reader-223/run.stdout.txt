@@ -1,0 +1,1 @@
+registered-sidecar-reader=PASS attempt006=expected_reject_I2411 attempt007=PASS O=32218/63959 I=15022/29999 D=15022/29999 donor_frames=86 I_D_parent_registration=15022/15022 O_parent_registration_unavailable=32218 I_source_vertices=2411 I_source_faces=12611 D_source_vertices=2411 D_source_faces=12611 bad_hash=reject_atomic physical_admission=false child_volume_maps=unavailable

@@ -1,0 +1,105 @@
+{
+  "status": "PASS_REGISTERED_SURFACE_SIDECARS_ONLY",
+  "classification": "strict O/I/D RegisteredSurface sidecar parse; not a changed-child volume import or physical admission",
+  "published_base_commit": "384c24870c8d3484114dbe10cd7c61e06cb18ebf",
+  "worktree_head_during_check": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "reader_header": "apps/NumiHumanPhysicalSkinChildRegisteredSurfaceSidecars.hpp",
+  "reader_header_sha256": "a838abbc677923a7a043faa63ad701eda113f9ab291d97c557f26876998a96ce",
+  "compile": {
+    "compiler": "/usr/bin/c++",
+    "standard": "C++23",
+    "flags": [
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror"
+    ],
+    "result": "PASS"
+  },
+  "attempt_006": {
+    "result": "EXPECTED_REJECT",
+    "witness": "I node 2411 source beta outside the native registered-source tolerance",
+    "source_beta": [
+      0.5000012117859428,
+      -1.7837966222076952e-06,
+      0.5000005720106794
+    ],
+    "native_tolerance": 1e-08,
+    "partial_output_published": false
+  },
+  "attempt_007_normalized_source_bary": {
+    "result": "PASS_SURFACE_SIDECARS",
+    "nodes_O_I_D": [
+      32218,
+      15022,
+      15022
+    ],
+    "faces_O_I_D": [
+      63959,
+      29999,
+      29999
+    ],
+    "donor_frame_rows": 86,
+    "parent_reference_rows_I_D": [
+      15022,
+      15022
+    ],
+    "unavailable_outer_parent_reference_rows": 32218,
+    "direct_source_nodes_I_D": [
+      2411,
+      2411
+    ],
+    "source_face_embedded_nodes_I_D": [
+      12611,
+      12611
+    ],
+    "bad_hash_negative": "rejected atomically",
+    "source_bary_normalization": {
+      "changed_rows": 4526,
+      "maximum_abs_bary_delta": 6.132083583864742e-05,
+      "maximum_source_point_shift_m": 2.2943821318902677e-06,
+      "maximum_world_reconstruction_error_m": 0.0,
+      "raw_values_retained": true
+    },
+    "registered_I_sha256": "746f3db1679b1db94112ee183e148fa4351b3582eeb33acac6142f30287bf680",
+    "registered_D_sha256": "be864434b74a46fe1c0b0c9316238fec6dff527c7c6523f450ccbaa0760ec8dc",
+    "node_registration_sha256": "f22cd8a808f101b00e7daaab882fc16ac8748beea8319281d03d977fb3ef4de9",
+    "normalization_delta_sha256": "0058eea037a17a68c72ffd5e62f90ed2c6f22a90222584aac431bcf5e82dafed",
+    "source_ancestry_unchanged": true,
+    "parent_cell_registration_unchanged": true
+  },
+  "inputs": {
+    "attempt_007_directory": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/volume-worker/registered-surface-sidecar-222/attempt-007-normalized-source-bary",
+    "registered_I_sha256": "746f3db1679b1db94112ee183e148fa4351b3582eeb33acac6142f30287bf680",
+    "registered_D_sha256": "be864434b74a46fe1c0b0c9316238fec6dff527c7c6523f450ccbaa0760ec8dc",
+    "node_parent_registration_sha256": "f22cd8a808f101b00e7daaab882fc16ac8748beea8319281d03d977fb3ef4de9",
+    "source_bary_normalization_delta_sha256": "0058eea037a17a68c72ffd5e62f90ed2c6f22a90222584aac431bcf5e82dafed",
+    "source_ancestry_unchanged": true,
+    "parent_cell_registration_unchanged": true
+  },
+  "missing_for_changed_child_bundle": {
+    "production_child_node_element": true,
+    "child_volume_node_frame_parent_maps": true,
+    "child_registered_facet_maps": true,
+    "physical_admission": false
+  },
+  "native_or_gpu_steps": 0,
+  "reader_check_sha256": "f227482c910a2254bd722a5cbcbd224e9dbc0c989239598d54915a6dddd51bc0",
+  "reader_result": {
+    "attempt_006": "expected reject at I node 2411 under native 1e-8 source-bary tolerance",
+    "attempt_007": "registered O/I/D sidecar parse passed",
+    "bad_hash": "rejects atomically"
+  },
+  "verification": {
+    "command": "/usr/bin/c++ -Iapps -Iinclude -Imatter/include -std=c++23 -O1 -Wall -Wextra -Wpedantic -Werror reader-check.cpp -o /tmp/registered-sidecar-reader-check; /usr/bin/time -p /tmp/registered-sidecar-reader-check <attempt-root>",
+    "compile_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run_stdout_sha256": "927a12f106a4d1f13560ced17938b91654331eab5d043a2bae53d6544e0a80e9",
+    "run_stderr_sha256": "5316a116067ce12fc66fc484357586a545c0d8cd4be4bccf7aacbdf270750a0a",
+    "commands_and_scope_sha256": "754fe06dc1c448c8ba6520ff3c7fe4ce9d32d2159bb133c2778fcbd8dcf56228",
+    "run_stdout": "registered-sidecar-reader=PASS attempt006=expected_reject_I2411 attempt007=PASS O=32218/63959 I=15022/29999 D=15022/29999 donor_frames=86 I_D_parent_registration=15022/15022 O_parent_registration_unavailable=32218 I_source_vertices=2411 I_source_faces=12611 D_source_vertices=2411 D_source_faces=12611 bad_hash=reject_atomic physical_admission=false child_volume_maps=unavailable",
+    "run_wall_seconds": 0.67,
+    "run_script_sha256": "b3f9baf82cd5ff9a8005bcb61d8c1b241f75cf9881e3bd0610b4c682774534fa"
+  }
+}
