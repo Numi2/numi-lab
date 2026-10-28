@@ -1,0 +1,12 @@
+#pragma once
+#include <array>
+#include <cstdint>
+#include <string_view>
+namespace numi::human::candidate033 {
+inline constexpr std::uint32_t kPayloadABI=5u,kBindingCount=86u,kOuterVertexCount=32218u,kOuterFaceCount=64391u,kRegistrationFingerprint=835155552u;
+inline constexpr std::array<std::uint64_t,4> kReferenceSourceIdentity={12666902573041796181ull,69675743842663591ull,16924829067707252289ull,17277715869547924033ull};
+inline constexpr std::string_view kNHSKIN="candidate-d37-033.nhskin",kRegisteredOuter="registered-O.csv",kOuterFaces="registered-O-faces.csv",kFull86Weights="full-weights.csv.gz",kDonorFrames="donor-frames.csv",kSourceMap="source-transfer-map.csv",kReplay="reference-f32-replay.csv";
+inline constexpr std::string_view kCandidateSHA256="549fab40b3cdfec2d0e1c9a004451d276f87b445f1c7dc9d5a56c1b5a1a53be4",kD37PayloadSHA256="7456bd4e1c646207ac69978a31a0298464d1e157b96ac4d97683051120738ddb",kD37PoseSHA256="0e476dcacbf89bc79b986a312c75b0dca3894972db87ecff0f9e2d95f3ce48cd",kD37RegisteredCSVGzipSHA256="5f90732814c2eb7d372c25ff1336e5e884df28d4463185bc70e398aecfef0e61",kBaseline806SHA256="806abdf650524b249951c81a95cd467e1a3864d24c2cb185b5a8c3297cf1c756",kReferenceIdentitySHA256="5544a32ec7e0c9afa7fc3349b889f700417ee5905d12e1ea418a88c60ac7c6ef";
+inline constexpr std::string_view kOutputPayloadSHA256="14096a1251feb89275c1dea7a608349d9f15ada3e80e30799e3e1490178bb0f4",kRegisteredOuterSHA256="f616322624d59c212ad7118bf3644bba4e934161d3fb3cc1da563cd1df950d79",kOuterFacesSHA256="0394349528b9c493e7f2a289164da6ed0ae2f194835987838acb4a7040335f73",kFull86WeightsSHA256="0fb85542fab9af40b37e06d572f67f0fbc0361efc92d778a3a0f58cf581b599d",kDonorFramesSHA256="ccd067c073c89cf928961a6b67985ffe761277a287edd1637b7917f66d4dac13";
+inline constexpr bool kPhysicalAdmission=false;
+}

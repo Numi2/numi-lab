@@ -31,6 +31,18 @@ public:
             if (error) *error = "render transfer exceeds uint32 index range";
             return false;
         }
+        directPositionRows_=true;
+        for(const auto& row:rows) {
+            unsigned unit=0;float sum=0.0f;
+            for(unsigned c=0;c<3;++c) {
+                if(row.coarseVertex[c]>=coarseCount||!std::isfinite(row.weight[c])||row.weight[c]<0) {
+                    if(error)*error="render transfer row has invalid physical node or weight";
+                    reset();return false;
+                }
+                unit+=row.weight[c]==1.0f;sum+=row.weight[c];
+            }
+            if(sum!=0.0f&&(sum!=1.0f||unit!=1||row.restDistance!=0.0f))directPositionRows_=false;
+        }
         static_assert(sizeof(Row) == 32, "transfer row ABI");
         static_assert(sizeof(MRVisualVertexGPUV2) == 80, "renderer vertex ABI size");
         static_assert(offsetof(MRVisualVertexGPUV2, position) == 0, "renderer position offset");
@@ -119,8 +131,23 @@ public:
             const auto& p=currentBaseline[i];
             baselineBytes[i]={float(p[0]),float(p[1]),float(p[2]),1.0f};
         }
+        absolutePositions_=false;
         if (error) error->clear();
         return true;
+    }
+
+    // For a conforming detail vertex that is exactly one physical FEM node,
+    // copy the accepted position without LBS + displacement cancellation.
+    // No geometry is integrated here; all positions come from one accepted snapshot.
+    bool updateAcceptedPositions(const std::vector<std::array<float,4>>& positions,
+                                 const std::vector<Point>& currentBaseline,
+                                 std::string* error) {
+        if(!directPositionRows_) {
+            if(error)*error="absolute skin positions require exact one-hot physical-node ancestry";
+            return false;
+        }
+        if(!updateAcceptedState(positions,currentBaseline,error))return false;
+        absolutePositions_=true;return true;
     }
 
     template<class EncoderCallbacks>
@@ -128,7 +155,7 @@ public:
                 std::uint32_t skinFirstVertex) const {
         if (!pipeline_ || !rows_ || !baseline_ || !delta_ || !meshVertices ||
             !encoder.valid()) return false;
-        const std::uint32_t parameters[2] = {rowCount_, skinFirstVertex};
+        const std::uint32_t parameters[4] = {rowCount_, skinFirstVertex, absolutePositions_?1u:0u, 0u};
         encoder.setPipeline(encoder.context, (__bridge void*)pipeline_);
         encoder.setBytes(encoder.context, parameters, sizeof(parameters), 0);
         encoder.setBuffer(encoder.context, (__bridge void*)rows_, 0, 1);
@@ -148,6 +175,7 @@ public:
         delta_ = nil;
         pipeline_ = nil;
         rowCount_ = coarseCount_ = 0;
+        absolutePositions_=false;directPositionRows_=false;
     }
 
 private:
@@ -181,7 +209,7 @@ inline float3 rotateNormal(float3 v, float3 from, float3 to) {
     return v + 2.0f*cross(q, cross(q,v)+w*v);
 }
 kernel void nm_human_accepted_fem_skin_transfer(
-    constant uint2& parameters [[buffer(0)]],
+    constant uint4& parameters [[buffer(0)]],
     device const TransferRow* rows [[buffer(1)]],
     device const float4* coarseDelta [[buffer(2)]],
     device MRVisualVertexGPUV2* vertices [[buffer(3)]],
@@ -196,12 +224,17 @@ kernel void nm_human_accepted_fem_skin_transfer(
     const float3 d2=coarseDelta[row.coarse2].xyz;
     const float3 displacement=row.weight0*d0+row.weight1*d1+row.weight2*d2;
     device MRVisualVertexGPUV2& rv=vertices[parameters.y+i];
-    rv.position.xyz+=displacement;
+    if(parameters.z!=0u) {
+        // One-hot admission guarantees a direct load, preserving every F32 bit.
+        const uint selected=row.weight0==1.0f?row.coarse0:
+            (row.weight1==1.0f?row.coarse1:row.coarse2);
+        rv.position.xyz=coarseDelta[selected].xyz;
+    } else rv.position.xyz+=displacement;
 
     const float3 e10=currentBaseline[row.coarse1].xyz-currentBaseline[row.coarse0].xyz;
     const float3 e20=currentBaseline[row.coarse2].xyz-currentBaseline[row.coarse0].xyz;
     const float3 oldCross=cross(e10,e20);
-    const float3 newCross=cross(e10+d1-d0,e20+d2-d0);
+    const float3 newCross=parameters.z!=0u?cross(d1-d0,d2-d0):cross(e10+d1-d0,e20+d2-d0);
     const float oldLen=length(oldCross),newLen=length(newCross);
     if (oldLen>1.0e-12f && newLen>1.0e-12f) {
         const float3 oldN=oldCross/oldLen,newN=newCross/newLen;
@@ -220,6 +253,7 @@ kernel void nm_human_accepted_fem_skin_transfer(
     __strong id<MTLBuffer> delta_ = nil;
     __strong id<MTLComputePipelineState> pipeline_ = nil;
     std::uint32_t rowCount_ = 0, coarseCount_ = 0;
+    bool absolutePositions_=false,directPositionRows_=false;
 };
 } // namespace numi::human
 

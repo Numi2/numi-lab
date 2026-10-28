@@ -20,6 +20,8 @@
 #include "NumiHumanAcceptedFEMSkinTransfer.hpp"
 #include "NumiHumanSkinBoundaryNodeMap.hpp"
 #include "NumiHumanUnpairedSkinFatVolume.hpp"
+#include "NumiHumanRegisteredSkinCandidateCSV.hpp"
+#include "NumiHumanCandidateSkin033.hpp"
 #include "NumiHumanCompiledSkinFatMassCapture.hpp"
 #include "NumiHumanUnpairedSkinFatContactDispatch.hpp"
 #include "NumiHumanElbowBaselineProlongation065.hpp"
@@ -20456,6 +20458,7 @@ struct PassiveFasciaRuntimeOwner {
     std::vector<numi::human::AcceptedFEMSkinTransfer::Point> wholeBodySkinCurrentBaseline;
     std::vector<numi::human::AcceptedFEMSkinTransfer::Point> wholeBodySkinAcceptedOuter;
     std::vector<std::array<float,4>> wholeBodySkinAcceptedDeltas;
+    bool wholeBodySkinExactPhysicalNodes=false;
     std::uint32_t wholeBodySkinFirstGlobalTetrahedron=NM_INVALID_INDEX;
     std::vector<std::uint32_t> wholeBodySkinSourceNodeRegionLabels;
     std::vector<std::uint32_t> wholeBodySkinSourceTetRegionLabels;
@@ -21707,6 +21710,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::vector<AcceptedSkinTransfer::Point> wholeBodySkinCurrentBaseline;
     std::vector<AcceptedSkinTransfer::Point> wholeBodySkinAcceptedOuter;
     std::vector<std::array<float,4>> wholeBodySkinAcceptedDeltas;
+    bool wholeBodySkinExactPhysicalNodes=false;
     std::uint32_t wholeBodySkinObjectIndex=NM_INVALID_INDEX;
     std::uint32_t wholeBodySkinNodesPerLayer=0u;
     bool wholeBodySkinSelfContactBound=false;
@@ -21935,6 +21939,59 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             require(body<pose.size(),"registered skin frame body is outside the current Human pose");
             const auto& q=pose[body].orientation;const mr_float4 inverse{-q.x,-q.y,-q.z,q.w};std::array<double,9> m{};
             for(unsigned c=0;c<3;c++){mr_float4 e{c==0?1.0f:0.0f,c==1?1.0f:0.0f,c==2?1.0f:0.0f,0.0f};const auto r=rotatePoint(inverse,e);m[c]=r.x;m[3+c]=r.y;m[6+c]=r.z;}return m;};
+        if(const char* candidateDirectory=std::getenv("NUMI_HUMAN_SKIN_FAT_CANDIDATE033_SOURCE_PREFLIGHT")) {
+            namespace candidate033=numi::human::candidate033;
+            const char* captureOnly=std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_MASS_CAPTURE_ONLY");
+            require(preparationOnly&&enableWholeBodySkinFat&&captureOnly&&std::string_view(captureOnly)=="1",
+                    "candidate033 source preflight requires source-only parent-mass capture; replacement cells are not admitted");
+            const std::filesystem::path directory(candidateDirectory);
+            const auto payload=directory/candidate033::kNHSKIN;
+            require(loadedKneeSHA256Hex(loadedKneeFileSHA256(payload))==candidate033::kOutputPayloadSHA256,
+                    "candidate033 source payload SHA mismatch");
+            RigidHeader parentRigid{};parentRigid.sourceSha256=skin->header.sourceSha256;
+            parentRigid.engineBodyCount=static_cast<std::uint32_t>(model.bodies.size());
+            auto candidateSkin=loadSkin(payload,parentRigid,skin->header.registrationFingerprint);
+            require(candidateSkin.vertices.size()==candidate033::kOuterVertexCount&&
+                        candidateSkin.indices.size()==3u*candidate033::kOuterFaceCount&&
+                        candidateSkin.bindings.size()==candidate033::kBindingCount&&
+                        candidateSkin.fullWeights.size()==candidateSkin.vertices.size()*candidateSkin.bindings.size(),
+                    "candidate033 full-weight source lost its typed topology or binding domain");
+            RegisteredSurface identity;identity.name="candidate033 connected reference skin";
+            identity.provider="BodyParts3D registered reference assembly; inferred local repairs";
+            identity.sourceMember=payload.string();identity.aggregateIdentity=true;
+            identity.sourceMeshSHA256=std::string(candidate033::kRegisteredOuterSHA256);
+            identity.sourcePayloadSHA256=std::string(candidate033::kOutputPayloadSHA256);
+            RegisteredSurface replacement;RegisteredSkinCandidateCSVReport importReport;
+            const auto hashFile=[](const std::filesystem::path& file){return loadedKneeSHA256Hex(loadedKneeFileSHA256(file));};
+            require(loadRegisteredSkinCandidateCSV(directory/candidate033::kRegisteredOuter,
+                        directory/candidate033::kOuterFaces,pose.size(),identity,
+                        candidate033::kOuterFacesSHA256,hashFile,replacement,importReport,tissueError),
+                    "candidate033 registered outer import rejected: "+tissueError);
+            require(replacement.worldPoints.size()==candidateSkin.vertices.size()&&
+                        replacement.faces.size()*3u==candidateSkin.indices.size(),
+                    "candidate033 physical/source surface domains differ");
+            for(std::size_t f=0;f<replacement.faces.size();++f)for(unsigned c=0;c<3;++c)
+                require(replacement.faces[f][c]==candidateSkin.indices[3u*f+c],
+                        "candidate033 physical/source face ordering differs");
+            double maximumFrameResidualM=0.0,maximumSkinningResidualM=0.0;
+            for(std::size_t row=0;row<replacement.worldPoints.size();++row) {
+                const auto local=localAt(static_cast<std::uint32_t>(row),replacement.donorBodyIndices[row],replacement.worldPoints[row]);
+                maximumFrameResidualM=std::max(maximumFrameResidualM,norm(sub(local,replacement.donorLocalPoints[row])));
+                const auto skinWorld=skinVertexWorld(candidateSkin,candidateSkin.vertices[row],static_cast<std::uint32_t>(row),pose);
+                const V3 rendered{skinWorld.x,skinWorld.y,skinWorld.z};
+                maximumSkinningResidualM=std::max(maximumSkinningResidualM,norm(sub(rendered,replacement.worldPoints[row])));
+            }
+            require(maximumFrameResidualM<=2.0e-6&&maximumSkinningResidualM<=2.0e-6,
+                    "candidate033 reference frame does not match the native parent cook");
+            std::cout<<"candidate033_native_source_preflight=PASS"
+                <<" outer_vertices="<<importReport.nodeRows<<" outer_faces="<<importReport.faceRows
+                <<" direct_predecessor_rows="<<importReport.directPredecessorRows
+                <<" derived_predecessor_rows="<<importReport.derivedPredecessorRows
+                <<" maximum_native_frame_residual_m="<<maximumFrameResidualM
+                <<" maximum_native_skinning_residual_m="<<maximumSkinningResidualM
+                <<" physical_skin_owner=existing_Matter_FEM replacement_cells=not_admitted"
+                <<" simulation_steps=0 physical_qualification=not_claimed"<<std::endl;
+        }
         // Optional source-pose inspection paired with the registered CSV. This
         // reuses the renderer's existing serializer and does not alter physics.
         if(const char* path=std::getenv("NUMI_HUMAN_SKIN_REFERENCE_POSE_DUMP")) {
@@ -22757,6 +22814,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         wholeBodySkinTransferReport.inactiveRows==
                             static_cast<std::size_t>(std::count(detailUsed.begin(),detailUsed.end(),std::uint8_t(0))),
                     "whole-body accepted FEM skin transfer lost rendered-vertex coverage");
+            wholeBodySkinExactPhysicalNodes=detailCount==region.worldPoints.size()&&
+                wholeBodySkinTransferReport.projectedRows==0&&wholeBodySkinTransferReport.ancestryFallbackRows==0&&
+                wholeBodySkinTransferReport.exactAncestryRows+wholeBodySkinTransferReport.inactiveRows==detailCount;
+            for(const auto& row:wholeBodySkinTransfer->rows()) {
+                const auto active=row.weight[0]+row.weight[1]+row.weight[2]>0;
+                if(active&&row.restDistance!=0.0f)wholeBodySkinExactPhysicalNodes=false;
+            }
             wholeBodySkinFirstGlobalFEMNode=preparedSkin.firstGlobalFEMNode;
             wholeBodySkinCoarseNodeCount=region.worldPoints.size();
             wholeBodySkinSourceCurrentByID=wholeBodySkinSourceRestByID;
@@ -23751,6 +23815,32 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             contributions<<row.parentNodeIndex<<','<<row.materialIndex<<','<<row.donorBodyIndex<<','<<row.massKg
                          <<','<<row.donorLocalPosition[0]<<','<<row.donorLocalPosition[1]<<','<<row.donorLocalPosition[2]<<'\n';
         contributions.flush();require(contributions.good(),"skin/fat parent source-mass ledger write failed");
+        std::ofstream geometryNodes(std::string(ledgerPath)+".nodes.csv",std::ios::out|std::ios::binary|std::ios::trunc);
+        std::ofstream geometryTets(std::string(ledgerPath)+".tets.csv",std::ios::out|std::ios::binary|std::ios::trunc);
+        require(geometryNodes.good()&&geometryTets.good(),"could not create exact parent volume geometry CSVs");
+        geometryNodes<<"parent_node_index,compiled_global_node,current_x_m,current_y_m,current_z_m,rest_x_m,rest_y_m,rest_z_m,compiled_lumped_mass_kg,node_frame_owner_body,donor_local_x_m,donor_local_y_m,donor_local_z_m,mass_bits\n"<<std::setprecision(17);
+        const auto& referenceNodes=object.femReferenceNodes.empty()?object.femNodes:object.femReferenceNodes;
+        for(std::size_t row=0;row<object.femNodes.size();++row) {
+            const auto global=descriptor.stateOffset+row;
+            const auto& point=compiled.world.fem.nodes[global].positionAndMass;
+            std::uint32_t bits=0;static_assert(sizeof(bits)==sizeof(point.w));std::memcpy(&bits,&point.w,sizeof(bits));
+            geometryNodes<<row<<','<<global<<','<<point.x<<','<<point.y<<','<<point.z<<','
+                <<referenceNodes[row][0]<<','<<referenceNodes[row][1]<<','<<referenceNodes[row][2]<<','
+                <<point.w<<','<<donorBodies[row]<<','<<donorLocal[row][0]<<','<<donorLocal[row][1]<<','<<donorLocal[row][2]<<','<<bits<<'\n';
+        }
+        geometryTets<<"parent_tet_row,material_index,donor_body,parent_node0,parent_node1,parent_node2,parent_node3,parent_reference_volume_m3,parent_mass_kg\n"<<std::setprecision(17);
+        for(std::size_t row=0;row<object.tetrahedra.size();++row) {
+            const auto& corners=object.tetrahedra[row].nodes;
+            std::map<std::uint32_t,unsigned> counts;for(const auto node:corners)++counts[donorBodies[node]];
+            std::uint32_t dominant=NM_INVALID_INDEX;unsigned largest=0;
+            for(const auto& [body,count]:counts)if(count>largest){dominant=body;largest=count;}
+            const auto volume=std::abs(tetVolume(referenceNodes[corners[0]],referenceNodes[corners[1]],referenceNodes[corners[2]],referenceNodes[corners[3]]));
+            require(volume>0&&std::isfinite(volume),"parent volume geometry CSV contains invalid reference tet");
+            geometryTets<<row<<','<<(object.femMaterialIndices.empty()?object.materialIndex:object.femMaterialIndices[row])
+                <<','<<dominant;for(const auto node:corners)geometryTets<<','<<node;
+            geometryTets<<','<<volume<<','<<parentMass[row]<<'\n';
+        }
+        geometryNodes.flush();geometryTets.flush();require(geometryNodes.good()&&geometryTets.good(),"parent volume geometry CSV write failed");
         std::cout<<"whole_body_compiled_skin_fat_parent_mass=PASS nodes="<<captureReport.nodeCount
                  <<" tets="<<captureReport.tetrahedronCount<<" mass_kg="<<std::setprecision(17)<<captureReport.parentMassKg
                  <<" source_rows="<<sourceMass.size()<<" nodal_closure_error_kg="
@@ -25888,6 +25978,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     owner->wholeBodySkinCurrentBaseline=std::move(wholeBodySkinCurrentBaseline);
     owner->wholeBodySkinAcceptedOuter=std::move(wholeBodySkinAcceptedOuter);
     owner->wholeBodySkinAcceptedDeltas=std::move(wholeBodySkinAcceptedDeltas);
+    owner->wholeBodySkinExactPhysicalNodes=wholeBodySkinExactPhysicalNodes;
     owner->massPartitions=std::move(effectiveMassPartitions);
     owner->aorticWall=std::move(aorticWall);
     owner->aorticWallNodalMassKg=std::move(aorticWallNodalMassKg);
@@ -35351,7 +35442,8 @@ int main(int argc, char** argv) {
                             :std::span<const std::array<std::uint32_t,3>>{});
                     if(restingPassiveFasciaOwner&&restingPassiveFasciaOwner->wholeBodySkinTransfer&&!mechanicsOnly)
                         liveVisual->configureAcceptedFEMSkinTransfer(
-                            restingPassiveFasciaOwner->wholeBodySkinTransfer->rows(),restingPassiveFasciaOwner->wholeBodySkinCoarseRest);
+                            restingPassiveFasciaOwner->wholeBodySkinTransfer->rows(),restingPassiveFasciaOwner->wholeBodySkinCoarseRest,
+                            restingPassiveFasciaOwner->wholeBodySkinExactPhysicalNodes);
                     // The existing GPU buffer now owns these static motion maps.
                     softTissuePayload->parentInfluences.clear();
                     softTissuePayload->anatomyParentInfluences.clear();
@@ -36758,10 +36850,18 @@ int main(int argc, char** argv) {
                                         acceptedOuter[i]={node.x,node.y,node.z};
                                     }
                                     auto& deltas=restingPassiveFasciaOwner->wholeBodySkinAcceptedDeltas;
-                                    require(restingPassiveFasciaOwner->wholeBodySkinTransfer->makeCoarseDisplacements(
-                                                acceptedOuter,baseline,deltas,&transferError),
-                                            "accepted skin transfer displacement extraction failed: "+transferError);
-                                    liveVisual->updateAcceptedFEMSkinTransfer(deltas,baseline);
+                                    if(restingPassiveFasciaOwner->wholeBodySkinExactPhysicalNodes) {
+                                        require(deltas.size()==acceptedOuter.size(),"direct accepted skin scratch domain changed");
+                                        for(std::size_t row=0;row<acceptedOuter.size();++row) {
+                                            const auto& p=acceptedOuter[row];deltas[row]={float(p[0]),float(p[1]),float(p[2]),1.0f};
+                                        }
+                                        liveVisual->updateAcceptedFEMSkinPositions(deltas,baseline);
+                                    } else {
+                                        require(restingPassiveFasciaOwner->wholeBodySkinTransfer->makeCoarseDisplacements(
+                                                    acceptedOuter,baseline,deltas,&transferError),
+                                                "accepted skin transfer displacement extraction failed: "+transferError);
+                                        liveVisual->updateAcceptedFEMSkinTransfer(deltas,baseline);
+                                    }
                                     auto& acceptedBoundaries=restingPassiveFasciaOwner->wholeBodySkinAcceptedBoundaries;
                                     require(numi::human::gatherAcceptedSkinInnerFatPositions(
                                                 boundaryRows,firstBoundary,acceptedMatter.femNodes.size(),

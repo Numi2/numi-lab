@@ -1,0 +1,7 @@
+{
+  "return_code": 1,
+  "wall_seconds": 4.7000104579999995,
+  "physical_steps": 0,
+  "runtime_created": false,
+  "qualification": "source-only native O033 import and frame check; repaired volume pending"
+}

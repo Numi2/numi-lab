@@ -1,0 +1,9 @@
+{
+  "status": "PASS_NUMERICAL_IMPORT_TESTS_ONLY",
+  "frozen_transform_fixture_maximum_error_m": 2.400000000957192e-07,
+  "legacy_zero_time_snapshot_bone_triangles": 469136,
+  "typed_banks": 185,
+  "zero_time_receipt_rejected_for_motion": true,
+  "physical_steps": 0,
+  "motion_qualification": false
+}

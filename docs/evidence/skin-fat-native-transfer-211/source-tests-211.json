@@ -1,0 +1,33 @@
+{
+  "status": "TESTED_SOURCE_INCREMENT_ONLY",
+  "native_source_preflight": "native-candidate033-source-preflight-003",
+  "native_source_preflight_seconds": 6.490040334,
+  "physical_steps": 0,
+  "repaired_volume_admitted": false,
+  "motion_qualification": false,
+  "device": "Apple M6",
+  "build_checkout_head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "source_files_sha256": {
+    "CMakeLists.txt": "f51f3b06e61222a5014c83101dbe7ac33816c9a6551eae2440a6f54fc6f8e91a",
+    "apps/NumiHumanAcceptedFEMSkinRenderPass.hpp": "9fac130579e3539021b3c47f2d4c0cae6ccf4ecadd4d867a736bd5ed5af46af2",
+    "apps/NumiHumanRestingVisual.hpp": "718c841ee7d96745068f6a80b5c634559463f3df84afb1cb4b4314f7b59e67a6",
+    "apps/numilab_human_myosim_visual_probe.mm": "264d131e46aacfe1b692b4a9588a1b21cd15c49cf3a0a61dfd6dd512c884245d",
+    "apps/NumiHumanRegisteredSkinCandidateCSV.hpp": "5945ad4b4ea5deda9d2f5b9e8790082018b9d8d5fa5055933aee7a20a6f509bd",
+    "apps/NumiHumanRegisteredSkinCandidateCSVCheck.cpp": "9965588c33892ec2e70f9e81c951c9b92a29daf6b0a831965e3ff96f34dc21f2",
+    "apps/NumiHumanAcceptedFEMSkinDirectPositionCheck.mm": "896f6ab7ef74457cc92251826fcc55c37bec97d5387b88e07fa7e82d254655a8",
+    "apps/NumiHumanCandidateSkin033.hpp": "fca16b1a8155e7ebd8caa4322f3376937f79a9561b8eb30aa95180f918714291",
+    "tools/human_accepted_skin_export.cpp": "1591984981f319570333f32e7a95d7393a04a058433c9ed8754652f53a2278fa"
+  },
+  "test_results": {
+    "direct_FEM_position_GPU": "PASS, all3onehot slots bit-exact, projected rows reject, invalid update preserves prior state, legacy delta passes",
+    "registered_skin_CSV": "PASS,7negative cases",
+    "accepted_pack_bone_inventory": "185banks469136triangles",
+    "zero_time_receipt_for_motion": "REJECTED as required"
+  },
+  "binary_sha256": {
+    "bin/numi-human-native": "1a453b004940942d5bcecbc1556576ba7892f7cc21436ffaa7a1a6cb9628b783",
+    "numi-human-accepted-skin-export": "49af8945474dec3d60a2d71a8b45aeca1fbd519149c3f0e460c9d9dc3f3f7944",
+    "numi-human-accepted-skin-direct-position-check": "1467f4c086091696b4a17afd89086fa65867c8a9c1e0f9b26eb9857a43043adb",
+    "numi-human-registered-skin-candidate-csv-check": "757bc2b1fcecd5300ff6251f7446899605b6779464806b586070ee2fca7da825"
+  }
+}

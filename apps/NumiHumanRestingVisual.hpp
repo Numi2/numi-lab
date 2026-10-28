@@ -3976,7 +3976,8 @@ public:
     }
     void configureAcceptedFEMSkinTransfer(
         const std::vector<numi::human::AcceptedFEMSkinTransfer::GPUTransferRow>& rows,
-        const std::vector<numi::human::AcceptedFEMSkinTransfer::Point>& initialBaseline) {
+        const std::vector<numi::human::AcceptedFEMSkinTransfer::Point>& initialBaseline,
+        bool exactPhysicalNodes=false) {
         require(skinFirstVertex!=MR_INVALID_INDEX&&rows.size()>0u&&
                     rows.size()<=std::numeric_limits<std::uint32_t>::max()&&
                     !initialBaseline.empty()&&
@@ -3989,9 +3990,14 @@ public:
                     coupled.physiology.device,rows,
                     static_cast<std::uint32_t>(initialBaseline.size()),&error),
                 "accepted FEM skin render pass initialization failed: "+error);
-        std::vector<std::array<float,4>> zero(initialBaseline.size(),{0,0,0,0});
-        require(acceptedFEMSkinRenderPass->updateAcceptedState(zero,initialBaseline,&error),
-                "accepted FEM skin initial render reference failed: "+error);
+        std::vector<std::array<float,4>> initial(initialBaseline.size(),{0,0,0,0});
+        if(exactPhysicalNodes)for(std::size_t row=0;row<initial.size();++row) {
+            const auto& p=initialBaseline[row];initial[row]={float(p[0]),float(p[1]),float(p[2]),1.0f};
+        }
+        const bool updated=exactPhysicalNodes
+            ?acceptedFEMSkinRenderPass->updateAcceptedPositions(initial,initialBaseline,&error)
+            :acceptedFEMSkinRenderPass->updateAcceptedState(initial,initialBaseline,&error);
+        require(updated,"accepted FEM skin initial render reference failed: "+error);
     }
     void updateAcceptedFEMSkinTransfer(
         const std::vector<std::array<float,4>>& deltas,
@@ -4001,6 +4007,15 @@ public:
         std::string error;
         require(acceptedFEMSkinRenderPass->updateAcceptedState(deltas,baseline,&error),
                 "accepted FEM skin render update failed: "+error);
+    }
+    void updateAcceptedFEMSkinPositions(
+        const std::vector<std::array<float,4>>& positions,
+        const std::vector<numi::human::AcceptedFEMSkinTransfer::Point>& baseline) {
+        require(acceptedFEMSkinRenderPass!=nullptr,
+                "accepted FEM skin transfer was not initialized");
+        std::string error;
+        require(acceptedFEMSkinRenderPass->updateAcceptedPositions(positions,baseline,&error),
+                "accepted FEM direct skin position update failed: "+error);
     }
     void updateAcceptedFEMBoundaries(
         const std::vector<numi::human::AcceptedFEMBoundaryRenderPass::Point>& positions) {

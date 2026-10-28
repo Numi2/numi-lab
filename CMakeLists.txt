@@ -6954,3 +6954,33 @@ foreach(skin_check IN ITEMS conservative-spatial-mass-transport accepted-fem-ski
         add_test(NAME human.${skin_check} COMMAND numi-human-${skin_check}-check)
     endif()
 endforeach()
+
+# Internal registered-surface candidate import; no runtime state or new artifact format.
+add_executable(numi-human-registered-skin-candidate-csv-check EXCLUDE_FROM_ALL
+    apps/NumiHumanRegisteredSkinCandidateCSVCheck.cpp)
+target_include_directories(numi-human-registered-skin-candidate-csv-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+target_compile_features(numi-human-registered-skin-candidate-csv-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-registered-skin-candidate-csv-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME human.registered-skin-candidate-csv
+        COMMAND numi-human-registered-skin-candidate-csv-check)
+endif()
+
+if(APPLE)
+add_executable(numi-human-accepted-skin-direct-position-check EXCLUDE_FROM_ALL
+    apps/NumiHumanAcceptedFEMSkinDirectPositionCheck.mm)
+target_include_directories(numi-human-accepted-skin-direct-position-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_features(numi-human-accepted-skin-direct-position-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-accepted-skin-direct-position-check PRIVATE
+    -fobjc-arc -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+target_link_libraries(numi-human-accepted-skin-direct-position-check PRIVATE
+    "-framework Metal" "-framework Foundation")
+if(BUILD_TESTING)
+    add_test(NAME human.accepted-skin-direct-position
+        COMMAND numi-human-accepted-skin-direct-position-check)
+endif()
+endif()
