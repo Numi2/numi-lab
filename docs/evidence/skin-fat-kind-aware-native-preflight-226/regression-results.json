@@ -1,0 +1,50 @@
+[
+  {
+    "name": "native-placement",
+    "compile_argv": [
+      "clang++",
+      "-std=c++23",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-Iapps",
+      "-Iinclude",
+      "-Imatter/include",
+      "/Users/numi/Work/skin-fat-native-integration-209/tests/human_registered_skin_candidate_native_placement.cpp",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-kind-aware-source-preflight-226/native-placement-check"
+    ],
+    "run_argv": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-kind-aware-source-preflight-226/native-placement-check"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 0.8068620830308646
+  },
+  {
+    "name": "conditioned-csv",
+    "compile_argv": [
+      "clang++",
+      "-std=c++23",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-Iapps",
+      "-Iinclude",
+      "-Imatter/include",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-kind-aware-source-preflight-226/conditioned-csv-check.cpp",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-kind-aware-source-preflight-226/conditioned-csv-check"
+    ],
+    "run_argv": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-kind-aware-source-preflight-226/conditioned-csv-check",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/volume-worker/skin-source-033/prepared-007-kind-aware-canonical-compact",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-kind-aware-source-preflight-226"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 1.4552655420266092
+  }
+]

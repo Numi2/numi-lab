@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "cmake",
+    "--build",
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native",
+    "--target",
+    "numi-human-native",
+    "-j2"
+  ],
+  "reason": "common registered rigid placement for support-aligned source preflight; no force or runtime change"
+}

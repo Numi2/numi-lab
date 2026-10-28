@@ -1,6 +1,7 @@
 #pragma once
 // Loading only: existing registered-surface CSV rows, never a simulation path.
 #include "NumiHumanCoarseTissuePreparation.hpp"
+#include "NumiHumanSkinRigidPlacement.hpp"
 #include <charconv>
 #include <filesystem>
 #include <fstream>
@@ -80,14 +81,29 @@ template<class SHA256OfPath> inline bool loadRegisteredSkinCandidateCSV(
         // Current NHSKIN row IDs are distinct from recorded predecessor IDs.
         next.sourceVertexIndices.push_back(id);++measured.nodeRows;
     }
-    if(!nodes.eof()||measured.nodeRows<4||!std::getline(faces,line)||
-       split(line)!=std::vector<std::string>{"face","v0","v1","v2","baseline806_source_face_row"})
+    if(!nodes.eof()||measured.nodeRows<4||!std::getline(faces,line))
+        return fail("registered skin CSV missing rows or wrong face schema");
+    const auto faceColumns=split(line);
+    const bool legacyFaces=faceColumns==std::vector<std::string>{
+        "face","v0","v1","v2","baseline806_source_face_row"};
+    const bool conditionedFaces=faceColumns==std::vector<std::string>{
+        "face","v0","v1","v2","O033_source_face_parent_row","baseline806_source_face_row_exact"};
+    if(!legacyFaces&&!conditionedFaces)
         return fail("registered skin CSV missing rows or wrong face schema");
     while(std::getline(faces,line)) {
-        const auto row=split(line);Face f{};std::uint32_t id=0;std::int64_t predecessor=-1;
-        if(row.size()!=5||!number(row[0],id)||id!=measured.faceRows||
-           !number(row[4],predecessor)||predecessor < -1||measured.faceRows>=600000u)
+        if(line.size()>16384u)return fail("registered skin face CSV oversized row");
+        const auto row=split(line);Face f{};std::uint32_t id=0;
+        if(row.size()!=faceColumns.size()||!number(row[0],id)||id!=measured.faceRows||
+           measured.faceRows>=600000u)
             return fail("registered skin face CSV invalid identity or capacity");
+        // The conditioned format retains both the immediate O033 parent and
+        // the exact older source row. Full union ancestry remains hash-pinned
+        // separately; neither row is silently promoted to a unique source.
+        for(std::size_t column=4;column<row.size();++column){
+            std::int64_t predecessor=-1;
+            if(!number(row[column],predecessor)||predecessor < -1)
+                return fail("registered skin face CSV invalid predecessor identity");
+        }
         for(unsigned c=0;c<3;++c)if(!number(row[c+1],f[c])||f[c]>=measured.nodeRows)
             return fail("registered skin face CSV invalid corner");
         if(f[0]==f[1]||f[0]==f[2]||f[1]==f[2]||
@@ -97,5 +113,50 @@ template<class SHA256OfPath> inline bool loadRegisteredSkinCandidateCSV(
     }
     if(!faces.eof()||measured.faceRows==0)return fail("registered skin face CSV incomplete");
     output=std::move(next);report=measured;error.clear();return true;
+}
+// Source-only admission uses the same common rigid placement as the physical
+// skin compiler. Support first-touch placement may translate the entire body;
+// a donor-specific change must still fail the original two-micrometre gate.
+struct RegisteredSkinCandidatePlacementReport {
+    RegisteredSkinRigidPlacement placement;
+    double maximumLocalResidualM=0,maximumSkinningResidualM=0,maximumFrameResidual=0;
+    std::size_t maximumLocalRow=0,maximumSkinningRow=0,maximumFrameRow=0;
+};
+template<class CurrentPoint,class CurrentLocal,class CurrentFrame>
+inline bool validateRegisteredSkinCandidateNativePlacement(
+    const RegisteredSurface& reference,const CurrentPoint& pointAt,
+    const CurrentLocal& localAt,const CurrentFrame& frameAt,
+    RegisteredSkinCandidatePlacementReport& output,std::string& error) {
+    const auto n=reference.worldPoints.size();
+    const auto fail=[&](std::string message){error=std::move(message);return false;};
+    if(n==0||reference.donorLocalPoints.size()!=n||reference.donorBodyIndices.size()!=n||
+       reference.worldToDonorLocalLinear.size()!=n)
+        return fail("candidate skin placement has incomplete source domains");
+    RegisteredSkinCandidatePlacementReport next;
+    if(!deriveRegisteredSkinRigidPlacement(reference.worldPoints[0],
+        reference.worldToDonorLocalLinear[0],pointAt(0),frameAt(0),next.placement,error))return false;
+    for(std::size_t row=0;row<n;++row) {
+        const auto expected=next.placement.point(reference.worldPoints[row]);
+        const auto point=pointAt(row),local=localAt(row,expected);
+        const auto frame=frameAt(row);
+        for(unsigned c=0;c<3;++c)
+            if(!std::isfinite(point[c])||!std::isfinite(local[c]))
+                return fail("candidate skin native placement has a nonfinite point");
+        const double localResidual=norm(sub(local,reference.donorLocalPoints[row]));
+        const double skinningResidual=norm(sub(point,expected));
+        if(localResidual>next.maximumLocalResidualM){next.maximumLocalResidualM=localResidual;next.maximumLocalRow=row;}
+        if(skinningResidual>next.maximumSkinningResidualM){next.maximumSkinningResidualM=skinningResidual;next.maximumSkinningRow=row;}
+        const auto expectedFrame=next.placement.donorFrame(reference.worldToDonorLocalLinear[row]);
+        for(unsigned c=0;c<9;++c) {
+            if(!std::isfinite(frame[c]))return fail("candidate skin native placement has a nonfinite donor frame");
+            const double residual=std::abs(frame[c]-expectedFrame[c]);
+            if(residual>next.maximumFrameResidual){next.maximumFrameResidual=residual;next.maximumFrameRow=row;}
+        }
+    }
+    if(next.maximumLocalResidualM>2.0e-6||next.maximumSkinningResidualM>2.0e-6||
+       next.maximumFrameResidual>2.0e-6)
+        return fail("candidate skin reference is not a common rigid placement of the native parent cook");
+    next.placement.validatedVertices=n;
+    output=next;error.clear();return true;
 }
 } // namespace metalrobo::human::coarse_tissue

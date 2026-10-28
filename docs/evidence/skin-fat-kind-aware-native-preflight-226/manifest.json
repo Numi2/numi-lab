@@ -1,0 +1,187 @@
+{
+  "parent_main": "66d573eabb733f6a8d6a6d3a36df13c469f9b19a",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "50f72e5511907602c1719b2451f6d7d0c3fc3eff6762c70796d2a10729043c50",
+      "bytes": 2376
+    },
+    {
+      "path": "build-005-launch.json",
+      "sha256": "6f2c84dc0484cb2514b3acc29ef5f3cc24ab24518ddb268ed24db77a1ccbc065",
+      "bytes": 282
+    },
+    {
+      "path": "build-005-result.json",
+      "sha256": "45d5386b61f017d5230cb3806b2255252ee61a66a862abaf2d161b34049f3be4",
+      "bytes": 56
+    },
+    {
+      "path": "conditioned-csv-check.cpp",
+      "sha256": "ddc3e8908f10c28befb74b0d693a34fcbb541a95e63702be7df41b7232655b56",
+      "bytes": 2483
+    },
+    {
+      "path": "conditioned-csv-compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "conditioned-csv-result.json",
+      "sha256": "8f72c7d883e2bccb90ebbd585bf0d8e2262634fcce9979b82a37ee78c82c61bd",
+      "bytes": 556
+    },
+    {
+      "path": "conditioned-csv-test.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "conditioned-csv-test.stdout.txt",
+      "sha256": "62ae8344dacfa8b12d0c729deeeb37c29f805cd8f9e21732fcf33d52c90a3772",
+      "bytes": 138
+    },
+    {
+      "path": "conditioned-csv.stdout.txt",
+      "sha256": "62ae8344dacfa8b12d0c729deeeb37c29f805cd8f9e21732fcf33d52c90a3772",
+      "bytes": 138
+    },
+    {
+      "path": "legacy-reader.stdout.txt",
+      "sha256": "927a12f106a4d1f13560ced17938b91654331eab5d043a2bae53d6544e0a80e9",
+      "bytes": 380
+    },
+    {
+      "path": "native-placement-compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "native-placement-test.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "native-placement-test.stdout.txt",
+      "sha256": "a52456916467f7aac51efe3823dabdc0de7d846ef3a86f56548ea1be681f3b9c",
+      "bytes": 201
+    },
+    {
+      "path": "native-source-pose-mismatch-003.json",
+      "sha256": "f51bdf4d120c2adfd49d26046ab366c998ef3f187d1441ee17649d96d68ab0b8",
+      "bytes": 831
+    },
+    {
+      "path": "regression-results.json",
+      "sha256": "1b62176ea815741493a2c643992f15bd2d57be8a224a6fa6fe377c2cf1fbc8a5",
+      "bytes": 1977
+    },
+    {
+      "path": "run-001/launch.json",
+      "sha256": "4954a713532ac123f6429dbe22b612f3463da45fb18fc9c3fb27b6179203bd15",
+      "bytes": 12956
+    },
+    {
+      "path": "run-001/receipt.json",
+      "sha256": "ebca75840a1bbdf4c0dd00fcf9bf7951aeedcddeacef77ed546b217d7cb42ed3",
+      "bytes": 6803
+    },
+    {
+      "path": "run-001/stderr.txt",
+      "sha256": "6f38b4ae58ab87a42e43bfb01df61be1ade974a8753b8c7e99ef5e3f6d27da93",
+      "bytes": 437
+    },
+    {
+      "path": "run-001/stdout.txt",
+      "sha256": "93a6d36c23c11699ace65f12e0501a98dee9e6c46136e27cb8327e296eba77e4",
+      "bytes": 14829
+    },
+    {
+      "path": "run-002/launch.json",
+      "sha256": "a03f1e5fb959e2cffab06d9a2f380afee66525e5ed2bc8eb860802ea079bf1d2",
+      "bytes": 12956
+    },
+    {
+      "path": "run-002/receipt.json",
+      "sha256": "c80daa7862e226515af1a286c2ca942b102e561f1032cb546d6bfacf45086c67",
+      "bytes": 2918
+    },
+    {
+      "path": "run-002/stderr.txt",
+      "sha256": "73fbe49fb3756545fc7ce04ff9d66ccf7f2849122b9f2a840589677053da174d",
+      "bytes": 403
+    },
+    {
+      "path": "run-002/stdout.txt",
+      "sha256": "93a6d36c23c11699ace65f12e0501a98dee9e6c46136e27cb8327e296eba77e4",
+      "bytes": 14829
+    },
+    {
+      "path": "run-003/launch.json",
+      "sha256": "b315d5e52d3cd45b2104c68080c1bf11c0eb2d3d1279c90f6f14b2b9d63ae4a7",
+      "bytes": 12956
+    },
+    {
+      "path": "run-003/receipt.json",
+      "sha256": "1cb7342d6a55e478f548f29ca8475e3e325251e87127fe9a69f1d5c495efef94",
+      "bytes": 975
+    },
+    {
+      "path": "run-003/stderr.txt",
+      "sha256": "73fbe49fb3756545fc7ce04ff9d66ccf7f2849122b9f2a840589677053da174d",
+      "bytes": 403
+    },
+    {
+      "path": "run-003/stdout.txt",
+      "sha256": "aac93269a6ddfb34f06fa08bb17309c2e8334f2049da8351b29725388900c121",
+      "bytes": 15037
+    },
+    {
+      "path": "run-004-matched-source-pose/launch.json",
+      "sha256": "901c06f632a4bff9ee56ea4cada27013569f5d49820c14a1a39fdaf389b3738d",
+      "bytes": 12327
+    },
+    {
+      "path": "run-004-matched-source-pose/receipt.json",
+      "sha256": "76d5852fbd57425c6e986a1ee3a5b7de84b3d625e63a79eb186a774922de7ea4",
+      "bytes": 2594
+    },
+    {
+      "path": "run-004-matched-source-pose/stderr.txt",
+      "sha256": "73fbe49fb3756545fc7ce04ff9d66ccf7f2849122b9f2a840589677053da174d",
+      "bytes": 403
+    },
+    {
+      "path": "run-004-matched-source-pose/stdout.txt",
+      "sha256": "ee2651e0a98713acd06cc7c5d99b604aadade59a25f0ea8f677588997621a056",
+      "bytes": 15036
+    },
+    {
+      "path": "run-005-registered-common-placement/launch.json",
+      "sha256": "705a8320d49f10b4a6dd0fecea712cf43d9d46c6e020b1b0260e348de378992a",
+      "bytes": 13113
+    },
+    {
+      "path": "run-005-registered-common-placement/receipt.json",
+      "sha256": "3f8a6f3a1bec38e1f5c874de99e8b63277a3123727b06ea75e1181f0305ace3e",
+      "bytes": 236
+    },
+    {
+      "path": "run-005-registered-common-placement/stderr.txt",
+      "sha256": "c56fe647984255c756d5c26d03053e9b11b9c81e38ef5daa9673851eb90a2396",
+      "bytes": 295
+    },
+    {
+      "path": "run-005-registered-common-placement/stdout.txt",
+      "sha256": "bdc149f10b9875827b418539dd5e7c3f494cc950c8f8fe827f52511ff9e58e0e",
+      "bytes": 213145
+    },
+    {
+      "path": "source-and-binary-hashes.json",
+      "sha256": "8cb86e1c2de029d997d11a3b7dd384bf7ea86c5b13bea2cc1e9f33ed18e3e854",
+      "bytes": 678
+    }
+  ],
+  "physical_steps": 0,
+  "changed_volume_admitted": false
+}

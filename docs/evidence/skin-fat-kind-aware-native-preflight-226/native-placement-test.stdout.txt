@@ -1,0 +1,1 @@
+registered_skin_native_placement=PASS common_SE3=true local_joint_change=reject local_frame_change=reject donor_rotation_change=reject nonfinite=reject empty=reject output_atomic=true physical_steps=0

@@ -22056,6 +22056,12 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             require(body<pose.size(),"registered skin frame body is outside the current Human pose");
             const auto& q=pose[body].orientation;const mr_float4 inverse{-q.x,-q.y,-q.z,q.w};std::array<double,9> m{};
             for(unsigned c=0;c<3;c++){mr_float4 e{c==0?1.0f:0.0f,c==1?1.0f:0.0f,c==2?1.0f:0.0f,0.0f};const auto r=rotatePoint(inverse,e);m[c]=r.x;m[3+c]=r.y;m[6+c]=r.z;}return m;};
+        // Optional source-pose inspection paired with the registered CSV. This
+        // reuses the renderer's existing serializer and does not alter physics.
+        if(const char* path=std::getenv("NUMI_HUMAN_SKIN_REFERENCE_POSE_DUMP")) {
+            require(path[0]!='\0',"skin reference pose dump path is empty");
+            writeSkinPoseSnapshot(*skin,bodies,skinRestBodies,std::filesystem::path(path));
+        }
         if(const char* candidateDirectory=std::getenv("NUMI_HUMAN_SKIN_FAT_CANDIDATE033_SOURCE_PREFLIGHT")) {
             namespace candidate033=numi::human::candidate033;
             const char* captureOnly=std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_MASS_CAPTURE_ONLY");
@@ -22090,16 +22096,33 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             for(std::size_t f=0;f<replacement.faces.size();++f)for(unsigned c=0;c<3;++c)
                 require(replacement.faces[f][c]==candidateSkin.indices[3u*f+c],
                         "candidate033 physical/source face ordering differs");
-            double maximumFrameResidualM=0.0,maximumSkinningResidualM=0.0;
-            for(std::size_t row=0;row<replacement.worldPoints.size();++row) {
-                const auto local=localAt(static_cast<std::uint32_t>(row),replacement.donorBodyIndices[row],replacement.worldPoints[row]);
-                maximumFrameResidualM=std::max(maximumFrameResidualM,norm(sub(local,replacement.donorLocalPoints[row])));
-                const auto skinWorld=skinVertexWorld(candidateSkin,candidateSkin.vertices[row],static_cast<std::uint32_t>(row),pose);
-                const V3 rendered{skinWorld.x,skinWorld.y,skinWorld.z};
-                maximumSkinningResidualM=std::max(maximumSkinningResidualM,norm(sub(rendered,replacement.worldPoints[row])));
-            }
-            require(maximumFrameResidualM<=2.0e-6&&maximumSkinningResidualM<=2.0e-6,
-                    "candidate033 reference frame does not match the native parent cook");
+            RegisteredSkinCandidatePlacementReport placementReport;
+            const auto candidatePointAt=[&](std::size_t row) {
+                const auto p=skinVertexWorld(candidateSkin,candidateSkin.vertices[row],static_cast<std::uint32_t>(row),pose);
+                return V3{p.x,p.y,p.z};
+            };
+            const auto candidateLocalAt=[&](std::size_t row,const V3& point) {
+                return localAt(static_cast<std::uint32_t>(row),replacement.donorBodyIndices[row],point);
+            };
+            const auto candidateFrameAt=[&](std::size_t row) {
+                return frameAt(static_cast<std::uint32_t>(row),replacement.donorBodyIndices[row]);
+            };
+            require(validateRegisteredSkinCandidateNativePlacement(replacement,
+                        candidatePointAt,candidateLocalAt,candidateFrameAt,placementReport,tissueError),
+                    "candidate033 native source placement rejected: "+tissueError);
+            const double maximumFrameResidualM=placementReport.maximumLocalResidualM;
+            const double maximumSkinningResidualM=placementReport.maximumSkinningResidualM;
+            std::cout<<"candidate033_native_source_frame_measurement"
+                <<" maximum_native_frame_residual_m="<<maximumFrameResidualM
+                <<" frame_row="<<placementReport.maximumLocalRow
+                <<" frame_donor="<<replacement.donorBodyIndices[placementReport.maximumLocalRow]
+                <<" maximum_native_skinning_residual_m="<<maximumSkinningResidualM
+                <<" skinning_row="<<placementReport.maximumSkinningRow
+                <<" maximum_donor_frame_residual="<<placementReport.maximumFrameResidual
+                <<" common_placement_translation_m=["<<placementReport.placement.translation[0]<<','
+                <<placementReport.placement.translation[1]<<','<<placementReport.placement.translation[2]<<']'
+                <<" common_placement_vertices="<<placementReport.placement.validatedVertices
+                <<" force_rows_added=0 simulation_steps=0"<<std::endl;
             std::cout<<"candidate033_native_source_preflight=PASS"
                 <<" outer_vertices="<<importReport.nodeRows<<" outer_faces="<<importReport.faceRows
                 <<" direct_predecessor_rows="<<importReport.directPredecessorRows
@@ -22108,12 +22131,6 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 <<" maximum_native_skinning_residual_m="<<maximumSkinningResidualM
                 <<" physical_skin_owner=existing_Matter_FEM replacement_cells=not_admitted"
                 <<" simulation_steps=0 physical_qualification=not_claimed"<<std::endl;
-        }
-        // Optional source-pose inspection paired with the registered CSV. This
-        // reuses the renderer's existing serializer and does not alter physics.
-        if(const char* path=std::getenv("NUMI_HUMAN_SKIN_REFERENCE_POSE_DUMP")) {
-            require(path[0]!='\0',"skin reference pose dump path is empty");
-            writeSkinPoseSnapshot(*skin,bodies,skinRestBodies,std::filesystem::path(path));
         }
         const auto skinSeedFace=std::min<std::uint32_t>(10000u,
             static_cast<std::uint32_t>(skin->indices.size()/3u-1u));

@@ -1,0 +1,8 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 10.069246625062078,
+  "binary_sha256": "91fde35620d7f9786d637bf10e2c5bb4f8f929c9ce9a1f76371c1cf56b0a1c23",
+  "physical_steps": 0,
+  "runtime_created": false,
+  "changed_child_volume_admitted": false
+}

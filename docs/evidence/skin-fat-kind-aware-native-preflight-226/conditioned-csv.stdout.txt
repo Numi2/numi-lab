@@ -1,0 +1,1 @@
+conditioned_registered_skin_csv=PASS nodes=32002 faces=63959 bad_predecessor=reject_atomic unknown_schema=reject physical_admission=false

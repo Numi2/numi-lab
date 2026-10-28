@@ -1,0 +1,46 @@
+{
+  "scope": "matched initial-pose diagnosis; no change to forces or time",
+  "bound_bodies": 86,
+  "delta_source_minus_native_mean_m": [
+    0.0,
+    0.0,
+    5.662331395348288e-06
+  ],
+  "minimum_m": [
+    0.0,
+    0.0,
+    5.661999999961864e-06
+  ],
+  "maximum_m": [
+    0.0,
+    0.0,
+    5.663000000016849e-06
+  ],
+  "maximum_quaternion_vector_difference": 0.0,
+  "body1_native": {
+    "position_world_m": [
+      -0.0253440626,
+      -0.801049411,
+      0.187833279
+    ],
+    "orientation_world_xyzw": [
+      -0.498206049,
+      -0.503781557,
+      0.496218413,
+      0.501759112
+    ]
+  },
+  "body1_source": {
+    "position_world_m": [
+      -0.0253440626,
+      -0.801049411,
+      0.187838942
+    ],
+    "orientation_world_xyzw": [
+      -0.498206049,
+      -0.503781557,
+      0.496218413,
+      0.501759112
+    ]
+  }
+}
