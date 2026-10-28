@@ -1,0 +1,23 @@
+{
+  "scope": "strict_existing_TetGen_import_and_mass_mapping_only",
+  "check_returncode": 0,
+  "check_elapsed_s": 0.26899954200000004,
+  "source_files": {
+    "apps/NumiHumanPhysicalSkinChildTetGen.hpp": "0ddcd129ab0b06275d991190c1960947fb594505eaafe2318feeda7e4d0285fc",
+    "apps/NumiHumanPhysicalSkinChildMassMappingCLI.cpp": "28f1240a7aea42a9f4b4555f452477cab5874aaa5f0f7d26b49c7233e0918e0a",
+    "apps/NumiHumanPhysicalSkinChildMassMappingCheck.cpp": "4a86a6ec5ce054da4993fb05a5874be218d02be42c76d1dc88652827a60504fd"
+  },
+  "physical_admission": false,
+  "actual_native_parent_import_control": {
+    "returncode": 0,
+    "elapsed_wall_s": 4.171350958,
+    "source_files": {
+      "apps/NumiHumanPhysicalSkinChildTetGen.hpp": "0ddcd129ab0b06275d991190c1960947fb594505eaafe2318feeda7e4d0285fc",
+      "apps/NumiHumanPhysicalSkinChildMassMappingCLI.cpp": "28f1240a7aea42a9f4b4555f452477cab5874aaa5f0f7d26b49c7233e0918e0a",
+      "apps/NumiHumanPhysicalSkinChildMassMappingCheck.cpp": "4a86a6ec5ce054da4993fb05a5874be218d02be42c76d1dc88652827a60504fd"
+    },
+    "cli_binary_sha256": "870835d2dfc8b2f40bf8f80d373f2eded04fec466bc352630a4c97200ca49625",
+    "stdout_sha256": "e89f773c66446e37bcfe6122e6ed3ed58289400b08e14380022b8f26ef79fc93",
+    "physical_admission": false
+  }
+}

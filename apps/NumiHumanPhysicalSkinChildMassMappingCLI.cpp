@@ -1,4 +1,4 @@
-#include "NumiHumanPhysicalSkinChildMassMapping.hpp"
+#include "NumiHumanPhysicalSkinChildTetGen.hpp"
 
 #include <algorithm>
 #include <array>
@@ -161,18 +161,32 @@ bool prepareIdentityTransfer(PhysicalSkinParentMassPacket&& parent,
 
 int main(int argc, char** argv) {
     using namespace metalrobo::human::coarse_tissue;
-    std::string massCSV, labelsCSV;
+    std::string massCSV, labelsCSV, childNodes, childElements, childLabels, coordinateFrame;
+    std::size_t explicitBodyCount=0u;
+    double transportDistance=0.0;
     bool identityTransfer = false;
     for (int i = 1; i < argc; ++i) {
         const std::string_view argument(argv[i]);
         if (argument == "--parent-mass-csv" && i + 1 < argc) massCSV = argv[++i];
         else if (argument == "--labels-csv" && i + 1 < argc) labelsCSV = argv[++i];
         else if (argument == "--identity-transfer-control") identityTransfer = true;
+        else if (argument == "--child-node-file" && i + 1 < argc) childNodes = argv[++i];
+        else if (argument == "--child-ele-file" && i + 1 < argc) childElements = argv[++i];
+        else if (argument == "--child-labels-csv" && i + 1 < argc) childLabels = argv[++i];
+        else if (argument == "--coordinate-frame-sha256" && i + 1 < argc) coordinateFrame = argv[++i];
+        else if (argument == "--source-body-count" && i + 1 < argc) {
+            if(!physical_skin_child_mass_detail::parseNumber(std::string(argv[++i]),explicitBodyCount))return 2;
+        } else if (argument == "--maximum-transport-distance-m" && i + 1 < argc) {
+            if(!physical_skin_child_mass_detail::parseNumber(std::string(argv[++i]),transportDistance))return 2;
+        }
         else if (argument == "--help") {
             std::cout << "usage: numi-human-physical-skin-child-mass-mapping-cli "
                          "--parent-mass-csv <compiled-parent-cell-mass.csv> "
                          "--labels-csv <compiled-parent-cell-mass.csv.labels.csv> "
-                         "[--identity-transfer-control]\n"
+                         "[--identity-transfer-control | --child-node-file <mesh.node> "
+                         "--child-ele-file <mesh.ele> --child-labels-csv <labels.csv> "
+                         "--coordinate-frame-sha256 <sha256> --source-body-count <count> "
+                         "--maximum-transport-distance-m <metres>]\n"
                          "The identity control exercises conservative spatial mass "
                          "transport on exact native parent tetrahedra with child world/"
                          "reference nodes formed from parent current positions rounded to "
@@ -183,7 +197,12 @@ int main(int argc, char** argv) {
             return 2;
         }
     }
-    if (massCSV.empty() || (identityTransfer && labelsCSV.empty())) {
+    const bool hasChildArguments=!childNodes.empty()||!childElements.empty()||!childLabels.empty()||
+        !coordinateFrame.empty()||explicitBodyCount!=0u||transportDistance!=0.0;
+    if (massCSV.empty() || ((identityTransfer||hasChildArguments) && labelsCSV.empty()) ||
+        (identityTransfer&&hasChildArguments) ||
+        (hasChildArguments&&(childNodes.empty()||childElements.empty()||childLabels.empty()||
+            coordinateFrame.empty()||explicitBodyCount==0u||transportDistance<=0.0))) {
         std::cerr << "invalid arguments; run --help\n";
         return 2;
     }
@@ -215,17 +234,35 @@ int main(int argc, char** argv) {
               << " source_csv_sha256=" << parent.parentSourceContributionSHA256
               << " packet_topology_sha256=" << parent.parentTopologySHA256 << '\n';
 
-    if (!identityTransfer) {
+    if (!identityTransfer&&!hasChildArguments) {
         std::cout << "child_transfer=NOT_RUN reason=identity-transfer-control-not-requested\n";
         return 0;
     }
 
     PhysicalSkinChildMassMappingBundle bundle;
     std::size_t sourceBodyCount = 0u, donorRegionMismatchCount = 0u;
-    if (!prepareIdentityTransfer(std::move(parent), bundle, sourceBodyCount,
-                                 donorRegionMismatchCount, error)) {
-        std::cerr << "identity_transfer=REJECTED reason=" << error << '\n';
-        return 5;
+    const std::string transferLabel=identityTransfer?"identity_transfer":"child_reference_transfer";
+    if(identityTransfer) {
+        if (!prepareIdentityTransfer(std::move(parent), bundle, sourceBodyCount,
+                                     donorRegionMismatchCount, error)) {
+            std::cerr << transferLabel << "=REJECTED reason=" << error << '\n';return 5;
+        }
+        transportDistance=1.0e-6;
+    } else {
+        sourceBodyCount=explicitBodyCount;bundle.parent=std::move(parent);
+        PhysicalSkinChildTetGenImportReport importReport;
+        if(!loadPhysicalSkinChildTetGenReference(childNodes,childElements,childLabels,
+                coordinateFrame,sourceBodyCount,transportDistance,bundle,importReport,error)) {
+            std::cerr<<transferLabel<<"=REJECTED reason="<<error<<'\n';return 5;
+        }
+        for(std::size_t cell=0u;cell<bundle.childTetrahedra.size();++cell)
+            donorRegionMismatchCount+=bundle.childDonorBodyIndices[cell]!=bundle.childAnatomicalRegionIndices[cell];
+        std::cout<<std::setprecision(17)<<"child_tetgen_reference_import=PASS nodes="<<importReport.nodeCount
+            <<" cells="<<importReport.cellCount<<" minimum_f32_volume_m3="<<importReport.minimumFloat32ReferenceVolumeM3
+            <<" maximum_f32_rounding_m="<<importReport.maximumFloat32RoundingDistanceM
+            <<" node_sha256="<<importReport.nodeFileSHA256<<" element_sha256="<<importReport.elementFileSHA256
+            <<" labels_sha256="<<importReport.labelFileSHA256
+            <<" current_equals_reference=1 physical_admission=NOT_CLAIMED\n";
     }
 
     std::vector<double> densityLower(17u, std::numeric_limits<double>::quiet_NaN());
@@ -236,8 +273,8 @@ int main(int argc, char** argv) {
     densityUpper[16] = 950.0;
     const auto mappingStart = std::chrono::steady_clock::now();
     if (!preparePhysicalSkinChildMassMapping(bundle, densityLower, densityUpper,
-            1.0e-6, sourceBodyCount, error)) {
-        std::cerr << "identity_transfer=REJECTED reason=" << error << '\n';
+            transportDistance, sourceBodyCount, error)) {
+        std::cerr << transferLabel << "=REJECTED reason=" << error << '\n';
         return 6;
     }
 
@@ -267,7 +304,7 @@ int main(int argc, char** argv) {
     std::size_t crossAnatomicalRegionEdges = 0u;
     if (result.childParentOffsets.size() != bundle.childTetrahedra.size() + 1u ||
         result.childParentRows.size() != result.childParentTransportMassKg.size()) {
-        std::cerr << "identity_transfer=REJECTED reason=recorded_flow_CSR_is_incomplete\n";
+        std::cerr << transferLabel << "=REJECTED reason=recorded_flow_CSR_is_incomplete\n";
         return 7;
     }
     for (std::size_t child = 0; child < bundle.childTetrahedra.size(); ++child) {
@@ -275,7 +312,7 @@ int main(int argc, char** argv) {
              edge < result.childParentOffsets[child + 1u]; ++edge) {
             const auto parentRow = result.childParentRows[edge];
             if (parentRow >= bundle.parent.tetrahedra.size()) {
-                std::cerr << "identity_transfer=REJECTED reason=recorded_flow_parent_row_is_out_of_range\n";
+                std::cerr << transferLabel << "=REJECTED reason=recorded_flow_parent_row_is_out_of_range\n";
                 return 7;
             }
             crossMaterialEdges += bundle.parent.materialIndices[parentRow] !=
@@ -291,7 +328,7 @@ int main(int argc, char** argv) {
     if (crossMaterialEdges != 0u || crossGeometricDonorEdges != 0u ||
         crossAnatomicalRegionEdges != 0u) {
         std::cerr << std::setprecision(17)
-                  << "identity_transfer=REJECTED reason=recorded_flow_crosses_material_donor_or_region_labels"
+                  << transferLabel << "=REJECTED reason=recorded_flow_crosses_material_donor_or_region_labels"
                   << " cross_material_edges=" << crossMaterialEdges
                   << " cross_geometric_donor_edges=" << crossGeometricDonorEdges
                   << " cross_anatomical_region_edges=" << crossAnatomicalRegionEdges
@@ -306,8 +343,9 @@ int main(int argc, char** argv) {
     }
 
     std::cout << std::setprecision(17)
-              << "identity_transfer=PASS method=conservativeSpatialMassTransport"
-              << " scope=parent_geometry_identity_control physical_admission=NOT_CLAIMED"
+              << transferLabel << "=PASS method=conservativeSpatialMassTransport"
+              << " scope=" << (identityTransfer?"parent_geometry_identity_control":"explicit_child_reference_preparation")
+              << " physical_admission=NOT_CLAIMED"
               << " source_body_count=" << sourceBodyCount
               << " child_cells_mapped=" << result.childDominantParentRows.size()
               << " child_tets=" << bundle.childTetrahedra.size()
@@ -343,7 +381,7 @@ int main(int argc, char** argv) {
               << " transport_receipt_sha256=" << result.receiptSHA256
               << '\n';
     for (const auto& [material, range] : densityRange) {
-        std::cout << "identity_density_range material=" << material
+        std::cout << "transfer_density_range material=" << material
                   << " min_kgm3=" << range.first
                   << " max_kgm3=" << range.second << '\n';
     }

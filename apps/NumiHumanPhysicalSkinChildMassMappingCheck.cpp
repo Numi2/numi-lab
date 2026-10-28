@@ -1,4 +1,4 @@
-#include "NumiHumanPhysicalSkinChildMassMapping.hpp"
+#include "NumiHumanPhysicalSkinChildTetGen.hpp"
 
 #include <bit>
 #include <chrono>
@@ -156,10 +156,55 @@ int main() {
         std::cerr<<"invalid parent packet was accepted or mutated output\n";return 9;
     }
 
+
+    const auto childNode=directory/"child.node",childEle=directory/"child.ele",childLabels=directory/"child.labels.csv";
+    std::ofstream(childNode)<<"4 3 0 1\n11 0 0 0 1\n22 1 0 0 1\n33 0 1 0 1\n44 0 0 1 1\n";
+    std::ofstream(childEle)<<"1 4 1\n50 11 22 33 44 0\n";
+    std::ofstream(childLabels)<<"child_tet_row,material_index,geometric_donor_body,anatomical_region_id,stable_source_face_id\n0,0,7,3,901\n";
+    PhysicalSkinChildMassMappingBundle imported;imported.parent=bundle.parent;
+    PhysicalSkinChildTetGenImportReport importedReport;
+    if(!loadPhysicalSkinChildTetGenReference(childNode,childEle,childLabels,std::string(64u,'a'),
+            8u,1.0,imported,importedReport,error)||imported.childTetrahedra!=bundle.childTetrahedra||
+       imported.childAnatomicalRegionIndices!=bundle.childAnatomicalRegionIndices||
+       imported.currentWorldPoints!=imported.referenceWorldPoints||
+       importedReport.nodeCount!=4u||importedReport.cellCount!=1u||
+       !preparePhysicalSkinChildMassMapping(imported,densityLower,densityUpper,1.0,8u,error)) {
+        std::cerr<<"TetGen reference/explicit label import or downstream transfer rejected: "<<error<<'\n';return 13;
+    }
+    const auto checkReject=[&](const char* expected) {
+        PhysicalSkinChildMassMappingBundle empty;empty.parent=bundle.parent;
+        PhysicalSkinChildTetGenImportReport prior;prior.nodeCount=999u;
+        const bool accepted=loadPhysicalSkinChildTetGenReference(childNode,childEle,childLabels,
+            std::string(64u,'a'),8u,1.0,empty,prior,error);
+        return !accepted&&error.find(expected)!=std::string::npos&&empty.childTetrahedra.empty()&&
+            empty.referenceWorldPoints.empty()&&prior.nodeCount==999u&&empty.parent.totalMassKg==bundle.parent.totalMassKg;
+    };
+    std::ofstream(childEle)<<"2 4 1\n50 11 22 33 44 0\n51 11 22 33 44 0\n";
+    if(!checkReject("duplicate tetrahedron")){std::cerr<<"TetGen duplicate cells accepted\n";return 22;}
+    std::ofstream(childEle)<<"1 4 1\n50 11 33 22 44 0\n";
+    if(!checkReject("nonpositive")){std::cerr<<"TetGen inverted cell accepted or mutated output\n";return 14;}
+    std::ofstream(childEle)<<"1 4 1\n50 11 22 33 45 0\n";
+    if(!checkReject("missing node")){std::cerr<<"TetGen missing node accepted\n";return 15;}
+    std::ofstream(childEle)<<"1 4 1\n50 11 22 33 44 0\n";
+    std::ofstream(childLabels)<<"child_tet_row,material_index,geometric_donor_body,anatomical_region_id,stable_source_face_id\n0,1,7,3,901\n";
+    if(!checkReject("domains")){std::cerr<<"TetGen mismatched material labels accepted\n";return 16;}
+    std::ofstream(childLabels)<<"child_tet_row,material_index,geometric_donor_body,anatomical_region_id,stable_source_face_id\n0,0,8,3,901\n";
+    if(!checkReject("domains")){std::cerr<<"TetGen out-of-domain donor accepted\n";return 17;}
+    std::ofstream(childLabels)<<"child_tet_row,material_index,geometric_donor_body,anatomical_region_id,stable_source_face_id\n";
+    if(!checkReject("truncated")){std::cerr<<"TetGen truncated labels accepted\n";return 18;}
+    std::ofstream(childLabels)<<"child_tet_row,material_index,geometric_donor_body,anatomical_region_id,stable_source_face_id\n0,0,7,3,901\n";
+    // The original double tet is positive, but loses its height at Float32 emission.
+    std::ofstream(childNode)<<"4 3 0 0\n11 0 0 1\n22 1 0 1\n33 0 1 1\n44 0 0 1.000000001\n";
+    if(!checkReject("nonpositive")){std::cerr<<"Float32-collapsed TetGen tet accepted\n";return 19;}
+    std::ofstream(childNode)<<"4 3 0 0\n11 0 0 0\n11 1 0 0\n33 0 1 0\n44 0 0 1\n";
+    if(!checkReject("duplicate")){std::cerr<<"TetGen duplicate node ID accepted\n";return 20;}
+    std::ofstream(childNode)<<"4 3 0 0\n11 0 0 0\n22 1 0 0\n33 0 1 0\n44 0 0 1\n55 1 1 1\n";
+    if(!checkReject("extra")){std::cerr<<"TetGen extra node accepted\n";return 21;}
+
     std::filesystem::remove_all(directory);
     std::cout<<"physical_child_mass_mapping_fixture=PASS "
              <<"parent_csv_roundtrip=PASS strict_region_barrier=PASS "
-             <<"positive_tet_gate=PASS transfer=fixture_only\n";
+             <<"positive_tet_gate=PASS tetgen_reference_import=PASS transactional_import_rejections=PASS transfer=fixture_only\n";
     return 0;
 }
 

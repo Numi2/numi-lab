@@ -1,0 +1,1 @@
+physical_child_mass_mapping_fixture=PASS parent_csv_roundtrip=PASS strict_region_barrier=PASS positive_tet_gate=PASS tetgen_reference_import=PASS transactional_import_rejections=PASS transfer=fixture_only

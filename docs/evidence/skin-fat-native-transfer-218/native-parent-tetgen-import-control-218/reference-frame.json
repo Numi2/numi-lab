@@ -1,0 +1,8 @@
+{
+  "cells": 28632,
+  "nodes": 7233,
+  "parent_nodes_sha256": "7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044",
+  "physical_admission": false,
+  "reference_mapping": "child_reference=current=IEEE_F32(native_parent_current_xyz); exact index mapping; no frame transform",
+  "scope": "actual_native_parent_reference_import_control_not_changed_skin"
+}

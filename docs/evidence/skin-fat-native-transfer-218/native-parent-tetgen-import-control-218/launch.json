@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-child-mass-mapping-cli",
+    "--parent-mass-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-label-capture-016/compiled-parent-cell-mass.csv",
+    "--labels-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-label-capture-016/compiled-parent-cell-mass.csv.labels.csv",
+    "--child-node-file",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-tetgen-import-control-218/parent-reference.node",
+    "--child-ele-file",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-tetgen-import-control-218/parent-reference.ele",
+    "--child-labels-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-parent-tetgen-import-control-218/parent-reference.labels.csv",
+    "--coordinate-frame-sha256",
+    "cb8ccc78499a65cdf3404114f531cf379e1884a98003a622d2775a7d15639c60",
+    "--source-body-count",
+    "157",
+    "--maximum-transport-distance-m",
+    "0.000001"
+  ],
+  "host": "numi",
+  "scope": "actual_native_parent_reference_import_control_not_changed_skin"
+}
