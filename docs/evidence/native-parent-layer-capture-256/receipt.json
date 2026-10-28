@@ -1,0 +1,104 @@
+{
+  "exit_code": 0,
+  "wall_seconds": 12.272852999856696,
+  "binary_sha256": "c1d912d269547b604a22bb34ec5e47ce81f3e9303b6b213960b631f6123152e7",
+  "capture_only": "1",
+  "physical_steps": 0,
+  "runtime_created": false,
+  "source_inputs": "same argv and inherited source environment as native-parent-weights-243/run-001; output paths redirected to this run",
+  "stdout_capture_markers": {
+    "whole_body_parent_node_full_weights=PASS": true,
+    "whole_body_parent_layer_rows=PASS": true,
+    "whole_body_parent_deep_attachments=PASS": true,
+    "skin_fat_parent_mass_capture_only=PASS": true
+  },
+  "outputs": {
+    "compiled-parent-cell-mass.csv": {
+      "sha256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+      "bytes": 897942
+    },
+    "compiled-parent-cell-mass.csv.source.csv": {
+      "sha256": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f",
+      "bytes": 947346
+    },
+    "compiled-parent-cell-mass.csv.nodes.csv": {
+      "sha256": "7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044",
+      "bytes": 1694447
+    },
+    "compiled-parent-cell-mass.csv.tets.csv": {
+      "sha256": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+      "bytes": 2207254
+    },
+    "compiled-parent-cell-mass.csv.labels.csv": {
+      "sha256": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457",
+      "bytes": 604836
+    },
+    "compiled-parent-cell-mass.csv.weights.csv": {
+      "sha256": "98205ae7de44401544b7969184788f5c2ee39cd4404cd34b8037377e7ae63a76",
+      "bytes": 14034485
+    },
+    "parent-layer-rows.csv": {
+      "sha256": "ae8f0c96ce34f3dedf4b2950eb7009436f827998ad5a35b7f9287d2cf4cc384f",
+      "bytes": 3030495
+    },
+    "parent-deep-attachments.csv": {
+      "sha256": "a0bad61ae21a6fb952c589ab30a69c866866996c23842929d88d91576b29ba3f",
+      "bytes": 5838
+    },
+    "registered-skin-100-native.csv": {
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731
+    },
+    "registered-skin-poses-100.json": {
+      "sha256": "eb2ae08f74852f08d5b08a18f3d7738b53b8e7265336f77646cbe8f949ece117",
+      "bytes": 73341
+    },
+    "tissue-mass-reference.txt": {
+      "sha256": "41b4ae6ef1e957f984da9413df6bd883610d38556f5f93c5e18675852218ccf6",
+      "bytes": 2940238
+    },
+    "output/resting-coupled.csv": {
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+      "bytes": 1769
+    }
+  },
+  "legacy_comparisons": {
+    "compiled-parent-cell-mass.csv": {
+      "byte_identical_to_parent_weights_243_run001": true
+    },
+    "compiled-parent-cell-mass.csv.source.csv": {
+      "byte_identical_to_parent_weights_243_run001": true
+    },
+    "compiled-parent-cell-mass.csv.nodes.csv": {
+      "byte_identical_to_parent_weights_243_run001": true
+    },
+    "compiled-parent-cell-mass.csv.tets.csv": {
+      "byte_identical_to_parent_weights_243_run001": true
+    },
+    "compiled-parent-cell-mass.csv.labels.csv": {
+      "byte_identical_to_parent_weights_243_run001": true
+    },
+    "compiled-parent-cell-mass.csv.weights.csv": {
+      "byte_identical_to_parent_weights_243_run001": true
+    },
+    "registered-skin-100-native.csv": {
+      "byte_identical_to_parent_weights_243_run001": true
+    },
+    "registered-skin-poses-100.json": {
+      "byte_identical_to_parent_weights_243_run001": true
+    },
+    "tissue-mass-reference.txt": {
+      "byte_identical_to_parent_weights_243_run001": true
+    },
+    "output/resting-coupled.csv": {
+      "byte_identical_to_parent_weights_243_run001": true
+    }
+  },
+  "publication_parent": "87761b99241c2ed3190396d3910ddf74204a29fc",
+  "comparison_baseline_commit": "b3df9cf0fdfc3bae028fe02383788d606c0ec8d9",
+  "baseline_app_equal_parent_app": true,
+  "source_app_sha256": "d7592178d2f997c3854c5efbce9bae819306b17196d7add2ed2f24d19bce60cd",
+  "compiled_app_source_sha256": "d7592178d2f997c3854c5efbce9bae819306b17196d7add2ed2f24d19bce60cd",
+  "native_object_sha256": "2d30ff08df380686e0d7c7435e87cf8e6c82c6ac8ed75ba019ad733f8c3acfdd",
+  "build_command": "cmake --build build-native --target numi-human-native -j1"
+}

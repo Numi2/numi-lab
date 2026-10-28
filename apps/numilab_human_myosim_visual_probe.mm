@@ -21804,6 +21804,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::vector<std::uint32_t> wholeBodySkinRequiredSourceIDs;
     WholeBodySkinSourceConsumerRows wholeBodySkinSourceRows;
     WholeBodySkinSourceConsumerRows wholeBodyFatDeepSourceRows;
+    std::vector<std::uint32_t> wholeBodySkinSourceEmbeddingFaceRows;
+    std::vector<V3> wholeBodySkinSourceEmbeddingResidualWorldM;
     std::vector<double> wholeBodySkinContactThicknessM,wholeBodyFatContactThicknessM;
     std::vector<std::uint32_t> wholeBodyDeepAttachmentRows;
     std::vector<std::uint8_t> wholeBodySkinDetailUsed;
@@ -22188,6 +22190,18 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         std::span<const std::uint8_t>(wholeBodySkinDetailUsed),
                         wholeBodySkinSourceRows,tissueError),
                     "whole-body direct/projected source ancestry rejected: "+tissueError);
+            wholeBodySkinSourceEmbeddingFaceRows.assign(region.worldPoints.size(),NM_INVALID_INDEX);
+            if(!region.sourceEmbeddingFaceIndices.empty()) {
+                require(region.sourceEmbeddingFaceIndices.size()==region.worldPoints.size(),
+                        "whole-body source embedding face rows are not complete");
+                wholeBodySkinSourceEmbeddingFaceRows=region.sourceEmbeddingFaceIndices;
+            }
+            wholeBodySkinSourceEmbeddingResidualWorldM.assign(region.worldPoints.size(),V3{});
+            if(!region.sourceEmbeddingResidualWorldM.empty()) {
+                require(region.sourceEmbeddingResidualWorldM.size()==region.worldPoints.size(),
+                        "whole-body source embedding residual rows are not complete");
+                wholeBodySkinSourceEmbeddingResidualWorldM=region.sourceEmbeddingResidualWorldM;
+            }
         }
         RegisteredSkinMechanicalDeltaAudit wholeBodyMechanicalAudit{};
         if(enableWholeBodySkinFat) {
@@ -24166,6 +24180,163 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             std::cout<<"whole_body_parent_node_full_weights=PASS rows="<<parentWeights.size()
                 <<" binding_lanes=86 row_domain=object_local_parent_node_index"
                 <<" owner=registered_paired_column_source_weights source_values=unchanged"
+                <<" added_mass_kg=0 physical_steps=0"<<std::endl;
+        }
+        const char* roleRowsPath=std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_LAYER_ROWS_CSV");
+        const char* deepAttachmentsPath=std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_DEEP_ATTACHMENTS_CSV");
+        require((roleRowsPath==nullptr)==(deepAttachmentsPath==nullptr),
+                "parent role-thickness and frozen D-attachment captures must be requested together");
+        if(roleRowsPath!=nullptr) {
+            require(roleRowsPath[0]!='\0'&&deepAttachmentsPath[0]!='\0'&&
+                        std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_WEIGHTS_CSV")!=nullptr,
+                    "parent O/I/D capture requires nonempty layer/attachment paths and the same-cook full86 weights CSV");
+            const std::size_t columnCount=wholeBodySkinContactThicknessM.size();
+            require(columnCount>0u&&wholeBodyFatContactThicknessM.size()==columnCount&&
+                        columnCount==wholeBodySkinCoarseRest.size()&&
+                        columnCount==wholeBodySkinInnerRest.size()&&
+                        columnCount==wholeBodyFatDeepRest.size()&&
+                        columnCount==kWholeBodySkinSourceVertices.size()&&
+                        columnCount==wholeBodySkinSourceRows.directSourceIDs.size()&&
+                        columnCount==wholeBodySkinSourceRows.sourceFaces.size()&&
+                        columnCount==wholeBodySkinSourceRows.sourceBarycentric.size()&&
+                        columnCount==wholeBodySkinSourceRows.dominantBody.size()&&
+                        wholeBodySkinSourceEmbeddingFaceRows.size()==columnCount&&
+                        wholeBodySkinSourceEmbeddingResidualWorldM.size()==columnCount&&
+                        wholeBodySkinBoundaryNodeMap.volumeNodeCount==descriptor.stateCount,
+                    "parent O/I/D capture source-column domain or pinned payload differs");
+            const std::array<const std::vector<std::uint32_t>*,3> roleMaps{{
+                &wholeBodySkinBoundaryNodeMap.outer,
+                &wholeBodySkinBoundaryNodeMap.skinInner,
+                &wholeBodySkinBoundaryNodeMap.fatDeep}};
+            const std::array<const std::vector<V3>*,3> roleWorld{{
+                &wholeBodySkinCoarseRest,&wholeBodySkinInnerRest,&wholeBodyFatDeepRest}};
+            constexpr std::array<const char*,3> roleNames{{"O","I","D"}};
+            for(unsigned role=0u;role<3u;++role)
+                require(roleMaps[role]->size()==columnCount&&roleWorld[role]->size()==columnCount,
+                        "parent O/I/D capture requires exact one-row-per-source-column maps");
+            std::vector<std::uint8_t> boundaryCoverage(descriptor.stateCount,0u);
+            std::ostringstream layerRows;
+            layerRows<<"role,role_row,source_column_row,volume_node_row,compiled_global_node,frame_owner_body,"
+                <<"current_x_m,current_y_m,current_z_m,reference_x_m,reference_y_m,reference_z_m,"
+                <<"donor_local_x_m,donor_local_y_m,donor_local_z_m,source_payload_sha256,"
+                <<"source_layer_coordinates_sha256,source_vertex_row,source_face_row,source_beta0,"
+                <<"source_beta1,source_beta2,source_residual_x_m,source_residual_y_m,source_residual_z_m,"
+                <<"skin_thickness_m,fat_thickness_m\n"<<std::setprecision(17);
+            std::size_t roleRowCount=0u;
+            for(unsigned role=0u;role<3u;++role)for(std::size_t roleRow=0u;roleRow<columnCount;++roleRow) {
+                const std::size_t sourceColumnRow=roleRow;
+                const auto volumeNode=(*roleMaps[role])[roleRow];
+                require(volumeNode<descriptor.stateCount&&boundaryCoverage[volumeNode]==0u,
+                        "parent O/I/D capture map duplicates or exceeds its exact object-local node domain");
+                boundaryCoverage[volumeNode]=1u;
+                const auto global=descriptor.stateOffset+volumeNode;
+                require(global<compiled.world.fem.nodes.size()&&
+                            volumeNode<object.femNodes.size()&&volumeNode<referenceNodes.size()&&
+                            donorBodies[volumeNode]!=NM_INVALID_INDEX,
+                        "parent O/I/D capture row has no exact native node, reference, or frame owner");
+                const auto& native=compiled.world.fem.nodes[global].positionAndMass;
+                const V3 current{native.x,native.y,native.z};
+                const auto& reference=referenceNodes[volumeNode];
+                const auto& local=donorLocal[volumeNode];
+                require(norm(sub(current,(*roleWorld[role])[roleRow]))<=1.0e-6&&
+                            donorBodies[volumeNode]==wholeBodySkinSourceRows.dominantBody[sourceColumnRow],
+                        "parent O/I/D role row does not match its exact source column/frame owner");
+                const auto sourceVertex=wholeBodySkinSourceRows.directSourceIDs[sourceColumnRow];
+                const auto sourceFace=wholeBodySkinSourceEmbeddingFaceRows[sourceColumnRow];
+                const bool directSource=sourceVertex!=NM_INVALID_INDEX;
+                const bool embeddedSource=sourceFace!=NM_INVALID_INDEX;
+                require((directSource||embeddedSource)&&
+                            (!directSource||sourceVertex<skin->vertices.size())&&
+                            (!embeddedSource||sourceFace<skin->indices.size()/3u)&&
+                            (!directSource||sourceVertex==kWholeBodySkinSourceVertices[sourceColumnRow]),
+                        "parent O/I/D source identity is absent or outside its pinned NHSKIN domain");
+                const auto sourceBary=embeddedSource?
+                    wholeBodySkinSourceRows.sourceBarycentric[sourceColumnRow]:std::array<double,3>{};
+                if(embeddedSource&&directSource) {
+                    const auto& face=wholeBodySkinSourceRows.sourceFaces[sourceColumnRow];
+                    bool exactOneHot=false;
+                    for(unsigned corner=0u;corner<3u;++corner)
+                        exactOneHot=exactOneHot||(face[corner]==sourceVertex&&
+                            std::abs(sourceBary[corner]-1.0)<=1.0e-8&&
+                            std::abs(sourceBary[(corner+1u)%3u])<=1.0e-8&&
+                            std::abs(sourceBary[(corner+2u)%3u])<=1.0e-8);
+                    require(exactOneHot,
+                            "parent O/I/D direct source ID disagrees with its exact NHSKIN face/bary identity");
+                }
+                const V3 sourceResidual=wholeBodySkinSourceEmbeddingResidualWorldM[sourceColumnRow];
+                for(double x:sourceBary)require(std::isfinite(x),
+                    "parent O/I/D source barycentric contains a nonfinite value");
+                for(double x:sourceResidual)require(std::isfinite(x),
+                    "parent O/I/D source residual contains a nonfinite value");
+                require(std::isfinite(wholeBodySkinContactThicknessM[sourceColumnRow])&&wholeBodySkinContactThicknessM[sourceColumnRow]>0.0&&
+                            std::isfinite(wholeBodyFatContactThicknessM[sourceColumnRow])&&wholeBodyFatContactThicknessM[sourceColumnRow]>0.0,
+                        "parent O/I/D source column has invalid skin/fat thickness");
+                layerRows<<roleNames[role]<<','<<roleRow<<','<<sourceColumnRow<<','<<volumeNode<<','<<global
+                    <<','<<donorBodies[volumeNode];
+                for(double x:current)layerRows<<','<<x;
+                for(double x:reference)layerRows<<','<<x;
+                for(double x:local)layerRows<<','<<x;
+                layerRows<<','<<kWholeBodySkinSourcePayloadSHA256
+                    <<','<<kWholeBodySkinLayerCoordinatesSHA256<<','<<sourceVertex<<','<<sourceFace;
+                for(double x:sourceBary)layerRows<<','<<x;
+                for(double x:sourceResidual)layerRows<<','<<x;
+                layerRows<<','<<wholeBodySkinContactThicknessM[sourceColumnRow]<<','<<wholeBodyFatContactThicknessM[sourceColumnRow]<<'\n';
+                ++roleRowCount;
+            }
+            require(std::all_of(boundaryCoverage.begin(),boundaryCoverage.end(),
+                        [](std::uint8_t value){return value==1u;}),
+                    "parent O/I/D capture does not bijectively cover the exact baseline volume node domain");
+            const auto writeCapture=[&](const char* path,const std::string& bytes,
+                                        std::string_view owner) {
+                std::ofstream output(path,std::ios::out|std::ios::binary|std::ios::trunc);
+                require(output.good(),"could not create same-cook "+std::string(owner)+" CSV");
+                output.write(bytes.data(),static_cast<std::streamsize>(bytes.size()));
+                output.flush();
+                require(output.good(),"same-cook "+std::string(owner)+" CSV write failed");
+            };
+            writeCapture(roleRowsPath,layerRows.str(),"parent O/I/D per-node thickness");
+
+            std::ostringstream attachments;
+            attachments<<"site_row,role,source_payload_sha256,source_layer_coordinates_sha256,"
+                <<"reduced_column_row,source_vertex_row,donor_body,volume_node_row,compiled_global_node,"
+                <<"frame_owner_body,current_x_m,current_y_m,current_z_m,reference_x_m,reference_y_m,"
+                <<"reference_z_m,donor_local_x_m,donor_local_y_m,donor_local_z_m,skin_thickness_m,"
+                <<"fat_thickness_m\n"<<std::setprecision(17);
+            std::size_t attachmentRows=0u;
+            for(std::size_t siteRow=0u;siteRow<kWholeBodySkinDeepAttachmentSites.size();++siteRow) {
+                const auto& site=kWholeBodySkinDeepAttachmentSites[siteRow];
+                const auto column=static_cast<std::size_t>(site.reducedVertex);
+                require(column<columnCount&&
+                            wholeBodySkinSourceRows.directSourceIDs[column]==site.sourceVertex&&
+                            site.sourceVertex==kWholeBodySkinSourceVertices[column]&&
+                            wholeBodySkinSourceRows.dominantBody[column]==site.donorBody,
+                        "frozen D attachment tuple differs from the exact pinned source column");
+                const auto volumeNode=wholeBodySkinBoundaryNodeMap.fatDeep[column];
+                require(volumeNode<descriptor.stateCount&&donorBodies[volumeNode]==site.donorBody,
+                        "frozen D attachment does not resolve to its exact native D node/frame owner");
+                const auto global=descriptor.stateOffset+volumeNode;
+                const auto& native=compiled.world.fem.nodes[global].positionAndMass;
+                const V3 current{native.x,native.y,native.z};
+                const auto& reference=referenceNodes[volumeNode];
+                const auto& local=donorLocal[volumeNode];
+                attachments<<siteRow<<",D,"<<kWholeBodySkinSourcePayloadSHA256<<','
+                    <<kWholeBodySkinLayerCoordinatesSHA256<<','<<column<<','<<site.sourceVertex<<','
+                    <<site.donorBody<<','<<volumeNode<<','<<global<<','<<donorBodies[volumeNode];
+                for(double x:current)attachments<<','<<x;
+                for(double x:reference)attachments<<','<<x;
+                for(double x:local)attachments<<','<<x;
+                attachments<<','<<wholeBodySkinContactThicknessM[column]<<','<<wholeBodyFatContactThicknessM[column]<<'\n';
+                ++attachmentRows;
+            }
+            writeCapture(deepAttachmentsPath,attachments.str(),"frozen deep attachment");
+            std::cout<<"whole_body_parent_layer_rows=PASS rows="<<roleRowCount
+                <<" roles=O,I,D exact_volume_node_maps=1 source_domain_sha256="
+                <<kWholeBodySkinSourcePayloadSHA256<<" layer_coordinates_sha256="
+                <<kWholeBodySkinLayerCoordinatesSHA256<<" thickness_source=existing_per_column_fields"
+                <<" added_mass_kg=0 physical_steps=0"<<std::endl;
+            std::cout<<"whole_body_parent_deep_attachments=PASS rows="<<attachmentRows
+                <<" identity=source_payload_sha256+source_vertex_row+donor_body"
+                <<" volume_nodes=explicit_fat_deep_map rows_are_not_new_site_ids=1"
                 <<" added_mass_kg=0 physical_steps=0"<<std::endl;
         }
         require(skinFatReductionSourceLabels.has_value(),
