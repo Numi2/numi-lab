@@ -1,0 +1,8 @@
+{
+  "status": "retained_negative_trial",
+  "case": "explicit element mass and added vascular blood mass on the same object",
+  "error": "FEM node 0: lumped mass does not equal the canonical regional density-volume sum",
+  "cause": "separate pre-existing exact regional/reference validator does not include added vascular blood mass",
+  "scope": "not required by current skin/fat owner: the remeshed skin/fat object is unperfused; blood mass remains on separate vascular FEM",
+  "acceptance": "not claimed; no tolerance or same-object admission bypass introduced"
+}

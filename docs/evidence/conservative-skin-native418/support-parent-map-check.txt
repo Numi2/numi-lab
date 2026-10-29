@@ -1,0 +1,1 @@
+support_parent_topology=PASS bounded_geometry_change=PASS reordered_nodes=PASS invalid_cases=17 failure_preserves_state=PASS unchanged_attachment_node=PASS moved_attachment_rejected=PASS contact_forces_created=0 physical_admission=false

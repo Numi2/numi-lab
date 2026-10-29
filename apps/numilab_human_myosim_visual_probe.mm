@@ -24,6 +24,7 @@
 #include "NumiHumanPhysicalSkinChildIntegration.hpp"
 #include "NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp"
 #include "NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp"
+#include "NumiHumanPhysicalSkinSupportParentMap.hpp"
 #include "NumiHumanFEMOuterGroundAlignment.hpp"
 #include "NumiHumanRegisteredSkinCandidateCSV.hpp"
 #include "NumiHumanCandidateSkin033.hpp"
@@ -24216,13 +24217,33 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             wholeBodySkinTransferReport={};
             wholeBodySkinRepresentativeCoarseIndex.assign(
                 wholeBodySkinSupportSourceVertexCount,kWholeBodySkinTransferUnassigned);
+            PhysicalSkinSupportParentMap registeredSupportParentTopology;
+            bool registeredSupportParentTopologyProven=false;
+            std::string registeredSupportParentTopologyError;
+            if(useFEMSkinSupport&&!exactReferenceIdentity) {
+                const char* rawBound=std::getenv(
+                    "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_MAX_PARENT_REGISTRATION_DISTANCE_M");
+                char* endBound=nullptr;
+                const double nodeBound=rawBound?std::strtod(rawBound,&endBound):0.0;
+                if(rawBound&&endBound!=rawBound&&endBound&&*endBound==0&&
+                   std::isfinite(nodeBound)&&nodeBound>0.0)
+                    registeredSupportParentTopologyProven=provePhysicalSkinSupportParentMap(
+                        bundle,parentPairedPhysicalPointsForSupport,parentPairedTetsForSupport,
+                        nodeBound,registeredSupportParentTopology,registeredSupportParentTopologyError);
+                else registeredSupportParentTopologyError="missing pinned parent-node registration bound";
+            }
+            const auto supportParentNode=[&](std::uint32_t childNode) {
+                return exactReferenceIdentity?childNode:
+                    registeredSupportParentTopology.childNodeToParent.at(childNode);
+            };
             bool registeredParentSupportWitnessMap=false;
             std::string registeredSupportWitnessMapping="not_used";
             std::string registeredParentSupportWitnessProof=
                 !useFEMSkinSupport?"support_disabled":
-                !exactReferenceIdentity?"parent_identity_not_exact":
+                !exactReferenceIdentity&&!registeredSupportParentTopologyProven?
+                    "parent_topology_correspondence_not_proven:"+registeredSupportParentTopologyError:
                 "parent_O_volume_face_bijection_not_proven";
-            if(useFEMSkinSupport&&exactReferenceIdentity&&
+            if(useFEMSkinSupport&&(exactReferenceIdentity||registeredSupportParentTopologyProven)&&
                parentOuterRowsForSupport.size()==outer.worldPoints.size()&&
                parentPairedPhysicalPointsForSupport.size()==bundle.currentWorldPoints.size()&&
                kWholeBodySkinSourceToReducedVertex.size()==wholeBodySkinSupportSourceVertexCount&&
@@ -24243,7 +24264,11 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     }
                 }
                 for(std::size_t roleRow=0;roleRow<outer.worldPoints.size()&&rowPermutationValid;++roleRow) {
-                    const auto volumeNode=outer.volumeNodeRows[roleRow];
+                    const auto childVolumeNode=outer.volumeNodeRows[roleRow];
+                    if(childVolumeNode>=bundle.currentWorldPoints.size()) {
+                        rowPermutationValid=false;break;
+                    }
+                    const auto volumeNode=supportParentNode(childVolumeNode);
                     if(volumeNode>=parentPairedPhysicalPointsForSupport.size()) {
                         rowPermutationValid=false;break;
                     }
@@ -24254,7 +24279,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     }
                     const auto& parentPoint=parentPairedPhysicalPointsForSupport[volumeNode];
                     const auto& typedPoint=outer.worldPoints[roleRow];
-                    for(unsigned axis=0u;axis<3u;++axis) {
+                    for(unsigned axis=0u;exactReferenceIdentity&&axis<3u;++axis) {
                         const float typedF32=static_cast<float>(typedPoint[axis]);
                         if(!std::isfinite(typedF32)||
                            std::bit_cast<std::uint32_t>(typedF32)!=
@@ -24318,8 +24343,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             rowPermutationValid=false;break;
                         }
                         const std::array<std::uint32_t,3> volumeFace{
-                            outer.volumeNodeRows[face[0]],outer.volumeNodeRows[face[1]],
-                            outer.volumeNodeRows[face[2]]};
+                            supportParentNode(outer.volumeNodeRows[face[0]]),
+                            supportParentNode(outer.volumeNodeRows[face[1]]),
+                            supportParentNode(outer.volumeNodeRows[face[2]])};
                         const auto key=unorderedFace(volumeFace);
                         const auto found=parentTetFaces.find(key);
                         if(found==parentTetFaces.end()||found->second.count!=1u||
@@ -24371,7 +24397,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     if(rowPermutationValid) {
                         wholeBodySkinRepresentativeCoarseIndex=std::move(mappedRepresentatives);
                         registeredParentSupportWitnessMap=true;
-                        registeredSupportWitnessMapping="exact_parent_volume_node_face_permutation";
+                        registeredSupportWitnessMapping=exactReferenceIdentity?
+                            "exact_parent_volume_node_face_permutation":
+                            "bounded_parent_topology_node_face_correspondence";
                         registeredParentSupportWitnessProof="PASS";
                     }
                 }
@@ -24556,6 +24584,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 std::cout<<"registered_volume_NHCNT_support_witness_map=PASS"
                     <<" mapping="<<registeredSupportWitnessMapping
                     <<" parent_permutation_proof="<<registeredParentSupportWitnessProof
+                    <<" parent_topology_node_proof="<<(registeredSupportParentTopologyProven?"PASS":"not_used")
+                    <<" parent_node_displacement_max_m="<<registeredSupportParentTopology.maximumNodeDisplacementM
                     <<" bounded_nearest_max_gap_m="<<registeredSupportWitnessMaximumGapM
                     <<" physical_admission=0 simulation_steps=0"<<std::endl;
 
@@ -24596,6 +24626,30 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 require(std::isfinite(area)&&area>0.0,
                         "registered D attachment surface contains a degenerate face");
                 for(const auto node:face)deepArea[node]+=area/3.0;
+            }
+            // Preserve existing constraints only when each typed source request
+            // resolves to the same unchanged physical node and rest position.
+            // Changes elsewhere do not turn these into newly selected sites.
+            bool retainExactParentDeepConstraints=sidecars.deepAttachments.size()==14u&&
+                preparedSkin.firstGlobalFEMNode==parentPreparedSkinFirstGlobalFEMNode;
+            std::set<std::uint64_t> inheritedDeepAttachmentIDs;
+            for(const auto& attachment:sidecars.deepAttachments) {
+                const auto site=std::find_if(kWholeBodySkinDeepAttachmentSites.begin(),
+                    kWholeBodySkinDeepAttachmentSites.end(),[&](const auto& value) {
+                        return value.sourceVertex==attachment.stableAttachmentID&&
+                            value.reducedVertex==attachment.stableSourceVertex&&
+                            value.donorBody==attachment.donorBody;
+                    });
+                if(site==kWholeBodySkinDeepAttachmentSites.end()||
+                   site->reducedVertex>=parentFatDeepRowsForSupport.size()||
+                   !inheritedDeepAttachmentIDs.insert(attachment.stableAttachmentID).second) {
+                    retainExactParentDeepConstraints=false;continue;
+                }
+                const auto parentNode=parentFatDeepRowsForSupport[site->reducedVertex];
+                retainExactParentDeepConstraints=retainExactParentDeepConstraints&&
+                    attachment.volumeNodeRow==parentNode&&
+                    provePhysicalSkinInheritedAttachmentNode(bundle,
+                        parentPairedPhysicalPointsForSupport,attachment.volumeNodeRow,parentNode);
             }
             std::map<std::uint32_t,std::vector<std::pair<std::uint64_t,V3>>> selectedPerDonor;
             std::map<std::uint32_t,std::vector<std::pair<std::uint64_t,V3>>>
@@ -24660,7 +24714,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                                 attachment.stableSourceVertex,
                         "registered D attachment remap does not resolve to its exact typed source and volume row");
                 const WholeBodySkinDeepAttachmentSite* exactParentSite=nullptr;
-                if(exactReferenceIdentity) {
+                if(retainExactParentDeepConstraints) {
                     require(preparedSkin.firstGlobalFEMNode==parentPreparedSkinFirstGlobalFEMNode&&
                                 parentFatDeepRowsForSupport.size()==parentLegacyOuterPointsForSupport.size(),
                             "exact parent D constraint proof lost its original global or role-row map");
@@ -24903,7 +24957,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             require(wholeBodyDeepAttachmentRows.size()==14u&&
                         skinReferenceAnchors.size()+skinElasticAttachmentSamples.size()==14u,
                     "registered D attachment replacement did not retain exactly 14 remapped constraints");
-            if(exactReferenceIdentity) {
+            if(retainExactParentDeepConstraints) {
                 require(exactParentMappedAttachmentIDs.size()==14u&&
                             parentDeepAttachmentRowsForSupport.size()==14u&&
                             parentSkinReferenceAnchorsForSupport.size()+
@@ -24986,6 +25040,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 std::cout<<std::setprecision(17)
                     <<"registered_volume_exact_parent_D_constraint_parity=PASS"
                     <<" constraints=14 node_map=exact source_donor=exact"
+                    <<" exact_reference_identity="<<(exactReferenceIdentity?1:0)
+                    <<" inherited_attachment_node_proof=PASS"
                     <<" legacy_outer_min_spacing_m="<<legacyOuterMinimumSpacingM
                     <<" actual_parent_D_min_spacing_m="<<actualParentDMinimumSpacingM
                     <<" registered_D_min_spacing_m="<<registeredDMinimumSpacingM

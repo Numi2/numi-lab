@@ -597,15 +597,33 @@ bool validateVascularLayout(const CompiledWorld& world,std::string* error) {
     std::vector<std::uint32_t> bloodOwnerTissue(C, NM_INVALID_INDEX);
     std::vector<double> expectedBaseMass(world.fem.nodes.size(), 0.0);
     std::vector<double> expectedBloodMass(world.fem.nodes.size(), 0.0);
-    for (const auto& tetra : world.fem.tetrahedra) {
-        if ((tetra.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+    const auto& massIdentities=world.femTetrahedronMassSourceIdentities;
+    const auto& elementMasses=world.femTetrahedronMassesKg;
+    const bool hasMassLedger=!massIdentities.empty()||!elementMasses.empty();
+    if(hasMassLedger&&(massIdentities.size()!=world.objects.size()||
+                      elementMasses.size()!=world.fem.tetrahedra.size()))
+        return fail("FEM element mass ledger and source identities have inconsistent domains");
+    for (std::size_t tetRow=0;tetRow<world.fem.tetrahedra.size();++tetRow) {
+        const auto& tetra=world.fem.tetrahedra[tetRow];
+        const bool active=(tetra.identity.w & NM_OBJECT_ACTIVE) != 0u;
+        const bool explicitMass=hasMassLedger&&tetra.identity.y<massIdentities.size()&&
+            std::ranges::any_of(massIdentities[tetra.identity.y],
+                [](std::uint64_t word){return word!=0u;});
+        if(hasMassLedger&&((explicitMass&&active&&!positive(elementMasses[tetRow]))||
+                           ((!explicitMass||!active)&&elementMasses[tetRow]!=0.0)))
+            return fail("FEM element mass ledger has invalid or unowned cell mass");
+        if (!active) continue;
         if (tetra.identity.x >= world.materials.size() ||
             !(tetra.inverseRestRow0.w > 0.0f) ||
             !positive(double(world.materials[tetra.identity.x].bulk.x)))
             return fail("active FEM tetrahedron has invalid material mass");
-        const double nodal =
-            double(world.materials[tetra.identity.x].bulk.x) *
-            double(tetra.inverseRestRow0.w) * 0.25;
+        // The same source-identified element ledger used by the FEM compiler
+        // owns base mass after conservative remeshing. Material density remains
+        // the constitutive prior; blood is added exactly once below.
+        const double baseMass=explicitMass?elementMasses[tetRow]:
+            double(world.materials[tetra.identity.x].bulk.x)*
+                double(tetra.inverseRestRow0.w);
+        const double nodal=baseMass*0.25;
         for (const auto node : std::array<std::uint32_t,4>{
                  tetra.nodes.x, tetra.nodes.y, tetra.nodes.z, tetra.nodes.w}) {
             if (node >= expectedBaseMass.size() || !finite(nodal))

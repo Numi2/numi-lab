@@ -1,0 +1,47 @@
+{
+  "candidate.npz": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/candidate.npz",
+    "sha256": "2f547b21c6be0f3e21a021d80dad6c63c3a0e6af31d5ebe1780ca1b32c237a54",
+    "size": 3860489
+  },
+  "coarse-node-to-fine-surface.csv": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/coarse-node-to-fine-surface.csv",
+    "sha256": "a99a17486bec628346ac6673d93f9e6967ad41a59ada81b7c0df63f03e0204ea",
+    "size": 6546977
+  },
+  "coarse-boundary-faces.csv": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/coarse-boundary-faces.csv",
+    "sha256": "ba29aa543b8f609ff9d7f65320afebf696dc5e5782d37f0b309511dfc32a8918",
+    "size": 866745
+  },
+  "fine-O-to-coarse-boundary.csv": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/fine-O-to-coarse-boundary.csv",
+    "sha256": "5b9d2fe9b956cd18e947efc84892dd49263903a8d4e7c1b299ba6eea14692bf5",
+    "size": 29954368
+  },
+  "fine-I-to-coarse-boundary.csv": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/fine-I-to-coarse-boundary.csv",
+    "sha256": "11fa3fda344914a7c3dc9a53d88cf4ae4f820a98aa3999adc6374788d91bf26f",
+    "size": 56041954
+  },
+  "fine-D-to-coarse-boundary.csv": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/fine-D-to-coarse-boundary.csv",
+    "sha256": "0b59b02fffa20f9541b86e0bd0f1fd4b1b580d66fcfe9f2667f61dc3dcb866d3",
+    "size": 36926378
+  },
+  "child-parent-identity.csv": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/child-parent-identity.csv",
+    "sha256": "90498f8012d38c1a2f10ff7924f30512412d6c9e3c2edab72b651d0d92e44ef3",
+    "size": 1094469
+  },
+  "preserved-parent-head-sidewall-faces.csv": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/preserved-parent-head-sidewall-faces.csv",
+    "sha256": "5947559d9162a678aa1d5ecd0b25189b7978a91a23932f2012e1d48943b9a1b8",
+    "size": 9132
+  },
+  "preserved-attachment-anchors.csv": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/preserved-attachment-anchors.csv",
+    "sha256": "35cdee7811ba1f0534d6494270ca4e08221fd00883985c18b762962a9c7034a4",
+    "size": 371
+  }
+}

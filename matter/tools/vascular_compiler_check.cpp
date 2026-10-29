@@ -111,6 +111,33 @@ int main() {
         require(std::abs(bound.world.vascular.tissues[0].spatialFirst.y-.0025f)<1e-7f&&
                 std::abs(bound.world.vascular.tissues[0].spatialSecond1.x-2.5e-5f)<1e-8f,
                 "blood owner spatial moments were not cooked");
+        // A remeshed unperfused region may coexist with separate registered
+        // blood-bearing FEM. Use the same per-element ledger as its compiler.
+        auto explicitMassAssociated=associated;
+        auto remeshed=organ;remeshed.name="synthetic_unperfused_remeshed_region";
+        remeshed.automaticRepresentation=false;remeshed.mixedFEM=false;
+        for(auto& point:remeshed.femNodes)point[0]+=.1;
+        remeshed.femTetrahedronMassesKg={.004};
+        remeshed.femTetrahedronMassSourceIdentity={1,2,3,4};
+        explicitMassAssociated.objects.push_back(remeshed);
+        const auto explicitBound=compileWorld(explicitMassAssociated);
+        require(explicitBound.succeeded(),"remeshed solid beside blood-bearing FEM rejected: "+messages(explicitBound));
+        const auto unperfusedNode=explicitBound.world.objects[1].stateOffset+1u;
+        require(std::abs(double(explicitBound.world.fem.nodes[unperfusedNode].positionAndMass.w)-.001)<1e-9,
+            "unperfused node lost its explicit solid mass");
+        require(explicitBound.world.fem.nodes[0].positionAndMass.w==bound.world.fem.nodes[0].positionAndMass.w,
+            "remeshed unperfused region changed separate blood-bearing node mass");
+        bad=explicitBound.world;bad.fem.nodes[unperfusedNode].positionAndMass.w+=.001f;
+        rejectedCooked(bad,"forged explicit solid nodal mass in vascular world");
+        const auto explicitTet=explicitBound.world.objects[1].elementOffset;
+        bad=explicitBound.world;bad.femTetrahedronMassesKg[explicitTet]*=2;
+        rejectedCooked(bad,"changed solid ledger without matching nodal mass");
+        bad=explicitBound.world;bad.femTetrahedronMassSourceIdentities[1]={};
+        rejectedCooked(bad,"explicit vascular solid mass without source owner");
+        bad=explicitBound.world;bad.femTetrahedronMassesKg[explicitTet]=std::numeric_limits<double>::quiet_NaN();
+        rejectedCooked(bad,"nonfinite explicit vascular solid mass");
+        bad=explicitBound.world;bad.femTetrahedronMassesKg.clear();
+        rejectedCooked(bad,"missing explicit vascular solid mass values");
         associated.vascular.tissues[0].pressureFromCompartment=20u;
         associated.vascular.tissues[0].pressureToCompartment=10u;
         associated.vascular.tissues[0].pressureDirection={0,0,1};

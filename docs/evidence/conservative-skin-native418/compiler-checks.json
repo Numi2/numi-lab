@@ -1,0 +1,23 @@
+{
+  "checks": [
+    {
+      "name": "numi-matter-vascular-compiler-check",
+      "binary_sha256": "f4bb0b6a9da0dcf5dbfc42129201e569037673d92dd7d465b00dc94d520a5ee3",
+      "exit_code": 0,
+      "elapsed_s": 0.043616625014692545
+    },
+    {
+      "name": "numi-matter-explicit-fem-tet-mass-check",
+      "binary_sha256": "e33dcfa8ca4a4da72430d0833ffacec99fba4e346e77bed8bedc6939bc892ec2",
+      "exit_code": 0,
+      "elapsed_s": 0.014789792010560632
+    },
+    {
+      "name": "numi-matter-fem-tet-mass-multiobject-check",
+      "binary_sha256": "61f3fc0640505a2c6f736328254102d2933fba929ade256dff5055124253bc63",
+      "exit_code": 0,
+      "elapsed_s": 0.005290625151246786
+    }
+  ],
+  "scope": "CPU compiler, package and semantic validation only; no runtime or Human motion"
+}

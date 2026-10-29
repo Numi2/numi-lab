@@ -7085,3 +7085,17 @@ if(BUILD_TESTING)
     add_test(NAME human.physical-skin-authoring-role-consumer
         COMMAND numi-human-physical-skin-authoring-role-consumer-check)
 endif()
+
+# Source correspondence for existing support/attachment constraints after local
+# reference geometry repair. CPU preparation only; no physical admission.
+add_executable(numi-human-physical-skin-support-parent-map-check EXCLUDE_FROM_ALL
+    apps/NumiHumanPhysicalSkinSupportParentMapCheck.cpp)
+target_include_directories(numi-human-physical-skin-support-parent-map-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+target_compile_features(numi-human-physical-skin-support-parent-map-check PRIVATE cxx_std_23)
+target_compile_options(numi-human-physical-skin-support-parent-map-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME human.physical_skin_support_parent_map
+        COMMAND numi-human-physical-skin-support-parent-map-check)
+endif()
