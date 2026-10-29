@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-accepted-skin-direct-position-check"
+  ],
+  "return_code": 0,
+  "elapsed_s": 0.5095165828242898,
+  "binary_sha256": "8f0c44492bd4af2ecefe938d20c6d3d260836eb50ad9ed1aac4565f72db222ec",
+  "device": "Apple M6",
+  "scope": "Metal accepted-state rendering fixture; no body-physics step or motion qualification"
+}

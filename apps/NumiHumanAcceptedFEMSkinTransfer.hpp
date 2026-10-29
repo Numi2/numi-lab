@@ -23,6 +23,14 @@ public:
         float weight[3]{};
         float restDistance = 0;
     };
+    // Compiler-authored affine embedding into one accepted physical tetrahedron.
+    // Indices address the full physical volume, never detailed/source row IDs.
+    // Effective weights include the reference residual and sum to one.
+    struct GPUTetrahedralTransferRow {
+        std::uint32_t node[4]{};
+        float weight[4]{};
+    };
+    static_assert(sizeof(GPUTetrahedralTransferRow)==32, "tetrahedral transfer row ABI");
     struct Pose { Point translation{}; std::array<double,4> rotation{0,0,0,1}; };
     // Compiler-authored physical refinement ancestry. Identity rows retain the
     // existing source baseline; nonidentity rows prolong earlier coarse rows.

@@ -4191,6 +4191,27 @@ public:
             :acceptedFEMSkinRenderPass->updateAcceptedState(initial,initialBaseline,&error);
         require(updated,"accepted FEM skin initial render reference failed: "+error);
     }
+    void configureAcceptedFEMSkinTetrahedralTransfer(
+        const std::vector<numi::human::AcceptedFEMSkinTransfer::GPUTetrahedralTransferRow>& rows,
+        const std::vector<numi::human::AcceptedFEMSkinTransfer::Point>& referenceVolume) {
+        require(renderer&&skinFirstVertex!=MR_INVALID_INDEX&&!rows.empty()&&
+                    skinFirstVertex<=renderer->layout().meshVertexCount&&
+                    rows.size()<=renderer->layout().meshVertexCount-skinFirstVertex,
+                "accepted tetrahedral skin transfer has invalid render dimensions");
+        auto prepared=std::make_unique<numi::human::AcceptedFEMSkinRenderPass>();
+        std::string error;
+        require(prepared->initializeTetrahedral(coupled.physiology.device,rows,referenceVolume,&error),
+                "accepted tetrahedral skin render initialization failed: "+error);
+        acceptedFEMSkinRenderPass=std::move(prepared);
+    }
+    void updateAcceptedFEMSkinTetrahedralPositions(
+        const std::vector<std::array<float,4>>& acceptedVolumePositions) {
+        require(acceptedFEMSkinRenderPass!=nullptr,
+                "accepted tetrahedral skin transfer was not initialized");
+        std::string error;
+        require(acceptedFEMSkinRenderPass->updateAcceptedTetrahedralPositions(acceptedVolumePositions,&error),
+                "accepted tetrahedral skin render update failed: "+error);
+    }
     void updateAcceptedFEMSkinTransfer(
         const std::vector<std::array<float,4>>& deltas,
         const std::vector<numi::human::AcceptedFEMSkinTransfer::Point>& baseline) {

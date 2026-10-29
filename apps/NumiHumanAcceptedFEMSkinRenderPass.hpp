@@ -3,7 +3,10 @@
 // from the accepted-snapshot presentation callback, then encode after ordinary
 // skinning and before mesh draw. It writes render vertices only.
 #import <Metal/Metal.h>
+#include <algorithm>
 #include <array>
+#include <cmath>
+#include <limits>
 #include <cstdint>
 #include <cstddef>
 #include <cstring>
@@ -19,6 +22,7 @@ public:
     using Transfer = AcceptedFEMSkinTransfer;
     using Point = Transfer::Point;
     using Row = Transfer::GPUTransferRow;
+    using TetrahedralRow = Transfer::GPUTetrahedralTransferRow;
 
     bool initialize(id<MTLDevice> device, const std::vector<Row>& rows,
                     std::uint32_t coarseCount, std::string* error) {
@@ -56,46 +60,97 @@ public:
         static_assert(offsetof(MRVisualVertexGPUV2, tangent) == 32, "renderer tangent offset");
         static_assert(offsetof(MRVisualVertexGPUV2, texcoord01) == 48, "renderer texcoord offset");
         static_assert(offsetof(MRVisualVertexGPUV2, color) == 64, "renderer color offset");
-        NSError* nsError = nil;
-        NSString* source = [NSString stringWithUTF8String:metalSource()];
-        MTLCompileOptions* options = [MTLCompileOptions new];
-        options.languageVersion = MTLLanguageVersion4_0;
-        options.mathMode = MTLMathModeSafe;
-        id<MTLLibrary> library = [device newLibraryWithSource:source options:options error:&nsError];
-        if (!library) {
-            if (error) *error = nsError ? std::string(nsError.localizedDescription.UTF8String)
-                                        : "Metal transfer library compilation failed";
+        return initializeStorage(device,rows.data(),rows.size(),coarseCount,
+            "nm_human_accepted_fem_skin_transfer",error);
+    }
+
+    // Full-volume barycentric embedding. Preparation certifies source identity,
+    // region, extrapolation and reference reconstruction; presentation gathers
+    // the same accepted GPU coordinates used by the physical volume.
+    bool initializeTetrahedral(id<MTLDevice> device,
+                              const std::vector<TetrahedralRow>& rows,
+                              const std::vector<Point>& reference,
+                              std::string* error) {
+        reset();
+        if(!device||rows.empty()||reference.size()<4u||
+           rows.size()>UINT32_MAX||reference.size()>UINT32_MAX) {
+            if(error)*error="tetrahedral skin transfer has invalid dimensions";
             return false;
         }
-        id<MTLFunction> function = [library newFunctionWithName:@"nm_human_accepted_fem_skin_transfer"];
-        if (!function) {
-            if (error) *error = "Metal transfer function is absent";
+        for(const auto& p:reference)for(const double value:p)
+            if(!std::isfinite(value)||!std::isfinite(float(value))) {
+                if(error)*error="tetrahedral skin reference cannot be represented in Float32";
+                return false;
+            }
+        for(const auto& row:rows) {
+            double sum=0.0,magnitude=0.0;
+            for(unsigned c=0;c<4;++c) {
+                if(row.node[c]>=reference.size()||!std::isfinite(row.weight[c])) {
+                    if(error)*error="tetrahedral skin row has invalid physical node or weight";
+                    return false;
+                }
+                for(unsigned j=0;j<c;++j)if(row.node[j]==row.node[c]) {
+                    if(error)*error="tetrahedral skin row repeats a physical node";
+                    return false;
+                }
+                sum+=row.weight[c];magnitude+=std::abs(double(row.weight[c]));
+            }
+            const auto p32=[&](unsigned c) {
+                const auto& p=reference[row.node[c]];
+                return Point{double(float(p[0])),double(float(p[1])),double(float(p[2]))};
+            };
+            const auto a=p32(0),b=p32(1),c=p32(2),d=p32(3);
+            const Point u{b[0]-a[0],b[1]-a[1],b[2]-a[2]};
+            const Point v{c[0]-a[0],c[1]-a[1],c[2]-a[2]};
+            const Point w{d[0]-a[0],d[1]-a[1],d[2]-a[2]};
+            const double determinant=u[0]*(v[1]*w[2]-v[2]*w[1])
+                -u[1]*(v[0]*w[2]-v[2]*w[0])+u[2]*(v[0]*w[1]-v[1]*w[0]);
+            if(!std::isfinite(determinant)||!(determinant>0.0)) {
+                if(error)*error="tetrahedral skin reference has nonpositive Float32 cell";
+                return false;
+            }
+            const double bound=8.0*std::numeric_limits<float>::epsilon()*std::max(1.0,magnitude);
+            if(std::abs(sum-1.0)>bound) {
+                if(error)*error="tetrahedral skin row does not preserve translation";
+                return false;
+            }
+        }
+        if(!initializeStorage(device,rows.data(),rows.size(),std::uint32_t(reference.size()),
+                "nm_human_accepted_fem_skin_tetrahedral",error))return false;
+        auto* base=static_cast<std::array<float,4>*>([baseline_ contents]);
+        auto* positions=static_cast<std::array<float,4>*>([delta_ contents]);
+        if(!base||!positions) {
+            if(error)*error="tetrahedral skin transfer buffers are inaccessible";
+            reset();return false;
+        }
+        for(std::size_t i=0;i<reference.size();++i) {
+            const auto& p=reference[i];
+            base[i]={float(p[0]),float(p[1]),float(p[2]),1.0f};
+            positions[i]=base[i];
+        }
+        tetrahedralRows_=true;absolutePositions_=true;
+        if(error)error->clear();
+        return true;
+    }
+
+    bool updateAcceptedTetrahedralPositions(
+            const std::vector<std::array<float,4>>& positions,std::string* error) {
+        if(!tetrahedralRows_||!delta_||positions.size()!=coarseCount_) {
+            if(error)*error="tetrahedral accepted skin position count or mode mismatch";
             return false;
         }
-        pipeline_ = [device newComputePipelineStateWithFunction:function error:&nsError];
-        if (!pipeline_) {
-            if (error) *error = nsError ? std::string(nsError.localizedDescription.UTF8String)
-                                        : "Metal transfer pipeline creation failed";
+        for(const auto& p:positions)for(unsigned a=0;a<3;++a)
+            if(!std::isfinite(p[a])) {
+                if(error)*error="nonfinite accepted tetrahedral skin position";
+                return false;
+            }
+        void* bytes=[delta_ contents];
+        if(!bytes) {
+            if(error)*error="tetrahedral accepted skin position buffer is inaccessible";
             return false;
         }
-        rows_ = [device newBufferWithBytes:rows.data()
-                                    length:rows.size()*sizeof(Row)
-                                   options:MTLResourceStorageModeShared];
-        const std::vector<std::array<float,4>> zero(coarseCount, {0,0,0,0});
-        baseline_ = [device newBufferWithBytes:zero.data()
-                                        length:zero.size()*sizeof(zero[0])
-                                       options:MTLResourceStorageModeShared];
-        delta_ = [device newBufferWithBytes:zero.data()
-                                     length:zero.size()*sizeof(zero[0])
-                                    options:MTLResourceStorageModeShared];
-        if (!rows_ || !baseline_ || !delta_) {
-            if (error) *error = "Metal transfer buffer allocation failed";
-            reset();
-            return false;
-        }
-        rowCount_ = static_cast<std::uint32_t>(rows.size());
-        coarseCount_ = coarseCount;
-        if (error) error->clear();
+        std::memcpy(bytes,positions.data(),positions.size()*sizeof(positions[0]));
+        if(error)error->clear();
         return true;
     }
 
@@ -106,7 +161,7 @@ public:
     bool updateAcceptedState(const std::vector<std::array<float,4>>& deltas,
                              const std::vector<Point>& currentBaseline,
                              std::string* error) {
-        if (!delta_ || deltas.size()!=coarseCount_ || currentBaseline.size()!=coarseCount_) {
+        if (tetrahedralRows_ || !delta_ || deltas.size()!=coarseCount_ || currentBaseline.size()!=coarseCount_) {
             if (error) *error = "accepted FEM displacement/baseline count mismatch";
             return false;
         }
@@ -175,10 +230,56 @@ public:
         delta_ = nil;
         pipeline_ = nil;
         rowCount_ = coarseCount_ = 0;
-        absolutePositions_=false;directPositionRows_=false;
+        absolutePositions_=false;directPositionRows_=false;tetrahedralRows_=false;
     }
 
 private:
+    bool initializeStorage(id<MTLDevice> device,const void* rowData,std::size_t rowCount,
+                           std::uint32_t coarseCount,const char* functionName,
+                           std::string* error) {
+        NSError* nsError = nil;
+        NSString* source = [NSString stringWithUTF8String:metalSource()];
+        MTLCompileOptions* options = [MTLCompileOptions new];
+        options.languageVersion = MTLLanguageVersion4_0;
+        options.mathMode = MTLMathModeSafe;
+        id<MTLLibrary> library = [device newLibraryWithSource:source options:options error:&nsError];
+        if (!library) {
+            if (error) *error = nsError ? std::string(nsError.localizedDescription.UTF8String)
+                                        : "Metal transfer library compilation failed";
+            return false;
+        }
+        id<MTLFunction> function = [library newFunctionWithName:[NSString stringWithUTF8String:functionName]];
+        if (!function) {
+            if (error) *error = "Metal transfer function is absent";
+            return false;
+        }
+        pipeline_ = [device newComputePipelineStateWithFunction:function error:&nsError];
+        if (!pipeline_) {
+            if (error) *error = nsError ? std::string(nsError.localizedDescription.UTF8String)
+                                        : "Metal transfer pipeline creation failed";
+            return false;
+        }
+        rows_ = [device newBufferWithBytes:rowData
+                                    length:rowCount*sizeof(TetrahedralRow)
+                                   options:MTLResourceStorageModeShared];
+        const std::vector<std::array<float,4>> zero(coarseCount, {0,0,0,0});
+        baseline_ = [device newBufferWithBytes:zero.data()
+                                        length:zero.size()*sizeof(zero[0])
+                                       options:MTLResourceStorageModeShared];
+        delta_ = [device newBufferWithBytes:zero.data()
+                                     length:zero.size()*sizeof(zero[0])
+                                    options:MTLResourceStorageModeShared];
+        if (!rows_ || !baseline_ || !delta_) {
+            if (error) *error = "Metal transfer buffer allocation failed";
+            reset();
+            return false;
+        }
+        rowCount_ = static_cast<std::uint32_t>(rowCount);
+        coarseCount_ = coarseCount;
+        if (error) error->clear();
+        return true;
+    }
+
     static const char* metalSource() {
         return R"MSL(
 #include <metal_stdlib>
@@ -245,6 +346,38 @@ kernel void nm_human_accepted_fem_skin_transfer(
         if (t2>1.0e-12f) rv.tangent.xyz=t*rsqrt(t2);
     }
 }
+
+struct TetrahedralTransferRow {
+    uint4 node;
+    float4 weight;
+};
+kernel void nm_human_accepted_fem_skin_tetrahedral(
+    constant uint4& parameters [[buffer(0)]],
+    device const TetrahedralTransferRow* rows [[buffer(1)]],
+    device const float4* accepted [[buffer(2)]],
+    device MRVisualVertexGPUV2* vertices [[buffer(3)]],
+    device const float4* reference [[buffer(4)]],
+    uint i [[thread_position_in_grid]]) {
+    if(i>=parameters.x)return;
+    const TetrahedralTransferRow row=rows[i];
+    const float3 x0=accepted[row.node.x].xyz,x1=accepted[row.node.y].xyz;
+    const float3 x2=accepted[row.node.z].xyz,x3=accepted[row.node.w].xyz;
+    device MRVisualVertexGPUV2& rv=vertices[parameters.y+i];
+    rv.position.xyz=row.weight.x*x0+row.weight.y*x1+row.weight.z*x2+row.weight.w*x3;
+    const float3 r0=reference[row.node.x].xyz;
+    const float3 r1=reference[row.node.y].xyz-r0,r2=reference[row.node.z].xyz-r0,r3=reference[row.node.w].xyz-r0;
+    const float det=dot(r1,cross(r2,r3));
+    if(!(det>0.0f)||!isfinite(det))return;
+    const float3x3 inverseReference=transpose(float3x3(cross(r2,r3),cross(r3,r1),cross(r1,r2)))/det;
+    const float3x3 F=float3x3(x1-x0,x2-x0,x3-x0)*inverseReference;
+    const float3x3 cofactorF=float3x3(cross(F[1],F[2]),cross(F[2],F[0]),cross(F[0],F[1]));
+    const float3 n=cofactorF*rv.normalAndTangentSign.xyz;
+    const float3 t=F*rv.tangent.xyz;
+    const float n2=dot(n,n),t2=dot(t,t);
+    if(n2>1.0e-20f&&isfinite(n2))rv.normalAndTangentSign.xyz=n*rsqrt(n2);
+    if(t2>1.0e-20f&&isfinite(t2))rv.tangent.xyz=t*rsqrt(t2);
+}
+
 )MSL";
     }
 
@@ -253,7 +386,7 @@ kernel void nm_human_accepted_fem_skin_transfer(
     __strong id<MTLBuffer> delta_ = nil;
     __strong id<MTLComputePipelineState> pipeline_ = nil;
     std::uint32_t rowCount_ = 0, coarseCount_ = 0;
-    bool absolutePositions_=false,directPositionRows_=false;
+    bool absolutePositions_=false,directPositionRows_=false,tetrahedralRows_=false;
 };
 } // namespace numi::human
 
