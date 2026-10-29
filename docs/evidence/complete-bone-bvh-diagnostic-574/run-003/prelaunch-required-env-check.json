@@ -1,0 +1,547 @@
+{
+  "active_detail_bridge": false,
+  "control_count": 10,
+  "failures": [],
+  "fresh_output_paths": [
+    {
+      "fresh": true,
+      "key": "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/complete-bone-bvh-diagnostic-574/run-003/output/common-field-failure.json"
+    },
+    {
+      "fresh": true,
+      "key": "NUMI_HUMAN_SKIN_REFERENCE_DUMP",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/complete-bone-bvh-diagnostic-574/run-003/output/registered-skin-100-native.csv"
+    },
+    {
+      "fresh": true,
+      "key": "NUMI_HUMAN_SKIN_REFERENCE_POSE_DUMP",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/complete-bone-bvh-diagnostic-574/run-003/output/registered-skin-poses-100.json"
+    },
+    {
+      "fresh": true,
+      "key": "NUMI_HUMAN_TISSUE_MASS_REFERENCE_DUMP",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/complete-bone-bvh-diagnostic-574/run-003/output/tissue-mass-reference.txt"
+    }
+  ],
+  "manifest_pin_checks": [
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_CHILD_LABELS",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_COMBINED_NODE_MAP_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_DEEP_ATTACHMENT_REQUESTS_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_DONOR_FRAMES_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_FACET_ANCESTRY_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_NODE_REGISTRATION_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_PRODUCER_RECEIPT",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_SELF_AUDIT_RECEIPT",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_VOLUME_ASSET",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CONFORMING_REFINEMENT_ACTUAL_PROOF_RECEIPT",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CONFORMING_REFINEMENT_SELF_AUDIT_RECEIPT",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_ELEMENTS",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_LABELS",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_NODE",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_PRODUCER_RECEIPT",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_SELF_AUDIT_RECEIPT",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_VOLUME_ASSET",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OUTER_FACE_ANCESTRY_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_LABELS_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_PACKET_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_CONTACT_THICKNESS_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_FULL86_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_SOURCE_ASSET",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_CONTACT_THICKNESS_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_FULL86_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_SOURCE_ASSET",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_CONTACT_THICKNESS_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_FULL86_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_SOURCE_ASSET",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_D_FACES_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_D_NODES_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_I_FACES_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_I_NODES_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_O_FACES_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_O_NODES_CSV",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_TETGEN_ELEMENTS",
+      "ok": true
+    },
+    {
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_TETGEN_NODE",
+      "ok": true
+    }
+  ],
+  "manifest_sha256": "1c7349f656e5aa1a4c1ed02ee6f3b66febb3bf42b156fea78ffb1ee77b3ce02a",
+  "missing_required_keys": [],
+  "passed": true,
+  "pin_checks": [
+    {
+      "actual": "4b6bfa518429deaec76ec7bf69487c3c029005728710c1d3750929ebc63d190f",
+      "expected": "4b6bfa518429deaec76ec7bf69487c3c029005728710c1d3750929ebc63d190f",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_CHILD_LABELS_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_CHILD_LABELS",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/volume/child.labels.csv"
+    },
+    {
+      "actual": "b3bf0870519d81c3ff8c98d15ce61c107905beec21615da85505f2da2bd03bcf",
+      "expected": "b3bf0870519d81c3ff8c98d15ce61c107905beec21615da85505f2da2bd03bcf",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_COMBINED_NODE_MAP_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_COMBINED_NODE_MAP_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/volume/combined-node-map.csv"
+    },
+    {
+      "actual": "ae91cacdfe5057e7e7120bfbe501153eb85feb5a9371fa3cf07a673e81ebb742",
+      "expected": "ae91cacdfe5057e7e7120bfbe501153eb85feb5a9371fa3cf07a673e81ebb742",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_DEEP_ATTACHMENT_REQUESTS_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_DEEP_ATTACHMENT_REQUESTS_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-registered-volume-parent-identity-physical-control-365/inputs/deep-attachment-requests.csv"
+    },
+    {
+      "actual": "b1704fb7b846254583f4b6a08c394ed3cad1603554244078706ca4b3811ac674",
+      "expected": "b1704fb7b846254583f4b6a08c394ed3cad1603554244078706ca4b3811ac674",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_DONOR_FRAMES_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_DONOR_FRAMES_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/registered/donor-frames.csv"
+    },
+    {
+      "actual": "935c483627e99c572c3b41684c40cc092d16ae4a998b9f16f1e84e6040d9ed81",
+      "expected": "935c483627e99c572c3b41684c40cc092d16ae4a998b9f16f1e84e6040d9ed81",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_FACET_ANCESTRY_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_FACET_ANCESTRY_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/volume/facet-ancestry.csv"
+    },
+    {
+      "actual": "7035a38566db8a84aefa2a05cc48efbfb9f93c2eb81ac732a3386532ce5f51e2",
+      "expected": "7035a38566db8a84aefa2a05cc48efbfb9f93c2eb81ac732a3386532ce5f51e2",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_NODE_REGISTRATION_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_NODE_REGISTRATION_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/registered/node-parent-registration.csv"
+    },
+    {
+      "actual": "1bc91a6a8f9ba5daef2b96f04c3b1de8996f7e4ecb078f64fe860d5e8e3c3dcf",
+      "expected": "1bc91a6a8f9ba5daef2b96f04c3b1de8996f7e4ecb078f64fe860d5e8e3c3dcf",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_PRODUCER_RECEIPT_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_PRODUCER_RECEIPT",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/receipt.json"
+    },
+    {
+      "actual": "763c835ed2f54e9e5c724ca1f03bee38a47edc0c9dd77ef054016eca17993601",
+      "expected": "763c835ed2f54e9e5c724ca1f03bee38a47edc0c9dd77ef054016eca17993601",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_SELF_AUDIT_RECEIPT_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_SELF_AUDIT_RECEIPT",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-exact-self-549/run-001/receipt.json"
+    },
+    {
+      "actual": "888eb12450d0e69fb0ad3f5998159ab7a0a20d3e70b13c42ba416c61cbbede63",
+      "expected": "888eb12450d0e69fb0ad3f5998159ab7a0a20d3e70b13c42ba416c61cbbede63",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_VOLUME_ASSET_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_VOLUME_ASSET",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-030-connected-constrained-edge-fit/run-006/candidate.npz"
+    },
+    {
+      "actual": "996bc967daee1b9b9ba78d15cd3e3785fc8203af2b0daf995e03a351553da187",
+      "expected": "996bc967daee1b9b9ba78d15cd3e3785fc8203af2b0daf995e03a351553da187",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CONFORMING_REFINEMENT_ACTUAL_PROOF_RECEIPT_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CONFORMING_REFINEMENT_ACTUAL_PROOF_RECEIPT",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-refinement-native-proof-541/run-002/actual-proof-receipt.json"
+    },
+    {
+      "actual": "58b1337eda8e4d536037b273d126d6fd5290cb10a77000ef44419cd02fc935c4",
+      "expected": "58b1337eda8e4d536037b273d126d6fd5290cb10a77000ef44419cd02fc935c4",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CONFORMING_REFINEMENT_SELF_AUDIT_RECEIPT_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CONFORMING_REFINEMENT_SELF_AUDIT_RECEIPT",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-refinement-control-530/run-001/exact-topology-531/receipt.json"
+    },
+    {
+      "actual": "49671889c6711fedd8dd5727bd264e9d652b3c8ef48e15783b6be7a44c32c347",
+      "expected": "49671889c6711fedd8dd5727bd264e9d652b3c8ef48e15783b6be7a44c32c347",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_ELEMENTS_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_ELEMENTS",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/parent-reduced-boundary.ele"
+    },
+    {
+      "actual": "c4f751327f3b47e24e892f397d726105e2c8be0846e7b3b07f99b2e202e5ae5c",
+      "expected": "c4f751327f3b47e24e892f397d726105e2c8be0846e7b3b07f99b2e202e5ae5c",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_LABELS_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_LABELS",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/parent-reduced-boundary.labels.csv"
+    },
+    {
+      "actual": "d1238fc477b290c78970d5a7bbf01e7465a5e85aa00fe7414ee3b95503cc1b50",
+      "expected": "d1238fc477b290c78970d5a7bbf01e7465a5e85aa00fe7414ee3b95503cc1b50",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_NODE_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_NODE",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/parent-reduced-boundary.node"
+    },
+    {
+      "actual": "70faa10f6952d85e5d7b788cddca4896fc329126c82102215489a97ffc7c685f",
+      "expected": "70faa10f6952d85e5d7b788cddca4896fc329126c82102215489a97ffc7c685f",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_PRODUCER_RECEIPT_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_PRODUCER_RECEIPT",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/reconstructed-receipt.json"
+    },
+    {
+      "actual": "4f33f1779864b188a127e7a3df8ac68c58f7ba134695d1fd3d3613052f0ae34c",
+      "expected": "4f33f1779864b188a127e7a3df8ac68c58f7ba134695d1fd3d3613052f0ae34c",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_SELF_AUDIT_RECEIPT_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_SELF_AUDIT_RECEIPT",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/exact-self-521/receipt.json"
+    },
+    {
+      "actual": "2f547b21c6be0f3e21a021d80dad6c63c3a0e6af31d5ebe1780ca1b32c237a54",
+      "expected": "2f547b21c6be0f3e21a021d80dad6c63c3a0e6af31d5ebe1780ca1b32c237a54",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_VOLUME_ASSET_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_VOLUME_ASSET",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/candidate.npz"
+    },
+    {
+      "actual": "ae73608f03d21b7a85e23d501578cf02ef50e3e8e99c675c915b2b99bbbf89b1",
+      "expected": "ae73608f03d21b7a85e23d501578cf02ef50e3e8e99c675c915b2b99bbbf89b1",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OUTER_FACE_ANCESTRY_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OUTER_FACE_ANCESTRY_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/registered/outer-face-ancestry.csv"
+    },
+    {
+      "actual": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457",
+      "expected": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_LABELS_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_LABELS_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.labels.csv"
+    },
+    {
+      "actual": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+      "expected": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_PACKET_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_PACKET_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv"
+    },
+    {
+      "actual": "46335d5a09d0c5a74b23d9b7dadd2bf3e0574aeafaa918c73a1a36c1c6896d9f",
+      "expected": "46335d5a09d0c5a74b23d9b7dadd2bf3e0574aeafaa918c73a1a36c1c6896d9f",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_CONTACT_THICKNESS_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_CONTACT_THICKNESS_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/roles/D-contact-thickness.csv"
+    },
+    {
+      "actual": "0d55fa61188ef8338468c8878100331b2710ebad04cf1dc4d78d8e567f5a4ff1",
+      "expected": "0d55fa61188ef8338468c8878100331b2710ebad04cf1dc4d78d8e567f5a4ff1",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_FULL86_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_FULL86_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/roles/D-full86.csv"
+    },
+    {
+      "actual": "8d9316330755bee95a100138e21bed2aff63ea51616cfce868948a3fcc9a1728",
+      "expected": "8d9316330755bee95a100138e21bed2aff63ea51616cfce868948a3fcc9a1728",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_SOURCE_ASSET_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_SOURCE_ASSET",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/roles/D-source.json"
+    },
+    {
+      "actual": "46335d5a09d0c5a74b23d9b7dadd2bf3e0574aeafaa918c73a1a36c1c6896d9f",
+      "expected": "46335d5a09d0c5a74b23d9b7dadd2bf3e0574aeafaa918c73a1a36c1c6896d9f",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_CONTACT_THICKNESS_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_CONTACT_THICKNESS_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/roles/I-contact-thickness.csv"
+    },
+    {
+      "actual": "0d55fa61188ef8338468c8878100331b2710ebad04cf1dc4d78d8e567f5a4ff1",
+      "expected": "0d55fa61188ef8338468c8878100331b2710ebad04cf1dc4d78d8e567f5a4ff1",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_FULL86_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_FULL86_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/roles/I-full86.csv"
+    },
+    {
+      "actual": "58a656a08d8e23100903a31ee8c3b39145aa71b20f63e8e331f100025a1177e8",
+      "expected": "58a656a08d8e23100903a31ee8c3b39145aa71b20f63e8e331f100025a1177e8",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_SOURCE_ASSET_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_SOURCE_ASSET",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/roles/I-source.json"
+    },
+    {
+      "actual": "46335d5a09d0c5a74b23d9b7dadd2bf3e0574aeafaa918c73a1a36c1c6896d9f",
+      "expected": "46335d5a09d0c5a74b23d9b7dadd2bf3e0574aeafaa918c73a1a36c1c6896d9f",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_CONTACT_THICKNESS_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_CONTACT_THICKNESS_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/roles/O-contact-thickness.csv"
+    },
+    {
+      "actual": "0d55fa61188ef8338468c8878100331b2710ebad04cf1dc4d78d8e567f5a4ff1",
+      "expected": "0d55fa61188ef8338468c8878100331b2710ebad04cf1dc4d78d8e567f5a4ff1",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_FULL86_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_FULL86_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/roles/O-full86.csv"
+    },
+    {
+      "actual": "dd1889ce77ae87df7e4ff46225f29a7c39b5322714c9569e9745466317c19e93",
+      "expected": "dd1889ce77ae87df7e4ff46225f29a7c39b5322714c9569e9745466317c19e93",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_SOURCE_ASSET_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_SOURCE_ASSET",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/roles/O-source.json"
+    },
+    {
+      "actual": "d0a3be10962313e0060cee145790e2ad9b6d1197441fd9df7b369e94bf2b3469",
+      "expected": "d0a3be10962313e0060cee145790e2ad9b6d1197441fd9df7b369e94bf2b3469",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_D_FACES_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_D_FACES_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/registered/registered-D-faces.csv"
+    },
+    {
+      "actual": "79d71016df010db4434f821a3101554fea656b5670542538f23fa68de328f714",
+      "expected": "79d71016df010db4434f821a3101554fea656b5670542538f23fa68de328f714",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_D_NODES_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_D_NODES_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/registered/registered-D.csv"
+    },
+    {
+      "actual": "57fd829c549d6d66260ca3910d45290160b02d0641f12808774a59497ee449c2",
+      "expected": "57fd829c549d6d66260ca3910d45290160b02d0641f12808774a59497ee449c2",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_I_FACES_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_I_FACES_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/registered/registered-I-faces.csv"
+    },
+    {
+      "actual": "509352702a865ce0905efbd52c4efd21222140bbcda6e9164086835c9f68690c",
+      "expected": "509352702a865ce0905efbd52c4efd21222140bbcda6e9164086835c9f68690c",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_I_NODES_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_I_NODES_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/registered/registered-I.csv"
+    },
+    {
+      "actual": "a3fae0cb586611ee127d841cadcb10db64c20b91ef00a787abd024a9b47fe01c",
+      "expected": "a3fae0cb586611ee127d841cadcb10db64c20b91ef00a787abd024a9b47fe01c",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_O_FACES_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_O_FACES_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/registered/registered-O-faces.csv"
+    },
+    {
+      "actual": "8fed2b89fbfa4a4e20b83f097722e94a06d8bdd628563ae8d8e83c79cfa95fd1",
+      "expected": "8fed2b89fbfa4a4e20b83f097722e94a06d8bdd628563ae8d8e83c79cfa95fd1",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_O_NODES_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_O_NODES_CSV",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/registered/registered-O.csv"
+    },
+    {
+      "actual": "8f1f83ff535840ce7ad3f4ecdaba46d4094cf191cc765a8ff8ee17a8fc26e44c",
+      "expected": "8f1f83ff535840ce7ad3f4ecdaba46d4094cf191cc765a8ff8ee17a8fc26e44c",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_TETGEN_ELEMENTS_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_TETGEN_ELEMENTS",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/volume/mesh.ele"
+    },
+    {
+      "actual": "2299051f9d498dd562d7730faf88ae6e1260db85d4efeb8bc2f05ca38ce875ca",
+      "expected": "2299051f9d498dd562d7730faf88ae6e1260db85d4efeb8bc2f05ca38ce875ca",
+      "hash_key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_TETGEN_NODE_SHA256",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_TETGEN_NODE",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/conforming-fit-006-native-assets-545/run-002-operational-reference/registered-assets/volume/mesh.node"
+    },
+    {
+      "actual": "7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044",
+      "expected": "7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_NODES_SHA256",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.nodes.csv"
+    },
+    {
+      "actual": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f",
+      "expected": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_SOURCE_SHA256",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.source.csv"
+    },
+    {
+      "actual": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+      "expected": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+      "key": "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_TETS_SHA256",
+      "ok": true,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.tets.csv"
+    }
+  ],
+  "required_key_count": 104,
+  "run_directory": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/complete-bone-bvh-diagnostic-574/run-003",
+  "runner_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/run_geometry_serial.py",
+  "runner_sha256": "88ce1f98414e0125f0cb31a94354db40cfdaba2281f79a9040aa9872d19edf35",
+  "schema": "numi-human.prelaunch-required-env-check.v1",
+  "source_file_checks": [
+    {
+      "ok": true,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanAcceptedFEMSkinTransfer.hpp"
+    },
+    {
+      "ok": true,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanConformingTissueRefinement.hpp"
+    },
+    {
+      "ok": true,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanConformingTissueRefinementAssets.hpp"
+    },
+    {
+      "ok": true,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp"
+    },
+    {
+      "ok": true,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildMassMapping.hpp"
+    },
+    {
+      "ok": true,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp"
+    },
+    {
+      "ok": true,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp"
+    },
+    {
+      "ok": true,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanRestingVisual.hpp"
+    },
+    {
+      "ok": true,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/numilab_human_myosim_visual_probe.mm"
+    },
+    {
+      "ok": true,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/include/numi/matter/fem_body_contact_static_bvh.hpp"
+    }
+  ],
+  "source_sha256": "18485f0fbe48db28eae189cc3c47591b8243641203ef93ac28c441227903fe51"
+}

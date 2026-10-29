@@ -1,0 +1,14 @@
+{
+  "schema": "numi-human.native-conforming-refinement-source-only-result.v1",
+  "exit_code": 0,
+  "start_unix": 1793277784.925868,
+  "end_unix": 1793277795.891896,
+  "stdout_sha256": "8fadeb2cd1c8ec063916e5b290a6d869984f7d74edc2033d1102df426b40ada2",
+  "stderr_sha256": "c56fe647984255c756d5c26d03053e9b11b9c81e38ef5daa9673851eb90a2396",
+  "binary_sha256": "615cd20b7b779b843690c5479584fe1b9a17e9dbcf7a54b6130c679d93765afd",
+  "runtime_library_sha256": "b4b470ec60f80e7edc8f6c4b7c1eb5cc0296beeba8601332a05a1054d7db5e4e",
+  "physical_admission": false,
+  "runtime_created": false,
+  "accepted_steps": 0,
+  "scope": "source-only import; no physical qualification"
+}

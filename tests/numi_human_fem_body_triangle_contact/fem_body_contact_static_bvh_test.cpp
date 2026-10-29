@@ -164,6 +164,9 @@ int main() {
         seed9.bodyLocalVertex2,0.25f,7.0f,0.125f);
     pairTemplates[1]=pairTemplates[0];
     pairTemplates[1].slaveNode=200u;
+    pairTemplates[1].bodyLocalPointAndArea.w=0.5f;
+    pairTemplates[1].bodyLocalNormalAndReferenceSeparation.w=11.0f;
+    pairTemplates[1].stiffnessAndNormalStrainPerPressure.w=0.0625f;
     numi::matter::fem_body_contact_bvh::PreparationOptions pairOptions{};
     pairOptions.expandAllTriangleSamplesAcrossBodies=true;
     const auto allBodyPrepared=prepareStaticCompleteBodyContactAsset(
@@ -179,6 +182,51 @@ int main() {
             validCompleteStaticBVHSpans(allBodyPrepared.samples,
                 allBodyPrepared.ranges,allBodyPrepared.triangles,allBodyPrepared.nodes),
             "named all-body option expands deterministic node/body pairs");
+    auto reversedTemplates=pairTemplates;
+    std::reverse(reversedTemplates.begin(),reversedTemplates.end());
+    const auto reversedPrepared=prepareStaticCompleteBodyContactAsset(
+        reversedTemplates,input,input.size(),0.02f,pairOptions);
+    require(reversedPrepared.succeeded()&&
+            reversedPrepared.samples.size()==allBodyPrepared.samples.size()&&
+            reversedPrepared.ranges.size()==allBodyPrepared.ranges.size()&&
+            std::memcmp(reversedPrepared.samples.data(),allBodyPrepared.samples.data(),
+                allBodyPrepared.samples.size()*sizeof(allBodyPrepared.samples[0]))==0&&
+            std::memcmp(reversedPrepared.ranges.data(),allBodyPrepared.ranges.data(),
+                allBodyPrepared.ranges.size()*sizeof(allBodyPrepared.ranges[0]))==0,
+            "regional template order yields identical samples/ranges and physical payloads");
+    NMNumiHumanFEMBodyContactSampleGPU passthrough{};
+    passthrough.slaveNode=333u;
+    passthrough.bodyIndex=9u;
+    passthrough.flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE;
+    passthrough.bodyLocalPointAndArea={1.0f,2.0f,3.0f,0.375f};
+    const std::array<NMNumiHumanFEMBodyContactSampleGPU,3> interleaved{{
+        pairTemplates[0],passthrough,pairTemplates[1]}};
+    const std::array<NMNumiHumanFEMBodyContactSampleGPU,3> reversedInterleaved{{
+        pairTemplates[1],passthrough,pairTemplates[0]}};
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> interleavedOutput,reversedOutput;
+    require(expandTriangleContactSamplesAcrossAllBodies(
+                interleaved,a.bodies,a.triangles,interleavedOutput)&&
+            expandTriangleContactSamplesAcrossAllBodies(
+                reversedInterleaved,a.bodies,a.triangles,reversedOutput)&&
+            interleavedOutput.size()==5u&&reversedOutput.size()==5u&&
+            std::memcmp(interleavedOutput.data(),reversedOutput.data(),
+                interleavedOutput.size()*sizeof(interleavedOutput[0]))==0&&
+            std::memcmp(&interleavedOutput[2],&passthrough,sizeof(passthrough))==0,
+            "canonical order preserves interleaved non-triangle rows exactly once");
+    auto duplicateTemplates=pairTemplates;
+    duplicateTemplates[1].slaveNode=duplicateTemplates[0].slaveNode;
+    const auto duplicatePrepared=prepareStaticCompleteBodyContactAsset(
+        duplicateTemplates,input,input.size(),0.02f,pairOptions);
+    require(duplicatePrepared.failure==BuildFailure::invalidContactSamples&&
+            duplicatePrepared.failureStage==PreparationFailureStage::expandContactTemplates&&
+            duplicatePrepared.samples.empty(),
+            "duplicate slave ownership remains rejected after canonical ordering");
+    auto invalidTemplates=reversedTemplates;
+    invalidTemplates[0].bodyLocalPointAndArea.w=0.0f;
+    require(prepareStaticCompleteBodyContactAsset(
+                invalidTemplates,input,input.size(),0.02f,pairOptions).failure==
+                    BuildFailure::invalidContactSamples,
+            "out-of-order invalid template payload is not repaired by sorting");
     const auto legacyDefaults=prepareStaticCompleteBodyContactAsset(
         pairTemplates,input,input.size(),0.02f);
     require(legacyDefaults.succeeded()&&legacyDefaults.samples.size()==pairTemplates.size(),

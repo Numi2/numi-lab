@@ -1,0 +1,7 @@
+{
+  "exit_code": 0,
+  "wall_seconds": 0.2520561218261719,
+  "binary_sha256": "bff8d62756a558ff01f5697ba263cdeccd505d9b5a26d830010fdb09eb2d9477",
+  "assertions_enabled": true,
+  "compiler_flags": "-std=c++20 -O2 -Wall -Wextra -Wpedantic -Werror -UNDEBUG"
+}

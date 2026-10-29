@@ -28912,8 +28912,34 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 }
                 ++invalidCount;
             }
+            std::size_t triangleTemplates=0u,invalidTemplates=0u,unorderedTemplates=0u,duplicateSlaves=0u;
+            std::set<std::uint32_t> contactSlaves;
+            std::uint32_t priorContactSlave=0u;
+            bool sawContactSlave=false;
+            constexpr auto triangleTemplateFlags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT;
+            for(const auto& sample:fasciaBodyContactSamples) {
+                if(sample.flags!=triangleTemplateFlags)continue;
+                ++triangleTemplates;
+                const bool valid=numi::matter::fem_body_triangle_contact::validTriangleContactSample(sample);
+                if(!valid)++invalidTemplates;
+                const bool unordered=sawContactSlave&&sample.slaveNode<=priorContactSlave;
+                if(unordered)++unorderedTemplates;
+                if(!contactSlaves.insert(sample.slaveNode).second)++duplicateSlaves;
+                if((!valid||unordered)&&invalidTemplates+unorderedTemplates<=8u)
+                    std::cerr<<std::setprecision(17)<<"complete_bone_bvh_contact_template_witness slave="
+                        <<sample.slaveNode<<" body="<<sample.bodyIndex<<" flags="<<sample.flags
+                        <<" valid="<<valid<<" prior_slave="<<priorContactSlave
+                        <<" area="<<sample.bodyLocalPointAndArea.w<<std::endl;
+                priorContactSlave=sample.slaveNode;sawContactSlave=true;
+            }
             std::cerr<<"complete_bone_bvh_prepare_failure code="
                 <<static_cast<unsigned>(asset.failure)
+                <<" stage="<<static_cast<unsigned>(asset.failureStage)
+                <<" triangle_templates="<<triangleTemplates
+                <<" invalid_templates="<<invalidTemplates
+                <<" unordered_templates="<<unorderedTemplates
+                <<" duplicate_slaves="<<duplicateSlaves
                 <<" invalid_triangles="<<invalidCount
                 <<" inventory="<<completeRegisteredBoneTriangles.size()<<std::endl;
         }

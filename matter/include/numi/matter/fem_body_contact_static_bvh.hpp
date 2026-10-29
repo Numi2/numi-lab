@@ -659,22 +659,28 @@ inline bool expandTriangleContactSamplesAcrossAllBodies(
     if (input.empty() || bodies.empty() || triangles.empty()) return false;
     for (std::size_t i=1u;i<bodies.size();++i)
         if (bodies[i-1u].bodyIndex>=bodies[i].bodyIndex) return false;
-    std::uint64_t triangleTemplates=0u,nonTriangleRows=0u;
-    std::uint32_t priorSlave=0u;
-    bool sawTriangleTemplate=false;
+    std::uint64_t nonTriangleRows=0u;
+    std::vector<const NMNumiHumanFEMBodyContactSampleGPU*> triangleTemplates;
+    triangleTemplates.reserve(input.size());
     for (const auto& sample:input) {
         const bool triangleSample=sample.flags==
             (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
              NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
         if (!triangleSample) { ++nonTriangleRows; continue; }
-        if (!numi::matter::fem_body_triangle_contact::validTriangleContactSample(sample) ||
-            (sawTriangleTemplate && sample.slaveNode<=priorSlave)) return false;
-        sawTriangleTemplate=true;
-        priorSlave=sample.slaveNode;
-        ++triangleTemplates;
+        if (!numi::matter::fem_body_triangle_contact::validTriangleContactSample(sample))
+            return false;
+        triangleTemplates.push_back(&sample);
     }
-    if (triangleTemplates==0u ||
-        triangleTemplates*std::uint64_t(bodies.size())+nonTriangleRows>
+    // Skin/fat regions may append valid templates in regional node order.
+    // Canonicalize only their asset-load order; retain every payload and reject
+    // duplicate slave ownership rather than merging or dropping contact rows.
+    std::sort(triangleTemplates.begin(),triangleTemplates.end(),
+        [](const auto* a,const auto* b) { return a->slaveNode<b->slaveNode; });
+    for (std::size_t i=1u;i<triangleTemplates.size();++i)
+        if (triangleTemplates[i-1u]->slaveNode==triangleTemplates[i]->slaveNode)
+            return false;
+    if (triangleTemplates.empty() ||
+        std::uint64_t(triangleTemplates.size())*std::uint64_t(bodies.size())+nonTriangleRows>
             std::numeric_limits<std::uint32_t>::max()) return false;
     for (const auto& body:bodies) {
         if (body.bodyIndex==kInvalidIndex || body.triangleCount==0u ||
@@ -684,15 +690,18 @@ inline bool expandTriangleContactSamplesAcrossAllBodies(
         for (std::uint32_t i=0u;i<body.triangleCount;++i)
             if (triangles[body.firstTriangle+i].bodyIndex!=body.bodyIndex) return false;
     }
-    output.reserve(static_cast<std::size_t>(triangleTemplates*bodies.size()+nonTriangleRows));
-    for (const auto& sample:input) {
-        const bool triangleSample=sample.flags==
+    output.reserve(static_cast<std::size_t>(
+        std::uint64_t(triangleTemplates.size())*bodies.size()+nonTriangleRows));
+    std::size_t templateRow=0u;
+    for (const auto& inputSample:input) {
+        const bool triangleSample=inputSample.flags==
             (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
              NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
         if (!triangleSample) {
-            output.push_back(sample);
+            output.push_back(inputSample);
             continue;
         }
+        const auto& sample=*triangleTemplates[templateRow++];
         for (const auto& body:bodies) {
             const auto& seed=triangles[body.firstTriangle];
             auto expanded=sample;
@@ -717,8 +726,13 @@ inline bool expandTriangleContactSamplesAcrossAllBodies(
 }
 
 
+enum class PreparationFailureStage : std::uint8_t {
+    none, inventory, expandContactTemplates, makeContactRanges, validateCompleteSpans
+};
+
 struct PreparedStaticCompleteBodyBVH {
     BuildFailure failure=BuildFailure::none;
+    PreparationFailureStage failureStage=PreparationFailureStage::none;
     std::vector<NMNumiHumanFEMBodyContactSampleGPU> samples;
     std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> triangles;
     std::vector<NMNumiHumanFEMBodyContactBVHNodeGPU> nodes;
@@ -747,12 +761,14 @@ inline PreparedStaticCompleteBodyBVH prepareStaticCompleteBodyContactAsset(
         input,expectedTriangleCount,options.requireClosedOrientedBanks);
     if (!tree.succeeded()) {
         out.failure=tree.failure;
+        out.failureStage=PreparationFailureStage::inventory;
         return out;
     }
     if (options.expandAllTriangleSamplesAcrossBodies) {
         if (!expandTriangleContactSamplesAcrossAllBodies(
                 samples,tree.bodies,tree.triangles,out.samples)) {
-            out.failure=BuildFailure::invalidContactSamples;
+            out.failure = BuildFailure::invalidContactSamples;
+            out.failureStage=PreparationFailureStage::expandContactTemplates;
             return out;
         }
     } else {
@@ -760,12 +776,14 @@ inline PreparedStaticCompleteBodyBVH prepareStaticCompleteBodyContactAsset(
     }
     if (!makeStaticCompleteBodyContactRanges(
             out.samples,tree.bodies,maximumDistanceMeters,out.ranges)) {
-        out.failure=BuildFailure::invalidContactSamples;
+        out.failure = BuildFailure::invalidContactSamples;
+        out.failureStage=PreparationFailureStage::makeContactRanges;
         return out;
     }
     if (!validCompleteStaticBVHSpans(out.samples,out.ranges,
             tree.triangles,tree.nodes)) {
-        out.failure=BuildFailure::invalidContactSamples;
+        out.failure = BuildFailure::invalidContactSamples;
+        out.failureStage=PreparationFailureStage::validateCompleteSpans;
         return out;
     }
     out.triangles=std::move(tree.triangles);
