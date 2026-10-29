@@ -3542,7 +3542,10 @@ template<class VerifyBoundBody, class ParentBodyAt>
     next.tetrahedronRegisteredLayerFacetSourceFaceIdentities.assign(topology.childRegisteredLayerFacetSourceFaceIdentities.begin(),topology.childRegisteredLayerFacetSourceFaceIdentities.end());
     next.tetrahedronAuthoredHeadSidewallFacetFlags.assign(topology.childAuthoredHeadSidewallFacetFlags.begin(),topology.childAuthoredHeadSidewallFacetFlags.end());
     next.tetrahedronAuthoredHeadSidewallStableFaceIdentities.assign(topology.childAuthoredHeadSidewallStableFaceIdentities.begin(),topology.childAuthoredHeadSidewallStableFaceIdentities.end());
-    std::map<std::uint32_t,std::uint32_t> donorByStableFace;
+    // Source identity is anatomical provenance, not a unique mechanical owner.
+    // Preserve it while partitioning each verified (source face, donor) pair.
+    using SourceFaceDonorKey=std::pair<std::uint32_t,std::uint32_t>;
+    std::set<SourceFaceDonorKey> donorFaces;
     for(std::size_t ti=0;ti<nt;++ti){
         const auto parent=topology.childDominantParentTetrahedra[ti],donor=topology.childDonorBodyIndices[ti];
         const auto stable=topology.childStableSourceFaceIdentities[ti];
@@ -3555,25 +3558,24 @@ template<class VerifyBoundBody, class ParentBodyAt>
         if((bodyParent!=invalid&&bodyParent>=sourceBodyCount)||bodyParent==donor)
             return fail("unpaired label child donor has invalid parent-body ancestry");
         next.tetrahedronSourceParentBodyIndices[ti]=bodyParent;
-        auto [entry,inserted]=donorByStableFace.emplace(stable,donor);
-        if(!inserted&&entry->second!=donor)return fail("one stable source face maps to multiple dominant donor bodies");
+        donorFaces.emplace(stable,donor);
     }
     std::map<std::uint32_t,std::vector<std::uint32_t>> facesByDonor;
-    for(const auto& [face,donor]:donorByStableFace)facesByDonor[donor].push_back(face);
+    for(const auto& [face,donor]:donorFaces)facesByDonor[donor].push_back(face);
     constexpr std::uint32_t refinementLabelBase=0x53460001u;
     std::set<std::uint32_t> usedLabels;
     for(auto donor:next.tetrahedronSourceDonorBodyIndices)usedLabels.insert(donor);
     std::uint32_t fresh=refinementLabelBase;
-    std::map<std::uint32_t,std::uint32_t> basisByStableFace;
+    std::map<SourceFaceDonorKey,std::uint32_t> basisByStableFace;
     for(auto& [donor,faces]:facesByDonor){
         const auto chunks=(faces.size()+maximumFacesPerBasisRegion-1u)/maximumFacesPerBasisRegion;
         if(chunks==0u)return fail("unpaired labels emitted an empty basis region");
-        if(chunks==1u){for(auto face:faces)basisByStableFace[face]=donor;continue;}
+        if(chunks==1u){for(auto face:faces)basisByStableFace[{face,donor}]=donor;continue;}
         for(std::size_t chunk=0;chunk<chunks;++chunk){
             while(usedLabels.contains(fresh)||fresh==invalid){if(fresh>=invalid-1u)return fail("unpaired labels exhausted basis-region IDs");++fresh;}
             const auto label=fresh++;usedLabels.insert(label);
             const auto begin=chunk*maximumFacesPerBasisRegion,end=std::min(faces.size(),begin+maximumFacesPerBasisRegion);
-            for(auto at=begin;at<end;++at)basisByStableFace[faces[at]]=label;
+            for(auto at=begin;at<end;++at)basisByStableFace[{faces[at],donor}]=label;
         }
     }
     std::set<std::uint32_t> emittedBasisLabels;
@@ -3585,11 +3587,11 @@ template<class VerifyBoundBody, class ParentBodyAt>
         return fail("unpaired labels exceed the existing Human regional basis limit");
     for(std::size_t ti=0;ti<nt;++ti){
         const auto stable=topology.childStableSourceFaceIdentities[ti];
-        auto found=basisByStableFace.find(stable);
+        auto found=basisByStableFace.find({stable,topology.childDonorBodyIndices[ti]});
         if(found==basisByStableFace.end())return fail("unpaired child lost its stable source-face basis region");
         next.tetrahedronBasisRegionLabels[ti]=found->second;
     }
-    for(const auto& [stable,donor]:donorByStableFace){
+    for(const auto& [stable,donor]:donorFaces){
         (void)stable;
         if(!next.donorBodyAncestry.contains(donor)){
             std::vector<std::uint32_t> chain;std::set<std::uint32_t> seen;auto cursor=donor;

@@ -1083,6 +1083,47 @@ int main() {
         [](std::uint32_t,std::uint32_t){return true;},[](std::uint32_t){return NM_INVALID_INDEX;},labels,error));
     assert(labels.sourceNodeLayerIndices.size()==19u&&labels.sourceNodeLayerIndices[18]==NM_INVALID_INDEX);
     assert(validateRegisteredSkinFatRemeshNodeAncestry(world.objects.front(),labels,error));
+    {
+        // One anatomical/source face can cross a mechanical donor partition.
+        // The preconditioner must separate donors without changing that face ID.
+        Fixture splitFace;
+        splitFace.bodyRotations.push_back(kIdentity);
+        splitFace.bodyOrigins.push_back({0,0,0});
+        splitFace.topology.registeredBodyLocalToWorldLinear=splitFace.bodyRotations;
+        splitFace.topology.registeredBodyOriginWorld=splitFace.bodyOrigins;
+        splitFace.parentStable[1]=splitFace.parentStable[0];
+        splitFace.parentDonor[1]=1u;
+        for(std::size_t c=0;c<splitFace.children.size();++c) {
+            splitFace.childStable[c]=splitFace.parentStable[splitFace.dominant[c]];
+            splitFace.childDonor[c]=splitFace.parentDonor[splitFace.dominant[c]];
+        }
+        splitFace.refreshChildMetadata();
+        RegisteredSkinFatReductionSourceLabels splitLabels;
+        const auto bound=[](std::uint32_t,std::uint32_t donor){return donor<2u;};
+        const auto parent=[](std::uint32_t){return NM_INVALID_INDEX;};
+        if(!buildRegisteredSkinFatUnpairedReductionSourceLabels(splitFace.surface,
+                world.objects.front(),splitFace.boundary,splitFace.topology,2u,
+                bound,parent,splitLabels,error)) {
+            std::cerr<<"shared source-face donor partition rejected: "<<error<<'\n';
+            return 3;
+        }
+        assert(splitLabels.tetrahedronOriginalSourceFaceIndices==splitFace.childStable);
+        assert(splitLabels.tetrahedronSourceDonorBodyIndices==splitFace.childDonor);
+        std::map<std::uint32_t,std::uint32_t> basisByDonor;
+        for(std::size_t c=0;c<splitFace.children.size();++c) {
+            if(splitFace.childStable[c]!=splitFace.parentStable[0])continue;
+            const auto donor=splitFace.childDonor[c];
+            auto [entry,inserted]=basisByDonor.emplace(donor,splitLabels.tetrahedronBasisRegionLabels[c]);
+            assert(inserted||entry->second==splitLabels.tetrahedronBasisRegionLabels[c]);
+        }
+        assert(basisByDonor.size()==2u&&basisByDonor.at(0u)!=basisByDonor.at(1u));
+        // Multiple donor ownership still requires each cell's matching parent.
+        splitFace.childDonor[0]=1u;
+        assert(!buildRegisteredSkinFatUnpairedReductionSourceLabels(splitFace.surface,
+            world.objects.front(),splitFace.boundary,splitFace.topology,2u,
+            bound,parent,splitLabels,error));
+        assert(error.find("invalid dominant donor or parent provenance")!=std::string::npos);
+    }
     auto malformedShell=world.objects.front();
     malformedShell.tetrahedra[0].nodes[0]=19u;
     assert(!buildRegisteredSkinFatUnpairedReductionSourceLabels(f.surface,malformedShell,f.boundary,f.topology,1u,
