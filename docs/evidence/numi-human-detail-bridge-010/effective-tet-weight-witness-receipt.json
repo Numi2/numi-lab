@@ -1,0 +1,206 @@
+{
+  "classification": "source-only mechanical-refinement diagnostic; not geometry admission, GPU validation, Runtime, or physical qualification",
+  "coordinate_domains": {
+    "fine_points": "399 registered-O.csv wx/wy/wz in detail source row order",
+    "selected_tets": "canonical_selected_parent_tet_row from frozen 005 native selected-face map; connectivity from 410 mesh.ele",
+    "surface_projection_residual": "canonical selected surface residual from the 005 map, independently recomputed and compared",
+    "tet_extrapolation_residual": "detail point minus clipped-and-renormalized barycentric reconstruction in selected tetrahedron",
+    "tet_points": "410 canonical imported TetGen mesh.node coordinates"
+  },
+  "declared_gates": {
+    "maximum_absolute_effective_weight": 1.5,
+    "maximum_surface_projection_distance_m": 0.02,
+    "maximum_tet_extrapolation_distance_m": 0.05
+  },
+  "generator": {
+    "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/effective-tet-weight-witness-009/generate_witness.py",
+    "source_sha256": "c72e2cba1af35c31d22e56626db0b83313b9618e10af7e3ca49fc15d104cbf82"
+  },
+  "inputs": {
+    "canonical_cell_labels": {
+      "bytes": 604835,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/corrected-coarse-native-sidecars-410/result-002/volume/child.labels.csv",
+      "sha256": "fc5c45635613c6280a8301646ba7c95daab1422dfdb22b8f25e0f45acc81b07a"
+    },
+    "canonical_imported_tetgen_elements": {
+      "bytes": 805380,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/corrected-coarse-native-sidecars-410/result-002/volume/mesh.ele",
+      "sha256": "49671889c6711fedd8dd5727bd264e9d652b3c8ef48e15783b6be7a44c32c347"
+    },
+    "canonical_imported_tetgen_nodes": {
+      "bytes": 483387,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/corrected-coarse-native-sidecars-410/result-002/volume/mesh.node",
+      "sha256": "d1238fc477b290c78970d5a7bbf01e7465a5e85aa00fe7414ee3b95503cc1b50"
+    },
+    "canonical_native_face_map": {
+      "bytes": 57384986,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-export-005/map-output/fine-O-to-coarse-boundary-native-canonical.csv",
+      "sha256": "daa31b44a4bd1fee78e15732dff3f5a7b23f25ade5658303ad7d611862690b7a"
+    },
+    "fine_registered_O": {
+      "bytes": 43716733,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/full-current-surface-registration-399/sidecars/registered-O.csv",
+      "sha256": "e3b2da9a2a65d2b0dd3d5dbab60d6146f6b7653cf830c8fd5d334c36900e0c9f"
+    }
+  },
+  "method": "Replayed the C++ tetBarycentric formula in double precision: e1/e2/e3, determinant, inverse cofactors, c0/c1/c2, weights [1-c0-c1-c2,c0,c1,c2]. Tet extrapolation uses clamp(weights,0,1), normalize, reconstruct, and subtract from source point, matching conservativeTetExtrapolationDistance.",
+  "native_failure": {
+    "binary_sha256": "16de8770052faefbdb8fe7f57e9d6f267e582e635096c2ebb8a97814474653fd",
+    "declared_max_absolute_effective_weight": 1.5,
+    "launch_sha256": "d688917f37548312125e5270bed6ffc05f26089b10004c7e3eb4ee15632d66e3",
+    "reason": "detail-to-volume effective tet weight exceeds its declared bound",
+    "run": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007",
+    "stderr_sha256": "9be003d31e7ae1598c9b8ca8284cd47d0a97c77d29988af4a662985602a5031b",
+    "stdout_sha256": "4a295734f9e70c31104e26249f7efd3d27ecacf3dbc625ad054868376b09e23a"
+  },
+  "output": {
+    "bytes": 27151158,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/effective-tet-weight-witness-009/all-O-effective-tet-weights.csv",
+    "sha256": "c56a92ea543192b8d2c319a22d5b4985c5ec6a781982091b6fca2bafcd5ad681"
+  },
+  "result": {
+    "all_O_rows": 56054,
+    "first_twelve_over_bound": [
+      {
+        "cell": 1938,
+        "max_abs_weight": 1.565946975025815,
+        "row": 2,
+        "tet_nodes": [
+          329,
+          328,
+          340,
+          2751
+        ]
+      },
+      {
+        "cell": 1938,
+        "max_abs_weight": 2.4685421296113823,
+        "row": 4,
+        "tet_nodes": [
+          329,
+          328,
+          340,
+          2751
+        ]
+      },
+      {
+        "cell": 1941,
+        "max_abs_weight": 1.7432208742405289,
+        "row": 5,
+        "tet_nodes": [
+          334,
+          329,
+          340,
+          2751
+        ]
+      },
+      {
+        "cell": 1938,
+        "max_abs_weight": 1.8708189699940512,
+        "row": 6,
+        "tet_nodes": [
+          329,
+          328,
+          340,
+          2751
+        ]
+      },
+      {
+        "cell": 1938,
+        "max_abs_weight": 2.469855082860784,
+        "row": 9,
+        "tet_nodes": [
+          329,
+          328,
+          340,
+          2751
+        ]
+      },
+      {
+        "cell": 1938,
+        "max_abs_weight": 3.033787686866142,
+        "row": 10,
+        "tet_nodes": [
+          329,
+          328,
+          340,
+          2751
+        ]
+      },
+      {
+        "cell": 1941,
+        "max_abs_weight": 2.8346273982650745,
+        "row": 11,
+        "tet_nodes": [
+          334,
+          329,
+          340,
+          2751
+        ]
+      },
+      {
+        "cell": 1938,
+        "max_abs_weight": 1.818294421938523,
+        "row": 12,
+        "tet_nodes": [
+          329,
+          328,
+          340,
+          2751
+        ]
+      },
+      {
+        "cell": 1938,
+        "max_abs_weight": 2.089381609518038,
+        "row": 13,
+        "tet_nodes": [
+          329,
+          328,
+          340,
+          2751
+        ]
+      },
+      {
+        "cell": 1938,
+        "max_abs_weight": 3.582570462837639,
+        "row": 16,
+        "tet_nodes": [
+          329,
+          328,
+          340,
+          2751
+        ]
+      },
+      {
+        "cell": 1938,
+        "max_abs_weight": 2.3730094026481607,
+        "row": 17,
+        "tet_nodes": [
+          329,
+          328,
+          340,
+          2751
+        ]
+      },
+      {
+        "cell": 1938,
+        "max_abs_weight": 3.467084623748905,
+        "row": 18,
+        "tet_nodes": [
+          329,
+          328,
+          340,
+          2751
+        ]
+      }
+    ],
+    "max_abs_effective_weight": 172.43933220219665,
+    "max_effective_weight_row": 42285,
+    "max_surface_projection_distance_m": 0.015678907111130003,
+    "max_surface_residual_recompute_delta_m": 4.477603233993732e-16,
+    "max_tet_condition_estimate": 4230.393533915751,
+    "max_tet_extrapolation_distance_m": 0.05845652683139193,
+    "over_effective_weight_bound": 31851
+  },
+  "schema": "numi-human.detail-effective-tet-weight-witness.v1"
+}

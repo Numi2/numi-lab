@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "cmake",
+    "--build",
+    "build-native",
+    "--target",
+    "numi-human-native",
+    "-j1"
+  ],
+  "binary_sha256": "6cb2af61adb926be0f6d8d8b2759e6ece46c49c8450e83a72bb38f74e23e40b7",
+  "build_log": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-publication-review-010/native-build.log",
+  "build_log_sha256": "4407a5faedc22755bdbcc925eeb402a0bd683bbc4edde00eb5570c433aa646b9",
+  "cwd": "/Users/numi/Work/skin-fat-native-integration-209",
+  "elapsed_s": 41.83677697181702,
+  "exit_code": 0,
+  "mass_transport_header_sha256": "7019e52f5299f4200ccc71c70f203958d0221959596cb15d5eb17552da73eba1",
+  "object_sha256": "d3bd42b3fb00c9afff7526eefa3a3e7410cfe245f151242a3fe47087abc8d3c1",
+  "probe_source_sha256": "87d0be3476d263d432713fa41c6519e3ac3a2f15d0a24b679b7d75f5cc57bc8d",
+  "transfer_header_sha256": "5a7bc715fc983d05c20666325d439c81cd17d4d19a67e6935aff07ec5f812e73"
+}

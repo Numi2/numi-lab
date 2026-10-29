@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/mass-cut-witness-452/frozen-child-mass-mapping-cli",
+    "--parent-mass-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv",
+    "--labels-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.labels.csv",
+    "--child-node-file",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/refined-native-producer-433/hand-cavity-450/emitted/volume/mesh.node",
+    "--child-ele-file",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/refined-native-producer-433/hand-cavity-450/emitted/volume/mesh.ele",
+    "--child-labels-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/refined-native-producer-433/hand-cavity-450/emitted/volume/child.labels.csv",
+    "--coordinate-frame-sha256",
+    "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a",
+    "--source-body-count",
+    "157",
+    "--maximum-transport-distance-m",
+    "0.026033000000000001"
+  ],
+  "binary_sha256": "d5c2e1d9c9266fc9127c114a8b7214ee0d7816e08f63022c7182c6cc4a8094c8",
+  "unchanged_radius_m": 0.026033,
+  "scope": "same failed geometry diagnostic with residual cut witness, no changed policy",
+  "success_fixture_output": "conservative spatial mass transport PASS cells=4 edges=4 groups=2 min_cost_distance_m=0.0001 parent_mass_closure_kg=0 parent_measure_closure_m3=0 source_donor_closure_kg=0 density_range_kg_m3=900:1000 receipt_sha256=9e7a09107d50412732551462b9eb7dae7dcd8d39e0f5180078d13a2eb3163c96\n",
+  "old_new_success_fixture_byte_parity": true
+}

@@ -1,0 +1,5 @@
+{
+  "before_probe_sha256": "6a89cde05ddf1173620320121e840ccaec6c1a076f88386825c858ef5b28ac7a",
+  "after_probe_sha256": "6313f8b381e52f0bea9266cd76533e2ffe38d642b4fc84cd81d23a1516b38a8d",
+  "scope": "per-attachment unchanged-node proof and byte preservation; moved sites retain all existing gates; source-order-independent new-site spacing"
+}

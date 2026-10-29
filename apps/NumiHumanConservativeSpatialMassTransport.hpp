@@ -451,6 +451,22 @@ public:
         return true;
     }
 
+    // Failure-only min-cut witness. It observes the same residual capacities
+    // used by run(); it changes neither costs, augmentations nor accepted mass.
+    [[nodiscard]] std::vector<bool> residualReachable(const std::uint32_t source) const {
+        std::vector<bool> reached(graph_.size(), false);
+        std::vector<std::uint32_t> queue{source};
+        reached[source] = true;
+        for (std::size_t cursor = 0; cursor < queue.size(); ++cursor) {
+            for (const auto& edge : graph_[queue[cursor]]) {
+                if (edge.capacity <= kFlowEpsilonKg || reached[edge.to]) continue;
+                reached[edge.to] = true;
+                queue.push_back(edge.to);
+            }
+        }
+        return reached;
+    }
+
     [[nodiscard]] double flow(const EdgeRef& reference) const {
         const auto& edge = graph_[reference.from][reference.edge];
         return edge.initialCapacity - edge.capacity;
@@ -866,9 +882,29 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
             return fail("spatial transport min-cost flow failed: " + flowError);
         next.augmentationCount += augmentations;
         if (std::abs(sent - supply) >
-            std::max(in.absoluteMassToleranceKg, in.relativeClosureTolerance * supply))
+            std::max(in.absoluteMassToleranceKg, in.relativeClosureTolerance * supply)) {
+            const auto reachable = network.residualReachable(superSource);
+            std::ostringstream cut;
+            cut << " [cut_parent_rows=[";
+            bool first = true;
+            for (std::uint32_t i = 0; i < parentCount; ++i) {
+                if (!reachable[parentBase + i]) continue;
+                if (!first) cut << ',';
+                first = false;
+                cut << parentRows[i];
+            }
+            cut << "] cut_child_rows=[";
+            first = true;
+            for (std::uint32_t i = 0; i < childCount; ++i) {
+                if (!reachable[childBase + i]) continue;
+                if (!first) cut << ',';
+                first = false;
+                cut << childRows[i];
+            }
+            cut << "]]";
             return fail("spatial transport is infeasible under same-material/donor/region and distance bounds" +
-                groupWitness(supply,minimum,maximum,sent));
+                groupWitness(supply,minimum,maximum,sent) + cut.str());
+        }
 
         double groupOutputMass = 0.0;
         for (const auto& reference : references) {

@@ -1,0 +1,16 @@
+{
+  "excluded_child_rows": [
+    11566,
+    11568
+  ],
+  "neighbor_parent_rows": [
+    11569,
+    11571,
+    11701,
+    11732
+  ],
+  "mandatory_child_floor_kg": 0.003724915649736807,
+  "available_parent_mass_kg": 0.0035392354888713804,
+  "deficit_kg": 0.00018568016086542658,
+  "scope": "Hall-type lower-density capacity certificate for exact failed451 neighborhood; no changed density or geometry"
+}

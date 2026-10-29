@@ -150,6 +150,228 @@ bool prepare(Fixture& f,PhysicalSkinAuthoringRoleConsumerState& state,
         f.poses,f.weightFiles,state,report,error);
 }
 
+
+PhysicalSkinAuthoringDetailBridgeInput bridgeFixture() {
+    PhysicalSkinAuthoringDetailBridgeInput in;
+    in.detailDomain={"derived-detail-O",PhysicalSkinSourceDomainRole::outerSurface,
+        std::string(64u,'a'),3u,1u};
+    in.physicalBoundaryDomain={"reduced-physical-O",PhysicalSkinSourceDomainRole::outerSurface,
+        std::string(64u,'b'),3u,1u};
+    in.detailReferenceWorldPoints={{0.2,0.2,-0.005},{0.6,0.2,-0.005},{0.2,0.6,-0.005}};
+    in.detailSourceVertexRows={0u,1u,2u};
+    in.detailGeometricDonorBodyIndices={41u,41u,41u};
+    in.detailMaterialIndices={15u,15u,15u};
+    in.detailAnatomicalRegionIndices={7u,7u,7u};
+    in.detailFrameOwnerBodyIndices={77u,77u,77u};
+    in.detailBoundaryProjectionDonorBodyIndices={41u,41u,41u};
+    in.detailRegionScopedDonorFallback={0u,0u,0u};
+    in.detailParentTetRows={0u,0u,0u};
+    in.detailStableSourceFaceIDs={9001u,9001u,9001u};
+    in.detailFaces={{0u,1u,2u}};
+    in.physicalBoundaryReferenceWorldPoints={{0,0,0},{1,0,0},{0,1,0}};
+    in.physicalBoundarySourceVertexRows={0u,1u,2u};
+    in.physicalBoundaryGeometricDonorBodyIndices={41u,41u,41u};
+    in.physicalBoundaryFrameOwnerBodyIndices={88u,88u,88u};
+    in.physicalBoundaryVolumeNodeRows={0u,1u,2u};
+    in.physicalBoundaryFaces={{0u,1u,2u}};
+    in.physicalBoundaryStableFaceIDs={9001u};
+    in.physicalBoundaryFaceMaterialIndices={15u};
+    in.physicalBoundaryFaceGeometricDonorBodyIndices={41u};
+    in.physicalBoundaryFaceAnatomicalRegionIndices={7u};
+    in.physicalBoundaryFaceFrameOwnerBodyIndices={89u};
+    in.physicalBoundaryFaceParentTetRows={0u};
+    in.detailRepresentativeBoundaryVertexRows={0u,0u,0u};
+    in.detailExpectedBoundaryFaceRows={0u,0u,0u};
+    in.detailExpectedBoundaryFaceBarycentrics={{{0.6,0.2,0.2}},{{0.2,0.6,0.2}},{{0.2,0.2,0.6}}};
+    in.mechanicalReferenceWorldPoints={{0,0,0},{1,0,0},{0,1,0},{0,0,1}};
+    in.mechanicalTetNodeRows={{{0u,1u,2u,3u}}};
+    in.mechanicalTetMaterialIndices={15u};
+    in.mechanicalTetGeometricDonorBodyIndices={41u};
+    in.mechanicalTetAnatomicalRegionIndices={7u};
+    in.detailMechanicalTetRows={0u,0u,0u};
+    in.maximumBoundaryProjectionDistanceM=0.01;
+    in.maximumTetExtrapolationDistanceM=0.01;
+    in.maximumAbsoluteEffectiveWeight=1.5;
+    in.maximumReferenceReconstructionErrorM=1.0e-6;
+    return in;
+}
+
+bool nearPoint(const V3& a,const V3& b,double tolerance=2.0e-6) {
+    return physical_skin_authoring_detail_bridge_detail::distance(a,b)<=tolerance;
+}
+
+void testAuthoringDetailBridge() {
+    auto in=bridgeFixture();
+    PhysicalSkinAuthoringDetailBridgeState state;
+    PhysicalSkinAuthoringDetailBridgeReport report;
+    std::string error;
+    assert(preparePhysicalSkinAuthoringDetailBridge(in,state,report,error));
+    assert(!state.physicalAdmission&&!report.physicalAdmission);
+    assert(!state.provenDirectIdentity&&report.sourceNamespaceIdentitySuppressed);
+    assert(report.surfaceExactAncestryRows==0u&&report.surfaceProjectedRows==3u);
+    assert(report.tetraEmbeddedRows==3u&&report.directIdentityRows==0u);
+    assert(report.maximumBoundaryProjectionDistanceM<=in.maximumBoundaryProjectionDistanceM);
+    assert(state.detailGeometricDonorBodyIndices==in.detailGeometricDonorBodyIndices);
+    assert(state.detailFrameOwnerBodyIndices==in.detailFrameOwnerBodyIndices);
+    assert(state.selectedPhysicalBoundaryFaceDonorBodyIndices==
+           std::vector<std::uint32_t>({41u,41u,41u}));
+    assert(state.selectedPhysicalBoundaryFaceFrameOwnerBodyIndices==
+           std::vector<std::uint32_t>({89u,89u,89u}));
+    for(const auto& row:state.tetraRows){
+        double sum=0.0;for(float w:row.weight)sum+=w;
+        assert(std::abs(sum-1.0)<2.0e-6);
+        assert(row.weight[3]<0.0f); // nonzero outward surface offset is retained in tet coordinates
+    }
+
+    // Zero displacement and translation preserve the detailed offset.
+    std::vector<V3> result;
+    assert(evaluatePhysicalSkinAuthoringDetailBridgeForCheck(
+        state,in.mechanicalReferenceWorldPoints,result,error));
+    assert(result.size()==in.detailReferenceWorldPoints.size());
+    for(std::size_t i=0;i<result.size();++i)assert(nearPoint(result[i],in.detailReferenceWorldPoints[i]));
+    const V3 translation{0.31,-0.17,0.23};
+    auto translated=in.mechanicalReferenceWorldPoints;
+    for(auto& p:translated)p=add(p,translation);
+    assert(evaluatePhysicalSkinAuthoringDetailBridgeForCheck(state,translated,result,error));
+    for(std::size_t i=0;i<result.size();++i)
+        assert(nearPoint(result[i],add(in.detailReferenceWorldPoints[i],translation)));
+
+    // A nonzero projection residual must rotate with a rigidly rotated tetra.
+    auto rotated=in.mechanicalReferenceWorldPoints;
+    for(auto& p:rotated){const V3 q=p; p={-q[1]+0.4,q[0]-0.2,q[2]+0.1};}
+    assert(evaluatePhysicalSkinAuthoringDetailBridgeForCheck(state,rotated,result,error));
+    for(std::size_t i=0;i<result.size();++i){const auto p=in.detailReferenceWorldPoints[i];
+        assert(nearPoint(result[i],{-p[1]+0.4,p[0]-0.2,p[2]+0.1}));}
+
+    // General affine patch motion is reproduced by the same four accepted nodes.
+    auto affine=in.mechanicalReferenceWorldPoints;
+    for(auto& p:affine){const V3 q=p;
+        p={1.2*q[0]+0.1*q[1]+0.05*q[2]+0.03,
+           -0.04*q[0]+0.8*q[1]+0.12*q[2]-0.02,
+           0.03*q[0]+0.07*q[1]+1.1*q[2]+0.11};}
+    assert(evaluatePhysicalSkinAuthoringDetailBridgeForCheck(state,affine,result,error));
+    for(std::size_t i=0;i<result.size();++i){const auto p=in.detailReferenceWorldPoints[i];
+        assert(nearPoint(result[i],{1.2*p[0]+0.1*p[1]+0.05*p[2]+0.03,
+            -0.04*p[0]+0.8*p[1]+0.12*p[2]-0.02,
+            0.03*p[0]+0.07*p[1]+1.1*p[2]+0.11}));}
+
+    // Same numeric source IDs do not enable direct source ancestry across two
+    // pinned namespaces; the only accepted rows are the bounded projections.
+    assert(state.faceTransferRows.size()==3u);
+    for(const auto& row:state.faceTransferRows)
+        assert(row.restDistance>0.0f);
+    auto sameNamespaceDifferentGeometry=in;
+    sameNamespaceDifferentGeometry.physicalBoundaryDomain=
+        sameNamespaceDifferentGeometry.detailDomain;
+    PhysicalSkinAuthoringDetailBridgeState collisionState;
+    PhysicalSkinAuthoringDetailBridgeReport collisionReport;
+    assert(preparePhysicalSkinAuthoringDetailBridge(
+        sameNamespaceDifferentGeometry,collisionState,collisionReport,error));
+    assert(!collisionState.provenDirectIdentity&&
+           collisionReport.surfaceExactAncestryRows==0u&&
+           collisionReport.sourceNamespaceIdentitySuppressed);
+
+    // A truly identical complete domain may use direct one-hot rows.
+    auto direct=bridgeFixture();
+    direct.detailDomain=direct.physicalBoundaryDomain;
+    direct.detailReferenceWorldPoints=direct.physicalBoundaryReferenceWorldPoints;
+    direct.detailFaces=direct.physicalBoundaryFaces;
+    direct.detailExpectedBoundaryFaceBarycentrics={{{1,0,0}},{{0,1,0}},{{0,0,1}}};
+    direct.detailRepresentativeBoundaryVertexRows={0u,1u,2u};
+    direct.detailGeometricDonorBodyIndices=direct.physicalBoundaryGeometricDonorBodyIndices;
+    direct.detailSourceVertexRows=direct.physicalBoundarySourceVertexRows;
+    direct.mechanicalReferenceWorldPoints[0]=direct.detailReferenceWorldPoints[0];
+    direct.mechanicalReferenceWorldPoints[1]=direct.detailReferenceWorldPoints[1];
+    direct.mechanicalReferenceWorldPoints[2]=direct.detailReferenceWorldPoints[2];
+    PhysicalSkinAuthoringDetailBridgeState directState;
+    PhysicalSkinAuthoringDetailBridgeReport directReport;
+    assert(preparePhysicalSkinAuthoringDetailBridge(direct,directState,directReport,error));
+    assert(directState.provenDirectIdentity&&directReport.surfaceExactAncestryRows==3u);
+    assert(directReport.directIdentityRows==3u&&directReport.tetraEmbeddedRows==0u);
+    for(std::size_t i=0;i<directState.tetraRows.size();++i){
+        assert(directState.tetraRows[i].node[0]==i&&directState.tetraRows[i].node[1]==i&&
+               directState.tetraRows[i].node[2]==i&&directState.tetraRows[i].node[3]==i);
+        assert(directState.tetraRows[i].weight[0]==1.0f&&
+               directState.tetraRows[i].weight[1]==0.0f&&
+               directState.tetraRows[i].weight[2]==0.0f&&
+               directState.tetraRows[i].weight[3]==0.0f);
+    }
+
+    // A mapped donor difference is admitted only through exact original-face
+    // identity and a bounded face-adjacent path in the pinned parent topology.
+    auto regionScoped=in;
+    regionScoped.detailGeometricDonorBodyIndices={42u,42u,42u};
+    regionScoped.detailBoundaryProjectionDonorBodyIndices={41u,41u,41u};
+    regionScoped.detailRegionScopedDonorFallback={1u,1u,1u};
+    regionScoped.sourceParentNodeCount=5u;
+    regionScoped.sourceParentTetNodeRows={{{0u,1u,2u,3u}},{{1u,2u,3u,4u}}};
+    regionScoped.sourceParentTetMaterialIndices={15u,15u};
+    regionScoped.sourceParentTetAnatomicalRegionIndices={7u,7u};
+    regionScoped.sourceParentTetStableSourceFaceIDs={9001u,9001u};
+    regionScoped.physicalBoundaryFaceParentTetRows={1u};
+    PhysicalSkinAuthoringDetailBridgeState regionScopedState;
+    PhysicalSkinAuthoringDetailBridgeReport regionScopedReport;
+    assert(preparePhysicalSkinAuthoringDetailBridge(
+        regionScoped,regionScopedState,regionScopedReport,error));
+    assert(regionScopedReport.regionScopedDonorFallbackRows==3u&&
+           regionScopedReport.maximumSourceParentTetHops==1u);
+    assert(regionScopedState.sourceParentTetPathRows.size()==3u&&
+           regionScopedState.sourceParentTetPathRows[0]==std::vector<std::uint32_t>({0u,1u}));
+    assert(regionScopedState.detailGeometricDonorBodyIndices==
+           std::vector<std::uint32_t>({42u,42u,42u}));
+    assert(regionScopedState.selectedPhysicalBoundaryFaceDonorBodyIndices==
+           std::vector<std::uint32_t>({41u,41u,41u}));
+    assert(regionScopedState.detailFrameOwnerBodyIndices==
+           std::vector<std::uint32_t>({77u,77u,77u}));
+    assert(regionScopedState.selectedPhysicalBoundaryFaceFrameOwnerBodyIndices==
+           std::vector<std::uint32_t>({89u,89u,89u}));
+    auto unsupportedCrosswalk=regionScoped;
+    unsupportedCrosswalk.detailBoundaryProjectionDonorBodyIndices[0]=43u;
+    assert(!preparePhysicalSkinAuthoringDetailBridge(
+        unsupportedCrosswalk,regionScopedState,regionScopedReport,error));
+    assert(regionScopedReport.regionScopedDonorFallbackRows==3u&&
+           regionScopedState.selectedPhysicalBoundaryFaceDonorBodyIndices[0]==41u);
+    auto wrongRegion=regionScoped;
+    wrongRegion.detailAnatomicalRegionIndices[0]=8u;
+    assert(!preparePhysicalSkinAuthoringDetailBridge(wrongRegion,regionScopedState,regionScopedReport,error));
+    auto wrongAncestry=regionScoped;
+    wrongAncestry.detailStableSourceFaceIDs[0]=9002u;
+    assert(!preparePhysicalSkinAuthoringDetailBridge(wrongAncestry,regionScopedState,regionScopedReport,error));
+    auto disconnectedPatch=regionScoped;
+    disconnectedPatch.sourceParentNodeCount=6u;
+    disconnectedPatch.sourceParentTetNodeRows[1]={0u,1u,4u,5u};
+    assert(!preparePhysicalSkinAuthoringDetailBridge(disconnectedPatch,regionScopedState,regionScopedReport,error));
+
+    // Every failed preparation leaves both the prior prepared state and report
+    // byte fields untouched.
+    const auto stateRows=state.tetraRows;
+    const auto priorReport=report;
+    auto badFace=in;badFace.detailExpectedBoundaryFaceRows[0]=9u;
+    assert(!preparePhysicalSkinAuthoringDetailBridge(badFace,state,report,error));
+    assert(state.tetraRows.size()==stateRows.size()&&state.tetraRows[0].node[0]==stateRows[0].node[0]&&
+           state.tetraRows[0].weight[3]==stateRows[0].weight[3]);
+    assert(report.detailRows==priorReport.detailRows&&
+           report.maximumBoundaryProjectionDistanceM==priorReport.maximumBoundaryProjectionDistanceM);
+    auto badLabels=in;badLabels.mechanicalTetGeometricDonorBodyIndices[0]=42u;
+    assert(!preparePhysicalSkinAuthoringDetailBridge(badLabels,state,report,error));
+    assert(state.tetraRows[0].weight[3]==stateRows[0].weight[3]&&report.detailRows==priorReport.detailRows);
+    auto tooFar=in;tooFar.maximumTetExtrapolationDistanceM=0.001;
+    assert(!preparePhysicalSkinAuthoringDetailBridge(tooFar,state,report,error));
+    assert(state.tetraRows[0].weight[3]==stateRows[0].weight[3]&&report.detailRows==priorReport.detailRows);
+    auto missingProjectionBound=in;missingProjectionBound.maximumBoundaryProjectionDistanceM=0.0;
+    assert(!preparePhysicalSkinAuthoringDetailBridge(missingProjectionBound,state,report,error));
+    assert(state.tetraRows[0].weight[3]==stateRows[0].weight[3]&&report.detailRows==priorReport.detailRows);
+    auto singular=in;singular.mechanicalReferenceWorldPoints[3]=singular.mechanicalReferenceWorldPoints[0];
+    assert(!preparePhysicalSkinAuthoringDetailBridge(singular,state,report,error));
+    assert(state.tetraRows[0].weight[3]==stateRows[0].weight[3]&&report.detailRows==priorReport.detailRows);
+
+    const auto priorOutput=result;
+    auto invalidAccepted=in.mechanicalReferenceWorldPoints;
+    invalidAccepted[0][0]=std::numeric_limits<double>::quiet_NaN();
+    assert(!evaluatePhysicalSkinAuthoringDetailBridgeForCheck(state,invalidAccepted,result,error));
+    assert(result==priorOutput);
+}
+
 } // namespace
 
 int main() {
@@ -288,5 +510,6 @@ int main() {
     assert(state.roles[0].authoringVertexRows==priorState.roles[0].authoringVertexRows);
     assert(report.rows==priorReport.rows&&report.weightFileSHA256==priorReport.weightFileSHA256);
 
-    std::cout<<"authoring_role_consumer=pass rows=3/3/3 bindings=86 parent_geometric_donor=150 frame_owners=distinct transactional_failures=11 physical_admission=false\n";
+    testAuthoringDetailBridge();
+    std::cout<<"authoring_role_consumer=pass rows=3/3/3 bindings=86 parent_geometric_donor=150 frame_owners=distinct role_consumer_transactional_failures=11 detail_bridge_failures=10 detail_bridge=pass identity_namespaces=separate face_bary=source_connected tet_transfer=affine_objective rigid_rotation=pass physical_admission=false\n";
 }

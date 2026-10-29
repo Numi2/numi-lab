@@ -1,0 +1,44 @@
+{
+  "binary_sha256": "0cd8966900a40416b575c66a41631d5e83c96813503a23576f6c5505c461b810",
+  "source_sha256": {
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinSupportParentMap.hpp": "3c9f10e076a5c4d0a66d71e296bb1e2d70296aab449a6e8044cc79d51a748275",
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinSupportParentMapCheck.cpp": "455c56b51ccb7f3eebc36329eedb9fb6b13c1bae351899ce66a10a25e52633ac"
+  },
+  "tests": [
+    {
+      "command": [
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-support-parent-map-check"
+      ],
+      "exit_code": 0,
+      "stdout": "retained_support_refinement_nodes=PASS inserted_nodes_unassigned=PASS invalid_cases=11 failure_preserves_state=PASS new_supports_created=0\nsupport_parent_topology=PASS bounded_geometry_change=PASS reordered_nodes=PASS invalid_cases=17 failure_preserves_state=PASS unchanged_attachment_node=PASS moved_attachment_rejected=PASS contact_forces_created=0 physical_admission=false\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-support-parent-map-check",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/refined-native-producer-433/interior-regression-440/volume/combined-node-map.csv",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/refined-native-producer-433/interior-regression-440/volume/mesh.ele",
+        "7234",
+        "0.02"
+      ],
+      "exit_code": 0,
+      "stdout": "actual_retained_support_nodes=PASS retained=7233 added_unassigned=1 maximum_registration_distance_m=0.000351375 topology_proof=NOT_CLAIMED physical_admission=false\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-support-parent-map-check",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/refined-native-producer-433/interface-refinement-control-442-retry-001/sidecars/volume/combined-node-map.csv",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/refined-native-producer-433/interface-refinement-control-442-retry-001/sidecars/volume/mesh.ele",
+        "7234",
+        "0.02"
+      ],
+      "exit_code": 0,
+      "stdout": "actual_retained_support_nodes=PASS retained=7233 added_unassigned=1 maximum_registration_distance_m=0.000351375 topology_proof=NOT_CLAIMED physical_admission=false\n",
+      "stderr": ""
+    }
+  ],
+  "physical_admission": false
+}

@@ -356,6 +356,8 @@ int main() {
         error.find("supply_kg=") == std::string::npos ||
         error.find("sent_kg=") == std::string::npos ||
         error.find("distance_m=0.001") == std::string::npos ||
+        error.find("cut_parent_rows=[1]") == std::string::npos ||
+        error.find("cut_child_rows=[1]") == std::string::npos ||
         untouched.receiptSHA256 != previousReceipt ||
         untouched.childMassKg != result.childMassKg) {
         std::cerr << "infeasible spatial partition lost its witness or mutated output: " << error << '\n';

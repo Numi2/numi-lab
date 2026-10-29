@@ -154,4 +154,90 @@ inline bool provePhysicalSkinSupportParentMap(
     }
     output=std::move(next);error.clear();return true;
 }
+
+// A local reference refinement can keep every old O node while adding nodes
+// and replacing faces. Prove only that retained node injection here. This is
+// not a topology proof, a face correspondence, or an admission of new supports.
+inline bool provePhysicalSkinRetainedSupportNodes(
+        const PhysicalSkinChildMassMappingBundle& b,
+        std::span<const std::array<float,3>> actualParentPoints,
+        std::span<const std::array<std::uint32_t,4>> actualParentTets,
+        double maximumNodeDisplacementM,
+        PhysicalSkinSupportParentMap& output,std::string& error) {
+    const auto fail=[&](const char* message){error=message;return false;};
+    const auto n=b.parent.currentWorldPoints.size(),m=b.parent.tetrahedra.size();
+    const auto c=b.currentWorldPoints.size();
+    if(!n||!m||c<=n||b.childTetrahedra.size()<=m||
+       actualParentPoints.size()!=n||actualParentTets.size()!=m||
+       b.parent.referenceWorldPoints.size()!=n||b.referenceWorldPoints.size()!=c||
+       b.volumeNodeParentTetrahedra.size()!=c||b.volumeNodeParentBarycentric.size()!=c||
+       b.volumeNodeParentResidualWorldM.size()!=c||
+       !std::isfinite(maximumNodeDisplacementM)||maximumNodeDisplacementM<=0)
+        return fail("retained support nodes need an explicit added-node/cell reference refinement");
+    for(std::size_t row=0;row<m;++row)
+        if(actualParentTets[row]!=b.parent.tetrahedra[row])
+            return fail("retained support source topology differs from the compiled parent");
+    for(std::size_t node=0;node<n;++node)for(unsigned axis=0;axis<3;++axis)
+        if(!std::isfinite(actualParentPoints[node][axis])||
+           double(actualParentPoints[node][axis])!=b.parent.currentWorldPoints[node][axis]||
+           !std::isfinite(b.parent.referenceWorldPoints[node][axis]))
+            return fail("retained support source coordinates differ from the compiled parent");
+    PhysicalSkinSupportParentMap next;
+    next.childNodeToParent.assign(c,NM_INVALID_INDEX);
+    std::vector<std::uint8_t> seen(n,0);
+    for(std::size_t node=0;node<c;++node) {
+        const auto tet=b.volumeNodeParentTetrahedra[node];
+        if(tet>=m)return fail("retained support node has invalid original-parent tet");
+        const auto& beta=b.volumeNodeParentBarycentric[node];
+        unsigned unit=4,units=0;double sum=0;
+        for(unsigned k=0;k<4;++k) {
+            if(!std::isfinite(beta[k])||beta[k]<0||beta[k]>1)
+                return fail("retained support ancestry has invalid barycentrics");
+            sum+=beta[k];if(beta[k]==1.0){unit=k;++units;}
+            if(b.parent.tetrahedra[tet][k]>=n)
+                return fail("retained support source tet has invalid node");
+        }
+        if(std::abs(sum-1.0)>1.e-8)return fail("retained support ancestry is not affine");
+        double d2=0;
+        for(unsigned axis=0;axis<3;++axis) {
+            const auto x=b.currentWorldPoints[node][axis],r=b.referenceWorldPoints[node][axis];
+            const auto residual=b.volumeNodeParentResidualWorldM[node][axis];
+            double pr=0,pc=0;
+            for(unsigned k=0;k<4;++k) {
+                const auto parent=b.parent.tetrahedra[tet][k];
+                pr+=beta[k]*b.parent.referenceWorldPoints[parent][axis];
+                pc+=beta[k]*b.parent.currentWorldPoints[parent][axis];
+            }
+            if(!std::isfinite(x)||!std::isfinite(r)||!std::isfinite(residual)||
+               std::abs(pr+residual-r)>2.e-10)
+                return fail("retained support ancestry does not reconstruct reference geometry");
+            d2+=(x-pc)*(x-pc);
+        }
+        const double distance=std::sqrt(d2);
+        if(!std::isfinite(distance)||distance>maximumNodeDisplacementM)
+            return fail("retained support refinement exceeds its pinned registration bound");
+        next.maximumNodeDisplacementM=std::max(next.maximumNodeDisplacementM,distance);
+        if(units==1) {
+            for(unsigned k=0;k<4;++k)if(k!=unit&&beta[k]!=0.0)
+                return fail("retained support injection requires exact one-hot ancestry");
+            const auto parent=b.parent.tetrahedra[tet][unit];
+            if(seen[parent]++)return fail("retained original support-node injection is duplicated");
+            next.childNodeToParent[node]=parent;
+        }
+    }
+    if(!std::all_of(seen.begin(),seen.end(),[](auto count){return count==1;}))
+        return fail("refinement omits an original support-node source identity");
+    for(const auto& tet:b.childTetrahedra) {
+        if(std::any_of(tet.begin(),tet.end(),[&](auto node){return node>=c;}))
+            return fail("refined support topology has invalid nodes");
+        for(const auto* points:{&b.currentWorldPoints,&b.referenceWorldPoints}) {
+            const double volume=physical_skin_child_mass_detail::signedTetVolume(
+                (*points)[tet[0]],(*points)[tet[1]],(*points)[tet[2]],(*points)[tet[3]]);
+            if(!std::isfinite(volume)||volume<=0)
+                return fail("refined support topology has nonpositive cells");
+        }
+    }
+    output=std::move(next);error.clear();return true;
+}
+
 } // namespace metalrobo::human::coarse_tissue

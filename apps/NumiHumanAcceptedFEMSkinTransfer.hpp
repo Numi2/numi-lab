@@ -8,6 +8,7 @@
 #include <limits>
 #include <numeric>
 #include <string>
+#include <sstream>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -96,6 +97,7 @@ public:
         double maximumTransferPointErrorMeters=0;
         std::array<std::uint64_t,4> sourceIdentity{},candidateIdentity{};
     };
+    using DetailFaceEligibilityPredicate=bool(*)(const void*,std::size_t,std::size_t);
 
     // Build once while registered triangles are in scope. Source IDs provide
     // exact one-hot ancestry when available. Otherwise a donor-filtered
@@ -119,15 +121,18 @@ public:
                const std::vector<BaselineProlongationRow>* coarseBaselineProlongation=nullptr,
                std::size_t sourceConnectedFaceRings=1,
                const std::vector<std::uint32_t>* stableFaceIds=nullptr,
-               const std::array<std::uint64_t,4>* sourceIdentity=nullptr) {
+               const std::array<std::uint64_t,4>* sourceIdentity=nullptr,
+               DetailFaceEligibilityPredicate detailFaceEligibility=nullptr,
+               const void* detailFaceEligibilityContext=nullptr) {
         clear();
         auto fail=[&](const char* s){ if(error)*error=s; clear(); return false; };
         if(detailRest.size()!=detailSource.size() ||
            detailRest.size()!=detailDonor.size() || detailRest.size()!=detailUsed.size() ||
            (detailRepresentativeCoarseIndex && detailRepresentativeCoarseIndex->size()!=detailRest.size()) ||
            coarseRest.size()!=coarseSource.size() ||
-           coarseRest.size()!=coarseDonor.size())
-            return fail("parallel vertex arrays differ in size");
+           coarseRest.size()!=coarseDonor.size()||
+           (detailFaceEligibility==nullptr&&detailFaceEligibilityContext!=nullptr))
+            return fail("parallel vertex arrays or typed face-eligibility context differ in size");
         if(detailRest.empty() || coarseRest.empty() || faces.empty())
             return fail("empty detailed or coarse surface");
         if(!(maxProjection>=0) || std::isnan(maxProjection))
@@ -316,16 +321,32 @@ public:
             witness.distance=distance;
             return witness;
         };
+        std::size_t eligibilityFailures=0u;
+        std::ostringstream eligibilityWitnesses;
         for(std::size_t i=0;i<detailRest.size();++i) {
             if(!detailUsed[i]) { rows_[i].donorBodyIndex=detailDonor[i]; ++r.inactiveRows; continue; }
             auto it=exact.find(Key{detailDonor[i],detailSource[i]});
             if(it!=exact.end()) {
+                bool exactAccepted=false;
                 if(hasIncident[it->second]) {
-                    setExactOnFace(rows_[i],incidentFace[it->second],incidentCorner[it->second],detailDonor[i]);
-                    selectedFaceIndices_[i]=std::uint32_t(incidentFaceIndices[it->second].front());
-                } else setExact(rows_[i],it->second,detailDonor[i]);
-                ++r.exactAncestryRows;
-                continue;
+                    for(std::size_t q=0;q<incidentFaceIndices[it->second].size();++q) {
+                        const auto faceIndex=incidentFaceIndices[it->second][q];
+                        if(detailFaceEligibility&&!detailFaceEligibility(
+                                detailFaceEligibilityContext,i,faceIndex))continue;
+                        const auto corner=std::find(faces[faceIndex].begin(),
+                            faces[faceIndex].end(),it->second);
+                        if(corner==faces[faceIndex].end())continue;
+                        setExactOnFace(rows_[i],faces[faceIndex],
+                            std::uint8_t(corner-faces[faceIndex].begin()),detailDonor[i]);
+                        selectedFaceIndices_[i]=std::uint32_t(faceIndex);
+                        exactAccepted=true;break;
+                    }
+                } else if(!detailFaceEligibility) {
+                    setExact(rows_[i],it->second,detailDonor[i]);exactAccepted=true;
+                }
+                if(exactAccepted) {
+                    ++r.exactAncestryRows;continue;
+                }
             }
             Hit h;
             std::uint32_t representativeIndex=std::numeric_limits<std::uint32_t>::max();
@@ -375,6 +396,8 @@ public:
                         return a<b;
                     });
                 for(const auto faceIndex:candidateFaces) {
+                    if(detailFaceEligibility&&!detailFaceEligibility(
+                            detailFaceEligibilityContext,i,faceIndex))continue;
                     const Face& f=faces[faceIndex];
                     bool sameDonor=false;
                     for(unsigned k=0;k<3;++k)sameDonor|=coarseDonor[f[k]]==detailDonor[i];
@@ -393,8 +416,22 @@ public:
                 }
                 const double parentDistance=std::sqrt(dist2(detailRest[i],coarseRest[coarseVertex]));
                 const double boundTolerance=1.0e-10*std::max(1.0,parentDistance);
-                if(!std::isfinite(h.distance) || h.distance>parentDistance+boundTolerance)
+                if(!std::isfinite(h.distance)||h.faceIndex>=faces.size()) {
+                    if(detailFaceEligibility) {
+                        ++eligibilityFailures;
+                        if(eligibilityFailures<=20u)eligibilityWitnesses<<" row="<<i<<":no eligible face in bounded source-connected neighborhood;";
+                        continue;
+                    }
                     return fail("incident-face projection exceeds source representative distance bound");
+                }
+                if(h.distance>parentDistance+boundTolerance) {
+                    if(detailFaceEligibility) {
+                        ++eligibilityFailures;
+                        if(eligibilityFailures<=20u)eligibilityWitnesses<<" row="<<i<<":eligible projection exceeds representative-distance bound;";
+                        continue;
+                    }
+                    return fail("incident-face projection exceeds source representative distance bound");
+                }
                 ++r.ancestryFallbackRows;
                 ancestrySum2+=h.distance*h.distance;
                 if(!r.maximumAncestryFallbackWitness.valid || h.distance>ancestryMax) {
@@ -403,7 +440,14 @@ public:
                         i,representativeIndex,h.face,h.faceIndex,h.distance);
                 }
             }
-            if(h.distance>maxProjection) return fail("projection exceeds configured distance");
+            if(h.distance>maxProjection) {
+                if(detailFaceEligibility) {
+                    ++eligibilityFailures;
+                    if(eligibilityFailures<=20u)eligibilityWitnesses<<" row="<<i<<":eligible projection exceeds configured distance;";
+                    continue;
+                }
+                return fail("projection exceeds configured distance");
+            }
             auto& row=rows_[i];
             selectedFaceIndices_[i]=std::uint32_t(h.faceIndex);
             for(int k=0;k<3;++k) { row.coarseVertex[k]=h.face[k]; row.weight[k]=float(h.bary[k]); }
@@ -414,6 +458,12 @@ public:
                 r.maximumProjectionWitness=makeProjectionWitness(
                     i,representativeIndex,h.face,h.faceIndex,h.distance);
             }
+        }
+        if(eligibilityFailures) {
+            if(error)*error="typed per-detail face eligibility rejected "+
+                std::to_string(eligibilityFailures)+" rows; first witnesses:"+
+                eligibilityWitnesses.str();
+            clear();return false;
         }
         r.maximumProjectionDistance=maxd;
         r.rmsProjectionDistance=r.projectedRows ? std::sqrt(sum2/r.projectedRows):0;

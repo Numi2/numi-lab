@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <fstream>
 #include <limits>
+#include <map>
 #include <span>
 #include <set>
 #include <string>
@@ -70,6 +71,110 @@ struct PhysicalSkinAuthoringOuterRoleRenderDomain {
     bool physicalAdmission=false;
 };
 
+
+// Render-only embedding from a detailed, typed surface into the accepted
+// physical volume. `faceTransferRows` retain the independently checked
+// source-connected boundary correspondence. `tetraRows` are the rows consumed
+// by the accepted-state GPU pass; their four weights include each detail
+// point's reference offset from its selected physical tet, so rigid and affine
+// motion carry that offset with the same accepted tet.
+struct PhysicalSkinAuthoringDetailBridgeInput {
+    PhysicalSkinSourceDomainRegistration detailDomain,physicalBoundaryDomain;
+    std::vector<V3> detailReferenceWorldPoints;
+    std::vector<V3> detailReferenceWorldNormals;
+    std::vector<std::array<double,kPhysicalSkinAuthoringFullWeightBindingCount>>
+        detailFullBodyWeights86;
+    std::vector<std::uint32_t> detailDominantBindingIndices;
+    std::vector<std::uint32_t> detailSourceVertexRows,detailGeometricDonorBodyIndices;
+    // The registered detail-row donor is retained separately from the
+    // independently registered parent-tet geometric donor.
+    std::vector<std::uint32_t> detailRegisteredSourceDonorBodyIndices;
+    std::vector<std::uint32_t> detailMaterialIndices,detailAnatomicalRegionIndices;
+    std::vector<std::uint32_t> detailFrameOwnerBodyIndices;
+    std::vector<std::uint32_t> detailBoundaryProjectionDonorBodyIndices;
+    std::vector<std::uint8_t> detailRegionScopedDonorFallback;
+    // A source-tet ancestry walk can be required even when the geometric
+    // donor label is unchanged. Empty preserves original direct callers,
+    // where only explicit donor remaps needed a walk.
+    std::vector<std::uint8_t> detailRequiresParentTetPath;
+    std::vector<std::uint32_t> detailParentTetRows,detailStableSourceFaceIDs;
+    std::vector<Face> detailFaces;
+    std::size_t sourceParentNodeCount=0u;
+    std::vector<std::array<std::uint32_t,4>> sourceParentTetNodeRows;
+    std::vector<std::uint32_t> sourceParentTetMaterialIndices,sourceParentTetAnatomicalRegionIndices;
+    std::vector<std::uint32_t> sourceParentTetStableSourceFaceIDs;
+    std::vector<std::uint32_t> physicalBoundaryFaceParentTetRows;
+    std::uint32_t maximumSourceParentTetHops=8u;
+
+    std::vector<V3> physicalBoundaryReferenceWorldPoints;
+    std::vector<std::uint32_t> physicalBoundarySourceVertexRows;
+    std::vector<std::uint32_t> physicalBoundaryGeometricDonorBodyIndices;
+    std::vector<std::uint32_t> physicalBoundaryFrameOwnerBodyIndices;
+    std::vector<std::uint32_t> physicalBoundaryVolumeNodeRows;
+    std::vector<Face> physicalBoundaryFaces;
+    std::vector<std::uint32_t> physicalBoundaryStableFaceIDs;
+    std::vector<std::uint32_t> physicalBoundaryFaceMaterialIndices;
+    std::vector<std::uint32_t> physicalBoundaryFaceGeometricDonorBodyIndices;
+    std::vector<std::uint32_t> physicalBoundaryFaceAnatomicalRegionIndices;
+    std::vector<std::uint32_t> physicalBoundaryFaceFrameOwnerBodyIndices;
+
+    // Producer-owned source-connected nearest-face witness for each detail
+    // row. The native transfer builder independently recomputes the same
+    // selected face and barycentrics before this witness is accepted.
+    std::vector<std::uint32_t> detailRepresentativeBoundaryVertexRows;
+    std::vector<std::uint32_t> detailExpectedBoundaryFaceRows;
+    std::vector<std::array<double,3>> detailExpectedBoundaryFaceBarycentrics;
+
+    // The selected tet row is in this physical volume's cell namespace. Its
+    // four node IDs are in mechanicalReferenceWorldPoints and, later, the
+    // same accepted FEM position array.
+    std::vector<V3> mechanicalReferenceWorldPoints;
+    std::vector<std::array<std::uint32_t,4>> mechanicalTetNodeRows;
+    std::vector<std::uint32_t> mechanicalTetMaterialIndices;
+    std::vector<std::uint32_t> mechanicalTetGeometricDonorBodyIndices;
+    std::vector<std::uint32_t> mechanicalTetAnatomicalRegionIndices;
+    std::vector<std::uint32_t> detailMechanicalTetRows;
+
+    double maximumBoundaryProjectionDistanceM=0.0;
+    double maximumTetExtrapolationDistanceM=0.0;
+    double maximumAbsoluteEffectiveWeight=1.5;
+    double maximumTetConditionEstimate=1.0e8;
+    double maximumReferenceReconstructionErrorM=2.0e-7;
+    double faceBarycentricComparisonTolerance=2.0e-6;
+};
+
+struct PhysicalSkinAuthoringDetailBridgeState {
+    using TetRow=numi::human::AcceptedFEMSkinTransfer::GPUTetrahedralTransferRow;
+    PhysicalSkinSourceDomainRegistration detailDomain,physicalBoundaryDomain;
+    std::vector<TetRow> tetraRows;
+    // Audit-only surface correspondence; these are physical boundary face
+    // rows, not detailed row IDs or contact anchors.
+    std::vector<numi::human::AcceptedFEMSkinTransfer::GPUTransferRow> faceTransferRows;
+    std::vector<std::uint32_t> selectedPhysicalBoundaryFaceRows;
+    std::vector<std::uint32_t> detailGeometricDonorBodyIndices,detailFrameOwnerBodyIndices;
+    std::vector<std::uint32_t> selectedPhysicalBoundaryFaceDonorBodyIndices;
+    std::vector<std::uint32_t> selectedPhysicalBoundaryFaceFrameOwnerBodyIndices;
+    std::vector<std::uint8_t> regionScopedDonorFallbackRows;
+    std::vector<std::uint32_t> sourceParentTetHopCounts;
+    std::vector<std::vector<std::uint32_t>> sourceParentTetPathRows;
+    bool provenDirectIdentity=false;
+    bool physicalAdmission=false;
+};
+
+struct PhysicalSkinAuthoringDetailBridgeReport {
+    std::size_t detailRows=0,boundaryRows=0,physicalNodeRows=0;
+    std::size_t surfaceProjectedRows=0,surfaceExactAncestryRows=0;
+    std::size_t tetraEmbeddedRows=0,directIdentityRows=0;
+    std::size_t regionScopedDonorFallbackRows=0,sourceParentTetWalkRows=0;
+    std::uint32_t maximumSourceParentTetHops=0u;
+    double maximumBoundaryProjectionDistanceM=0.0;
+    double maximumTetExtrapolationDistanceM=0.0;
+    double maximumAbsoluteEffectiveWeight=0.0;
+    double maximumTetConditionEstimate=0.0;
+    double maximumReferenceReconstructionErrorM=0.0;
+    bool sourceNamespaceIdentitySuppressed=false;
+    bool physicalAdmission=false;
+};
 
 namespace physical_skin_authoring_role_consumer_detail {
 
@@ -425,6 +530,543 @@ inline bool closeMatrix(const std::array<double,9>& a,const std::array<double,9>
         next.faces.push_back(face);
     }
     next.physicalAdmission=false;
+    output=std::move(next);error.clear();return true;
+}
+
+namespace physical_skin_authoring_detail_bridge_detail {
+using TetRow=numi::human::AcceptedFEMSkinTransfer::GPUTetrahedralTransferRow;
+using Transfer=numi::human::AcceptedFEMSkinTransfer;
+inline bool finitePoint(const V3& p) {
+    return std::all_of(p.begin(),p.end(),[](double x){return std::isfinite(x);});
+}
+inline double distance(const V3& a,const V3& b) { return norm(sub(a,b)); }
+inline bool validDomain(const PhysicalSkinSourceDomainRegistration& d) {
+    return !d.domain.empty()&&validPhysicalSkinSourceDomainSHA256(d.sourceSHA256)&&
+        d.vertexCount>0u&&d.faceCount>0u;
+}
+inline bool tetBarycentric(const std::vector<V3>& points,
+        const std::array<std::uint32_t,4>& nodes,const V3& point,
+        std::array<double,4>& bary,double& condition,std::string& error) {
+    for(auto n:nodes)if(n>=points.size()||!finitePoint(points[n])) {
+        error="selected physical tet has an invalid node row";return false;
+    }
+    if(nodes[0]==nodes[1]||nodes[0]==nodes[2]||nodes[0]==nodes[3]||
+       nodes[1]==nodes[2]||nodes[1]==nodes[3]||nodes[2]==nodes[3]) {
+        error="selected physical tet repeats a node row";return false;
+    }
+    const V3 e1=sub(points[nodes[1]],points[nodes[0]]);
+    const V3 e2=sub(points[nodes[2]],points[nodes[0]]);
+    const V3 e3=sub(points[nodes[3]],points[nodes[0]]);
+    const double det=dot(e1,cross(e2,e3));
+    if(!std::isfinite(det)||det<=1.0e-24) {
+        error="selected physical reference tet is inverted or singular";return false;
+    }
+    const V3 r=sub(point,points[nodes[0]]);
+    const V3 inv0=mul(cross(e2,e3),1.0/det);
+    const V3 inv1=mul(cross(e3,e1),1.0/det);
+    const V3 inv2=mul(cross(e1,e2),1.0/det);
+    const double c0=dot(r,inv0),c1=dot(r,inv1),c2=dot(r,inv2);
+    bary={1.0-c0-c1-c2,c0,c1,c2};
+    const double matrixF2=dot(e1,e1)+dot(e2,e2)+dot(e3,e3);
+    const double inverseF2=dot(inv0,inv0)+dot(inv1,inv1)+dot(inv2,inv2);
+    condition=std::sqrt(matrixF2*inverseF2);
+    if(!std::isfinite(condition)||!std::all_of(bary.begin(),bary.end(),
+          [](double x){return std::isfinite(x);})) {
+        error="selected physical tet has nonfinite barycentrics or conditioning";return false;
+    }
+    return true;
+}
+inline V3 weightedTetPoint(const std::vector<V3>& points,
+        const std::array<std::uint32_t,4>& nodes,const std::array<double,4>& weights) {
+    V3 p{};
+    for(unsigned k=0;k<4;++k)for(unsigned a=0;a<3;++a)
+        p[a]+=weights[k]*points[nodes[k]][a];
+    return p;
+}
+inline double conservativeTetExtrapolationDistance(const V3& point,
+        const std::vector<V3>& points,const std::array<std::uint32_t,4>& nodes,
+        const std::array<double,4>& bary) {
+    std::array<double,4> clipped{};double sum=0.0;
+    for(unsigned k=0;k<4;++k){clipped[k]=std::clamp(bary[k],0.0,1.0);sum+=clipped[k];}
+    if(!(sum>0.0)||!std::isfinite(sum))return std::numeric_limits<double>::infinity();
+    for(double& w:clipped)w/=sum;
+    return distance(point,weightedTetPoint(points,nodes,clipped));
+}
+inline bool buildParentTetFaceAdjacency(
+        const std::vector<std::array<std::uint32_t,4>>& tets,
+        std::vector<std::vector<std::uint32_t>>& adjacency,std::string& error) {
+    using FaceKey=std::array<std::uint32_t,3>;
+    std::map<FaceKey,std::vector<std::uint32_t>> faceCells;
+    adjacency.assign(tets.size(),{});
+    for(std::size_t cell=0;cell<tets.size();++cell){
+        const auto& tet=tets[cell];
+        auto sorted=tet;std::sort(sorted.begin(),sorted.end());
+        if(std::adjacent_find(sorted.begin(),sorted.end())!=sorted.end()){
+            error="source parent tet topology repeats a node";return false;
+        }
+        for(unsigned omitted=0;omitted<4;++omitted){
+            FaceKey face{};unsigned out=0;
+            for(unsigned k=0;k<4;++k)if(k!=omitted)face[out++]=tet[k];
+            std::sort(face.begin(),face.end());
+            faceCells[face].push_back(static_cast<std::uint32_t>(cell));
+        }
+    }
+    for(const auto& [face,cells]:faceCells){
+        (void)face;
+        if(cells.size()>2u){error="source parent topology has a nonmanifold tetra face";return false;}
+        if(cells.size()==2u){
+            adjacency[cells[0]].push_back(cells[1]);
+            adjacency[cells[1]].push_back(cells[0]);
+        }
+    }
+    for(auto& neighbors:adjacency){
+        std::sort(neighbors.begin(),neighbors.end());
+        neighbors.erase(std::unique(neighbors.begin(),neighbors.end()),neighbors.end());
+    }
+    return true;
+}
+inline bool boundedSameRegionParentTetPath(
+        const std::vector<std::vector<std::uint32_t>>& adjacency,
+        const std::vector<std::uint32_t>& material,
+        const std::vector<std::uint32_t>& region,
+        const std::uint32_t start,const std::uint32_t target,
+        const std::uint32_t expectedMaterial,const std::uint32_t expectedRegion,
+        const std::uint32_t maximumHops,std::uint32_t& hops,
+        std::vector<std::uint32_t>& path) {
+    if(start>=adjacency.size()||target>=adjacency.size()||material.size()!=adjacency.size()||
+       region.size()!=adjacency.size()||material[start]!=expectedMaterial||
+       material[target]!=expectedMaterial||region[start]!=expectedRegion||
+       region[target]!=expectedRegion)return false;
+    std::vector<std::uint32_t> depth(adjacency.size(),NM_INVALID_INDEX);
+    std::vector<std::uint32_t> parent(adjacency.size(),NM_INVALID_INDEX);
+    std::vector<std::uint32_t> queue;queue.reserve(std::min<std::size_t>(adjacency.size(),512u));
+    depth[start]=0u;queue.push_back(start);
+    for(std::size_t cursor=0;cursor<queue.size();++cursor){
+        const auto cell=queue[cursor];
+        if(cell==target){
+            hops=depth[cell];path.clear();
+            for(std::uint32_t row=target;row!=NM_INVALID_INDEX;row=parent[row])path.push_back(row);
+            std::reverse(path.begin(),path.end());return true;
+        }
+        if(depth[cell]>=maximumHops)continue;
+        for(const auto next:adjacency[cell]){
+            if(depth[next]!=NM_INVALID_INDEX||material[next]!=expectedMaterial||
+               region[next]!=expectedRegion)continue;
+            depth[next]=depth[cell]+1u;parent[next]=cell;queue.push_back(next);
+        }
+    }
+    return false;
+}
+
+} // namespace physical_skin_authoring_detail_bridge_detail
+
+// The canonical face producer and strict runtime consumer share this exact
+// eligibility predicate. Frame ownership is validated independently from the
+// geometric donor selected from the physical face.
+struct PhysicalSkinAuthoringDetailFaceEligibilityContext {
+    const PhysicalSkinAuthoringDetailBridgeInput* input=nullptr;
+    const std::vector<std::vector<std::uint32_t>>* parentAdjacency=nullptr;
+};
+inline bool physicalSkinAuthoringDetailFaceEligible(
+        const PhysicalSkinAuthoringDetailFaceEligibilityContext& context,
+        const std::size_t row,const std::size_t face) {
+    if(!context.input||!context.parentAdjacency)return false;
+    const auto& in=*context.input;
+    if(row>=in.detailReferenceWorldPoints.size()||
+       face>=in.physicalBoundaryFaceParentTetRows.size()||
+       face>=in.physicalBoundaryFaceMaterialIndices.size()||
+       face>=in.physicalBoundaryFaceAnatomicalRegionIndices.size()||
+       face>=in.physicalBoundaryFaceFrameOwnerBodyIndices.size()||
+       in.physicalBoundaryFaceFrameOwnerBodyIndices[face]==NM_INVALID_INDEX||
+       row>=in.detailMaterialIndices.size()||row>=in.detailAnatomicalRegionIndices.size()||
+       in.detailMaterialIndices[row]!=in.physicalBoundaryFaceMaterialIndices[face]||
+       in.detailAnatomicalRegionIndices[row]!=in.physicalBoundaryFaceAnatomicalRegionIndices[face])
+        return false;
+    const auto sourceTet=in.detailParentTetRows[row];
+    const auto targetTet=in.physicalBoundaryFaceParentTetRows[face];
+    if(sourceTet>=context.parentAdjacency->size()||
+       targetTet>=in.sourceParentTetMaterialIndices.size()||
+       in.sourceParentTetMaterialIndices.size()!=context.parentAdjacency->size()||
+       in.sourceParentTetAnatomicalRegionIndices.size()!=context.parentAdjacency->size())
+        return false;
+    std::uint32_t hops=0u;std::vector<std::uint32_t> path;
+    return physical_skin_authoring_detail_bridge_detail::boundedSameRegionParentTetPath(
+        *context.parentAdjacency,in.sourceParentTetMaterialIndices,
+        in.sourceParentTetAnatomicalRegionIndices,sourceTet,targetTet,
+        in.detailMaterialIndices[row],in.detailAnatomicalRegionIndices[row],
+        in.maximumSourceParentTetHops,hops,path);
+}
+
+// Validate the producer's source-connected boundary correspondence against
+// the existing native transfer builder, then compile a four-node affine
+// embedding into the same physical tet rows consumed by accepted FEM state.
+// This is a render/presentation bridge only; it never admits or changes physics.
+[[nodiscard]] inline bool preparePhysicalSkinAuthoringDetailBridge(
+        const PhysicalSkinAuthoringDetailBridgeInput& in,
+        PhysicalSkinAuthoringDetailBridgeState& output,
+        PhysicalSkinAuthoringDetailBridgeReport& report,
+        std::string& error) {
+    using namespace physical_skin_authoring_detail_bridge_detail;
+    const auto fail=[&](std::string message){error=std::move(message);return false;};
+    std::string transferError;
+    const std::size_t n=in.detailReferenceWorldPoints.size();
+    const std::size_t b=in.physicalBoundaryReferenceWorldPoints.size();
+    const std::size_t m=in.mechanicalReferenceWorldPoints.size();
+    const std::size_t cells=in.mechanicalTetNodeRows.size();
+    if(!validDomain(in.detailDomain)||!validDomain(in.physicalBoundaryDomain)||
+       in.detailDomain.role!=in.physicalBoundaryDomain.role||n==0u||b<3u||m<4u||cells==0u)
+        return fail("detail bridge needs pinned compatible source domains and nonempty bounded geometry");
+    if(n>200000u||b>200000u||m>200000u||cells>200000u)
+        return fail("detail bridge exceeds the existing bounded registered-volume row domain");
+    if(in.detailDomain.vertexCount!=n||in.detailDomain.faceCount!=in.detailFaces.size()||
+       in.physicalBoundaryDomain.vertexCount!=b||in.physicalBoundaryDomain.faceCount!=in.physicalBoundaryFaces.size())
+        return fail("detail bridge source registration counts differ from the supplied geometry");
+    if((!in.detailReferenceWorldNormals.empty()&&in.detailReferenceWorldNormals.size()!=n)||
+       in.detailSourceVertexRows.size()!=n||in.detailGeometricDonorBodyIndices.size()!=n||
+       (!in.detailRegisteredSourceDonorBodyIndices.empty()&&
+        in.detailRegisteredSourceDonorBodyIndices.size()!=n)||
+       in.detailBoundaryProjectionDonorBodyIndices.size()!=n||in.detailRegionScopedDonorFallback.size()!=n||
+       in.detailFrameOwnerBodyIndices.size()!=n||in.detailParentTetRows.size()!=n||
+       in.detailStableSourceFaceIDs.size()!=n||
+       (!in.detailRequiresParentTetPath.empty()&&in.detailRequiresParentTetPath.size()!=n)||
+       in.detailMaterialIndices.size()!=n||in.detailAnatomicalRegionIndices.size()!=n||
+       in.physicalBoundarySourceVertexRows.size()!=b||
+       in.physicalBoundaryGeometricDonorBodyIndices.size()!=b||
+       in.physicalBoundaryFrameOwnerBodyIndices.size()!=b||
+       in.physicalBoundaryVolumeNodeRows.size()!=b||
+       in.physicalBoundaryFaces.empty()||
+       in.physicalBoundaryStableFaceIDs.size()!=in.physicalBoundaryFaces.size()||
+       in.physicalBoundaryFaceMaterialIndices.size()!=in.physicalBoundaryFaces.size()||
+       in.physicalBoundaryFaceGeometricDonorBodyIndices.size()!=in.physicalBoundaryFaces.size()||
+       in.physicalBoundaryFaceAnatomicalRegionIndices.size()!=in.physicalBoundaryFaces.size()||
+       in.physicalBoundaryFaceFrameOwnerBodyIndices.size()!=in.physicalBoundaryFaces.size()||
+       in.physicalBoundaryFaceParentTetRows.size()!=in.physicalBoundaryFaces.size()||
+       in.detailRepresentativeBoundaryVertexRows.size()!=n||
+       in.detailExpectedBoundaryFaceRows.size()!=n||
+       in.detailExpectedBoundaryFaceBarycentrics.size()!=n||
+       in.detailMechanicalTetRows.size()!=n||
+       in.mechanicalTetMaterialIndices.size()!=cells||
+       in.mechanicalTetGeometricDonorBodyIndices.size()!=cells||
+       in.mechanicalTetAnatomicalRegionIndices.size()!=cells)
+        return fail("detail bridge source, witness, cell-label, or volume-row arrays are incomplete");
+    const std::array<double,6> limits{in.maximumBoundaryProjectionDistanceM,
+        in.maximumTetExtrapolationDistanceM,in.maximumAbsoluteEffectiveWeight,
+        in.maximumTetConditionEstimate,in.maximumReferenceReconstructionErrorM,
+        in.faceBarycentricComparisonTolerance};
+    if(!std::all_of(limits.begin(),limits.end(),[](double x){return std::isfinite(x)&&x>=0.0;})||
+       in.maximumAbsoluteEffectiveWeight<1.0||in.maximumAbsoluteEffectiveWeight>16.0||
+       in.maximumTetConditionEstimate<1.0||in.maximumBoundaryProjectionDistanceM>0.25||
+       in.maximumTetExtrapolationDistanceM>0.05||in.maximumBoundaryProjectionDistanceM>0.05||
+       in.faceBarycentricComparisonTolerance>1.0e-3)
+        return fail("detail bridge projection, extrapolation, weight, or conditioning bound is invalid");
+    if(in.detailFaces.empty()||in.physicalBoundaryFaces.empty())
+        return fail("detail bridge requires detailed and physical boundary topology");
+    for(const auto& p:in.detailReferenceWorldPoints)if(!finitePoint(p))
+        return fail("detail bridge contains a nonfinite detailed world point");
+    for(const auto& normal:in.detailReferenceWorldNormals)
+        if(!finitePoint(normal)||std::abs(norm(normal)-1.0)>2.0e-5)
+            return fail("detail bridge contains an invalid or unnormalized detailed normal");
+    for(const auto& p:in.physicalBoundaryReferenceWorldPoints)if(!finitePoint(p))
+        return fail("detail bridge contains a nonfinite physical boundary point");
+    for(const auto& p:in.mechanicalReferenceWorldPoints)if(!finitePoint(p))
+        return fail("detail bridge contains a nonfinite mechanical reference point");
+
+    std::vector<std::uint8_t> used(n,0u);
+    for(const auto& face:in.detailFaces)for(auto v:face){
+        if(v>=n)return fail("detail bridge surface face exceeds its typed detail namespace");
+        used[v]=1u;
+    }
+    if(std::find(used.begin(),used.end(),std::uint8_t(0u))!=used.end())
+        return fail("detail bridge has a detail row outside its source surface topology");
+    std::set<std::uint32_t> boundaryVolumeRows;
+    for(std::size_t row=0;row<b;++row){
+        if(in.physicalBoundarySourceVertexRows[row]>=in.physicalBoundaryDomain.vertexCount||
+           in.physicalBoundaryGeometricDonorBodyIndices[row]==NM_INVALID_INDEX||
+           in.physicalBoundaryFrameOwnerBodyIndices[row]==NM_INVALID_INDEX||
+           in.physicalBoundaryVolumeNodeRows[row]>=m||
+           !boundaryVolumeRows.insert(in.physicalBoundaryVolumeNodeRows[row]).second)
+            return fail("physical boundary source or volume-node rows are invalid or duplicated");
+    }
+    for(const auto& face:in.physicalBoundaryFaces)for(auto v:face)
+        if(v>=b)return fail("physical boundary face exceeds its role-local vertex namespace");
+    bool needsParentAncestryPath=false;
+    for(std::size_t i=0;i<n;++i){
+        const auto geometricDonor=in.detailGeometricDonorBodyIndices[i];
+        const auto mappedDonor=in.detailBoundaryProjectionDonorBodyIndices[i];
+        const auto fallback=in.detailRegionScopedDonorFallback[i];
+        const bool requiresParentPath=in.detailRequiresParentTetPath.empty()?
+            fallback!=0u:in.detailRequiresParentTetPath[i]!=0u;
+        if(geometricDonor==NM_INVALID_INDEX||mappedDonor==NM_INVALID_INDEX||
+           (!in.detailRegisteredSourceDonorBodyIndices.empty()&&
+            in.detailRegisteredSourceDonorBodyIndices[i]==NM_INVALID_INDEX)||
+           in.detailFrameOwnerBodyIndices[i]==NM_INVALID_INDEX||fallback>1u||
+           (!in.detailRequiresParentTetPath.empty()&&in.detailRequiresParentTetPath[i]>1u)||
+           ((geometricDonor!=mappedDonor)!=(fallback!=0u))||
+           (fallback!=0u&&!requiresParentPath))
+            return fail("detail donor crosswalk or frame-owner identity is invalid or implicit");
+        needsParentAncestryPath|=requiresParentPath;
+    }
+    std::vector<std::vector<std::uint32_t>> sourceParentTetAdjacency;
+    std::vector<std::vector<std::uint32_t>> sourceParentTetPaths(n);
+    std::vector<std::uint32_t> sourceParentTetHops(n,0u);
+    const bool hasPinnedParentAncestryDomain=!in.sourceParentTetNodeRows.empty();
+    if(needsParentAncestryPath||hasPinnedParentAncestryDomain){
+        const std::size_t parentCells=in.sourceParentTetNodeRows.size();
+        if(in.sourceParentNodeCount<4u||parentCells==0u||
+           in.sourceParentTetMaterialIndices.size()!=parentCells||
+           in.sourceParentTetAnatomicalRegionIndices.size()!=parentCells||
+           in.sourceParentTetStableSourceFaceIDs.size()!=parentCells||
+           in.maximumSourceParentTetHops==0u||in.maximumSourceParentTetHops>32u)
+            return fail("source-connected detail face selection lacks a bounded pinned parent-tet ancestry domain");
+        for(const auto& tet:in.sourceParentTetNodeRows)
+            for(auto node:tet)if(node>=in.sourceParentNodeCount)
+                return fail("source parent ancestry tet references a node outside its pinned parent domain");
+        if(!buildParentTetFaceAdjacency(in.sourceParentTetNodeRows,
+                sourceParentTetAdjacency,transferError))
+            return fail("source parent ancestry topology is invalid: "+transferError);
+    }
+    for(std::size_t i=0;i<n;++i){
+        if(in.detailSourceVertexRows[i]>=in.detailDomain.vertexCount||
+           in.detailGeometricDonorBodyIndices[i]==NM_INVALID_INDEX||
+           in.detailMaterialIndices[i]==NM_INVALID_INDEX||
+           in.detailAnatomicalRegionIndices[i]==NM_INVALID_INDEX||
+           in.detailRepresentativeBoundaryVertexRows[i]>=b||
+           in.detailExpectedBoundaryFaceRows[i]>=in.physicalBoundaryFaces.size()||
+           in.detailMechanicalTetRows[i]>=cells)
+            return fail("detail bridge row has an invalid source, semantic, representative, face, or tet index");
+        const auto faceRow=in.detailExpectedBoundaryFaceRows[i];
+        if(in.physicalBoundaryFaceMaterialIndices[faceRow]!=in.detailMaterialIndices[i]||
+           in.physicalBoundaryFaceGeometricDonorBodyIndices[faceRow]!=
+               in.detailBoundaryProjectionDonorBodyIndices[i]||
+           in.physicalBoundaryFaceAnatomicalRegionIndices[faceRow]!=in.detailAnatomicalRegionIndices[i]||
+           in.physicalBoundaryFaceFrameOwnerBodyIndices[faceRow]==NM_INVALID_INDEX)
+            return fail("source-connected boundary face has a different mapped donor, material, region, or frame owner");
+        const bool requiresParentPath=in.detailRequiresParentTetPath.empty()?
+            in.detailRegionScopedDonorFallback[i]!=0u:in.detailRequiresParentTetPath[i]!=0u;
+        if(requiresParentPath){
+            const auto sourceTet=in.detailParentTetRows[i];
+            const auto targetTet=in.physicalBoundaryFaceParentTetRows[faceRow];
+            const auto stableFace=in.detailStableSourceFaceIDs[i];
+            if(sourceTet>=sourceParentTetAdjacency.size()||targetTet>=in.sourceParentTetNodeRows.size()||
+               stableFace==NM_INVALID_INDEX||
+               stableFace!=in.physicalBoundaryStableFaceIDs[faceRow]||
+               in.sourceParentTetStableSourceFaceIDs[targetTet]!=stableFace)
+                return fail("region-scoped donor crosswalk lacks matching source-face and parent-tet endpoint ancestry");
+            std::uint32_t hops=0u;
+            if(!boundedSameRegionParentTetPath(sourceParentTetAdjacency,
+                    in.sourceParentTetMaterialIndices,in.sourceParentTetAnatomicalRegionIndices,
+                    sourceTet,targetTet,in.detailMaterialIndices[i],
+                    in.detailAnatomicalRegionIndices[i],in.maximumSourceParentTetHops,hops,
+                    sourceParentTetPaths[i]))
+                return fail("region-scoped donor crosswalk is outside its same-material/region source-tet patch");
+            sourceParentTetHops[i]=hops;
+        }
+        const auto representative=in.detailRepresentativeBoundaryVertexRows[i];
+        const auto& expectedFace=in.physicalBoundaryFaces[faceRow];
+        if(std::find(expectedFace.begin(),expectedFace.end(),representative)==expectedFace.end())
+            return fail("source-connected representative is outside its witnessed physical face");
+        const auto& bary=in.detailExpectedBoundaryFaceBarycentrics[i];
+        double sum=0.0;
+        for(double w:bary) {
+            if(!std::isfinite(w)||w< -1.0e-8||w>1.0+1.0e-8)
+                return fail("detail bridge face witness has an out-of-face barycentric");
+            sum+=w;
+        }
+        if(std::abs(sum-1.0)>1.0e-8)
+            return fail("detail bridge face witness barycentrics do not sum to one");
+        const V3 q=add(add(mul(in.physicalBoundaryReferenceWorldPoints[expectedFace[0]],bary[0]),
+                           mul(in.physicalBoundaryReferenceWorldPoints[expectedFace[1]],bary[1])),
+                       mul(in.physicalBoundaryReferenceWorldPoints[expectedFace[2]],bary[2]));
+        if(distance(in.detailReferenceWorldPoints[i],q)>in.maximumBoundaryProjectionDistanceM)
+            return fail("source-connected boundary witness exceeds its declared projection distance");
+    }
+
+    // A direct identity requires the complete pinned descriptor, indexed
+    // topology, source rows, donor labels, and coordinates to agree. Numeric
+    // row equality alone is explicitly insufficient.
+    bool directIdentity=in.detailDomain==in.physicalBoundaryDomain&&n==b&&
+        in.detailFaces==in.physicalBoundaryFaces&&
+        in.detailSourceVertexRows==in.physicalBoundarySourceVertexRows&&
+        in.detailGeometricDonorBodyIndices==in.physicalBoundaryGeometricDonorBodyIndices&&
+        in.detailBoundaryProjectionDonorBodyIndices==in.detailGeometricDonorBodyIndices&&
+        std::all_of(in.detailRegionScopedDonorFallback.begin(),in.detailRegionScopedDonorFallback.end(),
+                    [](auto fallback){return fallback==0u;})&&
+        (in.detailRequiresParentTetPath.empty()||
+         std::all_of(in.detailRequiresParentTetPath.begin(),in.detailRequiresParentTetPath.end(),
+                    [](auto path){return path==0u;}));
+    if(directIdentity){
+        std::set<std::uint32_t> sourceRows;
+        for(std::size_t i=0;i<n;++i){
+            directIdentity&=sourceRows.insert(in.detailSourceVertexRows[i]).second&&
+                in.detailReferenceWorldPoints[i]==in.physicalBoundaryReferenceWorldPoints[i]&&
+                in.physicalBoundaryVolumeNodeRows[i]<m&&
+                in.mechanicalReferenceWorldPoints[in.physicalBoundaryVolumeNodeRows[i]]==
+                    in.detailReferenceWorldPoints[i];
+        }
+    }
+
+    std::vector<std::uint32_t> detailTransferSource(n),boundaryTransferSource(b,NM_INVALID_INDEX);
+    if(directIdentity){
+        detailTransferSource=in.detailSourceVertexRows;
+        boundaryTransferSource=in.physicalBoundarySourceVertexRows;
+    }else{
+        // Use a disjoint synthetic key for detail rows and no physical source
+        // keys. This prevents AcceptedFEMSkinTransfer's direct-source fast path
+        // from treating equal integers in different domains as identity.
+        for(std::size_t i=0;i<n;++i)
+            detailTransferSource[i]=0x80000000u+static_cast<std::uint32_t>(i);
+    }
+    Transfer faceTransfer;
+    Transfer::BuildReport faceReport;
+    PhysicalSkinAuthoringDetailFaceEligibilityContext faceEligibilityContext{
+        &in,&sourceParentTetAdjacency};
+    Transfer::DetailFaceEligibilityPredicate faceEligibility=nullptr;
+    if(hasPinnedParentAncestryDomain)
+        faceEligibility=+[](const void* opaque,std::size_t row,std::size_t face)->bool {
+            return physicalSkinAuthoringDetailFaceEligible(
+                *static_cast<const PhysicalSkinAuthoringDetailFaceEligibilityContext*>(opaque),
+                row,face);
+        };
+    if(!faceTransfer.build(in.detailReferenceWorldPoints,detailTransferSource,
+            in.detailBoundaryProjectionDonorBodyIndices,used,
+            in.physicalBoundaryReferenceWorldPoints,boundaryTransferSource,
+            in.physicalBoundaryGeometricDonorBodyIndices,in.physicalBoundaryFaces,
+            &faceReport,&transferError,in.maximumBoundaryProjectionDistanceM,
+            &in.detailRepresentativeBoundaryVertexRows,nullptr,nullptr,nullptr,1u,
+            &in.physicalBoundaryStableFaceIDs,nullptr,faceEligibility,
+            hasPinnedParentAncestryDomain?&faceEligibilityContext:nullptr))
+        return fail("native source-connected boundary transfer rejected: "+transferError);
+    if((directIdentity&&faceReport.exactAncestryRows!=n)||
+       (!directIdentity&&faceReport.exactAncestryRows!=0u))
+        return fail("native transfer ancestry mode differs from the proven source-domain identity");
+    for(std::size_t i=0;i<n;++i){
+        const auto faceRow=faceTransfer.selectedFaceIndex(i);
+        if(faceRow!=in.detailExpectedBoundaryFaceRows[i])
+            return fail("native transfer selected a different source-connected physical face than the pinned producer witness");
+        const auto& row=faceTransfer.rows()[i];
+        const auto& expectedFace=in.physicalBoundaryFaces[faceRow];
+        const auto& expectedBary=in.detailExpectedBoundaryFaceBarycentrics[i];
+        for(unsigned k=0;k<3;++k)
+            if(row.coarseVertex[k]!=expectedFace[k]||
+               std::abs(double(row.weight[k])-expectedBary[k])>in.faceBarycentricComparisonTolerance)
+                return fail("native source-connected face or barycentrics differ from the pinned producer witness");
+        if(!std::isfinite(row.restDistance)||row.restDistance>in.maximumBoundaryProjectionDistanceM)
+            return fail("native source-connected face projection exceeds its declared bound");
+    }
+
+    PhysicalSkinAuthoringDetailBridgeState next;
+    PhysicalSkinAuthoringDetailBridgeReport measured;
+    next.detailDomain=in.detailDomain;next.physicalBoundaryDomain=in.physicalBoundaryDomain;
+    next.provenDirectIdentity=directIdentity;
+    next.faceTransferRows=faceTransfer.rows();
+    next.selectedPhysicalBoundaryFaceRows.resize(n);
+    next.detailGeometricDonorBodyIndices=in.detailGeometricDonorBodyIndices;
+    next.detailFrameOwnerBodyIndices=in.detailFrameOwnerBodyIndices;
+    next.selectedPhysicalBoundaryFaceDonorBodyIndices.resize(n);
+    next.selectedPhysicalBoundaryFaceFrameOwnerBodyIndices.resize(n);
+    next.regionScopedDonorFallbackRows=in.detailRegionScopedDonorFallback;
+    next.sourceParentTetHopCounts=sourceParentTetHops;
+    next.sourceParentTetPathRows=sourceParentTetPaths;
+    next.tetraRows.resize(n);
+    measured.detailRows=n;measured.boundaryRows=b;measured.physicalNodeRows=m;
+    measured.surfaceProjectedRows=faceReport.projectedRows;
+    measured.surfaceExactAncestryRows=faceReport.exactAncestryRows;
+    measured.maximumBoundaryProjectionDistanceM=faceReport.maximumProjectionDistance;
+    measured.sourceNamespaceIdentitySuppressed=!directIdentity;
+    for(std::size_t i=0;i<n;++i){
+        const auto faceRow=faceTransfer.selectedFaceIndex(i);
+        next.selectedPhysicalBoundaryFaceRows[i]=faceRow;
+        next.selectedPhysicalBoundaryFaceDonorBodyIndices[i]=
+            in.physicalBoundaryFaceGeometricDonorBodyIndices[faceRow];
+        next.selectedPhysicalBoundaryFaceFrameOwnerBodyIndices[i]=
+            in.physicalBoundaryFaceFrameOwnerBodyIndices[faceRow];
+        const bool requiresParentPath=in.detailRequiresParentTetPath.empty()?
+            in.detailRegionScopedDonorFallback[i]!=0u:in.detailRequiresParentTetPath[i]!=0u;
+        if(requiresParentPath){
+            measured.maximumSourceParentTetHops=std::max(
+                measured.maximumSourceParentTetHops,next.sourceParentTetHopCounts[i]);
+            ++measured.sourceParentTetWalkRows;
+        }
+        if(in.detailRegionScopedDonorFallback[i])++measured.regionScopedDonorFallbackRows;
+        const auto cell=in.detailMechanicalTetRows[i];
+        const auto& tet=in.mechanicalTetNodeRows[cell];
+        if(in.mechanicalTetMaterialIndices[cell]!=in.detailMaterialIndices[i]||
+           in.mechanicalTetGeometricDonorBodyIndices[cell]!=in.detailBoundaryProjectionDonorBodyIndices[i]||
+           in.mechanicalTetAnatomicalRegionIndices[cell]!=in.detailAnatomicalRegionIndices[i])
+            return fail("detail tet embedding crosses its declared material, geometric donor, or anatomical region");
+        auto& row=next.tetraRows[i];
+        if(directIdentity){
+            const auto node=in.physicalBoundaryVolumeNodeRows[i];
+            row.node[0]=row.node[1]=row.node[2]=row.node[3]=node;
+            row.weight[0]=1.0f;row.weight[1]=row.weight[2]=row.weight[3]=0.0f;
+            ++measured.directIdentityRows;
+        }else{
+            std::array<double,4> weights{};double condition=0.0;
+            if(!tetBarycentric(in.mechanicalReferenceWorldPoints,tet,
+                    in.detailReferenceWorldPoints[i],weights,condition,transferError))
+                return fail("detail-to-volume affine tet embedding rejected: "+transferError);
+            if(condition>in.maximumTetConditionEstimate)
+                return fail("detail-to-volume tet exceeds its registered conditioning bound");
+            measured.maximumTetConditionEstimate=std::max(measured.maximumTetConditionEstimate,condition);
+            const double extrapolation=conservativeTetExtrapolationDistance(
+                in.detailReferenceWorldPoints[i],in.mechanicalReferenceWorldPoints,tet,weights);
+            if(!std::isfinite(extrapolation)||extrapolation>in.maximumTetExtrapolationDistanceM)
+                return fail("detail-to-volume tet extrapolation exceeds its declared distance bound");
+            measured.maximumTetExtrapolationDistanceM=
+                std::max(measured.maximumTetExtrapolationDistanceM,extrapolation);
+            double sum=0.0;
+            for(unsigned k=0;k<4;++k){
+                if(std::abs(weights[k])>in.maximumAbsoluteEffectiveWeight)
+                    return fail("detail-to-volume effective tet weight exceeds its declared bound");
+                row.node[k]=tet[k];row.weight[k]=static_cast<float>(weights[k]);
+                measured.maximumAbsoluteEffectiveWeight=std::max(
+                    measured.maximumAbsoluteEffectiveWeight,std::abs(double(row.weight[k])));
+                sum+=double(row.weight[k]);
+            }
+            if(std::abs(sum-1.0)>2.0e-6)
+                return fail("float tetrahedral transfer weights do not preserve affine translations");
+            const V3 reconstructed=weightedTetPoint(in.mechanicalReferenceWorldPoints,tet,
+                {double(row.weight[0]),double(row.weight[1]),double(row.weight[2]),double(row.weight[3])});
+            const double reconstructionError=distance(reconstructed,in.detailReferenceWorldPoints[i]);
+            measured.maximumReferenceReconstructionErrorM=std::max(
+                measured.maximumReferenceReconstructionErrorM,reconstructionError);
+            if(!std::isfinite(reconstructionError)||
+               reconstructionError>in.maximumReferenceReconstructionErrorM)
+                return fail("float tetrahedral transfer row does not reproduce its pinned detail reference point");
+            ++measured.tetraEmbeddedRows;
+        }
+    }
+    measured.physicalAdmission=false;next.physicalAdmission=false;
+    output=std::move(next);report=std::move(measured);error.clear();return true;
+}
+
+// CPU reference used by the focused fixture to check the prepared four-node
+// map. Production updates are performed by the accepted-state Metal owner.
+[[nodiscard]] inline bool evaluatePhysicalSkinAuthoringDetailBridgeForCheck(
+        const PhysicalSkinAuthoringDetailBridgeState& state,
+        const std::vector<V3>& acceptedMechanicalWorldPoints,
+        std::vector<V3>& output,std::string& error) {
+    const auto fail=[&](std::string message){error=std::move(message);return false;};
+    if(state.physicalAdmission||state.tetraRows.empty())
+        return fail("detail bridge reference evaluator requires a prepared non-admitting state");
+    std::vector<V3> next(state.tetraRows.size());
+    for(std::size_t i=0;i<state.tetraRows.size();++i){
+        V3 p{};double sum=0.0;
+        for(unsigned k=0;k<4;++k){
+            const auto node=state.tetraRows[i].node[k];
+            const double weight=state.tetraRows[i].weight[k];
+            if(node>=acceptedMechanicalWorldPoints.size()||
+               !physical_skin_authoring_detail_bridge_detail::finitePoint(acceptedMechanicalWorldPoints[node])||
+               !std::isfinite(weight))
+                return fail("detail bridge reference evaluator received an invalid accepted node row");
+            sum+=weight;
+            for(unsigned a=0;a<3;++a)p[a]+=weight*acceptedMechanicalWorldPoints[node][a];
+        }
+        if(std::abs(sum-1.0)>2.0e-6||
+           !physical_skin_authoring_detail_bridge_detail::finitePoint(p))
+            return fail("detail bridge reference evaluator found a non-affine or nonfinite row");
+        next[i]=p;
+    }
     output=std::move(next);error.clear();return true;
 }
 

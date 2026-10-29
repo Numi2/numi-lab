@@ -1,0 +1,225 @@
+{
+  "canonical_export_005": {
+    "accepted_steps": 0,
+    "launch": {
+      "bytes": 43520,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-export-005/launch.json",
+      "sha256": "0aef15bf1754492dd792beb776b94c865f21be1923dab5be19de3906f1570207"
+    },
+    "map": {
+      "bytes": 57384986,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-export-005/map-output/fine-O-to-coarse-boundary-native-canonical.csv",
+      "sha256": "daa31b44a4bd1fee78e15732dff3f5a7b23f25ade5658303ad7d611862690b7a"
+    },
+    "physical_admission": false,
+    "physical_qualification": "not_claimed",
+    "run": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-export-005",
+    "runtime_created": 0,
+    "status_line": "registered_volume_typed_O_canonical_face_export=PASS rows=56054 changed_face_rows=2621 representative_adjustments=0 max_projection_m=0.015678907111130003",
+    "stdout": {
+      "bytes": 15872,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-export-005/stdout.log",
+      "sha256": "0cac5ad6df2e2205edb07abc703d8575c990fd2d657c95cc9c803a23c7699540"
+    }
+  },
+  "effective_tet_witness_009": {
+    "all_rows_csv": {
+      "bytes": 27151158,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/effective-tet-weight-witness-009/all-O-effective-tet-weights.csv",
+      "sha256": "c56a92ea543192b8d2c319a22d5b4985c5ec6a781982091b6fca2bafcd5ad681"
+    },
+    "max_abs_effective_weight": 172.43933220219665,
+    "max_row": 42285,
+    "over_1p5": 31851,
+    "receipt": {
+      "bytes": 6802,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/effective-tet-weight-witness-009/receipt.json",
+      "sha256": "21b4576e512967710343c33fe276b106b4aa8bbef279d7a9f59b62edec7b1db5"
+    },
+    "rows": 56054,
+    "selected_tet_row": 11346
+  },
+  "excluded_from_this_review": "The unrelated in-progress conservative mass transport header/check edit is excluded pending root's focused tests.",
+  "focused_checks": {
+    "build_command": "cmake --build build-native --target numi-human-physical-skin-authoring-detail-bridge-csv-check numi-human-physical-skin-authoring-role-consumer-check numi-human-native -j1; focused support-parent-map check uses the existing built target",
+    "runs": [
+      {
+        "argv": [
+          "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-authoring-detail-bridge-csv-check"
+        ],
+        "binary_sha256": "8b9fac8d597058ab8a99423c46b1c936c3e8a973823e93a1263226a639725961",
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "authoring_detail_bridge_csv=pass typed_O_nodes=3 full86=86 map_rows=3 face_reordered=validated frame_owner=separate same_donor_parent_walk=pass residual_recomputed=pass physical_admission=false\n"
+      },
+      {
+        "argv": [
+          "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-authoring-role-consumer-check"
+        ],
+        "binary_sha256": "bf5b5294855ab87e8b6033b90c65d7c49f48c556402ca7759b8ebcb720e0c7e8",
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "authoring_role_consumer=pass rows=3/3/3 bindings=86 parent_geometric_donor=150 frame_owners=distinct role_consumer_transactional_failures=11 detail_bridge_failures=10 detail_bridge=pass identity_namespaces=separate face_bary=source_connected tet_transfer=affine_objective rigid_rotation=pass physical_admission=false\n"
+      },
+      {
+        "argv": [
+          "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-physical-skin-support-parent-map-check"
+        ],
+        "binary_sha256": "0cd8966900a40416b575c66a41631d5e83c96813503a23576f6c5505c461b810",
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "retained_support_refinement_nodes=PASS inserted_nodes_unassigned=PASS invalid_cases=11 failure_preserves_state=PASS new_supports_created=0\nsupport_parent_topology=PASS bounded_geometry_change=PASS reordered_nodes=PASS invalid_cases=17 failure_preserves_state=PASS unchanged_attachment_node=PASS moved_attachment_rejected=PASS contact_forces_created=0 physical_admission=false\n"
+      }
+    ]
+  },
+  "native_build": {
+    "binary_sha256": "6cb2af61adb926be0f6d8d8b2759e6ece46c49c8450e83a72bb38f74e23e40b7",
+    "build_log_sha256": "4407a5faedc22755bdbcc925eeb402a0bd683bbc4edde00eb5570c433aa646b9",
+    "command": [
+      "cmake",
+      "--build",
+      "build-native",
+      "--target",
+      "numi-human-native",
+      "-j1"
+    ],
+    "cwd": "/Users/numi/Work/skin-fat-native-integration-209",
+    "elapsed_s": 41.83677697181702,
+    "exit_code": 0,
+    "mass_transport_header_sha256": "7019e52f5299f4200ccc71c70f203958d0221959596cb15d5eb17552da73eba1",
+    "object_sha256": "d3bd42b3fb00c9afff7526eefa3a3e7410cfe245f151242a3fe47087abc8d3c1",
+    "probe_source_sha256": "87d0be3476d263d432713fa41c6519e3ac3a2f15d0a24b679b7d75f5cc57bc8d",
+    "transfer_header_sha256": "5a7bc715fc983d05c20666325d439c81cd17d4d19a67e6935aff07ec5f812e73"
+  },
+  "qualification_boundary": "No GPU source reconstruction was reached: strict source-only reload 007 rejected effective tet weights before renderer initialization. Runtime and accepted physics steps were not requested. No geometry, contact, physical, or motion admission is claimed.",
+  "root452": {
+    "capacity_deficit": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/mass-cut-witness-452/capacity-deficit.json",
+    "capacity_deficit_sha256": "96e85a008171eeacf4f58a2d0152301ab0530d2a2b122951aa526681c163b5e1",
+    "focused_test_binary_sha256": "c7825622e43978687c74cbd83251696a6be1b1d47a7e2bc10b689302f2b301fb",
+    "focused_test_exit_code": 0,
+    "focused_tests": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/mass-cut-witness-452/focused-tests.json",
+    "focused_tests_sha256": "a4f0500de30f921108f071fa6595908bec3a045130b8b70421be57bb6728f74d",
+    "launch": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/mass-cut-witness-452/launch.json",
+    "launch_sha256": "9259656873a2cccd9b6187bd55fefa5d581755961e872bc04c8c519c3260d0a6",
+    "physical_admission": false,
+    "result": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/mass-cut-witness-452/result.json",
+    "result_sha256": "442b954a5317d63bc65130431a0c276766a0ede9ee232aa40605b6f12d6ace82",
+    "source_sha256": {
+      "apps/NumiHumanConservativeSpatialMassTransport.hpp": "7019e52f5299f4200ccc71c70f203958d0221959596cb15d5eb17552da73eba1",
+      "apps/NumiHumanConservativeSpatialMassTransportCheck.cpp": "0e16e8282fce460bba5710956a25ad0b63987dbb08cf1a6df21d1f47c4ad9023"
+    },
+    "success_stdout_parity_receipt_sha256": "9e7a09107d50412732551462b9eb7dae7dcd8d39e0f5180078d13a2eb3163c96"
+  },
+  "root_owned_changes": {
+    "attachment_inheritance_431": {
+      "receipt": {
+        "bytes": 342,
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/partial-attachment-inheritance-431/patch-receipt.json",
+        "sha256": "ff87469fa89fa7dc3215488b593d15879256163667672cce7d7d830156deddff"
+      },
+      "scope": "Preserves unchanged attachment nodes byte-for-byte per attachment; moved sites remain subject to existing gates."
+    },
+    "retained_support_refinement_439": {
+      "receipt": {
+        "bytes": 266,
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/retained-support-node-refinement-439/receipt.json",
+        "sha256": "e47d87c3a88f964aa803fe05ceee9f1f644e8326e49cad26559947a82dc0fd7e"
+      },
+      "scope": "Proves retained original support-node correspondence under added-node refinement; creates no new supports or forces; physical_admission=false.",
+      "tests": {
+        "bytes": 3150,
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/retained-support-node-refinement-439/tests.json",
+        "sha256": "363e10427363f5d287637267da577ee15d414915b6c8f159df6a60c46e3dd25f"
+      }
+    }
+  },
+  "schema": "numi-human-native-detail-bridge-publication-review.v1",
+  "scope": "Typed detailed O presentation bridge, shared source-connected eligibility predicate, canonical native face export and strict reload, plus root-owned per-attachment inheritance 431 and retained-support correspondence 439.",
+  "source_files": {
+    "CMakeLists.txt": {
+      "sha256": "ca2ddb1cfdcecafa77277dc2ef23111fe76b3a0bdc33367c894b2792a978a96b",
+      "snapshot": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007/source/CMakeLists.txt"
+    },
+    "apps/NumiHumanAcceptedFEMSkinRenderPass.hpp": {
+      "sha256": "5c286745fc362fdeed7acd775b5367c42d728d1b69b742a716d44cb13c47ff50",
+      "snapshot": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007/source/NumiHumanAcceptedFEMSkinRenderPass.hpp"
+    },
+    "apps/NumiHumanAcceptedFEMSkinTransfer.hpp": {
+      "sha256": "5a7bc715fc983d05c20666325d439c81cd17d4d19a67e6935aff07ec5f812e73",
+      "snapshot": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007/source/NumiHumanAcceptedFEMSkinTransfer.hpp"
+    },
+    "apps/NumiHumanConservativeSpatialMassTransport.hpp": {
+      "focused_test_pinned": true,
+      "sha256": "7019e52f5299f4200ccc71c70f203958d0221959596cb15d5eb17552da73eba1",
+      "snapshot": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanConservativeSpatialMassTransport.hpp"
+    },
+    "apps/NumiHumanConservativeSpatialMassTransportCheck.cpp": {
+      "focused_test_pinned": true,
+      "sha256": "0e16e8282fce460bba5710956a25ad0b63987dbb08cf1a6df21d1f47c4ad9023",
+      "snapshot": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanConservativeSpatialMassTransportCheck.cpp"
+    },
+    "apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp": {
+      "sha256": "807c0ab5c0c67752ed9f5d7228911660ef8ec417956ab042453cea2f2b24beda",
+      "snapshot": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007/source/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp"
+    },
+    "apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp": {
+      "sha256": "3b8fec22a7d940a99d40ae681facf0aebba06ef100df835e33be083d6804ba5f",
+      "snapshot": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007/source/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp"
+    },
+    "apps/NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp": {
+      "sha256": "233fad8d034e39aa61f60685fb6eabb8f1f4e525f04ea06a789cba6d25e24496",
+      "snapshot": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007/source/NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp"
+    },
+    "apps/NumiHumanPhysicalSkinAuthoringRoleConsumerCheck.cpp": {
+      "sha256": "8a81183a0de6dcfcafdc1a3f14710fdaf7b829ef58111f0d7ef07f462894afff",
+      "snapshot": "live source; exact test executable re-run recorded in review receipt"
+    },
+    "apps/NumiHumanPhysicalSkinSupportParentMap.hpp": {
+      "sha256": "3c9f10e076a5c4d0a66d71e296bb1e2d70296aab449a6e8044cc79d51a748275",
+      "snapshot": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007/source/NumiHumanPhysicalSkinSupportParentMap.hpp"
+    },
+    "apps/NumiHumanPhysicalSkinSupportParentMapCheck.cpp": {
+      "sha256": "455c56b51ccb7f3eebc36329eedb9fb6b13c1bae351899ce66a10a25e52633ac",
+      "snapshot": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007/source/NumiHumanPhysicalSkinSupportParentMapCheck.cpp"
+    },
+    "apps/NumiHumanRestingVisual.hpp": {
+      "sha256": "434e73700d2b2acca0b2f6d50f26f0e1c836aa340320fb1b8aae9dd107047730",
+      "snapshot": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007/source/NumiHumanRestingVisual.hpp"
+    },
+    "apps/numilab_human_myosim_visual_probe.mm": {
+      "sha256": "87d0be3476d263d432713fa41c6519e3ac3a2f15d0a24b679b7d75f5cc57bc8d",
+      "snapshot": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007/source/numilab_human_myosim_visual_probe.mm"
+    }
+  },
+  "status": "review_candidate_not_pushed",
+  "strict_reload_007": {
+    "binary_sha256": "16de8770052faefbdb8fe7f57e9d6f267e582e635096c2ebb8a97814474653fd",
+    "exit_code": 1,
+    "failure": "typed O source-connected detail-to-volume embedding rejected: detail-to-volume effective tet weight exceeds its declared bound",
+    "launch": {
+      "bytes": 44010,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007/launch.json",
+      "sha256": "d688917f37548312125e5270bed6ffc05f26089b10004c7e3eb4ee15632d66e3"
+    },
+    "physical_admission": false,
+    "run": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007",
+    "runtime_requested": false,
+    "stderr": {
+      "bytes": 698,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007/stderr.log",
+      "sha256": "9be003d31e7ae1598c9b8ca8284cd47d0a97c77d29988af4a662985602a5031b"
+    },
+    "stdout": {
+      "bytes": 14941,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007/stdout.log",
+      "sha256": "4a295734f9e70c31104e26249f7efd3d27ecacf3dbc625ad054868376b09e23a"
+    },
+    "steps_requested": 0
+  },
+  "witness_table_git_policy": "The all-row CSV remains external evidence at the pinned path/hash; only its generator and compact receipt are included in Git.",
+  "workspace": {
+    "repo": "/Users/numi/Work/skin-fat-native-integration-209",
+    "shared_index_mutated_by_this_agent": false,
+    "working_tree_head": "f75955f08d6edf0f85027eac7614017ac9fbc996"
+  }
+}

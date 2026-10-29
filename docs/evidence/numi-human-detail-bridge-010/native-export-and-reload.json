@@ -1,0 +1,24 @@
+{
+  "canonical_export_005": {
+    "accepted_steps": 0,
+    "exit_code": 0,
+    "launch_sha256": "0aef15bf1754492dd792beb776b94c865f21be1923dab5be19de3906f1570207",
+    "map_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-export-005/map-output/fine-O-to-coarse-boundary-native-canonical.csv",
+    "map_sha256": "daa31b44a4bd1fee78e15732dff3f5a7b23f25ade5658303ad7d611862690b7a",
+    "physical_admission": false,
+    "result_line": "registered_volume_typed_O_canonical_face_export=PASS rows=56054 changed_face_rows=2621 representative_adjustments=0 max_projection_m=0.015678907111130003 historical_map_sha=5b9d2fe9b956cd18e947efc84892dd49263903a8d4e7c1b299ba6eea14692bf5 canonical_tetgen_node_sha=d1238fc477b290c78970d5a7bbf01e7465a5e85aa00fe7414ee3b95503cc1b50 seed_map_sha=2cd9b5d7ea003dad570ea89ec8471320a0c03bc0e1e7d07a7fe435b2f7a1d723 output_sha=daa31b44a4bd1fee78e15732dff3f5a7b23f25ade5658303ad7d611862690b7a path=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-export-005/map-output/fine-O-to-coarse-boundary-native-canonical.csv runtime_created=0 accepted_steps=0 physical_admission=0 scene_installed=0",
+    "run": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-export-005",
+    "runtime_created": 0
+  },
+  "strict_reload_007": {
+    "binary_sha256": "16de8770052faefbdb8fe7f57e9d6f267e582e635096c2ebb8a97814474653fd",
+    "exit_code": 1,
+    "failure_line": "registered_volume_native_preflight=FAIL physical_admission=0 scene_installation=0 simulation_steps=0 reason=typed O source-connected detail-to-volume embedding rejected: detail-to-volume effective tet weight exceeds its declared bound",
+    "gpu_reconstruction_reached": false,
+    "launch_sha256": "d688917f37548312125e5270bed6ffc05f26089b10004c7e3eb4ee15632d66e3",
+    "physical_admission": false,
+    "run": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/native-detail-bridge-426/canonical-face-strict-reload-007",
+    "runtime_requested": false,
+    "steps_requested": 0
+  }
+}

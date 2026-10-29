@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "live_source_sha256": {
+    "apps/NumiHumanConservativeSpatialMassTransport.hpp": "7019e52f5299f4200ccc71c70f203958d0221959596cb15d5eb17552da73eba1",
+    "apps/NumiHumanConservativeSpatialMassTransportCheck.cpp": "0e16e8282fce460bba5710956a25ad0b63987dbb08cf1a6df21d1f47c4ad9023"
+  },
+  "focused_check_exit_code": 0,
+  "focused_check_stdout": "conservative spatial mass transport PASS cells=4 edges=4 groups=2 min_cost_distance_m=0.0001 parent_mass_closure_kg=0 parent_measure_closure_m3=0 source_donor_closure_kg=0 density_range_kg_m3=900:1000 receipt_sha256=9e7a09107d50412732551462b9eb7dae7dcd8d39e0f5180078d13a2eb3163c96\n",
+  "old_and_new_success_outputs_byte_equal": true,
+  "focused_check_binary_sha256": "c7825622e43978687c74cbd83251696a6be1b1d47a7e2bc10b689302f2b301fb",
+  "old_check_binary_sha256": "0a0b48f601b4585a9e2c87c5f94c50e81b5f50fa29cf10ffc27b935bf445e45e",
+  "new_assertions": "failed two-component transfer reports cut_parent_rows=[1] and cut_child_rows=[1], while accepted output remains unchanged",
+  "physical_admission": false
+}

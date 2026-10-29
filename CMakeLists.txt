@@ -7086,6 +7086,20 @@ if(BUILD_TESTING)
         COMMAND numi-human-physical-skin-authoring-role-consumer-check)
 endif()
 
+# Pinned CSV ingestion for the render-only detailed O-to-accepted-tet bridge.
+add_executable(numi-human-physical-skin-authoring-detail-bridge-csv-check EXCLUDE_FROM_ALL
+    apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp)
+target_include_directories(numi-human-physical-skin-authoring-detail-bridge-csv-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+target_compile_features(numi-human-physical-skin-authoring-detail-bridge-csv-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-physical-skin-authoring-detail-bridge-csv-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME human.physical-skin-authoring-detail-bridge-csv
+        COMMAND numi-human-physical-skin-authoring-detail-bridge-csv-check)
+endif()
+
 # Source correspondence for existing support/attachment constraints after local
 # reference geometry repair. CPU preparation only; no physical admission.
 add_executable(numi-human-physical-skin-support-parent-map-check EXCLUDE_FROM_ALL

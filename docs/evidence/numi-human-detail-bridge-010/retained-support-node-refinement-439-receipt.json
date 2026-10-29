@@ -1,0 +1,5 @@
+{
+  "purpose": "retained original physical support node injection under explicit added-node reference refinement; no new support sites or forces",
+  "header_sha256": "b983bea3f6da0542591c5a2493925e47ff5cec32321db7e4c73bad60422da07e",
+  "physical_admission": false
+}
