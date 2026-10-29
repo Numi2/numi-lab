@@ -1,0 +1,17 @@
+{
+  "schema": "numi-human.native-owner-policy-007-authenticated-refined-preflight-result.v1",
+  "launch_json": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/replay-007/launch.json",
+  "launch_json_sha256": "87791b128d46665673541594a7f10d0d23e042d2dc03d102a5d81dd83263f228",
+  "binary_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/build/numi-human-native-auth-refined-preflight",
+  "binary_sha256": "a84df8ce666129cb254b404e1d690842fa76e8c4da848bce78fbea48c516369d",
+  "candidate_sha256": "888eb12450d0e69fb0ad3f5998159ab7a0a20d3e70b13c42ba416c61cbbede63",
+  "canonical_input_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/replay-005/native-output/fine-O-to-coarse-boundary-native-canonical.csv",
+  "canonical_input_sha256": "ccab5178bac17eff90e76bc41099b3280f0fbb727a5e93a0f70583c764568d85",
+  "exit_code": 1,
+  "elapsed_seconds": 8.286320209503174,
+  "stdout_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/replay-007/native-output/stdout.log",
+  "stderr_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/replay-007/native-output/stderr.log",
+  "physical_admission": false,
+  "runtime_requested": false,
+  "accepted_steps": 0
+}

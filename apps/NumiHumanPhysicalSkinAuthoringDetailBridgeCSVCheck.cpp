@@ -381,6 +381,33 @@ void testRefinedReorderedChildBoundaryUsesAuthenticatedParentRows() {
     assert(input.detailMechanicalTetRows==std::vector<std::uint32_t>({1u,1u,1u}));
     assert(input.detailMechanicalTetRows[0]!=input.physicalBoundaryFaceParentTetRows[0]);
 
+    // Canonical map parsing is separate from seed-map parsing. A source-only
+    // caller may load a refined child route only with the dedicated opt-in.
+    const auto canonicalPath=f.root/"canonical-refined-map.csv";
+    PhysicalSkinAuthoringDetailBridgeCanonicalExportReport exportReport;
+    assert(exportPhysicalSkinAuthoringDetailBridgeCanonicalMap(
+        f.files,input,report,canonicalPath,exportReport,error));
+    assert(!exportReport.physicalAdmission);
+    auto canonicalFiles=f.files;
+    canonicalFiles.allowPrecanonicalExportSeed=false;
+    canonicalFiles.fineToBoundaryMap.path=canonicalPath;
+    canonicalFiles.fineToBoundaryMap.expectedSHA256=exportReport.outputSHA256;
+    canonicalFiles.allowAuthenticatedRefinedChildRouteForSourceOnlyPreflight=true;
+    PhysicalSkinAuthoringDetailBridgeInput canonicalInput;
+    PhysicalSkinAuthoringDetailBridgeCSVReport canonicalReport;
+    assert(loadPhysicalSkinAuthoringDetailBridgeCSV(
+        canonicalFiles,f.bundle,f.boundary,canonicalInput,canonicalReport,error));
+    assert(canonicalInput.detailMechanicalTetRows==std::vector<std::uint32_t>({1u,1u,1u}));
+    assert(canonicalInput.physicalBoundaryFaceParentTetRows==std::vector<std::uint32_t>({0u}));
+    assert(!canonicalReport.physicalAdmission);
+
+    // The same refined canonical map is rejected without the source-only
+    // authorization, preserving the default identity-only runtime contract.
+    canonicalFiles.allowAuthenticatedRefinedChildRouteForSourceOnlyPreflight=false;
+    assert(!loadPhysicalSkinAuthoringDetailBridgeCSV(
+        canonicalFiles,f.bundle,f.boundary,canonicalInput,canonicalReport,error));
+    assert(error.find("runtime detail bridge requires exact child/parent cell identity")!=std::string::npos);
+
     // A child face row that claims the wrong authenticated parent must fail.
     writeRefinedCoarseFace(f,1u,1u);
     assert(!loadPhysicalSkinAuthoringDetailBridgeCSV(

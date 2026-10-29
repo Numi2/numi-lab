@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/clang++",
+    "-std=c++23",
+    "-O1",
+    "-UNDEBUG",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/source/apps",
+    "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+    "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+    "-I/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/source/apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp",
+    "-o",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-detail-preflight-publication-646/root-bridge-check"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 2.533083250047639,
+  "source_files_sha256": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/source/apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp": "d9fc1ed525fa0491c64330944173260b4aa04d5962e2d765d99df4cdde571c8c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/source/apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp": "063a098471571d321a1b6de705c424062c05f98f56e703bad86f6fd795495120"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema": "numi-human.native-owner-policy-007-compressed-feasibility-csv.v1",
+  "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/replay-008/native-output/alternative-child-tet-feasibility.csv",
+  "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/replay-008/native-output/alternative-child-tet-feasibility.csv.gz",
+  "original_sha256": "e87fa6f17156da6cd80eb4a969fd865fc05ff5de9fe645b7e3fac56d0ae392ba",
+  "restored_sha256": "e87fa6f17156da6cd80eb4a969fd865fc05ff5de9fe645b7e3fac56d0ae392ba",
+  "compressed_sha256": "16df71ba0c882d275520bbdd93c78e64cc52b71e6660d8aedf1c60394019889a",
+  "original_bytes": 10955097,
+  "compressed_bytes": 2587204,
+  "gzip_mtime": 0,
+  "lossless_restore_verified": true
+}

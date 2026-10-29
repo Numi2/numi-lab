@@ -35,6 +35,9 @@ struct PhysicalSkinAuthoringDetailBridgeCSVFiles {
     // Explicit producer pass only. Final import always requires the canonical
     // native-transfer face rows and never falls back to the historical seed map.
     bool allowPrecanonicalExportSeed=false;
+    // Separate source-only permission for loading a canonical map over an
+    // authenticated refined child domain. Runtime callers leave this false.
+    bool allowAuthenticatedRefinedChildRouteForSourceOnlyPreflight=false;
 };
 
 struct PhysicalSkinAuthoringDetailBridgeCSVReport {
@@ -531,10 +534,12 @@ inline bool runNativeFaceSelection(
             childParentIdentity=false;break;
         }
     }
-    // Runtime rendering remains identity-only. The explicit refinement map is
-    // accepted only by the source-only canonical export pass, where its
-    // authenticated 002->530->006 route is checked below.
-    if(!files.allowPrecanonicalExportSeed&&!childParentIdentity)
+    // Runtime rendering remains identity-only. Refined child maps are
+    // accepted only under an explicit canonical-export or authenticated
+    // source-only preflight permission, with the 002->530->006 route checked below.
+    if(!files.allowPrecanonicalExportSeed&&
+       !files.allowAuthenticatedRefinedChildRouteForSourceOnlyPreflight&&
+       !childParentIdentity)
         return fail("runtime detail bridge requires exact child/parent cell identity");
     std::map<std::uint32_t,std::uint32_t> volumeNodeToBoundaryRow;
     double maxBoundaryNodeReferenceDifference=0.0;
@@ -848,7 +853,8 @@ inline bool runNativeFaceSelection(
         const auto validSHA=[](const std::string& value) {
             return physical_skin_child_mass_detail::validSHA256(value);
         };
-        if(!files.allowPrecanonicalExportSeed||
+        if((!files.allowPrecanonicalExportSeed&&
+            !files.allowAuthenticatedRefinedChildRouteForSourceOnlyPreflight)||
            !bundle.conformingLineageMassRouteRequired||
            !bundle.conformingLineageMassTransportUsed||
            !route.authenticated||

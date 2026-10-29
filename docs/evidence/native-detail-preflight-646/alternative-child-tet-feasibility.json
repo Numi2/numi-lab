@@ -1,0 +1,663 @@
+{
+  "schema": "numi-human.native-owner-policy-007-alternative-child-tet-feasibility.v1",
+  "candidate_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-030-connected-constrained-edge-fit/run-006/candidate.npz",
+  "candidate_sha256": "888eb12450d0e69fb0ad3f5998159ab7a0a20d3e70b13c42ba416c61cbbede63",
+  "canonical_map_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/replay-005/native-output/fine-O-to-coarse-boundary-native-canonical.csv",
+  "canonical_map_sha256": "ccab5178bac17eff90e76bc41099b3280f0fbb727a5e93a0f70583c764568d85",
+  "census_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/replay-008/native-output/detail-embedding-census.csv",
+  "census_sha256": "8904cc90eebc16da61db036dcf709ef55497ba3cd9240af6872daf9cd6aedbc7",
+  "detail_rows": 56054,
+  "input_child_cells": 29642,
+  "valid_oriented_candidate_cells": 29642,
+  "label_groups": 177,
+  "exact_label_product_pairs": 13599242,
+  "strict_limits": {
+    "max_abs_weight": 1.5,
+    "max_extrapolation_m": 0.05,
+    "max_condition": 100000000.0,
+    "max_float_sum_error": 2e-06,
+    "max_reconstruction_error_m": 2e-07
+  },
+  "current_weight_failures": 31913,
+  "rows_with_any_same_label_child_under_weight_cap": 38412,
+  "rows_rescued_to_full_strict_pass": 14211,
+  "rows_with_no_full_same_label_child_candidate": 17702,
+  "rows_with_minimum_candidate_weight_over_cap": 17642,
+  "rows_with_minimum_weight_candidate_but_other_strict_failure": 60,
+  "region_summary": {
+    "1": {
+      "rows": 54,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 54,
+      "candidate_counts": 14148,
+      "max_best_weight": 1.0000026651889946
+    },
+    "4": {
+      "rows": 2,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 2,
+      "candidate_counts": 8,
+      "max_best_weight": 0.999357391929041
+    },
+    "20": {
+      "rows": 640,
+      "current_weight_fail": 19,
+      "rescued_full": 3,
+      "no_full_same_label_child": 16,
+      "minweight_feasible": 626,
+      "candidate_counts": 1792930,
+      "max_best_weight": 2.581459683561616
+    },
+    "23": {
+      "rows": 2344,
+      "current_weight_fail": 423,
+      "rescued_full": 406,
+      "no_full_same_label_child": 17,
+      "minweight_feasible": 2328,
+      "candidate_counts": 5845787,
+      "max_best_weight": 1.8308558793155445
+    },
+    "26": {
+      "rows": 13,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 13,
+      "candidate_counts": 443,
+      "max_best_weight": 1.004376147052124
+    },
+    "29": {
+      "rows": 7,
+      "current_weight_fail": 2,
+      "rescued_full": 0,
+      "no_full_same_label_child": 2,
+      "minweight_feasible": 5,
+      "candidate_counts": 7,
+      "max_best_weight": 1.8529867465933807
+    },
+    "34": {
+      "rows": 2,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 2,
+      "candidate_counts": 8,
+      "max_best_weight": 1.0266904426322871
+    },
+    "41": {
+      "rows": 1525,
+      "current_weight_fail": 1404,
+      "rescued_full": 240,
+      "no_full_same_label_child": 1164,
+      "minweight_feasible": 361,
+      "candidate_counts": 33366,
+      "max_best_weight": 3.437701269907359
+    },
+    "42": {
+      "rows": 643,
+      "current_weight_fail": 277,
+      "rescued_full": 107,
+      "no_full_same_label_child": 170,
+      "minweight_feasible": 490,
+      "candidate_counts": 96150,
+      "max_best_weight": 4.614939200133836
+    },
+    "43": {
+      "rows": 602,
+      "current_weight_fail": 253,
+      "rescued_full": 56,
+      "no_full_same_label_child": 197,
+      "minweight_feasible": 405,
+      "candidate_counts": 20248,
+      "max_best_weight": 4.60568216597811
+    },
+    "46": {
+      "rows": 914,
+      "current_weight_fail": 783,
+      "rescued_full": 449,
+      "no_full_same_label_child": 334,
+      "minweight_feasible": 580,
+      "candidate_counts": 5394,
+      "max_best_weight": 6.500330531618234
+    },
+    "48": {
+      "rows": 8,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 8,
+      "candidate_counts": 8,
+      "max_best_weight": 1.2734679241045463
+    },
+    "49": {
+      "rows": 569,
+      "current_weight_fail": 179,
+      "rescued_full": 1,
+      "no_full_same_label_child": 178,
+      "minweight_feasible": 391,
+      "candidate_counts": 658,
+      "max_best_weight": 4.942083455372971
+    },
+    "52": {
+      "rows": 997,
+      "current_weight_fail": 402,
+      "rescued_full": 279,
+      "no_full_same_label_child": 123,
+      "minweight_feasible": 874,
+      "candidate_counts": 11224,
+      "max_best_weight": 5.651206044143443
+    },
+    "53": {
+      "rows": 488,
+      "current_weight_fail": 204,
+      "rescued_full": 39,
+      "no_full_same_label_child": 165,
+      "minweight_feasible": 323,
+      "candidate_counts": 14662,
+      "max_best_weight": 4.978991714991163
+    },
+    "54": {
+      "rows": 649,
+      "current_weight_fail": 383,
+      "rescued_full": 110,
+      "no_full_same_label_child": 273,
+      "minweight_feasible": 376,
+      "candidate_counts": 9472,
+      "max_best_weight": 5.3448224269313025
+    },
+    "56": {
+      "rows": 2,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 2,
+      "candidate_counts": 7,
+      "max_best_weight": 0.99999777979342
+    },
+    "57": {
+      "rows": 38,
+      "current_weight_fail": 13,
+      "rescued_full": 0,
+      "no_full_same_label_child": 13,
+      "minweight_feasible": 25,
+      "candidate_counts": 138,
+      "max_best_weight": 3.7104501290224237
+    },
+    "59": {
+      "rows": 3793,
+      "current_weight_fail": 1893,
+      "rescued_full": 932,
+      "no_full_same_label_child": 961,
+      "minweight_feasible": 2832,
+      "candidate_counts": 747418,
+      "max_best_weight": 5.616751187549434
+    },
+    "60": {
+      "rows": 127,
+      "current_weight_fail": 54,
+      "rescued_full": 0,
+      "no_full_same_label_child": 54,
+      "minweight_feasible": 73,
+      "candidate_counts": 19686,
+      "max_best_weight": 5.807207052305103
+    },
+    "61": {
+      "rows": 2041,
+      "current_weight_fail": 847,
+      "rescued_full": 371,
+      "no_full_same_label_child": 476,
+      "minweight_feasible": 1565,
+      "candidate_counts": 2350379,
+      "max_best_weight": 4.031593961653532
+    },
+    "62": {
+      "rows": 743,
+      "current_weight_fail": 532,
+      "rescued_full": 134,
+      "no_full_same_label_child": 398,
+      "minweight_feasible": 345,
+      "candidate_counts": 7207,
+      "max_best_weight": 7.242052998955154
+    },
+    "64": {
+      "rows": 1993,
+      "current_weight_fail": 794,
+      "rescued_full": 105,
+      "no_full_same_label_child": 689,
+      "minweight_feasible": 1304,
+      "candidate_counts": 39878,
+      "max_best_weight": 18.654435842268285
+    },
+    "65": {
+      "rows": 2365,
+      "current_weight_fail": 1342,
+      "rescued_full": 108,
+      "no_full_same_label_child": 1234,
+      "minweight_feasible": 1131,
+      "candidate_counts": 12543,
+      "max_best_weight": 10.222897855286002
+    },
+    "66": {
+      "rows": 1927,
+      "current_weight_fail": 1562,
+      "rescued_full": 933,
+      "no_full_same_label_child": 629,
+      "minweight_feasible": 1298,
+      "candidate_counts": 16383,
+      "max_best_weight": 7.2590601789121045
+    },
+    "69": {
+      "rows": 944,
+      "current_weight_fail": 763,
+      "rescued_full": 60,
+      "no_full_same_label_child": 703,
+      "minweight_feasible": 241,
+      "candidate_counts": 6432,
+      "max_best_weight": 19.58379631053494
+    },
+    "70": {
+      "rows": 622,
+      "current_weight_fail": 598,
+      "rescued_full": 467,
+      "no_full_same_label_child": 131,
+      "minweight_feasible": 491,
+      "candidate_counts": 3110,
+      "max_best_weight": 9.105927183617935
+    },
+    "71": {
+      "rows": 776,
+      "current_weight_fail": 436,
+      "rescued_full": 158,
+      "no_full_same_label_child": 278,
+      "minweight_feasible": 498,
+      "candidate_counts": 12646,
+      "max_best_weight": 6.411613615960966
+    },
+    "72": {
+      "rows": 122,
+      "current_weight_fail": 32,
+      "rescued_full": 5,
+      "no_full_same_label_child": 27,
+      "minweight_feasible": 95,
+      "candidate_counts": 1718,
+      "max_best_weight": 4.18479017405726
+    },
+    "74": {
+      "rows": 284,
+      "current_weight_fail": 233,
+      "rescued_full": 108,
+      "no_full_same_label_child": 125,
+      "minweight_feasible": 159,
+      "candidate_counts": 2556,
+      "max_best_weight": 2.1490393846517195
+    },
+    "75": {
+      "rows": 60,
+      "current_weight_fail": 2,
+      "rescued_full": 0,
+      "no_full_same_label_child": 2,
+      "minweight_feasible": 58,
+      "candidate_counts": 600,
+      "max_best_weight": 1.9629121426800187
+    },
+    "76": {
+      "rows": 324,
+      "current_weight_fail": 266,
+      "rescued_full": 26,
+      "no_full_same_label_child": 240,
+      "minweight_feasible": 84,
+      "candidate_counts": 9972,
+      "max_best_weight": 6.047656662986951
+    },
+    "79": {
+      "rows": 31,
+      "current_weight_fail": 4,
+      "rescued_full": 0,
+      "no_full_same_label_child": 4,
+      "minweight_feasible": 27,
+      "candidate_counts": 31,
+      "max_best_weight": 4.316430729913409
+    },
+    "84": {
+      "rows": 27,
+      "current_weight_fail": 5,
+      "rescued_full": 4,
+      "no_full_same_label_child": 1,
+      "minweight_feasible": 26,
+      "candidate_counts": 378,
+      "max_best_weight": 1.6512423503377218
+    },
+    "91": {
+      "rows": 572,
+      "current_weight_fail": 236,
+      "rescued_full": 230,
+      "no_full_same_label_child": 6,
+      "minweight_feasible": 566,
+      "candidate_counts": 87296,
+      "max_best_weight": 3.1390300434083818
+    },
+    "92": {
+      "rows": 42,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 42,
+      "candidate_counts": 8401,
+      "max_best_weight": 1.0270353672820078
+    },
+    "93": {
+      "rows": 2458,
+      "current_weight_fail": 1694,
+      "rescued_full": 192,
+      "no_full_same_label_child": 1502,
+      "minweight_feasible": 994,
+      "candidate_counts": 154717,
+      "max_best_weight": 12.84640700459949
+    },
+    "95": {
+      "rows": 21,
+      "current_weight_fail": 3,
+      "rescued_full": 0,
+      "no_full_same_label_child": 3,
+      "minweight_feasible": 18,
+      "candidate_counts": 46,
+      "max_best_weight": 2.59341380506983
+    },
+    "97": {
+      "rows": 3,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 3,
+      "candidate_counts": 9,
+      "max_best_weight": 0.9979902557806669
+    },
+    "98": {
+      "rows": 35,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 35,
+      "candidate_counts": 5844,
+      "max_best_weight": 1.0012963647042443
+    },
+    "99": {
+      "rows": 1462,
+      "current_weight_fail": 91,
+      "rescued_full": 7,
+      "no_full_same_label_child": 84,
+      "minweight_feasible": 1378,
+      "candidate_counts": 1632,
+      "max_best_weight": 2.397916301333072
+    },
+    "100": {
+      "rows": 1429,
+      "current_weight_fail": 891,
+      "rescued_full": 101,
+      "no_full_same_label_child": 790,
+      "minweight_feasible": 639,
+      "candidate_counts": 8492,
+      "max_best_weight": 5.810519258654673
+    },
+    "102": {
+      "rows": 2148,
+      "current_weight_fail": 63,
+      "rescued_full": 62,
+      "no_full_same_label_child": 1,
+      "minweight_feasible": 2147,
+      "candidate_counts": 124584,
+      "max_best_weight": 2.0235334120243325
+    },
+    "103": {
+      "rows": 946,
+      "current_weight_fail": 886,
+      "rescued_full": 879,
+      "no_full_same_label_child": 7,
+      "minweight_feasible": 939,
+      "candidate_counts": 39732,
+      "max_best_weight": 1.8224711268094667
+    },
+    "104": {
+      "rows": 2616,
+      "current_weight_fail": 2550,
+      "rescued_full": 2379,
+      "no_full_same_label_child": 171,
+      "minweight_feasible": 2445,
+      "candidate_counts": 135944,
+      "max_best_weight": 1.8600789401664939
+    },
+    "107": {
+      "rows": 1724,
+      "current_weight_fail": 1582,
+      "rescued_full": 180,
+      "no_full_same_label_child": 1402,
+      "minweight_feasible": 322,
+      "candidate_counts": 23993,
+      "max_best_weight": 12.895167780055905
+    },
+    "109": {
+      "rows": 1812,
+      "current_weight_fail": 1295,
+      "rescued_full": 415,
+      "no_full_same_label_child": 880,
+      "minweight_feasible": 932,
+      "candidate_counts": 77006,
+      "max_best_weight": 5.329414222521853
+    },
+    "111": {
+      "rows": 859,
+      "current_weight_fail": 739,
+      "rescued_full": 265,
+      "no_full_same_label_child": 474,
+      "minweight_feasible": 385,
+      "candidate_counts": 35257,
+      "max_best_weight": 4.570629241459893
+    },
+    "112": {
+      "rows": 129,
+      "current_weight_fail": 85,
+      "rescued_full": 0,
+      "no_full_same_label_child": 85,
+      "minweight_feasible": 44,
+      "candidate_counts": 143,
+      "max_best_weight": 7.501267487638558
+    },
+    "114": {
+      "rows": 1014,
+      "current_weight_fail": 811,
+      "rescued_full": 664,
+      "no_full_same_label_child": 147,
+      "minweight_feasible": 867,
+      "candidate_counts": 26364,
+      "max_best_weight": 6.226515564654751
+    },
+    "115": {
+      "rows": 1758,
+      "current_weight_fail": 1494,
+      "rescued_full": 933,
+      "no_full_same_label_child": 561,
+      "minweight_feasible": 1197,
+      "candidate_counts": 43950,
+      "max_best_weight": 3.2008777408225315
+    },
+    "116": {
+      "rows": 460,
+      "current_weight_fail": 384,
+      "rescued_full": 171,
+      "no_full_same_label_child": 213,
+      "minweight_feasible": 247,
+      "candidate_counts": 9660,
+      "max_best_weight": 5.243781437212455
+    },
+    "119": {
+      "rows": 141,
+      "current_weight_fail": 84,
+      "rescued_full": 0,
+      "no_full_same_label_child": 84,
+      "minweight_feasible": 57,
+      "candidate_counts": 927,
+      "max_best_weight": 4.71072296376498
+    },
+    "120": {
+      "rows": 870,
+      "current_weight_fail": 615,
+      "rescued_full": 327,
+      "no_full_same_label_child": 288,
+      "minweight_feasible": 582,
+      "candidate_counts": 28518,
+      "max_best_weight": 5.278748627471023
+    },
+    "121": {
+      "rows": 751,
+      "current_weight_fail": 683,
+      "rescued_full": 146,
+      "no_full_same_label_child": 537,
+      "minweight_feasible": 214,
+      "candidate_counts": 24683,
+      "max_best_weight": 9.711661892134508
+    },
+    "122": {
+      "rows": 175,
+      "current_weight_fail": 78,
+      "rescued_full": 0,
+      "no_full_same_label_child": 78,
+      "minweight_feasible": 97,
+      "candidate_counts": 24969,
+      "max_best_weight": 5.9864606623267775
+    },
+    "124": {
+      "rows": 3172,
+      "current_weight_fail": 1699,
+      "rescued_full": 1023,
+      "no_full_same_label_child": 676,
+      "minweight_feasible": 2496,
+      "candidate_counts": 97941,
+      "max_best_weight": 4.2664631135382844
+    },
+    "125": {
+      "rows": 653,
+      "current_weight_fail": 383,
+      "rescued_full": 251,
+      "no_full_same_label_child": 132,
+      "minweight_feasible": 521,
+      "candidate_counts": 7183,
+      "max_best_weight": 3.8632371323881594
+    },
+    "126": {
+      "rows": 66,
+      "current_weight_fail": 21,
+      "rescued_full": 3,
+      "no_full_same_label_child": 18,
+      "minweight_feasible": 48,
+      "candidate_counts": 924,
+      "max_best_weight": 3.637620051136827
+    },
+    "128": {
+      "rows": 1611,
+      "current_weight_fail": 866,
+      "rescued_full": 0,
+      "no_full_same_label_child": 866,
+      "minweight_feasible": 745,
+      "candidate_counts": 1016592,
+      "max_best_weight": 2.662599538905779
+    },
+    "131": {
+      "rows": 17,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 17,
+      "candidate_counts": 1230,
+      "max_best_weight": 1.0074248345673749
+    },
+    "136": {
+      "rows": 62,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 62,
+      "candidate_counts": 21246,
+      "max_best_weight": 0.99999864813391
+    },
+    "138": {
+      "rows": 211,
+      "current_weight_fail": 79,
+      "rescued_full": 78,
+      "no_full_same_label_child": 1,
+      "minweight_feasible": 211,
+      "candidate_counts": 37886,
+      "max_best_weight": 1.3755826258203594
+    },
+    "139": {
+      "rows": 480,
+      "current_weight_fail": 230,
+      "rescued_full": 161,
+      "no_full_same_label_child": 69,
+      "minweight_feasible": 412,
+      "candidate_counts": 43328,
+      "max_best_weight": 5.956311582609472
+    },
+    "142": {
+      "rows": 6,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 6,
+      "candidate_counts": 180,
+      "max_best_weight": 0.9998259859176245
+    },
+    "145": {
+      "rows": 20,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 20,
+      "candidate_counts": 2084,
+      "max_best_weight": 1.0000004483643519
+    },
+    "150": {
+      "rows": 325,
+      "current_weight_fail": 22,
+      "rescued_full": 7,
+      "no_full_same_label_child": 15,
+      "minweight_feasible": 310,
+      "candidate_counts": 115999,
+      "max_best_weight": 2.395043884414481
+    },
+    "152": {
+      "rows": 208,
+      "current_weight_fail": 39,
+      "rescued_full": 34,
+      "no_full_same_label_child": 5,
+      "minweight_feasible": 203,
+      "candidate_counts": 46176,
+      "max_best_weight": 2.1837875495013357
+    },
+    "153": {
+      "rows": 2111,
+      "current_weight_fail": 605,
+      "rescued_full": 602,
+      "no_full_same_label_child": 3,
+      "minweight_feasible": 2108,
+      "candidate_counts": 270208,
+      "max_best_weight": 1.5976205457082888
+    },
+    "156": {
+      "rows": 11,
+      "current_weight_fail": 0,
+      "rescued_full": 0,
+      "no_full_same_label_child": 0,
+      "minweight_feasible": 11,
+      "candidate_counts": 503,
+      "max_best_weight": 0.9999967963317867
+    }
+  },
+  "output_csv": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/replay-008/native-output/alternative-child-tet-feasibility.csv",
+  "output_csv_sha256": "e87fa6f17156da6cd80eb4a969fd865fc05ff5de9fe645b7e3fac56d0ae392ba",
+  "elapsed_seconds": 1.9379687309265137,
+  "semantics": "Exhaustive over all valid child tetrahedra with exact matching material, geometric donor, and anatomical region. Diagnostic only: does not test source-parent adjacency/stable-face route for alternatives and does not replace native mapping."
+}

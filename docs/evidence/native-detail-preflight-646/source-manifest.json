@@ -1,0 +1,49 @@
+{
+  "schema": "numi-human.native-owner-policy-007-reviewed-source-increment.v1",
+  "base_commit": "fb1fe73c1ceb25d233ab1375cc635ce177f886c7",
+  "files_examined": 4,
+  "changed_files": [
+    {
+      "repo_path": "apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp",
+      "base_blob": "851711d5934cfe16459c9f7aead61b20ce95c25a",
+      "base_sha256": "0c8c8fe40b4282fa75d475da849510d14cab79ee28dfa111145a23640c45fd72",
+      "current_sha256": "d9fc1ed525fa0491c64330944173260b4aa04d5962e2d765d99df4cdde571c8c",
+      "current_bytes": 92228,
+      "changed": true
+    },
+    {
+      "repo_path": "apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp",
+      "base_blob": "14b30a37124d59eeea95d23ee633f5e758971d73",
+      "base_sha256": "5277bbe38367ceb3b4bd48a3f913f65fc188c60d6f58b2504c0261418aef16ee",
+      "current_sha256": "063a098471571d321a1b6de705c424062c05f98f56e703bad86f6fd795495120",
+      "current_bytes": 41393,
+      "changed": true
+    },
+    {
+      "repo_path": "apps/numilab_human_myosim_visual_probe.mm",
+      "base_blob": "29f4052302a8effc68a50894bc788f37737a82b6",
+      "base_sha256": "18485f0fbe48db28eae189cc3c47591b8243641203ef93ac28c441227903fe51",
+      "current_sha256": "3d7250f0f04bf37eb8884c97efaca395c4e80754ce11fa4b3916466cac588c29",
+      "current_bytes": 2668146,
+      "changed": true
+    }
+  ],
+  "patch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/reviewed-source-diff-from-fb1fe73.patch",
+  "patch_sha256": "7a2ff0f56138da67fdb4274a7092a3ba03e611a0630f23bb287bd890b558d3f4",
+  "patch_bytes": 20923,
+  "checks": {
+    "focused_refined_child_authentication": "PASS; allowAuthenticatedRefinedChildRouteForSourceOnlyPreflight is false by default and only enabled in preparation-only + source-only + preflight + noncanonical probe mode",
+    "runtime_identity_only_guard": "unchanged; existing runtime seed rejection control passes",
+    "focused_cpp_check": "PASS; compiled with -UNDEBUG; bridge-check-auth-refined-preflight",
+    "source_only_native_replay": "replay-007 passed authentication and row loading but was correctly rejected later by strict unchanged weight bound",
+    "guarded_census": "replay-008 records exact native child-cell computations only in the same guarded source-only preflight mode; production bridge still fails strict gates"
+  },
+  "evidence": {
+    "replay007_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/replay-007/replay-receipt.json",
+    "replay008_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/replay-008/replay-receipt.json",
+    "census_csv_sha256": "8904cc90eebc16da61db036dcf709ef55497ba3cd9240af6872daf9cd6aedbc7",
+    "alternative_feasibility_json_sha256": "1f28c53b32300af7920edb74ac247fadf646742c3642cbc5f6fab666abc97788",
+    "alternative_classification_json_sha256": "ef08d6482a128f84f4b15d110d3f26b6aa8d8b31f633ff41282d33a09444e3bd"
+  },
+  "scope": "Source-only authoring/preflight tooling and guarded diagnostics; no runtime admission relaxation, no physical or production qualification."
+}

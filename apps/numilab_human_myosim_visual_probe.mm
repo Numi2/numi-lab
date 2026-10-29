@@ -22757,6 +22757,17 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         pinDetailCSV(detailFiles.fineToBoundaryMap,"DETAIL_TO_BOUNDARY");
                         detailFiles.allowPrecanonicalExportSeed=
                             registeredDetailCanonicalFaceExportRequested;
+                        const char* detailSourceOnlySetting=std::getenv(
+                            "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_SOURCE_ONLY");
+                        const char* detailPreflightSetting=std::getenv(
+                            "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT");
+                        detailFiles.allowAuthenticatedRefinedChildRouteForSourceOnlyPreflight=
+                            !registeredDetailCanonicalFaceExportRequested&&
+                            preparationOnly&&
+                            detailSourceOnlySetting&&
+                            std::string_view(detailSourceOnlySetting)=="1"&&
+                            detailPreflightSetting&&
+                            std::string_view(detailPreflightSetting)=="1";
                         detailFiles.historicalFineToBoundaryMap.path=
                             pathValue("DETAIL_TO_BOUNDARY_HISTORICAL_CSV");
                         detailFiles.historicalFineToBoundaryMap.expectedSHA256=pinFile(
@@ -22785,6 +22796,174 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                                         roleState.bindingBodyByLane[lane]==
                                             detailInput.detailFrameOwnerBodyIndices[row],
                                     "typed O detail full86 owner lane differs from the retained Human binding registry");
+                        }
+                        const char* embeddingCensusSetting=std::getenv(
+                            "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_DETAIL_EMBEDDING_CENSUS");
+                        require(!embeddingCensusSetting||
+                                    std::string_view(embeddingCensusSetting)=="0"||
+                                    std::string_view(embeddingCensusSetting)=="1",
+                                "detail embedding census setting must be 0 or 1");
+                        if(embeddingCensusSetting&&std::string_view(embeddingCensusSetting)=="1") {
+                            const char* sourceOnly=std::getenv(
+                                "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_SOURCE_ONLY");
+                            const char* preflight=std::getenv(
+                                "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT");
+                            const char* censusPathValue=std::getenv(
+                                "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_DETAIL_EMBEDDING_CENSUS_CSV");
+                            require(preparationOnly&&
+                                        sourceOnly&&std::string_view(sourceOnly)=="1"&&
+                                        preflight&&std::string_view(preflight)=="1"&&
+                                        !registeredDetailCanonicalFaceExportRequested&&
+                                        detailFiles.allowAuthenticatedRefinedChildRouteForSourceOnlyPreflight&&
+                                        censusPathValue&&*censusPathValue,
+                                    "detail embedding census is restricted to canonical source-only preflight");
+                            const std::filesystem::path censusPath(censusPathValue);
+                            std::ofstream census(censusPath,std::ios::binary);
+                            require(census.good(),"cannot create source-only detail embedding census");
+                            census<<"row,child_tet_row,source_parent_tet_row,selected_boundary_face_row,"
+                                      "selected_parent_tet_row,cell_material,expected_material,cell_donor,"
+                                      "expected_donor,cell_region,expected_region,x,y,z,node0,node1,node2,"
+                                      "node3,w0,w1,w2,w3,max_abs_weight,condition_estimate,"
+                                      "extrapolation_m,float_weight_sum,reconstruction_error_m,"
+                                      "labels_ok,condition_ok,extrapolation_ok,weight_ok,float_sum_ok,"
+                                      "reconstruction_ok,barycentric_ok\n";
+                            std::vector<double> censusMaxWeights,censusConditions,censusExtrapolations,
+                                censusReconstructionErrors;
+                            censusMaxWeights.reserve(detailInput.detailReferenceWorldPoints.size());
+                            censusConditions.reserve(detailInput.detailReferenceWorldPoints.size());
+                            censusExtrapolations.reserve(detailInput.detailReferenceWorldPoints.size());
+                            censusReconstructionErrors.reserve(detailInput.detailReferenceWorldPoints.size());
+                            std::size_t censusBarycentricFailures=0u,censusLabelFailures=0u,
+                                censusConditionFailures=0u,censusExtrapolationFailures=0u,
+                                censusWeightFailures=0u,censusFloatSumFailures=0u,
+                                censusReconstructionFailures=0u;
+                            for(std::size_t row=0u;row<detailInput.detailReferenceWorldPoints.size();++row) {
+                                require(row<detailInput.detailMechanicalTetRows.size()&&
+                                            row<detailInput.detailParentTetRows.size()&&
+                                            row<detailInput.detailExpectedBoundaryFaceRows.size(),
+                                        "detail embedding census lost a child/source/selected-face row");
+                                const auto childCell=detailInput.detailMechanicalTetRows[row];
+                                require(childCell<detailInput.mechanicalTetNodeRows.size()&&
+                                            childCell<detailInput.mechanicalTetMaterialIndices.size()&&
+                                            childCell<detailInput.mechanicalTetGeometricDonorBodyIndices.size()&&
+                                            childCell<detailInput.mechanicalTetAnatomicalRegionIndices.size(),
+                                        "detail embedding census child tet row is outside the native child domain");
+                                const auto& tet=detailInput.mechanicalTetNodeRows[childCell];
+                                std::array<double,4> weights{};
+                                double condition=std::numeric_limits<double>::quiet_NaN();
+                                std::string baryError;
+                                const bool baryOk=
+                                    physical_skin_authoring_detail_bridge_detail::tetBarycentric(
+                                        detailInput.mechanicalReferenceWorldPoints,tet,
+                                        detailInput.detailReferenceWorldPoints[row],
+                                        weights,condition,baryError);
+                                if(!baryOk)++censusBarycentricFailures;
+                                const auto faceRow=detailInput.detailExpectedBoundaryFaceRows[row];
+                                std::uint32_t selectedParent=NM_INVALID_INDEX;
+                                if(faceRow<detailInput.physicalBoundaryFaceParentTetRows.size())
+                                    selectedParent=detailInput.physicalBoundaryFaceParentTetRows[faceRow];
+                                const bool labelsOk=
+                                    detailInput.mechanicalTetMaterialIndices[childCell]==
+                                        detailInput.detailMaterialIndices[row]&&
+                                    detailInput.mechanicalTetGeometricDonorBodyIndices[childCell]==
+                                        detailInput.detailBoundaryProjectionDonorBodyIndices[row]&&
+                                    detailInput.mechanicalTetAnatomicalRegionIndices[childCell]==
+                                        detailInput.detailAnatomicalRegionIndices[row];
+                                if(!labelsOk)++censusLabelFailures;
+                                const bool conditionOk=baryOk&&
+                                    condition<=detailInput.maximumTetConditionEstimate;
+                                if(baryOk)censusConditions.push_back(condition);
+                                if(!conditionOk&&baryOk)++censusConditionFailures;
+                                double extrapolation=std::numeric_limits<double>::quiet_NaN();
+                                double maxAbsWeight=std::numeric_limits<double>::quiet_NaN();
+                                double floatSum=std::numeric_limits<double>::quiet_NaN();
+                                double reconstruction=std::numeric_limits<double>::quiet_NaN();
+                                std::array<float,4> floatWeights{};
+                                if(baryOk) {
+                                    extrapolation=
+                                        physical_skin_authoring_detail_bridge_detail::
+                                            conservativeTetExtrapolationDistance(
+                                                detailInput.detailReferenceWorldPoints[row],
+                                                detailInput.mechanicalReferenceWorldPoints,tet,weights);
+                                    maxAbsWeight=0.0;floatSum=0.0;
+                                    for(unsigned k=0u;k<4u;++k) {
+                                        maxAbsWeight=std::max(maxAbsWeight,std::abs(weights[k]));
+                                        floatWeights[k]=static_cast<float>(weights[k]);
+                                        floatSum+=double(floatWeights[k]);
+                                    }
+                                    const auto reconstructed=
+                                        physical_skin_authoring_detail_bridge_detail::weightedTetPoint(
+                                            detailInput.mechanicalReferenceWorldPoints,tet,
+                                            {double(floatWeights[0]),double(floatWeights[1]),
+                                             double(floatWeights[2]),double(floatWeights[3])});
+                                    reconstruction=physical_skin_authoring_detail_bridge_detail::distance(
+                                        reconstructed,detailInput.detailReferenceWorldPoints[row]);
+                                    censusMaxWeights.push_back(maxAbsWeight);
+                                    censusExtrapolations.push_back(extrapolation);
+                                    censusReconstructionErrors.push_back(reconstruction);
+                                }
+                                const bool extrapolationOk=baryOk&&std::isfinite(extrapolation)&&
+                                    extrapolation<=detailInput.maximumTetExtrapolationDistanceM;
+                                const bool weightOk=baryOk&&
+                                    maxAbsWeight<=detailInput.maximumAbsoluteEffectiveWeight;
+                                const bool floatSumOk=baryOk&&std::abs(floatSum-1.0)<=2.0e-6;
+                                const bool reconstructionOk=baryOk&&std::isfinite(reconstruction)&&
+                                    reconstruction<=detailInput.maximumReferenceReconstructionErrorM;
+                                if(!extrapolationOk&&baryOk)++censusExtrapolationFailures;
+                                if(!weightOk&&baryOk)++censusWeightFailures;
+                                if(!floatSumOk&&baryOk)++censusFloatSumFailures;
+                                if(!reconstructionOk&&baryOk)++censusReconstructionFailures;
+                                const auto& point=detailInput.detailReferenceWorldPoints[row];
+                                census<<row<<','<<childCell<<','<<detailInput.detailParentTetRows[row]<<','
+                                      <<faceRow<<','<<selectedParent<<','
+                                      <<detailInput.mechanicalTetMaterialIndices[childCell]<<','
+                                      <<detailInput.detailMaterialIndices[row]<<','
+                                      <<detailInput.mechanicalTetGeometricDonorBodyIndices[childCell]<<','
+                                      <<detailInput.detailBoundaryProjectionDonorBodyIndices[row]<<','
+                                      <<detailInput.mechanicalTetAnatomicalRegionIndices[childCell]<<','
+                                      <<detailInput.detailAnatomicalRegionIndices[row]<<','
+                                      <<std::setprecision(17)<<point[0]<<','<<point[1]<<','<<point[2]<<','
+                                      <<tet[0]<<','<<tet[1]<<','<<tet[2]<<','<<tet[3]<<',';
+                                for(unsigned k=0u;k<4u;++k) {
+                                    if(k)census<<',';
+                                    census<<(baryOk?weights[k]:std::numeric_limits<double>::quiet_NaN());
+                                }
+                                census<<','<<maxAbsWeight<<','<<condition<<','<<extrapolation<<','
+                                      <<floatSum<<','<<reconstruction<<','
+                                      <<(labelsOk?1:0)<<','<<(conditionOk?1:0)<<','
+                                      <<(extrapolationOk?1:0)<<','<<(weightOk?1:0)<<','
+                                      <<(floatSumOk?1:0)<<','<<(reconstructionOk?1:0)<<','
+                                      <<(baryOk?1:0)<<'\n';
+                            }
+                            census.close();
+                            require(census.good(),"failed writing complete source-only detail embedding census");
+                            const auto percentile=[](std::vector<double> values,const double q) {
+                                if(values.empty())return std::numeric_limits<double>::quiet_NaN();
+                                std::sort(values.begin(),values.end());
+                                const auto index=static_cast<std::size_t>(
+                                    std::ceil(q*double(values.size())))-1u;
+                                return values[std::min(index,values.size()-1u)];
+                            };
+                            std::cout<<"registered_volume_typed_O_detail_embedding_census=COMPLETE"
+                                <<" rows="<<detailInput.detailReferenceWorldPoints.size()
+                                <<" barycentric_failures="<<censusBarycentricFailures
+                                <<" label_failures="<<censusLabelFailures
+                                <<" condition_failures="<<censusConditionFailures
+                                <<" extrapolation_failures="<<censusExtrapolationFailures
+                                <<" effective_weight_failures="<<censusWeightFailures
+                                <<" float_sum_failures="<<censusFloatSumFailures
+                                <<" reconstruction_failures="<<censusReconstructionFailures
+                                <<" max_abs_weight_p50="<<percentile(censusMaxWeights,0.50)
+                                <<" max_abs_weight_p95="<<percentile(censusMaxWeights,0.95)
+                                <<" max_abs_weight_p99="<<percentile(censusMaxWeights,0.99)
+                                <<" max_abs_weight_max="<<percentile(censusMaxWeights,1.0)
+                                <<" condition_max="<<percentile(censusConditions,1.0)
+                                <<" extrapolation_p95_m="<<percentile(censusExtrapolations,0.95)
+                                <<" extrapolation_max_m="<<percentile(censusExtrapolations,1.0)
+                                <<" reconstruction_p95_m="<<percentile(censusReconstructionErrors,0.95)
+                                <<" reconstruction_max_m="<<percentile(censusReconstructionErrors,1.0)
+                                <<" path="<<censusPath.string()
+                                <<" physical_admission=0 runtime=0 accepted_steps=0"<<std::endl;
                         }
                         if(registeredDetailCanonicalFaceExportRequested) {
                             const auto outputPath=pathValue("DETAIL_TO_BOUNDARY_CANONICAL_EXPORT_CSV");
