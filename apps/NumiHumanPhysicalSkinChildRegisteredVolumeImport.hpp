@@ -49,6 +49,17 @@ struct PhysicalSkinRegisteredVolumeNodeRow {
     std::array<double,4> parentBarycentric{};
     V3 parentCurrentResidualWorldM{};
     double parentRegistrationDistanceM=0.0;
+
+    // Opt-in split: sourceParentNodeRow preserves exact one-to-one node identity
+    // into the immutable source-mass packet; operationalReference* maps the
+    // node into the hash-pinned repaired support mesh. They are never aliases.
+    std::uint32_t sourceParentNodeRow=NM_INVALID_INDEX;
+    std::uint32_t operationalReferenceTet=NM_INVALID_INDEX;
+    std::array<double,4> operationalReferenceBarycentric{};
+    V3 operationalReferenceResidualWorldM{};
+    double operationalReferenceDistanceM=0.0;
+    std::uint32_t sourceParentGeometricDonorBody=NM_INVALID_INDEX;
+    std::uint32_t sourceParentAnatomicalRegion=NM_INVALID_INDEX;
 };
 
 struct PhysicalSkinStableDeepAttachmentRequest {
@@ -72,6 +83,11 @@ struct PhysicalSkinRegisteredBodyPose {
     V3 currentOrigin{},restOrigin{};
     std::array<double,9> currentLocalToWorld{},restLocalToWorld{};
 };
+enum class PhysicalSkinRegisteredVolumeRegistrationDomain : std::uint8_t {
+    sourceMassParent=0,
+    candidateOperationalReference=1
+};
+
 struct PhysicalSkinRegisteredVolumeImportReport {
     std::size_t volumeNodeCount=0;
     std::array<std::size_t,3> mappedBoundaryNodes{};
@@ -82,6 +98,11 @@ struct PhysicalSkinRegisteredVolumeImportReport {
     double maximumCurrentParentReconstructionErrorM=0.0;
     double maximumReferenceParentReconstructionErrorM=0.0;
     double maximumReferenceResidualDifferenceM=0.0;
+    bool separatedOperationalReference=false;
+    std::size_t sourceParentNodeIdentityRows=0u;
+    double maximumHistoricalSourceParentDistanceM=0.0;
+    double maximumOperationalReferenceDistanceM=0.0;
+    double maximumOperationalReferenceReconstructionErrorM=0.0;
 };
 struct PhysicalSkinRegisteredVolumeImportSidecars {
     // Retain exact source semantics even when rows span multiple source domains.
@@ -160,7 +181,9 @@ inline bool validSourceIdentity(const PhysicalSkinRegisteredVolumeNodeRow& row,s
 inline bool validParentRegistration(const PhysicalSkinRegisteredVolumeNodeRow& row,
         const PhysicalSkinParentMassPacket& parent,const double maximumDistance,
         const V3& referenceTarget,V3& referenceResidual,double& currentError,
-        double& referenceError,std::string& error) {
+        double& referenceError,std::string& error,const bool enforceDistance=true,
+        const std::uint32_t sourceParentDonor=NM_INVALID_INDEX,
+        const std::uint32_t sourceParentRegion=NM_INVALID_INDEX) {
     if(row.parentRegistrationKind!="source_parent_tet_reference_registration"&&
        row.parentRegistrationKind!="inferred_current_parent_tet_same_material_donor_region"){
         error="volume node has an absent or unsupported current-parent registration method";return false;
@@ -171,13 +194,15 @@ inline bool validParentRegistration(const PhysicalSkinRegisteredVolumeNodeRow& r
        parent.anatomicalRegionIndices.size()!=parent.tetrahedra.size()){
         error="volume node current-parent registration has an invalid parent label domain";return false;
     }
-    if(parent.donorBodyIndices[row.parentTet]!=row.geometricDonorBody||
-       parent.anatomicalRegionIndices[row.parentTet]!=row.anatomicalRegion){
+    const auto expectedDonor=sourceParentDonor==NM_INVALID_INDEX?row.geometricDonorBody:sourceParentDonor;
+    const auto expectedRegion=sourceParentRegion==NM_INVALID_INDEX?row.anatomicalRegion:sourceParentRegion;
+    if(parent.donorBodyIndices[row.parentTet]!=expectedDonor||
+       parent.anatomicalRegionIndices[row.parentTet]!=expectedRegion){
         error="volume node current-parent cell donor/region differs from its declared semantic tuple";return false;
     }
     if(!finiteBary(row.parentBarycentric)||!finitePoint(row.parentCurrentResidualWorldM)||
        !std::isfinite(row.parentRegistrationDistanceM)||row.parentRegistrationDistanceM<0.0||
-       row.parentRegistrationDistanceM>maximumDistance){
+       (enforceDistance&&row.parentRegistrationDistanceM>maximumDistance)){
         error="volume node current-parent registration has an invalid tet, barycentric, residual, or bound";return false;
     }
     double sum=0.0;
@@ -222,6 +247,62 @@ inline bool validParentRegistration(const PhysicalSkinRegisteredVolumeNodeRow& r
         error="same-target converted parent residual does not reconstruct the TetGen reference point";return false;
     }
     return true;
+}
+inline bool validOperationalReferenceRegistration(
+        const PhysicalSkinRegisteredVolumeNodeRow& row,
+        const PhysicalSkinChildMassMappingBundle& bundle,const double maximumDistance,
+        V3& referenceResidual,double& reconstructionError,std::string& error) {
+    if(row.operationalReferenceTet>=bundle.childTetrahedra.size()||
+       bundle.childMaterialIndices.size()!=bundle.childTetrahedra.size()||
+       bundle.childDonorBodyIndices.size()!=bundle.childTetrahedra.size()||
+       bundle.childAnatomicalRegionIndices.size()!=bundle.childTetrahedra.size()||
+       (!bundle.currentWorldPoints.empty()&&bundle.currentWorldPoints.size()!=bundle.referenceWorldPoints.size())||
+       row.volumeNodeRow>=bundle.referenceWorldPoints.size()){
+        error="operational-reference registration has an invalid candidate-cell domain";return false;
+    }
+    if(!finiteBary(row.operationalReferenceBarycentric)||
+       !finitePoint(row.operationalReferenceResidualWorldM)||
+       !std::isfinite(row.operationalReferenceDistanceM)||row.operationalReferenceDistanceM<0.0||
+       row.operationalReferenceDistanceM>maximumDistance){
+        error="operational-reference registration exceeds its pinned distance or finite-value bound";return false;
+    }
+    double sum=0.0;
+    for(const auto weight:row.operationalReferenceBarycentric){
+        if(weight< -1.0e-8||weight>1.0+1.0e-8){
+            error="operational-reference barycentric is outside its candidate tetrahedron";return false;
+        }
+        sum+=weight;
+    }
+    if(std::abs(sum-1.0)>1.0e-8||
+       std::abs(norm(row.operationalReferenceResidualWorldM)-row.operationalReferenceDistanceM)>2.0e-10){
+        error="operational-reference residual does not match its bounded distance or barycentric sum";return false;
+    }
+    const auto tet=bundle.childTetrahedra[row.operationalReferenceTet];
+    const auto& target=bundle.currentWorldPoints.empty()?bundle.referenceWorldPoints:bundle.currentWorldPoints;
+    for(const auto node:tet)if(node>=target.size()||node>=bundle.referenceWorldPoints.size()){
+        error="operational-reference cell references an absent candidate node";return false;
+    }
+    const double currentVolume=signedSixVolume(target,tet);
+    const double referenceVolume=signedSixVolume(bundle.referenceWorldPoints,tet);
+    if(!std::isfinite(currentVolume)||!std::isfinite(referenceVolume)||
+       currentVolume<=1.0e-24||referenceVolume<=1.0e-24){
+        error="operational-reference candidate cell is nonpositive, singular, or inverted";return false;
+    }
+    const auto currentBase=baryPoint(target,tet,row.operationalReferenceBarycentric);
+    const auto currentError=norm(sub(add(currentBase,row.operationalReferenceResidualWorldM),row.currentWorldPoint));
+    if(!std::isfinite(currentError)||currentError>2.0e-8){
+        error="operational-reference current map does not reconstruct its exact candidate node";return false;
+    }
+    referenceResidual=row.operationalReferenceResidualWorldM;
+    for(unsigned corner=0;corner<4;++corner)for(unsigned axis=0;axis<3;++axis)
+        referenceResidual[axis]+=row.operationalReferenceBarycentric[corner]*
+            (target[tet[corner]][axis]-bundle.referenceWorldPoints[tet[corner]][axis]);
+    const auto referenceBase=baryPoint(bundle.referenceWorldPoints,tet,row.operationalReferenceBarycentric);
+    reconstructionError=norm(sub(add(referenceBase,referenceResidual),bundle.referenceWorldPoints[row.volumeNodeRow]));
+    if(!std::isfinite(reconstructionError)||reconstructionError>1.0e-8){
+        error="operational-reference converted residual does not reconstruct the exact candidate reference node";return false;
+    }
+    error.clear();return true;
 }
 inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
                           const PhysicalSkinNodeSourceRow& source,std::string& error) {
@@ -300,10 +381,21 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
         const std::size_t detailedSourceVertexCount,const std::size_t detailedSourceFaceCount,
         PhysicalSkinRegisteredVolumeImportSidecars& sidecars,
         PhysicalSkinRegisteredVolumeImportReport& report,std::string& error,
-        const std::span<const PhysicalSkinSourceDomainRegistration> declaredSourceDomains={}) {
+        const std::span<const PhysicalSkinSourceDomainRegistration> declaredSourceDomains={},
+        const PhysicalSkinRegisteredVolumeRegistrationDomain registrationDomain=
+            PhysicalSkinRegisteredVolumeRegistrationDomain::sourceMassParent,
+        const std::string_view operationalReferenceDomainSHA256={}) {
     using namespace physical_skin_registered_volume_import_detail;
     const auto fail=[&](std::string message){error=std::move(message);return false;};
     const bool typedSourceDomains=!declaredSourceDomains.empty();
+    const bool separatedOperationalReference=registrationDomain==
+        PhysicalSkinRegisteredVolumeRegistrationDomain::candidateOperationalReference;
+    if(separatedOperationalReference&&(!physical_skin_child_mass_detail::validSHA256(operationalReferenceDomainSHA256)||
+       bundle.childTetrahedra.empty()||!registered.parentRegistrationIsHistoricalProvenanceOnly))
+        return fail("separated operational reference requires a pinned positive candidate mesh and label domain");
+    if(!separatedOperationalReference&&(!operationalReferenceDomainSHA256.empty()||
+       registered.parentRegistrationIsHistoricalProvenanceOnly))
+        return fail("legacy source-parent registration cannot carry operational-reference provenance mode");
     if(typedSourceDomains&&(!canonicalDetailedSourceDomain.empty()||
        detailedSourceVertexCount!=0u||detailedSourceFaceCount!=0u))
         return fail("typed source registry and canonical detailed-source counts cannot be mixed");
@@ -401,6 +493,24 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
     nextBundle.volumeNodeParentTetrahedra.resize(nodeCount);
     nextBundle.volumeNodeParentBarycentric.resize(nodeCount);
     nextBundle.volumeNodeParentResidualWorldM.resize(nodeCount);
+    nextBundle.volumeNodeSourceParentNodeRows.clear();
+    nextBundle.volumeNodeSourceParentRegistrationDistanceM.clear();
+    nextBundle.volumeNodeOperationalReferenceTetrahedra.clear();
+    nextBundle.volumeNodeOperationalReferenceBarycentric.clear();
+    nextBundle.volumeNodeOperationalReferenceResidualWorldM.clear();
+    nextBundle.volumeNodeOperationalReferenceDistanceM.clear();
+    if(separatedOperationalReference){
+        nextBundle.volumeNodeSourceParentNodeRows.assign(nodeCount,NM_INVALID_INDEX);
+        nextBundle.volumeNodeSourceParentRegistrationDistanceM.resize(nodeCount,0.0);
+        nextBundle.volumeNodeOperationalReferenceTetrahedra.resize(nodeCount,NM_INVALID_INDEX);
+        nextBundle.volumeNodeOperationalReferenceBarycentric.resize(nodeCount);
+        nextBundle.volumeNodeOperationalReferenceResidualWorldM.resize(nodeCount);
+        nextBundle.volumeNodeOperationalReferenceDistanceM.resize(nodeCount,0.0);
+        nextBundle.operationalReferenceDomainSHA256=std::string(operationalReferenceDomainSHA256);
+    }else{
+        nextBundle.operationalReferenceDomainSHA256.clear();
+    }
+    nextBundle.usesSeparatedOperationalReference=separatedOperationalReference;
     nextSidecars.sourceAncestryRows.resize(nodeCount);
     nextSidecars.currentParentRows.resize(nodeCount);
     nextSidecars.sourceDomains.resize(nodeCount);
@@ -425,8 +535,11 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
     std::vector<std::uint32_t> directSource(nodeCount,NM_INVALID_INDEX),faceSource(nodeCount,NM_INVALID_INDEX);
     std::vector<std::array<double,3>> sourceBary(nodeCount);
     std::set<std::string> nonemptySourceDomains;
-    std::size_t sourceIdentityRows=0u,inferredRows=0u;
+    std::size_t sourceIdentityRows=0u,inferredRows=0u,sourceParentIdentityRows=0u;
     double maxCurrentError=0.0,maxReferenceError=0.0,maxResidualDifference=0.0;
+    double maxHistoricalSourceParentDistance=0.0,maxOperationalReferenceDistance=0.0;
+    double maxOperationalReferenceReconstructionError=0.0;
+    std::vector<std::uint8_t> sourceParentNodeSeen(bundle.parent.currentWorldPoints.size(),0u);
     for(std::size_t inputRow=0;inputRow<nodeRows.size();++inputRow){
         const auto& row=nodeRows[inputRow];
         const std::size_t node=row.volumeNodeRow;
@@ -512,10 +625,20 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
         for(const auto cell:incidentCells[node]){
             const auto material=bundle.childMaterialIndices[cell];
             actualMaterialMask|=(1u<<material);
-            if(material==bundle.parent.materialIndices[row.parentTet]&&
+            if((separatedOperationalReference||material==bundle.parent.materialIndices[row.parentTet])&&
                bundle.childDonorBodyIndices[cell]==row.geometricDonorBody&&
                bundle.childAnatomicalRegionIndices[cell]==row.anatomicalRegion)
                 selectedSemanticIncident=true;
+        }
+        if(separatedOperationalReference){
+            if(std::find(incidentCells[node].begin(),incidentCells[node].end(),row.operationalReferenceTet)==
+               incidentCells[node].end())
+                return fail("operational-reference support tet is not incident to its declared child node");
+            const auto supportCell=row.operationalReferenceTet;
+            if(bundle.childDonorBodyIndices[supportCell]!=row.geometricDonorBody||
+               bundle.childAnatomicalRegionIndices[supportCell]!=row.anatomicalRegion||
+               (actualMaterialMask&(1u<<bundle.childMaterialIndices[supportCell]))==0u)
+                return fail("operational-reference cell labels differ from its node's incident material/donor/region domain");
         }
         if(actualMaterialMask!=row.incidentMaterialMask)
             return fail("node incident material mask differs from the actual child cell labels");
@@ -523,12 +646,55 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
             return fail("node parent material/donor/region tuple is not present on an incident child cell");
         V3 referenceResidual{};double currentError=0.0,referenceError=0.0;
         if(!validParentRegistration(row,bundle.parent,maximumParentRegistrationDistanceM,
-                bundle.referenceWorldPoints[node],referenceResidual,currentError,referenceError,sourceError))
+                bundle.referenceWorldPoints[node],referenceResidual,currentError,referenceError,sourceError,
+                !separatedOperationalReference,
+                separatedOperationalReference?row.sourceParentGeometricDonorBody:NM_INVALID_INDEX,
+                separatedOperationalReference?row.sourceParentAnatomicalRegion:NM_INVALID_INDEX))
             return fail(sourceError);
+        maxHistoricalSourceParentDistance=std::max(maxHistoricalSourceParentDistance,
+            row.parentRegistrationDistanceM);
+        if(separatedOperationalReference)
+            nextBundle.volumeNodeSourceParentRegistrationDistanceM[node]=row.parentRegistrationDistanceM;
         maxCurrentError=std::max(maxCurrentError,currentError);
         maxReferenceError=std::max(maxReferenceError,referenceError);
         maxResidualDifference=std::max(maxResidualDifference,
             norm(sub(referenceResidual,row.parentCurrentResidualWorldM)));
+        V3 operationalReferenceResidual{};double operationalError=0.0;
+        if(separatedOperationalReference){
+            if(row.sourceParentNodeRow!=NM_INVALID_INDEX){
+                if(row.sourceParentNodeRow>=sourceParentNodeSeen.size()||
+                   sourceParentNodeSeen[row.sourceParentNodeRow]++)
+                    return fail("source-parent original-node injection is out of range or duplicated");
+                if(row.sourceParentGeometricDonorBody>=sourceBodyCount||
+                   row.sourceParentAnatomicalRegion==NM_INVALID_INDEX)
+                    return fail("source-parent original-node injection has an invalid source geometric donor or region");
+                const auto sourceTet=bundle.parent.tetrahedra[row.parentTet];
+                bool sourceOneHot=false;
+                for(unsigned corner=0;corner<4u;++corner){
+                    const double expected=sourceTet[corner]==row.sourceParentNodeRow?1.0:0.0;
+                    if(row.parentBarycentric[corner]!=expected)
+                        return fail("source-parent node injection is not the exact one-hot historical parent registration");
+                    sourceOneHot=sourceOneHot||expected==1.0;
+                }
+                if(!sourceOneHot)
+                    return fail("source-parent original node is absent from its historical parent registration tet");
+                ++sourceParentIdentityRows;
+            }
+            if(!validOperationalReferenceRegistration(row,nextBundle,maximumParentRegistrationDistanceM,
+                    operationalReferenceResidual,operationalError,sourceError))
+                return fail(sourceError);
+            maxOperationalReferenceDistance=std::max(maxOperationalReferenceDistance,
+                row.operationalReferenceDistanceM);
+            maxOperationalReferenceReconstructionError=std::max(maxOperationalReferenceReconstructionError,
+                operationalError);
+            nextBundle.volumeNodeSourceParentNodeRows[node]=row.sourceParentNodeRow;
+            nextBundle.volumeNodeOperationalReferenceTetrahedra[node]=row.operationalReferenceTet;
+            nextBundle.volumeNodeOperationalReferenceBarycentric[node]=row.operationalReferenceBarycentric;
+            nextBundle.volumeNodeOperationalReferenceResidualWorldM[node]=operationalReferenceResidual;
+            nextBundle.volumeNodeOperationalReferenceDistanceM[node]=row.operationalReferenceDistanceM;
+        }else if(row.sourceParentNodeRow!=NM_INVALID_INDEX||row.operationalReferenceTet!=NM_INVALID_INDEX){
+            return fail("legacy source-parent route cannot carry separated operational-reference fields");
+        }
         nextBundle.currentWorldPoints[node]=row.currentWorldPoint;
         nextBundle.volumeNodeDonorBodyIndices[node]=row.donorBody;
         nextBundle.volumeNodeDonorLocalPoints[node]=row.donorLocalPoint;
@@ -558,6 +724,10 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
     }
     if(std::find(seen.begin(),seen.end(),0u)!=seen.end())
         return fail("combined TetGen node-map omits one or more joint volume node rows");
+    if(separatedOperationalReference&&
+       (sourceParentNodeSeen.size()!=bundle.parent.currentWorldPoints.size()||
+        std::find(sourceParentNodeSeen.begin(),sourceParentNodeSeen.end(),0u)!=sourceParentNodeSeen.end()))
+        return fail("separated operational-reference map does not retain every immutable source-parent node identity exactly once");
     if(std::any_of(nextBundle.boundaryMap.outer.begin(),nextBundle.boundaryMap.outer.end(),
                    [](auto n){return n==NM_INVALID_INDEX;})||
        std::any_of(nextBundle.boundaryMap.skinInner.begin(),nextBundle.boundaryMap.skinInner.end(),
@@ -628,6 +798,11 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
     measured.maximumCurrentParentReconstructionErrorM=maxCurrentError;
     measured.maximumReferenceParentReconstructionErrorM=maxReferenceError;
     measured.maximumReferenceResidualDifferenceM=maxResidualDifference;
+    measured.separatedOperationalReference=separatedOperationalReference;
+    measured.sourceParentNodeIdentityRows=sourceParentIdentityRows;
+    measured.maximumHistoricalSourceParentDistanceM=maxHistoricalSourceParentDistance;
+    measured.maximumOperationalReferenceDistanceM=maxOperationalReferenceDistance;
+    measured.maximumOperationalReferenceReconstructionErrorM=maxOperationalReferenceReconstructionError;
     bundle=std::move(nextBundle);sidecars=std::move(nextSidecars);report=measured;
     error.clear();return true;
 }

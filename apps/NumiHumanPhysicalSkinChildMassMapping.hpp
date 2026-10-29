@@ -448,9 +448,21 @@ struct PhysicalSkinChildMassMappingBundle {
     std::vector<std::uint32_t> volumeNodeSourceVertexIndices,volumeNodeSourceFaceIndices;
     std::vector<std::array<double,3>> volumeNodeSourceBarycentric;
     std::size_t retainedOriginalNodeCount=0u;
+    // Historical node-to-330 registration remains immutable provenance. In
+    // the explicit operational-reference route, the separate candidate-local
+    // map below owns the repaired support coordinates and retains the same
+    // declared 0.4 mm registration bound.
     std::vector<std::uint32_t> volumeNodeParentTetrahedra;
     std::vector<std::array<double,4>> volumeNodeParentBarycentric;
     std::vector<V3> volumeNodeParentResidualWorldM;
+    std::vector<std::uint32_t> volumeNodeSourceParentNodeRows;
+    std::vector<double> volumeNodeSourceParentRegistrationDistanceM;
+    std::vector<std::uint32_t> volumeNodeOperationalReferenceTetrahedra;
+    std::vector<std::array<double,4>> volumeNodeOperationalReferenceBarycentric;
+    std::vector<V3> volumeNodeOperationalReferenceResidualWorldM;
+    std::vector<double> volumeNodeOperationalReferenceDistanceM;
+    bool usesSeparatedOperationalReference=false;
+    std::string operationalReferenceDomainSHA256;
     std::array<std::uint64_t,4> referenceSourceIdentity{},materialSourceIdentity{};
 
     std::string childMeshSHA256,regionLabelSHA256,coordinateFrameSHA256;
@@ -937,6 +949,16 @@ inline std::string massMappingPathSHA256(
     hashIndices("volume.parent_tetrahedra",bundle.volumeNodeParentTetrahedra);
     hashBary4("volume.parent_barycentric",bundle.volumeNodeParentBarycentric);
     hashPoints("volume.parent_residuals",bundle.volumeNodeParentResidualWorldM);
+    if(bundle.usesSeparatedOperationalReference){
+        hash.string("separated_operational_reference.v1");
+        hash.string(bundle.operationalReferenceDomainSHA256);
+        hashIndices("volume.source_parent_node_rows",bundle.volumeNodeSourceParentNodeRows);
+        hashScalars("volume.source_parent_registration_distances",bundle.volumeNodeSourceParentRegistrationDistanceM);
+        hashIndices("volume.operational_reference_tetrahedra",bundle.volumeNodeOperationalReferenceTetrahedra);
+        hashBary4("volume.operational_reference_barycentric",bundle.volumeNodeOperationalReferenceBarycentric);
+        hashPoints("volume.operational_reference_residuals",bundle.volumeNodeOperationalReferenceResidualWorldM);
+        hashScalars("volume.operational_reference_distances",bundle.volumeNodeOperationalReferenceDistanceM);
+    }
     hash.u64(bundle.stableDeepAttachments.size());
     for(const auto& row:bundle.stableDeepAttachments) {
         hash.u64(row.stableAttachmentID);hash.u32(row.donorBody);

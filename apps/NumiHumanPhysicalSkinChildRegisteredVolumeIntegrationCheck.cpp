@@ -19,7 +19,7 @@ using Key=std::array<std::uint32_t,3>;
 namespace {
 
 std::string number(double value) {
-    std::ostringstream out;out<<std::setprecision(9)<<static_cast<float>(value);return out.str();
+    std::ostringstream out;out<<std::setprecision(17)<<double(static_cast<float>(value));return out.str();
 }
 std::string quoted(const std::string& value) {
     if(value.find_first_of(",\"\r\n")==std::string::npos)return value;
@@ -36,14 +36,19 @@ void pin(const std::filesystem::path& path,std::string& hash) {
 }
 
 struct Fixture {
-    std::array<V3,9> points{{
+    std::vector<V3> points{
         V3{0,0,2},V3{1,0,2},V3{0,1,2},
         V3{0,0,1},V3{1,0,1},V3{0,1,1},
-        V3{0,0,0},V3{1,0,0},V3{0,1,0}}};
-    std::array<std::array<std::uint32_t,4>,6> tets{{
+        V3{0,0,0},V3{1,0,0},V3{0,1,0}};
+    std::vector<std::array<std::uint32_t,4>> tets{
         {{3,4,5,0}},{{4,5,0,1}},{{5,0,1,2}},
-        {{6,7,8,3}},{{7,8,3,4}},{{8,3,4,5}}}};
-    std::array<std::uint32_t,6> materials{{15,15,15,16,16,16}};
+        {{6,7,8,3}},{{7,8,3,4}},{{8,3,4,5}}};
+    std::vector<std::uint32_t> materials{15,15,15,16,16,16};
+    std::vector<std::uint32_t> parentTetForChild;
+    std::vector<std::uint32_t> sourceParentTetForNode;
+    std::vector<std::array<double,4>> sourceParentBaryForNode;
+    std::vector<std::uint32_t> operationalTetForNode;
+    std::vector<double> historicalDistanceForNode;
     PhysicalSkinChildMassMappingBundle parentBundle;
     PhysicalSkinRegisteredSurfaceCSVSet registered;
     std::vector<PhysicalSkinRegisteredBodyPose> poses;
@@ -77,6 +82,17 @@ struct Fixture {
         registered.framesByDonor[0].currentR={1,0,0,0,1,0,0,0,1};
         registered.framesByDonor[0].restR=registered.framesByDonor[0].currentR;
 
+        parentTetForChild.resize(tets.size());
+        for(std::size_t i=0;i<tets.size();++i)parentTetForChild[i]=static_cast<std::uint32_t>(i);
+        const std::array<std::uint32_t,9> parentRows{{0,1,2,0,1,2,3,4,5}};
+        sourceParentTetForNode.assign(parentRows.begin(),parentRows.end());
+        sourceParentBaryForNode.resize(points.size());
+        for(std::size_t node=0;node<points.size();++node)
+            for(unsigned corner=0;corner<4u;++corner)
+                if(tets[sourceParentTetForNode[node]][corner]==node)
+                    sourceParentBaryForNode[node][corner]=1.0;
+        historicalDistanceForNode.assign(points.size(),0.0);
+
         std::array<RegisteredSurface*,3> surfaces{{
             &registered.surfaces[0],&registered.surfaces[1],&registered.surfaces[2]}};
         const std::array<std::uint32_t,3> offsets{{0u,3u,6u}};
@@ -104,7 +120,6 @@ struct Fixture {
             }
         }
 
-        const std::array<std::uint32_t,9> parentRows{{0,1,2,0,1,2,3,4,5}};
         for(unsigned layer=0;layer<3;++layer) {
             for(unsigned row=0;row<3;++row) {
                 PhysicalSkinParentRegistrationRow registration;
@@ -118,6 +133,44 @@ struct Fixture {
         }
         auto facets=buildFacetRows();
         walls=std::move(facets.second);
+    }
+
+    void prepareSeparatedOperationalReference() {
+        const auto original=tets.front();
+        const auto newNode=static_cast<std::uint32_t>(points.size());
+        points.push_back({double(float(0.255)),0.25,1.25});
+        sourceParentTetForNode.push_back(0u);
+        sourceParentBaryForNode.push_back({0.25,0.25,0.25,0.25});
+        historicalDistanceForNode.push_back(double(float(points.back()[0]-0.25)));
+        std::vector<std::array<std::uint32_t,4>> split;
+        const std::array<std::array<unsigned,3>,4> faces{{
+            {{1,2,3}},{{0,3,2}},{{0,1,3}},{{0,2,1}}}};
+        // Keep the registered I face as the first child face. The new vertex
+        // lies inside the parent tet but carries a separate 5 mm historical
+        // source registration residual; its candidate reference map is exact.
+        const std::array<unsigned,4> faceOrder{{3,0,1,2}};
+        for(const auto omitted:faceOrder){
+            std::array<std::uint32_t,4> child{{newNode,original[faces[omitted][0]],
+                original[faces[omitted][1]],original[faces[omitted][2]]}};
+            if(physical_skin_registered_volume_import_detail::signedSixVolume(points,child)<0.0)
+                std::swap(child[2],child[3]);
+            assert(physical_skin_registered_volume_import_detail::signedSixVolume(points,child)>0.0);
+            split.push_back(child);
+        }
+        std::vector<std::array<std::uint32_t,4>> nextTets=split;
+        nextTets.insert(nextTets.end(),tets.begin()+1,tets.end());
+        std::vector<std::uint32_t> nextMaterials(4u,15u);
+        nextMaterials.insert(nextMaterials.end(),materials.begin()+1,materials.end());
+        std::vector<std::uint32_t> nextParents(4u,0u);
+        nextParents.insert(nextParents.end(),parentTetForChild.begin()+1,parentTetForChild.end());
+        tets=std::move(nextTets);materials=std::move(nextMaterials);
+        parentTetForChild=std::move(nextParents);
+        operationalTetForNode.assign(points.size(),NM_INVALID_INDEX);
+        for(std::uint32_t cell=0;cell<tets.size();++cell)
+            for(const auto node:tets[cell])
+                if(operationalTetForNode[node]==NM_INVALID_INDEX)operationalTetForNode[node]=cell;
+        operationalTetForNode.resize(points.size());
+        registered.parentRegistrationIsHistoricalProvenanceOnly=true;
     }
 
     std::pair<std::vector<std::vector<std::string>>,std::vector<PhysicalSkinAuthoredHeadWallRow>>
@@ -139,17 +192,18 @@ struct Fixture {
             for(unsigned c=0;c<3;++c)fields[19u+c]=std::to_string(nodes[c]+1u);
             rows.push_back(std::move(fields));
         };
-        registeredFace("skin",1u,"outer_O",2u,{0,1,2},701u);
+        const bool splitTopology=tets.size()==9u;
+        registeredFace("skin",1u,"outer_O",splitTopology?5u:2u,{0,1,2},701u);
         registeredFace("skin",2u,"inner_I",0u,{3,4,5},702u);
-        registeredFace("fat",4u,"outer_I",5u,{3,4,5},703u);
-        registeredFace("fat",5u,"inner_D",3u,{6,7,8},704u);
+        registeredFace("fat",4u,"outer_I",splitTopology?8u:5u,{3,4,5},703u);
+        registeredFace("fat",5u,"inner_D",splitTopology?6u:3u,{6,7,8},704u);
 
         std::vector<PhysicalSkinAuthoredHeadWallRow> authored;
         for(const auto& [face,cells]:uses) {
             if(cells.size()!=1u||(face==Key{0,1,2})||(face==Key{6,7,8}))continue;
             const auto cell=cells.front();PhysicalSkinAuthoredHeadWallRow wall;
             wall.stableWallFace=800u+static_cast<std::uint32_t>(authored.size());
-            wall.childTet=cell;wall.childNodes=face;wall.parentTet=cell;
+            wall.childTet=cell;wall.childNodes=face;wall.parentTet=parentTetForChild[cell];
             wall.material=materials[cell];wall.parentNodes=face;
             authored.push_back(wall);
             const bool skin=wall.material==15u;
@@ -169,7 +223,8 @@ struct Fixture {
         return {rows,authored};
     }
 
-    void writeFiles(const std::filesystem::path& root,PhysicalSkinRegisteredVolumeAssetFiles& files) const {
+    void writeFiles(const std::filesystem::path& root,PhysicalSkinRegisteredVolumeAssetFiles& files,
+                    const bool separatedOperationalReference=false) const {
         std::filesystem::create_directories(root);
         const auto node=root/"child.node",ele=root/"child.ele",labels=root/"child.labels.csv";
         const auto map=root/"combined-node-map.csv",facets=root/"facet-ancestry.csv";
@@ -189,16 +244,17 @@ struct Fixture {
         {
             std::ofstream out(labels);out<<"child_tet_row,material_index,geometric_donor_body,anatomical_region_id,stable_source_face_id\n";
             for(std::size_t i=0;i<tets.size();++i)
-                out<<i<<","<<materials[i]<<",0,42,"<<601u+i<<"\n";
+                out<<i<<","<<materials[i]<<",0,42,"
+                   <<parentBundle.parent.stableSourceFaceIdentities[parentTetForChild[i]]<<"\n";
         }
         {
-            std::ofstream out(map);writeRow(out,physicalSkinCombinedNodeMapCSVHeader());
+            std::ofstream out(map);writeRow(out,physicalSkinCombinedNodeMapCSVHeader(separatedOperationalReference));
             std::vector<std::vector<std::string>> rows;
             const auto append=[&](unsigned node,const std::string& partition,std::uint32_t source,
                                   const std::string& layer,std::uint32_t surfaceRow,
                                   std::uint32_t interfaceRow,const std::string& peerPartition,
                                   std::uint32_t peerID) {
-                std::vector<std::string> f(42u,"0");
+                std::vector<std::string> f(separatedOperationalReference?54u:42u,"0");
                 f[0]=std::to_string(node+1u);f[1]=partition;f[2]=std::to_string(source);
                 f[3]=interfaceRow==NM_INVALID_INDEX?"-1":std::to_string(interfaceRow);
                 f[4]=peerPartition;f[5]=peerPartition.empty()?"":std::to_string(peerID);
@@ -208,16 +264,35 @@ struct Fixture {
                     f[9u+axis]=number(points[node][axis]);f[14u+axis]=number(points[node][axis]);
                     f[24u+axis]="0";f[34u+axis]="0";
                 }
-                f[12]="0";f[13]="0";f[17]="fixture-detail";f[18]="vertex";
-                f[19]=std::to_string(node);f[20]="-1";f[21]=f[22]=f[23]="0";
-                f[27]="fixture-frame";f[28]="source_parent_tet_reference_registration";
-                const std::array<std::uint32_t,9> parentRows{{0,1,2,0,1,2,3,4,5}};
-                const auto parentRow=parentRows[node];f[29]=std::to_string(parentRow);
-                for(unsigned corner=0;corner<4;++corner)
-                    f[30u+corner]=tets[parentRow][corner]==node?"1":"0";
-                f[37]="0";f[38]="0";
-                f[39]=node<3u?"32768":(node<6u?"98304":"65536");
+                f[12]="0";f[13]="0";
+                f[17]=node<9u?"fixture-detail":"derived_volume_interior_no_surface_ancestry";
+                f[18]=node<9u?"vertex":"none";
+                f[19]=node<9u?std::to_string(node):"-1";f[20]="-1";f[21]=f[22]=f[23]="0";
+                f[27]=node<9u?"fixture-frame":"derived_full_all_bodies_geometric_donor_pose";
+                const auto parentRow=sourceParentTetForNode[node];
+                f[28]=node<9u?"source_parent_tet_reference_registration":
+                    "inferred_current_parent_tet_same_material_donor_region";
+                f[29]=std::to_string(parentRow);
+                for(unsigned corner=0;corner<4u;++corner)
+                    f[30u+corner]=number(sourceParentBaryForNode[node][corner]);
+                f[37]=number(historicalDistanceForNode[node]);f[38]="0";
+                f[39]=node<3u?"32768":(node<6u?"98304":(node<9u?"65536":"32768"));
                 f[40]="0";f[41]="42";
+                const auto parentBase=physical_skin_registered_volume_import_detail::baryPoint(
+                    parentBundle.parent.currentWorldPoints,parentBundle.parent.tetrahedra[parentRow],
+                    sourceParentBaryForNode[node]);
+                for(unsigned axis=0;axis<3u;++axis)
+                    f[34u+axis]=number(points[node][axis]-parentBase[axis]);
+                if(separatedOperationalReference){
+                    f[42]=node<9u?std::to_string(node):"-1";
+                    const auto operationalTet=operationalTetForNode[node];
+                    f[43]=std::to_string(operationalTet);
+                    for(unsigned corner=0;corner<4u;++corner)
+                        f[44u+corner]=tets[operationalTet][corner]==node?"1":"0";
+                    f[48]=f[49]=f[50]="0";f[51]="0";
+                    f[52]=std::to_string(parentBundle.parent.donorBodyIndices[parentRow]);
+                    f[53]=std::to_string(parentBundle.parent.anatomicalRegionIndices[parentRow]);
+                }
                 rows.push_back(std::move(f));
             };
             for(unsigned node=0;node<3;++node)append(node,"skin",110u+node,"O",node,NM_INVALID_INDEX,"",0u);
@@ -227,6 +302,7 @@ struct Fixture {
                 append(node,"fat",fatID,"I",row,row,"skin",skinID);
             }
             for(unsigned row=0;row<3;++row)append(6u+row,"fat",410u+row,"D",row,NM_INVALID_INDEX,"",0u);
+            if(points.size()>9u)append(9u,"skin",999u,"",NM_INVALID_INDEX,NM_INVALID_INDEX,"",0u);
             std::reverse(rows.begin(),rows.end());
             for(const auto& row:rows)writeRow(out,row);
         }
@@ -237,11 +313,38 @@ struct Fixture {
         }
         files.tetgenNode=node;files.tetgenElements=ele;files.childLabels=labels;
         files.combinedNodeMapCSV=map;files.facetAncestryCSV=facets;
+        files.registrationDomain=separatedOperationalReference?
+            PhysicalSkinRegisteredVolumeRegistrationDomain::candidateOperationalReference:
+            PhysicalSkinRegisteredVolumeRegistrationDomain::sourceMassParent;
         pin(node,files.expectedSHA256[0]);pin(ele,files.expectedSHA256[1]);
         pin(labels,files.expectedSHA256[2]);pin(map,files.expectedSHA256[3]);
         pin(facets,files.expectedSHA256[4]);
     }
 };
+
+PhysicalSkinRegisteredVolumeAssetFiles rewriteSplitMapField(
+        const PhysicalSkinRegisteredVolumeAssetFiles& files,const std::filesystem::path& root,
+        const std::string& name,const std::uint32_t node,const std::size_t column,
+        const std::string& value) {
+    auto changed=files;changed.combinedNodeMapCSV=root/name;
+    std::ifstream input(files.combinedNodeMapCSV);
+    std::ofstream output(changed.combinedNodeMapCSV);
+    std::string line;
+    assert(std::getline(input,line));
+    writeRow(output,physicalSkinCombinedNodeMapCSVHeader(true));
+    bool found=false;
+    while(std::getline(input,line)){
+        auto fields=physical_skin_child_mass_detail::splitCSV(line);
+        assert(fields.size()==54u&&column<fields.size());
+        std::uint32_t id=0;assert(physical_skin_child_mass_detail::parseNumber(fields[0],id));
+        if(id==node+1u){fields[column]=value;found=true;}
+        writeRow(output,fields);
+    }
+    assert(found);
+    output.close();input.close();
+    pin(changed.combinedNodeMapCSV,changed.expectedSHA256[3]);
+    return changed;
+}
 
 void checkFailureIsAtomic(Fixture& fixture,const PhysicalSkinRegisteredVolumeAssetFiles& files,
                           std::string_view expected) {
@@ -252,9 +355,13 @@ void checkFailureIsAtomic(Fixture& fixture,const PhysicalSkinRegisteredVolumeAss
     report.nodeMap.fileRows=6789u;
     std::vector<PhysicalSkinStableDeepAttachmentRequest> attachments;
     std::string error;
+    const double parentRegistrationBound=files.registrationDomain==
+        PhysicalSkinRegisteredVolumeRegistrationDomain::candidateOperationalReference?0.0004:0.02;
     const bool result=importPhysicalSkinRegisteredVolumeFiles(files,std::string(64u,'0'),157u,0.02,
-        0.02,"fixture-detail",9u,0u,fixture.registered,attachments,fixture.poses,bundle,
+        parentRegistrationBound,"fixture-detail",9u,0u,fixture.registered,attachments,fixture.poses,bundle,
         sidecars,report,error);
+    if(result||error.find(expected)==std::string::npos)
+        std::cerr<<"negative split/import expected ["<<expected<<"] got ["<<error<<"] result="<<result<<"\n";
     assert(!result&&error.find(expected)!=std::string::npos);
     assert(bundle.currentWorldPoints.empty()&&bundle.childTetrahedra.empty());
     assert(sidecars.sourceDomains==std::vector<std::string>{"sentinel"});
@@ -358,6 +465,60 @@ int main() {
         bundle.childAuthoredHeadSidewallFacetFlags.end(),1u)==12);
     assert(report.inputSHA256==files.expectedSHA256);
 
+    Fixture splitFixture;
+    splitFixture.prepareSeparatedOperationalReference();
+    PhysicalSkinRegisteredVolumeAssetFiles splitFiles;
+    splitFixture.writeFiles(root/"operational-reference-split",splitFiles,true);
+    auto splitBundle=splitFixture.parentBundle;
+    PhysicalSkinRegisteredVolumeImportSidecars splitSidecars;
+    PhysicalSkinRegisteredVolumeFileImportReport splitReport;
+    const bool splitImported=importPhysicalSkinRegisteredVolumeFiles(splitFiles,std::string(64u,'0'),157u,0.02,
+        0.0004,"",0u,0u,splitFixture.registered,attachments,splitFixture.poses,
+        splitBundle,splitSidecars,splitReport,error,
+        std::span<const PhysicalSkinSourceDomainRegistration>(typedDomains));
+    if(!splitImported)std::cerr<<"split import failure: "<<error<<"\n";
+    assert(splitImported);
+    assert(splitReport.registrationDomain==
+        PhysicalSkinRegisteredVolumeRegistrationDomain::candidateOperationalReference);
+    assert(splitReport.registeredVolume.separatedOperationalReference);
+    assert(splitReport.registeredVolume.sourceParentNodeIdentityRows==9u);
+    assert(splitReport.registeredVolume.maximumHistoricalSourceParentDistanceM>0.00499);
+    assert(splitReport.registeredVolume.maximumHistoricalSourceParentDistanceM<0.00501);
+    assert(splitReport.registeredVolume.maximumOperationalReferenceDistanceM==0.0);
+    assert(splitReport.registeredVolume.maximumOperationalReferenceReconstructionErrorM<1e-12);
+    assert(splitBundle.usesSeparatedOperationalReference&&
+        splitBundle.operationalReferenceDomainSHA256==splitReport.operationalReferenceDomainSHA256);
+    assert(splitReport.tetgen.nodeCount==10u&&splitReport.tetgen.cellCount==9u);
+    assert(splitBundle.volumeNodeParentTetrahedra.size()==10u&&
+        splitBundle.volumeNodeSourceParentNodeRows==std::vector<std::uint32_t>(
+            {0,1,2,3,4,5,6,7,8,NM_INVALID_INDEX}));
+    assert(splitBundle.volumeNodeSourceParentRegistrationDistanceM.size()==10u);
+    assert(splitBundle.volumeNodeOperationalReferenceTetrahedra.size()==10u&&
+        std::all_of(splitBundle.volumeNodeOperationalReferenceDistanceM.begin(),
+                    splitBundle.volumeNodeOperationalReferenceDistanceM.end(),
+                    [](double distance){return distance==0.0;}));
+    assert(physical_skin_registered_volume_integration_detail::sameImmutableParentPacket(
+        splitFixture.parentBundle.parent,splitBundle.parent));
+    assert(!splitReport.physicalAdmission);
+    assert(splitBundle.spatialMassTransportResult.receiptSHA256.empty()&&
+        splitBundle.massMappingPathSHA256.empty());
+    // This source-only import proves the operational reference map and immutable
+    // source packet split; conservative mass transport and admission remain downstream.
+    const auto duplicateSourceNode=rewriteSplitMapField(splitFiles,root,"duplicate-source-node.csv",1u,42u,"0");
+    checkFailureIsAtomic(splitFixture,duplicateSourceNode,"source-parent original-node injection is out of range or duplicated");
+    const auto missingSourceNode=rewriteSplitMapField(splitFiles,root,"missing-source-node.csv",1u,42u,"-1");
+    checkFailureIsAtomic(splitFixture,missingSourceNode,"does not retain every immutable source-parent node identity exactly once");
+    const auto overBound=rewriteSplitMapField(splitFiles,root,"operational-reference-over-bound.csv",9u,51u,"0.0005");
+    checkFailureIsAtomic(splitFixture,overBound,"operational-reference registration exceeds its pinned distance");
+    const auto wrongSupportTet=rewriteSplitMapField(splitFiles,root,"wrong-operational-tet.csv",9u,43u,"8");
+    checkFailureIsAtomic(splitFixture,wrongSupportTet,"operational-reference support tet is not incident");
+    const auto wrongSourceDomain=rewriteSplitMapField(splitFiles,root,"wrong-source-parent-domain.csv",0u,52u,"1");
+    checkFailureIsAtomic(splitFixture,wrongSourceDomain,"current-parent cell donor/region differs");
+    auto legacySchema=splitFiles;legacySchema.combinedNodeMapCSV=root/"legacy-schema-in-split.csv";
+    {std::ofstream out(legacySchema.combinedNodeMapCSV);writeRow(out,physicalSkinCombinedNodeMapCSVHeader(false));}
+    pin(legacySchema.combinedNodeMapCSV,legacySchema.expectedSHA256[3]);
+    checkFailureIsAtomic(splitFixture,legacySchema,"header differs");
+
     // The complete native body table uses the same explicit arithmetic policy,
     // including bodies without registered skin bindings. Default stays strict.
     auto roundedPoses=fixture.poses;
@@ -386,5 +547,7 @@ int main() {
     std::cout<<"registered_volume_file_import=PASS positive_TetGen_prism=6cells O/I/D=1/2/1 walls=12"
         <<" exact_node_map_rows=12 malformed_csv_and_gzip_rejected atomic_failure_preserved=1"
         <<" native_F32_exact_pins_and_roundoff_bound=PASS strict_default_unchanged=1"
+        <<" operational_reference_split=PASS historical_offset_mm=5 operational_offset_mm=0"
+        <<" split_identity_and_bound_negatives=PASS immutable_parent_packet=1"
         <<" physical_admission=NOT_CLAIMED\n";
 }

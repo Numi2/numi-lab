@@ -21997,6 +21997,23 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             "registered-volume installation opt-in must be 0 or 1");
     const bool registeredVolumeInstallRequested=registeredVolumeInstallSetting&&
         std::string_view(registeredVolumeInstallSetting)=="1";
+    const char* operationalReferenceSplitSetting=std::getenv(
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_OPERATIONAL_REFERENCE_SPLIT");
+    require(!operationalReferenceSplitSetting||
+                std::string_view(operationalReferenceSplitSetting)=="0"||
+                std::string_view(operationalReferenceSplitSetting)=="1",
+            "registered operational-reference split setting must be 0 or 1");
+    const bool separatedRegisteredOperationalReference=operationalReferenceSplitSetting&&
+        std::string_view(operationalReferenceSplitSetting)=="1";
+    require(!separatedRegisteredOperationalReference||registeredVolumeInstallRequested,
+            "separated operational reference requires registered-volume installation");
+    if(separatedRegisteredOperationalReference){
+        const char* sourceOnly=std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_SOURCE_ONLY");
+        const char* preflight=std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT");
+        require(sourceOnly&&std::string_view(sourceOnly)=="1"&&
+                    preflight&&std::string_view(preflight)=="1"&&preparationOnly,
+                "separated operational reference is available only to the pinned source-only preflight");
+    }
     const char* detailBridgeSetting=
         std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_DETAIL_BRIDGE");
     require(!detailBridgeSetting||std::string_view(detailBridgeSetting)=="0"||
@@ -22416,6 +22433,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     surfaceFiles.d37DeepFaceCount=uintValue("D37_DEEP_FACE_COUNT");
                     surfaceFiles.maxParentRegistrationDistanceM=
                         doubleValue("MAX_PARENT_REGISTRATION_DISTANCE_M");
+                    surfaceFiles.parentRegistrationIsHistoricalProvenanceOnly=
+                        separatedRegisteredOperationalReference;
 
                     std::vector<PhysicalSkinRegisteredBodyPose> nativePoses(model.bodies.size());
                     require(bodies.size()==nativePoses.size()&&
@@ -22566,6 +22585,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     }
 
                     PhysicalSkinRegisteredVolumeAssetFiles volumeFiles;
+                    volumeFiles.registrationDomain=separatedRegisteredOperationalReference?
+                        PhysicalSkinRegisteredVolumeRegistrationDomain::candidateOperationalReference:
+                        PhysicalSkinRegisteredVolumeRegistrationDomain::sourceMassParent;
                     volumeFiles.tetgenNode=pathValue("TETGEN_NODE");
                     volumeFiles.tetgenElements=pathValue("TETGEN_ELEMENTS");
                     volumeFiles.childLabels=pathValue("CHILD_LABELS");

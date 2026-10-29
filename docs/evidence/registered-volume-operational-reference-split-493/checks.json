@@ -1,0 +1,78 @@
+{
+  "purpose": "source-only operational-reference versus immutable parent-mass import control",
+  "scope": "no candidate geometry admission, runtime, GPU physical step, or motion claim",
+  "commands": [
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        "build-native",
+        "--target",
+        "numi-human-physical-skin-registered-volume-import-check",
+        "numi-human-physical-skin-registered-volume-integration-check",
+        "-j1"
+      ],
+      "exit_code": 0,
+      "stdout_file": "01.log"
+    },
+    {
+      "argv": [
+        "build-native/numi-human-physical-skin-registered-volume-import-check"
+      ],
+      "exit_code": 0,
+      "stdout_file": "02.log"
+    },
+    {
+      "argv": [
+        "build-native/numi-human-physical-skin-registered-volume-integration-check"
+      ],
+      "exit_code": 0,
+      "stdout_file": "03.log"
+    },
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        "build-native",
+        "--target",
+        "numi-human-native",
+        "-j1"
+      ],
+      "exit_code": 0,
+      "stdout_file": "04.log"
+    },
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        "build-native",
+        "--target",
+        "numi-human-physical-skin-registered-volume-csv-check",
+        "-j1"
+      ],
+      "exit_code": 0,
+      "stdout_file": "05.log"
+    },
+    {
+      "argv": [
+        "build-native/numi-human-physical-skin-registered-volume-csv-check"
+      ],
+      "exit_code": 0,
+      "stdout_file": "06.log"
+    }
+  ],
+  "sha256": {
+    "apps/NumiHumanPhysicalSkinChildMassMapping.hpp": "fc594433134a808313306992082297f7372a6daeefe56a00e70deead9db2dee0",
+    "apps/NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp": "04e54b1c7b1fbea383b61b5d5df5dfbf9dd0fe0334097bb2c0a825eb5b70a4d4",
+    "apps/NumiHumanPhysicalSkinChildRegisteredVolumeCSV.hpp": "a009cc1b3973ca4c70a3941ae3af91e4757105c6ccb0c166cf58a7a9dc8c7f1d",
+    "apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp": "f17c8d745d80b862ac13aed902bd91f42f89a30d128b5da364521f87eeb1458e",
+    "apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp": "4162ad9f7cacbb12b62e7f8e7cc099a6ed69b04be41d150db88342590adea5f5",
+    "apps/NumiHumanPhysicalSkinChildRegisteredSurfaceSidecars.hpp": "e2664c07868b2ee516ed543def59e5cb5e1ecf8d050110ce7ad4ec6d996b2d3c",
+    "apps/NumiHumanPhysicalSkinSupportParentMap.hpp": "c27da1838adc273d2b6a2bb22809d5c6b06f7a92f72a5859ae2e3ceaea6e8e26",
+    "apps/numilab_human_myosim_visual_probe.mm": "7d6839699f5814c8e972bae6a58ef86efdac8e6f558a228a682fb26ec6403559",
+    "build-native/numi-human-physical-skin-registered-volume-import-check": "b775717fc0dec7d989dd6dde11c4dccb974ae3b8d2304d1b7ca2cca2ed5c8a05",
+    "build-native/numi-human-physical-skin-registered-volume-csv-check": "23a6740f39bdd360ea871f60b0e2ace92404073e104017c444b5b85f89e6ec4b",
+    "build-native/numi-human-physical-skin-registered-volume-integration-check": "2feac99ca312032c7e7a7ff9d9ad38b32df693e92f738085d1ab0f6c5f789c10",
+    "build-native/bin/numi-human-native": "dbc76bdfda288b6d77947b2afa4801b2a787ba51930eec90d2b497cd33759203"
+  }
+}

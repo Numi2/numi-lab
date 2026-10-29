@@ -38,6 +38,10 @@ struct PhysicalSkinRegisteredSurfaceCSVFiles {
     std::string nodeRegistrationSHA256,donorFramesSHA256,outerFaceAncestrySHA256;
     std::size_t donorCount=0,d37InnerFaceCount=0,d37DeepFaceCount=0;
     double maxParentRegistrationDistanceM=0.02;
+    // The old-parent map may be retained as pinned source provenance when a
+    // separate repaired operational reference is explicitly enabled. It is
+    // never used as an operational support-distance gate in that mode.
+    bool parentRegistrationIsHistoricalProvenanceOnly=false;
     // Populated only by the live native owner, never by a CSV field. Every
     // admitted F32 frame must exactly match this complete donor-indexed table.
     std::span<const PhysicalSkinDonorFrameRow> nativeFloat32FramesByDonor{};
@@ -71,6 +75,7 @@ struct PhysicalSkinRegisteredSurfaceCSVSet {
     std::vector<std::int64_t> oFaceParentRows,oFaceOriginalIDs,oFaceSourceRows;
     std::vector<std::string> oFaceRoles;
     std::string payloadSHA256;
+    bool parentRegistrationIsHistoricalProvenanceOnly=false;
 };
 struct PhysicalSkinRegisteredSurfaceCSVReport {
     std::array<std::size_t,3> nodes{},faces{},parentMappedNodes{},parentUnmappedNodes{};
@@ -321,7 +326,8 @@ inline bool readRegistrations(const PhysicalSkinRegisteredSurfaceCSVFiles& f,
    double sum=0;for(unsigned a=0;a<4;++a){if(!number(v[4+a],r.bary[a])||r.bary[a]<-1e-8||r.bary[a]>1+1e-8){
       e="node parent barycentric is out of range";return false;}sum+=r.bary[a];}
    for(unsigned a=0;a<3;++a)if(!number(v[8+a],r.residual[a])){e="node parent residual is nonfinite";return false;}
-   if(!number(v[11],r.distance)||r.distance<0||r.distance>f.maxParentRegistrationDistanceM||
+   if(!number(v[11],r.distance)||r.distance<0||
+      (!f.parentRegistrationIsHistoricalProvenanceOnly&&r.distance>f.maxParentRegistrationDistanceM)||
       std::abs(sum-1)>1e-8||std::abs(norm(r.residual)-r.distance)>2e-10){
     e="node parent registration violates residual, distance, or barycentric bounds";return false;}
    r.tieCount=static_cast<std::uint32_t>(tie);++rep.parentMappedNodes[l];
@@ -497,8 +503,9 @@ struct PhysicalSkinSurfaceParentRegistrationReport {
             }
             const auto distance=norm(row.residual);
             if(std::abs(sum-1.)>1e-8||!std::isfinite(row.distance)||row.distance<0.||
-               row.distance>0.02||std::abs(distance-row.distance)>2e-10)
-                return fail(label("violates the existing physical parent-distance or barycentric bounds"));
+               (!surfaces.parentRegistrationIsHistoricalProvenanceOnly&&row.distance>0.02)||
+               std::abs(distance-row.distance)>2e-10)
+                return fail(label("violates the source-parent provenance or registration-distance bound"));
             const auto delta=norm(sub(reconstructed,s.worldPoints[node]));
             if(!std::isfinite(delta)||delta>2e-8){
                 std::ostringstream message;message<<label("does not reconstruct from its current parent: error_m=")<<delta;
@@ -523,8 +530,10 @@ struct PhysicalSkinSurfaceParentRegistrationReport {
     PhysicalSkinRegisteredSurfaceCSVSet next;
     PhysicalSkinRegisteredSurfaceCSVReport parsed;
     PhysicalSkinSurfaceParentRegistrationReport checked;
-    if(!loadPhysicalSkinRegisteredSurfaceCSVSet(files,next,parsed,error)||
-       !validatePhysicalSkinSurfaceParentRegistration(next,parent,checked,error))
+    if(!loadPhysicalSkinRegisteredSurfaceCSVSet(files,next,parsed,error))
+        return false;
+    next.parentRegistrationIsHistoricalProvenanceOnly=files.parentRegistrationIsHistoricalProvenanceOnly;
+    if(!validatePhysicalSkinSurfaceParentRegistration(next,parent,checked,error))
         return false;
     output=std::move(next);report=std::move(parsed);registrationReport=std::move(checked);
     error.clear();return true;
