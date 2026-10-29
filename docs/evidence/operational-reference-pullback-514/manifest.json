@@ -1,0 +1,114 @@
+{
+  "schema": "numi-human-operational-reference-pullback-514.v1",
+  "claims": "verified CPU source/sidecar preparation only; no physical admission, application Runtime, GPU, accepted motion, or geometry qualification",
+  "base_commit": "2208c63feaf914123966714ccbd09d88d51d407a",
+  "source_sha256": {
+    "apps/NumiHumanParentReferenceMassTransfer.hpp": "9a188f98b93ea480ffd6de7fbb522e2e3ca5ee6b6a262a2b26a6ed721eb7eee5",
+    "apps/NumiHumanParentReferenceMassTransferCheck.cpp": "649fa49de99c2edb1ecd04b3096add0e80f80b4689b724720390550bcff8e1f6"
+  },
+  "inputs": {
+    "parent330_mass_packet": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+    "parent330_source_contribution": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f",
+    "source002_npz": "2f547b21c6be0f3e21a021d80dad6c63c3a0e6af31d5ebe1780ca1b32c237a54",
+    "source002_exact_self": "4f33f1779864b188a127e7a3df8ac68c58f7ba134695d1fd3d3613052f0ae34c",
+    "candidate514_npz": "a05bab5c739f2e0c7beae3e1e30afcec5a05274befadd399fcba6a238bf92a3e",
+    "candidate514_exact_self": "a2f983b20231f242853618151d858c10918eb40cd3125f59d899e80f91ad6e7a"
+  },
+  "measured": {
+    "source330_to_source002_max_m": 0.0003513751069,
+    "source002_to_candidate514_max_m": 0.000218288755919681,
+    "historical_candidate_parent_registration_max_m": 0.0004845615742112199,
+    "parent_mass_kg": 13.939678963460464,
+    "volume_nodes": 7233,
+    "tets": 28632,
+    "role_nodes": [
+      2411,
+      2411,
+      2411
+    ],
+    "role_faces": [
+      4777,
+      4777,
+      4777
+    ],
+    "shared_interface_I_rows": 2411,
+    "deep_attachments": 14,
+    "geometry_bone_pairs_unadmitted": 183,
+    "runtime": 0,
+    "gpu": 0,
+    "accepted_physical_steps": 0
+  },
+  "negative_controls": [
+    "wrong node correspondence rejected",
+    "wrong stable source face rejected",
+    "wrong immutable source mass rejected"
+  ],
+  "build_and_run_receipt": "logs/actual-result.json",
+  "files": [
+    {
+      "path": "docs/evidence/operational-reference-pullback-514/README.md",
+      "bytes": 1921,
+      "sha256": "d31331829049a012ce1b42e3da07b28ceac4f270b6757f836bae753aa840af03"
+    },
+    {
+      "path": "docs/evidence/operational-reference-pullback-514/logs/actual-result.json",
+      "bytes": 213564,
+      "sha256": "ba3775ba1bedd3b7c6c949b3ea992b6ee555b992bf8c7a038982c2dff611e48d"
+    },
+    {
+      "path": "docs/evidence/operational-reference-pullback-514/logs/actual-result.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/evidence/operational-reference-pullback-514/logs/actual-result.stdout",
+      "bytes": 599,
+      "sha256": "a42901f0108d806d9abec55e0252b6ba72778b6a8688d95919083e4a4bdbcf2d"
+    },
+    {
+      "path": "docs/evidence/operational-reference-pullback-514/logs/actual_import_check.cpp",
+      "bytes": 23882,
+      "sha256": "2c340e22c8c2b052c0589a67922ebc599bc0829f6a2667da9b41f9bc07eef115"
+    },
+    {
+      "path": "docs/evidence/operational-reference-pullback-514/logs/compile.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/evidence/operational-reference-pullback-514/logs/compile.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/evidence/operational-reference-pullback-514/logs/focused-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/evidence/operational-reference-pullback-514/logs/focused-check.stdout",
+      "bytes": 106,
+      "sha256": "ccebc0f2ad9d472e90f34a81e0d06adbb1c152035e68b9c8d8a8018fdc1fe803"
+    },
+    {
+      "path": "docs/evidence/operational-reference-pullback-514/logs/native-body-poses.csv",
+      "bytes": 72690,
+      "sha256": "86ff41217ba19b516e2141193260e1e754c15a6d28315380b8f03527fc08de5d"
+    },
+    {
+      "path": "docs/evidence/operational-reference-pullback-514/logs/reference-pullback.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/evidence/operational-reference-pullback-514/logs/reference-pullback.stdout",
+      "bytes": 936,
+      "sha256": "917ad13dd449bed0d0dc544403a97bdf93b3985220446de421bc202719d0ebaa"
+    },
+    {
+      "path": "docs/evidence/operational-reference-pullback-514/logs/sidecar-input-receipt.json",
+      "bytes": 13817,
+      "sha256": "cfe17e38b37e1904eaa11cbbff115bf2c81cd5dc0b0ef54ae1abace18396b986"
+    }
+  ]
+}

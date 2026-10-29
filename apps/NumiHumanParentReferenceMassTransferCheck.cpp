@@ -144,5 +144,187 @@ int main() {
     assert(!assembleParentReferenceMassTransfer(highInput,rejected,error));
     assert(error.find("authoritative parent mass implies density outside material bounds")!=std::string::npos);
 
-    std::cout<<"identity, single-parent split, parent mass/density closure, and fail-closed cases passed\n";
+
+    // Operational-reference proof: a node/tet bijection defines a piecewise-
+    // affine map; the returned parent measures preserve each original cell mass.
+    const std::vector<std::array<double,3>> pullbackSourcePoints{
+        {0,0,0},{1,0,0},{0,1,0},{0,0,1}};
+    const std::array<std::array<std::uint32_t,4>,1> pullbackSourceTets{{{{0,1,2,3}}}};
+    const std::array<std::array<double,3>,4> pullbackCandidatePoints{{
+        {0.31,0.18,-0.07},{1.33,0.18,-0.07},{0.31,1.19,-0.07},{0.31,0.18,0.96}
+    }};
+    // Candidate node rows are permuted; mapping remains a bijection and the
+    // child tet's orientation is preserved after applying that node map.
+    const std::array<std::array<double,3>,4> pullbackPermutedPoints{{
+        pullbackCandidatePoints[1],pullbackCandidatePoints[0],
+        pullbackCandidatePoints[2],pullbackCandidatePoints[3]
+    }};
+    const std::array<std::uint32_t,4> pullbackNodeMap{1,0,2,3};
+    const std::array<std::array<std::uint32_t,4>,1> pullbackCandidateTets{{{{1,0,2,3}}}};
+    const std::array<std::uint32_t,1> pullbackTetMap{0};
+    const std::array<std::uint32_t,1> pullbackMaterial{0},pullbackDonor{17},
+        pullbackRegion{4},pullbackStableFace{123};
+    const double pullbackSourceVolume=parentReferenceTetVolumeM3(
+        pullbackSourceTets[0],pullbackSourcePoints);
+    const std::array<double,1> pullbackMass{pullbackSourceVolume*1000.0};
+    const std::array<double,2> pullbackDensityLower{900.0,850.0},
+        pullbackDensityUpper{1100.0,950.0};
+    const std::string pin64(64,'a');
+    SameTopologyReferencePullbackInput pullbackInput{
+        .sourceReferencePoints=pullbackSourcePoints,
+        .candidateReferencePoints=pullbackPermutedPoints,
+        .candidateToSourceNodeRows=pullbackNodeMap,
+        .sourceTetrahedra=pullbackSourceTets,
+        .candidateTetrahedra=pullbackCandidateTets,
+        .candidateToSourceTetRows=pullbackTetMap,
+        .sourceMaterialIds=pullbackMaterial,
+        .candidateMaterialIds=pullbackMaterial,
+        .sourceGeometricDonorIds=pullbackDonor,
+        .candidateGeometricDonorIds=pullbackDonor,
+        .sourceRegionIds=pullbackRegion,
+        .candidateRegionIds=pullbackRegion,
+        .sourceStableFaceIds=pullbackStableFace,
+        .candidateStableFaceIds=pullbackStableFace,
+        .sourceCellMassKg=pullbackMass,
+        .materialDensityLowerKgM3=pullbackDensityLower,
+        .materialDensityUpperKgM3=pullbackDensityUpper,
+        .sourceVolumeSHA256=pin64,
+        .candidateVolumeSHA256=pin64,
+        .parentMassPacketSHA256=pin64,
+        .parentSourceContributionSHA256=pin64,
+        .sourceBoundarySelfAuditSHA256=pin64,
+        .candidateBoundarySelfAuditSHA256=pin64,
+        .sourceBoundarySelfIntersectionPairs=0u,
+        .candidateBoundarySelfIntersectionPairs=0u
+    };
+    SameTopologyReferencePullbackResult pullback;
+    assert(verifySameTopologyReferencePullback(pullbackInput,pullback,error));
+    assert((pullback.childParentAncestryOffsets==std::vector<std::uint32_t>{0,1}));
+    assert((pullback.childParentAncestryTetrahedra==std::vector<std::uint32_t>{0}));
+    assert((pullback.childParentAncestryVolumeFractions==std::vector<double>{1.0}));
+    assert(std::abs(pullback.childAncestryMeasureVolumeM3[0]-pullbackSourceVolume)<1.0e-15);
+    assert(std::abs(pullback.childMassKg[0]-pullbackMass[0])<1.0e-15);
+    assert(pullback.childImpliedDensityKgM3[0]>=900.0&&
+           pullback.childImpliedDensityKgM3[0]<=1100.0);
+    assert(pullback.minimumJacobianDeterminant>1.0);
+    assert(pullback.maximumJacobianDeterminant==pullback.minimumJacobianDeterminant);
+    assert(pullback.maximumNodeDisplacementM>0.1);
+    assert(pullback.maximumTetCentroidDisplacementM>0.1);
+    assert(pullback.verificationSHA256.size()==64u);
+
+    const std::array<double,1> pullbackParentVolumes{pullbackSourceVolume};
+    const std::array<std::uint32_t,1> pullbackParentDonor{17};
+    const std::array<double,1> pullbackChildVolumes{pullback.candidateReferenceVolumeM3[0]};
+    ParentReferenceMassTransferInput pullbackMassInput{
+        pullbackParentVolumes,pullbackMass,pullbackMaterial,pullbackParentDonor,
+        pullbackChildVolumes,pullbackMaterial,pullback.childParentAncestryOffsets,
+        pullback.childParentAncestryTetrahedra,pullback.childAncestryMeasureVolumeM3,
+        pullbackDensityLower,pullbackDensityUpper};
+    ParentReferenceMassTransferResult pullbackMassResult;
+    assert(assembleParentReferenceMassTransfer(pullbackMassInput,pullbackMassResult,error));
+    assert(pullbackMassResult.childMassKg[0]==pullbackMass[0]);
+    assert(std::abs(pullbackMassResult.childImpliedDensityKgM3[0]-
+                    pullback.childImpliedDensityKgM3[0])<1.0e-10);
+    assert(pullbackMassResult.parentMassTransferredKg[0]==pullbackMass[0]);
+
+    const auto expectPullbackReject=[&](SameTopologyReferencePullbackInput bad,
+                                         const std::string_view expected){
+        SameTopologyReferencePullbackResult unchanged;
+        unchanged.verificationSHA256="preserve-on-failure";
+        const bool accepted=verifySameTopologyReferencePullback(bad,unchanged,error);
+        assert(!accepted);
+        assert(error.find(expected)!=std::string::npos);
+        assert(unchanged.verificationSHA256=="preserve-on-failure");
+    };
+    auto duplicateNodeMap=pullbackInput;
+    const std::array<std::uint32_t,4> badNodeMap{1,1,2,3};
+    duplicateNodeMap.candidateToSourceNodeRows=badNodeMap;
+    expectPullbackReject(duplicateNodeMap,"not one-to-one");
+
+    auto duplicateTetMap=pullbackInput;
+    const std::array<std::uint32_t,1> badTetMap{1};
+    duplicateTetMap.candidateToSourceTetRows=badTetMap;
+    expectPullbackReject(duplicateTetMap,"out of range or not one-to-one");
+
+    auto wrongPullbackMaterial=pullbackInput;
+    const std::array<std::uint32_t,1> wrongMaterialLabel{1};
+    wrongPullbackMaterial.candidateMaterialIds=wrongMaterialLabel;
+    expectPullbackReject(wrongPullbackMaterial,"changes material");
+
+    auto wrongPullbackDonor=pullbackInput;
+    const std::array<std::uint32_t,1> wrongDonorLabel{18};
+    wrongPullbackDonor.candidateGeometricDonorIds=wrongDonorLabel;
+    expectPullbackReject(wrongPullbackDonor,"geometric donor");
+
+    auto wrongPullbackRegion=pullbackInput;
+    const std::array<std::uint32_t,1> wrongRegionLabel{5};
+    wrongPullbackRegion.candidateRegionIds=wrongRegionLabel;
+    expectPullbackReject(wrongPullbackRegion,"region");
+
+    auto wrongPullbackFace=pullbackInput;
+    const std::array<std::uint32_t,1> wrongFaceLabel{124};
+    wrongPullbackFace.candidateStableFaceIds=wrongFaceLabel;
+    expectPullbackReject(wrongPullbackFace,"stable source-face");
+
+    auto nonPositiveCandidate=pullbackInput;
+    const std::array<std::array<double,3>,4> reflectedPoints{{
+        {-0.71,0.18,-0.07},{0.31,0.18,-0.07},
+        {0.31,1.19,-0.07},{0.31,0.18,0.96}
+    }};
+    nonPositiveCandidate.candidateReferencePoints=reflectedPoints;
+    expectPullbackReject(nonPositiveCandidate,"nonpositive oriented reference cell");
+
+    auto nonZeroSelf=pullbackInput;
+    nonZeroSelf.candidateBoundarySelfIntersectionPairs=1u;
+    expectPullbackReject(nonZeroSelf,"zero source and candidate");
+
+    auto missingPin=pullbackInput;
+    missingPin.candidateVolumeSHA256="missing";
+    expectPullbackReject(missingPin,"requires pinned source");
+
+    const std::array<std::array<double,3>,4> compressedPoints{{
+        {0.31+0.8*1.02,0.18,-0.07},{0.31,0.18,-0.07},
+        {0.31,0.18+0.8*1.01,-0.07},{0.31,0.18,-0.07+0.8*1.03}
+    }};
+    auto densityReject=pullbackInput;
+    densityReject.candidateReferencePoints=compressedPoints;
+    SameTopologyReferencePullbackResult densityRejected;
+    assert(!verifySameTopologyReferencePullback(densityReject,densityRejected,error));
+    assert(error.find("implies density outside actual bounds")!=std::string::npos);
+    auto massDensityReject=pullbackMassInput;
+    const std::array<double,1> compressedVolume{
+        signedReferenceTetVolumeM3(pullbackCandidateTets[0],compressedPoints)};
+    massDensityReject.childGeometricReferenceVolumeM3=compressedVolume;
+    ParentReferenceMassTransferResult rejectedMassTransfer;
+    assert(!assembleParentReferenceMassTransfer(massDensityReject,rejectedMassTransfer,error));
+
+
+    auto orientationPermutationReject=pullbackInput;
+    const std::array<std::array<std::uint32_t,4>,1> oddCandidateTet{{{{0,1,2,3}}}};
+    orientationPermutationReject.candidateTetrahedra=oddCandidateTet;
+    expectPullbackReject(orientationPermutationReject,"same oriented source simplex");
+
+    auto sourceSelfNonZero=pullbackInput;
+    sourceSelfNonZero.sourceBoundarySelfIntersectionPairs=1u;
+    expectPullbackReject(sourceSelfNonZero,"zero source and candidate");
+
+    auto changedButValidGeometry=pullbackInput;
+    const std::array<std::array<double,3>,4> changedCandidatePoints{{
+        {pullbackCandidatePoints[1][0]+1.0e-6,pullbackCandidatePoints[1][1],pullbackCandidatePoints[1][2]},
+        {pullbackCandidatePoints[0][0]+1.0e-6,pullbackCandidatePoints[0][1],pullbackCandidatePoints[0][2]},
+        {pullbackCandidatePoints[2][0]+1.0e-6,pullbackCandidatePoints[2][1],pullbackCandidatePoints[2][2]},
+        {pullbackCandidatePoints[3][0]+1.0e-6,pullbackCandidatePoints[3][1],pullbackCandidatePoints[3][2]}
+    }};
+    changedButValidGeometry.candidateReferencePoints=changedCandidatePoints;
+    SameTopologyReferencePullbackResult changedProof;
+    assert(verifySameTopologyReferencePullback(changedButValidGeometry,changedProof,error));
+    assert(changedProof.verificationSHA256!=pullback.verificationSHA256);
+    auto changedSelfPin=pullbackInput;
+    const std::string secondPin(64,'b');
+    changedSelfPin.candidateBoundarySelfAuditSHA256=secondPin;
+    SameTopologyReferencePullbackResult changedPinProof;
+    assert(verifySameTopologyReferencePullback(changedSelfPin,changedPinProof,error));
+    assert(changedPinProof.verificationSHA256!=pullback.verificationSHA256);
+
+    std::cout<<"identity, single-parent split, same-topology pullback, mass/density closure, and fail-closed cases passed\n";
 }
