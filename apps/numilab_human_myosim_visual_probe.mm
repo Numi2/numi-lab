@@ -22598,6 +22598,29 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         "COMBINED_NODE_MAP_SHA256","FACET_ANCESTRY_SHA256"};
                     for(unsigned i=0u;i<volumePins.size();++i)
                         volumeFiles.expectedSHA256[i]=value(volumePins[i]);
+                    if(separatedRegisteredOperationalReference) {
+                        PhysicalSkinOperationalReferencePullbackAssets proof;
+                        proof.sourceParentPacketCSV=parentMassPath;
+                        proof.sourceTetgenNode=pathValue("OPERATIONAL_SOURCE_NODE");
+                        proof.sourceTetgenElements=pathValue("OPERATIONAL_SOURCE_ELEMENTS");
+                        proof.sourceLabels=pathValue("OPERATIONAL_SOURCE_LABELS");
+                        proof.sourceTetGenSHA256={value("OPERATIONAL_SOURCE_NODE_SHA256"),
+                            value("OPERATIONAL_SOURCE_ELEMENTS_SHA256"),
+                            value("OPERATIONAL_SOURCE_LABELS_SHA256")};
+                        proof.sourceVolumeAsset=pathValue("OPERATIONAL_SOURCE_VOLUME_ASSET");
+                        proof.sourceVolumeSHA256=value("OPERATIONAL_SOURCE_VOLUME_SHA256");
+                        proof.sourceProducerReceipt=pathValue("OPERATIONAL_SOURCE_PRODUCER_RECEIPT");
+                        proof.sourceProducerReceiptSHA256=value("OPERATIONAL_SOURCE_PRODUCER_RECEIPT_SHA256");
+                        proof.sourceSelfAuditReceipt=pathValue("OPERATIONAL_SOURCE_SELF_AUDIT_RECEIPT");
+                        proof.sourceSelfAuditReceiptSHA256=value("OPERATIONAL_SOURCE_SELF_AUDIT_RECEIPT_SHA256");
+                        proof.candidateVolumeAsset=pathValue("OPERATIONAL_CANDIDATE_VOLUME_ASSET");
+                        proof.candidateVolumeSHA256=value("OPERATIONAL_CANDIDATE_VOLUME_SHA256");
+                        proof.candidateProducerReceipt=pathValue("OPERATIONAL_CANDIDATE_PRODUCER_RECEIPT");
+                        proof.candidateProducerReceiptSHA256=value("OPERATIONAL_CANDIDATE_PRODUCER_RECEIPT_SHA256");
+                        proof.candidateSelfAuditReceipt=pathValue("OPERATIONAL_CANDIDATE_SELF_AUDIT_RECEIPT");
+                        proof.candidateSelfAuditReceiptSHA256=value("OPERATIONAL_CANDIDATE_SELF_AUDIT_RECEIPT_SHA256");
+                        volumeFiles.operationalReferencePullback=std::move(proof);
+                    }
                     const double maximumMassTransportDistanceM=
                         doubleValue("MAXIMUM_MASS_TRANSPORT_DISTANCE_M");
                     const auto coordinateFrameSHA256=value("COORDINATE_FRAME_SHA256");
@@ -22658,6 +22681,18 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     require(!roleState.physicalAdmission&&!roleReport.physicalAdmission&&
                                 !importReport.physicalAdmission,
                             "registered-volume preparation must remain non-admitting");
+                    if(separatedRegisteredOperationalReference) {
+                        require(importReport.operationalReferencePullbackVerified&&
+                                    importReport.operationalReferencePullbackSHA256.size()==64u,
+                                "candidate operational-reference import lacks its authenticated pullback proof");
+                        std::cout<<"registered_volume_operational_reference_pullback=PASS"
+                            <<" proof_sha256="<<importReport.operationalReferencePullbackSHA256
+                            <<" source330_to_source002_max_m="
+                            <<importReport.maximumSourceParentRegistrationDistanceM
+                            <<" source002_to_candidate514_max_m="
+                            <<importReport.maximumSourceToCandidateReferenceDistanceM
+                            <<" physical_admission=0 runtime=0 accepted_steps=0 GPU=0\n";
+                    }
                     PhysicalSkinAuthoringOuterRoleRenderDomain outerRenderDomain;
                     require(preparePhysicalSkinAuthoringOuterRoleRenderDomain(
                                 importedBundle,roleState,outerRenderDomain,preflightError),

@@ -469,55 +469,11 @@ int main() {
     splitFixture.prepareSeparatedOperationalReference();
     PhysicalSkinRegisteredVolumeAssetFiles splitFiles;
     splitFixture.writeFiles(root/"operational-reference-split",splitFiles,true);
-    auto splitBundle=splitFixture.parentBundle;
-    PhysicalSkinRegisteredVolumeImportSidecars splitSidecars;
-    PhysicalSkinRegisteredVolumeFileImportReport splitReport;
-    const bool splitImported=importPhysicalSkinRegisteredVolumeFiles(splitFiles,std::string(64u,'0'),157u,0.02,
-        0.0004,"",0u,0u,splitFixture.registered,attachments,splitFixture.poses,
-        splitBundle,splitSidecars,splitReport,error,
-        std::span<const PhysicalSkinSourceDomainRegistration>(typedDomains));
-    if(!splitImported)std::cerr<<"split import failure: "<<error<<"\n";
-    assert(splitImported);
-    assert(splitReport.registrationDomain==
-        PhysicalSkinRegisteredVolumeRegistrationDomain::candidateOperationalReference);
-    assert(splitReport.registeredVolume.separatedOperationalReference);
-    assert(splitReport.registeredVolume.sourceParentNodeIdentityRows==9u);
-    assert(splitReport.registeredVolume.maximumHistoricalSourceParentDistanceM>0.00499);
-    assert(splitReport.registeredVolume.maximumHistoricalSourceParentDistanceM<0.00501);
-    assert(splitReport.registeredVolume.maximumOperationalReferenceDistanceM==0.0);
-    assert(splitReport.registeredVolume.maximumOperationalReferenceReconstructionErrorM<1e-12);
-    assert(splitBundle.usesSeparatedOperationalReference&&
-        splitBundle.operationalReferenceDomainSHA256==splitReport.operationalReferenceDomainSHA256);
-    assert(splitReport.tetgen.nodeCount==10u&&splitReport.tetgen.cellCount==9u);
-    assert(splitBundle.volumeNodeParentTetrahedra.size()==10u&&
-        splitBundle.volumeNodeSourceParentNodeRows==std::vector<std::uint32_t>(
-            {0,1,2,3,4,5,6,7,8,NM_INVALID_INDEX}));
-    assert(splitBundle.volumeNodeSourceParentRegistrationDistanceM.size()==10u);
-    assert(splitBundle.volumeNodeOperationalReferenceTetrahedra.size()==10u&&
-        std::all_of(splitBundle.volumeNodeOperationalReferenceDistanceM.begin(),
-                    splitBundle.volumeNodeOperationalReferenceDistanceM.end(),
-                    [](double distance){return distance==0.0;}));
-    assert(physical_skin_registered_volume_integration_detail::sameImmutableParentPacket(
-        splitFixture.parentBundle.parent,splitBundle.parent));
-    assert(!splitReport.physicalAdmission);
-    assert(splitBundle.spatialMassTransportResult.receiptSHA256.empty()&&
-        splitBundle.massMappingPathSHA256.empty());
-    // This source-only import proves the operational reference map and immutable
-    // source packet split; conservative mass transport and admission remain downstream.
-    const auto duplicateSourceNode=rewriteSplitMapField(splitFiles,root,"duplicate-source-node.csv",1u,42u,"0");
-    checkFailureIsAtomic(splitFixture,duplicateSourceNode,"source-parent original-node injection is out of range or duplicated");
-    const auto missingSourceNode=rewriteSplitMapField(splitFiles,root,"missing-source-node.csv",1u,42u,"-1");
-    checkFailureIsAtomic(splitFixture,missingSourceNode,"does not retain every immutable source-parent node identity exactly once");
-    const auto overBound=rewriteSplitMapField(splitFiles,root,"operational-reference-over-bound.csv",9u,51u,"0.0005");
-    checkFailureIsAtomic(splitFixture,overBound,"operational-reference registration exceeds its pinned distance");
-    const auto wrongSupportTet=rewriteSplitMapField(splitFiles,root,"wrong-operational-tet.csv",9u,43u,"8");
-    checkFailureIsAtomic(splitFixture,wrongSupportTet,"operational-reference support tet is not incident");
-    const auto wrongSourceDomain=rewriteSplitMapField(splitFiles,root,"wrong-source-parent-domain.csv",0u,52u,"1");
-    checkFailureIsAtomic(splitFixture,wrongSourceDomain,"current-parent cell donor/region differs");
-    auto legacySchema=splitFiles;legacySchema.combinedNodeMapCSV=root/"legacy-schema-in-split.csv";
-    {std::ofstream out(legacySchema.combinedNodeMapCSV);writeRow(out,physicalSkinCombinedNodeMapCSVHeader(false));}
-    pin(legacySchema.combinedNodeMapCSV,legacySchema.expectedSHA256[3]);
-    checkFailureIsAtomic(splitFixture,legacySchema,"header differs");
+    // CandidateOperationalReference cannot use the legacy source-only import
+    // contract. The actual positive authenticated route is exercised against
+    // the pinned 330-to-002-to-514 assets by the owner integration control.
+    checkFailureIsAtomic(splitFixture,splitFiles,
+        "requires authenticated source and candidate receipts plus a same-topology pullback proof");
 
     // The complete native body table uses the same explicit arithmetic policy,
     // including bodies without registered skin bindings. Default stays strict.
@@ -547,7 +503,7 @@ int main() {
     std::cout<<"registered_volume_file_import=PASS positive_TetGen_prism=6cells O/I/D=1/2/1 walls=12"
         <<" exact_node_map_rows=12 malformed_csv_and_gzip_rejected atomic_failure_preserved=1"
         <<" native_F32_exact_pins_and_roundoff_bound=PASS strict_default_unchanged=1"
-        <<" operational_reference_split=PASS historical_offset_mm=5 operational_offset_mm=0"
-        <<" split_identity_and_bound_negatives=PASS immutable_parent_packet=1"
+        <<" candidate_operational_reference_missing_proof_rejected=PASS"
+        <<" immutable_parent_packet=1 actual_authenticated_chain_separately_checked=1"
         <<" physical_admission=NOT_CLAIMED\n";
 }

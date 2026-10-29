@@ -1,0 +1,14 @@
+{
+  "schema": "numi.human.operational-reference-auth-publication.v1",
+  "status": "source_and_cpu_import_verified",
+  "physical_admission": false,
+  "app_launched": false,
+  "runtime_created": false,
+  "accepted_physical_steps": 0,
+  "gpu_execution": false,
+  "source_commit_base": "456b1ee9797737f1b5dd4dc2a944cfaa56d9b2e1",
+  "working_tree_head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "working_tree_index_sha256": "9669f65dd401ac52bbf51d4e4059998658c23774109ed6f1b591236ecb300b2f",
+  "tested_evidence": "launch.json",
+  "remaining_gate": "183 geometry-bone pairs; candidate remains unadmitted"
+}
