@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace metalrobo::human::coarse_tissue;
@@ -54,6 +55,28 @@ void mutateFirstCSVRow(const std::filesystem::path& path,const std::size_t colum
     assert(!rows.empty()&&column<rows.front().size());
     rows.front()[column]=value;
     writeCSV(path,header,rows,true);
+}
+void mutateAllCSVRows(const std::filesystem::path& path,
+                      const std::vector<std::pair<std::size_t,std::string>>& replacements) {
+    std::ifstream in(path,std::ios::binary);
+    std::string line;assert(std::getline(in,line));
+    if(!line.empty()&&line.back()==static_cast<char>(13))line.pop_back();
+    Row header;assert(physical_skin_authoring_detail_bridge_csv_detail::parseLine(line,header));
+    std::vector<Row> rows;
+    while(std::getline(in,line)) {
+        if(!line.empty()&&line.back()==static_cast<char>(13))line.pop_back();
+        Row row;assert(physical_skin_authoring_detail_bridge_csv_detail::parseLine(line,row));
+        for(const auto& [column,value]:replacements) {
+            assert(column<row.size());row[column]=value;
+        }
+        rows.push_back(std::move(row));
+    }
+    assert(!rows.empty());writeCSV(path,header,rows,true);
+}
+std::string fileSHA(const std::filesystem::path& path) {
+    std::string sha,error;
+    assert(physical_skin_child_mass_detail::sha256File(path,sha,error));
+    return sha;
 }
 struct FaceAllowList {
     std::vector<std::uint8_t> allowed;
@@ -272,6 +295,197 @@ struct Fixture {
     }
 };
 
+void writeRefinedCoarseFace(Fixture& f,const std::uint32_t child,const std::uint32_t parent) {
+    writeCSV(f.files.coarseBoundaryFaces.path,
+        {"role","face_row","child_tet_row","parent_tet_row","volume_node0","volume_node1",
+         "volume_node2","material_index","geometric_donor_body","anatomical_region_id",
+         "stable_source_face_id","opposite_parent_tet_row","opposite_material_index",
+         "opposite_geometric_donor_body","opposite_anatomical_region_id",
+         "opposite_stable_source_face_id"},
+        {{"O","0",n(child),n(parent),"0","1","2","15","41","7","9001",
+          "-1","-1","-1","-1","-1"}},true);
+    std::string sha,error;
+    assert(physical_skin_child_mass_detail::sha256File(
+        f.files.coarseBoundaryFaces.path,sha,error));
+    f.files.coarseBoundaryFaces.expectedSHA256=sha;
+}
+
+void authenticateFixtureRefinementRoute(PhysicalSkinChildMassMappingBundle& bundle) {
+    bundle.conformingLineageMassRouteRequired=true;
+    bundle.conformingLineageMassTransportUsed=true;
+    bundle.usesSeparatedOperationalReference=true;
+    bundle.operationalReferenceDomainSHA256=std::string(64u,'b');
+    auto& route=bundle.conformingLineageMassRoute;
+    route.authenticated=true;
+    route.refinedSourceCellCount=3u;
+    route.childRefinedSourceRows={0u,1u,2u};
+    route.childImmutableParentRows={1u,0u,1u};
+    for(auto* value:{&route.parentMassPacketSHA256,&route.parentSourceContributionSHA256,
+            &route.sourceVolumeSHA256,&route.refinedVolumeSHA256,&route.candidateVolumeSHA256,
+            &route.refinementVerificationSHA256,&route.sourceDonorLedgerVerificationSHA256,
+            &route.pullbackVerificationSHA256,&route.chainVerificationSHA256})
+        *value=std::string(64u,'a');
+    route.candidateOperationalReferenceDomainSHA256=bundle.operationalReferenceDomainSHA256;
+    route.candidateCompiledDataSHA256=
+        physical_skin_child_mass_mapping_detail::operationalChildCompiledDataSHA256(bundle);
+    route.verificationSHA256=
+        physical_skin_child_mass_mapping_detail::verifiedConformingMassRouteSHA256(route);
+}
+
+void testRefinedReorderedChildBoundaryUsesAuthenticatedParentRows() {
+    Fixture f;
+    // Reordered child domain with a real bisection of parent row 1 along
+    // edge (0,4). Child row 1 remains unchanged parent row 0 for the O face.
+    // The two child tets partition parent row 1 at the midpoint node 5.
+    const auto midpoint=f.bundle.parent.referenceWorldPoints[0];
+    const auto endpoint=f.bundle.parent.referenceWorldPoints[4];
+    f.bundle.referenceWorldPoints.push_back({
+        0.5*(midpoint[0]+endpoint[0]),
+        0.5*(midpoint[1]+endpoint[1]),
+        0.5*(midpoint[2]+endpoint[2])});
+    f.bundle.currentWorldPoints=f.bundle.referenceWorldPoints;
+    f.bundle.childTetrahedra={{{0u,1u,2u,5u}},
+                              f.bundle.parent.tetrahedra[0],
+                              {{5u,1u,2u,4u}}};
+    f.bundle.childMaterialIndices={15u,15u,15u};
+    f.bundle.childDonorBodyIndices={41u,41u,41u};
+    f.bundle.childAnatomicalRegionIndices={7u,7u,7u};
+    f.bundle.childStableSourceFaceIdentities={9001u,9001u,9001u};
+    f.bundle.childDominantParentTetrahedra={1u,0u,1u};
+    const auto signedSixVolume=[](const std::vector<V3>& points,
+                                  const std::array<std::uint32_t,4>& tet) {
+        const auto a=points[tet[0]],b=points[tet[1]],c=points[tet[2]],d=points[tet[3]];
+        const V3 ab{b[0]-a[0],b[1]-a[1],b[2]-a[2]};
+        const V3 ac{c[0]-a[0],c[1]-a[1],c[2]-a[2]};
+        const V3 ad{d[0]-a[0],d[1]-a[1],d[2]-a[2]};
+        return ab[0]*(ac[1]*ad[2]-ac[2]*ad[1])-
+               ab[1]*(ac[0]*ad[2]-ac[2]*ad[0])+
+               ab[2]*(ac[0]*ad[1]-ac[1]*ad[0]);
+    };
+    const auto parentSixVolume=signedSixVolume(
+        f.bundle.parent.referenceWorldPoints,f.bundle.parent.tetrahedra[1]);
+    const auto childSixVolume=signedSixVolume(
+        f.bundle.referenceWorldPoints,f.bundle.childTetrahedra[0])+
+        signedSixVolume(f.bundle.referenceWorldPoints,f.bundle.childTetrahedra[2]);
+    assert(std::abs(childSixVolume-parentSixVolume)<1.0e-15);
+    authenticateFixtureRefinementRoute(f.bundle);
+    f.files.allowPrecanonicalExportSeed=true;
+    writeRefinedCoarseFace(f,1u,0u);
+
+    PhysicalSkinAuthoringDetailBridgeInput input;
+    PhysicalSkinAuthoringDetailBridgeCSVReport report;
+    std::string error;
+    assert(loadPhysicalSkinAuthoringDetailBridgeCSV(
+        f.files,f.bundle,f.boundary,input,report,error));
+    assert(input.physicalBoundaryFaceParentTetRows==std::vector<std::uint32_t>({0u}));
+    assert(input.detailMechanicalTetRows==std::vector<std::uint32_t>({1u,1u,1u}));
+    assert(input.detailMechanicalTetRows[0]!=input.physicalBoundaryFaceParentTetRows[0]);
+
+    // A child face row that claims the wrong authenticated parent must fail.
+    writeRefinedCoarseFace(f,1u,1u);
+    assert(!loadPhysicalSkinAuthoringDetailBridgeCSV(
+        f.files,f.bundle,f.boundary,input,report,error));
+    assert(error.find("child-to-parent ancestry")!=std::string::npos);
+
+    // The operational runtime path remains identity-only, even with a valid
+    // canonical-export route and explicit child/parent columns.
+    f.files.allowPrecanonicalExportSeed=false;
+    writeRefinedCoarseFace(f,1u,0u);
+    assert(!loadPhysicalSkinAuthoringDetailBridgeCSV(
+        f.files,f.bundle,f.boundary,input,report,error));
+    assert(error.find("runtime detail bridge requires exact child/parent cell identity")!=std::string::npos);
+}
+
+void rewritePinnedMapPair(Fixture& f,
+        const std::vector<std::pair<std::size_t,std::string>>& replacements) {
+    mutateAllCSVRows(f.files.historicalFineToBoundaryMap.path,replacements);
+    f.files.historicalFineToBoundaryMap.expectedSHA256=
+        fileSHA(f.files.historicalFineToBoundaryMap.path);
+    auto canonicalReplacements=replacements;
+    canonicalReplacements.emplace_back(45u,f.files.historicalFineToBoundaryMap.expectedSHA256);
+    mutateAllCSVRows(f.files.fineToBoundaryMap.path,canonicalReplacements);
+    f.files.fineToBoundaryMap.expectedSHA256=fileSHA(f.files.fineToBoundaryMap.path);
+}
+
+void prepareStableFaceWalkFixture(Fixture& f) {
+    f.bundle.parent.donorBodyIndices={66u,65u};
+    f.bundle.parent.stableSourceFaceIdentities={9001u,9002u};
+    f.bundle.childDonorBodyIndices={66u,65u};
+    f.boundary.parentGeometricDonorBodyIndices={65u,65u,65u};
+    f.emitFiles();
+    mutateAllCSVRows(f.files.detailNodes.path,{{45u,"66"}});
+    f.files.detailNodes.expectedSHA256=fileSHA(f.files.detailNodes.path);
+    mutateAllCSVRows(f.files.detailFull86Owners.path,{{3u,"66"}});
+    f.files.detailFull86Owners.expectedSHA256=fileSHA(f.files.detailFull86Owners.path);
+    writeCSV(f.files.coarseBoundaryFaces.path,
+        {"role","face_row","parent_tet_row","volume_node0","volume_node1","volume_node2",
+         "material_index","geometric_donor_body","anatomical_region_id","stable_source_face_id",
+         "opposite_parent_tet_row","opposite_material_index","opposite_geometric_donor_body",
+         "opposite_anatomical_region_id","opposite_stable_source_face_id"},
+        {{"O","0","1","0","1","2","15","65","7","9002",
+          "-1","-1","-1","-1","-1"}},true);
+    f.files.coarseBoundaryFaces.expectedSHA256=fileSHA(f.files.coarseBoundaryFaces.path);
+    rewritePinnedMapPair(f,{{3u,"1"},{4u,"1"},{5u,"0"},{6u,"1"},{7u,"[0,1]"},
+        {11u,"15"},{12u,"65"},{13u,"7"},{14u,"9002"},{15u,"15"},{16u,"65"},{17u,"7"},
+        {18u,"9002"},{26u,"bounded_same_material_region_parent_tet_walk_to_stable_boundary_face"},
+        {27u,"15"},{28u,"66"},{29u,"7"},{30u,"9001"},{32u,"0"},{33u,"[0,1]"},{35u,"2"}});
+}
+
+void testCSVBridgeAllowsOnlyAuthenticatedStableFaceWalk() {
+    Fixture f;f.files.allowPrecanonicalExportSeed=true;
+    prepareStableFaceWalkFixture(f);
+    PhysicalSkinAuthoringDetailBridgeInput input;
+    PhysicalSkinAuthoringDetailBridgeCSVReport report;
+    std::string error;
+    const bool loaded=loadPhysicalSkinAuthoringDetailBridgeCSV(
+        f.files,f.bundle,f.boundary,input,report,error);
+    if(!loaded)std::cerr<<"stable_face_walk_error="<<error<<"\n";
+    assert(loaded);
+    assert(input.detailStableSourceFaceIDs==std::vector<std::uint32_t>({9001u,9001u,9001u}));
+    assert(input.physicalBoundaryStableFaceIDs==std::vector<std::uint32_t>({9002u}));
+    assert(input.detailGeometricDonorBodyIndices==std::vector<std::uint32_t>({66u,66u,66u}));
+    assert(input.detailBoundaryProjectionDonorBodyIndices==std::vector<std::uint32_t>({65u,65u,65u}));
+    assert(input.detailRequiresParentTetPath==std::vector<std::uint8_t>({1u,1u,1u}));
+    assert(!report.physicalAdmission);
+
+    // A changed fine-source stable ID cannot be laundered through the walk.
+    prepareStableFaceWalkFixture(f);
+    rewritePinnedMapPair(f,{{30u,"9999"}});
+    assert(!loadPhysicalSkinAuthoringDetailBridgeCSV(
+        f.files,f.bundle,f.boundary,input,report,error));
+    assert(error.find("fine source, frame-owner, or parent labels")!=std::string::npos);
+
+    // The start and target rows must belong to the authenticated source mesh.
+    prepareStableFaceWalkFixture(f);
+    f.bundle.parent.stableSourceFaceIdentities[0]=9999u;
+    assert(!loadPhysicalSkinAuthoringDetailBridgeCSV(
+        f.files,f.bundle,f.boundary,input,report,error));
+    assert(error.find("registered detail ancestry labels differ from the pinned parent cell")!=std::string::npos);
+
+    // A path whose endpoints are valid but whose consecutive cells are not
+    // adjacent is not a bounded walk.
+    prepareStableFaceWalkFixture(f);
+    rewritePinnedMapPair(f,{{6u,"2"},{7u,"[0,0,1]"}});
+    assert(!loadPhysicalSkinAuthoringDetailBridgeCSV(
+        f.files,f.bundle,f.boundary,input,report,error));
+    assert(error.find("nonadjacent consecutive source cells")!=std::string::npos);
+
+    // A wrong target stable ID remains rejected by the authenticated coarse
+    // parent/child source route.
+    prepareStableFaceWalkFixture(f);
+    writeCSV(f.files.coarseBoundaryFaces.path,
+        {"role","face_row","parent_tet_row","volume_node0","volume_node1","volume_node2",
+         "material_index","geometric_donor_body","anatomical_region_id","stable_source_face_id",
+         "opposite_parent_tet_row","opposite_material_index","opposite_geometric_donor_body",
+         "opposite_anatomical_region_id","opposite_stable_source_face_id"},
+        {{"O","0","1","0","1","2","15","65","7","9001",
+          "-1","-1","-1","-1","-1"}},true);
+    f.files.coarseBoundaryFaces.expectedSHA256=fileSHA(f.files.coarseBoundaryFaces.path);
+    assert(!loadPhysicalSkinAuthoringDetailBridgeCSV(
+        f.files,f.bundle,f.boundary,input,report,error));
+    assert(error.find("child-to-parent ancestry or labels")!=std::string::npos);
+}
+
 void testCanonicalEligibilityReinfersStableFace() {
     PhysicalSkinAuthoringDetailBridgeInput input;
     input.detailReferenceWorldPoints={{0.2,0.2,0.0}};
@@ -484,8 +698,10 @@ void testCanonicalNativeFaceExport() {
 
 int main() {
     testPinnedCSVBridge();
+    testRefinedReorderedChildBoundaryUsesAuthenticatedParentRows();
     testCanonicalNativeFaceExport();
     testCanonicalEligibilityReinfersStableFace();
+    testCSVBridgeAllowsOnlyAuthenticatedStableFaceWalk();
     testTransferHonorsPerDetailFaceEligibility();
     std::cout<<"authoring_detail_bridge_csv=pass typed_O_nodes=3 full86=86 map_rows=3 face_reordered=validated frame_owner=separate same_donor_parent_walk=pass residual_recomputed=pass physical_admission=false\n";
 }

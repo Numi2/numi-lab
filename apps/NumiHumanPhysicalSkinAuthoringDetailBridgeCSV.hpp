@@ -114,7 +114,9 @@ template<class Callback>
 inline bool readPinnedCSV(const PhysicalSkinAuthoringDetailBridgeCSVPin& pin,
         const std::vector<std::string>& expectedHeader,const std::size_t maximumRows,
         const std::size_t expectedRows,Callback&& callback,std::size_t& rows,
-        std::string& actualSHA256,std::string& error) {
+        std::string& actualSHA256,std::string& error,
+        const std::vector<std::string>* alternateHeader=nullptr,
+        bool* usedAlternateHeader=nullptr) {
     const auto fail=[&](std::string message){error=std::move(message);return false;};
     std::string before;
     if(!digest(pin,before,error))return false;
@@ -126,13 +128,20 @@ inline bool readPinnedCSV(const PhysicalSkinAuthoringDetailBridgeCSVPin& pin,
     };
     if(!std::getline(input,line))return fail("detail bridge CSV is empty: "+pin.path.string());
     stripCRLF(line);
-    if(line.size()>65536u||!parseLine(line,fields)||fields!=expectedHeader)
+    if(line.size()>65536u||!parseLine(line,fields))
         return fail("detail bridge CSV header differs from the pinned producer contract: "+pin.path.string());
+    const std::vector<std::string>* activeHeader=&expectedHeader;
+    if(fields!=expectedHeader) {
+        if(!alternateHeader||fields!=*alternateHeader)
+            return fail("detail bridge CSV header differs from the pinned producer contract: "+pin.path.string());
+        activeHeader=alternateHeader;
+    }
+    if(usedAlternateHeader)*usedAlternateHeader=activeHeader==alternateHeader;
     rows=0u;
     while(std::getline(input,line)) {
         stripCRLF(line);
         if(line.size()>1048576u||rows>=maximumRows||!parseLine(line,fields)||
-           fields.size()!=expectedHeader.size())
+           fields.size()!=activeHeader->size())
             return fail("detail bridge CSV has a malformed or excessive row: "+pin.path.string());
         if(!callback(fields,rows,error))return false;
         ++rows;
@@ -480,7 +489,6 @@ inline bool runNativeFaceSelection(
        physicalBoundary.frameOwnerBodyIndices.size()!=physicalBoundary.currentWorldPoints.size()||
        physicalBoundary.parentGeometricDonorBodyIndices.size()!=physicalBoundary.currentWorldPoints.size()||
        bundle.childTetrahedra.empty()||
-       bundle.childTetrahedra.size()!=bundle.parent.tetrahedra.size()||
        bundle.childDominantParentTetrahedra.size()!=bundle.childTetrahedra.size()||
        bundle.childMaterialIndices.size()!=bundle.childTetrahedra.size()||
        bundle.childDonorBodyIndices.size()!=bundle.childTetrahedra.size()||
@@ -512,17 +520,22 @@ inline bool runNativeFaceSelection(
     if(files.historicalFineToBoundaryMap.path==files.fineToBoundaryMap.path||
        !physical_skin_child_mass_detail::validSHA256(canonicalTetGenNodeSHA256))
         return fail("canonical detail map requires distinct historical and imported-node pins");
-    if(bundle.childTetrahedra.size()!=bundle.parent.tetrahedra.size())
-        return fail("this render loader requires one child cell per pinned parent cell");
-    for(std::size_t cell=0;cell<bundle.childTetrahedra.size();++cell) {
+    bool childParentIdentity=bundle.childTetrahedra.size()==bundle.parent.tetrahedra.size();
+    if(childParentIdentity)for(std::size_t cell=0;cell<bundle.childTetrahedra.size();++cell) {
         auto child=bundle.childTetrahedra[cell],parent=bundle.parent.tetrahedra[cell];
         std::sort(child.begin(),child.end());std::sort(parent.begin(),parent.end());
         if(bundle.childDominantParentTetrahedra[cell]!=cell||child!=parent||
            bundle.childMaterialIndices[cell]!=bundle.parent.materialIndices[cell]||
            bundle.childDonorBodyIndices[cell]!=bundle.parent.donorBodyIndices[cell]||
-           bundle.childAnatomicalRegionIndices[cell]!=bundle.parent.anatomicalRegionIndices[cell])
-            return fail("detail bridge cell rows are not an exact topology/label parent identity");
+           bundle.childAnatomicalRegionIndices[cell]!=bundle.parent.anatomicalRegionIndices[cell]) {
+            childParentIdentity=false;break;
+        }
     }
+    // Runtime rendering remains identity-only. The explicit refinement map is
+    // accepted only by the source-only canonical export pass, where its
+    // authenticated 002->530->006 route is checked below.
+    if(!files.allowPrecanonicalExportSeed&&!childParentIdentity)
+        return fail("runtime detail bridge requires exact child/parent cell identity");
     std::map<std::uint32_t,std::uint32_t> volumeNodeToBoundaryRow;
     double maxBoundaryNodeReferenceDifference=0.0;
     for(std::size_t row=0;row<physicalBoundary.volumeNodeRows.size();++row) {
@@ -569,6 +582,14 @@ inline bool runNativeFaceSelection(
     next.mechanicalTetMaterialIndices=bundle.childMaterialIndices;
     next.mechanicalTetGeometricDonorBodyIndices=bundle.childDonorBodyIndices;
     next.mechanicalTetAnatomicalRegionIndices=bundle.childAnatomicalRegionIndices;
+    std::vector<std::vector<std::uint32_t>> sourceParentTetAdjacency;
+    if(next.sourceParentTetNodeRows.empty()||
+       next.sourceParentTetMaterialIndices.size()!=next.sourceParentTetNodeRows.size()||
+       next.sourceParentTetAnatomicalRegionIndices.size()!=next.sourceParentTetNodeRows.size()||
+       next.sourceParentTetStableSourceFaceIDs.size()!=next.sourceParentTetNodeRows.size()||
+       !physical_skin_authoring_detail_bridge_detail::buildParentTetFaceAdjacency(
+           next.sourceParentTetNodeRows,sourceParentTetAdjacency,error))
+        return fail("detail bridge requires valid authenticated source-parent adjacency: "+error);
 
     static const std::vector<std::string> nodeHeader{
         "vertex","donor","wx","wy","wz","nx","ny","nz","lx","ly","lz",
@@ -756,9 +777,19 @@ inline bool runNativeFaceSelection(
         "material_index","geometric_donor_body","anatomical_region_id","stable_source_face_id",
         "opposite_parent_tet_row","opposite_material_index","opposite_geometric_donor_body",
         "opposite_anatomical_region_id","opposite_stable_source_face_id"};
-    struct CoarseFace {Face nodes{};std::uint32_t parent=0,material=0,donor=0,region=0,stable=0;};
+    static const std::vector<std::string> refinedCoarseFaceHeader{
+        "role","face_row","child_tet_row","parent_tet_row","volume_node0","volume_node1","volume_node2",
+        "material_index","geometric_donor_body","anatomical_region_id","stable_source_face_id",
+        "opposite_parent_tet_row","opposite_material_index","opposite_geometric_donor_body",
+        "opposite_anatomical_region_id","opposite_stable_source_face_id"};
+    struct CoarseFace {
+        Face nodes{};
+        std::uint32_t child=NM_INVALID_INDEX,parent=NM_INVALID_INDEX;
+        std::uint32_t material=0,donor=0,region=0,stable=0;
+    };
     std::vector<CoarseFace> coarseFaces;
     std::size_t coarseRoleRows=0u,allCoarseRows=0u;
+    bool refinedCoarseSchema=false;
     if(!readPinnedCSV(files.coarseBoundaryFaces,coarseFaceHeader,200000u,0u,
             [&](const Row& row,const std::size_t,std::string& e) {
         if(row[0]!="O"&&row[0]!="I"&&row[0]!="D") {
@@ -766,31 +797,87 @@ inline bool runNativeFaceSelection(
         }
         ++allCoarseRows;
         if(row[0]!="O")return true;
+        const std::size_t childColumn=refinedCoarseSchema?2u:1u;
+        const std::size_t parentColumn=refinedCoarseSchema?3u:2u;
+        const std::size_t nodeColumn=parentColumn+1u;
+        const std::size_t labelColumn=nodeColumn+3u;
         std::uint32_t faceRow=0u;CoarseFace face;
         if(!number(row,1,faceRow)||faceRow!=coarseRoleRows||
-           !number(row,2,face.parent)||!number(row,3,face.nodes[0])||
-           !number(row,4,face.nodes[1])||!number(row,5,face.nodes[2])||
-           !validFace(face.nodes)||!number(row,6,face.material)||
-           !number(row,7,face.donor)||!number(row,8,face.region)||
-           !number(row,9,face.stable)||face.parent>=bundle.parent.tetrahedra.size()) {
+           (refinedCoarseSchema&&!number(row,childColumn,face.child))||
+           !number(row,parentColumn,face.parent)||
+           !number(row,nodeColumn,face.nodes[0])||
+           !number(row,nodeColumn+1u,face.nodes[1])||
+           !number(row,nodeColumn+2u,face.nodes[2])||
+           !validFace(face.nodes)||
+           !number(row,labelColumn,face.material)||
+           !number(row,labelColumn+1u,face.donor)||
+           !number(row,labelColumn+2u,face.region)||
+           !number(row,labelColumn+3u,face.stable)||
+           face.parent>=bundle.parent.tetrahedra.size()) {
             e="coarse O boundary-face row is malformed at face "+std::to_string(coarseRoleRows);return false;
+        }
+        if(!refinedCoarseSchema)face.child=face.parent;
+        if(face.child>=bundle.childTetrahedra.size()) {
+            e="coarse O boundary face exceeds the imported child-cell domain";return false;
         }
         for(const auto node:face.nodes)if(node>=bundle.referenceWorldPoints.size()) {
             e="coarse O boundary face exceeds the imported child volume-node domain";return false;
         }
-        const auto& cell=bundle.childTetrahedra[face.parent];
+        const auto& cell=bundle.childTetrahedra[face.child];
         for(const auto node:face.nodes)
             if(std::find(cell.begin(),cell.end(),node)==cell.end()) {
-                e="coarse O boundary face is not a face of its pinned parent cell";return false;
+                e="coarse O boundary face is not a face of its declared child cell";return false;
             }
-        if(face.material!=bundle.childMaterialIndices[face.parent]||
-           face.donor!=bundle.childDonorBodyIndices[face.parent]||
-           face.region!=bundle.childAnatomicalRegionIndices[face.parent]||
-           face.stable!=bundle.parent.stableSourceFaceIdentities[face.parent]) {
-            e="coarse O face labels differ from the exact imported boundary parent cell";return false;
+        const auto parent=face.parent;
+        if(bundle.childDominantParentTetrahedra[face.child]!=parent||
+           bundle.childMaterialIndices[face.child]!=face.material||
+           bundle.childDonorBodyIndices[face.child]!=face.donor||
+           bundle.childAnatomicalRegionIndices[face.child]!=face.region||
+           bundle.parent.materialIndices[parent]!=face.material||
+           bundle.parent.donorBodyIndices[parent]!=face.donor||
+           bundle.parent.anatomicalRegionIndices[parent]!=face.region||
+           bundle.parent.stableSourceFaceIdentities[parent]!=face.stable||
+           (bundle.childStableSourceFaceIdentities.size()==bundle.childTetrahedra.size()&&
+            bundle.childStableSourceFaceIdentities[face.child]!=face.stable)) {
+            e="coarse O face child-to-parent ancestry or labels differ from the authenticated imported cell route";return false;
         }
         coarseFaces.push_back(face);++coarseRoleRows;return true;
-    },rows,hashes[5],error))return false;
+    },rows,hashes[5],error,&refinedCoarseFaceHeader,&refinedCoarseSchema))return false;
+    if(refinedCoarseSchema) {
+        const auto& route=bundle.conformingLineageMassRoute;
+        const auto validSHA=[](const std::string& value) {
+            return physical_skin_child_mass_detail::validSHA256(value);
+        };
+        if(!files.allowPrecanonicalExportSeed||
+           !bundle.conformingLineageMassRouteRequired||
+           !bundle.conformingLineageMassTransportUsed||
+           !route.authenticated||
+           route.refinedSourceCellCount!=bundle.childTetrahedra.size()||
+           route.childRefinedSourceRows.size()!=bundle.childTetrahedra.size()||
+           route.childImmutableParentRows!=bundle.childDominantParentTetrahedra||
+           route.candidateOperationalReferenceDomainSHA256!=bundle.operationalReferenceDomainSHA256||
+           route.candidateCompiledDataSHA256!=
+               physical_skin_child_mass_mapping_detail::operationalChildCompiledDataSHA256(bundle)||
+           route.verificationSHA256!=
+               physical_skin_child_mass_mapping_detail::verifiedConformingMassRouteSHA256(route)||
+           bundle.childStableSourceFaceIdentities.size()!=bundle.childTetrahedra.size())
+            return fail("refined child-face map lacks the authenticated 002->530->006 parent route");
+        for(const auto& value:{route.parentMassPacketSHA256,route.parentSourceContributionSHA256,
+                route.sourceVolumeSHA256,route.refinedVolumeSHA256,route.candidateVolumeSHA256,
+                route.refinementVerificationSHA256,route.sourceDonorLedgerVerificationSHA256,
+                route.pullbackVerificationSHA256,route.chainVerificationSHA256,
+                route.candidateOperationalReferenceDomainSHA256,route.candidateCompiledDataSHA256})
+            if(!validSHA(value))
+                return fail("refined child-face map route has a missing 002->530->006 proof pin");
+        std::vector<std::uint8_t> refinedRowsSeen(route.refinedSourceCellCount,0u);
+        for(const auto row:route.childRefinedSourceRows) {
+            if(row>=refinedRowsSeen.size()||refinedRowsSeen[row])
+                return fail("refined child-face map route repeats or exceeds a 530 source row");
+            refinedRowsSeen[row]=1u;
+        }
+    } else if(!childParentIdentity) {
+        return fail("refined child volume requires explicit child_tet_row and parent_tet_row columns");
+    }
     (void)allCoarseRows;
     if(coarseFaces.size()!=physicalBoundary.roleLocalFaces.size())
         return fail("coarse O boundary-face map count differs from the imported typed boundary surface");
@@ -808,6 +895,8 @@ inline bool runNativeFaceSelection(
             return fail("imported typed O boundary repeats a physical triangle");
     }
     std::vector<std::uint32_t> coarseFaceToBoundaryFace(coarseFaces.size(),NM_INVALID_INDEX);
+    std::vector<std::uint32_t> physicalBoundaryFaceChildTetRows(
+        physicalBoundary.roleLocalFaces.size(),NM_INVALID_INDEX);
     std::vector<std::uint8_t> boundaryFaceSeen(physicalBoundary.roleLocalFaces.size(),0u);
     next.physicalBoundaryFaceParentTetRows.assign(physicalBoundary.roleLocalFaces.size(),NM_INVALID_INDEX);
     next.physicalBoundaryStableFaceIDs.assign(physicalBoundary.roleLocalFaces.size(),NM_INVALID_INDEX);
@@ -823,6 +912,7 @@ inline bool runNativeFaceSelection(
         const auto boundaryRow=found->second;
         boundaryFaceSeen[boundaryRow]=1u;coarseFaceToBoundaryFace[coarseRow]=boundaryRow;
         next.physicalBoundaryFaceParentTetRows[boundaryRow]=coarse.parent;
+        physicalBoundaryFaceChildTetRows[boundaryRow]=coarse.child;
         next.physicalBoundaryStableFaceIDs[boundaryRow]=coarse.stable;
         next.physicalBoundaryFaceMaterialIndices[boundaryRow]=coarse.material;
         next.physicalBoundaryFaceGeometricDonorBodyIndices[boundaryRow]=coarse.donor;
@@ -950,14 +1040,16 @@ inline bool runNativeFaceSelection(
             if(!std::isfinite(sourceBary[k])||
                std::abs(sourceBary[k]-sourceBaryRows[fine][k])>1.0e-12)
                 return bad("fine source barycentrics differ from the pinned detail node row");
+        const bool walkedStableFace=row[26]==
+            "bounded_same_material_region_parent_tet_walk_to_stable_boundary_face";
         if(!validFace(faceNodes)||sortedFace(faceNodes)!=sortedFace(coarse.nodes)||
            primaryTet!=coarse.parent||mappedTet!=coarse.parent||
            primaryMaterial!=coarse.material||mappedMaterial!=coarse.material||
            primaryDonor!=coarse.donor||mappedDonor!=coarse.donor||
            primaryRegion!=coarse.region||mappedRegion!=coarse.region||
            primaryStable!=coarse.stable||mappedStable!=coarse.stable||
-           fineStable!=coarse.stable||fineMaterial!=coarse.material||
-           fineRegion!=coarse.region)
+           (!walkedStableFace&&fineStable!=coarse.stable)||
+           fineMaterial!=coarse.material||fineRegion!=coarse.region)
             return bad("selected O face, mapped-side labels, and fine ancestry do not share one pinned boundary identity");
         if(startTet>=bundle.parent.tetrahedra.size()||mappedTet>=bundle.parent.tetrahedra.size()||
            path.size()!=std::size_t(hops)+1u||path.empty()||path.front()!=startTet||
@@ -968,6 +1060,19 @@ inline bool runNativeFaceSelection(
                bundle.parent.materialIndices[cell]!=fineMaterial||
                bundle.parent.anatomicalRegionIndices[cell]!=fineRegion)
                 return bad("parent-tet walk leaves its same-material/region source patch");
+        for(std::size_t step=1u;step<path.size();++step) {
+            const auto previous=path[step-1u];
+            if(previous>=sourceParentTetAdjacency.size()||
+               std::find(sourceParentTetAdjacency[previous].begin(),sourceParentTetAdjacency[previous].end(),path[step])==
+                   sourceParentTetAdjacency[previous].end())
+                return bad("parent-tet walk contains nonadjacent consecutive source cells");
+        }
+        if(next.sourceParentTetStableSourceFaceIDs.size()!=bundle.parent.tetrahedra.size()||
+           fineParent>=next.sourceParentTetStableSourceFaceIDs.size()||
+           mappedTet>=next.sourceParentTetStableSourceFaceIDs.size()||
+           next.sourceParentTetStableSourceFaceIDs[fineParent]!=fineStable||
+           next.sourceParentTetStableSourceFaceIDs[mappedTet]!=coarse.stable)
+            return bad("fine and selected stable-face IDs do not match their authenticated parent tet ancestry");
         if(!std::all_of(incident.begin(),incident.end(),[&](std::uint32_t face) {
                 return face<next.detailFaces.size()&&
                     std::find(next.detailFaces[face].begin(),next.detailFaces[face].end(),fine)!=
@@ -1121,13 +1226,17 @@ inline bool runNativeFaceSelection(
                bundle.parent.materialIndices[cell]!=selectedMaterialIndex||
                bundle.parent.anatomicalRegionIndices[cell]!=selectedRegionID)
                 return bad("canonical selected parent-tet ancestry leaves its same-material/region source patch");
-        if((!files.allowPrecanonicalExportSeed&&
-            bundle.parent.stableSourceFaceIdentities[selectedParentRow]!=selectedStableFace)||
-           (files.allowPrecanonicalExportSeed&&
-            (selectedStableFace!=fineStable||
-             bundle.parent.stableSourceFaceIdentities[fineParent]!=selectedStableFace||
-             bundle.parent.stableSourceFaceIdentities[selectedParentRow]!=selectedStableFace)))
+        if(!files.allowPrecanonicalExportSeed&&
+           bundle.parent.stableSourceFaceIdentities[selectedParentRow]!=selectedStableFace)
             return bad("canonical native-selected face lacks matching stable source-face ancestry");
+        if(files.allowPrecanonicalExportSeed&&
+           (fineParent>=bundle.parent.stableSourceFaceIdentities.size()||
+            bundle.parent.stableSourceFaceIdentities[fineParent]!=fineStable||
+            bundle.parent.stableSourceFaceIdentities[selectedParentRow]!=selectedStableFace||
+            (selectedStableFace!=fineStable&&
+             (row[26]!="bounded_same_material_region_parent_tet_walk_to_stable_boundary_face"||
+              selectedHopCount==0u||selectedWalk.size()<2u))))
+            return bad("precanonical seed lacks authenticated source/target stable-face identities or a bounded walk re-inference");
         if(selectedOwner==NM_INVALID_INDEX)
             return bad("canonical native-selected face lacks a retained frame owner");
         maxProducerDistance=std::max(maxProducerDistance,producerDistance);
@@ -1144,7 +1253,10 @@ inline bool runNativeFaceSelection(
         next.detailRepresentativeBoundaryVertexRows[fine]=selectedRep;
         next.detailExpectedBoundaryFaceRows[fine]=roleFaceRow;
         next.detailExpectedBoundaryFaceBarycentrics[fine]=selectedFaceBary;
-        next.detailMechanicalTetRows[fine]=selectedParentRow;
+        if(roleFaceRow>=physicalBoundaryFaceChildTetRows.size()||
+           physicalBoundaryFaceChildTetRows[roleFaceRow]>=bundle.childTetrahedra.size())
+            return bad("selected physical boundary face lacks its authenticated child-cell row");
+        next.detailMechanicalTetRows[fine]=physicalBoundaryFaceChildTetRows[roleFaceRow];
         maxHops=std::max(maxHops,selectedHopCount);
         if(selectedHopCount>0u||next.detailRegionScopedDonorFallback[fine]!=0u)++pathRows;
         if(next.detailRegionScopedDonorFallback[fine]!=0u)++donorRemaps;

@@ -1,0 +1,23 @@
+{
+  "schema": "numi-human.native-owner-policy-006-row100-fixed-replay-receipt.v1",
+  "launch_json": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/replay-005/launch.json",
+  "launch_json_sha256": "34226737da5a47b2b94326d07a406d7eb2ddd4890776b253f286f4f4527ffe42",
+  "binary_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/build/numi-human-native-row100-verified",
+  "binary_sha256": "283ec5208ac9ba95da3429b6492ecb2554771d4e82a4222922ac1d66df4b7601",
+  "build_evidence": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/build/native-row100-build-evidence.json",
+  "focused_check_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/focused-check-row100-receipt.json",
+  "candidate_sha256": "888eb12450d0e69fb0ad3f5998159ab7a0a20d3e70b13c42ba416c61cbbede63",
+  "seed_map_sha256": "94428d3389890dc18390e9b54733ea838a697412b4423227060da34deebd77ed",
+  "historical_map_sha256": "425f0c86a5f7ca2af79c7b728f9b2aa6ba00469495c65037b27f1051229b551b",
+  "coarse_boundary_faces_sha256": "d172450180d37ec374e89b1b3c3fffc375ac9ae91a1f57c52508ca4836e17709",
+  "exit_code": 0,
+  "elapsed_seconds": 8.761,
+  "native_output_result": null,
+  "stdout_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/replay-005/native-output/stdout.log",
+  "stderr_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/replay-005/native-output/stderr.log",
+  "canonical_export_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/replay-005/native-output/fine-O-to-coarse-boundary-native-canonical.csv",
+  "canonical_export_exists": true,
+  "physical_admission": false,
+  "runtime_requested": false,
+  "accepted_steps": 0
+}

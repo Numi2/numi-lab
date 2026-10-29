@@ -1,0 +1,38 @@
+{
+  "schema": "numi-human.native-owner-policy-006-row100-final-freeze.v1",
+  "base_commit": "64aaf3682c20b6a946d02fdb2645d56d7c0e46c8",
+  "live_main_verified": "64aaf3682c20b6a946d02fdb2645d56d7c0e46c8",
+  "patch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/publication-001/native-row100-owner-fix.patch",
+  "patch_sha256": "b09cbc84cf64294dacf89969a1ab429545ca76ad8c0fd22793847ecdec522908",
+  "patch_apply_exit_code": 0,
+  "patch_apply_stdout_tail": "patching file 'apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp'\npatching file 'apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp'\n",
+  "patch_restored_overlay_hashes": {
+    "apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp": "0c8c8fe40b4282fa75d475da849510d14cab79ee28dfa111145a23640c45fd72",
+    "apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp": "5277bbe38367ceb3b4bd48a3f913f65fc188c60d6f58b2504c0261418aef16ee"
+  },
+  "tested_overlay_hashes": {
+    "apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp": "0c8c8fe40b4282fa75d475da849510d14cab79ee28dfa111145a23640c45fd72",
+    "apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp": "5277bbe38367ceb3b4bd48a3f913f65fc188c60d6f58b2504c0261418aef16ee"
+  },
+  "canonical_export_raw_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/replay-005/native-output/fine-O-to-coarse-boundary-native-canonical.csv",
+  "canonical_export_raw_sha256": "ccab5178bac17eff90e76bc41099b3280f0fbb727a5e93a0f70583c764568d85",
+  "canonical_export_raw_bytes": 57747091,
+  "canonical_export_gzip_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/replay-005/native-output/fine-O-to-coarse-boundary-native-canonical.csv.gz",
+  "canonical_export_gzip_sha256": "26a9bd3d7717b09bf887c2108f656bd26a606b122209e101c6cc4d19e736b447",
+  "canonical_export_gzip_bytes": 12046698,
+  "gzip_mtime": 0,
+  "gzip_restore_sha256": "ccab5178bac17eff90e76bc41099b3280f0fbb727a5e93a0f70583c764568d85",
+  "gzip_restore_bytes": 57747091,
+  "row100_selected_fields": {
+    "fine_vertex_row": "100",
+    "coarse_boundary_primary_parent_tet_row": "2070",
+    "mapped_boundary_side_parent_tet_row": "2070",
+    "fine_parent_stable_source_face_id": "5484",
+    "mapped_side_stable_source_face_id": "6124",
+    "mapping_kind": "bounded_same_material_region_parent_tet_walk_to_stable_boundary_face",
+    "canonical_selected_stable_source_face_id": "5484"
+  },
+  "physical_admission": false,
+  "runtime_requested": false,
+  "accepted_steps": 0
+}

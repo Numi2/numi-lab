@@ -1,0 +1,34 @@
+{
+  "schema": "numi-human.native-owner-policy-006-row100-focused-check.v1",
+  "header_sha256": "0c8c8fe40b4282fa75d475da849510d14cab79ee28dfa111145a23640c45fd72",
+  "check_sha256": "5277bbe38367ceb3b4bd48a3f913f65fc188c60d6f58b2504c0261418aef16ee",
+  "executable": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/build/bridge-check-row100",
+  "executable_sha256": "1306daa3a95374a18637f3c29418c3016d9211967720d8ba6f61a949aa3521d5",
+  "compile_flags": [
+    "-O3",
+    "-DNDEBUG",
+    "-UNDEBUG",
+    "-std=c++23",
+    "-arch",
+    "arm64",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror"
+  ],
+  "assertions_active": true,
+  "result": "PASS",
+  "controls": [
+    "identity topology legacy map",
+    "authenticated explicit stable-face walk permits source stable 9001 to target stable 9002 only for the bounded walk method",
+    "wrong fine stable ID rejected",
+    "source stable identity mismatch against authenticated parent rejected",
+    "nonadjacent path rejected",
+    "wrong target stable ID rejected",
+    "reordered three-child/two-parent fixture assigns mechanical child row 1 and retains parent ancestry row 0",
+    "runtime identity-only mode rejects refined child topology"
+  ],
+  "stdout": "authoring_detail_bridge_csv=pass typed_O_nodes=3 full86=86 map_rows=3 face_reordered=validated frame_owner=separate same_donor_parent_walk=pass residual_recomputed=pass physical_admission=false",
+  "physical_admission": false,
+  "build_evidence": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-006/build/native-row100-build-evidence.json"
+}
