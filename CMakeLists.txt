@@ -2422,6 +2422,20 @@ foreach(_check IN ITEMS registered-volume-import registered-volume-csv registere
     endif()
 endforeach()
 
+# Exact offline source-refinement proof; no Runtime or GPU initialization.
+add_executable(numi-human-conforming-tissue-refinement-check EXCLUDE_FROM_ALL
+    apps/NumiHumanConformingTissueRefinementCheck.cpp)
+target_include_directories(numi-human-conforming-tissue-refinement-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/apps")
+target_compile_features(numi-human-conforming-tissue-refinement-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-conforming-tissue-refinement-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME numi_human_conforming_tissue_refinement
+        COMMAND numi-human-conforming-tissue-refinement-check)
+endif()
+
+
 add_executable(numi-human-skin-fat-reduction-labels-check EXCLUDE_FROM_ALL
     apps/NumiHumanSkinFatReductionLabelsCheck.cpp)
 target_include_directories(numi-human-skin-fat-reduction-labels-check PRIVATE

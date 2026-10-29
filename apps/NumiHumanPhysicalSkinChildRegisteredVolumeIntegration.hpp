@@ -5,6 +5,7 @@
 // already pinned parent and registered-surface state; this helper does not
 // admit a physical child volume or start a simulation.
 #include "NumiHumanPhysicalSkinChildTetGen.hpp"
+#include "NumiHumanConformingTissueRefinementAssets.hpp"
 #include "NumiHumanPhysicalSkinChildRegisteredVolumeCSV.hpp"
 #include "NumiHumanPhysicalSkinChildRegisteredFacetMaps.hpp"
 #include "NumiHumanParentReferenceMassTransfer.hpp"
@@ -32,6 +33,8 @@ struct PhysicalSkinOperationalReferencePullbackAssets {
     std::string sourceVolumeSHA256,sourceProducerReceiptSHA256,sourceSelfAuditReceiptSHA256;
     std::filesystem::path candidateVolumeAsset,candidateProducerReceipt,candidateSelfAuditReceipt;
     std::string candidateVolumeSHA256,candidateProducerReceiptSHA256,candidateSelfAuditReceiptSHA256;
+    // Optional verified source 002 -> exact 530 refinement -> fitted candidate chain.
+    std::optional<PhysicalSkinConformingTissueRefinementAssets> conformingTissueRefinement;
 };
 
 struct PhysicalSkinRegisteredVolumeAssetFiles {
@@ -59,6 +62,8 @@ struct PhysicalSkinRegisteredVolumeFileImportReport {
     std::string operationalReferenceDomainSHA256;
     bool operationalReferencePullbackVerified=false;
     std::string operationalReferencePullbackSHA256;
+    bool conformingTissueRefinementVerified=false;
+    std::string conformingTissueRefinementVerificationSHA256;
     double maximumSourceParentRegistrationDistanceM=0.0;
     double maximumSourceToCandidateReferenceDistanceM=0.0;
     bool physicalAdmission=false;
@@ -130,6 +135,11 @@ inline bool readPinnedText(const std::filesystem::path& path,const std::string& 
     }
     return true;
 }
+inline bool jsonValueDelimiter(const std::string_view json,const std::size_t pos) {
+    return pos<json.size()&&
+        (std::isspace(static_cast<unsigned char>(json[pos]))||json[pos]==','||
+         json[pos]=='}'||json[pos]==']');
+}
 inline bool jsonStringFieldMatches(const std::string_view json,const std::string_view key,
                                    const std::string_view expected,const std::size_t expectedCount,
                                    std::string& error) {
@@ -151,7 +161,9 @@ inline bool jsonStringFieldMatches(const std::string_view json,const std::string
             }else if(c=='\"'){closed=true;break;}
             else value.push_back(c);
         }
-        if(!closed||value!=expected){error="JSON receipt field differs from its pin: "+std::string(key);return false;}
+        if(!closed||!jsonValueDelimiter(json,pos)||value!=expected){
+            error="JSON receipt field differs from its pin or is not a complete token: "+std::string(key);return false;
+        }
     }
     if(count!=expectedCount){error="JSON receipt field count differs from its contract: "+std::string(key);return false;}
     return true;
@@ -168,7 +180,11 @@ inline bool jsonBooleanFieldMatches(const std::string_view json,const std::strin
         while(cursor<json.size()&&std::isspace(static_cast<unsigned char>(json[cursor])))++cursor;
         const auto literal=expected?std::string_view("true"):std::string_view("false");
         if(json.substr(cursor,literal.size())!=literal){error="JSON receipt boolean field differs from its contract: "+std::string(key);return false;}
-        pos=cursor+literal.size();
+        cursor+=literal.size();
+        if(!jsonValueDelimiter(json,cursor)){
+            error="JSON receipt boolean is not a complete token: "+std::string(key);return false;
+        }
+        pos=cursor;
     }
     if(count!=expectedCount){error="JSON receipt boolean field count differs from its contract: "+std::string(key)+
         " actual="+std::to_string(count)+" expected="+std::to_string(expectedCount);return false;}
@@ -183,18 +199,25 @@ inline bool jsonExactlyZeroFields(const std::string_view json,const std::string_
         while(pos<json.size()&&std::isspace(static_cast<unsigned char>(json[pos])))++pos;
         if(pos>=json.size()||json[pos++]!=':'){error="malformed JSON receipt numeric field "+std::string(key);return false;}
         while(pos<json.size()&&std::isspace(static_cast<unsigned char>(json[pos])))++pos;
-        if(pos>=json.size()||json[pos++]!='0'){error="self-intersection receipt contains a nonzero pair count";return false;}
-        if(pos<json.size()&&std::isdigit(static_cast<unsigned char>(json[pos]))){error="invalid JSON integer pair count";return false;}
+        if(pos>=json.size()||json[pos++]!='0'||!jsonValueDelimiter(json,pos)){
+            error="self-intersection receipt contains a nonzero or malformed integer pair count";return false;
+        }
     }
     if(count!=expectedCount){error="self-intersection receipt does not contain the expected exact layer counts";return false;}
     return true;
 }
 inline bool authenticateSelfReceipt(const std::filesystem::path& path,const std::string& receiptSHA,
-                                    const std::string& volumeSHA,std::string& error) {
+                                    const std::string& volumeSHA,std::string& error,
+                                    const bool allowRefinedSelfAudit=false) {
     std::string text;
     if(!readPinnedText(path,receiptSHA,text,error))return false;
-    return jsonStringFieldMatches(text,"status","exact_coarse_material_boundary_self_audit",1u,error)&&
-        jsonStringFieldMatches(text,"candidate_sha256",volumeSHA,1u,error)&&
+    if(!jsonStringFieldMatches(text,"status","exact_coarse_material_boundary_self_audit",1u,error)){
+        error.clear();
+        if(!allowRefinedSelfAudit||
+           !jsonStringFieldMatches(text,"status","exact_refined_material_boundary_self_audit",1u,error))
+            return false;
+    }
+    return jsonStringFieldMatches(text,"candidate_sha256",volumeSHA,1u,error)&&
         jsonBooleanFieldMatches(text,"physical_admission",false,error)&&
         jsonExactlyZeroFields(text,"self_intersection_pairs",2u,error);
 }
@@ -238,8 +261,29 @@ inline bool authenticateOperationalReferenceReceipts(
     return authenticateSelfReceipt(proof.sourceSelfAuditReceipt,proof.sourceSelfAuditReceiptSHA256,
                                    proof.sourceVolumeSHA256,error)&&
         authenticateSelfReceipt(proof.candidateSelfAuditReceipt,proof.candidateSelfAuditReceiptSHA256,
-                                proof.candidateVolumeSHA256,error);
+                                proof.candidateVolumeSHA256,error,proof.conformingTissueRefinement.has_value());
 }
+inline bool sameOperationalReferenceCellDomain(
+        const PhysicalSkinChildMassMappingBundle& a,
+        const PhysicalSkinChildMassMappingBundle& b) {
+    return a.referenceWorldPoints.size()==b.referenceWorldPoints.size()&&
+        a.childTetrahedra==b.childTetrahedra&&
+        a.childMaterialIndices==b.childMaterialIndices&&
+        a.childDonorBodyIndices==b.childDonorBodyIndices&&
+        a.childAnatomicalRegionIndices==b.childAnatomicalRegionIndices&&
+        a.childStableSourceFaceIdentities==b.childStableSourceFaceIdentities;
+}
+inline bool sameOperationalReferenceCellDomain(
+        const PhysicalSkinChildMassMappingBundle& bundle,
+        const PhysicalSkinVerifiedConformingReference& refined) {
+    return bundle.referenceWorldPoints.size()==refined.referenceWorldPoints.size()&&
+        bundle.childTetrahedra==refined.tetrahedra&&
+        bundle.childMaterialIndices==refined.materialIndices&&
+        bundle.childDonorBodyIndices==refined.geometricDonorBodyIndices&&
+        bundle.childAnatomicalRegionIndices==refined.anatomicalRegionIndices&&
+        bundle.childStableSourceFaceIdentities==refined.stableSourceFaceIds;
+}
+
 inline bool verifyOperationalReferencePullback(
         const PhysicalSkinOperationalReferencePullbackAssets& proof,
         const std::string_view coordinateFrameSHA256,const std::size_t sourceBodyCount,
@@ -248,7 +292,8 @@ inline bool verifyOperationalReferencePullback(
         const std::array<std::string,3>& candidateFileSHA256,
         const std::string& candidateNodeMapSHA256,const std::string& candidateFacetMapSHA256,
         SameTopologyReferencePullbackResult& result,double& maximumSourceParentRegistrationDistanceM,
-        std::string& error) {
+        std::string& conformingTissueVerificationSHA256,
+        PhysicalSkinVerifiedConformingMassRoute& verifiedMassRoute,std::string& error) {
     PhysicalSkinChildMassMappingBundle source;source.parent=candidate.parent;
     PhysicalSkinChildTetGenImportReport sourceReport;
     if(!loadPhysicalSkinChildTetGenReference(proof.sourceTetgenNode,proof.sourceTetgenElements,
@@ -267,14 +312,8 @@ inline bool verifyOperationalReferencePullback(
        source.childTetrahedra!=parent.tetrahedra||source.childMaterialIndices!=parent.materialIndices||
        source.childDonorBodyIndices!=parent.donorBodyIndices||
        source.childAnatomicalRegionIndices!=parent.anatomicalRegionIndices||
-       source.childStableSourceFaceIdentities!=parent.stableSourceFaceIdentities||
-       candidate.referenceWorldPoints.size()!=source.referenceWorldPoints.size()||
-       candidate.childTetrahedra!=source.childTetrahedra||
-       candidate.childMaterialIndices!=source.childMaterialIndices||
-       candidate.childDonorBodyIndices!=source.childDonorBodyIndices||
-       candidate.childAnatomicalRegionIndices!=source.childAnatomicalRegionIndices||
-       candidate.childStableSourceFaceIdentities!=source.childStableSourceFaceIdentities)
-        {error="operational-reference pullback requires exact source/parent/candidate cell and label correspondence";return false;}
+       source.childStableSourceFaceIdentities!=parent.stableSourceFaceIdentities)
+        {error="operational-reference source volume requires exact immutable-parent cell and label correspondence";return false;}
     maximumSourceParentRegistrationDistanceM=0.0;
     for(std::size_t node=0u;node<source.referenceWorldPoints.size();++node){
         V3 f32Parent{};
@@ -286,6 +325,123 @@ inline bool verifyOperationalReferencePullback(
     if(maximumSourceParentRegistrationDistanceM>0.0004){
         error="operational-reference source registration exceeds the unchanged 0.4 mm source gate";return false;
     }
+    if(proof.conformingTissueRefinement){
+        PhysicalSkinVerifiedConformingReference refined;
+        if(!verifyPhysicalSkinConformingTissueRefinementAssets(
+                *proof.conformingTissueRefinement,source,proof.sourceVolumeSHA256,sourceBodyCount,refined,error))
+            return false;
+        if(!sameOperationalReferenceCellDomain(candidate,refined)){
+            error="candidate operational reference is not the exact node/cell/label row domain produced by the authenticated 530 refinement";
+            return false;
+        }
+        std::vector<std::uint32_t> identityNodes(candidate.referenceWorldPoints.size());
+        std::vector<std::uint32_t> identityTets(candidate.childTetrahedra.size());
+        std::iota(identityNodes.begin(),identityNodes.end(),0u);
+        std::iota(identityTets.begin(),identityTets.end(),0u);
+        std::vector<double> densityLower(17u,0.0),densityUpper(17u,0.0);
+        densityLower[15u]=900.0;densityUpper[15u]=1100.0;
+        densityLower[16u]=850.0;densityUpper[16u]=950.0;
+        for(const auto material:refined.materialIndices)
+            if(material!=15u&&material!=16u){error="530 refined pullback has no authoritative material density bounds";return false;}
+        SameTopologyReferencePullbackInput refinedInput{
+            .sourceReferencePoints=refined.referenceWorldPoints,
+            .candidateReferencePoints=candidate.referenceWorldPoints,
+            .candidateToSourceNodeRows=identityNodes,
+            .sourceTetrahedra=refined.tetrahedra,
+            .candidateTetrahedra=candidate.childTetrahedra,
+            .candidateToSourceTetRows=identityTets,
+            .sourceMaterialIds=refined.materialIndices,
+            .candidateMaterialIds=candidate.childMaterialIndices,
+            .sourceGeometricDonorIds=refined.geometricDonorBodyIndices,
+            .candidateGeometricDonorIds=candidate.childDonorBodyIndices,
+            .sourceRegionIds=refined.anatomicalRegionIndices,
+            .candidateRegionIds=candidate.childAnatomicalRegionIndices,
+            .sourceStableFaceIds=refined.stableSourceFaceIds,
+            .candidateStableFaceIds=candidate.childStableSourceFaceIdentities,
+            .sourceCellMassKg=refined.refinement.childMassKg,
+            .materialDensityLowerKgM3=densityLower,.materialDensityUpperKgM3=densityUpper,
+            .sourceVolumeSHA256=refined.refinedVolumeSHA256,
+            .candidateVolumeSHA256=proof.candidateVolumeSHA256,
+            .parentMassPacketSHA256=parent.parentMassPacketSHA256,
+            .parentSourceContributionSHA256=parent.parentSourceContributionSHA256,
+            .sourceBoundarySelfAuditSHA256=proof.conformingTissueRefinement->selfAuditReceiptSHA256,
+            .candidateBoundarySelfAuditSHA256=proof.candidateSelfAuditReceiptSHA256,
+            .sourceBoundarySelfIntersectionPairs=0u,.candidateBoundarySelfIntersectionPairs=0u};
+        if(!verifySameTopologyReferencePullback(refinedInput,result,error))return false;
+        spatial_mass_transport_detail::SHA256Builder chainHash;
+        chainHash.string("physical-skin-operational-reference-conforming-chain.v1");
+        chainHash.string(refined.refinement.verificationSHA256);
+        chainHash.string(refined.sourceDonorLedgerVerificationSHA256);
+        chainHash.string(result.verificationSHA256);
+        chainHash.string(proof.sourceVolumeSHA256);chainHash.string(proof.candidateVolumeSHA256);
+        conformingTissueVerificationSHA256=chainHash.finish();
+        PhysicalSkinVerifiedConformingMassRoute nextRoute;
+        nextRoute.authenticated=true;
+        nextRoute.refinedSourceCellCount=refined.tetrahedra.size();
+        nextRoute.childRefinedSourceRows.resize(candidate.childTetrahedra.size());
+        nextRoute.childImmutableParentRows.resize(candidate.childTetrahedra.size());
+        nextRoute.childImmutableParentFractions.resize(candidate.childTetrahedra.size());
+        nextRoute.childImmutableParentReferenceMeasureM3.resize(candidate.childTetrahedra.size());
+        nextRoute.childMassKg.resize(candidate.childTetrahedra.size());
+        nextRoute.childSourceDonorOffsets.reserve(candidate.childTetrahedra.size()+1u);
+        nextRoute.childSourceDonorOffsets.push_back(0u);
+        for(std::size_t child=0u;child<candidate.childTetrahedra.size();++child){
+            const auto begin=result.childParentAncestryOffsets[child];
+            const auto end=result.childParentAncestryOffsets[child+1u];
+            if(end!=begin+1u||end>result.childParentAncestryTetrahedra.size()||
+               end>result.childParentAncestryVolumeFractions.size()||
+               result.childParentAncestryVolumeFractions[begin]!=1.0){
+                error="verified 530-to-candidate reference pullback is not a single exact row ancestry";return false;
+            }
+            const auto refinedRow=result.childParentAncestryTetrahedra[begin];
+            if(refinedRow>=refined.refinement.childParentRows.size()||
+               refinedRow>=refined.refinement.childSourceMeasureFractions.size()||
+               refinedRow>=refined.refinement.childParentImmutableReferenceMeasureM3.size()||
+               refinedRow>=refined.refinement.childMassKg.size()||
+               refinedRow+1u>=refined.sourceDonorOffsets.size()||
+               result.childMassKg[child]!=refined.refinement.childMassKg[refinedRow]){
+                error="verified 530-to-candidate child mass differs from the immutable-330 refinement ledger";return false;
+            }
+            nextRoute.childRefinedSourceRows[child]=refinedRow;
+            nextRoute.childImmutableParentRows[child]=refined.refinement.childParentRows[refinedRow];
+            nextRoute.childImmutableParentFractions[child]=refined.refinement.childSourceMeasureFractions[refinedRow];
+            nextRoute.childImmutableParentReferenceMeasureM3[child]=
+                refined.refinement.childParentImmutableReferenceMeasureM3[refinedRow];
+            nextRoute.childMassKg[child]=result.childMassKg[child];
+            const auto donorBegin=refined.sourceDonorOffsets[refinedRow];
+            const auto donorEnd=refined.sourceDonorOffsets[refinedRow+1u];
+            if(donorBegin>=donorEnd||donorEnd>refined.sourceDonorBodyIndices.size()||
+               donorEnd>refined.sourceDonorMassKg.size()){
+                error="verified 534 source-donor ledger has an empty or invalid refined child row";return false;
+            }
+            nextRoute.childSourceDonorBodyIndices.insert(nextRoute.childSourceDonorBodyIndices.end(),
+                refined.sourceDonorBodyIndices.begin()+donorBegin,
+                refined.sourceDonorBodyIndices.begin()+donorEnd);
+            nextRoute.childSourceDonorMassKg.insert(nextRoute.childSourceDonorMassKg.end(),
+                refined.sourceDonorMassKg.begin()+donorBegin,
+                refined.sourceDonorMassKg.begin()+donorEnd);
+            nextRoute.childSourceDonorOffsets.push_back(
+                static_cast<std::uint32_t>(nextRoute.childSourceDonorBodyIndices.size()));
+        }
+        nextRoute.parentMassPacketSHA256=parent.parentMassPacketSHA256;
+        nextRoute.parentSourceContributionSHA256=parent.parentSourceContributionSHA256;
+        nextRoute.sourceVolumeSHA256=proof.sourceVolumeSHA256;
+        nextRoute.refinedVolumeSHA256=refined.refinedVolumeSHA256;
+        nextRoute.candidateVolumeSHA256=proof.candidateVolumeSHA256;
+        nextRoute.refinementVerificationSHA256=refined.refinement.verificationSHA256;
+        nextRoute.sourceDonorLedgerVerificationSHA256=refined.sourceDonorLedgerVerificationSHA256;
+        nextRoute.pullbackVerificationSHA256=result.verificationSHA256;
+        nextRoute.chainVerificationSHA256=conformingTissueVerificationSHA256;
+        nextRoute.verificationSHA256=physical_skin_child_mass_mapping_detail::
+            verifiedConformingMassRouteSHA256(nextRoute);
+        verifiedMassRoute=std::move(nextRoute);
+        return true;
+    }
+    // The legacy route still requires the source and candidate to share one
+    // exact node/cell/label domain. The explicit refinement route above instead
+    // binds the candidate to the separately authenticated 530 domain.
+    if(!sameOperationalReferenceCellDomain(candidate,source))
+        {error="legacy operational-reference pullback requires exact source/candidate cell and label correspondence";return false;}
     std::vector<std::uint32_t> candidateToSourceNodeRows(candidate.referenceWorldPoints.size(),NM_INVALID_INDEX);
     for(const auto& row:candidateNodeRows){
         if(row.volumeNodeRow>=candidateToSourceNodeRows.size()||
@@ -375,7 +531,7 @@ inline bool verifyOperationalReferencePullback(
         return fail("candidate operational-reference import requires authenticated source and candidate receipts plus a same-topology pullback proof");
     if(!separatedOperationalReference&&files.operationalReferencePullback)
         return fail("source-parent import cannot carry an operational-reference pullback packet");
-    const auto operationalDomainHash=separatedOperationalReference?
+    auto operationalDomainHash=separatedOperationalReference?
         operationalReferenceDomainSHA256(tetgenReport,coordinateFrameSHA256):std::string{};
     if(separatedOperationalReference&&
        !physical_skin_child_mass_detail::validSHA256(operationalDomainHash))
@@ -388,7 +544,8 @@ inline bool verifyOperationalReferencePullback(
                 std::array<std::filesystem::path,3>{files.tetgenNode,files.tetgenElements,files.childLabels}[i].string());
 
     nextBundle.usesSeparatedOperationalReference=separatedOperationalReference;
-    nextBundle.operationalReferenceDomainSHA256=operationalDomainHash;
+    nextBundle.conformingLineageMassRouteRequired=separatedOperationalReference&&
+        files.operationalReferencePullback->conformingTissueRefinement.has_value();
     std::string mapHashBefore,mapHashAfter;
     if(!pinnedFile(files.combinedNodeMapCSV,files.expectedSHA256[3],mapHashBefore,error))return false;
     std::ifstream nodeMapInput(files.combinedNodeMapCSV);
@@ -403,11 +560,35 @@ inline bool verifyOperationalReferencePullback(
         return fail("combined TetGen node-map CSV changed while it was being imported");
     SameTopologyReferencePullbackResult pullbackProof;
     double maximumSourceParentRegistrationDistance=0.0;
+    std::string conformingTissueVerificationSHA256;
+    PhysicalSkinVerifiedConformingMassRoute verifiedMassRoute;
     if(separatedOperationalReference&&
        !verifyOperationalReferencePullback(*files.operationalReferencePullback,coordinateFrameSHA256,
            sourceBodyCount,maximumMassTransportDistanceM,nextBundle,nodeRows,tetgenHashes,
-           mapHashAfter,files.expectedSHA256[4],pullbackProof,maximumSourceParentRegistrationDistance,error))
+           mapHashAfter,files.expectedSHA256[4],pullbackProof,maximumSourceParentRegistrationDistance,
+           conformingTissueVerificationSHA256,verifiedMassRoute,error))
         return fail("authenticated operational-reference pullback rejected: "+error);
+    if(separatedOperationalReference){
+        if(!conformingTissueVerificationSHA256.empty()){
+            spatial_mass_transport_detail::SHA256Builder domainHash;
+            domainHash.string("physical-skin-operational-reference-domain-with-conforming-proof.v1");
+            domainHash.string(operationalDomainHash);domainHash.string(conformingTissueVerificationSHA256);
+            domainHash.string(pullbackProof.verificationSHA256);
+            operationalDomainHash=domainHash.finish();
+        }
+        nextBundle.operationalReferenceDomainSHA256=operationalDomainHash;
+        if(nextBundle.conformingLineageMassRouteRequired){
+            if(!verifiedMassRoute.authenticated){
+                error="conforming operational-reference route did not produce an authenticated immutable-mass lineage";return false;
+            }
+            verifiedMassRoute.candidateOperationalReferenceDomainSHA256=operationalDomainHash;
+            verifiedMassRoute.candidateCompiledDataSHA256=physical_skin_child_mass_mapping_detail::
+                operationalChildCompiledDataSHA256(nextBundle);
+            verifiedMassRoute.verificationSHA256=physical_skin_child_mass_mapping_detail::
+                verifiedConformingMassRouteSHA256(verifiedMassRoute);
+            nextBundle.conformingLineageMassRoute=std::move(verifiedMassRoute);
+        }
+    }
 
     std::string facetHashBefore,facetHashAfter;
     if(!pinnedFile(files.facetAncestryCSV,files.expectedSHA256[4],facetHashBefore,error))return false;
@@ -450,6 +631,8 @@ inline bool verifyOperationalReferencePullback(
     measured.operationalReferencePullbackVerified=separatedOperationalReference;
     if(separatedOperationalReference){
         measured.operationalReferencePullbackSHA256=pullbackProof.verificationSHA256;
+        measured.conformingTissueRefinementVerified=!conformingTissueVerificationSHA256.empty();
+        measured.conformingTissueRefinementVerificationSHA256=conformingTissueVerificationSHA256;
         measured.maximumSourceParentRegistrationDistanceM=maximumSourceParentRegistrationDistance;
         measured.maximumSourceToCandidateReferenceDistanceM=pullbackProof.maximumNodeDisplacementM;
     }

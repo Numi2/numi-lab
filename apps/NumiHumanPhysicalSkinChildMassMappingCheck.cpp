@@ -67,6 +67,21 @@ void fillOneChild(PhysicalSkinChildMassMappingBundle& bundle) {
     bundle.maximumSpatialMassTransportDistanceM=1.0;
 }
 
+void fillTwoConformingChildren(PhysicalSkinChildMassMappingBundle& bundle) {
+    const std::array<V3,5> p{{{{0,0,0}},{{1,0,0}},{{0,1,0}},{{0,0,1}},{{0.5,0,0}}}};
+    bundle.currentWorldPoints.assign(p.begin(),p.end());
+    bundle.referenceWorldPoints.assign(p.begin(),p.end());
+    bundle.childTetrahedra={{0u,4u,2u,3u},{4u,1u,2u,3u}};
+    bundle.childMaterialIndices={0u,0u};
+    bundle.childDonorBodyIndices={7u,7u};
+    bundle.childAnatomicalRegionIndices={3u,3u};
+    bundle.childStableSourceFaceIdentities={901u,901u};
+    bundle.childMeshSHA256=std::string(64u,'a');
+    bundle.regionLabelSHA256=std::string(64u,'b');
+    bundle.coordinateFrameSHA256=std::string(64u,'c');
+    bundle.maximumSpatialMassTransportDistanceM=1.0;
+}
+
 } // namespace
 
 int main() {
@@ -168,6 +183,145 @@ int main() {
         std::cerr<<"positive exact identity mapping did not preserve measured rest/current offset and receipt\n";return 6;
     }
     const auto exactPathHash=bundle.massMappingPathSHA256;
+    if(exactPathHash!="426dd9b26bc71207a9ba74f18d346c5a82567cafa04d5631a37892e5ff03a02b"){
+        std::cerr<<"legacy exact-identity v2 path hash changed\n";return 65;
+    }
+
+    // The authenticated refinement path maps two candidate cells back to the
+    // same immutable 330 parent. It must accumulate that parent row, preserve
+    // the verified donor split, and use the ordinary recorded-flow validator.
+    auto conformingBundle=bundle;
+    fillTwoConformingChildren(conformingBundle);
+    conformingBundle.exactTopologyIdentityTransportUsed=false;
+    conformingBundle.conformingLineageMassTransportUsed=false;
+    conformingBundle.conformingLineageMassRouteRequired=true;
+    conformingBundle.usesSeparatedOperationalReference=true;
+    conformingBundle.operationalReferenceDomainSHA256=std::string(64u,'d');
+    auto& lineage=conformingBundle.conformingLineageMassRoute;
+    lineage.authenticated=true;lineage.refinedSourceCellCount=2u;
+    lineage.childRefinedSourceRows={0u,1u};lineage.childImmutableParentRows={0u,0u};
+    lineage.childImmutableParentFractions={0.5,0.5};
+    lineage.childImmutableParentReferenceMeasureM3={
+        conformingBundle.parent.referenceTetVolumeM3[0]*0.5,
+        conformingBundle.parent.referenceTetVolumeM3[0]*0.5};
+    lineage.childMassKg={50.0,50.0};lineage.childSourceDonorOffsets={0u,1u,2u};
+    lineage.childSourceDonorBodyIndices={7u,7u};lineage.childSourceDonorMassKg={50.0,50.0};
+    lineage.parentMassPacketSHA256=conformingBundle.parent.parentMassPacketSHA256;
+    lineage.parentSourceContributionSHA256=conformingBundle.parent.parentSourceContributionSHA256;
+    lineage.sourceVolumeSHA256=std::string(64u,'1');lineage.refinedVolumeSHA256=std::string(64u,'2');
+    lineage.candidateVolumeSHA256=std::string(64u,'3');
+    lineage.refinementVerificationSHA256=std::string(64u,'4');
+    lineage.sourceDonorLedgerVerificationSHA256=std::string(64u,'5');
+    lineage.pullbackVerificationSHA256=std::string(64u,'6');
+    lineage.chainVerificationSHA256=std::string(64u,'7');
+    lineage.candidateOperationalReferenceDomainSHA256=conformingBundle.operationalReferenceDomainSHA256;
+    lineage.candidateCompiledDataSHA256=
+        physical_skin_child_mass_mapping_detail::operationalChildCompiledDataSHA256(conformingBundle);
+    lineage.verificationSHA256=
+        physical_skin_child_mass_mapping_detail::verifiedConformingMassRouteSHA256(lineage);
+    if(!preparePhysicalSkinChildMassMapping(conformingBundle,densityLower,densityUpper,1.0,8u,error)||
+       !conformingBundle.conformingLineageMassTransportUsed||
+       conformingBundle.exactTopologyIdentityTransportUsed||
+       conformingBundle.spatialMassTransportResult.childMassKg!=std::vector<double>{50.0,50.0}||
+       conformingBundle.spatialMassTransportResult.childDominantParentRows!=
+           std::vector<std::uint32_t>{0u,0u}||
+       conformingBundle.spatialMassTransportResult.parentMassTransferredKg!=std::vector<double>{100.0}||
+       conformingBundle.spatialMassTransportResult.transportEdgeCount!=2u||
+       conformingBundle.spatialMassTransportResult.augmentationCount!=2u||
+       conformingBundle.massMappingPathSHA256!=
+           physical_skin_child_mass_mapping_detail::massMappingPathSHA256(conformingBundle,false,true)) {
+        std::cerr<<"verified conforming lineage transport rejected or misreported repeated immutable parent rows: "
+                 <<error<<'\n';return 60;
+    }
+
+    std::vector<SpatialMassTransportPoint> lineageParentCentroids(1u),lineageChildCentroids(2u);
+    for(const auto node:conformingBundle.parent.tetrahedra[0])
+        for(unsigned axis=0u;axis<3u;++axis)
+            lineageParentCentroids[0][axis]+=conformingBundle.parent.referenceWorldPoints[node][axis]*0.25;
+    std::vector<double> lineageParentVolumes=conformingBundle.parent.referenceTetVolumeM3;
+    std::vector<double> lineageChildVolumes(2u);
+    for(std::size_t cell=0u;cell<2u;++cell){
+        const auto tet=conformingBundle.childTetrahedra[cell];
+        lineageChildVolumes[cell]=parentReferenceTetVolumeM3(tet,conformingBundle.referenceWorldPoints);
+        for(const auto node:tet)for(unsigned axis=0u;axis<3u;++axis)
+            lineageChildCentroids[cell][axis]+=conformingBundle.referenceWorldPoints[node][axis]*0.25;
+    }
+    std::vector<ConservativeSpatialMassTransportParentNodeSourceMass> lineageSourceRows;
+    for(const auto& row:conformingBundle.parent.sourceMassContributions)
+        lineageSourceRows.push_back({.parentNodeIndex=row.parentNodeIndex,.materialIndex=row.materialIndex,
+            .sourceDonorBodyIndex=row.donorBodyIndex,.massKg=row.massKg});
+    std::vector<std::uint32_t> lineageSourceOffsets,lineageSourceDonors;
+    std::vector<double> lineageSourceMasses;
+    if(!assembleConservativeSpatialMassTransportParentSourceDonorSplits(
+           conformingBundle.parent.tetrahedronMassKg,conformingBundle.parent.materialIndices,
+           conformingBundle.parent.tetrahedra,lineageSourceRows,1.0e-10,5.0e-4,
+           lineageSourceOffsets,lineageSourceDonors,lineageSourceMasses,error)){
+        std::cerr<<"lineage mass-check fixture could not reconstruct 330 donor splits: "<<error<<'\n';return 61;
+    }
+    ConservativeSpatialMassTransportInput lineageInput;
+    lineageInput.parentCentroidsWorld=lineageParentCentroids;
+    lineageInput.parentReferenceVolumeM3=lineageParentVolumes;
+    lineageInput.parentMassKg=conformingBundle.parent.tetrahedronMassKg;
+    lineageInput.parentMaterialIndices=conformingBundle.parent.materialIndices;
+    lineageInput.parentDonorBodyIndices=conformingBundle.parent.donorBodyIndices;
+    lineageInput.parentAnatomicalRegionIndices=conformingBundle.parent.anatomicalRegionIndices;
+    lineageInput.parentSourceDonorOffsets=lineageSourceOffsets;
+    lineageInput.parentSourceDonorBodyIndices=lineageSourceDonors;
+    lineageInput.parentSourceDonorMassKg=lineageSourceMasses;
+    lineageInput.childCentroidsWorld=lineageChildCentroids;
+    lineageInput.childReferenceVolumeM3=lineageChildVolumes;
+    lineageInput.childMaterialIndices=conformingBundle.childMaterialIndices;
+    lineageInput.childDonorBodyIndices=conformingBundle.childDonorBodyIndices;
+    lineageInput.childAnatomicalRegionIndices=conformingBundle.childAnatomicalRegionIndices;
+    lineageInput.materialDensityLowerKgM3=densityLower;
+    lineageInput.materialDensityUpperKgM3=densityUpper;
+    lineageInput.parentMassPacketSHA256=conformingBundle.parent.parentMassPacketSHA256;
+    lineageInput.parentSourceContributionSHA256=conformingBundle.parent.parentSourceContributionSHA256;
+    lineageInput.childMeshSHA256=conformingBundle.childMeshSHA256;
+    lineageInput.regionLabelSHA256=conformingBundle.regionLabelSHA256;
+    lineageInput.coordinateFrameSHA256=conformingBundle.coordinateFrameSHA256;
+    lineageInput.maximumTransportDistanceM=1.0;
+    lineageInput.relativeClosureTolerance=1.0e-10;
+    lineageInput.absoluteMassToleranceKg=1.0e-13;
+    lineageInput.absoluteMeasureToleranceM3=1.0e-15;
+    lineageInput.maximumAllowedEdges=3'000'000u;lineageInput.maximumAugmentations=300'000u;
+    const auto validLineageTransfer=conformingBundle.spatialMassTransportResult;
+    const auto rejectsTransferMutation=[&](auto mutate,const char* label){
+        auto bad=validLineageTransfer;mutate(bad);std::string rejectError;
+        if(verifyRecordedConservativeSpatialMassTransport(lineageInput,bad,rejectError)){
+            std::cerr<<"recorded conforming transport accepted altered "<<label<<'\n';return false;
+        }
+        return true;
+    };
+    if(!rejectsTransferMutation([](auto& bad){bad.childParentVolumeFractions[0]=0.5;},"fraction")||
+       !rejectsTransferMutation([](auto& bad){bad.childParentTransportMassKg[0]+=1.0;},"mass")||
+       !rejectsTransferMutation([](auto& bad){bad.childSourceDonorMassKg[0]-=1.0;},"donor share")||
+       !rejectsTransferMutation([](auto& bad){bad.childImpliedDensityKgM3[0]+=1.0;},"density")||
+       !rejectsTransferMutation([](auto& bad){bad.childParentTransportDistanceM[0]+=0.001;},"distance"))
+        return 62;
+    auto partialRouteBundle=conformingBundle;
+    partialRouteBundle.conformingLineageMassRoute.childImmutableParentFractions[0]=0.25;
+    partialRouteBundle.conformingLineageMassRoute.childImmutableParentReferenceMeasureM3[0]=
+        lineageParentVolumes[0]*0.25;
+    partialRouteBundle.conformingLineageMassRoute.childMassKg[0]=25.0;
+    partialRouteBundle.conformingLineageMassRoute.childSourceDonorMassKg[0]=25.0;
+    partialRouteBundle.conformingLineageMassRoute.verificationSHA256=
+        physical_skin_child_mass_mapping_detail::verifiedConformingMassRouteSHA256(
+            partialRouteBundle.conformingLineageMassRoute);
+    const auto preservedReceipt=partialRouteBundle.spatialMassTransportResult.receiptSHA256;
+    const auto preservedPath=partialRouteBundle.massMappingPathSHA256;
+    const auto preservedParents=partialRouteBundle.childDominantParentTetrahedra;
+    if(preparePhysicalSkinChildMassMapping(partialRouteBundle,densityLower,densityUpper,1.0,8u,error)||
+       partialRouteBundle.spatialMassTransportResult.receiptSHA256!=preservedReceipt||
+       partialRouteBundle.massMappingPathSHA256!=preservedPath||
+       partialRouteBundle.childDominantParentTetrahedra!=preservedParents){
+        std::cerr<<"incomplete lineage mass transfer was accepted or committed non-atomically\n";return 63;
+    }
+    auto staleCompiledDomain=conformingBundle;
+    staleCompiledDomain.referenceWorldPoints[4][0]+=0.001;
+    if(preparePhysicalSkinChildMassMapping(staleCompiledDomain,densityLower,densityUpper,1.0,8u,error)){
+        std::cerr<<"conforming mass route accepted child arrays changed after authenticated import\n";return 64;
+    }
 
     // Preserve a nontrivial parent current/reference translation while mapping
     // an exact child whose current rows match the parent current rows and whose

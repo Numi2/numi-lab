@@ -322,7 +322,7 @@ struct Fixture {
     }
 };
 
-PhysicalSkinRegisteredVolumeAssetFiles rewriteSplitMapField(
+[[maybe_unused]] PhysicalSkinRegisteredVolumeAssetFiles rewriteSplitMapField(
         const PhysicalSkinRegisteredVolumeAssetFiles& files,const std::filesystem::path& root,
         const std::string& name,const std::uint32_t node,const std::size_t column,
         const std::string& value) {
@@ -465,6 +465,41 @@ int main() {
         bundle.childAuthoredHeadSidewallFacetFlags.end(),1u)==12);
     assert(report.inputSHA256==files.expectedSHA256);
 
+    // Legacy 002->514-style pullbacks retain exact source/candidate row-domain
+    // equality, while a proven 002->530->006 route compares the candidate to
+    // the separately authenticated refined domain instead.
+    PhysicalSkinChildMassMappingBundle sourceDomain,legacyCandidateDomain;
+    sourceDomain.referenceWorldPoints.resize(4u);
+    sourceDomain.childTetrahedra={{{0u,1u,2u,3u}}};
+    sourceDomain.childMaterialIndices={15u};
+    sourceDomain.childDonorBodyIndices={66u};
+    sourceDomain.childAnatomicalRegionIndices={53u};
+    sourceDomain.childStableSourceFaceIdentities={835u};
+    legacyCandidateDomain=sourceDomain;
+    assert(physical_skin_registered_volume_integration_detail::sameOperationalReferenceCellDomain(
+        legacyCandidateDomain,sourceDomain));
+    PhysicalSkinChildMassMappingBundle refinedCandidateDomain;
+    refinedCandidateDomain.referenceWorldPoints.resize(5u);
+    refinedCandidateDomain.childTetrahedra={{{0u,1u,2u,4u}},{{0u,2u,1u,4u}}};
+    refinedCandidateDomain.childMaterialIndices={15u,15u};
+    refinedCandidateDomain.childDonorBodyIndices={66u,66u};
+    refinedCandidateDomain.childAnatomicalRegionIndices={53u,53u};
+    refinedCandidateDomain.childStableSourceFaceIdentities={835u,835u};
+    PhysicalSkinVerifiedConformingReference refinedDomain;
+    refinedDomain.referenceWorldPoints=refinedCandidateDomain.referenceWorldPoints;
+    refinedDomain.tetrahedra=refinedCandidateDomain.childTetrahedra;
+    refinedDomain.materialIndices=refinedCandidateDomain.childMaterialIndices;
+    refinedDomain.geometricDonorBodyIndices=refinedCandidateDomain.childDonorBodyIndices;
+    refinedDomain.anatomicalRegionIndices=refinedCandidateDomain.childAnatomicalRegionIndices;
+    refinedDomain.stableSourceFaceIds=refinedCandidateDomain.childStableSourceFaceIdentities;
+    assert(!physical_skin_registered_volume_integration_detail::sameOperationalReferenceCellDomain(
+        refinedCandidateDomain,sourceDomain));
+    assert(physical_skin_registered_volume_integration_detail::sameOperationalReferenceCellDomain(
+        refinedCandidateDomain,refinedDomain));
+    auto wrongRefinedDomain=refinedDomain;wrongRefinedDomain.stableSourceFaceIds[0]=836u;
+    assert(!physical_skin_registered_volume_integration_detail::sameOperationalReferenceCellDomain(
+        refinedCandidateDomain,wrongRefinedDomain));
+
     Fixture splitFixture;
     splitFixture.prepareSeparatedOperationalReference();
     PhysicalSkinRegisteredVolumeAssetFiles splitFiles;
@@ -504,6 +539,7 @@ int main() {
         <<" exact_node_map_rows=12 malformed_csv_and_gzip_rejected atomic_failure_preserved=1"
         <<" native_F32_exact_pins_and_roundoff_bound=PASS strict_default_unchanged=1"
         <<" candidate_operational_reference_missing_proof_rejected=PASS"
+        <<" legacy_exact_topology_and_refined_530_candidate_domain_routing=PASS"
         <<" immutable_parent_packet=1 actual_authenticated_chain_separately_checked=1"
         <<" physical_admission=NOT_CLAIMED\n";
 }

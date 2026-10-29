@@ -415,6 +415,25 @@ struct PhysicalSkinChildStableDeepAttachment {
                            const PhysicalSkinChildStableDeepAttachment&)=default;
 };
 
+// Compact, already-authenticated 002 -> 530 -> fitted-candidate lineage used
+// by the one-time mass initializer. This carries immutable-330 cell rows and
+// 534 donor shares; it does not replace the parent packet or represent runtime
+// mass advection.
+struct PhysicalSkinVerifiedConformingMassRoute {
+    bool authenticated=false;
+    std::size_t refinedSourceCellCount=0u;
+    std::vector<std::uint32_t> childRefinedSourceRows,childImmutableParentRows;
+    std::vector<double> childImmutableParentFractions;
+    std::vector<double> childImmutableParentReferenceMeasureM3,childMassKg;
+    std::vector<std::uint32_t> childSourceDonorOffsets,childSourceDonorBodyIndices;
+    std::vector<double> childSourceDonorMassKg;
+    std::string parentMassPacketSHA256,parentSourceContributionSHA256;
+    std::string sourceVolumeSHA256,refinedVolumeSHA256,candidateVolumeSHA256;
+    std::string refinementVerificationSHA256,sourceDonorLedgerVerificationSHA256;
+    std::string pullbackVerificationSHA256,chainVerificationSHA256;
+    std::string candidateOperationalReferenceDomainSHA256,candidateCompiledDataSHA256,verificationSHA256;
+};
+
 struct PhysicalSkinChildMassMappingBundle {
     PhysicalSkinParentMassPacket parent;
     RegisteredSurface outerSkin;
@@ -472,6 +491,12 @@ struct PhysicalSkinChildMassMappingBundle {
     // transport receipt remains the existing receipt over physical inputs and
     // flows; this separate digest binds which mapping algorithm was used.
     bool exactTopologyIdentityTransportUsed=false;
+    // The proof-required bit is set only by the transactional registered-file
+    // importer. When set, a missing or invalid lineage route must fail closed
+    // instead of falling back to global spatial transport.
+    bool conformingLineageMassRouteRequired=false;
+    bool conformingLineageMassTransportUsed=false;
+    PhysicalSkinVerifiedConformingMassRoute conformingLineageMassRoute;
     std::string massMappingPathSHA256;
 
     [[nodiscard]] ExplicitUnpairedVolumeTopology topologyView() const {
@@ -813,9 +838,314 @@ inline bool buildExactIdentityTransport(
     return true;
 }
 
+inline std::string operationalChildCompiledDataSHA256(
+        const PhysicalSkinChildMassMappingBundle& bundle) {
+    using spatial_mass_transport_detail::SHA256Builder;
+    SHA256Builder hash;hash.string("physical-skin-operational-child-compiled-data.v1");
+    hash.u64(bundle.currentWorldPoints.size());
+    for(const auto& point:bundle.currentWorldPoints)for(const auto value:point)hash.real(value);
+    hash.u64(bundle.referenceWorldPoints.size());
+    for(const auto& point:bundle.referenceWorldPoints)for(const auto value:point)hash.real(value);
+    hash.u64(bundle.childTetrahedra.size());
+    for(const auto& tet:bundle.childTetrahedra)for(const auto node:tet)hash.u32(node);
+    const auto hashIndices=[&](const char* name,const auto& rows){
+        hash.string(name);hash.u64(rows.size());for(const auto value:rows)hash.u32(value);
+    };
+    hashIndices("material",bundle.childMaterialIndices);
+    hashIndices("geometric_donor",bundle.childDonorBodyIndices);
+    hashIndices("region",bundle.childAnatomicalRegionIndices);
+    hashIndices("stable_source_face",bundle.childStableSourceFaceIdentities);
+    return hash.finish();
+}
+
+inline std::string verifiedConformingMassRouteSHA256(
+        const PhysicalSkinVerifiedConformingMassRoute& route) {
+    using spatial_mass_transport_detail::SHA256Builder;
+    SHA256Builder hash;
+    hash.string("physical-skin-verified-conforming-mass-route.v1");
+    hash.u32(route.authenticated?1u:0u);hash.u64(route.refinedSourceCellCount);
+    for(const auto& value:{route.parentMassPacketSHA256,route.parentSourceContributionSHA256,
+                           route.sourceVolumeSHA256,route.refinedVolumeSHA256,
+                           route.candidateVolumeSHA256,route.refinementVerificationSHA256,
+                           route.sourceDonorLedgerVerificationSHA256,
+                           route.pullbackVerificationSHA256,route.chainVerificationSHA256,
+                           route.candidateOperationalReferenceDomainSHA256,
+                           route.candidateCompiledDataSHA256}) hash.string(value);
+    const auto hashU32=[&](const char* name,const auto& values){
+        hash.string(name);hash.u64(values.size());for(const auto value:values)hash.u32(value);
+    };
+    const auto hashDouble=[&](const char* name,const auto& values){
+        hash.string(name);hash.u64(values.size());for(const auto value:values)hash.real(value);
+    };
+    hashU32("candidate_to_refined_rows",route.childRefinedSourceRows);
+    hashU32("candidate_to_immutable_parent_rows",route.childImmutableParentRows);
+    hashDouble("child_immutable_parent_fractions",route.childImmutableParentFractions);
+    hashDouble("child_immutable_parent_reference_measure_m3",route.childImmutableParentReferenceMeasureM3);
+    hashDouble("child_mass_kg",route.childMassKg);
+    hashU32("child_source_donor_offsets",route.childSourceDonorOffsets);
+    hashU32("child_source_donor_body_indices",route.childSourceDonorBodyIndices);
+    hashDouble("child_source_donor_mass_kg",route.childSourceDonorMassKg);
+    return hash.finish();
+}
+
+// Construct a one-edge-per-child record from a receipt-authenticated exact
+// refinement lineage. The generic spatial assembler remains the fallback for
+// bundles without this explicit chain; every edge still runs through the same
+// recorded-flow validator and frozen centroid-distance policy.
+inline bool buildVerifiedConformingAncestryTransport(
+        const ConservativeSpatialMassTransportInput& input,
+        const PhysicalSkinChildMassMappingBundle& bundle,
+        ConservativeSpatialMassTransportResult& output,std::string& error) {
+    using namespace spatial_mass_transport_detail;
+    const auto fail=[&](std::string message){error=std::move(message);return false;};
+    const auto& route=bundle.conformingLineageMassRoute;
+    const auto parentCount=input.parentMassKg.size(),childCount=input.childReferenceVolumeM3.size();
+    if(!bundle.conformingLineageMassRouteRequired||!bundle.usesSeparatedOperationalReference||
+       !route.authenticated||parentCount==0u||childCount==0u||
+       route.refinedSourceCellCount!=childCount||
+       route.childRefinedSourceRows.size()!=childCount||
+       route.childImmutableParentRows.size()!=childCount||
+       route.childImmutableParentFractions.size()!=childCount||
+       route.childImmutableParentReferenceMeasureM3.size()!=childCount||
+       route.childMassKg.size()!=childCount||route.childSourceDonorOffsets.size()!=childCount+1u||
+       route.childSourceDonorOffsets.empty()||route.childSourceDonorOffsets.front()!=0u||
+       route.childSourceDonorOffsets.back()!=route.childSourceDonorBodyIndices.size()||
+       route.childSourceDonorBodyIndices.size()!=route.childSourceDonorMassKg.size())
+        return fail("verified conforming ancestry route is incomplete or detached from the operational-reference import");
+    for(const auto& value:{route.parentMassPacketSHA256,route.parentSourceContributionSHA256,
+                          route.sourceVolumeSHA256,route.refinedVolumeSHA256,
+                          route.candidateVolumeSHA256,route.refinementVerificationSHA256,
+                          route.sourceDonorLedgerVerificationSHA256,route.pullbackVerificationSHA256,
+                          route.chainVerificationSHA256,route.candidateOperationalReferenceDomainSHA256,
+                          route.candidateCompiledDataSHA256})
+        if(!validSHA256(value))return fail("verified conforming ancestry route is missing a pinned source or proof identity");
+    if(route.parentMassPacketSHA256!=input.parentMassPacketSHA256||
+       route.parentSourceContributionSHA256!=input.parentSourceContributionSHA256||
+       route.candidateOperationalReferenceDomainSHA256!=bundle.operationalReferenceDomainSHA256||
+       route.candidateCompiledDataSHA256!=operationalChildCompiledDataSHA256(bundle)||
+       route.verificationSHA256!=verifiedConformingMassRouteSHA256(route))
+        return fail("verified conforming ancestry route proof or immutable source packet changed");
+    if(input.parentCentroidsWorld.size()!=parentCount||input.parentReferenceVolumeM3.size()!=parentCount||
+       input.parentMaterialIndices.size()!=parentCount||input.parentDonorBodyIndices.size()!=parentCount||
+       input.parentAnatomicalRegionIndices.size()!=parentCount||
+       input.parentSourceDonorOffsets.size()!=parentCount+1u||
+       input.parentSourceDonorOffsets.empty()||input.parentSourceDonorOffsets.front()!=0u||
+       input.parentSourceDonorOffsets.back()!=input.parentSourceDonorBodyIndices.size()||
+       input.parentSourceDonorBodyIndices.size()!=input.parentSourceDonorMassKg.size()||
+       input.childCentroidsWorld.size()!=childCount||input.childMaterialIndices.size()!=childCount||
+       input.childDonorBodyIndices.size()!=childCount||input.childAnatomicalRegionIndices.size()!=childCount||
+       input.materialDensityLowerKgM3.empty()||
+       input.materialDensityUpperKgM3.size()!=input.materialDensityLowerKgM3.size()||
+       bundle.parent.materialIndices.size()!=parentCount||
+       bundle.parent.donorBodyIndices.size()!=parentCount||
+       bundle.parent.anatomicalRegionIndices.size()!=parentCount||
+       bundle.parent.stableSourceFaceIdentities.size()!=parentCount||
+       bundle.childStableSourceFaceIdentities.size()!=childCount)
+        return fail("verified conforming ancestry route does not match current mass-mapping input domains");
+
+    const auto withinMass=[&](const double a,const double b){
+        return std::isfinite(a)&&std::isfinite(b)&&
+            std::abs(a-b)<=std::max(input.absoluteMassToleranceKg,
+                input.relativeClosureTolerance*std::max(std::abs(a),std::abs(b)));
+    };
+    const auto withinMeasure=[&](const double a,const double b){
+        return std::isfinite(a)&&std::isfinite(b)&&
+            std::abs(a-b)<=std::max(input.absoluteMeasureToleranceM3,
+                input.relativeClosureTolerance*std::max(std::abs(a),std::abs(b)));
+    };
+    std::vector<std::uint8_t> refinedRowsSeen(childCount,0u);
+    ConservativeSpatialMassTransportResult next;
+    next.method=UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport;
+    next.parentMassPacketSHA256=std::string(input.parentMassPacketSHA256);
+    next.parentSourceContributionSHA256=std::string(input.parentSourceContributionSHA256);
+    next.childMeshSHA256=std::string(input.childMeshSHA256);
+    next.regionLabelSHA256=std::string(input.regionLabelSHA256);
+    next.coordinateFrameSHA256=std::string(input.coordinateFrameSHA256);
+    next.maximumTransportDistanceM=input.maximumTransportDistanceM;
+    next.relativeClosureTolerance=input.relativeClosureTolerance;
+    next.absoluteMassToleranceKg=input.absoluteMassToleranceKg;
+    next.absoluteMeasureToleranceM3=input.absoluteMeasureToleranceM3;
+    next.maximumAllowedEdges=input.maximumAllowedEdges;
+    next.maximumAugmentations=input.maximumAugmentations;
+    if(childCount>input.maximumAllowedEdges||childCount>input.maximumAugmentations)
+        return fail("verified conforming ancestry edge count exceeds the existing pinned mass-transport budget");
+    hashInputArrays(input,next.parentDataSHA256,next.childDataSHA256,next.materialBoundsSHA256);
+    next.childParentOffsets.assign(childCount+1u,0u);
+    next.parentMassTransferredKg.assign(parentCount,0.0);
+    next.parentMeasureTransferredM3.assign(parentCount,0.0);
+    next.childAncestryMeasureVolumeM3.assign(childCount,0.0);
+    next.childMassKg.assign(childCount,0.0);
+    next.childImpliedDensityKgM3.assign(childCount,0.0);
+    next.childDominantParentRows.assign(childCount,kInvalid);
+    next.childSourceDonorOffsets.assign(childCount+1u,0u);
+
+    std::map<GroupKey,ConservativeSpatialMassTransportGroupClosure> groups;
+    std::map<SourceKey,ConservativeSpatialMassTransportSourceDonorClosure> sourceGroups;
+    for(std::size_t parent=0u;parent<parentCount;++parent){
+        const auto material=input.parentMaterialIndices[parent];
+        if(material>=input.materialDensityLowerKgM3.size()||
+           material>=input.materialDensityUpperKgM3.size()||
+           parent>=input.parentDonorBodyIndices.size()||parent>=input.parentAnatomicalRegionIndices.size()||
+           !std::isfinite(input.materialDensityLowerKgM3[material])||
+           !std::isfinite(input.materialDensityUpperKgM3[material])||
+           input.materialDensityLowerKgM3[material]<=0.0||
+           input.materialDensityLowerKgM3[material]>input.materialDensityUpperKgM3[material]||
+           !std::isfinite(input.parentReferenceVolumeM3[parent])||input.parentReferenceVolumeM3[parent]<=0.0||
+           !std::isfinite(input.parentMassKg[parent])||input.parentMassKg[parent]<=0.0)
+            return fail("verified conforming ancestry source parent row or material bounds are invalid");
+        const GroupKey groupKey{material,input.parentDonorBodyIndices[parent],
+                                input.parentAnatomicalRegionIndices[parent]};
+        auto& group=groups[groupKey];group.materialIndex=std::get<0>(groupKey);
+        group.donorBodyIndex=std::get<1>(groupKey);group.anatomicalRegionIndex=std::get<2>(groupKey);
+        group.parentMassKg+=input.parentMassKg[parent];
+        const auto begin=input.parentSourceDonorOffsets[parent],end=input.parentSourceDonorOffsets[parent+1u];
+        if(begin>=end||end>input.parentSourceDonorBodyIndices.size())
+            return fail("verified conforming ancestry source parent donor split is empty or invalid");
+        std::uint32_t prior=0u;double total=0.0;
+        for(std::uint32_t row=begin;row<end;++row){
+            const auto donor=input.parentSourceDonorBodyIndices[row];
+            const double mass=input.parentSourceDonorMassKg[row];
+            if((row>begin&&donor<=prior)||!std::isfinite(mass)||mass<=0.0)
+                return fail("verified conforming ancestry source parent donor split is not canonical");
+            prior=donor;total+=mass;
+            auto& closure=sourceGroups[{material,donor}];
+            closure.materialIndex=material;closure.sourceDonorBodyIndex=donor;
+            closure.parentMassKg+=mass;
+        }
+        if(!withinMass(total,input.parentMassKg[parent]))
+            return fail("verified conforming ancestry source parent donor split does not close");
+    }
+
+    long double weightedDistance=0.0L,totalMass=0.0L;
+    next.minimumChildImpliedDensityKgM3=std::numeric_limits<double>::infinity();
+    next.maximumChildImpliedDensityKgM3=0.0;
+    for(std::size_t child=0u;child<childCount;++child){
+        const auto refinedRow=route.childRefinedSourceRows[child];
+        const auto parent=route.childImmutableParentRows[child];
+        const double fraction=route.childImmutableParentFractions[child];
+        const double mass=route.childMassKg[child];
+        if(refinedRow>=childCount||refinedRowsSeen[refinedRow]!=0u||parent>=parentCount||
+           !std::isfinite(fraction)||fraction<=0.0||fraction>1.0||
+           !std::isfinite(mass)||mass<=0.0)
+            return fail("verified conforming ancestry child row or immutable parent fraction is invalid");
+        refinedRowsSeen[refinedRow]=1u;
+        const auto material=input.childMaterialIndices[child];
+        if(material>=input.materialDensityLowerKgM3.size()||
+           material>=input.materialDensityUpperKgM3.size()||
+           !std::isfinite(input.materialDensityLowerKgM3[material])||
+           !std::isfinite(input.materialDensityUpperKgM3[material])||
+           input.materialDensityLowerKgM3[material]<=0.0||
+           input.materialDensityLowerKgM3[material]>input.materialDensityUpperKgM3[material])
+            return fail("verified conforming ancestry child material density bounds are missing or invalid");
+        if(material!=input.parentMaterialIndices[parent]||
+           input.childDonorBodyIndices[child]!=input.parentDonorBodyIndices[parent]||
+           input.childAnatomicalRegionIndices[child]!=input.parentAnatomicalRegionIndices[parent]||
+           bundle.childStableSourceFaceIdentities[child]!=bundle.parent.stableSourceFaceIdentities[parent])
+            return fail("verified conforming ancestry edge changes material, geometric donor, region, or stable source face");
+        const double sourceMass=input.parentMassKg[parent];
+        const double sourceVolume=input.parentReferenceVolumeM3[parent];
+        const double expectedMass=sourceMass*fraction;
+        const double expectedImmutableMeasure=sourceVolume*fraction;
+        if(!withinMass(mass,expectedMass)||
+           !withinMeasure(route.childImmutableParentReferenceMeasureM3[child],expectedImmutableMeasure))
+            return fail("verified conforming ancestry mass or immutable reference measure differs from its 330 parent fraction");
+        const double parentDensity=sourceMass/sourceVolume;
+        const double measure=mass/parentDensity;
+        if(!std::isfinite(parentDensity)||parentDensity<=0.0||!withinMeasure(measure,expectedImmutableMeasure))
+            return fail("verified conforming ancestry mass does not reproduce its immutable 330 reference measure");
+        const double distance=spatial_mass_transport_detail::distance(
+            input.parentCentroidsWorld[parent],input.childCentroidsWorld[child]);
+        if(!std::isfinite(distance)||distance>input.maximumTransportDistanceM)
+            return fail("verified conforming ancestry edge exceeds the existing frozen centroid-distance bound at child "+
+                std::to_string(child));
+        const double lower=input.materialDensityLowerKgM3[material];
+        const double upper=input.materialDensityUpperKgM3[material];
+        const double density=mass/input.childReferenceVolumeM3[child];
+        const double densityTol=densityBoundRoundoff(lower,upper,density);
+        if(!std::isfinite(density)||density<lower-densityTol||density>upper+densityTol)
+            return fail("verified conforming ancestry child mass is outside the actual material density bounds");
+        const auto donorBegin=route.childSourceDonorOffsets[child];
+        const auto donorEnd=route.childSourceDonorOffsets[child+1u];
+        const auto parentDonorBegin=input.parentSourceDonorOffsets[parent];
+        const auto parentDonorEnd=input.parentSourceDonorOffsets[parent+1u];
+        if(donorBegin>=donorEnd||donorEnd>route.childSourceDonorBodyIndices.size()||
+           donorEnd-donorBegin!=parentDonorEnd-parentDonorBegin)
+            return fail("verified conforming ancestry 534 donor shares do not match the immutable 330 parent row");
+        double donorSum=0.0;std::uint32_t priorDonor=0u;
+        for(std::uint32_t row=donorBegin;row<donorEnd;++row){
+            const auto parentSource=parentDonorBegin+(row-donorBegin);
+            const auto donor=route.childSourceDonorBodyIndices[row];
+            const double donorMass=route.childSourceDonorMassKg[row];
+            const double expectedDonorMass=input.parentSourceDonorMassKg[parentSource]*fraction;
+            if(donor!=input.parentSourceDonorBodyIndices[parentSource]||
+               (row>donorBegin&&donor<=priorDonor)||!std::isfinite(donorMass)||donorMass<=0.0||
+               !withinMass(donorMass,expectedDonorMass))
+                return fail("verified conforming ancestry 534 donor share differs from immutable 330 source contribution");
+            priorDonor=donor;donorSum+=donorMass;
+        }
+        if(!withinMass(donorSum,mass))
+            return fail("verified conforming ancestry child donor shares do not close child mass");
+
+        next.childParentOffsets[child]=static_cast<std::uint32_t>(next.childParentRows.size());
+        next.childParentRows.push_back(parent);
+        next.childParentTransportMassKg.push_back(mass);
+        next.childParentTransportMeasureM3.push_back(measure);
+        next.childParentTransportDistanceM.push_back(distance);
+        next.childParentVolumeFractions.push_back(1.0);
+        next.parentMassTransferredKg[parent]+=mass;
+        next.parentMeasureTransferredM3[parent]+=measure;
+        next.childAncestryMeasureVolumeM3[child]=measure;
+        next.childMassKg[child]=mass;
+        next.childImpliedDensityKgM3[child]=density;
+        next.childDominantParentRows[child]=parent;
+        next.childSourceDonorOffsets[child]=static_cast<std::uint32_t>(next.childSourceDonorBodyIndices.size());
+        for(std::uint32_t row=donorBegin;row<donorEnd;++row){
+            const auto donor=route.childSourceDonorBodyIndices[row];
+            const double donorMass=route.childSourceDonorMassKg[row];
+            next.childSourceDonorBodyIndices.push_back(donor);
+            next.childSourceDonorMassKg.push_back(donorMass);
+            sourceGroups[{material,donor}].childMassKg+=donorMass;
+        }
+        next.childSourceDonorOffsets[child+1u]=static_cast<std::uint32_t>(next.childSourceDonorBodyIndices.size());
+        auto group=groups.find({material,input.childDonorBodyIndices[child],
+                                input.childAnatomicalRegionIndices[child]});
+        if(group==groups.end())return fail("verified conforming ancestry child has no immutable parent mass group");
+        group->second.childMassKg+=mass;
+        group->second.childMinimumCapacityKg+=input.childReferenceVolumeM3[child]*lower;
+        group->second.childMaximumCapacityKg+=input.childReferenceVolumeM3[child]*upper;
+        next.minimumChildImpliedDensityKgM3=std::min(next.minimumChildImpliedDensityKgM3,density);
+        next.maximumChildImpliedDensityKgM3=std::max(next.maximumChildImpliedDensityKgM3,density);
+        next.maximumTransportDistanceUsedM=std::max(next.maximumTransportDistanceUsedM,distance);
+        weightedDistance+=static_cast<long double>(mass)*distance;totalMass+=mass;
+    }
+    if(std::any_of(refinedRowsSeen.begin(),refinedRowsSeen.end(),[](std::uint8_t seen){return seen!=1u;}))
+        return fail("verified conforming ancestry candidate does not cover every 530 refined source row exactly once");
+    next.childParentOffsets[childCount]=static_cast<std::uint32_t>(next.childParentRows.size());
+    next.childSourceDonorOffsets[childCount]=static_cast<std::uint32_t>(next.childSourceDonorBodyIndices.size());
+    next.transportEdgeCount=next.childParentRows.size();
+    next.augmentationCount=childCount; // one authenticated lineage edge per candidate cell
+    next.massWeightedMeanTransportDistanceM=totalMass>0.0L?
+        static_cast<double>(weightedDistance/totalMass):0.0;
+    next.maximumChildFractionSumError=0.0;
+    for(const auto& [key,value]:groups){(void)key;next.groupClosure.push_back(value);}
+    for(const auto& [key,value]:sourceGroups){(void)key;next.sourceDonorClosure.push_back(value);}
+    for(std::size_t parent=0u;parent<parentCount;++parent){
+        next.maximumParentMassClosureErrorKg=std::max(next.maximumParentMassClosureErrorKg,
+            std::abs(next.parentMassTransferredKg[parent]-input.parentMassKg[parent]));
+        next.maximumParentMeasureClosureErrorM3=std::max(next.maximumParentMeasureClosureErrorM3,
+            std::abs(next.parentMeasureTransferredM3[parent]-input.parentReferenceVolumeM3[parent]));
+    }
+    for(const auto& closure:next.sourceDonorClosure)
+        next.maximumSourceDonorMassClosureErrorKg=std::max(next.maximumSourceDonorMassClosureErrorKg,
+            std::abs(closure.parentMassKg-closure.childMassKg));
+    next.receiptSHA256=receiptSHA256(input,next);
+    output=std::move(next);error.clear();return true;
+}
+
 inline std::string massMappingPathSHA256(
         const PhysicalSkinChildMassMappingBundle& bundle,
-        const bool exactTopologyIdentity) {
+        const bool exactTopologyIdentity,
+        const bool verifiedConformingAncestry=false) {
     using spatial_mass_transport_detail::SHA256Builder;
     SHA256Builder hash;
     const auto hashPoints=[&](const std::string_view name,const std::vector<V3>& points) {
@@ -875,8 +1205,17 @@ inline std::string massMappingPathSHA256(
         hashPoints("surface.outward_normals",surface.outwardWorldNormals);
     };
 
-    hash.string("physicalSkinChildMassMapping.path.v2");
-    hash.string(exactTopologyIdentity?"exact_topology_identity":"bounded_conservative_spatial");
+    if(verifiedConformingAncestry){
+        hash.string("physicalSkinChildMassMapping.path.v3");
+        hash.string("authenticated_conforming_ancestry");
+        hash.u32(bundle.conformingLineageMassRouteRequired?1u:0u);
+        hash.u32(bundle.conformingLineageMassTransportUsed?1u:0u);
+        hash.string(bundle.conformingLineageMassRoute.verificationSHA256);
+    }else{
+        // Preserve the exact v2 hash stream for legacy identity/spatial routes.
+        hash.string("physicalSkinChildMassMapping.path.v2");
+        hash.string(exactTopologyIdentity?"exact_topology_identity":"bounded_conservative_spatial");
+    }
     hash.string(bundle.spatialMassTransportResult.receiptSHA256);
     hash.string(bundle.parent.parentMassPacketSHA256);
     hash.string(bundle.parent.parentSourceContributionSHA256);
@@ -972,11 +1311,14 @@ inline std::string massMappingPathSHA256(
 
 inline bool validatePreparedPhysicalSkinChildMassMappingPath(
         const PhysicalSkinChildMassMappingBundle& bundle,std::string& error) {
-    if(!physical_skin_child_mass_detail::validSHA256(
+    if(bundle.conformingLineageMassRouteRequired!=bundle.conformingLineageMassTransportUsed||
+       (bundle.conformingLineageMassTransportUsed&&bundle.exactTopologyIdentityTransportUsed)||
+       !physical_skin_child_mass_detail::validSHA256(
            bundle.spatialMassTransportResult.receiptSHA256)||
        !physical_skin_child_mass_detail::validSHA256(bundle.massMappingPathSHA256)||
        bundle.massMappingPathSHA256!=massMappingPathSHA256(
-           bundle,bundle.exactTopologyIdentityTransportUsed)) {
+           bundle,bundle.exactTopologyIdentityTransportUsed,
+           bundle.conformingLineageMassTransportUsed)) {
         error="physical child mass mapping path receipt is missing or no longer binds its current inputs";
         return false;
     }
@@ -1137,8 +1479,22 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
 
     ConservativeSpatialMassTransportResult transfer;
     bool usedExactTopologyIdentity=false;
+    bool usedVerifiedConformingAncestry=false;
+    if(bundle.conformingLineageMassRouteRequired) {
+        if(!bundle.conformingLineageMassRoute.authenticated||
+           !physical_skin_child_mass_mapping_detail::buildVerifiedConformingAncestryTransport(
+               input,bundle,transfer,error))
+            return fail("authenticated conforming ancestry mass mapping rejected: "+error);
+        if(!verifyRecordedConservativeSpatialMassTransport(input,transfer,error))
+            return fail("authenticated conforming ancestry transport receipt failed current-input verification: "+error);
+        usedVerifiedConformingAncestry=true;
+    } else if(bundle.conformingLineageMassRoute.authenticated||
+              !bundle.conformingLineageMassRoute.verificationSHA256.empty()) {
+        return fail("conforming ancestry mass route is present without its required registered-import proof flag");
+    }
     std::vector<std::uint32_t> exactChildParentRows;
-    if(parentCount<=input.maximumAugmentations&&childCount<=input.maximumAugmentations&&
+    if(!usedVerifiedConformingAncestry&&
+       parentCount<=input.maximumAugmentations&&childCount<=input.maximumAugmentations&&
        childCount<=input.maximumAllowedEdges&&
        physical_skin_child_mass_mapping_detail::exactIdentityParentRows(bundle,
            parentCentroids,childCentroids,maximumTransportDistanceM,exactChildParentRows)) {
@@ -1164,7 +1520,7 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
     if(requiresNativeIdentityRepresentation &&
        (!usedExactTopologyIdentity || bundle.referenceWorldPoints!=parent.referenceWorldPoints))
         return fail("non-Float32 source coordinates require certified compiler-equivalent exact parent-reference identity");
-    if(!usedExactTopologyIdentity) {
+    if(!usedExactTopologyIdentity&&!usedVerifiedConformingAncestry) {
         if(!assembleConservativeSpatialMassTransport(input,transfer,error))
             return fail("physical child mass transport was not feasible: "+error);
         if(!verifyRecordedConservativeSpatialMassTransport(input,transfer,error))
@@ -1186,8 +1542,9 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
     bundle.childDominantParentTetrahedra=transfer.childDominantParentRows;
     bundle.spatialMassTransportResult=std::move(transfer);
     bundle.exactTopologyIdentityTransportUsed=usedExactTopologyIdentity;
+    bundle.conformingLineageMassTransportUsed=usedVerifiedConformingAncestry;
     bundle.massMappingPathSHA256=physical_skin_child_mass_mapping_detail::massMappingPathSHA256(
-        bundle,usedExactTopologyIdentity);
+        bundle,usedExactTopologyIdentity,usedVerifiedConformingAncestry);
     error.clear();
     return true;
 }

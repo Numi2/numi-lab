@@ -22007,6 +22007,16 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         std::string_view(operationalReferenceSplitSetting)=="1";
     require(!separatedRegisteredOperationalReference||registeredVolumeInstallRequested,
             "separated operational reference requires registered-volume installation");
+    const char* conformingReferenceChainSetting=std::getenv(
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CONFORMING_REFINEMENT_CHAIN");
+    require(!conformingReferenceChainSetting||
+                std::string_view(conformingReferenceChainSetting)=="0"||
+                std::string_view(conformingReferenceChainSetting)=="1",
+            "operational conforming-reference chain setting must be 0 or 1");
+    const bool conformingReferenceChainRequested=conformingReferenceChainSetting&&
+        std::string_view(conformingReferenceChainSetting)=="1";
+    require(!conformingReferenceChainRequested||separatedRegisteredOperationalReference,
+            "conforming-reference refinement requires separated operational-reference import");
     if(separatedRegisteredOperationalReference){
         const char* sourceOnly=std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_SOURCE_ONLY");
         const char* preflight=std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT");
@@ -22619,6 +22629,18 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         proof.candidateProducerReceiptSHA256=value("OPERATIONAL_CANDIDATE_PRODUCER_RECEIPT_SHA256");
                         proof.candidateSelfAuditReceipt=pathValue("OPERATIONAL_CANDIDATE_SELF_AUDIT_RECEIPT");
                         proof.candidateSelfAuditReceiptSHA256=value("OPERATIONAL_CANDIDATE_SELF_AUDIT_RECEIPT_SHA256");
+                        if(conformingReferenceChainRequested) {
+                            PhysicalSkinConformingTissueRefinementAssets refinement;
+                            refinement.sourceConstructionProofReceipt=
+                                pathValue("OPERATIONAL_CONFORMING_REFINEMENT_ACTUAL_PROOF_RECEIPT");
+                            refinement.sourceConstructionProofReceiptSHA256=
+                                value("OPERATIONAL_CONFORMING_REFINEMENT_ACTUAL_PROOF_RECEIPT_SHA256");
+                            refinement.selfAuditReceipt=
+                                pathValue("OPERATIONAL_CONFORMING_REFINEMENT_SELF_AUDIT_RECEIPT");
+                            refinement.selfAuditReceiptSHA256=
+                                value("OPERATIONAL_CONFORMING_REFINEMENT_SELF_AUDIT_RECEIPT_SHA256");
+                            proof.conformingTissueRefinement=std::move(refinement);
+                        }
                         volumeFiles.operationalReferencePullback=std::move(proof);
                     }
                     const double maximumMassTransportDistanceM=
@@ -22685,12 +22707,20 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         require(importReport.operationalReferencePullbackVerified&&
                                     importReport.operationalReferencePullbackSHA256.size()==64u,
                                 "candidate operational-reference import lacks its authenticated pullback proof");
+                        if(conformingReferenceChainRequested)
+                            require(importReport.conformingTissueRefinementVerified&&
+                                        importReport.conformingTissueRefinementVerificationSHA256.size()==64u,
+                                    "candidate import lacks the authenticated source 002-to-530-to-operational-reference chain");
                         std::cout<<"registered_volume_operational_reference_pullback=PASS"
                             <<" proof_sha256="<<importReport.operationalReferencePullbackSHA256
                             <<" source330_to_source002_max_m="
                             <<importReport.maximumSourceParentRegistrationDistanceM
-                            <<" source002_to_candidate514_max_m="
+                            <<" source_operational_to_candidate_max_m="
                             <<importReport.maximumSourceToCandidateReferenceDistanceM
+                            <<" conforming_refinement="
+                            <<(importReport.conformingTissueRefinementVerified?1:0)
+                            <<" conforming_chain_sha256="
+                            <<importReport.conformingTissueRefinementVerificationSHA256
                             <<" physical_admission=0 runtime=0 accepted_steps=0 GPU=0\n";
                     }
                     PhysicalSkinAuthoringOuterRoleRenderDomain outerRenderDomain;
