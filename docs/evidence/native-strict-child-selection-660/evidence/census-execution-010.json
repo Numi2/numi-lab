@@ -1,0 +1,36 @@
+{
+  "schema": "numi-human.native-owner-policy-008-source-only-census-execution.v1",
+  "launch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-008/replay-006/launch.json",
+  "launch_sha256": "6c96901d06f39fa9a86dc47cbcb537095a2588183418a62019ef4abe2878ab0a",
+  "binary_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-010/build/selector-010/numi-human-native-auth-refined-preflight-census-009",
+  "binary_sha256": "a8a132ae91c82ec7bbbacf940853028b43dc0c747dcc3416d40e2de639dffb2e",
+  "candidate_sha256": "888eb12450d0e69fb0ad3f5998159ab7a0a20d3e70b13c42ba416c61cbbede63",
+  "canonical_input_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-008/replay-004/native-output/fine-O-to-coarse-boundary-native-canonical.csv",
+  "canonical_input_sha256": "3cb1ee0e09d28654964ee6d2269cbc650b65a5c809eb954cdd4851979a326db4",
+  "source_only": "1",
+  "canonical_export_enabled": "0",
+  "runtime_requested": false,
+  "physical_admission": false,
+  "accepted_steps_expected": 0,
+  "started_unix": 1793299075.184468,
+  "elapsed_seconds": 8.453404903411865,
+  "returncode": 1,
+  "files": {
+    "detail-embedding-census.csv": {
+      "sha256": "90f3aa0f51f934b70345397c9ff4a6a0c11840128dcd13b98f5648b0f55285c2",
+      "bytes": 17970822
+    },
+    "resting-coupled.csv": {
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+      "bytes": 1769
+    },
+    "stdout.log": {
+      "sha256": "e494b8c51e71e1f0cc86ca786caa2ba7434f5ba300ebf7bef6db8f2800a6b6e9",
+      "bytes": 16065
+    },
+    "stderr.log": {
+      "sha256": "9be003d31e7ae1598c9b8ca8284cd47d0a97c77d29988af4a662985602a5031b",
+      "bytes": 698
+    }
+  }
+}

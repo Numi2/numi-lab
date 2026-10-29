@@ -1,0 +1,295 @@
+{
+  "schema": "numi-human.native-owner-policy-007-o-boundary-adjacent-rescue-feasibility.v1",
+  "inputs": {
+    "child": "888eb12450d0e69fb0ad3f5998159ab7a0a20d3e70b13c42ba416c61cbbede63",
+    "parent": "2f547b21c6be0f3e21a021d80dad6c63c3a0e6af31d5ebe1780ca1b32c237a54",
+    "coarse": "d172450180d37ec374e89b1b3c3fffc375ac9ae91a1f57c52508ca4836e17709",
+    "can": "ccab5178bac17eff90e76bc41099b3280f0fbb727a5e93a0f70583c764568d85",
+    "census": "8904cc90eebc16da61db036dcf709ef55497ba3cd9240af6872daf9cd6aedbc7",
+    "registered_O_nodes_sha256": "8fed2b89fbfa4a4e20b83f097722e94a06d8bdd628563ae8d8e83c79cfa95fd1",
+    "registered_O_faces_sha256": "a3fae0cb586611ee127d841cadcb10db64c20b91ef00a787abd024a9b47fe01c",
+    "all_child_rescue_csv_gz_sha256": "16df71ba0c882d275520bbdd93c78e64cc52b71e6660d8aedf1c60394019889a"
+  },
+  "counts": {
+    "detail_rows": 56054,
+    "strict_fail_rows": 31916,
+    "all_child_full_candidate_rows": 38352,
+    "all_child_full_candidates_among_strict_failures": 14214,
+    "O_boundary_faces": 4949,
+    "unique_boundary_child_cells": 4949,
+    "source_parent_label_groups": 417,
+    "cached_parent_path_searches": 409,
+    "groups_with_reachable_stable_boundary_faces": 417,
+    "rows_with_strict_projectable_path_face": 8411,
+    "strict_fail_rows_without_candidate": 23505,
+    "all_child_candidates_representable_on_boundary": 8411,
+    "all_child_candidates_not_representable_on_boundary": 5803
+  },
+  "route_rejections": {},
+  "region_summary": {
+    "20": {
+      "no_strict_projectable_face": 18,
+      "strict_boundary_child": 1,
+      "rescue": 1
+    },
+    "23": {
+      "strict_boundary_child": 356,
+      "rescue": 333,
+      "no_strict_projectable_face": 90
+    },
+    "29": {
+      "no_strict_projectable_face": 2
+    },
+    "41": {
+      "strict_boundary_child": 240,
+      "rescue": 240,
+      "no_strict_projectable_face": 1164
+    },
+    "42": {
+      "no_strict_projectable_face": 256,
+      "strict_boundary_child": 22,
+      "rescue": 21
+    },
+    "43": {
+      "no_strict_projectable_face": 241,
+      "strict_boundary_child": 12,
+      "rescue": 12
+    },
+    "46": {
+      "no_strict_projectable_face": 783
+    },
+    "49": {
+      "no_strict_projectable_face": 179
+    },
+    "52": {
+      "no_strict_projectable_face": 138,
+      "strict_boundary_child": 264,
+      "rescue": 264
+    },
+    "53": {
+      "strict_boundary_child": 9,
+      "rescue": 9,
+      "no_strict_projectable_face": 195
+    },
+    "54": {
+      "no_strict_projectable_face": 297,
+      "strict_boundary_child": 86,
+      "rescue": 86
+    },
+    "57": {
+      "no_strict_projectable_face": 13
+    },
+    "59": {
+      "no_strict_projectable_face": 1256,
+      "strict_boundary_child": 653,
+      "rescue": 637
+    },
+    "60": {
+      "no_strict_projectable_face": 54
+    },
+    "61": {
+      "strict_boundary_child": 307,
+      "rescue": 307,
+      "no_strict_projectable_face": 540
+    },
+    "62": {
+      "no_strict_projectable_face": 424,
+      "strict_boundary_child": 108,
+      "rescue": 108
+    },
+    "64": {
+      "no_strict_projectable_face": 766,
+      "strict_boundary_child": 28,
+      "rescue": 28
+    },
+    "65": {
+      "no_strict_projectable_face": 1298,
+      "strict_boundary_child": 44,
+      "rescue": 44
+    },
+    "66": {
+      "strict_boundary_child": 364,
+      "rescue": 364,
+      "no_strict_projectable_face": 1198
+    },
+    "69": {
+      "no_strict_projectable_face": 711,
+      "strict_boundary_child": 52,
+      "rescue": 52
+    },
+    "70": {
+      "no_strict_projectable_face": 593,
+      "strict_boundary_child": 5,
+      "rescue": 5
+    },
+    "71": {
+      "strict_boundary_child": 146,
+      "rescue": 146,
+      "no_strict_projectable_face": 290
+    },
+    "72": {
+      "strict_boundary_child": 2,
+      "rescue": 2,
+      "no_strict_projectable_face": 30
+    },
+    "74": {
+      "strict_boundary_child": 41,
+      "rescue": 41,
+      "no_strict_projectable_face": 192
+    },
+    "75": {
+      "no_strict_projectable_face": 2
+    },
+    "76": {
+      "no_strict_projectable_face": 256,
+      "strict_boundary_child": 10,
+      "rescue": 10
+    },
+    "79": {
+      "no_strict_projectable_face": 4
+    },
+    "84": {
+      "strict_boundary_child": 3,
+      "rescue": 3,
+      "no_strict_projectable_face": 2
+    },
+    "91": {
+      "no_strict_projectable_face": 49,
+      "strict_boundary_child": 187,
+      "rescue": 187
+    },
+    "93": {
+      "no_strict_projectable_face": 1581,
+      "strict_boundary_child": 125,
+      "rescue": 113
+    },
+    "95": {
+      "no_strict_projectable_face": 3
+    },
+    "99": {
+      "no_strict_projectable_face": 91
+    },
+    "100": {
+      "no_strict_projectable_face": 799,
+      "strict_boundary_child": 92,
+      "rescue": 92
+    },
+    "102": {
+      "strict_boundary_child": 61,
+      "rescue": 61,
+      "no_strict_projectable_face": 2
+    },
+    "103": {
+      "strict_boundary_child": 869,
+      "rescue": 869,
+      "no_strict_projectable_face": 17
+    },
+    "104": {
+      "strict_boundary_child": 1941,
+      "rescue": 1941,
+      "no_strict_projectable_face": 609
+    },
+    "107": {
+      "no_strict_projectable_face": 1489,
+      "strict_boundary_child": 93,
+      "rescue": 93
+    },
+    "109": {
+      "no_strict_projectable_face": 1215,
+      "strict_boundary_child": 80,
+      "rescue": 80
+    },
+    "111": {
+      "strict_boundary_child": 185,
+      "rescue": 185,
+      "no_strict_projectable_face": 554
+    },
+    "112": {
+      "no_strict_projectable_face": 85
+    },
+    "114": {
+      "no_strict_projectable_face": 811
+    },
+    "115": {
+      "no_strict_projectable_face": 1182,
+      "strict_boundary_child": 316,
+      "rescue": 312
+    },
+    "116": {
+      "strict_boundary_child": 89,
+      "rescue": 89,
+      "no_strict_projectable_face": 295
+    },
+    "119": {
+      "no_strict_projectable_face": 84
+    },
+    "120": {
+      "no_strict_projectable_face": 321,
+      "strict_boundary_child": 298,
+      "rescue": 294
+    },
+    "121": {
+      "no_strict_projectable_face": 608,
+      "strict_boundary_child": 75,
+      "rescue": 75
+    },
+    "122": {
+      "no_strict_projectable_face": 78
+    },
+    "124": {
+      "no_strict_projectable_face": 1374,
+      "strict_boundary_child": 328,
+      "rescue": 325
+    },
+    "125": {
+      "strict_boundary_child": 202,
+      "rescue": 202,
+      "no_strict_projectable_face": 181
+    },
+    "126": {
+      "no_strict_projectable_face": 21
+    },
+    "128": {
+      "no_strict_projectable_face": 866
+    },
+    "138": {
+      "strict_boundary_child": 70,
+      "rescue": 65,
+      "no_strict_projectable_face": 14
+    },
+    "139": {
+      "strict_boundary_child": 147,
+      "rescue": 147,
+      "no_strict_projectable_face": 83
+    },
+    "150": {
+      "no_strict_projectable_face": 18,
+      "strict_boundary_child": 8,
+      "rescue": 6
+    },
+    "152": {
+      "strict_boundary_child": 31,
+      "rescue": 26,
+      "no_strict_projectable_face": 13
+    },
+    "153": {
+      "strict_boundary_child": 581,
+      "rescue": 536,
+      "no_strict_projectable_face": 70
+    }
+  },
+  "limits": {
+    "max_abs_weight": 1.5,
+    "max_extrapolation_m": 0.05,
+    "max_condition": 100000000.0,
+    "max_float_sum_error": 2e-06,
+    "max_reconstruction_error_m": 2e-07,
+    "max_projection_distance_m": 0.02,
+    "max_parent_hops": 8
+  },
+  "candidate_rows_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-007/replay-010/native-output/strict-o-boundary-adjacent-rescue-candidates.csv.gz",
+  "candidate_rows_sha256": "1c0af258d49411cb4a843643d873cb99bc47d88dab4ebcea1c0a940fd948da05",
+  "candidate_rows_bytes": 450072,
+  "elapsed_seconds": 1.2306349277496338,
+  "interpretation": "Read-only feasibility only: candidates are attached to actual current O boundary faces/child tets and pass exact labels, stable-face ancestry, bounded same-material/region parent paths, all strict tet bounds, and face projection. No canonical map rewrite or native replay ran; no admission claim."
+}

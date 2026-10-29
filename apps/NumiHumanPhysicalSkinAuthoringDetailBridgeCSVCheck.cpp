@@ -116,6 +116,157 @@ void testTransferHonorsPerDetailFaceEligibility() {
     assert(error.find("typed per-detail face eligibility rejected 1 rows")!=std::string::npos);
 }
 
+PhysicalSkinAuthoringDetailBridgeInput makeStrictChildSelectionFixture() {
+    PhysicalSkinAuthoringDetailBridgeInput in;
+    const auto sha=[](char c){return std::string(64u,c);};
+    in.detailDomain={"strict-detail",PhysicalSkinSourceDomainRole::outerSurface,sha('a'),1u,1u};
+    in.physicalBoundaryDomain={"strict-boundary",PhysicalSkinSourceDomainRole::outerSurface,sha('b'),4u,2u};
+    in.detailReferenceWorldPoints={{0.4,0.3,0.00002}};
+    in.detailReferenceWorldNormals={{0.0,0.0,1.0}};
+    in.detailSourceVertexRows={99u};
+    in.detailGeometricDonorBodyIndices={41u};
+    in.detailRegisteredSourceDonorBodyIndices={41u};
+    in.detailBoundaryProjectionDonorBodyIndices={41u};
+    in.detailMaterialIndices={15u};
+    in.detailAnatomicalRegionIndices={7u};
+    in.detailFrameOwnerBodyIndices={88u};
+    in.detailRegionScopedDonorFallback={0u};
+    in.detailRequiresParentTetPath={1u};
+    in.detailParentTetRows={0u};
+    in.detailStableSourceFaceIDs={9001u};
+    in.detailFaces={{0u,0u,0u}};
+    in.detailRepresentativeBoundaryVertexRows={0u};
+    in.detailExpectedBoundaryFaceRows={0u};
+    in.detailExpectedBoundaryFaceBarycentrics={{{0.4,0.3,0.3}}};
+    in.sourceParentNodeCount=4u;
+    in.sourceParentTetNodeRows={{{0u,1u,2u,3u}},{{0u,1u,2u,3u}}};
+    in.sourceParentTetMaterialIndices={15u,15u};
+    in.sourceParentTetAnatomicalRegionIndices={7u,7u};
+    in.sourceParentTetStableSourceFaceIDs={9001u,9002u};
+    in.physicalBoundaryReferenceWorldPoints={{0,0,0},{1,0,0},{0,1,0},{0,1,-0.001}};
+    in.physicalBoundarySourceVertexRows={0u,1u,2u,3u};
+    in.physicalBoundaryGeometricDonorBodyIndices={41u,41u,41u,41u};
+    in.physicalBoundaryFrameOwnerBodyIndices={88u,88u,88u,88u};
+    in.physicalBoundaryVolumeNodeRows={0u,1u,2u,3u};
+    in.physicalBoundaryFaces={{0u,1u,2u},{0u,1u,3u}};
+    in.physicalBoundaryStableFaceIDs={9001u,9002u};
+    in.physicalBoundaryFaceMaterialIndices={15u,15u};
+    in.physicalBoundaryFaceGeometricDonorBodyIndices={41u,41u};
+    in.physicalBoundaryFaceAnatomicalRegionIndices={7u,7u};
+    in.physicalBoundaryFaceFrameOwnerBodyIndices={88u,88u};
+    in.physicalBoundaryFaceParentTetRows={0u,1u};
+    in.physicalBoundaryFaceChildTetRows={0u,1u};
+    in.mechanicalReferenceWorldPoints={{0,0,0},{1,0,0},{0,1,0},{0,1,-0.001},
+                                      {0,0,1.0e-8},{0,0,1.0}};
+    in.mechanicalTetNodeRows={{{0u,1u,2u,4u}},{{0u,1u,3u,5u}}};
+    in.mechanicalTetMaterialIndices={15u,15u};
+    in.mechanicalTetGeometricDonorBodyIndices={41u,41u};
+    in.mechanicalTetAnatomicalRegionIndices={7u,7u};
+    in.detailMechanicalTetRows={0u};
+    in.maximumBoundaryProjectionDistanceM=0.02;
+    in.maximumTetExtrapolationDistanceM=0.05;
+    in.maximumAbsoluteEffectiveWeight=1.5;
+    in.maximumTetConditionEstimate=1.0e12;
+    in.maximumReferenceReconstructionErrorM=2.0e-7;
+    in.allowSourceOnlyStrictChildFaceSelection=true;
+    return in;
+}
+
+void testSourceOnlyStrictChildFaceSelection() {
+    using namespace physical_skin_authoring_detail_bridge_csv_detail;
+    auto in=makeStrictChildSelectionFixture();
+    std::vector<std::uint32_t> representatives;
+    std::vector<CanonicalNativeSelection> selections;
+    std::size_t adjustments=0u;std::string error;
+    in.allowSourceOnlyStrictChildFaceSelection=false;
+    assert(runNativeFaceSelection(in,representatives,selections,adjustments,error));
+    assert(selections.size()==1u&&selections[0].faceRow==0u);
+    PhysicalSkinAuthoringDetailFaceEligibilityContext context{&in,nullptr};
+    std::vector<std::vector<std::uint32_t>> adjacency;
+    assert(physical_skin_authoring_detail_bridge_detail::buildParentTetFaceAdjacency(
+        in.sourceParentTetNodeRows,adjacency,error));
+    context.parentAdjacency=&adjacency;
+    assert(!physical_skin_authoring_detail_bridge_detail::strictChildTetEmbeddingForBoundaryFace(in,0u,0u));
+    assert(physical_skin_authoring_detail_bridge_detail::strictChildTetEmbeddingForBoundaryFace(in,0u,1u));
+    assert(physicalSkinAuthoringDetailStrictSelectionFaceEligible(in,adjacency,0u,1u));
+    assert(!physicalSkinAuthoringDetailStrictSelectionFaceEligible(in,adjacency,0u,0u));
+
+    // Export and prepare share the same strict subset-transfer helper. Starting
+    // from the canonical representative, the invalid nearest face is rejected
+    // and the adjacent strict-valid child face is selected deterministically.
+    {
+        using Transfer=numi::human::AcceptedFEMSkinTransfer;
+        const std::vector<std::uint32_t> sourceRows{0u},sourceKeys{0x80000000u},
+            donors{41u},boundaryKeys{0u,1u,2u,3u},reps{0u};
+        const std::vector<std::uint8_t> used{1u};
+        const std::vector<V3> points{in.detailReferenceWorldPoints[0]};
+        auto selectedReps=reps;Transfer selected;std::size_t adjustments=0u;
+        assert(buildPhysicalSkinAuthoringStrictChildFaceTransfer(
+            in,adjacency,sourceRows,points,sourceKeys,donors,used,boundaryKeys,
+            selectedReps,selected,adjustments,error));
+        assert(selected.selectedFaceIndex(0u)==1u);
+        assert(selectedReps==reps);
+        assert(selected.rows().size()==1u);
+    }
+
+    in.allowSourceOnlyStrictChildFaceSelection=true;
+    assert(runNativeFaceSelection(in,representatives,selections,adjustments,error));
+    assert(selections.size()==1u&&selections[0].faceRow==1u);
+    assert(selections[0].stableFace==9002u);
+
+    // The report records the distance of the selected strict-rescue face,
+    // not the closer base one-ring face.
+    {
+        auto rescued=makeStrictChildSelectionFixture();
+        rescued.detailSourceVertexRows={0u};
+        rescued.detailExpectedBoundaryFaceRows={1u};
+        rescued.detailExpectedBoundaryFaceBarycentrics={{{0.3,0.4,0.3}}};
+        rescued.detailStableSourceFaceIDs={9001u};
+        rescued.physicalBoundaryStableFaceIDs={9001u,9001u};
+        rescued.sourceParentTetStableSourceFaceIDs={9001u,9001u};
+        rescued.detailMechanicalTetRows={1u};
+        rescued.allowSourceOnlyStrictChildFaceSelection=true;
+        PhysicalSkinAuthoringDetailBridgeState rescuedState;
+        PhysicalSkinAuthoringDetailBridgeReport rescuedReport;
+        assert(preparePhysicalSkinAuthoringDetailBridge(
+            rescued,rescuedState,rescuedReport,error));
+        assert(rescuedState.selectedPhysicalBoundaryFaceRows==std::vector<std::uint32_t>({1u}));
+        double selectedMaximum=0.0;
+        for(const auto& row:rescuedState.faceTransferRows)
+            selectedMaximum=std::max(selectedMaximum,double(row.restDistance));
+        assert(selectedMaximum>0.00025);
+        assert(std::abs(rescuedReport.maximumBoundaryProjectionDistanceM-selectedMaximum)<1.0e-10);
+    }
+
+    // With no strict candidate in the permitted neighborhood, source-only
+    // selection retains the existing nearest face; the census reports its
+    // embedding failure separately.
+    auto empty=in;
+    empty.mechanicalTetGeometricDonorBodyIndices={42u,42u};
+    assert(runNativeFaceSelection(empty,representatives,selections,adjustments,error));
+    assert(selections.size()==1u&&selections[0].faceRow==0u);
+
+    // A candidate with the wrong source-parent stable face identity is rejected.
+    auto wrongStable=in;
+    wrongStable.sourceParentTetStableSourceFaceIDs[1]=9003u;
+    assert(!physical_skin_authoring_detail_bridge_detail::
+        strictChildTetEmbeddingForBoundaryFace(wrongStable,0u,1u));
+    assert(runNativeFaceSelection(wrongStable,representatives,selections,adjustments,error));
+    assert(selections.size()==1u&&selections[0].faceRow==0u);
+
+    // A candidate across a material/path break is not eligible for rescue.
+    auto wrongPath=in;
+    wrongPath.sourceParentTetMaterialIndices[1]=16u;
+    std::vector<std::vector<std::uint32_t>> wrongPathAdjacency;
+    assert(physical_skin_authoring_detail_bridge_detail::buildParentTetFaceAdjacency(
+        wrongPath.sourceParentTetNodeRows,wrongPathAdjacency,error));
+    PhysicalSkinAuthoringDetailFaceEligibilityContext wrongPathContext{
+        &wrongPath,&wrongPathAdjacency};
+    assert(!physicalSkinAuthoringDetailFaceEligible(wrongPathContext,0u,1u));
+    assert(runNativeFaceSelection(wrongPath,representatives,selections,adjustments,error));
+    assert(selections.size()==1u&&selections[0].faceRow==0u);
+}
+
 template<class T> std::string n(T value) { return std::to_string(value); }
 std::string d(double value) { return std::to_string(value); }
 
@@ -730,5 +881,6 @@ int main() {
     testCanonicalEligibilityReinfersStableFace();
     testCSVBridgeAllowsOnlyAuthenticatedStableFaceWalk();
     testTransferHonorsPerDetailFaceEligibility();
+    testSourceOnlyStrictChildFaceSelection();
     std::cout<<"authoring_detail_bridge_csv=pass typed_O_nodes=3 full86=86 map_rows=3 face_reordered=validated frame_owner=separate same_donor_parent_walk=pass residual_recomputed=pass physical_admission=false\n";
 }

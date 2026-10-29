@@ -1,0 +1,161 @@
+{
+  "schema": "numi-human.native-owner-policy-010-census-analysis.v1",
+  "candidate_sha256": "888eb12450d0e69fb0ad3f5998159ab7a0a20d3e70b13c42ba416c61cbbede63",
+  "canonical_sha256": "3cb1ee0e09d28654964ee6d2269cbc650b65a5c809eb954cdd4851979a326db4",
+  "census_sha256": "90f3aa0f51f934b70345397c9ff4a6a0c11840128dcd13b98f5648b0f55285c2",
+  "rows": 56054,
+  "per_gate_failures": {
+    "labels_ok": 0,
+    "condition_ok": 0,
+    "extrapolation_ok": 27,
+    "weight_ok": 24354,
+    "float_sum_ok": 216,
+    "reconstruction_ok": 8062,
+    "barycentric_ok": 0
+  },
+  "combined_any_gate_failed": 24354,
+  "failed_flag_combinations": {
+    "weight_ok": 16285,
+    "weight_ok+reconstruction_ok": 7836,
+    "weight_ok+float_sum_ok+reconstruction_ok": 206,
+    "extrapolation_ok+weight_ok": 7,
+    "extrapolation_ok+weight_ok+float_sum_ok+reconstruction_ok": 10,
+    "extrapolation_ok+weight_ok+reconstruction_ok": 10
+  },
+  "rows_weight_and_extrapolation_pass": 31700,
+  "numeric_only_with_labels_condition_weight_extrap_pass": 0,
+  "numeric_only_float_sum_failures": 0,
+  "numeric_only_reconstruction_failures": 0,
+  "first_failed_rows": [
+    {
+      "row": 10,
+      "child_tet": 1938,
+      "face": 670,
+      "max_abs_weight": 3.03378768686614,
+      "extrapolation_m": 0.0033352365622656413,
+      "float_sum": 0.999999925494194,
+      "reconstruction_m": 8.11331253787037e-08,
+      "failed": [
+        "weight_ok"
+      ]
+    },
+    {
+      "row": 16,
+      "child_tet": 1938,
+      "face": 670,
+      "max_abs_weight": 3.582570462837639,
+      "extrapolation_m": 0.004003187391940006,
+      "float_sum": 1.0000002011656761,
+      "reconstruction_m": 2.1952740306926534e-07,
+      "failed": [
+        "weight_ok",
+        "reconstruction_ok"
+      ]
+    },
+    {
+      "row": 18,
+      "child_tet": 1938,
+      "face": 670,
+      "max_abs_weight": 3.4670846237489066,
+      "extrapolation_m": 0.003883889629988993,
+      "float_sum": 1.0000000894069672,
+      "reconstruction_m": 9.780797953494042e-08,
+      "failed": [
+        "weight_ok"
+      ]
+    },
+    {
+      "row": 20,
+      "child_tet": 1938,
+      "face": 670,
+      "max_abs_weight": 2.7656858831763382,
+      "extrapolation_m": 0.003085504670732658,
+      "float_sum": 0.9999999031424522,
+      "reconstruction_m": 1.0559288018659727e-07,
+      "failed": [
+        "weight_ok"
+      ]
+    },
+    {
+      "row": 21,
+      "child_tet": 1938,
+      "face": 670,
+      "max_abs_weight": 4.034211874844795,
+      "extrapolation_m": 0.004470293420905381,
+      "float_sum": 1.000000223517418,
+      "reconstruction_m": 2.439573445242831e-07,
+      "failed": [
+        "weight_ok",
+        "reconstruction_ok"
+      ]
+    },
+    {
+      "row": 25,
+      "child_tet": 1938,
+      "face": 670,
+      "max_abs_weight": 2.918911491616291,
+      "extrapolation_m": 0.003347994097119814,
+      "float_sum": 1.0000000074505806,
+      "reconstruction_m": 7.97722215084475e-09,
+      "failed": [
+        "weight_ok"
+      ]
+    },
+    {
+      "row": 26,
+      "child_tet": 1938,
+      "face": 670,
+      "max_abs_weight": 4.007747784619201,
+      "extrapolation_m": 0.004478910572918689,
+      "float_sum": 0.9999998211860657,
+      "reconstruction_m": 1.948669225814105e-07,
+      "failed": [
+        "weight_ok"
+      ]
+    },
+    {
+      "row": 27,
+      "child_tet": 1938,
+      "face": 670,
+      "max_abs_weight": 3.3836894092828147,
+      "extrapolation_m": 0.0039006754451986056,
+      "float_sum": 1.000000074505806,
+      "reconstruction_m": 8.126266587224187e-08,
+      "failed": [
+        "weight_ok"
+      ]
+    },
+    {
+      "row": 30,
+      "child_tet": 1938,
+      "face": 670,
+      "max_abs_weight": 4.294629985260354,
+      "extrapolation_m": 0.004694899524721467,
+      "float_sum": 0.9999999850988388,
+      "reconstruction_m": 1.624320807738497e-08,
+      "failed": [
+        "weight_ok"
+      ]
+    },
+    {
+      "row": 32,
+      "child_tet": 1938,
+      "face": 670,
+      "max_abs_weight": 2.9126763797654216,
+      "extrapolation_m": 0.0034379220931931337,
+      "float_sum": 0.9999999552965164,
+      "reconstruction_m": 4.893172241896755e-08,
+      "failed": [
+        "weight_ok"
+      ]
+    }
+  ],
+  "physical_admission": false,
+  "census_compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-008/replay-006/native-output/detail-embedding-census.csv.gz",
+  "census_compressed_sha256": "4a96e1aad79f6b7d6894c3fb93c9a49f1310be98cbcc6f79428c6beb9cc2a1cc",
+  "census_restore_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-008/replay-006/native-output/detail-embedding-census.csv.gz.receipt.json",
+  "execution_receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-008/replay-006/execution-receipt.json",
+  "execution_receipt_sha256": "f1ee93878501f6f1e14490c9ced05d9d44e0058918f52a08a1adc029ea0613cb",
+  "census_analysis_basis": "The replay-006 census is byte-identical to replay-005 (SHA-256 verified), so the same full row-level gate counts apply.",
+  "native_rejection": "detail-to-volume effective tet weight exceeds its declared bound"
+}

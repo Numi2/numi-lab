@@ -1,0 +1,262 @@
+{
+  "parent": "06fef224d0e9b9af684956bb22cc0ccc3e9aadf3",
+  "rows": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-strict-child-selection-publication-660/published-source/apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp",
+      "repo_path": "apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp",
+      "kind": "changed010",
+      "actual_blob": "8d603b388eb753f2638abd4f8ed5a8262ebaa03a",
+      "expected_blob": "8d603b388eb753f2638abd4f8ed5a8262ebaa03a",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-strict-child-selection-publication-660/published-source/apps/NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp",
+      "repo_path": "apps/NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp",
+      "kind": "changed010",
+      "actual_blob": "35ff16f5f6e61fb38b3a4debb7499d30a9f23828",
+      "expected_blob": "35ff16f5f6e61fb38b3a4debb7499d30a9f23828",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-strict-child-selection-publication-660/published-source/apps/NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp",
+      "repo_path": "apps/NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp",
+      "kind": "parent-main",
+      "actual_blob": "bb71a1d65c64f4149b283395c6a6c0b1ee84be12",
+      "expected_blob": "bb71a1d65c64f4149b283395c6a6c0b1ee84be12",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanAcceptedFEMSkinTransfer.hpp",
+      "repo_path": "apps/NumiHumanAcceptedFEMSkinTransfer.hpp",
+      "kind": "parent-main",
+      "actual_blob": "4b3f58775f9f1c68b70b898c6abc799ae2e1aee2",
+      "expected_blob": "4b3f58775f9f1c68b70b898c6abc799ae2e1aee2",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanCoarseTissuePreparation.hpp",
+      "repo_path": "apps/NumiHumanCoarseTissuePreparation.hpp",
+      "kind": "parent-main",
+      "actual_blob": "1f7792a342714094530d6764a77f359e2f1b3a11",
+      "expected_blob": "1f7792a342714094530d6764a77f359e2f1b3a11",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanConservativeSpatialMassTransport.hpp",
+      "repo_path": "apps/NumiHumanConservativeSpatialMassTransport.hpp",
+      "kind": "parent-main",
+      "actual_blob": "975c7a300c8be47b8b6f95f24367ddf30cc89c18",
+      "expected_blob": "975c7a300c8be47b8b6f95f24367ddf30cc89c18",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanParentReferenceMassTransfer.hpp",
+      "repo_path": "apps/NumiHumanParentReferenceMassTransfer.hpp",
+      "kind": "parent-main",
+      "actual_blob": "e0a45f8fbad964efd1ef4efdebc2e8dd265ca588",
+      "expected_blob": "e0a45f8fbad964efd1ef4efdebc2e8dd265ca588",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildMassMapping.hpp",
+      "repo_path": "apps/NumiHumanPhysicalSkinChildMassMapping.hpp",
+      "kind": "parent-main",
+      "actual_blob": "54f20feba84ef59c1f9d71b21bceaa9fe7ef2d95",
+      "expected_blob": "54f20feba84ef59c1f9d71b21bceaa9fe7ef2d95",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildRegisteredSurfaceSidecars.hpp",
+      "repo_path": "apps/NumiHumanPhysicalSkinChildRegisteredSurfaceSidecars.hpp",
+      "kind": "parent-main",
+      "actual_blob": "a41e0577d9717b52245a8f847d256dcc3421bc3f",
+      "expected_blob": "a41e0577d9717b52245a8f847d256dcc3421bc3f",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanRegisteredSkinCandidateCSV.hpp",
+      "repo_path": "apps/NumiHumanRegisteredSkinCandidateCSV.hpp",
+      "kind": "parent-main",
+      "actual_blob": "b36ec5e28a2bad85a9f287395dcea06311a7c445",
+      "expected_blob": "b36ec5e28a2bad85a9f287395dcea06311a7c445",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanSkinBoundaryNodeMap.hpp",
+      "repo_path": "apps/NumiHumanSkinBoundaryNodeMap.hpp",
+      "kind": "parent-main",
+      "actual_blob": "d5fa35a9ddf70e6da8442994f9e799a7377f3bb7",
+      "expected_blob": "d5fa35a9ddf70e6da8442994f9e799a7377f3bb7",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanSkinRigidPlacement.hpp",
+      "repo_path": "apps/NumiHumanSkinRigidPlacement.hpp",
+      "kind": "parent-main",
+      "actual_blob": "edb785845306ed5dc3bec720c16795ddff7bb80a",
+      "expected_blob": "edb785845306ed5dc3bec720c16795ddff7bb80a",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "repo_path": "apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "kind": "parent-main",
+      "actual_blob": "f1c8d985b240c6147d2e4f7c28c39fff33b31848",
+      "expected_blob": "f1c8d985b240c6147d2e4f7c28c39fff33b31848",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/include/metalrobo/Collision.hpp",
+      "repo_path": "include/metalrobo/Collision.hpp",
+      "kind": "parent-main",
+      "actual_blob": "08d908d2092499dd816612e625a5bdb98624c5f4",
+      "expected_blob": "08d908d2092499dd816612e625a5bdb98624c5f4",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/include/metalrobo/ConstraintIR.hpp",
+      "repo_path": "include/metalrobo/ConstraintIR.hpp",
+      "kind": "parent-main",
+      "actual_blob": "ad610749e5570ec99ee0f71561530b3c6879d97b",
+      "expected_blob": "ad610749e5570ec99ee0f71561530b3c6879d97b",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/include/metalrobo/EngineModel.hpp",
+      "repo_path": "include/metalrobo/EngineModel.hpp",
+      "kind": "parent-main",
+      "actual_blob": "69e93f5827cc46bc40744de02b2cf0c8a715aa63",
+      "expected_blob": "69e93f5827cc46bc40744de02b2cf0c8a715aa63",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/include/metalrobo/NumiHumanTissueMass.hpp",
+      "repo_path": "include/metalrobo/NumiHumanTissueMass.hpp",
+      "kind": "parent-main",
+      "actual_blob": "8eee8aa1c842638c06fb9d714392100474dbc4f1",
+      "expected_blob": "8eee8aa1c842638c06fb9d714392100474dbc4f1",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/include/metalrobo/OpenSimFunction.hpp",
+      "repo_path": "include/metalrobo/OpenSimFunction.hpp",
+      "kind": "parent-main",
+      "actual_blob": "437f938689c85ed4579cd0bbdb7f49b83a2ed270",
+      "expected_blob": "437f938689c85ed4579cd0bbdb7f49b83a2ed270",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/include/metalrobo/OpenSimSpatialTransform.hpp",
+      "repo_path": "include/metalrobo/OpenSimSpatialTransform.hpp",
+      "kind": "parent-main",
+      "actual_blob": "ce1cb7723526de3c7f54965c3a944ef201800c55",
+      "expected_blob": "ce1cb7723526de3c7f54965c3a944ef201800c55",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/include/metalrobo/compensated_translation_gpu.h",
+      "repo_path": "include/metalrobo/compensated_translation_gpu.h",
+      "kind": "parent-main",
+      "actual_blob": "41f75e67cd897239d712f4d37fe1fac51da6a491",
+      "expected_blob": "41f75e67cd897239d712f4d37fe1fac51da6a491",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/include/metalrobo/constraint_ir_shared.h",
+      "repo_path": "include/metalrobo/constraint_ir_shared.h",
+      "kind": "parent-main",
+      "actual_blob": "d8a66ab4deecd67ad8ef7fe2f54f5c38a79016c6",
+      "expected_blob": "d8a66ab4deecd67ad8ef7fe2f54f5c38a79016c6",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/include/metalrobo/engine_types.h",
+      "repo_path": "include/metalrobo/engine_types.h",
+      "kind": "parent-main",
+      "actual_blob": "fed1b442eb5cfdba4bf3846b68cebe07ca8a7619",
+      "expected_blob": "fed1b442eb5cfdba4bf3846b68cebe07ca8a7619",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/include/metalrobo/gpu_types.h",
+      "repo_path": "include/metalrobo/gpu_types.h",
+      "kind": "parent-main",
+      "actual_blob": "7f48222927548c9a33955966df97a685543512d3",
+      "expected_blob": "7f48222927548c9a33955966df97a685543512d3",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/include/metalrobo/opensim_spatial_transform_gpu.h",
+      "repo_path": "include/metalrobo/opensim_spatial_transform_gpu.h",
+      "kind": "parent-main",
+      "actual_blob": "c2ba1c344eb8b8b2b9c6b7c89c80f867001b6a1b",
+      "expected_blob": "c2ba1c344eb8b8b2b9c6b7c89c80f867001b6a1b",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/include/numi/matter/accepted_state_proof_gpu.h",
+      "repo_path": "matter/include/numi/matter/accepted_state_proof_gpu.h",
+      "kind": "parent-main",
+      "actual_blob": "9b39d0c1ebb896602397592a62c98667a46fd7a4",
+      "expected_blob": "9b39d0c1ebb896602397592a62c98667a46fd7a4",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/include/numi/matter/human_equality_gpu.h",
+      "repo_path": "matter/include/numi/matter/human_equality_gpu.h",
+      "kind": "parent-main",
+      "actual_blob": "7e953b00c078498237d1610ad5ed0906b01967b7",
+      "expected_blob": "7e953b00c078498237d1610ad5ed0906b01967b7",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/include/numi/matter/human_limits_gpu.h",
+      "repo_path": "matter/include/numi/matter/human_limits_gpu.h",
+      "kind": "parent-main",
+      "actual_blob": "729b71b655fc3bfa95dfd5ae358d65bc9ecd61e2",
+      "expected_blob": "729b71b655fc3bfa95dfd5ae358d65bc9ecd61e2",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/include/numi/matter/matter.hpp",
+      "repo_path": "matter/include/numi/matter/matter.hpp",
+      "kind": "parent-main",
+      "actual_blob": "8f49e92e25f5abc246cdcc1d938066f9c4ebdbcc",
+      "expected_blob": "8f49e92e25f5abc246cdcc1d938066f9c4ebdbcc",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/include/numi/matter/physical_state_digest_gpu.h",
+      "repo_path": "matter/include/numi/matter/physical_state_digest_gpu.h",
+      "kind": "parent-main",
+      "actual_blob": "b4bfd17cac906b768b2d515f86c8d94d2f5d9871",
+      "expected_blob": "b4bfd17cac906b768b2d515f86c8d94d2f5d9871",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/include/numi/matter/sha256_gpu.h",
+      "repo_path": "matter/include/numi/matter/sha256_gpu.h",
+      "kind": "parent-main",
+      "actual_blob": "a1f93747959d9809a4bb59d2973a956cf9382a1c",
+      "expected_blob": "a1f93747959d9809a4bb59d2973a956cf9382a1c",
+      "match": true
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/include/numi/matter/shared.h",
+      "repo_path": "matter/include/numi/matter/shared.h",
+      "kind": "parent-main",
+      "actual_blob": "ad1e7b7e43104e00561ae95ca7b9736c75a5aeb9",
+      "expected_blob": "ad1e7b7e43104e00561ae95ca7b9736c75a5aeb9",
+      "match": true
+    }
+  ],
+  "external_pinned_headers": [],
+  "all_local_dependencies_match": true,
+  "physical_admission": false,
+  "earlier_shared_dependency_difference": {
+    "path": "apps/NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp",
+    "shared_blob": "57df751abe93ea6032fbee6d72cce84e73609d78",
+    "published_blob": "bb71a1d65c64f4149b283395c6a6c0b1ee84be12",
+    "difference": "unused layer-depth diagnostic declarations; independent check recompiled and passed against exact published header"
+  }
+}

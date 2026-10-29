@@ -208,6 +208,53 @@ inline V3 baryPoint(const std::vector<V3>& points,const Face& face,
         result[axis]+=bary[k]*points[face[k]][axis];
     return result;
 }
+inline V3 vectorSub(const V3& a,const V3& b) {
+    return {a[0]-b[0],a[1]-b[1],a[2]-b[2]};
+}
+inline double vectorDot(const V3& a,const V3& b) {
+    return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+}
+inline double vectorDist2(const V3& a,const V3& b) {
+    const auto d=vectorSub(a,b);return vectorDot(d,d);
+}
+inline V3 closestSegmentPoint(const V3& p,const V3& a,const V3& b) {
+    const auto ab=vectorSub(b,a);const double den=vectorDot(ab,ab);
+    const double t=den>0.0?std::clamp(vectorDot(vectorSub(p,a),ab)/den,0.0,1.0):0.0;
+    return {a[0]+t*ab[0],a[1]+t*ab[1],a[2]+t*ab[2]};
+}
+inline V3 closestTrianglePoint(const V3& p,const V3& a,const V3& b,const V3& c) {
+    const auto ab=vectorSub(b,a),ac=vectorSub(c,a),ap=vectorSub(p,a);
+    const double d1=vectorDot(ab,ap),d2=vectorDot(ac,ap);
+    if(d1<=0.0&&d2<=0.0)return a;
+    const auto bp=vectorSub(p,b);const double d3=vectorDot(ab,bp),d4=vectorDot(ac,bp);
+    if(d3>=0.0&&d4<=d3)return b;
+    const double vc=d1*d4-d3*d2;
+    if(vc<=0.0&&d1>=0.0&&d3<=0.0) {
+        const double v=d1/(d1-d3);
+        return {a[0]+v*ab[0],a[1]+v*ab[1],a[2]+v*ab[2]};
+    }
+    const auto cp=vectorSub(p,c);const double d5=vectorDot(ab,cp),d6=vectorDot(ac,cp);
+    if(d6>=0.0&&d5<=d6)return c;
+    const double vb=d5*d2-d1*d6;
+    if(vb<=0.0&&d2>=0.0&&d6<=0.0) {
+        const double v=d2/(d2-d6);
+        return {a[0]+v*ac[0],a[1]+v*ac[1],a[2]+v*ac[2]};
+    }
+    const double va=d3*d6-d5*d4;
+    if(va<=0.0&&(d4-d3)>=0.0&&(d5-d6)>=0.0) {
+        const double v=(d4-d3)/((d4-d3)+(d5-d6));
+        return {b[0]+v*(c[0]-b[0]),b[1]+v*(c[1]-b[1]),b[2]+v*(c[2]-b[2])};
+    }
+    const double den=va+vb+vc;
+    if(!(std::abs(den)>1.0e-30)) {
+        const V3 q0=closestSegmentPoint(p,a,b),q1=closestSegmentPoint(p,b,c),
+                 q2=closestSegmentPoint(p,c,a);
+        const double e0=vectorDist2(p,q0),e1=vectorDist2(p,q1),e2=vectorDist2(p,q2);
+        return e0<=e1&&e0<=e2?q0:(e1<=e2?q1:q2);
+    }
+    const double v=vb/den,z=vc/den,u=1.0-v-z;
+    return {u*a[0]+v*b[0]+z*c[0],u*a[1]+v*b[1]+z*c[1],u*a[2]+v*b[2]+z*c[2]};
+}
 
 inline std::vector<std::string> seedMapHeader() {
     return {
@@ -388,6 +435,129 @@ inline bool runNativeFaceSelection(
     if(!stable){
         error="native selected-face representative did not reach a fixed point after "+
             std::to_string(maximumRepresentativePasses)+" bounded transfer builds";return false;
+    }
+
+    // Source-only canonical export may rescue rows whose nearest source-connected
+    // face maps to a child cell outside the existing strict embedding bounds.
+    // The ordinary one-ring result is preserved for every row with no passing
+    // strict candidate. Rescues are restricted to the transfer owner's existing
+    // maximum of three connected face rings and retain the same parent-path gate.
+    if(input.allowSourceOnlyStrictChildFaceSelection) {
+        if(input.physicalBoundaryFaceChildTetRows.size()!=input.physicalBoundaryFaces.size()||
+           input.physicalBoundaryFaceGeometricDonorBodyIndices.size()!=input.physicalBoundaryFaces.size()||
+           input.physicalBoundaryFaceParentTetRows.size()!=input.physicalBoundaryFaces.size()||
+           input.detailRegisteredSourceDonorBodyIndices.size()!=n) {
+            error="source-only strict face selection lacks child-cell or donor lineage rows";return false;
+        }
+        std::vector<std::vector<std::uint32_t>> faceNeighbors(input.physicalBoundaryFaces.size());
+        std::vector<std::vector<std::uint32_t>> vertexFaces(b);
+        std::map<std::pair<std::uint32_t,std::uint32_t>,std::vector<std::uint32_t>> edgeFaces;
+        for(std::size_t fi=0;fi<input.physicalBoundaryFaces.size();++fi) {
+            const auto& face=input.physicalBoundaryFaces[fi];
+            for(const auto vertex:face) {
+                if(vertex>=b){error="strict rescue boundary face exceeds its vertex domain";return false;}
+                vertexFaces[vertex].push_back(static_cast<std::uint32_t>(fi));
+            }
+            for(unsigned k=0u;k<3u;++k) {
+                auto a=face[k],c=face[(k+1u)%3u];if(a>c)std::swap(a,c);
+                edgeFaces[{a,c}].push_back(static_cast<std::uint32_t>(fi));
+            }
+        }
+        for(const auto& [edge,owners]:edgeFaces) {
+            (void)edge;
+            for(std::size_t a=0;a<owners.size();++a)for(std::size_t c=a+1u;c<owners.size();++c) {
+                faceNeighbors[owners[a]].push_back(owners[c]);
+                faceNeighbors[owners[c]].push_back(owners[a]);
+            }
+        }
+        for(auto& adjacent:faceNeighbors) {
+            std::sort(adjacent.begin(),adjacent.end());
+            adjacent.erase(std::unique(adjacent.begin(),adjacent.end()),adjacent.end());
+        }
+        std::vector<std::uint32_t> rescueRows;
+        rescueRows.reserve(10000u);
+        const double maxProjectionSquared=
+            input.maximumBoundaryProjectionDistanceM*input.maximumBoundaryProjectionDistanceM;
+        for(std::size_t row=0u;row<n;++row) {
+            if(physical_skin_authoring_detail_bridge_detail::
+                    strictChildTetEmbeddingForBoundaryFace(input,row,finalFaceRows[row]))continue;
+            const auto representative=representatives[row];
+            if(representative>=vertexFaces.size())continue;
+            const V3& point=input.detailReferenceWorldPoints[row];
+            const double representativeDistance=std::sqrt(vectorDist2(
+                point,input.physicalBoundaryReferenceWorldPoints[representative]));
+            const double parentBound=representativeDistance+
+                1.0e-10*std::max(1.0,representativeDistance);
+            std::vector<std::uint32_t> candidates=vertexFaces[representative];
+            std::vector<std::uint32_t> frontier=candidates;
+            std::vector<std::uint8_t> seen(input.physicalBoundaryFaces.size(),0u);
+            for(const auto face:frontier)seen[face]=1u;
+            // Transfer's sourceConnectedFaceRings=3 is the incident star plus
+            // two shared-edge expansions, not three expansions.
+            for(unsigned ring=1u;ring<3u;++ring) {
+                std::vector<std::uint32_t> next;
+                for(const auto face:frontier)for(const auto adjacent:faceNeighbors[face]) {
+                    if(seen[adjacent])continue;
+                    seen[adjacent]=1u;next.push_back(adjacent);
+                }
+                candidates.insert(candidates.end(),next.begin(),next.end());
+                frontier.swap(next);
+                if(frontier.empty())break;
+            }
+            bool found=false;
+            for(const auto face:candidates) {
+                if(!physicalSkinAuthoringDetailFaceEligible(eligibilityContext,row,face)||
+                   !physical_skin_authoring_detail_bridge_detail::
+                        strictChildTetEmbeddingForBoundaryFace(input,row,face))continue;
+                const auto& corners=input.physicalBoundaryFaces[face];
+                bool sameDonor=false;
+                for(const auto corner:corners)
+                    sameDonor|=input.physicalBoundaryGeometricDonorBodyIndices[corner]==
+                        input.detailRegisteredSourceDonorBodyIndices[row];
+                const bool incident=std::find(vertexFaces[representative].begin(),
+                    vertexFaces[representative].end(),face)!=vertexFaces[representative].end();
+                if(!incident&&!sameDonor)continue;
+                const V3 closest=closestTrianglePoint(point,
+                    input.physicalBoundaryReferenceWorldPoints[corners[0]],
+                    input.physicalBoundaryReferenceWorldPoints[corners[1]],
+                    input.physicalBoundaryReferenceWorldPoints[corners[2]]);
+                const double d2=vectorDist2(point,closest);
+                if(!std::isfinite(d2)||d2>maxProjectionSquared||
+                   std::sqrt(d2)>parentBound)continue;
+                found=true;break;
+            }
+            if(found)rescueRows.push_back(static_cast<std::uint32_t>(row));
+        }
+        if(!rescueRows.empty()) {
+            std::vector<V3> subsetPoints;std::vector<std::uint32_t> subsetSource,subsetDonor,
+                subsetRepresentatives;std::vector<std::uint8_t> subsetUsed;
+            subsetPoints.reserve(rescueRows.size());subsetSource.reserve(rescueRows.size());
+            subsetDonor.reserve(rescueRows.size());subsetRepresentatives.reserve(rescueRows.size());
+            subsetUsed.reserve(rescueRows.size());
+            for(const auto row:rescueRows) {
+                subsetPoints.push_back(input.detailReferenceWorldPoints[row]);
+                subsetSource.push_back(detailSource[row]);
+                subsetDonor.push_back(input.detailRegisteredSourceDonorBodyIndices[row]);
+                subsetRepresentatives.push_back(representatives[row]);
+                subsetUsed.push_back(used[row]);
+            }
+            Transfer strictTransfer;std::size_t strictRepresentativeAdjustments=0u;
+            std::string strictError;
+            if(!buildPhysicalSkinAuthoringStrictChildFaceTransfer(
+                    input,parentAdjacency,rescueRows,subsetPoints,subsetSource,subsetDonor,
+                    subsetUsed,boundarySource,subsetRepresentatives,strictTransfer,
+                    strictRepresentativeAdjustments,strictError)) {
+                error="source-only strict child-face rescue failed its shared bounded selector: "+strictError;
+                return false;
+            }
+            for(std::size_t local=0u;local<rescueRows.size();++local) {
+                const auto row=rescueRows[local];
+                finalFaceRows[row]=strictTransfer.selectedFaceIndex(local);
+                finalRows[row]=strictTransfer.rows()[local];
+                representatives[row]=subsetRepresentatives[local];
+            }
+            changedRepresentatives+=strictRepresentativeAdjustments;
+        }
     }
     selections.assign(n,{});
     std::size_t failures=0u;std::ostringstream witnesses;
@@ -928,6 +1098,9 @@ inline bool runNativeFaceSelection(
     }
     if(std::find(boundaryFaceSeen.begin(),boundaryFaceSeen.end(),std::uint8_t(0u))!=boundaryFaceSeen.end())
         return fail("coarse O face map omitted an imported physical-boundary triangle");
+    next.physicalBoundaryFaceChildTetRows=physicalBoundaryFaceChildTetRows;
+    next.allowSourceOnlyStrictChildFaceSelection=
+        files.allowPrecanonicalExportSeed||files.allowAuthenticatedRefinedChildRouteForSourceOnlyPreflight;
 
     auto mapHeader=seedMapHeader();
     const auto& selectedHeader=nativeSelectionHeader();
@@ -1256,6 +1429,12 @@ inline bool runNativeFaceSelection(
         next.detailRequiresParentTetPath[fine]=
             (selectedHopCount>0u||donorFallback||selectedStableFace!=fineStable||
              selectedParentRow!=fineParent)?1u:0u;
+        if(!files.allowPrecanonicalExportSeed&&next.allowSourceOnlyStrictChildFaceSelection&&
+           physical_skin_authoring_detail_bridge_detail::strictChildTetEmbeddingForBoundaryFace(
+               next,fine,roleFaceRow)&&
+           !physicalSkinAuthoringDetailStrictSelectionFaceEligible(
+               next,sourceParentTetAdjacency,fine,roleFaceRow))
+            return bad("canonical strict child-face witness fails the shared material/region/donor/source-parent-path selector");
         next.detailRepresentativeBoundaryVertexRows[fine]=selectedRep;
         next.detailExpectedBoundaryFaceRows[fine]=roleFaceRow;
         next.detailExpectedBoundaryFaceBarycentrics[fine]=selectedFaceBary;

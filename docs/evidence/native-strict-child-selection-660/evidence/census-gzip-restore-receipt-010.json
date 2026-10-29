@@ -1,0 +1,15 @@
+{
+  "schema": "numi-human.native-owner-policy-010-census-gzip-restore.v1",
+  "execution_receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-008/replay-006/execution-receipt.json",
+  "execution_receipt_sha256": "f1ee93878501f6f1e14490c9ced05d9d44e0058918f52a08a1adc029ea0613cb",
+  "raw_sha256": "90f3aa0f51f934b70345397c9ff4a6a0c11840128dcd13b98f5648b0f55285c2",
+  "raw_bytes": 17970822,
+  "compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-008/replay-006/native-output/detail-embedding-census.csv.gz",
+  "compressed_sha256": "4a96e1aad79f6b7d6894c3fb93c9a49f1310be98cbcc6f79428c6beb9cc2a1cc",
+  "compressed_bytes": 5681403,
+  "restored_sha256": "90f3aa0f51f934b70345397c9ff4a6a0c11840128dcd13b98f5648b0f55285c2",
+  "restored_bytes": 17970822,
+  "matches_replay005_census": true,
+  "full_restore_verified": true,
+  "physical_admission": false
+}

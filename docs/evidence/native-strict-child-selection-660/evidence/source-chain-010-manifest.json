@@ -1,0 +1,106 @@
+{
+  "schema": "numi-human-native-owner-policy-010-cleanup-and-census.v1",
+  "publication_parent_commit": "06fef224d0e9b9af684956bb22cc0ccc3e9aadf3",
+  "prior_selector_revision_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-008/replay-005/source-chain-009-final/manifest.json",
+  "prior_selector_revision_manifest_sha256": "1d0112f041532dd48d5c656230518198bc88a3e478f9d1de8a513b0b4e51f4d2",
+  "scope": "Remove the unused seed representative state and its unconditional validation; preserve immutable 45-column seed parsing. Report maximum boundary projection from the selected face transfer rows after strict rescue.",
+  "files": [
+    {
+      "repo_path": "apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp",
+      "frozen_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-010/source-chain-010/source/apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp",
+      "parent_commit": "06fef224d0e9b9af684956bb22cc0ccc3e9aadf3",
+      "parent_blob": "bbd3a4985f7c7ce9f5a2f8209135af382f4a65df",
+      "parent_sha256": "d9fc1ed525fa0491c64330944173260b4aa04d5962e2d765d99df4cdde571c8c",
+      "selector009_sha256": "f2326c422aa5c7df10d29224dea43e51f9541b0b4be19c4a3871ec5c6462284f",
+      "source010_sha256": "162c19b730f2162fcc13ce4e567e17cef1524e432a651a2097a08a99e71ce2ca",
+      "source010_bytes": 102488,
+      "changed_vs_parent": true,
+      "changed_vs_selector009": true
+    },
+    {
+      "repo_path": "apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp",
+      "frozen_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-010/source-chain-010/source/apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp",
+      "parent_commit": "06fef224d0e9b9af684956bb22cc0ccc3e9aadf3",
+      "parent_blob": "ea88d2eea031c0389034409c4febe8be0b6c15ce",
+      "parent_sha256": "063a098471571d321a1b6de705c424062c05f98f56e703bad86f6fd795495120",
+      "selector009_sha256": "ada18555af7887ee37c6018d7bfc866a23a67f0dbab814dfb8463802deed8659",
+      "source010_sha256": "41d1fdd6ac19d663755520b16c720a3cb91f01fb34ad1c6ed4ad7e349c29bce6",
+      "source010_bytes": 49667,
+      "changed_vs_parent": true,
+      "changed_vs_selector009": true
+    },
+    {
+      "repo_path": "apps/NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp",
+      "frozen_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-010/source-chain-010/source/apps/NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp",
+      "parent_commit": "06fef224d0e9b9af684956bb22cc0ccc3e9aadf3",
+      "parent_blob": "28412300b45509a397b5d8d09a0e6a70553417cf",
+      "parent_sha256": "233fad8d034e39aa61f60685fb6eabb8f1f4e525f04ea06a789cba6d25e24496",
+      "selector009_sha256": "4d4f1ea3c23d6e69fc53dee0f21dea438757ea7cc160946fcbd7f4e997cfadb6",
+      "source010_sha256": "ca2efa2eb383fc32e982d3320ac604671ba455c762bab35715b0d6cab4a3e9ca",
+      "source010_bytes": 79242,
+      "changed_vs_parent": true,
+      "changed_vs_selector009": true
+    }
+  ],
+  "source_diffs": {
+    "from_parent_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-010/source-chain-010/source-diff-from-parent-06fef.patch",
+    "from_parent_sha256": "68ac49ad2f17eb2e9eb967d75de19cc50a28743360fa24f5aaab484f67c74d36",
+    "from_parent_bytes": 39571,
+    "from_selector009_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-010/source-chain-010/source-diff-from-selector009.patch",
+    "from_selector009_sha256": "c117183cf7e67239734775d786a3964eebe124db3bf4fa5369d4537dc5de8a09",
+    "from_selector009_bytes": 6928
+  },
+  "unchanged_probe_source": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-010/source/apps/numilab_human_myosim_visual_probe.mm",
+    "sha256": "3d7250f0f04bf37eb8884c97efaca395c4e80754ce11fa4b3916466cac588c29"
+  },
+  "build": {
+    "evidence_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-010/source-chain-010/evidence/build-evidence.json",
+    "evidence_sha256": "fd43c5f2830d22c7448bfcc97b7026182455287c0c3ddb3ab18bd61c83e60303",
+    "probe_binary_sha256": "a8a132ae91c82ec7bbbacf940853028b43dc0c747dcc3416d40e2de639dffb2e",
+    "probe_object_sha256": "e92790b28a821ae790f9ea2701854d52d48986e141a3a2afa428740cb08b1515",
+    "probe_overlay_include_trace": {
+      "NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-010/source/apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp",
+      "NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-010/source/apps/NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp"
+    },
+    "probe_compile_stderr_sha256": "7b51bf4c3fd1101f93b19ee909c72a2638b05d1901202fb01866f8dde3aee527",
+    "focused_binary_sha256": "283ee8225ead591ca6ab33ac81b3ab544cb1502c7e8970899ec005e80767562c",
+    "focused_assertions_active": true,
+    "focused_exit_code": 0,
+    "focused_stdout": "authoring_detail_bridge_csv=pass typed_O_nodes=3 full86=86 map_rows=3 face_reordered=validated frame_owner=separate same_donor_parent_walk=pass residual_recomputed=pass physical_admission=false\n",
+    "focused_controls": [
+      "unused seed representative field/validation removed without touching 45-column seed parsing",
+      "strict rescue selected face projection maximum equals selected transfer rows and exceeds base one-ring distance"
+    ]
+  },
+  "source_only_native_census": {
+    "launch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-008/replay-006/launch.json",
+    "launch_sha256": "6c96901d06f39fa9a86dc47cbcb537095a2588183418a62019ef4abe2878ab0a",
+    "execution_receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-008/replay-006/execution-receipt.json",
+    "execution_receipt_sha256": "f1ee93878501f6f1e14490c9ced05d9d44e0058918f52a08a1adc029ea0613cb",
+    "canonical_input_sha256": "3cb1ee0e09d28654964ee6d2269cbc650b65a5c809eb954cdd4851979a326db4",
+    "raw_census_sha256": "90f3aa0f51f934b70345397c9ff4a6a0c11840128dcd13b98f5648b0f55285c2",
+    "census_compressed_sha256": "4a96e1aad79f6b7d6894c3fb93c9a49f1310be98cbcc6f79428c6beb9cc2a1cc",
+    "census_restore_receipt_sha256": "bef5346c8cc940ae4cd76b710de8d7a20c9cec4799187c0ce0bee2e05e31517a",
+    "rows": 56054,
+    "per_gate_failures": {
+      "labels_ok": 0,
+      "condition_ok": 0,
+      "extrapolation_ok": 27,
+      "weight_ok": 24354,
+      "float_sum_ok": 216,
+      "reconstruction_ok": 8062,
+      "barycentric_ok": 0
+    },
+    "combined_any_gate_failed": 24354,
+    "native_rejection": "detail-to-volume effective tet weight exceeds its declared bound",
+    "same_raw_hash_as_selector009_replay005": true,
+    "runtime_requested": false,
+    "physical_admission": false,
+    "accepted_steps_expected": 0
+  },
+  "historical_export_parity_receipt": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-008/replay-004/first45-equivalence.json",
+  "historical_export_parity_sha256": "28742d74a0f66e9f8622b98e2195ed1cc1ee48e8d65e498e61f934bf39c56eb6",
+  "retained_009_failure_evidence": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/W/native-owner-policy-008/replay-005/source-chain-009-final/manifest.json",
+  "physical_admission": false
+}
