@@ -1,0 +1,256 @@
+{
+  "bare_repo": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-reference-split-publication-494/repo.git",
+  "base_commit": "0c3ebf1a58ac589775df9bcfee77c689a1dc67f3",
+  "files": [
+    {
+      "matches_w": true,
+      "origin": "published-main",
+      "path": "apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp",
+      "sha256": "a58fe4086f047a7e811ccedc0fa23c2cb392ff4e835f1142b3431ba6489e2b18",
+      "w_sha256": "a58fe4086f047a7e811ccedc0fa23c2cb392ff4e835f1142b3431ba6489e2b18"
+    },
+    {
+      "matches_w": true,
+      "origin": "published-main",
+      "path": "apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp",
+      "sha256": "e4ca527d23b8a0a777addacec59e7e9440af9fd66c85485d8a1d0a801190a32f",
+      "w_sha256": "e4ca527d23b8a0a777addacec59e7e9440af9fd66c85485d8a1d0a801190a32f"
+    },
+    {
+      "matches_w": true,
+      "origin": "published-main",
+      "path": "apps/NumiHumanPhysicalSkinChildMassMapping.hpp",
+      "sha256": "8df1774de61ac59ea1d5b73bdf035191ac5291a9ed4bb53cd4fbfdf8273b8537",
+      "w_sha256": "8df1774de61ac59ea1d5b73bdf035191ac5291a9ed4bb53cd4fbfdf8273b8537"
+    },
+    {
+      "matches_w": true,
+      "origin": "published-main",
+      "path": "apps/NumiHumanConservativeSpatialMassTransport.hpp",
+      "sha256": "7019e52f5299f4200ccc71c70f203958d0221959596cb15d5eb17552da73eba1",
+      "w_sha256": "7019e52f5299f4200ccc71c70f203958d0221959596cb15d5eb17552da73eba1"
+    },
+    {
+      "matches_w": false,
+      "origin": "published-main",
+      "path": "apps/NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp",
+      "sha256": "04e54b1c7b1fbea383b61b5d5df5dfbf9dd0fe0334097bb2c0a825eb5b70a4d4",
+      "w_sha256": "09ec7ec3ae4fb23bd938c18fa6d2bacb513532cd8cce440ca081428bd0ca799e"
+    },
+    {
+      "matches_w": true,
+      "origin": "published-main",
+      "path": "apps/NumiHumanPhysicalSkinChildRegisteredVolumeCSV.hpp",
+      "sha256": "a009cc1b3973ca4c70a3941ae3af91e4757105c6ccb0c166cf58a7a9dc8c7f1d",
+      "w_sha256": "a009cc1b3973ca4c70a3941ae3af91e4757105c6ccb0c166cf58a7a9dc8c7f1d"
+    },
+    {
+      "matches_w": true,
+      "origin": "published-main",
+      "path": "apps/NumiHumanPhysicalSkinChildRegisteredFacetMaps.hpp",
+      "sha256": "b15543aa7bc60e9de7d59f0ebe43278a7a98273e6393ab138cc472cbcad13fd5",
+      "w_sha256": "b15543aa7bc60e9de7d59f0ebe43278a7a98273e6393ab138cc472cbcad13fd5"
+    },
+    {
+      "matches_w": true,
+      "origin": "published-main",
+      "path": "apps/NumiHumanPhysicalSkinChildTetGen.hpp",
+      "sha256": "995c21a0a18b5d7d90eac72519f10a8dfe41deaed799587d3aed1b3e2949374c",
+      "w_sha256": "995c21a0a18b5d7d90eac72519f10a8dfe41deaed799587d3aed1b3e2949374c"
+    },
+    {
+      "matches_w": true,
+      "origin": "published-main",
+      "path": "apps/NumiHumanConformingTissueRefinement.hpp",
+      "sha256": "da750da5f09e90d25715dbe44d625aa7c45089ee23a8e9e303c24f025f34c519",
+      "w_sha256": "da750da5f09e90d25715dbe44d625aa7c45089ee23a8e9e303c24f025f34c519"
+    },
+    {
+      "matches_w": true,
+      "origin": "published-main",
+      "path": "apps/NumiHumanConformingTissueRefinementAssets.hpp",
+      "sha256": "1d5e307a5cc58e2a9f372640e02a1755dec1293f34944b625ca67f8aec113172",
+      "w_sha256": "1d5e307a5cc58e2a9f372640e02a1755dec1293f34944b625ca67f8aec113172"
+    },
+    {
+      "matches_w": true,
+      "origin": "published-main",
+      "path": "apps/NumiHumanParentReferenceMassTransfer.hpp",
+      "sha256": "9a188f98b93ea480ffd6de7fbb522e2e3ca5ee6b6a262a2b26a6ed721eb7eee5",
+      "w_sha256": "9a188f98b93ea480ffd6de7fbb522e2e3ca5ee6b6a262a2b26a6ed721eb7eee5"
+    },
+    {
+      "matches_w": true,
+      "origin": "published-main",
+      "path": "apps/NumiHumanPhysicalSkinChildRegisteredSurfaceSidecars.hpp",
+      "sha256": "e2664c07868b2ee516ed543def59e5cb5e1ecf8d050110ce7ad4ec6d996b2d3c",
+      "w_sha256": "e2664c07868b2ee516ed543def59e5cb5e1ecf8d050110ce7ad4ec6d996b2d3c"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "apps/NumiHumanCoarseTissuePreparation.hpp",
+      "sha256": "0e72a7bb864a0755e57f270a4defe8cd3111740e982068a60f12f3e8d269f61c",
+      "w_sha256": "0e72a7bb864a0755e57f270a4defe8cd3111740e982068a60f12f3e8d269f61c"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "apps/NumiHumanRegisteredSkinCandidateCSV.hpp",
+      "sha256": "ca80500d8e893d8dc12b92fd6233bbd5e6c87aa537150ed80502a233a08c760f",
+      "w_sha256": "ca80500d8e893d8dc12b92fd6233bbd5e6c87aa537150ed80502a233a08c760f"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "apps/NumiHumanSkinBoundaryNodeMap.hpp",
+      "sha256": "2faed73fdce51c442d7888928288e992163ffa4445f529a40fb499fccd975693",
+      "w_sha256": "2faed73fdce51c442d7888928288e992163ffa4445f529a40fb499fccd975693"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "apps/NumiHumanSkinRigidPlacement.hpp",
+      "sha256": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+      "w_sha256": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "sha256": "c5b4197037d1d043c25fb81a20e4940d36479b9a6fd7fa58047e51ea75d1233c",
+      "w_sha256": "c5b4197037d1d043c25fb81a20e4940d36479b9a6fd7fa58047e51ea75d1233c"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "include/metalrobo/Collision.hpp",
+      "sha256": "dad1688d6d8a8871aa22c98757ddea2f0da8c6e993980c962f0cd1d5a27ba929",
+      "w_sha256": "dad1688d6d8a8871aa22c98757ddea2f0da8c6e993980c962f0cd1d5a27ba929"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "include/metalrobo/ConstraintIR.hpp",
+      "sha256": "6610aaa7a447a50a6899a2be48e2a3e840fd41a8e82471ba2b4c7d13f813f582",
+      "w_sha256": "6610aaa7a447a50a6899a2be48e2a3e840fd41a8e82471ba2b4c7d13f813f582"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "include/metalrobo/EngineModel.hpp",
+      "sha256": "04096227fc3ca3360c55fd199553e6c950f4a2620ef8f2c1d39af78a6f1d432e",
+      "w_sha256": "04096227fc3ca3360c55fd199553e6c950f4a2620ef8f2c1d39af78a6f1d432e"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "include/metalrobo/NumiHumanTissueMass.hpp",
+      "sha256": "9b78d4363ef0f1d9a4d99d40eba0df78b37636e78d59c8a14efe4d5985bca761",
+      "w_sha256": "9b78d4363ef0f1d9a4d99d40eba0df78b37636e78d59c8a14efe4d5985bca761"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "include/metalrobo/OpenSimFunction.hpp",
+      "sha256": "c76d2aea6040ae9476ff1ccb4b3dc2e70344d95a390a7debad9dc93fd0a68246",
+      "w_sha256": "c76d2aea6040ae9476ff1ccb4b3dc2e70344d95a390a7debad9dc93fd0a68246"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "include/metalrobo/OpenSimSpatialTransform.hpp",
+      "sha256": "8c1e2c43d6543e096fc26f4cdf68b96f0b6ed9eb3038233c87069f009c307046",
+      "w_sha256": "8c1e2c43d6543e096fc26f4cdf68b96f0b6ed9eb3038233c87069f009c307046"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "include/metalrobo/compensated_translation_gpu.h",
+      "sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+      "w_sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "include/metalrobo/constraint_ir_shared.h",
+      "sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f",
+      "w_sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "include/metalrobo/engine_types.h",
+      "sha256": "2f438bdc889275dd1133906ef73404df828fdf984e98c5b270f58e58fb669824",
+      "w_sha256": "2f438bdc889275dd1133906ef73404df828fdf984e98c5b270f58e58fb669824"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "include/metalrobo/gpu_types.h",
+      "sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8",
+      "w_sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "include/metalrobo/opensim_spatial_transform_gpu.h",
+      "sha256": "8e4c21a87be3c2b93db02cc3953f81bf36c7eba7318c5db575afb7cd1c51caf0",
+      "w_sha256": "8e4c21a87be3c2b93db02cc3953f81bf36c7eba7318c5db575afb7cd1c51caf0"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "matter/include/numi/matter/accepted_state_proof_gpu.h",
+      "sha256": "d0b17b52cbdd54c5116a3e400435e60a833c92b5b6e309d1fbc74f3062e1c24e",
+      "w_sha256": "d0b17b52cbdd54c5116a3e400435e60a833c92b5b6e309d1fbc74f3062e1c24e"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "matter/include/numi/matter/human_equality_gpu.h",
+      "sha256": "7bf03f512c0fbdf9be0382a8bd655fb8f0d90b1703ddaf74302e60a38656f519",
+      "w_sha256": "7bf03f512c0fbdf9be0382a8bd655fb8f0d90b1703ddaf74302e60a38656f519"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "matter/include/numi/matter/human_limits_gpu.h",
+      "sha256": "adff1dd6bb8e7d67767bca38e959b03880376ec973f0d8a556564e4a87921dd9",
+      "w_sha256": "adff1dd6bb8e7d67767bca38e959b03880376ec973f0d8a556564e4a87921dd9"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "matter/include/numi/matter/matter.hpp",
+      "sha256": "b7e5b336edf592e9a080a979ee12ee7e7b18612dbd04725c56064ffdd172c23b",
+      "w_sha256": "b7e5b336edf592e9a080a979ee12ee7e7b18612dbd04725c56064ffdd172c23b"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "matter/include/numi/matter/physical_state_digest_gpu.h",
+      "sha256": "28f2d77c4619b7c2b1e37dfc8c823358b3ba392e07627fc21f7a5985bfbde916",
+      "w_sha256": "28f2d77c4619b7c2b1e37dfc8c823358b3ba392e07627fc21f7a5985bfbde916"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "matter/include/numi/matter/sha256_gpu.h",
+      "sha256": "53e3c5047b5dc2fe3449d2a4dc9770879c23297792b53495ecab73c855bb4681",
+      "w_sha256": "53e3c5047b5dc2fe3449d2a4dc9770879c23297792b53495ecab73c855bb4681"
+    },
+    {
+      "matches_w": true,
+      "origin": "W-fallback-pinned",
+      "path": "matter/include/numi/matter/shared.h",
+      "sha256": "e2dcede0637905078f08c38fed324de61f0c25e8a8e625646c06f74f21d51e7c",
+      "w_sha256": "e2dcede0637905078f08c38fed324de61f0c25e8a8e625646c06f74f21d51e7c"
+    }
+  ],
+  "no_git_index_or_worktree_checkout": true,
+  "no_lazy_fetch": true,
+  "pinned_W_fallback_files": 23,
+  "published_files": 12,
+  "schema": "direct-source-parent-retet-control-baseline.v1"
+}

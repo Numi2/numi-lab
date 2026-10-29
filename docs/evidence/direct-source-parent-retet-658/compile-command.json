@@ -1,0 +1,15 @@
+[
+  "clang++",
+  "-std=c++20",
+  "-Wall",
+  "-Wextra",
+  "-Wpedantic",
+  "-Werror",
+  "-UNDEBUG",
+  "-Isource/apps",
+  "-Isource/include",
+  "-Isource/matter/include",
+  "source/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp",
+  "-o",
+  "build/physical_skin_child_import_check"
+]

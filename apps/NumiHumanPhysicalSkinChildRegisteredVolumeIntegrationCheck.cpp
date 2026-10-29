@@ -11,6 +11,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <vector>
 
 using namespace metalrobo::human::coarse_tissue;
@@ -133,6 +134,88 @@ struct Fixture {
         }
         auto facets=buildFacetRows();
         walls=std::move(facets.second);
+    }
+
+
+
+    void scaleSyntheticGeometry(const double scale) {
+        assert(std::isfinite(scale)&&scale>0.0);
+        for(auto& point:points)for(auto& x:point)x*=scale;
+        for(auto& point:parentBundle.parent.currentWorldPoints)for(auto& x:point)x*=scale;
+        for(auto& point:parentBundle.parent.referenceWorldPoints)for(auto& x:point)x*=scale;
+        for(auto& distance:historicalDistanceForNode)distance*=scale;
+        for(auto& surface:registered.surfaces) {
+            for(auto& point:surface.worldPoints)for(auto& x:point)x*=scale;
+            for(auto& point:surface.donorLocalPoints)for(auto& x:point)x*=scale;
+        }
+    }
+
+    void initializeSyntheticParentMass() {
+        auto& parent=parentBundle.parent;
+        const auto nodeCount=parent.referenceWorldPoints.size();
+        const auto cellCount=parent.tetrahedra.size();
+        assert(nodeCount==9u&&cellCount==6u);
+        parent.compiledLumpedNodeMassKg.assign(nodeCount,0.0);
+        parent.compiledGlobalNodeIndices.resize(nodeCount);
+        parent.nodeFrameOwnerBodyIndices.assign(nodeCount,0u);
+        parent.nodeFrameOwnerLocalPoints=parent.currentWorldPoints;
+        std::map<std::tuple<std::uint32_t,std::uint32_t,std::uint32_t>,double> sourceMassByNodeMaterial;
+        parent.referenceTetVolumeM3.resize(cellCount);
+        parent.tetrahedronMassKg.resize(cellCount);
+        parent.totalMassKg=0.0;
+        for(std::size_t node=0;node<nodeCount;++node)
+            parent.compiledGlobalNodeIndices[node]=static_cast<std::uint32_t>(node);
+        for(std::size_t cell=0;cell<cellCount;++cell) {
+            const auto volume=parentReferenceTetVolumeM3(parent.tetrahedra[cell],parent.referenceWorldPoints);
+            const double density=parent.materialIndices[cell]==15u?1000.0:900.0;
+            const double mass=volume*density;
+            assert(std::isfinite(volume)&&volume>0.0&&std::isfinite(mass)&&mass>0.0);
+            parent.referenceTetVolumeM3[cell]=volume;
+            parent.tetrahedronMassKg[cell]=mass;
+            parent.totalMassKg+=mass;
+            for(const auto node:parent.tetrahedra[cell]) {
+                parent.compiledLumpedNodeMassKg[node]+=mass*0.25;
+                sourceMassByNodeMaterial[{node,parent.materialIndices[cell],0u}]+=mass*0.25*0.7;
+                sourceMassByNodeMaterial[{node,parent.materialIndices[cell],1u}]+=mass*0.25*0.3;
+            }
+        }
+        parent.sourceMassContributions.clear();
+        for(const auto& [key,mass]:sourceMassByNodeMaterial) {
+            const auto [node,material,donor]=key;
+            parent.sourceMassContributions.push_back({
+                .parentNodeIndex=node,.materialIndex=material,.donorBodyIndex=donor,
+                .massKg=mass,.donorLocalPosition=parent.nodeFrameOwnerLocalPoints[node]});
+        }
+        parent.maximumNodalMassClosureErrorKg=0.0;
+        parent.maximumNodalMassClosureRelativeError=0.0;
+        auto hashPacket=spatial_mass_transport_detail::SHA256Builder{};
+        hashPacket.string("synthetic-direct-source-parent-import-fixture.v1");
+        for(const auto& point:parent.referenceWorldPoints)for(const auto x:point)hashPacket.real(x);
+        for(std::size_t cell=0;cell<cellCount;++cell) {
+            hashPacket.real(parent.referenceTetVolumeM3[cell]);
+            hashPacket.real(parent.tetrahedronMassKg[cell]);
+        }
+        parent.parentMassPacketSHA256=hashPacket.finish();
+        auto hashSources=spatial_mass_transport_detail::SHA256Builder{};
+        hashSources.string("synthetic-source-node-material-donor-mass.v1");
+        for(const auto& row:parent.sourceMassContributions) {
+            hashSources.u32(row.parentNodeIndex);hashSources.u32(row.materialIndex);
+            hashSources.u32(row.donorBodyIndex);hashSources.real(row.massKg);
+            for(const auto x:row.donorLocalPosition)hashSources.real(x);
+        }
+        parent.parentSourceContributionSHA256=hashSources.finish();
+        auto hashTopology=spatial_mass_transport_detail::SHA256Builder{};
+        hashTopology.string("synthetic-parent-topology.v1");
+        for(const auto& tet:parent.tetrahedra)for(const auto node:tet)hashTopology.u32(node);
+        parent.parentTopologySHA256=hashTopology.finish();
+        auto hashLabels=spatial_mass_transport_detail::SHA256Builder{};
+        hashLabels.string("synthetic-parent-labels.v1");
+        for(std::size_t cell=0;cell<cellCount;++cell) {
+            hashLabels.u32(parent.materialIndices[cell]);hashLabels.u32(parent.donorBodyIndices[cell]);
+            hashLabels.u32(parent.anatomicalRegionIndices[cell]);
+            hashLabels.u32(parent.stableSourceFaceIdentities[cell]);
+        }
+        parent.parentLabelSHA256=hashLabels.finish();
     }
 
     void prepareSeparatedOperationalReference() {
@@ -346,6 +429,173 @@ struct Fixture {
     return changed;
 }
 
+
+PhysicalSkinRegisteredVolumeAssetFiles rewriteLegacyMapField(
+        const PhysicalSkinRegisteredVolumeAssetFiles& files,const std::filesystem::path& root,
+        const std::string& name,const std::uint32_t node,const std::size_t column,
+        const std::string& value) {
+    auto changed=files;changed.combinedNodeMapCSV=root/name;
+    std::ifstream input(files.combinedNodeMapCSV);
+    std::ofstream output(changed.combinedNodeMapCSV);
+    std::string line;assert(std::getline(input,line));
+    writeRow(output,physicalSkinCombinedNodeMapCSVHeader(false));
+    bool found=false;
+    while(std::getline(input,line)) {
+        auto fields=physical_skin_child_mass_detail::splitCSV(line);
+        assert(fields.size()==42u&&column<fields.size());
+        std::uint32_t id=0u;assert(physical_skin_child_mass_detail::parseNumber(fields[0],id));
+        if(id==node+1u){fields[column]=value;found=true;}
+        writeRow(output,fields);
+    }
+    assert(found);output.close();input.close();
+    pin(changed.combinedNodeMapCSV,changed.expectedSHA256[3]);
+    return changed;
+}
+
+PhysicalSkinRegisteredVolumeAssetFiles rewriteLabelRegion(
+        const PhysicalSkinRegisteredVolumeAssetFiles& files,const std::filesystem::path& root,
+        const std::size_t childRow,const std::uint32_t region) {
+    auto changed=files;changed.childLabels=root/"bad-semantic-labels.csv";
+    std::ifstream input(files.childLabels);std::ofstream output(changed.childLabels);
+    std::string line;assert(std::getline(input,line));output<<line<<"\n";
+    std::size_t row=0u;
+    while(std::getline(input,line)) {
+        if(row==childRow) {
+            const auto comma=line.find(',',line.find(',',line.find(',')+1u)+1u);
+            const auto next=line.find(',',comma+1u);
+            assert(comma!=std::string::npos&&next!=std::string::npos);
+            line.replace(comma+1u,next-comma-1u,std::to_string(region));
+        }
+        output<<line<<"\n";++row;
+    }
+    assert(row>childRow);output.close();input.close();
+    pin(changed.childLabels,changed.expectedSHA256[2]);
+    return changed;
+}
+
+PhysicalSkinRegisteredVolumeAssetFiles reverseFirstElement(
+        const PhysicalSkinRegisteredVolumeAssetFiles& files,const std::filesystem::path& root) {
+    auto changed=files;changed.tetgenElements=root/"inverted-first-child.ele";
+    std::ifstream input(files.tetgenElements);std::ofstream output(changed.tetgenElements);
+    std::string line;assert(std::getline(input,line));output<<line<<"\n";
+    assert(std::getline(input,line));
+    std::istringstream parser(line);std::vector<std::string> fields;
+    for(std::string field;parser>>field;)fields.push_back(field);
+    assert(fields.size()==6u);
+    std::swap(fields[2],fields[3]);
+    for(std::size_t i=0;i<fields.size();++i)output<<(i?" ":"")<<fields[i];
+    output<<"\n";
+    while(std::getline(input,line))output<<line<<"\n";
+    output.close();input.close();
+    pin(changed.tetgenElements,changed.expectedSHA256[1]);
+    return changed;
+}
+
+void checkFailureIsAtomic(Fixture& fixture,const PhysicalSkinRegisteredVolumeAssetFiles& files,
+                          std::string_view expected);
+
+void checkSourceMassParentSplitControl(
+        Fixture& fixture,const std::vector<PhysicalSkinSourceDomainRegistration>& typedDomains,
+        const std::filesystem::path& root) {
+    fixture.initializeSyntheticParentMass();
+    PhysicalSkinRegisteredVolumeAssetFiles files;
+    fixture.writeFiles(root/"source-parent-split",files,false);
+    assert(files.registrationDomain==PhysicalSkinRegisteredVolumeRegistrationDomain::sourceMassParent);
+    auto bundle=fixture.parentBundle;
+    PhysicalSkinRegisteredVolumeImportSidecars sidecars;
+    PhysicalSkinRegisteredVolumeFileImportReport report;
+    std::vector<PhysicalSkinStableDeepAttachmentRequest> attachments;
+    std::string error;
+    assert(importPhysicalSkinRegisteredVolumeFiles(files,std::string(64u,'0'),157u,0.02,
+        0.02,"",0u,0u,fixture.registered,attachments,fixture.poses,bundle,
+        sidecars,report,error,std::span<const PhysicalSkinSourceDomainRegistration>(typedDomains)));
+    assert(report.registrationDomain==PhysicalSkinRegisteredVolumeRegistrationDomain::sourceMassParent);
+    assert(!report.physicalAdmission);
+    assert(!report.operationalReferencePullbackVerified&&!report.conformingTissueRefinementVerified);
+    assert(!bundle.usesSeparatedOperationalReference&&!bundle.conformingLineageMassRouteRequired);
+    assert(bundle.parent.tetrahedra.size()==6u&&bundle.childTetrahedra.size()==9u);
+    assert(bundle.childMaterialIndices.size()==9u&&bundle.childStableSourceFaceIdentities.size()==9u);
+    assert(bundle.volumeNodeParentTetrahedra.size()==10u);
+    assert(bundle.volumeNodeParentTetrahedra[9]==0u);
+    assert((bundle.volumeNodeParentBarycentric[9]==std::array<double,4>{0.25,0.25,0.25,0.25}));
+    assert(bundle.volumeNodeParentResidualWorldM[9][0]>0.000049&&
+           bundle.volumeNodeParentResidualWorldM[9][0]<0.000051);
+    assert(bundle.parent.sourceMassContributions.size()>0u);
+    assert(physical_skin_registered_volume_integration_detail::sameImmutableParentPacket(
+        fixture.parentBundle.parent,bundle.parent));
+
+    std::vector<double> lower(17u,1.0),upper(17u,2000.0);
+    lower[15]=900.0;upper[15]=1100.0;lower[16]=850.0;upper[16]=950.0;
+    const bool mapped=preparePhysicalSkinChildMassMapping(bundle,lower,upper,0.02,157u,error);
+    if(!mapped)std::cerr<<"source-parent split mass mapping failed: "<<error<<"\n";
+    assert(mapped);
+    const auto& transfer=bundle.spatialMassTransportResult;
+    assert(!bundle.exactTopologyIdentityTransportUsed&&!bundle.conformingLineageMassTransportUsed);
+    assert(transfer.method==UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport);
+    assert(transfer.childMassKg.size()==bundle.childTetrahedra.size());
+    assert(transfer.childDominantParentRows.size()==bundle.childTetrahedra.size());
+    assert(transfer.groupClosure.size()==2u&&transfer.sourceDonorClosure.size()==4u);
+    assert(transfer.maximumParentMassClosureErrorKg<1.0e-12);
+    assert(transfer.maximumParentMeasureClosureErrorM3<1.0e-18);
+    assert(transfer.maximumSourceDonorMassClosureErrorKg<1.0e-12);
+    for(const auto& group:transfer.groupClosure) {
+        assert((group.materialIndex==15u||group.materialIndex==16u)&&
+               group.donorBodyIndex==0u&&group.anatomicalRegionIndex==42u);
+        assert(std::abs(group.parentMassKg-group.childMassKg)<1.0e-12);
+        assert(group.childMinimumCapacityKg<=group.parentMassKg+1.0e-12&&
+               group.parentMassKg<=group.childMaximumCapacityKg+1.0e-12);
+    }
+    for(const auto& source:transfer.sourceDonorClosure) {
+        assert((source.materialIndex==15u||source.materialIndex==16u)&&source.sourceDonorBodyIndex<2u);
+        assert(std::abs(source.parentMassKg-source.childMassKg)<1.0e-12);
+    }
+    double mappedMass=0.0;
+    for(std::size_t child=0;child<transfer.childMassKg.size();++child) {
+        const auto material=bundle.childMaterialIndices[child];
+        assert(material==15u||material==16u);
+        const auto rho=transfer.childImpliedDensityKgM3[child];
+        assert(rho>=lower[material]-1.0e-8&&rho<=upper[material]+1.0e-8);
+        const auto parent=transfer.childDominantParentRows[child];
+        assert(parent<fixture.parentBundle.parent.tetrahedra.size());
+        assert(bundle.childDonorBodyIndices[child]==0u&&bundle.childAnatomicalRegionIndices[child]==42u);
+        assert(bundle.childStableSourceFaceIdentities[child]==
+               fixture.parentBundle.parent.stableSourceFaceIdentities[parent]);
+        mappedMass+=transfer.childMassKg[child];
+    }
+    assert(std::abs(mappedMass-fixture.parentBundle.parent.totalMassKg)<1.0e-12);
+    assert(physical_skin_child_mass_mapping_detail::validatePreparedPhysicalSkinChildMassMappingPath(
+        bundle,error));
+    assert(physical_skin_registered_volume_integration_detail::sameImmutableParentPacket(
+        fixture.parentBundle.parent,bundle.parent));
+    std::cout<<"source_mass_parent_split_import=PASS parent_cells=6 child_cells=9 interior_nodes=1"
+        <<" generic_spatial_transport=PASS edges="<<transfer.transportEdgeCount
+        <<" min_density="<<transfer.minimumChildImpliedDensityKgM3
+        <<" max_density="<<transfer.maximumChildImpliedDensityKgM3
+        <<" parent_mass_error_kg="<<transfer.maximumParentMassClosureErrorKg
+        <<" parent_measure_error_m3="<<transfer.maximumParentMeasureClosureErrorM3
+        <<" source_donor_closure_rows="<<transfer.sourceDonorClosure.size()<<" source_donor_error_kg="<<transfer.maximumSourceDonorMassClosureErrorKg<<"\n";
+
+    const auto badRegistration=rewriteLegacyMapField(files,root,"bad-source-registration.csv",9u,34u,"0");
+    checkFailureIsAtomic(fixture,badRegistration,
+        "current-parent residual does not match its recorded distance or barycentric sum");
+
+    const auto badOrientation=reverseFirstElement(files,root);
+    checkFailureIsAtomic(fixture,badOrientation,
+        "child TetGen cell is nonpositive after exact Float32 emission");
+
+    const auto badRegion=rewriteLabelRegion(files,root,0u,43u);
+    auto semanticBundle=fixture.parentBundle;
+    PhysicalSkinRegisteredVolumeImportSidecars semanticSidecars;
+    PhysicalSkinRegisteredVolumeFileImportReport semanticReport;
+    error.clear();
+    assert(importPhysicalSkinRegisteredVolumeFiles(badRegion,std::string(64u,'0'),157u,0.02,
+        0.02,"",0u,0u,fixture.registered,attachments,fixture.poses,semanticBundle,
+        semanticSidecars,semanticReport,error,std::span<const PhysicalSkinSourceDomainRegistration>(typedDomains)));
+    assert(semanticBundle.childAnatomicalRegionIndices[0]==43u);
+    assert(!preparePhysicalSkinChildMassMapping(semanticBundle,lower,upper,0.02,157u,error));
+    assert(error.find("child anatomical/material/donor group has no parent supply")!=std::string::npos);
+}
+
 void checkFailureIsAtomic(Fixture& fixture,const PhysicalSkinRegisteredVolumeAssetFiles& files,
                           std::string_view expected) {
     auto bundle=fixture.parentBundle;
@@ -500,6 +750,13 @@ int main() {
     assert(!physical_skin_registered_volume_integration_detail::sameOperationalReferenceCellDomain(
         refinedCandidateDomain,wrongRefinedDomain));
 
+
+    Fixture sourceParentSplitFixture;
+    sourceParentSplitFixture.prepareSeparatedOperationalReference();
+    sourceParentSplitFixture.scaleSyntheticGeometry(0.01);
+    sourceParentSplitFixture.registered.parentRegistrationIsHistoricalProvenanceOnly=false;
+    checkSourceMassParentSplitControl(sourceParentSplitFixture,typedDomains,root);
+
     Fixture splitFixture;
     splitFixture.prepareSeparatedOperationalReference();
     PhysicalSkinRegisteredVolumeAssetFiles splitFiles;
@@ -541,5 +798,7 @@ int main() {
         <<" candidate_operational_reference_missing_proof_rejected=PASS"
         <<" legacy_exact_topology_and_refined_530_candidate_domain_routing=PASS"
         <<" immutable_parent_packet=1 actual_authenticated_chain_separately_checked=1"
+        <<" invalid_source_registration=REJECTED semantic_group_without_parent_supply=REJECTED"
+        <<" inverted_cell=REJECTED"
         <<" physical_admission=NOT_CLAIMED\n";
 }
