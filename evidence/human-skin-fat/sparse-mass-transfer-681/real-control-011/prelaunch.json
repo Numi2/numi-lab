@@ -1,0 +1,121 @@
+{
+  "compile": {
+    "argv": [
+      "/usr/bin/c++",
+      "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/compile-sources",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+      "-O3",
+      "-DNDEBUG",
+      "-std=c++23",
+      "-arch",
+      "arm64",
+      "-fPIE",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-UNDEBUG",
+      "-H",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/numi-human-physical-skin-child-mass-mapping-cli",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/compile-sources/NumiHumanPhysicalSkinChildMassMappingCLI.cpp"
+    ],
+    "binary_sha256": "f2d440851e740b6751fd1e9b30db7990fc28b1cb35fcd67352344b3610fa9035",
+    "dependency_source_hashes": {
+      "NumiHumanCoarseTissuePreparation.hpp": "0e72a7bb864a0755e57f270a4defe8cd3111740e982068a60f12f3e8d269f61c",
+      "NumiHumanConservativeSpatialMassTransport.hpp": "6873bdaa5722287a0542ed52b1a828279790ce2bd875f2c6156e98840909c3d7",
+      "NumiHumanParentReferenceMassTransfer.hpp": "9a188f98b93ea480ffd6de7fbb522e2e3ca5ee6b6a262a2b26a6ed721eb7eee5",
+      "NumiHumanPhysicalSkinChildMassMapping.hpp": "8df1774de61ac59ea1d5b73bdf035191ac5291a9ed4bb53cd4fbfdf8273b8537",
+      "NumiHumanPhysicalSkinChildMassMappingCLI.cpp": "9df518a770f3dd685191a2bbc0b6ebfdfc8293347aa419d66af027a44f044a6a",
+      "NumiHumanPhysicalSkinChildTetGen.hpp": "995c21a0a18b5d7d90eac72519f10a8dfe41deaed799587d3aed1b3e2949374c",
+      "NumiHumanSkinBoundaryNodeMap.hpp": "2faed73fdce51c442d7888928288e992163ffa4445f529a40fb499fccd975693",
+      "NumiHumanUnpairedSkinFatVolume.hpp": "c5b4197037d1d043c25fb81a20e4940d36479b9a6fd7fa58047e51ea75d1233c"
+    },
+    "elapsed_seconds": 2.3946677499916404,
+    "exit_code": 0,
+    "include_trace_confirmed": true,
+    "include_trace_line": ".... /Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/compile-sources/NumiHumanConservativeSpatialMassTransport.hpp",
+    "isolated_transport_header_sha256": "6873bdaa5722287a0542ed52b1a828279790ce2bd875f2c6156e98840909c3d7",
+    "stderr_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/compile.stderr.txt",
+    "stderr_sha256": "1f5f32fd2a3bda2ba163777af7b67b02d6728c60b99279fa2eeebcc8c887d995",
+    "stdout_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/compile.stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "host": "SSH numi Apple Silicon",
+  "inputs": {
+    "candidate_npz": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-005/candidate-current006-external-only-identity-retet.npz",
+      "sha256": "83d2951c6c20826984cff64eb6d35b38c1ada012c2b842064f715aabc1ba02bd"
+    },
+    "child_ele": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/mesh.ele",
+      "sha256": "983227aa31f0057680ac07523bacae3e322f6ea9bb78012ef9910aa082987372"
+    },
+    "child_labels": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/child.labels.csv",
+      "sha256": "9da3f79c98a65270503f441c8703361a210ae90603cf0cac42bc97a71708c980"
+    },
+    "child_node": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/mesh.node",
+      "sha256": "e707ffef13fa08df2aa98199b515cd471d50cf4b85eed5310fd5331c3cbab151"
+    },
+    "parent_labels_csv": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.labels.csv",
+      "sha256": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457"
+    },
+    "parent_mass_csv": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv",
+      "sha256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679"
+    },
+    "preparation_receipt": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/preparation-receipt.json",
+      "sha256": "19a8b5808697549a373f5c642625663a4d69a51d221d1a6cfb4f21395644696a"
+    }
+  },
+  "limits": {
+    "candidate_edge_truncation": false,
+    "density_label_material_region_gates": "unchanged",
+    "maximum_allowed_edges": 3000000,
+    "maximum_augmentations": 300000,
+    "maximum_transport_distance_m": 0.019353
+  },
+  "run": {
+    "argv": [
+      "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/run_geometry_serial.py",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/numi-human-physical-skin-child-mass-mapping-cli",
+      "--parent-mass-csv",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv",
+      "--labels-csv",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.labels.csv",
+      "--child-node-file",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/mesh.node",
+      "--child-ele-file",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/mesh.ele",
+      "--child-labels-csv",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/child.labels.csv",
+      "--coordinate-frame-sha256",
+      "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a",
+      "--source-body-count",
+      "157",
+      "--maximum-transport-distance-m",
+      "0.019353"
+    ],
+    "cwd": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209",
+    "exit_code_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/run.exit-code.txt",
+    "stderr_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/run.stderr.txt",
+    "stdout_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/run.stdout.txt"
+  },
+  "run_driver": {
+    "argv": [
+      "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/execute_run.py"
+    ],
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/execute_run.py",
+    "sha256": "90498139526697d3dfb029c4d4dc5dd7449b58c92336724f7056da77f19f526c"
+  },
+  "schema": "sparse-mass-transfer-real-control-launch.v1",
+  "scope": "source-only sparse capacity/floor replay; no Runtime, GPU, physics, physical step or admission"
+}

@@ -1,0 +1,1 @@
+child_reference_transfer=REJECTED reason=physical child mass transport was not feasible: spatial transport child cell mass implies density outside actual material bounds at child 24707 (density=900.000000, bounds=900.000000:1100.000000)

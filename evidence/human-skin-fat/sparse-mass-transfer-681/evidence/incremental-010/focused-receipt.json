@@ -1,0 +1,103 @@
+{
+  "commands": {
+    "asan_ubsan_compile": {
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O1",
+        "-g",
+        "-UNDEBUG",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-I",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/source",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/tests/NumiHumanConservativeSpatialMassTransportCheck.cpp",
+        "-o",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/spatial-check-sanitized"
+      ],
+      "exit_code": 0,
+      "stderr_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/san-compile.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/san-compile.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "asan_ubsan_run": {
+      "argv": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/spatial-check-sanitized"
+      ],
+      "exit_code": 0,
+      "stderr_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/san-run.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/san-run.stdout.txt",
+      "stdout_sha256": "c7a1e78bdd135b3c19a1f585992ad5be4aa8cae2ccc73650779ce334c7a5c9ec"
+    },
+    "assertions_active_compile": {
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-UNDEBUG",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/source",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/tests/NumiHumanConservativeSpatialMassTransportCheck.cpp",
+        "-o",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/spatial-check"
+      ],
+      "exit_code": 0,
+      "stderr_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/assert-compile.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/assert-compile.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "assertions_active_run": {
+      "argv": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/spatial-check"
+      ],
+      "exit_code": 0,
+      "stderr_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/assert-run.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/assert-run.stdout.txt",
+      "stdout_sha256": "c7a1e78bdd135b3c19a1f585992ad5be4aa8cae2ccc73650779ce334c7a5c9ec"
+    },
+    "highs_lp_oracle": {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/tests/sparse_mass_lp_oracle.py"
+      ],
+      "exit_code": 0,
+      "stderr_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/lp.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/lp.stdout.txt",
+      "stdout_sha256": "d0c5026889dcf281df88d3e410d3d3418ee4e1388ab0a46ac58815e3534759d3"
+    }
+  },
+  "host": "SSH numi Apple Silicon",
+  "schema": "sparse-mass-transfer-focused-tests.v1",
+  "scope": "isolated helper regressions only; no runtime/GPU/physics/admission",
+  "source_hashes": {
+    "LP_oracle": "5fb856872e11bb29281371898c8c9a5e4b13832a4cb9834f4157e389d0ef6bb1",
+    "pre_sparse_test_source": "4d03448f64e3c8e33175377505d96a774a55cabd2938a556bd81d6b48a78e788",
+    "test_source": "c16d450a17c84b8f75af984c068decd74e44ed13585073744a239af5a2efc530",
+    "transport_header": "6873bdaa5722287a0542ed52b1a828279790ce2bd875f2c6156e98840909c3d7",
+    "pre_canonical_order_header_sha256": "f1064a994a57fa17f6314cfcfa01d47ecbf7e6ace7c235542f2ed581099e31c8",
+    "dense_baseline_header_sha256": "7019e52f5299f4200ccc71c70f203958d0221959596cb15d5eb17552da73eba1",
+    "dense_baseline_header_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/legacy-baseline/NumiHumanConservativeSpatialMassTransport.hpp"
+  },
+  "verification": {
+    "LP_full_optimum_objective": 0.0013110258129016244,
+    "LP_nearest_two_feasible_suboptimal_objective": 0.0013456522695940313,
+    "asan_ubsan": "PASS (ASAN leak detection disabled for this macOS runtime)",
+    "assertions_active": "PASS",
+    "canonical_order_regression": "PASS: three unequal masses and measures inserted parent2,parent0,parent1; sums sorted child,parent and differ from insertion-order mass",
+    "capacity_cancellation_regression": "PASS: 0.1 - 2e-18 - nextafter(0.1,0) drains without losing the correction",
+    "independent_highs_lp": "PASS",
+    "legacy_dense_receipt_sha256": "9e7a09107d50412732551462b9eb7dae7dcd8d39e0f5180078d13a2eb3163c96",
+    "mandatory_floor_replay": "PASS: 1000 tiny augmentations followed by exact floor saturation"
+  }
+}

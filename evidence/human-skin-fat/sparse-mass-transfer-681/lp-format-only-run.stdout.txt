@@ -1,0 +1,86 @@
+{
+  "child_reference_volume_m3": [
+    1e-06,
+    1e-06,
+    1e-06
+  ],
+  "cost_matrix_normalized_squared_distance": [
+    [
+      0.24264614030461018,
+      0.4621500507536694,
+      0.7099603382441633
+    ],
+    [
+      0.20790983092045084,
+      0.49002389005908376,
+      0.6777680874998652
+    ],
+    [
+      0.21809350030603128,
+      0.9086596547367527,
+      0.7264255976547866
+    ]
+  ],
+  "density_bounds_kg_m3": [
+    900,
+    1100
+  ],
+  "full_optimum_objective": 0.0013110258129016244,
+  "full_optimum_transport_kg": [
+    [
+      0.0,
+      0.001,
+      -0.0
+    ],
+    [
+      0.00010000000000000005,
+      0.0,
+      0.0009
+    ],
+    [
+      0.001,
+      0.0,
+      0.0
+    ]
+  ],
+  "max_transport_distance_m": 4.0,
+  "nearest_two_child_rows": [
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      2
+    ]
+  ],
+  "nearest_two_optimum_objective": 0.0013456522695940313,
+  "nearest_two_transport_kg": [
+    [
+      -0.0,
+      0.001,
+      0.0
+    ],
+    [
+      0.001,
+      0.0,
+      0.0
+    ],
+    [
+      0.00010000000000000005,
+      0.0,
+      0.0009
+    ]
+  ],
+  "parent_mass_kg": [
+    0.001,
+    0.001,
+    0.001
+  ],
+  "solver": "scipy.optimize.linprog(method=highs)",
+  "status": "PASS independent optimum and feasible-suboptimal seed graph"
+}

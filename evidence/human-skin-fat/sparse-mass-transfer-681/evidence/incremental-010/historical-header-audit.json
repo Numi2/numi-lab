@@ -1,0 +1,127 @@
+{
+  "schema": "sparse-mass-transfer-historical-header-audit-v1",
+  "host": "SSH numi",
+  "runs": [
+    {
+      "run": "real-control-001",
+      "status": "compiled_and_executed_but_header_hash_unknown",
+      "binary_sha256": "06c8074a690649c8d7d6743948ee24fef1954dcda28b76aa5da2a7446654d104",
+      "compile_include_trace_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-001/compile.stderr.txt",
+      "compile_include_trace_sha256": "30d3a7606fe537eb642297ae4ae582165bc50a6adf235704a812ba584dba279a",
+      "trace_names_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-001/override-source/NumiHumanConservativeSpatialMassTransport.hpp",
+      "surviving_mutable_copy_sha256": "d33ddb7cd85f74b7a4e0d64a30aa4ae4e97de82eddfda8f321c3eeb9ea69ee98",
+      "surviving_copy_mtime_local": "2026-10-29 15:22:35",
+      "binary_mtime_local": "2026-10-29 15:13:18",
+      "authenticated_header_sha256": null,
+      "reported_preincremental_header_sha256_unverified": "824982b9eb13a2fcf51443c29a74dcc93b46b93201ffca5223d2996a0abc11e9",
+      "note": "The reported pre-incremental hash is retained only as an unverified prior report; no matching immutable per-run bytes survive."
+    },
+    {
+      "run": "real-control-002",
+      "status": "per_run_compile_snapshot_verified",
+      "binary_sha256": "93ad5fe2f0122e11ce81e8019a136b058d680ccd9972a140d604d645d38539b2",
+      "compile_include_trace_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-002/compile.stderr.txt",
+      "compile_include_trace_sha256": "aa7b9bc7821f684333782be779b4514598c044d01b02d75c24dd314c2e8762fc",
+      "compile_snapshot_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-002/compile-sources/NumiHumanConservativeSpatialMassTransport.hpp",
+      "compile_snapshot_sha256": "d33ddb7cd85f74b7a4e0d64a30aa4ae4e97de82eddfda8f321c3eeb9ea69ee98",
+      "authenticated_executed_header_sha256": "d33ddb7cd85f74b7a4e0d64a30aa4ae4e97de82eddfda8f321c3eeb9ea69ee98",
+      "include_trace_names_exact_snapshot": true,
+      "snapshot_mtime_precedes_binary": true
+    },
+    {
+      "run": "real-control-003",
+      "status": "per_run_compile_snapshot_verified",
+      "binary_sha256": "79ad4061ddfb044b2ca577628f31067a831f48a8562bbf35bbbe51c85ec63e66",
+      "compile_include_trace_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-003/compile.stderr.txt",
+      "compile_include_trace_sha256": "1992ae2c7a5e42564f17e7cb97d4c59ae60f8ec1a08b846d8ba772dbddbae307",
+      "compile_snapshot_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-003/compile-sources/NumiHumanConservativeSpatialMassTransport.hpp",
+      "compile_snapshot_sha256": "f938ed089cff9fe8be0eff56e4b4dccb546f3d449c7aaafbac2dcaeae1a3d614",
+      "authenticated_executed_header_sha256": "f938ed089cff9fe8be0eff56e4b4dccb546f3d449c7aaafbac2dcaeae1a3d614",
+      "include_trace_names_exact_snapshot": true,
+      "snapshot_mtime_precedes_binary": true
+    },
+    {
+      "run": "real-control-004",
+      "status": "per_run_compile_snapshot_verified",
+      "binary_sha256": "068a81c9e1cca423947360d627cfd738a9542e9d562bcfdabe58c83b31c9ac94",
+      "compile_include_trace_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-004/compile.stderr.txt",
+      "compile_include_trace_sha256": "b905e57ef84c1c592ca5a7c5f448adbfc98a5270b5f2a172675d957d1b55b29a",
+      "compile_snapshot_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-004/compile-sources/NumiHumanConservativeSpatialMassTransport.hpp",
+      "compile_snapshot_sha256": "a34a94c7e50c8697734cee9e5c257489b82ee1beee917f9e12cebe91c29c54bb",
+      "authenticated_executed_header_sha256": "a34a94c7e50c8697734cee9e5c257489b82ee1beee917f9e12cebe91c29c54bb",
+      "include_trace_names_exact_snapshot": true,
+      "snapshot_mtime_precedes_binary": true
+    },
+    {
+      "run": "real-control-005",
+      "status": "per_run_compile_snapshot_verified",
+      "binary_sha256": "a63bb1ad22f62fe95681c2ffbdb942ff1b8167634c08b3ca56cd248908acbe52",
+      "compile_include_trace_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-005/compile.stderr.txt",
+      "compile_include_trace_sha256": "c5a8076e913989b70426568d337173d816599b33b972ca62f2ebdd8241373be5",
+      "compile_snapshot_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-005/compile-sources/NumiHumanConservativeSpatialMassTransport.hpp",
+      "compile_snapshot_sha256": "d4fca4bb517b7afcd13585fbaeae1349c6577d2cd043cfe0304ea09274d52bd9",
+      "authenticated_executed_header_sha256": "d4fca4bb517b7afcd13585fbaeae1349c6577d2cd043cfe0304ea09274d52bd9",
+      "include_trace_names_exact_snapshot": true,
+      "snapshot_mtime_precedes_binary": true
+    },
+    {
+      "run": "real-control-006",
+      "status": "per_run_compile_snapshot_verified",
+      "binary_sha256": "47773a428c851b4b831434221141808b53b1655deb35ab984381de6d5d405f06",
+      "compile_include_trace_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-006/compile.stderr.txt",
+      "compile_include_trace_sha256": "38b8c6ec7e90491573578bf447e4f63e9b96ee21cd6c3dbd0636a3b7e24712e2",
+      "compile_snapshot_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-006/compile-sources/NumiHumanConservativeSpatialMassTransport.hpp",
+      "compile_snapshot_sha256": "d625597bf08a8de2e8d57c32934b6604dc13c5824b41edc8d4f66fc216b8bd06",
+      "authenticated_executed_header_sha256": "d625597bf08a8de2e8d57c32934b6604dc13c5824b41edc8d4f66fc216b8bd06",
+      "include_trace_names_exact_snapshot": true,
+      "snapshot_mtime_precedes_binary": true
+    },
+    {
+      "run": "real-control-007",
+      "status": "per_run_compile_snapshot_verified",
+      "binary_sha256": "bc659b723448bdd956bdafa9cb4343de2a4d9af52d2c6ecfa2b8ce1e957f502b",
+      "compile_include_trace_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-007/compile.stderr.txt",
+      "compile_include_trace_sha256": "db624ac15ebeda8656961d9eadac0c362bc85b591b2b303b70b98685f55505f1",
+      "compile_snapshot_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-007/compile-sources/NumiHumanConservativeSpatialMassTransport.hpp",
+      "compile_snapshot_sha256": "cb830b8167cdd3d11f0d83426572d9bb3a7587b2e1414daf4aa39b38ac53c6b0",
+      "authenticated_executed_header_sha256": "cb830b8167cdd3d11f0d83426572d9bb3a7587b2e1414daf4aa39b38ac53c6b0",
+      "include_trace_names_exact_snapshot": true,
+      "snapshot_mtime_precedes_binary": true
+    },
+    {
+      "run": "real-control-008",
+      "status": "per_run_compile_snapshot_verified",
+      "binary_sha256": "158dab253c5b61a4c2d9da223cafdbe8b9d4a0328898caa6a384373719bd0ca6",
+      "compile_include_trace_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-008/compile.stderr.txt",
+      "compile_include_trace_sha256": "0df45f95110d8d39f8eed9d612956792398c4df14f04b1745fe7fe26585069c7",
+      "compile_snapshot_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-008/compile-sources/NumiHumanConservativeSpatialMassTransport.hpp",
+      "compile_snapshot_sha256": "f1064a994a57fa17f6314cfcfa01d47ecbf7e6ace7c235542f2ed581099e31c8",
+      "authenticated_executed_header_sha256": "f1064a994a57fa17f6314cfcfa01d47ecbf7e6ace7c235542f2ed581099e31c8",
+      "include_trace_names_exact_snapshot": true,
+      "snapshot_mtime_precedes_binary": true
+    },
+    {
+      "run": "real-control-009",
+      "status": "setup_failure_no_cli_process",
+      "binary_sha256": null,
+      "compile_include_trace_path": null,
+      "compile_snapshot_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-009/compile-sources/NumiHumanConservativeSpatialMassTransport.hpp",
+      "compile_snapshot_sha256": "f1064a994a57fa17f6314cfcfa01d47ecbf7e6ace7c235542f2ed581099e31c8",
+      "authenticated_executed_header_sha256": null,
+      "note": "A copied source snapshot exists, but no compiler/CLI execution belongs to this attempt."
+    },
+    {
+      "run": "real-control-010",
+      "status": "per_run_compile_snapshot_verified",
+      "binary_sha256": "158dab253c5b61a4c2d9da223cafdbe8b9d4a0328898caa6a384373719bd0ca6",
+      "compile_include_trace_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-010/compile.stderr.txt",
+      "compile_include_trace_sha256": "12c7900e87eaefe09f993b162ed2294718be976be781ca4b493515974ce0fae5",
+      "compile_snapshot_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-010/compile-sources/NumiHumanConservativeSpatialMassTransport.hpp",
+      "compile_snapshot_sha256": "f1064a994a57fa17f6314cfcfa01d47ecbf7e6ace7c235542f2ed581099e31c8",
+      "authenticated_executed_header_sha256": "f1064a994a57fa17f6314cfcfa01d47ecbf7e6ace7c235542f2ed581099e31c8",
+      "include_trace_names_exact_snapshot": true,
+      "snapshot_mtime_precedes_binary": true
+    }
+  ],
+  "source": "Per-run compile stderr -H trace plus preserved compile-sources copy and binary timestamps/hashes; no current global header was used to infer historical inputs."
+}

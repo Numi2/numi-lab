@@ -1,0 +1,1 @@
+child_reference_transfer=REJECTED reason=physical child mass transport was not feasible: spatial transport sparse column insertion failed: spatial transport residual dual became infeasible during column insertion [stage=min-cut-column material=15 donor=23 region=23 round=64 cumulative_augmentations=13821 cycle_augmentations=1576 inserted_columns=16156 active_edges=20136]

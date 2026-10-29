@@ -1,0 +1,324 @@
+{
+  "control_history_001_to_010": [
+    {
+      "binary_sha256": "06c8074a690649c8d7d6743948ee24fef1954dcda28b76aa5da2a7446654d104",
+      "candidate_sha256": null,
+      "distance_m": null,
+      "elapsed_seconds": null,
+      "exit_code": 6,
+      "failure_or_result_line": "child_reference_transfer=REJECTED reason=physical child mass transport was not feasible: spatial transport sparse restricted min-cost flow failed: spatial transport exceeded its pinned augmentation budget",
+      "header_sha256": null,
+      "run": "real-control-001",
+      "status": "CLI_REJECT",
+      "stderr_sha256": "6f20f3197b3591aced72e8fe3300a1e10e75fcc602dba8097b9d7ab687da4800",
+      "stdout_sha256": "0030476919f79b392516d2d22e491cafeceb644a5812a8b620057f5deb417717",
+      "header_provenance": "UNKNOWN: compile trace names mutable override-source path; surviving d33 copy was modified after binary creation, so it cannot authenticate the compiled header."
+    },
+    {
+      "binary_sha256": "93ad5fe2f0122e11ce81e8019a136b058d680ccd9972a140d604d645d38539b2",
+      "candidate_sha256": "83d2951c6c20826984cff64eb6d35b38c1ada012c2b842064f715aabc1ba02bd",
+      "distance_m": 0.019353,
+      "elapsed_seconds": 4.467402999987826,
+      "exit_code": 6,
+      "failure_or_result_line": "child_reference_transfer=REJECTED reason=physical child mass transport was not feasible: spatial transport sparse column insertion failed: spatial transport residual dual became infeasible during column insertion [stage=min-cut-column material=15 donor=23 region=23 round=64 cumulative_augmentations=13821 cycle_augmentations=1576 inserted_columns=16156 active_edges=20136]",
+      "header_sha256": "d33ddb7cd85f74b7a4e0d64a30aa4ae4e97de82eddfda8f321c3eeb9ea69ee98",
+      "run": "real-control-002",
+      "status": "CLI_REJECT",
+      "stderr_sha256": "f87f61c4f96b7f30286a59a7a80b2e6cb74b914f00705678af3a9f2038f2aeb4",
+      "stdout_sha256": "0030476919f79b392516d2d22e491cafeceb644a5812a8b620057f5deb417717",
+      "header_provenance": "verified_per_run_compile_snapshot"
+    },
+    {
+      "binary_sha256": "79ad4061ddfb044b2ca577628f31067a831f48a8562bbf35bbbe51c85ec63e66",
+      "candidate_sha256": null,
+      "distance_m": null,
+      "elapsed_seconds": null,
+      "exit_code": null,
+      "failure_or_result_line": null,
+      "header_sha256": "f938ed089cff9fe8be0eff56e4b4dccb546f3d449c7aaafbac2dcaeae1a3d614",
+      "run": "real-control-003",
+      "status": "COMPILE_ONLY_OR_INCOMPLETE",
+      "stderr_sha256": null,
+      "stdout_sha256": null,
+      "header_provenance": "verified_per_run_compile_snapshot"
+    },
+    {
+      "binary_sha256": "068a81c9e1cca423947360d627cfd738a9542e9d562bcfdabe58c83b31c9ac94",
+      "candidate_sha256": "83d2951c6c20826984cff64eb6d35b38c1ada012c2b842064f715aabc1ba02bd",
+      "distance_m": 0.019353,
+      "elapsed_seconds": 22.096764999907464,
+      "exit_code": 6,
+      "failure_or_result_line": "child_reference_transfer=REJECTED reason=physical child mass transport was not feasible: spatial transport sparse column insertion failed: spatial transport residual dual became infeasible during column insertion [inserted_from=1149 inserted_to=2946 inserted_reduced=-83.801264350595375 source=298 edge=3 target=3688 reduced=-1.8189894035458565e-12 residual_capacity=4.4594987339961038e-06 initial_capacity=5.4326808592461645e-06 edge_cost=0.019853250391314886 potential_from=4113.9697332598444 potential_to=4113.9895865102371 cycle_number=0 latest_cycle_reverse_arc_count=0 is_reverse_of_latest_cycle=0 is_inserted_column_reverse=0] [stage=min-cut-column material=15 donor=23 region=23 round=64 cumulative_augmentations=13821 cycle_augmentations=1576 inserted_columns=16156 active_edges=20136]",
+      "header_sha256": "a34a94c7e50c8697734cee9e5c257489b82ee1beee917f9e12cebe91c29c54bb",
+      "run": "real-control-004",
+      "status": "CLI_REJECT",
+      "stderr_sha256": "4534ec6658c74b9bd4b79832ba1d15211ccdd42c7ff56e7be7a8f75c291f799e",
+      "stdout_sha256": "0030476919f79b392516d2d22e491cafeceb644a5812a8b620057f5deb417717",
+      "header_provenance": "verified_per_run_compile_snapshot"
+    },
+    {
+      "binary_sha256": "a63bb1ad22f62fe95681c2ffbdb942ff1b8167634c08b3ca56cd248908acbe52",
+      "candidate_sha256": "83d2951c6c20826984cff64eb6d35b38c1ada012c2b842064f715aabc1ba02bd",
+      "distance_m": 0.019353,
+      "elapsed_seconds": 83.47380512487143,
+      "exit_code": 6,
+      "failure_or_result_line": "child_reference_transfer=REJECTED reason=physical child mass transport was not feasible: spatial transport child cell mass implies density outside actual material bounds at child 24707 (density=900.000000, bounds=900.000000:1100.000000)",
+      "header_sha256": "d4fca4bb517b7afcd13585fbaeae1349c6577d2cd043cfe0304ea09274d52bd9",
+      "run": "real-control-005",
+      "status": "CLI_REJECT",
+      "stderr_sha256": "e9a02afcf74ca341cd3196886a3f6cd015c2659c8d97aab144b112d238850250",
+      "stdout_sha256": "0030476919f79b392516d2d22e491cafeceb644a5812a8b620057f5deb417717",
+      "header_provenance": "verified_per_run_compile_snapshot"
+    },
+    {
+      "binary_sha256": "47773a428c851b4b831434221141808b53b1655deb35ab984381de6d5d405f06",
+      "candidate_sha256": "83d2951c6c20826984cff64eb6d35b38c1ada012c2b842064f715aabc1ba02bd",
+      "distance_m": 0.019353,
+      "elapsed_seconds": 83.4024870840367,
+      "exit_code": 6,
+      "failure_or_result_line": "child_reference_transfer=REJECTED reason=physical child mass transport was not feasible: spatial transport child cell mass implies density outside actual material bounds at child 24707 (density=899.99999999996464, mass_kg=2.797699466877072e-07, volume_m3=3.1085549631968689e-10, lower_mass_kg=2.7976994668771821e-07, lower_mass_deficit_kg=1.1011428314305904e-20, density_tolerance=1.5631940186722204e-11, bounds=900:1100, contribution_rows=1, contributors=[13734,2.797699466877072e-07,2.7976998177904807e-10,0.0049478147834737122])",
+      "header_sha256": "d625597bf08a8de2e8d57c32934b6604dc13c5824b41edc8d4f66fc216b8bd06",
+      "run": "real-control-006",
+      "status": "CLI_REJECT",
+      "stderr_sha256": "1f4a6ba030ceb20857868c13d059c6e004500ddd1bb68a5740e2c694eecd9e01",
+      "stdout_sha256": "0030476919f79b392516d2d22e491cafeceb644a5812a8b620057f5deb417717",
+      "header_provenance": "verified_per_run_compile_snapshot"
+    },
+    {
+      "binary_sha256": "bc659b723448bdd956bdafa9cb4343de2a4d9af52d2c6ecfa2b8ce1e957f502b",
+      "candidate_sha256": "83d2951c6c20826984cff64eb6d35b38c1ada012c2b842064f715aabc1ba02bd",
+      "distance_m": 0.019353,
+      "elapsed_seconds": 83.59428916615434,
+      "exit_code": 6,
+      "failure_or_result_line": "child_reference_transfer=REJECTED reason=physical child mass transport was not feasible: spatial transport child cell mass implies density outside actual material bounds at child 27096 (density=899.99999999808369, mass_kg=9.1975461538964287e-05, volume_m3=1.0219495726573346e-07, lower_mass_kg=9.1975461539160121e-05, lower_mass_deficit_kg=1.9583401740519424e-16, density_tolerance=1.5631940186722204e-11, bounds=900:1100, contribution_rows=1, contributors=[14239,9.1975461538964287e-05,9.1975406324725319e-08,0.01730015782535765])",
+      "header_sha256": "cb830b8167cdd3d11f0d83426572d9bb3a7587b2e1414daf4aa39b38ac53c6b0",
+      "run": "real-control-007",
+      "status": "CLI_REJECT",
+      "stderr_sha256": "95fc6d6ce77678aef8d1e737a0c37e988c4ea20fff9c917c9c4864c589a661d4",
+      "stdout_sha256": "0030476919f79b392516d2d22e491cafeceb644a5812a8b620057f5deb417717",
+      "header_provenance": "verified_per_run_compile_snapshot"
+    },
+    {
+      "binary_sha256": "158dab253c5b61a4c2d9da223cafdbe8b9d4a0328898caa6a384373719bd0ca6",
+      "candidate_sha256": "83d2951c6c20826984cff64eb6d35b38c1ada012c2b842064f715aabc1ba02bd",
+      "distance_m": 0.019353,
+      "elapsed_seconds": null,
+      "exit_code": null,
+      "failure_or_result_line": null,
+      "header_sha256": "f1064a994a57fa17f6314cfcfa01d47ecbf7e6ace7c235542f2ed581099e31c8",
+      "run": "real-control-008",
+      "status": "COMPILE_ONLY_OR_INCOMPLETE",
+      "stderr_sha256": null,
+      "stdout_sha256": null,
+      "header_provenance": "verified_per_run_compile_snapshot"
+    },
+    {
+      "binary_sha256": null,
+      "candidate_sha256": null,
+      "distance_m": null,
+      "elapsed_seconds": null,
+      "exit_code": null,
+      "failure_or_result_line": "preflight incorrectly required the binary to exist before compiling; no CLI process was launched",
+      "header_sha256": null,
+      "run": "real-control-009",
+      "status": "SETUP_FAILURE",
+      "stderr_sha256": null,
+      "stdout_sha256": null,
+      "header_provenance": "No CLI process was launched; this was a setup failure. No executed-header attribution."
+    },
+    {
+      "binary_sha256": "158dab253c5b61a4c2d9da223cafdbe8b9d4a0328898caa6a384373719bd0ca6",
+      "candidate_sha256": "83d2951c6c20826984cff64eb6d35b38c1ada012c2b842064f715aabc1ba02bd",
+      "distance_m": 0.019353,
+      "elapsed_seconds": 113.06491149985231,
+      "exit_code": 6,
+      "failure_or_result_line": "child_reference_transfer=REJECTED reason=physical child mass transport receipt failed exact current-input verification: recorded spatial transport current child density is outside actual material bounds",
+      "header_sha256": "f1064a994a57fa17f6314cfcfa01d47ecbf7e6ace7c235542f2ed581099e31c8",
+      "run": "real-control-010",
+      "status": "CLI_REJECT",
+      "stderr_sha256": "2374b4c091b85731e45270bf3744c105da4237ee96f554bdbd0c31cbbe442a3b",
+      "stdout_sha256": "0030476919f79b392516d2d22e491cafeceb644a5812a8b620057f5deb417717",
+      "header_provenance": "verified_per_run_compile_snapshot"
+    }
+  ],
+  "focused_tests": {
+    "asan_ubsan": "PASS; leak detection disabled for this macOS runtime",
+    "assertions_active": "PASS",
+    "canonical_order_test": "PASS; three unequal contributions inserted parent2,parent0,parent1, canonical child,parent replay sum differs from insertion-order sum",
+    "header_sha256": "6873bdaa5722287a0542ed52b1a828279790ce2bd875f2c6156e98840909c3d7",
+    "independent_highs_lp": "PASS",
+    "receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/focused-receipt.json",
+    "receipt_sha256": "8b2c64b3b40528a80f3e615d22b4aaaa5f79e4405c32e98a2d3d9415e17bed47",
+    "test_sha256": "c16d450a17c84b8f75af984c068decd74e44ed13585073744a239af5a2efc530"
+  },
+  "host": "SSH numi Apple Silicon",
+  "implementation": {
+    "header_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/source/NumiHumanConservativeSpatialMassTransport.hpp",
+    "header_sha256": "6873bdaa5722287a0542ed52b1a828279790ce2bd875f2c6156e98840909c3d7",
+    "legacy_dense_receipt_sha256": "9e7a09107d50412732551462b9eb7dae7dcd8d39e0f5180078d13a2eb3163c96",
+    "test_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/tests/NumiHumanConservativeSpatialMassTransportCheck.cpp",
+    "test_sha256": "c16d450a17c84b8f75af984c068decd74e44ed13585073744a239af5a2efc530",
+    "prior_sparse_header_sha256": "f1064a994a57fa17f6314cfcfa01d47ecbf7e6ace7c235542f2ed581099e31c8",
+    "pre_canonical_order_header_sha256": "f1064a994a57fa17f6314cfcfa01d47ecbf7e6ace7c235542f2ed581099e31c8",
+    "dense_baseline_header_sha256": "7019e52f5299f4200ccc71c70f203958d0221959596cb15d5eb17552da73eba1",
+    "dense_baseline_header_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/legacy-baseline/NumiHumanConservativeSpatialMassTransport.hpp"
+  },
+  "limits_unchanged": true,
+  "physical_admission": "NOT_CLAIMED",
+  "prior_control_010": {
+    "binary_sha256": "158dab253c5b61a4c2d9da223cafdbe8b9d4a0328898caa6a384373719bd0ca6",
+    "elapsed_seconds": 113.06491149985231,
+    "exit_code": 6,
+    "failure_line": "child_reference_transfer=REJECTED reason=physical child mass transport receipt failed exact current-input verification: recorded spatial transport current child density is outside actual material bounds",
+    "header_sha256": "f1064a994a57fa17f6314cfcfa01d47ecbf7e6ace7c235542f2ed581099e31c8",
+    "interpretation": "Retained verifier density-replay rejection. Sparse output now accumulates child sums after CSR canonical sorting; the updated run passes. The old failure remains unchanged.",
+    "stderr_sha256": "2374b4c091b85731e45270bf3744c105da4237ee96f554bdbd0c31cbbe442a3b"
+  },
+  "real_control": {
+    "argv": [
+      "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/run_geometry_serial.py",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/numi-human-physical-skin-child-mass-mapping-cli",
+      "--parent-mass-csv",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv",
+      "--labels-csv",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.labels.csv",
+      "--child-node-file",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/mesh.node",
+      "--child-ele-file",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/mesh.ele",
+      "--child-labels-csv",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/child.labels.csv",
+      "--coordinate-frame-sha256",
+      "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a",
+      "--source-body-count",
+      "157",
+      "--maximum-transport-distance-m",
+      "0.019353"
+    ],
+    "binary_sha256": "f2d440851e740b6751fd1e9b30db7990fc28b1cb35fcd67352344b3610fa9035",
+    "child_import_line": "child_tetgen_reference_import=PASS nodes=7491 cells=30442 minimum_f32_volume_m3=4.4870142232072581e-13 maximum_f32_rounding_m=0 node_sha256=e707ffef13fa08df2aa98199b515cd471d50cf4b85eed5310fd5331c3cbab151 element_sha256=983227aa31f0057680ac07523bacae3e322f6ea9bb78012ef9910aa082987372 labels_sha256=9da3f79c98a65270503f441c8703361a210ae90603cf0cac42bc97a71708c980 current_equals_reference=1 physical_admission=NOT_CLAIMED",
+    "compile_exit_code": 0,
+    "density_range_lines": [
+      "transfer_density_range material=15 min_kgm3=899.99999999999977 max_kgm3=1100.0000000000002",
+      "transfer_density_range material=16 min_kgm3=849.99999999999977 max_kgm3=950.00000000000023"
+    ],
+    "elapsed_seconds": 112.65429670806043,
+    "exit_code": 0,
+    "header_sha256_in_dependency_closure": "6873bdaa5722287a0542ed52b1a828279790ce2bd875f2c6156e98840909c3d7",
+    "include_trace_confirmed": true,
+    "input_pins": {
+      "candidate_npz": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-005/candidate-current006-external-only-identity-retet.npz",
+        "sha256": "83d2951c6c20826984cff64eb6d35b38c1ada012c2b842064f715aabc1ba02bd"
+      },
+      "child_ele": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/mesh.ele",
+        "sha256": "983227aa31f0057680ac07523bacae3e322f6ea9bb78012ef9910aa082987372"
+      },
+      "child_labels": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/child.labels.csv",
+        "sha256": "9da3f79c98a65270503f441c8703361a210ae90603cf0cac42bc97a71708c980"
+      },
+      "child_node": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/mesh.node",
+        "sha256": "e707ffef13fa08df2aa98199b515cd471d50cf4b85eed5310fd5331c3cbab151"
+      },
+      "parent_labels_csv": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.labels.csv",
+        "sha256": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457"
+      },
+      "parent_mass_csv": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv",
+        "sha256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679"
+      },
+      "preparation_receipt": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/regional-identity-splice-001/run-004/attempt-006-native-cli/preparation-receipt.json",
+        "sha256": "19a8b5808697549a373f5c642625663a4d69a51d221d1a6cfb4f21395644696a"
+      }
+    },
+    "limits": {
+      "candidate_edge_truncation": false,
+      "density_label_material_region_gates": "unchanged",
+      "maximum_allowed_edges": 3000000,
+      "maximum_augmentations": 300000,
+      "maximum_transport_distance_m": 0.019353
+    },
+    "parent_import_line": "parent_packet=PASS nodes=7233 tetrahedra=28632 source_rows=9644 mass_kg=13.939678963460464 nodal_closure_abs_kg=1.7493581028205085e-09 nodal_closure_rel=5.8045210395826618e-08 mass_csv_sha256=c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679 source_csv_sha256=8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f packet_topology_sha256=f242a9239dd17902c32ce28118d9f24b556ea4c68fd6fdaf274706c862ed63bf",
+    "parsed_transfer_fields": {
+      "augmentations": "200424",
+      "child_cells_mapped": "30442",
+      "child_mesh_sha256": "124f1dbcb2db5ba4c52c49a80479c38f47819f44c8622db1ae677de60a775af9",
+      "child_reference_transfer": "PASS",
+      "child_tets": "30442",
+      "coordinate_frame_sha256": "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a",
+      "density_fat_16_bounds_kgm3": "850:950",
+      "density_skin_15_bounds_kgm3": "900:1100",
+      "donor_region_mismatch_cells": "1532",
+      "exact_index_dominant_parent_cells": "12103",
+      "flow_edges_crossing_stable_source_face_identity_diagnostic": "2342",
+      "mapping_elapsed_s": "112.284469958",
+      "mapping_path": "bounded_conservative_spatial",
+      "mapping_path_sha256": "f5b1e505f40d564acd2dca10bfc6bc02a43b063a50b67860c7c00aecb4d29844",
+      "mass_kg_child": "13.939678963460471",
+      "mass_kg_parent": "13.939678963460464",
+      "max_child_density_kgm3": "1100.0000000000002",
+      "max_child_fraction_sum_error": "3.3306690738754696e-16",
+      "max_parent_mass_closure_abs_kg": "1.214306433183765e-17",
+      "max_source_donor_closure_abs_kg": "2.1094237467877974e-15",
+      "max_transport_distance_allowed_m": "0.019352999999999999",
+      "max_transport_distance_used_m": "0.019292858996251182",
+      "method": "conservativeSpatialMassTransport",
+      "min_child_density_kgm3": "849.99999999999977",
+      "physical_admission": "NOT_CLAIMED",
+      "region_label_sha256": "9da3f79c98a65270503f441c8703361a210ae90603cf0cac42bc97a71708c980",
+      "scope": "explicit_child_reference_preparation",
+      "source_body_count": "157",
+      "source_donor_closure_groups": "148",
+      "total_mass_closure_abs_kg": "7.1054273576010019e-15",
+      "transport_edges": "33042",
+      "transport_receipt_sha256": "a97eccd29469fc205d812c5b2934115fed222ed390aee33a3e3d4a6e1adce157",
+      "unique_regions": "70",
+      "unique_stable_source_faces": "4618"
+    },
+    "preflight_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/prelaunch-required-env-check.json",
+    "preflight_sha256": "cd6de16e810f840b41be51adeaf8eae65b2ac2f4816a34b9f462818974f54ad0",
+    "prelaunch_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/prelaunch.json",
+    "prelaunch_sha256": "aeed06fb8be0d4fe7d47afade26a4afab0ea168b0d650213273dcb7b468eef70",
+    "run_directory": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011",
+    "stderr_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/run.stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-011/run.stdout.txt",
+    "stdout_sha256": "93efcd529daa0fa59982bbfc4fffe00a1f2b3adc178755c3b12a1815f4af60a4",
+    "transfer_result_line": "child_reference_transfer=PASS method=conservativeSpatialMassTransport mapping_path=bounded_conservative_spatial mapping_path_sha256=f5b1e505f40d564acd2dca10bfc6bc02a43b063a50b67860c7c00aecb4d29844 scope=explicit_child_reference_preparation physical_admission=NOT_CLAIMED source_body_count=157 child_cells_mapped=30442 child_tets=30442 donor_region_mismatch_cells=1532 unique_regions=70 unique_stable_source_faces=4618 exact_index_dominant_parent_cells=12103 flow_edges_crossing_stable_source_face_identity_diagnostic=2342 transport_edges=33042 augmentations=200424 source_donor_closure_groups=148 mapping_elapsed_s=112.284469958 mass_kg_parent=13.939678963460464 mass_kg_child=13.939678963460471 total_mass_closure_abs_kg=7.1054273576010019e-15 max_parent_mass_closure_abs_kg=1.214306433183765e-17 max_source_donor_closure_abs_kg=2.1094237467877974e-15 max_child_fraction_sum_error=3.3306690738754696e-16 max_transport_distance_used_m=0.019292858996251182 max_transport_distance_allowed_m=0.019352999999999999 min_child_density_kgm3=849.99999999999977 max_child_density_kgm3=1100.0000000000002 density_skin_15_bounds_kgm3=900:1100 density_fat_16_bounds_kgm3=850:950 child_mesh_sha256=124f1dbcb2db5ba4c52c49a80479c38f47819f44c8622db1ae677de60a775af9 region_label_sha256=9da3f79c98a65270503f441c8703361a210ae90603cf0cac42bc97a71708c980 coordinate_frame_sha256=0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a transport_receipt_sha256=a97eccd29469fc205d812c5b2934115fed222ed390aee33a3e3d4a6e1adce157",
+    "wrapper_sha256": "90498139526697d3dfb029c4d4dc5dd7449b58c92336724f7056da77f19f526c"
+  },
+  "schema": "sparse-mass-transfer-incremental-verification.v1",
+  "scope": "isolated bounded source-only mass-transfer implementation and replay; no native runtime, GPU, physical step, qualification, or admission claim",
+  "historical_header_audit": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/evidence/incremental-010/historical-header-audit.json",
+    "sha256": "1052a1eeeeb70e4f4c92b6c882f92f3b9c7be211382eb5df724c68d70cd7e2bf",
+    "summary": "Runs 002\u2013008 and 010 authenticate against the exact per-run compile snapshot; run001 header is unknown because its mutable copy postdates the binary; run009 launched no CLI."
+  },
+  "metric_semantics": {
+    "donor_region_mismatch_cells": {
+      "observed_count": 1532,
+      "meaning": "Count of child cells where numeric geometric donorBodyIndices differs from anatomicalRegionIndices. These are different label domains; the metric is diagnostic and does not mean donor provenance or region assignment failed.",
+      "source": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildMassMappingCLI.cpp:126-142,258-260"
+    },
+    "flow_edges_crossing_stable_source_face_identity_diagnostic": {
+      "observed_count": 2342,
+      "meaning": "Count of recorded parent-child mass-flow edges whose stable source face identity differs. This is diagnostic only, not an admission/rejection gate.",
+      "source": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildMassMappingCLI.cpp:302-327,345-365",
+      "actual_label_partition_gate": "The CLI rejects flow edges crossing material, geometric donor, or anatomical region only (lines 318-343)."
+    }
+  },
+  "stale_unreplayed_binary": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-001/attempted-old-resolution-cli",
+    "binary_sha256": "f61dabaa46d3ed315037349607c71125bbecf4da497f997a4b2c6236c4016cc1",
+    "header_sha256": "7019e52f5299f4200ccc71c70f203958d0221959596cb15d5eb17552da73eba1",
+    "status": "separate stale binary; not used for real-control-001 recorded run",
+    "include_trace_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/real-control-001/attempted-old-resolution-include-trace.txt"
+  },
+  "baseline_header_note": "The true pre-sparse published dense baseline is the preserved legacy-baseline header (7019...). f106... is an intermediate sparse header immediately before the canonical-order correction, not the dense baseline."
+}

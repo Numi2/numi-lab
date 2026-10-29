@@ -1,0 +1,1 @@
+child_reference_transfer=REJECTED reason=physical child mass transport receipt failed exact current-input verification: recorded spatial transport current child density is outside actual material bounds

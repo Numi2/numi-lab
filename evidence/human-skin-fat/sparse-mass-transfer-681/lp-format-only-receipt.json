@@ -1,0 +1,12 @@
+{
+  "scope": "Whitespace-only publication copy of LP oracle; original exact test source retained with evidence",
+  "original_sha256": "5fb856872e11bb29281371898c8c9a5e4b13832a4cb9834f4157e389d0ef6bb1",
+  "published_sha256": "a8d9c31d049d9ea6243127fa56d5a71b6da3acc90a40b63bc3bcaa1db70979a2",
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-publication-681/NumiHumanConservativeSpatialMassTransportLPCheck.py"
+  ],
+  "exit_code": 0,
+  "stdout_sha256": "d0c5026889dcf281df88d3e410d3d3418ee4e1388ab0a46ac58815e3534759d3",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

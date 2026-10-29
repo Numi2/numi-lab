@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <numeric>
 #include <iomanip>
 #include <sstream>
 #include <map>
@@ -21,6 +22,7 @@
 #include <string>
 #include <string_view>
 #include <tuple>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -267,6 +269,88 @@ namespace spatial_mass_transport_detail {
 inline constexpr std::uint32_t kInvalid = std::numeric_limits<std::uint32_t>::max();
 inline constexpr double kFlowEpsilonKg = 1.0e-18;
 
+// Exact expansion accumulator for sums of binary64 capacities. The expansion
+// is used only by the sparse fallback to keep the source/floor budget
+// conservative; dense receipt arithmetic remains unchanged.
+class ExactDoubleSum {
+public:
+    void add(double value) {
+        if (!std::isfinite(value)) {
+            valid_ = false;
+            return;
+        }
+        std::size_t write = 0u;
+        for (const double partial : partials_) {
+            double other = partial;
+            if (std::abs(value) < std::abs(other)) std::swap(value, other);
+            const double high = value + other;
+            const double virtualOther = high - value;
+            const double low = other - virtualOther;
+            if (low != 0.0) partials_[write++] = low;
+            value = high;
+        }
+        partials_.resize(write);
+        if (value != 0.0) partials_.push_back(value);
+    }
+
+    [[nodiscard]] bool valid() const { return valid_; }
+
+    [[nodiscard]] int sign() const {
+        if (!valid_) return 0;
+        for (auto it = partials_.rbegin(); it != partials_.rend(); ++it)
+            if (*it != 0.0) return *it > 0.0 ? 1 : -1;
+        return 0;
+    }
+
+    [[nodiscard]] double rounded() const {
+        double value = 0.0;
+        for (const double partial : partials_) value += partial;
+        return value;
+    }
+
+    // Return the greatest binary64 value known not to exceed this positive
+    // exact expansion. Binary-searching the ordered positive bit patterns
+    // avoids assuming that long double has more precision than double.
+    [[nodiscard]] double roundedDownPositive() const {
+        if (sign() <= 0) return 0.0;
+        const double approximation = rounded();
+        if (!std::isfinite(approximation) || approximation <= 0.0) return 0.0;
+        const auto exactMinus = [&](const double candidate) {
+            ExactDoubleSum difference = *this;
+            difference.add(-candidate);
+            return difference.sign();
+        };
+        std::uint64_t low = std::bit_cast<std::uint64_t>(0.0);
+        std::uint64_t high = std::bit_cast<std::uint64_t>(approximation);
+        if (exactMinus(approximation) >= 0) {
+            low = high;
+            const double next = std::nextafter(approximation,
+                                               std::numeric_limits<double>::infinity());
+            if (!std::isfinite(next)) return approximation;
+            high = std::bit_cast<std::uint64_t>(next);
+            while (high - low > 1u) {
+                const auto middle = low + (high - low) / 2u;
+                const double candidate = std::bit_cast<double>(middle);
+                if (exactMinus(candidate) >= 0) low = middle;
+                else high = middle;
+            }
+            return std::bit_cast<double>(low);
+        }
+        while (high - low > 1u) {
+            const auto middle = low + (high - low) / 2u;
+            const double candidate = std::bit_cast<double>(middle);
+            if (exactMinus(candidate) >= 0) low = middle;
+            else high = middle;
+        }
+        return std::bit_cast<double>(low);
+    }
+
+private:
+    std::vector<double> partials_;
+    bool valid_ = true;
+};
+
+
 inline double densityBoundRoundoff(const double lower, const double upper,
                                    const double density) {
     return 64.0 * std::numeric_limits<double>::epsilon() *
@@ -337,6 +421,31 @@ struct Candidate {
     double distanceM = 0.0;
 };
 
+template <typename FlowRecord>
+inline bool sortAndAccumulateChildFlowSums(
+        std::vector<FlowRecord>& flows, const std::size_t childCount,
+        std::vector<double>& childMassKg,
+        std::vector<double>& childMeasureM3) {
+    childMassKg.assign(childCount, 0.0);
+    childMeasureM3.assign(childCount, 0.0);
+    std::sort(flows.begin(), flows.end(), [](const auto& a, const auto& b) {
+        if (a.child != b.child) return a.child < b.child;
+        return a.parent < b.parent;
+    });
+    for (const auto& flow : flows) {
+        if (flow.child >= childCount || !std::isfinite(flow.massKg) ||
+            flow.massKg <= 0.0 || !std::isfinite(flow.measureM3) ||
+            flow.measureM3 <= 0.0)
+            return false;
+        childMassKg[flow.child] += flow.massKg;
+        childMeasureM3[flow.child] += flow.measureM3;
+        if (!std::isfinite(childMassKg[flow.child]) ||
+            !std::isfinite(childMeasureM3[flow.child]))
+            return false;
+    }
+    return true;
+}
+
 inline bool gridKey(const SpatialMassTransportPoint& point, const double width,
                     GridKey& out) {
     for (const double coordinate : point)
@@ -365,6 +474,9 @@ struct FlowEdge {
     double capacity = 0.0;
     double initialCapacity = 0.0;
     double cost = 0.0;
+    // Kahan correction for sparse-only capacity updates. The represented
+    // residual is capacity - capacityCorrection.
+    double capacityCorrection = 0.0;
 };
 struct EdgeRef {
     std::uint32_t parent = 0u;
@@ -375,6 +487,73 @@ struct EdgeRef {
 };
 
 class MinCostFlow {
+    [[nodiscard]] static double stableReducedCost(const double cost,
+                                                   const double fromPotential,
+                                                   const double toPotential) {
+        return static_cast<double>(static_cast<long double>(cost) +
+            (static_cast<long double>(fromPotential) -
+             static_cast<long double>(toPotential)));
+    }
+
+    static void twoSum(const double a, const double b,
+                       double& sum, double& error) {
+        sum = a + b;
+        const double bVirtual = sum - a;
+        error = (a - (sum - bVirtual)) + (b - bVirtual);
+    }
+
+    static void addCapacity(FlowEdge& edge, const double delta) {
+        // Keep the exact low part when a much smaller augmentation is added
+        // to a large residual. Kahan alone loses that correction if the next
+        // delta nearly cancels the high part.
+        double highSum = 0.0, highError = 0.0;
+        twoSum(edge.capacity, delta, highSum, highError);
+        const double oldLow = -edge.capacityCorrection;
+        double lowSum = 0.0, lowError = 0.0;
+        twoSum(highError, oldLow, lowSum, lowError);
+        double normalizedHigh = 0.0, normalizedLow = 0.0;
+        twoSum(highSum, lowSum, normalizedHigh, normalizedLow);
+        double tail = 0.0, tailError = 0.0;
+        twoSum(normalizedLow, lowError, tail, tailError);
+        double finalHigh = 0.0, finalLow = 0.0;
+        twoSum(normalizedHigh, tail, finalHigh, finalLow);
+        edge.capacity = finalHigh;
+        // The final transform's low error is below binary64 double-double
+        // precision for the bounded mass scales used here. Fold its residual
+        // into the stored low part with a second error-free transform.
+        double storedLow = 0.0, storedTail = 0.0;
+        twoSum(finalLow, tailError, storedLow, storedTail);
+        edge.capacityCorrection = -(storedLow + storedTail);
+    }
+
+    [[nodiscard]] static bool hasPositiveCapacity(const FlowEdge& edge) {
+        if (edge.capacity > 0.0) return true;
+        return edge.capacity == 0.0 && edge.capacityCorrection < 0.0;
+    }
+
+    [[nodiscard]] static double pathCapacity(const FlowEdge& edge) {
+        if (edge.capacity > 0.0) {
+            return edge.capacityCorrection > 0.0
+                ? std::nextafter(edge.capacity, 0.0) : edge.capacity;
+        }
+        return edge.capacity == 0.0 && edge.capacityCorrection < 0.0
+            ? -edge.capacityCorrection : 0.0;
+    }
+
+    [[nodiscard]] static double roundedCapacity(const FlowEdge& edge) {
+        return edge.capacity - edge.capacityCorrection;
+    }
+
+    static bool normalizePotentialGauge(std::vector<double>& potential) {
+        if (potential.empty()) return true;
+        const auto minimum = std::min_element(potential.begin(), potential.end());
+        const long double gauge = static_cast<long double>(*minimum);
+        for (auto& value : potential) {
+            value = static_cast<double>(static_cast<long double>(value) - gauge);
+            if (!std::isfinite(value)) return false;
+        }
+        return true;
+    }
 public:
     explicit MinCostFlow(const std::size_t nodeCount) : graph_(nodeCount) {}
     std::uint32_t addEdge(const std::uint32_t from, const std::uint32_t to,
@@ -389,14 +568,25 @@ public:
     bool run(const std::uint32_t source, const std::uint32_t sink,
              const double required, const std::size_t maximumAugmentations,
              std::size_t& augmentationCount, double& sent,
-             std::string& error) {
+             std::string& error, std::vector<double>* finalPotential = nullptr,
+             const bool updateUnreachablePotentials = false,
+             const std::vector<double>* initialPotential = nullptr,
+             const double initialSent = 0.0,
+             const bool stableSparseArithmetic = false) {
         const auto fail = [&](const char* message) { error = message; return false; };
         const std::size_t n = graph_.size();
         std::vector<double> potential(n, 0.0), distance(n);
         std::vector<std::uint32_t> previousNode(n), previousEdge(n);
+        if ((initialPotential && initialPotential->size() != n) ||
+            !std::isfinite(initialSent) || initialSent < 0.0 ||
+            (!stableSparseArithmetic && initialSent > required + kFlowEpsilonKg))
+            return fail("spatial transport continuation state is invalid");
+        if (initialPotential) potential = *initialPotential;
         augmentationCount = 0u;
-        sent = 0.0;
-        while (required - sent > kFlowEpsilonKg) {
+        if (stableSparseArithmetic) compensatedSparseCapacities_ = true;
+        sent = stableSparseArithmetic ? sentFromSource(source) : initialSent;
+        while (stableSparseArithmetic ? hasResidualSourceCapacity(source)
+                                     : required - sent > kFlowEpsilonKg) {
             if (augmentationCount >= maximumAugmentations)
                 return fail("spatial transport exceeded its pinned augmentation budget");
             std::fill(distance.begin(), distance.end(), std::numeric_limits<double>::infinity());
@@ -409,16 +599,21 @@ public:
             while (!queue.empty()) {
                 const auto [knownDistance, node] = queue.top();
                 queue.pop();
-                if (knownDistance > distance[node] + 1.0e-15) continue;
+                if (knownDistance > distance[node] +
+                        (stableSparseArithmetic ? 0.0 : 1.0e-15)) continue;
                 for (std::uint32_t edgeIndex = 0; edgeIndex < graph_[node].size(); ++edgeIndex) {
                     const auto& edge = graph_[node][edgeIndex];
-                    if (edge.capacity <= kFlowEpsilonKg) continue;
-                    double reduced = edge.cost + potential[node] - potential[edge.to];
+                    if (stableSparseArithmetic ? !hasPositiveCapacity(edge)
+                                               : edge.capacity <= kFlowEpsilonKg) continue;
+                    double reduced = stableSparseArithmetic
+                        ? stableReducedCost(edge.cost, potential[node], potential[edge.to])
+                        : edge.cost + potential[node] - potential[edge.to];
                     if (reduced < 0.0 && reduced > -1.0e-12) reduced = 0.0;
                     if (reduced < 0.0)
                         return fail("spatial transport min-cost reduced edge became negative");
                     const double candidate = knownDistance + reduced;
-                    if (candidate < distance[edge.to] - 1.0e-15) {
+                    if (candidate < distance[edge.to] -
+                            (stableSparseArithmetic ? 0.0 : 1.0e-15)) {
                         distance[edge.to] = candidate;
                         previousNode[edge.to] = node;
                         previousEdge[edge.to] = edgeIndex;
@@ -427,25 +622,267 @@ public:
                 }
             }
             if (previousNode[sink] == kInvalid) break;
-            for (std::size_t node = 0; node < n; ++node)
-                if (std::isfinite(distance[node])) potential[node] += distance[node];
-            double amount = required - sent;
+            if (updateUnreachablePotentials) {
+                double maximumFiniteDistance = 0.0;
+                for (const auto value : distance)
+                    if (std::isfinite(value))
+                        maximumFiniteDistance = std::max(maximumFiniteDistance, value);
+                // Assigning the largest finite label to unreachable nodes keeps
+                // every residual reduced cost feasible globally: an edge from
+                // an unreachable node into the reached set gains a nonnegative
+                // amount, while a reached-to-unreachable residual edge cannot
+                // exist after Dijkstra has exhausted the queue.
+                for (std::size_t node = 0; node < n; ++node)
+                    potential[node] = static_cast<double>(
+                        static_cast<long double>(potential[node]) +
+                        (std::isfinite(distance[node]) ? distance[node] : maximumFiniteDistance));
+            } else {
+                for (std::size_t node = 0; node < n; ++node)
+                    if (std::isfinite(distance[node])) potential[node] += distance[node];
+            }
+            if (stableSparseArithmetic && !normalizePotentialGauge(potential))
+                return fail("spatial transport sparse potential gauge normalization failed");
+            double amount = stableSparseArithmetic
+                ? std::numeric_limits<double>::infinity() : required - sent;
             for (std::uint32_t node = sink; node != source; node = previousNode[node]) {
                 if (previousNode[node] == kInvalid)
                     return fail("spatial transport residual path is incomplete");
-                amount = std::min(amount,
-                    graph_[previousNode[node]][previousEdge[node]].capacity);
+                const auto& pathEdge =
+                    graph_[previousNode[node]][previousEdge[node]];
+                amount = std::min(amount, stableSparseArithmetic
+                    ? pathCapacity(pathEdge) : pathEdge.capacity);
             }
-            if (!std::isfinite(amount) || amount <= kFlowEpsilonKg)
+            if (!std::isfinite(amount) ||
+                (stableSparseArithmetic ? amount <= 0.0 : amount <= kFlowEpsilonKg))
                 return fail("spatial transport residual path has no positive mass capacity");
             for (std::uint32_t node = sink; node != source; node = previousNode[node]) {
                 auto& edge = graph_[previousNode[node]][previousEdge[node]];
                 auto& reverse = graph_[node][edge.reverse];
-                edge.capacity -= amount;
-                reverse.capacity += amount;
+                if (stableSparseArithmetic) {
+                    addCapacity(edge, -amount);
+                    addCapacity(reverse, amount);
+                } else {
+                    edge.capacity -= amount;
+                    reverse.capacity += amount;
+                }
             }
-            sent += amount;
+            sent = stableSparseArithmetic ? sentFromSource(source) : sent + amount;
             ++augmentationCount;
+        }
+        if (finalPotential) *finalPotential = potential;
+        error.clear();
+        return true;
+    }
+
+    // Add one previously omitted admissible parent-child edge while retaining
+    // the current min-cost flow. If its reduced cost is negative, a shortest
+    // residual path from child back to parent either closes a negative cycle
+    // (which is augmented) or provides the dual update that makes the new edge
+    // nonnegative. The search excludes both directions of the newly inserted
+    // edge so it cannot certify a zero-length edge/reverse-edge cycle.
+    bool addColumnWithOptimalityRepair(
+            const std::uint32_t from, const std::uint32_t to,
+            const double capacity, const double cost,
+            std::vector<double>& potential,
+            const std::size_t maximumAugmentations,
+            std::size_t& augmentationCount,
+            std::uint32_t& insertedEdgeIndex,
+            std::string& error) {
+        const auto fail = [&](const char* message) { error = message; return false; };
+        if (from >= graph_.size() || to >= graph_.size() || from == to ||
+            potential.size() != graph_.size() || !std::isfinite(capacity) ||
+            capacity <= 0.0 || !std::isfinite(cost) || cost < 0.0)
+            return fail("spatial transport inserted column is invalid");
+        compensatedSparseCapacities_ = true;
+        insertedEdgeIndex = addEdge(from, to, capacity, cost);
+        const auto insertedReverseIndex = graph_[from][insertedEdgeIndex].reverse;
+        std::vector<double> distance(graph_.size());
+        std::vector<std::uint32_t> previousNode(graph_.size()), previousEdge(graph_.size());
+        std::vector<std::pair<std::uint32_t, std::uint32_t>> lastCycleReverseEdges;
+        std::size_t cycleNumber = 0u;
+        while (hasPositiveCapacity(graph_[from][insertedEdgeIndex])) {
+            const double reducedColumn = stableReducedCost(cost, potential[from], potential[to]);
+            if (!std::isfinite(reducedColumn))
+                return fail("spatial transport inserted column has nonfinite reduced cost");
+            if (reducedColumn >= -1.0e-12) break;
+
+            std::fill(distance.begin(), distance.end(),
+                      std::numeric_limits<double>::infinity());
+            std::fill(previousNode.begin(), previousNode.end(), kInvalid);
+            std::fill(previousEdge.begin(), previousEdge.end(), kInvalid);
+            using QueueItem = std::pair<double, std::uint32_t>;
+            std::priority_queue<QueueItem, std::vector<QueueItem>,
+                                std::greater<QueueItem>> queue;
+            distance[to] = 0.0;
+            queue.push({0.0, to});
+            while (!queue.empty()) {
+                const auto [knownDistance, node] = queue.top();
+                queue.pop();
+                if (knownDistance > distance[node]) continue;
+                for (std::uint32_t edgeIndex = 0;
+                     edgeIndex < graph_[node].size(); ++edgeIndex) {
+                    if ((node == from && edgeIndex == insertedEdgeIndex) ||
+                        (node == to && edgeIndex == insertedReverseIndex))
+                        continue;
+                    const auto& edge = graph_[node][edgeIndex];
+                    if (!hasPositiveCapacity(edge)) continue;
+                    double reduced = stableReducedCost(
+                        edge.cost, potential[node], potential[edge.to]);
+                    if (reduced < 0.0 && reduced > -1.0e-12) reduced = 0.0;
+                    if (!std::isfinite(reduced) || reduced < 0.0) {
+                        std::ostringstream witness;
+                        const bool reverseOfLatestCycle = std::find(
+                            lastCycleReverseEdges.begin(), lastCycleReverseEdges.end(),
+                            std::pair<std::uint32_t, std::uint32_t>{node, edgeIndex}) !=
+                                lastCycleReverseEdges.end();
+                        witness << std::setprecision(17)
+                            << "spatial transport residual dual became infeasible during column insertion"
+                            << " [inserted_from=" << from << " inserted_to=" << to
+                            << " inserted_reduced=" << reducedColumn
+                            << " source=" << node << " edge=" << edgeIndex
+                            << " target=" << edge.to << " reduced=" << reduced
+                            << " residual_capacity=" << edge.capacity
+                            << " initial_capacity=" << edge.initialCapacity
+                            << " edge_cost=" << edge.cost
+                            << " potential_from=" << potential[node]
+                            << " potential_to=" << potential[edge.to]
+                            << " cycle_number=" << cycleNumber
+                            << " latest_cycle_reverse_arc_count=" << lastCycleReverseEdges.size()
+                            << " is_reverse_of_latest_cycle=" << (reverseOfLatestCycle ? 1 : 0)
+                            << " is_inserted_column_reverse="
+                            << ((node == to && edgeIndex == insertedReverseIndex) ? 1 : 0) << ']';
+                        error = witness.str();
+                        return false;
+                    }
+                    const double candidateDistance = knownDistance + reduced;
+                    if (candidateDistance < distance[edge.to]) {
+                        distance[edge.to] = candidateDistance;
+                        previousNode[edge.to] = node;
+                        previousEdge[edge.to] = edgeIndex;
+                        queue.push({candidateDistance, edge.to});
+                    }
+                }
+            }
+
+            const bool pathExists = std::isfinite(distance[from]);
+            const double dualStepLimit =
+                !pathExists || distance[from] >= -reducedColumn - 1.0e-12
+                    ? -reducedColumn : distance[from];
+            if (!std::isfinite(dualStepLimit) || dualStepLimit < 0.0)
+                return fail("spatial transport column-insertion dual step is invalid");
+            for (std::size_t node = 0; node < graph_.size(); ++node) {
+                const double step = std::isfinite(distance[node])
+                    ? std::min(distance[node], dualStepLimit) : dualStepLimit;
+                potential[node] = static_cast<double>(
+                    static_cast<long double>(potential[node]) + step);
+                if (!std::isfinite(potential[node]))
+                    return fail("spatial transport column-insertion potential became nonfinite");
+            }
+            if (!normalizePotentialGauge(potential))
+                return fail("spatial transport column-insertion potential gauge normalization failed");
+            const double repairedReducedColumn =
+                stableReducedCost(cost, potential[from], potential[to]);
+            if (!std::isfinite(repairedReducedColumn))
+                return fail("spatial transport column-insertion dual became nonfinite");
+            if (repairedReducedColumn >= -1.0e-12) break;
+            if (!pathExists)
+                return fail("spatial transport negative column has no residual return path");
+            if (augmentationCount >= maximumAugmentations)
+                return fail("spatial transport exceeded its pinned augmentation budget during column-cycle repair");
+
+            std::vector<std::pair<std::uint32_t, std::uint32_t>> path;
+            double amount = pathCapacity(graph_[from][insertedEdgeIndex]);
+            for (std::uint32_t node = from; node != to; node = previousNode[node]) {
+                if (previousNode[node] == kInvalid)
+                    return fail("spatial transport column cycle path is incomplete");
+                const auto pathFrom = previousNode[node];
+                const auto pathEdgeIndex = previousEdge[node];
+                amount = std::min(amount,
+                    pathCapacity(graph_[pathFrom][pathEdgeIndex]));
+                path.emplace_back(pathFrom, pathEdgeIndex);
+            }
+            if (!std::isfinite(amount) || amount <= 0.0)
+                return fail("spatial transport negative column cycle has no positive residual capacity");
+            auto& inserted = graph_[from][insertedEdgeIndex];
+            addCapacity(inserted, -amount);
+            addCapacity(graph_[to][inserted.reverse], amount);
+            lastCycleReverseEdges.clear();
+            lastCycleReverseEdges.emplace_back(to, insertedReverseIndex);
+            for (const auto [pathFrom, pathEdgeIndex] : path) {
+                auto& edge = graph_[pathFrom][pathEdgeIndex];
+                const auto pathTo = edge.to;
+                const auto reverseIndex = edge.reverse;
+                addCapacity(edge, -amount);
+                addCapacity(graph_[pathTo][reverseIndex], amount);
+                lastCycleReverseEdges.emplace_back(pathTo, reverseIndex);
+            }
+            ++cycleNumber;
+            ++augmentationCount;
+        }
+        error.clear();
+        return true;
+    }
+
+    [[nodiscard]] bool hasResidualSourceCapacity(const std::uint32_t source) const {
+        if (source >= graph_.size()) return false;
+        for (const auto& edge : graph_[source])
+            if (edge.initialCapacity > 0.0 && hasPositiveCapacity(edge)) return true;
+        return false;
+    }
+
+    [[nodiscard]] double sentFromSource(const std::uint32_t source) const {
+        if (source >= graph_.size()) return 0.0;
+        double sum = 0.0;
+        double compensation = 0.0;
+        for (const auto& edge : graph_[source]) {
+            if (edge.initialCapacity <= 0.0) continue;
+            const double value = roundedCapacity(graph_[edge.to][edge.reverse]);
+            const double adjusted = value - compensation;
+            const double next = sum + adjusted;
+            compensation = (next - sum) - adjusted;
+            sum = next;
+        }
+        return sum;
+    }
+
+    [[nodiscard]] double remainingCapacity(const std::uint32_t from,
+                                           const std::uint32_t edge) const {
+        if (from >= graph_.size() || edge >= graph_[from].size())
+            return std::numeric_limits<double>::quiet_NaN();
+        return roundedCapacity(graph_[from][edge]);
+    }
+
+    [[nodiscard]] bool hasResidualCapacity(const std::uint32_t from,
+                                           const std::uint32_t edge) const {
+        return from < graph_.size() && edge < graph_[from].size() &&
+               hasPositiveCapacity(graph_[from][edge]);
+    }
+
+    [[nodiscard]] double reducedCost(const std::uint32_t from,
+                                    const std::uint32_t to,
+                                    const double cost,
+                                    const std::vector<double>& potential) const {
+        return stableReducedCost(cost, potential[from], potential[to]);
+    }
+
+    [[nodiscard]] bool residualReducedCostsNonnegative(
+            const std::vector<double>& potential, const double tolerance,
+            std::string& error) const {
+        if (potential.size() != graph_.size() || !std::isfinite(tolerance) ||
+            tolerance < 0.0) {
+            error = "spatial transport dual certificate has invalid dimensions or tolerance";
+            return false;
+        }
+        for (std::size_t from = 0; from < graph_.size(); ++from) {
+            for (const auto& edge : graph_[from]) {
+                if (!hasPositiveCapacity(edge)) continue;
+                const double reduced = stableReducedCost(
+                    edge.cost, potential[from], potential[edge.to]);
+                if (!std::isfinite(reduced) || reduced < -tolerance) {
+                    error = "spatial transport residual dual certificate has a negative reduced-cost arc";
+                    return false;
+                }
+            }
         }
         error.clear();
         return true;
@@ -453,13 +890,16 @@ public:
 
     // Failure-only min-cut witness. It observes the same residual capacities
     // used by run(); it changes neither costs, augmentations nor accepted mass.
-    [[nodiscard]] std::vector<bool> residualReachable(const std::uint32_t source) const {
+    [[nodiscard]] std::vector<bool> residualReachable(const std::uint32_t source,
+                                                      const bool includeSubEpsilon = false) const {
         std::vector<bool> reached(graph_.size(), false);
         std::vector<std::uint32_t> queue{source};
         reached[source] = true;
         for (std::size_t cursor = 0; cursor < queue.size(); ++cursor) {
             for (const auto& edge : graph_[queue[cursor]]) {
-                if (edge.capacity <= kFlowEpsilonKg || reached[edge.to]) continue;
+                if ((includeSubEpsilon ? !hasPositiveCapacity(edge)
+                                       : edge.capacity <= kFlowEpsilonKg) ||
+                    reached[edge.to]) continue;
                 reached[edge.to] = true;
                 queue.push_back(edge.to);
             }
@@ -469,10 +909,16 @@ public:
 
     [[nodiscard]] double flow(const EdgeRef& reference) const {
         const auto& edge = graph_[reference.from][reference.edge];
-        return edge.initialCapacity - edge.capacity;
+        return compensatedSparseCapacities_
+            ? reverseFlow(reference) : edge.initialCapacity - edge.capacity;
+    }
+    [[nodiscard]] double reverseFlow(const EdgeRef& reference) const {
+        const auto& edge = graph_[reference.from][reference.edge];
+        return roundedCapacity(graph_[edge.to][edge.reverse]);
     }
 private:
     std::vector<std::vector<FlowEdge>> graph_;
+    bool compensatedSparseCapacities_ = false;
 };
 
 inline void hashInputArrays(const ConservativeSpatialMassTransportInput& in,
@@ -593,13 +1039,15 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
 // may receive only from parents within maximumTransportDistanceM. Child demand
 // is bounded by its emitted reference volume times the owning material density
 // bounds. The deterministic min-cost flow minimizes mass-weighted squared
-// centroid distance among feasible couplings; infeasible capacities, region
-// coverage, distance, edge-count or augmentation limits fail without expanding
-// the candidate set or renormalizing density.
-[[nodiscard]] inline bool assembleConservativeSpatialMassTransport(
+// centroid distance among feasible couplings. The dense path is unchanged for
+// graphs within budget; overflow uses sparse min-cut expansion and globally
+// feasible residual-dual pricing. Both paths retain the same label, distance,
+// density, edge and aggregate augmentation limits.
+[[nodiscard]] inline bool assembleConservativeSpatialMassTransportImpl(
         const ConservativeSpatialMassTransportInput& in,
         ConservativeSpatialMassTransportResult& out,
-        std::string& error) {
+        std::string& error, const bool sparseMode,
+        const std::size_t priorAugmentationCount) {
     using namespace spatial_mass_transport_detail;
     const auto fail = [&](std::string message) { error = std::move(message); return false; };
     const std::size_t np = in.parentMassKg.size();
@@ -683,6 +1131,7 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
     }
 
     ConservativeSpatialMassTransportResult next;
+    next.augmentationCount = priorAugmentationCount;
     next.method = UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport;
     next.parentMassPacketSHA256 = std::string(in.parentMassPacketSHA256);
     next.parentSourceContributionSHA256 = std::string(in.parentSourceContributionSHA256);
@@ -752,6 +1201,42 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
     std::vector<FlowRecord> flows;
     std::size_t allCandidateEdges = 0u;
     const double radiusSquared = in.maximumTransportDistanceM * in.maximumTransportDistanceM;
+    if (!sparseMode) {
+        // Decide whether the dense path fits before doing any group flow work.
+        // This prevents a dense-prefix solve from being replayed and counted a
+        // second time when a later group crosses the edge budget.
+        std::size_t denseCandidateEdges = 0u;
+        bool denseBudgetExceeded = false;
+        for (const auto& [groupKey, groupParents] : parentsByGroup) {
+            for (const auto p : groupParents) {
+                const auto base = parentGrid[p];
+                for (int dx = -1; dx <= 1 && !denseBudgetExceeded; ++dx)
+                    for (int dy = -1; dy <= 1 && !denseBudgetExceeded; ++dy)
+                        for (int dz = -1; dz <= 1 && !denseBudgetExceeded; ++dz) {
+                            const GridKey grid{base.x + dx, base.y + dy, base.z + dz};
+                            const auto found = childrenByBucket.find({groupKey, grid});
+                            if (found == childrenByBucket.end()) continue;
+                            for (const auto c : found->second) {
+                                const double d = distance(in.parentCentroidsWorld[p],
+                                                          in.childCentroidsWorld[c]);
+                                if (d > in.maximumTransportDistanceM ||
+                                    d*d > radiusSquared * (1.0 + 1.0e-14))
+                                    continue;
+                                if (denseCandidateEdges >= in.maximumAllowedEdges) {
+                                    denseBudgetExceeded = true;
+                                    break;
+                                }
+                                ++denseCandidateEdges;
+                            }
+                        }
+                if (denseBudgetExceeded) break;
+            }
+            if (denseBudgetExceeded) break;
+        }
+        if (denseBudgetExceeded)
+            return assembleConservativeSpatialMassTransportImpl(
+                in, out, error, true, priorAugmentationCount);
+    }
     for (const auto& [group, parentRows] : parentsByGroup) {
         // A failed preparation must retain the exact conservation partition.
         // This is diagnostic context only; capacities and policy are unchanged.
@@ -771,18 +1256,41 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
         };
         const auto& childRows = childrenByGroup[group];
         long double supplyLong = 0.0L, minimumLong = 0.0L, maximumLong = 0.0L;
-        for (const auto p : parentRows) supplyLong += in.parentMassKg[p];
-        for (const auto c : childRows) {
-            minimumLong += static_cast<long double>(in.childReferenceVolumeM3[c]) *
-                           in.materialDensityLowerKgM3[in.childMaterialIndices[c]];
-            maximumLong += static_cast<long double>(in.childReferenceVolumeM3[c]) *
-                           in.materialDensityUpperKgM3[in.childMaterialIndices[c]];
+        spatial_mass_transport_detail::ExactDoubleSum exactSupply, exactMinimum, exactMaximum;
+        std::vector<double> exactChildMinimum, exactChildMaximum;
+        exactChildMinimum.reserve(childRows.size());
+        exactChildMaximum.reserve(childRows.size());
+        for (const auto p : parentRows) {
+            supplyLong += in.parentMassKg[p];
+            exactSupply.add(in.parentMassKg[p]);
         }
-        const double supply = static_cast<double>(supplyLong);
-        const double minimum = static_cast<double>(minimumLong);
-        const double maximum = static_cast<double>(maximumLong);
+        for (const auto c : childRows) {
+            const double childMinimum = in.childReferenceVolumeM3[c] *
+                in.materialDensityLowerKgM3[in.childMaterialIndices[c]];
+            const double childMaximum = in.childReferenceVolumeM3[c] *
+                in.materialDensityUpperKgM3[in.childMaterialIndices[c]];
+            minimumLong += childMinimum;
+            maximumLong += childMaximum;
+            exactMinimum.add(childMinimum);
+            exactMaximum.add(childMaximum);
+            exactChildMinimum.push_back(childMinimum);
+            exactChildMaximum.push_back(childMaximum);
+        }
+        const double supply = sparseMode ? exactSupply.rounded()
+                                         : static_cast<double>(supplyLong);
+        const double minimum = sparseMode ? exactMinimum.rounded()
+                                          : static_cast<double>(minimumLong);
+        const double maximum = sparseMode ? exactMaximum.rounded()
+                                          : static_cast<double>(maximumLong);
+        spatial_mass_transport_detail::ExactDoubleSum sourceMinusMinimum = exactSupply;
+        spatial_mass_transport_detail::ExactDoubleSum sourceMinusMaximum = exactSupply;
+        for (const auto value : exactChildMinimum) sourceMinusMinimum.add(-value);
+        for (const auto value : exactChildMaximum) sourceMinusMaximum.add(-value);
+        const bool sparseBoundsValid = exactSupply.valid() && exactMinimum.valid() &&
+            exactMaximum.valid() && sourceMinusMinimum.valid() && sourceMinusMaximum.valid() &&
+            sourceMinusMinimum.sign() >= 0 && sourceMinusMaximum.sign() <= 0;
         if (!std::isfinite(supply) || !std::isfinite(minimum) || !std::isfinite(maximum) ||
-            supply < minimum || supply > maximum)
+            (sparseMode ? !sparseBoundsValid : (supply < minimum || supply > maximum)))
             return fail("spatial transport parent supply is outside child volume times actual material density bounds for material/donor/region group" +
                 groupWitness(supply,minimum,maximum,0.0));
 
@@ -818,11 +1326,25 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
                 [](const auto& a, const auto& b) { return a.child == b.child; }), row.candidates.end());
             if (row.candidates.empty())
                 return fail("spatial transport parent has no same-material/donor/region child within the pinned distance bound");
-            if (row.candidates.size() > in.maximumAllowedEdges -
-                    std::min(allCandidateEdges, in.maximumAllowedEdges))
-                return fail("spatial transport allowed-edge count exceeds its pinned budget; no candidate edges were truncated");
-            allCandidateEdges += row.candidates.size();
-            groupCandidateEdges += row.candidates.size();
+            if (sparseMode) {
+                // The full set is generated only for one parent at a time.
+                // Keep two deterministic seed columns; every omitted column is
+                // later considered by the exact reduced-cost pricing scan.
+                if (row.candidates.size() > 2u) row.candidates.resize(2u);
+                const std::size_t remaining =
+                    in.maximumAllowedEdges - std::min(allCandidateEdges, in.maximumAllowedEdges);
+                if (groupCandidateEdges > remaining ||
+                    row.candidates.size() > remaining - groupCandidateEdges)
+                    return fail("spatial transport sparse seed exceeds its pinned edge budget");
+                groupCandidateEdges += row.candidates.size();
+            } else {
+                if (row.candidates.size() > in.maximumAllowedEdges -
+                        std::min(allCandidateEdges, in.maximumAllowedEdges))
+                    return assembleConservativeSpatialMassTransportImpl(
+                        in, out, error, true, next.augmentationCount);
+                allCandidateEdges += row.candidates.size();
+                groupCandidateEdges += row.candidates.size();
+            }
             candidates.push_back(std::move(row));
         }
 
@@ -835,23 +1357,23 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
         const std::uint32_t superSink = sink + 2u;
         MinCostFlow network(static_cast<std::size_t>(superSink) + 1u);
         std::map<std::uint32_t, std::uint32_t> localChild;
-        for (std::uint32_t i = 0; i < childCount; ++i) localChild[childRows[i]] = i;
-        for (std::uint32_t i = 0; i < parentCount; ++i)
-            network.addEdge(superSource, parentBase + i, in.parentMassKg[parentRows[i]], 0.0);
         std::vector<EdgeRef> references;
-        references.reserve(groupCandidateEdges);
-        for (std::uint32_t i = 0; i < parentCount; ++i) {
-            const auto p = parentRows[i];
-            for (const auto& candidate : candidates[i].candidates) {
-                const auto cLocal = localChild.at(candidate.child);
-                const double cost = (candidate.distanceM * candidate.distanceM) / radiusSquared;
-                const auto edge = network.addEdge(parentBase + i, childBase + cLocal,
-                                                  in.parentMassKg[p], cost);
-                references.push_back({p, candidate.child, parentBase + i, edge,
-                                      candidate.distanceM});
-            }
+        struct MandatoryFloorArc {
+            std::uint32_t childRow = 0u;
+            std::uint32_t from = 0u;
+            std::uint32_t edge = 0u;
+            double requiredKg = 0.0;
+        };
+        std::vector<MandatoryFloorArc> mandatoryFloorArcs;
+        std::vector<std::unordered_set<std::uint32_t>> activeChildByParent(parentCount);
+        if (sparseMode) {
+            for (std::uint32_t i = 0; i < parentCount; ++i)
+                for (const auto& candidate : candidates[i].candidates)
+                    activeChildByParent[i].insert(candidate.child);
         }
+
         long double childMinimumLong = 0.0L;
+        std::vector<double> childMinimumByLocal(childCount), childMaximumByLocal(childCount);
         for (std::uint32_t i = 0; i < childCount; ++i) {
             const auto c = childRows[i];
             const double childMinimum = in.childReferenceVolumeM3[c] *
@@ -861,29 +1383,57 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
             if (!std::isfinite(childMinimum) || !std::isfinite(childMaximum) ||
                 childMinimum <= 0.0 || childMaximum < childMinimum)
                 return fail("spatial transport child density capacity is invalid");
+            childMinimumByLocal[i] = childMinimum;
+            childMaximumByLocal[i] = childMaximum;
             childMinimumLong += childMinimum;
-            network.addEdge(childBase + i, superSink, childMinimum, 0.0);
-            network.addEdge(childBase + i, sink, childMaximum - childMinimum, 0.0);
         }
-        const double residualCapacity = supply - static_cast<double>(childMinimumLong);
+        double residualCapacity = supply - static_cast<double>(childMinimumLong);
+        if (sparseMode) {
+            auto exactResidualCapacity = exactSupply;
+            for (const auto childMinimum : childMinimumByLocal)
+                exactResidualCapacity.add(-childMinimum);
+            if (!exactResidualCapacity.valid() || exactResidualCapacity.sign() < 0)
+                return fail("spatial transport mandatory child density floors exceed exact parent mass supply");
+            residualCapacity = exactResidualCapacity.roundedDownPositive();
+        }
         if (residualCapacity < 0.0)
             return fail("spatial transport mandatory child density floors exceed parent mass supply");
-        network.addEdge(sink, superSink, residualCapacity, 0.0);
 
-        std::size_t augmentations = 0u;
-        double sent = 0.0;
-        std::string flowError;
-        const auto remainingAugmentations = in.maximumAugmentations -
-            std::min(next.augmentationCount, in.maximumAugmentations);
-        if (remainingAugmentations == 0u)
-            return fail("spatial transport exceeded its global pinned augmentation budget");
-        if (!network.run(superSource, superSink, supply, remainingAugmentations,
-                         augmentations, sent, flowError))
-            return fail("spatial transport min-cost flow failed: " + flowError);
-        next.augmentationCount += augmentations;
-        if (std::abs(sent - supply) >
-            std::max(in.absoluteMassToleranceKg, in.relativeClosureTolerance * supply)) {
-            const auto reachable = network.residualReachable(superSource);
+        const auto rebuildNetwork = [&]() {
+            network = MinCostFlow(static_cast<std::size_t>(superSink) + 1u);
+            localChild.clear();
+            for (std::uint32_t i = 0; i < childCount; ++i) localChild[childRows[i]] = i;
+            references.clear();
+            references.reserve(groupCandidateEdges);
+            mandatoryFloorArcs.clear();
+            mandatoryFloorArcs.reserve(childCount);
+            for (std::uint32_t i = 0; i < parentCount; ++i)
+                network.addEdge(superSource, parentBase + i, in.parentMassKg[parentRows[i]], 0.0);
+            for (std::uint32_t i = 0; i < parentCount; ++i) {
+                const auto p = parentRows[i];
+                for (const auto& candidate : candidates[i].candidates) {
+                    const auto cLocal = localChild.at(candidate.child);
+                    const double cost = (candidate.distanceM * candidate.distanceM) / radiusSquared;
+                    const auto edge = network.addEdge(parentBase + i, childBase + cLocal,
+                                                      in.parentMassKg[p], cost);
+                    references.push_back({p, candidate.child, parentBase + i, edge,
+                                          candidate.distanceM});
+                }
+            }
+            for (std::uint32_t i = 0; i < childCount; ++i) {
+                const double childMinimum = childMinimumByLocal[i];
+                const double childMaximum = childMaximumByLocal[i];
+                const auto floorEdge = network.addEdge(childBase + i, superSink,
+                                                       childMinimum, 0.0);
+                mandatoryFloorArcs.push_back({childRows[i], childBase + i,
+                                              floorEdge, childMinimum});
+                network.addEdge(childBase + i, sink, childMaximum - childMinimum, 0.0);
+            }
+            network.addEdge(sink, superSink, residualCapacity, 0.0);
+        };
+        rebuildNetwork();
+
+        const auto cutWitness = [&](const std::vector<bool>& reachable) {
             std::ostringstream cut;
             cut << " [cut_parent_rows=[";
             bool first = true;
@@ -902,14 +1452,279 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
                 cut << childRows[i];
             }
             cut << "]]";
-            return fail("spatial transport is infeasible under same-material/donor/region and distance bounds" +
-                groupWitness(supply,minimum,maximum,sent) + cut.str());
-        }
+            return cut.str();
+        };
+        const auto enumerateAdmissible = [&](const std::uint32_t parent,
+                                              const auto& callback) {
+            const auto base = parentGrid[parent];
+            for (int dx = -1; dx <= 1; ++dx)
+                for (int dy = -1; dy <= 1; ++dy)
+                    for (int dz = -1; dz <= 1; ++dz) {
+                        const GridKey grid{base.x + dx, base.y + dy, base.z + dz};
+                        const auto found = childrenByBucket.find({group, grid});
+                        if (found == childrenByBucket.end()) continue;
+                        for (const auto c : found->second) {
+                            const double d = distance(in.parentCentroidsWorld[parent],
+                                                      in.childCentroidsWorld[c]);
+                            if (d <= in.maximumTransportDistanceM &&
+                                d*d <= radiusSquared * (1.0 + 1.0e-14))
+                                callback(Candidate{c, d});
+                        }
+                    }
+        };
 
+        if (!sparseMode) {
+            std::size_t augmentations = 0u;
+            double sent = 0.0;
+            std::string flowError;
+            const auto remainingAugmentations = in.maximumAugmentations -
+                std::min(next.augmentationCount, in.maximumAugmentations);
+            if (remainingAugmentations == 0u)
+                return fail("spatial transport exceeded its global pinned augmentation budget");
+            if (!network.run(superSource, superSink, supply, remainingAugmentations,
+                             augmentations, sent, flowError))
+                return fail("spatial transport min-cost flow failed: " + flowError);
+            next.augmentationCount += augmentations;
+            if (std::abs(sent - supply) >
+                std::max(in.absoluteMassToleranceKg, in.relativeClosureTolerance * supply)) {
+                const auto reachable = network.residualReachable(superSource);
+                return fail("spatial transport is infeasible under same-material/donor/region and distance bounds" +
+                    groupWitness(supply,minimum,maximum,sent) + cutWitness(reachable));
+            }
+        } else {
+            struct PricedColumn {
+                std::uint32_t parentLocal = 0u;
+                Candidate candidate;
+                double reducedCost = 0.0;
+            };
+            const auto columnLess = [](const PricedColumn& a, const PricedColumn& b) {
+                if (a.reducedCost != b.reducedCost) return a.reducedCost < b.reducedCost;
+                if (a.parentLocal != b.parentLocal) return a.parentLocal < b.parentLocal;
+                return a.candidate.child < b.candidate.child;
+            };
+            constexpr std::size_t kColumnBatch = 256u;
+            bool optimalityCertified = false;
+            std::vector<double> dual;
+            double sent = 0.0;
+            std::size_t pricingRound = 0u;
+            std::size_t cycleAugmentations = 0u;
+            std::size_t insertedColumns = 0u;
+            const auto progress = [&](const std::string_view stage) {
+                std::ostringstream context;
+                context << " [stage=" << stage
+                    << " material=" << std::get<0>(group)
+                    << " donor=" << std::get<1>(group)
+                    << " region=" << std::get<2>(group)
+                    << " round=" << pricingRound
+                    << " cumulative_augmentations=" << next.augmentationCount
+                    << " cycle_augmentations=" << cycleAugmentations
+                    << " inserted_columns=" << insertedColumns
+                    << " active_edges=" << groupCandidateEdges << ']';
+                return context.str();
+            };
+            const auto hasUnsaturatedFloor = [&]() {
+                return std::any_of(mandatoryFloorArcs.begin(), mandatoryFloorArcs.end(),
+                    [&](const MandatoryFloorArc& arc) {
+                        return network.hasResidualCapacity(arc.from, arc.edge);
+                    });
+            };
+            const auto floorWitness = [&]() {
+                std::ostringstream witness;
+                for (const auto& arc : mandatoryFloorArcs) {
+                    const double remaining = network.remainingCapacity(arc.from, arc.edge);
+                    if (!network.hasResidualCapacity(arc.from, arc.edge)) continue;
+                    witness << std::setprecision(17)
+                        << " [unsaturated_floor_child=" << arc.childRow
+                        << " required_kg=" << arc.requiredKg
+                        << " residual_kg=" << remaining << ']';
+                    break;
+                }
+                return witness.str();
+            };
+            const auto runRestrictedMaster = [&](const std::string_view stage) {
+                if (!network.hasResidualSourceCapacity(superSource)) return true;
+                const auto remainingAugmentations = in.maximumAugmentations -
+                    std::min(next.augmentationCount, in.maximumAugmentations);
+                if (remainingAugmentations == 0u) {
+                    error = "spatial transport exceeded its global pinned augmentation budget" +
+                            progress(stage);
+                    return false;
+                }
+                std::size_t augmentations = 0u;
+                double updatedSent = sent;
+                std::string flowError;
+                std::vector<double> updatedDual;
+                const auto* initialDual = dual.empty() ? nullptr : &dual;
+                if (!network.run(superSource, superSink, supply, remainingAugmentations,
+                                 augmentations, updatedSent, flowError, &updatedDual, true,
+                                 initialDual, sent, true)) {
+                    next.augmentationCount += augmentations;
+                    error = "spatial transport sparse restricted min-cost flow failed: " +
+                            flowError + progress(stage);
+                    return false;
+                }
+                next.augmentationCount += augmentations;
+                sent = updatedSent;
+                dual = std::move(updatedDual);
+                return true;
+            };
+            const auto insertColumn = [&](const std::uint32_t parentLocal,
+                                          const Candidate& candidate,
+                                          const std::string_view stage) {
+                const auto p = parentRows[parentLocal];
+                const auto childFound = localChild.find(candidate.child);
+                if (childFound == localChild.end()) {
+                    error = "spatial transport sparse column references a child outside its group" +
+                            progress(stage);
+                    return false;
+                }
+                const double cost = (candidate.distanceM * candidate.distanceM) / radiusSquared;
+                std::uint32_t edgeIndex = kInvalid;
+                const auto before = next.augmentationCount;
+                std::string columnError;
+                if (!network.addColumnWithOptimalityRepair(
+                        parentBase + parentLocal, childBase + childFound->second,
+                        in.parentMassKg[p], cost, dual, in.maximumAugmentations,
+                        next.augmentationCount, edgeIndex, columnError)) {
+                    cycleAugmentations += next.augmentationCount - before;
+                    error = "spatial transport sparse column insertion failed: " +
+                            columnError + progress(stage);
+                    return false;
+                }
+                cycleAugmentations += next.augmentationCount - before;
+                references.push_back({p, candidate.child, parentBase + parentLocal,
+                                      edgeIndex, candidate.distanceM});
+                auto& row = candidates[parentLocal].candidates;
+                const auto position = std::lower_bound(row.begin(), row.end(), candidate,
+                    [](const Candidate& a, const Candidate& b) {
+                        return a.distanceM != b.distanceM ? a.distanceM < b.distanceM
+                                                           : a.child < b.child;
+                    });
+                row.insert(position, candidate);
+                activeChildByParent[parentLocal].insert(candidate.child);
+                ++groupCandidateEdges;
+                ++insertedColumns;
+                return true;
+            };
+
+            if (!runRestrictedMaster("initial-restricted-master")) return false;
+            while (!optimalityCertified) {
+                ++pricingRound;
+                const double closureTolerance =
+                    std::max(in.absoluteMassToleranceKg, in.relativeClosureTolerance * supply);
+                if (std::abs(sent - supply) > closureTolerance || hasUnsaturatedFloor()) {
+                    const auto reachable = network.residualReachable(superSource, true);
+                    std::vector<PricedColumn> additions;
+                    const std::size_t remainingEdges = in.maximumAllowedEdges -
+                        std::min(in.maximumAllowedEdges, allCandidateEdges + groupCandidateEdges);
+                    const std::size_t batchLimit = std::min(kColumnBatch, remainingEdges);
+                    bool omittedCutCrossing = false;
+                    for (std::uint32_t i = 0; i < parentCount; ++i) {
+                        if (batchLimit > 0u && additions.size() >= batchLimit) break;
+                        const auto p = parentRows[i];
+                        if (!reachable[parentBase + i]) continue;
+                        enumerateAdmissible(p, [&](const Candidate& candidate) {
+                            if (activeChildByParent[i].contains(candidate.child)) return;
+                            const auto child = localChild.find(candidate.child);
+                            if (child == localChild.end() ||
+                                reachable[childBase + child->second]) return;
+                            omittedCutCrossing = true;
+                            if (additions.size() < batchLimit)
+                                additions.push_back({i, candidate, 0.0});
+                        });
+                    }
+                    if (additions.empty()) {
+                        if (omittedCutCrossing)
+                            return fail("spatial transport sparse edge budget prevents min-cut feasibility expansion" +
+                                groupWitness(supply,minimum,maximum,sent) + progress("min-cut"));
+                        if (hasUnsaturatedFloor())
+                            return fail("spatial transport is infeasible under same-material/donor/region and distance bounds: sparse solve cannot saturate a mandatory child density floor" +
+                                floorWitness() + groupWitness(supply,minimum,maximum,sent) +
+                                progress("min-cut"));
+                        return fail("spatial transport is infeasible under same-material/donor/region and distance bounds" +
+                            groupWitness(supply,minimum,maximum,sent) + progress("min-cut"));
+                    }
+                    std::sort(additions.begin(), additions.end(), [&](const auto& a, const auto& b) {
+                        if (a.candidate.distanceM != b.candidate.distanceM)
+                            return a.candidate.distanceM < b.candidate.distanceM;
+                        if (parentRows[a.parentLocal] != parentRows[b.parentLocal])
+                            return parentRows[a.parentLocal] < parentRows[b.parentLocal];
+                        return a.candidate.child < b.candidate.child;
+                    });
+                    for (const auto& addition : additions) {
+                        if (!insertColumn(addition.parentLocal, addition.candidate, "min-cut-column"))
+                            return false;
+                    }
+                    if (!runRestrictedMaster("min-cut-resume")) return false;
+                    continue;
+                }
+
+                std::string flowError;
+                if (!network.residualReducedCostsNonnegative(dual, 1.0e-12, flowError))
+                    return fail("spatial transport sparse solve lacks a globally feasible residual dual: " +
+                                flowError + progress("dual-check"));
+                std::vector<PricedColumn> negativeColumns;
+                negativeColumns.reserve(kColumnBatch);
+                bool invalidReducedCost = false;
+                for (std::uint32_t i = 0; i < parentCount; ++i) {
+                    const auto p = parentRows[i];
+                    enumerateAdmissible(p, [&](const Candidate& candidate) {
+                        if (activeChildByParent[i].contains(candidate.child)) return;
+                        const auto child = localChild.find(candidate.child);
+                        if (child == localChild.end()) return;
+                        const double cost = (candidate.distanceM * candidate.distanceM) / radiusSquared;
+                        const double reduced = network.reducedCost(
+                            parentBase + i, childBase + child->second, cost, dual);
+                        if (!std::isfinite(reduced)) {
+                            invalidReducedCost = true;
+                            return;
+                        }
+                        if (reduced >= -1.0e-12) return;
+                        PricedColumn column{i, candidate, reduced};
+                        if (negativeColumns.size() < kColumnBatch) {
+                            negativeColumns.push_back(column);
+                            std::push_heap(negativeColumns.begin(), negativeColumns.end(), columnLess);
+                        } else if (columnLess(column, negativeColumns.front())) {
+                            std::pop_heap(negativeColumns.begin(), negativeColumns.end(), columnLess);
+                            negativeColumns.back() = column;
+                            std::push_heap(negativeColumns.begin(), negativeColumns.end(), columnLess);
+                        }
+                    });
+                }
+                if (invalidReducedCost)
+                    return fail("spatial transport sparse pricing computed a nonfinite omitted-edge reduced cost" +
+                                progress("pricing"));
+                if (negativeColumns.empty()) {
+                    optimalityCertified = true;
+                    break;
+                }
+                std::sort(negativeColumns.begin(), negativeColumns.end(), columnLess);
+                const std::size_t remainingEdges = in.maximumAllowedEdges -
+                    std::min(in.maximumAllowedEdges, allCandidateEdges + groupCandidateEdges);
+                if (remainingEdges == 0u)
+                    return fail("spatial transport sparse edge budget prevents full reduced-cost optimality certification" +
+                                progress("pricing"));
+                if (negativeColumns.size() > remainingEdges)
+                    negativeColumns.resize(remainingEdges);
+                for (const auto& addition : negativeColumns) {
+                    if (!insertColumn(addition.parentLocal, addition.candidate, "priced-column"))
+                        return false;
+                }
+                if (!runRestrictedMaster("pricing-resume")) return false;
+            }
+            if (sparseMode && hasUnsaturatedFloor())
+                return fail("spatial transport sparse optimality left a mandatory child density floor unsaturated" +
+                            floorWitness() + groupWitness(supply,minimum,maximum,sent));
+            allCandidateEdges += groupCandidateEdges;
+        }
         double groupOutputMass = 0.0;
         for (const auto& reference : references) {
-            const double mass = network.flow(reference);
-            if (mass <= kFlowEpsilonKg) continue;
+            // Dense receipt arithmetic remains unchanged. Sparse flows use
+            // the reverse residual capacity, which retains small edge masses
+            // without subtracting them from a much larger parent capacity.
+            const double mass = sparseMode ? network.reverseFlow(reference)
+                                           : network.flow(reference);
+            if (sparseMode ? mass <= 0.0 : mass <= kFlowEpsilonKg) continue;
             const auto p = reference.parent;
             const auto c = reference.child;
             const double parentDensity = in.parentMassKg[p] / in.parentReferenceVolumeM3[p];
@@ -947,10 +1762,20 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
     }
     if (allCandidateEdges > in.maximumAllowedEdges)
         return fail("spatial transport allowed-edge count exceeds its pinned budget");
-    std::sort(flows.begin(), flows.end(), [](const auto& a, const auto& b) {
-        if (a.child != b.child) return a.child < b.child;
-        return a.parent < b.parent;
-    });
+    if (sparseMode) {
+        // The verifier reconstructs each child mass from canonical CSR order.
+        // Sparse columns can be inserted after their peers during pricing, so
+        // replay those sums only after sorting to make the bound and recorded
+        // density decisions use identical floating-point addition order.
+        if (!sortAndAccumulateChildFlowSums(flows, nc, next.childMassKg,
+                                            next.childAncestryMeasureVolumeM3))
+            return fail("spatial transport sparse canonical child-flow accumulation is invalid");
+    } else {
+        std::sort(flows.begin(), flows.end(), [](const auto& a, const auto& b) {
+            if (a.child != b.child) return a.child < b.child;
+            return a.parent < b.parent;
+        });
+    }
     // A child-parent pair is unique because every parent and child has one
     // material/donor/region key; duplicates indicate malformed grouping.
     for (std::size_t i = 1; i < flows.size(); ++i)
@@ -1024,11 +1849,36 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
             in.materialDensityLowerKgM3[material], in.materialDensityUpperKgM3[material], density);
         if (!std::isfinite(density) ||
             density < in.materialDensityLowerKgM3[material] - densityTolerance ||
-            density > in.materialDensityUpperKgM3[material] + densityTolerance)
-            return fail("spatial transport child cell mass implies density outside actual material bounds at child "+
-                std::to_string(c)+" (density="+std::to_string(density)+", bounds="+
-                std::to_string(in.materialDensityLowerKgM3[material])+":"+
-                std::to_string(in.materialDensityUpperKgM3[material])+")");
+            density > in.materialDensityUpperKgM3[material] + densityTolerance) {
+            const double lowerMass = in.childReferenceVolumeM3[c] *
+                in.materialDensityLowerKgM3[material];
+            std::ostringstream diagnostic;
+            diagnostic << std::setprecision(17)
+                << "spatial transport child cell mass implies density outside actual material bounds at child "
+                << c << " (density=" << density
+                << ", mass_kg=" << next.childMassKg[c]
+                << ", volume_m3=" << in.childReferenceVolumeM3[c]
+                << ", lower_mass_kg=" << lowerMass
+                << ", lower_mass_deficit_kg=" << (lowerMass - next.childMassKg[c])
+                << ", density_tolerance=" << densityTolerance
+                << ", bounds=" << in.materialDensityLowerKgM3[material] << ':'
+                << in.materialDensityUpperKgM3[material]
+                << ", contribution_rows="
+                << (next.childParentOffsets[c + 1u] - next.childParentOffsets[c])
+                << ", contributors=[";
+            bool firstContributor = true;
+            for (std::uint32_t row = next.childParentOffsets[c];
+                 row < next.childParentOffsets[c + 1u]; ++row) {
+                if (!firstContributor) diagnostic << ';';
+                firstContributor = false;
+                diagnostic << next.childParentRows[row] << ','
+                    << next.childParentTransportMassKg[row] << ','
+                    << next.childParentTransportMeasureM3[row] << ','
+                    << next.childParentTransportDistanceM[row];
+            }
+            diagnostic << "])";
+            return fail(diagnostic.str());
+        }
         next.childImpliedDensityKgM3[c] = density;
     }
     next.childParentOffsets[nc] = static_cast<std::uint32_t>(next.childParentRows.size());
@@ -1085,6 +1935,13 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
     out = std::move(next);
     error.clear();
     return true;
+}
+
+[[nodiscard]] inline bool assembleConservativeSpatialMassTransport(
+        const ConservativeSpatialMassTransportInput& in,
+        ConservativeSpatialMassTransportResult& out,
+        std::string& error) {
+    return assembleConservativeSpatialMassTransportImpl(in, out, error, false, 0u);
 }
 
 // Verify a recorded spatial coupling against freshly derived source and child

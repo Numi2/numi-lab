@@ -1,0 +1,48 @@
+{
+  "schema": "numi-human-native-overlay-build-receipt.v1",
+  "scope": "Source-only compile and link of numi-human-native translation unit using an isolated VFS overlay for the sparse mass transport header.",
+  "target": "numi-human-native",
+  "host": "SSH numi Apple Silicon",
+  "isolated_header": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/source/NumiHumanConservativeSpatialMassTransport.hpp",
+    "sha256": "6873bdaa5722287a0542ed52b1a828279790ce2bd875f2c6156e98840909c3d7"
+  },
+  "overlay": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/native-overlay-001/header-overlay.json",
+    "sha256": "1ded3d0f699a5caa4b67d6c49c42298e75e794e4a87e431842795fd24d10bc89"
+  },
+  "source_probe": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/numilab_human_myosim_visual_probe.mm",
+    "sha256_before_and_after": "18485f0fbe48db28eae189cc3c47591b8243641203ef93ac28c441227903fe51"
+  },
+  "compile": {
+    "exit_code": 0,
+    "elapsed_seconds": 42.80271824984811,
+    "object_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/native-overlay-001/numilab_human_myosim_visual_probe.mm.o",
+    "object_sha256": "89be9be13ec95af66548db88aa16bfd62c97cc8babfd9d59f65d30f926e033e7",
+    "include_trace_confirmed": true,
+    "include_trace_line": "... /Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/source/NumiHumanConservativeSpatialMassTransport.hpp",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "fd16cc6d1b1d6f34d8cfc6a76599f93ef7fd0279dee4042f05ab785bc24c34a8",
+    "result_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/native-overlay-001/compile-result.json",
+    "result_sha256": "c85106506a344c1a809f1759ebb704a6e9acee2ebc740dff15a655bff0574e39"
+  },
+  "link": {
+    "exit_code": 0,
+    "elapsed_seconds": 0.06626466591842473,
+    "binary_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/native-overlay-001/numi-human-native",
+    "binary_sha256": "dc289b5e7b66ce59cf1e9af52e6453043e13d217907e976c24a3ff21b34a567a",
+    "run_executed": false,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "result_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/native-overlay-001/link-002-result.json",
+    "result_sha256": "4fb81f358d1ebabd7cef88bfa8e338ab2cb2305437d6ef7e49301e751e8c501d"
+  },
+  "retained_setup_failure": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/native-overlay-001/link-result.json",
+    "sha256": "cc07e4ac05656c639c57ff45f3f3ad783796f0e3a10e6dc79c58d0c726be2440",
+    "reason": "First link command retained trailing Ninja shell wrapper tokens; the corrected exact link command is link-002-result.json."
+  },
+  "worktree_mutation": false,
+  "native_runtime_or_gpu_run": false
+}
