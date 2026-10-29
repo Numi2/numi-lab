@@ -1216,6 +1216,7 @@ public:
         }
         auto anatomyGPU=functional.gpu;
         float posteriorSkin=INFINITY,anteriorSkin=-INFINITY;
+        std::size_t registeredDirectThoraxExtentRows=0u;
         using RibTriangleIndex=NumiHumanRestingAnatomy::TriangleIndex;
         std::array<std::unique_ptr<RibTriangleIndex>,24> ribSurfaces;
         std::array<unsigned,24> ribStableIds{};
@@ -2264,19 +2265,72 @@ public:
                 if(instance.identity.x==kSkinShellSemantic) {
                     maps[v].deformationKind=3;
                     const auto& source=skin.vertices.at(v-base);
-                    const unsigned count=skin.fullWeights.empty()?4u:unsigned(skin.bindings.size());
-                    for(unsigned j=0;j<count;++j) {
-                        const float w=skin.fullWeights.empty()?source.weight[j]:skin.fullWeights.at((v-base)*count+j);
-                        if(w<=0)continue;
-                        const auto& b=skin.bindings.at(skin.fullWeights.empty()?source.bindingIndex[j]:j);
-                        if(b.bodyIndex==functional.gpu.bodyAndFlags.x)maps[v].deformationWeight.x+=w;
-                        const mr_float4 q={b.quaternionX,b.quaternionY,b.quaternionZ,b.quaternionW};
-                        const auto local=addPoint({b.translationX,b.translationY,b.translationZ,0},scalePoint(rotatePoint(q,{source.positionX,source.positionY,source.positionZ,0}),b.uniformScale));
-                        const mr_float4 normal={source.normalX,source.normalY,source.normalZ,0};
-                        add(v,b.bodyIndex,local,rotatePoint(skin.usesWorldRestNormals?inverseRotation(restBodies.at(b.bodyIndex).orientation):q,normal),w);
-                        const auto& rest=restBodies.at(b.bodyIndex);
-                        skinRestWorld[v-base]=addPoint(skinRestWorld[v-base],
-                            scalePoint(addPoint(rest.position,rotatePoint(rest.orientation,local)),w));
+                    if(skin.usesRegisteredDirectWorldSurface) {
+                        const std::size_t localRow=v-base;
+                        require(localRow<skin.registeredDirectWorldPoints.size()&&
+                                    localRow<skin.registeredDirectWorldNormals.size()&&
+                                    skin.registeredDirectFrameOwnerBodyIndices.size()==skin.header.vertexCount&&
+                                    skin.fullWeights.size()==std::size_t(skin.header.vertexCount)*skin.bindings.size(),
+                                "registered direct O visual rows are incomplete for world mapping");
+                        const auto& sourcePoint=skin.registeredDirectWorldPoints[localRow];
+                        const auto& sourceNormal=skin.registeredDirectWorldNormals[localRow];
+                        const mr_float4 worldPoint{
+                            static_cast<float>(sourcePoint[0]),
+                            static_cast<float>(sourcePoint[1]),
+                            static_cast<float>(sourcePoint[2]),1.0f};
+                        const double normalLength=std::hypot(
+                            sourceNormal[0],std::hypot(sourceNormal[1],sourceNormal[2]));
+                        require(std::isfinite(worldPoint.x)&&std::isfinite(worldPoint.y)&&
+                                    std::isfinite(worldPoint.z)&&std::isfinite(normalLength)&&
+                                    normalLength>0.0,
+                                "registered direct O world row is nonfinite or has a zero normal");
+                        const mr_float4 worldNormal{
+                            static_cast<float>(sourceNormal[0]/normalLength),
+                            static_cast<float>(sourceNormal[1]/normalLength),
+                            static_cast<float>(sourceNormal[2]/normalLength),0.0f};
+                        add(v,MR_INVALID_INDEX,worldPoint,worldNormal,1.0f);
+                        skinRestWorld[localRow]=worldPoint;
+
+                        double functionalTorsoWeight=0.0;
+                        for(std::size_t lane=0u;lane<skin.bindings.size();++lane) {
+                            const double weight=skin.fullWeights.at(
+                                localRow*skin.bindings.size()+lane);
+                            require(std::isfinite(weight)&&weight>=0.0,
+                                    "registered direct O full86 source weight is invalid");
+                            if(skin.bindings[lane].bodyIndex==functional.gpu.bodyAndFlags.x)
+                                functionalTorsoWeight+=weight;
+                        }
+                        const auto local=rotatePoint(
+                            inverseRotation(initialThorax.orientation),
+                            subtractPoint(worldPoint,initialThorax.position));
+                        const auto& axis=functional.gpu.superiorAxisAndHeight;
+                        const float h=dotPoint(
+                            subtractPoint(functional.gpu.lungAnchorAndVolume,local),axis)/axis.w;
+                        const float upper=std::clamp(h/.2f,0.0f,1.0f);
+                        const float lower=std::clamp((1.6f-h)/.6f,0.0f,1.0f);
+                        const double anatomicalWeight=functionalTorsoWeight*
+                            upper*upper*(3-2*upper)*lower*lower*(3-2*lower);
+                        if(anatomicalWeight>.5) {
+                            const float ap=dotPoint(local,anatomyGPU.anteriorAxis);
+                            posteriorSkin=std::min(posteriorSkin,ap);
+                            anteriorSkin=std::max(anteriorSkin,ap);
+                            ++registeredDirectThoraxExtentRows;
+                        }
+                    } else {
+                        const unsigned count=skin.fullWeights.empty()?4u:unsigned(skin.bindings.size());
+                        for(unsigned j=0;j<count;++j) {
+                            const float w=skin.fullWeights.empty()?source.weight[j]:skin.fullWeights.at((v-base)*count+j);
+                            if(w<=0)continue;
+                            const auto& b=skin.bindings.at(skin.fullWeights.empty()?source.bindingIndex[j]:j);
+                            if(b.bodyIndex==functional.gpu.bodyAndFlags.x)maps[v].deformationWeight.x+=w;
+                            const mr_float4 q={b.quaternionX,b.quaternionY,b.quaternionZ,b.quaternionW};
+                            const auto local=addPoint({b.translationX,b.translationY,b.translationZ,0},scalePoint(rotatePoint(q,{source.positionX,source.positionY,source.positionZ,0}),b.uniformScale));
+                            const mr_float4 normal={source.normalX,source.normalY,source.normalZ,0};
+                            add(v,b.bodyIndex,local,rotatePoint(skin.usesWorldRestNormals?inverseRotation(restBodies.at(b.bodyIndex).orientation):q,normal),w);
+                            const auto& rest=restBodies.at(b.bodyIndex);
+                            skinRestWorld[v-base]=addPoint(skinRestWorld[v-base],
+                                scalePoint(addPoint(rest.position,rotatePoint(rest.orientation,local)),w));
+                        }
                     }
                 }else if(tissue) {
                     const auto refined=tissues->parentInfluences.find(tissue->stableId);
@@ -2516,6 +2570,7 @@ public:
         }
         // The saved existing-format pack is itself a coherent initial pose;
         // GPU updates use these same source influences for later poses.
+        std::size_t registeredDirectMappedPositionRows=0u;
         for(unsigned v=0;v<maps.size();++v) {
             const auto& m=maps[v];mr_float4 p{},n{};
             if(!m.influenceCount)continue;
@@ -2554,6 +2609,16 @@ public:
                 }
             }
             p.w=1;pack.vertices[v].position=p;
+            if(skin.usesRegisteredDirectWorldSurface&&skinFirstVertex!=MR_INVALID_INDEX&&
+               v>=skinFirstVertex&&std::size_t(v-skinFirstVertex)<skin.header.vertexCount) {
+                const std::size_t sourceRow=v-skinFirstVertex;
+                const auto& expected=skin.registeredDirectWorldPoints.at(sourceRow);
+                require(p.x==static_cast<float>(expected[0])&&
+                            p.y==static_cast<float>(expected[1])&&
+                            p.z==static_cast<float>(expected[2]),
+                        "registered direct O mapped position differs from its supplied current-world F32 source");
+                ++registeredDirectMappedPositionRows;
+            }
             if(maps[v].deformationKind==1||maps[v].deformationKind==3||maps[v].deformationKind==4||
                maps[v].deformationKind==9||maps[v].deformationKind==11) {
                 const auto local=exactTorsoSource?soleInfluence.positionAndWeight:
@@ -2680,8 +2745,20 @@ public:
                 <<" source_vertices_unchanged=true source_index_prefix_unchanged=true physical_state_created=false"
                 <<" receipt="<<ocularWindowReceiptPath.string()<<"\n";
         }
+        require(!skin.usesRegisteredDirectWorldSurface||
+                    registeredDirectMappedPositionRows==skin.header.vertexCount,
+                "registered direct O initial position proof did not cover every source row");
         require(std::isfinite(posteriorSkin)&&anteriorSkin-posteriorSkin>.05f,
             "registered skin has no usable anterior/posterior thorax extent");
+        if(skin.usesRegisteredDirectWorldSurface) {
+            std::cout<<"registered_direct_O_visual_owner=PASS"
+                <<" mapped_world_position_rows="<<registeredDirectMappedPositionRows
+                <<" full86_functional_torso_extent_rows="<<registeredDirectThoraxExtentRows
+                <<" thorax_ap_span_m="<<(anteriorSkin-posteriorSkin)
+                <<" render_initial_owner=registered_world_points_and_normals"
+                <<" respiratory_skin_warp=disabled"
+                <<" support_frame_owner=separate_observational_map"<<std::endl;
+        }
         if(inferredRibFieldRows.count) {
             NSData* fieldJSON=[NSJSONSerialization dataWithJSONObject:inferredRibFieldRows
                 options:NSJSONWritingSortedKeys error:nil];
@@ -3440,6 +3517,8 @@ public:
         const unsigned organDerivedStart=sourceRegionCount+footDerivedCount;
         std::vector<MRHumanRestingSupportRegionGPU> regions;
         std::vector<unsigned> seeds;
+        std::vector<mr_float4> supportSeedCentersWorld;
+        std::set<std::uint32_t> sourceSeedIdentities;
         const unsigned sourceRowCount=unsigned(support.records.size());
         require(sourceRowCount==sourceRegionCount&&
                     supportQueries.supportContacts.size()==
@@ -3451,19 +3530,59 @@ public:
                 "organ source row is not an available floor contact");
         regions.reserve(supportQueries.supportContacts.size());
         seeds.reserve(sourceRegionCount);
+        supportSeedCentersWorld.reserve(sourceRegionCount);
+        const auto supportRenderSeed=[&](const auto& row,unsigned rowIndex)
+            ->std::pair<unsigned,mr_float4> {
+            if(skin.usesRegisteredDirectWorldSurface) {
+                require(skin.registeredDirectSupportSourceVertexCount>0u&&
+                            skin.registeredDirectSupportSourceToRenderRow.size()==
+                                skin.registeredDirectSupportSourceVertexCount&&
+                            skin.registeredDirectSupportNHCNTSourceGeometryIndices.size()==
+                                sourceRegionCount&&
+                            skin.registeredDirectSupportNHCNTWorldPoints.size()==
+                                sourceRegionCount,
+                        "registered direct O has incomplete NHCNT observational seed inputs");
+                require(row.sourceGeometryIndex>0u&&
+                            row.sourceGeometryIndex<=
+                                skin.registeredDirectSupportSourceVertexCount&&
+                            skin.registeredDirectSupportNHCNTSourceGeometryIndices[rowIndex]==
+                                row.sourceGeometryIndex,
+                        "registered direct NHCNT source identity differs from the retained NHSKIN row");
+                const auto sourceRow=row.sourceGeometryIndex-1u;
+                const auto renderRow=
+                    skin.registeredDirectSupportSourceToRenderRow[sourceRow];
+                require(renderRow!=std::numeric_limits<std::uint32_t>::max()&&
+                            renderRow<skin.header.vertexCount&&
+                            renderRow<skinRestWorld.size(),
+                        "registered direct NHCNT source identity has no typed O support representative");
+                const auto& sourcePoint=
+                    skin.registeredDirectSupportNHCNTWorldPoints[rowIndex];
+                require(std::isfinite(sourcePoint[0])&&std::isfinite(sourcePoint[1])&&
+                            std::isfinite(sourcePoint[2]),
+                        "registered direct NHCNT observational seed point is nonfinite");
+                return {renderRow,{static_cast<float>(sourcePoint[0]),
+                                   static_cast<float>(sourcePoint[1]),
+                                   static_cast<float>(sourcePoint[2]),1.0f}};
+            }
+            require(row.sourceGeometryIndex>0u&&
+                        row.sourceGeometryIndex<=skin.header.vertexCount,
+                    "resting NHCNT row has no valid source skin vertex identity");
+            const unsigned seed=row.sourceGeometryIndex-1u;
+            return {seed,skinRestWorld[seed]};
+        };
         for(unsigned rowIndex=0;rowIndex<sourceRegionCount;++rowIndex) {
             const auto& row=supportQueries.supportContacts[rowIndex];
-            require(row.sourceGeometryIndex>0&&row.sourceGeometryIndex<=skin.header.vertexCount,
-                "resting NHCNT row has no valid source skin vertex identity");
-            const unsigned seed=row.sourceGeometryIndex-1;
-            require(std::find(seeds.begin(),seeds.end(),seed)==seeds.end(),
-                "resting support seed is duplicated");
+            require(sourceSeedIdentities.insert(row.sourceGeometryIndex).second,
+                    "resting support source identity is duplicated");
+            const auto [seed,seedCenter]=supportRenderSeed(row,rowIndex);
+            seeds.push_back(seed);
+            supportSeedCentersWorld.push_back(seedCenter);
             const unsigned role=organSupportActive&&rowIndex==organWitness.contactIndex?
                 MR_HUMAN_RESTING_SUPPORT_REGION_ORGAN_FLOOR:
                 (boundaryOnlyRows.contains(rowIndex)?
                     MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY:
                     MR_HUMAN_RESTING_SUPPORT_REGION_FLOOR);
-            seeds.push_back(seed);regions.push_back({row.pointQueryIndex,row.sourceGeometryIndex,role,0});
+            regions.push_back({row.pointQueryIndex,row.sourceGeometryIndex,role,0});
         }
         if(deriveFootManifold) {
             for(unsigned derived=0;derived<6u;++derived) {
@@ -3500,7 +3619,7 @@ public:
             for(unsigned r=0;r<sourceRegionCount;++r) {
                 if(regions[r].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY||
                    regions[r].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_ORGAN_FLOOR)continue;
-                const auto delta=subtractPoint(skinRestWorld[v],skinRestWorld[seeds[r]]);
+                const auto delta=subtractPoint(skinRestWorld[v],supportSeedCentersWorld[r]);
                 const float distance=dotPoint(delta,delta);
                 if(distance<nearest){nearest=distance;chosen=r;}
             }
@@ -3516,9 +3635,25 @@ public:
                 vertices.reserve(regionCounts[parent]);
                 for(unsigned vertex=0;vertex<skin.header.vertexCount;++vertex)
                     if(regionForVertex[vertex]==parent)vertices.push_back(vertex);
-                require(vertices.size()>=4u&&
-                            std::find(vertices.begin(),vertices.end(),seeds[parent])!=vertices.end(),
-                    "foot source region cannot form four nonempty spatial patches");
+                unsigned footSeedVertex=seeds[parent];
+                if(skin.usesRegisteredDirectWorldSurface&&
+                   std::find(vertices.begin(),vertices.end(),footSeedVertex)==vertices.end()) {
+                    float nearestSeed=INFINITY;
+                    unsigned nearestVertex=MR_INVALID_INDEX;
+                    for(const unsigned vertex:vertices) {
+                        const auto delta=subtractPoint(
+                            skinRestWorld[vertex],supportSeedCentersWorld[parent]);
+                        const float distance=dotPoint(delta,delta);
+                        if(distance<nearestSeed||
+                           (distance==nearestSeed&&vertex<nearestVertex)) {
+                            nearestSeed=distance;nearestVertex=vertex;
+                        }
+                    }
+                    footSeedVertex=nearestVertex;
+                }
+                require(vertices.size()>=4u&&footSeedVertex!=MR_INVALID_INDEX&&
+                            std::find(vertices.begin(),vertices.end(),footSeedVertex)!=vertices.end(),
+                    "foot source region cannot form four nonempty spatial patches around its retained source seed");
                 float minX=INFINITY,maxX=-INFINITY,minY=INFINITY,maxY=-INFINITY;
                 for(const unsigned vertex:vertices) {
                     const auto& position=skinRestWorld[vertex];
@@ -3543,7 +3678,7 @@ public:
                     bins[bin].push_back(vertex);
                     binMin[bin]=std::min(binMin[bin],coordinate(vertex));
                     binMax[bin]=std::max(binMax[bin],coordinate(vertex));
-                    if(vertex==seeds[parent])seedBin=bin;
+                    if(vertex==footSeedVertex)seedBin=bin;
                 }
                 require(seedBin<4u&&std::all_of(bins.begin(),bins.end(),
                             [](const auto& bin){return !bin.empty();})&&
@@ -3708,26 +3843,66 @@ public:
         id<MTLBuffer> supportWeightBuffer=influences;
         NSUInteger supportMapOffsetBytes=skinFirstVertex*sizeof(MRHumanRestingVertexMap);
         NumiHumanSkinInfluenceLayout supportInfluenceLayout=skinInfluenceLayout;
-        if(organSupportActive) {
+        if(organSupportActive||skin.usesRegisteredDirectWorldSurface) {
             const std::uint64_t skinStride=skinInfluenceLayout==NumiHumanSkinInfluenceLayout::tile32?32u:1u;
-            ownedSupportMaps.reserve(skin.header.vertexCount+organVertexCount);
-            ownedSupportWeights.reserve(weights.size()+organVertexCount);
+            ownedSupportMaps.reserve(skin.header.vertexCount+(organSupportActive?organVertexCount:0u));
+            ownedSupportWeights.reserve((skin.usesRegisteredDirectWorldSurface?
+                std::size_t(skin.header.vertexCount):weights.size())+
+                (organSupportActive?organVertexCount:0u));
             for(unsigned vertex=0u;vertex<skin.header.vertexCount;++vertex) {
                 auto map=maps.at(skinFirstVertex+vertex);
-                require(map.deformationKind==3u&&map.influenceCount>0u,
-                    "organ support compaction requires complete registered skin influences");
-                const std::uint64_t sourceFirst=map.firstInfluence;
-                map.firstInfluence=static_cast<std::uint32_t>(ownedSupportWeights.size());
-                for(std::uint32_t influence=0u;influence<map.influenceCount;++influence) {
-                    const std::uint64_t sourceIndex=sourceFirst+
-                        static_cast<std::uint64_t>(influence)*skinStride;
-                    require(sourceIndex<weights.size(),
-                        "organ support compaction found an out-of-range skin influence");
-                    ownedSupportWeights.push_back(weights[sourceIndex]);
+                require(map.deformationKind==3u,
+                    "registered support compaction requires a skin-domain map");
+                if(skin.usesRegisteredDirectWorldSurface) {
+                    const auto owner=skin.registeredDirectFrameOwnerBodyIndices.at(vertex);
+                    require(owner<initialBodies.size(),
+                        "registered direct O support frame owner is outside the native body table");
+                    const auto& sourcePoint=skin.registeredDirectWorldPoints.at(vertex);
+                    const auto& sourceNormal=skin.registeredDirectWorldNormals.at(vertex);
+                    const mr_float4 worldPoint{static_cast<float>(sourcePoint[0]),
+                        static_cast<float>(sourcePoint[1]),static_cast<float>(sourcePoint[2]),1.0f};
+                    const double normalLength=std::hypot(
+                        sourceNormal[0],std::hypot(sourceNormal[1],sourceNormal[2]));
+                    require(std::isfinite(normalLength)&&normalLength>0.0,
+                        "registered direct O support frame has an invalid world normal");
+                    const mr_float4 worldNormal{
+                        static_cast<float>(sourceNormal[0]/normalLength),
+                        static_cast<float>(sourceNormal[1]/normalLength),
+                        static_cast<float>(sourceNormal[2]/normalLength),0.0f};
+                    const auto& body=initialBodies[owner];
+                    const auto inverse=inverseRotation(body.orientation);
+                    const auto localPoint=rotatePoint(inverse,
+                        subtractPoint(worldPoint,body.position));
+                    const auto localNormal=rotatePoint(inverse,worldNormal);
+                    require(ownedSupportWeights.size()<=
+                                std::numeric_limits<std::uint32_t>::max(),
+                        "registered direct O support influence index exceeds uint32");
+                    map.firstInfluence=static_cast<std::uint32_t>(ownedSupportWeights.size());
+                    map.influenceCount=1u;
+                    MRHumanRestingInfluence influence{};
+                    influence.positionAndWeight={localPoint.x,localPoint.y,localPoint.z,1.0f};
+                    influence.normal={localNormal.x,localNormal.y,localNormal.z,0.0f};
+                    influence.body={owner,0u,0u,0u};
+                    ownedSupportWeights.push_back(influence);
+                } else {
+                    require(map.influenceCount>0u,
+                        "organ support compaction requires complete registered skin influences");
+                    const std::uint64_t sourceFirst=map.firstInfluence;
+                    require(ownedSupportWeights.size()<=
+                                std::numeric_limits<std::uint32_t>::max(),
+                        "organ support influence index exceeds uint32");
+                    map.firstInfluence=static_cast<std::uint32_t>(ownedSupportWeights.size());
+                    for(std::uint32_t influence=0u;influence<map.influenceCount;++influence) {
+                        const std::uint64_t sourceIndex=sourceFirst+
+                            static_cast<std::uint64_t>(influence)*skinStride;
+                        require(sourceIndex<weights.size(),
+                            "organ support compaction found an out-of-range skin influence");
+                        ownedSupportWeights.push_back(weights[sourceIndex]);
+                    }
                 }
                 ownedSupportMaps.push_back(map);
             }
-            for(unsigned vertex=0u;vertex<organVertexCount;++vertex) {
+            if(organSupportActive)for(unsigned vertex=0u;vertex<organVertexCount;++vertex) {
                 const auto& source=torsoAnatomy->vertices[organFirstVertex+vertex];
                 MRHumanRestingVertexMap map{};
                 map.firstInfluence=static_cast<std::uint32_t>(ownedSupportWeights.size());
@@ -3750,8 +3925,12 @@ public:
                 options:MTLResourceStorageModeShared];
             require(supportMapBuffer&&supportWeightBuffer,
                 "compact skin plus organ support map upload failed");
-            supportMapBuffer.label=@"Human skin and stable anatomy ID 4 support vertex map";
-            supportWeightBuffer.label=@"Human skin and stable anatomy ID 4 support influences";
+            supportMapBuffer.label=organSupportActive
+                ?@"Human skin and stable anatomy ID 4 support vertex map"
+                :@"Human registered O observational support vertex map";
+            supportWeightBuffer.label=organSupportActive
+                ?@"Human skin and stable anatomy ID 4 support influences"
+                :@"Human registered O observational support influences";
             supportMapOffsetBytes=0u;
             supportInfluenceLayout=NumiHumanSkinInfluenceLayout::vertexMajor;
         } else {
@@ -3763,6 +3942,19 @@ public:
         supportIdentity.text(organSupportActive?
             "numi.human.skin-plus-registered-organ-support.v2":
             "numi.human.full-skin-support.v1");
+        if(skin.usesRegisteredDirectWorldSurface) {
+            supportIdentity.text("registered-direct-O-world-frame-owner-observational-support-v2");
+            supportIdentity.text("NHCNT-source-identity-world-seed-centers-v1");
+            supportIdentity.bytes(skin.registeredDirectSupportSourceToRenderRow.data(),
+                skin.registeredDirectSupportSourceToRenderRow.size()*sizeof(
+                    skin.registeredDirectSupportSourceToRenderRow.front()));
+            supportIdentity.bytes(skin.registeredDirectSupportNHCNTSourceGeometryIndices.data(),
+                skin.registeredDirectSupportNHCNTSourceGeometryIndices.size()*sizeof(
+                    skin.registeredDirectSupportNHCNTSourceGeometryIndices.front()));
+            supportIdentity.bytes(skin.registeredDirectSupportNHCNTWorldPoints.data(),
+                skin.registeredDirectSupportNHCNTWorldPoints.size()*sizeof(
+                    skin.registeredDirectSupportNHCNTWorldPoints.front()));
+        }
         if (supportAncestryPruning) {
             supportIdentity.text("support-jacobian-ancestry-prune-v3");
             supportIdentity.bytes(supportBodyDofAncestry.data(),

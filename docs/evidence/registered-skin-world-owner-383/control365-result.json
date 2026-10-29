@@ -1,0 +1,161 @@
+{
+  "schema": "numi-human.registered-volume-parent-identity-physical-control.v1",
+  "serial_execution_wrapper": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/run_geometry_serial.py",
+  "shared_serial_lock": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/.geometry-heavy.lock",
+  "started_utc": "2026-10-29T01:54:48.875623+00:00",
+  "elapsed_seconds": 89.772960125,
+  "exit_code": 1,
+  "timed_out": false,
+  "argv": [
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-registered-volume-parent-identity-physical-control-365/frozen-numi-human-native",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-projection-envelope-001/myosim-fullbody-core-reference.nhrigid",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-registered-volume-parent-identity-physical-control-365/output",
+    "--persistent-metal-stand",
+    "--muscle-step-seconds",
+    "0.000125",
+    "--muscle-step-count",
+    "1",
+    "--support-contact-payload",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+    "--joint-equality-payload",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+    "--tendon-payload",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon",
+    "--resting-scene",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+    "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json",
+    "--vascular-dense45",
+    "--resting-reference-mass-kg",
+    "97.13195069110952",
+    "--skin-payload",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+    "--soft-tissue-payload",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+    "--torso-anatomy-payload",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+    "--resting-anatomy-receipt",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-anatomy-receipt.json",
+    "--dimension",
+    "512",
+    "--muscle-activation",
+    "0.0",
+    "--stand-contact-iterations",
+    "64",
+    "--pectoralis-fascia-payload",
+    "/Users/n/numi-human-separation-20261018/passive-fascia-source-173/payload/bodyparts3d-pectoralis-fascia.nhfascia",
+    "--root-pose",
+    "-0.05000000074505806",
+    "0.20000000298023224",
+    "0.098855718970298767",
+    "-0.70316427946090698",
+    "-0.0014300436014309525",
+    "-0.0014054210623726249",
+    "0.71102458238601685",
+    "--resting-release-initialization",
+    "--mechanics-only",
+    "--pose-q",
+    "36",
+    "0.1",
+    "--pose-q",
+    "74",
+    "0.1",
+    "--pose-q",
+    "40",
+    "0.0",
+    "--pose-q",
+    "41",
+    "0.0",
+    "--pose-q",
+    "78",
+    "0.0",
+    "--pose-q",
+    "79",
+    "0.0",
+    "--resting-registered-ligaments"
+  ],
+  "cwd": "/Users/numi/Work/skin-fat-native-integration-209",
+  "execution_status": "completed",
+  "source_only_setting": "unset",
+  "runtime_requested": true,
+  "steps_requested": 1,
+  "runtime_created": null,
+  "accepted_steps": null,
+  "simulation_steps": null,
+  "physical_qualification": "not_claimed",
+  "source_object_executable_sha256": {
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/numilab_human_myosim_visual_probe.mm": "99167a44ca337628b924b72613850ef3c39b3a5c57708594094e2e3f837a1b2f",
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native": "6fd47269e91ac0de133a4cb1452a14fb14d4596036b353ebd86074c168392df9",
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o": "a1bdf90d1269602cfefdfaee8358008343a8b7e552979214b013bbc4ddbd0fde"
+  },
+  "reduction_labels_header_sha256": "e116eac65f7bcd2d7e879c05aaa9279bb5140ac0cbb6d78375c3fe78c3110d45",
+  "frozen_snapshot_sha256": {
+    "frozen-probe.mm": "99167a44ca337628b924b72613850ef3c39b3a5c57708594094e2e3f837a1b2f",
+    "frozen-probe.o": "a1bdf90d1269602cfefdfaee8358008343a8b7e552979214b013bbc4ddbd0fde",
+    "frozen-numi-human-native": "6fd47269e91ac0de133a4cb1452a14fb14d4596036b353ebd86074c168392df9",
+    "frozen-reduction-labels.hpp": "e116eac65f7bcd2d7e879c05aaa9279bb5140ac0cbb6d78375c3fe78c3110d45",
+    "frozen-visual-header.hpp": "601e1b68ea06c72a056f087c78d0645093bbb3ea20cb3da65d1eedf3ea2e5131"
+  },
+  "input_manifest_sha256": "16286d7c95d6b7d71f8935faabfd24e67a039f0ad476e2b870d35c761ec1fd6b",
+  "launch_json_sha256": "06a75c54284b52f8b841546a7764ddc2eb31de2b47fbef766f589ca6f4f60c70",
+  "stdout_sha256": "c9885b8802b70f79e2752e492ac6105e65b4cdcc6c646dc12ca5a59fce08fcda",
+  "stderr_sha256": "9158eed20e357161ca8ba90794cfd7edbd40810675eb795427a77e8c07cbf6de",
+  "status_lines": [
+    "registered_volume_native_preflight=PASS parent_nodes=7233 parent_tets=28632 O_rows=2411 I_rows=2411 D_rows=2411 volume_nodes=7233 volume_tets=28632 mass_mapping=PASS full86_bindings=86 O_direct_render_rows=2411 O_direct_render_nodes=7233 O_direct_render=typed_one_hot_prepared physical_admission=0 scene_installation=0 simulation_steps=0",
+    "registered_volume_source_identity_binding=PASS reference_provenance=exact_captured_parent_reference exact_parent_identity=1 material_provenance=retained_native_prepared_owner mass_mapping_path_sha256=3c50a3ce585ade6afdb60a03621ff77d82d2f7002bf02fd617b4dc4d2394be71 physical_admission=0 simulation_steps=0",
+    "registered_volume_NHCNT_support_witness_map=PASS mapping=exact_parent_volume_node_face_permutation parent_permutation_proof=PASS bounded_nearest_max_gap_m=0 physical_admission=0 simulation_steps=0",
+    "registered_volume_exact_parent_D_constraint_parity=PASS constraints=14 node_map=exact source_donor=exact legacy_outer_min_spacing_m=0.03059692418101637 actual_parent_D_min_spacing_m=0.023207903832959977 registered_D_min_spacing_m=0.023207903832959977 deep_minus_legacy_outer_m=-0.0073890203480563924 generated_hard_anchor_byte_matches=0 generated_elastic_sample_byte_matches=0 maximum_source_to_registered_fat_thickness_delta_m=0 maximum_generated_anchor_local_point_delta_m=0 maximum_generated_sample_local_point_delta_m=2.3096799850463867e-07 maximum_generated_sample_area_delta_m2=7.8580342233181e-10 maximum_generated_sample_normal_delta=1.9984838962554932 maximum_generated_sample_stiffness_delta=0 hard_anchor_bytes_sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 elastic_sample_bytes_sha256=37077471f845e51f46c54678557a3e1c9c6cb2becfdac3c04850eaa619562ea2 anchor_bytes_preserved_exact=1 sample_bytes_preserved_exact=1 physical_admission=0 simulation_steps=0",
+    "registered_volume_basis_partition=PASS cells=28632 basis_regions=134 maximum_source_faces_per_basis=64 requested_face_limit=36 selected_face_limit=64 bounded_partition_trials=36:regions=191:max_faces=36:builder=REJECT,64:regions=134:max_faces=64:builder=PASS,128:regions=101:max_faces=128:builder=PASS legacy_region_donor_rows=28632 legacy_region_donor_mismatch_rows=1532 legacy_stable_source_face_rows=28632 legacy_stable_source_face_mismatch_rows=0 parent_child_semantics=exact O_I_D_role_maps=exact basis_provenance=verified_imported_physical_donor_and_stable_source_face solver_dynamics_equivalence=NOT_CLAIMED physical_admission=0 simulation_steps=0",
+    "whole_body_skin_fat_registered_volume_install=PASS replacement_route=registered_bundle O_rows=2411 I_rows=2411 D_rows=2411 volume_nodes=7233 child_tets=28632 source_donors=74 maximum_source_mass_delta_kg=1.5987211554602254e-14 maximum_cooked_parent_node_mass_error_kg=5.3567854501126999e-08 maximum_cooked_parent_node_mass_relative_error=0.00018559389099858658 attachment_rows=14 direct_O_render=exact_topology_volume_node_map reduction_labels=typed_O_I_D support_witness_mapping=exact_parent_volume_node_face_permutation source_world_mutated=1 physical_steps=0 motion_qualification=pending",
+    "registered_direct_O_visual_owner=PASS mapped_world_position_rows=2411 full86_functional_torso_extent_rows=216 thorax_ap_span_m=0.29360535740852356 render_initial_owner=registered_world_points_and_normals respiratory_skin_warp=disabled support_frame_owner=separate_observational_map",
+    "myosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 0 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=0 failing_index=15\""
+  ],
+  "output_files": [
+    {
+      "path": "common-field-failure.json",
+      "size_bytes": 4069,
+      "sha256": "4a91702166eeb429d8588ab65e4b8dc8d164e5633a0e74faf87a9cde2ccdb73a"
+    },
+    {
+      "path": "registered-skin-100-native.csv",
+      "size_bytes": 24147731,
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e"
+    },
+    {
+      "path": "registered-skin-poses-100.json",
+      "size_bytes": 173268,
+      "sha256": "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a"
+    },
+    {
+      "path": "resting-airway-anchor-map.json",
+      "size_bytes": 82546,
+      "sha256": "16bf273c11133182304385f1124ba01688357d3a5cb53430df9d9e58b359af9e"
+    },
+    {
+      "path": "resting-coupled.csv",
+      "size_bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    {
+      "path": "resting-human.mrvpack",
+      "size_bytes": 291082240,
+      "sha256": "839a7ea76355f45452631de9c0842ddb8211efe8489d8b8e682ba716f366d7e2"
+    },
+    {
+      "path": "resting-ocular-sclera-window.json",
+      "size_bytes": 1210039,
+      "sha256": "01598c4ff0a428a599f61be1828481ec35aacd972b51a789b943d26562b934f9"
+    },
+    {
+      "path": "resting-surface-audit.csv",
+      "size_bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    {
+      "path": "tissue-mass-reference.txt",
+      "size_bytes": 13026452,
+      "sha256": "f4972dfcf56cd6e600b32f7e6d6af018d8f0cc9efd8006bcf4e9539f011ad563"
+    }
+  ]
+}

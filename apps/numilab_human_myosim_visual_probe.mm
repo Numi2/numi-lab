@@ -1061,6 +1061,14 @@ struct LoadedSkin {
     bool usesRegisteredDirectWorldSurface = false;
     std::vector<std::array<double,3>> registeredDirectWorldPoints;
     std::vector<std::array<double,3>> registeredDirectWorldNormals;
+    std::vector<std::uint32_t> registeredDirectFrameOwnerBodyIndices;
+    // NHCNT sourceGeometryIndex remains in the original NHSKIN namespace.
+    // This explicit source-row to typed-O row map is used only to seed the
+    // observational support geometry over the direct O render domain.
+    std::uint32_t registeredDirectSupportSourceVertexCount = 0u;
+    std::vector<std::uint32_t> registeredDirectSupportSourceToRenderRow;
+    std::vector<std::uint32_t> registeredDirectSupportNHCNTSourceGeometryIndices;
+    std::vector<std::array<double,3>> registeredDirectSupportNHCNTWorldPoints;
 };
 
 struct LoadedTorsoAnatomy {
@@ -16389,7 +16397,16 @@ GeometryRange appendSkinGeometry(
             const auto& p=skin.registeredDirectWorldPoints[point];
             const auto& n=skin.registeredDirectWorldNormals[point];
             position={float(p[0]),float(p[1]),float(p[2]),1.0f};
-            normal={float(n[0]),float(n[1]),float(n[2]),0.0f};
+            const double normalLength=std::hypot(n[0],std::hypot(n[1],n[2]));
+            require(std::isfinite(normalLength)&&normalLength>0.0,
+                    "registered direct render normal is nonfinite or zero");
+            normal={float(n[0]/normalLength),float(n[1]/normalLength),
+                    float(n[2]/normalLength),1.0f};
+            const float normalLengthSquared=normal.x*normal.x+normal.y*normal.y+
+                normal.z*normal.z;
+            require(std::isfinite(normalLengthSquared)&&
+                        std::abs(normalLengthSquared-1.0f)<=2.0e-3f,
+                    "registered direct render normal normalization was not preserved");
         } else {
             position=skinVertexWorld(skin,source,point,bodies);
             normal=skinVertexNormalWorld(skin,source,point,bodies,restBodies);
@@ -24026,6 +24043,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             typedOuterRender.usesRegisteredDirectWorldSurface=true;
             typedOuterRender.registeredDirectWorldPoints=outer.worldPoints;
             typedOuterRender.registeredDirectWorldNormals=bundle.outerSkin.outwardWorldNormals;
+            typedOuterRender.registeredDirectFrameOwnerBodyIndices=outer.frameOwnerBodyIndices;
+            typedOuterRender.registeredDirectSupportSourceVertexCount=skin->header.vertexCount;
             for(std::size_t roleRow=0u;roleRow<renderVertexCount;++roleRow) {
                 const auto authoring=outer.authoringVertexRows[roleRow];
                 const auto volume=outer.volumeNodeRows[roleRow];
@@ -24073,6 +24092,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             }
             require(typedOuterRender.registeredDirectWorldPoints.size()==renderVertexCount&&
                         typedOuterRender.registeredDirectWorldNormals.size()==renderVertexCount&&
+                        typedOuterRender.registeredDirectFrameOwnerBodyIndices.size()==renderVertexCount&&
                         typedOuterRender.fullWeights.size()==
                             renderVertexCount*typedOuterRender.bindings.size(),
                     "typed O renderer did not retain its role-local points, normals, or full86 matrix");
@@ -24484,6 +24504,48 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             }
             if(useFEMSkinSupport&&!registeredParentSupportWitnessMap)
                 registeredSupportWitnessMapping="bounded_same_donor_nearest";
+            if(wholeBodySkinRegisteredRenderPayload) {
+                auto& directSkin=*wholeBodySkinRegisteredRenderPayload;
+                require(directSkin.usesRegisteredDirectWorldSurface&&
+                            wholeBodySkinSupportSourceVertexCount<=
+                                std::numeric_limits<std::uint32_t>::max()&&
+                            wholeBodySkinRepresentativeCoarseIndex.size()==
+                                wholeBodySkinSupportSourceVertexCount,
+                        "registered O support source-to-render crosswalk has an incomplete source namespace");
+                directSkin.registeredDirectSupportSourceVertexCount=
+                    static_cast<std::uint32_t>(wholeBodySkinSupportSourceVertexCount);
+                directSkin.registeredDirectSupportSourceToRenderRow=
+                    wholeBodySkinRepresentativeCoarseIndex;
+                std::set<std::uint32_t> registeredSupportSourceIdentities;
+                directSkin.registeredDirectSupportNHCNTSourceGeometryIndices.clear();
+                directSkin.registeredDirectSupportNHCNTWorldPoints.clear();
+                directSkin.registeredDirectSupportNHCNTSourceGeometryIndices.reserve(
+                    support.records.size());
+                directSkin.registeredDirectSupportNHCNTWorldPoints.reserve(
+                    support.records.size());
+                for(const auto& witness:support.records) {
+                    require(witness.sourceGeometryIndex>0u&&
+                                witness.sourceGeometryIndex<=
+                                    directSkin.registeredDirectSupportSourceVertexCount&&
+                                registeredSupportSourceIdentities.insert(
+                                    witness.sourceGeometryIndex).second,
+                            "registered direct NHCNT support has an invalid or repeated original NHSKIN source identity");
+                    const auto sourceRow=witness.sourceGeometryIndex-1u;
+                    const auto representative=
+                        wholeBodySkinRepresentativeCoarseIndex[sourceRow];
+                    require(representative!=kWholeBodySkinTransferUnassigned&&
+                                representative<directSkin.header.vertexCount,
+                            "registered direct NHCNT support source has no typed O owner representative");
+                    const auto world=positionAt(sourceRow,skin->vertices[sourceRow]);
+                    require(std::isfinite(world[0])&&std::isfinite(world[1])&&
+                                std::isfinite(world[2]),
+                            "registered direct NHCNT support source world point is nonfinite");
+                    directSkin.registeredDirectSupportNHCNTSourceGeometryIndices.push_back(
+                        witness.sourceGeometryIndex);
+                    directSkin.registeredDirectSupportNHCNTWorldPoints.push_back(
+                        {world[0],world[1],world[2]});
+                }
+            }
             wholeBodySkinRegisteredOuterRenderRows=std::move(directRows);
             wholeBodySkinRegisteredOuterVolumeNodeRows=std::move(directVolumeRows);
             wholeBodySkinRegisteredRoleState=roleState;
@@ -32172,9 +32234,27 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     std::uint32_t& renderedPassiveFEMTissues,
     std::uint32_t& renderedPectoralisFascia,
     std::uint32_t& renderedOpenKneeRegions,
-    const bool retainAllAnatomicalLayers = false
+    const bool retainAllAnatomicalLayers = false,
+    const bool diagnoseVertexRanges = false
 ) {
     metalrobo::VisualAssetPackV2 pack;
+    struct MarkerPackVertexRange {
+        std::string label;
+        std::size_t begin = 0u;
+        std::size_t end = 0u;
+    };
+    std::vector<MarkerPackVertexRange> markerPackVertexRanges;
+    const auto appendTrackedGeometry = [&](
+        std::string label, const auto& append
+    ) {
+        const std::size_t begin = pack.vertices.size();
+        const GeometryRange geometry = append();
+        const std::size_t end = pack.vertices.size();
+        if (diagnoseVertexRanges) {
+            markerPackVertexRanges.push_back({std::move(label), begin, end});
+        }
+        return geometry;
+    };
     pack.id = bonePayload != nullptr
         ? "myosim_fullbody_articulated_bodyparts_bones_view"
         : "myosim_fullbody_articulated_marker_view";
@@ -32493,7 +32573,11 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 )) {
                 continue;
             }
-            const GeometryRange geometry = appendBoneGeometry(pack, *bonePayload, bone);
+            const GeometryRange geometry = appendTrackedGeometry(
+                "bone stable_id=" + std::to_string(bone.stableId) +
+                    " body_index=" + std::to_string(bone.bodyIndex) +
+                    " transform=imported_local_vertices_with_articulated_instance_pose",
+                [&] { return appendBoneGeometry(pack, *bonePayload, bone); });
             appendInstance(
                 geometry, 3u, kBoneSemantic, MR_VISUAL_BINDING_ARTICULATED_LINK,
                 bone.bodyIndex,
@@ -32509,7 +32593,10 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             if (!(body.massAndInverseMass.x > 1.0e-5f)) {
                 continue;
             }
-            const GeometryRange geometry = appendEllipsoid(pack, inertiaEllipsoid(body));
+            const GeometryRange geometry = appendTrackedGeometry(
+                "rigid_body_ellipsoid body_index=" + std::to_string(bodyIndex) +
+                    " transform=local_inertia_ellipsoid_with_instance_pose",
+                [&] { return appendEllipsoid(pack, inertiaEllipsoid(body)); });
             appendInstance(
                 geometry, 0u, kBodySemantic, MR_VISUAL_BINDING_ARTICULATED_LINK,
                 static_cast<std::uint32_t>(bodyIndex),
@@ -32527,8 +32614,11 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             const bool usesAcceptedFEM = openKneeLigamentFEM != nullptr &&
                 region.firstNode < openKneeLigamentFEM->deformedNodes.size() &&
                 openKneeLigamentFEM->deformedNodes[region.firstNode];
-            const auto geometry = appendOpenKneeGeometry(
-                pack, *openKneePayload, region, openKneeLigamentFEM);
+            const auto geometry = appendTrackedGeometry(
+                "open_knee_region=" + std::to_string(regionIndex) +
+                    " transform=registered_region_or_accepted_FEM_world_nodes",
+                [&] { return appendOpenKneeGeometry(
+                    pack, *openKneePayload, region, openKneeLigamentFEM); });
             std::uint32_t material = 3u;
             std::uint32_t semantic = kBoneSemantic;
             switch (region.kind) {
@@ -32578,11 +32668,19 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             }
             const bool usesPassiveFEM = passiveFEMTissue != nullptr &&
                 passiveFEMTissue->stableId == tissue.stableId;
-            const GeometryRange geometry = usesPassiveFEM
-                ? appendPassiveFEMMappedSoftTissueGeometry(
-                    pack, *softTissuePayload, tissue, restBodies, *passiveFEMTissue
-                )
-                : appendSoftTissueGeometry(pack, *softTissuePayload, tissue, bodies);
+            const GeometryRange geometry = appendTrackedGeometry(
+                std::string(usesPassiveFEM ? "passive_FEM_soft_tissue" : "source_soft_tissue") +
+                    " stable_id=" + std::to_string(tissue.stableId) +
+                    " transform=" + (usesPassiveFEM
+                        ? "accepted_FEM_displacement_mapped_to_source_surface"
+                        : "source_surface_kinematic_body_binding"),
+                [&] {
+                    return usesPassiveFEM
+                        ? appendPassiveFEMMappedSoftTissueGeometry(
+                            pack, *softTissuePayload, tissue, restBodies, *passiveFEMTissue)
+                        : appendSoftTissueGeometry(
+                            pack, *softTissuePayload, tissue, bodies);
+                });
             const bool isMuscle = tissue.layer == kSoftTissueLayerMuscle;
             const bool isSupplementalBone = tissue.layer == kSoftTissueLayerSupplementalBone;
             appendInstance(
@@ -32603,7 +32701,9 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     renderedPectoralisFascia = 0u;
     if (pectoralisFascia != nullptr) {
         appendInstance(
-            appendPectoralisFasciaGeometry(pack, *pectoralisFascia),
+            appendTrackedGeometry(
+                "pectoralis_fascia transform=accepted_FEM_world_surface",
+                [&] { return appendPectoralisFasciaGeometry(pack, *pectoralisFascia); }),
             10u, kPectoralisFasciaSemantic, MR_VISUAL_BINDING_WORLD,
             MR_INVALID_INDEX,
             {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1u
@@ -32631,9 +32731,12 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                  ))) {
                 continue;
             }
-            const GeometryRange collar = appendTendonAttachmentCollarGeometry(
-                pack, *softTissuePayload, *bonePayload, tissue, bodies
-            );
+            const GeometryRange collar = appendTrackedGeometry(
+                "tendon_attachment_collar stable_id=" +
+                    std::to_string(tissue.stableId) +
+                    " transform=bone_bound_world_diagnostic_geometry",
+                [&] { return appendTendonAttachmentCollarGeometry(
+                    pack, *softTissuePayload, *bonePayload, tissue, bodies); });
             if (collar.indexCount == 0u) continue;
             appendInstance(
                 collar, 5u, kTendonAttachmentCollarSemantic,
@@ -32647,7 +32750,11 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     renderedSkinShells = 0u;
     if (skinPayload != nullptr) {
         appendInstance(
-            appendSkinGeometry(pack, *skinPayload, bodies, restBodies),
+            appendTrackedGeometry(
+                skinPayload->usesRegisteredDirectWorldSurface
+                    ? "registered_direct_O_skin transform=world_points_and_normalized_world_normals_no_body_transform"
+                    : "skin_shell transform=source_skin_vertex_world_pose",
+                [&] { return appendSkinGeometry(pack, *skinPayload, bodies, restBodies); }),
             6u, kSkinShellSemantic, MR_VISUAL_BINDING_WORLD, MR_INVALID_INDEX,
             {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1u
         );
@@ -32669,7 +32776,13 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
             const std::uint32_t sourceStableId=sourceIdentity==torsoAnatomyPayload->sourceStableIdByRuntimeDisplayId.end()
                 ? surface.stableId : sourceIdentity->second;
             appendInstance(
-                appendTorsoAnatomyGeometry(pack, *torsoAnatomyPayload, surface),
+                appendTrackedGeometry(
+                    "torso_anatomy stable_id=" + std::to_string(surface.stableId) +
+                        " source_stable_id=" + std::to_string(sourceStableId) +
+                        " layer=" + std::to_string(surface.layer) +
+                        " transform=registered_articulated_link_frame",
+                    [&] { return appendTorsoAnatomyGeometry(
+                        pack, *torsoAnatomyPayload, surface); }),
                 materials.at(surface.layer - 1u), semantics.at(surface.layer - 1u),
                 MR_VISUAL_BINDING_ARTICULATED_LINK, surface.bodyIndex,
                 {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
@@ -32812,7 +32925,69 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     }
     pack.contentHash = metalrobo::computeVisualAssetPackContentHash(pack);
     std::string reason;
-    require(pack.valid(&reason), "native Human marker pack is invalid: " + reason);
+    const bool packValid = pack.valid(&reason);
+    if (!packValid && diagnoseVertexRanges) {
+        constexpr std::string_view marker = "vertex at index ";
+        const std::size_t markerPosition = reason.find(marker);
+        if (markerPosition != std::string::npos) {
+            const std::size_t digits = markerPosition + marker.size();
+            try {
+                const std::size_t invalidIndex =
+                    static_cast<std::size_t>(std::stoull(reason.substr(digits)));
+                if (invalidIndex < pack.vertices.size()) {
+                    const auto& vertex = pack.vertices[invalidIndex];
+                    const double nx = vertex.normalAndTangentSign.x;
+                    const double ny = vertex.normalAndTangentSign.y;
+                    const double nz = vertex.normalAndTangentSign.z;
+                    const double normalLength = std::hypot(nx, std::hypot(ny, nz));
+                    const auto range = std::find_if(
+                        markerPackVertexRanges.begin(), markerPackVertexRanges.end(),
+                        [&](const MarkerPackVertexRange& candidate) {
+                            return candidate.begin <= invalidIndex && invalidIndex < candidate.end;
+                        });
+                    std::cerr << std::setprecision(17)
+                        << "registered_volume_visual_pack_invalid_vertex"
+                        << " index=" << invalidIndex
+                        << " pack_vertices=" << pack.vertices.size()
+                        << " position=" << vertex.position.x << ","
+                        << vertex.position.y << "," << vertex.position.z
+                        << " packed_normal=" << nx << "," << ny << "," << nz
+                        << " packed_normal_length=" << normalLength
+                        << " packed_normal_w=" << vertex.normalAndTangentSign.w;
+                    if (range != markerPackVertexRanges.end()) {
+                        std::cerr << " append_source=" << range->label
+                            << " append_range=" << range->begin << ":" << range->end
+                            << " source_row=" << (invalidIndex - range->begin);
+                        if (range->label.starts_with("registered_direct_O_skin") &&
+                            skinPayload != nullptr) {
+                            const std::size_t sourceRow = invalidIndex - range->begin;
+                            if (sourceRow < skinPayload->registeredDirectWorldNormals.size()) {
+                                const auto& sourceNormal =
+                                    skinPayload->registeredDirectWorldNormals[sourceRow];
+                                const double sourceNormalLength = std::hypot(
+                                    sourceNormal[0], std::hypot(sourceNormal[1], sourceNormal[2]));
+                                std::cerr << " source_normal=" << sourceNormal[0] << ","
+                                    << sourceNormal[1] << "," << sourceNormal[2]
+                                    << " source_normal_length=" << sourceNormalLength
+                                    << " normal_transform=source_world_normal_normalized_in_appendSkinGeometry";
+                            }
+                        }
+                    } else {
+                        std::cerr << " append_source=unattributed";
+                    }
+                    std::cerr << " runtime_created=0 accepted_steps=0\n";
+                }
+            } catch (const std::exception&) {
+                std::cerr << "registered_volume_visual_pack_invalid_vertex_index_parse_failed reason="
+                    << reason << "\n";
+            }
+        }
+        for (const auto& range : markerPackVertexRanges) {
+            std::cerr << "registered_volume_visual_pack_append_range source="
+                << range.label << " range=" << range.begin << ":" << range.end << "\n";
+        }
+    }
+    require(packValid, "native Human marker pack is invalid: " + reason);
     return pack;
 }
 
@@ -37531,6 +37706,49 @@ int main(int argc, char** argv) {
                                     !registeredObject.femNodes.empty()&&
                                     !registeredObject.tetrahedra.empty(),
                                 "registered-volume source-only exit has no compiled FEM replacement object");
+                        require(bonePayload && skinPayload && softTissuePayload &&
+                                    torsoAnatomyPayload && !restingAnatomyReceipt.empty(),
+                                "registered-volume source-only marker-pack validation needs the same anatomy inputs as the native visual owner");
+                        const bool registeredDirectRender =
+                            restingPassiveFasciaOwner->wholeBodySkinRegisteredRenderPayload.has_value();
+                        const LoadedSkin* visualSkin = registeredDirectRender
+                            ? &*restingPassiveFasciaOwner->wholeBodySkinRegisteredRenderPayload
+                            : &*skinPayload;
+                        auto sourceOnlyNativePose = [&](std::span<const float> coordinates) {
+                            metalrobo::MetalArticulatedOperatorInput input;
+                            input.articulationIndex = 0u;
+                            input.environmentCount = 1u;
+                            input.q = coordinates;
+                            metalrobo::MetalArticulatedOperatorConfig config;
+                            config.pointJacobiansOnly = true;
+                            metalrobo::MetalArticulatedOperatorResult result;
+                            const auto status = metalrobo::runMetalArticulatedOperator(
+                                rigid.model, input, result, config);
+                            require(status.succeeded(), status.message);
+                            return visualBodyStates(rigid.model, result.bodyPoses);
+                        };
+                        const auto initialBodies = sourceOnlyNativePose(poseQ);
+                        const auto restBodies = sourceOnlyNativePose(rigid.model.defaultQ);
+                        std::array<unsigned,10> markerPackCounts{};
+                        std::cout << "registered_volume_source_only_visual_pack=START"
+                            << " candidate_geometry=registered_import"
+                            << " runtime_created=0 accepted_steps=0\n";
+                        const auto checkedPack = makeMarkerPack(
+                            rigid.model, musclePayload, &*bonePayload,
+                            nullptr, nullptr, &*softTissuePayload, visualSkin,
+                            visualTorsoAnatomyPayload, 0xffffffffu, {},
+                            initialBodies, restBodies, nullptr, nullptr, false,
+                            {}, {}, {}, false, false, false, nullptr,
+                            markerPackCounts[0], markerPackCounts[1],
+                            markerPackCounts[2], markerPackCounts[3],
+                            markerPackCounts[4], markerPackCounts[5],
+                            markerPackCounts[6], markerPackCounts[7],
+                            markerPackCounts[8], markerPackCounts[9],
+                            true, true);
+                        std::cout << "registered_volume_source_only_visual_pack=PASS"
+                            << " vertices=" << checkedPack.vertices.size()
+                            << " indices=" << checkedPack.indices.size()
+                            << " runtime_created=0 accepted_steps=0\n";
                         std::cout<<"registered_volume_source_only=PASS"
                             <<" object_index="<<restingPassiveFasciaOwner->wholeBodySkinObjectIndex
                             <<" nodes="<<registeredObject.femNodes.size()
@@ -38072,6 +38290,30 @@ int main(int argc, char** argv) {
                     const bool hasWholeBodySkinFEM=restingPassiveFasciaOwner&&
                         (restingPassiveFasciaOwner->wholeBodySkinTransfer!=nullptr||
                          restingPassiveFasciaOwner->wholeBodySkinRegisteredOuterDirect);
+                    const bool registeredDirectSkin=restingPassiveFasciaOwner&&
+                        restingPassiveFasciaOwner->wholeBodySkinRegisteredOuterDirect;
+                    if(registeredDirectSkin) {
+                        require(registeredDirectRender&&visualSkin->usesRegisteredDirectWorldSurface&&
+                                    visualSkin->registeredDirectWorldPoints.size()==visualSkin->header.vertexCount&&
+                                    visualSkin->registeredDirectWorldNormals.size()==visualSkin->header.vertexCount&&
+                                    visualSkin->registeredDirectFrameOwnerBodyIndices.size()==visualSkin->header.vertexCount,
+                                "registered O pre-upload visual rows differ from the retained typed direct source");
+                        const auto& directRows=
+                            restingPassiveFasciaOwner->wholeBodySkinRegisteredOuterRenderRows;
+                        require(directRows.size()==visualSkin->header.vertexCount&&
+                                    restingPassiveFasciaOwner->wholeBodySkinRegisteredOuterVolumeNodeRows.size()==directRows.size()&&
+                                    restingPassiveFasciaOwner->wholeBodySkinCoarseRest.size()==directRows.size(),
+                                "registered O accepted transfer does not cover every typed render row");
+                        for(std::size_t row=0u;row<directRows.size();++row) {
+                            const auto& transfer=directRows[row];
+                            require(transfer.coarseVertex[0]==row&&
+                                        transfer.coarseVertex[1]==row&&
+                                        transfer.coarseVertex[2]==row&&
+                                        transfer.weight[0]==1.0f&&transfer.weight[1]==0.0f&&
+                                        transfer.weight[2]==0.0f&&transfer.restDistance==0.0f,
+                                    "registered O accepted transfer has a missing or non-one-hot render row");
+                        }
+                    }
                     liveVisual=std::make_unique<NumiHumanRestingVisual>(coupled,std::move(pack),rigid.model,*visualSkin,&*softTissuePayload,
                         initialBodies,restBodies,*supportContactPayload,functional,positional.back(),frameDimension,restingMovie,!mechanicsOnly,
                         fixedBed?&*fixedBed:nullptr,visualTorsoAnatomyPayload,nullptr,
@@ -38096,7 +38338,7 @@ int main(int argc, char** argv) {
                         hasWholeBodySkinFEM
                             ?std::span<const std::array<std::uint32_t,3>>(restingPassiveFasciaOwner->wholeBodyFatDeepFaces)
                             :std::span<const std::array<std::uint32_t,3>>{});
-                    if(hasWholeBodySkinFEM&&!mechanicsOnly) {
+                    if(hasWholeBodySkinFEM&&(!mechanicsOnly||registeredDirectSkin)) {
                         if(restingPassiveFasciaOwner->wholeBodySkinRegisteredOuterDirect)
                             liveVisual->configureAcceptedFEMSkinTransfer(
                                 restingPassiveFasciaOwner->wholeBodySkinRegisteredOuterRenderRows,
@@ -39413,14 +39655,17 @@ int main(int argc, char** argv) {
                             havePreviousComSample = true;
                             }
                         }
-                        if (liveVisual && !mechanicsOnly) {
+                        const bool registeredDirectMechanicalSnapshot=mechanicsOnly&&
+                            restingPassiveFasciaOwner&&
+                            restingPassiveFasciaOwner->wholeBodySkinRegisteredOuterDirect;
+                        if (liveVisual && (!mechanicsOnly||registeredDirectMechanicalSnapshot)) {
                             // The COM observer may run every accepted step,
                             // while viewer/surface presentation keeps its
                             // 64 ms physical cadence. This only throttles
                             // read-only presentation; physical and support-
                             // geometry work still runs for every step.
-                            const bool presentAcceptedPose =
-                                numiHumanAcceptedQAuditWindow::shouldPresentAcceptedPose(
+                            const bool updateAcceptedSkinPose=registeredDirectMechanicalSnapshot||
+                                (numiHumanAcceptedQAuditWindow::shouldPresentAcceptedPose(
                                     restingComMomentumAudit,
                                     restingComMomentumAuditSegmentSteps,
                                     restingPresentationCadenceSteps,
@@ -39431,8 +39676,8 @@ int main(int argc, char** argv) {
                                 (!(restingPassiveFasciaOwner&&
                                     (restingPassiveFasciaOwner->wholeBodySkinTransfer||
                                      restingPassiveFasciaOwner->wholeBodySkinRegisteredOuterDirect))||
-                                    !result.standQ.empty());
-                            if (presentAcceptedPose) {
+                                    !result.standQ.empty()));
+                            if (updateAcceptedSkinPose) {
                                 if(restingPassiveFasciaOwner&&
                                    (restingPassiveFasciaOwner->wholeBodySkinTransfer||
                                     restingPassiveFasciaOwner->wholeBodySkinRegisteredOuterDirect)) {
@@ -39459,10 +39704,12 @@ int main(int argc, char** argv) {
                                     require(acceptedMatter.available,acceptedMatter.message);
                                     require(step>0u&&acceptedMatter.controlStep+1u==step,
                                             "accepted skin transfer Matter cursor differs from the Human presentation step");
-                                    const auto& acceptedRespiration=*static_cast<const NMHumanRespirationState*>(
-                                        coupled.presentationRespiration.contents);
-                                    require(acceptedRespiration.status.x==step&&acceptedRespiration.status.w==0u,
-                                            "accepted skin transfer body and respiration presentation are not from the same accepted step");
+                                    if(!mechanicsOnly) {
+                                        const auto& acceptedRespiration=*static_cast<const NMHumanRespirationState*>(
+                                            coupled.presentationRespiration.contents);
+                                        require(acceptedRespiration.status.x==step&&acceptedRespiration.status.w==0u,
+                                                "accepted skin transfer body and respiration presentation are not from the same accepted step");
+                                    }
                                     const auto firstBoundary=restingPassiveFasciaOwner->wholeBodySkinFirstGlobalFEMNode;
                                     const auto boundaryCount=restingPassiveFasciaOwner->wholeBodySkinCoarseNodeCount;
                                     const auto& boundaryRows=restingPassiveFasciaOwner->wholeBodySkinBoundaryNodeMap;
@@ -39568,13 +39815,22 @@ int main(int argc, char** argv) {
                                             "accepted inner-skin/deep-fat extraction failed: "+transferError);
                                     liveVisual->updateAcceptedFEMBoundaries(acceptedBoundaries);
                                 }
-                                const auto presentationProfileStart = trainingProfile
-                                    ? std::chrono::steady_clock::now()
-                                    : std::chrono::steady_clock::time_point{};
-                                liveVisual->present(step == measuredTerminalStep&&!terminalGeometryRequested);
-                                if (trainingProfile) {
-                                    restingObserverProfile.presentationMilliseconds +=
-                                        profileElapsedMilliseconds(presentationProfileStart);
+                                if(!mechanicsOnly) {
+                                    const auto presentationProfileStart = trainingProfile
+                                        ? std::chrono::steady_clock::now()
+                                        : std::chrono::steady_clock::time_point{};
+                                    liveVisual->present(step == measuredTerminalStep&&!terminalGeometryRequested);
+                                    if (trainingProfile) {
+                                        restingObserverProfile.presentationMilliseconds +=
+                                            profileElapsedMilliseconds(presentationProfileStart);
+                                    }
+                                } else {
+                                    std::cout<<"registered_direct_O_mechanics_only_acceptance"
+                                        <<" step="<<step
+                                        <<" render_rows="
+                                        <<restingPassiveFasciaOwner->wholeBodySkinRegisteredOuterRenderRows.size()
+                                        <<" state_source=accepted_Matter_FEM"
+                                        <<" viewer_presentation=disabled"<<std::endl;
                                 }
                             }
                         }
