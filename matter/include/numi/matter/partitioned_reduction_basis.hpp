@@ -95,6 +95,9 @@ struct PartitionedReductionBasisOptions {
     // Four gives a minimum 4:1 coordinate reduction when accepted.
     std::uint32_t minimumCoordinateReductionFactor = 4u;
     std::uint32_t maximumModeCount = 32u;
+    // Optional caller-owned ceiling for the dense nm_float4 coefficient rows.
+    // Zero keeps the generic builder's existing unbounded behavior.
+    std::uint64_t maximumDenseCoefficientBytes = 0u;
 };
 
 struct PartitionedReductionBasis {
@@ -272,6 +275,17 @@ namespace partitioned_reduction_detail {
     }
 
     const std::size_t regionCount = sourceRegionLabels.size();
+    std::uint64_t freeAnchorCount = 0u;
+    for (const std::uint32_t node : input.anchorNodes)
+        if (input.fixedMask[node] == 0u) ++freeAnchorCount;
+    const std::uint64_t baseModeCount =
+        static_cast<std::uint64_t>(regionCount) * 6u + freeAnchorCount * 3u;
+    if (baseModeCount == 0u || baseModeCount > options.maximumModeCount)
+        return fail("partitioned basis exceeds the authored mode limit after anchor preservation");
+    if (options.maximumDenseCoefficientBytes != 0u &&
+        baseModeCount > options.maximumDenseCoefficientBytes /
+             sizeof(nm_float4) / nodeCount)
+        return fail("partitioned basis dense coefficient rows exceed the caller's checked byte budget");
     std::vector<double> nodeRegionVolume(nodeCount * regionCount, 0.0);
     std::vector<double> regionVolume(regionCount, 0.0);
     std::vector<std::array<double, 3>> regionCentroidNumerator(regionCount);

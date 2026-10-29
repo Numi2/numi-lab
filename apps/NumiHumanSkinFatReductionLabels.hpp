@@ -1446,6 +1446,8 @@ buildAndInstallRegisteredSkinFatPreconditioner(
     options.promoteRankDeficientRegionsToFine =
         promoteRankDeficientRegions || !residualFineGlobalFEMNodes.empty();
     options.maximumModeCount = numi::matter::kHumanPartitionedBasisMaximumModeCount;
+    options.maximumDenseCoefficientBytes =
+        numi::matter::kHumanPartitionedBasisCoefficientByteBudget;
     options.explicitAuthoredTetrahedronRegionLabels =
         std::span<const std::uint32_t>(labels.tetrahedronBasisRegionLabels);
     options.explicitRegionLabelObjectIndex = objectIndex;
@@ -1855,6 +1857,8 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         numi::matter::CompiledWorldPartitionedReductionOptions options;
         options.minimumCoordinateReductionFactor = buildReductionFactor;
         options.maximumModeCount = numi::matter::kHumanPartitionedBasisMaximumModeCount;
+        options.maximumDenseCoefficientBytes =
+            numi::matter::kHumanPartitionedBasisCoefficientByteBudget;
         options.promoteRankDeficientRegionsToFine = embedContactBoundary ||
             !residualRowsByObject[nerve.objectIndex].empty();
         options.explicitAuthoredTetrahedronRegionLabels =

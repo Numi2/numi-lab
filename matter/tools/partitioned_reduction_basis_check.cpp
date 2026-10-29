@@ -127,6 +127,22 @@ void runValidCase() {
     require(basis.modeCount * basis.minimumCoordinateReductionFactor <=
                 basis.freeCoordinateCount,
             "accepted basis misses the requested 4:1 coordinate reduction");
+    const std::uint64_t exactCoefficientBytes =
+        static_cast<std::uint64_t>(basis.values.size()) * sizeof(nm_float4);
+    numi::matter::PartitionedReductionBasisOptions exactBudgetOptions;
+    exactBudgetOptions.maximumDenseCoefficientBytes = exactCoefficientBytes;
+    const auto exactBudgetBasis = buildPartitionedReductionBasis(
+        input, exactBudgetOptions);
+    require(exactBudgetBasis.valid(),
+            "dense coefficient budget rejected its exact byte boundary");
+    exactBudgetOptions.maximumDenseCoefficientBytes = exactCoefficientBytes - 1u;
+    const auto underBudgetBasis = buildPartitionedReductionBasis(
+        input, exactBudgetOptions);
+    require(!underBudgetBasis.valid() &&
+                underBudgetBasis.error.find("checked byte budget") !=
+                    std::string::npos &&
+                underBudgetBasis.values.empty(),
+            "one-byte-short dense coefficient budget did not fail before basis output allocation");
     require(basis.values.size() == basis.modeCount * nodeCount,
             "basis does not use RegionalGalerkinBasis-compatible mode-major storage");
     require(positions == sourcePositions && tetrahedra == sourceTetrahedra &&

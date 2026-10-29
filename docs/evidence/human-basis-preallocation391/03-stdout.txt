@@ -1,0 +1,1 @@
+compiled world partitioned reduction: compiled ancestry, fine anchors, affine reproduction, B^T M B, B^T f, virtual work, and fail-closed source labels passed

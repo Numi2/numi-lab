@@ -38,6 +38,9 @@ struct CompiledWorldPartitionedReductionOptions {
     // 32-mode preconditioner ABI. Callers can retain larger candidate bases,
     // while production must validate its consumer's mode limit independently.
     std::uint32_t maximumModeCount = 128u;
+    // Optional bound for dense host-side coefficient rows before allocation.
+    // Zero preserves generic callers; the Human consumer sets its checked cap.
+    std::uint64_t maximumDenseCoefficientBytes = 0u;
     // Only residual-refinement candidates may opt into the conservative
     // fallback that moves a rank-deficient source region to the exact fine
     // complement and removes that region's affine block.
@@ -453,7 +456,8 @@ namespace compiled_reduction_detail {
     const std::span<const std::array<double, 3>> positions,
     const std::span<const double> masses,
     const std::span<const std::uint8_t> fixedMask,
-    std::uint32_t* rankDeficientRegionLabel = nullptr
+    std::uint32_t* rankDeficientRegionLabel = nullptr,
+    const std::uint64_t maximumDenseCoefficientBytes = 0u
 ) {
     if (rankDeficientRegionLabel != nullptr)
         *rankDeficientRegionLabel = NM_INVALID_INDEX;
@@ -483,6 +487,12 @@ namespace compiled_reduction_detail {
     if (requestedModes * minimumCoordinateReductionFactor >
         basis.freeCoordinateCount) {
         basis.error = "compiled affine basis misses the requested minimum coordinate reduction after sensitive-anchor preservation";
+        return false;
+    }
+    if (maximumDenseCoefficientBytes != 0u &&
+        (nodeCount == 0u || requestedModes > maximumDenseCoefficientBytes /
+             sizeof(nm_float4) / nodeCount)) {
+        basis.error = "compiled affine dense coefficient rows exceed the caller's checked byte budget";
         return false;
     }
 
@@ -809,6 +819,8 @@ buildCompiledWorldPartitionedReductionBasis(
     // Reuse the existing helper's validated source partition construction.
     // The future runtime preconditioner still has its own smaller ABI limit.
     baseOptions.maximumModeCount = kPartitionedReductionMaximumConstructionModeCount;
+    baseOptions.maximumDenseCoefficientBytes =
+        options.maximumDenseCoefficientBytes;
     std::vector<std::uint8_t> basisFixedMask = fixedMask;
     std::set<std::uint32_t> anchorSet(localAnchors.begin(), localAnchors.end());
     std::map<std::uint32_t, std::set<std::uint32_t>> regionNodes;
@@ -841,7 +853,8 @@ buildCompiledWorldPartitionedReductionBasis(
         if (finalizeAffineModes(output.basis,
                                 options.minimumCoordinateReductionFactor,
                                 options.maximumModeCount, positions, masses,
-                                basisFixedMask, &deficientRegion)) {
+                                basisFixedMask, &deficientRegion,
+                                options.maximumDenseCoefficientBytes)) {
             output.error.clear();
             break;
         }

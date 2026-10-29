@@ -1,0 +1,7 @@
+# Reject oversized dense Human bases before constructing them
+
+The Human regional basis already has a checked 384 MiB dense coefficient limit, but construction formerly reached that limit only after allocating the per-object basis. The base and compiled affine builders now accept an optional caller-owned coefficient byte bound. Human consumers supply the existing limit. Regional/anchor mode counts are checked before the base node-region and coefficient arrays; the final affine extent is checked before affine field/output allocation. Zero retains generic callers' existing behavior, and the aggregate runtime limit remains unchanged.
+
+Both numerical basis fixtures now verify acceptance at the exact required byte boundary and rejection one byte below it, with no returned coefficient allocation. The generic basis check, compiled-world basis check and Human skin/fat label-consumer check all pass with assertions enabled. The Human target rebuilt the runtime/library successfully and emitted nine pre-existing warnings. No large child mesh, native simulation, model reduction or physical step is admitted by these checks.
+
+This removes an avoidable host allocation failure while preparing the repaired physical surfaces. Current high-resolution geometry remains too large for existing volume/true-residual profiles; those are separate capacity and physical qualification work. Material equations, force ownership, accepted-state gates and the 384 MiB coefficient ceiling are unchanged.

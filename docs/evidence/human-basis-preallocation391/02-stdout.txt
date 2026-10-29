@@ -1,0 +1,1 @@
+partitioned reduction basis: source preservation, partition unity, rigid motion, projected mass, B^T f, virtual work, hybrid index-map validation, regional mass whitening, span, anchor preservation, and reject cases passed

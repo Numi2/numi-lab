@@ -220,6 +220,22 @@ void runValidCase() {
     require(basis.values.size() ==
                 static_cast<std::size_t>(basis.modeCount) * basis.nodeCount,
             "basis is not mode-major per source node");
+    const std::uint64_t exactCoefficientBytes =
+        static_cast<std::uint64_t>(basis.values.size()) * sizeof(nm_float4);
+    CompiledWorldPartitionedReductionOptions exactBudgetOptions = options;
+    exactBudgetOptions.maximumDenseCoefficientBytes = exactCoefficientBytes;
+    const auto exactBudget = buildCompiledWorldPartitionedReductionBasis(
+        world, 1u, exactBudgetOptions);
+    require(exactBudget.valid(),
+            "compiled affine coefficient budget rejected its exact byte boundary");
+    exactBudgetOptions.maximumDenseCoefficientBytes = exactCoefficientBytes - 1u;
+    const auto underBudget = buildCompiledWorldPartitionedReductionBasis(
+        world, 1u, exactBudgetOptions);
+    require(!underBudget.valid() &&
+                underBudget.error.find("dense coefficient rows exceed") !=
+                    std::string::npos &&
+                underBudget.basis.values.empty(),
+            "one-byte-short compiled affine budget did not fail before affine output allocation");
     require(output.globalFEMNodeIndices.front() == targetGlobalOffset &&
                 output.globalFEMNodeIndices.back() ==
                     targetGlobalOffset + sourceNodeCount - 1u &&

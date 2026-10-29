@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "classification": "CPU source and compiler checks only; no mesh, native launch, or physical-step qualification",
+  "workspace": "/Users/numi/Work/skin-fat-native-integration-209",
+  "evidence_directory": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/P/solver-capacity-390/preallocation-391",
+  "source_files": [
+    {
+      "path": "matter/include/numi/matter/partitioned_reduction_basis.hpp",
+      "before_sha256": "3329c4f3bb6a373b4d6437bfe8d9342085c7e82aa766c5aa5ebd22bd592ea863",
+      "tested_sha256": "75dd1b5d5cbe3d5ded8a8b26224623b08fd25f0ba2a8db76d2bd9f46a6674b41",
+      "snapshot_sha256": "75dd1b5d5cbe3d5ded8a8b26224623b08fd25f0ba2a8db76d2bd9f46a6674b41",
+      "snapshot_matches_tested": true
+    },
+    {
+      "path": "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp",
+      "before_sha256": "7fe39418a3ea658d0282140772f2c0201c205e3b83b6c6deae8516f6e9da4d1d",
+      "tested_sha256": "0c542946c6731ba574565c6171821bdd52e2d9acf72aed92679ae7ab2f964905",
+      "snapshot_sha256": "0c542946c6731ba574565c6171821bdd52e2d9acf72aed92679ae7ab2f964905",
+      "snapshot_matches_tested": true
+    },
+    {
+      "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+      "before_sha256": "e116eac65f7bcd2d7e879c05aaa9279bb5140ac0cbb6d78375c3fe78c3110d45",
+      "tested_sha256": "f39321f987b0ac88868f49325d4caf1b58e5aa8abd98c55aa409a28c8525df5a",
+      "snapshot_sha256": "f39321f987b0ac88868f49325d4caf1b58e5aa8abd98c55aa409a28c8525df5a",
+      "snapshot_matches_tested": true
+    },
+    {
+      "path": "matter/tools/partitioned_reduction_basis_check.cpp",
+      "before_sha256": "0186488277d212c5872252423941e0767a4296dc453df8963dae4a0565c0344c",
+      "tested_sha256": "c4d7f02ef93a1614ae80c31675f735727654a02ab42d60b98930e2f1061d9069",
+      "snapshot_sha256": "c4d7f02ef93a1614ae80c31675f735727654a02ab42d60b98930e2f1061d9069",
+      "snapshot_matches_tested": true
+    },
+    {
+      "path": "matter/tools/compiled_world_partitioned_reduction_check.cpp",
+      "before_sha256": "303c3c33bf2aceee9f69bc2d92dea20b3368d67779835e0a176fd67149f23371",
+      "tested_sha256": "bf3b24a3bb9c7cdba99a8e5389a03787216ab00894257cca754b049551c87d21",
+      "snapshot_sha256": "bf3b24a3bb9c7cdba99a8e5389a03787216ab00894257cca754b049551c87d21",
+      "snapshot_matches_tested": true
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        "build-native",
+        "--target",
+        "numi-matter-partitioned-reduction-basis-check",
+        "numi-matter-compiled-world-partitioned-reduction-check",
+        "-j1"
+      ],
+      "exit_code": 0,
+      "stdout_file": "01-stdout.txt",
+      "stderr_file": "01-stderr.txt"
+    },
+    {
+      "argv": [
+        "build-native/matter/numi-matter-partitioned-reduction-basis-check"
+      ],
+      "exit_code": 0,
+      "stdout_file": "02-stdout.txt",
+      "stderr_file": "02-stderr.txt"
+    },
+    {
+      "argv": [
+        "build-native/matter/numi-matter-compiled-world-partitioned-reduction-check"
+      ],
+      "exit_code": 0,
+      "stdout_file": "03-stdout.txt",
+      "stderr_file": "03-stderr.txt"
+    },
+    {
+      "argv": [
+        "cmake",
+        "--build",
+        "build-native",
+        "--target",
+        "numi-human-skin-fat-reduction-labels-check",
+        "-j1"
+      ],
+      "exit_code": 0,
+      "stdout_file": "04-stdout.txt",
+      "stderr_file": "04-stderr.txt"
+    },
+    {
+      "argv": [
+        "build-native/numi-human-skin-fat-reduction-labels-check"
+      ],
+      "exit_code": 0,
+      "stdout_file": "05-stdout.txt",
+      "stderr_file": "05-stderr.txt"
+    }
+  ],
+  "binaries": [
+    {
+      "path": "build-native/matter/numi-matter-partitioned-reduction-basis-check",
+      "sha256": "e1eba122e09b8922a5059af69adf3865ec7d8964fcdcc138278e8b5cb3bc7e91"
+    },
+    {
+      "path": "build-native/matter/numi-matter-compiled-world-partitioned-reduction-check",
+      "sha256": "46885b647ff9bf2765727da7b021626dac37a4a556970435ee1e6ae1d70de2dd"
+    },
+    {
+      "path": "build-native/numi-human-skin-fat-reduction-labels-check",
+      "sha256": "9086ea337e02583eb1089c946ec518addece70fcc73004ff82ae326cb1f0afa6"
+    }
+  ]
+}
