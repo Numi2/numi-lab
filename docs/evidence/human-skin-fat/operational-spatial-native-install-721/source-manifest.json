@@ -1,0 +1,17 @@
+{
+  "schema": "numi.full-reference-native-capacity-source-manifest.v2",
+  "physical_admission": false,
+  "runtime": 0,
+  "source_parent": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/apps/numilab_human_myosim_visual_probe.mm",
+  "changes": [
+    "explicit verified conservative operational-reference installation mode",
+    "unchanged legacy default and source-only routes",
+    "same immutable330 mass ledger and current candidate registration",
+    "proof checks before existing transactional physical object replacement"
+  ],
+  "files": {
+    "NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp": "96341969bd6c84327c6bb546b0dcebe80726bf0dd165ccea2ad3c4c922f62228",
+    "numilab_human_myosim_visual_probe.mm": "e93faa5aea2fb2e1149ac13e06e71662e48b0130002635dd6995fd3a589fe63c",
+    "NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp": "69aa7cbe50a67dd0d1852eac9756f0263058f32a6ef2655888ae177accd1454f"
+  }
+}

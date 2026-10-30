@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/usr/bin/clang++",
+    "-std=c++23",
+    "-O1",
+    "-g0",
+    "-UNDEBUG",
+    "-Wno-deprecated-declarations",
+    "-DNUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-native-install-721/source/apps",
+    "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+    "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+    "-I/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+    "-ivfsoverlay",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-native-install-721/overlay.json",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-native-install-721/source/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp",
+    "-o",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-native-install-721/tests-003/check"
+  ],
+  "compile_exit": 0,
+  "compile_seconds": 4.128871249966323,
+  "physical_admission": false,
+  "native_runtime": 0,
+  "scope": "Shared-world preparation only; one main coupled runtime. Unit controls, not native motion.",
+  "run_exit": 0,
+  "stdout": "operational_spatial_reference 6_to_9_cells=PASS historical_vs_operational=PASS certified_cache_reuse=PASS stale_geometry_labels_frame_flows_receipts=PASS authenticated_file_failures_atomic=PASS density_infeasible=PASS physical_admission=NOT_CLAIMED\nsource_mass_parent_split_import=PASS parent_cells=6 child_cells=9 interior_nodes=1 generic_spatial_transport=PASS edges=9 min_density=900 max_density=1100 parent_mass_error_kg=5.42101e-20 parent_measure_error_m3=5.29396e-23 source_donor_closure_rows=4 source_donor_error_kg=0\nregistered_volume_file_import=PASS positive_TetGen_prism=6cells O/I/D=1/2/1 walls=12 exact_node_map_rows=12 malformed_csv_and_gzip_rejected atomic_failure_preserved=1 native_F32_exact_pins_and_roundoff_bound=PASS strict_default_unchanged=1 candidate_operational_reference_missing_proof_rejected=PASS legacy_exact_topology_and_refined_530_candidate_domain_routing=PASS immutable_parent_packet=1 actual_authenticated_chain_separately_checked=1 invalid_source_registration=REJECTED semantic_group_without_parent_supply=REJECTED inverted_cell=REJECTED physical_admission=NOT_CLAIMED\n",
+  "stderr": ""
+}

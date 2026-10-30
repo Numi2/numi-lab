@@ -1,0 +1,8 @@
+{
+  "recovered_from": "exact initial source bytes and inverse shared-owner policy patch",
+  "test001_header_sha256": "d4bc85951e220167497b299a6e7597dcdc9f3a94820c5b0e4a1a092efd892ccd",
+  "native002_header_sha256": "ef12e24303c6ae8071e2462ad2bb4e83a7621dd41d5a905196d9b4fb81ba85b6",
+  "historical_results": "test001 failed stale flow tamper; native002 compile-only and superseded before launch because shared owner preparation mode was incorrect",
+  "physical_admission": false,
+  "runtime": 0
+}

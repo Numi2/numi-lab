@@ -706,4 +706,65 @@ inline bool verifyOperationalReferencePullback(
     outputReport=std::move(measured);error.clear();return true;
 }
 
+
+// Explicit installation of a verified conservative operational reference.
+// Configuration permits this route; the prepared-bundle check below is still
+// mandatory before replacing any physical object. preparationOnly describes
+// the tissue owner preparing the shared world; it must not create a second
+// Runtime. The separate sourceOnly setting determines the zero-step exit.
+inline bool validateOperationalSpatialInstallationMode(
+        const bool requested,const bool install,const bool separated,
+        const bool spatial,const bool conforming,const bool sourceOnly,
+        const bool preflight,const bool preparationOnly,std::string& error) {
+    if(requested&&(!install||!separated||!spatial||conforming||sourceOnly||
+                  !preflight||!preparationOnly)){
+        error="operational spatial installation requires physical registered install, "
+              "separated conservative reference, preflight, and shared-world preparation";
+        return false;
+    }
+    error.clear();return true;
+}
+
+inline bool validatePreparedOperationalSpatialInstallation(
+        PhysicalSkinChildMassMappingBundle& bundle,
+        const PhysicalSkinRegisteredVolumeFileImportReport& report,
+        const double maximumTransportDistanceM,const std::size_t sourceBodyCount,
+        std::string& error) {
+    using physical_skin_child_mass_detail::validSHA256;
+    if(!bundle.usesSeparatedOperationalReference||
+       !bundle.operationalSpatialMassRouteRequired||
+       bundle.conformingLineageMassRouteRequired||bundle.conformingLineageMassTransportUsed||
+       bundle.exactTopologyIdentityTransportUsed||
+       !report.operationalReferenceSpatialTransportVerified||
+       report.operationalReferencePullbackVerified||report.conformingTissueRefinementVerified||
+       report.physicalAdmission||
+       !validSHA256(report.operationalReferenceSpatialTransportVerificationSHA256)||
+       report.operationalReferenceSpatialTransportVerificationSHA256!=
+           bundle.operationalSpatialReferenceVerificationSHA256||
+       !std::isfinite(report.maximumSourceParentRegistrationDistanceM)||
+       report.maximumSourceParentRegistrationDistanceM<0.0||
+       report.maximumSourceParentRegistrationDistanceM>0.0004||
+       !std::isfinite(maximumTransportDistanceM)||maximumTransportDistanceM<=0.0||
+       !std::isfinite(report.maximumSpatialMassTransportDistanceM)||
+       report.maximumSpatialMassTransportDistanceM<0.0||
+       bundle.maximumSpatialMassTransportDistanceM!=maximumTransportDistanceM||
+       report.maximumSpatialMassTransportDistanceM>maximumTransportDistanceM||
+       report.maximumSpatialMassTransportDistanceM!=
+           bundle.spatialMassTransportResult.maximumTransportDistanceUsedM){
+        error="physical operational-reference installation lacks its current authenticated "
+              "conservative mass, source registration, and candidate reference proofs";
+        return false;
+    }
+    if(!physical_skin_child_mass_mapping_detail::
+            validatePreparedPhysicalSkinChildMassMappingPath(bundle,error))return false;
+    // The path hash binds the transport receipt identity. Reverify its actual
+    // current flow/mass arrays through the existing owner as well; a stale
+    // receipt string must never authorize mutated cached transport values.
+    std::array<double,17> lower{},upper{};
+    lower[15]=900.0;upper[15]=1100.0;
+    lower[16]=850.0;upper[16]=950.0;
+    return preparePhysicalSkinChildMassMapping(bundle,lower,upper,
+        maximumTransportDistanceM,sourceBodyCount,error);
+}
+
 } // namespace metalrobo::human::coarse_tissue

@@ -22027,7 +22027,32 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         std::string_view(spatialReferenceSetting)=="1";
     require(!spatialReferenceRequested||(separatedRegisteredOperationalReference&&!conformingReferenceChainRequested),
             "conservative spatial-reference requires separated reference and excludes the conforming-refinement route");
-    if(separatedRegisteredOperationalReference){
+    const char* operationalSpatialInstallSetting=std::getenv(
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_OPERATIONAL_SPATIAL_INSTALL");
+    require(!operationalSpatialInstallSetting||
+                std::string_view(operationalSpatialInstallSetting)=="0"||
+                std::string_view(operationalSpatialInstallSetting)=="1",
+            "operational spatial installation setting must be 0 or 1");
+    const bool operationalSpatialInstallRequested=operationalSpatialInstallSetting&&
+        std::string_view(operationalSpatialInstallSetting)=="1";
+    {
+        const char* sourceOnly=std::getenv(
+            "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_SOURCE_ONLY");
+        const char* preflight=std::getenv(
+            "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT");
+        require(!operationalSpatialInstallRequested||
+                    (sourceOnly&&std::string_view(sourceOnly)=="0"),
+                "physical operational spatial installation requires explicit source-only=0");
+        std::string modeError;
+        require(validateOperationalSpatialInstallationMode(
+                    operationalSpatialInstallRequested,registeredVolumeInstallRequested,
+                    separatedRegisteredOperationalReference,spatialReferenceRequested,
+                    conformingReferenceChainRequested,
+                    sourceOnly&&std::string_view(sourceOnly)=="1",
+                    preflight&&std::string_view(preflight)=="1",preparationOnly,modeError),
+                modeError);
+    }
+    if(separatedRegisteredOperationalReference&&!operationalSpatialInstallRequested){
         const char* sourceOnly=std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_SOURCE_ONLY");
         const char* preflight=std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT");
         require(sourceOnly&&std::string_view(sourceOnly)=="1"&&
@@ -24391,6 +24416,15 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         preparedRegisteredRoleState&&preparedRegisteredOuterRenderDomain,
                     "registered-volume install lost its validated prepared state");
             auto& bundle=*preparedRegisteredVolumeBundle;
+            if(operationalSpatialInstallRequested) {
+                std::string installationProofError;
+                require(bundle.maximumSpatialMassTransportDistanceM==0.019353&&
+                            validatePreparedOperationalSpatialInstallation(bundle,
+                                *preparedRegisteredVolumeReport,0.019353,
+                                model.bodies.size(),installationProofError),
+                        "physical operational-reference proof rejected before installation: "+
+                            installationProofError);
+            }
             const auto& sidecars=*preparedRegisteredVolumeSidecars;
             const auto& roleState=*preparedRegisteredRoleState;
             const auto& outer=*preparedRegisteredOuterRenderDomain;
@@ -26268,6 +26302,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 replacementAudit.maximumPreparedToCookedNodeMassRelativeError;
             std::cout<<"whole_body_skin_fat_registered_volume_install=PASS"
                 <<" replacement_route=registered_bundle"
+                <<" operational_spatial_install="<<(operationalSpatialInstallRequested?1:0)
                 <<" O_rows="<<wholeBodySkinCoarseRest.size()
                 <<" I_rows="<<wholeBodySkinInnerRest.size()
                 <<" D_rows="<<wholeBodyFatDeepRest.size()

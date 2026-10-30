@@ -787,6 +787,34 @@ void checkOperationalSpatialReference(const std::filesystem::path& root) {
     assert(physical_skin_child_mass_mapping_detail::validatePreparedPhysicalSkinChildMassMappingPath(bundle,error));
     const auto originalParent=p;
     assert(physical_skin_registered_volume_integration_detail::sameImmutableParentPacket(bundle.parent,originalParent));
+    assert(validatePreparedOperationalSpatialInstallation(bundle,report,2.0,157u,error));
+    for(unsigned kind=0u;kind<8u;++kind){
+        auto badBundle=bundle;auto badReport=report;
+        if(kind==0u)badBundle.usesSeparatedOperationalReference=false;
+        if(kind==1u)badBundle.operationalSpatialMassRouteRequired=false;
+        if(kind==2u)badReport.operationalReferenceSpatialTransportVerified=false;
+        if(kind==3u)badReport.operationalReferenceSpatialTransportVerificationSHA256=std::string(64u,'8');
+        if(kind==4u)badReport.maximumSourceParentRegistrationDistanceM=0.000401;
+        if(kind==5u)badReport.maximumSpatialMassTransportDistanceM=2.001;
+        if(kind==6u)badBundle.childAnatomicalRegionIndices[0]+=1u;
+        if(kind==7u)badBundle.spatialMassTransportResult.childMassKg[0]*=1.001;
+        assert(!validatePreparedOperationalSpatialInstallation(badBundle,badReport,2.0,157u,error));
+    }
+    assert(validateOperationalSpatialInstallationMode(true,true,true,true,false,false,true,true,error));
+    for(unsigned kind=0u;kind<7u;++kind){
+        bool install=true,separated=true,spatial=true,conforming=false,sourceOnly=false,
+             preflight=true,preparationOnly=true;
+        if(kind==0u)install=false;
+        if(kind==1u)separated=false;
+        if(kind==2u)spatial=false;
+        if(kind==3u)conforming=true;
+        if(kind==4u)sourceOnly=true;
+        if(kind==5u)preflight=false;
+        if(kind==6u)preparationOnly=false;
+        assert(!validateOperationalSpatialInstallationMode(true,install,separated,spatial,
+                    conforming,sourceOnly,preflight,preparationOnly,error));
+    }
+
     // Cached transport never authorizes changed physical inputs.
     for(unsigned kind=0;kind<7;++kind){
         auto bad=bundle;
