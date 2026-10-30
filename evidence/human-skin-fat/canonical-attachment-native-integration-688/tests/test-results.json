@@ -1,0 +1,52 @@
+[
+  {
+    "name": "assert",
+    "compiler_argv": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-UNDEBUG",
+      "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/apps",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/apps/NumiHumanCanonicalDeepAttachmentRemapCheck.cpp",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/tests/canonical-remap-assert"
+    ],
+    "compile_exit": 0,
+    "compile_seconds": 0.3596304999664426,
+    "run_exit": 0,
+    "run_seconds": 0.2549287921283394,
+    "stdout": "canonical-remap-helper=PASS canonical_rows=14 request_rejections=6 source_lineage_rejections=8 numeric_namespace_collision=1 hard_anchor_reference_rebound=1 elastic_area_stiffness_exact=1 zero_prestress=1 matched_force_energy_parity=3 native_admission=0 runtime=0 accepted_steps=0\n",
+    "stderr": "",
+    "binary_sha256": "f4254a9ffd4f7ab847c2ed9efc26cd38b26a6ee9e2be00567fb53be5c54db7e3"
+  },
+  {
+    "name": "asan-ubsan",
+    "compiler_argv": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-UNDEBUG",
+      "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/apps",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/apps/NumiHumanCanonicalDeepAttachmentRemapCheck.cpp",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/tests/canonical-remap-asan-ubsan",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer"
+    ],
+    "compile_exit": 0,
+    "compile_seconds": 0.653472000034526,
+    "run_exit": 0,
+    "run_seconds": 0.22975179203785956,
+    "stdout": "canonical-remap-helper=PASS canonical_rows=14 request_rejections=6 source_lineage_rejections=8 numeric_namespace_collision=1 hard_anchor_reference_rebound=1 elastic_area_stiffness_exact=1 zero_prestress=1 matched_force_energy_parity=3 native_admission=0 runtime=0 accepted_steps=0\n",
+    "stderr": "",
+    "binary_sha256": "166b85a9c4495f2f1ee62c85640d667a929973699e32dbbb971165c88bdf0c81"
+  }
+]

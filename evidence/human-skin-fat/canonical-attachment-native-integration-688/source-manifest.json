@@ -1,0 +1,29 @@
+{
+  "base": "c498c43fcbe730ec08dc32e072f96ff5178501ea",
+  "files": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/CMakeLists.txt",
+      "relative": "CMakeLists.txt",
+      "bytes": 272573,
+      "sha256": "323839f339434f48552bd2443cf02d005aba873b10b986688eaec49d4df64d50"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/apps/NumiHumanCanonicalDeepAttachmentRemap.hpp",
+      "relative": "apps/NumiHumanCanonicalDeepAttachmentRemap.hpp",
+      "bytes": 11097,
+      "sha256": "972dc2e1ed48d5a555da69fe0a145c17293b72d0f7325925e8b6c73ff3416b6e"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/apps/NumiHumanCanonicalDeepAttachmentRemapCheck.cpp",
+      "relative": "apps/NumiHumanCanonicalDeepAttachmentRemapCheck.cpp",
+      "bytes": 10680,
+      "sha256": "fe83955964b49e4da6a39ca3dcb80d122dbed9adcb4f90b7b8b93643ec505b1a"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/apps/numilab_human_myosim_visual_probe.mm",
+      "relative": "apps/numilab_human_myosim_visual_probe.mm",
+      "bytes": 2685524,
+      "sha256": "762a65fd1ebd1f24e0015521a95fe790cc68dd29476fb64aa59092f16d1d78c0"
+    }
+  ]
+}

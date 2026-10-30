@@ -23,6 +23,7 @@
 #include "NumiHumanPhysicalSkinReplacement.hpp"
 #include "NumiHumanPhysicalSkinChildIntegration.hpp"
 #include "NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp"
+#include "NumiHumanCanonicalDeepAttachmentRemap.hpp"
 #include "NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp"
 #include "NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp"
 #include "NumiHumanPhysicalSkinSupportParentMap.hpp"
@@ -22562,6 +22563,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         }
                         require(deepAttachmentRequests.size()==14u,
                                 "registered-volume install requires all 14 remapped D-domain attachments");
+                        std::vector<const WholeBodySkinDeepAttachmentSite*> canonicalSitesForRequests;
+                        std::string canonicalRequestError;
+                        require(metalrobo::human::canonical_deep_attachment_remap::authenticateCanonicalRequests(
+                                    kWholeBodySkinDeepAttachmentSites,deepAttachmentRequests,
+                                    sourceDomains[2].domain,canonicalSitesForRequests,
+                                    canonicalRequestError),
+                                "pinned D attachment requests rejected: "+canonicalRequestError);
                         pinFile(attachmentRequestsPath,"DEEP_ATTACHMENT_REQUESTS_SHA256");
                         for(unsigned layer=0u;layer<3u;++layer) {
                             const std::string role(roleNames[layer]);
@@ -25300,21 +25308,26 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             for(const auto& attachment:sidecars.deepAttachments) {
                 const auto site=std::find_if(kWholeBodySkinDeepAttachmentSites.begin(),
                     kWholeBodySkinDeepAttachmentSites.end(),[&](const auto& value) {
-                        return value.sourceVertex==attachment.stableAttachmentID&&
-                            value.reducedVertex==attachment.stableSourceVertex&&
-                            value.donorBody==attachment.donorBody;
+                        return value.sourceVertex==attachment.stableAttachmentID;
                     });
-                if(site==kWholeBodySkinDeepAttachmentSites.end()||
-                   site->reducedVertex>=parentFatDeepRowsForSupport.size()||
-                   !inheritedDeepAttachmentIDs.insert(attachment.stableAttachmentID).second) {
-                    continue;
-                }
+                require(site!=kWholeBodySkinDeepAttachmentSites.end()&&
+                            site->donorBody==attachment.donorBody&&
+                            site->reducedVertex<parentFatDeepRowsForSupport.size()&&
+                            inheritedDeepAttachmentIDs.insert(attachment.stableAttachmentID).second,
+                        "registered D attachment inventory differs from the immutable canonical ID/body set");
                 const auto parentNode=parentFatDeepRowsForSupport[site->reducedVertex];
-                if(inheritedDeepNodeDomainMatches&&attachment.volumeNodeRow==parentNode&&
+                require(std::find(parentDeepAttachmentRowsForSupport.begin(),
+                            parentDeepAttachmentRowsForSupport.end(),site->reducedVertex)!=
+                            parentDeepAttachmentRowsForSupport.end(),
+                        "canonical D attachment is absent from the original 14-row support inventory");
+                if(inheritedDeepNodeDomainMatches&&attachment.stableSourceVertex==site->reducedVertex&&
+                   attachment.volumeNodeRow==parentNode&&
                    provePhysicalSkinInheritedAttachmentNode(bundle,
                        parentPairedPhysicalPointsForSupport,attachment.volumeNodeRow,parentNode))
                     retainedExactParentDeepAttachmentIDs.insert(attachment.stableAttachmentID);
             }
+            require(inheritedDeepAttachmentIDs.size()==14u,
+                    "registered D attachments do not cover every canonical ID exactly once");
             const bool retainExactParentDeepConstraints=
                 retainedExactParentDeepAttachmentIDs.size()==14u;
             std::map<std::uint32_t,std::vector<std::pair<std::uint64_t,V3>>> selectedPerDonor;
@@ -25322,6 +25335,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 legacyOuterAttachmentPointsByDonor,actualParentDPointsByDonor,
                 registeredDPointsByDonor;
             std::set<std::uint64_t> exactParentMappedAttachmentIDs;
+            std::set<std::uint64_t> authenticatedCanonicalAttachmentIDs;
+            std::set<std::uint64_t> reboundCanonicalAttachmentIDs;
+            std::size_t canonicalReboundElasticLawRows=0u;
             std::size_t exactParentHardAnchorByteMatches=0u;
             std::size_t exactParentElasticSampleByteMatches=0u;
             double maximumExactParentFatThicknessDeltaM=0.0;
@@ -25379,6 +25395,15 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             bundle.independentFatDeep.sourceVertexIndices[attachment.deepSurfaceVertexRow]==
                                 attachment.stableSourceVertex,
                         "registered D attachment remap does not resolve to its exact typed source and volume row");
+                const auto canonicalSiteIt=std::find_if(kWholeBodySkinDeepAttachmentSites.begin(),
+                    kWholeBodySkinDeepAttachmentSites.end(),[&](const auto& value) {
+                        return value.sourceVertex==attachment.stableAttachmentID;
+                    });
+                require(canonicalSiteIt!=kWholeBodySkinDeepAttachmentSites.end()&&
+                            canonicalSiteIt->donorBody==attachment.donorBody,
+                        "registered D attachment ID/body is not an immutable canonical site");
+                const WholeBodySkinDeepAttachmentSite* canonicalSite=&*canonicalSiteIt;
+                const auto row=attachment.deepSurfaceVertexRow;
                 const WholeBodySkinDeepAttachmentSite* exactParentSite=nullptr;
                 if(retainedExactParentDeepAttachmentIDs.contains(attachment.stableAttachmentID)) {
                     require(preparedSkin.firstGlobalFEMNode==parentPreparedSkinFirstGlobalFEMNode&&
@@ -25419,7 +25444,6 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     actualParentDPointsByDonor[site->donorBody].emplace_back(site->sourceVertex,
                         V3{parentPoint[0],parentPoint[1],parentPoint[2]});
                 }
-                const auto row=attachment.deepSurfaceVertexRow;
                 if(exactParentSite) {
                     require(exactParentSite->reducedVertex<parentFatContactThicknessForSupport.size()&&
                                 row<preparedRegisteredFatThicknessByRole[2].size(),
@@ -25447,6 +25471,101 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 require(donorLaneCount==1u&&confidence>=minimumAnchorWeight&&
                             incidentAltitude[attachment.volumeNodeRow]>=minimumAnchorAltitudeM,
                         "registered D attachment fails its donor-specific weight or incident-altitude gate");
+                const std::uint64_t global64=
+                    std::uint64_t(preparedSkin.firstGlobalFEMNode)+attachment.volumeNodeRow;
+                require(global64<static_cast<std::uint64_t>(std::numeric_limits<std::uint32_t>::max())&&
+                            attachment.volumeNodeRow<incidentAltitude.size(),
+                        "registered D attachment global node index is invalid");
+                const auto global=static_cast<std::uint32_t>(global64);
+                const auto mass=registeredNodeOwnerLedger.find(global);
+                require(mass!=registeredNodeOwnerLedger.end()&&
+                            mass->second.donorBody==canonicalSite->donorBody,
+                        "registered canonical D attachment has no exact current source-donor mass owner");
+
+                const auto& currentDSurface=bundle.independentFatDeep;
+                const auto volumeNode=attachment.volumeNodeRow;
+                require(row<currentDSurface.sourceVertexIndices.size()&&
+                            row<currentDSurface.sourceDomainIndices.size()&&
+                            row<currentDSurface.sourceEmbeddingFaceIndices.size()&&
+                            volumeNode<bundle.volumeNodeSourceDomainIndices.size()&&
+                            volumeNode<bundle.volumeNodeSourceVertexIndices.size()&&
+                            volumeNode<bundle.volumeNodeSourceFaceIndices.size()&&
+                            volumeNode<bundle.volumeNodeParentTetrahedra.size()&&
+                            canonicalSite->reducedVertex<parentFatDeepRowsForSupport.size(),
+                        "canonical D attachment lost its authenticated current surface/volume ancestry rows");
+                const auto surfaceDomainIndex=currentDSurface.sourceDomainIndices[row];
+                const auto volumeDomainIndex=bundle.volumeNodeSourceDomainIndices[volumeNode];
+                require(surfaceDomainIndex<bundle.sourceDomains.size()&&
+                            volumeDomainIndex<bundle.sourceDomains.size()&&
+                            surfaceDomainIndex==volumeDomainIndex,
+                        "canonical D surface and volume rows use different typed source namespaces");
+                const auto& typedDomain=bundle.sourceDomains[surfaceDomainIndex];
+                require(typedDomain.role==PhysicalSkinSourceDomainRole::deepSurface&&
+                            typedDomain.domain==request->sourceDomain&&
+                            validPhysicalSkinSourceDomainSHA256(typedDomain.sourceSHA256)&&
+                            typedDomain.vertexCount==currentDSurface.worldPoints.size()&&
+                            typedDomain.faceCount==currentDSurface.faces.size(),
+                        "canonical D request does not resolve in the hash-pinned current deep-surface domain");
+                const auto sourceVertex=currentDSurface.sourceVertexIndices[row];
+                const auto surfaceSourceFace=currentDSurface.sourceEmbeddingFaceIndices[row];
+                const auto volumeSourceVertex=bundle.volumeNodeSourceVertexIndices[volumeNode];
+                const auto volumeSourceFace=bundle.volumeNodeSourceFaceIndices[volumeNode];
+                require(sourceVertex==attachment.stableSourceVertex&&
+                            volumeSourceVertex==attachment.stableSourceVertex&&
+                            surfaceSourceFace==NM_INVALID_INDEX&&
+                            volumeSourceFace==NM_INVALID_INDEX&&
+                            bundle.volumeNodeSourceDomainIndices[volumeNode]==surfaceDomainIndex,
+                        "canonical D surface/volume source rows are not the same direct current-domain vertex identity");
+                const auto parentTet=bundle.volumeNodeParentTetrahedra[volumeNode];
+                require(parentTet<bundle.parent.tetrahedra.size()&&
+                            parentTet<bundle.parent.materialIndices.size()&&
+                            parentTet<bundle.parent.donorBodyIndices.size()&&
+                            parentTet<bundle.parent.anatomicalRegionIndices.size()&&
+                            bundle.parent.materialIndices[parentTet]==16u,
+                        "canonical D attachment lacks a valid same-material historical source-parent tet");
+                const auto canonicalParentNode=
+                    parentFatDeepRowsForSupport[canonicalSite->reducedVertex];
+                metalrobo::human::canonical_deep_attachment_remap::SourceLineage sourceLineage;
+                sourceLineage.stableAttachmentID=attachment.stableAttachmentID;
+                sourceLineage.donorBody=attachment.donorBody;
+                sourceLineage.derivedSourceVertex=attachment.stableSourceVertex;
+                sourceLineage.sourceDomain=request->sourceDomain;
+                sourceLineage.surfaceVertexRow=row;
+                sourceLineage.volumeNodeRow=volumeNode;
+                sourceLineage.surfaceSourceVertex=sourceVertex;
+                sourceLineage.surfaceSourceFace=-1;
+                sourceLineage.surfaceSourceDomain=typedDomain.domain;
+                sourceLineage.volumeSourceVertex=volumeSourceVertex;
+                sourceLineage.volumeSourceFace=-1;
+                sourceLineage.volumeSourceDomain=typedDomain.domain;
+                // The importer retains one authenticated source-330 registration
+                // per volume node. Since this D surface row maps to this exact
+                // volume node, both lineage legs use that same registered tet.
+                sourceLineage.surfaceParentTet=parentTet;
+                sourceLineage.volumeParentTet=parentTet;
+                sourceLineage.originalParentVolumeNode=canonicalParentNode;
+                sourceLineage.sourceParentTetNodes=bundle.parent.tetrahedra[parentTet];
+                sourceLineage.volumeParentTetNodes=bundle.parent.tetrahedra[parentTet];
+                sourceLineage.surfaceDonor=currentDSurface.donorBodyIndices[row];
+                sourceLineage.frameOwnerDonor=roleState.roles[2].frameOwnerBodyIndices[row];
+                sourceLineage.massOwnerDonor=mass->second.donorBody;
+                sourceLineage.sourceParentGeometricDonor=
+                    bundle.parent.donorBodyIndices[parentTet];
+                sourceLineage.sourceParentRegion=
+                    bundle.parent.anatomicalRegionIndices[parentTet];
+                sourceLineage.donorFull86Weight=confidence;
+                sourceLineage.incidentAltitudeM=incidentAltitude[attachment.volumeNodeRow];
+                std::string sourceLineageError;
+                require(metalrobo::human::canonical_deep_attachment_remap::validateSourceLineage(
+                            *canonicalSite,*request,sourceLineage,minimumAnchorWeight,
+                            minimumAnchorAltitudeM,sourceLineageError),
+                        "canonical D attachment ancestry rejected: "+sourceLineageError);
+                require(authenticatedCanonicalAttachmentIDs.insert(
+                            attachment.stableAttachmentID).second,
+                        "canonical D attachment source lineage was accepted more than once");
+                const bool authenticatedCanonicalRemap=exactParentSite==nullptr;
+                if(authenticatedCanonicalRemap)
+                    reboundCanonicalAttachmentIDs.insert(attachment.stableAttachmentID);
                 const V3 point=wholeBodyFatDeepRest[row];
                 if(exactParentSite) {
                     for(unsigned axis=0u;axis<3u;++axis) {
@@ -25471,10 +25590,11 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         nearestPriorAttachmentID=priorAttachmentID;
                     }
                 }
-                // A newly selected or moved site must also clear sites that appear
-                // later in source order. Only unchanged inherited pairs retain the
-                // original sampling density; a remap cannot evade spacing by ordering.
-                if(!exactParentSite) {
+                // The fourteen lineage-authenticated canonical IDs retain their
+                // identity when rebound to current D reference points; they are not
+                // newly sampled sites. Every other new or moved site still checks
+                // spacing against requests on both sides of source order.
+                if(!exactParentSite&&!authenticatedCanonicalRemap) {
                     for(const auto& other:sidecars.deepAttachments) {
                         if(other.stableAttachmentID==attachment.stableAttachmentID||
                            other.donorBody!=attachment.donorBody)continue;
@@ -25489,7 +25609,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     }
                 }
                 if(selected.size()>=3u||
-                   (!exactParentSite&&nearestPriorSpacingM<minimumAnchorSpacingM)) {
+                   (!exactParentSite&&!authenticatedCanonicalRemap&&
+                    nearestPriorSpacingM<minimumAnchorSpacingM)) {
                     std::ostringstream anchorError;
                     anchorError<<std::setprecision(17)
                         <<"registered D attachments fail the existing per-donor count or spacing gate"
@@ -25510,14 +25631,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         <<" maximum_per_donor=3";
                     throw std::runtime_error(anchorError.str());
                 }
-                const std::uint64_t global64=
-                    std::uint64_t(preparedSkin.firstGlobalFEMNode)+attachment.volumeNodeRow;
-                require(global64<static_cast<std::uint64_t>(std::numeric_limits<std::uint32_t>::max())&&
-                            attachment.volumeNodeRow<incidentAltitude.size(),
-                        "registered D attachment global node index is invalid");
-                const auto global=static_cast<std::uint32_t>(global64);
-                const auto mass=registeredNodeOwnerLedger.find(global);
-                require(mass!=registeredNodeOwnerLedger.end()&&
+                require(authenticatedCanonicalAttachmentIDs.contains(
+                            attachment.stableAttachmentID)&&
                             mass->second.donorBody==attachment.donorBody,
                         "registered D attachment has no unique skin/fat source-donor mass owner row");
                 NMNumiHumanTendonFEMNodeAnchorGPU anchor{};
@@ -25548,7 +25663,49 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     sample.stiffnessAndNormalStrainPerPressure={
                         float(attachmentShearPa/preparedRegisteredFatThicknessByRole[2][row]),
                         float(1.0/attachmentShearPa),0.0f,0.0f};
-                    if(exactParentSite) {
+                    if(authenticatedCanonicalRemap) {
+                        const auto oldNode=parentFatDeepRowsForSupport[canonicalSite->reducedVertex];
+                        const std::uint64_t oldGlobal64=
+                            std::uint64_t(parentPreparedSkinFirstGlobalFEMNode)+oldNode;
+                        require(oldGlobal64<std::numeric_limits<std::uint32_t>::max(),
+                                "canonical source elastic sample global row overflows");
+                        const auto oldGlobal=static_cast<std::uint32_t>(oldGlobal64);
+                        const auto oldSample=std::find_if(
+                            parentSkinElasticSamplesForSupport.begin(),
+                            parentSkinElasticSamplesForSupport.end(),
+                            [&](const auto& value){return value.slaveNode==oldGlobal;});
+                        require(oldSample!=parentSkinElasticSamplesForSupport.end()&&
+                                    std::count_if(parentSkinElasticSamplesForSupport.begin(),
+                                        parentSkinElasticSamplesForSupport.end(),
+                                        [&](const auto& value){return value.slaveNode==oldGlobal;})==1&&
+                                    oldSample->bodyIndex==canonicalSite->donorBody&&
+                                    oldSample->flags==sample.flags,
+                                "canonical source elastic force law is absent or duplicated");
+                        const std::array<float,3> currentLocal{
+                            anchor.localPoint.x,anchor.localPoint.y,anchor.localPoint.z};
+                        const std::array<float,3> currentNormal{
+                            float(localNormal[0]),float(localNormal[1]),float(localNormal[2])};
+                        NMNumiHumanFEMBodyContactSampleGPU rebound{};
+                        require(metalrobo::human::canonical_deep_attachment_remap::rebindElasticSampleToCurrentRest(
+                                    *oldSample,global,canonicalSite->donorBody,sample.flags,
+                                    currentLocal,currentNormal,rebound),
+                                "canonical elastic attachment could not preserve its source force law at the current rest point");
+                        maximumGeneratedSampleLocalPointDeltaM=std::max({
+                            maximumGeneratedSampleLocalPointDeltaM,
+                            std::abs(double(oldSample->bodyLocalPointAndArea.x)-rebound.bodyLocalPointAndArea.x),
+                            std::abs(double(oldSample->bodyLocalPointAndArea.y)-rebound.bodyLocalPointAndArea.y),
+                            std::abs(double(oldSample->bodyLocalPointAndArea.z)-rebound.bodyLocalPointAndArea.z)});
+                        maximumGeneratedSampleAreaDeltaM2=std::max(maximumGeneratedSampleAreaDeltaM2,
+                            std::abs(double(oldSample->bodyLocalPointAndArea.w)-rebound.bodyLocalPointAndArea.w));
+                        maximumGeneratedSampleStiffnessDelta=std::max({
+                            maximumGeneratedSampleStiffnessDelta,
+                            std::abs(double(oldSample->stiffnessAndNormalStrainPerPressure.x)-
+                                     rebound.stiffnessAndNormalStrainPerPressure.x),
+                            std::abs(double(oldSample->stiffnessAndNormalStrainPerPressure.y)-
+                                     rebound.stiffnessAndNormalStrainPerPressure.y)});
+                        sample=rebound;
+                        ++canonicalReboundElasticLawRows;
+                    } else if(exactParentSite) {
                         const auto oldSample=std::find_if(
                             parentSkinElasticSamplesForSupport.begin(),
                             parentSkinElasticSamplesForSupport.end(),
@@ -25618,7 +25775,38 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                                 installedObject.femFixedNodes.end(),
                             "registered D attachment repeats a fixed volume node");
                     installedObject.femFixedNodes.push_back(attachment.volumeNodeRow);
-                    if(exactParentSite) {
+                    if(authenticatedCanonicalRemap) {
+                        const auto oldNode=parentFatDeepRowsForSupport[canonicalSite->reducedVertex];
+                        const std::uint64_t oldGlobal64=
+                            std::uint64_t(parentPreparedSkinFirstGlobalFEMNode)+oldNode;
+                        require(oldGlobal64<std::numeric_limits<std::uint32_t>::max(),
+                                "canonical source hard-anchor global row overflows");
+                        const auto oldGlobal=static_cast<std::uint32_t>(oldGlobal64);
+                        const auto oldAnchor=std::find_if(
+                            parentSkinReferenceAnchorsForSupport.begin(),
+                            parentSkinReferenceAnchorsForSupport.end(),
+                            [&](const auto& value){return value.first==oldGlobal;});
+                        require(oldAnchor!=parentSkinReferenceAnchorsForSupport.end()&&
+                                    std::count_if(parentSkinReferenceAnchorsForSupport.begin(),
+                                        parentSkinReferenceAnchorsForSupport.end(),
+                                        [&](const auto& value){return value.first==oldGlobal;})==1&&
+                                    oldAnchor->second.bodyIndex==canonicalSite->donorBody,
+                                "canonical source hard-anchor identity is absent or duplicated");
+                        const std::array<float,3> currentLocal{
+                            anchor.localPoint.x,anchor.localPoint.y,anchor.localPoint.z};
+                        NMNumiHumanTendonFEMNodeAnchorGPU rebound{};
+                        require(metalrobo::human::canonical_deep_attachment_remap::rebindHardAnchorToCurrentRest(
+                                    oldAnchor->second,canonicalSite->donorBody,
+                                    NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE,
+                                    currentLocal,rebound),
+                                "canonical hard anchor could not rebind to the current donor-local rest point");
+                        maximumGeneratedAnchorLocalPointDeltaM=std::max({
+                            maximumGeneratedAnchorLocalPointDeltaM,
+                            std::abs(double(oldAnchor->second.localPoint.x)-rebound.localPoint.x),
+                            std::abs(double(oldAnchor->second.localPoint.y)-rebound.localPoint.y),
+                            std::abs(double(oldAnchor->second.localPoint.z)-rebound.localPoint.z)});
+                        anchor=rebound;
+                    } else if(exactParentSite) {
                         const auto oldAnchor=std::find_if(
                             parentSkinReferenceAnchorsForSupport.begin(),
                             parentSkinReferenceAnchorsForSupport.end(),
@@ -25655,15 +25843,20 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 selected.emplace_back(attachment.stableAttachmentID,point);
             }
             require(wholeBodyDeepAttachmentRows.size()==14u&&
-                        skinReferenceAnchors.size()+skinElasticAttachmentSamples.size()==14u,
-                    "registered D attachment replacement did not retain exactly 14 remapped constraints");
+                        skinReferenceAnchors.size()+skinElasticAttachmentSamples.size()==14u&&
+                        authenticatedCanonicalAttachmentIDs.size()==14u&&
+                        reboundCanonicalAttachmentIDs.size()+
+                            retainedExactParentDeepAttachmentIDs.size()==14u,
+                    "registered D attachment replacement did not retain the exact canonical 14 constraints");
             require(exactParentMappedAttachmentIDs==retainedExactParentDeepAttachmentIDs,
                     "inherited D attachment selection differs from its per-node proof");
             std::cout<<"registered_volume_inherited_D_constraint_rows=PASS"
                 <<" inherited_constraints="<<retainedExactParentDeepAttachmentIDs.size()
-                <<" regenerated_constraints="<<(14u-retainedExactParentDeepAttachmentIDs.size())
+                <<" canonical_reference_rebinds="<<reboundCanonicalAttachmentIDs.size()
+                <<" rebound_elastic_source_laws="<<canonicalReboundElasticLawRows
                 <<" unchanged_rows_preserved_individually=1"
-                <<" new_site_spacing_checked_all_rows=1 physical_admission=0 simulation_steps=0"
+                <<" canonical_remap_spacing_exemption_authenticated=1"
+                <<" physical_admission=0 simulation_steps=0"
                 <<std::endl;
             if(retainExactParentDeepConstraints) {
                 require(exactParentMappedAttachmentIDs.size()==14u&&

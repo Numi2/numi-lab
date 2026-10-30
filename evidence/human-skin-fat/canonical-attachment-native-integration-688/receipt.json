@@ -1,0 +1,55 @@
+{
+  "schema": "numi-human-evidence.v1",
+  "base": "c498c43fcbe730ec08dc32e072f96ff5178501ea",
+  "source_files": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/CMakeLists.txt",
+      "relative": "CMakeLists.txt",
+      "bytes": 272573,
+      "sha256": "323839f339434f48552bd2443cf02d005aba873b10b986688eaec49d4df64d50"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/apps/NumiHumanCanonicalDeepAttachmentRemap.hpp",
+      "relative": "apps/NumiHumanCanonicalDeepAttachmentRemap.hpp",
+      "bytes": 11097,
+      "sha256": "972dc2e1ed48d5a555da69fe0a145c17293b72d0f7325925e8b6c73ff3416b6e"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/apps/NumiHumanCanonicalDeepAttachmentRemapCheck.cpp",
+      "relative": "apps/NumiHumanCanonicalDeepAttachmentRemapCheck.cpp",
+      "bytes": 10680,
+      "sha256": "fe83955964b49e4da6a39ca3dcb80d122dbed9adcb4f90b7b8b93643ec505b1a"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/apps/numilab_human_myosim_visual_probe.mm",
+      "relative": "apps/numilab_human_myosim_visual_probe.mm",
+      "bytes": 2685524,
+      "sha256": "762a65fd1ebd1f24e0015521a95fe790cc68dd29476fb64aa59092f16d1d78c0"
+    }
+  ],
+  "tests": {
+    "assert_enabled": true,
+    "asan_ubsan": true,
+    "leak_sanitizer_supported": false,
+    "test_results_sha256": "ad3f7462d9ad964ac7652749fcc5986bfb322a7b672889bee8c9131d08aad7af"
+  },
+  "native_build": {
+    "compile_seconds": 43.224457832984626,
+    "object_sha256": "2132621f07b98cf79af11dd241252f1c45f87dd7abc1b0bbaec6eb896bfb178f",
+    "binary_sha256": "aa4fc25fca3c9a02e84c1910ab152aee6f11bd7eb7faeae6f4d39a79101c3405",
+    "compile_result_sha256": "da2170ee60882efbe70d89ca2cde17a2c6510e0aae70503d1e00f705b0a0d7b0",
+    "link_result_sha256": "000b3bd32168a96ac926f74177843961abe2c880d949ca517b309bea963aeb69"
+  },
+  "canonical_sites": 14,
+  "source_force_law": "F=-k*d, E=0.5*k*dot(d,d), k=source_stiffness.x*source_area",
+  "source_force_area_and_stiffness_preserved": true,
+  "current_rest_rebinding": true,
+  "physical_admission": false,
+  "Runtime_created": 0,
+  "accepted_physical_steps": 0,
+  "limitations": [
+    "Current 149-target packet and two causal D anchor mappings are still preparation work.",
+    "No actual retetrahedralized physical candidate imported; no motion qualification.",
+    "The helper unit test does not itself measure GPU forces; the native source law was traced for parity."
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "version": 0,
+  "roots": [
+    {
+      "type": "file",
+      "name": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildMassMapping.hpp",
+      "external-contents": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-source/apps/NumiHumanPhysicalSkinChildMassMapping.hpp"
+    },
+    {
+      "type": "file",
+      "name": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp",
+      "external-contents": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-source/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp"
+    },
+    {
+      "type": "file",
+      "name": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanConservativeSpatialMassTransport.hpp",
+      "external-contents": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-baseline-dependencies/NumiHumanConservativeSpatialMassTransport.hpp"
+    },
+    {
+      "type": "file",
+      "name": "/Users/numi/Work/skin-fat-native-integration-209/apps/numilab_human_myosim_visual_probe.mm",
+      "external-contents": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/apps/numilab_human_myosim_visual_probe.mm"
+    },
+    {
+      "type": "file",
+      "name": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp",
+      "external-contents": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-baseline-dependencies/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp"
+    },
+    {
+      "type": "file",
+      "name": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp",
+      "external-contents": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-baseline-dependencies/NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp"
+    },
+    {
+      "type": "file",
+      "name": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp",
+      "external-contents": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-baseline-dependencies/NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp"
+    },
+    {
+      "type": "file",
+      "name": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanCanonicalDeepAttachmentRemap.hpp",
+      "external-contents": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/canonical-attachment-native-integration-688/publication-source/apps/NumiHumanCanonicalDeepAttachmentRemap.hpp"
+    }
+  ]
+}

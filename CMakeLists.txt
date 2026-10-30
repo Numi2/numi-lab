@@ -7127,3 +7127,14 @@ if(BUILD_TESTING)
     add_test(NAME human.physical_skin_support_parent_map
         COMMAND numi-human-physical-skin-support-parent-map-check)
 endif()
+
+# Canonical Human attachment rebinding preserves the native elastic law.
+add_executable(numi-human-canonical-deep-attachment-remap-check EXCLUDE_FROM_ALL
+    apps/NumiHumanCanonicalDeepAttachmentRemapCheck.cpp)
+target_include_directories(numi-human-canonical-deep-attachment-remap-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/apps")
+target_compile_features(numi-human-canonical-deep-attachment-remap-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-canonical-deep-attachment-remap-check PRIVATE -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME numi_human_canonical_deep_attachment_remap
+        COMMAND numi-human-canonical-deep-attachment-remap-check)
+endif()
