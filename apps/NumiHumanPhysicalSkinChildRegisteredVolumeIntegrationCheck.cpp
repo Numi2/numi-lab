@@ -857,12 +857,76 @@ void checkOperationalSpatialReference(const std::filesystem::path& root) {
         <<" authenticated_file_failures_atomic=PASS density_infeasible=PASS physical_admission=NOT_CLAIMED\n";
 }
 
+
+bool runtimeQualityPreflightChecks() {
+    using namespace physical_skin_registered_volume_integration_detail;
+    PhysicalSkinChildMassMappingBundle bundle;
+    bundle.referenceWorldPoints={{0,0,0},{1,0,0},{0,1,0},{0,0,1}};
+    bundle.childTetrahedra={{{0u,1u,2u,3u}}};
+    bundle.childMaterialIndices={15u};
+    PhysicalSkinRuntimeMeshQualityPreflightReport report;
+    std::string error;
+    if(!preflightPhysicalSkinRuntimeMeshQuality(bundle,report,error)||
+       report.childTetrahedra!=1u||report.normalizedDeterminantBelowFloor!=0u||
+       report.signedVolumeAtOrBelowFloor!=0u) {
+        std::cerr<<"well-shaped runtime tetrahedron failed the preflight: "<<error<<"\n";
+        return false;
+    }
+    bundle.referenceWorldPoints[3][2]=1.0e-6;
+    if(preflightPhysicalSkinRuntimeMeshQuality(bundle,report,error)||
+       report.normalizedDeterminantBelowFloor!=1u||report.signedVolumeAtOrBelowFloor!=0u||
+       report.firstNormalizedDeterminantFailureByRole[0]!=0u||
+       error.find("geometry-not-ready:")!=0u||error.find("first Skin/Fat rows=0/none")==std::string::npos) {
+        std::cerr<<"thin runtime tetrahedron did not fail only the normalized determinant gate: "<<error<<"\n";
+        return false;
+    }
+    bundle.referenceWorldPoints={{0,0,0},{1.0e-7,0,0},{0,1.0e-7,0},{0,0,1.0e-7}};
+    bundle.childMaterialIndices={16u};
+    if(preflightPhysicalSkinRuntimeMeshQuality(bundle,report,error)||
+       report.normalizedDeterminantBelowFloor!=0u||report.signedVolumeAtOrBelowFloor!=1u||
+       report.firstSignedVolumeFailureByRole[1]!=0u||
+       error.find("first Skin/Fat rows=none/0")==std::string::npos) {
+        std::cerr<<"small runtime tetrahedron did not fail the absolute volume gate: "<<error<<"\n";
+        return false;
+    }
+    std::cout<<"runtime_mesh_quality_preflight=PASS float32_normalized_determinant=1e-5 "
+        <<"absolute_signed_volume=1e-18m3 first_witnesses=PASS geometry_not_ready=PASS\n";
+    return true;
+}
+
+
+bool runtimeQualityStopsBeforeNodeMap(const std::filesystem::path& root) {
+    Fixture tiny;
+    tiny.scaleSyntheticGeometry(1.0e-7);
+    const auto directory=root/"runtime-quality-preflight-before-map";
+    std::filesystem::create_directories(directory);
+    PhysicalSkinRegisteredVolumeAssetFiles files;
+    tiny.writeFiles(directory,files);
+    files.combinedNodeMapCSV=directory/"intentionally-unavailable-map.csv";
+    auto bundle=tiny.parentBundle;
+    PhysicalSkinRegisteredVolumeImportSidecars sidecars;
+    PhysicalSkinRegisteredVolumeFileImportReport report;
+    std::vector<PhysicalSkinStableDeepAttachmentRequest> attachments;
+    std::string error;
+    if(importPhysicalSkinRegisteredVolumeFiles(files,std::string(64u,'0'),157u,0.02,
+       0.02,"",0u,0u,tiny.registered,attachments,tiny.poses,
+       bundle,sidecars,report,error)||
+       error.find("geometry-not-ready:")!=0u) {
+        std::cerr<<"runtime geometry gate did not stop before the unavailable node map: "<<error<<"\n";
+        return false;
+    }
+    std::cout<<"runtime_mesh_quality_import_order=PASS quality_gate_precedes_node_map_import\n";
+    return true;
+}
+
 int main() {
+    assert(runtimeQualityPreflightChecks());
     Fixture fixture;
     const auto root=std::filesystem::temp_directory_path()/
         ("numi-registered-volume-import-"+std::to_string(
             std::chrono::steady_clock::now().time_since_epoch().count()));
     std::filesystem::create_directories(root);
+    assert(runtimeQualityStopsBeforeNodeMap(root));
     checkNativeFloat32FrameContract(root);
     checkOperationalSpatialReference(root/"spatial-route");
     PhysicalSkinRegisteredVolumeAssetFiles files;

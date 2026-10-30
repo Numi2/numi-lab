@@ -6,6 +6,7 @@
 // The legacy paired-layer builder remains unchanged.
 #include "NumiHumanCoarseTissuePreparation.hpp"
 #include "NumiHumanConservativeSpatialMassTransport.hpp"
+#include "ConservativeSpatialFractionalSemanticSupport.hpp"
 #include "NumiHumanParentReferenceMassTransfer.hpp"
 #include "NumiHumanSkinBoundaryNodeMap.hpp"
 
@@ -60,6 +61,11 @@ struct ExplicitUnpairedVolumeTopology {
     // Required only for conservative spatial mass transport. Region identity is
     // checked as an exact barrier alongside material, donor and distance.
     std::span<const std::uint32_t> childAnatomicalRegionIndices;
+    // Explicit opt-in route for mixed semantic support within one mechanical
+    // child tet. The support CSR partitions mass receivers only; it never
+    // creates additional volume cells or changes physical topology.
+    bool fractionalSemanticMassRouteRequired=false;
+    ConservativeSpatialChildSemanticSupport fractionalSemanticSupport;
 
     std::span<const V3> parentReferenceWorldPoints;
     std::span<const std::array<std::uint32_t,4>> parentTetrahedra;
@@ -292,6 +298,8 @@ struct ExplicitUnpairedVolumeReport {
     std::size_t massTransportEdgeCount=0u;
     double maximumMassTransportDistanceUsedM=0.0;
     double massWeightedMeanTransportDistanceM=0.0;
+    bool usesFractionalSemanticSupport=false;
+    std::string fractionalSemanticSupportSHA256;
 };
 
 [[nodiscard]] inline bool appendRegisteredSkinFatUnpairedVolume(
@@ -374,6 +382,46 @@ struct ExplicitUnpairedVolumeReport {
         return fail("unpaired skin/fat boundary map volume count differs from the exact source node table");
     const bool hasSpatialMassTransfer=topology.massTransferKind==
         UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport;
+    const auto& semanticSupport=topology.fractionalSemanticSupport;
+    const bool hasAnySemanticSupport=!semanticSupport.childOffsets.empty()||
+        !semanticSupport.slotGroupIndices.empty()||!semanticSupport.volumeFractions.empty()||
+        !semanticSupport.groupMaterialIndices.empty()||!semanticSupport.donorBodyIndices.empty()||
+        !semanticSupport.anatomicalRegionIndices.empty()||!semanticSupport.derivedGroupIdentityIDs.empty()||
+        !semanticSupport.parentStableSourceFaceIdentities.empty()||
+        !semanticSupport.sourceParentTetOffsets.empty()||!semanticSupport.sourceParentTetRows.empty()||
+        !semanticSupport.sourceStableFaceOffsets.empty()||!semanticSupport.sourceStableFaceRows.empty()||
+        !semanticSupport.typedSupportSHA256.empty();
+    if(topology.fractionalSemanticMassRouteRequired){
+        if(!hasSpatialMassTransfer||!hasAnySemanticSupport)
+            return fail("fractional semantic support requires a complete explicitly routed spatial mass receipt");
+        if(semanticSupport.childOffsets.size()!=nt+1u||semanticSupport.childOffsets.empty()||
+           semanticSupport.childOffsets.front()!=0u||
+           semanticSupport.childOffsets.back()!=semanticSupport.slotGroupIndices.size()||
+           semanticSupport.slotGroupIndices.size()!=semanticSupport.volumeFractions.size()||
+           semanticSupport.groupMaterialIndices.empty()||
+           semanticSupport.donorBodyIndices.size()!=semanticSupport.groupMaterialIndices.size()||
+           semanticSupport.anatomicalRegionIndices.size()!=semanticSupport.groupMaterialIndices.size()||
+           semanticSupport.derivedGroupIdentityIDs.size()!=semanticSupport.groupMaterialIndices.size()||
+           semanticSupport.sourceParentTetOffsets.size()!=semanticSupport.groupMaterialIndices.size()+1u||
+           semanticSupport.sourceStableFaceOffsets.size()!=semanticSupport.groupMaterialIndices.size()+1u||
+           semanticSupport.parentStableSourceFaceIdentities.size()!=topology.parentTetrahedra.size())
+            return fail("fractional semantic support CSR dimensions do not match current child/parent domains");
+        for(std::size_t child=0;child<nt;++child)
+            if(semanticSupport.childOffsets[child]>=semanticSupport.childOffsets[child+1u]||
+               semanticSupport.childOffsets[child+1u]>semanticSupport.slotGroupIndices.size())
+                return fail("fractional semantic support has an empty or out-of-range child row");
+        for(const auto group:semanticSupport.slotGroupIndices)
+            if(group>=semanticSupport.groupMaterialIndices.size())
+                return fail("fractional semantic support references an absent global group");
+        for(std::size_t group=0;group<semanticSupport.groupMaterialIndices.size();++group)
+            if(semanticSupport.sourceParentTetOffsets[group]>semanticSupport.sourceParentTetOffsets[group+1u]||
+               semanticSupport.sourceParentTetOffsets[group+1u]>semanticSupport.sourceParentTetRows.size()||
+               semanticSupport.sourceStableFaceOffsets[group]>semanticSupport.sourceStableFaceOffsets[group+1u]||
+               semanticSupport.sourceStableFaceOffsets[group+1u]>semanticSupport.sourceStableFaceRows.size())
+                return fail("fractional semantic group provenance CSR offsets are invalid");
+    }else if(hasAnySemanticSupport){
+        return fail("fractional semantic support is present without its explicit route flag");
+    }
     const auto receipt=topology.ancestryVerificationReceiptSHA256;
     if(topology.massTransferKind!=UnpairedVolumeMassTransferKind::none&&!hasSpatialMassTransfer)
         return fail("unpaired skin/fat mass transfer kind is unsupported");
@@ -603,6 +651,12 @@ struct ExplicitUnpairedVolumeReport {
     std::array<std::vector<std::uint32_t>,3> layerFaceCounts;
     for(unsigned role=0;role<3u;++role)layerFaceCounts[role].assign(roleSurfaces[role]->faces.size(),0u);
     std::vector<std::array<std::uint32_t,2>> interfaceMaterialCounts(roleSurfaces[1]->faces.size());
+    std::vector<std::uint32_t> semanticGroupForParent;
+    const bool hasOneHopSemanticSupport=!semanticSupport.cellAdmissibleRegionOffsets.empty();
+    if(topology.fractionalSemanticMassRouteRequired&&
+       !fractional_semantic_transport_detail::buildSourceParentGroupMap(
+           semanticSupport,topology.parentTetrahedra.size(),semanticGroupForParent))
+        return fail("unpaired fractional semantic source-parent group map is incomplete or ambiguous");
     for(std::size_t child=0;child<nt;++child){
         const auto material=topology.childMaterialIndices[child];
         const auto parent=topology.childDominantParentTetrahedra[child];
@@ -611,10 +665,29 @@ struct ExplicitUnpairedVolumeReport {
         if((material!=skinMaterialIndex&&material!=fatMaterialIndex)||
            parent>=topology.parentTetrahedra.size()||donor==invalid||donor>=sourceBodyCount||stable==invalid||
            topology.parentMaterialIndices[parent]!=material||
-           topology.parentDonorBodyIndices[parent]!=donor||
            topology.parentStableSourceFaceIdentities[parent]==invalid||
            (topology.childParentSurfaceFaces[child]!=invalid&&topology.childParentSurfaceFaces[child]>=surface.faces.size()))
-            return fail("unpaired skin/fat child has inconsistent material, dominant donor, parent, or source-face identity at tet "+std::to_string(child));
+            return fail("unpaired skin/fat child has inconsistent material, dominant parent, or source-face identity at tet "+std::to_string(child));
+        if(!topology.fractionalSemanticMassRouteRequired){
+            if(topology.parentDonorBodyIndices[parent]!=donor||
+               topology.parentAnatomicalRegionIndices[parent]!=topology.childAnatomicalRegionIndices[child])
+                return fail("unpaired skin/fat child dominant donor or region differs from its scalar label");
+        }else{
+            const auto group=semanticGroupForParent[parent];
+            if(group>=semanticSupport.groupMaterialIndices.size()||
+               semanticSupport.groupMaterialIndices[group]!=material||
+               semanticSupport.donorBodyIndices[group]!=topology.parentDonorBodyIndices[parent]||
+               semanticSupport.anatomicalRegionIndices[group]!=topology.parentAnatomicalRegionIndices[parent])
+                return fail("unpaired fractional semantic dominant parent is absent from its registered source group");
+            const bool admissible=hasOneHopSemanticSupport?
+                (semanticSupport.groupMaterialIndices[group]==material&&
+                 fractional_semantic_transport_detail::childAllowsSourceRegion(
+                     semanticSupport,static_cast<std::uint32_t>(child),topology.parentAnatomicalRegionIndices[parent])):
+                fractional_semantic_transport_detail::childPrefersSemanticGroup(
+                    semanticSupport,static_cast<std::uint32_t>(child),group);
+            if(!admissible)
+                return fail("unpaired fractional semantic dominant parent is outside the child's authenticated one-hop support or legacy P1 preference");
+        }
         auto ids=topology.childTetrahedra[child];auto sorted=ids;std::sort(sorted.begin(),sorted.end());
         if(sorted[0]==sorted[1]||sorted[1]==sorted[2]||sorted[2]==sorted[3]||sorted[3]>=n)
             return fail("unpaired skin/fat child has repeated or out-of-range node IDs at tet "+std::to_string(child));
@@ -892,12 +965,21 @@ struct ExplicitUnpairedVolumeReport {
         transportInput.absoluteMeasureToleranceM3=1.0e-15;
         transportInput.maximumAllowedEdges=3'000'000u;
         transportInput.maximumAugmentations=300'000u;
+#if defined(NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY)
+        if(topology.fractionalSemanticMassRouteRequired){
+            transportInput.maximumAllowedEdges=12'000'000u;
+            transportInput.maximumAugmentations=4'000'000u;
+        }
+#endif
         if(recorded.childDominantParentRows.size()!=nt||
            !std::equal(recorded.childDominantParentRows.begin(),recorded.childDominantParentRows.end(),
                        topology.childDominantParentTetrahedra.begin()))
             return fail("spatial mass coupling dominant parent labels differ from the recorded child flow");
-        if(!verifyRecordedConservativeSpatialMassTransport(
-                transportInput,recorded,error))
+        const bool flowVerified=topology.fractionalSemanticMassRouteRequired?
+            verifyRecordedConservativeSpatialMassTransportWithSemanticSupport(
+                transportInput,semanticSupport,recorded,error):
+            verifyRecordedConservativeSpatialMassTransport(transportInput,recorded,error);
+        if(!flowVerified)
             return fail("spatial mass coupling recorded flow failed current-tet/material/region/source admission: "+error);
     }
 
@@ -989,11 +1071,13 @@ struct ExplicitUnpairedVolumeReport {
             const double transferred=transfer.childMassKg[child];
             childMassKg[child]=transferred;
             childMassByMaterialKg[material]+=transferred;
-            childMassByDonorKg[{material,topology.childDonorBodyIndices[child]}]+=transferred;
-            const double nodeShare=0.25*transferred;
-            for(const auto node:topology.childTetrahedra[child]){
-                ancestryMassByNodeDonorKg[{material,node,topology.childDonorBodyIndices[child]}]+=nodeShare;
-                nodeOwnerMassByNodeDonorKg[{material,node,topology.volumeNodeDonorBodyIndices[node]}]+=nodeShare;
+            if(!topology.fractionalSemanticMassRouteRequired){
+                childMassByDonorKg[{material,topology.childDonorBodyIndices[child]}]+=transferred;
+                const double nodeShare=0.25*transferred;
+                for(const auto node:topology.childTetrahedra[child]){
+                    ancestryMassByNodeDonorKg[{material,node,topology.childDonorBodyIndices[child]}]+=nodeShare;
+                    nodeOwnerMassByNodeDonorKg[{material,node,topology.volumeNodeDonorBodyIndices[node]}]+=nodeShare;
+                }
             }
             for(std::uint32_t edge=transfer.childParentOffsets[child];
                 edge<transfer.childParentOffsets[child+1u];++edge){
@@ -1001,6 +1085,15 @@ struct ExplicitUnpairedVolumeReport {
                 const double edgeMass=transfer.childParentTransportMassKg[edge];
                 const auto parentTet=topology.parentTetrahedra[parent];
                 const double childCornerMass=edgeMass*0.25;
+                if(topology.fractionalSemanticMassRouteRequired){
+                    const auto semanticDonor=topology.parentDonorBodyIndices[parent];
+                    childMassByDonorKg[{material,semanticDonor}]+=edgeMass;
+                    const double nodeShare=edgeMass*0.25;
+                    for(const auto node:topology.childTetrahedra[child]){
+                        ancestryMassByNodeDonorKg[{material,node,semanticDonor}]+=nodeShare;
+                        nodeOwnerMassByNodeDonorKg[{material,node,topology.volumeNodeDonorBodyIndices[node]}]+=nodeShare;
+                    }
+                }
                 for(const auto childNode:topology.childTetrahedra[child])
                     for(const auto parentNode:parentTet){
                         const NodeMaterialKey sourceKey{parentNode,material};
@@ -1061,6 +1154,9 @@ struct ExplicitUnpairedVolumeReport {
             }
         }
         report={};report.usesPerChildMassLedger=true;
+        report.usesFractionalSemanticSupport=topology.fractionalSemanticMassRouteRequired;
+        if(topology.fractionalSemanticMassRouteRequired)
+            report.fractionalSemanticSupportSHA256=fractional_semantic_transport_detail::supportDigest(semanticSupport);
         report.usesParentNodeSourceMassContributions=hasParentNodeSourceMassLedger;
         report.maximumSourceNodeCookRoundingErrorKg=maximumSourceCookErrorKg;
         report.maximumSourceNodeCookRoundingRelativeError=maximumSourceCookRelativeError;
@@ -1290,6 +1386,9 @@ struct ExplicitUnpairedVolumeReport {
     report.nodeMassAttributionMismatches=std::move(nodeMassAttributionMismatches);
     report.skinVolumeM3=skinVolume;report.fatVolumeM3=fatVolume;report.skinDensityKgM3=rhoSkin;report.fatDensityKgM3=rhoFat;
     report.usesPerChildMassLedger=hasPerChildMassLedger;
+    report.usesFractionalSemanticSupport=topology.fractionalSemanticMassRouteRequired;
+    if(topology.fractionalSemanticMassRouteRequired)
+        report.fractionalSemanticSupportSHA256=fractional_semantic_transport_detail::supportDigest(semanticSupport);
     if(hasPerChildMassLedger){
         report.skinParentMassKg=parentMassByMaterialKg[skinMaterialIndex];
         report.fatParentMassKg=parentMassByMaterialKg[fatMaterialIndex];

@@ -9,12 +9,17 @@
 #include "NumiHumanPhysicalSkinChildRegisteredVolumeCSV.hpp"
 #include "NumiHumanPhysicalSkinChildRegisteredFacetMaps.hpp"
 #include "NumiHumanParentReferenceMassTransfer.hpp"
+#include "NumiHumanFractionalSemanticSupportImport.hpp"
+#include "NumiHumanSourceCarrierQuadratureImport.hpp"
+#include "NumiHumanP1SupportedReferenceAnchorImport.hpp"
+#include "NumiHumanRecordedCarrierAllocationImport.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cctype>
 #include <cmath>
 #include <iterator>
+#include <limits>
 #include <numeric>
 #include <optional>
 #include <filesystem>
@@ -39,6 +44,7 @@ struct PhysicalSkinOperationalReferencePullbackAssets {
     // conservative spatial mass problem for arbitrary repaired cell topology.
     // This is not a same-topology pullback or a conforming-refinement claim.
     bool conservativeSpatialReference=false;
+    bool fractionalSemanticMassRouteRequired=false;
 };
 
 struct PhysicalSkinRegisteredVolumeAssetFiles {
@@ -49,6 +55,10 @@ struct PhysicalSkinRegisteredVolumeAssetFiles {
     std::filesystem::path facetAncestryCSV;   // existing quoted-ancestry CSV
     // Order: node, elements, labels, combined node map, facet ancestry.
     std::array<std::string,5> expectedSHA256{};
+    std::optional<PhysicalSkinFractionalSemanticSupportAssets> fractionalSemanticSupport;
+    std::optional<PhysicalSkinSourceCarrierQuadratureAssets> sourceCarrierQuadrature;
+    std::optional<PhysicalSkinP1SupportedReferenceAnchorAssets> p1SupportedReferenceAnchor;
+    std::optional<std::array<PhysicalSkinRecordedCarrierAllocationCSVAssets,2>> recordedCarrierAllocationCSV;
     PhysicalSkinRegisteredVolumeRegistrationDomain registrationDomain=
         PhysicalSkinRegisteredVolumeRegistrationDomain::sourceMassParent;
     std::optional<PhysicalSkinOperationalReferencePullbackAssets> operationalReferencePullback;
@@ -73,6 +83,16 @@ struct PhysicalSkinRegisteredVolumeFileImportReport {
     double maximumSpatialMassTransportDistanceM=0.0;
     double maximumSourceParentRegistrationDistanceM=0.0;
     double maximumSourceToCandidateReferenceDistanceM=0.0;
+    bool fractionalSemanticSupportVerified=false;
+    std::string fractionalSemanticSupportVerificationSHA256;
+    PhysicalSkinFractionalSemanticSupportImportReport fractionalSemanticSupportImport;
+    bool sourceCarrierQuadratureVerified=false;
+    PhysicalSkinSourceCarrierQuadratureImportReport sourceCarrierQuadratureImport;
+    std::string sourceCarrierTransportTraceSHA256;
+    bool p1SupportedReferenceAnchorVerified=false;
+    PhysicalSkinP1SupportedReferenceAnchorImportReport p1SupportedReferenceAnchorImport;
+    std::array<PhysicalSkinRecordedCarrierAllocationCSVImportReport,2> recordedCarrierAllocationCSVImport{};
+    bool recordedCarrierAllocationCSVVerified=false;
     bool physicalAdmission=false;
 };
 
@@ -86,6 +106,103 @@ inline std::string operationalReferenceDomainSHA256(
     hash.string("positive-f32-tetgen-reference-with-explicit-cell-labels");
     return hash.finish();
 }
+struct PhysicalSkinRuntimeMeshQualityPreflightReport {
+    std::size_t childTetrahedra=0u;
+    std::size_t normalizedDeterminantBelowFloor=0u;
+    std::size_t signedVolumeAtOrBelowFloor=0u;
+    std::array<std::size_t,2> normalizedDeterminantBelowFloorByRole{};
+    std::array<std::size_t,2> signedVolumeAtOrBelowFloorByRole{};
+    std::array<std::uint32_t,2> firstNormalizedDeterminantFailureByRole{
+        NM_INVALID_INDEX,NM_INVALID_INDEX};
+    std::array<std::uint32_t,2> firstSignedVolumeFailureByRole{
+        NM_INVALID_INDEX,NM_INVALID_INDEX};
+    std::array<double,2> minimumNormalizedDeterminantByRole{
+        std::numeric_limits<double>::infinity(),std::numeric_limits<double>::infinity()};
+    std::array<double,2> minimumSignedVolumeM3ByRole{
+        std::numeric_limits<double>::infinity(),std::numeric_limits<double>::infinity()};
+};
+
+[[nodiscard]] inline bool preflightPhysicalSkinRuntimeMeshQuality(
+        const PhysicalSkinChildMassMappingBundle& bundle,
+        PhysicalSkinRuntimeMeshQualityPreflightReport& report,std::string& error) {
+    const auto fail=[&](std::string message){error=std::move(message);return false;};
+    report={};
+    const auto& points=bundle.referenceWorldPoints;
+    const auto& tets=bundle.childTetrahedra;
+    const auto& materials=bundle.childMaterialIndices;
+    if(points.empty()||tets.empty()||materials.size()!=tets.size()||
+       points.size()>std::numeric_limits<std::uint32_t>::max()||
+       tets.size()>std::numeric_limits<std::uint32_t>::max())
+        return fail("physical runtime mesh quality preflight has incomplete point/tet/material domains");
+    report.childTetrahedra=tets.size();
+    constexpr double minimumNormalizedDeterminant=1.0e-5;
+    constexpr double minimumSignedTetVolumeM3=1.0e-18;
+    for(std::size_t child=0;child<tets.size();++child){
+        const auto material=materials[child];
+        const std::size_t role=material==15u?0u:(material==16u?1u:2u);
+        std::array<V3,4> emitted{};
+        for(unsigned corner=0;corner<4u;++corner){
+            const auto node=tets[child][corner];
+            if(node>=points.size())return fail("physical runtime mesh quality preflight found an out-of-range tet node");
+            for(unsigned axis=0;axis<3u;++axis){
+                const double coordinate=points[node][axis];
+                if(!std::isfinite(coordinate))return fail("physical runtime mesh quality preflight found a nonfinite node coordinate");
+                emitted[corner][axis]=static_cast<double>(static_cast<float>(coordinate));
+            }
+        }
+        double longest=0.0;
+        for(unsigned a=0;a<4u;++a)for(unsigned b=a+1u;b<4u;++b){
+            const double dx=emitted[a][0]-emitted[b][0];
+            const double dy=emitted[a][1]-emitted[b][1];
+            const double dz=emitted[a][2]-emitted[b][2];
+            longest=std::max(longest,std::sqrt(dx*dx+dy*dy+dz*dz));
+        }
+        const double signedVolume=tetVolume(emitted[0],emitted[1],emitted[2],emitted[3]);
+        const double normalizedDeterminant=longest>0.0&&std::isfinite(longest)?
+            6.0*signedVolume/(longest*longest*longest):-std::numeric_limits<double>::infinity();
+        if(role<2u){
+            report.minimumNormalizedDeterminantByRole[role]=std::min(
+                report.minimumNormalizedDeterminantByRole[role],normalizedDeterminant);
+            report.minimumSignedVolumeM3ByRole[role]=std::min(
+                report.minimumSignedVolumeM3ByRole[role],signedVolume);
+        }
+        if(!std::isfinite(normalizedDeterminant)||normalizedDeterminant<minimumNormalizedDeterminant){
+            ++report.normalizedDeterminantBelowFloor;
+            if(role<2u){
+                ++report.normalizedDeterminantBelowFloorByRole[role];
+                if(report.firstNormalizedDeterminantFailureByRole[role]==NM_INVALID_INDEX)
+                    report.firstNormalizedDeterminantFailureByRole[role]=static_cast<std::uint32_t>(child);
+            }
+        }
+        if(!std::isfinite(signedVolume)||signedVolume<=minimumSignedTetVolumeM3){
+            ++report.signedVolumeAtOrBelowFloor;
+            if(role<2u){
+                ++report.signedVolumeAtOrBelowFloorByRole[role];
+                if(report.firstSignedVolumeFailureByRole[role]==NM_INVALID_INDEX)
+                    report.firstSignedVolumeFailureByRole[role]=static_cast<std::uint32_t>(child);
+            }
+        }
+    }
+    if(report.normalizedDeterminantBelowFloor||report.signedVolumeAtOrBelowFloor){
+        const auto witness=[](const std::uint32_t row){
+            return row==NM_INVALID_INDEX?std::string("none"):std::to_string(row);
+        };
+        error="geometry-not-ready: Float32 runtime quality preflight found normalizedDet<1e-5="+
+            std::to_string(report.normalizedDeterminantBelowFloor)+" (Skin="+
+            std::to_string(report.normalizedDeterminantBelowFloorByRole[0])+", Fat="+
+            std::to_string(report.normalizedDeterminantBelowFloorByRole[1])+
+            "; first Skin/Fat rows="+witness(report.firstNormalizedDeterminantFailureByRole[0])+"/"+
+            witness(report.firstNormalizedDeterminantFailureByRole[1])+") and signedVolume<=1e-18m3="+
+            std::to_string(report.signedVolumeAtOrBelowFloor)+" (Skin="+
+            std::to_string(report.signedVolumeAtOrBelowFloorByRole[0])+", Fat="+
+            std::to_string(report.signedVolumeAtOrBelowFloorByRole[1])+
+            "; first Skin/Fat rows="+witness(report.firstSignedVolumeFailureByRole[0])+"/"+
+            witness(report.firstSignedVolumeFailureByRole[1])+")";
+        return false;
+    }
+    error.clear();return true;
+}
+
 inline bool sameImmutableParentPacket(const PhysicalSkinParentMassPacket& a,
                                       const PhysicalSkinParentMassPacket& b) {
     return a.currentWorldPoints==b.currentWorldPoints&&a.referenceWorldPoints==b.referenceWorldPoints&&
@@ -302,6 +419,7 @@ inline bool verifyOperationalReferencePullback(
         std::string& conformingTissueVerificationSHA256,
         PhysicalSkinVerifiedConformingMassRoute& verifiedMassRoute,
         ConservativeSpatialMassTransportResult& verifiedSpatialTransport,
+        SourceCellCarrierTransportTrace& verifiedSourceCarrierTrace,
         std::string& spatialReferenceVerificationSHA256,std::string& error) {
     PhysicalSkinChildMassMappingBundle source;source.parent=candidate.parent;
     PhysicalSkinChildTetGenImportReport sourceReport;
@@ -336,6 +454,12 @@ inline bool verifyOperationalReferencePullback(
     }
     if(proof.conservativeSpatialReference&&proof.conformingTissueRefinement){
         error="operational-reference routes are mutually exclusive";return false;
+    }
+    if(proof.fractionalSemanticMassRouteRequired&&!proof.conservativeSpatialReference){
+        error="fractional semantic support is available only on the authenticated conservative spatial-reference route";return false;
+    }
+    if(proof.fractionalSemanticMassRouteRequired&&!candidate.fractionalSemanticMassRouteRequired){
+        error="fractional semantic support was required but not imported into the candidate mass bundle";return false;
     }
     if(proof.conformingTissueRefinement){
         PhysicalSkinVerifiedConformingReference refined;
@@ -472,6 +596,24 @@ inline bool verifyOperationalReferencePullback(
         chain.string(candidateNodeMapSHA256);chain.string(candidateFacetMapSHA256);
         chain.string(coordinateFrameSHA256);
         chain.string(mapped.spatialMassTransportResult.receiptSHA256);
+        if(mapped.sourceCarrierQuadrature.importedAndVerified&&mapped.sourceCarrierQuadrature.hasCarriers()){
+            if(!physical_skin_child_mass_detail::validSHA256(mapped.sourceCarrierQuadrature.transportTrace.receiptSHA256)){
+                error="source-carrier transport trace lacks a current-input feasibility receipt";return false;
+            }
+            chain.string(mapped.sourceCarrierQuadrature.verificationSHA256);
+            chain.string(mapped.sourceCarrierQuadrature.transportTrace.receiptSHA256);
+            const auto& recorded=mapped.sourceCarrierQuadrature.recordedAllocation;
+            if(recorded.importedAndPinned){
+                if(!physical_skin_child_mass_detail::validSHA256(recorded.allocationReceiptSHA256)||
+                   !physical_skin_child_mass_detail::validSHA256(recorded.sourceCarrierFlowTraceSHA256)){
+                    error="recorded role allocation receipt or producer flow trace pin is missing";return false;
+                }
+                chain.string(recorded.allocationReceiptSHA256);
+                chain.string(recorded.sourceCarrierFlowTraceSHA256);
+                for(const auto& sha:recorded.roleReceiptSHA256)chain.string(sha);
+            }
+            verifiedSourceCarrierTrace=mapped.sourceCarrierQuadrature.transportTrace;
+        }
         spatialReferenceVerificationSHA256=chain.finish();
         verifiedSpatialTransport=std::move(mapped.spatialMassTransportResult);
         result={}; // No same-topology correspondence is asserted for this route.
@@ -563,6 +705,11 @@ inline bool verifyOperationalReferencePullback(
             coordinateFrameSHA256,sourceBodyCount,maximumMassTransportDistanceM,
             nextBundle,tetgenReport,error))
         return false;
+    PhysicalSkinRuntimeMeshQualityPreflightReport runtimeQuality;
+    if(!preflightPhysicalSkinRuntimeMeshQuality(nextBundle,runtimeQuality,error))return false;
+    nextBundle.fractionalSemanticMassRouteRequired=false;
+    nextBundle.fractionalSemanticSupport={};
+    nextBundle.sourceCarrierQuadrature={};
     const std::array<std::string,3> tetgenHashes{
         tetgenReport.nodeFileSHA256,tetgenReport.elementFileSHA256,tetgenReport.labelFileSHA256};
     const bool separatedOperationalReference=files.registrationDomain==
@@ -578,6 +725,69 @@ inline bool verifyOperationalReferencePullback(
         return fail("candidate operational-reference hash could not be derived from its pinned geometry/label inputs");
     if(separatedOperationalReference!=registered.parentRegistrationIsHistoricalProvenanceOnly)
         return fail("surface source-parent registration mode differs from the declared operational-reference split");
+    const bool fractionalRequired=separatedOperationalReference&&
+        files.operationalReferencePullback->fractionalSemanticMassRouteRequired;
+    if(fractionalRequired!=files.fractionalSemanticSupport.has_value())
+        return fail("fractional semantic route flag and its two-role support assets must be supplied together");
+    PhysicalSkinFractionalSemanticSupportImportReport fractionalSupportReport;
+    PhysicalSkinSourceCarrierQuadratureImportReport sourceCarrierImportReport;
+    PhysicalSkinP1SupportedReferenceAnchorImportReport p1AnchorImportReport;
+    std::array<PhysicalSkinRecordedCarrierAllocationCSVImportReport,2> recordedAllocationCSVReports{};
+    if(fractionalRequired){
+        if(!files.operationalReferencePullback->conservativeSpatialReference)
+            return fail("fractional semantic support cannot be attached to a non-spatial operational-reference route");
+        if(!loadPhysicalSkinFractionalSemanticSupport090(*files.fractionalSemanticSupport,nextBundle,
+                nextBundle.fractionalSemanticSupport,fractionalSupportReport,error))
+            return fail("authenticated fractional semantic support rejected: "+error);
+        nextBundle.fractionalSemanticMassRouteRequired=true;
+    }
+    if(files.sourceCarrierQuadrature){
+        if(!fractionalRequired)
+            return fail("source-carrier quadrature requires the authenticated paired fractional semantic route");
+        if(!loadPhysicalSkinSourceCarrierQuadrature090(*files.sourceCarrierQuadrature,
+                *files.fractionalSemanticSupport,fractionalSupportReport,nextBundle,
+                {files.expectedSHA256[0],files.expectedSHA256[1],files.expectedSHA256[2]},
+                nextBundle.sourceCarrierQuadrature,sourceCarrierImportReport,error))
+            return fail("authenticated source-carrier quadrature rejected: "+error);
+    }
+    if(files.p1SupportedReferenceAnchor){
+        if(!fractionalRequired)
+            return fail("P1 supported reference anchors require the authenticated paired fractional semantic route");
+        if(!loadPhysicalSkinP1SupportedReferenceAnchor(*files.p1SupportedReferenceAnchor,nextBundle,
+                fractionalSupportReport,{files.expectedSHA256[0],files.expectedSHA256[1],files.expectedSHA256[2]},
+                files.childLabels,files.expectedSHA256[2],p1AnchorImportReport,error))
+            return fail("authenticated P1 supported reference anchors rejected: "+error);
+    }
+    if(files.recordedCarrierAllocationCSV){
+        if(!fractionalRequired||!files.sourceCarrierQuadrature||
+           !nextBundle.sourceCarrierQuadrature.importedAndVerified||
+           !nextBundle.sourceCarrierQuadrature.hasCarriers())
+            return fail("recorded role flow CSVs require the authenticated paired semantic and source-carrier packets");
+        for(unsigned role=0;role<2u;++role){
+            const std::uint32_t material=role==0u?15u:16u;
+            auto& assets=(*files.recordedCarrierAllocationCSV)[role];
+            if(assets.materialIndex!=material)
+                return fail("recorded role allocation assets must be ordered Skin 15 then Fat 16");
+            const auto parentRows=static_cast<std::size_t>(std::count(
+                nextBundle.parent.materialIndices.begin(),nextBundle.parent.materialIndices.end(),material));
+            const auto childRows=static_cast<std::size_t>(std::count(
+                nextBundle.childMaterialIndices.begin(),nextBundle.childMaterialIndices.end(),material));
+            std::vector<std::string> expectedPins{
+                nextBundle.parent.parentMassPacketSHA256,nextBundle.parent.parentSourceContributionSHA256,
+                nextBundle.childMeshSHA256,nextBundle.regionLabelSHA256,nextBundle.coordinateFrameSHA256,
+                files.expectedSHA256[0],files.expectedSHA256[1],files.expectedSHA256[2],
+                files.fractionalSemanticSupport->roles[role].binarySHA256,
+                files.sourceCarrierQuadrature->roles[role].binarySHA256};
+            if(!recorded_carrier_allocation_import_detail::loadPhysicalSkinRecordedCarrierAllocationCSVs(assets,material,parentRows,childRows,
+                    nextBundle.sourceCarrierQuadrature.recordedAllocation.roles[role],
+                    recordedAllocationCSVReports[role],error))
+                return fail("recorded source-carrier role allocation rejected: "+error);
+            if(nextBundle.sourceCarrierQuadrature.recordedAllocation.roles[role].sourceCarrierPacketSHA256!=
+                   files.sourceCarrierQuadrature->roles[role].binarySHA256)
+                return fail("recorded role allocation does not bind its exact authenticated source-carrier packet");
+
+        }
+    }
     for(unsigned i=0;i<3u;++i)
         if(!physical_skin_child_mass_detail::validSHA256(tetgenHashes[i])||tetgenHashes[i]!=files.expectedSHA256[i])
             return fail("registered volume import TetGen file hash differs from its declared pin: "+
@@ -606,13 +816,14 @@ inline bool verifyOperationalReferencePullback(
     std::string conformingTissueVerificationSHA256;
     PhysicalSkinVerifiedConformingMassRoute verifiedMassRoute;
     ConservativeSpatialMassTransportResult verifiedSpatialTransport;
+    SourceCellCarrierTransportTrace verifiedSourceCarrierTrace;
     std::string spatialReferenceVerificationSHA256;
     if(separatedOperationalReference&&
        !verifyOperationalReferencePullback(*files.operationalReferencePullback,coordinateFrameSHA256,
            sourceBodyCount,maximumMassTransportDistanceM,nextBundle,nodeRows,tetgenHashes,
            mapHashAfter,files.expectedSHA256[4],pullbackProof,maximumSourceParentRegistrationDistance,
            conformingTissueVerificationSHA256,verifiedMassRoute,
-           verifiedSpatialTransport,spatialReferenceVerificationSHA256,error))
+           verifiedSpatialTransport,verifiedSourceCarrierTrace,spatialReferenceVerificationSHA256,error))
         return fail("authenticated operational-reference pullback rejected: "+error);
     if(separatedOperationalReference){
         if(!conformingTissueVerificationSHA256.empty()){
@@ -631,6 +842,8 @@ inline bool verifyOperationalReferencePullback(
             nextBundle.operationalSpatialReferenceVerificationSHA256=spatialReferenceVerificationSHA256;
             nextBundle.operationalSpatialTransportReceiptSHA256=verifiedSpatialTransport.receiptSHA256;
             nextBundle.spatialMassTransportResult=std::move(verifiedSpatialTransport);
+            if(nextBundle.sourceCarrierQuadrature.importedAndVerified&&nextBundle.sourceCarrierQuadrature.hasCarriers())
+                nextBundle.sourceCarrierQuadrature.transportTrace=std::move(verifiedSourceCarrierTrace);
         }else{
             nextBundle.operationalSpatialMassRouteRequired=false;
             nextBundle.operationalSpatialReferenceVerificationSHA256.clear();
@@ -700,6 +913,34 @@ inline bool verifyOperationalReferencePullback(
         measured.conformingTissueRefinementVerificationSHA256=conformingTissueVerificationSHA256;
         measured.maximumSourceParentRegistrationDistanceM=maximumSourceParentRegistrationDistance;
         measured.maximumSourceToCandidateReferenceDistanceM=pullbackProof.maximumNodeDisplacementM;
+    }
+    if(files.sourceCarrierQuadrature){
+        measured.sourceCarrierQuadratureVerified=sourceCarrierImportReport.verified;
+        measured.sourceCarrierQuadratureImport=sourceCarrierImportReport;
+        if(nextBundle.sourceCarrierQuadrature.hasCarriers())
+            measured.sourceCarrierTransportTraceSHA256=nextBundle.sourceCarrierQuadrature.transportTrace.receiptSHA256;
+    }
+    if(files.p1SupportedReferenceAnchor){
+        measured.p1SupportedReferenceAnchorVerified=p1AnchorImportReport.verified;
+        measured.p1SupportedReferenceAnchorImport=p1AnchorImportReport;
+    }
+    if(files.recordedCarrierAllocationCSV){
+        measured.recordedCarrierAllocationCSVImport=recordedAllocationCSVReports;
+        measured.recordedCarrierAllocationCSVVerified=
+            recordedAllocationCSVReports[0].verified&&recordedAllocationCSVReports[1].verified;
+    }
+    if(fractionalRequired){
+        spatial_mass_transport_detail::SHA256Builder supportChain;
+        supportChain.string("physical-skin-fractional-semantic-support-import.v1");
+        supportChain.string(fractionalSupportReport.binarySHA256[0]);
+        supportChain.string(fractionalSupportReport.receiptSHA256[0]);
+        supportChain.string(fractionalSupportReport.binarySHA256[1]);
+        supportChain.string(fractionalSupportReport.receiptSHA256[1]);
+        supportChain.string(fractionalSupportReport.compositeTypedSupportSHA256);
+        supportChain.string(fractionalSupportReport.compositeAdmissibilitySourceSHA256);
+        measured.fractionalSemanticSupportVerified=fractionalSupportReport.verified;
+        measured.fractionalSemanticSupportVerificationSHA256=supportChain.finish();
+        measured.fractionalSemanticSupportImport=fractionalSupportReport;
     }
     measured.physicalAdmission=false;
     outputBundle=std::move(nextBundle);outputSidecars=std::move(nextSidecars);

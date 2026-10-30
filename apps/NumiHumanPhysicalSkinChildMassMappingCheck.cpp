@@ -85,6 +85,52 @@ void fillTwoConformingChildren(PhysicalSkinChildMassMappingBundle& bundle) {
 } // namespace
 
 int main() {
+    {
+        SourceCellCarrierTransportTrace skinTrace,fatTrace,pairedTrace;
+        skinTrace.childParentCarrierOffsets={0u,1u};skinTrace.childParentCarrierRows={0u};
+        skinTrace.childParentCarrierMassKg={0.6};skinTrace.childParentCarrierMeasureM3={0.0006};
+        skinTrace.childParentCarrierDistanceM={0.001};
+        fatTrace.childParentCarrierOffsets={0u,1u};fatTrace.childParentCarrierRows={0u};
+        fatTrace.childParentCarrierMassKg={0.4};fatTrace.childParentCarrierMeasureM3={0.0004};
+        fatTrace.childParentCarrierDistanceM={0.002};
+        pairedTrace.childParentCarrierOffsets={0u};
+        const std::vector<std::uint32_t> skinVirtualToCurrent{0u},fatVirtualToCurrent{1u};
+        std::string mergeError;
+        if(!physical_skin_child_mass_mapping_detail::appendRecordedCarrierFlowEdge(
+               skinTrace,0u,skinVirtualToCurrent,pairedTrace,mergeError)||
+           !physical_skin_child_mass_mapping_detail::appendRecordedCarrierFlowEdge(
+               fatTrace,0u,fatVirtualToCurrent,pairedTrace,mergeError)||
+           pairedTrace.childParentCarrierOffsets!=std::vector<std::uint32_t>{0u,1u,2u}||
+           pairedTrace.childParentCarrierRows!=std::vector<std::uint32_t>{0u,1u}||
+           pairedTrace.childParentCarrierMassKg!=std::vector<double>{0.6,0.4}){
+            std::cerr<<"two-role recorded carrier CSR merge failed: "<<mergeError<<"\n";return 80;
+        }
+        const double tinyMass=1.0e-22;
+        ConservativeSpatialMassTransportResult roleLedger,canonicalLedger;
+        roleLedger.childSourceDonorOffsets={0u,1u};roleLedger.childSourceDonorBodyIndices={145u};
+        roleLedger.childSourceDonorMassKg={tinyMass};
+        canonicalLedger=roleLedger;
+        auto repinnedTamper=roleLedger;repinnedTamper.childSourceDonorMassKg[0]=1.01e-22;
+        auto zeroedTiny=roleLedger;zeroedTiny.childSourceDonorMassKg[0]=0.0;
+        if(!physical_skin_child_mass_mapping_detail::sourceCarrierRelativeMassClose(tinyMass,tinyMass)||
+           physical_skin_child_mass_mapping_detail::sourceCarrierRelativeMassClose(0.0,tinyMass)||
+           physical_skin_child_mass_mapping_detail::sourceCarrierRelativeMassClose(1.01e-22,tinyMass)||
+           !physical_skin_child_mass_mapping_detail::recordedRoleChildDonorLedgerMatches(
+               roleLedger,0u,canonicalLedger,0u)||
+           physical_skin_child_mass_mapping_detail::recordedRoleChildDonorLedgerMatches(
+               repinnedTamper,0u,canonicalLedger,0u)||
+           physical_skin_child_mass_mapping_detail::recordedRoleChildDonorLedgerMatches(
+               zeroedTiny,0u,canonicalLedger,0u)){
+            std::cerr<<"relative-only recorded carrier mass closure mishandled a 1e-22 kg child\\n";return 82;
+        }
+        auto invalidTrace=fatTrace;invalidTrace.childParentCarrierOffsets={0u,0u};
+        const auto prefix=pairedTrace.childParentCarrierRows;
+        if(physical_skin_child_mass_mapping_detail::appendRecordedCarrierFlowEdge(
+               invalidTrace,0u,fatVirtualToCurrent,pairedTrace,mergeError)||
+           pairedTrace.childParentCarrierRows!=prefix){
+            std::cerr<<"paired carrier CSR merge accepted an empty/malformed role edge\n";return 81;
+        }
+    }
     // Reference and current are distinct even for an unchanged topology.
     // This catches accidentally using a rest .node file as the current shape.
     std::string identityFrameError;

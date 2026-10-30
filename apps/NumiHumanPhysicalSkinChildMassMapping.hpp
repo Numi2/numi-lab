@@ -5,6 +5,7 @@
 // prepared positive child volume. Spatial transport remains distinct from
 // geometric ancestry; the existing unpaired volume owner performs final admission.
 #include "NumiHumanUnpairedSkinFatVolume.hpp"
+#include "ConservativeSpatialSourceCarrierQuadrature.hpp"
 
 #include <CommonCrypto/CommonDigest.h>
 
@@ -435,6 +436,52 @@ struct PhysicalSkinVerifiedConformingMassRoute {
     std::string candidateOperationalReferenceDomainSHA256,candidateCompiledDataSHA256,verificationSHA256;
 };
 
+struct PhysicalSkinSourceCarrierRoleRecordedAllocationData {
+    bool importedAndPinned=false;
+    std::uint32_t materialIndex=NM_INVALID_INDEX;
+    std::array<std::string,6> csvSHA256{};
+    std::string allocationReceiptSHA256,expandedSolverReceiptSHA256,sourceCarrierPacketSHA256,
+        sourceCarrierArraySHA256,sourceCarrierFlowTraceSHA256,transportReceiptSHA256;
+    std::uint64_t augmentationCount=0,semanticCandidateEdgeCount=0;
+    std::size_t sourceParentRows=0,childRows=0,aggregateFlowRows=0,carrierFlowRows=0,
+        childSourceDonorRows=0,sourceDonorRows=0;
+    std::vector<std::uint32_t> sourceGlobalTetRows,sourceMaterialIndices,sourceDonorBodyIndices,
+        sourceAnatomicalRegionIndices,sourceStableFaceIdentities,csvExpandedParentToCarrierRows;
+    std::vector<double> childReferenceVolumeM3,sourceMassKg,sourceReferenceVolumeM3;
+    std::vector<V3> sourceCentroidsWorld;
+    std::vector<std::uint32_t> sourceDonorOffsets,sourceDonorIndices;
+    std::vector<double> sourceDonorMassKg;
+    ConservativeSpatialMassTransportResult result;
+    SourceCellCarrierTransportTrace trace;
+};
+struct PhysicalSkinSourceCarrierRecordedAllocationData {
+    bool importedAndPinned=false;
+    std::array<PhysicalSkinSourceCarrierRoleRecordedAllocationData,2> roles{};
+    std::array<std::string,2> roleReceiptSHA256{},roleSourceCarrierPacketSHA256{},
+        roleSourceCarrierArraySHA256{},roleSourceCarrierFlowTraceSHA256{},roleTransportReceiptSHA256{};
+    std::array<std::string,12> csvSHA256{};
+    std::string allocationReceiptSHA256,expandedSolverReceiptSHA256,
+        sourceCarrierPacketSHA256,sourceCarrierArraySHA256,sourceCarrierFlowTraceSHA256,
+        transportReceiptSHA256;
+    std::uint64_t augmentationCount=0,semanticCandidateEdgeCount=0;
+    std::size_t sourceParentRows=0,childRows=0,aggregateFlowRows=0,carrierFlowRows=0,
+        childSourceDonorRows=0,sourceDonorRows=0;
+    ConservativeSpatialMassTransportResult result;
+    SourceCellCarrierTransportTrace trace;
+};
+
+struct PhysicalSkinSourceCarrierQuadratureData {
+    bool importedAndVerified=false;
+    std::string verificationSHA256,sourceCarrierPacketSHA256,sourceTetTableSHA256,sourceNodeTableSHA256;
+    std::array<std::string,2> roleBinarySHA256{},roleReceiptSHA256{};
+    std::vector<std::uint32_t> parentOffsets,globalSourceTetRows,witnessChildRows;
+    std::vector<double> carrierWeights,witnessChildCentroidDistancesM;
+    std::vector<std::array<double,4>> carrierBarycentric;
+    SourceCellCarrierTransportTrace transportTrace;
+    PhysicalSkinSourceCarrierRecordedAllocationData recordedAllocation;
+    [[nodiscard]] bool hasCarriers() const { return !carrierWeights.empty(); }
+};
+
 struct PhysicalSkinChildMassMappingBundle {
     PhysicalSkinParentMassPacket parent;
     RegisteredSurface outerSkin;
@@ -447,6 +494,14 @@ struct PhysicalSkinChildMassMappingBundle {
     std::vector<std::uint32_t> childMaterialIndices,childDominantParentTetrahedra;
     std::vector<std::uint32_t> childParentSurfaceFaces,childStableSourceFaceIdentities;
     std::vector<std::uint32_t> childDonorBodyIndices,childAnatomicalRegionIndices;
+    // Optional global semantic-group table plus child-to-group volume support.
+    // Populated only from the authenticated current-atlas producer.
+    bool fractionalSemanticMassRouteRequired=false;
+    ConservativeSpatialChildSemanticSupportData fractionalSemanticSupport;
+    // Optional source-tetra quadrature is an authenticated spatial-support
+    // extension. It partitions unchanged parent mass/measure and never changes
+    // source geometry, labels, density, or the legacy empty-carrier solver path.
+    PhysicalSkinSourceCarrierQuadratureData sourceCarrierQuadrature;
     std::vector<std::uint32_t> childRegisteredLayerFacetSurfaceFaces;
     std::vector<std::uint32_t> childRegisteredLayerFacetSourceFaceIdentities;
     std::vector<std::uint8_t> childAuthoredHeadSidewallFacetFlags;
@@ -519,6 +574,8 @@ struct PhysicalSkinChildMassMappingBundle {
         topology.childStableSourceFaceIdentities=childStableSourceFaceIdentities;
         topology.childDonorBodyIndices=childDonorBodyIndices;
         topology.childAnatomicalRegionIndices=childAnatomicalRegionIndices;
+        topology.fractionalSemanticMassRouteRequired=fractionalSemanticMassRouteRequired;
+        topology.fractionalSemanticSupport=fractionalSemanticSupport.view();
 
         topology.parentReferenceWorldPoints=parent.referenceWorldPoints;
         topology.parentTetrahedra=parent.tetrahedra;
@@ -564,6 +621,69 @@ struct PhysicalSkinChildMassMappingBundle {
 };
 
 namespace physical_skin_child_mass_mapping_detail {
+
+[[nodiscard]] inline bool sourceCarrierRelativeMassClose(const double actual,const double expected) {
+    return std::isfinite(actual)&&std::isfinite(expected)&&expected>0.0&&
+        std::abs(actual-expected)<=1.0e-10*std::abs(expected);
+}
+
+[[nodiscard]] inline bool recordedRoleChildDonorLedgerMatches(
+        const ConservativeSpatialMassTransportResult& roleResult,const std::size_t roleChild,
+        const ConservativeSpatialMassTransportResult& pairedResult,const std::size_t pairedChild) {
+    if(roleChild+1u>=roleResult.childSourceDonorOffsets.size()||
+       pairedChild+1u>=pairedResult.childSourceDonorOffsets.size())return false;
+    const auto rb=roleResult.childSourceDonorOffsets[roleChild];
+    const auto re=roleResult.childSourceDonorOffsets[roleChild+1u];
+    const auto pb=pairedResult.childSourceDonorOffsets[pairedChild];
+    const auto pe=pairedResult.childSourceDonorOffsets[pairedChild+1u];
+    if(rb>re||re>roleResult.childSourceDonorBodyIndices.size()||
+       re>roleResult.childSourceDonorMassKg.size()||pb>pe||
+       pe>pairedResult.childSourceDonorBodyIndices.size()||pe>pairedResult.childSourceDonorMassKg.size()||
+       re-rb!=pe-pb)return false;
+    for(std::uint32_t i=0;i<re-rb;++i)
+        if(roleResult.childSourceDonorBodyIndices[rb+i]!=pairedResult.childSourceDonorBodyIndices[pb+i]||
+           !sourceCarrierRelativeMassClose(roleResult.childSourceDonorMassKg[rb+i],
+                                           pairedResult.childSourceDonorMassKg[pb+i]))return false;
+    return true;
+}
+
+[[nodiscard]] inline bool appendRecordedCarrierFlowEdge(
+        const SourceCellCarrierTransportTrace& roleTrace,const std::size_t roleEdge,
+        const std::span<const std::uint32_t> roleVirtualToCurrent,
+        SourceCellCarrierTransportTrace& combinedTrace,std::string& error) {
+    const auto fail=[&](const char* message){error=message;return false;};
+    const auto& offsets=roleTrace.childParentCarrierOffsets;
+    if(offsets.size()<2u||offsets.front()!=0u||offsets.back()!=roleTrace.childParentCarrierRows.size()||
+       roleTrace.childParentCarrierMassKg.size()!=roleTrace.childParentCarrierRows.size()||
+       roleTrace.childParentCarrierMeasureM3.size()!=roleTrace.childParentCarrierRows.size()||
+       roleTrace.childParentCarrierDistanceM.size()!=roleTrace.childParentCarrierRows.size()||
+       roleEdge+1u>=offsets.size()||offsets[roleEdge]>=offsets[roleEdge+1u]||
+       offsets[roleEdge+1u]>roleTrace.childParentCarrierRows.size())
+        return fail("role carrier edge has an invalid or empty CSR range");
+    if(combinedTrace.childParentCarrierOffsets.empty()||combinedTrace.childParentCarrierOffsets.front()!=0u||
+       combinedTrace.childParentCarrierOffsets.back()!=combinedTrace.childParentCarrierRows.size()||
+       combinedTrace.childParentCarrierRows.size()!=combinedTrace.childParentCarrierMassKg.size()||
+       combinedTrace.childParentCarrierRows.size()!=combinedTrace.childParentCarrierMeasureM3.size()||
+       combinedTrace.childParentCarrierRows.size()!=combinedTrace.childParentCarrierDistanceM.size())
+        return fail("paired carrier trace is not a valid CSR prefix");
+    std::vector<std::uint32_t> mappedRows;std::vector<double> masses,measures,distances;
+    for(auto row=offsets[roleEdge];row<offsets[roleEdge+1u];++row){
+        const auto local=roleTrace.childParentCarrierRows[row];
+        if(local>=roleVirtualToCurrent.size())return fail("role carrier row is outside its paired virtual-parent map");
+        const auto mapped=roleVirtualToCurrent[local];
+        if(!mappedRows.empty()&&mapped<=mappedRows.back())
+            return fail("mapped role carrier rows are not strictly ordered");
+        mappedRows.push_back(mapped);masses.push_back(roleTrace.childParentCarrierMassKg[row]);
+        measures.push_back(roleTrace.childParentCarrierMeasureM3[row]);
+        distances.push_back(roleTrace.childParentCarrierDistanceM[row]);
+    }
+    combinedTrace.childParentCarrierRows.insert(combinedTrace.childParentCarrierRows.end(),mappedRows.begin(),mappedRows.end());
+    combinedTrace.childParentCarrierMassKg.insert(combinedTrace.childParentCarrierMassKg.end(),masses.begin(),masses.end());
+    combinedTrace.childParentCarrierMeasureM3.insert(combinedTrace.childParentCarrierMeasureM3.end(),measures.begin(),measures.end());
+    combinedTrace.childParentCarrierDistanceM.insert(combinedTrace.childParentCarrierDistanceM.end(),distances.begin(),distances.end());
+    combinedTrace.childParentCarrierOffsets.push_back(static_cast<std::uint32_t>(combinedTrace.childParentCarrierRows.size()));
+    error.clear();return true;
+}
 
 using ParentCellKey=std::array<std::uint32_t,4>;
 using GroupKey=spatial_mass_transport_detail::GroupKey;
@@ -1212,7 +1332,12 @@ inline std::string massMappingPathSHA256(
         hashPoints("surface.outward_normals",surface.outwardWorldNormals);
     };
 
-    if(verifiedConformingAncestry){
+    if(bundle.fractionalSemanticMassRouteRequired){
+        hash.string("physicalSkinChildMassMapping.path.v4");
+        hash.string("authenticated_fractional_semantic_support");
+        hash.string(fractional_semantic_transport_detail::supportDigest(
+            bundle.fractionalSemanticSupport.view()));
+    }else if(verifiedConformingAncestry){
         hash.string("physicalSkinChildMassMapping.path.v3");
         hash.string("authenticated_conforming_ancestry");
         hash.u32(bundle.conformingLineageMassRouteRequired?1u:0u);
@@ -1229,6 +1354,31 @@ inline std::string massMappingPathSHA256(
         hash.string(bundle.operationalSpatialTransportReceiptSHA256);
     }
     hash.string(bundle.spatialMassTransportResult.receiptSHA256);
+    if(bundle.sourceCarrierQuadrature.importedAndVerified){
+        const auto& carrier=bundle.sourceCarrierQuadrature;
+        hash.string("authenticated_source_carrier_quadrature.v1");
+        hash.string(carrier.verificationSHA256);hash.string(carrier.sourceCarrierPacketSHA256);
+        hash.string(carrier.sourceTetTableSHA256);hash.string(carrier.sourceNodeTableSHA256);
+        for(const auto& value:carrier.roleBinarySHA256)hash.string(value);
+        for(const auto& value:carrier.roleReceiptSHA256)hash.string(value);
+        hash.u64(carrier.parentOffsets.size());for(auto value:carrier.parentOffsets)hash.u32(value);
+        hash.u64(carrier.globalSourceTetRows.size());for(auto value:carrier.globalSourceTetRows)hash.u32(value);
+        hash.u64(carrier.carrierWeights.size());for(auto value:carrier.carrierWeights)hash.real(value);
+        for(const auto& row:carrier.carrierBarycentric)for(auto value:row)hash.real(value);
+        for(auto value:carrier.witnessChildRows)hash.u32(value);
+        for(auto value:carrier.witnessChildCentroidDistancesM)hash.real(value);
+        hash.string(carrier.transportTrace.receiptSHA256);
+        const auto& recorded=carrier.recordedAllocation;
+        if(recorded.importedAndPinned){
+            hash.string("authenticated_recorded_paired_carrier_flow_csv.v1");
+            hash.string(recorded.allocationReceiptSHA256);
+            hash.string(recorded.expandedSolverReceiptSHA256);
+            hash.string(recorded.sourceCarrierFlowTraceSHA256);
+            hash.string(recorded.transportReceiptSHA256);
+            for(const auto& sha:recorded.csvSHA256)hash.string(sha);
+            for(const auto& sha:recorded.roleReceiptSHA256)hash.string(sha);
+        }
+    }
     hash.string(bundle.parent.parentMassPacketSHA256);
     hash.string(bundle.parent.parentSourceContributionSHA256);
     hash.string(bundle.parent.parentTopologySHA256);
@@ -1382,6 +1532,52 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
        !validSHA256(bundle.childMeshSHA256)||!validSHA256(bundle.regionLabelSHA256)||
        !validSHA256(bundle.coordinateFrameSHA256))
         return fail("physical child mass mapping requires five pinned native input SHA-256 values");
+    const auto semanticSupport=bundle.fractionalSemanticSupport.view();
+    const bool hasAnySemanticSupport=!bundle.fractionalSemanticSupport.empty()||
+        !bundle.fractionalSemanticSupport.volumeFractions.empty()||
+        !bundle.fractionalSemanticSupport.groupMaterialIndices.empty()||
+        !bundle.fractionalSemanticSupport.donorBodyIndices.empty()||
+        !bundle.fractionalSemanticSupport.anatomicalRegionIndices.empty()||
+        !bundle.fractionalSemanticSupport.derivedGroupIdentityIDs.empty()||
+        !bundle.fractionalSemanticSupport.parentStableSourceFaceIdentities.empty()||
+        !bundle.fractionalSemanticSupport.sourceParentTetOffsets.empty()||
+        !bundle.fractionalSemanticSupport.sourceParentTetRows.empty()||
+        !bundle.fractionalSemanticSupport.sourceStableFaceOffsets.empty()||
+        !bundle.fractionalSemanticSupport.sourceStableFaceRows.empty()||
+        !bundle.fractionalSemanticSupport.typedSupportSHA256.empty();
+    if(bundle.fractionalSemanticMassRouteRequired){
+        if(!hasAnySemanticSupport||bundle.conformingLineageMassRouteRequired||
+           bundle.conformingLineageMassRoute.authenticated)
+            return fail("fractional semantic mass routing requires its complete explicit support and cannot be mixed with conforming ancestry");
+    }else if(hasAnySemanticSupport){
+        return fail("fractional semantic support is present without its explicit registered-import route flag");
+    }
+    const auto& carrierOwned=bundle.sourceCarrierQuadrature;
+    if(carrierOwned.importedAndVerified){
+        if(!bundle.fractionalSemanticMassRouteRequired||
+           !validSHA256(carrierOwned.verificationSHA256)||
+           !validSHA256(carrierOwned.sourceCarrierPacketSHA256)||
+           !validSHA256(carrierOwned.sourceTetTableSHA256)||
+           !validSHA256(carrierOwned.sourceNodeTableSHA256))
+            return fail("source-carrier quadrature lacks its authenticated fractional route or source pins");
+        if(carrierOwned.hasCarriers()&&
+           (carrierOwned.parentOffsets.size()!=parentCount+1u||
+            carrierOwned.globalSourceTetRows.size()!=parentCount||
+            carrierOwned.parentOffsets.empty()||carrierOwned.parentOffsets.front()!=0u||
+            carrierOwned.parentOffsets.back()!=carrierOwned.carrierWeights.size()||
+            carrierOwned.carrierBarycentric.size()!=carrierOwned.carrierWeights.size()||
+            carrierOwned.witnessChildRows.size()!=carrierOwned.carrierWeights.size()||
+            carrierOwned.witnessChildCentroidDistancesM.size()!=carrierOwned.carrierWeights.size()))
+            return fail("source-carrier quadrature arrays do not cover the current full parent row domain");
+        for(std::size_t row=1u;row<carrierOwned.parentOffsets.size();++row)
+            if(carrierOwned.parentOffsets[row]<carrierOwned.parentOffsets[row-1u]||
+               carrierOwned.parentOffsets[row]>carrierOwned.carrierWeights.size())
+                return fail("source-carrier parent CSR is decreasing or out of range");
+    }else if(carrierOwned.hasCarriers()||!carrierOwned.parentOffsets.empty()||
+             !carrierOwned.globalSourceTetRows.empty()||!carrierOwned.verificationSHA256.empty()||
+             !carrierOwned.sourceCarrierPacketSHA256.empty()){
+        return fail("source-carrier data is present without the authenticated import result");
+    }
 
     std::vector<SpatialMassTransportPoint> parentCentroids(parentCount),childCentroids(childCount);
     std::vector<double> parentVolumes(parentCount),childVolumes(childCount);
@@ -1465,6 +1661,34 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
             return fail("physical child mapping material has invalid density bounds");
     }
 
+    std::vector<std::array<std::uint32_t,4>> carrierSourceTetNodeRows;
+    std::vector<std::array<std::array<double,3>,4>> carrierParentReferenceTetWorldVertices;
+    SourceCellCarrierQuadratureInput carrierInput{};
+    if(carrierOwned.importedAndVerified&&carrierOwned.hasCarriers()){
+        carrierSourceTetNodeRows=parent.tetrahedra;
+        carrierParentReferenceTetWorldVertices.resize(parentCount);
+        for(std::size_t row=0;row<parentCount;++row){
+            const auto tet=parent.tetrahedra[row];
+            for(std::size_t corner=0;corner<4u;++corner){
+                if(tet[corner]>=parent.referenceWorldPoints.size())
+                    return fail("source-carrier parent tet references a missing immutable source node");
+                carrierParentReferenceTetWorldVertices[row][corner]=parent.referenceWorldPoints[tet[corner]];
+            }
+        }
+        carrierInput={
+            .parentOffsets=carrierOwned.parentOffsets,
+            .globalSourceTetRows=carrierOwned.globalSourceTetRows,
+            .sourceTetNodeRows=carrierSourceTetNodeRows,
+            .parentReferenceTetWorldVertices=carrierParentReferenceTetWorldVertices,
+            .carrierWeights=carrierOwned.carrierWeights,
+            .carrierBarycentric=carrierOwned.carrierBarycentric,
+            .witnessChildRows=carrierOwned.witnessChildRows,
+            .witnessChildCentroidDistancesM=carrierOwned.witnessChildCentroidDistancesM,
+            .sourceCarrierPacketSHA256=carrierOwned.sourceCarrierPacketSHA256,
+            .sourceTetTableSHA256=carrierOwned.sourceTetTableSHA256,
+            .sourceNodeTableSHA256=carrierOwned.sourceNodeTableSHA256};
+    }
+
     ConservativeSpatialMassTransportInput input;
     input.parentCentroidsWorld=parentCentroids;
     input.parentReferenceVolumeM3=parentVolumes;
@@ -1491,13 +1715,363 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
     input.relativeClosureTolerance=1.0e-10;
     input.absoluteMassToleranceKg=1.0e-13;
     input.absoluteMeasureToleranceM3=1.0e-15;
-    input.maximumAllowedEdges=physical_skin_child_capacity_detail::maxCandidateEdges;
-    input.maximumAugmentations=physical_skin_child_capacity_detail::maxAugmentations;
+    input.maximumAllowedEdges=3'000'000u;
+    input.maximumAugmentations=300'000u;
+#if defined(NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY)
+    if(bundle.fractionalSemanticMassRouteRequired){
+        input.maximumAllowedEdges=12'000'000u;
+        input.maximumAugmentations=4'000'000u;
+    }
+#endif
+
+
+    auto& recordedAllocation=bundle.sourceCarrierQuadrature.recordedAllocation;
+    const bool roleAllocation0=recordedAllocation.roles[0].importedAndPinned;
+    const bool roleAllocation1=recordedAllocation.roles[1].importedAndPinned;
+    if(roleAllocation0!=roleAllocation1)
+        return fail("recorded source-carrier allocation is incomplete: both Skin and Fat role receipts are required");
+    if(roleAllocation0){
+        if(!bundle.fractionalSemanticMassRouteRequired||!carrierOwned.importedAndVerified||
+           !carrierOwned.hasCarriers()||carrierOwned.globalSourceTetRows.size()!=parentCount||
+           carrierOwned.parentOffsets.size()!=parentCount+1u)
+            return fail("recorded role flows require complete paired semantic and source-carrier inputs");
+        const std::array<std::uint32_t,2> roleMaterials{15u,16u};
+        std::map<std::uint32_t,std::uint32_t> sourceGlobalToCurrentParent;
+        for(std::uint32_t p=0;p<parentCount;++p){
+            const auto global=carrierOwned.globalSourceTetRows[p];
+            if(!sourceGlobalToCurrentParent.emplace(global,p).second)
+                return fail("paired source-carrier map has duplicate global source330 parent identities");
+        }
+        std::array<std::vector<std::uint32_t>,2> roleParentToCurrent,roleChildToCurrent,
+            roleVirtualToCurrent;
+        std::map<std::pair<std::uint32_t,std::uint32_t>,std::uint32_t> globalVirtualByParentCarrier;
+        std::vector<std::uint32_t> virtualToParent,virtualToCarrier;
+        std::vector<std::vector<std::uint32_t>> parentToVirtual(parentCount);
+        std::vector<SpatialMassTransportPoint> virtualCentroids;
+        std::vector<double> virtualVolumes,virtualMasses,virtualDonorMass;
+        std::vector<std::uint32_t> virtualMaterials,virtualDonors,virtualRegions,virtualDonorOffsets{0u},virtualDonorIDs;
+        ConservativeSpatialMassTransportInput expandedInput;
+        ConservativeSpatialChildSemanticSupportData expandedSupport;
+        std::vector<std::uint32_t> parentGroup,carrierParents;
+        std::vector<std::map<std::uint32_t,double>> preferences;
+        std::vector<std::vector<std::uint32_t>> admissibleRegions;
+        std::vector<SpatialMassTransportPoint> carrierPoints;
+        std::vector<double> strictNearest;
+        const auto carrierArraySHA=source_carrier_transport_detail::carrierArrayDigest(input,carrierInput);
+        if(!source_carrier_transport_detail::validateCarrierInput(input,semanticSupport,carrierInput,
+                parentGroup,preferences,admissibleRegions,carrierPoints,carrierParents,strictNearest,error)||
+           !source_carrier_transport_detail::expandParentRows(input,semanticSupport,carrierInput,
+                virtualToParent,virtualToCarrier,parentToVirtual,virtualCentroids,virtualVolumes,
+                virtualMasses,virtualMaterials,virtualDonors,virtualRegions,virtualDonorOffsets,
+                virtualDonorIDs,virtualDonorMass,expandedInput,expandedSupport,carrierArraySHA,error))
+            return fail("recorded role allocation failed current source-carrier preflight: "+error);
+        for(std::uint32_t v=0;v<virtualToParent.size();++v)
+            globalVirtualByParentCarrier.emplace(
+                std::pair{virtualToParent[v],virtualToCarrier[v]},v);
+        for(unsigned role=0;role<2u;++role){
+            auto& roleData=recordedAllocation.roles[role];
+            const auto material=roleMaterials[role];
+            const auto expectedParentRows=static_cast<std::size_t>(std::count(
+                parent.materialIndices.begin(),parent.materialIndices.end(),material));
+            const auto expectedChildRows=static_cast<std::size_t>(std::count(
+                bundle.childMaterialIndices.begin(),bundle.childMaterialIndices.end(),material));
+            if(roleData.materialIndex!=material||roleData.sourceParentRows!=expectedParentRows||
+               roleData.childRows!=expectedChildRows||
+               roleData.sourceGlobalTetRows.size()!=expectedParentRows||
+               roleData.sourceMaterialIndices.size()!=expectedParentRows||
+               roleData.sourceDonorBodyIndices.size()!=expectedParentRows||
+               roleData.sourceAnatomicalRegionIndices.size()!=expectedParentRows||
+               roleData.sourceStableFaceIdentities.size()!=expectedParentRows||
+               roleData.sourceMassKg.size()!=expectedParentRows||
+               roleData.sourceReferenceVolumeM3.size()!=expectedParentRows||
+               roleData.sourceCentroidsWorld.size()!=expectedParentRows||
+               roleData.sourceDonorOffsets.size()!=expectedParentRows+1u||
+               roleData.sourceDonorOffsets.front()!=0u||
+               roleData.sourceDonorOffsets.back()!=roleData.sourceDonorIndices.size()||
+               roleData.sourceDonorIndices.size()!=roleData.sourceDonorMassKg.size()||
+               roleData.childReferenceVolumeM3.size()!=expectedChildRows||
+               roleData.result.childParentOffsets.size()!=expectedChildRows+1u||
+               roleData.result.childMassKg.size()!=expectedChildRows||
+               roleData.result.childImpliedDensityKgM3.size()!=expectedChildRows||
+               roleData.result.childSourceDonorOffsets.size()!=expectedChildRows+1u)
+                return fail("role-local recorded flow arrays do not cover their authenticated material domains");
+            roleParentToCurrent[role].resize(expectedParentRows);
+            for(std::size_t local=0;local<expectedParentRows;++local){
+                const auto found=sourceGlobalToCurrentParent.find(roleData.sourceGlobalTetRows[local]);
+                if(found==sourceGlobalToCurrentParent.end())
+                    return fail("role source-parent CSV names a source330 tetrahedron absent from the current paired parent");
+                const auto global=found->second;
+                if(parent.materialIndices[global]!=material||
+                   roleData.sourceMaterialIndices[local]!=parent.materialIndices[global]||
+                   roleData.sourceDonorBodyIndices[local]!=parent.donorBodyIndices[global]||
+                   roleData.sourceAnatomicalRegionIndices[local]!=parent.anatomicalRegionIndices[global]||
+                   roleData.sourceStableFaceIdentities[local]!=parent.stableSourceFaceIdentities[global]||
+                   roleData.sourceMassKg[local]!=parent.tetrahedronMassKg[global]||
+                   roleData.sourceReferenceVolumeM3[local]!=parentVolumes[global]||
+                   roleData.sourceCentroidsWorld[local]!=parentCentroids[global]||
+                   carrierOwned.globalSourceTetRows[global]!=roleData.sourceGlobalTetRows[local])
+                    return fail("role source-parent CSV differs from the exact current source330 row, labels, mass, measure, or centroid");
+                roleParentToCurrent[role][local]=global;
+                const auto rb=roleData.sourceDonorOffsets[local],re=roleData.sourceDonorOffsets[local+1u];
+                const auto gb=sourceOffsets[global],ge=sourceOffsets[global+1u];
+                if(re-rb!=ge-gb)
+                    return fail("role source-parent donor ledger row count differs from the current source donor split");
+                for(std::uint32_t j=0;j<ge-gb;++j)
+                    if(roleData.sourceDonorIndices[rb+j]!=sourceDonors[gb+j]||
+                       roleData.sourceDonorMassKg[rb+j]!=sourceMasses[gb+j])
+                        return fail("role source-parent donor CSV differs from the current source donor mass ledger");
+                if(local>0u&&roleParentToCurrent[role][local]<=roleParentToCurrent[role][local-1u])
+                    return fail("role source-parent rows do not retain the current ascending parent-row order");
+            }
+            roleChildToCurrent[role].clear();roleChildToCurrent[role].reserve(expectedChildRows);
+            for(std::uint32_t child=0;child<childCount;++child)
+                if(bundle.childMaterialIndices[child]==material)
+                    roleChildToCurrent[role].push_back(child);
+            if(roleChildToCurrent[role].size()!=expectedChildRows)
+                return fail("role child row crosswalk does not cover its exact material subsequence");
+            for(std::size_t local=0;local<expectedChildRows;++local){
+                const auto child=roleChildToCurrent[role][local];
+                if(roleData.childReferenceVolumeM3[local]!=childVolumes[child])
+                    return fail("role child-mass CSV reference volume differs from the current tetrahedron determinant");
+            }
+            std::size_t localVirtual=0u,localCarrier=0u;
+            roleVirtualToCurrent[role].clear();
+            for(std::size_t localParent=0;localParent<expectedParentRows;++localParent){
+                const auto globalParent=roleParentToCurrent[role][localParent];
+                const auto cb=carrierOwned.parentOffsets[globalParent],ce=carrierOwned.parentOffsets[globalParent+1u];
+                if(cb==ce){
+                    const auto found=globalVirtualByParentCarrier.find(
+                        {globalParent,spatial_mass_transport_detail::kInvalid});
+                    if(found==globalVirtualByParentCarrier.end()||
+                       localVirtual>=roleData.csvExpandedParentToCarrierRows.size()||
+                       roleData.csvExpandedParentToCarrierRows[localVirtual]!=spatial_mass_transport_detail::kInvalid)
+                        return fail("role centroid virtual-parent map differs from the authenticated paired carrier expansion");
+                    roleVirtualToCurrent[role].push_back(found->second);++localVirtual;
+                }else{
+                    for(std::uint32_t carrierRow=cb;carrierRow<ce;++carrierRow){
+                        const auto found=globalVirtualByParentCarrier.find({globalParent,carrierRow});
+                        if(found==globalVirtualByParentCarrier.end()||
+                           localVirtual>=roleData.csvExpandedParentToCarrierRows.size()||
+                           roleData.csvExpandedParentToCarrierRows[localVirtual]!=localCarrier)
+                            return fail("role carrier virtual-parent map differs from the authenticated paired carrier expansion");
+                        roleVirtualToCurrent[role].push_back(found->second);++localVirtual;++localCarrier;
+                    }
+                }
+            }
+            if(localVirtual!=roleData.csvExpandedParentToCarrierRows.size())
+                return fail("role expanded-parent CSV map has missing or extra virtual rows");
+            std::size_t expectedRoleCarriers=0u;
+            for(const auto globalParent:roleParentToCurrent[role])
+                expectedRoleCarriers+=carrierOwned.parentOffsets[globalParent+1u]-carrierOwned.parentOffsets[globalParent];
+            if(localCarrier!=expectedRoleCarriers)
+                return fail("role carrier row map does not cover the complete paired carrier CSR");
+        }
+
+        ConservativeSpatialMassTransportResult combined;
+        combined.method=UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport;
+        combined.usesFractionalSemanticSupport=true;
+        combined.childParentOffsets.assign(childCount+1u,0u);
+        combined.childMassKg.assign(childCount,0.0);
+        combined.childAncestryMeasureVolumeM3.assign(childCount,0.0);
+        combined.childImpliedDensityKgM3.assign(childCount,0.0);
+        combined.childDominantParentRows.assign(childCount,spatial_mass_transport_detail::kInvalid);
+        combined.parentMassTransferredKg.assign(parentCount,0.0);
+        combined.parentMeasureTransferredM3.assign(parentCount,0.0);
+        combined.childSourceDonorOffsets.assign(childCount+1u,0u);
+        SourceCellCarrierTransportTrace combinedTrace;
+        combinedTrace.childParentCarrierOffsets.assign(1u,0u);
+        combinedTrace.expandedParentToSourceParentRows=virtualToParent;
+        combinedTrace.expandedParentToCarrierRows=virtualToCarrier;
+        combinedTrace.carrierSourceParentRows=carrierParents;
+        combinedTrace.originalCentroidNearestAdmissibleDistanceM=strictNearest;
+        combinedTrace.sourceCarrierPacketSHA256=std::string(carrierInput.sourceCarrierPacketSHA256);
+        combinedTrace.sourceCarrierArraySHA256=carrierArraySHA;
+        spatial_mass_transport_detail::SHA256Builder allocationHash,expandedHash,flowHash,transportHash;
+        allocationHash.string("numi.human.paired-recorded-carrier-allocation.v1");
+        expandedHash.string("numi.human.paired-recorded-carrier-expanded-anchor.v1");
+        flowHash.string("numi.human.paired-recorded-carrier-flow-traces.v1");
+        transportHash.string("numi.human.paired-recorded-carrier-transport-receipts.v1");
+        std::uint64_t augmentations=0u,candidateEdges=0u;
+        for(unsigned role=0;role<2u;++role){
+            const auto& roleData=recordedAllocation.roles[role];
+            augmentations+=roleData.augmentationCount;candidateEdges+=roleData.semanticCandidateEdgeCount;
+            allocationHash.string(roleData.allocationReceiptSHA256);
+            expandedHash.string(roleData.expandedSolverReceiptSHA256);
+            flowHash.string(roleData.sourceCarrierFlowTraceSHA256);
+            transportHash.string(roleData.transportReceiptSHA256);
+            recordedAllocation.roleReceiptSHA256[role]=roleData.allocationReceiptSHA256;
+            recordedAllocation.roleSourceCarrierPacketSHA256[role]=roleData.sourceCarrierPacketSHA256;
+            recordedAllocation.roleSourceCarrierArraySHA256[role]=roleData.sourceCarrierArraySHA256;
+            recordedAllocation.roleSourceCarrierFlowTraceSHA256[role]=roleData.sourceCarrierFlowTraceSHA256;
+            recordedAllocation.roleTransportReceiptSHA256[role]=roleData.transportReceiptSHA256;
+            for(const auto& sha:roleData.csvSHA256)allocationHash.string(sha);
+        }
+        std::array<std::uint32_t,2> roleChildCursor{};
+        for(std::uint32_t child=0;child<childCount;++child){
+            const unsigned role=bundle.childMaterialIndices[child]==15u?0u:1u;
+            const auto& roleData=recordedAllocation.roles[role];
+            const auto local=roleChildCursor[role]++;
+            if(local>=roleChildToCurrent[role].size()||roleChildToCurrent[role][local]!=child)
+                return fail("paired role child row order differs from the current global child domain");
+            if(local==spatial_mass_transport_detail::kInvalid)
+                return fail("paired role flow lacks the current child-row crosswalk");
+            combined.childParentOffsets[child]=static_cast<std::uint32_t>(combined.childParentRows.size());
+            combined.childMassKg[child]=roleData.result.childMassKg[local];
+            combined.childImpliedDensityKgM3[child]=roleData.result.childImpliedDensityKgM3[local];
+            combined.childAncestryMeasureVolumeM3[child]=roleData.result.childAncestryMeasureVolumeM3[local];
+            combined.childDominantParentRows[child]=roleParentToCurrent[role][roleData.result.childDominantParentRows[local]];
+            const auto edgeBegin=roleData.result.childParentOffsets[local];
+            const auto edgeEnd=roleData.result.childParentOffsets[local+1u];
+            std::vector<std::uint32_t> localEdges;
+            for(std::uint32_t e=edgeBegin;e<edgeEnd;++e)localEdges.push_back(e);
+            std::sort(localEdges.begin(),localEdges.end(),[&](std::uint32_t a,std::uint32_t b){
+                return roleParentToCurrent[role][roleData.result.childParentRows[a]]<
+                       roleParentToCurrent[role][roleData.result.childParentRows[b]];
+            });
+            std::uint32_t previousParent=spatial_mass_transport_detail::kInvalid;
+            for(const auto e:localEdges){
+                const auto localParent=roleData.result.childParentRows[e];
+                if(localParent>=roleParentToCurrent[role].size())
+                    return fail("role aggregate flow references a missing role-local parent row");
+                const auto globalParent=roleParentToCurrent[role][localParent];
+                if(globalParent==previousParent)
+                    return fail("role aggregate flow repeats a mapped global parent-child edge");
+                previousParent=globalParent;
+                combined.childParentRows.push_back(globalParent);
+                combined.childParentTransportMassKg.push_back(roleData.result.childParentTransportMassKg[e]);
+                combined.childParentTransportMeasureM3.push_back(roleData.result.childParentTransportMeasureM3[e]);
+                combined.childParentTransportDistanceM.push_back(roleData.result.childParentTransportDistanceM[e]);
+                combined.childParentVolumeFractions.push_back(roleData.result.childParentVolumeFractions[e]);
+                if(!physical_skin_child_mass_mapping_detail::appendRecordedCarrierFlowEdge(
+                       roleData.trace,e,roleVirtualToCurrent[role],combinedTrace,error))
+                    return fail("paired role carrier flow cannot be mapped into the global CSR: "+error);
+            }
+            const auto db=roleData.result.childSourceDonorOffsets[local];
+            const auto de=roleData.result.childSourceDonorOffsets[local+1u];
+            if(db>=de||de>roleData.result.childSourceDonorBodyIndices.size())
+                return fail("role child source-donor ledger is empty or out of range");
+            for(std::uint32_t d=db;d<de;++d){
+                combined.childSourceDonorBodyIndices.push_back(roleData.result.childSourceDonorBodyIndices[d]);
+                combined.childSourceDonorMassKg.push_back(roleData.result.childSourceDonorMassKg[d]);
+            }
+            combined.childSourceDonorOffsets[child+1u]=
+                static_cast<std::uint32_t>(combined.childSourceDonorBodyIndices.size());
+        }
+        combined.childParentOffsets[childCount]=static_cast<std::uint32_t>(combined.childParentRows.size());
+        combined.transportEdgeCount=combined.childParentRows.size();
+        combined.augmentationCount=augmentations;combined.semanticCandidateEdgeCount=candidateEdges;
+        combined.maximumAllowedEdges=input.maximumAllowedEdges;combined.maximumAugmentations=input.maximumAugmentations;
+        if(combined.transportEdgeCount>input.maximumAllowedEdges||
+           combined.augmentationCount>input.maximumAugmentations||
+           combined.semanticCandidateEdgeCount>input.maximumAllowedEdges)
+            return fail("paired role flow totals exceed the current full-domain bounded solver capacities");
+        for(unsigned role=0;role<2u;++role){
+            const auto& roleData=recordedAllocation.roles[role];
+            for(std::size_t local=0;local<roleParentToCurrent[role].size();++local){
+                const auto global=roleParentToCurrent[role][local];
+                combined.parentMassTransferredKg[global]=roleData.result.parentMassTransferredKg[local];
+                combined.parentMeasureTransferredM3[global]=roleData.result.parentMeasureTransferredM3[local];
+            }
+        }
+        recordedAllocation.allocationReceiptSHA256=allocationHash.finish();
+        recordedAllocation.expandedSolverReceiptSHA256=expandedHash.finish();
+        recordedAllocation.sourceCarrierFlowTraceSHA256=flowHash.finish();
+        recordedAllocation.transportReceiptSHA256=transportHash.finish();
+        recordedAllocation.sourceCarrierPacketSHA256=carrierInput.sourceCarrierPacketSHA256;
+        recordedAllocation.sourceCarrierArraySHA256=carrierArraySHA;
+        recordedAllocation.augmentationCount=augmentations;
+        recordedAllocation.semanticCandidateEdgeCount=candidateEdges;
+        recordedAllocation.sourceParentRows=parentCount;recordedAllocation.childRows=childCount;
+        recordedAllocation.aggregateFlowRows=combined.transportEdgeCount;
+        recordedAllocation.carrierFlowRows=combinedTrace.childParentCarrierRows.size();
+        recordedAllocation.childSourceDonorRows=combined.childSourceDonorBodyIndices.size();
+        recordedAllocation.importedAndPinned=true;
+        combined.parentMassPacketSHA256=std::string(input.parentMassPacketSHA256);
+        combined.parentSourceContributionSHA256=std::string(input.parentSourceContributionSHA256);
+        combined.childMeshSHA256=std::string(input.childMeshSHA256);
+        combined.regionLabelSHA256=std::string(input.regionLabelSHA256);
+        combined.coordinateFrameSHA256=std::string(input.coordinateFrameSHA256);
+        combined.maximumTransportDistanceM=input.maximumTransportDistanceM;
+        combined.relativeClosureTolerance=input.relativeClosureTolerance;
+        combined.absoluteMassToleranceKg=input.absoluteMassToleranceKg;
+        combined.absoluteMeasureToleranceM3=input.absoluteMeasureToleranceM3;
+        combined.usesFractionalSemanticSupport=true;
+        combinedTrace.expandedSolverReceiptSHA256=recordedAllocation.expandedSolverReceiptSHA256;
+        recordedAllocation.result=std::move(combined);
+        recordedAllocation.trace=std::move(combinedTrace);
+        auto& imported=recordedAllocation.result;
+        auto& importedTrace=recordedAllocation.trace;
+        const auto importedChildMass=imported.childMassKg;
+        const auto importedChildDensity=imported.childImpliedDensityKgM3;
+        std::vector<double> childVolumesFromCSV=std::vector<double>(childCount,0.0);
+        std::array<std::vector<std::uint32_t>,2> finalRoleChildRows=roleChildToCurrent;
+        for(unsigned role=0;role<2u;++role)
+            for(std::size_t local=0;local<finalRoleChildRows[role].size();++local)
+                childVolumesFromCSV[finalRoleChildRows[role][local]]=
+                    recordedAllocation.roles[role].childReferenceVolumeM3[local];
+        if(childVolumesFromCSV!=childVolumes)
+            return fail("paired role child-mass CSV volumes do not exactly cover the current child determinant domain");
+        imported.method=UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport;
+        imported.usesFractionalSemanticSupport=true;
+        if(!canonicalizeRecordedConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriersFeasibility(
+                input,semanticSupport,carrierInput,imported,importedTrace,error))
+            return fail("pinned six-CSV paired carrier flow failed solver-free current-input feasibility: "+error);
+        std::vector<double> transportedVirtualMass(virtualMasses.size(),0.0);
+        for(std::size_t edge=0;edge<imported.childParentRows.size();++edge){
+            const auto begin=importedTrace.childParentCarrierOffsets[edge];
+            const auto end=importedTrace.childParentCarrierOffsets[edge+1u];
+            if(begin>=end||end>importedTrace.childParentCarrierRows.size())
+                return fail("canonicalized paired carrier trace omits an aggregate flow edge");
+            for(std::uint32_t k=begin;k<end;++k){
+                const auto virtualParent=importedTrace.childParentCarrierRows[k];
+                if(virtualParent>=transportedVirtualMass.size())
+                    return fail("canonicalized paired carrier trace names an absent expanded source parent");
+                transportedVirtualMass[virtualParent]+=importedTrace.childParentCarrierMassKg[k];
+            }
+        }
+        for(std::size_t virtualParent=0;virtualParent<virtualMasses.size();++virtualParent)
+            if(!physical_skin_child_mass_mapping_detail::sourceCarrierRelativeMassClose(
+                   transportedVirtualMass[virtualParent],virtualMasses[virtualParent]))
+                return fail("paired recorded flow fails relative-only per-carrierized-source mass closure");
+        for(unsigned role=0;role<2u;++role){
+            const auto& roleData=recordedAllocation.roles[role];
+            for(std::size_t localChild=0;localChild<roleChildToCurrent[role].size();++localChild){
+                const auto child=roleChildToCurrent[role][localChild];
+                if(!physical_skin_child_mass_mapping_detail::sourceCarrierRelativeMassClose(
+                       importedChildMass[child],imported.childMassKg[child])||
+                   std::abs(importedChildDensity[child]-imported.childImpliedDensityKgM3[child])>1.0e-8)
+                    return fail("paired role child-mass CSV does not match mass and density derived from carrier flows");
+                const auto localBegin=roleData.result.childParentOffsets[localChild];
+                const auto localEnd=roleData.result.childParentOffsets[localChild+1u];
+                for(std::uint32_t e=localBegin;e<localEnd;++e){
+                    const auto globalParent=roleParentToCurrent[role][roleData.result.childParentRows[e]];
+                    const auto begin=imported.childParentOffsets[child],end=imported.childParentOffsets[child+1u];
+                    auto found=std::lower_bound(imported.childParentRows.begin()+begin,
+                        imported.childParentRows.begin()+end,globalParent);
+                    if(found==imported.childParentRows.begin()+end||*found!=globalParent)
+                        return fail("paired collapsed flow CSV edge is absent after carrier-flow aggregation");
+                    const auto at=static_cast<std::size_t>(found-imported.childParentRows.begin());
+                    if(imported.childParentTransportMassKg[at]!=roleData.result.childParentTransportMassKg[e]||
+                       imported.childParentTransportMeasureM3[at]!=roleData.result.childParentTransportMeasureM3[e]||
+                       imported.childParentTransportDistanceM[at]!=roleData.result.childParentTransportDistanceM[e])
+                        return fail("paired collapsed flow CSV differs from its exact expanded carrier-flow aggregation");
+                }
+                if(!physical_skin_child_mass_mapping_detail::recordedRoleChildDonorLedgerMatches(
+                       roleData.result,localChild,imported,child))
+                    return fail("paired role child donor CSV differs from canonicalized carrier-flow-derived donor mass");
+            }
+        }
+        bundle.sourceCarrierQuadrature.transportTrace=importedTrace;
+    }
 
     ConservativeSpatialMassTransportResult transfer;
     bool usedExactTopologyIdentity=false;
     bool usedVerifiedConformingAncestry=false;
     bool usedVerifiedOperationalSpatial=false;
+    if(recordedAllocation.importedAndPinned){
+        transfer=recordedAllocation.result;
+        usedVerifiedOperationalSpatial=true;
+    }
     if(bundle.operationalSpatialMassRouteRequired){
         if(!bundle.usesSeparatedOperationalReference||bundle.conformingLineageMassRouteRequired||
            bundle.conformingLineageMassRoute.authenticated||
@@ -1505,7 +2079,19 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
            !validSHA256(bundle.operationalSpatialTransportReceiptSHA256)||
            bundle.operationalSpatialTransportReceiptSHA256!=bundle.spatialMassTransportResult.receiptSHA256)
             return fail("operational spatial-reference proof or cached receipt is missing or conflicts with another route");
-        if(!verifyRecordedConservativeSpatialMassTransport(input,bundle.spatialMassTransportResult,error))
+        const bool verified=recordedAllocation.importedAndPinned?
+            verifyRecordedConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriersFeasibility(
+                input,semanticSupport,carrierInput,bundle.spatialMassTransportResult,
+                bundle.sourceCarrierQuadrature.transportTrace,error):
+            (bundle.sourceCarrierQuadrature.importedAndVerified&&carrierOwned.hasCarriers()?
+                verifyRecordedConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriers(
+                    input,semanticSupport,carrierInput,bundle.spatialMassTransportResult,
+                    bundle.sourceCarrierQuadrature.transportTrace,error):
+            (bundle.fractionalSemanticMassRouteRequired?
+                verifyRecordedConservativeSpatialMassTransportWithSemanticSupport(
+                    input,semanticSupport,bundle.spatialMassTransportResult,error):
+                verifyRecordedConservativeSpatialMassTransport(input,bundle.spatialMassTransportResult,error)));
+        if(!verified)
             return fail("operational spatial-reference transport failed current-input verification: "+error);
         transfer=bundle.spatialMassTransportResult;
         usedVerifiedOperationalSpatial=true;
@@ -1526,7 +2112,8 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
         return fail("conforming ancestry mass route is present without its required registered-import proof flag");
     }
     std::vector<std::uint32_t> exactChildParentRows;
-    if(!usedVerifiedConformingAncestry&&!usedVerifiedOperationalSpatial&&
+    if(!bundle.fractionalSemanticMassRouteRequired&&
+       !usedVerifiedConformingAncestry&&!usedVerifiedOperationalSpatial&&
        parentCount<=input.maximumAugmentations&&childCount<=input.maximumAugmentations&&
        childCount<=input.maximumAllowedEdges&&
        physical_skin_child_mass_mapping_detail::exactIdentityParentRows(bundle,
@@ -1554,23 +2141,66 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
        (!usedExactTopologyIdentity || bundle.referenceWorldPoints!=parent.referenceWorldPoints))
         return fail("non-Float32 source coordinates require certified compiler-equivalent exact parent-reference identity");
     if(!usedExactTopologyIdentity&&!usedVerifiedConformingAncestry&&!usedVerifiedOperationalSpatial) {
-        if(!assembleConservativeSpatialMassTransport(input,transfer,error))
-            return fail("physical child mass transport was not feasible: "+error);
-        if(!verifyRecordedConservativeSpatialMassTransport(input,transfer,error))
-            return fail("physical child mass transport receipt failed exact current-input verification: "+error);
+        bool assembled=false,verified=false;
+        if(bundle.sourceCarrierQuadrature.recordedAllocation.importedAndPinned){
+            transfer=bundle.sourceCarrierQuadrature.recordedAllocation.result;
+            assembled=true;verified=true;
+        }else if(bundle.sourceCarrierQuadrature.importedAndVerified&&carrierOwned.hasCarriers()){
+            SourceCellCarrierTransportTrace trace;
+            assembled=assembleConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriers(
+                input,semanticSupport,carrierInput,transfer,trace,error);
+            if(assembled)bundle.sourceCarrierQuadrature.transportTrace=std::move(trace);
+            verified=assembled&&verifyRecordedConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriers(
+                input,semanticSupport,carrierInput,transfer,bundle.sourceCarrierQuadrature.transportTrace,error);
+        }else{
+            assembled=bundle.fractionalSemanticMassRouteRequired?
+                assembleConservativeSpatialMassTransportWithSemanticSupport(
+                    input,semanticSupport,transfer,error):
+                assembleConservativeSpatialMassTransport(input,transfer,error);
+            verified=assembled&&(bundle.fractionalSemanticMassRouteRequired?
+                verifyRecordedConservativeSpatialMassTransportWithSemanticSupport(
+                    input,semanticSupport,transfer,error):
+                verifyRecordedConservativeSpatialMassTransport(input,transfer,error));
+        }
+        if(!assembled)return fail("physical child mass transport was not feasible: "+error);
+        if(!verified)return fail("physical child mass transport receipt failed exact current-input verification: "+error);
     }
     if(transfer.childDominantParentRows.size()!=childCount||
        transfer.childMassKg.size()!=childCount||
        std::any_of(transfer.childDominantParentRows.begin(),transfer.childDominantParentRows.end(),
            [&](std::uint32_t parentRow){return parentRow>=parentCount;}))
         return fail("physical child mass transport result has incomplete child-parent rows");
+    std::vector<std::uint32_t> semanticGroupForParent;
+    const bool hasOneHopSemanticSupport=!semanticSupport.cellAdmissibleRegionOffsets.empty();
+    if(bundle.fractionalSemanticMassRouteRequired&&
+       !fractional_semantic_transport_detail::buildSourceParentGroupMap(
+           semanticSupport,parentCount,semanticGroupForParent))
+        return fail("fractional semantic source-parent group map is incomplete or ambiguous");
     for(std::size_t child=0;child<childCount;++child){
         const auto parentRow=transfer.childDominantParentRows[child];
         if(parent.materialIndices[parentRow]!=bundle.childMaterialIndices[child]||
-           parent.donorBodyIndices[parentRow]!=bundle.childDonorBodyIndices[child]||
-           parent.anatomicalRegionIndices[parentRow]!=bundle.childAnatomicalRegionIndices[child]||
            parent.stableSourceFaceIdentities[parentRow]==NM_INVALID_INDEX)
-            return fail("physical child dominant parent violates material, donor, region, or source-face eligibility");
+            return fail("physical child dominant parent violates material or source-face eligibility");
+        if(!bundle.fractionalSemanticMassRouteRequired){
+            if(parent.donorBodyIndices[parentRow]!=bundle.childDonorBodyIndices[child]||
+               parent.anatomicalRegionIndices[parentRow]!=bundle.childAnatomicalRegionIndices[child])
+                return fail("physical child dominant parent violates donor or region eligibility");
+        }else{
+            const auto group=semanticGroupForParent[parentRow];
+            if(group>=semanticSupport.groupMaterialIndices.size()||
+               semanticSupport.groupMaterialIndices[group]!=parent.materialIndices[parentRow]||
+               semanticSupport.donorBodyIndices[group]!=parent.donorBodyIndices[parentRow]||
+               semanticSupport.anatomicalRegionIndices[group]!=parent.anatomicalRegionIndices[parentRow])
+                return fail("fractional semantic dominant parent is absent from its authenticated source group");
+            const bool admissible=hasOneHopSemanticSupport?
+                (semanticSupport.groupMaterialIndices[group]==bundle.childMaterialIndices[child]&&
+                 fractional_semantic_transport_detail::childAllowsSourceRegion(
+                     semanticSupport,static_cast<std::uint32_t>(child),parent.anatomicalRegionIndices[parentRow])):
+                fractional_semantic_transport_detail::childPrefersSemanticGroup(
+                    semanticSupport,static_cast<std::uint32_t>(child),group);
+            if(!admissible)
+                return fail("fractional semantic dominant parent is outside the child's authenticated one-hop support or legacy P1 preference");
+        }
     }
     bundle.childDominantParentTetrahedra=transfer.childDominantParentRows;
     bundle.spatialMassTransportResult=std::move(transfer);

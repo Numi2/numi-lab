@@ -261,6 +261,15 @@ struct ConservativeSpatialMassTransportResult {
     double absoluteMeasureToleranceM3 = 0.0;
     std::size_t maximumAllowedEdges = 0u;
     std::size_t maximumAugmentations = 0u;
+    std::size_t semanticCandidateEdgeCount = 0u;
+    // Present only for the explicit current-atlas semantic-support route.
+    // Fractions are actual transported group inflow / real-child mass, so
+    // colocated receiver volumes share the real child density and capacity.
+    bool usesFractionalSemanticSupport = false;
+    std::string semanticSupportSHA256;
+    std::vector<std::uint32_t> childSemanticGroupOffsets;
+    std::vector<std::uint32_t> childSemanticGroupIndices;
+    std::vector<double> childSemanticVolumeFractions;
     std::string receiptSHA256;
 };
 
@@ -670,6 +679,87 @@ public:
             ++augmentationCount;
         }
         if (finalPotential) *finalPotential = potential;
+        error.clear();
+        return true;
+    }
+
+    // Deterministic Dinic feasibility flow. It honors positive residuals down to
+    // sub-epsilon binary64 capacities and deliberately makes no min-cost claim.
+    bool runFeasible(const std::uint32_t source, const std::uint32_t sink,
+                     const std::size_t maximumAugmentations,
+                     std::size_t& augmentationCount, double& sent,
+                     std::string& error) {
+        const auto fail = [&](const char* message) { error = message; return false; };
+        if (source >= graph_.size() || sink >= graph_.size() || source == sink)
+            return fail("spatial transport feasible-flow terminals are invalid");
+        compensatedSparseCapacities_ = true;
+        augmentationCount = 0u;
+        const auto n = graph_.size();
+        std::vector<std::int64_t> level(n, -1);
+        std::vector<std::uint32_t> next(n, 0u), queue;
+        queue.reserve(n);
+        std::vector<std::uint32_t> pathNodes, pathEdges;
+        std::vector<double> pathCapacityValues;
+        pathNodes.reserve(128u);pathEdges.reserve(128u);pathCapacityValues.reserve(128u);
+        for (;;) {
+            std::fill(level.begin(), level.end(), -1);
+            queue.clear();queue.push_back(source);level[source]=0;
+            for (std::size_t q=0;q<queue.size();++q) {
+                const auto from=queue[q];
+                for (const auto& edge:graph_[from]) {
+                    if (!hasPositiveCapacity(edge)||level[edge.to]>=0) continue;
+                    level[edge.to]=level[from]+1;
+                    queue.push_back(edge.to);
+                }
+            }
+            if(level[sink]<0)break;
+            std::fill(next.begin(),next.end(),0u);
+            for (;;) {
+                pathNodes.clear();pathEdges.clear();pathCapacityValues.clear();
+                pathNodes.push_back(source);
+                pathCapacityValues.push_back(std::numeric_limits<double>::infinity());
+                while(!pathNodes.empty()&&pathNodes.back()!=sink){
+                    const auto from=pathNodes.back();
+                    auto& cursor=next[from];
+                    while(cursor<graph_[from].size()){
+                        const auto& edge=graph_[from][cursor];
+                        if(hasPositiveCapacity(edge)&&level[edge.to]==level[from]+1)break;
+                        ++cursor;
+                    }
+                    if(cursor==graph_[from].size()){
+                        level[from]=-1;
+                        pathNodes.pop_back();pathCapacityValues.pop_back();
+                        if(!pathEdges.empty()){
+                            pathEdges.pop_back();
+                            if(!pathNodes.empty())++next[pathNodes.back()];
+                        }
+                        continue;
+                    }
+                    const auto& edge=graph_[from][cursor];
+                    pathEdges.push_back(cursor);
+                    pathNodes.push_back(edge.to);
+                    pathCapacityValues.push_back(std::min(pathCapacityValues.back(),pathCapacity(edge)));
+                }
+                if(pathNodes.empty())break;
+                if(augmentationCount>=maximumAugmentations)
+                    return fail("INCONCLUSIVE spatial transport feasible-flow augmentation budget exhausted");
+                const double amount=pathCapacityValues.back();
+                if(!std::isfinite(amount)||amount<=0.0)
+                    return fail("spatial transport feasible-flow path has no positive capacity");
+                for(std::size_t i=0;i<pathEdges.size();++i){
+                    const auto from=pathNodes[i];
+                    const auto edgeIndex=pathEdges[i];
+                    auto& edge=graph_[from][edgeIndex];
+                    auto& reverse=graph_[edge.to][edge.reverse];
+                    addCapacity(edge,-amount);addCapacity(reverse,amount);
+                    if(!hasPositiveCapacity(edge)&&next[from]==edgeIndex)++next[from];
+                }
+                ++augmentationCount;
+            }
+        }
+        sent=sentFromSource(source);
+        if(!std::isfinite(sent)||sent<0.0)
+            return fail("spatial transport feasible-flow sent mass is invalid");
         error.clear();
         return true;
     }
