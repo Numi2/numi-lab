@@ -1,0 +1,25 @@
+{
+  "version": 0,
+  "roots": [
+    {
+      "type": "file",
+      "name": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildMassMapping.hpp",
+      "external-contents": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/source/NumiHumanPhysicalSkinChildMassMapping.hpp"
+    },
+    {
+      "type": "file",
+      "name": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp",
+      "external-contents": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/source/NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp"
+    },
+    {
+      "type": "file",
+      "name": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanConservativeSpatialMassTransport.hpp",
+      "external-contents": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/sparse-mass-transfer-667/source/NumiHumanConservativeSpatialMassTransport.hpp"
+    },
+    {
+      "type": "file",
+      "name": "/Users/numi/Work/skin-fat-native-integration-209/apps/numilab_human_myosim_visual_probe.mm",
+      "external-contents": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/source/numilab_human_myosim_visual_probe.mm"
+    }
+  ]
+}

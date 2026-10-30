@@ -22017,6 +22017,15 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         std::string_view(conformingReferenceChainSetting)=="1";
     require(!conformingReferenceChainRequested||separatedRegisteredOperationalReference,
             "conforming-reference refinement requires separated operational-reference import");
+    const char* spatialReferenceSetting=std::getenv(
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CONSERVATIVE_SPATIAL_REFERENCE");
+    require(!spatialReferenceSetting||std::string_view(spatialReferenceSetting)=="0"||
+                std::string_view(spatialReferenceSetting)=="1",
+            "operational conservative spatial-reference setting must be 0 or 1");
+    const bool spatialReferenceRequested=spatialReferenceSetting&&
+        std::string_view(spatialReferenceSetting)=="1";
+    require(!spatialReferenceRequested||(separatedRegisteredOperationalReference&&!conformingReferenceChainRequested),
+            "conservative spatial-reference requires separated reference and excludes the conforming-refinement route");
     if(separatedRegisteredOperationalReference){
         const char* sourceOnly=std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_SOURCE_ONLY");
         const char* preflight=std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT");
@@ -22610,6 +22619,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         volumeFiles.expectedSHA256[i]=value(volumePins[i]);
                     if(separatedRegisteredOperationalReference) {
                         PhysicalSkinOperationalReferencePullbackAssets proof;
+                        proof.conservativeSpatialReference=spatialReferenceRequested;
                         proof.sourceParentPacketCSV=parentMassPath;
                         proof.sourceTetgenNode=pathValue("OPERATIONAL_SOURCE_NODE");
                         proof.sourceTetgenElements=pathValue("OPERATIONAL_SOURCE_ELEMENTS");
@@ -22704,6 +22714,16 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                                 !importReport.physicalAdmission,
                             "registered-volume preparation must remain non-admitting");
                     if(separatedRegisteredOperationalReference) {
+                        if(spatialReferenceRequested){
+                            require(importReport.operationalReferenceSpatialTransportVerified&&
+                                        importReport.operationalReferenceSpatialTransportVerificationSHA256.size()==64u&&
+                                        !importReport.operationalReferencePullbackVerified,
+                                    "candidate operational-reference import lacks its certified spatial mass route");
+                            std::cout<<"registered_volume_operational_reference_spatial_transport=PASS"
+                                <<" proof_sha256="<<importReport.operationalReferenceSpatialTransportVerificationSHA256
+                                <<" maximum_transport_distance_used_m="<<importReport.maximumSpatialMassTransportDistanceM
+                                <<" physical_admission=0 runtime=0 accepted_steps=0 GPU=0\n";
+                        }else{
                         require(importReport.operationalReferencePullbackVerified&&
                                     importReport.operationalReferencePullbackSHA256.size()==64u,
                                 "candidate operational-reference import lacks its authenticated pullback proof");
@@ -22722,6 +22742,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             <<" conforming_chain_sha256="
                             <<importReport.conformingTissueRefinementVerificationSHA256
                             <<" physical_admission=0 runtime=0 accepted_steps=0 GPU=0\n";
+                        }
                     }
                     PhysicalSkinAuthoringOuterRoleRenderDomain outerRenderDomain;
                     require(preparePhysicalSkinAuthoringOuterRoleRenderDomain(

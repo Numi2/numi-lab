@@ -674,6 +674,161 @@ void checkNativeFloat32FrameContract(const std::filesystem::path& root) {
     files.nativeFloat32FramesByDonor=badDomain;assert(!read());
 }
 
+
+void checkOperationalSpatialReference(const std::filesystem::path& root) {
+    std::filesystem::create_directories(root);
+    Fixture f;
+    auto& p=f.parentBundle.parent;
+    p.nodeFrameOwnerBodyIndices.assign(p.referenceWorldPoints.size(),0u);
+    p.nodeFrameOwnerLocalPoints=p.referenceWorldPoints;
+    p.compiledGlobalNodeIndices.resize(p.referenceWorldPoints.size());
+    std::iota(p.compiledGlobalNodeIndices.begin(),p.compiledGlobalNodeIndices.end(),0u);
+    p.compiledLumpedNodeMassKg.assign(p.referenceWorldPoints.size(),0.0);
+    std::map<std::pair<unsigned,unsigned>,double> shares;
+    for(unsigned cell=0;cell<p.tetrahedra.size();++cell){
+        const auto tet=p.tetrahedra[cell];
+        const auto v=parentReferenceTetVolumeM3(tet,p.referenceWorldPoints);
+        const auto mass=v*(p.materialIndices[cell]==15u?1000.0:900.0);
+        p.referenceTetVolumeM3.push_back(v);p.tetrahedronMassKg.push_back(mass);p.totalMassKg+=mass;
+        for(const auto node:tet){p.compiledLumpedNodeMassKg[node]+=mass*0.25;
+            shares[{node,p.materialIndices[cell]}]+=mass*0.25;}
+    }
+    for(const auto& [key,mass]:shares)
+        p.sourceMassContributions.push_back({.parentNodeIndex=key.first,.materialIndex=key.second,
+            .donorBodyIndex=0u,.massKg=mass,.donorLocalPosition=p.referenceWorldPoints[key.first]});
+    const auto packet=root/"parent-packet.csv";
+    {std::ofstream out(packet);out<<"bounded synthetic parent packet fixture\n";}
+    pin(packet,p.parentMassPacketSHA256);
+    p.parentSourceContributionSHA256=std::string(64u,'4');
+    p.parentTopologySHA256=std::string(64u,'5');p.parentLabelSHA256=std::string(64u,'6');
+    PhysicalSkinRegisteredVolumeAssetFiles sourceFiles;
+    f.writeFiles(root/"source",sourceFiles);
+    f.prepareSeparatedOperationalReference(); // 6 source cells -> 9 new cells.
+    PhysicalSkinRegisteredVolumeAssetFiles files;
+    f.writeFiles(root/"candidate",files,true);
+    PhysicalSkinOperationalReferencePullbackAssets proof;
+    proof.sourceParentPacketCSV=packet;
+    proof.sourceTetgenNode=sourceFiles.tetgenNode;
+    proof.sourceTetgenElements=sourceFiles.tetgenElements;proof.sourceLabels=sourceFiles.childLabels;
+    std::copy_n(sourceFiles.expectedSHA256.begin(),3u,proof.sourceTetGenSHA256.begin());
+    proof.sourceVolumeAsset=root/"source.npz";proof.candidateVolumeAsset=root/"candidate.npz";
+    {std::ofstream out(proof.sourceVolumeAsset);out<<"synthetic positive 6-cell source\n";}
+    {std::ofstream out(proof.candidateVolumeAsset);out<<"synthetic positive 9-cell candidate\n";}
+    pin(proof.sourceVolumeAsset,proof.sourceVolumeSHA256);pin(proof.candidateVolumeAsset,proof.candidateVolumeSHA256);
+    proof.sourceProducerReceipt=root/"source-producer.json";
+    {std::ofstream out(proof.sourceProducerReceipt);
+     out<<"{\"schema\": \"NumiHuman.reduced-parent-boundary-candidate.v1\","
+          "\"status\":\"bounded_reduced_boundary_candidate_not_physical_admission\","
+          "\"physical_admission\":false,\"all_child_rows_match_parent_row\":true,"
+          "\"candidate.npz\":\""<<proof.sourceVolumeSHA256<<"\","
+          "\"parent-reduced-boundary.node\":\""<<sourceFiles.expectedSHA256[0]<<"\","
+          "\"parent-reduced-boundary.ele\":\""<<sourceFiles.expectedSHA256[1]<<"\","
+          "\"parent-reduced-boundary.labels.csv\":\""<<sourceFiles.expectedSHA256[2]<<"\"}\n";}
+    proof.candidateProducerReceipt=root/"candidate-producer.json";
+    const auto frame=std::string(64u,'0');
+    {std::ofstream out(proof.candidateProducerReceipt);
+     out<<"{\"schema\": \"numi-human.registered-volume-parent-identity-source-control.v1\","
+          "\"physical_admission\":false,\"registration_domain\":\"candidateOperationalReference\","
+          "\"candidate_npz_sha256\":\""<<proof.candidateVolumeSHA256<<"\","
+          "\"candidate_node_sha256\":\""<<files.expectedSHA256[0]<<"\","
+          "\"candidate_element_sha256\":\""<<files.expectedSHA256[1]<<"\","
+          "\"candidate_labels_sha256\":\""<<files.expectedSHA256[2]<<"\","
+          "\"node_map_sha256\":\""<<files.expectedSHA256[3]<<"\","
+          "\""<<(root/"volume/facet-ancestry.csv").string()<<"\":\""<<files.expectedSHA256[4]<<"\","
+          "\"coordinate_frame_sha256\":\""<<frame<<"\","
+          "\"immutable_source_parent_packet_sha256\":\""<<p.parentMassPacketSHA256<<"\","
+          "\"audit\":{\"candidate_npz_sha256\":\""<<proof.candidateVolumeSHA256<<"\","
+          "\"coordinate_frame_sha256\":\""<<frame<<"\",\"physical_admission\":false}}\n";}
+    pin(proof.sourceProducerReceipt,proof.sourceProducerReceiptSHA256);
+    pin(proof.candidateProducerReceipt,proof.candidateProducerReceiptSHA256);
+    const auto writeSelf=[&](const std::filesystem::path& path,const std::string& volume,bool bad=false){
+        std::ofstream out(path);
+        out<<"{\"status\":\"exact_coarse_material_boundary_self_audit\",\"candidate_sha256\":\""<<volume
+           <<"\",\"physical_admission\":false,\"skin\":{\"self_intersection_pairs\":"<<(bad?1:0)
+           <<"},\"fat\":{\"self_intersection_pairs\":0}}\n";};
+    proof.sourceSelfAuditReceipt=root/"source-self.json";
+    proof.candidateSelfAuditReceipt=root/"candidate-self.json";
+    writeSelf(proof.sourceSelfAuditReceipt,proof.sourceVolumeSHA256);
+    writeSelf(proof.candidateSelfAuditReceipt,proof.candidateVolumeSHA256);
+    pin(proof.sourceSelfAuditReceipt,proof.sourceSelfAuditReceiptSHA256);
+    pin(proof.candidateSelfAuditReceipt,proof.candidateSelfAuditReceiptSHA256);
+    files.operationalReferencePullback=proof;
+    std::vector<PhysicalSkinStableDeepAttachmentRequest> attachments;
+    const std::vector<PhysicalSkinSourceDomainRegistration> domains{
+        {"fixture-detail",PhysicalSkinSourceDomainRole::outerSurface,std::string(64u,'1'),9u,1u},
+        {"fixture-detail",PhysicalSkinSourceDomainRole::innerSurface,std::string(64u,'2'),9u,1u},
+        {"fixture-detail",PhysicalSkinSourceDomainRole::deepSurface,std::string(64u,'3'),9u,1u}};
+    std::string error;
+    const auto import=[&](const PhysicalSkinRegisteredVolumeAssetFiles& input,
+                          PhysicalSkinChildMassMappingBundle& bundle,
+                          PhysicalSkinRegisteredVolumeFileImportReport& report){
+        PhysicalSkinRegisteredVolumeImportSidecars sidecars;
+        return importPhysicalSkinRegisteredVolumeFiles(input,frame,157u,2.0,
+            0.0004,"",0u,0u,f.registered,attachments,f.poses,bundle,sidecars,report,error,domains);
+    };
+    auto bundle=f.parentBundle;PhysicalSkinRegisteredVolumeFileImportReport report;
+    assert(!import(files,bundle,report));
+    assert(error.find("exact source/candidate cell and label correspondence")!=std::string::npos);
+    assert(bundle.childTetrahedra.empty()); // Legacy path stays fail-closed.
+    files.operationalReferencePullback->conservativeSpatialReference=true;
+    if(!import(files,bundle,report)){std::cerr<<"spatial import rejected "<<error<<"\n";assert(false);}
+    assert(report.operationalReferenceSpatialTransportVerified&&!report.operationalReferencePullbackVerified);
+    assert(!report.conformingTissueRefinementVerified&&!report.physicalAdmission);
+    assert(bundle.usesSeparatedOperationalReference&&bundle.operationalSpatialMassRouteRequired);
+    assert(bundle.parent.tetrahedra.size()==6u&&bundle.childTetrahedra.size()==9u);
+    assert(bundle.volumeNodeSourceParentRegistrationDistanceM.back()>0.004);
+    assert(bundle.volumeNodeOperationalReferenceDistanceM.back()==0.0);
+    std::vector<double> lower(17u,0.0),upper(17u,0.0);
+    lower[15]=900;upper[15]=1100;lower[16]=850;upper[16]=950;
+    const auto receipt=bundle.spatialMassTransportResult.receiptSHA256;
+    assert(preparePhysicalSkinChildMassMapping(bundle,lower,upper,2.0,157u,error));
+    assert(receipt==bundle.spatialMassTransportResult.receiptSHA256);
+    assert(!bundle.exactTopologyIdentityTransportUsed&&!bundle.conformingLineageMassTransportUsed);
+    assert(physical_skin_child_mass_mapping_detail::validatePreparedPhysicalSkinChildMassMappingPath(bundle,error));
+    const auto originalParent=p;
+    assert(physical_skin_registered_volume_integration_detail::sameImmutableParentPacket(bundle.parent,originalParent));
+    // Cached transport never authorizes changed physical inputs.
+    for(unsigned kind=0;kind<7;++kind){
+        auto bad=bundle;
+        if(kind==0)bad.referenceWorldPoints[9][0]+=0.001;
+        if(kind==1)bad.childAnatomicalRegionIndices[0]+=1u;
+        if(kind==2)bad.coordinateFrameSHA256=std::string(64u,'9');
+        if(kind==3)bad.spatialMassTransportResult.childMassKg[0]*=1.001;
+        if(kind==4)bad.operationalSpatialTransportReceiptSHA256=std::string(64u,'8');
+        if(kind==5)bad.operationalSpatialMassRouteRequired=false;
+        if(kind==6)bad.conformingLineageMassRouteRequired=true;
+        const auto before=bad.massMappingPathSHA256;
+        assert(!preparePhysicalSkinChildMassMapping(bad,lower,upper,2.0,157u,error));
+        assert(bad.massMappingPathSHA256==before);
+    }
+    const auto expectImportReject=[&](PhysicalSkinRegisteredVolumeAssetFiles bad,const std::string& match){
+        auto untouched=f.parentBundle;PhysicalSkinRegisteredVolumeFileImportReport r;r.nodeMap.fileRows=123u;
+        assert(!import(bad,untouched,r));
+        if(error.find(match)==std::string::npos)std::cerr<<"expected "<<match<<" got "<<error<<"\n";
+        assert(error.find(match)!=std::string::npos);
+        assert(untouched.childTetrahedra.empty()&&r.nodeMap.fileRows==123u);
+    };
+    auto bad=files;bad.operationalReferencePullback->candidateVolumeSHA256=std::string(64u,'a');
+    expectImportReject(bad,"hash differs");
+    bad=files;bad.expectedSHA256[3]=std::string(64u,'b');
+    expectImportReject(bad,"hash differs");
+    bad=files;bad.operationalReferencePullback->candidateSelfAuditReceipt=root/"bad-self.json";
+    writeSelf(bad.operationalReferencePullback->candidateSelfAuditReceipt,proof.candidateVolumeSHA256,true);
+    pin(bad.operationalReferencePullback->candidateSelfAuditReceipt,bad.operationalReferencePullback->candidateSelfAuditReceiptSHA256);
+    expectImportReject(bad,"nonzero");
+    bad=files;bad.operationalReferencePullback->conformingTissueRefinement=PhysicalSkinConformingTissueRefinementAssets{};
+    expectImportReject(bad,"mutually exclusive");
+    auto infeasible=bundle;infeasible.operationalSpatialMassRouteRequired=false;
+    infeasible.operationalSpatialReferenceVerificationSHA256.clear();
+    infeasible.operationalSpatialTransportReceiptSHA256.clear();
+    for(auto& point:infeasible.referenceWorldPoints)point[0]*=2.0;
+    infeasible.currentWorldPoints=infeasible.referenceWorldPoints;
+    assert(!preparePhysicalSkinChildMassMapping(infeasible,lower,upper,2.0,157u,error));
+    std::cout<<"operational_spatial_reference 6_to_9_cells=PASS historical_vs_operational=PASS"
+        <<" certified_cache_reuse=PASS stale_geometry_labels_frame_flows_receipts=PASS"
+        <<" authenticated_file_failures_atomic=PASS density_infeasible=PASS physical_admission=NOT_CLAIMED\n";
+}
+
 int main() {
     Fixture fixture;
     const auto root=std::filesystem::temp_directory_path()/
@@ -681,6 +836,7 @@ int main() {
             std::chrono::steady_clock::now().time_since_epoch().count()));
     std::filesystem::create_directories(root);
     checkNativeFloat32FrameContract(root);
+    checkOperationalSpatialReference(root/"spatial-route");
     PhysicalSkinRegisteredVolumeAssetFiles files;
     fixture.writeFiles(root,files);
 

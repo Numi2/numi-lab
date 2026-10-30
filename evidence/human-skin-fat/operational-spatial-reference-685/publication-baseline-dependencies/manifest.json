@@ -1,0 +1,25 @@
+{
+  "base": "39bd0e7015a18f38a757193ed23d9a69874b1859",
+  "unchanged_main_dependencies": [
+    {
+      "name": "NumiHumanConservativeSpatialMassTransport.hpp",
+      "base_object": "c3df7ffe48a48b2a70839f9f3f901a607a63d876",
+      "sha256": "6873bdaa5722287a0542ed52b1a828279790ce2bd875f2c6156e98840909c3d7"
+    },
+    {
+      "name": "NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp",
+      "base_object": "8d603b388eb753f2638abd4f8ed5a8262ebaa03a",
+      "sha256": "162c19b730f2162fcc13ce4e567e17cef1524e432a651a2097a08a99e71ce2ca"
+    },
+    {
+      "name": "NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp",
+      "base_object": "35ff16f5f6e61fb38b3a4debb7499d30a9f23828",
+      "sha256": "ca2efa2eb383fc32e982d3320ac604671ba455c762bab35715b0d6cab4a3e9ca"
+    },
+    {
+      "name": "NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp",
+      "base_object": "bb71a1d65c64f4149b283395c6a6c0b1ee84be12",
+      "sha256": "04e54b1c7b1fbea383b61b5d5df5dfbf9dd0fe0334097bb2c0a825eb5b70a4d4"
+    }
+  ]
+}

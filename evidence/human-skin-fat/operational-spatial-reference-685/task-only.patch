@@ -1,0 +1,445 @@
+--- a/apps/NumiHumanPhysicalSkinChildMassMapping.hpp
++++ b/apps/NumiHumanPhysicalSkinChildMassMapping.hpp
+@@ -497,6 +497,12 @@
+     bool conformingLineageMassRouteRequired=false;
+     bool conformingLineageMassTransportUsed=false;
+     PhysicalSkinVerifiedConformingMassRoute conformingLineageMassRoute;
++    // Set only by authenticated operational-reference file import. The existing
++    // transport result is recomputed/verified against current inputs before use.
++    // Historical source ancestry remains separate from spatial mass transport.
++    bool operationalSpatialMassRouteRequired=false;
++    std::string operationalSpatialReferenceVerificationSHA256;
++    std::string operationalSpatialTransportReceiptSHA256;
+     std::string massMappingPathSHA256;
+ 
+     [[nodiscard]] ExplicitUnpairedVolumeTopology topologyView() const {
+@@ -1216,6 +1222,11 @@
+         hash.string("physicalSkinChildMassMapping.path.v2");
+         hash.string(exactTopologyIdentity?"exact_topology_identity":"bounded_conservative_spatial");
+     }
++    if(bundle.operationalSpatialMassRouteRequired){
++        hash.string("authenticated_operational_spatial_reference.v1");
++        hash.string(bundle.operationalSpatialReferenceVerificationSHA256);
++        hash.string(bundle.operationalSpatialTransportReceiptSHA256);
++    }
+     hash.string(bundle.spatialMassTransportResult.receiptSHA256);
+     hash.string(bundle.parent.parentMassPacketSHA256);
+     hash.string(bundle.parent.parentSourceContributionSHA256);
+@@ -1311,7 +1322,12 @@
+ 
+ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
+         const PhysicalSkinChildMassMappingBundle& bundle,std::string& error) {
+-    if(bundle.conformingLineageMassRouteRequired!=bundle.conformingLineageMassTransportUsed||
++    if((bundle.operationalSpatialMassRouteRequired&&
++        (!bundle.usesSeparatedOperationalReference||bundle.conformingLineageMassRouteRequired||
++         bundle.conformingLineageMassTransportUsed||bundle.exactTopologyIdentityTransportUsed||
++         !physical_skin_child_mass_detail::validSHA256(bundle.operationalSpatialReferenceVerificationSHA256)||
++         bundle.operationalSpatialTransportReceiptSHA256!=bundle.spatialMassTransportResult.receiptSHA256))||
++       bundle.conformingLineageMassRouteRequired!=bundle.conformingLineageMassTransportUsed||
+        (bundle.conformingLineageMassTransportUsed&&bundle.exactTopologyIdentityTransportUsed)||
+        !physical_skin_child_mass_detail::validSHA256(
+            bundle.spatialMassTransportResult.receiptSHA256)||
+@@ -1480,6 +1496,22 @@
+     ConservativeSpatialMassTransportResult transfer;
+     bool usedExactTopologyIdentity=false;
+     bool usedVerifiedConformingAncestry=false;
++    bool usedVerifiedOperationalSpatial=false;
++    if(bundle.operationalSpatialMassRouteRequired){
++        if(!bundle.usesSeparatedOperationalReference||bundle.conformingLineageMassRouteRequired||
++           bundle.conformingLineageMassRoute.authenticated||
++           !validSHA256(bundle.operationalSpatialReferenceVerificationSHA256)||
++           !validSHA256(bundle.operationalSpatialTransportReceiptSHA256)||
++           bundle.operationalSpatialTransportReceiptSHA256!=bundle.spatialMassTransportResult.receiptSHA256)
++            return fail("operational spatial-reference proof or cached receipt is missing or conflicts with another route");
++        if(!verifyRecordedConservativeSpatialMassTransport(input,bundle.spatialMassTransportResult,error))
++            return fail("operational spatial-reference transport failed current-input verification: "+error);
++        transfer=bundle.spatialMassTransportResult;
++        usedVerifiedOperationalSpatial=true;
++    }else if(!bundle.operationalSpatialReferenceVerificationSHA256.empty()||
++             !bundle.operationalSpatialTransportReceiptSHA256.empty()){
++        return fail("operational spatial-reference proof is present without its required import flag");
++    }
+     if(bundle.conformingLineageMassRouteRequired) {
+         if(!bundle.conformingLineageMassRoute.authenticated||
+            !physical_skin_child_mass_mapping_detail::buildVerifiedConformingAncestryTransport(
+@@ -1493,7 +1525,7 @@
+         return fail("conforming ancestry mass route is present without its required registered-import proof flag");
+     }
+     std::vector<std::uint32_t> exactChildParentRows;
+-    if(!usedVerifiedConformingAncestry&&
++    if(!usedVerifiedConformingAncestry&&!usedVerifiedOperationalSpatial&&
+        parentCount<=input.maximumAugmentations&&childCount<=input.maximumAugmentations&&
+        childCount<=input.maximumAllowedEdges&&
+        physical_skin_child_mass_mapping_detail::exactIdentityParentRows(bundle,
+@@ -1520,7 +1552,7 @@
+     if(requiresNativeIdentityRepresentation &&
+        (!usedExactTopologyIdentity || bundle.referenceWorldPoints!=parent.referenceWorldPoints))
+         return fail("non-Float32 source coordinates require certified compiler-equivalent exact parent-reference identity");
+-    if(!usedExactTopologyIdentity&&!usedVerifiedConformingAncestry) {
++    if(!usedExactTopologyIdentity&&!usedVerifiedConformingAncestry&&!usedVerifiedOperationalSpatial) {
+         if(!assembleConservativeSpatialMassTransport(input,transfer,error))
+             return fail("physical child mass transport was not feasible: "+error);
+         if(!verifyRecordedConservativeSpatialMassTransport(input,transfer,error))
+--- a/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp
++++ b/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp
+@@ -35,6 +35,10 @@
+     std::string candidateVolumeSHA256,candidateProducerReceiptSHA256,candidateSelfAuditReceiptSHA256;
+     // Optional verified source 002 -> exact 530 refinement -> fitted candidate chain.
+     std::optional<PhysicalSkinConformingTissueRefinementAssets> conformingTissueRefinement;
++    // Authenticate geometry/source receipts, then solve and certify the existing
++    // conservative spatial mass problem for arbitrary repaired cell topology.
++    // This is not a same-topology pullback or a conforming-refinement claim.
++    bool conservativeSpatialReference=false;
+ };
+ 
+ struct PhysicalSkinRegisteredVolumeAssetFiles {
+@@ -64,6 +68,9 @@
+     std::string operationalReferencePullbackSHA256;
+     bool conformingTissueRefinementVerified=false;
+     std::string conformingTissueRefinementVerificationSHA256;
++    bool operationalReferenceSpatialTransportVerified=false;
++    std::string operationalReferenceSpatialTransportVerificationSHA256;
++    double maximumSpatialMassTransportDistanceM=0.0;
+     double maximumSourceParentRegistrationDistanceM=0.0;
+     double maximumSourceToCandidateReferenceDistanceM=0.0;
+     bool physicalAdmission=false;
+@@ -293,7 +300,9 @@
+         const std::string& candidateNodeMapSHA256,const std::string& candidateFacetMapSHA256,
+         SameTopologyReferencePullbackResult& result,double& maximumSourceParentRegistrationDistanceM,
+         std::string& conformingTissueVerificationSHA256,
+-        PhysicalSkinVerifiedConformingMassRoute& verifiedMassRoute,std::string& error) {
++        PhysicalSkinVerifiedConformingMassRoute& verifiedMassRoute,
++        ConservativeSpatialMassTransportResult& verifiedSpatialTransport,
++        std::string& spatialReferenceVerificationSHA256,std::string& error) {
+     PhysicalSkinChildMassMappingBundle source;source.parent=candidate.parent;
+     PhysicalSkinChildTetGenImportReport sourceReport;
+     if(!loadPhysicalSkinChildTetGenReference(proof.sourceTetgenNode,proof.sourceTetgenElements,
+@@ -324,6 +333,9 @@
+     }
+     if(maximumSourceParentRegistrationDistanceM>0.0004){
+         error="operational-reference source registration exceeds the unchanged 0.4 mm source gate";return false;
++    }
++    if(proof.conservativeSpatialReference&&proof.conformingTissueRefinement){
++        error="operational-reference routes are mutually exclusive";return false;
+     }
+     if(proof.conformingTissueRefinement){
+         PhysicalSkinVerifiedConformingReference refined;
+@@ -437,6 +449,34 @@
+         verifiedMassRoute=std::move(nextRoute);
+         return true;
+     }
++    if(proof.conservativeSpatialReference){
++        auto mapped=candidate;
++        mapped.operationalSpatialMassRouteRequired=false;
++        mapped.operationalSpatialReferenceVerificationSHA256.clear();
++        mapped.operationalSpatialTransportReceiptSHA256.clear();
++        mapped.conformingLineageMassRouteRequired=false;
++        mapped.conformingLineageMassTransportUsed=false;
++        mapped.conformingLineageMassRoute={};
++        std::vector<double> lower(17u,0.0),upper(17u,0.0);
++        lower[15u]=900.0;upper[15u]=1100.0;
++        lower[16u]=850.0;upper[16u]=950.0;
++        if(!preparePhysicalSkinChildMassMapping(mapped,lower,upper,
++                maximumMassTransportDistanceM,sourceBodyCount,error)){
++            error="operational-reference conservative transport rejected: "+error;return false;
++        }
++        spatial_mass_transport_detail::SHA256Builder chain;
++        chain.string("physical-skin-operational-spatial-reference.v1");
++        chain.string(proof.sourceVolumeSHA256);chain.string(proof.candidateVolumeSHA256);
++        chain.string(proof.sourceProducerReceiptSHA256);chain.string(proof.candidateProducerReceiptSHA256);
++        chain.string(proof.sourceSelfAuditReceiptSHA256);chain.string(proof.candidateSelfAuditReceiptSHA256);
++        chain.string(candidateNodeMapSHA256);chain.string(candidateFacetMapSHA256);
++        chain.string(coordinateFrameSHA256);
++        chain.string(mapped.spatialMassTransportResult.receiptSHA256);
++        spatialReferenceVerificationSHA256=chain.finish();
++        verifiedSpatialTransport=std::move(mapped.spatialMassTransportResult);
++        result={}; // No same-topology correspondence is asserted for this route.
++        error.clear();return true;
++    }
+     // The legacy route still requires the source and candidate to share one
+     // exact node/cell/label domain. The explicit refinement route above instead
+     // binds the candidate to the separately authenticated 530 domain.
+@@ -543,6 +583,9 @@
+             return fail("registered volume import TetGen file hash differs from its declared pin: "+
+                 std::array<std::filesystem::path,3>{files.tetgenNode,files.tetgenElements,files.childLabels}[i].string());
+ 
++    nextBundle.operationalSpatialMassRouteRequired=false;
++    nextBundle.operationalSpatialReferenceVerificationSHA256.clear();
++    nextBundle.operationalSpatialTransportReceiptSHA256.clear();
+     nextBundle.usesSeparatedOperationalReference=separatedOperationalReference;
+     nextBundle.conformingLineageMassRouteRequired=separatedOperationalReference&&
+         files.operationalReferencePullback->conformingTissueRefinement.has_value();
+@@ -562,11 +605,14 @@
+     double maximumSourceParentRegistrationDistance=0.0;
+     std::string conformingTissueVerificationSHA256;
+     PhysicalSkinVerifiedConformingMassRoute verifiedMassRoute;
++    ConservativeSpatialMassTransportResult verifiedSpatialTransport;
++    std::string spatialReferenceVerificationSHA256;
+     if(separatedOperationalReference&&
+        !verifyOperationalReferencePullback(*files.operationalReferencePullback,coordinateFrameSHA256,
+            sourceBodyCount,maximumMassTransportDistanceM,nextBundle,nodeRows,tetgenHashes,
+            mapHashAfter,files.expectedSHA256[4],pullbackProof,maximumSourceParentRegistrationDistance,
+-           conformingTissueVerificationSHA256,verifiedMassRoute,error))
++           conformingTissueVerificationSHA256,verifiedMassRoute,
++           verifiedSpatialTransport,spatialReferenceVerificationSHA256,error))
+         return fail("authenticated operational-reference pullback rejected: "+error);
+     if(separatedOperationalReference){
+         if(!conformingTissueVerificationSHA256.empty()){
+@@ -575,6 +621,20 @@
+             domainHash.string(operationalDomainHash);domainHash.string(conformingTissueVerificationSHA256);
+             domainHash.string(pullbackProof.verificationSHA256);
+             operationalDomainHash=domainHash.finish();
++        }
++        if(!spatialReferenceVerificationSHA256.empty()){
++            spatial_mass_transport_detail::SHA256Builder hash;
++            hash.string("physical-skin-operational-reference-domain-with-spatial-proof.v1");
++            hash.string(operationalDomainHash);hash.string(spatialReferenceVerificationSHA256);
++            operationalDomainHash=hash.finish();
++            nextBundle.operationalSpatialMassRouteRequired=true;
++            nextBundle.operationalSpatialReferenceVerificationSHA256=spatialReferenceVerificationSHA256;
++            nextBundle.operationalSpatialTransportReceiptSHA256=verifiedSpatialTransport.receiptSHA256;
++            nextBundle.spatialMassTransportResult=std::move(verifiedSpatialTransport);
++        }else{
++            nextBundle.operationalSpatialMassRouteRequired=false;
++            nextBundle.operationalSpatialReferenceVerificationSHA256.clear();
++            nextBundle.operationalSpatialTransportReceiptSHA256.clear();
+         }
+         nextBundle.operationalReferenceDomainSHA256=operationalDomainHash;
+         if(nextBundle.conformingLineageMassRouteRequired){
+@@ -628,7 +688,12 @@
+         measured.tetgen.labelFileSHA256,mapHashAfter,facetHashAfter};
+     measured.registrationDomain=files.registrationDomain;
+     measured.operationalReferenceDomainSHA256=operationalDomainHash;
+-    measured.operationalReferencePullbackVerified=separatedOperationalReference;
++    measured.operationalReferencePullbackVerified=separatedOperationalReference&&
++        spatialReferenceVerificationSHA256.empty();
++    measured.operationalReferenceSpatialTransportVerified=!spatialReferenceVerificationSHA256.empty();
++    measured.operationalReferenceSpatialTransportVerificationSHA256=spatialReferenceVerificationSHA256;
++    if(measured.operationalReferenceSpatialTransportVerified)
++        measured.maximumSpatialMassTransportDistanceM=nextBundle.spatialMassTransportResult.maximumTransportDistanceUsedM;
+     if(separatedOperationalReference){
+         measured.operationalReferencePullbackSHA256=pullbackProof.verificationSHA256;
+         measured.conformingTissueRefinementVerified=!conformingTissueVerificationSHA256.empty();
+--- a/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp
++++ b/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp
+@@ -424,6 +424,161 @@
+     files.nativeFloat32FramesByDonor=badDomain;assert(!read());
+ }
+ 
++
++void checkOperationalSpatialReference(const std::filesystem::path& root) {
++    std::filesystem::create_directories(root);
++    Fixture f;
++    auto& p=f.parentBundle.parent;
++    p.nodeFrameOwnerBodyIndices.assign(p.referenceWorldPoints.size(),0u);
++    p.nodeFrameOwnerLocalPoints=p.referenceWorldPoints;
++    p.compiledGlobalNodeIndices.resize(p.referenceWorldPoints.size());
++    std::iota(p.compiledGlobalNodeIndices.begin(),p.compiledGlobalNodeIndices.end(),0u);
++    p.compiledLumpedNodeMassKg.assign(p.referenceWorldPoints.size(),0.0);
++    std::map<std::pair<unsigned,unsigned>,double> shares;
++    for(unsigned cell=0;cell<p.tetrahedra.size();++cell){
++        const auto tet=p.tetrahedra[cell];
++        const auto v=parentReferenceTetVolumeM3(tet,p.referenceWorldPoints);
++        const auto mass=v*(p.materialIndices[cell]==15u?1000.0:900.0);
++        p.referenceTetVolumeM3.push_back(v);p.tetrahedronMassKg.push_back(mass);p.totalMassKg+=mass;
++        for(const auto node:tet){p.compiledLumpedNodeMassKg[node]+=mass*0.25;
++            shares[{node,p.materialIndices[cell]}]+=mass*0.25;}
++    }
++    for(const auto& [key,mass]:shares)
++        p.sourceMassContributions.push_back({.parentNodeIndex=key.first,.materialIndex=key.second,
++            .donorBodyIndex=0u,.massKg=mass,.donorLocalPosition=p.referenceWorldPoints[key.first]});
++    const auto packet=root/"parent-packet.csv";
++    {std::ofstream out(packet);out<<"bounded synthetic parent packet fixture\n";}
++    pin(packet,p.parentMassPacketSHA256);
++    p.parentSourceContributionSHA256=std::string(64u,'4');
++    p.parentTopologySHA256=std::string(64u,'5');p.parentLabelSHA256=std::string(64u,'6');
++    PhysicalSkinRegisteredVolumeAssetFiles sourceFiles;
++    f.writeFiles(root/"source",sourceFiles);
++    f.prepareSeparatedOperationalReference(); // 6 source cells -> 9 new cells.
++    PhysicalSkinRegisteredVolumeAssetFiles files;
++    f.writeFiles(root/"candidate",files,true);
++    PhysicalSkinOperationalReferencePullbackAssets proof;
++    proof.sourceParentPacketCSV=packet;
++    proof.sourceTetgenNode=sourceFiles.tetgenNode;
++    proof.sourceTetgenElements=sourceFiles.tetgenElements;proof.sourceLabels=sourceFiles.childLabels;
++    std::copy_n(sourceFiles.expectedSHA256.begin(),3u,proof.sourceTetGenSHA256.begin());
++    proof.sourceVolumeAsset=root/"source.npz";proof.candidateVolumeAsset=root/"candidate.npz";
++    {std::ofstream out(proof.sourceVolumeAsset);out<<"synthetic positive 6-cell source\n";}
++    {std::ofstream out(proof.candidateVolumeAsset);out<<"synthetic positive 9-cell candidate\n";}
++    pin(proof.sourceVolumeAsset,proof.sourceVolumeSHA256);pin(proof.candidateVolumeAsset,proof.candidateVolumeSHA256);
++    proof.sourceProducerReceipt=root/"source-producer.json";
++    {std::ofstream out(proof.sourceProducerReceipt);
++     out<<"{\"schema\": \"NumiHuman.reduced-parent-boundary-candidate.v1\","
++          "\"status\":\"bounded_reduced_boundary_candidate_not_physical_admission\","
++          "\"physical_admission\":false,\"all_child_rows_match_parent_row\":true,"
++          "\"candidate.npz\":\""<<proof.sourceVolumeSHA256<<"\","
++          "\"parent-reduced-boundary.node\":\""<<sourceFiles.expectedSHA256[0]<<"\","
++          "\"parent-reduced-boundary.ele\":\""<<sourceFiles.expectedSHA256[1]<<"\","
++          "\"parent-reduced-boundary.labels.csv\":\""<<sourceFiles.expectedSHA256[2]<<"\"}\n";}
++    proof.candidateProducerReceipt=root/"candidate-producer.json";
++    const auto frame=std::string(64u,'0');
++    {std::ofstream out(proof.candidateProducerReceipt);
++     out<<"{\"schema\": \"numi-human.registered-volume-parent-identity-source-control.v1\","
++          "\"physical_admission\":false,\"registration_domain\":\"candidateOperationalReference\","
++          "\"candidate_npz_sha256\":\""<<proof.candidateVolumeSHA256<<"\","
++          "\"candidate_node_sha256\":\""<<files.expectedSHA256[0]<<"\","
++          "\"candidate_element_sha256\":\""<<files.expectedSHA256[1]<<"\","
++          "\"candidate_labels_sha256\":\""<<files.expectedSHA256[2]<<"\","
++          "\"node_map_sha256\":\""<<files.expectedSHA256[3]<<"\","
++          "\""<<(root/"volume/facet-ancestry.csv").string()<<"\":\""<<files.expectedSHA256[4]<<"\","
++          "\"coordinate_frame_sha256\":\""<<frame<<"\","
++          "\"immutable_source_parent_packet_sha256\":\""<<p.parentMassPacketSHA256<<"\","
++          "\"audit\":{\"candidate_npz_sha256\":\""<<proof.candidateVolumeSHA256<<"\","
++          "\"coordinate_frame_sha256\":\""<<frame<<"\",\"physical_admission\":false}}\n";}
++    pin(proof.sourceProducerReceipt,proof.sourceProducerReceiptSHA256);
++    pin(proof.candidateProducerReceipt,proof.candidateProducerReceiptSHA256);
++    const auto writeSelf=[&](const std::filesystem::path& path,const std::string& volume,bool bad=false){
++        std::ofstream out(path);
++        out<<"{\"status\":\"exact_coarse_material_boundary_self_audit\",\"candidate_sha256\":\""<<volume
++           <<"\",\"physical_admission\":false,\"skin\":{\"self_intersection_pairs\":"<<(bad?1:0)
++           <<"},\"fat\":{\"self_intersection_pairs\":0}}\n";};
++    proof.sourceSelfAuditReceipt=root/"source-self.json";
++    proof.candidateSelfAuditReceipt=root/"candidate-self.json";
++    writeSelf(proof.sourceSelfAuditReceipt,proof.sourceVolumeSHA256);
++    writeSelf(proof.candidateSelfAuditReceipt,proof.candidateVolumeSHA256);
++    pin(proof.sourceSelfAuditReceipt,proof.sourceSelfAuditReceiptSHA256);
++    pin(proof.candidateSelfAuditReceipt,proof.candidateSelfAuditReceiptSHA256);
++    files.operationalReferencePullback=proof;
++    std::vector<PhysicalSkinStableDeepAttachmentRequest> attachments;
++    const std::vector<PhysicalSkinSourceDomainRegistration> domains{
++        {"fixture-detail",PhysicalSkinSourceDomainRole::outerSurface,std::string(64u,'1'),9u,1u},
++        {"fixture-detail",PhysicalSkinSourceDomainRole::innerSurface,std::string(64u,'2'),9u,1u},
++        {"fixture-detail",PhysicalSkinSourceDomainRole::deepSurface,std::string(64u,'3'),9u,1u}};
++    std::string error;
++    const auto import=[&](const PhysicalSkinRegisteredVolumeAssetFiles& input,
++                          PhysicalSkinChildMassMappingBundle& bundle,
++                          PhysicalSkinRegisteredVolumeFileImportReport& report){
++        PhysicalSkinRegisteredVolumeImportSidecars sidecars;
++        return importPhysicalSkinRegisteredVolumeFiles(input,frame,157u,2.0,
++            0.0004,"",0u,0u,f.registered,attachments,f.poses,bundle,sidecars,report,error,domains);
++    };
++    auto bundle=f.parentBundle;PhysicalSkinRegisteredVolumeFileImportReport report;
++    assert(!import(files,bundle,report));
++    assert(error.find("exact source/candidate cell and label correspondence")!=std::string::npos);
++    assert(bundle.childTetrahedra.empty()); // Legacy path stays fail-closed.
++    files.operationalReferencePullback->conservativeSpatialReference=true;
++    if(!import(files,bundle,report)){std::cerr<<"spatial import rejected "<<error<<"\n";assert(false);}
++    assert(report.operationalReferenceSpatialTransportVerified&&!report.operationalReferencePullbackVerified);
++    assert(!report.conformingTissueRefinementVerified&&!report.physicalAdmission);
++    assert(bundle.usesSeparatedOperationalReference&&bundle.operationalSpatialMassRouteRequired);
++    assert(bundle.parent.tetrahedra.size()==6u&&bundle.childTetrahedra.size()==9u);
++    assert(bundle.volumeNodeSourceParentRegistrationDistanceM.back()>0.004);
++    assert(bundle.volumeNodeOperationalReferenceDistanceM.back()==0.0);
++    std::vector<double> lower(17u,0.0),upper(17u,0.0);
++    lower[15]=900;upper[15]=1100;lower[16]=850;upper[16]=950;
++    const auto receipt=bundle.spatialMassTransportResult.receiptSHA256;
++    assert(preparePhysicalSkinChildMassMapping(bundle,lower,upper,2.0,157u,error));
++    assert(receipt==bundle.spatialMassTransportResult.receiptSHA256);
++    assert(!bundle.exactTopologyIdentityTransportUsed&&!bundle.conformingLineageMassTransportUsed);
++    assert(physical_skin_child_mass_mapping_detail::validatePreparedPhysicalSkinChildMassMappingPath(bundle,error));
++    const auto originalParent=p;
++    assert(physical_skin_registered_volume_integration_detail::sameImmutableParentPacket(bundle.parent,originalParent));
++    // Cached transport never authorizes changed physical inputs.
++    for(unsigned kind=0;kind<7;++kind){
++        auto bad=bundle;
++        if(kind==0)bad.referenceWorldPoints[9][0]+=0.001;
++        if(kind==1)bad.childAnatomicalRegionIndices[0]+=1u;
++        if(kind==2)bad.coordinateFrameSHA256=std::string(64u,'9');
++        if(kind==3)bad.spatialMassTransportResult.childMassKg[0]*=1.001;
++        if(kind==4)bad.operationalSpatialTransportReceiptSHA256=std::string(64u,'8');
++        if(kind==5)bad.operationalSpatialMassRouteRequired=false;
++        if(kind==6)bad.conformingLineageMassRouteRequired=true;
++        const auto before=bad.massMappingPathSHA256;
++        assert(!preparePhysicalSkinChildMassMapping(bad,lower,upper,2.0,157u,error));
++        assert(bad.massMappingPathSHA256==before);
++    }
++    const auto expectImportReject=[&](PhysicalSkinRegisteredVolumeAssetFiles bad,const std::string& match){
++        auto untouched=f.parentBundle;PhysicalSkinRegisteredVolumeFileImportReport r;r.nodeMap.fileRows=123u;
++        assert(!import(bad,untouched,r));
++        if(error.find(match)==std::string::npos)std::cerr<<"expected "<<match<<" got "<<error<<"\n";
++        assert(error.find(match)!=std::string::npos);
++        assert(untouched.childTetrahedra.empty()&&r.nodeMap.fileRows==123u);
++    };
++    auto bad=files;bad.operationalReferencePullback->candidateVolumeSHA256=std::string(64u,'a');
++    expectImportReject(bad,"hash differs");
++    bad=files;bad.expectedSHA256[3]=std::string(64u,'b');
++    expectImportReject(bad,"hash differs");
++    bad=files;bad.operationalReferencePullback->candidateSelfAuditReceipt=root/"bad-self.json";
++    writeSelf(bad.operationalReferencePullback->candidateSelfAuditReceipt,proof.candidateVolumeSHA256,true);
++    pin(bad.operationalReferencePullback->candidateSelfAuditReceipt,bad.operationalReferencePullback->candidateSelfAuditReceiptSHA256);
++    expectImportReject(bad,"nonzero");
++    bad=files;bad.operationalReferencePullback->conformingTissueRefinement=PhysicalSkinConformingTissueRefinementAssets{};
++    expectImportReject(bad,"mutually exclusive");
++    auto infeasible=bundle;infeasible.operationalSpatialMassRouteRequired=false;
++    infeasible.operationalSpatialReferenceVerificationSHA256.clear();
++    infeasible.operationalSpatialTransportReceiptSHA256.clear();
++    for(auto& point:infeasible.referenceWorldPoints)point[0]*=2.0;
++    infeasible.currentWorldPoints=infeasible.referenceWorldPoints;
++    assert(!preparePhysicalSkinChildMassMapping(infeasible,lower,upper,2.0,157u,error));
++    std::cout<<"operational_spatial_reference 6_to_9_cells=PASS historical_vs_operational=PASS"
++        <<" certified_cache_reuse=PASS stale_geometry_labels_frame_flows_receipts=PASS"
++        <<" authenticated_file_failures_atomic=PASS density_infeasible=PASS physical_admission=NOT_CLAIMED\n";
++}
++
+ int main() {
+     Fixture fixture;
+     const auto root=std::filesystem::temp_directory_path()/
+@@ -431,6 +586,7 @@
+             std::chrono::steady_clock::now().time_since_epoch().count()));
+     std::filesystem::create_directories(root);
+     checkNativeFloat32FrameContract(root);
++    checkOperationalSpatialReference(root/"spatial-route");
+     PhysicalSkinRegisteredVolumeAssetFiles files;
+     fixture.writeFiles(root,files);
+ 
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -22017,6 +22017,15 @@
+         std::string_view(conformingReferenceChainSetting)=="1";
+     require(!conformingReferenceChainRequested||separatedRegisteredOperationalReference,
+             "conforming-reference refinement requires separated operational-reference import");
++    const char* spatialReferenceSetting=std::getenv(
++        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CONSERVATIVE_SPATIAL_REFERENCE");
++    require(!spatialReferenceSetting||std::string_view(spatialReferenceSetting)=="0"||
++                std::string_view(spatialReferenceSetting)=="1",
++            "operational conservative spatial-reference setting must be 0 or 1");
++    const bool spatialReferenceRequested=spatialReferenceSetting&&
++        std::string_view(spatialReferenceSetting)=="1";
++    require(!spatialReferenceRequested||(separatedRegisteredOperationalReference&&!conformingReferenceChainRequested),
++            "conservative spatial-reference requires separated reference and excludes the conforming-refinement route");
+     if(separatedRegisteredOperationalReference){
+         const char* sourceOnly=std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_SOURCE_ONLY");
+         const char* preflight=std::getenv("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT");
+@@ -22610,6 +22619,7 @@
+                         volumeFiles.expectedSHA256[i]=value(volumePins[i]);
+                     if(separatedRegisteredOperationalReference) {
+                         PhysicalSkinOperationalReferencePullbackAssets proof;
++                        proof.conservativeSpatialReference=spatialReferenceRequested;
+                         proof.sourceParentPacketCSV=parentMassPath;
+                         proof.sourceTetgenNode=pathValue("OPERATIONAL_SOURCE_NODE");
+                         proof.sourceTetgenElements=pathValue("OPERATIONAL_SOURCE_ELEMENTS");
+@@ -22704,6 +22714,16 @@
+                                 !importReport.physicalAdmission,
+                             "registered-volume preparation must remain non-admitting");
+                     if(separatedRegisteredOperationalReference) {
++                        if(spatialReferenceRequested){
++                            require(importReport.operationalReferenceSpatialTransportVerified&&
++                                        importReport.operationalReferenceSpatialTransportVerificationSHA256.size()==64u&&
++                                        !importReport.operationalReferencePullbackVerified,
++                                    "candidate operational-reference import lacks its certified spatial mass route");
++                            std::cout<<"registered_volume_operational_reference_spatial_transport=PASS"
++                                <<" proof_sha256="<<importReport.operationalReferenceSpatialTransportVerificationSHA256
++                                <<" maximum_transport_distance_used_m="<<importReport.maximumSpatialMassTransportDistanceM
++                                <<" physical_admission=0 runtime=0 accepted_steps=0 GPU=0\n";
++                        }else{
+                         require(importReport.operationalReferencePullbackVerified&&
+                                     importReport.operationalReferencePullbackSHA256.size()==64u,
+                                 "candidate operational-reference import lacks its authenticated pullback proof");
+@@ -22722,6 +22742,7 @@
+                             <<" conforming_chain_sha256="
+                             <<importReport.conformingTissueRefinementVerificationSHA256
+                             <<" physical_admission=0 runtime=0 accepted_steps=0 GPU=0\n";
++                        }
+                     }
+                     PhysicalSkinAuthoringOuterRoleRenderDomain outerRenderDomain;
+                     require(preparePhysicalSkinAuthoringOuterRoleRenderDomain(

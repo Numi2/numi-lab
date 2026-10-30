@@ -1,0 +1,207 @@
+{
+  "schema": "numi-human-operational-reference-source-check.v1",
+  "base_revision": "39bd0e7015a18f38a757193ed23d9a69874b1859",
+  "host": "SSH numi",
+  "scope": "One-time initialization/admission preparation; no simulation step or physical admission",
+  "implementation": {
+    "route": "authenticated conservative spatial reference for changed cell topology",
+    "source_and_candidate_geometry_receipts_required": true,
+    "original_parent_mass_source_donor_region_ledger_preserved": true,
+    "spatial_transport_reverified_against_current_inputs": true,
+    "same_topology_and_530_routes_unchanged": true,
+    "historical_source_registration_distinct_from_operational_support": true,
+    "operational_support_limit_m": 0.0004,
+    "density_bounds_kg_m3": {
+      "15": [
+        900,
+        1100
+      ],
+      "16": [
+        850,
+        950
+      ]
+    },
+    "CPU_use": "one-time mass initialization only; no per-step CPU physics"
+  },
+  "tests": [
+    {
+      "mode": "assert",
+      "compile_argv": [
+        "/usr/bin/clang++",
+        "-std=c++23",
+        "-O1",
+        "-g0",
+        "-UNDEBUG",
+        "-Wno-deprecated-declarations",
+        "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+        "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+        "-I/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+        "-ivfsoverlay",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-overlay.json",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-source/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp",
+        "-o",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-tests-002/spatial-integration-assert"
+      ],
+      "compile_exit": 0,
+      "compile_seconds": 3.8007982079871,
+      "run_exit": 0,
+      "run_seconds": 0.1331868339329958,
+      "stdout": "operational_spatial_reference 6_to_9_cells=PASS historical_vs_operational=PASS certified_cache_reuse=PASS stale_geometry_labels_frame_flows_receipts=PASS authenticated_file_failures_atomic=PASS density_infeasible=PASS physical_admission=NOT_CLAIMED\nsource_mass_parent_split_import=PASS parent_cells=6 child_cells=9 interior_nodes=1 generic_spatial_transport=PASS edges=9 min_density=900 max_density=1100 parent_mass_error_kg=5.42101e-20 parent_measure_error_m3=5.29396e-23 source_donor_closure_rows=4 source_donor_error_kg=0\nregistered_volume_file_import=PASS positive_TetGen_prism=6cells O/I/D=1/2/1 walls=12 exact_node_map_rows=12 malformed_csv_and_gzip_rejected atomic_failure_preserved=1 native_F32_exact_pins_and_roundoff_bound=PASS strict_default_unchanged=1 candidate_operational_reference_missing_proof_rejected=PASS legacy_exact_topology_and_refined_530_candidate_domain_routing=PASS immutable_parent_packet=1 actual_authenticated_chain_separately_checked=1 invalid_source_registration=REJECTED semantic_group_without_parent_supply=REJECTED inverted_cell=REJECTED physical_admission=NOT_CLAIMED\n",
+      "stderr": "",
+      "binary_sha256": "17f664dea642baaeaace136ae356e2da00a7fe151cb6d42864b5d33fac19558d"
+    },
+    {
+      "mode": "sanitize",
+      "compile_argv": [
+        "/usr/bin/clang++",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-std=c++23",
+        "-O1",
+        "-g0",
+        "-UNDEBUG",
+        "-Wno-deprecated-declarations",
+        "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+        "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+        "-I/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+        "-ivfsoverlay",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-overlay.json",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-source/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp",
+        "-o",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-tests-002/spatial-integration-sanitize"
+      ],
+      "compile_exit": 0,
+      "compile_seconds": 8.560846999986097,
+      "run_exit": 0,
+      "run_seconds": 0.24953579204156995,
+      "stdout": "operational_spatial_reference 6_to_9_cells=PASS historical_vs_operational=PASS certified_cache_reuse=PASS stale_geometry_labels_frame_flows_receipts=PASS authenticated_file_failures_atomic=PASS density_infeasible=PASS physical_admission=NOT_CLAIMED\nsource_mass_parent_split_import=PASS parent_cells=6 child_cells=9 interior_nodes=1 generic_spatial_transport=PASS edges=9 min_density=900 max_density=1100 parent_mass_error_kg=5.42101e-20 parent_measure_error_m3=5.29396e-23 source_donor_closure_rows=4 source_donor_error_kg=0\nregistered_volume_file_import=PASS positive_TetGen_prism=6cells O/I/D=1/2/1 walls=12 exact_node_map_rows=12 malformed_csv_and_gzip_rejected atomic_failure_preserved=1 native_F32_exact_pins_and_roundoff_bound=PASS strict_default_unchanged=1 candidate_operational_reference_missing_proof_rejected=PASS legacy_exact_topology_and_refined_530_candidate_domain_routing=PASS immutable_parent_packet=1 actual_authenticated_chain_separately_checked=1 invalid_source_registration=REJECTED semantic_group_without_parent_supply=REJECTED inverted_cell=REJECTED physical_admission=NOT_CLAIMED\n",
+      "stderr": "",
+      "binary_sha256": "4395548fc7a5454e1e84eeac7a678a49b9623add2cccef6bea65de3e4174d731"
+    }
+  ],
+  "native_compile": {
+    "compiler_argv": [
+      "/usr/bin/clang++",
+      "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-source/apps",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+      "-ivfsoverlay",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-overlay.json",
+      "-DMETALROBO_METALLIB=\"/Users/numi/Work/skin-fat-native-integration-209/build-native/shaders/MetalRobo.metallib\"",
+      "-DNUMI_HUMAN_ANTERIOR_THORAX_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_anterior_abdominal_wall_composite_effective.nmatter\"",
+      "-DNUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/open_knee_ligament_febio_exp_linear.nmatter\"",
+      "-DNUMI_HUMAN_PASSIVE_TISSUE_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/passive_skeletal_muscle_unqualified.nmatter\"",
+      "-DNUMI_HUMAN_PECTORALIS_FASCIA_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_pectoralis_fascia_goh_uniaxial.nmatter\"",
+      "-DNUMI_HUMAN_PLANTAR_FASCIA_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_plantar_fascia_reduced.nmatter\"",
+      "-DNUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_myofascia_regional_transverse_isotropic.nmatter\"",
+      "-DNUMI_HUMAN_RESPIRATION_METALLIB=\"/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib\"",
+      "-DNUMI_HUMAN_RESTING_SCENE=1",
+      "-DNUMI_HUMAN_SKIN_DERMIS_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_skin_dermis_frequency_specific_effective.nmatter\"",
+      "-DNUMI_HUMAN_SUBCUTANEOUS_ADIPOSE_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter\"",
+      "-DNUMI_HUMAN_THORACOLUMBAR_FASCIA_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_thoracolumbar_fascia_effective_isotropic.nmatter\"",
+      "-DNUMI_MATTER_METALLIB=\"/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib\"",
+      "-I/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+      "-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks",
+      "-x",
+      "objective-c++",
+      "-O3",
+      "-DNDEBUG",
+      "-std=c++23",
+      "-arch",
+      "arm64",
+      "-fPIE",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-H",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-native-build-003/probe.o",
+      "-c",
+      "/Users/numi/Work/skin-fat-native-integration-209/apps/numilab_human_myosim_visual_probe.mm"
+    ],
+    "exit_code": 0,
+    "seconds": 43.6627964170184,
+    "object_sha256": "4840e128dd3b552f71eaaf71574b5afc3357a0dce0aa90b7a5337d379b3e2771",
+    "include_pins": {
+      "NumiHumanPhysicalSkinChildMassMapping.hpp": true,
+      "NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp": true
+    }
+  },
+  "native_link": {
+    "argv": [
+      "/usr/bin/clang++",
+      "-O3",
+      "-DNDEBUG",
+      "-arch",
+      "arm64",
+      "-Wl,-search_paths_first",
+      "-Wl,-headerpad_max_install_names",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-native-build-003/probe.o",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/publication-native-build-003/numi-human-native",
+      "-Wl,-rpath,/Users/numi/Work/skin-fat-native-integration-209/build-native/lib",
+      "lib/libmetalrobo.dylib",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-framework",
+      "CoreGraphics",
+      "-framework",
+      "ImageIO",
+      "-framework",
+      "AppKit",
+      "-framework",
+      "MetalKit",
+      "-framework",
+      "AVFoundation",
+      "-framework",
+      "CoreVideo",
+      "-framework",
+      "CoreMedia",
+      "-framework",
+      "QuartzCore"
+    ],
+    "exit_code": 0,
+    "seconds": 0.059202332980930805,
+    "run_executed": false,
+    "binary_sha256": "497965f6377c0a904cb9b801583ba160917c24d2fb09b5545ad7f8f7e2a24c62"
+  },
+  "main_dependency_manifest": {
+    "base": "39bd0e7015a18f38a757193ed23d9a69874b1859",
+    "unchanged_main_dependencies": [
+      {
+        "name": "NumiHumanConservativeSpatialMassTransport.hpp",
+        "base_object": "c3df7ffe48a48b2a70839f9f3f901a607a63d876",
+        "sha256": "6873bdaa5722287a0542ed52b1a828279790ce2bd875f2c6156e98840909c3d7"
+      },
+      {
+        "name": "NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp",
+        "base_object": "8d603b388eb753f2638abd4f8ed5a8262ebaa03a",
+        "sha256": "162c19b730f2162fcc13ce4e567e17cef1524e432a651a2097a08a99e71ce2ca"
+      },
+      {
+        "name": "NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp",
+        "base_object": "35ff16f5f6e61fb38b3a4debb7499d30a9f23828",
+        "sha256": "ca2efa2eb383fc32e982d3320ac604671ba455c762bab35715b0d6cab4a3e9ca"
+      },
+      {
+        "name": "NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp",
+        "base_object": "bb71a1d65c64f4149b283395c6a6c0b1ee84be12",
+        "sha256": "04e54b1c7b1fbea383b61b5d5df5dfbf9dd0fe0334097bb2c0a825eb5b70a4d4"
+      }
+    ]
+  },
+  "limitations": [
+    "Synthetic 6-to-9-cell import fixture is not a Human physical qualification",
+    "Native target compiles and links; Runtime and accepted physical steps were not run",
+    "Current split remains explicitly source-only preflight; full scene still requires boundary/cell/attachment/motion gates",
+    "The full-size source mass mapper was separately verified at preceding revision 39bd0e7"
+  ],
+  "runtime_created": 0,
+  "accepted_steps": 0,
+  "physical_admission": false
+}

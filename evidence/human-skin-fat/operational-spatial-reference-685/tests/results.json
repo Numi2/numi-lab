@@ -1,0 +1,56 @@
+[
+  {
+    "mode": "assert",
+    "compile_argv": [
+      "/usr/bin/clang++",
+      "-std=c++23",
+      "-O1",
+      "-g0",
+      "-UNDEBUG",
+      "-Wno-deprecated-declarations",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+      "-ivfsoverlay",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/overlay.json",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/source/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/tests/spatial-integration-assert"
+    ],
+    "compile_exit": 0,
+    "compile_seconds": 3.4008217921946198,
+    "run_exit": 0,
+    "run_seconds": 0.2740082920063287,
+    "stdout": "operational_spatial_reference 6_to_9_cells=PASS historical_vs_operational=PASS certified_cache_reuse=PASS stale_geometry_labels_frame_flows_receipts=PASS authenticated_file_failures_atomic=PASS density_infeasible=PASS physical_admission=NOT_CLAIMED\nregistered_volume_file_import=PASS positive_TetGen_prism=6cells O/I/D=1/2/1 walls=12 exact_node_map_rows=12 malformed_csv_and_gzip_rejected atomic_failure_preserved=1 native_F32_exact_pins_and_roundoff_bound=PASS strict_default_unchanged=1 candidate_operational_reference_missing_proof_rejected=PASS legacy_exact_topology_and_refined_530_candidate_domain_routing=PASS immutable_parent_packet=1 actual_authenticated_chain_separately_checked=1 physical_admission=NOT_CLAIMED\n",
+    "stderr": "",
+    "binary_sha256": "dea3e6a72b929bae601a5e6bdd56d5fbfd1effc0f9b2bc7326775e524fc37089"
+  },
+  {
+    "mode": "sanitize",
+    "compile_argv": [
+      "/usr/bin/clang++",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-std=c++23",
+      "-O1",
+      "-g0",
+      "-UNDEBUG",
+      "-Wno-deprecated-declarations",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+      "-ivfsoverlay",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/overlay.json",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/source/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-spatial-reference-685/tests/spatial-integration-sanitize"
+    ],
+    "compile_exit": 0,
+    "compile_seconds": 7.709356250008568,
+    "run_exit": -6,
+    "run_seconds": 0.3206454999744892,
+    "stdout": "",
+    "stderr": "==40455==AddressSanitizer: detect_leaks is not supported on this platform.\n",
+    "binary_sha256": "1eb81ed28a57757d6f2cc4b0c2035fa8ba30e7d02067f3c8b6d8fef8dd069e88"
+  }
+]

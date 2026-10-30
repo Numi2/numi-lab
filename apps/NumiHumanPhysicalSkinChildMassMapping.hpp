@@ -497,6 +497,12 @@ struct PhysicalSkinChildMassMappingBundle {
     bool conformingLineageMassRouteRequired=false;
     bool conformingLineageMassTransportUsed=false;
     PhysicalSkinVerifiedConformingMassRoute conformingLineageMassRoute;
+    // Set only by authenticated operational-reference file import. The existing
+    // transport result is recomputed/verified against current inputs before use.
+    // Historical source ancestry remains separate from spatial mass transport.
+    bool operationalSpatialMassRouteRequired=false;
+    std::string operationalSpatialReferenceVerificationSHA256;
+    std::string operationalSpatialTransportReceiptSHA256;
     std::string massMappingPathSHA256;
 
     [[nodiscard]] ExplicitUnpairedVolumeTopology topologyView() const {
@@ -1216,6 +1222,11 @@ inline std::string massMappingPathSHA256(
         hash.string("physicalSkinChildMassMapping.path.v2");
         hash.string(exactTopologyIdentity?"exact_topology_identity":"bounded_conservative_spatial");
     }
+    if(bundle.operationalSpatialMassRouteRequired){
+        hash.string("authenticated_operational_spatial_reference.v1");
+        hash.string(bundle.operationalSpatialReferenceVerificationSHA256);
+        hash.string(bundle.operationalSpatialTransportReceiptSHA256);
+    }
     hash.string(bundle.spatialMassTransportResult.receiptSHA256);
     hash.string(bundle.parent.parentMassPacketSHA256);
     hash.string(bundle.parent.parentSourceContributionSHA256);
@@ -1311,7 +1322,12 @@ inline std::string massMappingPathSHA256(
 
 inline bool validatePreparedPhysicalSkinChildMassMappingPath(
         const PhysicalSkinChildMassMappingBundle& bundle,std::string& error) {
-    if(bundle.conformingLineageMassRouteRequired!=bundle.conformingLineageMassTransportUsed||
+    if((bundle.operationalSpatialMassRouteRequired&&
+        (!bundle.usesSeparatedOperationalReference||bundle.conformingLineageMassRouteRequired||
+         bundle.conformingLineageMassTransportUsed||bundle.exactTopologyIdentityTransportUsed||
+         !physical_skin_child_mass_detail::validSHA256(bundle.operationalSpatialReferenceVerificationSHA256)||
+         bundle.operationalSpatialTransportReceiptSHA256!=bundle.spatialMassTransportResult.receiptSHA256))||
+       bundle.conformingLineageMassRouteRequired!=bundle.conformingLineageMassTransportUsed||
        (bundle.conformingLineageMassTransportUsed&&bundle.exactTopologyIdentityTransportUsed)||
        !physical_skin_child_mass_detail::validSHA256(
            bundle.spatialMassTransportResult.receiptSHA256)||
@@ -1480,6 +1496,22 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
     ConservativeSpatialMassTransportResult transfer;
     bool usedExactTopologyIdentity=false;
     bool usedVerifiedConformingAncestry=false;
+    bool usedVerifiedOperationalSpatial=false;
+    if(bundle.operationalSpatialMassRouteRequired){
+        if(!bundle.usesSeparatedOperationalReference||bundle.conformingLineageMassRouteRequired||
+           bundle.conformingLineageMassRoute.authenticated||
+           !validSHA256(bundle.operationalSpatialReferenceVerificationSHA256)||
+           !validSHA256(bundle.operationalSpatialTransportReceiptSHA256)||
+           bundle.operationalSpatialTransportReceiptSHA256!=bundle.spatialMassTransportResult.receiptSHA256)
+            return fail("operational spatial-reference proof or cached receipt is missing or conflicts with another route");
+        if(!verifyRecordedConservativeSpatialMassTransport(input,bundle.spatialMassTransportResult,error))
+            return fail("operational spatial-reference transport failed current-input verification: "+error);
+        transfer=bundle.spatialMassTransportResult;
+        usedVerifiedOperationalSpatial=true;
+    }else if(!bundle.operationalSpatialReferenceVerificationSHA256.empty()||
+             !bundle.operationalSpatialTransportReceiptSHA256.empty()){
+        return fail("operational spatial-reference proof is present without its required import flag");
+    }
     if(bundle.conformingLineageMassRouteRequired) {
         if(!bundle.conformingLineageMassRoute.authenticated||
            !physical_skin_child_mass_mapping_detail::buildVerifiedConformingAncestryTransport(
@@ -1493,7 +1525,7 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
         return fail("conforming ancestry mass route is present without its required registered-import proof flag");
     }
     std::vector<std::uint32_t> exactChildParentRows;
-    if(!usedVerifiedConformingAncestry&&
+    if(!usedVerifiedConformingAncestry&&!usedVerifiedOperationalSpatial&&
        parentCount<=input.maximumAugmentations&&childCount<=input.maximumAugmentations&&
        childCount<=input.maximumAllowedEdges&&
        physical_skin_child_mass_mapping_detail::exactIdentityParentRows(bundle,
@@ -1520,7 +1552,7 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
     if(requiresNativeIdentityRepresentation &&
        (!usedExactTopologyIdentity || bundle.referenceWorldPoints!=parent.referenceWorldPoints))
         return fail("non-Float32 source coordinates require certified compiler-equivalent exact parent-reference identity");
-    if(!usedExactTopologyIdentity&&!usedVerifiedConformingAncestry) {
+    if(!usedExactTopologyIdentity&&!usedVerifiedConformingAncestry&&!usedVerifiedOperationalSpatial) {
         if(!assembleConservativeSpatialMassTransport(input,transfer,error))
             return fail("physical child mass transport was not feasible: "+error);
         if(!verifyRecordedConservativeSpatialMassTransport(input,transfer,error))

@@ -1,0 +1,8 @@
+{
+  "run_exit": 0,
+  "elapsed_seconds": 0.023631915915757418,
+  "ASAN_OPTIONS": "detect_leaks=0",
+  "stdout": "operational_spatial_reference 6_to_9_cells=PASS historical_vs_operational=PASS certified_cache_reuse=PASS stale_geometry_labels_frame_flows_receipts=PASS authenticated_file_failures_atomic=PASS density_infeasible=PASS physical_admission=NOT_CLAIMED\nregistered_volume_file_import=PASS positive_TetGen_prism=6cells O/I/D=1/2/1 walls=12 exact_node_map_rows=12 malformed_csv_and_gzip_rejected atomic_failure_preserved=1 native_F32_exact_pins_and_roundoff_bound=PASS strict_default_unchanged=1 candidate_operational_reference_missing_proof_rejected=PASS legacy_exact_topology_and_refined_530_candidate_domain_routing=PASS immutable_parent_packet=1 actual_authenticated_chain_separately_checked=1 physical_admission=NOT_CLAIMED\n",
+  "stderr": "",
+  "note": "macOS does not implement LeakSanitizer; AddressSanitizer and UBSan remain enabled; unsupported first attempt retained"
+}
