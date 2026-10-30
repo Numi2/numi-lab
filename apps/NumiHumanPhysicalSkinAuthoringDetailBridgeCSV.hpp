@@ -1,4 +1,5 @@
 #pragma once
+#include "NumiHumanPhysicalSkinChildCapacity.hpp"
 
 #include "NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp"
 
@@ -965,7 +966,7 @@ inline bool runNativeFaceSelection(
     std::vector<CoarseFace> coarseFaces;
     std::size_t coarseRoleRows=0u,allCoarseRows=0u;
     bool refinedCoarseSchema=false;
-    if(!readPinnedCSV(files.coarseBoundaryFaces,coarseFaceHeader,200000u,0u,
+    if(!readPinnedCSV(files.coarseBoundaryFaces,coarseFaceHeader,physical_skin_child_capacity_detail::maxBoundaryFaces,0u,
             [&](const Row& row,const std::size_t,std::string& e) {
         if(row[0]!="O"&&row[0]!="I"&&row[0]!="D") {
             e="coarse boundary face uses an unknown role";return false;

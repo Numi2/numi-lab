@@ -1,4 +1,5 @@
 #pragma once
+#include "NumiHumanPhysicalSkinChildCapacity.hpp"
 #include "NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp"
 #include <map>
 #include <istream>
@@ -30,7 +31,7 @@ struct PhysicalSkinRegisteredFacetMapReport {
     struct FacetUse { std::uint32_t cell,omitted;int orientation; };
     const auto fail=[&](std::string message){error=std::move(message);return false;};
     const std::size_t nodes=bundle.currentWorldPoints.size(),cells=bundle.childTetrahedra.size();
-    if(nodes==0u||nodes>300000u||cells==0u||cells>200000u||
+    if(nodes==0u||nodes>physical_skin_child_capacity_detail::maxNodes||cells==0u||cells>physical_skin_child_capacity_detail::maxCells||
        bundle.referenceWorldPoints.size()!=nodes||bundle.boundaryMap.volumeNodeCount!=nodes||
        bundle.childMaterialIndices.size()!=cells||skinMaterial==fatMaterial||
        bundle.parent.currentWorldPoints.size()!=bundle.parent.referenceWorldPoints.size()||
@@ -236,7 +237,7 @@ inline bool parentFaceNodes(const std::string& field,std::array<std::uint32_t,3>
     using physical_skin_child_mass_detail::parseNumber;
     using physical_skin_registered_facet_csv_detail::splitQuotedRow;
     const auto fail=[&](std::string message){error=std::move(message);return false;};
-    if(childCellCount==0u||childCellCount>200000u||childNodeCount<4u||childNodeCount>300000u)
+    if(childCellCount==0u||childCellCount>physical_skin_child_capacity_detail::maxCells||childNodeCount<4u||childNodeCount>physical_skin_child_capacity_detail::maxNodes)
         return fail("facet CSV child domain is invalid or exceeds capacity");
     std::string line;std::vector<std::string> fields;
     if(!std::getline(input,line)||!splitQuotedRow(line,fields)||

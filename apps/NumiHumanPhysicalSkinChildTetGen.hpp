@@ -1,4 +1,5 @@
 #pragma once
+#include "NumiHumanPhysicalSkinChildCapacity.hpp"
 
 // Offline import of the existing TetGen node/element tables and explicit native
 // cell labels. No equations are evaluated here and no physical admission is
@@ -54,7 +55,7 @@ inline bool tokens(std::ifstream& input,std::vector<std::string>& row) {
     std::size_t nodeCount=0u,dimension=0u,attributes=0u,markers=0u;
     if(!tokens(nodes,row)||row.size()!=4u||!parseNumber(row[0],nodeCount)||
        !parseNumber(row[1],dimension)||!parseNumber(row[2],attributes)||
-       !parseNumber(row[3],markers)||nodeCount<4u||nodeCount>300000u||
+       !parseNumber(row[3],markers)||nodeCount<4u||nodeCount>physical_skin_child_capacity_detail::maxNodes||
        dimension!=3u||attributes!=0u||markers>1u)
         return fail("child TetGen node header is invalid or outside its bounded 3D domain");
     std::unordered_map<std::uint32_t,std::uint32_t> nodeRows;
@@ -81,8 +82,8 @@ inline bool tokens(std::ifstream& input,std::vector<std::string>& row) {
     std::size_t cellCount=0u,corners=0u,cellAttributes=0u;
     if(!tokens(elements,row)||row.size()!=3u||!parseNumber(row[0],cellCount)||
        !parseNumber(row[1],corners)||!parseNumber(row[2],cellAttributes)||
-       cellCount==0u||cellCount>200000u||corners!=4u||cellAttributes!=1u)
-        return fail("child TetGen element header requires at most 200000 linear cells and one material attribute");
+       cellCount==0u||cellCount>physical_skin_child_capacity_detail::maxCells||corners!=4u||cellAttributes!=1u)
+        return fail("child TetGen element header exceeds the selected bounded cell capacity or lacks one material attribute");
     std::set<std::uint32_t> elementIDs;
     std::set<std::array<std::uint32_t,4>> canonicalCells;
     next.childTetrahedra.reserve(cellCount);next.childMaterialIndices.reserve(cellCount);

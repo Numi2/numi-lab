@@ -2450,6 +2450,9 @@ if(BUILD_TESTING)
         COMMAND numi-human-skin-fat-reduction-labels-check)
 endif()
 
+option(NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY
+    "Use the opt-in 500k-node/2M-cell child mass mapping importer profile" OFF)
+
 add_executable(numi-human-physical-skin-child-mass-mapping-cli EXCLUDE_FROM_ALL
     apps/NumiHumanPhysicalSkinChildMassMappingCLI.cpp)
 target_include_directories(numi-human-physical-skin-child-mass-mapping-cli PRIVATE
@@ -2458,6 +2461,36 @@ target_include_directories(numi-human-physical-skin-child-mass-mapping-cli PRIVA
 target_compile_features(numi-human-physical-skin-child-mass-mapping-cli PRIVATE cxx_std_20)
 target_compile_options(numi-human-physical-skin-child-mass-mapping-cli PRIVATE
     -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY)
+    target_compile_definitions(numi-human-physical-skin-child-mass-mapping-cli PRIVATE
+        NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1)
+endif()
+
+foreach(_capacity_profile IN ITEMS legacy full)
+    foreach(_capacity_check IN ITEMS capacity spatial-mass-transport)
+        if(_capacity_check STREQUAL "capacity")
+            set(_capacity_source apps/NumiHumanPhysicalSkinChildCapacityProfileCheck.cpp)
+        else()
+            set(_capacity_source apps/NumiHumanConservativeSpatialMassTransportProfileCheck.cpp)
+        endif()
+        set(_capacity_target numi-human-skin-fat-${_capacity_profile}-${_capacity_check}-check)
+        add_executable(${_capacity_target} EXCLUDE_FROM_ALL ${_capacity_source})
+        target_include_directories(${_capacity_target} PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+        target_compile_features(${_capacity_target} PRIVATE cxx_std_20)
+        target_compile_options(${_capacity_target} PRIVATE
+            -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+        if(_capacity_profile STREQUAL "full")
+            target_compile_definitions(${_capacity_target} PRIVATE
+                NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1)
+        endif()
+        if(BUILD_TESTING)
+            add_test(NAME human.skin-fat-${_capacity_profile}-${_capacity_check}
+                COMMAND ${_capacity_target})
+        endif()
+    endforeach()
+endforeach()
 
 add_executable(numi-human-native EXCLUDE_FROM_ALL apps/numilab_human_myosim_visual_probe.mm)
 get_target_property(NUMI_HUMAN_VISUAL_DEFINITIONS metalrobo_numilab_human_myosim_visual_probe COMPILE_DEFINITIONS)

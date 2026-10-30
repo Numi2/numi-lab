@@ -1,4 +1,5 @@
 #pragma once
+#include "NumiHumanPhysicalSkinChildCapacity.hpp"
 
 // Initialization bridge for Boolean/derived O/I/D role surfaces. Authoring
 // vertex IDs stay in their typed role namespace; they never enter the legacy
@@ -196,7 +197,7 @@ inline bool readPinnedWeights(const PhysicalSkinAuthoringFullWeightsCSV& asset,
     using physical_skin_child_mass_detail::sha256File;
     const auto fail=[&](std::string message){error=std::move(message);return false;};
     if(asset.path.empty()||!physical_skin_child_mass_detail::validSHA256(asset.expectedSHA256)||
-       expectedRows==0u||expectedRows>200000u)
+       expectedRows==0u||expectedRows>physical_skin_child_capacity_detail::maxRoleNodes)
         return fail("authoring full86 weights require an explicit pinned file and bounded role node count");
     std::string hashBefore;
     if(!sha256File(asset.path,hashBefore,error))return false;
@@ -859,7 +860,10 @@ inline bool buildPhysicalSkinAuthoringStrictChildFaceTransfer(
     if(!validDomain(in.detailDomain)||!validDomain(in.physicalBoundaryDomain)||
        in.detailDomain.role!=in.physicalBoundaryDomain.role||n==0u||b<3u||m<4u||cells==0u)
         return fail("detail bridge needs pinned compatible source domains and nonempty bounded geometry");
-    if(n>200000u||b>200000u||m>200000u||cells>200000u)
+    if(n>physical_skin_child_capacity_detail::maxRoleNodes||
+       b>physical_skin_child_capacity_detail::maxRoleNodes||
+       m>physical_skin_child_capacity_detail::maxMechanicalNodes||
+       cells>physical_skin_child_capacity_detail::maxCells)
         return fail("detail bridge exceeds the existing bounded registered-volume row domain");
     if(in.detailDomain.vertexCount!=n||in.detailDomain.faceCount!=in.detailFaces.size()||
        in.physicalBoundaryDomain.vertexCount!=b||in.physicalBoundaryDomain.faceCount!=in.physicalBoundaryFaces.size())

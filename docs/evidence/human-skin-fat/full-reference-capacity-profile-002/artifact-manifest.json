@@ -1,0 +1,76 @@
+{
+  "base_revision": "3af4c4e2d20c25232f8274571f0b2c89fa70c670",
+  "files": [
+    {
+      "bytes": 274231,
+      "path": "CMakeLists.txt",
+      "sha256": "04ba7032a388fd15ae2f201977106e6cd8664ed010a74864378451bc9f0267d9"
+    },
+    {
+      "bytes": 20334,
+      "path": "apps/NumiHumanConservativeSpatialMassTransportProfileCheck.cpp",
+      "sha256": "c5aae68122dfa12cbe852ad5858e3fd61defdd40639407044011730997d236a4"
+    },
+    {
+      "bytes": 104309,
+      "path": "apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp",
+      "sha256": "2b74fdeddf38f17c34f995dc26d60507fa18f0be04db9af912d02e67e6aacafb"
+    },
+    {
+      "bytes": 79528,
+      "path": "apps/NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp",
+      "sha256": "6737dc0008aaae33ce09af58271d753073fd315b6ab267d5207a52ca2848a25d"
+    },
+    {
+      "bytes": 1908,
+      "path": "apps/NumiHumanPhysicalSkinChildCapacity.hpp",
+      "sha256": "9f099b6710224ad0eda48b31ce9e04c83a27142d171a7e0f38a3901d8d7932a6"
+    },
+    {
+      "bytes": 2667,
+      "path": "apps/NumiHumanPhysicalSkinChildCapacityProfileCheck.cpp",
+      "sha256": "2013646544e2221317d6648f3b997808eec36dd7f7147a0d57799aced2310542"
+    },
+    {
+      "bytes": 97899,
+      "path": "apps/NumiHumanPhysicalSkinChildMassMapping.hpp",
+      "sha256": "66c0e8eda2ea77a101286451045c9907194beeaef95411c5496789bf088cc848"
+    },
+    {
+      "bytes": 17435,
+      "path": "apps/NumiHumanPhysicalSkinChildRegisteredFacetMaps.hpp",
+      "sha256": "291f9679f30676e54a6ddde0283ecdcfb1b70403103d75651ff64f38b761070b"
+    },
+    {
+      "bytes": 12575,
+      "path": "apps/NumiHumanPhysicalSkinChildRegisteredVolumeCSV.hpp",
+      "sha256": "ed14fdab4cbfef3c8ea242273bd2548b9607feb7a8d3e7c1fa1cfaba799ed072"
+    },
+    {
+      "bytes": 9664,
+      "path": "apps/NumiHumanPhysicalSkinChildTetGen.hpp",
+      "sha256": "dafb99dec977c2116ded1968ec0ae3ef493331109da6be6b19eb0f7148ea9e0c"
+    },
+    {
+      "bytes": 94512,
+      "path": "apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "sha256": "2e3fbec0d1d6a737205d56868a801db40ab6a6ac1538eaef7c17e3f6213fc4fd"
+    },
+    {
+      "bytes": 2172,
+      "path": "docs/evidence/human-skin-fat/full-reference-capacity-profile-002/README.md",
+      "sha256": "f3a68db01f586e85533a32be6fcf430740b995c26fadea1eca947428b9935e2c"
+    },
+    {
+      "bytes": 7871,
+      "path": "docs/evidence/human-skin-fat/full-reference-capacity-profile-002/checks.json",
+      "sha256": "26ebc0647e83adf0851fc0e3c93e9b3282e63916766aa61649e86b241b89610e"
+    },
+    {
+      "bytes": 649,
+      "path": "docs/evidence/human-skin-fat/full-reference-capacity-profile-002/source330-reader.txt",
+      "sha256": "09a6d8b106eca269ca38ea56d07e54025def7d60e452bb26018f36633d57d8b6"
+    }
+  ],
+  "schema": "numi-lab-publication-artifact-manifest.v1"
+}

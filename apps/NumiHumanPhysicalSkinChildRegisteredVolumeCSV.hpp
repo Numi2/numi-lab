@@ -1,4 +1,5 @@
 #pragma once
+#include "NumiHumanPhysicalSkinChildCapacity.hpp"
 
 // Reads the existing combined TetGen node-map CSV after one-time gzip
 // decompression. This is asset import only; the registered-volume, mass,
@@ -54,7 +55,7 @@ inline std::vector<std::string> physicalSkinCombinedNodeMapCSVHeader(
         if(value=="-1"){index=NM_INVALID_INDEX;return true;}
         return physical_skin_child_mass_detail::parseNumber(value,index);
     };
-    if(volumeNodeCount<4u||volumeNodeCount>300000u||sourceBodyCount==0u||
+    if(volumeNodeCount<4u||volumeNodeCount>physical_skin_child_capacity_detail::maxNodes||sourceBodyCount==0u||
        sourceBodyCount>std::numeric_limits<std::uint32_t>::max())
         return fail("combined-node-map CSV has an invalid bounded node/body domain");
     std::string line;

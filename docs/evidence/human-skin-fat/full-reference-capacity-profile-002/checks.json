@@ -1,0 +1,172 @@
+{
+  "base_revision": "3af4c4e2d20c25232f8274571f0b2c89fa70c670",
+  "full_volume_transfer": "NOT_RUN",
+  "native_runtime": "NOT_RUN",
+  "physical_admission": false,
+  "profiles": {
+    "full_reference": {
+      "macro": "NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1",
+      "max_augmentations": 4000000,
+      "max_candidate_edges": 12000000,
+      "max_cells": 2000000,
+      "max_nodes": 500000
+    },
+    "legacy": {
+      "macro": "undefined",
+      "max_augmentations": 300000,
+      "max_candidate_edges": 3000000,
+      "max_cells": 200000,
+      "max_nodes": 300000
+    }
+  },
+  "schema": "numi.full-reference-capacity-profile-checks.v1",
+  "source330_reader": {
+    "binary_sha256": "e2ac32aea295c3439c634e0a92c454501787664d2207ec8a64f7ac37609a0ea2",
+    "child_transfer": "NOT_RUN",
+    "maximum_transport_distance_m": 0.019353,
+    "parent_labels_csv_sha256": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457",
+    "parent_mass_csv_sha256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+    "parent_nodes": 7233,
+    "parent_tetrahedra": 28632,
+    "source_mass_kg": 13.939678963460464,
+    "status": "PASS_READ_ONLY",
+    "stdout_sha256": "09a6d8b106eca269ca38ea56d07e54025def7d60e452bb26018f36633d57d8b6"
+  },
+  "status": "PASS",
+  "test_runs": [
+    {
+      "binary_sha256": "57091de7e50bd23fa25344b377b9c9b55673ffd512d1dc1597144f28eb789c4c",
+      "elapsed_s": 2.3684429998975247,
+      "exit_code": 0,
+      "kind": "cli-compile",
+      "profile": "legacy",
+      "source_sha256": "9df518a770f3dd685191a2bbc0b6ebfdfc8293347aa419d66af027a44f044a6a"
+    },
+    {
+      "elapsed_s": 0.25230104103684425,
+      "exit_code": 0,
+      "kind": "cli-help",
+      "profile": "legacy"
+    },
+    {
+      "binary_sha256": "e9636f302a5b02e966e097c8dc6be9b74fb835c85ef1f7e09b3044de272245ef",
+      "elapsed_s": 1.4189958749338984,
+      "exit_code": 0,
+      "kind": "capacity-compile",
+      "profile": "legacy",
+      "source_sha256": "2013646544e2221317d6648f3b997808eec36dd7f7147a0d57799aced2310542"
+    },
+    {
+      "elapsed_s": 0.16481920797377825,
+      "exit_code": 0,
+      "kind": "capacity-run",
+      "profile": "legacy",
+      "stdout": "capacity_profile=legacy max_nodes=300000 max_cells=200000 max_candidate_edges=3000000 max_augmentations=300000 checks=10 passed"
+    },
+    {
+      "binary_sha256": "77fefdc419f3f6eaf43c80ce2d212d17a7a0c129239d1b355864af9916828209",
+      "elapsed_s": 3.220588665921241,
+      "exit_code": 0,
+      "kind": "mapping-compile",
+      "profile": "legacy",
+      "source_sha256": "930c98efa2af96166054d27f58cf16c0f1c9ac941396eaa3c1a5f80a9cbf6b2e"
+    },
+    {
+      "elapsed_s": 0.18198212492279708,
+      "exit_code": 0,
+      "kind": "mapping-run",
+      "profile": "legacy",
+      "stdout": "physical_child_mass_mapping_fixture=PASS parent_csv_roundtrip=PASS exact_identity_receipt_replay=PASS measured_parent_rest_current_offset=PASS one_ulp_fallback=PASS strict_region_barrier=PASS duplicate_missing_inverted_tet_gates=PASS odd_orientation_parity=PASS truncated_path_receipt_rejections=PASS tetgen_reference_import=PASS transactional_import_rejections=PASS transfer=fixture_only"
+    },
+    {
+      "binary_sha256": "08a6dc69bfb4bbc1c1cf529dfa20ad02621715550b262e900d2ed44a324d49dc",
+      "elapsed_s": 1.369604374980554,
+      "exit_code": 0,
+      "kind": "transport-compile",
+      "profile": "legacy",
+      "source_sha256": "c5aae68122dfa12cbe852ad5858e3fd61defdd40639407044011730997d236a4"
+    },
+    {
+      "elapsed_s": 0.16715362505055964,
+      "exit_code": 0,
+      "kind": "transport-run",
+      "profile": "legacy",
+      "stdout": "conservative spatial mass transport PASS cells=4 edges=4 groups=2 min_cost_distance_m=0.0001 parent_mass_closure_kg=0 parent_measure_closure_m3=0 source_donor_closure_kg=0 density_range_kg_m3=900:1000 receipt_sha256=9e7a09107d50412732551462b9eb7dae7dcd8d39e0f5180078d13a2eb3163c96"
+    },
+    {
+      "binary_sha256": "03bcf277b18413f3265babd9ca6eac276f8b16a40494e590bf075ff84ae65d28",
+      "elapsed_s": 2.399523250060156,
+      "exit_code": 0,
+      "kind": "cli-compile",
+      "profile": "full",
+      "source_sha256": "9df518a770f3dd685191a2bbc0b6ebfdfc8293347aa419d66af027a44f044a6a"
+    },
+    {
+      "elapsed_s": 0.16549483314156532,
+      "exit_code": 0,
+      "kind": "cli-help",
+      "profile": "full"
+    },
+    {
+      "binary_sha256": "efef2cb16f125ea9885de2792d8244ba8f4578eb1fd153435ac88a4d58ef9462",
+      "elapsed_s": 1.402093542041257,
+      "exit_code": 0,
+      "kind": "capacity-compile",
+      "profile": "full",
+      "source_sha256": "2013646544e2221317d6648f3b997808eec36dd7f7147a0d57799aced2310542"
+    },
+    {
+      "elapsed_s": 0.17723329085856676,
+      "exit_code": 0,
+      "kind": "capacity-run",
+      "profile": "full",
+      "stdout": "capacity_profile=full-reference-v1 max_nodes=500000 max_cells=2000000 max_candidate_edges=12000000 max_augmentations=4000000 checks=10 passed"
+    },
+    {
+      "binary_sha256": "51ffe0fd81c586853859977cac047ac316f3c5dbe657907608948978045f23f3",
+      "elapsed_s": 3.2244299158919603,
+      "exit_code": 0,
+      "kind": "mapping-compile",
+      "profile": "full",
+      "source_sha256": "930c98efa2af96166054d27f58cf16c0f1c9ac941396eaa3c1a5f80a9cbf6b2e"
+    },
+    {
+      "elapsed_s": 0.1816817910876125,
+      "exit_code": 0,
+      "kind": "mapping-run",
+      "profile": "full",
+      "stdout": "physical_child_mass_mapping_fixture=PASS parent_csv_roundtrip=PASS exact_identity_receipt_replay=PASS measured_parent_rest_current_offset=PASS one_ulp_fallback=PASS strict_region_barrier=PASS duplicate_missing_inverted_tet_gates=PASS odd_orientation_parity=PASS truncated_path_receipt_rejections=PASS tetgen_reference_import=PASS transactional_import_rejections=PASS transfer=fixture_only"
+    },
+    {
+      "binary_sha256": "9e97adbf07cb44d7256b8022d15e44661657a53406660cade252c53991cae33f",
+      "elapsed_s": 1.3590388330630958,
+      "exit_code": 0,
+      "kind": "transport-compile",
+      "profile": "full",
+      "source_sha256": "c5aae68122dfa12cbe852ad5858e3fd61defdd40639407044011730997d236a4"
+    },
+    {
+      "elapsed_s": 0.5095690409652889,
+      "exit_code": 0,
+      "kind": "transport-run",
+      "profile": "full",
+      "stdout": "conservative spatial mass transport PASS cells=4 edges=4 groups=2 min_cost_distance_m=0.0001 parent_mass_closure_kg=0 parent_measure_closure_m3=0 source_donor_closure_kg=0 density_range_kg_m3=900:1000 receipt_sha256=bf2c12009dd89a156c8506ace24ca0e502f8d5be9c1a1bc26999e242de97dd73"
+    }
+  ],
+  "tested_sources": {
+    "capacity_test": "2013646544e2221317d6648f3b997808eec36dd7f7147a0d57799aced2310542",
+    "cmake": "04ba7032a388fd15ae2f201977106e6cd8664ed010a74864378451bc9f0267d9",
+    "headers": {
+      "NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp": "2b74fdeddf38f17c34f995dc26d60507fa18f0be04db9af912d02e67e6aacafb",
+      "NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp": "6737dc0008aaae33ce09af58271d753073fd315b6ab267d5207a52ca2848a25d",
+      "NumiHumanPhysicalSkinChildCapacity.hpp": "9f099b6710224ad0eda48b31ce9e04c83a27142d171a7e0f38a3901d8d7932a6",
+      "NumiHumanPhysicalSkinChildMassMapping.hpp": "66c0e8eda2ea77a101286451045c9907194beeaef95411c5496789bf088cc848",
+      "NumiHumanPhysicalSkinChildRegisteredFacetMaps.hpp": "291f9679f30676e54a6ddde0283ecdcfb1b70403103d75651ff64f38b761070b",
+      "NumiHumanPhysicalSkinChildRegisteredVolumeCSV.hpp": "ed14fdab4cbfef3c8ea242273bd2548b9607feb7a8d3e7c1fa1cfaba799ed072",
+      "NumiHumanPhysicalSkinChildTetGen.hpp": "dafb99dec977c2116ded1968ec0ae3ef493331109da6be6b19eb0f7148ea9e0c",
+      "NumiHumanUnpairedSkinFatVolume.hpp": "2e3fbec0d1d6a737205d56868a801db40ab6a6ac1538eaef7c17e3f6213fc4fd"
+    },
+    "spatial_mass_transport_test": "c5aae68122dfa12cbe852ad5858e3fd61defdd40639407044011730997d236a4"
+  },
+  "tetgen": "NOT_RUN"
+}

@@ -1,4 +1,5 @@
 #pragma once
+#include "NumiHumanPhysicalSkinChildCapacity.hpp"
 
 // Opt-in source preparation for a conforming skin/fat volume mesh whose
 // tetrahedral node set is independent of its registered O/I/D boundary rows.
@@ -313,14 +314,16 @@ struct ExplicitUnpairedVolumeReport {
         ExplicitUnpairedVolumeReport& report,
         std::string& error) {
     const auto fail=[&](std::string message){error=std::move(message);return false;};
-    constexpr std::size_t kMaxUnpairedTets=200000u;
+    constexpr std::size_t kMaxUnpairedTets=physical_skin_child_capacity_detail::maxCells;
     const auto invalid=NM_INVALID_INDEX;
     const std::size_t n=topology.currentWorldPoints.size();
     const std::size_t nt=topology.childTetrahedra.size();
     const bool typedSourceDomains=!topology.sourceDomains.empty();
     if(!validatePhysicalSkinSourceDomains(surface,topology,error))
         return fail("unpaired source-domain validation failed: "+error);
-    if(n<4u||n>std::numeric_limits<std::uint32_t>::max()||nt==0u||nt>kMaxUnpairedTets||
+    if(n<4u||n>std::numeric_limits<std::uint32_t>::max()||
+       (physical_skin_child_capacity_detail::fullReference&&
+        n>physical_skin_child_capacity_detail::maxNodes)||nt==0u||nt>kMaxUnpairedTets||
        topology.volumeNodeDonorBodyIndices.size()!=n||topology.volumeNodeDonorLocalPoints.size()!=n||
        topology.volumeNodeDonorLocalToWorldLinear.size()!=n||topology.volumeNodeDonorOriginWorld.size()!=n||
        topology.registeredBodyLocalToWorldLinear.size()!=sourceBodyCount||topology.registeredBodyOriginWorld.size()!=sourceBodyCount||

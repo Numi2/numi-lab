@@ -1,4 +1,5 @@
 #pragma once
+#include "NumiHumanPhysicalSkinChildCapacity.hpp"
 
 // Strict adapter for a real compiled skin/fat parent mass packet and a separately
 // prepared positive child volume. Spatial transport remains distinct from
@@ -173,7 +174,7 @@ inline bool validSHA256(std::string_view value) {
         return false;
 
     PhysicalSkinParentMassPacket next;
-    constexpr std::size_t maxNodes=300000u,maxSourceRows=1200000u;
+    constexpr std::size_t maxNodes=physical_skin_child_capacity_detail::maxNodes,maxSourceRows=1200000u;
     std::string line;
     std::uint32_t expectedNode=0u;
     while(std::getline(nodesFile,line)){
@@ -222,7 +223,7 @@ inline bool validSHA256(std::string_view value) {
         const bool haveMass=static_cast<bool>(std::getline(massRows,massLine));
         const bool haveTet=static_cast<bool>(std::getline(tetRows,tetLine));
         if(!haveMass&&!haveTet)break;
-        if(!haveMass||!haveTet||expectedTet>=200000u||massLine.size()>4096u||tetLine.size()>4096u)
+        if(!haveMass||!haveTet||expectedTet>=physical_skin_child_capacity_detail::maxCells||massLine.size()>4096u||tetLine.size()>4096u)
             return fail("compiled parent cell-mass and tetrahedron ledgers have different or excessive row counts");
         const auto massRow=splitCSV(massLine),tetRow=splitCSV(tetLine);
         if(massRow.size()!=3u||tetRow.size()!=9u)
@@ -1490,8 +1491,8 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
     input.relativeClosureTolerance=1.0e-10;
     input.absoluteMassToleranceKg=1.0e-13;
     input.absoluteMeasureToleranceM3=1.0e-15;
-    input.maximumAllowedEdges=3'000'000u;
-    input.maximumAugmentations=300'000u;
+    input.maximumAllowedEdges=physical_skin_child_capacity_detail::maxCandidateEdges;
+    input.maximumAugmentations=physical_skin_child_capacity_detail::maxAugmentations;
 
     ConservativeSpatialMassTransportResult transfer;
     bool usedExactTopologyIdentity=false;
