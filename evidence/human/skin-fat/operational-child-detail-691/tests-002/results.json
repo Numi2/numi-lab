@@ -1,0 +1,56 @@
+[
+  {
+    "mode": "assert",
+    "compile_argv": [
+      "/usr/bin/clang++",
+      "-std=c++23",
+      "-O1",
+      "-g0",
+      "-UNDEBUG",
+      "-Wno-deprecated-declarations",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+      "-ivfsoverlay",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-child-detail-bridge-691/publication-overlay.json",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-child-detail-bridge-691/publication-source/apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-child-detail-bridge-691/tests-002/operational-detail-assert"
+    ],
+    "compile_exit": 0,
+    "compile_seconds": 2.5267799589782953,
+    "run_exit": 0,
+    "run_seconds": 0.3000732089858502,
+    "stdout": "authoring_detail_bridge_csv=pass typed_O_nodes=3 full86=86 map_rows=3 face_reordered=validated frame_owner=separate same_donor_parent_walk=pass residual_recomputed=pass physical_admission=false\n",
+    "stderr": "",
+    "binary_sha256": "f6ea8cbf06b1487f2ac3d45370de16b1b8714c559f9eb3a91370107c7bce4600"
+  },
+  {
+    "mode": "sanitize",
+    "compile_argv": [
+      "/usr/bin/clang++",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-std=c++23",
+      "-O1",
+      "-g0",
+      "-UNDEBUG",
+      "-Wno-deprecated-declarations",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+      "-ivfsoverlay",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-child-detail-bridge-691/publication-overlay.json",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-child-detail-bridge-691/publication-source/apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/operational-child-detail-bridge-691/tests-002/operational-detail-sanitize"
+    ],
+    "compile_exit": 0,
+    "compile_seconds": 4.967503499938175,
+    "run_exit": 0,
+    "run_seconds": 0.2902207081206143,
+    "stdout": "authoring_detail_bridge_csv=pass typed_O_nodes=3 full86=86 map_rows=3 face_reordered=validated frame_owner=separate same_donor_parent_walk=pass residual_recomputed=pass physical_admission=false\n",
+    "stderr": "",
+    "binary_sha256": "dd5be21bdccf9b83e8938e1be65c0c3acb98995dd56493a631bd3ab841cb7923"
+  }
+]

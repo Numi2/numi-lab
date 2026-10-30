@@ -1018,7 +1018,29 @@ inline bool runNativeFaceSelection(
         }
         coarseFaces.push_back(face);++coarseRoleRows;return true;
     },rows,hashes[5],error,&refinedCoarseFaceHeader,&refinedCoarseSchema))return false;
-    if(refinedCoarseSchema) {
+    if(refinedCoarseSchema&&bundle.operationalSpatialMassRouteRequired) {
+        // An explicit child column describes changed topology; it does not
+        // imply a 530 conforming-refinement lineage. The operational spatial
+        // importer has already checked the numeric transport against current
+        // geometry, labels, density limits and immutable source mass. Require
+        // its prepared path binding here as well, before selecting any child
+        // tetrahedron for detailed-surface transfer.
+        if((!files.allowPrecanonicalExportSeed&&
+            !files.allowAuthenticatedRefinedChildRouteForSourceOnlyPreflight)||
+           bundle.conformingLineageMassRoute.authenticated||
+           !physical_skin_child_mass_detail::validSHA256(bundle.operationalReferenceDomainSHA256)||
+           !physical_skin_child_mass_detail::validSHA256(bundle.childMeshSHA256)||
+           !physical_skin_child_mass_detail::validSHA256(bundle.regionLabelSHA256)||
+           !physical_skin_child_mass_detail::validSHA256(bundle.coordinateFrameSHA256)||
+           !physical_skin_child_mass_detail::validSHA256(bundle.parent.parentMassPacketSHA256)||
+           !physical_skin_child_mass_detail::validSHA256(bundle.parent.parentSourceContributionSHA256)||
+           bundle.childStableSourceFaceIdentities.size()!=bundle.childTetrahedra.size())
+            return fail("operational child-face map lacks the authenticated spatial source-only route");
+        std::string pathError;
+        if(!physical_skin_child_mass_mapping_detail::validatePreparedPhysicalSkinChildMassMappingPath(
+                bundle,pathError))
+            return fail("operational child-face map mass binding rejected: "+pathError);
+    } else if(refinedCoarseSchema) {
         const auto& route=bundle.conformingLineageMassRoute;
         const auto validSHA=[](const std::string& value) {
             return physical_skin_child_mass_detail::validSHA256(value);

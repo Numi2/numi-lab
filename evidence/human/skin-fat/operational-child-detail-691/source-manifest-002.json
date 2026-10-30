@@ -1,0 +1,12 @@
+{
+  "base_revision": "77a1d4b38598743909864bf941d32517c0407369",
+  "baseline_sha256": {
+    "NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp": "162c19b730f2162fcc13ce4e567e17cef1524e432a651a2097a08a99e71ce2ca",
+    "NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp": "41d1fdd6ac19d663755520b16c720a3cb91f01fb34ad1c6ed4ad7e349c29bce6"
+  },
+  "source_files": {
+    "NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp": "746cc883eb783f9f7ef00c460ddfeb5ad1777703ccec4d98c6c4171d7d70b976",
+    "NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp": "a18d0095711295a0a33643d1223dabee152e43ee486d233bf8d82aede7856a33"
+  },
+  "native_runtime_executed": false
+}

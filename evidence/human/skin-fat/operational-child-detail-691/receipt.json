@@ -1,0 +1,21 @@
+{
+  "base_revision": "77a1d4b38598743909864bf941d32517c0407369",
+  "source_sha256": {
+    "NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp": "746cc883eb783f9f7ef00c460ddfeb5ad1777703ccec4d98c6c4171d7d70b976",
+    "NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp": "a18d0095711295a0a33643d1223dabee152e43ee486d233bf8d82aede7856a33"
+  },
+  "test_results_sha256": "c9299c7d197497a551d6798d963d4efee7c365a89ca5afaec7fdec97e3480e01",
+  "assert_tests": true,
+  "address_undefined_sanitizers": true,
+  "leak_detection": "disabled; unavailable on this macOS runtime",
+  "native_compile_seconds": 43.05672183306888,
+  "native_object_sha256": "385bdcfa3d1cbd4ede859348e1247a5aad22201e1d7126a53c22f6d260efac08",
+  "native_binary_sha256": "f47361c4c0cec7bc9dda8fad338d77d11dbda519f9442e74f09ee95bf6d0a8c1",
+  "default_runtime_identity_gate_unchanged": true,
+  "source_only_preflight_permission_required": true,
+  "spatial_conforming_routes_remain_distinct": true,
+  "new_case_scope": "route binding and child-face selection, not synthetic numeric mass qualification",
+  "physical_admission": false,
+  "runtime": 0,
+  "accepted_steps": 0
+}
