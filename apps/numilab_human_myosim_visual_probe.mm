@@ -22025,6 +22025,44 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             "operational conservative spatial-reference setting must be 0 or 1");
     const bool spatialReferenceRequested=spatialReferenceSetting&&
         std::string_view(spatialReferenceSetting)=="1";
+    const char* fractionalSemanticSupportSetting=std::getenv(
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_FRACTIONAL_SEMANTIC_SUPPORT");
+    require(!fractionalSemanticSupportSetting||
+                std::string_view(fractionalSemanticSupportSetting)=="0"||
+                std::string_view(fractionalSemanticSupportSetting)=="1",
+            "fractional semantic support setting must be 0 or 1");
+    const bool fractionalSemanticSupportRequested=fractionalSemanticSupportSetting&&
+        std::string_view(fractionalSemanticSupportSetting)=="1";
+    const char* sourceCarrierQuadratureSetting=std::getenv(
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_SOURCE_CARRIER_QUADRATURE");
+    require(!sourceCarrierQuadratureSetting||std::string_view(sourceCarrierQuadratureSetting)=="0"||
+                std::string_view(sourceCarrierQuadratureSetting)=="1",
+            "source-carrier quadrature setting must be 0 or 1");
+    const bool sourceCarrierQuadratureRequested=sourceCarrierQuadratureSetting&&
+        std::string_view(sourceCarrierQuadratureSetting)=="1";
+    const char* p1AnchorSetting=std::getenv(
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_P1_SUPPORTED_REFERENCE_ANCHOR");
+    require(!p1AnchorSetting||std::string_view(p1AnchorSetting)=="0"||
+                std::string_view(p1AnchorSetting)=="1",
+            "P1 supported reference anchor setting must be 0 or 1");
+    const bool p1AnchorRequested=p1AnchorSetting&&std::string_view(p1AnchorSetting)=="1";
+    const char* recordedCarrierAllocationSetting=std::getenv(
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_CARRIER_ALLOCATION_CSV");
+    require(!recordedCarrierAllocationSetting||
+                std::string_view(recordedCarrierAllocationSetting)=="0"||
+                std::string_view(recordedCarrierAllocationSetting)=="1",
+            "recorded carrier allocation CSV setting must be 0 or 1");
+    const bool recordedCarrierAllocationRequested=recordedCarrierAllocationSetting&&
+        std::string_view(recordedCarrierAllocationSetting)=="1";
+    require(!(sourceCarrierQuadratureRequested||p1AnchorRequested||recordedCarrierAllocationRequested)||
+                (registeredVolumeInstallRequested&&fractionalSemanticSupportRequested),
+            "source-carrier, recorded-allocation, and P1 anchor imports require registered volume and paired fractional semantic support");
+    require(!recordedCarrierAllocationRequested||sourceCarrierQuadratureRequested,
+            "recorded allocation import requires authenticated source-carrier quadrature");
+    require(!fractionalSemanticSupportRequested||
+                (separatedRegisteredOperationalReference&&spatialReferenceRequested&&
+                 !conformingReferenceChainRequested),
+            "fractional semantic support requires the separated conservative spatial-reference route");
     require(!spatialReferenceRequested||(separatedRegisteredOperationalReference&&!conformingReferenceChainRequested),
             "conservative spatial-reference requires separated reference and excludes the conforming-refinement route");
     const char* operationalSpatialInstallSetting=std::getenv(
@@ -22650,9 +22688,110 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         "COMBINED_NODE_MAP_SHA256","FACET_ANCESTRY_SHA256"};
                     for(unsigned i=0u;i<volumePins.size();++i)
                         volumeFiles.expectedSHA256[i]=value(volumePins[i]);
+                    if(fractionalSemanticSupportRequested){
+                        PhysicalSkinFractionalSemanticSupportAssets supportAssets;
+                        supportAssets.roles[0].materialIndex=15u;
+                        supportAssets.roles[0].binaryPath=pathValue("FRACTIONAL_SUPPORT_SKIN_BINARY");
+                        supportAssets.roles[0].binarySHA256=value("FRACTIONAL_SUPPORT_SKIN_BINARY_SHA256");
+                        supportAssets.roles[0].receiptPath=pathValue("FRACTIONAL_SUPPORT_SKIN_RECEIPT");
+                        supportAssets.roles[0].receiptSHA256=value("FRACTIONAL_SUPPORT_SKIN_RECEIPT_SHA256");
+                        supportAssets.roles[0].admissibilityProducerReceiptPath=pathValue("FRACTIONAL_SUPPORT_SKIN_ADMISSIBILITY_PRODUCER_RECEIPT");
+                        supportAssets.roles[0].admissibilityProducerReceiptSHA256=value("FRACTIONAL_SUPPORT_SKIN_ADMISSIBILITY_PRODUCER_RECEIPT_SHA256");
+                        supportAssets.roles[0].admissibilityVerificationReceiptPath=pathValue("FRACTIONAL_SUPPORT_SKIN_ADMISSIBILITY_VERIFICATION_RECEIPT");
+                        supportAssets.roles[0].admissibilityVerificationReceiptSHA256=value("FRACTIONAL_SUPPORT_SKIN_ADMISSIBILITY_VERIFICATION_RECEIPT_SHA256");
+                        supportAssets.roles[1].materialIndex=16u;
+                        supportAssets.roles[1].binaryPath=pathValue("FRACTIONAL_SUPPORT_FAT_BINARY");
+                        supportAssets.roles[1].binarySHA256=value("FRACTIONAL_SUPPORT_FAT_BINARY_SHA256");
+                        supportAssets.roles[1].receiptPath=pathValue("FRACTIONAL_SUPPORT_FAT_RECEIPT");
+                        supportAssets.roles[1].receiptSHA256=value("FRACTIONAL_SUPPORT_FAT_RECEIPT_SHA256");
+                        supportAssets.roles[1].admissibilityProducerReceiptPath=pathValue("FRACTIONAL_SUPPORT_FAT_ADMISSIBILITY_PRODUCER_RECEIPT");
+                        supportAssets.roles[1].admissibilityProducerReceiptSHA256=value("FRACTIONAL_SUPPORT_FAT_ADMISSIBILITY_PRODUCER_RECEIPT_SHA256");
+                        supportAssets.roles[1].admissibilityVerificationReceiptPath=pathValue("FRACTIONAL_SUPPORT_FAT_ADMISSIBILITY_VERIFICATION_RECEIPT");
+                        supportAssets.roles[1].admissibilityVerificationReceiptSHA256=value("FRACTIONAL_SUPPORT_FAT_ADMISSIBILITY_VERIFICATION_RECEIPT_SHA256");
+                        volumeFiles.fractionalSemanticSupport=std::move(supportAssets);
+                    }
+                    if(sourceCarrierQuadratureRequested) {
+                        PhysicalSkinSourceCarrierQuadratureAssets carrierAssets;
+                        constexpr std::array<std::string_view,2> carrierRoles{"SKIN","FAT"};
+                        for(unsigned role=0u;role<carrierRoles.size();++role) {
+                            auto& carrier=carrierAssets.roles[role];
+                            const std::string prefix="SOURCE_CARRIER_"+std::string(carrierRoles[role])+"_";
+                            carrier.materialIndex=role==0u?15u:16u;
+                            carrier.binaryPath=pathValue(prefix+"BINARY");
+                            carrier.binarySHA256=value(prefix+"BINARY_SHA256");
+                            carrier.receiptPath=pathValue(prefix+"RECEIPT_JSON");
+                            carrier.receiptSHA256=value(prefix+"RECEIPT_SHA256");
+                            carrier.parentMassCSV=parentMassPath;
+                            carrier.sourceTetTableCSV=std::filesystem::path(parentMassPath.string()+".tets.csv");
+                            carrier.sourceNodeTableCSV=std::filesystem::path(parentMassPath.string()+".nodes.csv");
+                            carrier.sourceTetTableSHA256=value("PARENT_TETS_SHA256");
+                            carrier.sourceNodeTableSHA256=value("PARENT_NODES_SHA256");
+                            carrier.roleChildNode=volumeFiles.tetgenNode;
+                            carrier.roleChildElements=volumeFiles.tetgenElements;
+                            carrier.roleChildNodeSHA256=volumeFiles.expectedSHA256[0];
+                            carrier.roleChildElementsSHA256=volumeFiles.expectedSHA256[1];
+                        }
+                        volumeFiles.sourceCarrierQuadrature=std::move(carrierAssets);
+                    }
+                    if(recordedCarrierAllocationRequested) {
+                        PhysicalSkinRecordedCarrierAllocationCSVAssets skinAllocation,fatAllocation;
+                        constexpr std::array<std::string_view,2> allocationRoles{"SKIN","FAT"};
+                        constexpr std::array<std::string_view,6> allocationFiles{
+                            "CHILD_MASS","TRANSPORT_FLOW","SOURCE_CARRIER_FLOW",
+                            "CHILD_SOURCE_DONOR","SOURCE_PARENT","SOURCE_PARENT_DONOR"};
+                        std::array<PhysicalSkinRecordedCarrierAllocationCSVAssets*,2> allocations{
+                            &skinAllocation,&fatAllocation};
+                        for(unsigned role=0u;role<allocationRoles.size();++role) {
+                            auto& allocation=*allocations[role];
+                            allocation.materialIndex=role==0u?15u:16u;
+                            const std::string rolePrefix="RECORDED_ALLOCATION_"+
+                                std::string(allocationRoles[role])+"_";
+                            allocation.receiptPath=pathValue(rolePrefix+"RECEIPT_JSON");
+                            allocation.receiptSHA256=value(rolePrefix+"RECEIPT_SHA256");
+                            for(unsigned file=0u;file<allocationFiles.size();++file) {
+                                const std::string filePrefix=rolePrefix+std::string(allocationFiles[file]);
+                                allocation.csvPaths[file]=pathValue(filePrefix+"_CSV");
+                                allocation.csvSHA256[file]=value(filePrefix+"_CSV_SHA256");
+                            }
+                        }
+                        volumeFiles.recordedCarrierAllocationCSV=
+                            std::array<PhysicalSkinRecordedCarrierAllocationCSVAssets,2>{
+                                std::move(skinAllocation),std::move(fatAllocation)};
+                    }
+                    if(p1AnchorRequested) {
+                        require(volumeFiles.fractionalSemanticSupport.has_value(),
+                                "P1 supported reference anchor import requires both authenticated semantic-support roles");
+                        PhysicalSkinP1SupportedReferenceAnchorAssets anchorAssets;
+                        anchorAssets.projectionCSV=pathValue("P1_ANCHOR_PROJECTION_CSV");
+                        anchorAssets.projectionSHA256=value("P1_ANCHOR_PROJECTION_SHA256");
+                        anchorAssets.receiptJSON=pathValue("P1_ANCHOR_RECEIPT_JSON");
+                        anchorAssets.receiptSHA256=value("P1_ANCHOR_RECEIPT_SHA256");
+                        anchorAssets.anchorCSRNPZ=pathValue("P1_ANCHOR_CSR_NPZ");
+                        anchorAssets.anchorCSR_SHA256=value("P1_ANCHOR_CSR_SHA256");
+                        anchorAssets.parentRowMapCSV=pathValue("P1_ANCHOR_PARENT_ROW_MAP_CSV");
+                        anchorAssets.parentRowMapSHA256=value("P1_ANCHOR_PARENT_ROW_MAP_SHA256");
+                        const auto parentNodesPath=std::filesystem::path(parentMassPath.string()+".nodes.csv");
+                        const auto parentSourcePath=std::filesystem::path(parentMassPath.string()+".source.csv");
+                        const auto parentTetsPath=std::filesystem::path(parentMassPath.string()+".tets.csv");
+                        const auto parentWeightsPath=std::filesystem::path(parentMassPath.string()+".weights.csv");
+                        anchorAssets.pinnedInputs={
+                            {"child_node",volumeFiles.tetgenNode,volumeFiles.expectedSHA256[0]},
+                            {"child_elements",volumeFiles.tetgenElements,volumeFiles.expectedSHA256[1]},
+                            {"parent_mass",parentMassPath,value("PARENT_PACKET_SHA256")},
+                            {"parent_nodes",parentNodesPath,value("PARENT_NODES_SHA256")},
+                            {"parent_source",parentSourcePath,value("PARENT_SOURCE_SHA256")},
+                            {"parent_tets",parentTetsPath,value("PARENT_TETS_SHA256")},
+                            {"parent_full86_weights",parentWeightsPath,pinFile(parentWeightsPath,"PARENT_FULL86_WEIGHTS_SHA256")},
+                            {"skin_p1_support",volumeFiles.fractionalSemanticSupport->roles[0].binaryPath,
+                                volumeFiles.fractionalSemanticSupport->roles[0].binarySHA256},
+                            {"fat_p1_support",volumeFiles.fractionalSemanticSupport->roles[1].binaryPath,
+                                volumeFiles.fractionalSemanticSupport->roles[1].binarySHA256}};
+                        volumeFiles.p1SupportedReferenceAnchor=std::move(anchorAssets);
+                    }
                     if(separatedRegisteredOperationalReference) {
                         PhysicalSkinOperationalReferencePullbackAssets proof;
                         proof.conservativeSpatialReference=spatialReferenceRequested;
+                        proof.fractionalSemanticMassRouteRequired=fractionalSemanticSupportRequested;
                         proof.sourceParentPacketCSV=parentMassPath;
                         proof.sourceTetgenNode=pathValue("OPERATIONAL_SOURCE_NODE");
                         proof.sourceTetgenElements=pathValue("OPERATIONAL_SOURCE_ELEMENTS");
@@ -22746,6 +22885,31 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     require(!roleState.physicalAdmission&&!roleReport.physicalAdmission&&
                                 !importReport.physicalAdmission,
                             "registered-volume preparation must remain non-admitting");
+                    if(importReport.sourceCarrierQuadratureVerified){
+                        std::cout<<"registered_volume_source_carrier_quadrature=PASS"
+                            <<" packet_sha256="<<importReport.sourceCarrierQuadratureImport.packetSHA256
+                            <<" skin_carriers="<<importReport.sourceCarrierQuadratureImport.carrierRows[0]
+                            <<" fat_carriers="<<importReport.sourceCarrierQuadratureImport.carrierRows[1]
+                            <<" physical_admission=0 runtime=0 accepted_steps=0 GPU=0\n";
+                    }
+                    if(importReport.p1SupportedReferenceAnchorVerified){
+                        std::cout<<"registered_volume_p1_supported_reference_anchor=PASS"
+                            <<" verification_sha256="<<importReport.p1SupportedReferenceAnchorImport.verificationSHA256
+                            <<" child_rows="<<importReport.p1SupportedReferenceAnchorImport.childRows
+                            <<" physical_admission=0 runtime=0 accepted_steps=0 GPU=0\n";
+                    }
+                    if(fractionalSemanticSupportRequested){
+                        require(importReport.fractionalSemanticSupportVerified&&
+                                    importReport.fractionalSemanticSupportVerificationSHA256.size()==64u&&
+                                    importedBundle.fractionalSemanticMassRouteRequired,
+                                "registered-volume import lacks the authenticated two-role fractional semantic support");
+                        std::cout<<"registered_volume_fractional_semantic_support=PASS"
+                            <<" proof_sha256="<<importReport.fractionalSemanticSupportVerificationSHA256
+                            <<" composite_support_sha256="<<importReport.fractionalSemanticSupportImport.compositeTypedSupportSHA256
+                            <<" skin_children="<<importReport.fractionalSemanticSupportImport.childRows[0]
+                            <<" fat_children="<<importReport.fractionalSemanticSupportImport.childRows[1]
+                            <<" physical_admission=0 runtime=0 accepted_steps=0 GPU=0\n";
+                    }
                     if(separatedRegisteredOperationalReference) {
                         if(spatialReferenceRequested){
                             require(importReport.operationalReferenceSpatialTransportVerified&&

@@ -765,19 +765,22 @@ inline bool verifyOperationalReferencePullback(
             return fail("recorded role flow CSVs require the authenticated paired semantic and source-carrier packets");
         for(unsigned role=0;role<2u;++role){
             const std::uint32_t material=role==0u?15u:16u;
-            auto& assets=(*files.recordedCarrierAllocationCSV)[role];
+            auto assets=(*files.recordedCarrierAllocationCSV)[role];
             if(assets.materialIndex!=material)
                 return fail("recorded role allocation assets must be ordered Skin 15 then Fat 16");
             const auto parentRows=static_cast<std::size_t>(std::count(
                 nextBundle.parent.materialIndices.begin(),nextBundle.parent.materialIndices.end(),material));
             const auto childRows=static_cast<std::size_t>(std::count(
                 nextBundle.childMaterialIndices.begin(),nextBundle.childMaterialIndices.end(),material));
-            std::vector<std::string> expectedPins{
+            const std::vector<std::string> expectedPins{
                 nextBundle.parent.parentMassPacketSHA256,nextBundle.parent.parentSourceContributionSHA256,
                 nextBundle.childMeshSHA256,nextBundle.regionLabelSHA256,nextBundle.coordinateFrameSHA256,
                 files.expectedSHA256[0],files.expectedSHA256[1],files.expectedSHA256[2],
                 files.fractionalSemanticSupport->roles[role].binarySHA256,
                 files.sourceCarrierQuadrature->roles[role].binarySHA256};
+            if(!assets.expectedInputSHA256.empty()&&assets.expectedInputSHA256!=expectedPins)
+                return fail("recorded role allocation expected-input pins differ from the current authenticated import inputs");
+            assets.expectedInputSHA256=expectedPins;
             if(!recorded_carrier_allocation_import_detail::loadPhysicalSkinRecordedCarrierAllocationCSVs(assets,material,parentRows,childRows,
                     nextBundle.sourceCarrierQuadrature.recordedAllocation.roles[role],
                     recordedAllocationCSVReports[role],error))
