@@ -161,9 +161,9 @@ int main() {
                   << error << "\n";
         return 6;
     }
-    // Nearest-one seeds deliberately produce an infeasible subgraph. A
-    // residual min-cut witness must add only crossing candidates and recover
-    // a valid shared-capacity flow without raising the graph budget.
+    // The 020 parent-K4 seed and child-K1 reverse seed preserve exact group
+    // support while this fixture checks shared capacity and replay. Dedicated
+    // 020 fixtures exercise omitted-edge residual expansion and full cut proof.
     {
         static const std::array<SpatialMassTransportPoint,3> parentPoints{{
             SpatialMassTransportPoint{0.0,0.0,0.0},
@@ -242,7 +242,7 @@ int main() {
         ConservativeSpatialMassTransportResult expanded;
         if(!assembleConservativeSpatialMassTransportWithSemanticSupport(
                 sparseInput,sparseSupport,expanded,error)||
-           expanded.semanticCandidateEdgeCount!=5u||
+           expanded.semanticCandidateEdgeCount!=9u||
            expanded.childMassKg!=std::vector<double>({1.0,1.0,1.0})||
            !verifyRecordedConservativeSpatialMassTransportWithSemanticSupport(
                 sparseInput,sparseSupport,expanded,error)){
@@ -253,7 +253,7 @@ int main() {
         ConservativeSpatialMassTransportResult capped;
         if(assembleConservativeSpatialMassTransportWithSemanticSupport(
                 cappedInput,sparseSupport,capped,error)||
-           error.find("INCONCLUSIVE shared-capacity sparse edge budget") == std::string::npos||
+           error.find("INCONCLUSIVE shared-capacity sparse seed graph exceeds pinned edge budget") == std::string::npos||
            error.find("INFEASIBLE") != std::string::npos){
             std::cerr<<"sparse edge-budget failure was not classified as inconclusive: "<<error<<"\n";return 18;
         }

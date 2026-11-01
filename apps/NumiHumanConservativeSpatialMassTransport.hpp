@@ -706,6 +706,10 @@ public:
             queue.clear();queue.push_back(source);level[source]=0;
             for (std::size_t q=0;q<queue.size();++q) {
                 const auto from=queue[q];
+                // Dinic uses only the shortest source-to-sink level graph.
+                // Nodes at/deeper than the discovered sink level cannot lie on
+                // one of those paths, so avoid scanning their residual arcs.
+                if (level[sink]>=0 && level[from]>=level[sink]) continue;
                 for (const auto& edge:graph_[from]) {
                     if (!hasPositiveCapacity(edge)||level[edge.to]>=0) continue;
                     level[edge.to]=level[from]+1;
@@ -946,6 +950,13 @@ public:
                                            const std::uint32_t edge) const {
         return from < graph_.size() && edge < graph_[from].size() &&
                hasPositiveCapacity(graph_[from][edge]);
+    }
+
+    template <typename Visitor>
+    void forEachPositiveResidualEdge(const std::uint32_t from, Visitor&& visitor) const {
+        if (from >= graph_.size()) return;
+        for (const auto& edge : graph_[from])
+            if (hasPositiveCapacity(edge)) visitor(edge.to);
     }
 
     [[nodiscard]] double reducedCost(const std::uint32_t from,

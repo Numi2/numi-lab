@@ -1,0 +1,116 @@
+{
+  "schema": "numi.lab.current-fractional-mass-020-validation.v1",
+  "publication_base_commit": "125e3913ad5856d9f2a3a60faa82603d0510e132",
+  "source_trial": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-020",
+    "source_control_manifest_sha256": "7cd685ed21a9aacd72114f14fcc6c26a574cb962f6357b2fd7b740aab0311868",
+    "source_closure_sha256": "34f009ea66a3e51e008cdac289afbe127af18b791f6fb19afe73311719ce5934",
+    "lineage_sha256": "b0e7da61790853bd4830a21f1faf1f06bfbb601d28e1c0c38cecb5e90a4816ca",
+    "strict_source_controls": "PASS_SOURCE_CONTROLS",
+    "compiled_cli_sha256": "230f451cc5f18bfd0260560a30d741e1f87ed62e325de16ec2ac189235396b57"
+  },
+  "merged_owners": {
+    "support_header": {
+      "path": "apps/ConservativeSpatialFractionalSemanticSupport.hpp",
+      "sha256": "79911a2e40ce2e7b686f31b85005239126e70dfc3005ee445a122d1936569723"
+    },
+    "transport_header": {
+      "path": "apps/NumiHumanConservativeSpatialMassTransport.hpp",
+      "sha256": "8671c7b8129d42c29d3e12760cd095c14189b2b88914ca27109295f62c0674e8"
+    },
+    "merge_receipt_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-recorded-integration-1051/controls/receipt.json",
+    "merge_receipt_sha256": "53f6166b7b6d91583a11e47c7a1b058e719973182332be24b8b0d621d18e91a2",
+    "preserved_main_helpers": [
+      "buildSourceParentGroupMap",
+      "childPrefersSemanticGroup",
+      "childAllowsSourceRegion",
+      "childAllowsSourceGroup"
+    ],
+    "transport_merge": "Adds the positive-residual-edge iterator and restores sink-depth BFS cutoff; it preserves the existing min-cost flow and exact-capacity semantics."
+  },
+  "focused_controls": {
+    "compiler": "clang++",
+    "flags": [
+      "-std=c++20",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-DNUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1"
+    ],
+    "results": [
+      {
+        "name": "main semantic-support control",
+        "source": "tests/ConservativeSpatialFractionalSemanticSupportCheck.cpp",
+        "source_sha256": "729d5e09f4747f09c7cc722539650ef4f0e31f91fbd42340be1ed97e6f9307a4",
+        "binary_sha256": "fb93af8826b0047d408bf77f3c72cdef8225a81c863e8247be5b430e1a3001a4",
+        "status": "PASS",
+        "note": "Updated only for the 020 parent-K4 seeded-edge count (9) and its pre-flow edge-budget INCONCLUSIVE classification; exact child masses and recorded-flow replay remain required."
+      },
+      {
+        "name": "020 semantic-support control",
+        "source": "tests/ConservativeSpatialFractionalSemanticSupportCheck_020.cpp",
+        "source_sha256": "8e42d621a59b798358b89c72b5640aba829c6c69c8c39842dfe388f9db7921c5",
+        "binary_sha256": "88fd3fcf2cf269e72df4d00760fc456f852b82be9d67c69ae2c01a46b765d56c",
+        "status": "PASS"
+      },
+      {
+        "name": "020 optimization trial control",
+        "source": "tests/OptimizationTrialCheck_020.cpp",
+        "source_sha256": "d6011c7cbdb90eb31d73d9f36574a05410a8cd0ffc89586a437790077a3512f6",
+        "binary_sha256": "2e7c6e377df65ef25eae9e007b650b8fdbac991871d94dc726ed7256360da187",
+        "status": "PASS"
+      },
+      {
+        "name": "Dinic sink-depth parity control",
+        "source": "tests/DinicSinkDepthParity.cpp",
+        "source_sha256": "66c0fad6ae942a320d9f8a303457de10521ed4283b7b8894800f2f3553b0d683",
+        "binary_sha256": "5946e89a31eab9fde709d27386f95b01ba919a0240e7c83d81c50484efaebc35",
+        "status": "PASS"
+      }
+    ],
+    "cli_syntax": {
+      "source": "apps/NumiHumanCurrentFractionalMassMappingCLI.cpp",
+      "command": "clang++ -std=c++20 -Wall -Wextra -Werror -DNUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1 -fsyntax-only",
+      "status": "PASS"
+    }
+  },
+  "observed_allocator_runs": {
+    "020_full_graph_attempt": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/actual-014-implicit-full-residual-flow",
+      "execution_sha256": "46c96800b9f80a83b68a575301ce8e294c421b3d18c56d9dcb88f43b98d2718c",
+      "run_log_sha256": "463751c8705cc35d2aebc7ef5238e3695d2e429bcdb886726c5e28fa9710b84e",
+      "cut_manifest_sha256": "c2067302e6746fa42204fd4399a09cc782675fe2d5901d53d16b47c03ffcc2ab",
+      "full_cut_witness_sha256": "cda4b7811966f9fcc09c85d3134f75055ccaba555f1d8770d5ff823a1570a5b5",
+      "status": "INFEASIBLE_FULL_GRAPH_CUT",
+      "exit_code": 6,
+      "elapsed_wall_seconds": 80.37111470801756,
+      "sent_kg": 12.778598752468307,
+      "supply_kg": 13.939678963460445,
+      "minimum_density_capacity_kg": 12.998725017533202,
+      "residual_minimum_demand_kg": 0.2201262650649905,
+      "native_steps": 0,
+      "physical_admission": false
+    },
+    "018_baseline_attempt": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/actual-013-combined-child-fair-flow",
+      "execution_sha256": "32417189d40133cb2cd69395e0e89f671ac5e0828515b6da2404658a0e282a39",
+      "run_log_sha256": "fe18ef7caf80d9f578b73b629fcee35a26aa9f530a560108dce4760da79604fc",
+      "status": "INFEASIBLE",
+      "exit_code": 6,
+      "elapsed_wall_seconds": 772.6095342088956,
+      "sent_kg": 12.778598752468307,
+      "minimum_density_capacity_kg": 12.998725017533202,
+      "native_steps": 0,
+      "physical_admission": false
+    }
+  },
+  "qualification_limits": {
+    "source_1020": "UNCHANGED",
+    "native_steps": 0,
+    "physical_admission": false,
+    "successful_mass_transfer": "NOT_ESTABLISHED",
+    "simulation_performance_claim": "NONE",
+    "note": "The two elapsed times are retained observations from different infeasible attempts, not a controlled performance benchmark."
+  }
+}
