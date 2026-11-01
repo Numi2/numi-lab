@@ -10,6 +10,7 @@
 #include <array>
 #include <iostream>
 #include <limits>
+#include <queue>
 #include <unordered_set>
 #include <utility>
 
@@ -159,6 +160,103 @@ struct ImplicitCrossPathSelectionCandidate {
     double score;
 };
 
+// Retain exactly one deterministic highest-capacity candidate for each
+// positive-demand child. This avoids a global top-K heap starving targets.
+template <typename Candidate, typename Better>
+inline bool retainBestCrossCandidatePerTarget(
+        std::vector<Candidate>& bestByTarget,
+        std::vector<std::uint8_t>& presentByTarget,
+        const std::size_t targetSlot,
+        const Candidate& candidate,
+        Better better) {
+    if(bestByTarget.size()!=presentByTarget.size()||targetSlot>=bestByTarget.size())
+        return false;
+    if(presentByTarget[targetSlot]==0u||better(candidate,bestByTarget[targetSlot])){
+        bestByTarget[targetSlot]=candidate;
+        presentByTarget[targetSlot]=1u;
+    }
+    return true;
+}
+
+struct WidestPathFrontierEntry {
+    double bottleneck = 0.0;
+    std::uint32_t node = 0u;
+};
+
+struct WidestPathFrontierOrder {
+    bool operator()(const WidestPathFrontierEntry& a,
+                    const WidestPathFrontierEntry& b) const noexcept {
+        if (a.bottleneck != b.bottleneck) return a.bottleneck < b.bottleneck;
+        return a.node > b.node;
+    }
+};
+
+using WidestPathFrontier = std::priority_queue<WidestPathFrontierEntry,
+    std::vector<WidestPathFrontierEntry>, WidestPathFrontierOrder>;
+
+inline constexpr std::size_t noWidestPathOmittedEdge =
+    std::numeric_limits<std::size_t>::max();
+
+// Relax one residual edge in a deterministic max-min Dijkstra frontier.
+// Capacities only rank which exact existing/omitted edges to materialize;
+// the downstream flow solver still uses the original compensated capacities.
+inline bool relaxWidestPathFrontier(
+        const std::uint32_t from, const std::uint32_t to,
+        const double edgeCapacity, const std::size_t omittedEdge,
+        const std::vector<std::uint8_t>& finalized,
+        std::vector<double>& bestBottleneck,
+        std::vector<std::uint32_t>& predecessor,
+        std::vector<std::size_t>& predecessorOmittedEdge,
+        WidestPathFrontier& frontier, std::string& error) {
+    const auto count=bestBottleneck.size();
+    if(from>=count||to>=count||finalized.size()!=count||
+       predecessor.size()!=count||predecessorOmittedEdge.size()!=count||
+       !std::isfinite(edgeCapacity)||edgeCapacity<0.0||
+       !(bestBottleneck[from]>0.0)||std::isnan(bestBottleneck[from])){
+        error="widest-path frontier relaxation has invalid nodes or capacity";
+        return false;
+    }
+    if(edgeCapacity==0.0||finalized[to]!=0u)return true;
+    const double candidate=std::min(bestBottleneck[from],edgeCapacity);
+    if(!std::isfinite(candidate)||candidate<=0.0){
+        error="widest-path frontier produced a nonpositive path capacity";
+        return false;
+    }
+    if(candidate>bestBottleneck[to]){
+        bestBottleneck[to]=candidate;
+        predecessor[to]=from;
+        predecessorOmittedEdge[to]=omittedEdge;
+        frontier.push({candidate,to});
+    }
+    return true;
+}
+
+// Dijkstra may improve a child's predecessor through an already materialized
+// residual edge after an earlier omitted edge was queued. Compact only the
+// omitted-edge slots that remain in the finalized predecessor forest and
+// remap every predecessor index before path selection.
+inline bool compactWidestPathOmittedSlots(
+        const std::size_t oldSlotCount,
+        std::vector<std::size_t>& predecessorOmittedEdge,
+        std::vector<std::size_t>& oldToNew,
+        std::size_t& activeSlotCount, std::string& error) {
+    const auto none=noWidestPathOmittedEdge;
+    oldToNew.assign(oldSlotCount,none);
+    activeSlotCount=0u;
+    for(const auto oldSlot:predecessorOmittedEdge){
+        if(oldSlot==none)continue;
+        if(oldSlot>=oldSlotCount){
+            error="widest-path predecessor omitted-edge slot is outside its source array";
+            return false;
+        }
+        if(oldToNew[oldSlot]==none)oldToNew[oldSlot]=activeSlotCount++;
+    }
+    for(auto& oldSlot:predecessorOmittedEdge)
+        if(oldSlot!=none)oldSlot=oldToNew[oldSlot];
+    error.clear();
+    return true;
+}
+
 // Add a bounded set of omitted parent->child arcs from any reached parent to
 // a phase-specific positive-demand child. Each selected arc brings its
 // source-rooted predecessor prefix; a child ancestor of its parent is rejected
@@ -195,7 +293,7 @@ inline bool selectImplicitCrossPathCandidates(
             uniqueTargetCount,selectedOmittedEdgeCount,pathError))
         return (error="implicit cross-path base sink-prefix selection failed: "+pathError,false);
     std::size_t projectedForestEdgeCount=selectedOmittedEdgeCount;
-    std::vector<std::uint64_t> selectedPairs;
+    std::unordered_set<std::uint64_t> selectedPairs;
     selectedPairs.reserve(std::min(crossCandidateLimit,rankedCandidates.size()));
     std::vector<std::size_t> prefixOmittedEdges;
     prefixOmittedEdges.reserve(64u);
@@ -209,7 +307,7 @@ inline bool selectImplicitCrossPathCandidates(
            !std::isfinite(candidate.score)||candidate.score<=0.0)
             return (error="implicit cross-path candidate node or score is invalid",false);
         if(std::binary_search(initialTreePairKeys.begin(),initialTreePairKeys.end(),candidate.pairKey)||
-           std::find(selectedPairs.begin(),selectedPairs.end(),candidate.pairKey)!=selectedPairs.end())
+           selectedPairs.find(candidate.pairKey)!=selectedPairs.end())
             continue;
         prefixOmittedEdges.clear();
         bool ancestorCycle=false;
@@ -241,7 +339,7 @@ inline bool selectImplicitCrossPathCandidates(
             ++projectedForestEdgeCount;
         }
         selectedCandidateIndices.push_back(candidateIndex);
-        selectedPairs.push_back(candidate.pairKey);
+        selectedPairs.insert(candidate.pairKey);
         selectedPathTargets.push_back(candidate.parentNode);
     }
 
@@ -1570,8 +1668,203 @@ inline bool assembleSharedRealChildCapacity(
 
     std::size_t augmentationCount=0u;
     std::string flowError;
+    std::vector<std::uint32_t> maximumArcs(nc,invalid);
+    std::uint32_t maximumFinalSinkArc=invalid;
+    std::size_t compactionCalls=0u,compactionRemovedPairEvents=0u;
+    bool implicitMinimumPhase=true;
+    const auto compactCandidateGraph=[&](){
+        if(references.size()!=pending.size())
+            return fail("INTERNAL live candidate reference and pending rows diverged before compaction");
+        const auto liveBefore=references.size();
+        for(std::size_t i=0;i<liveBefore;++i)
+            if(references[i].parent!=pending[i].parent||
+               references[i].child!=pending[i].child||
+               references[i].distanceM!=pending[i].distance)
+                return fail("INTERNAL live candidate references and pending rows diverged before compaction");
+        EdgeIndexCompactionMap indexMap;
+        std::vector<std::uint8_t> candidateRetained;
+        CandidateEdgeCompactionStats stats;
+        if(!network.compactUnusedCandidateForwardPairs(references,indexMap,
+                candidateRetained,flowError,&stats))
+            return fail("INCONCLUSIVE candidate graph compaction failed closed: "+flowError);
+        if(candidateRetained.size()!=references.size())
+            return fail("INTERNAL candidate compaction retention mask has wrong length");
+        std::vector<std::uint32_t> remappedParentSource=parentSourceArcs;
+        for(auto& oldIndex:remappedParentSource){
+            std::uint32_t newIndex=invalid;
+            if(!indexMap.remapHandle(superSource,oldIndex,newIndex))
+                return fail("INTERNAL compaction lost a mandatory parent-source arc");
+            oldIndex=newIndex;
+        }
+        std::vector<std::uint32_t> finalMinimum=minimumArcs;
+        std::vector<std::uint32_t> finalMaximum=maximumArcs;
+        for(std::size_t c=0;c<nc;++c){
+            if(finalMinimum[c]!=invalid){
+                std::uint32_t mapped=invalid;
+                if(!indexMap.remapHandle(childBase+static_cast<std::uint32_t>(c),
+                                          finalMinimum[c],mapped))
+                    return fail("INTERNAL compaction lost a mandatory child-minimum arc");
+                finalMinimum[c]=mapped;
+            }
+            if(finalMaximum[c]!=invalid){
+                std::uint32_t mapped=invalid;
+                if(!indexMap.remapHandle(childBase+static_cast<std::uint32_t>(c),
+                                          finalMaximum[c],mapped))
+                    return fail("INTERNAL compaction lost a mandatory child-maximum arc");
+                finalMaximum[c]=mapped;
+            }
+        }
+        std::uint32_t finalSink=maximumFinalSinkArc;
+        if(finalSink!=invalid&&!indexMap.remapHandle(sink,finalSink,finalSink))
+            return fail("INTERNAL compaction lost the mandatory final-sink arc");
+        const auto retainedCount=static_cast<std::size_t>(std::count(
+            candidateRetained.begin(),candidateRetained.end(),std::uint8_t{1u}));
+        std::vector<EdgeRef> keptReferences;
+        std::vector<PendingEdge> keptPending;
+        keptReferences.reserve(retainedCount);
+        keptPending.reserve(retainedCount);
+        for(std::size_t i=0;i<liveBefore;++i){
+            if(candidateRetained[i]==0u)continue;
+            auto reference=references[i];
+            if(!indexMap.remapReference(reference))
+                return fail("INTERNAL compaction removed a retained candidate reference");
+            keptReferences.push_back(reference);
+            keptPending.push_back(pending[i]);
+        }
+        if(keptReferences.size()!=retainedCount||keptPending.size()!=retainedCount)
+            return fail("INTERNAL candidate compaction retained-row count diverged");
+        references=std::move(keptReferences);
+        pending=std::move(keptPending);
+        parentSourceArcs=std::move(remappedParentSource);
+        minimumArcs=std::move(finalMinimum);
+        maximumArcs=std::move(finalMaximum);
+        maximumFinalSinkArc=finalSink;
+        for(auto& row:activeChildrenByParent)row.clear();
+        for(const auto& reference:references)
+            activeChildrenByParent[reference.parent].push_back(reference.child);
+        for(auto& row:activeChildrenByParent){
+            std::sort(row.begin(),row.end());
+            row.erase(std::unique(row.begin(),row.end()),row.end());
+        }
+        ++compactionCalls;
+        compactionRemovedPairEvents+=stats.removedPairs;
+        if(stats.removedPairs>0u||compactionCalls<=8u||compactionCalls%16u==0u)
+            std::cerr<<"shared_capacity_candidate_compaction"
+                <<" call="<<compactionCalls
+                <<" active_candidate_edges_before="<<liveBefore
+                <<" active_candidate_edges_after="<<references.size()
+                <<" removed_pair_events="<<stats.removedPairs
+                <<" cumulative_removed_pair_events="<<compactionRemovedPairEvents
+                <<" directed_edges_before="<<stats.directedEdgesBefore
+                <<" directed_edges_after="<<stats.directedEdgesAfter
+                <<" candidate_pair_insertions_not_unique="
+                <<(perf.seedEdges+perf.cutEdgesAdded)
+                <<std::endl;
+        return true;
+    };
+    struct ImplicitParentChildCursor {
+        std::size_t bucketOrdinal=0u;
+        std::size_t childIndex=0u;
+        const std::vector<std::uint32_t>* bucket=nullptr;
+    };
+    std::string implicitProviderError;
+    const auto nextImplicitParentChild=[&](const std::uint32_t from,
+            ImplicitParentChildCursor& cursor,std::uint32_t& to,
+            double& capacity,double& cost){
+        if(from<parentBase||from>=childBase)return false;
+        const auto p=static_cast<std::size_t>(from-parentBase);
+        if(p>=parentGroup.size()||p>=parentGrid.size()||p>=in.parentMassKg.size()){
+            implicitProviderError="parent node is outside authenticated parent tables";return false;
+        }
+        const auto group=parentGroup[p];
+        if(group>=support.groupMaterialIndices.size()){
+            implicitProviderError="parent group is outside authenticated support groups";return false;
+        }
+        const double parentCapacity=in.parentMassKg[p];
+        if(!std::isfinite(parentCapacity)||parentCapacity<0.0){
+            implicitProviderError="parent capacity is nonfinite or negative";return false;
+        }
+        const auto base=parentGrid[p];
+        while(cursor.bucketOrdinal<125u){
+            if(cursor.bucket==nullptr){
+                const auto ordinal=cursor.bucketOrdinal;
+                const auto dx=static_cast<std::int64_t>(ordinal/25u)-2;
+                const auto dy=static_cast<std::int64_t>((ordinal/5u)%5u)-2;
+                const auto dz=static_cast<std::int64_t>(ordinal%5u)-2;
+                const auto found=childrenByGroupBucket.find(
+                    {group,GridKey{base.x+dx,base.y+dy,base.z+dz}});
+                cursor.bucket=found==childrenByGroupBucket.end()?nullptr:&found->second;
+                cursor.childIndex=0u;
+                if(cursor.bucket==nullptr){++cursor.bucketOrdinal;continue;}
+            }
+            while(cursor.childIndex<cursor.bucket->size()){
+                const auto c=(*cursor.bucket)[cursor.childIndex++];
+                if(p>=activeChildrenByParent.size()){
+                    implicitProviderError="parent active-neighbor table is missing";return false;
+                }
+                if(std::binary_search(activeChildrenByParent[p].begin(),
+                                      activeChildrenByParent[p].end(),c))continue;
+                if(c>=in.childCentroidsWorld.size()||c>=groupPreference.size()){
+                    implicitProviderError="child row is outside authenticated child tables";return false;
+                }
+                const double d=distance(in.parentCentroidsWorld[p],in.childCentroidsWorld[c]);
+                if(!std::isfinite(d)||d<0.0){
+                    implicitProviderError="parent-child distance is nonfinite or negative";return false;
+                }
+                if(d>in.maximumTransportDistanceM||
+                   d*d>radiusSquared*(1.0+1.0e-14))continue;
+                // A zero-mass parent contributes no residual edge. Continue
+                // scanning this bucket; do not mistake that pair for exhaustion.
+                if(parentCapacity==0.0)continue;
+                const auto pref=groupPreference[c].find(group);
+                const double penalty=pref==groupPreference[c].end()?0.0:
+                    semanticPreferenceWeight*(-std::log(pref->second));
+                const double edgeCost=(d*d)/radiusSquared+penalty;
+                if(!std::isfinite(edgeCost)||edgeCost<0.0){
+                    implicitProviderError="computed parent-child edge cost is invalid";return false;
+                }
+                if(parentCapacity<=0.0){
+                    implicitProviderError="eligible parent has no positive capacity";return false;
+                }
+                to=childBase+static_cast<std::uint32_t>(c);
+                capacity=parentCapacity;cost=edgeCost;
+                return true;
+            }
+            cursor.bucket=nullptr;cursor.childIndex=0u;++cursor.bucketOrdinal;
+        }
+        return false;
+    };
+    const auto onImplicitCandidateMaterialized=[&](const std::uint32_t from,
+            const std::uint32_t to,const std::uint32_t edgeIndex,
+            const double capacity,const double cost,std::string& error){
+        if(from<parentBase||from>=childBase||to<childBase||to>=sink){
+            error="implicit arc endpoints are outside parent/child domains";return false;
+        }
+        const auto p=from-parentBase,c=to-childBase;
+        const auto group=parentGroup[p];
+        if(!std::binary_search(childAdmissibleGroups[c].begin(),
+                               childAdmissibleGroups[c].end(),group)){
+            error="implicit arc group is not an authenticated admissible child tuple";return false;
+        }
+        auto& active=activeChildrenByParent[p];
+        const auto position=std::lower_bound(active.begin(),active.end(),c);
+        if(position!=active.end()&&*position==c){
+            error="implicit candidate pair became represented before materialization";return false;
+        }
+        const double d=distance(in.parentCentroidsWorld[p],in.childCentroidsWorld[c]);
+        if(d>in.maximumTransportDistanceM||d*d>radiusSquared*(1.0+1.0e-14)||
+           capacity!=in.parentMassKg[p]||!std::isfinite(cost)||cost<0.0){
+            error="implicit materialized pair failed exact capacity/radius/cost replay";return false;
+        }
+        references.push_back({p,c,from,edgeIndex,d});
+        pending.push_back({p,c,d,cost});
+        active.insert(position,c);
+        reachableChildren[group].push_back(c);
+        ++perf.cutEdgesAdded;
+        return true;
+    };
+
     const auto augmentToMaximum=[&](){
-        std::size_t roundAugmentations=0u;double sent=0.0;
         const std::size_t nextCall=perf.augmentCalls+1u;
         if(nextCall<=16u || nextCall%16u==0u){
             std::cerr<<"shared_capacity_progress phase=before_run_feasible"
@@ -1584,14 +1877,61 @@ inline bool assembleSharedRealChildCapacity(
                 <<std::endl;
         }
         ++perf.augmentCalls;
-        if(!network.runFeasible(superSource,superSink,
-                in.maximumAugmentations-augmentationCount,roundAugmentations,sent,flowError)){
-            perf.flowAugmentations+=roundAugmentations;
-            return fail("shared-capacity sparse feasible-flow failed: "+flowError);
+        std::size_t liveCandidateCount=pending.size();
+        for(;;){
+            std::size_t roundAugmentations=0u;double sent=0.0;
+            spatial_mass_transport_detail::ImplicitDinicStats implicitStats;
+            implicitProviderError.clear();
+            const bool runOk=network.runFeasibleImplicit<ImplicitParentChildCursor>(
+                superSource,superSink,in.maximumAugmentations-augmentationCount,
+                roundAugmentations,sent,flowError,liveCandidateCount,
+                in.maximumAllowedEdges,nextImplicitParentChild,
+                onImplicitCandidateMaterialized,&implicitStats,&implicitProviderError,
+                implicitMinimumPhase?"minimum":"maximum");
+            augmentationCount+=roundAugmentations;
+            perf.flowAugmentations=augmentationCount;
+            std::ostringstream depthSummary;
+            for(std::size_t i=0;i<implicitStats.sinkDepths.size();++i){
+                if(i)depthSummary<<",";
+                depthSummary<<implicitStats.sinkDepths[i];
+            }
+            std::cerr<<"shared_capacity_implicit_dinic"
+                <<" stage="<<perf.stage
+                <<" phase="<<(implicitMinimumPhase?"minimum":"maximum")
+                <<" result="<<(runOk?"complete":"inconclusive_or_error")
+                <<" bfs_phases="<<implicitStats.bfsPhases
+                <<" sink_depths="<<depthSummary.str()
+                <<" implicit_arc_offers="<<implicitStats.implicitArcOffers
+                <<" materialized_candidate_pairs="<<implicitStats.materializedCandidatePairs
+                <<" augmentations="<<roundAugmentations
+                <<" live_candidate_edges="<<pending.size()
+                <<std::endl;
+            if(!implicitProviderError.empty())
+                return fail("shared-capacity implicit candidate provider failed closed: "+implicitProviderError);
+            if(runOk){
+                if(liveCandidateCount!=pending.size()||references.size()!=pending.size())
+                    return fail("INTERNAL implicit Dinic materialized candidate/reference ledgers diverged");
+                if(!compactCandidateGraph())return false;
+                return true;
+            }
+            const std::string budgetFailure=
+                "INCONCLUSIVE implicit feasible-flow live candidate edge budget prevents a positive path";
+            if(flowError.rfind(budgetFailure,0u)!=0u)
+                return fail("shared-capacity implicit Dinic feasible-flow failed: "+flowError);
+            const auto before=pending.size();
+            const auto budgetMessage=flowError;
+            if(!compactCandidateGraph())return false;
+            if(pending.size()>=before)
+                return fail("INCONCLUSIVE shared-capacity implicit Dinic live edge budget exhausted with no exact-zero candidates to compact: "+budgetMessage);
+            liveCandidateCount=pending.size();
+            std::cerr<<"shared_capacity_implicit_dinic_retry"
+                <<" stage="<<perf.stage
+                <<" phase="<<(implicitMinimumPhase?"minimum":"maximum")
+                <<" prior_live_edges="<<before
+                <<" compacted_live_edges="<<liveCandidateCount
+                <<" augmentations_preserved="<<augmentationCount
+                <<std::endl;
         }
-        augmentationCount+=roundAugmentations;
-        perf.flowAugmentations=augmentationCount;
-        return true;
     };
     const auto allMinimumsSatisfied=[&](){
         for(std::size_t c=0;c<nc;++c)
@@ -1601,8 +1941,6 @@ inline bool assembleSharedRealChildCapacity(
     };
     // Retain child-extra arcs so maximum-flow cut expansion can favor children
     // with remaining density capacity as well as minimum-phase lower deficits.
-    std::vector<std::uint32_t> maximumArcs(nc,invalid);
-    std::uint32_t maximumFinalSinkArc=invalid;
     const auto minimumResidualSummary=[&](){
         std::size_t unsatisfied=0u;
         long double remaining=0.0L;
@@ -1874,6 +2212,7 @@ inline bool assembleSharedRealChildCapacity(
     double lastMinimumPhaseProductiveThreshold=0.0;
     double lastMaximumPhaseProductiveThreshold=0.0;
     const auto expandAcrossResidualCut=[&](const bool minimumPhase){
+        implicitMinimumPhase=minimumPhase;
         perf.stage=minimumPhase?"minimum_flow":"maximum_flow";
         ++perf.cutRounds;
         // Search the residual graph from large to small bottleneck scales. This
@@ -2547,6 +2886,7 @@ inline bool assembleSharedRealChildCapacity(
                         childMaximum[c]-childMinimum[c],0.0);
     maximumFinalSinkArc=network.addEdge(sink,superSink,residualCapacity,0.0);
     perf.stage="maximum_flow";
+    implicitMinimumPhase=false;
     if(!augmentToMaximum())return false;
     while(network.hasResidualSourceCapacity(superSource))
         if(!expandAcrossResidualCut(false))return false;

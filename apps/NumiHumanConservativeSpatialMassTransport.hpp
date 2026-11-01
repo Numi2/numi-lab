@@ -14,6 +14,7 @@
 #include <limits>
 #include <numeric>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <map>
 #include <queue>
@@ -495,6 +496,80 @@ struct EdgeRef {
     double distanceM = 0.0;
 };
 
+// Maps adjacency indexes from one MinCostFlow graph layout to a compacted
+// layout. Node IDs and all semantic parent/child rows remain unchanged.
+struct EdgeIndexCompactionMap {
+    static constexpr std::uint32_t removedIndex =
+        std::numeric_limits<std::uint32_t>::max();
+
+    // oldRowOffsets has graph-node-count + 1 entries. oldToNewIndex is a flat
+    // row-major map, avoiding one heap allocation per graph node.
+    std::vector<std::size_t> oldRowOffsets;
+    std::vector<std::uint32_t> oldToNewIndex;
+
+    [[nodiscard]] bool remapIndex(const std::uint32_t from,
+                                  const std::uint32_t oldIndex,
+                                  std::uint32_t& newIndex) const noexcept {
+        if (oldRowOffsets.size() < 2u ||
+            static_cast<std::size_t>(from) + 1u >= oldRowOffsets.size())
+            return false;
+        const auto begin = oldRowOffsets[from];
+        const auto end = oldRowOffsets[static_cast<std::size_t>(from) + 1u];
+        if (end < begin || end > oldToNewIndex.size() ||
+            oldIndex >= end - begin || begin + oldIndex >= oldToNewIndex.size())
+            return false;
+        const auto mapped = oldToNewIndex[begin + oldIndex];
+        if (mapped == removedIndex) return false;
+        newIndex = mapped;
+        return true;
+    }
+
+    [[nodiscard]] bool wasRemoved(const std::uint32_t from,
+                                  const std::uint32_t oldIndex) const noexcept {
+        if (oldRowOffsets.size() < 2u ||
+            static_cast<std::size_t>(from) + 1u >= oldRowOffsets.size())
+            return false;
+        const auto begin = oldRowOffsets[from];
+        const auto end = oldRowOffsets[static_cast<std::size_t>(from) + 1u];
+        if (end < begin || end > oldToNewIndex.size() ||
+            oldIndex >= end - begin) return false;
+        return oldToNewIndex[begin + oldIndex] == removedIndex;
+    }
+
+    [[nodiscard]] bool remapHandle(const std::uint32_t from,
+                                   const std::uint32_t oldIndex,
+                                   std::uint32_t& newIndex) const noexcept {
+        return remapIndex(from, oldIndex, newIndex);
+    }
+
+    [[nodiscard]] bool remapReference(EdgeRef& reference) const noexcept {
+        std::uint32_t mapped = 0u;
+        if (!remapIndex(reference.from, reference.edge, mapped)) return false;
+        reference.edge = mapped;
+        return true;
+    }
+};
+
+struct ImplicitDinicStats {
+    std::size_t bfsPhases = 0u;
+    std::uint64_t implicitArcOffers = 0u;
+    std::size_t materializedCandidatePairs = 0u;
+    std::vector<std::int64_t> sinkDepths;
+};
+
+struct CandidateEdgeCompactionStats {
+    std::size_t candidateReferences = 0u;
+    std::size_t uniqueCandidatePairs = 0u;
+    std::size_t removedPairs = 0u;
+    std::size_t directedEdgesBefore = 0u;
+    std::size_t directedEdgesAfter = 0u;
+    std::size_t adjacencyCapacityBefore = 0u;
+    std::size_t adjacencyCapacityAfter = 0u;
+    std::size_t rowsReleased = 0u;
+    std::size_t shrinkRequests = 0u;
+    std::size_t shrinkFailures = 0u;
+};
+
 class MinCostFlow {
     [[nodiscard]] static double stableReducedCost(const double cost,
                                                    const double fromPotential,
@@ -565,6 +640,183 @@ class MinCostFlow {
     }
 public:
     explicit MinCostFlow(const std::size_t nodeCount) : graph_(nodeCount) {}
+
+    // Remove only caller-selected candidate forward/reverse pairs whose reverse
+    // residual is exactly zero in both raw double-double fields. This operation
+    // does not decide whether removing an unused arc preserves a caller's
+    // future feasible set: the caller owns candidate selection and must use the
+    // returned map to remap every retained adjacency-index handle. Node IDs and
+    // FlowEdge raw fields of every survivor are preserved; only reverse indexes
+    // are rewritten. No reverseFlow() round-trip or capacity normalization is
+    // performed.
+    bool compactUnusedCandidateForwardPairs(
+            const std::vector<EdgeRef>& candidates,
+            EdgeIndexCompactionMap& outputMap,
+            std::vector<std::uint8_t>& candidateRetained,
+            std::string& error,
+            CandidateEdgeCompactionStats* outputStats = nullptr) {
+        const auto fail = [&](const char* message) {
+            error = message;
+            return false;
+        };
+        const auto nodeCount = graph_.size();
+        EdgeIndexCompactionMap map;
+        map.oldRowOffsets.reserve(nodeCount + 1u);
+        map.oldRowOffsets.push_back(0u);
+        for (const auto& row : graph_) {
+            if (row.size() > std::numeric_limits<std::uint32_t>::max())
+                return fail("edge compaction adjacency row exceeds uint32 index domain");
+            if (row.size() > std::numeric_limits<std::size_t>::max() -
+                                 map.oldRowOffsets.back())
+                return fail("edge compaction flattened index domain overflows size_t");
+            map.oldRowOffsets.push_back(map.oldRowOffsets.back() + row.size());
+        }
+        const auto edgeCount = map.oldRowOffsets.back();
+        map.oldToNewIndex.assign(edgeCount, EdgeIndexCompactionMap::removedIndex);
+        std::vector<std::uint8_t> remove(edgeCount, 0u);
+        std::vector<std::uint8_t> retained(candidates.size(), 1u);
+        CandidateEdgeCompactionStats stats;
+        stats.candidateReferences = candidates.size();
+        stats.directedEdgesBefore = edgeCount;
+        for (const auto& row : graph_) stats.adjacencyCapacityBefore += row.capacity();
+
+        // Validate the entire reciprocal graph and candidate roster before
+        // changing any adjacency row. The flat map also lets us prove that each
+        // reverse pair is either wholly kept or wholly removed.
+        for (std::size_t from = 0u; from < nodeCount; ++from) {
+            const auto& row = graph_[from];
+            for (std::size_t index = 0u; index < row.size(); ++index) {
+                const auto& edge = row[index];
+                if (edge.to >= nodeCount || edge.reverse >= graph_[edge.to].size())
+                    return fail("edge compaction found an invalid reverse-edge endpoint");
+                const auto& reverse = graph_[edge.to][edge.reverse];
+                if (reverse.to != from || reverse.reverse != index)
+                    return fail("edge compaction found a nonreciprocal reverse-edge pair");
+            }
+        }
+
+        for (std::size_t candidateIndex = 0u;
+             candidateIndex < candidates.size(); ++candidateIndex) {
+            const auto& candidate = candidates[candidateIndex];
+            if (candidate.from >= nodeCount ||
+                candidate.edge >= graph_[candidate.from].size())
+                return fail("edge compaction candidate handle is outside the graph");
+            const auto& forward = graph_[candidate.from][candidate.edge];
+            if (forward.to >= nodeCount || forward.to == candidate.from ||
+                forward.reverse >= graph_[forward.to].size() ||
+                !std::isfinite(forward.capacity) ||
+                !std::isfinite(forward.initialCapacity) ||
+                !std::isfinite(forward.cost) ||
+                !std::isfinite(forward.capacityCorrection) ||
+                forward.initialCapacity <= 0.0)
+                return fail("edge compaction candidate is not a finite forward-capacity arc");
+            const auto& reverse = graph_[forward.to][forward.reverse];
+            if (reverse.to != candidate.from || reverse.reverse != candidate.edge ||
+                reverse.initialCapacity != 0.0 ||
+                !std::isfinite(reverse.capacity) ||
+                !std::isfinite(reverse.capacityCorrection))
+                return fail("edge compaction candidate has an invalid paired reverse arc");
+
+            // A represented tiny residual can have raw capacity == 0 and a
+            // nonzero correction. Keep it. Only exact raw zero in both fields
+            // proves this candidate pair currently carries no reverse flow.
+            if (reverse.capacity == 0.0 &&
+                reverse.capacityCorrection == 0.0) {
+                const auto forwardFlat =
+                    map.oldRowOffsets[candidate.from] + candidate.edge;
+                const auto reverseFlat =
+                    map.oldRowOffsets[forward.to] + forward.reverse;
+                remove[forwardFlat] = 1u;
+                remove[reverseFlat] = 1u;
+                retained[candidateIndex] = 0u;
+            }
+        }
+
+        // Count unique removed forward pairs. Duplicate input references are
+        // idempotent and do not affect the graph twice.
+        for (std::size_t from = 0u; from < nodeCount; ++from) {
+            for (std::size_t index = 0u; index < graph_[from].size(); ++index) {
+                const auto flat = map.oldRowOffsets[from] + index;
+                if (!remove[flat]) continue;
+                const auto& edge = graph_[from][index];
+                if (edge.initialCapacity > 0.0) ++stats.uniqueCandidatePairs;
+            }
+        }
+        stats.removedPairs = stats.uniqueCandidatePairs;
+
+        for (std::size_t from = 0u; from < nodeCount; ++from) {
+            std::uint32_t nextIndex = 0u;
+            const auto& row = graph_[from];
+            for (std::size_t oldIndex = 0u; oldIndex < row.size(); ++oldIndex) {
+                const auto flat = map.oldRowOffsets[from] + oldIndex;
+                if (remove[flat]) continue;
+                if (nextIndex == EdgeIndexCompactionMap::removedIndex)
+                    return fail("edge compaction new adjacency index exceeds uint32 domain");
+                map.oldToNewIndex[flat] = nextIndex++;
+            }
+        }
+
+        // Check all retained arcs can remap their reverse endpoint before the
+        // first mutation. A kept arc may never point at a removed mate.
+        for (std::size_t from = 0u; from < nodeCount; ++from) {
+            for (std::size_t oldIndex = 0u; oldIndex < graph_[from].size(); ++oldIndex) {
+                const auto flat = map.oldRowOffsets[from] + oldIndex;
+                if (remove[flat]) continue;
+                const auto& edge = graph_[from][oldIndex];
+                const auto reverseFlat =
+                    map.oldRowOffsets[edge.to] + edge.reverse;
+                if (map.oldToNewIndex[reverseFlat] ==
+                    EdgeIndexCompactionMap::removedIndex)
+                    return fail("edge compaction would retain only one side of a reverse pair");
+            }
+        }
+
+        if (stats.removedPairs != 0u) {
+            // Rewrite reverse indexes against the old graph, then stable-compact
+            // one row at a time. This avoids a second full graph allocation.
+            for (std::size_t from = 0u; from < nodeCount; ++from) {
+                for (std::size_t oldIndex = 0u; oldIndex < graph_[from].size(); ++oldIndex) {
+                    if (remove[map.oldRowOffsets[from] + oldIndex]) continue;
+                    auto& edge = graph_[from][oldIndex];
+                    edge.reverse = map.oldToNewIndex[
+                        map.oldRowOffsets[edge.to] + edge.reverse];
+                }
+            }
+            for (std::size_t from = 0u; from < nodeCount; ++from) {
+                auto& row = graph_[from];
+                std::size_t write = 0u;
+                for (std::size_t read = 0u; read < row.size(); ++read) {
+                    if (remove[map.oldRowOffsets[from] + read]) continue;
+                    if (write != read) row[write] = std::move(row[read]);
+                    ++write;
+                }
+                if (write == row.size()) continue;
+                row.resize(write);
+                if (write == 0u) {
+                    std::vector<FlowEdge>().swap(row);
+                    ++stats.rowsReleased;
+                } else {
+                    ++stats.shrinkRequests;
+                    try {
+                        row.shrink_to_fit();
+                    } catch (...) {
+                        // Capacity release is best effort; graph semantics and
+                        // the index map are already valid after resize().
+                        ++stats.shrinkFailures;
+                    }
+                }
+            }
+        }
+
+        stats.directedEdgesAfter = edgeCount - 2u * stats.removedPairs;
+        for (const auto& row : graph_) stats.adjacencyCapacityAfter += row.capacity();
+        outputMap = std::move(map);
+        candidateRetained = std::move(retained);
+        if (outputStats) *outputStats = stats;
+        error.clear();
+        return true;
+    }
+
     std::uint32_t addEdge(const std::uint32_t from, const std::uint32_t to,
                           const double capacity, const double cost) {
         const auto index = static_cast<std::uint32_t>(graph_[from].size());
@@ -766,6 +1018,193 @@ public:
             return fail("spatial transport feasible-flow sent mass is invalid");
         error.clear();
         return true;
+    }
+
+    // Exact Dinic feasibility on a sparse graph plus an implicit callback for
+    // omitted forward parent->child arcs. BFS sees the complete strict-positive
+    // residual graph, while DFS enumerates each parent's omitted neighbors with
+    // a caller-owned resumable cursor. A virtual arc is materialized only after
+    // a complete positive-capacity source-to-sink path uses it.
+    template <typename ImplicitCursor, typename NextImplicit, typename OnMaterialize>
+    bool runFeasibleImplicit(
+            const std::uint32_t source, const std::uint32_t sink,
+            const std::size_t maximumAugmentations,
+            std::size_t& augmentationCount, double& sent, std::string& error,
+            std::size_t& liveCandidateCount, const std::size_t maximumCandidateEdges,
+            NextImplicit&& nextImplicit, OnMaterialize&& onMaterialize,
+            ImplicitDinicStats* outputStats=nullptr,
+            const std::string* providerError=nullptr,
+            const char* progressPhase=nullptr) {
+        const auto fail=[&](const std::string& message){error=message;return false;};
+        const auto providerFailed=[&](){
+            return providerError!=nullptr&&!providerError->empty();
+        };
+        if(providerFailed())
+            return fail("implicit feasible-flow provider failed: "+*providerError);
+        if(source>=graph_.size()||sink>=graph_.size()||source==sink)
+            return fail("spatial transport implicit feasible-flow terminals are invalid");
+        if(liveCandidateCount>maximumCandidateEdges)
+            return fail("INCONCLUSIVE implicit feasible-flow live candidate count exceeds its pinned budget");
+        compensatedSparseCapacities_=true;
+        augmentationCount=0u;
+        if(outputStats)*outputStats=ImplicitDinicStats{};
+        const auto n=graph_.size();
+        std::vector<std::int64_t> level(n,-1);
+        std::vector<std::uint32_t> nextExplicit(n,0u),queue;
+        queue.reserve(n);
+        std::vector<ImplicitCursor> implicitCursor(n);
+        std::vector<std::uint8_t> implicitDone(n,0u);
+        struct PathArc {
+            std::uint32_t from=0u;
+            std::uint32_t to=0u;
+            std::uint32_t edge=0u;
+            double virtualCapacity=0.0;
+            double virtualCost=0.0;
+            bool isImplicit=false;
+        };
+        std::vector<std::uint32_t> pathNodes;
+        std::vector<PathArc> pathArcs;
+        std::vector<double> pathCapacityValues;
+        pathNodes.reserve(128u);pathArcs.reserve(128u);pathCapacityValues.reserve(128u);
+        for(;;){
+            if(outputStats)
+                std::cerr<<"implicit_dinic_bfs_start"
+                    <<" phase="<<(progressPhase?progressPhase:"unspecified")
+                    <<" index="<<(outputStats->bfsPhases+1u)
+                    <<" live_candidate_pairs="<<liveCandidateCount
+                    <<" prior_implicit_offers="<<outputStats->implicitArcOffers
+                    <<" materialized_pairs="<<outputStats->materializedCandidatePairs
+                    <<" completed_augmentations="<<augmentationCount
+                    <<std::endl;
+            std::fill(level.begin(),level.end(),-1);
+            queue.clear();queue.push_back(source);level[source]=0;
+            for(std::size_t q=0;q<queue.size();++q){
+                const auto from=queue[q];
+                // Only nodes strictly before the shortest sink layer matter.
+                if(level[sink]>=0&&level[from]>=level[sink])continue;
+                for(const auto& edge:graph_[from]){
+                    if(!hasPositiveCapacity(edge)||level[edge.to]>=0)continue;
+                    level[edge.to]=level[from]+1;queue.push_back(edge.to);
+                }
+                ImplicitCursor cursor{};
+                std::uint32_t to=0u;double capacity=0.0,cost=0.0;
+                while(nextImplicit(from,cursor,to,capacity,cost)){
+                    if(outputStats)++outputStats->implicitArcOffers;
+                    if(to>=n||to==from||!std::isfinite(capacity)||capacity<=0.0||
+                       !std::isfinite(cost)||cost<0.0)
+                        return fail("implicit feasible-flow provider returned an invalid arc");
+                    if(level[to]>=0)continue;
+                    level[to]=level[from]+1;queue.push_back(to);
+                }
+                if(providerFailed())
+                    return fail("implicit feasible-flow provider failed: "+*providerError);
+            }
+            if(outputStats){
+                ++outputStats->bfsPhases;
+                if(outputStats->sinkDepths.size()<256u)outputStats->sinkDepths.push_back(level[sink]);
+                std::cerr<<"implicit_dinic_bfs_end"
+                    <<" phase="<<(progressPhase?progressPhase:"unspecified")
+                    <<" index="<<outputStats->bfsPhases
+                    <<" sink_depth="<<level[sink]
+                    <<" cumulative_implicit_offers="<<outputStats->implicitArcOffers
+                    <<" materialized_pairs="<<outputStats->materializedCandidatePairs
+                    <<" completed_augmentations="<<augmentationCount
+                    <<" live_candidate_pairs="<<liveCandidateCount
+                    <<std::endl;
+            }
+            if(level[sink]<0)break;
+            std::fill(nextExplicit.begin(),nextExplicit.end(),0u);
+            std::fill(implicitDone.begin(),implicitDone.end(),0u);
+            for(auto& cursor:implicitCursor)cursor=ImplicitCursor{};
+            for(;;){
+                pathNodes.clear();pathArcs.clear();pathCapacityValues.clear();
+                pathNodes.push_back(source);
+                pathCapacityValues.push_back(std::numeric_limits<double>::infinity());
+                while(!pathNodes.empty()&&pathNodes.back()!=sink){
+                    const auto from=pathNodes.back();
+                    bool foundArc=false;
+                    auto& edgeCursor=nextExplicit[from];
+                    while(edgeCursor<graph_[from].size()){
+                        const auto& edge=graph_[from][edgeCursor];
+                        if(hasPositiveCapacity(edge)&&level[edge.to]==level[from]+1){
+                            pathArcs.push_back({from,edge.to,edgeCursor,0.0,0.0,false});
+                            pathNodes.push_back(edge.to);
+                            pathCapacityValues.push_back(std::min(pathCapacityValues.back(),pathCapacity(edge)));
+                            foundArc=true;break;
+                        }
+                        ++edgeCursor;
+                    }
+                    if(foundArc)continue;
+                    if(implicitDone[from]==0u){
+                        std::uint32_t to=0u;double capacity=0.0,cost=0.0;
+                        while(nextImplicit(from,implicitCursor[from],to,capacity,cost)){
+                            if(outputStats)++outputStats->implicitArcOffers;
+                            if(to>=n||to==from||!std::isfinite(capacity)||capacity<=0.0||
+                               !std::isfinite(cost)||cost<0.0)
+                                return fail("implicit feasible-flow provider returned an invalid arc");
+                            if(level[to]!=level[from]+1)continue;
+                            pathArcs.push_back({from,to,0u,capacity,cost,true});
+                            pathNodes.push_back(to);
+                            pathCapacityValues.push_back(std::min(pathCapacityValues.back(),capacity));
+                            foundArc=true;break;
+                        }
+                        if(providerFailed())
+                            return fail("implicit feasible-flow provider failed: "+*providerError);
+                        if(!foundArc)implicitDone[from]=1u;
+                    }
+                    if(foundArc)continue;
+                    level[from]=-1;
+                    pathNodes.pop_back();pathCapacityValues.pop_back();
+                    if(!pathArcs.empty()){
+                        const auto failed=pathArcs.back();pathArcs.pop_back();
+                        if(!failed.isImplicit){
+                            if(pathNodes.empty()||pathNodes.back()!=failed.from)
+                                return fail("implicit feasible-flow explicit backtrack stack is inconsistent");
+                            ++nextExplicit[failed.from];
+                        }
+                    }
+                }
+                if(pathNodes.empty())break;
+                if(augmentationCount>=maximumAugmentations)
+                    return fail("INCONCLUSIVE spatial transport implicit feasible-flow augmentation budget exhausted");
+                const double amount=pathCapacityValues.back();
+                if(!std::isfinite(amount)||amount<=0.0)
+                    return fail("implicit feasible-flow path has no positive capacity");
+                std::size_t virtualCount=0u;
+                for(const auto& arc:pathArcs)if(arc.isImplicit)++virtualCount;
+                if(virtualCount>maximumCandidateEdges-liveCandidateCount)
+                    return fail("INCONCLUSIVE implicit feasible-flow live candidate edge budget prevents a positive path");
+                for(std::size_t i=0u;i<pathArcs.size();++i){
+                    if(!pathArcs[i].isImplicit)continue;
+                    for(std::size_t j=0u;j<i;++j)
+                        if(pathArcs[j].isImplicit&&pathArcs[j].from==pathArcs[i].from&&
+                           pathArcs[j].to==pathArcs[i].to)
+                            return fail("implicit feasible-flow path repeats a virtual candidate pair");
+                }
+                for(auto& arc:pathArcs){
+                    if(!arc.isImplicit)continue;
+                    const auto edgeIndex=addEdge(arc.from,arc.to,arc.virtualCapacity,arc.virtualCost);
+                    std::string materializeError;
+                    if(!onMaterialize(arc.from,arc.to,edgeIndex,arc.virtualCapacity,
+                                      arc.virtualCost,materializeError))
+                        return fail("implicit feasible-flow candidate materialization failed: "+materializeError);
+                    arc.edge=edgeIndex;arc.isImplicit=false;++liveCandidateCount;
+                    if(outputStats)++outputStats->materializedCandidatePairs;
+                }
+                for(const auto& arc:pathArcs){
+                    auto& edge=graph_[arc.from][arc.edge];
+                    auto& reverse=graph_[edge.to][edge.reverse];
+                    addCapacity(edge,-amount);addCapacity(reverse,amount);
+                    if(!hasPositiveCapacity(edge)&&nextExplicit[arc.from]==arc.edge)
+                        ++nextExplicit[arc.from];
+                }
+                ++augmentationCount;
+            }
+        }
+        sent=sentFromSource(source);
+        if(!std::isfinite(sent)||sent<0.0)
+            return fail("implicit feasible-flow sent mass is invalid");
+        error.clear();return true;
     }
 
     // Add one previously omitted admissible parent-child edge while retaining
@@ -1050,6 +1489,9 @@ public:
         return roundedCapacity(graph_[edge.to][edge.reverse]);
     }
 private:
+#ifdef NUMI_MINCOSTFLOW_COMPACTION_TEST
+    friend struct MinCostFlowCompactionTestAccess;
+#endif
     std::vector<std::vector<FlowEdge>> graph_;
     bool compensatedSparseCapacities_ = false;
 };

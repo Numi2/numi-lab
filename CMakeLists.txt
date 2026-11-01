@@ -7118,6 +7118,38 @@ if(BUILD_TESTING)
         COMMAND numi-human-fractional-semantic-allocator-025-check)
 endif()
 
+
+# Focused CPU controls for the P028 implicit residual-network allocator.
+# These cover feasibility, allocator integration, exact-zero compaction,
+# sink-depth parity, and semantic-support replay. They do not claim full-input
+# allocation completion or numeric flow identity.
+function(add_fractional_semantic_allocator_028_check target source test_name)
+    add_executable(${target} EXCLUDE_FROM_ALL ${source})
+    target_include_directories(${target} PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+    target_compile_features(${target} PRIVATE cxx_std_20)
+    target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+    if(BUILD_TESTING)
+        add_test(NAME ${test_name} COMMAND ${target})
+    endif()
+endfunction()
+
+add_fractional_semantic_allocator_028_check(
+    numi-human-implicit-dinic-028-check
+    apps/NumiHumanImplicitDinic028Check.cpp human.fractional-implicit-dinic-028)
+add_fractional_semantic_allocator_028_check(
+    numi-human-implicit-allocator-integration-028-check
+    apps/NumiHumanImplicitAllocatorIntegration028Check.cpp human.fractional-implicit-allocator-integration-028)
+add_fractional_semantic_allocator_028_check(
+    numi-human-flow-compaction-028-check
+    apps/NumiHumanFlowCompaction028Check.cpp human.fractional-flow-compaction-028)
+add_fractional_semantic_allocator_028_check(
+    numi-human-dinic-sink-depth-parity-028-check
+    apps/NumiHumanDinicSinkDepthParity028Check.cpp human.fractional-dinic-sink-depth-parity-028)
+add_fractional_semantic_allocator_028_check(
+    numi-human-fractional-semantic-support-028-check
+    apps/NumiHumanFractionalSemanticSupport028Check.cpp human.fractional-semantic-support-028)
+
 # Internal registered-surface candidate import; no runtime state or new artifact format.
 add_executable(numi-human-registered-skin-candidate-csv-check EXCLUDE_FROM_ALL
     apps/NumiHumanRegisteredSkinCandidateCSVCheck.cpp)
