@@ -2358,6 +2358,18 @@ if(BUILD_TESTING)
         COMMAND numi-human-unpaired-skin-fat-volume-check)
 endif()
 
+add_executable(numi-human-current-fractional-recorded-flow-artifacts-check EXCLUDE_FROM_ALL
+    apps/CurrentFractionalRecordedFlowArtifactsCheck.cpp)
+target_include_directories(numi-human-current-fractional-recorded-flow-artifacts-check PRIVATE
+    include matter/include apps)
+target_compile_features(numi-human-current-fractional-recorded-flow-artifacts-check PRIVATE cxx_std_23)
+target_compile_options(numi-human-current-fractional-recorded-flow-artifacts-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME numi_human_current_fractional_recorded_flow_artifacts
+        COMMAND numi-human-current-fractional-recorded-flow-artifacts-check)
+endif()
+
 add_executable(numi-human-physical-skin-replacement-check EXCLUDE_FROM_ALL
     apps/NumiHumanPhysicalSkinReplacementCheck.cpp)
 target_include_directories(numi-human-physical-skin-replacement-check PRIVATE

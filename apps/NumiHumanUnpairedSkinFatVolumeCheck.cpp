@@ -1,5 +1,7 @@
 #include "NumiHumanSkinFatReductionLabels.hpp"
 #include "NumiHumanParentReferenceMassTransfer.hpp"
+#include "NumiHumanPhysicalSkinChildMassMapping.hpp"
+#include "NumiHumanRecordedCarrierAllocationImport.hpp"
 
 #include <algorithm>
 #include <array>
@@ -11,6 +13,7 @@
 #include <filesystem>
 #include <iostream>
 #include <map>
+#include <set>
 #include <limits>
 #include <string>
 #include <vector>
@@ -454,6 +457,267 @@ int main() {
     assert(legacyFat.donorMassNodes.empty());
     assert(legacySkin.donorMassContributions.empty()&&legacyFat.donorMassContributions.empty());
     assert(std::abs(sumDonorMass(legacySkin)-legacySkin.massDebitKg-legacyFat.massDebitKg)<1.0e-10);
+    {
+        // End-to-end prepare -> owning topology view -> append replay. Parent 0
+        // is divided into exact children. Its ordinary centroid is farther than
+        // R from every child centroid, while each positive carrier point is at
+        // its own child centroid and the carrier weights preserve first moment.
+        Fixture carrierFixture;
+        // Keep this synthetic non-identity topology in the exact native F32
+        // domain. The production owner intentionally rejects changed topology
+        // that needs native doubles but cannot prove compiler-equivalent identity.
+        const std::array<V3,6> dyadicUnit{{
+            {{1.0,0.0,-1.0}},{{-0.5,0.75,-1.0}},{{-0.5,-0.75,-1.0}},
+            {{1.0,0.0,1.0}},{{-0.5,0.75,1.0}},{{-0.5,-0.75,1.0}}}};
+        const std::array<double,3> dyadicScales{1.0,0.75,0.5};
+        for(std::size_t row=0;row<dyadicUnit.size();++row){
+            carrierFixture.surface.worldPoints[row]=dyadicUnit[row];
+            carrierFixture.surface.donorLocalPoints[row]=dyadicUnit[row];
+        }
+        for(std::size_t layer=0;layer<dyadicScales.size();++layer)
+            for(std::size_t row=0;row<dyadicUnit.size();++row)
+                for(unsigned axis=0;axis<3u;++axis){
+                    const double value=dyadicScales[layer]*dyadicUnit[row][axis];
+                    const auto node=layer*dyadicUnit.size()+row;
+                    carrierFixture.current[node][axis]=value;
+                    carrierFixture.reference[node][axis]=value;
+                    carrierFixture.localPoints[node][axis]=value;
+                }
+        carrierFixture.parentPoints.assign(carrierFixture.reference.begin(),carrierFixture.reference.begin()+18);
+        V3 center{};
+        for(const auto node:carrierFixture.parentTets.front())for(unsigned axis=0;axis<3u;++axis)
+            center[axis]+=carrierFixture.parentPoints[node][axis]*0.25;
+        for(unsigned axis=0;axis<3u;++axis){
+            const double rounded=static_cast<double>(static_cast<float>(center[axis]));
+            carrierFixture.current[18][axis]=rounded;
+            carrierFixture.reference[18][axis]=rounded;
+            carrierFixture.localPoints[18][axis]=rounded;
+        }
+        RegisteredSurface carrierInner=carrierFixture.surface,carrierDeep=carrierFixture.surface;
+        const std::array<std::vector<std::uint32_t>,2> layerRows{
+            carrierFixture.boundary.skinInner,carrierFixture.boundary.fatDeep};
+        const std::array<RegisteredSurface*,2> layerSurfaces{&carrierInner,&carrierDeep};
+        for(unsigned layerIndex=0;layerIndex<2u;++layerIndex){
+            auto* layer=layerSurfaces[layerIndex];layer->worldPoints.clear();
+            for(const auto node:layerRows[layerIndex])layer->worldPoints.push_back(carrierFixture.current[node]);
+            layer->donorLocalPoints=layer->worldPoints;
+            layer->donorBodyIndices.assign(layer->worldPoints.size(),0u);
+            layer->sourceVertexIndices={0u,1u,2u,3u,4u,5u};
+            for(std::size_t row=0;row<layerRows[layerIndex].size();++row)
+                carrierFixture.sourceVertex[layerRows[layerIndex][row]]=static_cast<std::uint32_t>(row);
+        }
+        PhysicalSkinChildMassMappingBundle candidate;
+        candidate.outerSkin=carrierFixture.surface;candidate.independentSkinInner=carrierInner;
+        candidate.independentFatDeep=carrierDeep;candidate.boundaryMap=carrierFixture.boundary;
+        candidate.currentWorldPoints=carrierFixture.current;candidate.referenceWorldPoints=carrierFixture.reference;
+        candidate.childTetrahedra=carrierFixture.children;candidate.childMaterialIndices=carrierFixture.childMaterial;
+        candidate.childDominantParentTetrahedra=carrierFixture.dominant;
+        candidate.childParentSurfaceFaces=carrierFixture.parentSurface;
+        candidate.childStableSourceFaceIdentities=carrierFixture.childStable;
+        candidate.childDonorBodyIndices=carrierFixture.childDonor;
+        candidate.childAnatomicalRegionIndices=carrierFixture.childRegion;
+        candidate.childRegisteredLayerFacetSurfaceFaces=carrierFixture.facetRows;
+        candidate.childRegisteredLayerFacetSourceFaceIdentities=carrierFixture.facetStable;
+        candidate.childAuthoredHeadSidewallFacetFlags=carrierFixture.sidewallFlags;
+        candidate.childAuthoredHeadSidewallStableFaceIdentities=carrierFixture.sidewallStable;
+        candidate.volumeNodeDonorBodyIndices=carrierFixture.nodeDonor;
+        candidate.volumeNodeDonorLocalPoints=carrierFixture.localPoints;
+        candidate.volumeNodeDonorLocalToWorldLinear=carrierFixture.nodeRotations;
+        candidate.volumeNodeDonorOriginWorld=carrierFixture.origins;
+        candidate.registeredBodyLocalToWorldLinear=carrierFixture.bodyRotations;
+        candidate.registeredBodyOriginWorld=carrierFixture.bodyOrigins;
+        candidate.detailedSourceVertexCount=carrierFixture.surface.sourceVertexIndices.size();
+        candidate.detailedSourceFaceCount=carrierFixture.surface.sourceFaceIndices.size();
+        candidate.volumeNodeSourceVertexIndices=carrierFixture.sourceVertex;
+        candidate.volumeNodeSourceFaceIndices=carrierFixture.sourceFace;
+        candidate.volumeNodeSourceBarycentric=carrierFixture.sourceBary;
+        candidate.retainedOriginalNodeCount=18u;
+        candidate.volumeNodeParentTetrahedra=carrierFixture.nodeParent;
+        candidate.volumeNodeParentBarycentric=carrierFixture.nodeParentBary;
+        candidate.volumeNodeParentResidualWorldM=carrierFixture.nodeParentResidual;
+        candidate.referenceSourceIdentity={1u,2u,3u,4u};candidate.materialSourceIdentity={5u,6u,7u,8u};
+        candidate.childMeshSHA256=std::string(64u,'a');
+        candidate.regionLabelSHA256=std::string(64u,'b');
+        candidate.coordinateFrameSHA256=std::string(64u,'c');
+        candidate.maximumSpatialMassTransportDistanceM=0.02;
+
+        auto& parent=candidate.parent;
+        parent.currentWorldPoints=carrierFixture.parentPoints;
+        parent.referenceWorldPoints=carrierFixture.parentPoints;
+        parent.compiledGlobalNodeIndices.resize(parent.referenceWorldPoints.size());
+        for(std::uint32_t row=0;row<parent.compiledGlobalNodeIndices.size();++row)
+            parent.compiledGlobalNodeIndices[row]=row;
+        parent.nodeFrameOwnerBodyIndices.assign(parent.referenceWorldPoints.size(),0u);
+        parent.nodeFrameOwnerLocalPoints.assign(carrierFixture.localPoints.begin(),
+            carrierFixture.localPoints.begin()+static_cast<std::ptrdiff_t>(parent.referenceWorldPoints.size()));
+        parent.tetrahedra=carrierFixture.parentTets;parent.materialIndices=carrierFixture.parentMaterial;
+        parent.donorBodyIndices=carrierFixture.parentDonor;
+        parent.anatomicalRegionIndices=carrierFixture.parentRegion;
+        parent.stableSourceFaceIdentities=carrierFixture.parentStable;
+        parent.referenceTetVolumeM3.resize(parent.tetrahedra.size());
+        parent.tetrahedronMassKg.resize(parent.tetrahedra.size());
+        for(std::size_t row=0;row<parent.tetrahedra.size();++row){
+            const auto tet=parent.tetrahedra[row];
+            parent.referenceTetVolumeM3[row]=parentReferenceTetVolumeM3(tet,parent.referenceWorldPoints);
+            parent.tetrahedronMassKg[row]=parent.referenceTetVolumeM3[row]*
+                (parent.materialIndices[row]==0u?1000.0:900.0);
+            parent.totalMassKg+=parent.tetrahedronMassKg[row];
+        }
+        std::map<std::pair<std::uint32_t,std::uint32_t>,double> nodeMaterialMass;
+        for(std::size_t row=0;row<parent.tetrahedra.size();++row)
+            for(const auto node:parent.tetrahedra[row])
+                nodeMaterialMass[{node,parent.materialIndices[row]}]+=parent.tetrahedronMassKg[row]*0.25;
+        parent.compiledLumpedNodeMassKg.assign(parent.referenceWorldPoints.size(),0.0);
+        for(const auto& [key,mass]:nodeMaterialMass){
+            const auto [node,material]=key;parent.compiledLumpedNodeMassKg[node]+=mass;
+            parent.sourceMassContributions.push_back({node,material,0u,mass,parent.referenceWorldPoints[node]});
+        }
+        parent.parentMassPacketSHA256=std::string(64u,'1');
+        parent.parentSourceContributionSHA256=std::string(64u,'2');
+        parent.parentTopologySHA256=std::string(64u,'3');
+        parent.parentLabelSHA256=std::string(64u,'4');
+
+        ConservativeSpatialChildSemanticSupportData support;
+        std::map<std::pair<std::uint32_t,std::uint32_t>,std::vector<std::uint32_t>> groupedParents;
+        for(std::uint32_t row=0;row<parent.materialIndices.size();++row)
+            groupedParents[{parent.materialIndices[row],parent.anatomicalRegionIndices[row]}].push_back(row);
+        std::map<std::pair<std::uint32_t,std::uint32_t>,std::uint32_t> groupForKey;
+        support.sourceParentTetOffsets.push_back(0u);support.sourceStableFaceOffsets.push_back(0u);
+        for(const auto& [key,rows]:groupedParents){
+            const auto group=static_cast<std::uint32_t>(support.groupMaterialIndices.size());
+            groupForKey.emplace(key,group);support.groupMaterialIndices.push_back(key.first);
+            support.donorBodyIndices.push_back(0u);support.anatomicalRegionIndices.push_back(key.second);
+            support.derivedGroupIdentityIDs.push_back(group+1u);
+            for(const auto row:rows)support.sourceParentTetRows.push_back(row);
+            support.sourceParentTetOffsets.push_back(static_cast<std::uint32_t>(support.sourceParentTetRows.size()));
+            std::set<std::uint32_t> faces;
+            for(const auto row:rows)faces.insert(parent.stableSourceFaceIdentities[row]);
+            support.sourceStableFaceRows.insert(support.sourceStableFaceRows.end(),faces.begin(),faces.end());
+            support.sourceStableFaceOffsets.push_back(static_cast<std::uint32_t>(support.sourceStableFaceRows.size()));
+        }
+        support.parentStableSourceFaceIdentities=parent.stableSourceFaceIdentities;
+        support.childOffsets.push_back(0u);
+        for(std::size_t child=0;child<candidate.childMaterialIndices.size();++child){
+            const auto key=std::pair{candidate.childMaterialIndices[child],candidate.childAnatomicalRegionIndices[child]};
+            support.slotGroupIndices.push_back(groupForKey.at(key));support.volumeFractions.push_back(1.0);
+            support.childOffsets.push_back(static_cast<std::uint32_t>(support.slotGroupIndices.size()));
+        }
+        support.typedSupportSHA256=std::string(64u,'5');
+
+        std::vector<std::array<std::uint32_t,4>> carrierNodeRows=parent.tetrahedra;
+        std::vector<std::array<std::array<double,3>,4>> carrierTetWorld(parent.tetrahedra.size());
+        for(std::size_t row=0;row<parent.tetrahedra.size();++row)
+            for(unsigned corner=0;corner<4u;++corner)
+                carrierTetWorld[row][corner]=parent.referenceWorldPoints[parent.tetrahedra[row][corner]];
+        std::vector<std::uint32_t> carrierOffsets{0u},sourceTetRows(parent.tetrahedra.size());
+        for(std::uint32_t row=0;row<sourceTetRows.size();++row)sourceTetRows[row]=row;
+        std::vector<double> carrierWeights,carrierDistances;
+        std::vector<std::array<double,4>> carrierBary;
+        std::vector<std::uint32_t> carrierChildren;
+        for(std::size_t parentRow=0;parentRow<parent.tetrahedra.size();++parentRow){
+            if(parentRow==0u){
+                const auto parentTet=parent.tetrahedra[parentRow];
+                for(std::size_t child=0;child<candidate.childTetrahedra.size();++child){
+                    if(candidate.childDominantParentTetrahedra[child]!=parentRow)continue;
+                    const auto childTet=candidate.childTetrahedra[child];
+                    std::array<double,4> bary{};
+                    for(const auto node:childTet){
+                        if(node<parent.referenceWorldPoints.size()){
+                            const auto found=std::find(parentTet.begin(),parentTet.end(),node);
+                            if(found==parentTet.end())throw std::runtime_error("parent-0 child escaped its source tet");
+                            bary[static_cast<std::size_t>(found-parentTet.begin())]+=0.25;
+                        }else{
+                            if(node>=carrierFixture.nodeParent.size()||carrierFixture.nodeParent[node]!=parentRow)
+                                throw std::runtime_error("appended test node lacks exact parent-0 barycentrics");
+                            const auto nodeBary=carrierFixture.nodeParentBary[node];
+                            for(unsigned corner=0;corner<4u;++corner)bary[corner]+=0.25*nodeBary[corner];
+                        }
+                    }
+                    carrierWeights.push_back(0.25);
+                    carrierBary.push_back(bary);carrierChildren.push_back(static_cast<std::uint32_t>(child));
+                    SpatialMassTransportPoint point{},centroid{};
+                    for(unsigned corner=0;corner<4u;++corner)for(unsigned axis=0;axis<3u;++axis)
+                        point[axis]+=bary[corner]*carrierTetWorld[parentRow][corner][axis];
+                    for(const auto node:childTet)for(unsigned axis=0;axis<3u;++axis)
+                        centroid[axis]+=candidate.referenceWorldPoints[node][axis]*0.25;
+                    carrierDistances.push_back(source_carrier_transport_detail::pointDistance(point,centroid));
+                }
+            }
+            carrierOffsets.push_back(static_cast<std::uint32_t>(carrierWeights.size()));
+        }
+        const std::string carrierPacketSHA(64u,'6'),carrierTetSHA(64u,'7'),carrierNodeSHA(64u,'8');
+        SourceCellCarrierQuadratureInput carrierInput{
+            .parentOffsets=carrierOffsets,.globalSourceTetRows=sourceTetRows,
+            .sourceTetNodeRows=carrierNodeRows,.parentReferenceTetWorldVertices=carrierTetWorld,
+            .carrierWeights=carrierWeights,.carrierBarycentric=carrierBary,
+            .witnessChildRows=carrierChildren,.witnessChildCentroidDistancesM=carrierDistances,
+            .sourceCarrierPacketSHA256=carrierPacketSHA,
+            .sourceTetTableSHA256=carrierTetSHA,.sourceNodeTableSHA256=carrierNodeSHA};
+        assert(parent.tetrahedra.size()!=candidate.childTetrahedra.size());
+        SourceCellCarrierTransportTrace preparedTrace;
+        ConservativeSpatialChildSemanticSupportData* supportPtr=&support;
+        const auto supportBinder=[](void*,ConservativeSpatialChildSemanticSupportData&,
+                const ConservativeSpatialMassTransportInput&,const PhysicalSkinParentMassPacket&,
+                std::string&){return true;};
+        const std::array<double,2> densityLower{900.0,850.0},densityUpper{1100.0,950.0};
+        std::string prepareError;
+        if(!preparePhysicalSkinChildMassMapping(candidate,densityLower,densityUpper,0.02,1u,
+            prepareError,nullptr,&carrierInput,&preparedTrace,supportPtr,supportBinder,nullptr)){
+            std::cerr<<"carrier prepare rejected: "<<prepareError<<'\n';return 142;
+        }
+        assert(preparedTrace.receiptSHA256.size()==64u);
+        const auto topology=candidate.topologyView();
+        assert(topology.sourceCarrierQuadratureImportedAndVerified);
+        assert(topology.sourceCarrierTransportTrace==&candidate.sourceCarrierQuadrature.transportTrace);
+        assert(topology.sourceCarrierQuadrature.globalSourceTetRows.size()==parent.tetrahedra.size());
+        assert(topology.sourceCarrierQuadrature.sourceTetNodeRows.size()==parent.tetrahedra.size());
+        for(std::size_t i=0;i<carrierChildren.size();++i){
+            SpatialMassTransportPoint oldCentroid{},newCentroid{};
+            const auto row=carrierChildren[i];
+            const auto oldTet=parent.tetrahedra[0];
+            const auto childTet=candidate.childTetrahedra[row];
+            for(const auto node:oldTet)for(unsigned axis=0;axis<3u;++axis)
+                oldCentroid[axis]+=parent.referenceWorldPoints[node][axis]*0.25;
+            for(const auto node:childTet)for(unsigned axis=0;axis<3u;++axis)
+                newCentroid[axis]+=candidate.referenceWorldPoints[node][axis]*0.25;
+            assert(source_carrier_transport_detail::pointDistance(oldCentroid,newCentroid)>0.02);
+            assert(carrierDistances[i]<=0.02);
+        }
+        auto appendCarrierCandidate=[&](const PhysicalSkinChildMassMappingBundle& value,
+                                        numi::matter::WorldSource& target,
+                                        ExplicitUnpairedVolumeReport& output,std::string& appendError){
+            double skinDebit=0.0,fatDebit=0.0;
+            for(std::size_t row=0;row<value.parent.materialIndices.size();++row)
+                (value.parent.materialIndices[row]==0u?skinDebit:fatDebit)+=value.parent.tetrahedronMassKg[row];
+            PreparedOrganicFEM skin,fat;
+            return appendPreparedPhysicalSkinChildCandidate(target,value,0u,"skin","test",skinDebit,
+                1u,"fat","test",fatDebit,1u,"carrier append test",skin,fat,output,appendError);
+        };
+        auto carrierWorld=worldFor();ExplicitUnpairedVolumeReport carrierReport;std::string appendError;
+        if(!appendCarrierCandidate(candidate,carrierWorld,carrierReport,appendError)){
+            std::cerr<<"carrierized topology-view append rejected: "<<appendError<<'\n';return 141;
+        }
+        assert(carrierWorld.objects.size()==1u);
+        assert(carrierReport.massTransferReceiptSHA256==candidate.spatialMassTransportResult.receiptSHA256);
+        auto badCarrier=candidate;badCarrier.sourceCarrierQuadrature.carrierBarycentric[0][0]+=0.01;
+        auto badCarrierWorld=worldFor();ExplicitUnpairedVolumeReport badCarrierReport;std::string badCarrierError;
+        assert(!appendCarrierCandidate(badCarrier,badCarrierWorld,badCarrierReport,badCarrierError));
+        assert(badCarrierWorld.objects.empty());
+        assert(!badCarrierError.empty());
+        auto badTrace=candidate;badTrace.sourceCarrierQuadrature.transportTrace.childParentCarrierDistanceM[0]+=0.001;
+        auto badTraceWorld=worldFor();ExplicitUnpairedVolumeReport badTraceReport;std::string badTraceError;
+        assert(!appendCarrierCandidate(badTrace,badTraceWorld,badTraceReport,badTraceError));
+        assert(badTraceWorld.objects.empty());
+        assert(!badTraceError.empty());
+        auto strayCarrier=candidate;
+        strayCarrier.sourceCarrierQuadrature.importedAndVerified=false;
+        auto strayCarrierWorld=worldFor();ExplicitUnpairedVolumeReport strayCarrierReport;
+        std::string strayCarrierError;
+        assert(!appendCarrierCandidate(strayCarrier,strayCarrierWorld,strayCarrierReport,strayCarrierError));
+        assert(strayCarrierWorld.objects.empty());
+        assert(!strayCarrierError.empty());
+    }
+
     {
         Fixture splitSource;
         splitSource.bodyRotations.push_back(kIdentity);
@@ -901,7 +1165,7 @@ int main() {
             spatial.boundary,badRegion,0u,"skin","test skin material",skinDebit,
             1u,"fat","test fat material",fatDebit,2u,"bad region map",
             badRegionSkin,badRegionFat,report,error));
-        assert(error.find("current-tet/material/region/source admission")!=std::string::npos);
+        assert(error.find("unpaired skin/fat child dominant donor or region differs from its scalar label")!=std::string::npos);
         assert(badRegionWorld.objects.empty());
     }
     {

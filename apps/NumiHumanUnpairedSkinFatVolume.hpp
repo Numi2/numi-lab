@@ -7,6 +7,7 @@
 #include "NumiHumanCoarseTissuePreparation.hpp"
 #include "NumiHumanConservativeSpatialMassTransport.hpp"
 #include "ConservativeSpatialFractionalSemanticSupport.hpp"
+#include "ConservativeSpatialSourceCarrierQuadrature.hpp"
 #include "NumiHumanParentReferenceMassTransfer.hpp"
 #include "NumiHumanSkinBoundaryNodeMap.hpp"
 
@@ -66,6 +67,13 @@ struct ExplicitUnpairedVolumeTopology {
     // creates additional volume cells or changes physical topology.
     bool fractionalSemanticMassRouteRequired=false;
     ConservativeSpatialChildSemanticSupport fractionalSemanticSupport;
+    // Optional exact carrier evidence for recorded fractional mass allocation.
+    // The input spans and trace point into the owning mapping bundle and are
+    // revalidated here against the reconstructed current transport input.
+    bool sourceCarrierQuadratureImportedAndVerified=false;
+    std::string_view sourceCarrierVerificationSHA256;
+    SourceCellCarrierQuadratureInput sourceCarrierQuadrature;
+    const SourceCellCarrierTransportTrace* sourceCarrierTransportTrace=nullptr;
 
     std::span<const V3> parentReferenceWorldPoints;
     std::span<const std::array<std::uint32_t,4>> parentTetrahedra;
@@ -960,22 +968,55 @@ struct ExplicitUnpairedVolumeReport {
         transportInput.relativeClosureTolerance=1.0e-10;
         transportInput.absoluteMassToleranceKg=1.0e-13;
         transportInput.absoluteMeasureToleranceM3=1.0e-15;
-        transportInput.maximumAllowedEdges=3'000'000u;
-        transportInput.maximumAugmentations=300'000u;
-#if defined(NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY)
+        // Preserve legacy spatial-route budgets. The opt-in fractional route
+        // uses the selected profile's capacity below.
         if(topology.fractionalSemanticMassRouteRequired){
-            transportInput.maximumAllowedEdges=12'000'000u;
-            transportInput.maximumAugmentations=4'000'000u;
+            transportInput.maximumAllowedEdges=physical_skin_child_capacity_detail::maxCandidateEdges;
+            transportInput.maximumAugmentations=physical_skin_child_capacity_detail::maxAugmentations;
         }
-#endif
         if(recorded.childDominantParentRows.size()!=nt||
            !std::equal(recorded.childDominantParentRows.begin(),recorded.childDominantParentRows.end(),
                        topology.childDominantParentTetrahedra.begin()))
             return fail("spatial mass coupling dominant parent labels differ from the recorded child flow");
-        const bool flowVerified=topology.fractionalSemanticMassRouteRequired?
-            verifyRecordedConservativeSpatialMassTransportWithSemanticSupport(
-                transportInput,semanticSupport,recorded,error):
-            verifyRecordedConservativeSpatialMassTransport(transportInput,recorded,error);
+        bool flowVerified=false;
+        if(topology.sourceCarrierQuadratureImportedAndVerified){
+            if(!topology.fractionalSemanticMassRouteRequired||
+               topology.sourceCarrierTransportTrace==nullptr||
+               !validPhysicalSkinSourceDomainSHA256(topology.sourceCarrierVerificationSHA256)||
+               topology.sourceCarrierQuadrature.globalSourceTetRows.size()!=topology.parentTetrahedra.size()||
+               topology.sourceCarrierQuadrature.parentOffsets.size()!=topology.parentTetrahedra.size()+1u||
+               topology.sourceCarrierQuadrature.sourceTetNodeRows.size()!=topology.parentTetrahedra.size()||
+               topology.sourceCarrierQuadrature.parentReferenceTetWorldVertices.size()!=topology.parentTetrahedra.size()||
+               topology.sourceCarrierQuadrature.carrierBarycentric.size()!=topology.sourceCarrierQuadrature.carrierWeights.size()||
+               topology.sourceCarrierQuadrature.witnessChildRows.size()!=topology.sourceCarrierQuadrature.carrierWeights.size()||
+               topology.sourceCarrierQuadrature.witnessChildCentroidDistancesM.size()!=topology.sourceCarrierQuadrature.carrierWeights.size()||
+               topology.sourceCarrierQuadrature.parentOffsets.empty()||
+               topology.sourceCarrierQuadrature.parentOffsets.front()!=0u||
+               topology.sourceCarrierQuadrature.parentOffsets.back()!=
+                   topology.sourceCarrierQuadrature.carrierWeights.size())
+                return fail("recorded fractional carrier verification is missing its pinned current parent/child input or trace");
+            const auto carrierArraySHA=source_carrier_transport_detail::carrierArrayDigest(
+                transportInput,topology.sourceCarrierQuadrature);
+            if(carrierArraySHA!=topology.sourceCarrierVerificationSHA256)
+                return fail("recorded fractional carrier arrays no longer match their prepared current-input digest");
+            flowVerified=verifyRecordedConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriersFeasibility(
+                transportInput,semanticSupport,topology.sourceCarrierQuadrature,recorded,
+                *topology.sourceCarrierTransportTrace,error);
+        }else{
+            const auto& carrier=topology.sourceCarrierQuadrature;
+            if(!topology.sourceCarrierVerificationSHA256.empty()||topology.sourceCarrierTransportTrace!=nullptr||
+               !carrier.parentOffsets.empty()||!carrier.globalSourceTetRows.empty()||
+               !carrier.sourceTetNodeRows.empty()||!carrier.parentReferenceTetWorldVertices.empty()||
+               !carrier.carrierWeights.empty()||!carrier.carrierBarycentric.empty()||
+               !carrier.witnessChildRows.empty()||!carrier.witnessChildCentroidDistancesM.empty()||
+               !carrier.sourceCarrierPacketSHA256.empty()||!carrier.sourceTetTableSHA256.empty()||
+               !carrier.sourceNodeTableSHA256.empty())
+                return fail("unverified source-carrier evidence is present on the recorded mass route");
+            flowVerified=topology.fractionalSemanticMassRouteRequired?
+                verifyRecordedConservativeSpatialMassTransportWithSemanticSupport(
+                    transportInput,semanticSupport,recorded,error):
+                verifyRecordedConservativeSpatialMassTransport(transportInput,recorded,error);
+        }
         if(!flowVerified)
             return fail("spatial mass coupling recorded flow failed current-tet/material/region/source admission: "+error);
     }

@@ -5,11 +5,13 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cctype>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <limits>
 #include <map>
+#include <set>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -70,6 +72,101 @@ inline bool finishCSV(const std::filesystem::path& path,const std::string& expec
     }
     return true;
 }
+inline void skipRecordedJSONSpace(std::string_view text,std::size_t& p) {
+    while(p<text.size()&&std::isspace(static_cast<unsigned char>(text[p])))++p;
+}
+inline bool skipRecordedJSONValue(std::string_view text,std::size_t& p) {
+    skipRecordedJSONSpace(text,p);
+    if(p>=text.size())return false;
+    if(text[p]=='"'){
+        ++p;bool escape=false;
+        for(;p<text.size();++p){
+            const char c=text[p];
+            if(escape){escape=false;continue;}
+            if(c=='\\'){escape=true;continue;}
+            if(c=='"'){++p;return true;}
+        }
+        return false;
+    }
+    if(text[p]=='{'||text[p]=='['){
+        std::vector<char> stack{ text[p++] };bool quoted=false,escape=false;
+        for(;p<text.size();++p){
+            const char c=text[p];
+            if(quoted){
+                if(escape)escape=false;
+                else if(c=='\\')escape=true;
+                else if(c=='"')quoted=false;
+                continue;
+            }
+            if(c=='"'){quoted=true;continue;}
+            if(c=='{'||c=='['){stack.push_back(c);continue;}
+            if(c=='}'||c==']'){
+                if(stack.empty()||((c=='}')!=(stack.back()=='{')))return false;
+                stack.pop_back();
+                if(stack.empty()){++p;return true;}
+            }
+        }
+        return false;
+    }
+    const auto begin=p;
+    while(p<text.size()&&text[p]!=','&&text[p]!='}'&&text[p]!=']'&&
+          !std::isspace(static_cast<unsigned char>(text[p])))++p;
+    return p>begin;
+}
+inline bool parseRecordedJSONStringArray(std::string_view text,std::size_t& p,
+                                         std::vector<std::string>& values) {
+    skipRecordedJSONSpace(text,p);
+    if(p>=text.size()||text[p++]!='[')return false;
+    values.clear();skipRecordedJSONSpace(text,p);
+    if(p<text.size()&&text[p]==']'){++p;return true;}
+    for(;;){
+        skipRecordedJSONSpace(text,p);
+        if(p>=text.size()||text[p++]!='"')return false;
+        const auto begin=p;
+        while(p<text.size()&&text[p]!='"'){
+            const unsigned char c=static_cast<unsigned char>(text[p]);
+            if(c=='\\'||c<0x20u)return false;
+            ++p;
+        }
+        if(p>=text.size())return false;
+        values.emplace_back(text.substr(begin,p-begin));++p;skipRecordedJSONSpace(text,p);
+        if(p>=text.size())return false;
+        if(text[p]==']'){++p;return true;}
+        if(text[p++]!=',')return false;
+    }
+}
+inline bool topLevelRecordedJSONStringArray(std::string_view json,std::string_view wantedKey,
+                                             std::vector<std::string>& values) {
+    std::size_t p=0;skipRecordedJSONSpace(json,p);
+    if(p>=json.size()||json[p++]!='{')return false;
+    std::set<std::string> seen;bool found=false;skipRecordedJSONSpace(json,p);
+    if(p<json.size()&&json[p]=='}')return false;
+    for(;;){
+        skipRecordedJSONSpace(json,p);
+        if(p>=json.size()||json[p++]!='"')return false;
+        const auto begin=p;
+        while(p<json.size()&&json[p]!='"'){
+            if(json[p]=='\\')return false;
+            ++p;
+        }
+        if(p>=json.size())return false;
+        const std::string key(json.substr(begin,p-begin));++p;
+        if(!seen.insert(key).second)return false;
+        skipRecordedJSONSpace(json,p);
+        if(p>=json.size()||json[p++]!=':')return false;
+        if(key==wantedKey){
+            if(found||!parseRecordedJSONStringArray(json,p,values))return false;
+            found=true;
+        }else if(!skipRecordedJSONValue(json,p))return false;
+        skipRecordedJSONSpace(json,p);
+        if(p>=json.size())return false;
+        if(json[p]=='}'){++p;break;}
+        if(json[p++]!=',')return false;
+    }
+    skipRecordedJSONSpace(json,p);
+    return found&&p==json.size();
+}
+
 inline bool receiptFlowCSV(std::string_view flowMap,const std::string& name,
                            const std::string& sha,const std::uint64_t size) {
     std::string row,recordedSHA;std::uint64_t recordedSize=0;
@@ -124,12 +221,22 @@ inline bool validNonnegative(const double value){return std::isfinite(value)&&va
         str(receipt,"recorded_flow_feasibility",flowFeasibility)&&flowFeasibility=="PASS_SOLVER_FREE"&&
         str(receipt,"deterministic_optimizer_replay",optimizerReplay)&&optimizerReplay=="NOT_RUN"&&
         boolean(receipt,"complete_allocation",completeAllocation)&&completeAllocation;
+    bool pairedSolverMetrics=false;
+    std::string solverMetricsScope,pairedSolverRunSHA256;
+    if(receipt.find("\"solver_metrics_scope\"")!=receipt.npos){
+        if(!str(receipt,"solver_metrics_scope",solverMetricsScope)||solverMetricsScope!="paired"||
+           !str(receipt,"paired_solver_run_sha256",pairedSolverRunSHA256)||
+           !validSHA(pairedSolverRunSHA256))
+            return fail("recorded paired solver metrics scope or run receipt pin is invalid");
+        pairedSolverMetrics=true;
+    }
     if((!deterministicReplayPath&&!solverFreeFeasibilityPath)||
        !noAdmission(receipt)||!num(receipt,"native_steps",nativeSteps)||nativeSteps!=0u||
        !str(receipt,"source_carrier_packet_sha256",packetSHA)||!validSHA(packetSHA)||
        !str(receipt,"source_carrier_array_sha256",arraySHA)||!validSHA(arraySHA)||
        !str(receipt,"source_carrier_flow_trace_sha256",traceSHA)||!validSHA(traceSHA)||
        !str(receipt,"transport_receipt_sha256",transportSHA)||!validSHA(transportSHA)||
+       (pairedSolverMetrics&&pairedSolverRunSHA256!=transportSHA)||
        !num(receipt,parentCountKey,parents)||parents!=expectedParentRows||
        !num(receipt,childCountKey,children)||children!=expectedChildRows||
        !num(receipt,"transport_edges",edges)||edges==0u||edges>12000000u||
@@ -137,9 +244,12 @@ inline bool validNonnegative(const double value){return std::isfinite(value)&&va
        !num(receipt,"augmentations",augmentations)||augmentations==0u||augmentations>4000000u||
        !object(receipt,"flow_csv",flowMap))
         return fail("recorded carrier allocation receipt is not a complete source-only replay- or feasibility-verified result");
-    for(const auto& sha:assets.expectedInputSHA256)
-        if(!validSHA(sha)||receipt.find("\""+sha+"\"")==std::string::npos)
-            return fail("recorded carrier allocation receipt omits a required current input SHA pin");
+    std::vector<std::string> recordedInputSHA256;
+    if(!topLevelRecordedJSONStringArray(receipt,"expected_input_sha256",recordedInputSHA256)||
+       recordedInputSHA256!=assets.expectedInputSHA256||
+       std::any_of(recordedInputSHA256.begin(),recordedInputSHA256.end(),
+           [](const auto& sha){return !validSHA(sha);}))
+        return fail("recorded carrier allocation receipt does not contain the exact ordered current input SHA array");
     for(std::size_t i=0;i<assets.csvPaths.size();++i){
         std::error_code ec;const auto size=std::filesystem::file_size(assets.csvPaths[i],ec);
         if(ec||!receiptFlowCSV(flowMap,assets.csvPaths[i].filename().string(),assets.csvSHA256[i],size))
@@ -158,6 +268,8 @@ inline bool validNonnegative(const double value){return std::isfinite(value)&&va
     next.transportReceiptSHA256=transportSHA;
     next.augmentationCount=augmentations;next.semanticCandidateEdgeCount=candidates;
     next.sourceParentRows=expectedParentRows;next.childRows=expectedChildRows;
+    next.pairedSolverMetrics=pairedSolverMetrics;
+    next.pairedSolverRunSHA256=std::move(pairedSolverRunSHA256);
     auto& result=next.result;auto& trace=next.trace;
     result.method=UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport;
     result.usesFractionalSemanticSupport=true;

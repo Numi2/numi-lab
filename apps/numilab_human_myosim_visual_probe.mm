@@ -25,6 +25,7 @@
 #include "NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp"
 #include "NumiHumanCanonicalDeepAttachmentRemap.hpp"
 #include "NumiHumanCurrentFractionalSupportNPZ.hpp"
+#include "NumiHumanCurrentFractionalRecordedFlowBinding.hpp"
 #include "NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp"
 #include "NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp"
 #include "NumiHumanPhysicalSkinSupportParentMap.hpp"
@@ -22068,16 +22069,21 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             "recorded carrier allocation CSV setting must be 0 or 1");
     const bool recordedCarrierAllocationRequested=recordedCarrierAllocationSetting&&
         std::string_view(recordedCarrierAllocationSetting)=="1";
+    // The same opt-in selects the legacy imported-CSV route when H706 is off,
+    // and the pinned current recorded-flow callback when H706 is on.
+    const bool registeredRecordedCarrierAllocationRequested=
+        registeredFractionalMassSupportRequested&&recordedCarrierAllocationRequested;
+    const bool legacyRecordedCarrierAllocationRequested=
+        !registeredFractionalMassSupportRequested&&recordedCarrierAllocationRequested;
     require(!registeredFractionalMassSupportRequested||
                 (!fractionalSemanticSupportRequested&&!sourceCarrierQuadratureRequested&&
-                 !p1AnchorRequested&&!recordedCarrierAllocationRequested&&
-                 !spatialReferenceRequested&&!conformingReferenceChainRequested),
+                 !p1AnchorRequested&&!spatialReferenceRequested&&!conformingReferenceChainRequested),
             "current fractional mass route cannot be mixed with legacy or operational mass routes");
-    require(!(sourceCarrierQuadratureRequested||p1AnchorRequested||recordedCarrierAllocationRequested)||
+    require(!(sourceCarrierQuadratureRequested||p1AnchorRequested||legacyRecordedCarrierAllocationRequested)||
                 (registeredVolumeInstallRequested&&fractionalSemanticSupportRequested),
-            "source-carrier, recorded-allocation, and P1 anchor imports require registered volume and paired fractional semantic support");
-    require(!recordedCarrierAllocationRequested||sourceCarrierQuadratureRequested,
-            "recorded allocation import requires authenticated source-carrier quadrature");
+            "legacy source-carrier, recorded-allocation, and P1 anchor imports require registered volume and paired fractional semantic support");
+    require(!legacyRecordedCarrierAllocationRequested||sourceCarrierQuadratureRequested,
+            "legacy recorded allocation import requires authenticated source-carrier quadrature");
     require(!fractionalSemanticSupportRequested||
                 (separatedRegisteredOperationalReference&&spatialReferenceRequested&&
                  !conformingReferenceChainRequested),
@@ -22754,7 +22760,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         }
                         volumeFiles.sourceCarrierQuadrature=std::move(carrierAssets);
                     }
-                    if(recordedCarrierAllocationRequested) {
+                    if(legacyRecordedCarrierAllocationRequested) {
                         PhysicalSkinRecordedCarrierAllocationCSVAssets skinAllocation,fatAllocation;
                         constexpr std::array<std::string_view,2> allocationRoles{"SKIN","FAT"};
                         constexpr std::array<std::string_view,6> allocationFiles{
@@ -24766,6 +24772,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             identityDensityLower[15u]=900.0;identityDensityUpper[15u]=1100.0;
             identityDensityLower[16u]=850.0;identityDensityUpper[16u]=950.0;
             if(registeredFractionalMassSupportRequested) {
+                CurrentFractionalRecordedFlowBinding recordedFlowBinding;
+                if(registeredRecordedCarrierAllocationRequested) {
+                    recordedFlowBinding.source330LabelSHA256=bundle.parent.parentLabelSHA256;
+                    require(loadCurrentFractionalRecordedFlowBindingFromEnvironment(
+                                recordedFlowBinding,identityPathError),
+                            "current paired recorded-flow environment rejected: "+identityPathError);
+                }
                 constexpr std::string_view fractionalPrefix="NUMI_H706_FRACTIONAL_";
                 const auto fractionalValue=[&](const std::string_view suffix) {
                     const std::string key=std::string(fractionalPrefix)+std::string(suffix);
@@ -24856,10 +24869,48 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             identityDensityUpper,bundle.maximumSpatialMassTransportDistanceM,
                             model.bodies.size(),identityPathError,nullptr,&carrierView,&carrierTrace,
                             &fractionalSupportOwner,
-                            &bindCurrentFractionalSemanticSupportProofs,&proofFiles),
+                            &bindCurrentFractionalSemanticSupportProofs,&proofFiles,
+                            registeredRecordedCarrierAllocationRequested?
+                                &loadCurrentFractionalRecordedRoleFlows:nullptr,
+                            registeredRecordedCarrierAllocationRequested?
+                                &recordedFlowBinding:nullptr),
                         "registered-volume fractional source-carrier mass mapping rejected: "+identityPathError);
                 require(bundle.spatialMassTransportResult.usesFractionalSemanticSupport,
                         "registered-volume fractional mass owner returned a legacy transport result");
+                if(registeredRecordedCarrierAllocationRequested) {
+                    require(recordedFlowBinding.admissionVerified&&recordedFlowBinding.rolesVerified,
+                            "paired role flow did not retain its independent source-only admission receipts");
+                    const auto& skinRecorded=recordedFlowBinding.roleReports[0];
+                    const auto& fatRecorded=recordedFlowBinding.roleReports[1];
+                    std::cout<<"registered_volume_current_fractional_recorded_carrier_allocation=PASS"
+                        <<" admission_receipt_sha256="<<recordedFlowBinding.admissionReceiptSHA256
+                        <<" transport_receipt_sha256="<<recordedFlowBinding.transportReceiptSHA256
+                        <<" mass_transport_receipt_sha256="
+                        <<bundle.spatialMassTransportResult.receiptSHA256
+                        <<" candidate_parent_rows="<<recordedFlowBinding.candidateParentRows
+                        <<" candidate_child_rows="<<recordedFlowBinding.candidateChildRows
+                        <<" skin_receipt_sha256="<<skinRecorded.receiptSHA256
+                        <<" skin_parent_rows="<<skinRecorded.sourceParentRows
+                        <<" skin_child_rows="<<skinRecorded.childRows
+                        <<" skin_flow_rows="<<skinRecorded.aggregateFlowRows
+                        <<" skin_carrier_rows="<<skinRecorded.carrierFlowRows
+                        <<" skin_child_source_donor_rows="<<skinRecorded.childSourceDonorRows
+                        <<" skin_source_donor_rows="<<skinRecorded.sourceDonorRows
+                        <<" skin_csv_sha256=";
+                    for(std::size_t i=0u;i<skinRecorded.csvSHA256.size();++i)
+                        std::cout<<(i==0u?"":",")<<skinRecorded.csvSHA256[i];
+                    std::cout<<" fat_receipt_sha256="<<fatRecorded.receiptSHA256
+                        <<" fat_parent_rows="<<fatRecorded.sourceParentRows
+                        <<" fat_child_rows="<<fatRecorded.childRows
+                        <<" fat_flow_rows="<<fatRecorded.aggregateFlowRows
+                        <<" fat_carrier_rows="<<fatRecorded.carrierFlowRows
+                        <<" fat_child_source_donor_rows="<<fatRecorded.childSourceDonorRows
+                        <<" fat_source_donor_rows="<<fatRecorded.sourceDonorRows
+                        <<" fat_csv_sha256=";
+                    for(std::size_t i=0u;i<fatRecorded.csvSHA256.size();++i)
+                        std::cout<<(i==0u?"":",")<<fatRecorded.csvSHA256[i];
+                    std::cout<<" source_preparation=1 physical_admission=0 native_steps=0\n";
+                }
 
                 require(!evidenceOutputDirectory.empty(),
                         "fractional mass preparation requires the native scene evidence directory");

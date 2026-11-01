@@ -438,6 +438,8 @@ struct PhysicalSkinVerifiedConformingMassRoute {
 
 struct PhysicalSkinSourceCarrierRoleRecordedAllocationData {
     bool importedAndPinned=false;
+    bool pairedSolverMetrics=false;
+    std::string pairedSolverRunSHA256;
     std::uint32_t materialIndex=NM_INVALID_INDEX;
     std::array<std::string,6> csvSHA256{};
     std::string allocationReceiptSHA256,expandedSolverReceiptSHA256,sourceCarrierPacketSHA256,
@@ -454,6 +456,41 @@ struct PhysicalSkinSourceCarrierRoleRecordedAllocationData {
     ConservativeSpatialMassTransportResult result;
     SourceCellCarrierTransportTrace trace;
 };
+[[nodiscard]] inline bool combineRecordedFlowSolverMetrics(
+        const std::array<PhysicalSkinSourceCarrierRoleRecordedAllocationData,2>& roles,
+        std::uint64_t& augmentations,std::uint64_t& candidateEdges,std::string& error) {
+    const bool paired=roles[0].pairedSolverMetrics||roles[1].pairedSolverMetrics;
+    if(paired){
+        if(!roles[0].pairedSolverMetrics||!roles[1].pairedSolverMetrics||
+           roles[0].pairedSolverRunSHA256.empty()||
+           roles[0].pairedSolverRunSHA256!=roles[1].pairedSolverRunSHA256||
+           roles[0].augmentationCount!=roles[1].augmentationCount||
+           roles[0].semanticCandidateEdgeCount!=roles[1].semanticCandidateEdgeCount){
+            error="paired recorded-flow solver metrics are missing a matching role receipt or disagree";
+            return false;
+        }
+        augmentations=roles[0].augmentationCount;
+        candidateEdges=roles[0].semanticCandidateEdgeCount;
+    }else{
+        augmentations=0u;candidateEdges=0u;
+        for(const auto& role:roles){
+            if(std::numeric_limits<std::uint64_t>::max()-augmentations<role.augmentationCount||
+               std::numeric_limits<std::uint64_t>::max()-candidateEdges<role.semanticCandidateEdgeCount){
+                error="legacy per-role recorded-flow metric sum overflows";
+                return false;
+            }
+            augmentations+=role.augmentationCount;
+            candidateEdges+=role.semanticCandidateEdgeCount;
+        }
+    }
+    error.clear();return true;
+}
+using PhysicalSkinCurrentFractionalRecordedFlowLoader = bool (*)(
+    void* context,const ConservativeSpatialMassTransportInput& input,
+    const ConservativeSpatialChildSemanticSupport& support,
+    const SourceCellCarrierQuadratureInput& carrier,
+    std::array<PhysicalSkinSourceCarrierRoleRecordedAllocationData,2>& roleAllocations,
+    std::string& error);
 struct PhysicalSkinSourceCarrierRecordedAllocationData {
     bool importedAndPinned=false;
     std::array<PhysicalSkinSourceCarrierRoleRecordedAllocationData,2> roles{};
@@ -475,6 +512,8 @@ struct PhysicalSkinSourceCarrierQuadratureData {
     std::string verificationSHA256,sourceCarrierPacketSHA256,sourceTetTableSHA256,sourceNodeTableSHA256;
     std::array<std::string,2> roleBinarySHA256{},roleReceiptSHA256{};
     std::vector<std::uint32_t> parentOffsets,globalSourceTetRows,witnessChildRows;
+    std::vector<std::array<std::uint32_t,4>> sourceTetNodeRows;
+    std::vector<std::array<std::array<double,3>,4>> parentReferenceTetWorldVertices;
     std::vector<double> carrierWeights,witnessChildCentroidDistancesM;
     std::vector<std::array<double,4>> carrierBarycentric;
     SourceCellCarrierTransportTrace transportTrace;
@@ -576,6 +615,21 @@ struct PhysicalSkinChildMassMappingBundle {
         topology.childAnatomicalRegionIndices=childAnatomicalRegionIndices;
         topology.fractionalSemanticMassRouteRequired=fractionalSemanticMassRouteRequired;
         topology.fractionalSemanticSupport=fractionalSemanticSupport.view();
+        const auto& carrier=sourceCarrierQuadrature;
+        topology.sourceCarrierQuadratureImportedAndVerified=carrier.importedAndVerified;
+        topology.sourceCarrierVerificationSHA256=carrier.verificationSHA256;
+        topology.sourceCarrierQuadrature.parentOffsets=carrier.parentOffsets;
+        topology.sourceCarrierQuadrature.globalSourceTetRows=carrier.globalSourceTetRows;
+        topology.sourceCarrierQuadrature.sourceTetNodeRows=carrier.sourceTetNodeRows;
+        topology.sourceCarrierQuadrature.parentReferenceTetWorldVertices=carrier.parentReferenceTetWorldVertices;
+        topology.sourceCarrierQuadrature.carrierWeights=carrier.carrierWeights;
+        topology.sourceCarrierQuadrature.carrierBarycentric=carrier.carrierBarycentric;
+        topology.sourceCarrierQuadrature.witnessChildRows=carrier.witnessChildRows;
+        topology.sourceCarrierQuadrature.witnessChildCentroidDistancesM=carrier.witnessChildCentroidDistancesM;
+        topology.sourceCarrierQuadrature.sourceCarrierPacketSHA256=carrier.sourceCarrierPacketSHA256;
+        topology.sourceCarrierQuadrature.sourceTetTableSHA256=carrier.sourceTetTableSHA256;
+        topology.sourceCarrierQuadrature.sourceNodeTableSHA256=carrier.sourceNodeTableSHA256;
+        topology.sourceCarrierTransportTrace=carrier.importedAndVerified?&carrier.transportTrace:nullptr;
 
         topology.parentReferenceWorldPoints=parent.referenceWorldPoints;
         topology.parentTetrahedra=parent.tetrahedra;
@@ -1510,7 +1564,9 @@ using PhysicalSkinFractionalSupportBinder = bool (*)(
         SourceCellCarrierTransportTrace* sourceCarrierTrace=nullptr,
         ConservativeSpatialChildSemanticSupportData* fractionalSupportOwner=nullptr,
         PhysicalSkinFractionalSupportBinder fractionalSupportBinder=nullptr,
-        void* fractionalSupportBinderContext=nullptr) {
+        void* fractionalSupportBinderContext=nullptr,
+        PhysicalSkinCurrentFractionalRecordedFlowLoader currentRecordedFlowLoader=nullptr,
+        void* currentRecordedFlowLoaderContext=nullptr) {
     using namespace physical_skin_child_mass_detail;
     const auto fail=[&](std::string message){error=std::move(message);return false;};
     const bool bindsFractionalSupport=fractionalSupportBinder!=nullptr||fractionalSupportOwner!=nullptr;
@@ -1518,18 +1574,25 @@ using PhysicalSkinFractionalSupportBinder = bool (*)(
        (sourceCarriers!=nullptr&&fractionalSupport==nullptr&&!bindsFractionalSupport)||
        ((fractionalSupportBinder==nullptr)!=(fractionalSupportOwner==nullptr))||
        (fractionalSupportBinder!=nullptr&&fractionalSupport!=nullptr)||
-       (fractionalSupportBinder==nullptr&&fractionalSupportBinderContext!=nullptr))
+       (fractionalSupportBinder==nullptr&&fractionalSupportBinderContext!=nullptr)||
+       ((currentRecordedFlowLoader==nullptr)!=(currentRecordedFlowLoaderContext==nullptr)))
         return fail("fractional support binder, owning support, carrier input and trace must be supplied as one explicit opt-in set");
     const bool externalFractionalRoute=fractionalSupport!=nullptr||bindsFractionalSupport;
     if(externalFractionalRoute&&
        (bundle.conformingLineageMassRouteRequired||
+        bundle.conformingLineageMassRoute.authenticated||
+        !bundle.conformingLineageMassRoute.verificationSHA256.empty()||
         bundle.operationalSpatialMassRouteRequired||
-        bundle.sourceCarrierQuadrature.recordedAllocation.importedAndPinned||
+        (bundle.sourceCarrierQuadrature.recordedAllocation.importedAndPinned&&
+         currentRecordedFlowLoader==nullptr)||
         bundle.fractionalSemanticMassRouteRequired||
         bundle.sourceCarrierQuadrature.importedAndVerified))
         return fail("current fractional route cannot be mixed with prebound topology, operational, recorded-flow or legacy fractional routes");
     const bool fractionalSemanticRouteActive=
         bundle.fractionalSemanticMassRouteRequired||externalFractionalRoute;
+    if(currentRecordedFlowLoader!=nullptr&&
+       (!externalFractionalRoute||sourceCarriers==nullptr||fractionalSupportBinder==nullptr))
+        return fail("current recorded flow requires the explicit current support binder and authenticated carrier view");
     auto semanticSupport=bundle.fractionalSemanticSupport.view();
     if(fractionalSupport!=nullptr) semanticSupport=*fractionalSupport;
     const auto& parent=bundle.parent;
@@ -1726,6 +1789,9 @@ using PhysicalSkinFractionalSupportBinder = bool (*)(
             .sourceNodeTableSHA256=carrierOwned.sourceNodeTableSHA256};
     }
 
+    if(sourceCarriers!=nullptr)
+        carrierInput=*sourceCarriers;
+
     ConservativeSpatialMassTransportInput input;
     input.parentCentroidsWorld=parentCentroids;
     input.parentReferenceVolumeM3=parentVolumes;
@@ -1752,30 +1818,45 @@ using PhysicalSkinFractionalSupportBinder = bool (*)(
     input.relativeClosureTolerance=1.0e-10;
     input.absoluteMassToleranceKg=1.0e-13;
     input.absoluteMeasureToleranceM3=1.0e-15;
-    input.maximumAllowedEdges=3'000'000u;
-    input.maximumAugmentations=300'000u;
-#if defined(NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY)
-    if(fractionalSemanticRouteActive){
-        input.maximumAllowedEdges=12'000'000u;
-        input.maximumAugmentations=4'000'000u;
-    }
-#endif
+    // Keep the owning R build's selected capacity profile for every route.
+    // The earlier H706 overlay hardcoded legacy limits on nonfractional routes.
+    input.maximumAllowedEdges=physical_skin_child_capacity_detail::maxCandidateEdges;
+    input.maximumAugmentations=physical_skin_child_capacity_detail::maxAugmentations;
 
+    ConservativeSpatialChildSemanticSupport boundFractionalSupport;
+    if(fractionalSupportBinder!=nullptr){
+        if(!fractionalSupportBinder(fractionalSupportBinderContext,*fractionalSupportOwner,
+                                   input,parent,error))
+            return fail("current fractional support proof binding failed before solve: "+error);
+        boundFractionalSupport=fractionalSupportOwner->view();
+        semanticSupport=boundFractionalSupport;
+    }
+    if(externalFractionalRoute&&semanticSupport.groupMaterialIndices.empty())
+        return fail("current fractional proof binder returned no authenticated semantic groups");
 
     auto& recordedAllocation=bundle.sourceCarrierQuadrature.recordedAllocation;
+    if(currentRecordedFlowLoader!=nullptr){
+        if(recordedAllocation.importedAndPinned)
+            return fail("current recorded-flow loader cannot replace a prebound recorded allocation");
+        if(!currentRecordedFlowLoader(currentRecordedFlowLoaderContext,input,semanticSupport,
+                                      carrierInput,recordedAllocation.roles,error))
+            return fail("current role-local recorded-flow import rejected: "+error);
+    }
     const bool roleAllocation0=recordedAllocation.roles[0].importedAndPinned;
     const bool roleAllocation1=recordedAllocation.roles[1].importedAndPinned;
     if(roleAllocation0!=roleAllocation1)
         return fail("recorded source-carrier allocation is incomplete: both Skin and Fat role receipts are required");
     if(roleAllocation0){
-        if(!fractionalSemanticRouteActive||!carrierOwned.importedAndVerified||
-           !carrierOwned.hasCarriers()||carrierOwned.globalSourceTetRows.size()!=parentCount||
-           carrierOwned.parentOffsets.size()!=parentCount+1u)
+        if(!fractionalSemanticRouteActive||
+           (sourceCarriers==nullptr&&(!carrierOwned.importedAndVerified||!carrierOwned.hasCarriers()))||
+           carrierInput.globalSourceTetRows.size()!=parentCount||
+           carrierInput.parentOffsets.size()!=parentCount+1u||carrierInput.parentOffsets.empty()||
+           carrierInput.parentOffsets.back()!=carrierInput.carrierWeights.size())
             return fail("recorded role flows require complete paired semantic and source-carrier inputs");
         const std::array<std::uint32_t,2> roleMaterials{15u,16u};
         std::map<std::uint32_t,std::uint32_t> sourceGlobalToCurrentParent;
         for(std::uint32_t p=0;p<parentCount;++p){
-            const auto global=carrierOwned.globalSourceTetRows[p];
+            const auto global=carrierInput.globalSourceTetRows[p];
             if(!sourceGlobalToCurrentParent.emplace(global,p).second)
                 return fail("paired source-carrier map has duplicate global source330 parent identities");
         }
@@ -1846,7 +1927,7 @@ using PhysicalSkinFractionalSupportBinder = bool (*)(
                    roleData.sourceMassKg[local]!=parent.tetrahedronMassKg[global]||
                    roleData.sourceReferenceVolumeM3[local]!=parentVolumes[global]||
                    roleData.sourceCentroidsWorld[local]!=parentCentroids[global]||
-                   carrierOwned.globalSourceTetRows[global]!=roleData.sourceGlobalTetRows[local])
+                   carrierInput.globalSourceTetRows[global]!=roleData.sourceGlobalTetRows[local])
                     return fail("role source-parent CSV differs from the exact current source330 row, labels, mass, measure, or centroid");
                 roleParentToCurrent[role][local]=global;
                 const auto rb=roleData.sourceDonorOffsets[local],re=roleData.sourceDonorOffsets[local+1u];
@@ -1875,7 +1956,7 @@ using PhysicalSkinFractionalSupportBinder = bool (*)(
             roleVirtualToCurrent[role].clear();
             for(std::size_t localParent=0;localParent<expectedParentRows;++localParent){
                 const auto globalParent=roleParentToCurrent[role][localParent];
-                const auto cb=carrierOwned.parentOffsets[globalParent],ce=carrierOwned.parentOffsets[globalParent+1u];
+                const auto cb=carrierInput.parentOffsets[globalParent],ce=carrierInput.parentOffsets[globalParent+1u];
                 if(cb==ce){
                     const auto found=globalVirtualByParentCarrier.find(
                         {globalParent,spatial_mass_transport_detail::kInvalid});
@@ -1899,7 +1980,7 @@ using PhysicalSkinFractionalSupportBinder = bool (*)(
                 return fail("role expanded-parent CSV map has missing or extra virtual rows");
             std::size_t expectedRoleCarriers=0u;
             for(const auto globalParent:roleParentToCurrent[role])
-                expectedRoleCarriers+=carrierOwned.parentOffsets[globalParent+1u]-carrierOwned.parentOffsets[globalParent];
+                expectedRoleCarriers+=carrierInput.parentOffsets[globalParent+1u]-carrierInput.parentOffsets[globalParent];
             if(localCarrier!=expectedRoleCarriers)
                 return fail("role carrier row map does not cover the complete paired carrier CSR");
         }
@@ -1929,9 +2010,11 @@ using PhysicalSkinFractionalSupportBinder = bool (*)(
         flowHash.string("numi.human.paired-recorded-carrier-flow-traces.v1");
         transportHash.string("numi.human.paired-recorded-carrier-transport-receipts.v1");
         std::uint64_t augmentations=0u,candidateEdges=0u;
+        if(!combineRecordedFlowSolverMetrics(recordedAllocation.roles,augmentations,
+                                              candidateEdges,error))
+            return fail(error);
         for(unsigned role=0;role<2u;++role){
             const auto& roleData=recordedAllocation.roles[role];
-            augmentations+=roleData.augmentationCount;candidateEdges+=roleData.semanticCandidateEdgeCount;
             allocationHash.string(roleData.allocationReceiptSHA256);
             expandedHash.string(roleData.expandedSolverReceiptSHA256);
             flowHash.string(roleData.sourceCarrierFlowTraceSHA256);
@@ -2101,16 +2184,6 @@ using PhysicalSkinFractionalSupportBinder = bool (*)(
         bundle.sourceCarrierQuadrature.transportTrace=importedTrace;
     }
 
-    ConservativeSpatialChildSemanticSupport boundFractionalSupport;
-    if(fractionalSupportBinder!=nullptr){
-        if(!fractionalSupportBinder(fractionalSupportBinderContext,*fractionalSupportOwner,
-                                   input,parent,error))
-            return fail("current fractional support proof binding failed before solve: "+error);
-        boundFractionalSupport=fractionalSupportOwner->view();
-        semanticSupport=boundFractionalSupport;
-    }
-    if(externalFractionalRoute&&semanticSupport.groupMaterialIndices.empty())
-        return fail("current fractional proof binder returned no authenticated semantic groups");
     if(sourceCarriers!=nullptr)
         carrierInput=*sourceCarriers;
 
@@ -2261,13 +2334,43 @@ using PhysicalSkinFractionalSupportBinder = bool (*)(
                 return fail("fractional semantic dominant parent is outside the child's authenticated one-hop support or legacy P1 preference");
         }
     }
+    if(fractionalSemanticRouteActive){
+        const auto& groups=transfer.childSemanticGroupIndices;
+        const auto& fractions=transfer.childSemanticVolumeFractions;
+        const auto& offsets=transfer.childSemanticGroupOffsets;
+        if(offsets.size()!=childCount+1u||offsets.empty()||offsets.front()!=0u||
+           offsets.back()!=groups.size()||groups.size()!=fractions.size())
+            return fail("fractional semantic result omits its exact per-child group allocation CSR");
+        for(std::uint32_t child=0;child<childCount;++child){
+            const auto begin=offsets[child],end=offsets[child+1u];
+            if(begin>=end||end>groups.size())
+                return fail("fractional semantic result has an empty or malformed child group row");
+            double fractionSum=0.0;
+            std::uint32_t priorGroup=spatial_mass_transport_detail::kInvalid;
+            for(std::uint32_t row=begin;row<end;++row){
+                const auto group=groups[row];
+                const double fraction=fractions[row];
+                if(group>=semanticSupport.groupMaterialIndices.size()||
+                   semanticSupport.groupMaterialIndices[group]!=bundle.childMaterialIndices[child]||
+                   !std::isfinite(fraction)||fraction<=0.0||
+                   (row>begin&&group<=priorGroup)||
+                   !fractional_semantic_transport_detail::childAllowsSourceGroup(
+                       semanticSupport,child,group))
+                    return fail("fractional semantic result contains a duplicate, cross-material, unsupported, or invalid group");
+                priorGroup=group;
+                fractionSum+=fraction;
+            }
+            if(!std::isfinite(fractionSum)||std::abs(fractionSum-1.0)>1.0e-12)
+                return fail("fractional semantic child group fractions do not sum to one");
+        }
+    }
     bundle.childDominantParentTetrahedra=transfer.childDominantParentRows;
     bundle.spatialMassTransportResult=std::move(transfer);
     if(externalFractionalRoute){
         bundle.fractionalSemanticMassRouteRequired=true;
         bundle.fractionalSemanticSupport=*fractionalSupportOwner;
+        auto& owned=bundle.sourceCarrierQuadrature;
         if(sourceCarriers!=nullptr){
-            auto& owned=bundle.sourceCarrierQuadrature;
             owned.importedAndVerified=true;
             owned.sourceCarrierPacketSHA256=std::string(sourceCarriers->sourceCarrierPacketSHA256);
             owned.sourceTetTableSHA256=std::string(sourceCarriers->sourceTetTableSHA256);
@@ -2280,10 +2383,26 @@ using PhysicalSkinFractionalSupportBinder = bool (*)(
             owned.witnessChildCentroidDistancesM.assign(sourceCarriers->witnessChildCentroidDistancesM.begin(),
                                                         sourceCarriers->witnessChildCentroidDistancesM.end());
             owned.verificationSHA256=source_carrier_transport_detail::carrierArrayDigest(input,*sourceCarriers);
-            if(currentFractionalCarrierTraceReady){
-                owned.transportTrace=currentFractionalCarrierTrace;
-                *sourceCarrierTrace=currentFractionalCarrierTrace;
+        }
+        if(owned.importedAndVerified&&owned.hasCarriers()){
+            // Own every input array needed by the solver-free append replay. The
+            // topology view must never retain spans into prepare-local vectors.
+            owned.sourceTetNodeRows=parent.tetrahedra;
+            owned.parentReferenceTetWorldVertices.resize(parentCount);
+            for(std::size_t row=0;row<parentCount;++row){
+                const auto tet=parent.tetrahedra[row];
+                for(std::size_t corner=0;corner<4u;++corner){
+                    if(tet[corner]>=parent.referenceWorldPoints.size())
+                        return fail("source-carrier append evidence references a missing immutable parent node");
+                    owned.parentReferenceTetWorldVertices[row][corner]=parent.referenceWorldPoints[tet[corner]];
+                }
             }
+            if(recordedAllocation.importedAndPinned)
+                owned.transportTrace=recordedAllocation.trace;
+            else if(currentFractionalCarrierTraceReady)
+                owned.transportTrace=currentFractionalCarrierTrace;
+            if(sourceCarrierTrace!=nullptr)
+                *sourceCarrierTrace=owned.transportTrace;
         }
     }
     bundle.exactTopologyIdentityTransportUsed=usedExactTopologyIdentity;
