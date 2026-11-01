@@ -1036,8 +1036,26 @@ inline bool readCarrierPacket(const std::filesystem::path& path,const std::strin
 enum class CurrentCarrierWitnessMode : std::uint32_t {
     P1ExactTupleSlot=0u,
     AuthenticatedExactProjection=1u,
-    CurrentCarrierPointProjection=2u
+    CurrentCarrierPointProjection=2u,
+    SourceTetCanonicalQuadrature=3u
 };
+
+[[nodiscard]] inline bool isCanonicalSourceTetDegree1Barycentric(
+        const std::array<double,4>& bary) {
+    for(std::size_t vertex=0;vertex<4u;++vertex){
+        std::array<double,4> oneHot{};
+        oneHot[vertex]=1.0;
+        if(bary==oneHot)return true;
+    }
+    for(std::size_t a=0;a<4u;++a)
+        for(std::size_t b=a+1u;b<4u;++b){
+            std::array<double,4> edgeMidpoint{};
+            edgeMidpoint[a]=0.5;
+            edgeMidpoint[b]=0.5;
+            if(bary==edgeMidpoint)return true;
+        }
+    return bary==std::array<double,4>{0.25,0.25,0.25,0.25};
+}
 
 struct CurrentCarrierWitnessEvidenceRow {
     std::uint32_t roleMaterial=std::numeric_limits<std::uint32_t>::max();
@@ -1180,6 +1198,8 @@ struct CurrentCarrierWitnessCSVSummary {
                 row.mode=CurrentCarrierWitnessMode::AuthenticatedExactProjection;
             else if(f[11]=="CurrentCarrierPointProjection")
                 row.mode=CurrentCarrierWitnessMode::CurrentCarrierPointProjection;
+            else if(f[11]=="source_tet_canonical_quadrature")
+                row.mode=CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature;
             else return fail("1046c carrier witness uses an unknown provenance mode");
             if((row.mode==CurrentCarrierWitnessMode::AuthenticatedExactProjection)!=(projectionRow>=0))
                 return fail("1046c carrier witness projection mode and projection row disagree");
@@ -1187,8 +1207,17 @@ struct CurrentCarrierWitnessCSVSummary {
                 return fail("1046c P1 carrier witness omits its role-local P1 group identity");
             if(f[2]!="inherited_090_quadrature"&&
                f[2]!="current_exact_tuple_projection_degree1_lp"&&
-               f[2]!="source_tetra_anchor_refinement_1046d")
+               f[2]!="source_tetra_anchor_refinement_1046d"&&
+               f[2]!="source_tet_canonical_degree1_quadrature_1046e")
                 return fail("1046c carrier witness uses an unknown construction provenance");
+            if(row.mode==CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature){
+                if(f[2]!="source_tet_canonical_degree1_quadrature_1046e"||
+                   p1Group!=-1||projectionRow!=-1||
+                   !isCanonicalSourceTetDegree1Barycentric(row.claimedBarycentric))
+                    return fail("canonical source-tet quadrature witness must use an exact canonical site with no P1/projection row claim");
+            }else if(f[2]=="source_tet_canonical_degree1_quadrature_1046e"){
+                return fail("canonical source-tet construction requires its dedicated provenance mode");
+            }
         }
         next.push_back(std::move(row));
     }
@@ -1317,7 +1346,8 @@ struct CurrentCarrierWitnessCSVSummary {
             row.carrierConstruction=="current_source_carrier_edge_support":
             (row.carrierConstruction=="inherited_090_quadrature"||
              row.carrierConstruction=="current_exact_tuple_projection_degree1_lp"||
-             row.carrierConstruction=="source_tetra_anchor_refinement_1046d");
+             row.carrierConstruction=="source_tetra_anchor_refinement_1046d"||
+             row.carrierConstruction=="source_tet_canonical_degree1_quadrature_1046e");
         if(!row.hasCSVProof||!physical_skin_child_mass_detail::validSHA256(row.sourceCSVSHA256)||
            !constructionValid||parent>=np||child>=nc||
            row.sourceParentRow!=carrier.globalSourceTetRows[parent]||
@@ -1340,6 +1370,10 @@ struct CurrentCarrierWitnessCSVSummary {
         }
         if(!row.extraChildSlot){
             const auto childRows=row.roleMaterial==15u?skinChildGlobalRows:fatChildGlobalRows;
+            if(row.mode==CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature&&
+               (childRows.empty()||row.roleLocalChildRow>=childRows.size()||
+                childRows[row.roleLocalChildRow]!=child))
+                return fail("canonical source-tet primary requires an exact role-local to global child crosswalk");
             if(!childRows.empty()&&(row.roleLocalChildRow>=childRows.size()||
                childRows[row.roleLocalChildRow]!=child))
                 return fail("primary carrier target differs from the authenticated role-local child crosswalk");
@@ -1364,6 +1398,13 @@ struct CurrentCarrierWitnessCSVSummary {
            !std::binary_search(support.cellAdmissibleRegionIds.begin()+regionBegin,
                                support.cellAdmissibleRegionIds.begin()+regionEnd,row.region))
             return fail("current carrier witness source region is outside the authenticated one-hop child region support");
+        if(row.mode==CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature&&
+           (row.extraChildSlot||
+            row.declaredP1GroupID!=std::numeric_limits<std::uint32_t>::max()||
+            row.projectionCSVRow!=std::numeric_limits<std::uint32_t>::max()||
+            row.carrierConstruction!="source_tet_canonical_degree1_quadrature_1046e"||
+            !isCanonicalSourceTetDegree1Barycentric(row.claimedBarycentric)))
+            return fail("canonical source-tet quadrature is primary-only and cannot claim P1 or projection evidence");
         if(row.mode==CurrentCarrierWitnessMode::P1ExactTupleSlot){
             bool found=false;
             for(std::uint32_t slot=support.childOffsets[child];slot<support.childOffsets[child+1u];++slot)
@@ -1380,7 +1421,8 @@ struct CurrentCarrierWitnessCSVSummary {
                projection.childRow!=child||projection.material!=row.material||
                projection.geometricDonor!=row.donor||projection.anatomicalRegion!=row.region)
                 return fail("carrier sidecar projection row lacks exact current/reference source geometry and tuple binding");
-        }else if(row.mode!=CurrentCarrierWitnessMode::CurrentCarrierPointProjection){
+        }else if(row.mode!=CurrentCarrierWitnessMode::CurrentCarrierPointProjection&&
+                 row.mode!=CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature){
             return fail("carrier sidecar uses an unknown tuple-support evidence mode");
         }
         if(row.extraChildSlot&&row.mode!=CurrentCarrierWitnessMode::CurrentCarrierPointProjection)
@@ -1391,6 +1433,9 @@ struct CurrentCarrierWitnessCSVSummary {
         if(!std::isfinite(packetWeight)||packetWeight<=0.0||
            std::abs(packetWeight-row.claimedWeight)>std::max(1.0e-14,64.0*std::numeric_limits<double>::epsilon()*packetWeight))
             return fail("1046c carrier witness weight differs from the pinned NPZ carrier");
+        if(row.mode==CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature&&
+           !isCanonicalSourceTetDegree1Barycentric(packetBary))
+            return fail("canonical source-tet quadrature packet barycentric point is not one of the 11 exact canonical degree-one sites");
         for(std::size_t axis=0;axis<4u;++axis)
             if(!std::isfinite(row.claimedBarycentric[axis])||
                std::abs(packetBary[axis]-row.claimedBarycentric[axis])>2.0e-12)
@@ -1403,7 +1448,8 @@ struct CurrentCarrierWitnessCSVSummary {
            !std::isfinite(row.claimedDistanceM)||row.claimedDistanceM<0.0||
            std::abs(claimedDistance-row.claimedDistanceM)>5.0e-9)
             return fail("1046c carrier witness source/child coordinate or distance does not replay");
-        if(row.mode==CurrentCarrierWitnessMode::CurrentCarrierPointProjection){
+        if(row.mode==CurrentCarrierWitnessMode::CurrentCarrierPointProjection||
+           row.mode==CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature){
             const double weight=carrier.carrierWeights[carrierRow];
             const auto& bary=carrier.carrierBarycentric[carrierRow];
             if(!std::isfinite(weight)||weight<=0.0||
@@ -1441,7 +1487,7 @@ struct CurrentCarrierWitnessCSVSummary {
             static_cast<std::uint32_t>(support.childAdmissibleGroupIndices.size());
     }
     spatial_mass_transport_detail::SHA256Builder hash;
-    hash.string("numi.human.current-fractional-exact-group-carrier-evidence.v1");
+    hash.string("numi.human.current-fractional-exact-group-carrier-evidence.v2");
     hash.string(support.admissibleGroupEvidenceSHA256);
     hash.string(evidenceSHA256);
     hash.string(carrier.sourceCarrierPacketSHA256);

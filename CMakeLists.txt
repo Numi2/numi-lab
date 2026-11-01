@@ -2504,6 +2504,26 @@ foreach(_capacity_profile IN ITEMS legacy full)
     endforeach()
 endforeach()
 
+# Exercise canonical source-tet carrier witness validation against the published
+# support owner without changing the production transfer or allocation gates.
+add_executable(numi-human-current-fractional-canonical-source-tet-quadrature-check EXCLUDE_FROM_ALL
+    tests/CanonicalSourceTetQuadratureCheck_029.cpp)
+target_include_directories(numi-human-current-fractional-canonical-source-tet-quadrature-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+target_compile_features(numi-human-current-fractional-canonical-source-tet-quadrature-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-current-fractional-canonical-source-tet-quadrature-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+target_link_libraries(numi-human-current-fractional-canonical-source-tet-quadrature-check PRIVATE z)
+if(NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY)
+    target_compile_definitions(numi-human-current-fractional-canonical-source-tet-quadrature-check PRIVATE
+        NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1)
+endif()
+if(BUILD_TESTING)
+    add_test(NAME numi_human_current_fractional_canonical_source_tet_quadrature
+        COMMAND numi-human-current-fractional-canonical-source-tet-quadrature-check)
+endif()
+
 add_executable(numi-human-native EXCLUDE_FROM_ALL apps/numilab_human_myosim_visual_probe.mm)
 get_target_property(NUMI_HUMAN_VISUAL_DEFINITIONS metalrobo_numilab_human_myosim_visual_probe COMPILE_DEFINITIONS)
 target_compile_definitions(numi-human-native PRIVATE ${NUMI_HUMAN_VISUAL_DEFINITIONS}
