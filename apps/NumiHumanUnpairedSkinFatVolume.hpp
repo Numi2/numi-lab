@@ -652,7 +652,6 @@ struct ExplicitUnpairedVolumeReport {
     for(unsigned role=0;role<3u;++role)layerFaceCounts[role].assign(roleSurfaces[role]->faces.size(),0u);
     std::vector<std::array<std::uint32_t,2>> interfaceMaterialCounts(roleSurfaces[1]->faces.size());
     std::vector<std::uint32_t> semanticGroupForParent;
-    const bool hasOneHopSemanticSupport=!semanticSupport.cellAdmissibleRegionOffsets.empty();
     if(topology.fractionalSemanticMassRouteRequired&&
        !fractional_semantic_transport_detail::buildSourceParentGroupMap(
            semanticSupport,topology.parentTetrahedra.size(),semanticGroupForParent))
@@ -679,11 +678,9 @@ struct ExplicitUnpairedVolumeReport {
                semanticSupport.donorBodyIndices[group]!=topology.parentDonorBodyIndices[parent]||
                semanticSupport.anatomicalRegionIndices[group]!=topology.parentAnatomicalRegionIndices[parent])
                 return fail("unpaired fractional semantic dominant parent is absent from its registered source group");
-            const bool admissible=hasOneHopSemanticSupport?
-                (semanticSupport.groupMaterialIndices[group]==material&&
-                 fractional_semantic_transport_detail::childAllowsSourceRegion(
-                     semanticSupport,static_cast<std::uint32_t>(child),topology.parentAnatomicalRegionIndices[parent])):
-                fractional_semantic_transport_detail::childPrefersSemanticGroup(
+            const bool admissible=
+                semanticSupport.groupMaterialIndices[group]==material&&
+                fractional_semantic_transport_detail::childAllowsSourceGroup(
                     semanticSupport,static_cast<std::uint32_t>(child),group);
             if(!admissible)
                 return fail("unpaired fractional semantic dominant parent is outside the child's authenticated one-hop support or legacy P1 preference");

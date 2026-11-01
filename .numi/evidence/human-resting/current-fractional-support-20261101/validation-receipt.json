@@ -1,0 +1,133 @@
+{
+  "schema": "numi.h706.current-fractional-publication-1049.applied-validation.v1",
+  "publication_base_commit": "15a72454bf4f3395229c9d2507c580a4d5087ac7",
+  "patch_sha256": "a064b54139c5540fc5d1df5770c679f3a0916e5459c46d07ee72785dc7861444",
+  "patch_replay": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-publication-1049/validation/patch-replay-receipt-004.json",
+    "sha256": "5e1cae7a50abf7f69c1e4809119fd0d72c21b73dcb9b66fb4c7a02c833af7950",
+    "exact_targets": 16,
+    "result": "PASS"
+  },
+  "source_pins": {
+    "apps/NumiHumanCurrentFractionalSupportNPZ.hpp": "0c05a4fb88794ae3de43123be247ca631deb155c850fae64f8e6593e172addb4",
+    "apps/NumiHumanCurrentFractionalMassMappingCLI.cpp": "93e110e129cfbbe567531bc27e79cad5c324277f4a87a9783ba834e7be1424b0",
+    "apps/NumiHumanRestingVisual.hpp": "bbd6029570994e7104d70deb98b4a0a80195e54634b96ff1cb614c65ccfb9edc"
+  },
+  "focused_controls": [
+    {
+      "name": "ConservativeSpatialFractionalSemanticSupportCheck",
+      "source_sha256": "2204dd22ee6847e974d23237b093fd9cf276ae0ffe1f467bf57a4abaf88feef2",
+      "compile": "PASS (-std=c++23 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "shared real-child semantic capacity controls PASS"
+    },
+    {
+      "name": "ConservativeSpatialSourceCarrierQuadratureCheck",
+      "source_sha256": "d25e1faccdb020bc64f5245e83e4b82e0a77d934f63b4f394de13085da6e3db2",
+      "compile": "PASS (-std=c++23 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "PASS source carrier quadrature: 1 parent, 4 carriers, 4 real cells; aggregate mass/density/measure and replay verified; legacy route unchanged; 7 tamper/eligibility controls rejected; explicit quadrature may also split a centroid-reachable source cell"
+    },
+    {
+      "name": "CurrentCarrierWitnessCSVCheck",
+      "source_sha256": "de0b35494e22aeee83fe3fe0e15b9849d29b25d5515da865f004436a2a8167f9",
+      "compile": "PASS (-std=c++23 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "PASS current 1046c carrier sidecars: pinned full schema, role-local rows, barycentric geometry, radius, exact tuple and P1 preservation"
+    },
+    {
+      "name": "CurrentCarrierChildSlotCheck",
+      "source_sha256": "a7fbe5d6b42ff03a52122b7971e7caaf6bb48416a6ee9853d83c85b2d278f95e",
+      "compile": "PASS (-std=c++23 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "PASS many-child carrier slot binder: unique primary coverage, repeated carrier child support, role map, tuple, one-hop and radius"
+    },
+    {
+      "name": "CurrentExactProjectionReplayCheck",
+      "source_sha256": "15444af7d150720447b06ea3687cd92e4413bd29d8b7aff52e0a331e20b16e2d",
+      "compile": "PASS (-std=c++23 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "PASS current exact projection replay: current/rest geometry, barycentric, tuple, material, one-hop and unchanged-radius gates"
+    },
+    {
+      "name": "CurrentPairedP1SupportMergeCheck",
+      "source_sha256": "58181f2e42d8d83d688c6a58892ddb0971696d5ba93826dc09e2f282ff5bfab5",
+      "compile": "PASS (-std=c++23 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "PASS paired current P1 merge preserves distinct role base hashes and one-hop controls"
+    },
+    {
+      "name": "CurrentSourceCentroidAllowlistCheck",
+      "source_sha256": "0ac4cfe691c1a205cc7bc21d71a7881d92bf1f74f8b2f75a2cfd0153e19c02df",
+      "compile": "PASS (-std=c++23 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "PASS current source-centroid proof slots: exact tuple/material/region/radius/CSR gates; P1 preferences unchanged"
+    }
+  ],
+  "syntax_only": {
+    "fractional_cli": {
+      "source": "apps/NumiHumanCurrentFractionalMassMappingCLI.cpp",
+      "sha256": "93e110e129cfbbe567531bc27e79cad5c324277f4a87a9783ba834e7be1424b0",
+      "compiler": "clang++ -std=c++23 -Wall -Wextra -Wpedantic -Werror -fsyntax-only",
+      "exit": 0
+    },
+    "resting_app": {
+      "source": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "d3eed81ebed105e5c3d01b1174a4ee0fe5e6b1d790fbcaefa39761858f69248b",
+      "command": [
+        "/usr/bin/clang++",
+        "-DMETALROBO_METALLIB=\"/Users/numi/Work/skin-fat-native-integration-209/build-native/shaders/MetalRobo.metallib\"",
+        "-DNUMI_HUMAN_ANTERIOR_THORAX_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_anterior_abdominal_wall_composite_effective.nmatter\"",
+        "-DNUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1",
+        "-DNUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/open_knee_ligament_febio_exp_linear.nmatter\"",
+        "-DNUMI_HUMAN_PASSIVE_TISSUE_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/passive_skeletal_muscle_unqualified.nmatter\"",
+        "-DNUMI_HUMAN_PECTORALIS_FASCIA_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_pectoralis_fascia_goh_uniaxial.nmatter\"",
+        "-DNUMI_HUMAN_PLANTAR_FASCIA_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_plantar_fascia_reduced.nmatter\"",
+        "-DNUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_myofascia_regional_transverse_isotropic.nmatter\"",
+        "-DNUMI_HUMAN_RESPIRATION_METALLIB=\"/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib\"",
+        "-DNUMI_HUMAN_RESTING_SCENE=1",
+        "-DNUMI_HUMAN_SKIN_DERMIS_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_skin_dermis_frequency_specific_effective.nmatter\"",
+        "-DNUMI_HUMAN_SUBCUTANEOUS_ADIPOSE_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter\"",
+        "-DNUMI_HUMAN_THORACOLUMBAR_FASCIA_MATERIAL=\"/Users/numi/Work/skin-fat-native-integration-209/matter/materials/human_thoracolumbar_fascia_effective_isotropic.nmatter\"",
+        "-DNUMI_MATTER_METALLIB=\"/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib\"",
+        "-I/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include",
+        "-I/Users/numi/Work/skin-active-source-native-publication-20261101/include",
+        "-I/Users/numi/Work/skin-active-source-native-publication-20261101/matter/include",
+        "-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks",
+        "-x",
+        "objective-c++",
+        "-O3",
+        "-DNDEBUG",
+        "-std=c++23",
+        "-arch",
+        "arm64",
+        "-fPIE",
+        "-fobjc-arc",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-I/Users/numi/Work/skin-active-source-native-publication-20261101/apps",
+        "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+        "-I/Users/numi/Work/skin-active-source-native-publication-20261101/apps",
+        "-fsyntax-only",
+        "/Users/numi/Work/skin-active-source-native-publication-20261101/apps/numilab_human_myosim_visual_probe.mm"
+      ],
+      "exit": 0
+    }
+  },
+  "git_diff_check": "PASS",
+  "storage_guard": {
+    "source": "apps/NumiHumanRestingVisual.hpp",
+    "same_fractional_opt_in": true,
+    "geometry_capture_copy_count": true,
+    "available_space_preflight_before_first_pack_write": true,
+    "reserve_bytes": 2147483648
+  },
+  "execution_status": {
+    "real_mass_transfer": "NOT_RUN",
+    "native_steps": 0,
+    "physical_admission": false,
+    "linked_binary_build": false
+  }
+}

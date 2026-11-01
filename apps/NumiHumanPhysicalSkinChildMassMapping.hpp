@@ -1493,15 +1493,45 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
 }
 } // namespace physical_skin_child_mass_mapping_detail
 
+using PhysicalSkinFractionalSupportBinder = bool (*)(
+    void*, ConservativeSpatialChildSemanticSupportData&,
+    const ConservativeSpatialMassTransportInput&,
+    const PhysicalSkinParentMassPacket&, std::string&);
+
 [[nodiscard]] inline bool preparePhysicalSkinChildMassMapping(
         PhysicalSkinChildMassMappingBundle& bundle,
         const std::span<const double> materialDensityLowerKgM3,
         const std::span<const double> materialDensityUpperKgM3,
         const double maximumTransportDistanceM,
         const std::size_t sourceBodyCount,
-        std::string& error) {
+        std::string& error,
+        const ConservativeSpatialChildSemanticSupport* fractionalSupport=nullptr,
+        const SourceCellCarrierQuadratureInput* sourceCarriers=nullptr,
+        SourceCellCarrierTransportTrace* sourceCarrierTrace=nullptr,
+        ConservativeSpatialChildSemanticSupportData* fractionalSupportOwner=nullptr,
+        PhysicalSkinFractionalSupportBinder fractionalSupportBinder=nullptr,
+        void* fractionalSupportBinderContext=nullptr) {
     using namespace physical_skin_child_mass_detail;
     const auto fail=[&](std::string message){error=std::move(message);return false;};
+    const bool bindsFractionalSupport=fractionalSupportBinder!=nullptr||fractionalSupportOwner!=nullptr;
+    if((sourceCarriers!=nullptr)!=(sourceCarrierTrace!=nullptr)||
+       (sourceCarriers!=nullptr&&fractionalSupport==nullptr&&!bindsFractionalSupport)||
+       ((fractionalSupportBinder==nullptr)!=(fractionalSupportOwner==nullptr))||
+       (fractionalSupportBinder!=nullptr&&fractionalSupport!=nullptr)||
+       (fractionalSupportBinder==nullptr&&fractionalSupportBinderContext!=nullptr))
+        return fail("fractional support binder, owning support, carrier input and trace must be supplied as one explicit opt-in set");
+    const bool externalFractionalRoute=fractionalSupport!=nullptr||bindsFractionalSupport;
+    if(externalFractionalRoute&&
+       (bundle.conformingLineageMassRouteRequired||
+        bundle.operationalSpatialMassRouteRequired||
+        bundle.sourceCarrierQuadrature.recordedAllocation.importedAndPinned||
+        bundle.fractionalSemanticMassRouteRequired||
+        bundle.sourceCarrierQuadrature.importedAndVerified))
+        return fail("current fractional route cannot be mixed with prebound topology, operational, recorded-flow or legacy fractional routes");
+    const bool fractionalSemanticRouteActive=
+        bundle.fractionalSemanticMassRouteRequired||externalFractionalRoute;
+    auto semanticSupport=bundle.fractionalSemanticSupport.view();
+    if(fractionalSupport!=nullptr) semanticSupport=*fractionalSupport;
     const auto& parent=bundle.parent;
     const std::size_t parentCount=parent.tetrahedra.size();
     const std::size_t childCount=bundle.childTetrahedra.size();
@@ -1532,7 +1562,6 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
        !validSHA256(bundle.childMeshSHA256)||!validSHA256(bundle.regionLabelSHA256)||
        !validSHA256(bundle.coordinateFrameSHA256))
         return fail("physical child mass mapping requires five pinned native input SHA-256 values");
-    const auto semanticSupport=bundle.fractionalSemanticSupport.view();
     const bool hasAnySemanticSupport=!bundle.fractionalSemanticSupport.empty()||
         !bundle.fractionalSemanticSupport.volumeFractions.empty()||
         !bundle.fractionalSemanticSupport.groupMaterialIndices.empty()||
@@ -1544,17 +1573,25 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
         !bundle.fractionalSemanticSupport.sourceParentTetRows.empty()||
         !bundle.fractionalSemanticSupport.sourceStableFaceOffsets.empty()||
         !bundle.fractionalSemanticSupport.sourceStableFaceRows.empty()||
+        !bundle.fractionalSemanticSupport.childAdmissibleGroupOffsets.empty()||
+        !bundle.fractionalSemanticSupport.childAdmissibleGroupIndices.empty()||
+        !bundle.fractionalSemanticSupport.admissibleGroupEvidenceSHA256.empty()||
+        !bundle.fractionalSemanticSupport.cellAdmissibleRegionOffsets.empty()||
+        !bundle.fractionalSemanticSupport.cellAdmissibleRegionIds.empty()||
         !bundle.fractionalSemanticSupport.typedSupportSHA256.empty();
     if(bundle.fractionalSemanticMassRouteRequired){
         if(!hasAnySemanticSupport||bundle.conformingLineageMassRouteRequired||
            bundle.conformingLineageMassRoute.authenticated)
             return fail("fractional semantic mass routing requires its complete explicit support and cannot be mixed with conforming ancestry");
-    }else if(hasAnySemanticSupport){
+    }else if(hasAnySemanticSupport&&!bindsFractionalSupport){
         return fail("fractional semantic support is present without its explicit registered-import route flag");
     }
+    if(externalFractionalRoute&&
+       (fractionalSupportBinder==nullptr||fractionalSupportOwner==nullptr))
+        return fail("current fractional route requires a transactional proof binder and owning support");
     const auto& carrierOwned=bundle.sourceCarrierQuadrature;
     if(carrierOwned.importedAndVerified){
-        if(!bundle.fractionalSemanticMassRouteRequired||
+        if(!fractionalSemanticRouteActive||
            !validSHA256(carrierOwned.verificationSHA256)||
            !validSHA256(carrierOwned.sourceCarrierPacketSHA256)||
            !validSHA256(carrierOwned.sourceTetTableSHA256)||
@@ -1718,7 +1755,7 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
     input.maximumAllowedEdges=3'000'000u;
     input.maximumAugmentations=300'000u;
 #if defined(NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY)
-    if(bundle.fractionalSemanticMassRouteRequired){
+    if(fractionalSemanticRouteActive){
         input.maximumAllowedEdges=12'000'000u;
         input.maximumAugmentations=4'000'000u;
     }
@@ -1731,7 +1768,7 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
     if(roleAllocation0!=roleAllocation1)
         return fail("recorded source-carrier allocation is incomplete: both Skin and Fat role receipts are required");
     if(roleAllocation0){
-        if(!bundle.fractionalSemanticMassRouteRequired||!carrierOwned.importedAndVerified||
+        if(!fractionalSemanticRouteActive||!carrierOwned.importedAndVerified||
            !carrierOwned.hasCarriers()||carrierOwned.globalSourceTetRows.size()!=parentCount||
            carrierOwned.parentOffsets.size()!=parentCount+1u)
             return fail("recorded role flows require complete paired semantic and source-carrier inputs");
@@ -2064,7 +2101,22 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
         bundle.sourceCarrierQuadrature.transportTrace=importedTrace;
     }
 
+    ConservativeSpatialChildSemanticSupport boundFractionalSupport;
+    if(fractionalSupportBinder!=nullptr){
+        if(!fractionalSupportBinder(fractionalSupportBinderContext,*fractionalSupportOwner,
+                                   input,parent,error))
+            return fail("current fractional support proof binding failed before solve: "+error);
+        boundFractionalSupport=fractionalSupportOwner->view();
+        semanticSupport=boundFractionalSupport;
+    }
+    if(externalFractionalRoute&&semanticSupport.groupMaterialIndices.empty())
+        return fail("current fractional proof binder returned no authenticated semantic groups");
+    if(sourceCarriers!=nullptr)
+        carrierInput=*sourceCarriers;
+
     ConservativeSpatialMassTransportResult transfer;
+    SourceCellCarrierTransportTrace currentFractionalCarrierTrace;
+    bool currentFractionalCarrierTraceReady=false;
     bool usedExactTopologyIdentity=false;
     bool usedVerifiedConformingAncestry=false;
     bool usedVerifiedOperationalSpatial=false;
@@ -2087,7 +2139,7 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
                 verifyRecordedConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriers(
                     input,semanticSupport,carrierInput,bundle.spatialMassTransportResult,
                     bundle.sourceCarrierQuadrature.transportTrace,error):
-            (bundle.fractionalSemanticMassRouteRequired?
+            (fractionalSemanticRouteActive?
                 verifyRecordedConservativeSpatialMassTransportWithSemanticSupport(
                     input,semanticSupport,bundle.spatialMassTransportResult,error):
                 verifyRecordedConservativeSpatialMassTransport(input,bundle.spatialMassTransportResult,error)));
@@ -2112,7 +2164,7 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
         return fail("conforming ancestry mass route is present without its required registered-import proof flag");
     }
     std::vector<std::uint32_t> exactChildParentRows;
-    if(!bundle.fractionalSemanticMassRouteRequired&&
+    if(!fractionalSemanticRouteActive&&
        !usedVerifiedConformingAncestry&&!usedVerifiedOperationalSpatial&&
        parentCount<=input.maximumAugmentations&&childCount<=input.maximumAugmentations&&
        childCount<=input.maximumAllowedEdges&&
@@ -2145,6 +2197,16 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
         if(bundle.sourceCarrierQuadrature.recordedAllocation.importedAndPinned){
             transfer=bundle.sourceCarrierQuadrature.recordedAllocation.result;
             assembled=true;verified=true;
+        }else if(sourceCarriers!=nullptr){
+            SourceCellCarrierTransportTrace trace;
+            assembled=assembleConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriers(
+                input,semanticSupport,*sourceCarriers,transfer,trace,error);
+            verified=assembled&&verifyRecordedConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriers(
+                input,semanticSupport,*sourceCarriers,transfer,trace,error);
+            if(verified){
+                currentFractionalCarrierTrace=std::move(trace);
+                currentFractionalCarrierTraceReady=true;
+            }
         }else if(bundle.sourceCarrierQuadrature.importedAndVerified&&carrierOwned.hasCarriers()){
             SourceCellCarrierTransportTrace trace;
             assembled=assembleConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriers(
@@ -2153,11 +2215,11 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
             verified=assembled&&verifyRecordedConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriers(
                 input,semanticSupport,carrierInput,transfer,bundle.sourceCarrierQuadrature.transportTrace,error);
         }else{
-            assembled=bundle.fractionalSemanticMassRouteRequired?
+            assembled=fractionalSemanticRouteActive?
                 assembleConservativeSpatialMassTransportWithSemanticSupport(
                     input,semanticSupport,transfer,error):
                 assembleConservativeSpatialMassTransport(input,transfer,error);
-            verified=assembled&&(bundle.fractionalSemanticMassRouteRequired?
+            verified=assembled&&(fractionalSemanticRouteActive?
                 verifyRecordedConservativeSpatialMassTransportWithSemanticSupport(
                     input,semanticSupport,transfer,error):
                 verifyRecordedConservativeSpatialMassTransport(input,transfer,error));
@@ -2171,8 +2233,7 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
            [&](std::uint32_t parentRow){return parentRow>=parentCount;}))
         return fail("physical child mass transport result has incomplete child-parent rows");
     std::vector<std::uint32_t> semanticGroupForParent;
-    const bool hasOneHopSemanticSupport=!semanticSupport.cellAdmissibleRegionOffsets.empty();
-    if(bundle.fractionalSemanticMassRouteRequired&&
+    if(fractionalSemanticRouteActive&&
        !fractional_semantic_transport_detail::buildSourceParentGroupMap(
            semanticSupport,parentCount,semanticGroupForParent))
         return fail("fractional semantic source-parent group map is incomplete or ambiguous");
@@ -2181,7 +2242,7 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
         if(parent.materialIndices[parentRow]!=bundle.childMaterialIndices[child]||
            parent.stableSourceFaceIdentities[parentRow]==NM_INVALID_INDEX)
             return fail("physical child dominant parent violates material or source-face eligibility");
-        if(!bundle.fractionalSemanticMassRouteRequired){
+        if(!fractionalSemanticRouteActive){
             if(parent.donorBodyIndices[parentRow]!=bundle.childDonorBodyIndices[child]||
                parent.anatomicalRegionIndices[parentRow]!=bundle.childAnatomicalRegionIndices[child])
                 return fail("physical child dominant parent violates donor or region eligibility");
@@ -2192,11 +2253,9 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
                semanticSupport.donorBodyIndices[group]!=parent.donorBodyIndices[parentRow]||
                semanticSupport.anatomicalRegionIndices[group]!=parent.anatomicalRegionIndices[parentRow])
                 return fail("fractional semantic dominant parent is absent from its authenticated source group");
-            const bool admissible=hasOneHopSemanticSupport?
-                (semanticSupport.groupMaterialIndices[group]==bundle.childMaterialIndices[child]&&
-                 fractional_semantic_transport_detail::childAllowsSourceRegion(
-                     semanticSupport,static_cast<std::uint32_t>(child),parent.anatomicalRegionIndices[parentRow])):
-                fractional_semantic_transport_detail::childPrefersSemanticGroup(
+            const bool admissible=
+                semanticSupport.groupMaterialIndices[group]==bundle.childMaterialIndices[child]&&
+                fractional_semantic_transport_detail::childAllowsSourceGroup(
                     semanticSupport,static_cast<std::uint32_t>(child),group);
             if(!admissible)
                 return fail("fractional semantic dominant parent is outside the child's authenticated one-hop support or legacy P1 preference");
@@ -2204,6 +2263,29 @@ inline bool validatePreparedPhysicalSkinChildMassMappingPath(
     }
     bundle.childDominantParentTetrahedra=transfer.childDominantParentRows;
     bundle.spatialMassTransportResult=std::move(transfer);
+    if(externalFractionalRoute){
+        bundle.fractionalSemanticMassRouteRequired=true;
+        bundle.fractionalSemanticSupport=*fractionalSupportOwner;
+        if(sourceCarriers!=nullptr){
+            auto& owned=bundle.sourceCarrierQuadrature;
+            owned.importedAndVerified=true;
+            owned.sourceCarrierPacketSHA256=std::string(sourceCarriers->sourceCarrierPacketSHA256);
+            owned.sourceTetTableSHA256=std::string(sourceCarriers->sourceTetTableSHA256);
+            owned.sourceNodeTableSHA256=std::string(sourceCarriers->sourceNodeTableSHA256);
+            owned.parentOffsets.assign(sourceCarriers->parentOffsets.begin(),sourceCarriers->parentOffsets.end());
+            owned.globalSourceTetRows.assign(sourceCarriers->globalSourceTetRows.begin(),sourceCarriers->globalSourceTetRows.end());
+            owned.carrierWeights.assign(sourceCarriers->carrierWeights.begin(),sourceCarriers->carrierWeights.end());
+            owned.carrierBarycentric.assign(sourceCarriers->carrierBarycentric.begin(),sourceCarriers->carrierBarycentric.end());
+            owned.witnessChildRows.assign(sourceCarriers->witnessChildRows.begin(),sourceCarriers->witnessChildRows.end());
+            owned.witnessChildCentroidDistancesM.assign(sourceCarriers->witnessChildCentroidDistancesM.begin(),
+                                                        sourceCarriers->witnessChildCentroidDistancesM.end());
+            owned.verificationSHA256=source_carrier_transport_detail::carrierArrayDigest(input,*sourceCarriers);
+            if(currentFractionalCarrierTraceReady){
+                owned.transportTrace=currentFractionalCarrierTrace;
+                *sourceCarrierTrace=currentFractionalCarrierTrace;
+            }
+        }
+    }
     bundle.exactTopologyIdentityTransportUsed=usedExactTopologyIdentity;
     bundle.conformingLineageMassTransportUsed=usedVerifiedConformingAncestry;
     bundle.massMappingPathSHA256=physical_skin_child_mass_mapping_detail::massMappingPathSHA256(

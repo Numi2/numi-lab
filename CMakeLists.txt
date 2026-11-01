@@ -2499,7 +2499,7 @@ target_compile_definitions(numi-human-native PRIVATE ${NUMI_HUMAN_VISUAL_DEFINIT
     NUMI_HUMAN_RESPIRATION_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/HumanRespiration.metallib")
 target_include_directories(numi-human-native PRIVATE "${NUMI_BRAIN_ROOT}/Sources/NumiBrainABI/include")
 target_compile_options(numi-human-native PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
-target_link_libraries(numi-human-native PRIVATE metalrobo
+target_link_libraries(numi-human-native PRIVATE metalrobo z
     "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}" "${COREGRAPHICS_FRAMEWORK}" "${IMAGEIO_FRAMEWORK}"
     "-framework AppKit" "-framework MetalKit" "-framework AVFoundation" "-framework CoreVideo" "-framework CoreMedia" "-framework QuartzCore")
 add_dependencies(numi-human-native numi_matter_shaders numi_human_respiration_shaders)

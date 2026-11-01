@@ -15,6 +15,13 @@ struct ConservativeSpatialChildSemanticSupport {
     std::span<const std::uint32_t> slotGroupIndices;
     std::span<const double> volumeFractions;
 
+    // Optional exact per-child semantic-group allowlist. P1 slots above remain
+    // the preference table; additional groups require an independently pinned
+    // source-projection evidence hash and do not split or multiply child mass.
+    std::span<const std::uint32_t> childAdmissibleGroupOffsets;
+    std::span<const std::uint32_t> childAdmissibleGroupIndices;
+    std::string_view admissibleGroupEvidenceSHA256;
+
     // Global semantic-group registry, keyed by (material, donor, region).
     std::span<const std::uint32_t> groupMaterialIndices;
     std::span<const std::uint32_t> donorBodyIndices;
@@ -43,6 +50,8 @@ struct ConservativeSpatialChildSemanticSupport {
 struct ConservativeSpatialChildSemanticSupportData {
     std::vector<std::uint32_t> childOffsets, slotGroupIndices;
     std::vector<double> volumeFractions;
+    std::vector<std::uint32_t> childAdmissibleGroupOffsets, childAdmissibleGroupIndices;
+    std::string admissibleGroupEvidenceSHA256;
     std::vector<std::uint32_t> groupMaterialIndices, donorBodyIndices, anatomicalRegionIndices;
     std::vector<std::uint64_t> derivedGroupIdentityIDs;
     std::vector<std::uint32_t> parentStableSourceFaceIdentities;
@@ -54,7 +63,9 @@ struct ConservativeSpatialChildSemanticSupportData {
     std::uint32_t admissibilityMaximumSourceRegionHops = 0u;
 
     [[nodiscard]] ConservativeSpatialChildSemanticSupport view() const {
-        return {childOffsets, slotGroupIndices, volumeFractions, groupMaterialIndices,
+        return {childOffsets, slotGroupIndices, volumeFractions,
+            childAdmissibleGroupOffsets, childAdmissibleGroupIndices,
+            admissibleGroupEvidenceSHA256, groupMaterialIndices,
             donorBodyIndices, anatomicalRegionIndices, derivedGroupIdentityIDs,
             parentStableSourceFaceIdentities, sourceParentTetOffsets, sourceParentTetRows,
             sourceStableFaceOffsets, sourceStableFaceRows, typedSupportSHA256,
@@ -124,6 +135,25 @@ inline bool childAllowsSourceRegion(
     return false;
 }
 
+inline bool childAllowsSourceGroup(
+        const ConservativeSpatialChildSemanticSupport& support,
+        const std::uint32_t child,const std::uint32_t group) {
+    if(group>=support.groupMaterialIndices.size()||
+       group>=support.anatomicalRegionIndices.size()) return false;
+    if(!support.childAdmissibleGroupOffsets.empty()||
+       !support.childAdmissibleGroupIndices.empty()) {
+        if(child+1u>=support.childAdmissibleGroupOffsets.size()) return false;
+        const auto begin=support.childAdmissibleGroupOffsets[child];
+        const auto end=support.childAdmissibleGroupOffsets[child+1u];
+        if(begin>end||end>support.childAdmissibleGroupIndices.size()) return false;
+        return std::binary_search(support.childAdmissibleGroupIndices.begin()+begin,
+                                  support.childAdmissibleGroupIndices.begin()+end,group);
+    }
+    if(!support.cellAdmissibleRegionOffsets.empty())
+        return childAllowsSourceRegion(support,child,support.anatomicalRegionIndices[group]);
+    return childPrefersSemanticGroup(support,child,group);
+}
+
 struct ExpandedInput {
     std::vector<SpatialMassTransportPoint> centroids;
     std::vector<double> volumes;
@@ -141,6 +171,11 @@ inline std::string supportDigest(const ConservativeSpatialChildSemanticSupport& 
     hash.u64(support.slotGroupIndices.size());
     for (auto value : support.slotGroupIndices) hash.u32(value);
     for (auto value : support.volumeFractions) hash.real(value);
+    hash.u64(support.childAdmissibleGroupOffsets.size());
+    for (auto value : support.childAdmissibleGroupOffsets) hash.u32(value);
+    hash.u64(support.childAdmissibleGroupIndices.size());
+    for (auto value : support.childAdmissibleGroupIndices) hash.u32(value);
+    hash.string(support.admissibleGroupEvidenceSHA256);
     hash.u64(support.groupMaterialIndices.size());
     for (auto value : support.groupMaterialIndices) hash.u32(value);
     for (auto value : support.donorBodyIndices) hash.u32(value);
@@ -761,8 +796,8 @@ inline bool validateSharedCapacitySupport(
         const ConservativeSpatialMassTransportInput& in,
         const ConservativeSpatialChildSemanticSupport& support,
         std::vector<std::uint32_t>& parentGroup,
-        std::vector<std::map<std::uint32_t,double>>& childRegionPreference,
-        std::vector<std::vector<std::uint32_t>>& childAdmissibleRegions,
+        std::vector<std::map<std::uint32_t,double>>& childGroupPreference,
+        std::vector<std::vector<std::uint32_t>>& childAdmissibleGroups,
         std::string& error) {
     using namespace spatial_mass_transport_detail;
     const auto fail=[&](std::string message){error=std::move(message);return false;};
@@ -899,7 +934,7 @@ inline bool validateSharedCapacitySupport(
             return fail("shared-capacity source-donor contributions do not close the source-parent mass");
     }
 
-    childRegionPreference.assign(nc,{});
+    childGroupPreference.assign(nc,{});
     for(std::size_t c=0;c<nc;++c){
         const auto material=in.childMaterialIndices[c];
         const auto begin=support.childOffsets[c],end=support.childOffsets[c+1u];
@@ -915,7 +950,8 @@ inline bool validateSharedCapacitySupport(
         if(!std::isfinite(lower)||!std::isfinite(upper)||lower<=0.0||lower>upper)
             return fail("shared-capacity child material density bounds are invalid");
         std::uint32_t previousGroup=0u;bool havePrevious=false;
-        double scoreSum=0.0;
+        double scoreSum=0.0,maximumScore=-1.0,primaryScore=-1.0;
+        bool foundPrimaryGroup=false;
         for(std::uint32_t row=begin;row<end;++row){
             const auto g=support.slotGroupIndices[row];
             const double score=support.volumeFractions[row];
@@ -923,20 +959,40 @@ inline bool validateSharedCapacitySupport(
                (havePrevious&&g<=previousGroup)||!std::isfinite(score)||score<=0.0||score>1.0)
                 return fail("shared-capacity child P1 region-support score/group row is invalid");
             previousGroup=g;havePrevious=true;
-            childRegionPreference[c][support.anatomicalRegionIndices[g]]+=score;
+            childGroupPreference[c][g]+=score;
+            maximumScore=std::max(maximumScore,score);
+            if(support.donorBodyIndices[g]==in.childDonorBodyIndices[c] &&
+               support.anatomicalRegionIndices[g]==in.childAnatomicalRegionIndices[c]){
+                foundPrimaryGroup=true;
+                primaryScore=score;
+            }
             scoreSum+=score;
         }
-        if(std::abs(scoreSum-1.0)>1.0e-12||
-           !childRegionPreference[c].contains(in.childAnatomicalRegionIndices[c]))
-            return fail("shared-capacity child P1 region support does not sum to one or omit its primary region");
+        if(std::abs(scoreSum-1.0)>1.0e-12||!foundPrimaryGroup||primaryScore!=maximumScore)
+            return fail("shared-capacity child exact P1 tuple support does not sum to one or its primary donor/region tuple is not a maximum-share group");
     }
 
-    const bool hasAdmissibility = !support.cellAdmissibleRegionOffsets.empty() ||
+    const bool hasRegionAdmissibility = !support.cellAdmissibleRegionOffsets.empty() ||
         !support.cellAdmissibleRegionIds.empty() ||
         !support.admissibilitySourceSupportSHA256.empty() ||
         support.admissibilityMaximumSourceRegionHops != 0u;
-    childAdmissibleRegions.assign(nc,{});
-    if(hasAdmissibility){
+    const bool hasExplicitGroupAllowlist = !support.childAdmissibleGroupOffsets.empty() ||
+        !support.childAdmissibleGroupIndices.empty();
+    if (!hasExplicitGroupAllowlist && !support.admissibleGroupEvidenceSHA256.empty())
+        return fail("shared-capacity group evidence hash is present without its allowlist CSR");
+    if (hasExplicitGroupAllowlist &&
+        (support.childAdmissibleGroupOffsets.size()!=nc+1u ||
+         support.childAdmissibleGroupOffsets.empty() ||
+         support.childAdmissibleGroupOffsets.front()!=0u ||
+         support.childAdmissibleGroupOffsets.back()!=support.childAdmissibleGroupIndices.size()))
+        return fail("shared-capacity explicit exact-group allowlist CSR is malformed");
+    if (hasExplicitGroupAllowlist)
+        for (std::size_t c=1u;c<support.childAdmissibleGroupOffsets.size();++c)
+            if (support.childAdmissibleGroupOffsets[c]<=support.childAdmissibleGroupOffsets[c-1u])
+                return fail("shared-capacity explicit exact-group allowlist has an empty or reversed row");
+
+    std::vector<std::vector<std::uint32_t>> allowedRegionsByChild(nc);
+    if(hasRegionAdmissibility){
         if(support.cellAdmissibleRegionOffsets.size()!=nc+1u ||
            support.cellAdmissibleRegionOffsets.empty() ||
            support.cellAdmissibleRegionOffsets.front()!=0u ||
@@ -950,8 +1006,8 @@ inline bool validateSharedCapacitySupport(
             const auto end=support.cellAdmissibleRegionOffsets[c+1u];
             if(begin>=end||end>support.cellAdmissibleRegionIds.size())
                 return fail("shared-capacity admissible-region row is empty or out of range");
-            auto& allowed=childAdmissibleRegions[c];
-            allowed.reserve(end-begin);
+            auto& allowedRegions=allowedRegionsByChild[c];
+            allowedRegions.reserve(end-begin);
             std::uint32_t previous=0u;
             for(std::uint32_t row=begin;row<end;++row){
                 const auto region=support.cellAdmissibleRegionIds[row];
@@ -961,23 +1017,52 @@ inline bool validateSharedCapacitySupport(
                 const auto key=(static_cast<std::uint64_t>(material)<<32u)|region;
                 if(!registeredMaterialRegions.contains(key))
                     return fail("shared-capacity admissible region has no same-material source semantic group");
-                allowed.push_back(region);previous=region;
-            }
-            for(const auto& [p1Region,score]:childRegionPreference[c]){
-                (void)score;
-                if(!std::binary_search(allowed.begin(),allowed.end(),p1Region))
-                    return fail("shared-capacity admissible-region CSR omits an original P1 preference region");
+                allowedRegions.push_back(region);previous=region;
             }
         }
-    }else{
-        if(!support.admissibilitySourceSupportSHA256.empty()||
-           support.admissibilityMaximumSourceRegionHops!=0u)
-            return fail("shared-capacity legacy P1 support has stray adjacency proof metadata");
-        for(std::size_t c=0;c<nc;++c){
-            auto& allowed=childAdmissibleRegions[c];
-            for(const auto& [region,score]:childRegionPreference[c]){(void)score;allowed.push_back(region);}
+    }else if(!support.admissibilitySourceSupportSHA256.empty()||
+             support.admissibilityMaximumSourceRegionHops!=0u){
+        return fail("shared-capacity legacy P1 support has stray adjacency proof metadata");
+    }
+
+    childAdmissibleGroups.assign(nc,{});
+    bool hasAdditionalExactGroup=false;
+    for(std::size_t c=0;c<nc;++c){
+        auto& allowed=childAdmissibleGroups[c];
+        if(hasExplicitGroupAllowlist){
+            const auto begin=support.childAdmissibleGroupOffsets[c];
+            const auto end=support.childAdmissibleGroupOffsets[c+1u];
+            if(begin>=end||end>support.childAdmissibleGroupIndices.size())
+                return fail("shared-capacity explicit exact-group allowlist row is empty or out of range");
+            std::uint32_t previous=0u;
+            for(std::uint32_t row=begin;row<end;++row){
+                const auto group=support.childAdmissibleGroupIndices[row];
+                if(group>=ng||(row>begin&&group<=previous)||
+                   support.groupMaterialIndices[group]!=in.childMaterialIndices[c])
+                    return fail("shared-capacity explicit exact-group allowlist has an invalid, repeated, unordered or cross-material tuple");
+                if(hasRegionAdmissibility&&!std::binary_search(allowedRegionsByChild[c].begin(),
+                    allowedRegionsByChild[c].end(),support.anatomicalRegionIndices[group]))
+                    return fail("shared-capacity exact group is outside the authenticated one-hop region support");
+                hasAdditionalExactGroup|=!childGroupPreference[c].contains(group);
+                allowed.push_back(group);previous=group;
+            }
+            for(const auto& [group,score]:childGroupPreference[c]){
+                (void)score;
+                if(!std::binary_search(allowed.begin(),allowed.end(),group))
+                    return fail("shared-capacity explicit exact-group allowlist omits an original P1 support tuple");
+            }
+        }else{
+            for(const auto& [group,score]:childGroupPreference[c]){
+                (void)score;
+                if(hasRegionAdmissibility&&!std::binary_search(allowedRegionsByChild[c].begin(),
+                    allowedRegionsByChild[c].end(),support.anatomicalRegionIndices[group]))
+                    return fail("shared-capacity admissible-region CSR omits an original exact P1 tuple region");
+                allowed.push_back(group);
+            }
         }
     }
+    if(hasAdditionalExactGroup&&!validSHA256(support.admissibleGroupEvidenceSHA256))
+        return fail("shared-capacity additional exact-group slots lack a pinned source-projection evidence hash");
     error.clear();return true;
 }
 
@@ -1019,10 +1104,10 @@ inline bool assembleSharedRealChildCapacity(
     const auto fail=[&](std::string message){error=std::move(message);return false;};
     constexpr std::uint32_t invalid=std::numeric_limits<std::uint32_t>::max();
     std::vector<std::uint32_t> parentGroup;
-    std::vector<std::map<std::uint32_t,double>> regionPreference;
-    std::vector<std::vector<std::uint32_t>> childAdmissibleRegions;
-    if(!validateSharedCapacitySupport(in,support,parentGroup,regionPreference,
-                                      childAdmissibleRegions,error))return false;
+    std::vector<std::map<std::uint32_t,double>> groupPreference;
+    std::vector<std::vector<std::uint32_t>> childAdmissibleGroups;
+    if(!validateSharedCapacitySupport(in,support,parentGroup,groupPreference,
+                                      childAdmissibleGroups,error))return false;
     const std::size_t np=in.parentMassKg.size(),nc=in.childReferenceVolumeM3.size();
     if(np+nc+3u>std::numeric_limits<std::uint32_t>::max())
         return fail("shared-capacity flow node count exceeds its bounded index range");
@@ -1034,21 +1119,21 @@ inline bool assembleSharedRealChildCapacity(
     if(!std::isfinite(radiusSquared)||radiusSquared<=0.0)
         return fail("shared-capacity transport radius squared is invalid");
 
-    using Bucket=std::tuple<std::uint32_t,std::uint32_t,GridKey>;
-    std::map<Bucket,std::vector<std::uint32_t>> childrenByRegionBucket;
-    std::map<Bucket,std::vector<std::uint32_t>> parentsByRegionBucket;
+    using Bucket=std::tuple<std::uint32_t,GridKey>;
+    std::map<Bucket,std::vector<std::uint32_t>> childrenByGroupBucket;
+    std::map<Bucket,std::vector<std::uint32_t>> parentsByGroupBucket;
     std::vector<GridKey> parentGrid(np),childGrid(nc);
     for(std::size_t p=0;p<np;++p){
         if(!gridKey(in.parentCentroidsWorld[p],in.maximumTransportDistanceM,parentGrid[p]))
             return fail("shared-capacity parent centroid cannot be indexed by the bounded search grid");
-        parentsByRegionBucket[{in.parentMaterialIndices[p],in.parentAnatomicalRegionIndices[p],parentGrid[p]}]
+        parentsByGroupBucket[{parentGroup[p],parentGrid[p]}]
             .push_back(static_cast<std::uint32_t>(p));
     }
     for(std::size_t c=0;c<nc;++c){
         if(!gridKey(in.childCentroidsWorld[c],in.maximumTransportDistanceM,childGrid[c]))
             return fail("shared-capacity child centroid cannot be indexed by the bounded search grid");
-        for(const auto region:childAdmissibleRegions[c])
-            childrenByRegionBucket[{in.childMaterialIndices[c],region,childGrid[c]}]
+        for(const auto group:childAdmissibleGroups[c])
+            childrenByGroupBucket[{group,childGrid[c]}]
                 .push_back(static_cast<std::uint32_t>(c));
     }
 
@@ -1116,10 +1201,10 @@ inline bool assembleSharedRealChildCapacity(
     };
     const auto addSeed=[&](const std::uint32_t p,const Candidate& candidate){
         const auto c=candidate.child;
-        const auto region=in.parentAnatomicalRegionIndices[p];
-        const auto found=regionPreference[c].find(region);
-        const double preference=found==regionPreference[c].end()?1.0e-12:found->second;
-        const double penalty=semanticPreferenceWeight*(-std::log(preference));
+        const auto group=parentGroup[p];
+        const auto found=groupPreference[c].find(group);
+        const double penalty=found==groupPreference[c].end()?0.0:
+            semanticPreferenceWeight*(-std::log(found->second));
         const double cost=(candidate.distanceM*candidate.distanceM)/radiusSquared+penalty;
         if(!std::isfinite(cost)||cost<0.0)return false;
         pending.push_back({p,c,candidate.distanceM,cost});
@@ -1127,13 +1212,12 @@ inline bool assembleSharedRealChildCapacity(
     };
     const auto scanNearestChildForParent=[&](const std::uint32_t p,const std::size_t k){
         std::vector<Candidate> nearest;
-        const auto material=in.parentMaterialIndices[p];
-        const auto region=in.parentAnatomicalRegionIndices[p];
+        const auto group=parentGroup[p];
         const auto base=parentGrid[p];
         for(int dx=-1;dx<=1;++dx)for(int dy=-1;dy<=1;++dy)for(int dz=-1;dz<=1;++dz){
             const GridKey key{base.x+dx,base.y+dy,base.z+dz};
-            const auto found=childrenByRegionBucket.find({material,region,key});
-            if(found==childrenByRegionBucket.end())continue;
+            const auto found=childrenByGroupBucket.find({group,key});
+            if(found==childrenByGroupBucket.end())continue;
             for(const auto c:found->second){
                 const double d=distance(in.parentCentroidsWorld[p],in.childCentroidsWorld[c]);
                 if(d<=in.maximumTransportDistanceM&&d*d<=radiusSquared*(1.0+1.0e-14))
@@ -1142,16 +1226,15 @@ inline bool assembleSharedRealChildCapacity(
         }
         return nearest;
     };
-    const auto scanNearestParentForChildRegion=[&](const std::uint32_t c,
-                                                    const std::uint32_t region,
+    const auto scanNearestParentForChildGroup=[&](const std::uint32_t c,
+                                                    const std::uint32_t group,
                                                     const std::size_t k){
         std::vector<Candidate> nearest;
-        const auto material=in.childMaterialIndices[c];
         const auto base=childGrid[c];
         for(int dx=-1;dx<=1;++dx)for(int dy=-1;dy<=1;++dy)for(int dz=-1;dz<=1;++dz){
             const GridKey key{base.x+dx,base.y+dy,base.z+dz};
-            const auto found=parentsByRegionBucket.find({material,region,key});
-            if(found==parentsByRegionBucket.end())continue;
+            const auto found=parentsByGroupBucket.find({group,key});
+            if(found==parentsByGroupBucket.end())continue;
             for(const auto p:found->second){
                 const double d=distance(in.parentCentroidsWorld[p],in.childCentroidsWorld[c]);
                 if(d<=in.maximumTransportDistanceM&&d*d<=radiusSquared*(1.0+1.0e-14))
@@ -1163,13 +1246,13 @@ inline bool assembleSharedRealChildCapacity(
 
     // Sparse seed: each source parent receives its nearest admissible child,
     // and each real child receives its nearest admissible parent in every
-    // authenticated material/region support row. All child minimum-density
+    // authenticated exact material/donor/region support row. All child minimum-density
     // demand is therefore represented before any flow attempt.
     for(std::size_t p=0;p<np;++p){
         const auto nearest=scanNearestChildForParent(static_cast<std::uint32_t>(p),initialNearestK);
         if(nearest.empty()){
             std::ostringstream witness;
-            witness<<"INFEASIBLE shared-capacity parent has no same-material admissible child within distance bound"
+            witness<<"INFEASIBLE shared-capacity parent has no same-material/donor/region exact-group-supported child within distance bound"
                 <<" parent="<<p<<" material="<<in.parentMaterialIndices[p]
                 <<" region="<<in.parentAnatomicalRegionIndices[p]
                 <<" radius_m="<<in.maximumTransportDistanceM;
@@ -1181,8 +1264,8 @@ inline bool assembleSharedRealChildCapacity(
     }
     std::vector<bool> childHasSeed(nc,false);
     for(std::size_t c=0;c<nc;++c){
-        for(const auto region:childAdmissibleRegions[c]){
-            const auto nearest=scanNearestParentForChildRegion(static_cast<std::uint32_t>(c),region,
+        for(const auto group:childAdmissibleGroups[c]){
+            const auto nearest=scanNearestParentForChildGroup(static_cast<std::uint32_t>(c),group,
                                                                initialNearestK);
             for(const auto& candidate:nearest){
                 childHasSeed[c]=true;
@@ -1192,9 +1275,9 @@ inline bool assembleSharedRealChildCapacity(
         }
         if(!childHasSeed[c]){
             std::ostringstream witness;
-            witness<<"INFEASIBLE shared-capacity real child has no same-material admissible parent within distance bound"
+            witness<<"INFEASIBLE shared-capacity real child has no same-material/donor/region exact-group-supported parent within distance bound"
                 <<" child="<<c<<" material="<<in.childMaterialIndices[c]
-                <<" allowed_regions="<<childAdmissibleRegions[c].size()
+                <<" allowed_exact_tuples="<<childAdmissibleGroups[c].size()
                 <<" radius_m="<<in.maximumTransportDistanceM;
             return fail(witness.str());
         }
@@ -1258,14 +1341,13 @@ inline bool assembleSharedRealChildCapacity(
         additions.reserve(std::min(np,cutExpansionBatch));
         for(std::size_t p=0;p<np;++p){
             if(!reached[parentBase+p])continue;
-            const auto material=in.parentMaterialIndices[p];
-            const auto region=in.parentAnatomicalRegionIndices[p];
+            const auto group=parentGroup[p];
             const auto base=parentGrid[p];
             Candidate best{invalid,std::numeric_limits<double>::infinity()};
             for(int dx=-1;dx<=1;++dx)for(int dy=-1;dy<=1;++dy)for(int dz=-1;dz<=1;++dz){
                 const GridKey key{base.x+dx,base.y+dy,base.z+dz};
-                const auto found=childrenByRegionBucket.find({material,region,key});
-                if(found==childrenByRegionBucket.end())continue;
+                const auto found=childrenByGroupBucket.find({group,key});
+                if(found==childrenByGroupBucket.end())continue;
                 for(const auto c:found->second){
                     if(reached[childBase+c]||
                        std::binary_search(activeChildrenByParent[p].begin(),
@@ -1277,9 +1359,9 @@ inline bool assembleSharedRealChildCapacity(
                 }
             }
             if(best.child==invalid)continue;
-            const auto pref=regionPreference[best.child].find(region);
-            const double preference=pref==regionPreference[best.child].end()?1.0e-12:pref->second;
-            const double penalty=semanticPreferenceWeight*(-std::log(preference));
+            const auto pref=groupPreference[best.child].find(group);
+            const double penalty=pref==groupPreference[best.child].end()?0.0:
+                semanticPreferenceWeight*(-std::log(pref->second));
             const double cost=(best.distanceM*best.distanceM)/radiusSquared+penalty;
             if(!std::isfinite(cost)||cost<0.0)return fail("shared-capacity cut expansion preference is invalid");
             additions.push_back({static_cast<std::uint32_t>(p),best.child,best.distanceM,cost});

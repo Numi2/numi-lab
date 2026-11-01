@@ -3029,6 +3029,38 @@ public:
         const auto packPath=output/"resting-human.mrvpack";std::string error;
         // Initial source pack retains its native articulated bindings.
         // Accepted snapshots below freeze them at the recorded body pose.
+        const char* fractionalStorageMode=std::getenv("NUMI_H706_FRACTIONAL_ENABLE");
+        if(fractionalStorageMode&&std::string_view(fractionalStorageMode)=="1") {
+            std::uint64_t payloadBytes=0;
+            const auto addBytes=[&](std::uint64_t count,std::uint64_t stride) {
+                require(stride==0||count<=(std::numeric_limits<std::uint64_t>::max()-payloadBytes)/stride,
+                    "native pack size estimate overflowed");
+                payloadBytes+=count*stride;
+            };
+            addBytes(pack.vertices.size(),sizeof(MRVisualVertexGPUV2));
+            addBytes(pack.indices.size(),sizeof(std::uint32_t));
+            addBytes(pack.primitives.size(),sizeof(MRVisualPrimitiveGPUV2));
+            addBytes(pack.instances.size(),sizeof(MRVisualInstanceGPUV2));
+            addBytes(pack.materials.size(),sizeof(MRVisualMaterialGPUV2));
+            addBytes(pack.textureBindings.size(),sizeof(MRVisualTextureBindingGPUV2));
+            for(const auto& texture:pack.textures)addBytes(texture.data.size(),1);
+            constexpr std::uint64_t margin=32ull*1024*1024,reserve=2ull*1024*1024*1024;
+            const std::uint64_t copies=1+geometryExportStepsFromEnvironment().size();
+            require(payloadBytes<=(std::numeric_limits<std::uint64_t>::max()-reserve)/copies-margin,
+                "native capture budget overflowed");
+            const auto required=(payloadBytes+margin)*copies+reserve;
+            std::error_code spaceError;
+            const auto available=std::filesystem::space(output,spaceError).available;
+            require(!spaceError,"cannot measure native capture storage");
+            std::cout<<"native_visual_pack_storage_preflight"
+                <<" vertices="<<pack.vertices.size()<<" indices="<<pack.indices.size()
+                <<" raw_payload_bytes="<<payloadBytes<<" estimated_pack_copies="<<copies
+                <<" metadata_margin_per_pack_bytes="<<margin<<" safety_reserve_bytes="<<reserve
+                <<" required_bytes="<<required<<" available_bytes="<<available
+                <<" tet_cells_serialized=0"<<std::endl;
+            require(available>=required,
+                "native accepted capture budget exceeds available disk including 2 GiB safety reserve");
+        }
         require(metalrobo::writeVisualAssetPack(pack,packPath,&error),error);
         initialPackPath=packPath;initialPackContentHash=pack.contentHash;
         std::cout<<"anatomy_vertex_frame=owner_local source_surfaces="<<localCardiacInstances.size()

@@ -130,8 +130,8 @@ inline bool validateCarrierInput(
         const ConservativeSpatialChildSemanticSupport& support,
         const SourceCellCarrierQuadratureInput& carrier,
         std::vector<std::uint32_t>& parentGroup,
-        std::vector<std::map<std::uint32_t,double>>& regionPreference,
-        std::vector<std::vector<std::uint32_t>>& admissibleRegions,
+        std::vector<std::map<std::uint32_t,double>>& groupPreference,
+        std::vector<std::vector<std::uint32_t>>& admissibleGroups,
         std::vector<Point>& carrierWorldPoints,
         std::vector<std::uint32_t>& carrierRows,
         std::vector<double>& strictCentroidNearest,
@@ -140,7 +140,7 @@ inline bool validateCarrierInput(
     const auto fail=[&](std::string message){error=std::move(message);return false;};
     const std::size_t np=in.parentMassKg.size(), nc=in.childReferenceVolumeM3.size();
     if (!fractional_semantic_transport_detail::validateSharedCapacitySupport(
-            in,support,parentGroup,regionPreference,admissibleRegions,error)) return false;
+            in,support,parentGroup,groupPreference,admissibleGroups,error)) return false;
     if (carrier.parentOffsets.size()!=np+1u || carrier.parentOffsets.empty() ||
         carrier.parentOffsets.front()!=0u ||
         carrier.parentOffsets.back()!=carrier.carrierWeights.size() ||
@@ -185,10 +185,16 @@ inline bool validateCarrierInput(
         Point worldMoment{};
         double strictNearest=std::numeric_limits<double>::infinity();
         const auto material=in.parentMaterialIndices[parent];
-        const auto region=in.parentAnatomicalRegionIndices[parent];
+        const auto group=parentGroup[parent];
+        if(group>=support.groupMaterialIndices.size()||
+           support.groupMaterialIndices[group]!=material||
+           support.donorBodyIndices[group]!=in.parentDonorBodyIndices[parent]||
+           support.anatomicalRegionIndices[group]!=in.parentAnatomicalRegionIndices[parent])
+            return fail("source carrier parent tuple differs from its authenticated semantic group");
         for (std::size_t child=0; child<nc; ++child) {
             if (in.childMaterialIndices[child]!=material ||
-                !std::binary_search(admissibleRegions[child].begin(),admissibleRegions[child].end(),region))
+                !fractional_semantic_transport_detail::childAllowsSourceGroup(support,
+                    static_cast<std::uint32_t>(child),group))
                 continue;
             strictNearest=std::min(strictNearest,pointDistance(in.parentCentroidsWorld[parent],
                                                                in.childCentroidsWorld[child]));
@@ -213,8 +219,9 @@ inline bool validateCarrierInput(
             const auto point=barycentricPoint(carrier.parentReferenceTetWorldVertices[parent],bary);
             const auto child=carrier.witnessChildRows[row];
             if (in.childMaterialIndices[child]!=material ||
-                !std::binary_search(admissibleRegions[child].begin(),admissibleRegions[child].end(),region))
-                return fail("source carrier witness child has the wrong material or is not semantically admissible for the source region");
+                !fractional_semantic_transport_detail::childAllowsSourceGroup(support,
+                    static_cast<std::uint32_t>(child),group))
+                return fail("source carrier witness child has the wrong material or is not admissible for the exact source tuple");
             const double distance=pointDistance(point,in.childCentroidsWorld[child]);
             const double tolerance=std::max(1.0e-12,64.0*std::numeric_limits<double>::epsilon()*
                 std::max({1.0,distance,carrier.witnessChildCentroidDistancesM[row]}));
@@ -314,6 +321,11 @@ inline bool expandParentRows(
     expandedSupport.childOffsets.assign(support.childOffsets.begin(),support.childOffsets.end());
     expandedSupport.slotGroupIndices.assign(support.slotGroupIndices.begin(),support.slotGroupIndices.end());
     expandedSupport.volumeFractions.assign(support.volumeFractions.begin(),support.volumeFractions.end());
+    expandedSupport.childAdmissibleGroupOffsets.assign(
+        support.childAdmissibleGroupOffsets.begin(),support.childAdmissibleGroupOffsets.end());
+    expandedSupport.childAdmissibleGroupIndices.assign(
+        support.childAdmissibleGroupIndices.begin(),support.childAdmissibleGroupIndices.end());
+    expandedSupport.admissibleGroupEvidenceSHA256.assign(support.admissibleGroupEvidenceSHA256);
     expandedSupport.groupMaterialIndices.assign(support.groupMaterialIndices.begin(),support.groupMaterialIndices.end());
     expandedSupport.donorBodyIndices.assign(support.donorBodyIndices.begin(),support.donorBodyIndices.end());
     expandedSupport.anatomicalRegionIndices.assign(support.anatomicalRegionIndices.begin(),support.anatomicalRegionIndices.end());
@@ -522,11 +534,11 @@ inline bool aggregateCarrierResult(
     using namespace source_carrier_transport_detail;
     std::vector<std::uint32_t> parentGroup;
     std::vector<std::map<std::uint32_t,double>> preferences;
-    std::vector<std::vector<std::uint32_t>> admissibleRegions;
+    std::vector<std::vector<std::uint32_t>> admissibleGroups;
     std::vector<Point> carrierPoints;
     std::vector<std::uint32_t> carrierRows;
     std::vector<double> strictNearest;
-    if (!validateCarrierInput(input,support,carrier,parentGroup,preferences,admissibleRegions,
+    if (!validateCarrierInput(input,support,carrier,parentGroup,preferences,admissibleGroups,
                               carrierPoints,carrierRows,strictNearest,error)) return false;
     const std::string carrierSHA=carrierArrayDigest(input,carrier);
     std::vector<std::uint32_t> virtualToParent,virtualToCarrier;
@@ -598,10 +610,10 @@ inline bool aggregateCarrierResult(
     const auto fail=[&](std::string message){error=std::move(message);return false;};
     std::vector<std::uint32_t> parentGroup,carrierParents;
     std::vector<std::map<std::uint32_t,double>> preferences;
-    std::vector<std::vector<std::uint32_t>> admissibleRegions;
+    std::vector<std::vector<std::uint32_t>> admissibleGroups;
     std::vector<Point> carrierPoints;
     std::vector<double> strictNearest;
-    if(!validateCarrierInput(input,support,carrier,parentGroup,preferences,admissibleRegions,
+    if(!validateCarrierInput(input,support,carrier,parentGroup,preferences,admissibleGroups,
                              carrierPoints,carrierParents,strictNearest,error))return false;
 
     const auto np=input.parentMassKg.size(),nc=input.childReferenceVolumeM3.size();
@@ -735,9 +747,9 @@ inline bool aggregateCarrierResult(
                 if(input.parentMaterialIndices[p]!=input.childMaterialIndices[c]||
                    support.groupMaterialIndices[group]!=input.parentMaterialIndices[p])
                     return fail("recorded source-carrier edge crosses its material or source group");
-                const auto parentRegion=input.parentAnatomicalRegionIndices[p];
-                if(!std::binary_search(admissibleRegions[c].begin(),admissibleRegions[c].end(),parentRegion))
-                    return fail("recorded source-carrier edge source region is outside the child's one-hop registered support");
+                if(!fractional_semantic_transport_detail::childAllowsSourceGroup(
+                       support,c,group))
+                    return fail("recorded source-carrier edge exact source tuple is outside the child's authenticated allowlist");
                 const double actualDistance=pointDistance(expandedInput.parentCentroidsWorld[v],
                                                            input.childCentroidsWorld[c]);
                 const double density=virtualMasses[v]/virtualVolumes[v];

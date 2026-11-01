@@ -24,6 +24,7 @@
 #include "NumiHumanPhysicalSkinChildIntegration.hpp"
 #include "NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp"
 #include "NumiHumanCanonicalDeepAttachmentRemap.hpp"
+#include "NumiHumanCurrentFractionalSupportNPZ.hpp"
 #include "NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp"
 #include "NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp"
 #include "NumiHumanPhysicalSkinSupportParentMap.hpp"
@@ -20764,7 +20765,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::span<const float> q, double dt,
     const std::filesystem::path& matterMetallib,
     bool preparationOnly = false,
-    bool* registeredDetailCanonicalExportCompleted = nullptr
+    bool* registeredDetailCanonicalExportCompleted = nullptr,
+    const std::filesystem::path& evidenceOutputDirectory = {}
 ) {
     require(fascia.regions.size() == kThoracoabdominalFasciaRegionCount &&
                 model.articulations.size() == 1u && dt > 0.0 && std::isfinite(dt),
@@ -21998,6 +22000,15 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             "registered-volume installation opt-in must be 0 or 1");
     const bool registeredVolumeInstallRequested=registeredVolumeInstallSetting&&
         std::string_view(registeredVolumeInstallSetting)=="1";
+    const char* fractionalMassSetting=std::getenv("NUMI_H706_FRACTIONAL_ENABLE");
+    require(!fractionalMassSetting||
+                std::string_view(fractionalMassSetting)=="0"||
+                std::string_view(fractionalMassSetting)=="1",
+            "current fractional mass opt-in must be 0 or 1");
+    const bool registeredFractionalMassSupportRequested=fractionalMassSetting&&
+        std::string_view(fractionalMassSetting)=="1";
+    require(!registeredFractionalMassSupportRequested||registeredVolumeInstallRequested,
+            "current fractional mass support requires registered-volume installation");
     const char* operationalReferenceSplitSetting=std::getenv(
         "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_OPERATIONAL_REFERENCE_SPLIT");
     require(!operationalReferenceSplitSetting||
@@ -22006,6 +22017,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             "registered operational-reference split setting must be 0 or 1");
     const bool separatedRegisteredOperationalReference=operationalReferenceSplitSetting&&
         std::string_view(operationalReferenceSplitSetting)=="1";
+    require(!registeredFractionalMassSupportRequested||
+                !separatedRegisteredOperationalReference,
+            "current fractional semantic mass route cannot replace the separated conforming-ancestry route");
     require(!separatedRegisteredOperationalReference||registeredVolumeInstallRequested,
             "separated operational reference requires registered-volume installation");
     const char* conformingReferenceChainSetting=std::getenv(
@@ -22054,6 +22068,11 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             "recorded carrier allocation CSV setting must be 0 or 1");
     const bool recordedCarrierAllocationRequested=recordedCarrierAllocationSetting&&
         std::string_view(recordedCarrierAllocationSetting)=="1";
+    require(!registeredFractionalMassSupportRequested||
+                (!fractionalSemanticSupportRequested&&!sourceCarrierQuadratureRequested&&
+                 !p1AnchorRequested&&!recordedCarrierAllocationRequested&&
+                 !spatialReferenceRequested&&!conformingReferenceChainRequested),
+            "current fractional mass route cannot be mixed with legacy or operational mass routes");
     require(!(sourceCarrierQuadratureRequested||p1AnchorRequested||recordedCarrierAllocationRequested)||
                 (registeredVolumeInstallRequested&&fractionalSemanticSupportRequested),
             "source-carrier, recorded-allocation, and P1 anchor imports require registered volume and paired fractional semantic support");
@@ -22073,6 +22092,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             "operational spatial installation setting must be 0 or 1");
     const bool operationalSpatialInstallRequested=operationalSpatialInstallSetting&&
         std::string_view(operationalSpatialInstallSetting)=="1";
+    require(!registeredFractionalMassSupportRequested||!operationalSpatialInstallRequested,
+            "current fractional mass route cannot replace operational spatial installation");
     {
         const char* sourceOnly=std::getenv(
             "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_SOURCE_ONLY");
@@ -22865,10 +22886,11 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                                     density>=densityLower[material]&&density<=densityUpper[material],
                                 "exact parent packet density is outside the authoritative skin/fat material policy");
                     }
-                    require(preparePhysicalSkinChildMassMapping(importedBundle,
-                                densityLower,densityUpper,maximumMassTransportDistanceM,
-                                model.bodies.size(),preflightError),
-                            "registered child mass mapping rejected: "+preflightError);
+                    if(!registeredFractionalMassSupportRequested)
+                        require(preparePhysicalSkinChildMassMapping(importedBundle,
+                                    densityLower,densityUpper,maximumMassTransportDistanceM,
+                                    model.bodies.size(),preflightError),
+                                "registered child mass mapping rejected: "+preflightError);
 
                     std::array<PhysicalSkinAuthoringFullWeightsCSV,3> weightsFiles;
                     for(unsigned layer=0u;layer<3u;++layer) {
@@ -23261,7 +23283,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         <<" D_rows="<<surfaceReport.nodes[2]
                         <<" volume_nodes="<<importReport.tetgen.nodeCount
                         <<" volume_tets="<<importReport.tetgen.cellCount
-                        <<" mass_mapping=PASS full86_bindings="<<roleReport.bindingCount
+                        <<" mass_mapping="<<(registeredFractionalMassSupportRequested?
+                            "deferred_to_identity_bound_fractional_owner":"PASS")
+                        <<" full86_bindings="<<roleReport.bindingCount
                         <<" O_direct_render_rows="<<outerRenderDomain.transferRows.size()
                         <<" O_direct_render_nodes="<<importedBundle.currentWorldPoints.size()
                         <<" O_direct_render=typed_one_hot_prepared"
@@ -24605,9 +24629,14 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         oldPairedObject.femMaterialSourceIdentity!=zeroSourceIdentity,
                     "registered-volume replacement owner has no pinned reference/material source identities");
             std::string identityPathError;
-            require(physical_skin_child_mass_mapping_detail::
-                        validatePreparedPhysicalSkinChildMassMappingPath(bundle,identityPathError),
-                    "registered-volume mass mapping path failed before identity binding: "+identityPathError);
+            if(!registeredFractionalMassSupportRequested)
+                require(physical_skin_child_mass_mapping_detail::
+                            validatePreparedPhysicalSkinChildMassMappingPath(bundle,identityPathError),
+                        "registered-volume mass mapping path failed before identity binding: "+identityPathError);
+            else
+                require(bundle.massMappingPathSHA256.empty()&&
+                            bundle.spatialMassTransportResult.receiptSHA256.empty(),
+                        "deferred fractional preparation unexpectedly carries a stale mass result");
 
             // Reuse the exact native source-reference identity only for a full
             // captured-parent identity proof. Every other registered topology
@@ -24736,10 +24765,179 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             std::vector<double> identityDensityLower(17u,0.0),identityDensityUpper(17u,0.0);
             identityDensityLower[15u]=900.0;identityDensityUpper[15u]=1100.0;
             identityDensityLower[16u]=850.0;identityDensityUpper[16u]=950.0;
-            require(preparePhysicalSkinChildMassMapping(bundle,identityDensityLower,
-                        identityDensityUpper,bundle.maximumSpatialMassTransportDistanceM,
-                        model.bodies.size(),identityPathError),
-                    "registered-volume mass mapping failed after source identity binding: "+identityPathError);
+            if(registeredFractionalMassSupportRequested) {
+                constexpr std::string_view fractionalPrefix="NUMI_H706_FRACTIONAL_";
+                const auto fractionalValue=[&](const std::string_view suffix) {
+                    const std::string key=std::string(fractionalPrefix)+std::string(suffix);
+                    const char* raw=std::getenv(key.c_str());
+                    require(raw&&raw[0]!='\0',"missing required current fractional input pin "+key);
+                    return std::string(raw);
+                };
+                const auto fractionalPath=[&](const std::string_view suffix) {
+                    return std::filesystem::path(fractionalValue(suffix));
+                };
+                const auto requireSHA=[&](const std::string_view suffix) {
+                    const auto digest=fractionalValue(suffix);
+                    require(physical_skin_child_mass_detail::validSHA256(digest),
+                            "current fractional input SHA-256 is malformed: "+
+                                std::string(fractionalPrefix)+std::string(suffix));
+                    return digest;
+                };
+
+                const auto stateSHA=requireSHA("STATE_SHA256");
+                const auto source330MassSHA=requireSHA("SOURCE330_MASS_SHA256");
+                require(source330MassSHA==bundle.parent.parentMassPacketSHA256,
+                        "fractional support source330 mass pin differs from the imported native parent packet");
+                std::vector<std::uint32_t> skinChildRows,fatChildRows;
+                skinChildRows.reserve(bundle.childMaterialIndices.size());
+                fatChildRows.reserve(bundle.childMaterialIndices.size());
+                for(std::size_t child=0u;child<bundle.childMaterialIndices.size();++child) {
+                    const auto material=bundle.childMaterialIndices[child];
+                    if(material==15u)skinChildRows.push_back(static_cast<std::uint32_t>(child));
+                    else if(material==16u)fatChildRows.push_back(static_cast<std::uint32_t>(child));
+                    else require(false,"fractional support child material is outside the exact Skin/Fat policy");
+                }
+                require(!skinChildRows.empty()&&!fatChildRows.empty(),
+                        "fractional support requires nonempty exact Skin and Fat child rows");
+
+                CurrentFractionalSupportPins skinSupportPins;
+                skinSupportPins.supportSHA256=requireSHA("P1_SKIN_SHA256");
+                skinSupportPins.currentStateSHA256=stateSHA;
+                skinSupportPins.geometrySHA256=requireSHA("GEOMETRY_SKIN_SHA256");
+                skinSupportPins.volumeSHA256=requireSHA("VOLUME_SKIN_SHA256");
+                skinSupportPins.source330MassSHA256=source330MassSHA;
+                CurrentFractionalSupportPins fatSupportPins;
+                fatSupportPins.supportSHA256=requireSHA("P1_FAT_SHA256");
+                fatSupportPins.currentStateSHA256=stateSHA;
+                fatSupportPins.geometrySHA256=requireSHA("GEOMETRY_FAT_SHA256");
+                fatSupportPins.volumeSHA256=requireSHA("VOLUME_FAT_SHA256");
+                fatSupportPins.source330MassSHA256=source330MassSHA;
+
+                ConservativeSpatialChildSemanticSupportData skinSupport,fatSupport,fractionalSupportOwner;
+                require(loadCurrentP1SemanticSupportNPZ(fractionalPath("P1_SKIN_NPZ"),
+                            skinSupportPins,bundle.parent,skinChildRows.size(),skinSupport,identityPathError),
+                        "pinned current Skin P1 support rejected: "+identityPathError);
+                require(loadCurrentP1SemanticSupportNPZ(fractionalPath("P1_FAT_NPZ"),
+                            fatSupportPins,bundle.parent,fatChildRows.size(),fatSupport,identityPathError),
+                        "pinned current Fat P1 support rejected: "+identityPathError);
+                require(mergeCurrentPairedP1SemanticSupport(skinSupport,fatSupport,
+                            skinChildRows,fatChildRows,bundle.childMaterialIndices,bundle.parent,
+                            fractionalSupportOwner,identityPathError),
+                        "current paired Skin/Fat P1 support merge rejected: "+identityPathError);
+
+                CurrentSourceCarrierPins carrierPins;
+                carrierPins.skinPacketSHA256=requireSHA("CARRIERS_SKIN_SHA256");
+                carrierPins.fatPacketSHA256=requireSHA("CARRIERS_FAT_SHA256");
+                carrierPins.sourceNodeTableSHA256=requireSHA("SOURCE330_NODES_SHA256");
+                carrierPins.sourceTetTableSHA256=requireSHA("SOURCE330_TETS_SHA256");
+                CurrentSourceCarrierQuadratureData carrierData;
+                require(loadCurrentPairedSourceCarrierQuadratureNPZ(
+                            fractionalPath("CARRIERS_SKIN_NPZ"),
+                            fractionalPath("CARRIERS_FAT_NPZ"),
+                            fractionalPath("SOURCE330_TETS"),
+                            fractionalPath("SOURCE330_NODES"),
+                            carrierPins,bundle.parent,skinChildRows,fatChildRows,
+                            carrierData,identityPathError),
+                        "pinned current Skin/Fat source-carrier quadrature rejected: "+identityPathError);
+
+                CurrentFractionalSemanticProofFiles proofFiles;
+                proofFiles.exactProjectionCSVPath=fractionalPath("EXACT_PROJECTION_CSV");
+                proofFiles.exactProjectionCSV_SHA256=requireSHA("EXACT_PROJECTION_SHA256");
+                proofFiles.sourceCentroidSlotsCSVPath=fractionalPath("SOURCE_CENTROID_CSV");
+                proofFiles.sourceCentroidSlotsCSV_SHA256=requireSHA("SOURCE_CENTROID_SHA256");
+                proofFiles.skinCarrierWitnessCSVPath=fractionalPath("CARRIER_WITNESS_SKIN_CSV");
+                proofFiles.skinCarrierWitnessCSV_SHA256=requireSHA("CARRIER_WITNESS_SKIN_SHA256");
+                proofFiles.fatCarrierWitnessCSVPath=fractionalPath("CARRIER_WITNESS_FAT_CSV");
+                proofFiles.fatCarrierWitnessCSV_SHA256=requireSHA("CARRIER_WITNESS_FAT_SHA256");
+                proofFiles.carriers=&carrierData;
+                const auto carrierView=carrierData.view();
+                SourceCellCarrierTransportTrace carrierTrace;
+                require(preparePhysicalSkinChildMassMapping(bundle,identityDensityLower,
+                            identityDensityUpper,bundle.maximumSpatialMassTransportDistanceM,
+                            model.bodies.size(),identityPathError,nullptr,&carrierView,&carrierTrace,
+                            &fractionalSupportOwner,
+                            &bindCurrentFractionalSemanticSupportProofs,&proofFiles),
+                        "registered-volume fractional source-carrier mass mapping rejected: "+identityPathError);
+                require(bundle.spatialMassTransportResult.usesFractionalSemanticSupport,
+                        "registered-volume fractional mass owner returned a legacy transport result");
+
+                require(!evidenceOutputDirectory.empty(),
+                        "fractional mass preparation requires the native scene evidence directory");
+                std::filesystem::create_directories(evidenceOutputDirectory);
+                const auto receiptPath=evidenceOutputDirectory/
+                    ("registered-volume-fractional-mass-"+
+                     bundle.massMappingPathSHA256.substr(0u,16u)+".json");
+                require(!std::filesystem::exists(receiptPath),
+                        "refusing to overwrite an existing current fractional mass receipt");
+                std::ofstream receipt(receiptPath,std::ios::binary|std::ios::out);
+                require(static_cast<bool>(receipt),
+                        "could not create the current fractional mass receipt");
+                receipt<<"{\n"
+                    <<"  \"schema\": \"numi.human.current-fractional-native-mass.v1\",\n"
+                    <<"  \"status\": \"PASS\",\n"
+                    <<"  \"state_sha256\": \""<<stateSHA<<"\",\n"
+                    <<"  \"source330_mass_sha256\": \""<<source330MassSHA<<"\",\n"
+                    <<"  \"source330_nodes_sha256\": \""<<carrierPins.sourceNodeTableSHA256<<"\",\n"
+                    <<"  \"source330_tets_sha256\": \""<<carrierPins.sourceTetTableSHA256<<"\",\n"
+                    <<"  \"geometry_skin_sha256\": \""<<skinSupportPins.geometrySHA256<<"\",\n"
+                    <<"  \"volume_skin_sha256\": \""<<skinSupportPins.volumeSHA256<<"\",\n"
+                    <<"  \"geometry_fat_sha256\": \""<<fatSupportPins.geometrySHA256<<"\",\n"
+                    <<"  \"volume_fat_sha256\": \""<<fatSupportPins.volumeSHA256<<"\",\n"
+                    <<"  \"p1_skin_sha256\": \""<<skinSupportPins.supportSHA256<<"\",\n"
+                    <<"  \"p1_fat_sha256\": \""<<fatSupportPins.supportSHA256<<"\",\n"
+                    <<"  \"p1_skin_path\": "<<std::quoted(fractionalPath("P1_SKIN_NPZ").string())<<",\n"
+                    <<"  \"p1_fat_path\": "<<std::quoted(fractionalPath("P1_FAT_NPZ").string())<<",\n"
+                    <<"  \"carrier_skin_path\": "<<std::quoted(fractionalPath("CARRIERS_SKIN_NPZ").string())<<",\n"
+                    <<"  \"carrier_fat_path\": "<<std::quoted(fractionalPath("CARRIERS_FAT_NPZ").string())<<",\n"
+                    <<"  \"source330_nodes_path\": "<<std::quoted(fractionalPath("SOURCE330_NODES").string())<<",\n"
+                    <<"  \"source330_tets_path\": "<<std::quoted(fractionalPath("SOURCE330_TETS").string())<<",\n"
+                    <<"  \"projection_csv_path\": "<<std::quoted(proofFiles.exactProjectionCSVPath.string())<<",\n"
+                    <<"  \"source_centroid_csv_path\": "<<std::quoted(proofFiles.sourceCentroidSlotsCSVPath.string())<<",\n"
+                    <<"  \"carrier_witness_skin_path\": "<<std::quoted(proofFiles.skinCarrierWitnessCSVPath.string())<<",\n"
+                    <<"  \"carrier_witness_fat_path\": "<<std::quoted(proofFiles.fatCarrierWitnessCSVPath.string())<<",\n"
+                    <<"  \"projection_csv_sha256\": \""<<proofFiles.exactProjectionCSV_SHA256<<"\",\n"
+                    <<"  \"source_centroid_csv_sha256\": \""<<proofFiles.sourceCentroidSlotsCSV_SHA256<<"\",\n"
+                    <<"  \"carrier_witness_skin_sha256\": \""<<proofFiles.skinCarrierWitnessCSV_SHA256<<"\",\n"
+                    <<"  \"carrier_witness_fat_sha256\": \""<<proofFiles.fatCarrierWitnessCSV_SHA256<<"\",\n"
+                    <<"  \"carrier_skin_sha256\": \""<<carrierPins.skinPacketSHA256<<"\",\n"
+                    <<"  \"carrier_fat_sha256\": \""<<carrierPins.fatPacketSHA256<<"\",\n"
+                    <<"  \"paired_carrier_sha256\": \""<<carrierData.sourceCarrierPacketSHA256<<"\",\n"
+                    <<"  \"carrier_witness_sha256\": \""<<proofFiles.combinedCarrierWitnessSHA256<<"\",\n"
+                    <<"  \"support_sha256\": \""<<fractionalSupportOwner.typedSupportSHA256<<"\",\n"
+                    <<"  \"transport_receipt_sha256\": \""<<bundle.spatialMassTransportResult.receiptSHA256<<"\",\n"
+                    <<"  \"mass_mapping_path_sha256\": \""<<bundle.massMappingPathSHA256<<"\",\n"
+                    <<"  \"carrier_trace_sha256\": \""<<carrierTrace.receiptSHA256<<"\",\n"
+                    <<"  \"carrier_count\": "<<carrierData.carrierWeights.size()<<",\n"
+                    <<"  \"carrier_trace_edges\": "<<carrierTrace.childParentCarrierRows.size()<<",\n"
+                    <<"  \"projection_rows\": "<<proofFiles.exactProjectionRows.size()<<",\n"
+                    <<"  \"centroid_witness_rows\": "<<proofFiles.sourceCentroidRows.size()<<",\n"
+                    <<"  \"carrier_witness_rows\": "<<proofFiles.carrierWitnessRows.size()<<",\n"
+                    <<"  \"projection_rest_basis_rejects\": "<<proofFiles.referenceBasisRejects.size()<<"\n"
+                    <<"}\n";
+                receipt.close();
+                require(static_cast<bool>(receipt),
+                        "could not flush the current fractional mass receipt");
+                std::cout<<"registered_volume_fractional_mass=PASS"
+                    <<" p1_skin_sha256="<<skinSupportPins.supportSHA256
+                    <<" p1_fat_sha256="<<fatSupportPins.supportSHA256
+                    <<" support_sha256="<<fractionalSupportOwner.typedSupportSHA256
+                    <<" carrier_packet_sha256="<<carrierData.sourceCarrierPacketSHA256
+                    <<" carrier_trace_sha256="<<carrierTrace.receiptSHA256
+                    <<" carrier_count="<<carrierData.carrierWeights.size()
+                    <<" projection_rows="<<proofFiles.exactProjectionRows.size()
+                    <<" source_centroid_rows="<<proofFiles.sourceCentroidRows.size()
+                    <<" carrier_witness_rows="<<proofFiles.carrierWitnessRows.size()
+                    <<" rest_basis_rejects="<<proofFiles.referenceBasisRejects.size()
+                    <<" receipt_path="<<receiptPath.string()
+                    <<" mass_mapping_path_sha256="<<bundle.massMappingPathSHA256
+                    <<" transport_receipt_sha256="<<bundle.spatialMassTransportResult.receiptSHA256
+                    <<" physical_admission=0 simulation_steps=0\n";
+            } else {
+                require(preparePhysicalSkinChildMassMapping(bundle,identityDensityLower,
+                            identityDensityUpper,bundle.maximumSpatialMassTransportDistanceM,
+                            model.bodies.size(),identityPathError),
+                        "registered-volume mass mapping failed after source identity binding: "+identityPathError);
+            }
             require(physical_skin_child_mass_mapping_detail::
                         validatePreparedPhysicalSkinChildMassMappingPath(bundle,identityPathError),
                     "registered-volume identity-bound mass mapping path failed validation: "+identityPathError);
@@ -38860,7 +39058,8 @@ int main(int argc, char** argv) {
                         restingHipCapsuleReference,restingScene->first.c_str(),
                         initialTissueQ,*muscleStepSeconds,
                         selectedMatterMetallib,true,
-                        &registeredDetailCanonicalExportCompleted);
+                        &registeredDetailCanonicalExportCompleted,
+                        std::filesystem::path(restingScene->second));
                     if(registeredDetailCanonicalExportCompleted) {
                         require(!restingPassiveFasciaOwner,
                                 "canonical detail export unexpectedly installed a scene owner");
