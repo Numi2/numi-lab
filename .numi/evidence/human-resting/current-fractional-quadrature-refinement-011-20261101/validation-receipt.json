@@ -1,0 +1,90 @@
+{
+  "schema": "numi.h706.current-fractional-publication-011.applied-validation.v1",
+  "publication_base_commit": "693c3f4e14e4eb380b525ad6c534f3d02a0f59b0",
+  "source_pins": {
+    "apps/NumiHumanCurrentFractionalSupportNPZ.hpp": "c4508348be10cb9756a195258f4c20b8873a6228e9339ca989edd5be5f68614c",
+    "apps/NumiHumanCurrentFractionalMassMappingCLI.cpp": "93e110e129cfbbe567531bc27e79cad5c324277f4a87a9783ba834e7be1424b0",
+    "tests/CurrentCarrierChildSlotCheck_011.cpp": "acc171d4c205a5b3c49e455ff592e4ff4a80528577ab66a79b27a6e84de1a1a0",
+    "tests/SourceCarrierMomentRefinementCheck_011.cpp": "d6ebaeeee46963f5fe52d50924df9be0f90e0e09d48543706719e99cebe9759f",
+    "011_source_control_manifest": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/quadrature-refinement-011/source-control-manifest-011.json",
+      "sha256": "0cd856ee5906a24b108d3fa021d841e86739ed071138c4a996546766398d2ef3"
+    }
+  },
+  "focused_controls": [
+    {
+      "name": "ConservativeSpatialFractionalSemanticSupportCheck",
+      "compile": "PASS (-std=c++23 -O0 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "shared real-child semantic capacity controls PASS"
+    },
+    {
+      "name": "ConservativeSpatialSourceCarrierQuadratureCheck",
+      "compile": "PASS (-std=c++23 -O0 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "source carrier quadrature PASS; aggregate mass, density, measure and replay verified; legacy route unchanged; 7 tamper/eligibility controls rejected"
+    },
+    {
+      "name": "CurrentCarrierWitnessCSVCheck",
+      "compile": "PASS (-std=c++23 -O0 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "current 1046c carrier sidecars PASS: pinned schema, role-local rows, barycentric geometry, radius, exact tuple and P1 preservation"
+    },
+    {
+      "name": "CurrentCarrierChildSlotCheck",
+      "compile": "PASS (-std=c++23 -O0 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "many-child carrier slot binder PASS: primary coverage, repeated carrier child support, role map, tuple, one-hop and radius"
+    },
+    {
+      "name": "CurrentExactProjectionReplayCheck",
+      "compile": "PASS (-std=c++23 -O0 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "current exact projection replay PASS: current/rest geometry, barycentric, tuple, material, one-hop and radius"
+    },
+    {
+      "name": "CurrentPairedP1SupportMergeCheck",
+      "compile": "PASS (-std=c++23 -O0 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "paired current P1 merge PASS: distinct role base hashes and one-hop controls"
+    },
+    {
+      "name": "CurrentSourceCentroidAllowlistCheck",
+      "compile": "PASS (-std=c++23 -O0 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "current source-centroid proof slots PASS: exact tuple/material/region/radius/CSR gates; P1 preferences unchanged"
+    },
+    {
+      "name": "CurrentCarrierChildSlotCheck_011",
+      "compile": "PASS (-std=c++23 -O0 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "carrier witness binder PASS: 1046d primary tag, legacy compatibility, unknown-tag rejection, child-slot tuple, one-hop and radius"
+    },
+    {
+      "name": "SourceCarrierMomentRefinementCheck_011",
+      "compile": "PASS (-std=c++23 -O0 -Wall -Wextra -Wpedantic -Werror)",
+      "run": "PASS",
+      "output": "source carrier quadrature PASS: moment-preserving added anchor; unbalanced append and first-moment regressions rejected; aggregate mass/density/measure/replay verified; legacy route unchanged"
+    }
+  ],
+  "syntax_only": {
+    "fractional_cli": {
+      "source": "apps/NumiHumanCurrentFractionalMassMappingCLI.cpp",
+      "sha256": "93e110e129cfbbe567531bc27e79cad5c324277f4a87a9783ba834e7be1424b0",
+      "compiler": "clang++ -std=c++20 -O0 -Wall -Wextra -Werror -DNUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1 -fsyntax-only",
+      "exit": 0
+    },
+    "resting_app": {
+      "source": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "d3eed81ebed105e5c3d01b1174a4ee0fe5e6b1d790fbcaefa39761858f69248b",
+      "invocation": "Exact argv from current-fractional-support-20261101/validation-receipt.json with publication include roots; exit 0"
+    }
+  },
+  "git_diff_check": "PASS",
+  "execution_status": {
+    "real_mass_transfer": "NOT_RUN",
+    "native_motion": "NOT_RUN",
+    "physical_admission": false,
+    "linked_publication_binary": "NOT_BUILT_HERE"
+  }
+}

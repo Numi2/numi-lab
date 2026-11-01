@@ -1186,7 +1186,8 @@ struct CurrentCarrierWitnessCSVSummary {
             if(row.mode==CurrentCarrierWitnessMode::P1ExactTupleSlot&&p1Group<0)
                 return fail("1046c P1 carrier witness omits its role-local P1 group identity");
             if(f[2]!="inherited_090_quadrature"&&
-               f[2]!="current_exact_tuple_projection_degree1_lp")
+               f[2]!="current_exact_tuple_projection_degree1_lp"&&
+               f[2]!="source_tetra_anchor_refinement_1046d")
                 return fail("1046c carrier witness uses an unknown construction provenance");
         }
         next.push_back(std::move(row));
@@ -1315,7 +1316,8 @@ struct CurrentCarrierWitnessCSVSummary {
         const auto constructionValid=row.extraChildSlot?
             row.carrierConstruction=="current_source_carrier_edge_support":
             (row.carrierConstruction=="inherited_090_quadrature"||
-             row.carrierConstruction=="current_exact_tuple_projection_degree1_lp");
+             row.carrierConstruction=="current_exact_tuple_projection_degree1_lp"||
+             row.carrierConstruction=="source_tetra_anchor_refinement_1046d");
         if(!row.hasCSVProof||!physical_skin_child_mass_detail::validSHA256(row.sourceCSVSHA256)||
            !constructionValid||parent>=np||child>=nc||
            row.sourceParentRow!=carrier.globalSourceTetRows[parent]||
