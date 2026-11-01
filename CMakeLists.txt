@@ -7104,6 +7104,20 @@ foreach(skin_check IN ITEMS conservative-spatial-mass-transport accepted-fem-ski
     endif()
 endforeach()
 
+# Focused CPU regression for the thresholded residual-forest allocator.
+add_executable(numi-human-fractional-semantic-allocator-025-check EXCLUDE_FROM_ALL
+    apps/NumiHumanFractionalSemanticAllocator025Check.cpp)
+target_include_directories(numi-human-fractional-semantic-allocator-025-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+target_compile_features(numi-human-fractional-semantic-allocator-025-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-fractional-semantic-allocator-025-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME human.fractional-semantic-allocator-025
+        COMMAND numi-human-fractional-semantic-allocator-025-check)
+endif()
+
 # Internal registered-surface candidate import; no runtime state or new artifact format.
 add_executable(numi-human-registered-skin-candidate-csv-check EXCLUDE_FROM_ALL
     apps/NumiHumanRegisteredSkinCandidateCSVCheck.cpp)

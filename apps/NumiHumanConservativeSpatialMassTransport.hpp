@@ -917,6 +917,14 @@ public:
         return true;
     }
 
+    [[nodiscard]] double minimumPositiveResidualCapacity() const {
+        double minimum=std::numeric_limits<double>::infinity();
+        for(const auto& adjacency:graph_)
+            for(const auto& edge:adjacency)
+                if(hasPositiveCapacity(edge))minimum=std::min(minimum,pathCapacity(edge));
+        return minimum;
+    }
+
     [[nodiscard]] bool hasResidualSourceCapacity(const std::uint32_t source) const {
         if (source >= graph_.size()) return false;
         for (const auto& edge : graph_[source])
@@ -952,11 +960,35 @@ public:
                hasPositiveCapacity(graph_[from][edge]);
     }
 
+    [[nodiscard]] bool hasResidualCapacityAtLeast(const std::uint32_t from,
+                                                   const std::uint32_t edge,
+                                                   const double minimumCapacity) const {
+        if(from>=graph_.size()||edge>=graph_[from].size()||
+           !std::isfinite(minimumCapacity)||minimumCapacity<0.0)return false;
+        const auto& residual=graph_[from][edge];
+        return hasPositiveCapacity(residual)&&pathCapacity(residual)>=minimumCapacity;
+    }
+
     template <typename Visitor>
     void forEachPositiveResidualEdge(const std::uint32_t from, Visitor&& visitor) const {
         if (from >= graph_.size()) return;
         for (const auto& edge : graph_[from])
             if (hasPositiveCapacity(edge)) visitor(edge.to);
+    }
+
+    // Capacity-scaled closure iterator. The threshold affects discovery only;
+    // callers must keep exact residual capacities for insertion and flow.
+    template <typename Visitor>
+    void forEachResidualEdgeAtLeast(const std::uint32_t from,
+                                    const double minimumCapacity,
+                                    Visitor&& visitor) const {
+        if (from >= graph_.size() || !std::isfinite(minimumCapacity) ||
+            minimumCapacity < 0.0) return;
+        for (const auto& edge : graph_[from]) {
+            if (!hasPositiveCapacity(edge)) continue;
+            const double capacity = pathCapacity(edge);
+            if (capacity >= minimumCapacity) visitor(edge.to, capacity);
+        }
     }
 
     [[nodiscard]] double reducedCost(const std::uint32_t from,

@@ -6,7 +6,12 @@
 // reference volumes sum to the real cell volume; returned flows are aggregated
 // back to the real child row before leaving this API.
 #include "NumiHumanConservativeSpatialMassTransport.hpp"
+#include <algorithm>
+#include <array>
 #include <iostream>
+#include <limits>
+#include <unordered_set>
+#include <utility>
 
 namespace metalrobo::human::coarse_tissue {
 
@@ -77,6 +82,229 @@ struct ConservativeSpatialChildSemanticSupportData {
 };
 
 namespace fractional_semantic_transport_detail {
+
+// Mark only omitted forest arcs on predecessor paths to phase-specific
+// positive-demand sink neighbors. Existing residual arcs carry no omitted-edge
+// index. Repeated targets are harmless; malformed chains fail closed.
+inline bool selectImplicitResidualForestPathEdges(
+        const std::uint32_t source,
+        const std::vector<std::uint32_t>& predecessor,
+        const std::vector<std::size_t>& predecessorOmittedEdge,
+        const std::vector<std::uint32_t>& positiveDemandSinkNeighbors,
+        const std::size_t omittedEdgeCount,
+        std::vector<bool>& selectedOmittedEdges,
+        std::size_t& uniqueTargetCount,
+        std::size_t& selectedEdgeCount,
+        std::string& error) {
+    const auto invalidNode=std::numeric_limits<std::uint32_t>::max();
+    const auto noOmittedEdge=std::numeric_limits<std::size_t>::max();
+    if(predecessor.size()!=predecessorOmittedEdge.size()||
+       source>=predecessor.size()||selectedOmittedEdges.size()!=omittedEdgeCount)
+        return (error="implicit residual forest predecessor dimensions are invalid",false);
+    std::vector<bool> seenTargets(predecessor.size(),false);
+    // The predecessor forest can have many sink-neighbor leaves sharing long
+    // prefixes. Memoize completed chains so their common prefixes are walked
+    // once; state 1 is the active chain and also detects malformed cycles.
+    std::vector<std::uint8_t> pathState(predecessor.size(),0u);
+    pathState[source]=2u;
+    std::vector<std::uint32_t> path;
+    uniqueTargetCount=0u;
+    selectedEdgeCount=0u;
+    for(const auto target:positiveDemandSinkNeighbors){
+        if(target>=predecessor.size()||target==source)
+            return (error="implicit residual forest sink-neighbor target is invalid",false);
+        if(seenTargets[target])continue;
+        seenTargets[target]=true;
+        ++uniqueTargetCount;
+        path.clear();
+        auto node=target;
+        while(pathState[node]!=2u){
+            if(pathState[node]==1u)
+                return (error="implicit residual forest predecessor chain is cyclic",false);
+            pathState[node]=1u;
+            path.push_back(node);
+            const auto parent=predecessor[node];
+            if(parent==invalidNode||parent>=predecessor.size())
+                return (error="implicit residual forest sink neighbor has no source path",false);
+            const auto omitted=predecessorOmittedEdge[node];
+            if(omitted!=noOmittedEdge){
+                if(omitted>=omittedEdgeCount)
+                    return (error="implicit residual forest predecessor edge index is invalid",false);
+                if(!selectedOmittedEdges[omitted]){
+                    selectedOmittedEdges[omitted]=true;
+                    ++selectedEdgeCount;
+                }
+            }
+            node=parent;
+        }
+        for(const auto visited:path)pathState[visited]=2u;
+    }
+    error.clear();
+    return true;
+}
+
+
+
+inline bool isTerminalPositiveDemandChild(const bool minimumPhase,
+        const bool childPhaseSinkAtLeastThreshold,
+        const bool maximumFinalSinkAtLeastThreshold) noexcept {
+    return childPhaseSinkAtLeastThreshold&&
+           (minimumPhase||maximumFinalSinkAtLeastThreshold);
+}
+
+struct ImplicitCrossPathSelectionCandidate {
+    std::uint32_t parentNode;
+    std::uint32_t childNode;
+    std::uint64_t pairKey;
+    double score;
+};
+
+// Add a bounded set of omitted parent->child arcs from any reached parent to
+// a phase-specific positive-demand child. Each selected arc brings its
+// source-rooted predecessor prefix; a child ancestor of its parent is rejected
+// because that cross edge would close a predecessor-tree cycle.
+inline bool selectImplicitCrossPathCandidates(
+        const std::uint32_t source,
+        const std::vector<std::uint32_t>& predecessor,
+        const std::vector<std::size_t>& predecessorOmittedEdge,
+        const std::vector<std::uint64_t>& initialTreePairKeys,
+        const std::vector<std::uint32_t>& positiveDemandSinkNeighbors,
+        const std::vector<ImplicitCrossPathSelectionCandidate>& rankedCandidates,
+        const std::size_t crossCandidateLimit,
+        const std::size_t omittedEdgeCount,
+        const std::size_t edgeBudget,
+        std::vector<bool>& selectedOmittedEdges,
+        std::vector<std::size_t>& selectedCandidateIndices,
+        std::vector<std::uint32_t>& selectedPathTargets,
+        std::size_t& uniqueTargetCount,
+        std::size_t& selectedOmittedEdgeCount,
+        std::string& error) {
+    const auto invalidNode=std::numeric_limits<std::uint32_t>::max();
+    const auto noOmittedEdge=std::numeric_limits<std::size_t>::max();
+    if(predecessor.size()!=predecessorOmittedEdge.size()||
+       source>=predecessor.size()||
+       !std::is_sorted(initialTreePairKeys.begin(),initialTreePairKeys.end()))
+        return (error="implicit cross-path selection dimensions or initial-pair order are invalid",false);
+
+    selectedOmittedEdges.assign(omittedEdgeCount,false);
+    selectedCandidateIndices.clear();
+    selectedPathTargets=positiveDemandSinkNeighbors;
+    std::string pathError;
+    if(!selectImplicitResidualForestPathEdges(source,predecessor,predecessorOmittedEdge,
+            positiveDemandSinkNeighbors,omittedEdgeCount,selectedOmittedEdges,
+            uniqueTargetCount,selectedOmittedEdgeCount,pathError))
+        return (error="implicit cross-path base sink-prefix selection failed: "+pathError,false);
+    std::size_t projectedForestEdgeCount=selectedOmittedEdgeCount;
+    std::vector<std::uint64_t> selectedPairs;
+    selectedPairs.reserve(std::min(crossCandidateLimit,rankedCandidates.size()));
+    std::vector<std::size_t> prefixOmittedEdges;
+    prefixOmittedEdges.reserve(64u);
+
+    for(std::size_t candidateIndex=0;
+        candidateIndex<rankedCandidates.size()&&selectedCandidateIndices.size()<crossCandidateLimit;
+        ++candidateIndex){
+        const auto& candidate=rankedCandidates[candidateIndex];
+        if(candidate.parentNode>=predecessor.size()||candidate.childNode>=predecessor.size()||
+           candidate.parentNode==source||candidate.childNode==source||
+           !std::isfinite(candidate.score)||candidate.score<=0.0)
+            return (error="implicit cross-path candidate node or score is invalid",false);
+        if(std::binary_search(initialTreePairKeys.begin(),initialTreePairKeys.end(),candidate.pairKey)||
+           std::find(selectedPairs.begin(),selectedPairs.end(),candidate.pairKey)!=selectedPairs.end())
+            continue;
+        prefixOmittedEdges.clear();
+        bool ancestorCycle=false;
+        auto node=candidate.parentNode;
+        std::size_t walked=0u;
+        while(node!=source){
+            if(node==candidate.childNode){ancestorCycle=true;break;}
+            if(++walked>predecessor.size())
+                return (error="implicit cross-path parent predecessor chain is cyclic",false);
+            const auto omitted=predecessorOmittedEdge[node];
+            if(omitted!=noOmittedEdge){
+                if(omitted>=omittedEdgeCount)
+                    return (error="implicit cross-path predecessor omitted-edge index is invalid",false);
+                prefixOmittedEdges.push_back(omitted);
+            }
+            const auto parent=predecessor[node];
+            if(parent==invalidNode||parent>=predecessor.size())
+                return (error="implicit cross-path candidate parent has no source-rooted prefix",false);
+            node=parent;
+        }
+        if(ancestorCycle)continue;
+        std::size_t extraPrefixEdges=0u;
+        for(const auto omitted:prefixOmittedEdges)
+            if(!selectedOmittedEdges[omitted])++extraPrefixEdges;
+        if(projectedForestEdgeCount+extraPrefixEdges+selectedCandidateIndices.size()+1u>edgeBudget)
+            continue;
+        for(const auto omitted:prefixOmittedEdges)if(!selectedOmittedEdges[omitted]){
+            selectedOmittedEdges[omitted]=true;
+            ++projectedForestEdgeCount;
+        }
+        selectedCandidateIndices.push_back(candidateIndex);
+        selectedPairs.push_back(candidate.pairKey);
+        selectedPathTargets.push_back(candidate.parentNode);
+    }
+
+    // Rebuild the union from scratch so the reported edge count includes both
+    // the original sink paths and every selected candidate-parent prefix.
+    selectedOmittedEdges.assign(omittedEdgeCount,false);
+    if(!selectImplicitResidualForestPathEdges(source,predecessor,predecessorOmittedEdge,
+            selectedPathTargets,omittedEdgeCount,selectedOmittedEdges,
+            uniqueTargetCount,selectedOmittedEdgeCount,pathError))
+        return (error="implicit cross-path union selection failed: "+pathError,false);
+    if(selectedOmittedEdgeCount+selectedCandidateIndices.size()>edgeBudget)
+        return (error="implicit cross-path union exceeds the remaining sparse-edge budget",false);
+    error.clear();
+    return true;
+}
+
+// Greedy exact-capacity simulation for a deterministic, already-ranked batch
+// of direct source-parent -> positive-demand-child candidate arcs. This only
+// ranks which valid arcs to materialize; Dinic and all physical capacities
+// remain authoritative for actual flow.
+inline bool simulateDirectCapacityGreedy(
+        const std::vector<std::uint32_t>& candidateParents,
+        const std::vector<std::uint32_t>& candidateChildren,
+        std::vector<double>& sourceRemainingKg,
+        std::vector<double>& childDemandRemainingKg,
+        double& finalSinkRemainingKg,
+        const std::size_t maximumSelected,
+        std::vector<std::size_t>& selectedCandidateRows,
+        double& simulatedCapacitySumKg,
+        std::string& error) {
+    if(candidateParents.size()!=candidateChildren.size())
+        return (error="direct capacity candidate row dimensions differ",false);
+    selectedCandidateRows.clear();
+    simulatedCapacitySumKg=0.0;
+    std::unordered_set<std::uint64_t> selectedPairs;
+    selectedPairs.reserve(std::min(maximumSelected,candidateParents.size()));
+    for(std::size_t row=0;row<candidateParents.size();++row){
+        if(selectedCandidateRows.size()>=maximumSelected)break;
+        const auto parent=candidateParents[row],child=candidateChildren[row];
+        if(parent>=sourceRemainingKg.size()||child>=childDemandRemainingKg.size())
+            return (error="direct capacity candidate row is out of range",false);
+        const auto key=(static_cast<std::uint64_t>(parent)<<32u)|child;
+        if(selectedPairs.contains(key))continue;
+        const double source=sourceRemainingKg[parent],demand=childDemandRemainingKg[child];
+        if(!std::isfinite(source)||!std::isfinite(demand)||source<0.0||demand<0.0||
+           std::isnan(finalSinkRemainingKg)||finalSinkRemainingKg<0.0)
+            return (error="direct capacity simulation has invalid residual capacity",false);
+        double capacity=std::min(source,demand);
+        if(std::isfinite(finalSinkRemainingKg))capacity=std::min(capacity,finalSinkRemainingKg);
+        if(capacity<=0.0)continue;
+        selectedPairs.insert(key);
+        selectedCandidateRows.push_back(row);
+        sourceRemainingKg[parent]=capacity>=source?0.0:source-capacity;
+        childDemandRemainingKg[child]=capacity>=demand?0.0:demand-capacity;
+        if(std::isfinite(finalSinkRemainingKg))
+            finalSinkRemainingKg=capacity>=finalSinkRemainingKg?0.0:finalSinkRemainingKg-capacity;
+        simulatedCapacitySumKg+=capacity;
+    }
+    if(!std::isfinite(simulatedCapacitySumKg))
+        return (error="direct capacity simulated sum is non-finite",false);
+    error.clear();
+    return true;
+}
 
 using Group = std::pair<std::uint32_t, std::uint32_t>;
 
@@ -154,6 +382,7 @@ inline bool childAllowsSourceGroup(
         return childAllowsSourceRegion(support,child,support.anatomicalRegionIndices[group]);
     return childPrefersSemanticGroup(support,child,group);
 }
+
 
 struct ExpandedInput {
     std::vector<SpatialMassTransportPoint> centroids;
@@ -1373,6 +1602,7 @@ inline bool assembleSharedRealChildCapacity(
     // Retain child-extra arcs so maximum-flow cut expansion can favor children
     // with remaining density capacity as well as minimum-phase lower deficits.
     std::vector<std::uint32_t> maximumArcs(nc,invalid);
+    std::uint32_t maximumFinalSinkArc=invalid;
     const auto minimumResidualSummary=[&](){
         std::size_t unsatisfied=0u;
         long double remaining=0.0L;
@@ -1641,31 +1871,248 @@ inline bool assembleSharedRealChildCapacity(
         out<<"residual_child_rows_csv_end\nshared_capacity_full_cut_end\n";
         return out.str();
     };
+    double lastMinimumPhaseProductiveThreshold=0.0;
+    double lastMaximumPhaseProductiveThreshold=0.0;
     const auto expandAcrossResidualCut=[&](const bool minimumPhase){
         perf.stage=minimumPhase?"minimum_flow":"maximum_flow";
         ++perf.cutRounds;
+        // Search the residual graph from large to small bottleneck scales. This
+        // only chooses which exact omitted arcs to materialize; all subsequent
+        // Dinic augmentation and the terminal zero-threshold cut remain exact.
+        double thresholdUpper=0.0;
+        for(std::size_t p=0;p<np;++p){
+            const double cap=network.remainingCapacity(superSource,parentSourceArcs[p]);
+            if(std::isfinite(cap)&&cap>thresholdUpper)thresholdUpper=cap;
+        }
+        double maximumDemandCapacity=0.0;
+        for(std::size_t c=0;c<nc;++c){
+            const auto arc=minimumPhase?minimumArcs[c]:maximumArcs[c];
+            if(arc==invalid)continue;
+            const double cap=network.remainingCapacity(childBase+static_cast<std::uint32_t>(c),arc);
+            if(std::isfinite(cap)&&cap>maximumDemandCapacity)maximumDemandCapacity=cap;
+        }
+        thresholdUpper=std::min(thresholdUpper,maximumDemandCapacity);
+        if(!minimumPhase){
+            if(maximumFinalSinkArc==invalid)
+                return fail("INTERNAL shared-capacity maximum-phase final sink arc is missing");
+            const double finalCap=network.remainingCapacity(sink,maximumFinalSinkArc);
+            if(!std::isfinite(finalCap)||finalCap<0.0)
+                return fail("shared-capacity maximum-phase final sink residual is invalid");
+            thresholdUpper=std::min(thresholdUpper,finalCap);
+        }
+        constexpr std::size_t capacityThresholdMaxLevels=16u;
+        std::size_t capacityThresholdLevelsTested=0u;
+        std::uint64_t capacityThresholdPairsExamined=0u;
+        double capacitySearchThreshold=0.0;
+        double capacityThresholdInitial=0.0;
+        const double capacityThresholdCachedPrior=minimumPhase?
+            lastMinimumPhaseProductiveThreshold:lastMaximumPhaseProductiveThreshold;
+        bool thresholdPathFound=false;
+        bool zeroThresholdFallback=false;
+        const auto forEachThresholdResidualArc=[&](const std::uint32_t from,const double delta,auto&& visitor){
+            if(from!=superSource){
+                network.forEachResidualEdgeAtLeast(from,delta,visitor);
+                return;
+            }
+            std::vector<std::pair<std::uint32_t,double>> sourceEdges;
+            sourceEdges.reserve(np);
+            network.forEachResidualEdgeAtLeast(from,delta,[&](const std::uint32_t to,const double cap){
+                sourceEdges.emplace_back(to,cap);
+            });
+            std::sort(sourceEdges.begin(),sourceEdges.end(),[](const auto& a,const auto& b){
+                if(a.second!=b.second)return a.second>b.second;
+                return a.first<b.first;
+            });
+            for(const auto [to,cap]:sourceEdges)visitor(to,cap);
+        };
+        const auto hasPathAtThreshold=[&](const double delta){
+            std::vector<bool> thresholdReached(static_cast<std::size_t>(superSink)+1u,false);
+            std::vector<std::uint32_t> thresholdQueue;
+            thresholdQueue.reserve(np+nc);
+            thresholdQueue.push_back(superSource);thresholdReached[superSource]=true;
+            for(std::size_t cursor=0;cursor<thresholdQueue.size();++cursor){
+                const auto from=thresholdQueue[cursor];
+                if(from==superSink)continue;
+                bool foundSink=false;
+                forEachThresholdResidualArc(from,delta,[&](const std::uint32_t to,double){
+                    if(to>=thresholdReached.size()||thresholdReached[to])return;
+                    thresholdReached[to]=true;
+                    if(to==superSink){foundSink=true;return;}
+                    thresholdQueue.push_back(to);
+                });
+                if(foundSink)return true;
+                if(from<parentBase||from>=childBase)continue;
+                const auto parent=from-parentBase;
+                if(in.parentMassKg[parent]<delta)continue;
+                const auto group=parentGroup[parent];
+                const auto base=parentGrid[parent];
+                for(std::int64_t dx=-2;dx<=2;++dx)
+                    for(std::int64_t dy=-2;dy<=2;++dy)
+                        for(std::int64_t dz=-2;dz<=2;++dz){
+                            const GridKey key{base.x+dx,base.y+dy,base.z+dz};
+                            const auto found=childrenByGroupBucket.find({group,key});
+                            if(found==childrenByGroupBucket.end())continue;
+                            for(const auto child:found->second){
+                                ++capacityThresholdPairsExamined;
+                                if(std::binary_search(activeChildrenByParent[parent].begin(),
+                                                      activeChildrenByParent[parent].end(),child))continue;
+                                const double d=distance(in.parentCentroidsWorld[parent],
+                                                        in.childCentroidsWorld[child]);
+                                if(d>in.maximumTransportDistanceM||
+                                   d*d>radiusSquared*(1.0+1.0e-14))continue;
+                                const auto childNode=childBase+child;
+                                if(thresholdReached[childNode])continue;
+                                thresholdReached[childNode]=true;
+                                thresholdQueue.push_back(childNode);
+                            }
+                        }
+            }
+            return false;
+        };
+        if(std::isfinite(thresholdUpper)&&thresholdUpper>0.0){
+            const int exponent=std::ilogb(thresholdUpper);
+            double delta=std::ldexp(1.0,exponent);
+            if(capacityThresholdCachedPrior>0.0&&std::isfinite(capacityThresholdCachedPrior))
+                delta=std::min(delta,capacityThresholdCachedPrior);
+            capacityThresholdInitial=delta;
+            for(std::size_t level=0;level<capacityThresholdMaxLevels&&delta>0.0;++level){
+                ++capacityThresholdLevelsTested;
+                if(hasPathAtThreshold(delta)){
+                    capacitySearchThreshold=delta;
+                    thresholdPathFound=true;
+                    break;
+                }
+                delta*=0.5;
+            }
+            // If the bounded scale descent did not find a path, one final
+            // positive threshold equal to the graph's smallest positive arc
+            // covers every residual and implicit edge. Zero-threshold traversal
+            // remains reserved for the exact full-cut certificate.
+            if(!thresholdPathFound){
+                double minimumCapacity=network.minimumPositiveResidualCapacity();
+                for(const auto mass:in.parentMassKg)
+                    if(std::isfinite(mass)&&mass>0.0)minimumCapacity=std::min(minimumCapacity,mass);
+                if(std::isfinite(minimumCapacity)&&minimumCapacity>0.0){
+                    ++capacityThresholdLevelsTested;
+                    if(hasPathAtThreshold(minimumCapacity)){
+                        capacitySearchThreshold=minimumCapacity;
+                        thresholdPathFound=true;
+                    }
+                }
+            }
+        }
+        if(!thresholdPathFound){
+            // Exact zero-threshold closure is reserved for a complete cut proof.
+            capacitySearchThreshold=0.0;
+            zeroThresholdFallback=true;
+        }
         std::vector<bool> reached(static_cast<std::size_t>(superSink)+1u,false);
         std::vector<std::uint32_t> queue;
         queue.reserve(np+nc);
         queue.push_back(superSource);reached[superSource]=true;
+        const auto invalidPredecessor=std::numeric_limits<std::uint32_t>::max();
+        const auto noOmittedPredecessor=std::numeric_limits<std::size_t>::max();
+        std::vector<std::uint32_t> predecessor(reached.size(),invalidPredecessor);
+        std::vector<std::size_t> predecessorOmittedEdge(reached.size(),noOmittedPredecessor);
+        std::vector<double> predecessorBottleneck(reached.size(),0.0);
+        predecessorBottleneck[superSource]=std::numeric_limits<double>::infinity();
         std::vector<PendingEdge> additions;
         additions.reserve(std::min(nc,cutExpansionBatch));
+        struct DirectCandidate {std::uint32_t parent;double score;};
+        constexpr std::size_t directParentsPerChild=4u;
+        constexpr std::size_t directEdgeBatchCap=65536u;
+        std::vector<double> directSourceResidual(np,0.0),directChildResidual(nc,0.0);
+        std::vector<std::uint32_t> directTargetChildren;
+        std::vector<std::uint32_t> directTargetSlot(nc,std::numeric_limits<std::uint32_t>::max());
+        for(std::size_t p=0;p<np;++p){
+            const double cap=network.remainingCapacity(superSource,parentSourceArcs[p]);
+            if(std::isfinite(cap)&&cap>0.0)directSourceResidual[p]=cap;
+        }
+        for(std::size_t c=0;c<nc;++c){
+            const auto childNode=childBase+static_cast<std::uint32_t>(c);
+            const auto arc=minimumPhase?minimumArcs[c]:maximumArcs[c];
+            if(arc==invalid||!network.hasResidualCapacity(childNode,arc))continue;
+            const double cap=network.remainingCapacity(childNode,arc);
+            if(!std::isfinite(cap)||cap<=0.0)continue;
+            directChildResidual[c]=cap;
+            directTargetSlot[c]=static_cast<std::uint32_t>(directTargetChildren.size());
+            directTargetChildren.push_back(static_cast<std::uint32_t>(c));
+        }
+        std::vector<std::array<DirectCandidate,directParentsPerChild>> directParents(directTargetChildren.size());
+        std::vector<std::uint8_t> directParentCounts(directTargetChildren.size(),0u);
+        struct CrossCandidate {std::uint32_t parent,child;double score,distance;};
+        constexpr std::size_t crossCandidatePoolCap=128u;
+        constexpr std::size_t crossEdgeBatchCap=32u;
+        const auto crossCandidateBetter=[](const CrossCandidate& a,const CrossCandidate& b){
+            if(a.score!=b.score)return a.score>b.score;
+            if(a.child!=b.child)return a.child<b.child;
+            if(a.parent!=b.parent)return a.parent<b.parent;
+            return a.distance<b.distance;
+        };
+        std::vector<CrossCandidate> crossCandidatePool;
+        crossCandidatePool.reserve(crossCandidatePoolCap);
+        double crossFinalSinkCapacity=std::numeric_limits<double>::infinity();
+        if(!minimumPhase)crossFinalSinkCapacity=network.remainingCapacity(sink,maximumFinalSinkArc);
+        std::uint64_t crossCandidatePairs=0u;
         std::uint64_t implicitPairsExamined=0u,exactEligibleOmittedPairs=0u;
+        std::uint64_t directSourceResidualPairs=0u;
         bool finalSinkReached=false;
         constexpr std::int64_t implicitBucketRadius=2;
         for(std::size_t cursor=0;cursor<queue.size();++cursor){
             const auto from=queue[cursor];
-            // superSink is the final terminal. Never follow its reverse arcs,
-            // which would falsely make already-satisfied children look newly reachable.
+            // The final super-sink is terminal. In maximum flow, when its
+            // ordinary-sink arc qualifies, only traverse that forward arc.
             if(from==superSink)continue;
-            network.forEachPositiveResidualEdge(from,[&](const std::uint32_t to){
+            if(!minimumPhase&&from==sink&&
+               maximumFinalSinkArc!=invalid&&
+               network.hasResidualCapacityAtLeast(sink,maximumFinalSinkArc,capacitySearchThreshold)){
+                const double residualCapacity=network.remainingCapacity(sink,maximumFinalSinkArc);
+                if(!reached[superSink]){
+                    reached[superSink]=true;
+                    predecessor[superSink]=sink;
+                    predecessorOmittedEdge[superSink]=noOmittedPredecessor;
+                    predecessorBottleneck[superSink]=std::min(predecessorBottleneck[sink],residualCapacity);
+                    queue.push_back(superSink);
+                }
+                finalSinkReached=true;
+                continue;
+            }
+            // A child with phase-positive demand is terminal in this closure:
+            // retain its forward phase-sink route but do not let its reverse
+            // parent arcs make unrelated parents descendants of the child.
+            if(from>=childBase&&from<sink){
+                const auto c=static_cast<std::size_t>(from-childBase);
+                const auto phaseArc=minimumPhase?minimumArcs[c]:maximumArcs[c];
+                const bool childArcAtLeast=phaseArc!=invalid&&
+                    network.hasResidualCapacityAtLeast(from,phaseArc,capacitySearchThreshold);
+                const bool finalArcAtLeast=!minimumPhase&&maximumFinalSinkArc!=invalid&&
+                    network.hasResidualCapacityAtLeast(sink,maximumFinalSinkArc,capacitySearchThreshold);
+                if(isTerminalPositiveDemandChild(minimumPhase,childArcAtLeast,finalArcAtLeast)){
+                    const auto to=minimumPhase?superSink:sink;
+                    const double residualCapacity=network.remainingCapacity(from,phaseArc);
+                    if(!reached[to]){
+                        reached[to]=true;
+                        predecessor[to]=from;
+                        predecessorOmittedEdge[to]=noOmittedPredecessor;
+                        predecessorBottleneck[to]=std::min(predecessorBottleneck[from],residualCapacity);
+                        queue.push_back(to);
+                    }
+                    if(to==superSink)finalSinkReached=true;
+                    continue;
+                }
+            }
+            forEachThresholdResidualArc(from,capacitySearchThreshold,[&](const std::uint32_t to,double residualCapacity){
                 if(to>=reached.size()||reached[to])return;
                 reached[to]=true;
+                predecessor[to]=from;
+                predecessorOmittedEdge[to]=noOmittedPredecessor;
+                predecessorBottleneck[to]=std::min(predecessorBottleneck[from],residualCapacity);
                 if(to==superSink){finalSinkReached=true;return;}
                 queue.push_back(to);
             });
             if(from<parentBase||from>=childBase)continue;
             const auto p=from-parentBase;
+            if(in.parentMassKg[p]<capacitySearchThreshold)continue;
             const auto group=parentGroup[p];
             const auto base=parentGrid[p];
             for(std::int64_t dx=-implicitBucketRadius;dx<=implicitBucketRadius;++dx)
@@ -1683,6 +2130,48 @@ inline bool assembleSharedRealChildCapacity(
                                d*d>radiusSquared*(1.0+1.0e-14))continue;
                             ++exactEligibleOmittedPairs;
                             const auto childNode=childBase+c;
+                            const auto targetSlot=directTargetSlot[c];
+                            if(targetSlot!=std::numeric_limits<std::uint32_t>::max()&&
+                               directChildResidual[c]>=capacitySearchThreshold&&
+                               in.parentMassKg[p]>=capacitySearchThreshold&&
+                               predecessorBottleneck[from]>=capacitySearchThreshold){
+                                ++crossCandidatePairs;
+                                const double score=std::min({predecessorBottleneck[from],
+                                    in.parentMassKg[p],directChildResidual[c],crossFinalSinkCapacity});
+                                if(std::isfinite(score)&&score>=capacitySearchThreshold&&score>0.0){
+                                    const CrossCandidate candidate{static_cast<std::uint32_t>(p),c,score,d};
+                                    if(crossCandidatePool.size()<crossCandidatePoolCap){
+                                        crossCandidatePool.push_back(candidate);
+                                        std::push_heap(crossCandidatePool.begin(),crossCandidatePool.end(),crossCandidateBetter);
+                                    }else if(crossCandidateBetter(candidate,crossCandidatePool.front())){
+                                        std::pop_heap(crossCandidatePool.begin(),crossCandidatePool.end(),crossCandidateBetter);
+                                        crossCandidatePool.back()=candidate;
+                                        std::push_heap(crossCandidatePool.begin(),crossCandidatePool.end(),crossCandidateBetter);
+                                    }
+                                }
+                            }
+                            if(targetSlot!=std::numeric_limits<std::uint32_t>::max()&&
+                               directSourceResidual[p]>=capacitySearchThreshold&&
+                               directChildResidual[c]>=capacitySearchThreshold&&
+                               in.parentMassKg[p]>=capacitySearchThreshold){
+                                ++directSourceResidualPairs;
+                                const double score=std::min(directSourceResidual[p],directChildResidual[c]);
+                                auto& pool=directParents[targetSlot];
+                                auto& count=directParentCounts[targetSlot];
+                                std::size_t position=0u;
+                                for(;position<count;++position){
+                                    if(pool[position].parent==p)break;
+                                    if(score>pool[position].score||
+                                       (score==pool[position].score&&p<pool[position].parent))break;
+                                }
+                                if(!(position<count&&pool[position].parent==p)&&
+                                   position<directParentsPerChild){
+                                    if(count<directParentsPerChild)++count;
+                                    for(std::size_t shift=count;shift>position+1u;--shift)
+                                        pool[shift-1u]=pool[shift-2u];
+                                    pool[position]={static_cast<std::uint32_t>(p),score};
+                                }
+                            }
                             if(reached[childNode])continue;
                             const auto pref=groupPreference[c].find(group);
                             const double penalty=pref==groupPreference[c].end()?0.0:
@@ -1690,8 +2179,13 @@ inline bool assembleSharedRealChildCapacity(
                             const double cost=(d*d)/radiusSquared+penalty;
                             if(!std::isfinite(cost)||cost<0.0)
                                 return fail("shared-capacity implicit residual-forest edge cost is invalid");
+                            const auto additionIndex=additions.size();
                             additions.push_back({static_cast<std::uint32_t>(p),c,d,cost});
                             reached[childNode]=true;
+                            predecessor[childNode]=from;
+                            predecessorOmittedEdge[childNode]=additionIndex;
+                            predecessorBottleneck[childNode]=std::min(predecessorBottleneck[from],
+                                                                      in.parentMassKg[p]);
                             queue.push_back(childNode);
                         }
                     }
@@ -1701,9 +2195,7 @@ inline bool assembleSharedRealChildCapacity(
         std::size_t reachedParentCount=0u,reachedChildCount=0u;
         for(std::size_t p=0;p<np;++p)if(reached[parentBase+p])++reachedParentCount;
         for(std::size_t c=0;c<nc;++c)if(reached[childBase+c])++reachedChildCount;
-        if(additions.empty()){
-            if(finalSinkReached)
-                return fail("INTERNAL shared-capacity residual forest found final sink without a new admissible edge");
+        if(!finalSinkReached){
             std::ostringstream witness;
             witness<<(minimumPhase?
                 "INFEASIBLE full admissible shared-capacity graph cannot satisfy every child minimum density":
@@ -1717,12 +2209,39 @@ inline bool assembleSharedRealChildCapacity(
                 <<" cut_reachable_child_rows="<<reachedChildCount
                 <<" implicit_parent_child_pairs_examined="<<implicitPairsExamined
                 <<" exact_eligible_omitted_pairs="<<exactEligibleOmittedPairs
+                <<" capacity_threshold_initial_kg="<<std::setprecision(17)<<capacityThresholdInitial
+                <<" capacity_threshold_cached_prior_kg="<<capacityThresholdCachedPrior
+                <<" capacity_search_threshold_kg="<<std::setprecision(17)<<capacitySearchThreshold
+                <<" capacity_threshold_levels_tested="<<capacityThresholdLevelsTested
+                <<" capacity_threshold_pairs_examined="<<capacityThresholdPairsExamined
+                <<" zero_threshold_fallback="<<(zeroThresholdFallback?1:0)
                 <<" cut_mask="<<cutMaskSummary(reached)
                 <<" residual_child_witnesses={"<<residualChildWitnesses(minimumPhase,reached)<<"}";
             witness<<"\n"<<emitFullCutWitness(minimumPhase,reached,reachedParentCount,reachedChildCount,
                                implicitPairsExamined,exactEligibleOmittedPairs);
             return fail(witness.str());
         }
+        std::vector<std::uint32_t> positiveDemandSinkNeighbors;
+        positiveDemandSinkNeighbors.reserve(reachedChildCount);
+        for(std::size_t c=0;c<nc;++c){
+            const auto childNode=childBase+static_cast<std::uint32_t>(c);
+            if(!reached[childNode])continue;
+            const auto sinkArc=minimumPhase?minimumArcs[c]:maximumArcs[c];
+            if(network.hasResidualCapacityAtLeast(childNode,sinkArc,capacitySearchThreshold))
+                positiveDemandSinkNeighbors.push_back(childNode);
+        }
+        if(positiveDemandSinkNeighbors.empty())
+            return fail("INTERNAL shared-capacity residual forest reached the final sink without a positive-demand child");
+        std::vector<bool> selectedForestEdges(additions.size(),false);
+        std::size_t selectedTargetCount=0u,selectedForestEdgeCount=0u;
+        std::string pathSelectionError;
+        if(!selectImplicitResidualForestPathEdges(superSource,predecessor,
+                predecessorOmittedEdge,positiveDemandSinkNeighbors,additions.size(),
+                selectedForestEdges,selectedTargetCount,selectedForestEdgeCount,pathSelectionError))
+            return fail("shared-capacity residual forest predecessor selection failed: "+pathSelectionError);
+        if(selectedTargetCount==0u||selectedForestEdgeCount==0u)
+            return fail("INTERNAL shared-capacity residual forest reached the final sink without an omitted forest path");
+        const std::size_t positiveDemandSinkNeighborCount=positiveDemandSinkNeighbors.size();
         const std::size_t remainingEdges=in.maximumAllowedEdges-
             std::min(in.maximumAllowedEdges,pending.size());
         if(remainingEdges==0u){
@@ -1734,17 +2253,189 @@ inline bool assembleSharedRealChildCapacity(
                 <<" residual_source_kg="<<sourceBefore
                 <<" candidate_edges="<<pending.size()
                 <<" forest_edges_found="<<additions.size()
+                <<" positive_demand_sink_neighbors="<<selectedTargetCount
+                <<" forest_path_edges_selected="<<selectedForestEdgeCount
                 <<" cut_reachable_parent_rows="<<reachedParentCount
                 <<" cut_reachable_child_rows="<<reachedChildCount
                 <<" cut_mask="<<cutMaskSummary(reached)
                 <<" residual_child_witnesses={"<<residualChildWitnesses(minimumPhase,reached)<<"}";
             return fail(witness.str());
         }
-        const std::size_t addCount=std::min(additions.size(),remainingEdges);
+        std::vector<std::uint64_t> initialTreePairKeys;
+        initialTreePairKeys.reserve(selectedForestEdgeCount);
+        for(std::size_t i=0;i<additions.size();++i)if(selectedForestEdges[i]){
+            const auto& edge=additions[i];
+            initialTreePairKeys.push_back((static_cast<std::uint64_t>(edge.parent)<<32u)|edge.child);
+        }
+        std::sort(initialTreePairKeys.begin(),initialTreePairKeys.end());
+        std::sort(crossCandidatePool.begin(),crossCandidatePool.end(),crossCandidateBetter);
+        std::vector<ImplicitCrossPathSelectionCandidate> crossSelectionCandidates;
+        crossSelectionCandidates.reserve(crossCandidatePool.size());
+        for(const auto& candidate:crossCandidatePool){
+            const auto pairKey=(static_cast<std::uint64_t>(candidate.parent)<<32u)|candidate.child;
+            crossSelectionCandidates.push_back({parentBase+candidate.parent,
+                childBase+candidate.child,pairKey,candidate.score});
+        }
+        std::vector<std::size_t> selectedCrossCandidateIndices;
+        std::vector<std::uint32_t> combinedPathTargets;
+        if(!selectImplicitCrossPathCandidates(superSource,predecessor,predecessorOmittedEdge,
+                initialTreePairKeys,positiveDemandSinkNeighbors,crossSelectionCandidates,
+                crossEdgeBatchCap,additions.size(),remainingEdges,selectedForestEdges,
+                selectedCrossCandidateIndices,combinedPathTargets,selectedTargetCount,
+                selectedForestEdgeCount,pathSelectionError))
+            return fail("shared-capacity cross-edge path selection failed: "+pathSelectionError);
+        std::vector<CrossCandidate> selectedCrossCandidates;
+        selectedCrossCandidates.reserve(selectedCrossCandidateIndices.size());
+        for(const auto candidateIndex:selectedCrossCandidateIndices)
+            selectedCrossCandidates.push_back(crossCandidatePool[candidateIndex]);
+        if(selectedForestEdgeCount+selectedCrossCandidates.size()>remainingEdges)
+            return fail("INCONCLUSIVE cross-edge path prefixes exceed remaining sparse-edge budget");
+        const std::size_t treeAddCount=selectedForestEdgeCount;
+        const std::size_t directBatchLimit=std::min(directEdgeBatchCap,
+            remainingEdges-treeAddCount-selectedCrossCandidates.size());
+        std::vector<double> simulatedSourceRemaining=directSourceResidual;
+        std::vector<double> simulatedChildRemaining=directChildResidual;
+        double simulatedFinalSinkRemaining=std::numeric_limits<double>::infinity();
+        if(!minimumPhase){
+            if(maximumFinalSinkArc==invalid)
+                return fail("INTERNAL shared-capacity maximum-phase final sink arc is missing");
+            simulatedFinalSinkRemaining=network.remainingCapacity(sink,maximumFinalSinkArc);
+            if(!std::isfinite(simulatedFinalSinkRemaining)||simulatedFinalSinkRemaining<0.0)
+                return fail("shared-capacity maximum-phase final sink residual is invalid");
+        }
+        std::vector<std::uint64_t> treePairKeys;
+        treePairKeys.reserve(treeAddCount);
+        std::size_t treePairsCollected=0u;
+        for(std::size_t i=0;i<additions.size()&&treePairsCollected<treeAddCount;++i){
+            if(!selectedForestEdges[i])continue;
+            const auto& edge=additions[i];
+            const auto key=(static_cast<std::uint64_t>(edge.parent)<<32u)|edge.child;
+            treePairKeys.push_back(key);
+            const double source=simulatedSourceRemaining[edge.parent];
+            const double demand=simulatedChildRemaining[edge.child];
+            double reserve=std::min(source,demand);
+            if(std::isfinite(simulatedFinalSinkRemaining))
+                reserve=std::min(reserve,simulatedFinalSinkRemaining);
+            if(reserve>0.0){
+                simulatedSourceRemaining[edge.parent]=reserve>=source?0.0:source-reserve;
+                simulatedChildRemaining[edge.child]=reserve>=demand?0.0:demand-reserve;
+                if(std::isfinite(simulatedFinalSinkRemaining))
+                    simulatedFinalSinkRemaining=reserve>=simulatedFinalSinkRemaining?0.0:
+                        simulatedFinalSinkRemaining-reserve;
+            }
+            ++treePairsCollected;
+        }
+        if(treePairsCollected!=treeAddCount)
+            return fail("INTERNAL shared-capacity residual forest selected-edge count changed before simulation");
+        std::sort(treePairKeys.begin(),treePairKeys.end());
+        std::vector<std::uint64_t> selectedCrossPairKeys;
+        std::vector<PendingEdge> selectedCrossEdges;
+        selectedCrossPairKeys.reserve(selectedCrossCandidates.size());
+        selectedCrossEdges.reserve(selectedCrossCandidates.size());
+        for(const auto& candidate:selectedCrossCandidates){
+            const auto key=(static_cast<std::uint64_t>(candidate.parent)<<32u)|candidate.child;
+            if(std::binary_search(treePairKeys.begin(),treePairKeys.end(),key))continue;
+            const auto group=parentGroup[candidate.parent];
+            const auto pref=groupPreference[candidate.child].find(group);
+            const double penalty=pref==groupPreference[candidate.child].end()?0.0:
+                semanticPreferenceWeight*(-std::log(pref->second));
+            const double cost=(candidate.distance*candidate.distance)/radiusSquared+penalty;
+            if(!std::isfinite(cost)||cost<0.0)
+                return fail("shared-capacity selected cross-edge cost is invalid");
+            selectedCrossPairKeys.push_back(key);
+            selectedCrossEdges.push_back({candidate.parent,candidate.child,candidate.distance,cost});
+            double reserve=std::min(candidate.score,simulatedChildRemaining[candidate.child]);
+            if(std::isfinite(simulatedFinalSinkRemaining))
+                reserve=std::min(reserve,simulatedFinalSinkRemaining);
+            if(reserve>0.0){
+                simulatedChildRemaining[candidate.child]=reserve>=simulatedChildRemaining[candidate.child]?0.0:
+                    simulatedChildRemaining[candidate.child]-reserve;
+                if(std::isfinite(simulatedFinalSinkRemaining))
+                    simulatedFinalSinkRemaining=reserve>=simulatedFinalSinkRemaining?0.0:
+                        simulatedFinalSinkRemaining-reserve;
+            }
+        }
+        std::sort(selectedCrossPairKeys.begin(),selectedCrossPairKeys.end());
+        double finalSinkInitialCapacity=std::numeric_limits<double>::infinity();
+        if(!minimumPhase){
+            finalSinkInitialCapacity=network.remainingCapacity(sink,maximumFinalSinkArc);
+            if(!std::isfinite(finalSinkInitialCapacity)||finalSinkInitialCapacity<0.0)
+                return fail("shared-capacity maximum-phase final sink residual is invalid");
+        }
+        struct RankedDirectCandidate {std::uint32_t parent,child,targetSlot;double score;};
+        std::vector<RankedDirectCandidate> rankedDirect;
+        rankedDirect.reserve(directTargetChildren.size()*directParentsPerChild);
+        std::size_t directPoolSlotsRetained=0u;
+        const std::size_t targetCount=directTargetChildren.size();
+        const std::size_t targetRotation=targetCount==0u?0u:
+            (static_cast<std::size_t>(perf.cutRounds%targetCount));
+        for(std::size_t slot=0;slot<targetCount;++slot){
+            const auto c=directTargetChildren[slot];
+            if(!reached[childBase+c])continue;
+            for(std::size_t k=0;k<directParentCounts[slot];++k){
+                const auto p=directParents[slot][k].parent;
+                const auto key=(static_cast<std::uint64_t>(p)<<32u)|c;
+                if(std::binary_search(treePairKeys.begin(),treePairKeys.end(),key)||
+                   std::binary_search(selectedCrossPairKeys.begin(),selectedCrossPairKeys.end(),key))continue;
+                const double score=std::min({directSourceResidual[p],directChildResidual[c],
+                                               finalSinkInitialCapacity});
+                if(!std::isfinite(score)||score<=0.0)continue;
+                rankedDirect.push_back({p,c,static_cast<std::uint32_t>(slot),score});
+                ++directPoolSlotsRetained;
+            }
+        }
+        const auto directCandidateLess=[&](const auto& a,const auto& b){
+            if(a.score!=b.score)return a.score>b.score;
+            const auto aRank=(static_cast<std::size_t>(a.targetSlot)+targetCount-targetRotation)%targetCount;
+            const auto bRank=(static_cast<std::size_t>(b.targetSlot)+targetCount-targetRotation)%targetCount;
+            if(aRank!=bRank)return aRank<bRank;
+            if(a.parent!=b.parent)return a.parent<b.parent;
+            return a.child<b.child;
+        };
+        const auto rankedDirectLimit=std::min(directBatchLimit,rankedDirect.size());
+        if(rankedDirectLimit<rankedDirect.size())
+            std::partial_sort(rankedDirect.begin(),rankedDirect.begin()+rankedDirectLimit,
+                              rankedDirect.end(),directCandidateLess);
+        else
+            std::sort(rankedDirect.begin(),rankedDirect.end(),directCandidateLess);
+        std::vector<std::uint32_t> directCandidateParents,directCandidateChildren;
+        directCandidateParents.reserve(rankedDirectLimit);
+        directCandidateChildren.reserve(rankedDirectLimit);
+        for(std::size_t i=0;i<rankedDirectLimit;++i){
+            const auto& candidate=rankedDirect[i];
+            directCandidateParents.push_back(candidate.parent);
+            directCandidateChildren.push_back(candidate.child);
+        }
+        std::vector<std::size_t> selectedDirectRows;
+        double directCapacityEstimateKg=0.0;
+        std::string directSelectionError;
+        if(!simulateDirectCapacityGreedy(directCandidateParents,directCandidateChildren,
+                simulatedSourceRemaining,simulatedChildRemaining,simulatedFinalSinkRemaining,
+                directBatchLimit,selectedDirectRows,directCapacityEstimateKg,directSelectionError))
+            return fail("shared-capacity direct edge selection failed: "+directSelectionError);
+        std::vector<PendingEdge> selectedDirect;
+        selectedDirect.reserve(selectedDirectRows.size());
+        for(const auto row:selectedDirectRows){
+            const auto p=directCandidateParents[row],c=directCandidateChildren[row];
+            const double d=distance(in.parentCentroidsWorld[p],in.childCentroidsWorld[c]);
+            if(d>in.maximumTransportDistanceM||d*d>radiusSquared*(1.0+1.0e-14))
+                return fail("shared-capacity selected direct edge no longer satisfies exact radius predicate");
+            const auto group=parentGroup[p];
+            const auto pref=groupPreference[c].find(group);
+            const double penalty=pref==groupPreference[c].end()?0.0:
+                semanticPreferenceWeight*(-std::log(pref->second));
+            const double cost=(d*d)/radiusSquared+penalty;
+            if(!std::isfinite(cost)||cost<0.0)
+                return fail("shared-capacity direct edge cost is invalid");
+            selectedDirect.push_back({p,c,d,cost});
+        }
+        const std::size_t addCount=treeAddCount+selectedCrossEdges.size()+selectedDirect.size();
         perf.cutEdgesAdded+=addCount;
         std::vector<std::uint32_t> modifiedParents;
         modifiedParents.reserve(addCount);
-        for(std::size_t i=0;i<addCount;++i){
+        std::size_t inserted=0u;
+        for(std::size_t i=0;i<additions.size()&&inserted<treeAddCount;++i){
+            if(!selectedForestEdges[i])continue;
             const auto& edge=additions[i];
             const auto from=parentBase+edge.parent;
             const auto arc=network.addEdge(from,childBase+edge.child,
@@ -1754,7 +2445,34 @@ inline bool assembleSharedRealChildCapacity(
             activeChildrenByParent[edge.parent].push_back(edge.child);
             modifiedParents.push_back(edge.parent);
             reachableChildren[parentGroup[edge.parent]].push_back(edge.child);
+            ++inserted;
         }
+        if(inserted!=treeAddCount)
+            return fail("INTERNAL shared-capacity residual forest selected-edge count changed during insertion");
+        for(const auto& edge:selectedCrossEdges){
+            const auto from=parentBase+edge.parent;
+            const auto arc=network.addEdge(from,childBase+edge.child,
+                                           in.parentMassKg[edge.parent],edge.cost);
+            references.push_back({edge.parent,edge.child,from,arc,edge.distance});
+            pending.push_back(edge);
+            activeChildrenByParent[edge.parent].push_back(edge.child);
+            modifiedParents.push_back(edge.parent);
+            reachableChildren[parentGroup[edge.parent]].push_back(edge.child);
+            ++inserted;
+        }
+        for(const auto& edge:selectedDirect){
+            const auto from=parentBase+edge.parent;
+            const auto arc=network.addEdge(from,childBase+edge.child,
+                                           in.parentMassKg[edge.parent],edge.cost);
+            references.push_back({edge.parent,edge.child,from,arc,edge.distance});
+            pending.push_back(edge);
+            activeChildrenByParent[edge.parent].push_back(edge.child);
+            modifiedParents.push_back(edge.parent);
+            reachableChildren[parentGroup[edge.parent]].push_back(edge.child);
+            ++inserted;
+        }
+        if(inserted!=addCount||addCount>remainingEdges)
+            return fail("INTERNAL shared-capacity selected edge count changed during insertion");
         std::sort(modifiedParents.begin(),modifiedParents.end());
         modifiedParents.erase(std::unique(modifiedParents.begin(),modifiedParents.end()),
                               modifiedParents.end());
@@ -1765,15 +2483,39 @@ inline bool assembleSharedRealChildCapacity(
         }
         const bool flowOK=augmentToMaximum();
         const auto lowerAfter=minimumResidualSummary();
+        long double remainingSkinLowerKg=0.0L,remainingFatLowerKg=0.0L;
+        for(std::size_t c=0;c<nc;++c){
+            const auto node=childBase+static_cast<std::uint32_t>(c);
+            if(!network.hasResidualCapacity(node,minimumArcs[c]))continue;
+            const long double residual=static_cast<long double>(network.remainingCapacity(node,minimumArcs[c]));
+            if(in.childMaterialIndices[c]==15u)remainingSkinLowerKg+=residual;
+            else if(in.childMaterialIndices[c]==16u)remainingFatLowerKg+=residual;
+        }
         const double sourceAfter=residualSourceMassKg();
         std::cerr<<"shared_capacity_cut_diagnostics"
             <<" stage="<<(minimumPhase?"minimum_flow":"maximum_flow")
             <<" cut_round="<<perf.cutRounds
+            <<" capacity_threshold_initial_kg="<<std::setprecision(17)<<capacityThresholdInitial
+            <<" capacity_threshold_cached_prior_kg="<<capacityThresholdCachedPrior
+            <<" capacity_search_threshold_kg="<<std::setprecision(17)<<capacitySearchThreshold
+            <<" capacity_threshold_levels_tested="<<capacityThresholdLevelsTested
+            <<" capacity_threshold_pairs_examined="<<capacityThresholdPairsExamined
+            <<" zero_threshold_fallback="<<(zeroThresholdFallback?1:0)
             <<" reached_parents="<<reachedParentCount
             <<" reached_children="<<reachedChildCount
             <<" implicit_pairs_examined="<<implicitPairsExamined
             <<" exact_eligible_omitted_pairs="<<exactEligibleOmittedPairs
             <<" forest_edges_found="<<additions.size()
+            <<" positive_demand_sink_neighbors="<<positiveDemandSinkNeighborCount
+            <<" forest_path_targets_selected="<<selectedTargetCount
+            <<" forest_path_edges_selected="<<selectedForestEdgeCount
+            <<" cross_candidate_pairs="<<crossCandidatePairs
+            <<" cross_candidate_pool="<<crossCandidatePool.size()
+            <<" cross_edges_selected="<<selectedCrossEdges.size()
+            <<" direct_source_residual_pairs="<<directSourceResidualPairs
+            <<" direct_candidate_slots_retained="<<directPoolSlotsRetained
+            <<" direct_edges_selected="<<selectedDirect.size()
+            <<" direct_simulated_capacity_sum_kg="<<std::setprecision(17)<<directCapacityEstimateKg
             <<" final_super_sink_reachable="<<(finalSinkReached?1:0)
             <<" selected_edges="<<addCount
             <<" min_unsatisfied_before="<<lowerBefore.first
@@ -1781,8 +2523,16 @@ inline bool assembleSharedRealChildCapacity(
             <<" residual_source_kg_before="<<sourceBefore
             <<" min_unsatisfied_after="<<lowerAfter.first
             <<" remaining_lower_kg_after="<<static_cast<double>(lowerAfter.second)
+            <<" remaining_lower_skin_kg_after="<<static_cast<double>(remainingSkinLowerKg)
+            <<" remaining_lower_fat_kg_after="<<static_cast<double>(remainingFatLowerKg)
             <<" residual_source_kg_after="<<sourceAfter
             <<" flow_ok="<<(flowOK?1:0)<<std::endl;
+        if(flowOK&&capacitySearchThreshold>0.0){
+            if(minimumPhase&&(lowerAfter.first<lowerBefore.first||lowerAfter.second<lowerBefore.second))
+                lastMinimumPhaseProductiveThreshold=capacitySearchThreshold;
+            else if(!minimumPhase&&sourceAfter<sourceBefore)
+                lastMaximumPhaseProductiveThreshold=capacitySearchThreshold;
+        }
         return flowOK;
     };
     if(!augmentToMaximum())return false;
@@ -1795,7 +2545,7 @@ inline bool assembleSharedRealChildCapacity(
     for(std::size_t c=0;c<nc;++c)
         maximumArcs[c]=network.addEdge(childBase+static_cast<std::uint32_t>(c),sink,
                         childMaximum[c]-childMinimum[c],0.0);
-    network.addEdge(sink,superSink,residualCapacity,0.0);
+    maximumFinalSinkArc=network.addEdge(sink,superSink,residualCapacity,0.0);
     perf.stage="maximum_flow";
     if(!augmentToMaximum())return false;
     while(network.hasResidualSourceCapacity(superSource))
