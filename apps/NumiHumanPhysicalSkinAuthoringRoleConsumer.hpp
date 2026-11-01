@@ -20,6 +20,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <unordered_set>
 
 namespace metalrobo::human::coarse_tissue {
 
@@ -342,6 +343,18 @@ inline bool closeMatrix(const std::array<double,9>& a,const std::array<double,9>
         if(!surface.sourceEmbeddingBarycentric.empty()&&surface.sourceEmbeddingBarycentric.size()!=count)
             return fail("authoring surface source barycentric rows have an invalid extent");
 
+        // Physical boundary rows may be the exact face-active subset of a larger
+        // source namespace. Retain original IDs; never create massless DOFs for
+        // unreferenced source points merely to make the rows contiguous.
+        std::vector<bool> referenced(count,false);
+        for(const auto& face:surface.faces) {
+            for(const auto vertex:face) {
+                if(vertex>=count)return fail("authoring role face points outside its compact boundary rows");
+                referenced[vertex]=true;
+            }
+        }
+        std::unordered_set<std::uint32_t> sourceVertices;
+        sourceVertices.reserve(count);
         std::vector<std::array<double,kPhysicalSkinAuthoringFullWeightBindingCount>> weights;
         std::string weightsSHA;
         if(!readPinnedWeights(weightsFiles[layer],count,weights,weightsSHA,error))return false;
@@ -363,11 +376,15 @@ inline bool closeMatrix(const std::array<double,9>& a,const std::array<double,9>
             const auto& source=nodeSource[row];
             if(domain.role!=expectedRoles[layer]||domain.domain.empty()||
                !validPhysicalSkinSourceDomainSHA256(domain.sourceSHA256)||
-               domain.vertexCount!=count||domain.faceCount!=surface.faces.size()||
+               domain.vertexCount<count||domain.faceCount!=surface.faces.size()||
                source.domain!=domain.domain||source.vertex<0||source.face!=-1||
-               static_cast<std::uint64_t>(source.vertex)!=row||
-               surface.sourceVertexIndices[row]!=static_cast<std::uint32_t>(row))
-                return fail("authoring vertex ID is not the exact role-local row in its pinned namespace");
+               static_cast<std::uint64_t>(source.vertex)>=domain.vertexCount||
+               static_cast<std::uint64_t>(source.vertex)>std::numeric_limits<std::uint32_t>::max()||
+               surface.sourceVertexIndices[row]!=static_cast<std::uint32_t>(source.vertex)||
+               !sourceVertices.insert(static_cast<std::uint32_t>(source.vertex)).second||
+               (domain.vertexCount==count&&static_cast<std::uint64_t>(source.vertex)!=row)||
+               (domain.vertexCount>count&&!referenced[row]))
+                return fail("authoring vertex ID is not an exact unique active source row in its pinned namespace");
             if(source.bary!=std::array<double,3>{}||source.residual!=V3{})
                 return fail("direct authoring identity carries nonzero source embedding barycentric or residual data");
             if(!surface.sourceEmbeddingFaceIndices.empty()&&

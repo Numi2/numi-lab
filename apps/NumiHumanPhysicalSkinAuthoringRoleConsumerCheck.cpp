@@ -431,6 +431,61 @@ int main() {
     assert(state.bindingBodyByLane==priorState.bindingBodyByLane);
     assert(report.rows==priorReport.rows&&report.weightFileSHA256==priorReport.weightFileSHA256);
 
+    // Compact physical rows preserve noncontiguous IDs in the full source
+    // namespace. Full-domain identity above remains strict.
+    auto compactBundle=f.bundle;
+    auto compactRegistration=f.registered;
+    const std::array<std::uint32_t,3> activeIDs{0u,2u,4u};
+    for(unsigned layer=0u;layer<3u;++layer) {
+        compactBundle.sourceDomains[layer].vertexCount=5u;
+        auto* surface=layer==0u?&compactBundle.outerSkin:
+            (layer==1u?&compactBundle.independentSkinInner:&compactBundle.independentFatDeep);
+        for(unsigned row=0u;row<3u;++row) {
+            surface->sourceVertexIndices[row]=activeIDs[row];
+            compactRegistration.nodeSource[layer][row].vertex=activeIDs[row];
+            compactBundle.volumeNodeSourceVertexIndices[layer*3u+row]=activeIDs[row];
+        }
+    }
+    PhysicalSkinAuthoringRoleConsumerState compactState;
+    PhysicalSkinAuthoringRoleConsumerReport compactReport;
+    assert(preparePhysicalSkinAuthoringRoleConsumerState(compactBundle,compactRegistration,f.sidecars,
+        f.poses,f.weightFiles,compactState,compactReport,error));
+    for(const auto& role:compactState.roles)
+        assert(role.authoringVertexRows==std::vector<std::uint32_t>({0u,2u,4u}));
+    PhysicalSkinAuthoringOuterRoleRenderDomain compactRender;
+    assert(preparePhysicalSkinAuthoringOuterRoleRenderDomain(compactBundle,compactState,compactRender,error));
+    assert(compactRender.authoringVertexRows==std::vector<std::uint32_t>({0u,2u,4u}));
+    const auto compactPrior=compactState.roles[0].authoringVertexRows;
+    const auto rejectCompact=[&](const auto& bundle,const auto& registration) {
+        assert(!preparePhysicalSkinAuthoringRoleConsumerState(bundle,registration,f.sidecars,
+            f.poses,f.weightFiles,compactState,compactReport,error));
+        assert(compactState.roles[0].authoringVertexRows==compactPrior);
+    };
+    auto compactDuplicate=compactBundle;
+    auto compactDuplicateRegistration=compactRegistration;
+    compactDuplicate.outerSkin.sourceVertexIndices[1]=0u;
+    compactDuplicate.volumeNodeSourceVertexIndices[1]=0u;
+    compactDuplicateRegistration.nodeSource[0][1].vertex=0;
+    rejectCompact(compactDuplicate,compactDuplicateRegistration);
+    auto compactOutOfBounds=compactBundle;
+    auto compactOutOfBoundsRegistration=compactRegistration;
+    compactOutOfBounds.outerSkin.sourceVertexIndices[2]=5u;
+    compactOutOfBounds.volumeNodeSourceVertexIndices[2]=5u;
+    compactOutOfBoundsRegistration.nodeSource[0][2].vertex=5;
+    rejectCompact(compactOutOfBounds,compactOutOfBoundsRegistration);
+    auto compactUnused=compactBundle;
+    compactUnused.outerSkin.faces={{{0u,1u,1u}}};
+    rejectCompact(compactUnused,compactRegistration);
+    auto compactBadFace=compactBundle;
+    compactBadFace.outerSkin.faces={{{0u,1u,3u}}};
+    rejectCompact(compactBadFace,compactRegistration);
+    auto compactMissingFace=compactBundle;
+    compactMissingFace.sourceDomains[0].faceCount=2u;
+    rejectCompact(compactMissingFace,compactRegistration);
+    auto compactMismatchedSource=compactRegistration;
+    compactMismatchedSource.nodeSource[0][1].vertex=3;
+    rejectCompact(compactBundle,compactMismatchedSource);
+
     auto duplicateLane=f.registered;
     f.poses[96].available=true;
     f.poses[96].binding=7u;
@@ -511,5 +566,5 @@ int main() {
     assert(report.rows==priorReport.rows&&report.weightFileSHA256==priorReport.weightFileSHA256);
 
     testAuthoringDetailBridge();
-    std::cout<<"authoring_role_consumer=pass rows=3/3/3 bindings=86 parent_geometric_donor=150 frame_owners=distinct role_consumer_transactional_failures=11 detail_bridge_failures=10 detail_bridge=pass identity_namespaces=separate face_bary=source_connected tet_transfer=affine_objective rigid_rotation=pass physical_admission=false\n";
+    std::cout<<"authoring_role_consumer=pass rows=3/3/3 bindings=86 parent_geometric_donor=150 frame_owners=distinct role_consumer_transactional_failures=11 compact_source_identity=pass compact_source_failures=6 detail_bridge_failures=10 detail_bridge=pass identity_namespaces=separate face_bary=source_connected tet_transfer=affine_objective rigid_rotation=pass physical_admission=false\n";
 }

@@ -2503,6 +2503,9 @@ target_link_libraries(numi-human-native PRIVATE metalrobo
     "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}" "${COREGRAPHICS_FRAMEWORK}" "${IMAGEIO_FRAMEWORK}"
     "-framework AppKit" "-framework MetalKit" "-framework AVFoundation" "-framework CoreVideo" "-framework CoreMedia" "-framework QuartzCore")
 add_dependencies(numi-human-native numi_matter_shaders numi_human_respiration_shaders)
+if(NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY)
+    target_compile_definitions(numi-human-native PRIVATE NUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1)
+endif()
 
 # Verify that the optional accepted FEM-to-body load and source-q snapshot are
 # prepared before dynamics and published only by the exact accepted gate.

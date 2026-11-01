@@ -1,0 +1,61 @@
+[
+  {
+    "stage": "build",
+    "profile": "legacy",
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-UNDEBUG",
+      "-I/Users/numi/Work/skin-active-source-native-publication-20261101/apps",
+      "-I/Users/numi/Work/skin-active-source-native-publication-20261101/include",
+      "-I/Users/numi/Work/skin-active-source-native-publication-20261101/matter/include",
+      "/Users/numi/Work/skin-active-source-native-publication-20261101/apps/NumiHumanPhysicalSkinChildCapacityProfileCheck.cpp",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/native-full-reference-capacity/publication-legacy-capacity-check"
+    ],
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "stage": "test",
+    "profile": "legacy",
+    "returncode": 0,
+    "stdout": "capacity_profile=legacy max_nodes=300000 max_cells=200000 max_candidate_edges=3000000 max_augmentations=300000 checks=10 passed\n",
+    "stderr": ""
+  },
+  {
+    "stage": "build",
+    "profile": "full",
+    "command": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-UNDEBUG",
+      "-DNUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1",
+      "-I/Users/numi/Work/skin-active-source-native-publication-20261101/apps",
+      "-I/Users/numi/Work/skin-active-source-native-publication-20261101/include",
+      "-I/Users/numi/Work/skin-active-source-native-publication-20261101/matter/include",
+      "/Users/numi/Work/skin-active-source-native-publication-20261101/apps/NumiHumanPhysicalSkinChildCapacityProfileCheck.cpp",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/native-full-reference-capacity/publication-full-capacity-check"
+    ],
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "stage": "test",
+    "profile": "full",
+    "returncode": 0,
+    "stdout": "capacity_profile=full-reference-v1 max_nodes=500000 max_cells=2000000 max_candidate_edges=12000000 max_augmentations=4000000 checks=10 passed\n",
+    "stderr": ""
+  }
+]

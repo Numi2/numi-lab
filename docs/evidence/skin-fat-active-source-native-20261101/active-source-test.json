@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/Users/numi/Work/skin-active-source-native-publication-20261101/active-source-check"
+  ],
+  "returncode": 0,
+  "stdout": "authoring_role_consumer=pass rows=3/3/3 bindings=86 parent_geometric_donor=150 frame_owners=distinct role_consumer_transactional_failures=11 compact_source_identity=pass compact_source_failures=6 detail_bridge_failures=10 detail_bridge=pass identity_namespaces=separate face_bary=source_connected tet_transfer=affine_objective rigid_rotation=pass physical_admission=false\n",
+  "stderr": "",
+  "assertions_enabled": true,
+  "physical_admission": false,
+  "native_motion_qualification": false
+}
