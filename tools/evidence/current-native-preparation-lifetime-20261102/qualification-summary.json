@@ -1,6 +1,6 @@
 {
   "status": "PRODUCTION_BUILD_AND_FOCUSED_PHYSICS_CONTROLS_PASS",
-  "native_memory_benefit": "UNMEASURED_CURRENT_TRIAL106_RUNNING",
+  "native_memory_benefit": "ONE_GPU_ENTRY_PAIR_MEASURED_NOT_STEADY_STATE",
   "accepted_full_human_steps": 0,
   "source_geometry_changed": false,
   "material_force_or_acceptance_policy_changed": false,
@@ -27,5 +27,8 @@
   "execution_owner_head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
   "publication_preimage_head": "f87205589afd741bcff787f708517512dc2b60b2",
   "full_source_pins_sha256": "e2eae5e8b1415cab447986ddeaff6d03437d959fa665e3e3d3ee9a895995d686",
-  "pending_native_plan_sha256": "c5f53fad7da17e746d514940b6b23ee31801bdcd17e531e16316335c9bdff780"
+  "native_trial_106": "RESOURCE_STOP_SWAP_768MiB_NO_TERMINAL_SOLVER_RESULT",
+  "native_trial_115": "15_minute_diagnostic_budget",
+  "large_scene_preparation_parity_files": 29,
+  "trial_106_plan_sha256": "c5f53fad7da17e746d514940b6b23ee31801bdcd17e531e16316335c9bdff780"
 }

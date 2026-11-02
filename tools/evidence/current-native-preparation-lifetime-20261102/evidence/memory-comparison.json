@@ -1,0 +1,55 @@
+{
+  "reference": {
+    "footprint": [
+      "Physical footprint:         9.8G",
+      "Physical footprint (peak):  13.3G"
+    ],
+    "malloc": [
+      "DefaultMallocZone_0x1017b4000               7.7G      7664K      6944K       2.9G   10338485       3.0G         0K      0%    1476"
+    ],
+    "execution": {
+      "exit_code": -15,
+      "elapsed_s": 252.35066628456116,
+      "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-import-099/install-motion.plan.json",
+      "plan_sha256": "c5a4000bac246d43696f52ee0269f945dafcb0d7c4e5a5d3ff4b765079f8df77",
+      "stdout_sha256": "78c05bea97132ef9cc117aa324274ff142af61280c61478d254f8df9c84abc16",
+      "stderr_sha256": "d39fe3611cd096f8eeebf8c0b91a6335fc918624e694029b85842f6849afb61d",
+      "physical_admission": false,
+      "resource_stop_reason": "swap_growth_above_768MiB",
+      "source_import_pass": false
+    },
+    "last_monitor": {
+      "elapsed_s": 252.26061415672302,
+      "rss_kib": 1725664,
+      "swap_used_mib": 7928.38,
+      "disk_available_bytes": 1308598272
+    }
+  },
+  "current": {
+    "footprint": [
+      "Physical footprint:         9.0G",
+      "Physical footprint (peak):  13.1G"
+    ],
+    "malloc": [
+      "DefaultMallocZone_0x1013fc000               7.0G      20.1M      18.5M       2.1G      74307       2.3G         0K      0%    1368"
+    ],
+    "execution": {
+      "exit_code": -15,
+      "elapsed_s": 252.29230070114136,
+      "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-import-106/install-motion.plan.json",
+      "plan_sha256": "c5f53fad7da17e746d514940b6b23ee31801bdcd17e531e16316335c9bdff780",
+      "stdout_sha256": "085d190b1d7628a394d4904969ecd2cda2ed642110e02568f4efae3aab86d13a",
+      "stderr_sha256": "2139c3252df0ceca47d2e58ab7500f9102967096b8c2ec3087689d1db5fa610f",
+      "physical_admission": false,
+      "resource_stop_reason": "swap_growth_above_768MiB",
+      "source_import_pass": false
+    },
+    "last_monitor": {
+      "elapsed_s": 252.20191168785095,
+      "rss_kib": 1755392,
+      "swap_used_mib": 10644.5,
+      "disk_available_bytes": 825634816
+    }
+  },
+  "interpretation": "same GPU-entry sampling event, rounded vmmap values; one pair only; no sustained throughput or accepted-step gain"
+}

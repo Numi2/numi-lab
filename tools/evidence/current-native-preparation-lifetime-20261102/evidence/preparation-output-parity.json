@@ -1,0 +1,211 @@
+{
+  "reference_trial": "099",
+  "current_trial": "106",
+  "rows": [
+    {
+      "relative_path": "common-field-domain-boxes-f32.bin",
+      "bytes": 8000,
+      "reference_sha256": "7652785c9ea164b16ee96f64a3dcf940398af36cfd535a5f9b7a7d6bd2c7a611",
+      "current_sha256": "7652785c9ea164b16ee96f64a3dcf940398af36cfd535a5f9b7a7d6bd2c7a611",
+      "equal": true
+    },
+    {
+      "relative_path": "common-field-parameters-f32.bin",
+      "bytes": 3504,
+      "reference_sha256": "7ce8d1833bd1605cee56759f03370801602db21d6233333c2a1c03f11e518896",
+      "current_sha256": "7ce8d1833bd1605cee56759f03370801602db21d6233333c2a1c03f11e518896",
+      "equal": true
+    },
+    {
+      "relative_path": "common-field-map-f32.bin",
+      "bytes": 69593328,
+      "reference_sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "current_sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "equal": true
+    },
+    {
+      "relative_path": "skin-source-anatomy-parameters.bin",
+      "bytes": 1008,
+      "reference_sha256": "c847233ee1fbfb313004bc48a438e83e67cfee92b2798f1911adf2a32dd41bce",
+      "current_sha256": "c847233ee1fbfb313004bc48a438e83e67cfee92b2798f1911adf2a32dd41bce",
+      "equal": true
+    },
+    {
+      "relative_path": "resting-support-selected-skin-witness.csv",
+      "bytes": 4684,
+      "reference_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "current_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "equal": true
+    },
+    {
+      "relative_path": "resting-com-momentum-diagnostic.csv",
+      "bytes": 0,
+      "reference_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "equal": true
+    },
+    {
+      "relative_path": "skin-source-influences.bin",
+      "bytes": 3657264,
+      "reference_sha256": "e5fb943bdd45d59a884c79efc102240065a2318bb47edfb86da2c49652eb5ddd",
+      "current_sha256": "e5fb943bdd45d59a884c79efc102240065a2318bb47edfb86da2c49652eb5ddd",
+      "equal": true
+    },
+    {
+      "relative_path": "resting-support-point-motion.csv",
+      "bytes": 371,
+      "reference_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "current_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "equal": true
+    },
+    {
+      "relative_path": "resting-human.mrvpack",
+      "bytes": 321323008,
+      "reference_sha256": "7ceda75fe9f6be66090630ccfd8436d124bd654c3bee6c49e5bc46e64f60d6d7",
+      "current_sha256": "7ceda75fe9f6be66090630ccfd8436d124bd654c3bee6c49e5bc46e64f60d6d7",
+      "equal": true
+    },
+    {
+      "relative_path": "resting-com-q-support-slip.csv",
+      "bytes": 0,
+      "reference_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "equal": true
+    },
+    {
+      "relative_path": "resting-surface-audit.csv",
+      "bytes": 1322,
+      "reference_sha256": "cc8b64414c6762b8269a7bcde7484556c67b4753005fa2f127b921c24f060062",
+      "current_sha256": "cc8b64414c6762b8269a7bcde7484556c67b4753005fa2f127b921c24f060062",
+      "equal": true
+    },
+    {
+      "relative_path": "resting-com-q-index-map.csv",
+      "bytes": 6908,
+      "reference_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "current_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "equal": true
+    },
+    {
+      "relative_path": "resting-body-motion-partition.csv",
+      "bytes": 517,
+      "reference_sha256": "09d1859aa941dc35fe206a945697d99e6111c0792acf015df2286faeb5cb132f",
+      "current_sha256": "09d1859aa941dc35fe206a945697d99e6111c0792acf015df2286faeb5cb132f",
+      "equal": true
+    },
+    {
+      "relative_path": "skin-source-vertex-map.bin",
+      "bytes": 3657264,
+      "reference_sha256": "dcc3191cd7d1ea4323fed005c4298f8fdcd8608ae7eeebb530c2b0fca335920a",
+      "current_sha256": "dcc3191cd7d1ea4323fed005c4298f8fdcd8608ae7eeebb530c2b0fca335920a",
+      "equal": true
+    },
+    {
+      "relative_path": "resting-coupled.csv",
+      "bytes": 0,
+      "reference_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "equal": true
+    },
+    {
+      "relative_path": "common-field-polynomials-f32.bin",
+      "bytes": 3360,
+      "reference_sha256": "7be4f62996c996c6cfdd49480d27766c8253387bb24aeb504fef73cd553ae699",
+      "current_sha256": "7be4f62996c996c6cfdd49480d27766c8253387bb24aeb504fef73cd553ae699",
+      "equal": true
+    },
+    {
+      "relative_path": "resting-com-q-integration.csv",
+      "bytes": 0,
+      "reference_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "equal": true
+    },
+    {
+      "relative_path": "resting-com-support-impulses.csv",
+      "bytes": 0,
+      "reference_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "equal": true
+    },
+    {
+      "relative_path": "accepted-geometry/step-0.mrvpack",
+      "bytes": 321323008,
+      "reference_sha256": "e53db111b2ff377b16120ac9b1c13c3b430087e84ad6e70f24153f159dec9bb2",
+      "current_sha256": "e53db111b2ff377b16120ac9b1c13c3b430087e84ad6e70f24153f159dec9bb2",
+      "equal": true
+    },
+    {
+      "relative_path": "accepted-geometry/step-0.cardiac-q.bin",
+      "bytes": 16,
+      "reference_sha256": "ef99cfd192ee2fe43a68cef2af40c85c2c215759f491c1b3fa09ed0f794f9201",
+      "current_sha256": "ef99cfd192ee2fe43a68cef2af40c85c2c215759f491c1b3fa09ed0f794f9201",
+      "equal": true
+    },
+    {
+      "relative_path": "accepted-geometry/step-0.cardiac-wall-q.bin",
+      "bytes": 16,
+      "reference_sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+      "current_sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+      "equal": true
+    },
+    {
+      "relative_path": "accepted-geometry/step-0.common-coordinates.bin",
+      "bytes": 64,
+      "reference_sha256": "f322799816fd4d1f678177c294391a395a6f402684f59d97c43773d7ab37fcd5",
+      "current_sha256": "f322799816fd4d1f678177c294391a395a6f402684f59d97c43773d7ab37fcd5",
+      "equal": true
+    },
+    {
+      "relative_path": "diagnostics/registered-skin-native.csv",
+      "bytes": 24147731,
+      "reference_sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "current_sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "equal": true
+    },
+    {
+      "relative_path": "diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "bytes": 128482633,
+      "reference_sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "current_sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "equal": true
+    },
+    {
+      "relative_path": "diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "bytes": 74565690,
+      "reference_sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "current_sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "equal": true
+    },
+    {
+      "relative_path": "diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "bytes": 43597755,
+      "reference_sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "current_sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "equal": true
+    },
+    {
+      "relative_path": "diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "bytes": 34261916,
+      "reference_sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "current_sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "equal": true
+    },
+    {
+      "relative_path": "diagnostics/tissue-mass-reference.txt",
+      "bytes": 840655370,
+      "reference_sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "current_sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "equal": true
+    },
+    {
+      "relative_path": "diagnostics/skin-fat-parent-mass-ledger.csv",
+      "bytes": 49559578,
+      "reference_sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "current_sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "equal": true
+    }
+  ],
+  "all_compared_equal": true,
+  "acceptance_scope": "source preparation and step0 only; no accepted physical steps"
+}
