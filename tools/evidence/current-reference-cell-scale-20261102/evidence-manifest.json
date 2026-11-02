@@ -1,7 +1,7 @@
 {
   "README.md": {
-    "sha256": "b4a1cbfa3c296b59ea1fe1b9a95a75d636ead390aa6a81cd9b3e8fede842d3d7",
-    "bytes": 1715
+    "sha256": "a2aac3c508a9b28e09aeaabdc63a5bb3315c439bf6404e50f8afd135acfef7d7",
+    "bytes": 2059
   },
   "compiler-rest-audit-073/first-fixture-control-0.log": {
     "sha256": "1df2c429aad8bfc06cde9ede5b0524fad16d851fd70ad1a76e95a2c755fbf5b7",
@@ -74,5 +74,29 @@
   "native-import-078/controls.json": {
     "sha256": "ab254c717459d4f2e6cb72f462d76b277bb525c65b11fead76939e4c3d5670d0",
     "bytes": 768
+  },
+  "native-import-078/prepare_native_import.py": {
+    "sha256": "f20e38b4be33f051ead372d39db7610523aaed756347d0d7e810977ce32a9f85",
+    "bytes": 11218
+  },
+  "native-import-078/run_native_plan.py": {
+    "sha256": "ee3fb35f0f047ee76ddad82eb02a9a7bae155b9d4315cfeb3c40a0cd5f5cf5fd",
+    "bytes": 1589
+  },
+  "native-import-078/source-preflight.execution.json": {
+    "sha256": "558d8c6e6978d685762d245df10954f78f5becdb9590db5bd09ce500574474f2",
+    "bytes": 593
+  },
+  "native-import-078/source-preflight.plan.json": {
+    "sha256": "9a3014f015ac74a3be47598a25a85ccd854a130b2ba5bf2eebdf07fb97c22f27",
+    "bytes": 76103
+  },
+  "native-import-078/source-preflight.stderr.log": {
+    "sha256": "c56fe647984255c756d5c26d03053e9b11b9c81e38ef5daa9673851eb90a2396",
+    "bytes": 295
+  },
+  "native-import-078/source-preflight.stdout.log": {
+    "sha256": "e4b7271d6fb93f4383fae4f1b10fd7e87a04d8d1e2e7edd545ff48d81c418f52",
+    "bytes": 217663
   }
 }
