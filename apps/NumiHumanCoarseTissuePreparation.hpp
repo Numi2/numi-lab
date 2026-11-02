@@ -2,6 +2,8 @@
 // Source-derived coarse organic FEM preparation over Matter's existing
 // WorldSource/ObjectSource and Human tissue-mass partition APIs. No new asset
 // format, constitutive law, or runtime solver is introduced.
+#include <CommonCrypto/CommonDigest.h>
+
 #include "numi/matter/matter.hpp"
 #include "NumiHumanRegisteredSurfaceIntersection.hpp"
 #include "metalrobo/NumiHumanTissueMass.hpp"
@@ -667,6 +669,39 @@ inline bool validateExplicitBoundaryAreaCoverage(
     error.clear();return true;
 }
 
+// Cache only successful exact intersection tests, never identity, closure,
+// manifoldness, ancestry, coordinates, or volume admission. The bounded
+// process-local cache stores digests and counters, not geometry or artifacts.
+struct RegisteredSurfaceIntersectionCacheEntry {
+    std::array<unsigned char,CC_SHA256_DIGEST_LENGTH> digest{};
+    std::uint64_t testedPairs=0u;
+};
+inline auto& registeredSurfaceIntersectionCache() {
+    static thread_local std::vector<RegisteredSurfaceIntersectionCacheEntry> entries;
+    return entries;
+}
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+inline std::array<unsigned char,CC_SHA256_DIGEST_LENGTH>
+registeredSurfaceIntersectionDigest(const RegisteredSurface& surface) {
+    CC_SHA256_CTX context;CC_SHA256_Init(&context);
+    const auto update=[&](const void* data,std::size_t bytes) {
+        auto* cursor=static_cast<const unsigned char*>(data);
+        while(bytes!=0u) {
+            const auto chunk=static_cast<CC_LONG>(std::min<std::size_t>(bytes,1u<<20u));
+            CC_SHA256_Update(&context,cursor,chunk);cursor+=chunk;bytes-=chunk;
+        }
+    };
+    const std::array<std::uint64_t,2> dimensions{
+        surface.worldPoints.size(),surface.faces.size()};
+    update(dimensions.data(),sizeof(dimensions));
+    for(const auto& point:surface.worldPoints)update(point.data(),3u*sizeof(double));
+    for(const auto& face:surface.faces)update(face.data(),3u*sizeof(std::uint32_t));
+    std::array<unsigned char,CC_SHA256_DIGEST_LENGTH> digest{};
+    CC_SHA256_Final(digest.data(),&context);return digest;
+}
+#pragma clang diagnostic pop
+
 inline bool auditClosedSurface(const RegisteredSurface& s, GeometryAudit& out, std::string& error,bool allowBoundaryLoops=false,
         std::vector<std::array<std::uint32_t,2>>* crossingPairs=nullptr,bool allowMultipleComponents=false) {
     if(crossingPairs)crossingPairs->clear();
@@ -740,6 +775,18 @@ inline bool auditClosedSurface(const RegisteredSurface& s, GeometryAudit& out, s
         if(endpoints!=0&&(!allowBoundaryLoops||endpoints!=2))return fail("source vertex link is not one boundary path or closed cycle");
         if(!link.empty()){std::set<std::uint32_t> got;std::vector<std::uint32_t> q{link.begin()->first};got.insert(q[0]);while(!q.empty()){auto a=q.back();q.pop_back();for(auto b:link[a])if(got.insert(b).second)q.push_back(b);}if(got.size()!=link.size())return fail("source vertex link is disconnected");}
     }
+    // Every inexpensive admission gate above is evaluated on every call.
+    // Repeated construction of labels for this exact admitted surface does
+    // not need to repeat the exact-predicate sweep.
+    const auto digest=registeredSurfaceIntersectionDigest(s);
+    auto& intersectionCache=registeredSurfaceIntersectionCache();
+    const auto cached=std::find_if(intersectionCache.begin(),intersectionCache.end(),
+        [&](const auto& entry){return entry.digest==digest;});
+    if(cached!=intersectionCache.end()) {
+        out.testedPairs=cached->testedPairs;
+        out.volumeM3=out.boundaryEdgeCount==0?vol:0.0;out.minFaceAreaM2=minArea;
+        error.clear();return true;
+    }
     // Sweep all face pairs, including adjacent edges: only an intersection
     // confined to the exact common indexed feature is authorized.
     std::vector<std::uint32_t> order(nf);for(std::uint32_t i=0;i<nf;i++)order[i]=i;
@@ -754,6 +801,9 @@ inline bool auditClosedSurface(const RegisteredSurface& s, GeometryAudit& out, s
                 " faces="+std::to_string(i)+","+std::to_string(j);return false;}}
     }}
     if(crossingPairs&&!crossingPairs->empty())return fail("source has self-intersecting triangle pairs");
+    constexpr std::size_t cacheCapacity=12u;
+    if(intersectionCache.size()==cacheCapacity)intersectionCache.erase(intersectionCache.begin());
+    intersectionCache.push_back({digest,out.testedPairs});
     out.volumeM3=out.boundaryEdgeCount==0?vol:0.0;out.minFaceAreaM2=minArea;return true;
 }
 

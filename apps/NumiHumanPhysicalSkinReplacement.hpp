@@ -383,8 +383,12 @@ inline std::vector<RegisteredSkinFatDonorMomentDelta> momentDeltas(
     const bool oldHasExplicitSourceLedger=!oldSkin.donorMassContributions.empty()||
         !oldFat.donorMassContributions.empty();
 
-    numi::matter::WorldSource scratch=world;
-    scratch.objects.resize(oldObjectIndex);
+    // The candidate builder consumes only materials and the preceding objects'
+    // FEM node prefixes. Do not copy the old full-resolution shell, constraints,
+    // vascular state, or other unused WorldSource payload into this transaction.
+    numi::matter::WorldSource scratch;
+    scratch.materials=world.materials;
+    scratch.objects.assign(world.objects.begin(),world.objects.begin()+oldObjectIndex);
     PreparedOrganicFEM candidateSkin,candidateFat;
     ExplicitUnpairedVolumeReport candidateReport;
     std::string candidateError;
@@ -524,7 +528,7 @@ inline std::vector<RegisteredSkinFatDonorMomentDelta> momentDeltas(
             return fail("replacement node-frame owner local first moment is nonfinite");
 
     // Commit only the final object and caller-visible prepared/report records.
-    world.objects.back()=candidateObject;
+    world.objects.back()=std::move(candidateObject);
     newSkin=std::move(candidateSkin);
     newFat=std::move(candidateFat);
     newReport=std::move(candidateReport);

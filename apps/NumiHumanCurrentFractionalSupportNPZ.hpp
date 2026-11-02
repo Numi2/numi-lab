@@ -5,6 +5,11 @@
 #include "ConservativeSpatialSourceCarrierQuadrature.hpp"
 
 #include <zlib.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <span>
 
 #include <algorithm>
 #include <array>
@@ -29,17 +34,17 @@ struct NpyArray {
     std::vector<std::uint8_t> bytes;
 };
 
-inline std::uint16_t u16(const std::vector<std::uint8_t>& b,std::size_t p){
+inline std::uint16_t u16(std::span<const std::uint8_t> b,std::size_t p){
     return static_cast<std::uint16_t>(b[p])|
         static_cast<std::uint16_t>(static_cast<std::uint16_t>(b[p+1u])<<8u);
 }
-inline std::uint32_t u32(const std::vector<std::uint8_t>& b,std::size_t p){
+inline std::uint32_t u32(std::span<const std::uint8_t> b,std::size_t p){
     return static_cast<std::uint32_t>(b[p])|
         (static_cast<std::uint32_t>(b[p+1u])<<8u)|
         (static_cast<std::uint32_t>(b[p+2u])<<16u)|
         (static_cast<std::uint32_t>(b[p+3u])<<24u);
 }
-inline bool parseNpy(const std::vector<std::uint8_t>& raw,NpyArray& out,std::string& error){
+inline bool parseNpy(std::vector<std::uint8_t> raw,NpyArray& out,std::string& error){
     const auto fail=[&](std::string m){error=std::move(m);return false;};
     if(raw.size()<10u||std::memcmp(raw.data(),"\x93NUMPY",6u)!=0)
         return fail("fractional support NPZ member is not a NumPy array");
@@ -104,7 +109,9 @@ inline bool parseNpy(const std::vector<std::uint8_t>& raw,NpyArray& out,std::str
     if(count>std::numeric_limits<std::size_t>::max()/itemBytes||
        raw.size()-headerStart-headerLength!=count*itemBytes)
         return fail("fractional support NPY payload size differs from its declared shape");
-    out.bytes.assign(raw.begin()+static_cast<std::ptrdiff_t>(headerStart+headerLength),raw.end());
+    // Reuse the inflated allocation instead of retaining two complete copies.
+    raw.erase(raw.begin(),raw.begin()+static_cast<std::ptrdiff_t>(headerStart+headerLength));
+    out.bytes=std::move(raw);
     return true;
 }
 
@@ -112,14 +119,23 @@ inline bool readRequestedArrays(const std::filesystem::path& path,
         const std::set<std::string>& wanted,std::map<std::string,NpyArray>& arrays,
         std::string& error,bool requireAll=true){
     const auto fail=[&](std::string m){error=std::move(m);return false;};
-    std::ifstream input(path,std::ios::binary|std::ios::ate);
-    if(!input)return fail("cannot open fractional support NPZ");
-    const auto end=input.tellg();
-    if(end<22||static_cast<unsigned long long>(end)>2ull*1024ull*1024ull*1024ull)
+    // File-backed compressed bytes are reclaimable during large preparation.
+    // Requested members retain their existing CRC, shape, dtype and range gates.
+    struct MappedArchive {
+        int fd=-1;void* address=MAP_FAILED;std::size_t size=0u;
+        ~MappedArchive(){if(address!=MAP_FAILED)::munmap(address,size);if(fd>=0)::close(fd);}
+    } mapping;
+    mapping.fd=::open(path.c_str(),O_RDONLY);
+    if(mapping.fd<0)return fail("cannot open fractional support NPZ");
+    struct stat metadata{};
+    if(::fstat(mapping.fd,&metadata)!=0||metadata.st_size<22||
+       static_cast<unsigned long long>(metadata.st_size)>2ull*1024ull*1024ull*1024ull)
         return fail("fractional support NPZ size is outside its bounded reader domain");
-    std::vector<std::uint8_t> zip(static_cast<std::size_t>(end));
-    input.seekg(0);input.read(reinterpret_cast<char*>(zip.data()),static_cast<std::streamsize>(zip.size()));
-    if(!input||zip.size()<22u)return fail("failed reading complete fractional support NPZ");
+    mapping.size=static_cast<std::size_t>(metadata.st_size);
+    mapping.address=::mmap(nullptr,mapping.size,PROT_READ,MAP_PRIVATE,mapping.fd,0);
+    if(mapping.address==MAP_FAILED)return fail("cannot map fractional support NPZ");
+    const std::span<const std::uint8_t> zip{
+        static_cast<const std::uint8_t*>(mapping.address),mapping.size};
     const auto searchBegin=zip.size()>65557u?zip.size()-65557u:0u;
     std::size_t eocd=std::string::npos;
     for(std::size_t p=zip.size()-22u;;--p){
@@ -152,7 +168,7 @@ inline bool readRequestedArrays(const std::filesystem::path& path,
         if(requestedMember){
             if(!member.ends_with(".npy"))return fail("fractional support NPZ requested member lacks the .npy suffix");
             if(!seen.insert(member).second)return fail("fractional support NPZ repeats a requested member");
-            if((flags&1u)!=0u||localOffset+30u>zip.size()||u32(zip,localOffset)!=0x04034b50u)
+            if((flags&1u)!=0u||static_cast<std::size_t>(localOffset)+30u>zip.size()||u32(zip,localOffset)!=0x04034b50u)
                 return fail("fractional support NPZ requested member is encrypted or has a bad local header");
             const auto localName=u16(zip,localOffset+26u),localExtra=u16(zip,localOffset+28u);
             const auto dataOffset=static_cast<std::size_t>(localOffset)+30u+localName+localExtra;
@@ -176,7 +192,7 @@ inline bool readRequestedArrays(const std::filesystem::path& path,
             if(::crc32(0L,reinterpret_cast<const Bytef*>(raw.data()),static_cast<uInt>(raw.size()))!=expectedCRC)
                 return fail("fractional support NPZ member CRC differs");
             NpyArray array;
-            if(!parseNpy(raw,array,error))return false;
+            if(!parseNpy(std::move(raw),array,error))return false;
             arrays.emplace(member.substr(0u,member.size()-4u),std::move(array));
         }
         cursor=next;

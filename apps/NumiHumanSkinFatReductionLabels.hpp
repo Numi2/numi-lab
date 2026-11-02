@@ -3227,6 +3227,24 @@ template<class VerifyBoundBody, class ParentBodyAt>
        topology.volumeNodeParentResidualWorldM.size()!=n||
        (maximumFacesPerBasisRegion==0u))
         return fail("unpaired source-label arrays do not cover the exact shell, node, or tetrahedron domains");
+    if(topology.childDonorBodyIndices.size()!=nt||
+       topology.childStableSourceFaceIdentities.size()!=nt)
+        return fail("unpaired source-label child donor/face arrays are incomplete");
+    // The basis cap is determined solely by unique (donor, stable face) rows.
+    // Reject an impossible partition before reconstructing the volume or its
+    // expensive exact surface/mass proof. Successful partitions retain all gates.
+    std::map<std::uint32_t,std::set<std::uint32_t>> basisFacesByDonor;
+    for(std::size_t cell=0;cell<nt;++cell)
+        basisFacesByDonor[topology.childDonorBodyIndices[cell]].insert(
+            topology.childStableSourceFaceIdentities[cell]);
+    std::size_t requiredBasisRegions=0u;
+    for(const auto& [donor,faces]:basisFacesByDonor) {
+        (void)donor;
+        requiredBasisRegions+=(faces.size()+maximumFacesPerBasisRegion-1u)/
+            maximumFacesPerBasisRegion;
+        if(requiredBasisRegions>numi::matter::kHumanPartitionedBasisMaximumRegionCount)
+            return fail("unpaired labels exceed the existing Human regional basis limit");
+    }
     const bool independent=topology.independentSkinInnerSurface!=nullptr;
     if(independent!=(topology.independentFatDeepSurface!=nullptr))
         return fail("unpaired labels independent I/D boundaries must be supplied together");

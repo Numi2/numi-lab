@@ -443,6 +443,27 @@ void accumulateSourceMoments(SourceMoments& moments,double mass,const V3& positi
 
 int main() {
     {
+        Fixture f;
+        auto& cache=registeredSurfaceIntersectionCache();cache.clear();
+        GeometryAudit first,again;std::string auditError;
+        assert(auditClosedSurface(f.surface,first,auditError,true));
+        assert(cache.size()==1u);
+        assert(auditClosedSurface(f.surface,again,auditError,true));
+        assert(cache.size()==1u&&first.testedPairs==again.testedPairs&&
+            first.volumeM3==again.volumeM3&&first.minFaceAreaM2==again.minFaceAreaM2);
+        auto invalid=f.surface;invalid.sourcePayloadSHA256="not-a-source-hash";
+        assert(!auditClosedSurface(invalid,again,auditError,true));
+        invalid=f.surface;invalid.faces[0][1]=invalid.faces[0][0];
+        assert(!auditClosedSurface(invalid,again,auditError,true));
+        invalid=f.surface;invalid.worldPoints[0][0]+=0.0001;
+        assert(registeredSurfaceIntersectionDigest(invalid)!=cache.front().digest);
+        invalid=f.surface;invalid.donorLocalPoints[0][0]=
+            std::numeric_limits<double>::quiet_NaN();
+        assert(!auditClosedSurface(invalid,again,auditError,true));
+        cache.clear();
+    }
+
+    {
         // The same fractional parent can be valid for a different geometric
         // donor, while missing support and the scalar path must still reject it.
         ExplicitUnpairedVolumeTopology semantic;

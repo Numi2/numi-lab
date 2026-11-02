@@ -1309,6 +1309,10 @@ struct RestingRun {
                      <<" maximum_rate_exponent="<<maximumRateExponent<<"\n";
         }
         if(solverPrepare) solverPrepare(world);
+        solverPrepare={};
+        // Compilation and solver metadata own their rows. Drop the full
+        // authoring world before allocating GPU state, not after initialization.
+        source={};
         device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal device unavailable");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple GPU required");
         queue=[device newCommandQueue];statuses=[device newBufferWithLength:sizeof(MRMetalWorldStatusGPU) options:MTLResourceStorageModeShared];

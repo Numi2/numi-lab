@@ -49,6 +49,7 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <ImageIO/ImageIO.h>
 #import <Metal/Metal.h>
+#include <mach/mach.h>
 
 #include "NumiHumanAcceptedFEMSkinRenderPass.hpp"
 
@@ -139,6 +140,19 @@
 #endif
 
 namespace {
+void emitHumanPreparationMemory(const char* phase,id<MTLDevice> device=nil) {
+    const char* enabled=std::getenv("NUMI_HUMAN_PREPARATION_MEMORY");
+    if(enabled==nullptr||std::strcmp(enabled,"1")!=0)return;
+    task_vm_info_data_t vm{};mach_msg_type_number_t count=TASK_VM_INFO_COUNT;
+    const auto result=task_info(mach_task_self(),TASK_VM_INFO,
+        reinterpret_cast<task_info_t>(&vm),&count);
+    std::fprintf(stderr,"human_preparation_memory phase=%s available=%u resident_bytes=%llu footprint_bytes=%llu metal_allocated_bytes=%llu recommended_working_set_bytes=%llu\n",
+        phase,result==KERN_SUCCESS?1u:0u,
+        static_cast<unsigned long long>(vm.resident_size),
+        static_cast<unsigned long long>(vm.phys_footprint),
+        static_cast<unsigned long long>(device?device.currentAllocatedSize:0u),
+        static_cast<unsigned long long>(device?device.recommendedMaxWorkingSetSize:0u));
+}
 
 bool humanRestingTimestepSensitivityEnabledForApp() {
 #ifdef NUMI_HUMAN_RESTING_SCENE
@@ -24849,6 +24863,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 fatSupportPins.volumeSHA256=requireSHA("VOLUME_FAT_SHA256");
                 fatSupportPins.source330MassSHA256=source330MassSHA;
 
+                emitHumanPreparationMemory("before_fractional_p1_support");
                 ConservativeSpatialChildSemanticSupportData skinSupport,fatSupport,fractionalSupportOwner;
                 require(loadCurrentP1SemanticSupportNPZ(fractionalPath("P1_SKIN_NPZ"),
                             skinSupportPins,bundle.parent,skinChildRows.size(),skinSupport,identityPathError),
@@ -24860,6 +24875,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             skinChildRows,fatChildRows,bundle.childMaterialIndices,bundle.parent,
                             fractionalSupportOwner,identityPathError),
                         "current paired Skin/Fat P1 support merge rejected: "+identityPathError);
+                skinSupport={};fatSupport={};
+                emitHumanPreparationMemory("after_fractional_p1_merge_release");
 
                 CurrentSourceCarrierPins carrierPins;
                 carrierPins.skinPacketSHA256=requireSHA("CARRIERS_SKIN_SHA256");
@@ -24876,6 +24893,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             carrierData,identityPathError),
                         "pinned current Skin/Fat source-carrier quadrature rejected: "+identityPathError);
 
+                emitHumanPreparationMemory("after_fractional_carrier_load");
                 CurrentFractionalSemanticProofFiles proofFiles;
                 proofFiles.exactProjectionCSVPath=fractionalPath("EXACT_PROJECTION_CSV");
                 proofFiles.exactProjectionCSV_SHA256=requireSHA("EXACT_PROJECTION_SHA256");
@@ -24900,6 +24918,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             registeredRecordedCarrierAllocationRequested?
                                 &recordedFlowBinding:nullptr),
                         "registered-volume fractional source-carrier mass mapping rejected: "+identityPathError);
+                emitHumanPreparationMemory("after_fractional_mass_mapping");
                 require(bundle.spatialMassTransportResult.usesFractionalSemanticSupport,
                         "registered-volume fractional mass owner returned a legacy transport result");
                 if(registeredRecordedCarrierAllocationRequested) {
@@ -26894,6 +26913,17 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             <<" assumed_reference=registered_scene_pose_not_measured_unloaded_skin"
             <<" thickness_reference="<<skinThicknessProvenance<<"; "<<fatThicknessProvenance<<"\n";
     }
+    // All imported geometry, mass, ancestry and label gates have completed.
+    // The physical ObjectSource, prepared mass owners and accepted render maps
+    // own their rows; the import bundles are no longer consulted below.
+    emitHumanPreparationMemory("registered_skin_fat_import_complete");
+    preparedRegisteredVolumeBundle.reset();
+    preparedRegisteredVolumeSidecars.reset();
+    preparedRegisteredVolumeReport.reset();
+    preparedRegisteredVolumeSurfaces.reset();
+    preparedRegisteredRoleState.reset();
+    preparedRegisteredOuterRenderDomain.reset();
+    emitHumanPreparationMemory("registered_skin_fat_import_scratch_released");
     if(includeProstate) {
         require(anatomy&&anatomyPayloadPath,
                 "prostate FEM opt-in requires the retained registered NHANATOMY source payload");
@@ -27611,7 +27641,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     require(totalNodeCount<=std::numeric_limits<std::uint32_t>::max(),
             "resting tissue stack node count exceeds runtime index range");
     numi::matter::CompileOptions opts; opts.maximumRateExponent=0u;
+    emitHumanPreparationMemory("passive_tissue_compile_begin");
     auto compiled=numi::matter::compileWorld(source,opts);
+    emitHumanPreparationMemory("passive_tissue_compile_complete");
     std::string detail;
     for(const auto& d:compiled.diagnostics)detail+=d.message+"; ";
     require(compiled.succeeded(),"resting fascia Matter compile failed: "+detail);
@@ -39572,10 +39604,22 @@ int main(int argc, char** argv) {
                     restingPassiveFasciaOwner&&restingPassiveFasciaOwner->aorticWall
                         ? &*restingPassiveFasciaOwner->aorticWall : nullptr,
                     restingPassiveFasciaOwner
-                        ? restingPassiveFasciaOwner->prepareSharedCompiledWorld
+                        ? std::function<void(numi::matter::CompiledWorld&)>(
+                            [&](numi::matter::CompiledWorld& finalWorld) {
+                                auto& tissueOwner=*restingPassiveFasciaOwner;
+                                if(tissueOwner.prepareSharedCompiledWorld)
+                                    tissueOwner.prepareSharedCompiledWorld(finalWorld);
+                                // The final compiled world now owns all physics
+                                // and provenance. No later main-scene path reads
+                                // this authoring source or its builder closure.
+                                tissueOwner.prepareSharedCompiledWorld={};
+                                tissueOwner.authoredWorldSource={};
+                                emitHumanPreparationMemory("shared_tissue_authoring_released");
+                            })
                         : std::function<void(numi::matter::CompiledWorld&)>{},
                     matterGravityRamp,
                     restingVascularPressureRampSteps.value_or(0u));
+                emitHumanPreparationMemory("shared_runtime_initialized",coupled.physiology.device);
                 const char* restingFgmresBudgetSetting =
                     std::getenv("NUMI_HUMAN_RESTING_FGMRES_BUDGET");
                 // A bounded override uses Matter's existing restarted solve.

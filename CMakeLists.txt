@@ -7335,3 +7335,16 @@ if(BUILD_TESTING)
     add_test(NAME numi_human_registered_support_surface_witness
         COMMAND numi-human-registered-support-surface-witness-check)
 endif()
+
+add_executable(numi-human-current-fractional-npz-reader-check EXCLUDE_FROM_ALL
+    apps/NumiHumanCurrentFractionalNPZReaderCheck.cpp)
+target_include_directories(numi-human-current-fractional-npz-reader-check PRIVATE
+    include matter/include apps)
+target_compile_features(numi-human-current-fractional-npz-reader-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-current-fractional-npz-reader-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+target_link_libraries(numi-human-current-fractional-npz-reader-check PRIVATE z)
+if(BUILD_TESTING)
+    add_test(NAME numi_human_current_fractional_npz_reader
+        COMMAND numi-human-current-fractional-npz-reader-check)
+endif()

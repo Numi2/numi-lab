@@ -1694,9 +1694,17 @@ void writeBaseCGLSStateCapture(
 class UploadPlan {
 public:
     UploadPlan(id<MTLDevice> device, id<MTLCommandQueue> queue)
-        : device_(device), commandBuffer_([queue commandBuffer]),
-          staging_([NSMutableArray array]) {
-        blit_ = [commandBuffer_ blitCommandEncoder];
+        : device_(device), queue_(queue), staging_([NSMutableArray array]) {
+        if(const char* raw=std::getenv("NUMI_MATTER_UPLOAD_STAGING_BYTES")) {
+            const char* end=raw+std::strlen(raw);
+            std::uint64_t requested=0u;
+            const auto parsed=std::from_chars(raw,end,requested);
+            if(parsed.ec!=std::errc{}||parsed.ptr!=end||
+               requested<16u||requested>32u*1024u*1024u||requested%16u!=0u)
+                error_="NUMI_MATTER_UPLOAD_STAGING_BYTES requires a 16-byte multiple from 16 through 33554432";
+            else stagingLimit_=static_cast<NSUInteger>(requested);
+        }
+        begin();
     }
 
     ~UploadPlan() {
@@ -1716,9 +1724,10 @@ public:
         bool& valid,
         std::size_t& residentBytes
     ) {
-        const NSUInteger oneBytes = checkedBytes(values.size(), sizeof(T), valid);
+        (void)checkedBytes(values.size(), sizeof(T), valid);
         const NSUInteger totalBytes = checkedBytes(values.size() * repeat, sizeof(T), valid);
-        if (!valid) {
+        if (!valid || !error_.empty()) {
+            valid = false;
             return nil;
         }
         id<MTLBuffer> output = [device_
@@ -1738,23 +1747,38 @@ public:
         // beyond a source span such as float[3].  Allocate the padded staging
         // range explicitly, initialize its sentinel tail, and copy only the
         // logical source bytes.
-        id<MTLBuffer> staging = [device_
-            newBufferWithLength:oneBytes
-                        options:MTLResourceStorageModeShared];
-        if (staging == nil) {
-            valid = false;
-            return nil;
-        }
-        std::memset(staging.contents, 0, oneBytes);
-        std::memcpy(staging.contents, values.data(), values.size_bytes());
-        [staging_ addObject:staging];
+        // Bound temporary host-visible storage independently of total upload
+        // size. The unpublished candidate remains transactional even when an
+        // earlier upload batch has completed and a later allocation fails.
+        const NSUInteger chunkBytes = stagingLimit_;
         const NSUInteger logicalBytes = values.size_bytes();
-        for (std::size_t index = 0u; index < repeat; ++index) {
-            [blit_ copyFromBuffer:staging
-                    sourceOffset:0u
-                        toBuffer:output
-               destinationOffset:static_cast<NSUInteger>(index) * logicalBytes
-                            size:logicalBytes];
+        const auto* source = reinterpret_cast<const std::uint8_t*>(values.data());
+        for (NSUInteger offset = 0u; offset < logicalBytes;) {
+            const NSUInteger bytes = std::min(chunkBytes, logicalBytes - offset);
+            const NSUInteger paddedBytes = std::max<NSUInteger>(16u, bytes);
+            if (pendingBytes_ + paddedBytes > chunkBytes && !drain()) {
+                valid = false;
+                return nil;
+            }
+            id<MTLBuffer> staging = [device_
+                newBufferWithLength:paddedBytes
+                            options:MTLResourceStorageModeShared];
+            if (staging == nil) {
+                valid = false;
+                return nil;
+            }
+            if (paddedBytes != bytes)
+                std::memset(staging.contents, 0, paddedBytes);
+            std::memcpy(staging.contents, source + offset, bytes);
+            [staging_ addObject:staging];
+            pendingBytes_ += paddedBytes;
+            peakStagingBytes_ = std::max(peakStagingBytes_, pendingBytes_);
+            for (std::size_t index = 0u; index < repeat; ++index) {
+                [blit_ copyFromBuffer:staging sourceOffset:0u toBuffer:output
+                    destinationOffset:static_cast<NSUInteger>(index) * logicalBytes + offset
+                    size:bytes];
+            }
+            offset += bytes;
         }
         return output;
     }
@@ -1769,21 +1793,50 @@ public:
     }
 
     [[nodiscard]] bool finish(std::string& error) {
+        const bool ok = drain(false);
+        error = error_;
+        if (const char* telemetry = std::getenv("NUMI_HUMAN_PREPARATION_MEMORY");
+            telemetry != nullptr && std::strcmp(telemetry, "1") == 0) {
+            std::fprintf(stderr, "matter_upload_memory staging_peak_bytes=%llu batches=%zu device_allocated_bytes=%llu recommended_working_set_bytes=%llu complete=%u\n",
+                static_cast<unsigned long long>(peakStagingBytes_), completedBatches_,
+                static_cast<unsigned long long>(device_.currentAllocatedSize),
+                static_cast<unsigned long long>(device_.recommendedMaxWorkingSetSize),
+                ok ? 1u : 0u);
+        }
+        return ok;
+    }
+
+private:
+    void begin() {
+        @autoreleasepool {
+            commandBuffer_ = [queue_ commandBuffer];
+            blit_ = [commandBuffer_ blitCommandEncoder];
+        }
+    }
+    [[nodiscard]] bool drain(const bool restart = true) {
+        if (!error_.empty()) return false;
         if (blit_ != nil) {
             [blit_ endEncoding];
             blit_ = nil;
         }
         [commandBuffer_ commit];
         [commandBuffer_ waitUntilCompleted];
-        if (commandBuffer_.status == MTLCommandBufferStatusError) {
-            error = errorString(commandBuffer_.error);
-            return false;
-        }
-        return true;
+        const bool ok = commandBuffer_ != nil &&
+            commandBuffer_.status == MTLCommandBufferStatusCompleted;
+        if (!ok) error_ = errorString(commandBuffer_.error);
+        [staging_ removeAllObjects];
+        pendingBytes_ = 0u;
+        ++completedBatches_;
+        commandBuffer_ = nil;
+        if (ok && restart) begin();
+        return ok;
     }
-
-private:
     id<MTLDevice> device_ = nil;
+    id<MTLCommandQueue> queue_ = nil;
+    NSUInteger stagingLimit_ = 32u * 1024u * 1024u;
+    NSUInteger pendingBytes_ = 0u, peakStagingBytes_ = 0u;
+    std::size_t completedBatches_ = 0u;
+    std::string error_;
     id<MTLCommandBuffer> commandBuffer_ = nil;
     id<MTLBlitCommandEncoder> blit_ = nil;
     NSMutableArray<id<MTLBuffer>>* staging_ = nil;
