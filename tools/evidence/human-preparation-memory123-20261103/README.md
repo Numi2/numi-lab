@@ -34,3 +34,7 @@ independently downloaded, checked member-by-member and restore tested.
 Current inputs and transitive mass proofs are excluded. Final net disk
 recovery is still being measured; the compression receipt is an
 intermediate observation rather than a claim that 20 GiB has been freed.
+
+A second increment adds opt-in immutable/state/contact/Krylov/proof allocation
+phase counters and releases particle/FEM material-state upload defaults after
+their last upload. The same four native controls pass after this change.

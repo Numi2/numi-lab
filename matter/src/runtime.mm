@@ -9712,6 +9712,19 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
         UploadPlan uploads(candidate->device, candidate->queue);
+        const bool tracePreparationMemory = [] {
+            const char* value = std::getenv("NUMI_HUMAN_PREPARATION_MEMORY");
+            return value != nullptr && std::strcmp(value, "1") == 0;
+        }();
+        const auto traceAllocationPhase = [&](const char* phase) {
+            if (!tracePreparationMemory) return;
+            std::fprintf(stderr, "matter_allocation_phase phase=%s resident_bytes=%zu device_allocated_bytes=%llu recommended_working_set_bytes=%llu\n",
+                phase, candidate->residentBytes,
+                static_cast<unsigned long long>(candidate->device.currentAllocatedSize),
+                static_cast<unsigned long long>(candidate->device.recommendedMaxWorkingSetSize));
+        };
+        traceAllocationPhase("before_immutable_uploads");
+
         const std::size_t environments = world.dispatch.environmentCount;
         RegionalGalerkinBasis regionalGalerkinBasis;
         if (usesRegionalGalerkinPreconditioner(
@@ -11499,6 +11512,7 @@ RuntimeDiagnostics Runtime::initialize(
         for (const NMParameterRangeGPU parameter : world.parameters) {
             defaultParameters.push_back(parameter.valueAndBounds.x);
         }
+        traceAllocationPhase("after_immutable_uploads");
         const std::size_t materialStateStride =
             world.dispatch.materialStateStride;
         std::vector<float> particleMaterialStateDefaults(
@@ -11593,6 +11607,7 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->particleMaterialStateCheckpoint = uploads.repeated(
             std::span<const float>(particleMaterialStateDefaults),
             environments, valid, candidate->residentBytes);
+        std::vector<float>().swap(particleMaterialStateDefaults);
         candidate->gridNodes = uploads.repeated(
             std::span<const NMGridNodeStateGPU>(world.mpm.nodes),
             environments, valid, candidate->residentBytes);
@@ -11751,6 +11766,8 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femMaterialStateCheckpoint = uploads.repeated(
             std::span<const float>(femMaterialStateDefaults),
             environments, valid, candidate->residentBytes);
+        std::vector<float>().swap(femMaterialStateDefaults);
+        traceAllocationPhase("after_physical_state_uploads");
         candidate->femFieldsAccepted = uploads.repeated(
             std::span<const NMFEMFieldStateGPU>(world.fem.fields),
             environments, valid, candidate->residentBytes);
@@ -14293,6 +14310,7 @@ RuntimeDiagnostics Runtime::initialize(
                     valid, candidate->residentBytes);
             }
         }
+        traceAllocationPhase("after_operator_contact_scratch");
         const std::size_t fgmresUnknownTotal = mixedUnknownTotal;
         const std::size_t fgmresSystemTotal = multiplied(1u);
         const std::size_t configuredRestart = std::clamp<std::size_t>(
@@ -14327,6 +14345,7 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fgmresStates = privateScratch<NMFGMRESStateGPU>(
             candidate->device, fgmresSystemTotal,
             valid, candidate->residentBytes);
+        traceAllocationPhase("after_krylov_basis");
         const std::uint32_t completedZeroActionTileCount =
             std::max(1u, candidate->fgmresLayout.unknownCount / 256u +
                 (candidate->fgmresLayout.unknownCount % 256u != 0u ? 1u : 0u));
@@ -15779,6 +15798,7 @@ RuntimeDiagnostics Runtime::initialize(
         const std::size_t proofScratchCount = valid
             ? static_cast<std::size_t>(proofScratchCount64)
             : 0u;
+        traceAllocationPhase("before_proof_scratch");
         const std::size_t proofResidentBefore = candidate->residentBytes;
         candidate->acceptedStateProofHashes = privateScratch<std::uint64_t>(
             candidate->device,
