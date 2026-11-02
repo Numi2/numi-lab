@@ -302,5 +302,9 @@
   "source-pins-before.json": {
     "sha256": "8964159d678d133dfc35a0be25b12914fe6b5054be37ce7a34f1696af3956c2c",
     "bytes": 211
+  },
+  "final-execution-identity.json": {
+    "sha256": "0027cf055e0ac9b25b55ea7952450ffcca40d8f7736a9e46b09bf73d9d256681",
+    "bytes": 4080
   }
 }

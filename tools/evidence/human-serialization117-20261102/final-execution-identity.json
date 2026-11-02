@@ -1,0 +1,78 @@
+{
+  "lab_source_commit": "485a2467b0e7688f60d2a28c865bf8e2b73715ed",
+  "execution_owner_head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "execution_owner_dirty": true,
+  "publication_sources": {
+    "matter/src/numi_human.mm": {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src/numi_human.mm",
+      "sha256": "fc9433a62fc3df1d3d48454a3e921e3d5e2a29200d7c22e32de38f2c11c57dd4",
+      "bytes": 266011
+    },
+    "matter/src/metal/numi_human.metalinc": {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src/metal/numi_human.metalinc",
+      "sha256": "644e6d3edb2c5a291c6a87c2af428a7d67895b23c86547867abb56cbd95ee5a5",
+      "bytes": 176996
+    },
+    "matter/src/runtime.mm": {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src/runtime.mm",
+      "sha256": "e64e2503461b852e1398da2fdf2734bc446985db4afd94f2dd3b4b68e868f398",
+      "bytes": 3403023
+    },
+    "matter/src/metal_encoder_timing.hpp": {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src/metal_encoder_timing.hpp",
+      "sha256": "5ba2d9b7e30322b93195b7722496fa7b8f2d337f3d5ea8c32dc5a9a0cfcc1afd",
+      "bytes": 20745
+    },
+    "tests/numi_human_fem_surface_attachment/contact_audit_reduction_test.mm": {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/tests/numi_human_fem_surface_attachment/contact_audit_reduction_test.mm",
+      "sha256": "d98eda9baa512e39f98b7924f6984c32002b4528ffb5853ea7cd85c66347c05c",
+      "bytes": 11132
+    },
+    "tests/numi_human_fem_surface_attachment/run.py": {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/tests/numi_human_fem_surface_attachment/run.py",
+      "sha256": "dedec43d47ba386c6bf97f4dca33d7d55ad10cde53f5a64fab3d6e97ab554a84",
+      "bytes": 6557
+    }
+  },
+  "runtime_binary_manifest": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-import-120/build-source-device-manifest.json",
+    "sha256": "de328eb86bf1e5aedd0a7dcb0f4781974a738018c0101711ce0123beb9c01936",
+    "bytes": 14526
+  },
+  "publication_compiled_controls": {
+    "NumiMatter.metallib": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/publication-controls/NumiMatter.metallib",
+      "sha256": "ecab98da77367cf29c4b167aa68c2f824e0c49b28c82fac2ffd585fdaa153580",
+      "bytes": 29423702
+    },
+    "contact-reduction-test": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/publication-controls/contact-reduction-test",
+      "sha256": "9eecf14385a2e3dab66dcd90b5f3b18e61802e99188970d56cfd68d6192cacce",
+      "bytes": 55016
+    }
+  },
+  "execution_native_control": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/native-test",
+    "sha256": "076f0d39ca60355124cd6efd34c27b2755a7084f3a19b02a4380be7bfe67a0b5",
+    "bytes": 118344
+  },
+  "compiler": {
+    "path": "/Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/bin/metal",
+    "sha256": "5fb0563a0b1359d72b45217201a6394bc4318d0f6eded9db73203d1f6a955ef0",
+    "bytes": 238464
+  },
+  "linker": {
+    "path": "/Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/bin/metallib",
+    "sha256": "acc7057b19706715530ba6fadc275e4d0e52d4c8ed9002452cd1674c024108d3",
+    "bytes": 238480
+  },
+  "device": "hw.model: Mac18,5\nhw.memsize: 17179869184\nmachdep.cpu.brand_string: Apple M6\n",
+  "shader_flags": [
+    "-std=metal4.0",
+    "-O3",
+    "-fno-fast-math"
+  ],
+  "final_free_disk_bytes": 22985273344,
+  "physical_steps": 0,
+  "integrated_realtime_factor": null
+}
