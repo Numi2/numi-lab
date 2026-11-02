@@ -12,6 +12,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <limits>
 #include <map>
 #include <set>
@@ -1089,11 +1090,190 @@ struct CurrentCarrierWitnessCSVSummary {
 // The 1046c CSV is evidence, not the carrier data source. The NPZ remains
 // authoritative for carrier arrays; this reader pins and parses only the two
 // record kinds needed to bind each role-local carrier index to its sidecar row.
+
+struct CurrentCarrierWitnessCSVLimits {
+    std::size_t maxLineBytes=64u*1024u;
+    std::uint64_t maxDecompressedBytes=32ull*1024ull*1024ull*1024ull;
+    std::uint64_t maxDataRows=20000000ull;
+};
+
+// Bounded line reader for the existing 1046c schema. The .gz path uses a
+// strict single-member gzip inflater so CRC/truncation and trailing bytes fail.
+class CurrentCarrierWitnessCSVLineReader {
+public:
+    CurrentCarrierWitnessCSVLineReader()=default;
+    CurrentCarrierWitnessCSVLineReader(const CurrentCarrierWitnessCSVLineReader&)=delete;
+    CurrentCarrierWitnessCSVLineReader& operator=(const CurrentCarrierWitnessCSVLineReader&)=delete;
+    ~CurrentCarrierWitnessCSVLineReader(){
+        if(inflateInitialized_)(void)inflateEnd(&stream_);
+    }
+
+    bool open(const std::filesystem::path& path,
+              const CurrentCarrierWitnessCSVLimits& limits,
+              std::string& error){
+        limits_=limits;
+        if(limits_.maxLineBytes==0u||limits_.maxDecompressedBytes==0u||
+           limits_.maxDataRows==0u){
+            error="1046c witness CSV reader limits must be positive";return false;
+        }
+        gzip_=path.extension()==".gz";
+        if(gzip_){
+            compressed_.open(path,std::ios::binary);
+            if(!compressed_){error="cannot open compressed 1046c witness CSV";return false;}
+            stream_={};
+            if(inflateInit2(&stream_,15+16)!=Z_OK){
+                error="cannot initialize strict gzip decoder";return false;
+            }
+            inflateInitialized_=true;
+        }else{
+            plain_.open(path,std::ios::binary);
+            if(!plain_){error="cannot open current 1046c carrier witness CSV";return false;}
+        }
+        return true;
+    }
+
+    bool nextLine(std::string& line,bool& hasLine,std::string& error){
+        line.clear();hasLine=false;
+        for(;;){
+            if(position_<available_){
+                const auto* begin=buffer_.data()+position_;
+                const auto remaining=available_-position_;
+                const auto* newline=static_cast<const unsigned char*>(
+                    std::memchr(begin,static_cast<unsigned char>(10),remaining));
+                const std::size_t amount=newline?
+                    static_cast<std::size_t>(newline-begin):remaining;
+                if(amount>limits_.maxLineBytes-line.size()){
+                    error="1046c witness CSV line exceeds its configured byte limit";return false;
+                }
+                line.append(reinterpret_cast<const char*>(begin),amount);
+                position_+=amount;
+                if(newline){++position_;hasLine=true;return true;}
+                continue;
+            }
+            if(done_){
+                if(!line.empty())hasLine=true;
+                return true;
+            }
+            if(!fill(error))return false;
+            if(available_==0u&&done_){
+                if(!line.empty())hasLine=true;
+                return true;
+            }
+        }
+    }
+
+    bool finish(std::string& error) const{
+        if(!done_){error="1046c witness CSV reader was not drained to end of file";return false;}
+        if(gzip_&&!gzipMemberEnded_){
+            error="1046c witness gzip stream ended without a complete member";return false;
+        }
+        if(plain_.bad()||compressed_.bad()){
+            error="1046c witness CSV input closed with an I/O error";return false;
+        }
+        return true;
+    }
+
+private:
+    bool accountDecoded(std::size_t count,std::string& error){
+        const auto amount=static_cast<std::uint64_t>(count);
+        if(amount>limits_.maxDecompressedBytes-decodedBytes_){
+            error="1046c witness CSV exceeds its configured decompressed-byte limit";return false;
+        }
+        decodedBytes_+=amount;return true;
+    }
+
+    bool fill(std::string& error){
+        position_=available_=0u;
+        if(done_)return true;
+        if(!gzip_){
+            plain_.read(reinterpret_cast<char*>(buffer_.data()),
+                        static_cast<std::streamsize>(buffer_.size()));
+            const auto got=plain_.gcount();
+            if(plain_.bad()){
+                error="failed reading current 1046c carrier witness CSV";return false;
+            }
+            if(got==0){
+                if(!plain_.eof()){
+                    error="current 1046c carrier witness CSV stopped without EOF";return false;
+                }
+                done_=true;return true;
+            }
+            const auto count=static_cast<std::size_t>(got);
+            if(!accountDecoded(count,error))return false;
+            available_=count;
+            return true;
+        }
+        if(gzipMemberEnded_){done_=true;return true;}
+
+        for(;;){
+            if(stream_.avail_in==0u&&!compressedEOF_){
+                compressed_.read(reinterpret_cast<char*>(input_.data()),
+                                 static_cast<std::streamsize>(input_.size()));
+                const auto got=compressed_.gcount();
+                if(compressed_.bad()){
+                    error="failed reading compressed 1046c witness CSV";return false;
+                }
+                if(got>0){
+                    stream_.next_in=input_.data();
+                    stream_.avail_in=static_cast<uInt>(got);
+                }else if(compressed_.eof()){
+                    compressedEOF_=true;
+                }else{
+                    error="compressed 1046c witness CSV stopped without EOF";return false;
+                }
+            }
+            stream_.next_out=buffer_.data();
+            stream_.avail_out=static_cast<uInt>(buffer_.size());
+            const auto beforeIn=stream_.avail_in;
+            const int status=inflate(&stream_,Z_NO_FLUSH);
+            const auto produced=buffer_.size()-static_cast<std::size_t>(stream_.avail_out);
+            if(status==Z_STREAM_END){
+                gzipMemberEnded_=true;
+                if(stream_.avail_in!=0u){
+                    error="compressed 1046c witness CSV has trailing bytes or multiple gzip members";return false;
+                }
+                const int trailing=compressed_.peek();
+                if(trailing!=std::char_traits<char>::eof()){
+                    error="compressed 1046c witness CSV has trailing bytes after its gzip member";return false;
+                }
+                if(compressed_.bad()){
+                    error="failed checking end of compressed 1046c witness CSV";return false;
+                }
+            }else if(status!=Z_OK){
+                error="gzip decode failed for 1046c witness CSV (zlib status "+
+                      std::to_string(status)+")";return false;
+            }
+            if(produced>0u){
+                if(!accountDecoded(produced,error))return false;
+                available_=produced;
+                return true;
+            }
+            if(gzipMemberEnded_){done_=true;return true;}
+            if(compressedEOF_&&stream_.avail_in==0u){
+                error="compressed 1046c witness CSV is truncated before gzip CRC/size trailer";return false;
+            }
+            if(status==Z_OK&&beforeIn==stream_.avail_in){
+                error="gzip decoder made no progress on 1046c witness CSV";return false;
+            }
+        }
+    }
+
+    CurrentCarrierWitnessCSVLimits limits_{};
+    std::ifstream plain_,compressed_;
+    z_stream stream_{};
+    std::array<unsigned char,65536> input_{},buffer_{};
+    std::size_t position_=0u,available_=0u;
+    std::uint64_t decodedBytes_=0u;
+    bool gzip_=false,inflateInitialized_=false,compressedEOF_=false;
+    bool gzipMemberEnded_=false,done_=false;
+};
+
 [[nodiscard]] inline bool loadCurrentCarrierWitnessCSV(
         const std::filesystem::path& path,const std::string_view expectedSHA256,
         const std::uint32_t expectedRoleMaterial,
         std::vector<CurrentCarrierWitnessEvidenceRow>& rows,
-        CurrentCarrierWitnessCSVSummary& summary,std::string& error){
+        CurrentCarrierWitnessCSVSummary& summary,std::string& error,
+        const CurrentCarrierWitnessCSVLimits& limits={}){
     using namespace current_fractional_support_npz_detail;
     const auto fail=[&](std::string message){error=std::move(message);return false;};
     if((expectedRoleMaterial!=15u&&expectedRoleMaterial!=16u)||
@@ -1102,10 +1282,11 @@ struct CurrentCarrierWitnessCSVSummary {
     std::string actualSHA;
     if(!physical_skin_child_mass_detail::sha256File(path,actualSHA,error))return false;
     if(actualSHA!=expectedSHA256)return fail("1046c carrier witness CSV differs from its explicit SHA pin");
-    std::ifstream input(path);
-    if(!input)return fail("cannot open current 1046c carrier witness CSV");
-    std::string line;
-    if(!std::getline(input,line))return fail("current 1046c carrier witness CSV is empty");
+    CurrentCarrierWitnessCSVLineReader input;
+    if(!input.open(path,limits,error))return false;
+    std::string line;bool hasLine=false;
+    if(!input.nextLine(line,hasLine,error))return false;
+    if(!hasLine)return fail("current 1046c carrier witness CSV is empty");
     const auto header=physical_skin_child_mass_detail::splitCSV(line);
     static const std::vector<std::string> expectedHeader{
         "record_kind","role","carrier_construction","packet_carrier_row","local_parent_row",
@@ -1120,8 +1301,13 @@ struct CurrentCarrierWitnessCSVSummary {
     std::set<std::uint32_t> carrierRows;
     std::set<std::pair<std::uint32_t,std::uint32_t>> supportPairs;
     std::size_t fallbackCount=0u,edgeSupportCount=0u,physicalLine=1u;
-    while(std::getline(input,line)){
+    std::uint64_t dataRowCount=0u;
+    for(;;){
+        if(!input.nextLine(line,hasLine,error))return false;
+        if(!hasLine)break;
         ++physicalLine;if(line.empty())continue;
+        if(++dataRowCount>limits.maxDataRows)
+            return fail("1046c witness CSV exceeds its configured row limit");
         const auto f=physical_skin_child_mass_detail::splitCSV(line);
         if(f.size()!=expectedHeader.size()||f[1]!=expectedRole)
             return fail("1046c carrier witness row has an unexpected role or field count at line "+std::to_string(physicalLine));
@@ -1221,7 +1407,8 @@ struct CurrentCarrierWitnessCSVSummary {
         }
         next.push_back(std::move(row));
     }
-    if(!input.eof()||next.empty()||carrierRows.empty())
+    if(!input.finish(error))return false;
+    if(next.empty()||carrierRows.empty())
         return fail("1046c carrier witness CSV failed complete nonempty parsing");
     for(std::uint32_t i=0;i<carrierRows.size();++i)
         if(!carrierRows.contains(i))
@@ -1244,6 +1431,161 @@ struct CurrentCarrierWitnessCSVSummary {
 // witness may add an exact support slot only after replaying the barycentric
 // source point, current child material, one-hop source region and unchanged
 // source-point-to-current-child-centroid radius.
+[[nodiscard]] inline bool loadCurrentCarrierWitnessCSVEach(
+        const std::filesystem::path& path,const std::string_view expectedSHA256,
+        const std::uint32_t expectedRoleMaterial,
+        CurrentCarrierWitnessCSVSummary& summary,
+        const std::function<bool(const CurrentCarrierWitnessEvidenceRow&,std::string&)>& consume,
+        std::string& error,const CurrentCarrierWitnessCSVLimits& limits={}){
+    using namespace current_fractional_support_npz_detail;
+    const auto fail=[&](std::string message){error=std::move(message);return false;};
+    if((expectedRoleMaterial!=15u&&expectedRoleMaterial!=16u)||
+       !physical_skin_child_mass_detail::validSHA256(expectedSHA256)||!consume)
+        return fail("1046c carrier witness CSV requires an exact role and SHA pin");
+    std::string actualSHA;
+    if(!physical_skin_child_mass_detail::sha256File(path,actualSHA,error))return false;
+    if(actualSHA!=expectedSHA256)return fail("1046c carrier witness CSV differs from its explicit SHA pin");
+    CurrentCarrierWitnessCSVLineReader input;
+    if(!input.open(path,limits,error))return false;
+    std::string line;bool hasLine=false;
+    if(!input.nextLine(line,hasLine,error))return false;
+    if(!hasLine)return fail("current 1046c carrier witness CSV is empty");
+    const auto header=physical_skin_child_mass_detail::splitCSV(line);
+    static const std::vector<std::string> expectedHeader{
+        "record_kind","role","carrier_construction","packet_carrier_row","local_parent_row",
+        "global_source330_tet_row","child_local_row","child_global_row","material","donor","region",
+        "provenance_mode","p1_group_id","projection_csv_row","bary0","bary1","bary2","bary3",
+        "weight","source_x_m","source_y_m","source_z_m","child_centroid_x_m","child_centroid_y_m",
+        "child_centroid_z_m","distance_m"};
+    if(header!=expectedHeader)
+        return fail("1046c carrier witness CSV header is not the pinned 26-column schema");
+    const std::string expectedRole=expectedRoleMaterial==15u?"Skin":"Fat";
+    std::vector<bool> primaryRows;
+    std::size_t primaryCount=0u;
+    std::size_t fallbackCount=0u,edgeSupportCount=0u,physicalLine=1u;
+    std::uint64_t dataRowCount=0u;
+    for(;;){
+        if(!input.nextLine(line,hasLine,error))return false;
+        if(!hasLine)break;
+        ++physicalLine;if(line.empty())continue;
+        if(++dataRowCount>limits.maxDataRows)
+            return fail("1046c witness CSV exceeds its configured row limit");
+        const auto f=physical_skin_child_mass_detail::splitCSV(line);
+        if(f.size()!=expectedHeader.size()||f[1]!=expectedRole)
+            return fail("1046c carrier witness row has an unexpected role or field count at line "+std::to_string(physicalLine));
+        std::int64_t packetRow=-2,projectionRow=-2,p1Group=-2;
+        CurrentCarrierWitnessEvidenceRow row;
+        row.roleMaterial=expectedRoleMaterial;
+        std::uint32_t csvMaterial=0u,csvDonor=0u,csvRegion=0u;
+        if(!physical_skin_child_mass_detail::parseNumber(f[3],packetRow)||
+           !physical_skin_child_mass_detail::parseNumber(f[4],row.sourceParentLocalRow)||
+           !physical_skin_child_mass_detail::parseNumber(f[5],row.sourceParentRow)||
+           !physical_skin_child_mass_detail::parseNumber(f[6],row.roleLocalChildRow)||
+           !physical_skin_child_mass_detail::parseNumber(f[7],row.childRow)||
+           !physical_skin_child_mass_detail::parseNumber(f[8],csvMaterial)||
+           !physical_skin_child_mass_detail::parseNumber(f[9],csvDonor)||
+           !physical_skin_child_mass_detail::parseNumber(f[10],csvRegion)||
+           !physical_skin_child_mass_detail::parseNumber(f[12],p1Group)||
+           !physical_skin_child_mass_detail::parseNumber(f[13],projectionRow)||
+           !physical_skin_child_mass_detail::parseNumber(f[14],row.claimedBarycentric[0])||
+           !physical_skin_child_mass_detail::parseNumber(f[15],row.claimedBarycentric[1])||
+           !physical_skin_child_mass_detail::parseNumber(f[16],row.claimedBarycentric[2])||
+           !physical_skin_child_mass_detail::parseNumber(f[17],row.claimedBarycentric[3])||
+           !physical_skin_child_mass_detail::parseNumber(f[18],row.claimedWeight)||
+           !physical_skin_child_mass_detail::parseNumber(f[19],row.claimedSourcePointWorld[0])||
+           !physical_skin_child_mass_detail::parseNumber(f[20],row.claimedSourcePointWorld[1])||
+           !physical_skin_child_mass_detail::parseNumber(f[21],row.claimedSourcePointWorld[2])||
+           !physical_skin_child_mass_detail::parseNumber(f[22],row.claimedChildCentroidWorld[0])||
+           !physical_skin_child_mass_detail::parseNumber(f[23],row.claimedChildCentroidWorld[1])||
+           !physical_skin_child_mass_detail::parseNumber(f[24],row.claimedChildCentroidWorld[2])||
+           !physical_skin_child_mass_detail::parseNumber(f[25],row.claimedDistanceM))
+            return fail("1046c carrier witness row has malformed numeric fields at line "+std::to_string(physicalLine));
+        row.material=csvMaterial;row.donor=csvDonor;row.region=csvRegion;
+        row.carrierConstruction=f[2];row.sourceCSVSHA256=actualSHA;row.hasCSVProof=true;
+        if(csvMaterial!=expectedRoleMaterial||row.carrierConstruction.empty()||
+           !std::isfinite(row.claimedWeight)||!std::isfinite(row.claimedDistanceM)||
+           row.claimedDistanceM<0.0||
+           !std::all_of(row.claimedBarycentric.begin(),row.claimedBarycentric.end(),
+                       [](double x){return std::isfinite(x);})||
+           !std::all_of(row.claimedSourcePointWorld.begin(),row.claimedSourcePointWorld.end(),
+                       [](double x){return std::isfinite(x);})||
+           !std::all_of(row.claimedChildCentroidWorld.begin(),row.claimedChildCentroidWorld.end(),
+                       [](double x){return std::isfinite(x);}))
+            return fail("1046c witness has invalid role, construction, coordinates or measure at line "+std::to_string(physicalLine));
+        if(f[0]=="centroid_route_fallback"){
+            if(packetRow!=-1||p1Group<0||projectionRow!=-1||
+               f[11]!="p1_exact_tuple_slot"||f[2]!="unchanged_source_centroid")
+                return fail("1046c centroid fallback record is not the pinned diagnostic form");
+            ++fallbackCount;
+            continue;
+        }
+        if((f[0]!="carrier"&&f[0]!="carrier_child_slot")||packetRow<0||
+           static_cast<std::uint64_t>(packetRow)>=std::numeric_limits<std::uint32_t>::max())
+            return fail("1046c witness record kind or packet carrier row is invalid");
+        row.roleLocalCarrierRow=static_cast<std::uint32_t>(packetRow);
+        row.extraChildSlot=f[0]=="carrier_child_slot";
+        if(projectionRow< -1||projectionRow>=static_cast<std::int64_t>(std::numeric_limits<std::uint32_t>::max())||
+           p1Group< -1||p1Group>=static_cast<std::int64_t>(std::numeric_limits<std::uint32_t>::max()))
+            return fail("1046c carrier witness P1/projection row has an invalid sentinel or value");
+        row.projectionCSVRow=projectionRow<0?std::numeric_limits<std::uint32_t>::max():
+                             static_cast<std::uint32_t>(projectionRow);
+        if(p1Group>=0)row.declaredP1GroupID=static_cast<std::uint32_t>(p1Group);
+        if(row.extraChildSlot){
+            if(f[11]!="CurrentCarrierPointProjection"||projectionRow!=-1||p1Group!=-1||
+               f[2]!="current_source_carrier_edge_support")
+                return fail("carrier child-slot row must use the exact carrier-point support mode and sentinels");
+            row.mode=CurrentCarrierWitnessMode::CurrentCarrierPointProjection;
+            ++edgeSupportCount;
+        }else{
+            if(row.roleLocalCarrierRow>=limits.maxDataRows)
+                return fail("1046c primary packet row exceeds the configured row-domain bound");
+            if(row.roleLocalCarrierRow>=primaryRows.size())
+                primaryRows.resize(static_cast<std::size_t>(row.roleLocalCarrierRow)+1u,false);
+            if(primaryRows[row.roleLocalCarrierRow])
+                return fail("1046c carrier witness CSV repeats a primary role-local packet row");
+            primaryRows[row.roleLocalCarrierRow]=true;++primaryCount;
+            if(f[11]=="p1_exact_tuple_slot")row.mode=CurrentCarrierWitnessMode::P1ExactTupleSlot;
+            else if(f[11]=="authenticated_exact_projection")
+                row.mode=CurrentCarrierWitnessMode::AuthenticatedExactProjection;
+            else if(f[11]=="CurrentCarrierPointProjection")
+                row.mode=CurrentCarrierWitnessMode::CurrentCarrierPointProjection;
+            else if(f[11]=="source_tet_canonical_quadrature")
+                row.mode=CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature;
+            else return fail("1046c carrier witness uses an unknown provenance mode");
+            if((row.mode==CurrentCarrierWitnessMode::AuthenticatedExactProjection)!=(projectionRow>=0))
+                return fail("1046c carrier witness projection mode and projection row disagree");
+            if(row.mode==CurrentCarrierWitnessMode::P1ExactTupleSlot&&p1Group<0)
+                return fail("1046c P1 carrier witness omits its role-local P1 group identity");
+            if(f[2]!="inherited_090_quadrature"&&
+               f[2]!="current_exact_tuple_projection_degree1_lp"&&
+               f[2]!="source_tetra_anchor_refinement_1046d"&&
+               f[2]!="source_tet_canonical_degree1_quadrature_1046e")
+                return fail("1046c carrier witness uses an unknown construction provenance");
+            if(row.mode==CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature){
+                if(f[2]!="source_tet_canonical_degree1_quadrature_1046e"||
+                   p1Group!=-1||projectionRow!=-1||
+                   !isCanonicalSourceTetDegree1Barycentric(row.claimedBarycentric))
+                    return fail("canonical source-tet quadrature witness must use an exact canonical site with no P1/projection row claim");
+            }else if(f[2]=="source_tet_canonical_degree1_quadrature_1046e"){
+                return fail("canonical source-tet construction requires its dedicated provenance mode");
+            }
+        }
+        if(!consume(row,error))return false;
+    }
+    if(!input.finish(error))return false;
+    if(primaryCount==0u)
+        return fail("1046c carrier witness CSV failed complete nonempty parsing");
+    if(primaryRows.size()!=primaryCount||
+       std::find(primaryRows.begin(),primaryRows.end(),false)!=primaryRows.end())
+        return fail("1046c primary carrier rows are not a complete zero-based domain");
+    summary.sourceCSVSHA256=actualSHA;
+    summary.carrierRecordCount=static_cast<std::uint32_t>(primaryCount);
+    summary.additionalSupportRecordCount=static_cast<std::uint32_t>(edgeSupportCount);
+    summary.centroidFallbackRecordCount=static_cast<std::uint32_t>(fallbackCount);
+    error.clear();return true;
+}
+
+
 [[nodiscard]] inline bool bindCurrentCarrierWitnessAllowlist(
         ConservativeSpatialChildSemanticSupportData& support,
         const ConservativeSpatialMassTransportInput& input,
@@ -1494,6 +1836,328 @@ struct CurrentCarrierWitnessCSVSummary {
     support.admissibleGroupEvidenceSHA256=hash.finish();
     error.clear();return true;
 }
+
+
+
+class CurrentCarrierWitnessAllowlistStreamState {
+public:
+    using Tuple=std::tuple<std::uint32_t,std::uint32_t,std::uint32_t>;
+
+    bool begin(ConservativeSpatialChildSemanticSupportData& support,
+               const ConservativeSpatialMassTransportInput& input,
+               const CurrentSourceCarrierQuadratureData& carrier,
+               const std::span<const CurrentExactTupleProjectionRow> exactProjectionRows,
+               const std::string_view exactProjectionCSVSHA256,
+               const std::string_view evidenceSHA256,std::string& error,
+               const std::span<const std::uint32_t> skinChildGlobalRows={},
+               const std::span<const std::uint32_t> fatChildGlobalRows={}){
+        support_=&support;input_=&input;carrier_=&carrier;
+        exactProjectionRows_=exactProjectionRows;
+        exactProjectionCSVSHA256_=exactProjectionCSVSHA256;
+        evidenceSHA256_=evidenceSHA256;
+        skinChildGlobalRows_=skinChildGlobalRows;fatChildGlobalRows_=fatChildGlobalRows;
+        auto& supportRef=*support_;
+        const auto& inputRef=*input_;
+        const auto& carrierRef=*carrier_;
+        const auto exactProjectionCSVSHA256Ref=exactProjectionCSVSHA256_;
+        const auto evidenceSHA256Ref=evidenceSHA256_;
+        const auto fail=[&](std::string message){error=std::move(message);return false;};
+        const std::size_t nc=inputRef.childReferenceVolumeM3.size(),np=inputRef.parentMassKg.size();
+        const std::size_t nCarrier=carrierRef.carrierWeights.size();
+        if(nCarrier==0u||
+           carrierRef.parentOffsets.size()!=np+1u||carrierRef.witnessChildRows.size()!=nCarrier||
+           carrierRef.carrierBarycentric.size()!=nCarrier||carrierRef.carrierRoleLocalRows.size()!=nCarrier||
+           carrierRef.carrierRoleMaterialIndices.size()!=nCarrier||
+           carrierRef.carrierRoleLocalChildRows.size()!=nCarrier||
+           carrierRef.carrierRoleLocalParentRows.size()!=nCarrier||
+           carrierRef.parentReferenceTetWorldVertices.size()!=np||
+           supportRef.childOffsets.size()!=nc+1u||supportRef.childOffsets.back()!=supportRef.slotGroupIndices.size()||
+           supportRef.cellAdmissibleRegionOffsets.size()!=nc+1u||
+           supportRef.admissibilityMaximumSourceRegionHops!=1u||
+           !physical_skin_child_mass_detail::validSHA256(supportRef.admissibilitySourceSupportSHA256)||
+           !physical_skin_child_mass_detail::validSHA256(exactProjectionCSVSHA256Ref)||
+           !physical_skin_child_mass_detail::validSHA256(evidenceSHA256Ref)||
+           inputRef.parentMaterialIndices.size()!=np||inputRef.parentDonorBodyIndices.size()!=np||
+           inputRef.parentAnatomicalRegionIndices.size()!=np||
+           inputRef.childMaterialIndices.size()!=nc||inputRef.childCentroidsWorld.size()!=nc)
+            return fail("current carrier witness sidecar or paired source/child domains are incomplete");
+        auto& groupByTuple=groupByTuple_;groupByTuple.clear();
+        for(std::size_t g=0;g<supportRef.groupMaterialIndices.size();++g){
+            const Tuple key{supportRef.groupMaterialIndices[g],supportRef.donorBodyIndices[g],
+                            supportRef.anatomicalRegionIndices[g]};
+            if(!groupByTuple.emplace(key,static_cast<std::uint32_t>(g)).second)
+                return fail("current carrier witness support has duplicate exact tuple groups");
+        }
+        auto& allowed=allowed_;allowed.assign(nc,{});
+        const bool hasExplicit=!supportRef.childAdmissibleGroupOffsets.empty()||
+                               !supportRef.childAdmissibleGroupIndices.empty();
+        if(hasExplicit){
+            if(supportRef.childAdmissibleGroupOffsets.size()!=nc+1u||
+               supportRef.childAdmissibleGroupOffsets.front()!=0u||
+               supportRef.childAdmissibleGroupOffsets.back()!=supportRef.childAdmissibleGroupIndices.size())
+                return fail("current carrier witness existing exact-group allowlist is malformed");
+            for(std::size_t c=0;c<nc;++c){
+                const auto begin=supportRef.childAdmissibleGroupOffsets[c];
+                const auto end=supportRef.childAdmissibleGroupOffsets[c+1u];
+                if(begin>=end||end>supportRef.childAdmissibleGroupIndices.size())
+                    return fail("current carrier witness existing exact-group allowlist has an empty row");
+                allowed[c].assign(supportRef.childAdmissibleGroupIndices.begin()+begin,
+                                  supportRef.childAdmissibleGroupIndices.begin()+end);
+            }
+        }else{
+            for(std::size_t c=0;c<nc;++c)
+                for(std::uint32_t row=supportRef.childOffsets[c];row<supportRef.childOffsets[c+1u];++row)
+                    allowed[c].push_back(supportRef.slotGroupIndices[row]);
+        }
+        for(std::size_t c=0;c<nc;++c){
+            auto& row=allowed[c];
+            std::sort(row.begin(),row.end());
+            row.erase(std::unique(row.begin(),row.end()),row.end());
+            for(std::uint32_t p1=supportRef.childOffsets[c];p1<supportRef.childOffsets[c+1u];++p1)
+                if(!std::binary_search(row.begin(),row.end(),supportRef.slotGroupIndices[p1]))
+                    return fail("current carrier witness allowlist omits an original P1 preference group");
+        }
+        auto& carrierParent=carrierParent_;carrierParent.assign(nCarrier,std::numeric_limits<std::uint32_t>::max());
+        if(carrierRef.parentOffsets.empty()||carrierRef.parentOffsets.front()!=0u||
+           carrierRef.parentOffsets.back()!=nCarrier)
+            return fail("current carrier witness parent CSR is malformed");
+        for(std::size_t p=0;p<np;++p)
+            for(std::uint32_t k=carrierRef.parentOffsets[p];k<carrierRef.parentOffsets[p+1u];++k)
+                carrierParent[k]=static_cast<std::uint32_t>(p);
+        auto& seen=seen_;seen.assign(nCarrier,false);
+        auto& carrierByRoleRow=carrierByRoleRow_;carrierByRoleRow.clear();
+        for(std::size_t k=0;k<nCarrier;++k){
+            const auto key=std::pair{carrierRef.carrierRoleMaterialIndices[k],carrierRef.carrierRoleLocalRows[k]};
+            if(!carrierByRoleRow.emplace(key,static_cast<std::uint32_t>(k)).second)
+                return fail("paired carrier NPZ repeats a role-local carrier identity");
+        }
+        packedSupportKeys_.clear();rowCount_=primaryCount_=supportCount_=0u;finished_=false;
+        error.clear();return true;
+    }
+
+    bool consume(const CurrentCarrierWitnessEvidenceRow& row,std::string& error){
+        if(!support_||!input_||!carrier_||finished_){
+            error="current carrier witness stream state is not active";return false;
+        }
+        auto& support=*support_;
+        const auto& input=*input_;
+        const auto& carrier=*carrier_;
+        const auto exactProjectionRows=exactProjectionRows_;
+        const auto exactProjectionCSVSHA256=exactProjectionCSVSHA256_;
+        const auto skinChildGlobalRows=skinChildGlobalRows_;
+        const auto fatChildGlobalRows=fatChildGlobalRows_;
+        const std::size_t nc=input.childReferenceVolumeM3.size(),np=input.parentMassKg.size();
+        auto& groupByTuple=groupByTuple_;
+        auto& allowed=allowed_;
+        auto& carrierParent=carrierParent_;
+        auto& seen=seen_;
+        auto& carrierByRoleRow=carrierByRoleRow_;
+        const auto fail=[&](std::string message){error=std::move(message);return false;};
+        if(row.roleMaterial!=15u&&row.roleMaterial!=16u)
+            return fail("current carrier witness sidecar has an unknown role material");
+        const auto carrierIt=carrierByRoleRow.find({row.roleMaterial,row.roleLocalCarrierRow});
+        if(carrierIt==carrierByRoleRow.end())
+            return fail("current carrier witness sidecar references a missing carrier row");
+        const auto carrierRow=carrierIt->second;
+        if(!row.extraChildSlot&&seen[carrierRow])
+            return fail("current carrier witness sidecar repeats a primary carrier row");
+        if(!row.extraChildSlot)seen[carrierRow]=true;
+        const auto parent=carrierParent[carrierRow];
+        const auto child=row.childRow;
+        packedSupportKeys_.push_back((static_cast<std::uint64_t>(carrierRow)<<32u)|
+                                     static_cast<std::uint64_t>(child));
+        const auto primaryChild=carrier.witnessChildRows[carrierRow];
+        const auto constructionValid=row.extraChildSlot?
+            row.carrierConstruction=="current_source_carrier_edge_support":
+            (row.carrierConstruction=="inherited_090_quadrature"||
+             row.carrierConstruction=="current_exact_tuple_projection_degree1_lp"||
+             row.carrierConstruction=="source_tetra_anchor_refinement_1046d"||
+             row.carrierConstruction=="source_tet_canonical_degree1_quadrature_1046e");
+        if(!row.hasCSVProof||!physical_skin_child_mass_detail::validSHA256(row.sourceCSVSHA256)||
+           !constructionValid||parent>=np||child>=nc||
+           row.sourceParentRow!=carrier.globalSourceTetRows[parent]||
+           row.material!=input.parentMaterialIndices[parent]||
+           row.donor!=input.parentDonorBodyIndices[parent]||
+           row.region!=input.parentAnatomicalRegionIndices[parent])
+            return fail("current carrier witness sidecar does not match its exact current source parent and child rows");
+        if(!row.extraChildSlot){
+            if(child!=primaryChild||row.roleLocalChildRow!=carrier.carrierRoleLocalChildRows[carrierRow])
+                return fail("primary carrier witness no longer matches its pinned NPZ target child");
+        }else{
+            if(row.mode!=CurrentCarrierWitnessMode::CurrentCarrierPointProjection||
+               child==primaryChild||row.projectionCSVRow!=std::numeric_limits<std::uint32_t>::max()||
+               row.declaredP1GroupID!=std::numeric_limits<std::uint32_t>::max())
+                return fail("additional carrier child slot duplicates or changes the primary carrier target/provenance");
+            const auto childRows=row.roleMaterial==15u?skinChildGlobalRows:fatChildGlobalRows;
+            if(childRows.empty()||row.roleLocalChildRow>=childRows.size()||
+               childRows[row.roleLocalChildRow]!=child)
+                return fail("additional carrier child slot does not match the authenticated role-local child crosswalk");
+        }
+        if(!row.extraChildSlot){
+            const auto childRows=row.roleMaterial==15u?skinChildGlobalRows:fatChildGlobalRows;
+            if(row.mode==CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature&&
+               (childRows.empty()||row.roleLocalChildRow>=childRows.size()||
+                childRows[row.roleLocalChildRow]!=child))
+                return fail("canonical source-tet primary requires an exact role-local to global child crosswalk");
+            if(!childRows.empty()&&(row.roleLocalChildRow>=childRows.size()||
+               childRows[row.roleLocalChildRow]!=child))
+                return fail("primary carrier target differs from the authenticated role-local child crosswalk");
+        }
+        if(row.material!=input.parentMaterialIndices[parent]||
+           row.donor!=input.parentDonorBodyIndices[parent]||
+           row.region!=input.parentAnatomicalRegionIndices[parent]||
+           input.childMaterialIndices[child]!=row.material)
+            return fail("current carrier witness has a material or exact parent-tuple mismatch");
+        if(row.sourceParentLocalRow!=carrier.carrierRoleLocalParentRows[carrierRow])
+            return fail("1046c carrier witness role-local parent row differs from the pinned role packet");
+        const Tuple tuple{row.material,row.donor,row.region};
+        const auto groupIt=groupByTuple.find(tuple);
+        if(groupIt==groupByTuple.end()||input.childMaterialIndices[child]!=row.material)
+            return fail("current carrier witness has no exact current material/donor/region source group");
+        const auto group=groupIt->second;
+        if(row.sourceParentLocalRow!=carrier.carrierRoleLocalParentRows[carrierRow])
+            return fail("1046c carrier witness role-local parent row differs from the pinned role packet");
+        const auto regionBegin=support.cellAdmissibleRegionOffsets[child];
+        const auto regionEnd=support.cellAdmissibleRegionOffsets[child+1u];
+        if(regionBegin>=regionEnd||regionEnd>support.cellAdmissibleRegionIds.size()||
+           !std::binary_search(support.cellAdmissibleRegionIds.begin()+regionBegin,
+                               support.cellAdmissibleRegionIds.begin()+regionEnd,row.region))
+            return fail("current carrier witness source region is outside the authenticated one-hop child region support");
+        if(row.mode==CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature&&
+           (row.extraChildSlot||
+            row.declaredP1GroupID!=std::numeric_limits<std::uint32_t>::max()||
+            row.projectionCSVRow!=std::numeric_limits<std::uint32_t>::max()||
+            row.carrierConstruction!="source_tet_canonical_degree1_quadrature_1046e"||
+            !isCanonicalSourceTetDegree1Barycentric(row.claimedBarycentric)))
+            return fail("canonical source-tet quadrature is primary-only and cannot claim P1 or projection evidence");
+        if(row.mode==CurrentCarrierWitnessMode::P1ExactTupleSlot){
+            bool found=false;
+            for(std::uint32_t slot=support.childOffsets[child];slot<support.childOffsets[child+1u];++slot)
+                found|=support.slotGroupIndices[slot]==group;
+            if(!found)return fail("carrier sidecar labels a non-P1 tuple as a P1 exact-slot witness");
+        }else if(row.mode==CurrentCarrierWitnessMode::AuthenticatedExactProjection){
+            if(row.projectionCSVRow>=exactProjectionRows.size())
+                return fail("carrier sidecar projection row index is outside the pinned 1044 exact projection CSV");
+            const auto& projection=exactProjectionRows[row.projectionCSVRow];
+            if(projection.csvRow!=row.projectionCSVRow||
+               projection.sourceCSVSHA256!=exactProjectionCSVSHA256||
+               !projection.referenceBasisAllowed||
+               projection.sourceParentRow!=row.sourceParentRow||
+               projection.childRow!=child||projection.material!=row.material||
+               projection.geometricDonor!=row.donor||projection.anatomicalRegion!=row.region)
+                return fail("carrier sidecar projection row lacks exact current/reference source geometry and tuple binding");
+        }else if(row.mode!=CurrentCarrierWitnessMode::CurrentCarrierPointProjection&&
+                 row.mode!=CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature){
+            return fail("carrier sidecar uses an unknown tuple-support evidence mode");
+        }
+        if(row.extraChildSlot&&row.mode!=CurrentCarrierWitnessMode::CurrentCarrierPointProjection)
+            return fail("additional carrier child slot is not an authenticated carrier-point projection");
+        const auto& packetBary=carrier.carrierBarycentric[carrierRow];
+        const auto& packetTet=carrier.parentReferenceTetWorldVertices[parent];
+        const double packetWeight=carrier.carrierWeights[carrierRow];
+        if(!std::isfinite(packetWeight)||packetWeight<=0.0||
+           std::abs(packetWeight-row.claimedWeight)>std::max(1.0e-14,64.0*std::numeric_limits<double>::epsilon()*packetWeight))
+            return fail("1046c carrier witness weight differs from the pinned NPZ carrier");
+        if(row.mode==CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature&&
+           !isCanonicalSourceTetDegree1Barycentric(packetBary))
+            return fail("canonical source-tet quadrature packet barycentric point is not one of the 11 exact canonical degree-one sites");
+        for(std::size_t axis=0;axis<4u;++axis)
+            if(!std::isfinite(row.claimedBarycentric[axis])||
+               std::abs(packetBary[axis]-row.claimedBarycentric[axis])>2.0e-12)
+                return fail("1046c carrier witness barycentric row differs from the pinned NPZ carrier");
+        const auto claimedSource=source_carrier_transport_detail::barycentricPoint(packetTet,packetBary);
+        const auto claimedChild=input.childCentroidsWorld[child];
+        const auto claimedDistance=source_carrier_transport_detail::pointDistance(claimedSource,claimedChild);
+        if(source_carrier_transport_detail::pointDistance(claimedSource,row.claimedSourcePointWorld)>5.0e-9||
+           source_carrier_transport_detail::pointDistance(claimedChild,row.claimedChildCentroidWorld)>5.0e-9||
+           !std::isfinite(row.claimedDistanceM)||row.claimedDistanceM<0.0||
+           std::abs(claimedDistance-row.claimedDistanceM)>5.0e-9)
+            return fail("1046c carrier witness source/child coordinate or distance does not replay");
+        if(row.mode==CurrentCarrierWitnessMode::CurrentCarrierPointProjection||
+           row.mode==CurrentCarrierWitnessMode::SourceTetCanonicalQuadrature){
+            const double weight=carrier.carrierWeights[carrierRow];
+            const auto& bary=carrier.carrierBarycentric[carrierRow];
+            if(!std::isfinite(weight)||weight<=0.0||
+               !std::all_of(bary.begin(),bary.end(),[](double x){
+                   return std::isfinite(x)&&x>=-2.0e-12&&x<=1.0+2.0e-12;
+               }))
+                return fail("current carrier point witness has a nonpositive weight or invalid barycentric coordinate");
+            const double barySum=std::accumulate(bary.begin(),bary.end(),0.0);
+            if(std::abs(barySum-1.0)>2.0e-12)
+                return fail("current carrier point witness barycentric coordinates do not sum to one");
+            const auto point=source_carrier_transport_detail::barycentricPoint(
+                carrier.parentReferenceTetWorldVertices[parent],bary);
+            const auto distance=source_carrier_transport_detail::pointDistance(
+                point,input.childCentroidsWorld[child]);
+            const double tolerance=std::max(1.0e-12,64.0*std::numeric_limits<double>::epsilon()*
+                std::max({1.0,distance,input.maximumTransportDistanceM}));
+            if(!std::isfinite(distance)||distance>input.maximumTransportDistanceM+tolerance)
+                return fail("current carrier point-to-child-centroid witness exceeds the unchanged transport radius");
+            auto& childGroups=allowed[child];
+            if(!std::binary_search(childGroups.begin(),childGroups.end(),group)){
+                childGroups.insert(std::lower_bound(childGroups.begin(),childGroups.end(),group),group);
+            }
+        }
+        ++rowCount_;if(row.extraChildSlot)++supportCount_;else ++primaryCount_;
+        error.clear();return true;
+    }
+
+    bool finish(std::string& error){
+        if(!support_||!input_||!carrier_||finished_){
+            error="current carrier witness stream state cannot be finalized";return false;
+        }
+        auto& support=*support_;
+        const auto& carrier=*carrier_;
+        const std::size_t nc=input_->childReferenceVolumeM3.size();
+        const auto fail=[&](std::string message){error=std::move(message);return false;};
+        std::sort(packedSupportKeys_.begin(),packedSupportKeys_.end());
+        if(std::adjacent_find(packedSupportKeys_.begin(),packedSupportKeys_.end())!=packedSupportKeys_.end())
+            return fail("current carrier witness repeats an exact carrier/child pair");
+        std::vector<std::uint64_t>().swap(packedSupportKeys_);
+        if(std::find(seen_.begin(),seen_.end(),false)!=seen_.end())
+            return fail("current carrier witness sidecar does not cover every primary paired carrier row");
+        std::vector<std::uint32_t> newOffsets(nc+1u,0u),newIndices;
+        for(std::size_t c=0;c<nc;++c){
+            auto& row=allowed_[c];
+            if(row.empty())return fail("current carrier witness exact allowlist leaves a child without source tuple support");
+            if(row.size()>std::numeric_limits<std::uint32_t>::max()-newIndices.size())
+                return fail("current carrier witness output allowlist exceeds its uint32 row domain");
+            newIndices.insert(newIndices.end(),row.begin(),row.end());
+            newOffsets[c+1u]=static_cast<std::uint32_t>(newIndices.size());
+        }
+        spatial_mass_transport_detail::SHA256Builder hash;
+        hash.string("numi.human.current-fractional-exact-group-carrier-evidence.v2");
+        hash.string(support.admissibleGroupEvidenceSHA256);
+        hash.string(evidenceSHA256_);
+        hash.string(carrier.sourceCarrierPacketSHA256);
+        const auto newEvidenceHash=hash.finish();
+        support.childAdmissibleGroupOffsets=std::move(newOffsets);
+        support.childAdmissibleGroupIndices=std::move(newIndices);
+        support.admissibleGroupEvidenceSHA256=newEvidenceHash;
+        finished_=true;error.clear();return true;
+    }
+
+    std::uint64_t rowCount() const noexcept{return rowCount_;}
+    std::uint64_t primaryCount() const noexcept{return primaryCount_;}
+    std::uint64_t supportCount() const noexcept{return supportCount_;}
+
+private:
+    ConservativeSpatialChildSemanticSupportData* support_=nullptr;
+    const ConservativeSpatialMassTransportInput* input_=nullptr;
+    const CurrentSourceCarrierQuadratureData* carrier_=nullptr;
+    std::span<const CurrentExactTupleProjectionRow> exactProjectionRows_{};
+    std::string exactProjectionCSVSHA256_,evidenceSHA256_;
+    std::span<const std::uint32_t> skinChildGlobalRows_{},fatChildGlobalRows_{};
+    std::map<Tuple,std::uint32_t> groupByTuple_;
+    std::vector<std::vector<std::uint32_t>> allowed_;
+    std::vector<std::uint32_t> carrierParent_;
+    std::vector<bool> seen_;
+    std::map<std::pair<std::uint32_t,std::uint32_t>,std::uint32_t> carrierByRoleRow_;
+    std::vector<std::uint64_t> packedSupportKeys_;
+    std::uint64_t rowCount_=0u,primaryCount_=0u,supportCount_=0u;
+    bool finished_=false;
+};
+
 
 
 struct CurrentSourceCentroidSlotWitnessRow {
@@ -1782,11 +2446,15 @@ struct CurrentFractionalSemanticProofFiles {
     std::vector<CurrentExactTupleProjectionRow> exactProjectionRows;
     std::vector<CurrentExactTupleProjectionReject> referenceBasisRejects;
     std::vector<CurrentSourceCentroidSlotWitnessRow> sourceCentroidRows;
+    // Streamed binding retains no raw slot rows; counts preserve the prior CLI summary.
     std::vector<CurrentCarrierWitnessEvidenceRow> carrierWitnessRows;
+    std::uint64_t carrierWitnessCSVRowCount=0u,carrierWitnessPrimaryRowCount=0u,
+                  carrierWitnessSupportSlotCount=0u;
     std::vector<std::uint32_t> skinChildGlobalRows,fatChildGlobalRows;
     CurrentCarrierWitnessCSVSummary skinCarrierSummary,fatCarrierSummary;
     std::string combinedCarrierWitnessSHA256;
 };
+
 
 [[nodiscard]] inline bool bindCurrentFractionalSemanticSupportProofs(
         void* opaqueContext,ConservativeSpatialChildSemanticSupportData& support,
@@ -1812,51 +2480,60 @@ struct CurrentFractionalSemanticProofFiles {
     if(!loadCurrentSourceCentroidSlotWitnessCSV(context->sourceCentroidSlotsCSVPath,
             context->sourceCentroidSlotsCSV_SHA256,centroidRows,error))
         return fail("current source-centroid slot CSV failed its pinned read: "+error);
-    std::vector<CurrentCarrierWitnessEvidenceRow> carrierRows;
+
+    // Work on an unpublished copy. A bad/truncated carrier file cannot leave
+    // exact-projection or centroid additions partially installed in the caller.
+    auto nextSupport=support;
+    if(!bindCurrentExactTupleProjectionRows(nextSupport,input,parent,projections,
+                                             context->exactProjectionCSV_SHA256,error))
+        return fail("current exact-projection proof binding failed: "+error);
+    if(!bindCurrentSourceCentroidSlotWitnesses(nextSupport,input,parent,centroidRows,
+                                                context->sourceCentroidSlotsCSV_SHA256,error))
+        return fail("current 008 source-centroid slot proof binding failed: "+error);
+
+    spatial_mass_transport_detail::SHA256Builder carrierEvidenceHash;
+    carrierEvidenceHash.string("numi.human.current-paired-1046c-carrier-witness-csvs.v1");
+    carrierEvidenceHash.string(context->skinCarrierWitnessCSV_SHA256);
+    carrierEvidenceHash.string(context->fatCarrierWitnessCSV_SHA256);
+    const std::string combinedCarrierSHA=carrierEvidenceHash.finish();
+    CurrentCarrierWitnessAllowlistStreamState state;
+    if(!state.begin(nextSupport,input,*context->carriers,projections,
+            context->exactProjectionCSV_SHA256,combinedCarrierSHA,error,
+            context->skinChildGlobalRows,context->fatChildGlobalRows))
+        return fail("current 1046c streaming carrier binder setup failed: "+error);
+    const std::function<bool(const CurrentCarrierWitnessEvidenceRow&,std::string&)> consume=
+        [&state](const CurrentCarrierWitnessEvidenceRow& row,std::string& rowError){
+            return state.consume(row,rowError);
+        };
     CurrentCarrierWitnessCSVSummary skinSummary,fatSummary;
-    if(!loadCurrentCarrierWitnessCSV(context->skinCarrierWitnessCSVPath,
-            context->skinCarrierWitnessCSV_SHA256,15u,carrierRows,skinSummary,error))
-        return fail("current Skin 1046c carrier witness CSV failed its pinned read: "+error);
-    std::vector<CurrentCarrierWitnessEvidenceRow> fatRows;
-    if(!loadCurrentCarrierWitnessCSV(context->fatCarrierWitnessCSVPath,
-            context->fatCarrierWitnessCSV_SHA256,16u,fatRows,fatSummary,error))
-        return fail("current Fat 1046c carrier witness CSV failed its pinned read: "+error);
+    if(!loadCurrentCarrierWitnessCSVEach(context->skinCarrierWitnessCSVPath,
+            context->skinCarrierWitnessCSV_SHA256,15u,skinSummary,consume,error))
+        return fail("current Skin 1046c streaming carrier witness failed: "+error);
+    if(!loadCurrentCarrierWitnessCSVEach(context->fatCarrierWitnessCSVPath,
+            context->fatCarrierWitnessCSV_SHA256,16u,fatSummary,consume,error))
+        return fail("current Fat 1046c streaming carrier witness failed: "+error);
     if(skinSummary.carrierRecordCount==0u||fatSummary.carrierRecordCount==0u||
        skinSummary.centroidFallbackRecordCount>skinSummary.carrierRecordCount||
        fatSummary.centroidFallbackRecordCount>fatSummary.carrierRecordCount)
         return fail("current 1046c role witness counts are empty or inconsistent");
-    carrierRows.insert(carrierRows.end(),fatRows.begin(),fatRows.end());
-    spatial_mass_transport_detail::SHA256Builder carrierEvidenceHash;
-    carrierEvidenceHash.string("numi.human.current-paired-1046c-carrier-witness-csvs.v1");
-    carrierEvidenceHash.string(skinSummary.sourceCSVSHA256);
-    carrierEvidenceHash.string(fatSummary.sourceCSVSHA256);
-    const std::string combinedCarrierSHA=carrierEvidenceHash.finish();
+    if(skinSummary.sourceCSVSHA256!=context->skinCarrierWitnessCSV_SHA256||
+       fatSummary.sourceCSVSHA256!=context->fatCarrierWitnessCSV_SHA256)
+        return fail("current 1046c streaming role SHA differs from its exact input pin");
+    if(!state.finish(error))
+        return fail("current 1046c streaming carrier witness binding failed: "+error);
 
-    if(!bindCurrentExactTupleProjectionRows(support,input,parent,projections,
-                                             context->exactProjectionCSV_SHA256,error))
-        return fail("current exact-projection proof binding failed: "+error);
-    if(!bindCurrentSourceCentroidSlotWitnesses(support,input,parent,centroidRows,
-                                                context->sourceCentroidSlotsCSV_SHA256,error))
-        return fail("current 008 source-centroid slot proof binding failed: "+error);
-    // Every sidecar row is independently pinned by role. This avoids treating
-    // the combined digest as a substitute for either source file's SHA.
-    for(const auto& row:carrierRows){
-        const auto& expected=row.roleMaterial==15u?skinSummary.sourceCSVSHA256:fatSummary.sourceCSVSHA256;
-        if(row.sourceCSVSHA256!=expected)
-            return fail("current 1046c carrier witness role does not match its explicit sidecar file pin");
-    }
-    if(!bindCurrentCarrierWitnessAllowlist(support,input,*context->carriers,
-            carrierRows,projections,context->exactProjectionCSV_SHA256,
-            combinedCarrierSHA,error,context->skinChildGlobalRows,
-            context->fatChildGlobalRows))
-        return fail("current 1046c carrier tuple witnesses failed exact support binding: "+error);
     context->exactProjectionRows=std::move(projections);
     context->referenceBasisRejects=std::move(restRejects);
     context->sourceCentroidRows=std::move(centroidRows);
-    context->carrierWitnessRows=std::move(carrierRows);
+    context->carrierWitnessRows.clear();
+    context->carrierWitnessCSVRowCount=state.rowCount();
+    context->carrierWitnessPrimaryRowCount=state.primaryCount();
+    context->carrierWitnessSupportSlotCount=state.supportCount();
     context->skinCarrierSummary=std::move(skinSummary);
     context->fatCarrierSummary=std::move(fatSummary);
     context->combinedCarrierWitnessSHA256=combinedCarrierSHA;
+    support=std::move(nextSupport);
     error.clear();return true;
 }
+
 } // namespace metalrobo::human::coarse_tissue

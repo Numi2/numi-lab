@@ -654,7 +654,7 @@ int main(int argc, char** argv) {
               << " source_centroid_slot_rows="
               << (fractionalPrepared?proofFiles.sourceCentroidRows.size():0u)
               << " carrier_sidecar_rows="
-              << (fractionalPrepared?proofFiles.carrierWitnessRows.size():0u)
+              << (fractionalPrepared?proofFiles.carrierWitnessCSVRowCount:0u)
               << " transport_edges=" << result.transportEdgeCount
               << " augmentations=" << result.augmentationCount
               << " source_donor_closure_groups=" << result.sourceDonorClosure.size()
