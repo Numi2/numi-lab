@@ -1,0 +1,31 @@
+current-carrier-witness-stream-check-032: \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/SDKSettings.json \
+  /Users/numi/Work/current-fractional-020-publication-20261101/tests/CurrentCarrierWitnessStreamBindingCheck_032.cpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanCurrentFractionalSupportNPZ.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/apps/ConservativeSpatialFractionalSemanticSupport.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanConservativeSpatialMassTransport.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanPhysicalSkinChildMassMapping.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanPhysicalSkinChildCapacity.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanUnpairedSkinFatVolume.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanCoarseTissuePreparation.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/matter/include/numi/matter/matter.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/matter/include/numi/matter/shared.h \
+  /Users/numi/Work/current-fractional-020-publication-20261101/matter/include/numi/matter/human_equality_gpu.h \
+  /Users/numi/Work/current-fractional-020-publication-20261101/matter/include/numi/matter/human_limits_gpu.h \
+  /Users/numi/Work/current-fractional-020-publication-20261101/matter/include/numi/matter/accepted_state_proof_gpu.h \
+  /Users/numi/Work/current-fractional-020-publication-20261101/matter/include/numi/matter/physical_state_digest_gpu.h \
+  /Users/numi/Work/current-fractional-020-publication-20261101/matter/include/numi/matter/sha256_gpu.h \
+  /Users/numi/Work/current-fractional-020-publication-20261101/include/metalrobo/NumiHumanTissueMass.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/include/metalrobo/engine_types.h \
+  /Users/numi/Work/current-fractional-020-publication-20261101/include/metalrobo/gpu_types.h \
+  /Users/numi/Work/current-fractional-020-publication-20261101/include/metalrobo/compensated_translation_gpu.h \
+  /Users/numi/Work/current-fractional-020-publication-20261101/include/metalrobo/constraint_ir_shared.h \
+  /Users/numi/Work/current-fractional-020-publication-20261101/include/metalrobo/EngineModel.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/include/metalrobo/Collision.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/include/metalrobo/ConstraintIR.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/include/metalrobo/OpenSimSpatialTransform.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/include/metalrobo/OpenSimFunction.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/include/metalrobo/opensim_spatial_transform_gpu.h \
+  /Users/numi/Work/current-fractional-020-publication-20261101/apps/ConservativeSpatialSourceCarrierQuadrature.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanParentReferenceMassTransfer.hpp \
+  /Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanSkinBoundaryNodeMap.hpp

@@ -1,0 +1,1 @@
+PASS all-allowed-group baseline-compatible feasibility/accounting; non-P1 fallback; repeat_receipt=8d391923a59134848e5a4d2c70ba5a5910f87e550c9b37d2ddee142c6ac0e347 edges=2 cap_reject=PASS

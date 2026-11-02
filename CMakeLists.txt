@@ -2370,6 +2370,29 @@ if(BUILD_TESTING)
         COMMAND numi-human-current-fractional-recorded-flow-artifacts-check)
 endif()
 
+foreach(_sparse_seed_check IN ITEMS
+        policy reduction implicit_non_p1)
+    if(_sparse_seed_check STREQUAL "policy")
+        set(_sparse_seed_source tests/CurrentFractionalSparseSeedPolicyCheck_033.cpp)
+    elseif(_sparse_seed_check STREQUAL "reduction")
+        set(_sparse_seed_source tests/CurrentFractionalSparseSeedReductionCheck_033.cpp)
+    else()
+        set(_sparse_seed_source tests/CurrentFractionalSparseSeedImplicitNonP1Check_033b.cpp)
+    endif()
+    add_executable(numi-human-current-fractional-sparse-seed-${_sparse_seed_check}-check
+        EXCLUDE_FROM_ALL ${_sparse_seed_source})
+    target_include_directories(numi-human-current-fractional-sparse-seed-${_sparse_seed_check}-check
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/apps")
+    target_compile_features(numi-human-current-fractional-sparse-seed-${_sparse_seed_check}-check
+        PRIVATE cxx_std_20)
+    target_compile_options(numi-human-current-fractional-sparse-seed-${_sparse_seed_check}-check
+        PRIVATE -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+    if(BUILD_TESTING)
+        add_test(NAME numi_human_current_fractional_sparse_seed_${_sparse_seed_check}
+            COMMAND numi-human-current-fractional-sparse-seed-${_sparse_seed_check}-check)
+    endif()
+endforeach()
+
 add_executable(numi-human-current-fractional-mass-transport-envelope-check EXCLUDE_FROM_ALL
     apps/CurrentFractionalMassTransportEnvelopeCheck.cpp)
 target_include_directories(numi-human-current-fractional-mass-transport-envelope-check PRIVATE

@@ -1,0 +1,1 @@
+PASS legacy-vs-streamed full-vector/gzip binding: exact CSR/hash parity, duplicate/missing-primary/wrong-one-hop/bad-distance/truncated rejection without publication

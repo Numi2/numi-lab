@@ -1519,13 +1519,23 @@ inline bool assembleSharedRealChildCapacity(
                                       childMinimum[c],0.0);
 
     struct PendingEdge {std::uint32_t parent,child;double distance,cost;};
+    constexpr std::size_t parentSeedNearestK=4u;
+    constexpr std::size_t childSeedNearestK=1u;
+    std::size_t seedUpperBound=nc;
+    const auto saturatingAdd=[&](const std::size_t value){
+        seedUpperBound=value>std::numeric_limits<std::size_t>::max()-seedUpperBound?
+            std::numeric_limits<std::size_t>::max():seedUpperBound+value;
+    };
+    if(np>std::numeric_limits<std::size_t>::max()/parentSeedNearestK)
+        seedUpperBound=std::numeric_limits<std::size_t>::max();
+    else saturatingAdd(np*parentSeedNearestK);
+    saturatingAdd(support.slotGroupIndices.size());
+    seedUpperBound=std::min(seedUpperBound,in.maximumAllowedEdges);
     std::vector<PendingEdge> pending;
-    pending.reserve(std::min(in.maximumAllowedEdges,nc+np*2u));
+    pending.reserve(seedUpperBound);
     std::vector<std::vector<std::uint32_t>> activeChildrenByParent(np);
     std::vector<std::vector<std::uint32_t>> reachableChildren(support.groupMaterialIndices.size());
     const double semanticPreferenceWeight=1.0e-5;
-    constexpr std::size_t parentSeedNearestK=4u;
-    constexpr std::size_t childSeedNearestK=1u;
     constexpr std::size_t cutExpansionBatch=65536u;
     const auto candidateLess=[](const Candidate& a,const Candidate& b){
         return a.distanceM!=b.distanceM?a.distanceM<b.distanceM:a.child<b.child;
@@ -1589,10 +1599,11 @@ inline bool assembleSharedRealChildCapacity(
         return nearest;
     };
 
-    // Sparse seed: each source parent receives its nearest admissible child,
-    // and each real child receives its nearest admissible parent in every
-    // authenticated exact material/donor/region support row. All child minimum-density
-    // demand is therefore represented before any flow attempt.
+    // Sparse seed 033: retain four nearest admissible children per source
+    // parent and each child's original P1 preference groups. If none of those
+    // P1 groups has an R-valid parent, seed the globally nearest parent among
+    // all authenticated exact material/donor/region groups. The complete
+    // admissible-group set remains in the bucket index and implicit cut closure.
     for(std::size_t p=0;p<np;++p){
         const auto nearest=scanNearestChildForParent(static_cast<std::uint32_t>(p),parentSeedNearestK);
         if(nearest.empty()){
@@ -1607,24 +1618,41 @@ inline bool assembleSharedRealChildCapacity(
             if(!addSeed(static_cast<std::uint32_t>(p),candidate))
                 return fail("shared-capacity sparse seed cost is invalid");
     }
-    std::vector<bool> childHasSeed(nc,false);
     for(std::size_t c=0;c<nc;++c){
-        for(const auto group:childAdmissibleGroups[c]){
+        bool hasP1Seed=false;
+        const auto p1Begin=support.childOffsets[c],p1End=support.childOffsets[c+1u];
+        for(std::uint32_t row=p1Begin;row<p1End;++row){
+            const auto group=support.slotGroupIndices[row];
             const auto nearest=scanNearestParentForChildGroup(static_cast<std::uint32_t>(c),group,
                                                                childSeedNearestK);
-            for(const auto& candidate:nearest){
-                childHasSeed[c]=true;
+            if(nearest.empty())continue;
+            hasP1Seed=true;
+            for(const auto& candidate:nearest)
                 if(!addSeed(candidate.child,Candidate{static_cast<std::uint32_t>(c),candidate.distanceM}))
-                    return fail("shared-capacity sparse reverse seed cost is invalid");
-            }
+                    return fail("shared-capacity sparse P1 reverse seed cost is invalid");
         }
-        if(!childHasSeed[c]){
-            std::ostringstream witness;
-            witness<<"INFEASIBLE shared-capacity real child has no same-material/donor/region exact-group-supported parent within distance bound"
-                <<" child="<<c<<" material="<<in.childMaterialIndices[c]
-                <<" allowed_exact_tuples="<<childAdmissibleGroups[c].size()
-                <<" radius_m="<<in.maximumTransportDistanceM;
-            return fail(witness.str());
+        if(!hasP1Seed){
+            Candidate nearestParent{};bool foundNearest=false;
+            for(const auto group:childAdmissibleGroups[c]){
+                const auto nearest=scanNearestParentForChildGroup(static_cast<std::uint32_t>(c),group,
+                                                                   childSeedNearestK);
+                if(nearest.empty())continue;
+                const auto& candidate=nearest.front();
+                if(!foundNearest||candidateLess(candidate,nearestParent)){
+                    nearestParent=candidate;foundNearest=true;
+                }
+            }
+            if(!foundNearest){
+                std::ostringstream witness;
+                witness<<"INFEASIBLE shared-capacity real child has no same-material/donor/region exact-group-supported parent within distance bound"
+                    <<" child="<<c<<" material="<<in.childMaterialIndices[c]
+                    <<" allowed_exact_tuples="<<childAdmissibleGroups[c].size()
+                    <<" radius_m="<<in.maximumTransportDistanceM;
+                return fail(witness.str());
+            }
+            if(!addSeed(nearestParent.child,
+                        Candidate{static_cast<std::uint32_t>(c),nearestParent.distanceM}))
+                return fail("shared-capacity sparse global-nearest fallback seed cost is invalid");
         }
     }
     std::sort(pending.begin(),pending.end(),[](const auto& a,const auto& b){

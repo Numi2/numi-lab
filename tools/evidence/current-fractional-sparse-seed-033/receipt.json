@@ -1,0 +1,257 @@
+{
+  "artifacts": {
+    "cmake": {
+      "bytes": 280918,
+      "path": "CMakeLists.txt",
+      "sha256": "c258a3f92012c36a1ee30e8b8af6efd0aca08e398a3b47c176d602ce72a92ea3"
+    },
+    "comparison_script": {
+      "bytes": 2163,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-033-bounded-sparse-seed/controls/compare_implicit_seed_controls_033b.py",
+      "sha256": "98fbedd747de6c4af2ee5637c017d71429d56a2b6ab6a9aedf3b0c832c51134a"
+    },
+    "gzip-032_depfile": {
+      "bytes": 3249,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/compile/gzip-032.d",
+      "sha256": "401704ce1faa6671a985df2fac2c84021c5bf9f0eebb69ab8a565861fee14f78"
+    },
+    "gzip-032_stderr": {
+      "bytes": 0,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/run/gzip-032.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "gzip-032_stdout": {
+      "bytes": 123,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/run/gzip-032.stdout.log",
+      "sha256": "64bb9909a897aee578f97fe0e1d3e250be786921f8532f8044e22caea4746b16"
+    },
+    "implicit-baseline-033b_depfile": {
+      "bytes": 643,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/compile/implicit-baseline-033b.d",
+      "sha256": "6e342c59f9786012b7f07a3d3d96d74dbc5ec1d0ccb1a7ac375cb2788a90a23e"
+    },
+    "implicit-baseline-033b_stderr": {
+      "bytes": 4480,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/run/implicit-baseline-033b.stderr.log",
+      "sha256": "6909266a11b55176db2727499d38435b18c7ed293ee9134ab762f31c191e93a1"
+    },
+    "implicit-baseline-033b_stdout": {
+      "bytes": 192,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/run/implicit-baseline-033b.stdout.log",
+      "sha256": "c50350ad8389ce79e5564d6e7cfc35dedf2bd4a17bd4d225efb343d0db7c5596"
+    },
+    "implicit-bounded-033b_depfile": {
+      "bytes": 580,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/compile/implicit-bounded-033b.d",
+      "sha256": "949459c58086d6484d17a5cc882d501f46ede5ebdb8958fe02fa9c23fd050a6e"
+    },
+    "implicit-bounded-033b_stderr": {
+      "bytes": 4480,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/run/implicit-bounded-033b.stderr.log",
+      "sha256": "bd467eaa0ef39484010044d7b043e06f5a1432270fb61ee4a4f5801b5d865cf1"
+    },
+    "implicit-bounded-033b_stdout": {
+      "bytes": 203,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/run/implicit-bounded-033b.stdout.log",
+      "sha256": "14e65742de5e55d540bc2406164db031891837a7ca6c135b42c9e4e0842b5591"
+    },
+    "implicit_non_p1_test": {
+      "bytes": 6491,
+      "path": "tests/CurrentFractionalSparseSeedImplicitNonP1Check_033b.cpp",
+      "sha256": "233c2c44a885ce7cdbeb9265d747c42ebdb6f84ddb8160daa4a46ce5c6366866"
+    },
+    "isolated_033_overlay_header": {
+      "bytes": 176434,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-033-bounded-sparse-seed/ConservativeSpatialFractionalSemanticSupport.hpp",
+      "sha256": "1ecba67fcecfebf77341e7461b0055e98f875a1adb9d4e4366beaae5caf4503b"
+    },
+    "isolated_033a_policy_receipt": {
+      "bytes": 20663,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-033-bounded-sparse-seed/controls/seed-control-033.json",
+      "sha256": "bd4f1831640a094a4f64586a94b772d41a72966a23de8e9fa37f7206e5913d70"
+    },
+    "isolated_033b_required_route_receipt": {
+      "bytes": 10634,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-033-bounded-sparse-seed/controls/seed-control-033b.json",
+      "sha256": "fa9501d3d6f5ea64838599a565204b369f721de913f4ad74163109e252728454"
+    },
+    "isolated_033b_required_route_source": {
+      "bytes": 6491,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-033-bounded-sparse-seed/controls/SparseSeedImplicitNonP1Check_033b.cpp",
+      "sha256": "233c2c44a885ce7cdbeb9265d747c42ebdb6f84ddb8160daa4a46ce5c6366866"
+    },
+    "policy-033_depfile": {
+      "bytes": 561,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/compile/policy-033.d",
+      "sha256": "00a4ff2ba0539ccd663a326979068f7869f3e03f13a19cce94ad3b246d2c255c"
+    },
+    "policy-033_stderr": {
+      "bytes": 5179,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/run/policy-033.stderr.log",
+      "sha256": "a8d761e86bc5aaaf240cdb6d8b42482fd265a5e11b6547424bd886d8db095fcd"
+    },
+    "policy-033_stdout": {
+      "bytes": 188,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/run/policy-033.stdout.log",
+      "sha256": "e457f444afa53cd048a01aa21dada65a7d80dd64634a50332d5f79e8a7ea2bae"
+    },
+    "policy_test": {
+      "bytes": 7019,
+      "path": "tests/CurrentFractionalSparseSeedPolicyCheck_033.cpp",
+      "sha256": "134d4e57af74279ba268a22285472870127fd9a60023444713d719b43dbe6745"
+    },
+    "published_032_cli": {
+      "bytes": 41861,
+      "path": "apps/NumiHumanCurrentFractionalMassMappingCLI.cpp",
+      "sha256": "1b70e60ecea7fc66423a8a03834782799b103c318ec37c6f7b39d5170010c03a"
+    },
+    "published_032_reader_header": {
+      "bytes": 165753,
+      "path": "apps/NumiHumanCurrentFractionalSupportNPZ.hpp",
+      "sha256": "2e8514c7a118137f14b790a3ba1caa56c68303ba3b73cbe94d0bbd00d301aacd"
+    },
+    "published_032_receipt": {
+      "bytes": 46611,
+      "path": "tools/evidence/current-carrier-witness-stream-032/receipt.json",
+      "sha256": "60eab10ed3a9ea751ab64fa26b2057abbd13ad5369e1ced8414655746811d410"
+    },
+    "publisher_header": {
+      "bytes": 184788,
+      "path": "apps/ConservativeSpatialFractionalSemanticSupport.hpp",
+      "sha256": "a1a2aa0d605feecedde437f0436a0fb6104e5fd79c4eed26bcac580ef51e1243"
+    },
+    "reader_032_gzip_source": {
+      "bytes": 9809,
+      "path": "tests/CurrentCarrierWitnessGzipCheck_032.cpp",
+      "sha256": "661d223051fa870924940880a270a2064b0f96ec663b33200f4386a6d134a9d5"
+    },
+    "reader_032_stream_source": {
+      "bytes": 16145,
+      "path": "tests/CurrentCarrierWitnessStreamBindingCheck_032.cpp",
+      "sha256": "b014c9462308f3f87c0e8418ebe66d6a51ba96bd3a20808c54e4326a1119e47c"
+    },
+    "readme": {
+      "bytes": 2507,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/README.md",
+      "sha256": "f64c74255802c6595dee38dda068dc6401fca63f7f4b664d62dfaaff32e2ed3f"
+    },
+    "reduction-033_depfile": {
+      "bytes": 567,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/compile/reduction-033.d",
+      "sha256": "a8a783dbc906393287c36dbc207264372ef8a2fe7b2022242ca9e7feb574f268"
+    },
+    "reduction-033_stderr": {
+      "bytes": 4492,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/run/reduction-033.stderr.log",
+      "sha256": "d7c92cb59ac3704fc84377a14d637809fd238b85e28ae0ebb32715adf5a674fa"
+    },
+    "reduction-033_stdout": {
+      "bytes": 164,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/run/reduction-033.stdout.log",
+      "sha256": "f9c64d6ff2c904cf04e22cd39ddccfa4707de651b4f3c8f43d51ca61167b5fff"
+    },
+    "reduction_test": {
+      "bytes": 6248,
+      "path": "tests/CurrentFractionalSparseSeedReductionCheck_033.cpp",
+      "sha256": "c43acc08c419dbe3e6bac2817e1ffbf2f9ef63237259eaab08d7cd63958c7d99"
+    },
+    "runner": {
+      "bytes": 3111,
+      "path": "tools/run_current_fractional_sparse_seed_033_checks.sh",
+      "sha256": "e5d30d4113d44521372fc45a2efbe419729bbdb7e48225f2bfb9569fd673b1a9"
+    },
+    "stream-032_depfile": {
+      "bytes": 3260,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/compile/stream-032.d",
+      "sha256": "eb707c7fc39f0238e243af6fd67464a448c800ee1aae60174721b4dd9a33a24f"
+    },
+    "stream-032_stderr": {
+      "bytes": 0,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/run/stream-032.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stream-032_stdout": {
+      "bytes": 166,
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/run/stream-032.stdout.log",
+      "sha256": "13c796da66f7242663238265a040184f939395b14817952ac70604ded7b7ab99"
+    }
+  },
+  "base_commit": "09caf05528f9d81d2cb0a5faba751ca0915cf7aa",
+  "baseline_app_header_sha256": "fb51cf4b8055421b8f699381ee98a629838ebdbac92fdfd9690040911aca8fb8",
+  "cmake_configure": {
+    "baseline_commit": "09caf05528f9d81d2cb0a5faba751ca0915cf7aa",
+    "build_or_ctest_run": false,
+    "exit_code": 1,
+    "missing_files": [
+      "numi/VERSION.in",
+      "numi/REVISION.in",
+      "matter/tools/human_skin_fat_static_query.cmake"
+    ],
+    "note": "The configure was attempted after CMake targets were added; these unrelated files were absent from the clean parent checkout and were not created or modified.",
+    "status": "FAILED_BASELINE_MISSING_FILES",
+    "stderr_gzip": {
+      "bytes": 268,
+      "compression": "gzip -n; recover exact captured bytes with gzip -cd",
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/cmake/configure.stderr.log.gz",
+      "sha256": "a025074a7ef6ad814964f5494f80679c172a5f47ac44515b0f8f1cc741894271",
+      "uncompressed_bytes": 622,
+      "uncompressed_sha256": "7413ebe4da6dd3338136f7f512d9692129b1f9e08009811bbf87176a5b555f59"
+    },
+    "stdout_gzip": {
+      "bytes": 460,
+      "compression": "gzip -n; recover exact captured bytes with gzip -cd",
+      "path": "tools/evidence/current-fractional-sparse-seed-033/run-001/cmake/configure.stdout.log.gz",
+      "sha256": "37d3b71305d0629e62eaf4a627abc177282db4fc2684b103b8700d2bfd49a3e6",
+      "uncompressed_bytes": 1246,
+      "uncompressed_sha256": "5dc8d2b207ccbfe71e955d0d63c33eaca398594fdf0e469a7f4a9218f79316d8"
+    }
+  },
+  "integrated_header_sha256": "a1a2aa0d605feecedde437f0436a0fb6104e5fd79c4eed26bcac580ef51e1243",
+  "integration_note": "Only the bounded-seed reserve and P1/fallback seed-selection hunks were transplanted onto 09caf055; the isolated 033 file was based on 030d and had unrelated support changes. The published streamed-witness 032 files remain intact.",
+  "isolated_header_is_whole_file_equal_to_integrated_header": false,
+  "isolated_trial_source_sha256": "1ecba67fcecfebf77341e7461b0055e98f875a1adb9d4e4366beaae5caf4503b",
+  "native_steps": 0,
+  "physical_admission": false,
+  "publication_branch": "codex/fractional-020-search-diagnostic",
+  "reader_032_compile_flags": [
+    "-std=c++20",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-lz"
+  ],
+  "route_fixture": {
+    "children": 6,
+    "cost_optimality_claimed": false,
+    "density_kg_m3": 1000,
+    "flow_arrays_equal_claimed": false,
+    "parents": {
+      "A_kg": 4,
+      "B_kg": 1,
+      "C_kg": 1
+    },
+    "per_child_kg": 1,
+    "required_route": "parent B to far child is not an initial P1 or nearest-four seed but is positive in the final bounded flow"
+  },
+  "schema": "numi.human.current-fractional-bounded-sparse-seed-publication.033.v1",
+  "seed_compile_flags": [
+    "-std=c++20",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG"
+  ],
+  "source_only": true,
+  "status": "PASS_SOURCE_ONLY_FOCUSED_CONTROLS",
+  "test_results": {
+    "gzip_reader_032": "PASS: existing gzip/CRC/truncation/etc reader controls",
+    "implicit_033b_bounded": "PASS: positive B-to-far flow, 6 kg and exact density/accounting; 10 initial edges, one implicit candidate/cut edge materialized",
+    "implicit_033b_legacy_baseline": "PASS: positive B-to-far flow, 6 kg and exact density/accounting; 12 initial edges, no implicit additions",
+    "policy_033": "PASS: authenticated non-P1 fallback, exact mass/accounting, deterministic repeat, edge-budget rejection",
+    "reduction_033": "PASS: exact 6 kg, child density and parent accounting, deterministic repeat; no claim of exact baseline flow-array parity",
+    "streamed_witness_032": "PASS: existing stream/full-vector binding controls"
+  }
+}

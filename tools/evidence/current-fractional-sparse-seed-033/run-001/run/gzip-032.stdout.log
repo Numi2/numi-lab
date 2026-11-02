@@ -1,0 +1,1 @@
+PASS plain_gzip_parity=3_rows long_row_bytes=90000 bounded_line_byte_row_crc_truncation_trailing_sha_header_duplicate=PASS
