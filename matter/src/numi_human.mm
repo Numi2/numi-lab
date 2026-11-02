@@ -2347,20 +2347,21 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 releasedImmutableContactBytes, state_->femBodyContactSamples.size(),
                 static_cast<std::size_t>(device.currentAllocatedSize),
                 static_cast<unsigned long long>(device.recommendedMaxWorkingSetSize));
-            // Diagnostic admission bound for large native scenes. This stops
-            // before submission, never accepts a smaller physical workload.
-            const char* workingSetGuard = std::getenv("NUMI_HUMAN_CONTACT_WORKING_SET_GUARD");
-            if (workingSetGuard != nullptr && std::strcmp(workingSetGuard, "1") != 0) {
-                state_->message = "NUMI_HUMAN_CONTACT_WORKING_SET_GUARD must be exactly 1 when set";
-                return false;
-            }
-            if (workingSetGuard != nullptr && device.currentAllocatedSize >
-                    device.recommendedMaxWorkingSetSize) {
-                state_->message = "Human contact preparation exceeds the device recommended working set; physical segment was not submitted";
-                return false;
-            }
         } else if (state_->device.registryID != device.registryID) {
             state_->message = "Human tendon/FEM adapter changed Metal devices";
+            return false;
+        }
+        // Recheck every encode, including retries after failed admission.
+        // Diagnostic admission bound for large native scenes. This stops
+        // before submission, never accepts a smaller physical workload.
+        const char* workingSetGuard = std::getenv("NUMI_HUMAN_CONTACT_WORKING_SET_GUARD");
+        if (workingSetGuard != nullptr && std::strcmp(workingSetGuard, "1") != 0) {
+            state_->message = "NUMI_HUMAN_CONTACT_WORKING_SET_GUARD must be exactly 1 when set";
+            return false;
+        }
+        if (workingSetGuard != nullptr && device.currentAllocatedSize >
+                device.recommendedMaxWorkingSetSize) {
+            state_->message = "Human contact preparation exceeds the device recommended working set; physical segment was not submitted";
             return false;
         }
         if ((!state_->articularContactSamples.empty() ||

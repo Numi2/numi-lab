@@ -1,0 +1,48 @@
+[
+  {
+    "name": "preimage-test-build",
+    "argv": [
+      "xcrun",
+      "--sdk",
+      "macosx",
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-DNDEBUG",
+      "-arch",
+      "arm64",
+      "-fobjc-arc",
+      "-I",
+      "/Users/numi/Work/skin-fat-native-integration-209/include",
+      "-I",
+      "/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+      "-I",
+      "/Users/numi/Work/skin-fat-native-integration-209/matter/src",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/tests/numi_human_fem_surface_attachment/native_initialize_test.mm",
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+      "-Wl,-rpath,/Users/numi/Work/skin-fat-native-integration-209/build-native/lib",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/contact-guard-retry-093/preimage-native-test"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 1.3750399169998673
+  },
+  {
+    "name": "preimage-guard-regression",
+    "argv": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/contact-guard-retry-093/preimage-native-test",
+      "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/silicone.nmatter",
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib"
+    ],
+    "exit_code": 1,
+    "elapsed_s": 0.5073250410000583
+  }
+]

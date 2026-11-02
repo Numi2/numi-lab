@@ -1,0 +1,5 @@
+{
+  "expected_preimage_regression_reproduced": true,
+  "patch_sha256": "82b0eb76afec36f0b8cbb1ce1c8814cbd63a6ff13f8ddb80a7bac18290d121c0",
+  "preimage_check_exit": 0
+}

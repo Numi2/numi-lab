@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <cstdlib>
+#include <string>
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -203,6 +205,7 @@ int main(int argc, const char** argv) {
             jac[3*18+0*6+4]=1.f; jac[3*18+1*6+3]=-1.f;
             std::array<float,12> generalized{};
             auto jb=buffer(jac.data(),sizeof(jac)), gb=buffer(generalized.data(),sizeof(generalized));
+            bool checkedWorkingSetGuardRetry=false;
             auto execute=[&](unsigned step,bool accept) {
                 stand.code=accept ? MR_NUMI_HUMAN_STAND_SUCCESS:MR_NUMI_HUMAN_STAND_NONFINITE_RESULT;
                 stand.completedSteps=accept ? step+1:step;
@@ -220,6 +223,19 @@ int main(int argc, const char** argv) {
                 pass.generalizedForceStride=6u; pass.generalizedForceOffset=6u;
                 pass.pointJacobianStride=72u; pass.bodyPoseStride=1u;
                 pass.bodyJacobianPointOffset=0u; pass.articulationFirstBody=0u;
+                if (!checkedWorkingSetGuardRetry) {
+                    const char* prior=std::getenv("NUMI_HUMAN_CONTACT_WORKING_SET_GUARD");
+                    const std::string priorValue=prior ? prior : "";
+                    const bool wasSet=prior!=nullptr;
+                    setenv("NUMI_HUMAN_CONTACT_WORKING_SET_GUARD","invalid",1);
+                    require(!program.encodePreDynamics(program.context,pass),
+                            "invalid working-set guard was admitted on first encode");
+                    require(!program.encodePreDynamics(program.context,pass),
+                            "invalid working-set guard was bypassed on retry");
+                    if (wasSet) setenv("NUMI_HUMAN_CONTACT_WORKING_SET_GUARD",priorValue.c_str(),1);
+                    else unsetenv("NUMI_HUMAN_CONTACT_WORKING_SET_GUARD");
+                    checkedWorkingSetGuardRetry=true;
+                }
                 if (!program.encodePreDynamics(program.context,pass)) throw std::runtime_error("physical pre: "+physical.diagnostics().message);
                 if (!program.encodePostValidation(program.context,pass)) throw std::runtime_error("physical post: "+physical.diagnostics().message);
                 [command commit]; [command waitUntilCompleted];

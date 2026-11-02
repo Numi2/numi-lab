@@ -1,0 +1,81 @@
+diff --git a/matter/src/numi_human.mm b/matter/src/numi_human.mm
+index 5317c7f16..d886cd38a 100644
+--- a/matter/src/numi_human.mm
++++ b/matter/src/numi_human.mm
+@@ -2347,22 +2347,23 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
+                 releasedImmutableContactBytes, state_->femBodyContactSamples.size(),
+                 static_cast<std::size_t>(device.currentAllocatedSize),
+                 static_cast<unsigned long long>(device.recommendedMaxWorkingSetSize));
+-            // Diagnostic admission bound for large native scenes. This stops
+-            // before submission, never accepts a smaller physical workload.
+-            const char* workingSetGuard = std::getenv("NUMI_HUMAN_CONTACT_WORKING_SET_GUARD");
+-            if (workingSetGuard != nullptr && std::strcmp(workingSetGuard, "1") != 0) {
+-                state_->message = "NUMI_HUMAN_CONTACT_WORKING_SET_GUARD must be exactly 1 when set";
+-                return false;
+-            }
+-            if (workingSetGuard != nullptr && device.currentAllocatedSize >
+-                    device.recommendedMaxWorkingSetSize) {
+-                state_->message = "Human contact preparation exceeds the device recommended working set; physical segment was not submitted";
+-                return false;
+-            }
+         } else if (state_->device.registryID != device.registryID) {
+             state_->message = "Human tendon/FEM adapter changed Metal devices";
+             return false;
+         }
++        // Recheck every encode, including retries after failed admission.
++        // Diagnostic admission bound for large native scenes. This stops
++        // before submission, never accepts a smaller physical workload.
++        const char* workingSetGuard = std::getenv("NUMI_HUMAN_CONTACT_WORKING_SET_GUARD");
++        if (workingSetGuard != nullptr && std::strcmp(workingSetGuard, "1") != 0) {
++            state_->message = "NUMI_HUMAN_CONTACT_WORKING_SET_GUARD must be exactly 1 when set";
++            return false;
++        }
++        if (workingSetGuard != nullptr && device.currentAllocatedSize >
++                device.recommendedMaxWorkingSetSize) {
++            state_->message = "Human contact preparation exceeds the device recommended working set; physical segment was not submitted";
++            return false;
++        }
+         if ((!state_->articularContactSamples.empty() ||
+              state_->hasFEMBodyInteraction()) &&
+             (state_->allocatedArticularBodyPoseStride != pass.bodyPoseStride ||
+diff --git a/tests/numi_human_fem_surface_attachment/native_initialize_test.mm b/tests/numi_human_fem_surface_attachment/native_initialize_test.mm
+index e849bc14c..62231ce49 100644
+--- a/tests/numi_human_fem_surface_attachment/native_initialize_test.mm
++++ b/tests/numi_human_fem_surface_attachment/native_initialize_test.mm
+@@ -7,6 +7,8 @@
+ #include <algorithm>
+ #include <array>
+ #include <cstring>
++#include <cstdlib>
++#include <string>
+ #include <cmath>
+ #include <iostream>
+ #include <limits>
+@@ -203,6 +205,7 @@ int main(int argc, const char** argv) {
+             jac[3*18+0*6+4]=1.f; jac[3*18+1*6+3]=-1.f;
+             std::array<float,12> generalized{};
+             auto jb=buffer(jac.data(),sizeof(jac)), gb=buffer(generalized.data(),sizeof(generalized));
++            bool checkedWorkingSetGuardRetry=false;
+             auto execute=[&](unsigned step,bool accept) {
+                 stand.code=accept ? MR_NUMI_HUMAN_STAND_SUCCESS:MR_NUMI_HUMAN_STAND_NONFINITE_RESULT;
+                 stand.completedSteps=accept ? step+1:step;
+@@ -220,6 +223,19 @@ int main(int argc, const char** argv) {
+                 pass.generalizedForceStride=6u; pass.generalizedForceOffset=6u;
+                 pass.pointJacobianStride=72u; pass.bodyPoseStride=1u;
+                 pass.bodyJacobianPointOffset=0u; pass.articulationFirstBody=0u;
++                if (!checkedWorkingSetGuardRetry) {
++                    const char* prior=std::getenv("NUMI_HUMAN_CONTACT_WORKING_SET_GUARD");
++                    const std::string priorValue=prior ? prior : "";
++                    const bool wasSet=prior!=nullptr;
++                    setenv("NUMI_HUMAN_CONTACT_WORKING_SET_GUARD","invalid",1);
++                    require(!program.encodePreDynamics(program.context,pass),
++                            "invalid working-set guard was admitted on first encode");
++                    require(!program.encodePreDynamics(program.context,pass),
++                            "invalid working-set guard was bypassed on retry");
++                    if (wasSet) setenv("NUMI_HUMAN_CONTACT_WORKING_SET_GUARD",priorValue.c_str(),1);
++                    else unsetenv("NUMI_HUMAN_CONTACT_WORKING_SET_GUARD");
++                    checkedWorkingSetGuardRetry=true;
++                }
+                 if (!program.encodePreDynamics(program.context,pass)) throw std::runtime_error("physical pre: "+physical.diagnostics().message);
+                 if (!program.encodePostValidation(program.context,pass)) throw std::runtime_error("physical post: "+physical.diagnostics().message);
+                 [command commit]; [command waitUntilCompleted];
