@@ -1,0 +1,3 @@
+explicit allowlist index/full-scan mass, flow, distance and nearest-distance parity PASS
+source-face two-hop path, disconnected/material-boundary rejection, carrier expansion and bounded native replay PASS
+bounded regional compensation conserves mass and density; budget, duplicate, missing evidence and changed-policy replay rejection PASS

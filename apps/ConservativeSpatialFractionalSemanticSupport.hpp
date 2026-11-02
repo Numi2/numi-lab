@@ -50,6 +50,10 @@ struct ConservativeSpatialChildSemanticSupport {
     std::span<const std::uint32_t> cellAdmissibleRegionIds;
     std::string_view admissibilitySourceSupportSHA256;
     std::uint32_t admissibilityMaximumSourceRegionHops = 0u;
+    std::span<const std::uint32_t> compensationParentRows, compensationChildRows;
+    std::string_view compensationEvidenceSHA256;
+    double compensationMaximumMassKg=0.0, compensationMaximumDistanceM=0.0;
+
 };
 
 // Owning counterpart for imported/compiled bundles. Keep the large source-parent
@@ -68,6 +72,10 @@ struct ConservativeSpatialChildSemanticSupportData {
     std::vector<std::uint32_t> cellAdmissibleRegionOffsets, cellAdmissibleRegionIds;
     std::string admissibilitySourceSupportSHA256;
     std::uint32_t admissibilityMaximumSourceRegionHops = 0u;
+    std::vector<std::uint32_t> compensationParentRows, compensationChildRows;
+    std::string compensationEvidenceSHA256;
+    double compensationMaximumMassKg=0.0, compensationMaximumDistanceM=0.0;
+
 
     [[nodiscard]] ConservativeSpatialChildSemanticSupport view() const {
         return {childOffsets, slotGroupIndices, volumeFractions,
@@ -77,7 +85,9 @@ struct ConservativeSpatialChildSemanticSupportData {
             parentStableSourceFaceIdentities, sourceParentTetOffsets, sourceParentTetRows,
             sourceStableFaceOffsets, sourceStableFaceRows, typedSupportSHA256,
             cellAdmissibleRegionOffsets, cellAdmissibleRegionIds,
-            admissibilitySourceSupportSHA256, admissibilityMaximumSourceRegionHops};
+            admissibilitySourceSupportSHA256, admissibilityMaximumSourceRegionHops,
+            compensationParentRows,compensationChildRows,compensationEvidenceSHA256,
+            compensationMaximumMassKg,compensationMaximumDistanceM};
     }
     [[nodiscard]] bool empty() const { return childOffsets.empty() && slotGroupIndices.empty(); }
 };
@@ -462,7 +472,7 @@ inline bool childAllowsSourceRegion(
     return false;
 }
 
-inline bool childAllowsSourceGroup(
+inline bool baseChildAllowsSourceGroup(
         const ConservativeSpatialChildSemanticSupport& support,
         const std::uint32_t child,const std::uint32_t group) {
     if(group>=support.groupMaterialIndices.size()||
@@ -480,6 +490,24 @@ inline bool childAllowsSourceGroup(
         return childAllowsSourceRegion(support,child,support.anatomicalRegionIndices[group]);
     return childPrefersSemanticGroup(support,child,group);
 }
+inline bool compensationPairAllowed(const ConservativeSpatialChildSemanticSupport& s,
+        std::uint32_t parent,std::uint32_t child) {
+    return std::binary_search(s.compensationParentRows.begin(),s.compensationParentRows.end(),parent)&&
+           std::binary_search(s.compensationChildRows.begin(),s.compensationChildRows.end(),child);
+}
+inline bool compensationGroupAllowed(const ConservativeSpatialChildSemanticSupport& s,
+        std::uint32_t child,std::uint32_t group) {
+    if(!std::binary_search(s.compensationChildRows.begin(),s.compensationChildRows.end(),child)||
+       group+1u>=s.sourceParentTetOffsets.size())return false;
+    for(auto i=s.sourceParentTetOffsets[group];i<s.sourceParentTetOffsets[group+1u];++i)
+        if(std::binary_search(s.compensationParentRows.begin(),s.compensationParentRows.end(),s.sourceParentTetRows[i]))return true;
+    return false;
+}
+inline bool childAllowsSourceGroup(const ConservativeSpatialChildSemanticSupport& s,
+        std::uint32_t child,std::uint32_t group) {
+    return baseChildAllowsSourceGroup(s,child,group)||compensationGroupAllowed(s,child,group);
+}
+
 
 
 struct ExpandedInput {
@@ -523,6 +551,16 @@ inline std::string supportDigest(const ConservativeSpatialChildSemanticSupport& 
     for (auto value : support.cellAdmissibleRegionIds) hash.u32(value);
     hash.string(support.admissibilitySourceSupportSHA256);
     hash.u32(support.admissibilityMaximumSourceRegionHops);
+    if(!support.compensationParentRows.empty()||!support.compensationChildRows.empty()||
+       !support.compensationEvidenceSHA256.empty()){
+        hash.string("numi.human.bounded-regional-mass-compensation.v1");
+        for(auto v:support.compensationParentRows)hash.u32(v);
+        hash.u32(std::numeric_limits<std::uint32_t>::max());
+        for(auto v:support.compensationChildRows)hash.u32(v);
+        hash.string(support.compensationEvidenceSHA256);
+        hash.real(support.compensationMaximumMassKg);
+        hash.real(support.compensationMaximumDistanceM);
+    }
     return hash.finish();
 }
 
@@ -1391,6 +1429,34 @@ inline bool validateSharedCapacitySupport(
     }
     if(hasAdditionalExactGroup&&!validSHA256(support.admissibleGroupEvidenceSHA256))
         return fail("shared-capacity additional exact-group slots lack a pinned source-projection evidence hash");
+
+    const bool comp=!support.compensationParentRows.empty()||!support.compensationChildRows.empty()||
+        !support.compensationEvidenceSHA256.empty()||support.compensationMaximumMassKg!=0.0||
+        support.compensationMaximumDistanceM!=0.0;
+    if(comp){
+        const auto ordered=[](const auto& v){return !v.empty()&&std::adjacent_find(v.begin(),v.end(),
+            [](auto a,auto b){return a>=b;})==v.end();};
+        if(!ordered(support.compensationParentRows)||!ordered(support.compensationChildRows)||
+           !validSHA256(support.compensationEvidenceSHA256)||
+           !std::isfinite(support.compensationMaximumMassKg)||support.compensationMaximumMassKg<=0.0||
+           !std::isfinite(support.compensationMaximumDistanceM)||support.compensationMaximumDistanceM<=0.0||
+           support.compensationMaximumDistanceM>in.maximumTransportDistanceM)
+            return fail("regional compensation requires sorted unique rows, pinned evidence and positive bounded capacity/distance");
+        spatial_mass_transport_detail::ExactDoubleSum capacity;
+        std::set<std::uint32_t> groups;
+        for(auto p:support.compensationParentRows){
+            if(p>=in.parentMassKg.size()||in.parentMaterialIndices[p]!=15u)
+                return fail("regional compensation source is outside the Skin domain");
+            capacity.add(in.parentMassKg[p]);groups.insert(parentGroup[p]);
+        }
+        capacity.add(-support.compensationMaximumMassKg);
+        if(!capacity.valid()||capacity.sign()>0)return fail("regional compensation source capacity exceeds its declared mass budget");
+        for(auto c:support.compensationChildRows){
+            if(c>=nc||in.childMaterialIndices[c]!=15u)return fail("regional compensation target is outside the Skin domain");
+            auto& row=childAdmissibleGroups[c];row.insert(row.end(),groups.begin(),groups.end());
+            std::sort(row.begin(),row.end());row.erase(std::unique(row.begin(),row.end()),row.end());
+        }
+    }
     error.clear();return true;
 }
 
@@ -1483,6 +1549,7 @@ inline bool assembleSharedRealChildCapacity(
         if(!gridKey(in.childCentroidsWorld[c],in.maximumTransportDistanceM,childGrid[c]))
             return fail("shared-capacity child centroid cannot be indexed by the bounded search grid");
         for(const auto group:childAdmissibleGroups[c]){
+            if(!baseChildAllowsSourceGroup(support,static_cast<std::uint32_t>(c),group))continue;
             const Bucket key{group,childGrid[c]};
             auto& row=childrenByGroupBucket[key];
             if(row.size()>=std::numeric_limits<std::uint32_t>::max())
@@ -1529,7 +1596,17 @@ inline bool assembleSharedRealChildCapacity(
        !supplyMinusMinimum.valid()||!supplyMinusMaximum.valid()||
        supplyMinusMinimum.sign()<0||supplyMinusMaximum.sign()>0)
         return fail("shared-capacity total source mass is outside the real-child density capacity bounds");
-    const double residualCapacity=supplyMinusMinimum.roundedDownPositive();
+    // Each source arc already bounds its parent's full mass. After the child
+    // minimum arcs are saturated, the shared maximum-stage collector needs no
+    // second supply-minus-minimum cap. Rounding that exact difference downward
+    // can strand positive source residuals even when every physical capacity
+    // permits a complete allocation. A ceiling of total supply is redundant:
+    // parent capacities still prevent creating mass; individual child arcs still
+    // enforce density maxima. Minimum arcs and all final closure checks remain.
+    const double maximumSinkCapacity=std::nextafter(totalSupplyExact.roundedDownPositive(),
+                                                     std::numeric_limits<double>::infinity());
+    if(!std::isfinite(maximumSinkCapacity)||maximumSinkCapacity<=0.0)
+        return fail("shared-capacity collector cannot represent the finite total source capacity");
 
     MinCostFlow network(static_cast<std::size_t>(superSink)+1u);
     std::vector<std::uint32_t> parentSourceArcs(np);
@@ -1580,6 +1657,8 @@ inline bool assembleSharedRealChildCapacity(
     const auto addSeed=[&](const std::uint32_t p,const Candidate& candidate){
         const auto c=candidate.child;
         const auto group=parentGroup[p];
+        if(!baseChildAllowsSourceGroup(support,c,group)&&
+           (!compensationPairAllowed(support,p,c)||candidate.distanceM>support.compensationMaximumDistanceM))return true;
         const auto found=groupPreference[c].find(group);
         const double penalty=found==groupPreference[c].end()?0.0:
             semanticPreferenceWeight*(-std::log(found->second));
@@ -1629,6 +1708,7 @@ inline bool assembleSharedRealChildCapacity(
     // admissible-group set remains in the bucket index and implicit cut closure.
     for(std::size_t p=0;p<np;++p){
         const auto nearest=scanNearestChildForParent(static_cast<std::uint32_t>(p),parentSeedNearestK);
+        if(nearest.empty()&&std::binary_search(support.compensationParentRows.begin(),support.compensationParentRows.end(),static_cast<std::uint32_t>(p)))continue;
         if(nearest.empty()){
             std::ostringstream witness;
             witness<<"INFEASIBLE shared-capacity parent has no same-material/donor/region exact-group-supported child within distance bound"
@@ -1676,6 +1756,14 @@ inline bool assembleSharedRealChildCapacity(
             if(!addSeed(nearestParent.child,
                         Candidate{static_cast<std::uint32_t>(c),nearestParent.distanceM}))
                 return fail("shared-capacity sparse global-nearest fallback seed cost is invalid");
+        }
+    }
+    for(auto p:support.compensationParentRows)for(auto c:support.compensationChildRows){
+        const double d=distance(in.parentCentroidsWorld[p],in.childCentroidsWorld[c]);
+        if(!baseChildAllowsSourceGroup(support,c,parentGroup[p])&&d<=support.compensationMaximumDistanceM&&
+           d<=in.maximumTransportDistanceM){
+            if(pending.size()>=in.maximumAllowedEdges)return fail("regional compensation explicit seed exceeds edge capacity");
+            if(!addSeed(p,Candidate{c,d}))return fail("regional compensation seed cost is invalid");
         }
     }
     std::sort(pending.begin(),pending.end(),[](const auto& a,const auto& b){
@@ -2213,7 +2301,7 @@ inline bool assembleSharedRealChildCapacity(
             }
         }
         if(!minimumPhase&&reached[sink]&&!reached[superSink]){
-            cutFinalCapacity+=residualCapacity;++cutFinalEdges;
+            cutFinalCapacity+=maximumSinkCapacity;++cutFinalEdges;
         }
         const long double totalCutCapacity=cutSourceCapacity+cutParentChildCapacity+
             cutMinimumCapacity+cutMaximumCapacity+cutFinalCapacity;
@@ -3003,7 +3091,7 @@ inline bool assembleSharedRealChildCapacity(
     for(std::size_t c=0;c<nc;++c)
         maximumArcs[c]=network.addEdge(childBase+static_cast<std::uint32_t>(c),sink,
                         childMaximum[c]-childMinimum[c],0.0);
-    maximumFinalSinkArc=network.addEdge(sink,superSink,residualCapacity,0.0);
+    maximumFinalSinkArc=network.addEdge(sink,superSink,maximumSinkCapacity,0.0);
     perf.stage="maximum_flow";
     implicitMinimumPhase=false;
     if(!augmentToMaximum())return false;
@@ -3035,6 +3123,15 @@ inline bool assembleSharedRealChildCapacity(
         if(flows[i-1u].child==flows[i].child&&flows[i-1u].parent==flows[i].parent)
             return fail("shared-capacity graph produced a duplicate parent/child edge");
 
+    ExactDoubleSum compensationUsed;
+    for(const auto& flow:flows)if(!baseChildAllowsSourceGroup(support,flow.child,parentGroup[flow.parent])){
+        if(!compensationPairAllowed(support,flow.parent,flow.child)||flow.distance>support.compensationMaximumDistanceM)
+            return fail("regional compensation produced an unauthorized source/target/distance route");
+        compensationUsed.add(flow.mass);
+    }
+    compensationUsed.add(-support.compensationMaximumMassKg);
+    if(!compensationUsed.valid()||compensationUsed.sign()>0)
+        return fail("regional compensation produced mass beyond its explicit budget");
     ConservativeSpatialMassTransportResult next;
     next.method=UnpairedVolumeMassTransferKind::conservativeSpatialMassTransport;
     next.parentMassPacketSHA256=std::string(in.parentMassPacketSHA256);

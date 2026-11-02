@@ -110,7 +110,7 @@ inline bool parseNpy(const std::vector<std::uint8_t>& raw,NpyArray& out,std::str
 
 inline bool readRequestedArrays(const std::filesystem::path& path,
         const std::set<std::string>& wanted,std::map<std::string,NpyArray>& arrays,
-        std::string& error){
+        std::string& error,bool requireAll=true){
     const auto fail=[&](std::string m){error=std::move(m);return false;};
     std::ifstream input(path,std::ios::binary|std::ios::ate);
     if(!input)return fail("cannot open fractional support NPZ");
@@ -181,7 +181,7 @@ inline bool readRequestedArrays(const std::filesystem::path& path,
         }
         cursor=next;
     }
-    for(const auto& name:wanted)if(!seen.contains(name+".npy"))
+    for(const auto& name:wanted)if(requireAll&&!seen.contains(name+".npy"))
         return fail("fractional support NPZ omits required member "+name+".npy");
     return true;
 }
@@ -883,6 +883,10 @@ inline bool mergeCurrentPairedP1SemanticSupport(
 }
 
 struct CurrentSourceCarrierQuadratureData {
+    std::vector<std::uint32_t> compensationParentRows,compensationChildRows;
+    double compensationMaximumMassKg=0.0,compensationMaximumDistanceM=0.0;
+    std::string compensationEvidenceSHA256;
+
     std::vector<std::uint32_t> parentOffsets,globalSourceTetRows,witnessChildRows;
     std::vector<std::array<std::uint32_t,4>> sourceTetNodeRows;
     std::vector<std::array<std::array<double,3>,4>> parentReferenceTetWorldVertices;
@@ -998,6 +1002,21 @@ inline bool readCarrierPacket(const std::filesystem::path& path,const std::strin
        !readCarrierPacket(fatPath,pins.fatPacketSHA256,pins.fatMaterialIndex,parent,
                           fatChildRows,rowsByParent,error))return false;
     CurrentSourceCarrierQuadratureData next;
+    const std::set<std::string> compensationNames{"regional_compensation_parent_rows",
+        "regional_compensation_child_rows","regional_compensation_limits"};
+    std::map<std::string,NpyArray> compensationArrays;
+    if(!readRequestedArrays(skinPath,compensationNames,compensationArrays,error,false))return false;
+    if(!compensationArrays.empty()){
+        std::vector<double> limits;
+        if(compensationArrays.size()!=compensationNames.size()||
+           !readU32(compensationArrays.at("regional_compensation_parent_rows"),next.compensationParentRows,error)||
+           !readU32(compensationArrays.at("regional_compensation_child_rows"),next.compensationChildRows,error)||
+           !readF64(compensationArrays.at("regional_compensation_limits"),limits,error)||limits.size()!=2u)
+            return fail("regional compensation packet metadata is incomplete or malformed");
+        next.compensationMaximumMassKg=limits[0];next.compensationMaximumDistanceM=limits[1];
+        next.compensationEvidenceSHA256=pins.skinPacketSHA256;
+    }
+
     next.sourceTetTableSHA256=pins.sourceTetTableSHA256;next.sourceNodeTableSHA256=pins.sourceNodeTableSHA256;
     spatial_mass_transport_detail::SHA256Builder packetHash;
     packetHash.string("numi.human.current-paired-source-carrier-packets.v1");
@@ -2456,6 +2475,51 @@ struct CurrentFractionalSemanticProofFiles {
 };
 
 
+[[nodiscard]] inline bool bindCurrentRegionalMassCompensation(
+        ConservativeSpatialChildSemanticSupportData& s,
+        const ConservativeSpatialMassTransportInput& in,const PhysicalSkinParentMassPacket& parent,
+        const CurrentSourceCarrierQuadratureData& carrier,std::string& error){
+    if(carrier.compensationParentRows.empty()&&carrier.compensationChildRows.empty()&&carrier.compensationEvidenceSHA256.empty())return true;
+    const auto fail=[&](std::string m){error=std::move(m);return false;};
+    const auto ordered=[](const auto& v){return !v.empty()&&std::adjacent_find(v.begin(),v.end(),[](auto a,auto b){return a>=b;})==v.end();};
+    if(!ordered(carrier.compensationParentRows)||!ordered(carrier.compensationChildRows)||
+       !physical_skin_child_mass_detail::validSHA256(carrier.compensationEvidenceSHA256))
+        return fail("regional compensation rows must be sorted, unique and pinned");
+    std::map<std::array<std::uint32_t,3>,std::vector<std::uint32_t>> faces;
+    constexpr std::array<std::array<unsigned,3>,4> patterns{{{{1,2,3}},{{0,3,2}},{{0,1,3}},{{0,2,1}}}};
+    for(std::uint32_t p=0;p<parent.tetrahedra.size();++p){
+        if(parent.materialIndices[p]!=15u)continue;
+        for(const auto& pattern:patterns){std::array<std::uint32_t,3> face{};
+            for(unsigned k=0;k<3;++k)face[k]=parent.tetrahedra[p][pattern[k]];
+            std::sort(face.begin(),face.end());faces[face].push_back(p);
+        }
+    }
+    std::map<std::uint32_t,std::set<std::uint32_t>> adjacency;
+    for(const auto& [face,rows]:faces){
+        (void)face;
+        if(rows.size()>2u)return fail("regional compensation source topology is nonmanifold");
+        if(rows.size()==2u){const auto a=parent.anatomicalRegionIndices[rows[0]],b=parent.anatomicalRegionIndices[rows[1]];
+            adjacency[a].insert(b);adjacency[b].insert(a);}
+    }
+    std::set<std::uint32_t> targetRegions;
+    for(auto p:carrier.compensationParentRows){
+        if(p>=parent.tetrahedra.size()||parent.materialIndices[p]!=15u)return fail("regional compensation source crosses Skin identity");
+        targetRegions.insert(parent.anatomicalRegionIndices[p]);
+    }
+    for(auto c:carrier.compensationChildRows){
+        if(c>=in.childMaterialIndices.size()||in.childMaterialIndices[c]!=15u)return fail("regional compensation target crosses Skin identity");
+        std::set<std::uint32_t> reachable;
+        for(auto i=s.childOffsets[c];i<s.childOffsets[c+1u];++i)reachable.insert(s.anatomicalRegionIndices[s.slotGroupIndices[i]]);
+        for(unsigned hop=0;hop<2;++hop){auto next=reachable;for(auto r:reachable)next.insert(adjacency[r].begin(),adjacency[r].end());reachable.swap(next);}
+        for(auto r:targetRegions)if(!reachable.contains(r))return fail("regional compensation lacks an exact same-material source-face path within two region hops");
+    }
+    s.compensationParentRows=carrier.compensationParentRows;s.compensationChildRows=carrier.compensationChildRows;
+    s.compensationMaximumMassKg=carrier.compensationMaximumMassKg;s.compensationMaximumDistanceM=carrier.compensationMaximumDistanceM;
+    s.compensationEvidenceSHA256=carrier.compensationEvidenceSHA256;
+    std::vector<std::uint32_t> pg;std::vector<std::map<std::uint32_t,double>> pref;std::vector<std::vector<std::uint32_t>> allowed;
+    return fractional_semantic_transport_detail::validateSharedCapacitySupport(in,s.view(),pg,pref,allowed,error);
+}
+
 [[nodiscard]] inline bool bindCurrentFractionalSemanticSupportProofs(
         void* opaqueContext,ConservativeSpatialChildSemanticSupportData& support,
         const ConservativeSpatialMassTransportInput& input,
@@ -2532,6 +2596,8 @@ struct CurrentFractionalSemanticProofFiles {
     context->skinCarrierSummary=std::move(skinSummary);
     context->fatCarrierSummary=std::move(fatSummary);
     context->combinedCarrierWitnessSHA256=combinedCarrierSHA;
+    if(!bindCurrentRegionalMassCompensation(nextSupport,input,parent,*context->carriers,error))
+        return fail("current regional mass compensation rejected: "+error);
     support=std::move(nextSupport);
     error.clear();return true;
 }

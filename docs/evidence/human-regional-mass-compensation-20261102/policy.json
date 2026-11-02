@@ -1,0 +1,25 @@
+{
+  "status": "PASS_BOUNDED_REGIONAL_COMPENSATION_SOURCE_PROPOSAL",
+  "parent_rows": [
+    11630,
+    11634,
+    11661,
+    11662,
+    11663,
+    11721
+  ],
+  "source_capacity_kg": 0.0003117525663607096,
+  "maximum_budget_kg": 0.000325,
+  "maximum_distance_m": 0.075,
+  "child_rows": 6359,
+  "source_mass_changed": false,
+  "carrier_weights_changed": false,
+  "geometry_changed": false,
+  "typed_identities_changed": false,
+  "source_packet_sha256": "7f648262440539761f5cc6f14c9a2a7c5bf73c5cf75b310ec747872d83c0efb3",
+  "output_packet_sha256": "3780de3325f255c8a44696cb67641decd7a966f45f4204e09a72935a36e6778c",
+  "all_original_npz_members_byte_identical": true,
+  "anatomical_basis": "At most two same-material source-region hops through exact shared source-tetrahedron faces; natively recomputed before admission.",
+  "physical_admission": false,
+  "native_steps": 0
+}

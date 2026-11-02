@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/usr/bin/clang++",
+    "-std=c++20",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG",
+    "-I/Users/numi/Work/current-fractional-020-publication-20261101/apps",
+    "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanFractionalTerminalCapacityCheck.cpp",
+    "-o",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/rounding-before"
+  ],
+  "exit": 1,
+  "stdout": "",
+  "stderr": "INFEASIBLE full admissible shared-capacity graph cannot transfer all source mass within child maximum densities full_implicit_residual_closure=exhausted no_augmenting_path=1 stage=maximum_flow sent_kg=1 residual_source_kg=0 supply_kg=1 density_min_kg=0.30000000000000004 density_max_kg=1.2000000000000002 cut_reachable_parent_rows=1 cut_reachable_child_rows=3 implicit_parent_child_pairs_examined=3 exact_eligible_omitted_pairs=0 capacity_threshold_initial_kg=0 capacity_threshold_cached_prior_kg=0 capacity_search_threshold_kg=0 capacity_threshold_levels_tested=0 capacity_threshold_pairs_examined=0 zero_threshold_fallback=1 cut_mask=sha256=ed701327cc4e5bd37b57907e6c8c1179164d64d4aee146495038e8e4646264a0,parent_runs=1,child_runs=1 residual_child_witnesses={witness_count=1 child=2,material=15,donor=1,region=10,xyz=0.02:0:0,residual_kg=0.20000000000000018,groups=1,exact_parents=1,reached_exact_parents=1,reached_child=1,nearest_parent=0,nearest_distance_m=0.02,nearest_parent_initial_kg=1;}\nshar\n"
+}

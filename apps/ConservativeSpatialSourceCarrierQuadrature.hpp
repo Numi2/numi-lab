@@ -156,6 +156,18 @@ inline bool validateCarrierInput(
         if (carrier.parentOffsets[row]<carrier.parentOffsets[row-1u] ||
             carrier.parentOffsets[row]>carrier.carrierWeights.size())
             return fail("source carrier parent CSR offsets are reversed or out of range");
+    // The explicit allowlist has already been validated above. Invert it once,
+    // preserving ascending child order, instead of scanning all body cells for
+    // every source parent to measure its nearest admissible child. Legacy
+    // region-only support retains the original predicate scan.
+    const bool indexedChildren=!support.childAdmissibleGroupOffsets.empty();
+    std::vector<std::vector<std::uint32_t>> childrenByGroup;
+    if(indexedChildren){
+        childrenByGroup.resize(support.groupMaterialIndices.size());
+        for(std::uint32_t child=0;child<nc;++child)
+            for(const auto group:admissibleGroups[child])
+                childrenByGroup[group].push_back(child);
+    }
     std::set<std::uint32_t> uniqueTetRows;
     for (std::size_t parent=0; parent<np; ++parent) {
         if (!uniqueTetRows.insert(carrier.globalSourceTetRows[parent]).second)
@@ -191,6 +203,11 @@ inline bool validateCarrierInput(
            support.donorBodyIndices[group]!=in.parentDonorBodyIndices[parent]||
            support.anatomicalRegionIndices[group]!=in.parentAnatomicalRegionIndices[parent])
             return fail("source carrier parent tuple differs from its authenticated semantic group");
+        if(indexedChildren){
+            for(const auto child:childrenByGroup[group])
+                strictNearest=std::min(strictNearest,pointDistance(in.parentCentroidsWorld[parent],
+                                                                  in.childCentroidsWorld[child]));
+        }else{
         for (std::size_t child=0; child<nc; ++child) {
             if (in.childMaterialIndices[child]!=material ||
                 !fractional_semantic_transport_detail::childAllowsSourceGroup(support,
@@ -198,6 +215,7 @@ inline bool validateCarrierInput(
                 continue;
             strictNearest=std::min(strictNearest,pointDistance(in.parentCentroidsWorld[parent],
                                                                in.childCentroidsWorld[child]));
+        }
         }
         strictCentroidNearest.push_back(strictNearest);
         for (std::uint32_t row=begin; row<end; ++row) {
@@ -337,6 +355,14 @@ inline bool expandParentRows(
     expandedSupport.cellAdmissibleRegionIds.assign(support.cellAdmissibleRegionIds.begin(),support.cellAdmissibleRegionIds.end());
     expandedSupport.admissibilitySourceSupportSHA256.assign(support.admissibilitySourceSupportSHA256);
     expandedSupport.admissibilityMaximumSourceRegionHops=support.admissibilityMaximumSourceRegionHops;
+    for(std::uint32_t v=0;v<virtualToParent.size();++v)
+        if(std::binary_search(support.compensationParentRows.begin(),support.compensationParentRows.end(),virtualToParent[v]))
+            expandedSupport.compensationParentRows.push_back(v);
+    expandedSupport.compensationChildRows.assign(support.compensationChildRows.begin(),support.compensationChildRows.end());
+    expandedSupport.compensationEvidenceSHA256=std::string(support.compensationEvidenceSHA256);
+    expandedSupport.compensationMaximumMassKg=support.compensationMaximumMassKg;
+    expandedSupport.compensationMaximumDistanceM=support.compensationMaximumDistanceM;
+
     expandedSupport.parentStableSourceFaceIdentities.reserve(virtualToParent.size());
     for (const auto parent : virtualToParent)
         expandedSupport.parentStableSourceFaceIdentities.push_back(support.parentStableSourceFaceIdentities[parent]);
@@ -705,6 +731,7 @@ inline bool aggregateCarrierResult(
             parentSourceByDonor[{virtualMaterials[v],virtualDonorIDs[r]}]+=virtualDonorMass[r];
     }
 
+    spatial_mass_transport_detail::ExactDoubleSum compensationUsed;
     long double weightedDistance=0.0L,totalMass=0.0L;
     double maximumDistance=0.0,maximumParentMassError=0.0,maximumParentMeasureError=0.0;
     double maximumSourceError=0.0,minimumDensity=std::numeric_limits<double>::infinity();
@@ -750,6 +777,12 @@ inline bool aggregateCarrierResult(
                 if(!fractional_semantic_transport_detail::childAllowsSourceGroup(
                        support,c,group))
                     return fail("recorded source-carrier edge exact source tuple is outside the child's authenticated allowlist");
+                if(!fractional_semantic_transport_detail::baseChildAllowsSourceGroup(support,c,group)&&
+                   (!fractional_semantic_transport_detail::compensationPairAllowed(support,p,c)||
+                    distance>support.compensationMaximumDistanceM))
+                    return fail("recorded regional compensation edge violates its explicit parent, child or distance bound");
+                if(!fractional_semantic_transport_detail::baseChildAllowsSourceGroup(support,c,group))
+                    compensationUsed.add(mass);
                 const double actualDistance=pointDistance(expandedInput.parentCentroidsWorld[v],
                                                            input.childCentroidsWorld[c]);
                 const double density=virtualMasses[v]/virtualVolumes[v];
@@ -786,6 +819,9 @@ inline bool aggregateCarrierResult(
         }
         expanded.childParentOffsets[c+1u]=static_cast<std::uint32_t>(expanded.childParentRows.size());
     }
+    compensationUsed.add(-support.compensationMaximumMassKg);
+    if(!compensationUsed.valid()||compensationUsed.sign()>0)
+        return fail("recorded regional compensation exceeds its declared mass budget");
     expanded.childParentOffsets[nc]=static_cast<std::uint32_t>(expanded.childParentRows.size());
     expanded.transportEdgeCount=expanded.childParentRows.size();
     expanded.augmentationCount=supplied.augmentationCount;

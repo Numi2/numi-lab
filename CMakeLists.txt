@@ -7190,6 +7190,13 @@ function(add_fractional_semantic_allocator_028_check target source test_name)
 endfunction()
 
 add_fractional_semantic_allocator_028_check(
+    numi-human-fractional-terminal-capacity-check
+    apps/NumiHumanFractionalTerminalCapacityCheck.cpp human.fractional-terminal-capacity)
+add_fractional_semantic_allocator_028_check(
+    numi-human-regional-mass-compensation-check
+    apps/NumiHumanRegionalMassCompensationCheck.cpp human.regional-mass-compensation)
+target_link_libraries(numi-human-regional-mass-compensation-check PRIVATE z)
+add_fractional_semantic_allocator_028_check(
     numi-human-implicit-level-pruning-check
     apps/NumiHumanImplicitLevelPruningCheck.cpp human.fractional-implicit-level-pruning)
 add_fractional_semantic_allocator_028_check(

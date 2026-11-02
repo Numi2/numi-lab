@@ -1,0 +1,70 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/cmake",
+    "--build",
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native",
+    "--target",
+    "numi-human-native",
+    "--parallel",
+    "1"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 49.5989122078754,
+  "binary": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "bytes": 10394064,
+    "sha256": "1977ece2b2a0603df3e00eef2ae8f838d030187e6602738fa85629da2af27ba6"
+  },
+  "copies": [
+    {
+      "before": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-build-004/before/NumiHumanConservativeSpatialMassTransport.hpp",
+        "bytes": 139140,
+        "sha256": "8671c7b8129d42c29d3e12760cd095c14189b2b88914ca27109295f62c0674e8"
+      },
+      "source": {
+        "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanConservativeSpatialMassTransport.hpp",
+        "bytes": 166575,
+        "sha256": "2af82b7d0bb1edb527d27f99b4de24ccd571c142e67863c57baffe60327cd4db"
+      }
+    },
+    {
+      "before": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-build-004/before/ConservativeSpatialFractionalSemanticSupport.hpp",
+        "bytes": 120249,
+        "sha256": "79911a2e40ce2e7b686f31b85005239126e70dfc3005ee445a122d1936569723"
+      },
+      "source": {
+        "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/ConservativeSpatialFractionalSemanticSupport.hpp",
+        "bytes": 196504,
+        "sha256": "1615a77d2a40d87a0100ce9099359658b7ce800cf4c1ffed24ace890b104965e"
+      }
+    },
+    {
+      "before": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-build-004/before/ConservativeSpatialSourceCarrierQuadrature.hpp",
+        "bytes": 74310,
+        "sha256": "d3e62b9f14453181069cc06e9f69cd3c7efa19f17163a0b8054e5a31d74136d9"
+      },
+      "source": {
+        "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/ConservativeSpatialSourceCarrierQuadrature.hpp",
+        "bytes": 75774,
+        "sha256": "a9b9e0e2cde07b29e1c432d4aaffbf9cf01c78f87a82a3faa71a3fc60e30b87d"
+      }
+    },
+    {
+      "before": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-build-004/before/NumiHumanCurrentFractionalSupportNPZ.hpp",
+        "bytes": 165753,
+        "sha256": "2e8514c7a118137f14b790a3ba1caa56c68303ba3b73cbe94d0bbd00d301aacd"
+      },
+      "source": {
+        "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanCurrentFractionalSupportNPZ.hpp",
+        "bytes": 170639,
+        "sha256": "8583b0675fc70f35dfa349d70c961d4f3d1359c2b1b12bc0430fe74010ed2352"
+      }
+    }
+  ],
+  "physical_admission": false,
+  "native_steps": 0
+}
