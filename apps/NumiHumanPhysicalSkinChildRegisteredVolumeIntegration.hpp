@@ -1017,4 +1017,26 @@ inline bool validatePreparedOperationalSpatialInstallation(
         maximumTransportDistanceM,sourceBodyCount,error);
 }
 
+// The legacy parent is built for immutable material/mass identity only.
+// This authorizes no physical execution: mandatory registered replacement and
+// complete mass admission still have to succeed before scene compilation.
+[[nodiscard]] inline bool currentFractionalParentPreparationReady(
+        const bool installRequested,const bool fractionalRequested,
+        const PhysicalSkinChildMassMappingBundle& bundle,
+        const PhysicalSkinRegisteredVolumeFileImportReport& report) {
+    using physical_skin_child_mass_detail::validSHA256;
+    return installRequested&&fractionalRequested&&!report.physicalAdmission&&
+        report.registrationDomain==PhysicalSkinRegisteredVolumeRegistrationDomain::currentFractionalReference&&
+        bundle.usesSeparatedOperationalReference&&
+        validSHA256(bundle.operationalReferenceDomainSHA256)&&
+        report.operationalReferenceDomainSHA256==bundle.operationalReferenceDomainSHA256&&
+        !report.operationalReferencePullbackVerified&&
+        !report.operationalReferenceSpatialTransportVerified&&
+        !report.conformingTissueRefinementVerified&&
+        report.registeredVolume.typedSourceDomainMapPopulated&&
+        report.registeredVolume.sourceDomainCount==3u&&bundle.sourceDomains.size()==3u&&
+        report.tetgen.nodeCount==bundle.referenceWorldPoints.size()&&
+        report.tetgen.cellCount==bundle.childTetrahedra.size()&&report.tetgen.cellCount>0u;
+}
+
 } // namespace metalrobo::human::coarse_tissue

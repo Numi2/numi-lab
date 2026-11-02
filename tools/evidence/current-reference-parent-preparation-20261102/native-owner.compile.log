@@ -1,0 +1,5 @@
+In file included from /Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp:1:
+/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp:763:17: error: no member named 'operationalReferenceSpatialTransportVerified' in 'metalrobo::human::coarse_tissue::PhysicalSkinRegisteredVolumeFileImportReport'
+  763 |         !report.operationalReferenceSpatialTransportVerified&&
+      |          ~~~~~~ ^
+1 error generated.

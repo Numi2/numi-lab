@@ -1,0 +1,49 @@
+[
+  {
+    "root": "/Users/numi/Work/skin-fat-native-integration-209",
+    "argv": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-UNDEBUG",
+      "-Wpedantic",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-DNUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+      "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp",
+      "-lz",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/parent-preparation-044/native-owner-check"
+    ],
+    "compile_exit": 1
+  },
+  {
+    "root": "/Users/numi/Work/current-fractional-020-publication-20261101",
+    "argv": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-UNDEBUG",
+      "-Wpedantic",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-DNUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1",
+      "-I/Users/numi/Work/current-fractional-020-publication-20261101/apps",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+      "-I/Users/numi/Work/current-fractional-020-publication-20261101/include",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp",
+      "-lz",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/parent-preparation-044/publication-check"
+    ],
+    "compile_exit": 0,
+    "test_exit": 0
+  }
+]

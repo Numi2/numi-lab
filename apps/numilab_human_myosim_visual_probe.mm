@@ -23494,8 +23494,19 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             const bool exactUnadmittedDiagnostic=unadmittedDiagnostic&&std::string_view(unadmittedDiagnostic)=="1"&&
                 unadmittedCandidateID&&std::string_view(unadmittedCandidateID)==kUnadmittedDiagnosticCandidateID&&
                 unadmittedCandidateSHA&&std::string_view(unadmittedCandidateSHA)==kUnadmittedDiagnosticCandidateSHA256;
-            require(kWholeBodySkinLayersAdmitted||exactUnadmittedDiagnostic,
-                    "whole-body skin/fat is unadmitted; diagnostic requires the exact private candidate ID and SHA-256");
+            const bool replacementParentPreparationOnly=
+                preparedRegisteredVolumeBundle&&preparedRegisteredVolumeSidecars&&
+                preparedRegisteredVolumeReport&&preparedRegisteredVolumeSurfaces&&
+                preparedRegisteredRoleState&&preparedRegisteredOuterRenderDomain&&
+                currentFractionalParentPreparationReady(registeredVolumeInstallRequested,
+                    registeredFractionalMassSupportRequested,*preparedRegisteredVolumeBundle,
+                    *preparedRegisteredVolumeReport);
+            require(kWholeBodySkinLayersAdmitted||exactUnadmittedDiagnostic||replacementParentPreparationOnly,
+                    "whole-body skin/fat is unadmitted; require exact diagnostic identity or a verified current replacement before parent preparation");
+            if(!kWholeBodySkinLayersAdmitted&&replacementParentPreparationOnly)
+                std::cout<<"whole_body_skin_layer_status=LEGACY_PARENT_PREPARATION_ONLY"
+                    <<" replacement_domain_sha256="<<preparedRegisteredVolumeReport->operationalReferenceDomainSHA256
+                    <<" legacy_physical_admission=0 mandatory_registered_replacement=1 simulation_steps=0\n";
             if(!kWholeBodySkinLayersAdmitted&&exactUnadmittedDiagnostic)
                 std::cout<<"whole_body_skin_layer_status=UNADMITTED_DIAGNOSTIC candidate_id="
                          <<kUnadmittedDiagnosticCandidateID<<" candidate_sha256="

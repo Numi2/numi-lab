@@ -1030,6 +1030,19 @@ int main() {
     assert(!currentReport.physicalAdmission&&!currentReport.operationalReferencePullbackVerified&&
            currentReport.operationalReferencePullbackSHA256.empty());
     assert(currentBundle.usesSeparatedOperationalReference&&!currentBundle.conformingLineageMassRouteRequired);
+    assert(currentFractionalParentPreparationReady(true,true,currentBundle,currentReport));
+    assert(!currentFractionalParentPreparationReady(false,true,currentBundle,currentReport));
+    assert(!currentFractionalParentPreparationReady(true,false,currentBundle,currentReport));
+    assert(!currentFractionalParentPreparationReady(true,true,bundle,report));
+    auto badParentPreparation=currentReport;badParentPreparation.physicalAdmission=true;
+    assert(!currentFractionalParentPreparationReady(true,true,currentBundle,badParentPreparation));
+    badParentPreparation=currentReport;badParentPreparation.operationalReferenceDomainSHA256=std::string(64u,'f');
+    assert(!currentFractionalParentPreparationReady(true,true,currentBundle,badParentPreparation));
+    badParentPreparation=currentReport;badParentPreparation.registeredVolume.typedSourceDomainMapPopulated=false;
+    assert(!currentFractionalParentPreparationReady(true,true,currentBundle,badParentPreparation));
+    badParentPreparation=currentReport;++badParentPreparation.tetgen.cellCount;
+    assert(!currentFractionalParentPreparationReady(true,true,currentBundle,badParentPreparation));
+
     assert(physical_skin_registered_volume_integration_detail::sameImmutableParentPacket(
         currentBundle.parent,splitFixture.parentBundle.parent));
     auto currentReject=[&](const auto& candidateFiles,const auto& candidateRegistered,
