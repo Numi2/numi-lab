@@ -1,0 +1,69 @@
+{
+  "status": "PASS_SOURCE_CONTROLS_ONLY",
+  "scope": "Host asset-preparation max-flow work reduction, not GPU physics or native motion qualification.",
+  "algorithm": [
+    "Retire BFS-discovered children from all authenticated group/bucket memberships with resettable successor indices.",
+    "DFS filters destination level before distance/cost evaluation.",
+    "Preserve established 125-bucket traversal, admissibility, strict-positive residuals, capacities, exact cut closure, and legacy provider API."
+  ],
+  "controls": [
+    "Selective-radius same-group sources require length-5 reverse-residual reroute; verify child masses, total mass, density replay and nonzero retirement.",
+    "Full retained 034 deterministic suite is byte-identical to baseline stdout.",
+    "Legacy implicit-provider controls pass, including provider error and live-cap fail-closed."
+  ],
+  "compiler": "Apple clang C++20 -O2; focused and legacy use -Wall -Wextra -Wpedantic -Werror -UNDEBUG",
+  "performance": "NOT_MEASURED_ON_FULL_HUMAN",
+  "physical_admission": false,
+  "native_steps": 0,
+  "source": [
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/ConservativeSpatialFractionalSemanticSupport.hpp",
+      "bytes": 189765,
+      "sha256": "a45d4fe2cfe9aeb203ef81d237818a41c7080971118e2bfb81b98332975c9773"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanConservativeSpatialMassTransport.hpp",
+      "bytes": 166575,
+      "sha256": "2af82b7d0bb1edb527d27f99b4de24ccd571c142e67863c57baffe60327cd4db"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanImplicitLevelPruningCheck.cpp",
+      "bytes": 5657,
+      "sha256": "37c5e32971b21e1be29c6d43f6f8ae489c7965648bbd5b7c322a5f4247ef6ef3"
+    }
+  ],
+  "results": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-034c-level-pruned-dinic/build/owner-final.stdout.log",
+      "bytes": 1478,
+      "sha256": "20d2d24533e2faa087a2aee1fca9a061122c40a33d08d1eb4e0f9438fd85a40a"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-034c-level-pruned-dinic/build/owner-final.stderr.log",
+      "bytes": 10589,
+      "sha256": "fbfafc2faab9e3eeba58a6d5e824b35b8af148a99b5df3930d7f0fc1e0036b0e"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-034c-level-pruned-dinic/build/focused.stdout.log",
+      "bytes": 103,
+      "sha256": "3ce8211ac03756ac1bf39cd2bfc47ac5ce50d121f0b7a3075e1eb2ed6281e514"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-034c-level-pruned-dinic/build/focused.stderr.log",
+      "bytes": 2727,
+      "sha256": "44b9390b1b48d4e93a4c2f659b400a45673906e991b0c058f5f9cfcb21426009"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-034c-level-pruned-dinic/build/strict-legacy.stdout.log",
+      "bytes": 143,
+      "sha256": "67d7d51338045b6ba3f46a331a09ef72bb0bb7c56a26ad68d17d3045e5007077"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-034c-level-pruned-dinic/build/strict-legacy.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "retained_failure": "Initial compatibility overload ambiguously matched an old optional-argument call; corrected using a distinct indexed internal entrypoint, then rebuilt both suites.",
+  "cmake": "Registration added; full configure remains blocked by previously recorded unrelated missing baseline files. Direct owning compiler checks passed."
+}

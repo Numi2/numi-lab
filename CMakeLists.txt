@@ -7190,6 +7190,9 @@ function(add_fractional_semantic_allocator_028_check target source test_name)
 endfunction()
 
 add_fractional_semantic_allocator_028_check(
+    numi-human-implicit-level-pruning-check
+    apps/NumiHumanImplicitLevelPruningCheck.cpp human.fractional-implicit-level-pruning)
+add_fractional_semantic_allocator_028_check(
     numi-human-implicit-dinic-028-check
     apps/NumiHumanImplicitDinic028Check.cpp human.fractional-implicit-dinic-028)
 add_fractional_semantic_allocator_028_check(

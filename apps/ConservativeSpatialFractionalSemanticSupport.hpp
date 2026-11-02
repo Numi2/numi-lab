@@ -1463,6 +1463,14 @@ inline bool assembleSharedRealChildCapacity(
 
     using Bucket=std::tuple<std::uint32_t,GridKey>;
     std::map<Bucket,std::vector<std::uint32_t>> childrenByGroupBucket;
+    std::map<Bucket,std::uint32_t> childBucketIndexByKey;
+    struct ChildBucketBfsIndex {
+        const std::vector<std::uint32_t>* children=nullptr;
+        std::vector<std::uint32_t> successor;
+    };
+    struct ChildBucketReference {std::uint32_t bucket=0u,position=0u;};
+    std::vector<ChildBucketBfsIndex> childBucketBfsRows;
+    std::vector<std::vector<ChildBucketReference>> childBucketRefsByChild(nc);
     std::map<Bucket,std::vector<std::uint32_t>> parentsByGroupBucket;
     std::vector<GridKey> parentGrid(np),childGrid(nc);
     for(std::size_t p=0;p<np;++p){
@@ -1474,9 +1482,24 @@ inline bool assembleSharedRealChildCapacity(
     for(std::size_t c=0;c<nc;++c){
         if(!gridKey(in.childCentroidsWorld[c],in.maximumTransportDistanceM,childGrid[c]))
             return fail("shared-capacity child centroid cannot be indexed by the bounded search grid");
-        for(const auto group:childAdmissibleGroups[c])
-            childrenByGroupBucket[{group,childGrid[c]}]
-                .push_back(static_cast<std::uint32_t>(c));
+        for(const auto group:childAdmissibleGroups[c]){
+            const Bucket key{group,childGrid[c]};
+            auto& row=childrenByGroupBucket[key];
+            if(row.size()>=std::numeric_limits<std::uint32_t>::max())
+                return fail("shared-capacity group/bucket child row exceeds bounded index range");
+            const auto position=static_cast<std::uint32_t>(row.size());
+            row.push_back(static_cast<std::uint32_t>(c));
+            auto bucket=childBucketIndexByKey.find(key);
+            std::uint32_t bucketIndex=0u;
+            if(bucket==childBucketIndexByKey.end()){
+                if(childBucketBfsRows.size()>=std::numeric_limits<std::uint32_t>::max())
+                    return fail("shared-capacity group/bucket index exceeds bounded range");
+                bucketIndex=static_cast<std::uint32_t>(childBucketBfsRows.size());
+                childBucketIndexByKey.emplace(key,bucketIndex);
+                childBucketBfsRows.push_back(ChildBucketBfsIndex{&row,{}});
+            }else bucketIndex=bucket->second;
+            childBucketRefsByChild[c].push_back({bucketIndex,position});
+        }
     }
 
     ExactDoubleSum totalSupplyExact,totalMinimumExact,totalMaximumExact;
@@ -1793,12 +1816,53 @@ inline bool assembleSharedRealChildCapacity(
     struct ImplicitParentChildCursor {
         std::size_t bucketOrdinal=0u;
         std::size_t childIndex=0u;
+        std::uint32_t bucketIndex=invalid;
         const std::vector<std::uint32_t>* bucket=nullptr;
     };
     std::string implicitProviderError;
+    const auto successorFind=[](std::vector<std::uint32_t>& successor,
+                                 std::uint32_t index){
+        std::uint32_t root=index;
+        while(successor[root]!=root)root=successor[root];
+        while(successor[index]!=index){
+            const auto next=successor[index];successor[index]=root;index=next;
+        }
+        return root;
+    };
+    const auto beginImplicitBfs=[&](){
+        for(auto& bucket:childBucketBfsRows){
+            if(bucket.children==nullptr)continue;
+            const auto count=bucket.children->size();
+            bucket.successor.resize(count+1u);
+            for(std::size_t i=0;i<=count;++i)
+                bucket.successor[i]=static_cast<std::uint32_t>(i);
+        }
+    };
+    const auto onImplicitDestinationDiscovered=[&](const std::uint32_t node){
+        if(node<childBase||node>=sink)return std::size_t{0u};
+        const auto child=static_cast<std::size_t>(node-childBase);
+        if(child>=childBucketRefsByChild.size())return std::size_t{0u};
+        std::size_t retired=0u;
+        for(const auto ref:childBucketRefsByChild[child]){
+            if(ref.bucket>=childBucketBfsRows.size()){
+                implicitProviderError="child BFS bucket membership is out of range";return retired;
+            }
+            auto& successor=childBucketBfsRows[ref.bucket].successor;
+            if(ref.position+1u>=successor.size()){
+                implicitProviderError="child BFS bucket membership position is out of range";return retired;
+            }
+            const auto root=successorFind(successor,ref.position);
+            if(root==ref.position){
+                successor[ref.position]=successorFind(successor,ref.position+1u);
+                ++retired;
+            }
+        }
+        return retired;
+    };
     const auto nextImplicitParentChild=[&](const std::uint32_t from,
             ImplicitParentChildCursor& cursor,std::uint32_t& to,
-            double& capacity,double& cost){
+            double& capacity,double& cost,const bool bfsPhase,
+            const auto& destinationRelevant){
         if(from<parentBase||from>=childBase)return false;
         const auto p=static_cast<std::size_t>(from-parentBase);
         if(p>=parentGroup.size()||p>=parentGrid.size()||p>=in.parentMassKg.size()){
@@ -1813,28 +1877,53 @@ inline bool assembleSharedRealChildCapacity(
             implicitProviderError="parent capacity is nonfinite or negative";return false;
         }
         const auto base=parentGrid[p];
+        // Retain the established 125-cell traversal and ordering; prune only
+        // destinations already discovered in this BFS or outside the DFS level.
         while(cursor.bucketOrdinal<125u){
             if(cursor.bucket==nullptr){
                 const auto ordinal=cursor.bucketOrdinal;
                 const auto dx=static_cast<std::int64_t>(ordinal/25u)-2;
                 const auto dy=static_cast<std::int64_t>((ordinal/5u)%5u)-2;
                 const auto dz=static_cast<std::int64_t>(ordinal%5u)-2;
-                const auto found=childrenByGroupBucket.find(
-                    {group,GridKey{base.x+dx,base.y+dy,base.z+dz}});
+                const Bucket key{group,GridKey{base.x+dx,base.y+dy,base.z+dz}};
+                const auto found=childrenByGroupBucket.find(key);
                 cursor.bucket=found==childrenByGroupBucket.end()?nullptr:&found->second;
+                cursor.bucketIndex=invalid;
+                if(cursor.bucket!=nullptr){
+                    const auto index=childBucketIndexByKey.find(key);
+                    if(index==childBucketIndexByKey.end()){
+                        implicitProviderError="group/bucket child row is missing its BFS index";return false;
+                    }
+                    cursor.bucketIndex=index->second;
+                }
                 cursor.childIndex=0u;
                 if(cursor.bucket==nullptr){++cursor.bucketOrdinal;continue;}
             }
-            while(cursor.childIndex<cursor.bucket->size()){
-                const auto c=(*cursor.bucket)[cursor.childIndex++];
+            for(;;){
+                std::size_t candidateIndex=cursor.childIndex;
+                if(bfsPhase){
+                    if(cursor.bucketIndex>=childBucketBfsRows.size()){
+                        implicitProviderError="BFS group/bucket row index is out of range";return false;
+                    }
+                    auto& successor=childBucketBfsRows[cursor.bucketIndex].successor;
+                    if(candidateIndex>std::numeric_limits<std::uint32_t>::max()){
+                        implicitProviderError="BFS group/bucket cursor exceeds bounded index range";return false;
+                    }
+                    candidateIndex=successorFind(successor,static_cast<std::uint32_t>(candidateIndex));
+                }
+                if(candidateIndex>=cursor.bucket->size())break;
+                cursor.childIndex=candidateIndex+1u;
+                const auto c=(*cursor.bucket)[candidateIndex];
+                if(c>=in.childCentroidsWorld.size()||c>=groupPreference.size()){
+                    implicitProviderError="child row is outside authenticated child tables";return false;
+                }
+                to=childBase+static_cast<std::uint32_t>(c);
+                if(!destinationRelevant(to))continue;
                 if(p>=activeChildrenByParent.size()){
                     implicitProviderError="parent active-neighbor table is missing";return false;
                 }
                 if(std::binary_search(activeChildrenByParent[p].begin(),
                                       activeChildrenByParent[p].end(),c))continue;
-                if(c>=in.childCentroidsWorld.size()||c>=groupPreference.size()){
-                    implicitProviderError="child row is outside authenticated child tables";return false;
-                }
                 const double d=distance(in.parentCentroidsWorld[p],in.childCentroidsWorld[c]);
                 if(!std::isfinite(d)||d<0.0){
                     implicitProviderError="parent-child distance is nonfinite or negative";return false;
@@ -1858,7 +1947,7 @@ inline bool assembleSharedRealChildCapacity(
                 capacity=parentCapacity;cost=edgeCost;
                 return true;
             }
-            cursor.bucket=nullptr;cursor.childIndex=0u;++cursor.bucketOrdinal;
+            cursor.bucket=nullptr;cursor.bucketIndex=invalid;cursor.childIndex=0u;++cursor.bucketOrdinal;
         }
         return false;
     };
@@ -1910,11 +1999,12 @@ inline bool assembleSharedRealChildCapacity(
             std::size_t roundAugmentations=0u;double sent=0.0;
             spatial_mass_transport_detail::ImplicitDinicStats implicitStats;
             implicitProviderError.clear();
-            const bool runOk=network.runFeasibleImplicit<ImplicitParentChildCursor>(
+            const bool runOk=network.runFeasibleImplicitIndexed<ImplicitParentChildCursor>(
                 superSource,superSink,in.maximumAugmentations-augmentationCount,
                 roundAugmentations,sent,flowError,liveCandidateCount,
-                in.maximumAllowedEdges,nextImplicitParentChild,
-                onImplicitCandidateMaterialized,&implicitStats,&implicitProviderError,
+                in.maximumAllowedEdges,nextImplicitParentChild,beginImplicitBfs,
+                onImplicitDestinationDiscovered,onImplicitCandidateMaterialized,
+                &implicitStats,&implicitProviderError,
                 implicitMinimumPhase?"minimum":"maximum");
             augmentationCount+=roundAugmentations;
             perf.flowAugmentations=augmentationCount;
@@ -1930,6 +2020,7 @@ inline bool assembleSharedRealChildCapacity(
                 <<" bfs_phases="<<implicitStats.bfsPhases
                 <<" sink_depths="<<depthSummary.str()
                 <<" implicit_arc_offers="<<implicitStats.implicitArcOffers
+                <<" bfs_pruned_child_group_entries="<<implicitStats.bfsPrunedChildGroupEntries
                 <<" materialized_candidate_pairs="<<implicitStats.materializedCandidatePairs
                 <<" augmentations="<<roundAugmentations
                 <<" live_candidate_edges="<<pending.size()

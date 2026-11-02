@@ -1,0 +1,12 @@
+same-group repeated children, distinct source-point radius neighborhoods, and density/mass replay PASS
+residual forest reachable sink-path union, duplicate, empty and fail-closed controls PASS
+direct capacity greedy duplicate, parent/child shared budgets, final sink, and invalid-capacity controls PASS
+parallel reached-parent cross paths, prefix union, cycle/budget controls, exact maxflow/edge-flow parity PASS selected_cross_edges=2 selected_prefix_edges=2 sent=0.7
+one-best-candidate-per-positive-child frontier coverage and exact full-graph maxflow/child-flow parity PASS offered=480 retained=160 selected=160 child_targets=160
+widest-path omitted predecessor replaced by a better materialized edge; stale slot compacted PASS
+max-min widest residual path settles one best strict-positive route per node, treats positive-demand child as terminal, and matches full-graph maxflow PASS bottlenecks=0.7,0.5
+full strict-positive residual traversal covers lower-capacity paths, excludes zero arcs, and retains compensated sub-ULP residuals PASS high_threshold_edges=1 zero_threshold_edges=2 compensated_remaining=8.6736173798840355e-19
+positive-demand child terminal route, reverse-parent ancestry, parallel cross insertion, and exact maxflow parity PASS cross_edges=1 flow=0.69999999999999996
+maximum-phase ordinary-sink implicit residual forest PASS
+full implicit residual cut certificate and CSV roundtrip control PASS
+P028 implicit Dinic complete-flow and replay fixture PASS

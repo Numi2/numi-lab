@@ -553,6 +553,7 @@ struct EdgeIndexCompactionMap {
 struct ImplicitDinicStats {
     std::size_t bfsPhases = 0u;
     std::uint64_t implicitArcOffers = 0u;
+    std::uint64_t bfsPrunedChildGroupEntries = 0u;
     std::size_t materializedCandidatePairs = 0u;
     std::vector<std::int64_t> sinkDepths;
 };
@@ -1025,6 +1026,7 @@ public:
     // residual graph, while DFS enumerates each parent's omitted neighbors with
     // a caller-owned resumable cursor. A virtual arc is materialized only after
     // a complete positive-capacity source-to-sink path uses it.
+    // Preserve existing implicit-provider callers without discovery indices.
     template <typename ImplicitCursor, typename NextImplicit, typename OnMaterialize>
     bool runFeasibleImplicit(
             const std::uint32_t source, const std::uint32_t sink,
@@ -1032,6 +1034,29 @@ public:
             std::size_t& augmentationCount, double& sent, std::string& error,
             std::size_t& liveCandidateCount, const std::size_t maximumCandidateEdges,
             NextImplicit&& nextImplicit, OnMaterialize&& onMaterialize,
+            ImplicitDinicStats* outputStats=nullptr,
+            const std::string* providerError=nullptr,
+            const char* progressPhase=nullptr) {
+        const auto provider=[&](std::uint32_t from,ImplicitCursor& cursor,
+                std::uint32_t& to,double& capacity,double& cost,bool,const auto&){
+            return nextImplicit(from,cursor,to,capacity,cost);
+        };
+        const auto begin=[](){};
+        const auto discovered=[](std::uint32_t){return std::size_t{0u};};
+        return runFeasibleImplicitIndexed<ImplicitCursor>(source,sink,maximumAugmentations,
+            augmentationCount,sent,error,liveCandidateCount,maximumCandidateEdges,
+            provider,begin,discovered,onMaterialize,outputStats,providerError,progressPhase);
+    }
+
+    template <typename ImplicitCursor, typename NextImplicit, typename BeginImplicitBfs,
+              typename OnDiscover, typename OnMaterialize>
+    bool runFeasibleImplicitIndexed(
+            const std::uint32_t source, const std::uint32_t sink,
+            const std::size_t maximumAugmentations,
+            std::size_t& augmentationCount, double& sent, std::string& error,
+            std::size_t& liveCandidateCount, const std::size_t maximumCandidateEdges,
+            NextImplicit&& nextImplicit, BeginImplicitBfs&& beginImplicitBfs,
+            OnDiscover&& onDiscover, OnMaterialize&& onMaterialize,
             ImplicitDinicStats* outputStats=nullptr,
             const std::string* providerError=nullptr,
             const char* progressPhase=nullptr) {
@@ -1078,6 +1103,7 @@ public:
                     <<std::endl;
             std::fill(level.begin(),level.end(),-1);
             queue.clear();queue.push_back(source);level[source]=0;
+            beginImplicitBfs();
             for(std::size_t q=0;q<queue.size();++q){
                 const auto from=queue[q];
                 // Only nodes strictly before the shortest sink layer matter.
@@ -1085,16 +1111,25 @@ public:
                 for(const auto& edge:graph_[from]){
                     if(!hasPositiveCapacity(edge)||level[edge.to]>=0)continue;
                     level[edge.to]=level[from]+1;queue.push_back(edge.to);
+                    if(outputStats)outputStats->bfsPrunedChildGroupEntries+=onDiscover(edge.to);
+                    else (void)onDiscover(edge.to);
+                    if(providerFailed())return fail("implicit feasible-flow provider failed: "+*providerError);
                 }
                 ImplicitCursor cursor{};
                 std::uint32_t to=0u;double capacity=0.0,cost=0.0;
-                while(nextImplicit(from,cursor,to,capacity,cost)){
+                const auto destinationUnvisited=[&](std::uint32_t candidate){
+                    return candidate<n&&level[candidate]<0;
+                };
+                while(nextImplicit(from,cursor,to,capacity,cost,true,destinationUnvisited)){
                     if(outputStats)++outputStats->implicitArcOffers;
                     if(to>=n||to==from||!std::isfinite(capacity)||capacity<=0.0||
                        !std::isfinite(cost)||cost<0.0)
                         return fail("implicit feasible-flow provider returned an invalid arc");
                     if(level[to]>=0)continue;
                     level[to]=level[from]+1;queue.push_back(to);
+                    if(outputStats)outputStats->bfsPrunedChildGroupEntries+=onDiscover(to);
+                    else (void)onDiscover(to);
+                    if(providerFailed())return fail("implicit feasible-flow provider failed: "+*providerError);
                 }
                 if(providerFailed())
                     return fail("implicit feasible-flow provider failed: "+*providerError);
@@ -1107,6 +1142,7 @@ public:
                     <<" index="<<outputStats->bfsPhases
                     <<" sink_depth="<<level[sink]
                     <<" cumulative_implicit_offers="<<outputStats->implicitArcOffers
+                    <<" bfs_pruned_child_group_entries="<<outputStats->bfsPrunedChildGroupEntries
                     <<" materialized_pairs="<<outputStats->materializedCandidatePairs
                     <<" completed_augmentations="<<augmentationCount
                     <<" live_candidate_pairs="<<liveCandidateCount
@@ -1137,7 +1173,10 @@ public:
                     if(foundArc)continue;
                     if(implicitDone[from]==0u){
                         std::uint32_t to=0u;double capacity=0.0,cost=0.0;
-                        while(nextImplicit(from,implicitCursor[from],to,capacity,cost)){
+                        const auto destinationOnNextLevel=[&](std::uint32_t candidate){
+                            return candidate<n&&level[candidate]==level[from]+1;
+                        };
+                        while(nextImplicit(from,implicitCursor[from],to,capacity,cost,false,destinationOnNextLevel)){
                             if(outputStats)++outputStats->implicitArcOffers;
                             if(to>=n||to==from||!std::isfinite(capacity)||capacity<=0.0||
                                !std::isfinite(cost)||cost<0.0)
