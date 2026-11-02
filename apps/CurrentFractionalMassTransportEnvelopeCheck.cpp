@@ -154,6 +154,13 @@ int main(int argc,char** argv) {
     double resolved=0.0;
     const auto validCandidate=candidateJSON(geometryPath,geometrySHA,inputs,
         "0.187444","0.1874423157229725","0.187444");
+    double serializedBound=0.0;
+    run(envelopeDeclaredDistance(R"({"predeclared_transport_envelope_m":"0.187444"})","0.187444",serializedBound)&&serializedBound==0.187444,
+        "exact decimal string envelope from Python reader",failures);
+    run(!envelopeDeclaredDistance(R"({"predeclared_transport_envelope_m":"0.2"})","0.187444",serializedBound),
+        "changed string envelope rejected",failures);
+    run(!envelopeDeclaredDistance(R"({"predeclared_transport_envelope_m":"nan"})","nan",serializedBound),
+        "nonfinite string envelope rejected",failures);
     const bool currentReceiptPass=validateCurrentGeometryEnvelope(validCandidate,binding,0.187444,resolved,error)&&resolved==0.187444;
     run(currentReceiptPass,"synthetic pinned geometry receipt resolves authenticated cap",failures);
     if(!currentReceiptPass)std::cerr<<"synthetic receipt failure: "<<error<<"\n";
@@ -283,6 +290,14 @@ int main(int argc,char** argv) {
         std::cerr<<"usage: CurrentFractionalMassTransportEnvelopeCheck [receipt.json sha256]\n";
         std::filesystem::remove_all(fixtureDir,ec);return 2;
     }
+    run(observedDensityRangeWithinBounds(900,1100,899.99999999999932,1100.0000000000005),
+        "binary64 Skin extrema accepted without editing their values",failures);
+    run(observedDensityRangeWithinBounds(850,950,849.99999999999977,950.00000000000034),
+        "binary64 Fat extrema accepted without editing their values",failures);
+    run(!observedDensityRangeWithinBounds(900,1100,899.99,1100),"real density deficit rejects",failures);
+    run(!observedDensityRangeWithinBounds(900,1100,900,1100.01),"real density excess rejects",failures);
+    run(!observedDensityRangeWithinBounds(900,1100,1000,999),"reversed density range rejects",failures);
+    run(!observedDensityRangeWithinBounds(900,1100,std::numeric_limits<double>::quiet_NaN(),1000),"nonfinite density rejects",failures);
     std::cout<<"SUMMARY failures="<<failures<<"\n";
     std::filesystem::remove_all(fixtureDir,ec);
     return failures==0?0:1;

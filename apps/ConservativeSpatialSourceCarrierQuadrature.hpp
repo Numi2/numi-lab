@@ -746,6 +746,14 @@ inline bool aggregateCarrierResult(
         if(eb>=ee||ee>supplied.childParentRows.size())
             return fail("recorded source-carrier child row is empty or out of range");
         expanded.childParentOffsets[c]=static_cast<std::uint32_t>(expanded.childParentRows.size());
+        // Writer normalizes aggregate edge fractions by the rounded sum of aggregate
+        // measures. The exact sum of uncollapsed carrier pieces can differ by one ULP.
+        spatial_mass_transport_detail::ExactDoubleSum aggregateChildMeasure;
+        for(std::uint32_t edge=eb;edge<ee;++edge)
+            aggregateChildMeasure.add(supplied.childParentTransportMeasureM3[edge]);
+        const double fractionMeasure=aggregateChildMeasure.rounded();
+        if(!std::isfinite(fractionMeasure)||fractionMeasure<=0.0)
+            return fail("recorded source-carrier aggregate child measure is invalid");
         std::uint32_t priorParent=0u;
         for(std::uint32_t e=eb;e<ee;++e){
             const auto p=supplied.childParentRows[e];
@@ -756,7 +764,7 @@ inline bool aggregateCarrierResult(
             const auto ke=suppliedTrace.childParentCarrierOffsets[e+1u];
             if(kb>=ke||ke>suppliedTrace.childParentCarrierRows.size())
                 return fail("recorded source-carrier aggregate edge has no expanded carrier flow");
-            double massSum=0.0,measureSum=0.0;
+            spatial_mass_transport_detail::ExactDoubleSum massTotal,measureTotal;
             long double weightedEdgeDistance=0.0L;
             std::uint32_t previousVirtual=0u;
             for(std::uint32_t k=kb;k<ke;++k){
@@ -790,7 +798,7 @@ inline bool aggregateCarrierResult(
                 if(actualDistance!=distance||actualDistance>input.maximumTransportDistanceM||
                    measure!=expectedMeasure)
                     return fail("recorded source-carrier edge distance or source measure differs from current inputs");
-                massSum+=mass;measureSum+=measure;
+                massTotal.add(mass);measureTotal.add(measure);
                 weightedEdgeDistance+=static_cast<long double>(mass)*distance;
                 actualParentMass[v]+=mass;actualParentMeasure[v]+=measure;
                 expanded.childParentRows.push_back(v);
@@ -809,11 +817,12 @@ inline bool aggregateCarrierResult(
                 maximumDistance=std::max(maximumDistance,distance);
                 weightedDistance+=static_cast<long double>(mass)*distance;totalMass+=mass;
             }
+            const double massSum=massTotal.rounded(),measureSum=measureTotal.rounded();
             if(massSum!=supplied.childParentTransportMassKg[e]||
                measureSum!=supplied.childParentTransportMeasureM3[e]||
                static_cast<double>(weightedEdgeDistance/massSum)!=supplied.childParentTransportDistanceM[e])
                 return fail("recorded source-carrier aggregate edge differs from its carrier rows");
-            const double fraction=measureSum/supplied.childAncestryMeasureVolumeM3[c];
+            const double fraction=measureSum/fractionMeasure;
             if(supplied.childParentVolumeFractions[e]!=fraction)
                 return fail("recorded source-carrier aggregate measure fraction differs from its flow rows");
         }
@@ -847,18 +856,15 @@ inline bool aggregateCarrierResult(
     expanded.maximumAllowedEdges=expandedInput.maximumAllowedEdges;
     expanded.maximumAugmentations=expandedInput.maximumAugmentations;
 
-    std::vector<spatial_mass_transport_detail::ExactDoubleSum> childMassSums(nc),childMeasureSums(nc);
-    for(std::size_t e=0;e<expanded.childParentRows.size();++e){
-        const auto c=static_cast<std::size_t>(std::upper_bound(expanded.childParentOffsets.begin(),
-            expanded.childParentOffsets.end(),static_cast<std::uint32_t>(e))-expanded.childParentOffsets.begin()-1u);
-        childMassSums[c].add(expanded.childParentTransportMassKg[e]);
-        childMeasureSums[c].add(expanded.childParentTransportMeasureM3[e]);
-    }
+    // Recreate the allocator's canonical expanded-CSR child summary order.
+    // Edge collapse uses ExactDoubleSum, but the source allocator's physical
+    // child mass, measure and semantic fractions use this scalar flow order.
     std::vector<double> computedChildMass(nc,0.0),computedChildMeasure(nc,0.0);
-    for(std::size_t c=0;c<nc;++c){
-        computedChildMass[c]=childMassSums[c].rounded();
-        computedChildMeasure[c]=childMeasureSums[c].rounded();
-    }
+    for(std::size_t c=0;c<nc;++c)
+        for(std::uint32_t e=expanded.childParentOffsets[c];e<expanded.childParentOffsets[c+1u];++e){
+            computedChildMass[c]+=expanded.childParentTransportMassKg[e];
+            computedChildMeasure[c]+=expanded.childParentTransportMeasureM3[e];
+        }
     expanded.childMassKg=computedChildMass;
     expanded.childAncestryMeasureVolumeM3=computedChildMeasure;
     expanded.childImpliedDensityKgM3.resize(nc);
@@ -880,8 +886,10 @@ inline bool aggregateCarrierResult(
         }
         const auto material=input.childMaterialIndices[c];
         const double density=computedChildMass[c]/input.childReferenceVolumeM3[c];
-        if(!std::isfinite(density)||density<input.materialDensityLowerKgM3[material]-1.0e-7||
-           density>input.materialDensityUpperKgM3[material]+1.0e-7)
+        if(!std::isfinite(density)||density<input.materialDensityLowerKgM3[material]-spatial_mass_transport_detail::densityBoundRoundoff(
+               input.materialDensityLowerKgM3[material],input.materialDensityUpperKgM3[material],density)||
+           density>input.materialDensityUpperKgM3[material]+spatial_mass_transport_detail::densityBoundRoundoff(
+               input.materialDensityLowerKgM3[material],input.materialDensityUpperKgM3[material],density))
             return fail("recorded source-carrier child density is outside actual material bounds");
         expanded.childImpliedDensityKgM3[c]=density;
         minimumDensity=std::min(minimumDensity,density);maximumDensity=std::max(maximumDensity,density);

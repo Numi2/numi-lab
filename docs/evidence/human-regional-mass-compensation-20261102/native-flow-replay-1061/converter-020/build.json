@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/usr/bin/clang++",
+    "-std=c++20",
+    "-O3",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-DNUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1",
+    "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+    "-I/Users/numi/Work/current-fractional-020-publication-20261101/apps",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/source/apps",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/matter/include",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/publication-140/dependencies/include",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include",
+    "-MMD",
+    "-MF",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/converter.d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/convert_current_fractional_combined_flow_envelope_002.cpp",
+    "-lz",
+    "-o",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/converter"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 3.989384889602661,
+  "stderr": ""
+}

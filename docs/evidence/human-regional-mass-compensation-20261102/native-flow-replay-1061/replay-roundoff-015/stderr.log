@@ -1,0 +1,193 @@
+shared_capacity_progress phase=before_run_feasible stage=initial_flow seed_edges=4 cut_rounds=0 cut_edges_added=0 augment_calls=1 prior_flow_augmentations=0
+implicit_dinic_bfs_start phase=minimum index=1 live_candidate_pairs=4 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=minimum index=1 sink_depth=3 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=4
+implicit_dinic_bfs_start phase=minimum index=2 live_candidate_pairs=4 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=3
+implicit_dinic_bfs_end phase=minimum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=3 live_candidate_pairs=4
+shared_capacity_implicit_dinic stage=initial_flow phase=minimum result=complete bfs_phases=2 sink_depths=3,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=3 materialized_candidate_pairs=0 augmentations=3 live_candidate_edges=4
+shared_capacity_candidate_compaction call=1 active_candidate_edges_before=4 active_candidate_edges_after=3 removed_pair_events=1 cumulative_removed_pair_events=1 directed_edges_before=20 directed_edges_after=18 candidate_pair_insertions_not_unique=4
+shared_capacity_progress phase=before_run_feasible stage=maximum_flow seed_edges=4 cut_rounds=0 cut_edges_added=0 augment_calls=2 prior_flow_augmentations=3
+implicit_dinic_bfs_start phase=maximum index=1 live_candidate_pairs=3 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=maximum index=1 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=0 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=3
+shared_capacity_implicit_dinic stage=maximum_flow phase=maximum result=complete bfs_phases=1 sink_depths=-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=0 materialized_candidate_pairs=0 augmentations=0 live_candidate_edges=3
+shared_capacity_candidate_compaction call=2 active_candidate_edges_before=3 active_candidate_edges_after=3 removed_pair_events=0 cumulative_removed_pair_events=1 directed_edges_before=26 directed_edges_after=26 candidate_pair_insertions_not_unique=4
+shared_capacity_perf stage=complete seed_edges=4 cut_rounds=0 cut_edges_added=0 augment_calls=2 flow_augmentations=3
+shared_capacity_perf stage=support_validation seed_edges=0 cut_rounds=0 cut_edges_added=0 augment_calls=0 flow_augmentations=0
+shared_capacity_perf stage=support_validation seed_edges=0 cut_rounds=0 cut_edges_added=0 augment_calls=0 flow_augmentations=0
+shared_capacity_perf stage=support_validation seed_edges=0 cut_rounds=0 cut_edges_added=0 augment_calls=0 flow_augmentations=0
+shared_capacity_progress phase=before_run_feasible stage=initial_flow seed_edges=4 cut_rounds=0 cut_edges_added=0 augment_calls=1 prior_flow_augmentations=0
+implicit_dinic_bfs_start phase=minimum index=1 live_candidate_pairs=4 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=minimum index=1 sink_depth=3 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=4
+implicit_dinic_bfs_start phase=minimum index=2 live_candidate_pairs=4 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=3
+implicit_dinic_bfs_end phase=minimum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=3 live_candidate_pairs=4
+shared_capacity_implicit_dinic stage=initial_flow phase=minimum result=complete bfs_phases=2 sink_depths=3,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=3 materialized_candidate_pairs=0 augmentations=3 live_candidate_edges=4
+shared_capacity_candidate_compaction call=1 active_candidate_edges_before=4 active_candidate_edges_after=3 removed_pair_events=1 cumulative_removed_pair_events=1 directed_edges_before=20 directed_edges_after=18 candidate_pair_insertions_not_unique=4
+shared_capacity_progress phase=before_run_feasible stage=maximum_flow seed_edges=4 cut_rounds=0 cut_edges_added=0 augment_calls=2 prior_flow_augmentations=3
+implicit_dinic_bfs_start phase=maximum index=1 live_candidate_pairs=3 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=maximum index=1 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=0 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=3
+shared_capacity_implicit_dinic stage=maximum_flow phase=maximum result=complete bfs_phases=1 sink_depths=-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=0 materialized_candidate_pairs=0 augmentations=0 live_candidate_edges=3
+shared_capacity_candidate_compaction call=2 active_candidate_edges_before=3 active_candidate_edges_after=3 removed_pair_events=0 cumulative_removed_pair_events=1 directed_edges_before=26 directed_edges_after=26 candidate_pair_insertions_not_unique=4
+shared_capacity_perf stage=complete seed_edges=4 cut_rounds=0 cut_edges_added=0 augment_calls=2 flow_augmentations=3
+shared_capacity_progress phase=before_run_feasible stage=initial_flow seed_edges=5 cut_rounds=0 cut_edges_added=0 augment_calls=1 prior_flow_augmentations=0
+implicit_dinic_bfs_start phase=minimum index=1 live_candidate_pairs=5 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=minimum index=1 sink_depth=3 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=5
+implicit_dinic_bfs_start phase=minimum index=2 live_candidate_pairs=5 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=4
+implicit_dinic_bfs_end phase=minimum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=4 live_candidate_pairs=5
+shared_capacity_implicit_dinic stage=initial_flow phase=minimum result=complete bfs_phases=2 sink_depths=3,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=3 materialized_candidate_pairs=0 augmentations=4 live_candidate_edges=5
+shared_capacity_candidate_compaction call=1 active_candidate_edges_before=5 active_candidate_edges_after=4 removed_pair_events=1 cumulative_removed_pair_events=1 directed_edges_before=24 directed_edges_after=22 candidate_pair_insertions_not_unique=5
+shared_capacity_progress phase=before_run_feasible stage=maximum_flow seed_edges=5 cut_rounds=0 cut_edges_added=0 augment_calls=2 prior_flow_augmentations=4
+implicit_dinic_bfs_start phase=maximum index=1 live_candidate_pairs=4 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=maximum index=1 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=0 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=4
+shared_capacity_implicit_dinic stage=maximum_flow phase=maximum result=complete bfs_phases=1 sink_depths=-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=0 materialized_candidate_pairs=0 augmentations=0 live_candidate_edges=4
+shared_capacity_candidate_compaction call=2 active_candidate_edges_before=4 active_candidate_edges_after=4 removed_pair_events=0 cumulative_removed_pair_events=1 directed_edges_before=30 directed_edges_after=30 candidate_pair_insertions_not_unique=5
+shared_capacity_perf stage=complete seed_edges=5 cut_rounds=0 cut_edges_added=0 augment_calls=2 flow_augmentations=4
+shared_capacity_progress phase=before_run_feasible stage=initial_flow seed_edges=6 cut_rounds=0 cut_edges_added=0 augment_calls=1 prior_flow_augmentations=0
+implicit_dinic_bfs_start phase=minimum index=1 live_candidate_pairs=6 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=minimum index=1 sink_depth=3 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=6
+implicit_dinic_bfs_start phase=minimum index=2 live_candidate_pairs=6 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=7
+implicit_dinic_bfs_end phase=minimum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=6 materialized_pairs=0 completed_augmentations=7 live_candidate_pairs=6
+shared_capacity_implicit_dinic stage=initial_flow phase=minimum result=complete bfs_phases=2 sink_depths=3,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=6 materialized_candidate_pairs=0 augmentations=7 live_candidate_edges=6
+shared_capacity_candidate_compaction call=1 active_candidate_edges_before=6 active_candidate_edges_after=6 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=28 directed_edges_after=28 candidate_pair_insertions_not_unique=6
+shared_capacity_progress phase=before_run_feasible stage=maximum_flow seed_edges=6 cut_rounds=0 cut_edges_added=0 augment_calls=2 prior_flow_augmentations=7
+implicit_dinic_bfs_start phase=maximum index=1 live_candidate_pairs=6 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=maximum index=1 sink_depth=4 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=6
+implicit_dinic_bfs_start phase=maximum index=2 live_candidate_pairs=6 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=2
+implicit_dinic_bfs_end phase=maximum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=2 live_candidate_pairs=6
+shared_capacity_implicit_dinic stage=maximum_flow phase=maximum result=complete bfs_phases=2 sink_depths=4,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=3 materialized_candidate_pairs=0 augmentations=2 live_candidate_edges=6
+shared_capacity_candidate_compaction call=2 active_candidate_edges_before=6 active_candidate_edges_after=6 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=36 directed_edges_after=36 candidate_pair_insertions_not_unique=6
+shared_capacity_perf stage=complete seed_edges=6 cut_rounds=0 cut_edges_added=0 augment_calls=2 flow_augmentations=9
+shared_capacity_progress phase=before_run_feasible stage=initial_flow seed_edges=7 cut_rounds=0 cut_edges_added=0 augment_calls=1 prior_flow_augmentations=0
+implicit_dinic_bfs_start phase=minimum index=1 live_candidate_pairs=7 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=minimum index=1 sink_depth=3 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=7
+implicit_dinic_bfs_start phase=minimum index=2 live_candidate_pairs=7 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=7
+implicit_dinic_bfs_end phase=minimum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=6 materialized_pairs=0 completed_augmentations=7 live_candidate_pairs=7
+shared_capacity_implicit_dinic stage=initial_flow phase=minimum result=complete bfs_phases=2 sink_depths=3,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=6 materialized_candidate_pairs=0 augmentations=7 live_candidate_edges=7
+shared_capacity_candidate_compaction call=1 active_candidate_edges_before=7 active_candidate_edges_after=7 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=32 directed_edges_after=32 candidate_pair_insertions_not_unique=7
+shared_capacity_progress phase=before_run_feasible stage=maximum_flow seed_edges=7 cut_rounds=0 cut_edges_added=0 augment_calls=2 prior_flow_augmentations=7
+implicit_dinic_bfs_start phase=maximum index=1 live_candidate_pairs=7 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=maximum index=1 sink_depth=4 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=7
+implicit_dinic_bfs_start phase=maximum index=2 live_candidate_pairs=7 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=2
+implicit_dinic_bfs_end phase=maximum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=2 live_candidate_pairs=7
+shared_capacity_implicit_dinic stage=maximum_flow phase=maximum result=complete bfs_phases=2 sink_depths=4,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=3 materialized_candidate_pairs=0 augmentations=2 live_candidate_edges=7
+shared_capacity_candidate_compaction call=2 active_candidate_edges_before=7 active_candidate_edges_after=7 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=40 directed_edges_after=40 candidate_pair_insertions_not_unique=7
+shared_capacity_perf stage=complete seed_edges=7 cut_rounds=0 cut_edges_added=0 augment_calls=2 flow_augmentations=9
+shared_capacity_progress phase=before_run_feasible stage=initial_flow seed_edges=8 cut_rounds=0 cut_edges_added=0 augment_calls=1 prior_flow_augmentations=0
+implicit_dinic_bfs_start phase=minimum index=1 live_candidate_pairs=8 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=minimum index=1 sink_depth=3 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=8
+implicit_dinic_bfs_start phase=minimum index=2 live_candidate_pairs=8 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=9
+implicit_dinic_bfs_end phase=minimum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=6 materialized_pairs=0 completed_augmentations=9 live_candidate_pairs=8
+shared_capacity_implicit_dinic stage=initial_flow phase=minimum result=complete bfs_phases=2 sink_depths=3,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=6 materialized_candidate_pairs=0 augmentations=9 live_candidate_edges=8
+shared_capacity_candidate_compaction call=1 active_candidate_edges_before=8 active_candidate_edges_after=8 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=36 directed_edges_after=36 candidate_pair_insertions_not_unique=8
+shared_capacity_progress phase=before_run_feasible stage=maximum_flow seed_edges=8 cut_rounds=0 cut_edges_added=0 augment_calls=2 prior_flow_augmentations=9
+implicit_dinic_bfs_start phase=maximum index=1 live_candidate_pairs=8 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=maximum index=1 sink_depth=4 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=8
+implicit_dinic_bfs_start phase=maximum index=2 live_candidate_pairs=8 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=3
+implicit_dinic_bfs_end phase=maximum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=3 live_candidate_pairs=8
+shared_capacity_implicit_dinic stage=maximum_flow phase=maximum result=complete bfs_phases=2 sink_depths=4,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=3 materialized_candidate_pairs=0 augmentations=3 live_candidate_edges=8
+shared_capacity_candidate_compaction call=2 active_candidate_edges_before=8 active_candidate_edges_after=8 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=44 directed_edges_after=44 candidate_pair_insertions_not_unique=8
+shared_capacity_perf stage=complete seed_edges=8 cut_rounds=0 cut_edges_added=0 augment_calls=2 flow_augmentations=12
+shared_capacity_progress phase=before_run_feasible stage=initial_flow seed_edges=9 cut_rounds=0 cut_edges_added=0 augment_calls=1 prior_flow_augmentations=0
+implicit_dinic_bfs_start phase=minimum index=1 live_candidate_pairs=9 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=minimum index=1 sink_depth=3 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=9
+implicit_dinic_bfs_start phase=minimum index=2 live_candidate_pairs=9 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=9
+implicit_dinic_bfs_end phase=minimum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=6 materialized_pairs=0 completed_augmentations=9 live_candidate_pairs=9
+shared_capacity_implicit_dinic stage=initial_flow phase=minimum result=complete bfs_phases=2 sink_depths=3,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=6 materialized_candidate_pairs=0 augmentations=9 live_candidate_edges=9
+shared_capacity_candidate_compaction call=1 active_candidate_edges_before=9 active_candidate_edges_after=9 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=40 directed_edges_after=40 candidate_pair_insertions_not_unique=9
+shared_capacity_progress phase=before_run_feasible stage=maximum_flow seed_edges=9 cut_rounds=0 cut_edges_added=0 augment_calls=2 prior_flow_augmentations=9
+implicit_dinic_bfs_start phase=maximum index=1 live_candidate_pairs=9 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=maximum index=1 sink_depth=4 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=9
+implicit_dinic_bfs_start phase=maximum index=2 live_candidate_pairs=9 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=2
+implicit_dinic_bfs_end phase=maximum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=2 live_candidate_pairs=9
+shared_capacity_implicit_dinic stage=maximum_flow phase=maximum result=complete bfs_phases=2 sink_depths=4,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=3 materialized_candidate_pairs=0 augmentations=2 live_candidate_edges=9
+shared_capacity_candidate_compaction call=2 active_candidate_edges_before=9 active_candidate_edges_after=9 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=48 directed_edges_after=48 candidate_pair_insertions_not_unique=9
+shared_capacity_perf stage=complete seed_edges=9 cut_rounds=0 cut_edges_added=0 augment_calls=2 flow_augmentations=11
+shared_capacity_progress phase=before_run_feasible stage=initial_flow seed_edges=10 cut_rounds=0 cut_edges_added=0 augment_calls=1 prior_flow_augmentations=0
+implicit_dinic_bfs_start phase=minimum index=1 live_candidate_pairs=10 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=minimum index=1 sink_depth=3 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=10
+implicit_dinic_bfs_start phase=minimum index=2 live_candidate_pairs=10 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=10
+implicit_dinic_bfs_end phase=minimum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=6 materialized_pairs=0 completed_augmentations=10 live_candidate_pairs=10
+shared_capacity_implicit_dinic stage=initial_flow phase=minimum result=complete bfs_phases=2 sink_depths=3,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=6 materialized_candidate_pairs=0 augmentations=10 live_candidate_edges=10
+shared_capacity_candidate_compaction call=1 active_candidate_edges_before=10 active_candidate_edges_after=10 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=44 directed_edges_after=44 candidate_pair_insertions_not_unique=10
+shared_capacity_progress phase=before_run_feasible stage=maximum_flow seed_edges=10 cut_rounds=0 cut_edges_added=0 augment_calls=2 prior_flow_augmentations=10
+implicit_dinic_bfs_start phase=maximum index=1 live_candidate_pairs=10 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=maximum index=1 sink_depth=4 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=10
+implicit_dinic_bfs_start phase=maximum index=2 live_candidate_pairs=10 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=2
+implicit_dinic_bfs_end phase=maximum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=2 live_candidate_pairs=10
+shared_capacity_implicit_dinic stage=maximum_flow phase=maximum result=complete bfs_phases=2 sink_depths=4,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=3 materialized_candidate_pairs=0 augmentations=2 live_candidate_edges=10
+shared_capacity_candidate_compaction call=2 active_candidate_edges_before=10 active_candidate_edges_after=10 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=52 directed_edges_after=52 candidate_pair_insertions_not_unique=10
+shared_capacity_perf stage=complete seed_edges=10 cut_rounds=0 cut_edges_added=0 augment_calls=2 flow_augmentations=12
+shared_capacity_progress phase=before_run_feasible stage=initial_flow seed_edges=11 cut_rounds=0 cut_edges_added=0 augment_calls=1 prior_flow_augmentations=0
+implicit_dinic_bfs_start phase=minimum index=1 live_candidate_pairs=11 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=minimum index=1 sink_depth=3 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=11
+implicit_dinic_bfs_start phase=minimum index=2 live_candidate_pairs=11 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=11
+implicit_dinic_bfs_end phase=minimum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=6 materialized_pairs=0 completed_augmentations=11 live_candidate_pairs=11
+shared_capacity_implicit_dinic stage=initial_flow phase=minimum result=complete bfs_phases=2 sink_depths=3,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=6 materialized_candidate_pairs=0 augmentations=11 live_candidate_edges=11
+shared_capacity_candidate_compaction call=1 active_candidate_edges_before=11 active_candidate_edges_after=11 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=48 directed_edges_after=48 candidate_pair_insertions_not_unique=11
+shared_capacity_progress phase=before_run_feasible stage=maximum_flow seed_edges=11 cut_rounds=0 cut_edges_added=0 augment_calls=2 prior_flow_augmentations=11
+implicit_dinic_bfs_start phase=maximum index=1 live_candidate_pairs=11 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=maximum index=1 sink_depth=4 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=11
+implicit_dinic_bfs_start phase=maximum index=2 live_candidate_pairs=11 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=2
+implicit_dinic_bfs_end phase=maximum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=2 live_candidate_pairs=11
+shared_capacity_implicit_dinic stage=maximum_flow phase=maximum result=complete bfs_phases=2 sink_depths=4,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=3 materialized_candidate_pairs=0 augmentations=2 live_candidate_edges=11
+shared_capacity_candidate_compaction call=2 active_candidate_edges_before=11 active_candidate_edges_after=11 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=56 directed_edges_after=56 candidate_pair_insertions_not_unique=11
+shared_capacity_perf stage=complete seed_edges=11 cut_rounds=0 cut_edges_added=0 augment_calls=2 flow_augmentations=13
+shared_capacity_progress phase=before_run_feasible stage=initial_flow seed_edges=12 cut_rounds=0 cut_edges_added=0 augment_calls=1 prior_flow_augmentations=0
+implicit_dinic_bfs_start phase=minimum index=1 live_candidate_pairs=12 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=minimum index=1 sink_depth=3 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=12
+implicit_dinic_bfs_start phase=minimum index=2 live_candidate_pairs=12 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=12
+implicit_dinic_bfs_end phase=minimum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=6 materialized_pairs=0 completed_augmentations=12 live_candidate_pairs=12
+shared_capacity_implicit_dinic stage=initial_flow phase=minimum result=complete bfs_phases=2 sink_depths=3,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=6 materialized_candidate_pairs=0 augmentations=12 live_candidate_edges=12
+shared_capacity_candidate_compaction call=1 active_candidate_edges_before=12 active_candidate_edges_after=12 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=52 directed_edges_after=52 candidate_pair_insertions_not_unique=12
+shared_capacity_progress phase=before_run_feasible stage=maximum_flow seed_edges=12 cut_rounds=0 cut_edges_added=0 augment_calls=2 prior_flow_augmentations=12
+implicit_dinic_bfs_start phase=maximum index=1 live_candidate_pairs=12 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=maximum index=1 sink_depth=4 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=12
+implicit_dinic_bfs_start phase=maximum index=2 live_candidate_pairs=12 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=3
+implicit_dinic_bfs_end phase=maximum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=3 live_candidate_pairs=12
+shared_capacity_implicit_dinic stage=maximum_flow phase=maximum result=complete bfs_phases=2 sink_depths=4,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=3 materialized_candidate_pairs=0 augmentations=3 live_candidate_edges=12
+shared_capacity_candidate_compaction call=2 active_candidate_edges_before=12 active_candidate_edges_after=12 removed_pair_events=0 cumulative_removed_pair_events=0 directed_edges_before=60 directed_edges_after=60 candidate_pair_insertions_not_unique=12
+shared_capacity_perf stage=complete seed_edges=12 cut_rounds=0 cut_edges_added=0 augment_calls=2 flow_augmentations=15
+shared_capacity_progress phase=before_run_feasible stage=initial_flow seed_edges=13 cut_rounds=0 cut_edges_added=0 augment_calls=1 prior_flow_augmentations=0
+implicit_dinic_bfs_start phase=minimum index=1 live_candidate_pairs=13 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=minimum index=1 sink_depth=3 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=13
+implicit_dinic_bfs_start phase=minimum index=2 live_candidate_pairs=13 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=12
+implicit_dinic_bfs_end phase=minimum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=6 materialized_pairs=0 completed_augmentations=12 live_candidate_pairs=13
+shared_capacity_implicit_dinic stage=initial_flow phase=minimum result=complete bfs_phases=2 sink_depths=3,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=6 materialized_candidate_pairs=0 augmentations=12 live_candidate_edges=13
+shared_capacity_candidate_compaction call=1 active_candidate_edges_before=13 active_candidate_edges_after=12 removed_pair_events=1 cumulative_removed_pair_events=1 directed_edges_before=56 directed_edges_after=54 candidate_pair_insertions_not_unique=13
+shared_capacity_progress phase=before_run_feasible stage=maximum_flow seed_edges=13 cut_rounds=0 cut_edges_added=0 augment_calls=2 prior_flow_augmentations=12
+implicit_dinic_bfs_start phase=maximum index=1 live_candidate_pairs=12 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=0
+implicit_dinic_bfs_end phase=maximum index=1 sink_depth=4 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=0 live_candidate_pairs=12
+implicit_dinic_bfs_start phase=maximum index=2 live_candidate_pairs=12 prior_implicit_offers=0 materialized_pairs=0 completed_augmentations=2
+implicit_dinic_bfs_end phase=maximum index=2 sink_depth=-1 cumulative_implicit_offers=0 bfs_pruned_child_group_entries=3 materialized_pairs=0 completed_augmentations=2 live_candidate_pairs=12
+shared_capacity_implicit_dinic stage=maximum_flow phase=maximum result=complete bfs_phases=2 sink_depths=4,-1 implicit_arc_offers=0 bfs_pruned_child_group_entries=3 materialized_candidate_pairs=0 augmentations=2 live_candidate_edges=12
+shared_capacity_candidate_compaction call=2 active_candidate_edges_before=12 active_candidate_edges_after=12 removed_pair_events=0 cumulative_removed_pair_events=1 directed_edges_before=62 directed_edges_after=62 candidate_pair_insertions_not_unique=13
+shared_capacity_perf stage=maximum_flow seed_edges=13 cut_rounds=1 cut_edges_added=0 augment_calls=2 flow_augmentations=14
+unequal carrier replay count=10: INFEASIBLE full admissible shared-capacity graph cannot transfer all source mass within child maximum densities full_implicit_residual_closure=exhausted no_augmenting_path=1 stage=maximum_flow sent_kg=2.8181818181818183 residual_source_kg=0.18181818181818121 supply_kg=2.9999999999999996 density_min_kg=2.7000000000000002 density_max_kg=6 cut_reachable_parent_rows=1 cut_reachable_child_rows=0 implicit_parent_child_pairs_examined=0 exact_eligible_omitted_pairs=0 capacity_threshold_initial_kg=0.125 capacity_threshold_cached_prior_kg=0 capacity_search_threshold_kg=0 capacity_threshold_levels_tested=17 capacity_threshold_pairs_examined=0 zero_threshold_fallback=1 cut_mask=sha256=8d34eb341020f0a6f5f8a6bbc58dd9e7be77aa3e0af0a11111a6b51579218c46,parent_runs=1,child_runs=0 residual_child_witnesses={witness_count=3 child=0,material=15,donor=1,region=10,xyz=0.050000000000000003:0:0,residual_kg=1.1000000000000001,groups=1,exact_parents=1,reached_exact_parents=0,reached_child=0,nearest_parent=0,nearest_distance_m=0.099999999999999992,nearest_parent_initial_kg=1; child=2,material=15,donor=1,region=10,xyz=0.29999999999999999:0:0,residual_kg=1.081818181818182,groups=2,exact_parents=11,reached_exact_parents=1,reached_child=0,nearest_parent=0,nearest_distance_m=0.14999999999999999,nearest_parent_initial_kg=1; child=1,material=15,donor=1,region=15,xyz=0.10000000000000001:0:0,residual_kg=1,groups=1,exact_parents=1,reached_exact_parents=0,reached_child=0,nearest_parent=1,nearest_distance_m=0,nearest_parent_initial_kg=1;}
+shared_capacity_full_cut_begin schema=numi.h706.full-implicit-residual-cut.v1 phase=maximum_flow input_parent_mass_sha256=dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd input_parent_source_sha256=dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd input_child_mesh_sha256=dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd input_region_sha256=dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd input_coordinate_frame_sha256=dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd typed_support_sha256=ba51fc5a02bbbaa6e58e40e423c2b08148bd0f70e632c2d581770d02509429bc semantic_support_sha256=b5310ac51ed58dfd8cb1ebcc2b4aa58468f612564753e7c6b462b10ed66fea20 parent_numeric_sha256=4011c9fb170a9cd28fa97fe0ee36e0c8151590d92d302cae6f4dcb8aeb9c8d2e child_numeric_sha256=a0404d65d3c5044a3cbb485dcd849d79f873499f6b6fa1eaf531dfeb5e75b3d3 bounds_numeric_sha256=0109eb5fae05eed9376200b66ca8643222be7b85a3bd3a0159662a6274fa838a parent_count=12 child_count=3 exact_group_count=3 reached_parent_count=1 reached_child_count=0 implicit_pairs_examined=0 exact_eligible_omitted_pairs=0 residual_child_rows=3 residual_child_kg=3.1818181818181821 unreachable_residual_child_rows=3 unreachable_residual_child_kg=3.1818181818181821 sent_kg=2.8181818181818183 residual_source_kg=0.18181818181818121 supply_kg=2.9999999999999996 lower_kg=2.7000000000000002 upper_kg=6 cut_capacity_kg=2.8181818181818179 cut_capacity_minus_flow_kg=-4.4408920985006262e-16 cut_source_edges=11 cut_source_capacity_kg=2.8181818181818179 cut_parent_child_edges=0 cut_parent_child_capacity_kg=0 cut_minimum_edges=0 cut_minimum_capacity_kg=0 cut_maximum_edges=0 cut_maximum_capacity_kg=0 cut_final_edges=0 cut_final_capacity_kg=0 mask_encoding=hex_lsb_first_index_order_parent_then_child parent_mask_hex=0008 child_mask_hex=00
+group_summary_csv_begin
+group,material,donor,region,identity,parent_rows,reached_parent_rows,residual_source_kg
+0,15,1,10,9223372036854775824,1,0,0
+1,15,1,15,9223372036854775825,1,0,0
+2,15,1,20,9223372036854775826,10,1,0.18181818181818182
+group_summary_csv_end
+parent_group_rows_csv_begin
+parent,group,material,donor,region,x,y,z,reached,initial_mass_kg,residual_source_kg,source_parent_tet_rows,source_stable_face_rows
+0,0,15,1,10,0.14999999999999999,0,0,0,1,0,"0","501"
+1,1,15,1,15,0.10000000000000001,0,0,0,1,0,"1","502"
+2,2,15,1,20,0,0,0,0,0.018181818181818181,0,"2;3;4;5;6;7;8;9;10;11","503"
+3,2,15,1,20,0,0,0,0,0.036363636363636362,0,"2;3;4;5;6;7;8;9;10;11","503"
+4,2,15,1,20,0,0,0,0,0.054545454545454543,0,"2;3;4;5;6;7;8;9;10;11","503"
+5,2,15,1,20,0,0,0,0,0.072727272727272724,0,"2;3;4;5;6;7;8;9;10;11","503"
+6,2,15,1,20,0,0,0,0,0.090909090909090912,0,"2;3;4;5;6;7;8;9;10;11","503"
+7,2,15,1,20,0,0,0,0,0.10909090909090909,0,"2;3;4;5;6;7;8;9;10;11","503"
+8,2,15,1,20,0,0,0,0,0.12727272727272726,0,"2;3;4;5;6;7;8;9;10;11","503"
+9,2,15,1,20,0,0,0,0,0.14545454545454545,0,"2;3;4;5;6;7;8;9;10;11","503"
+10,2,15,1,20,0,0,0,0,0.16363636363636364,0,"2;3;4;5;6;7;8;9;10;11","503"
+11,2,15,1,20,0,0,0,1,0.18181818181818182,0.18181818181818182,"2;3;4;5;6;7;8;9;10;11","503"
+parent_group_rows_csv_end
+residual_child_rows_csv_begin
+child,material,donor,region,x,y,z,residual_kg,reachable,admissible_groups
+0,15,1,10,0.050000000000000003,0,0,1.1000000000000001,0,"0:15:1:10:1"
+1,15,1,15,0.10000000000000001,0,0,1,0,"1:15:1:15:1"
+2,15,1,10,0.29999999999999999,0,0,1.081818181818182,0,"0:15:1:10:1;2:15:1:20:0"
+residual_child_rows_csv_end
+shared_capacity_full_cut_end
+

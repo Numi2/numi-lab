@@ -1,0 +1,40 @@
+PASS exact decimal string envelope from Python reader
+PASS changed string envelope rejected
+PASS nonfinite string envelope rejected
+PASS synthetic pinned geometry receipt resolves authenticated cap
+PASS alternate SHA-pinned geometry envelope receipt and boundary pass
+PASS root and nested 13-key input_sha256 maps are read at their own scopes
+PASS duplicate top-level input_sha256 rejects
+PASS legacy candidate shape remains exact
+PASS legacy candidate rejected in envelope mode
+PASS envelope candidate rejected in legacy mode
+PASS legacy strict 0.019353 m cap remains supported
+PASS legacy CSV row at strict 0.019353 m cap passes
+PASS legacy CSV row above strict 0.019353 m cap rejects
+PASS legacy mode rejects any other cap
+PASS legacy mode rejects a recorded distance above its cap
+PASS both envelope vars absent selects strict legacy cap
+PASS half-present envelope environment rejects
+PASS both envelope vars present selects pinned dynamic mode
+PASS legacy mode rejects dynamic cap without receipt
+PASS alternate authenticated envelope value and exact boundary pass
+PASS stage import cap mismatch rejects
+PASS mass receipt cap mismatch rejects
+PASS NaN configured cap rejects
+PASS infinite envelope cap rejects
+PASS nonpositive exact decimal rejects
+PASS used distance above cap rejects
+PASS CSV row distance exactly at envelope passes
+PASS CSV row distance above envelope rejects
+PASS CSV row NaN distance rejects
+PASS CSV row rejects nonpositive configured envelope
+PASS stale geometry input hash rejects
+PASS live stage input SHA mismatch rejects
+PASS runtime import configuration cap mismatch rejects
+PASS binary64 Skin extrema accepted without editing their values
+PASS binary64 Fat extrema accepted without editing their values
+PASS real density deficit rejects
+PASS real density excess rejects
+PASS reversed density range rejects
+PASS nonfinite density rejects
+SUMMARY failures=0

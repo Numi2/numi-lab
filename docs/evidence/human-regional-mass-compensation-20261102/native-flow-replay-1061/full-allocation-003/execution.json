@@ -1,0 +1,98 @@
+{
+  "schema": "numi.h706.current-fractional-mass-cli-execution.030d.v1",
+  "manifest_sha256": "47a259e09d3274623381f9938c6137c99f04525931b30e8e7ae74ad7337e7fff",
+  "full_allocator_run": true,
+  "command": [
+    "/usr/bin/env",
+    "NUMI_H706_FRACTIONAL_CARRIERS_FAT_NPZ=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-032-adaptive-joint-packet/run-005/fat-adaptive-source-quadrature-032d.npz",
+    "NUMI_H706_FRACTIONAL_CARRIERS_FAT_SHA256=12068b0a15bcc24dd8adae0d452ad6bf49b443a8a4b78712093aaa26713126a8",
+    "NUMI_H706_FRACTIONAL_CARRIERS_SKIN_NPZ=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/skin-source-carriers-with-regional-compensation-002.npz",
+    "NUMI_H706_FRACTIONAL_CARRIERS_SKIN_SHA256=3780de3325f255c8a44696cb67641decd7a966f45f4204e09a72935a36e6778c",
+    "NUMI_H706_FRACTIONAL_CARRIER_WITNESS_FAT_CSV=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/actual-038-global-allchild-census-003/fat-global-allchild-witnesses-out007-v2.csv.gz",
+    "NUMI_H706_FRACTIONAL_CARRIER_WITNESS_FAT_SHA256=35d7a0505dc61e9b09d2e054b99926193d80036cca3b45a86a7eac036b59ec06",
+    "NUMI_H706_FRACTIONAL_CARRIER_WITNESS_SKIN_CSV=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/actual-038-global-allchild-census-003/skin-global-allchild-witnesses-out007-v2.csv.gz",
+    "NUMI_H706_FRACTIONAL_CARRIER_WITNESS_SKIN_SHA256=e81884c98e3925983c3ecc6d0003acfe56bce11f04eea05e6feb883a603b7bee",
+    "NUMI_H706_FRACTIONAL_ENABLE=1",
+    "NUMI_H706_FRACTIONAL_EXACT_PROJECTION_CSV=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/mass-group-audit-006/qualified-projection-support.csv",
+    "NUMI_H706_FRACTIONAL_EXACT_PROJECTION_SHA256=5c98209b92d4602015ad6b10ea5bd742a186c004040ea2e79ee7a95d3c138a21",
+    "NUMI_H706_FRACTIONAL_GEOMETRY_FAT_SHA256=22bd994eb8751b6ee4af5d3acd8bd13e1811ce87d2150d733ccac7d6c6650bc9",
+    "NUMI_H706_FRACTIONAL_GEOMETRY_SKIN_SHA256=a8e794d72a7b23c8917cf57b50cbef478b447bc529db8d27f256f16f858987a7",
+    "NUMI_H706_FRACTIONAL_OUTPUT_DIR=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output",
+    "NUMI_H706_FRACTIONAL_P1_FAT_NPZ=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-role-p1-support-938-1027-pinned-230-dependency/actual-001/p1-Fat/fat-current-p1-143-support.npz",
+    "NUMI_H706_FRACTIONAL_P1_FAT_SHA256=9986e342dc5b29fe3350f1953b40e3b14ad4a3f4e3ced97bba6885f9ff76592d",
+    "NUMI_H706_FRACTIONAL_P1_SKIN_NPZ=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-role-p1-support-938-1027-pinned-230-dependency/actual-001/p1-Skin/skin-current-p1-143-support.npz",
+    "NUMI_H706_FRACTIONAL_P1_SKIN_SHA256=86eeda29d80ee8e65651d044bdb6842a3d5cf1877966743c65a5144396ad685a",
+    "NUMI_H706_FRACTIONAL_RUN_CONFIG_SHA256=900e91942fc245a78f3d4d6525d525a191c09d4992042c927e5b8ca2cd69f222",
+    "NUMI_H706_FRACTIONAL_SOURCE330_MASS_SHA256=c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+    "NUMI_H706_FRACTIONAL_SOURCE330_NODES=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.nodes.csv",
+    "NUMI_H706_FRACTIONAL_SOURCE330_NODES_SHA256=7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044",
+    "NUMI_H706_FRACTIONAL_SOURCE330_TETS=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.tets.csv",
+    "NUMI_H706_FRACTIONAL_SOURCE330_TETS_SHA256=82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+    "NUMI_H706_FRACTIONAL_SOURCE_CENTROID_CSV=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/mass-support-runtime-012-root/combined-source-centroid-slots.csv",
+    "NUMI_H706_FRACTIONAL_SOURCE_CENTROID_SHA256=d3330b274bb84cf6f8ffbf171691dd71d8cf3624b014f648934094c99f97f3b9",
+    "NUMI_H706_FRACTIONAL_SOURCE_CONTROL_SHA256=a804f59af694fcdecba4a0a7601f19b83582c7b677375e980c2dd197ed241e29",
+    "NUMI_H706_FRACTIONAL_STATE_SHA256=4a687ab33ddb55942cdca200683d903e64d772022a06cec2936cd78a336eb078",
+    "NUMI_H706_FRACTIONAL_VOLUME_FAT_SHA256=22bd994eb8751b6ee4af5d3acd8bd13e1811ce87d2150d733ccac7d6c6650bc9",
+    "NUMI_H706_FRACTIONAL_VOLUME_SKIN_SHA256=a8e794d72a7b23c8917cf57b50cbef478b447bc529db8d27f256f16f858987a7",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/build-005/mass-cli",
+    "--current-fractional-semantic",
+    "--parent-mass-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv",
+    "--labels-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.labels.csv",
+    "--child-node-file",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/volume/mesh.node",
+    "--child-ele-file",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/volume/mesh.ele",
+    "--child-labels-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/volume/child.labels.csv",
+    "--coordinate-frame-sha256",
+    "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a",
+    "--source-body-count",
+    "157",
+    "--maximum-transport-distance-m",
+    "0.187444"
+  ],
+  "binary": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/build-005/mass-cli",
+    "bytes": 1036296,
+    "sha256": "ebc691bad8637a79519995bb829af13961ccf1e8682b7ca8a169aa300eb0da75"
+  },
+  "source": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/build-005/cli.cpp",
+    "bytes": 55532,
+    "sha256": "08741ff1c5438826155aa5eae544b27ea6797f4aefb85baf07ba4d02116728c7"
+  },
+  "source_control_manifest": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/build-005/source-control.json",
+    "bytes": 13880,
+    "sha256": "a804f59af694fcdecba4a0a7601f19b83582c7b677375e980c2dd197ed241e29"
+  },
+  "source_closure": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/build-005/source-control.json",
+    "bytes": 13880,
+    "sha256": "a804f59af694fcdecba4a0a7601f19b83582c7b677375e980c2dd197ed241e29"
+  },
+  "output_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output",
+  "run_manifest": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/run-manifest.json",
+    "bytes": 40069,
+    "sha256": "47a259e09d3274623381f9938c6137c99f04525931b30e8e7ae74ad7337e7fff"
+  },
+  "stdout": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/stdout.log",
+    "bytes": 4739,
+    "sha256": "93097d27a6dcbdb4a94573496ff07fd7a2e3d34b4f88c26f95060e6723b4399a"
+  },
+  "stderr": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/stderr.log",
+    "bytes": 13916,
+    "sha256": "bd46068725c74c37a7552a86efd1280edf187c207e1e51a3d4cc7fa9f44d0624"
+  },
+  "exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 231.3121757498011,
+  "status": "PASS_SOURCE_ALLOCATION",
+  "physical_admission": false,
+  "native_steps": 0
+}

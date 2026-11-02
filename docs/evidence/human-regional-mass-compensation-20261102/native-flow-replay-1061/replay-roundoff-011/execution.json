@@ -1,0 +1,50 @@
+[
+  {
+    "label": "before",
+    "argv": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-UNDEBUG",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+      "-I/Users/numi/Work/current-fractional-020-publication-20261101/apps",
+      "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/source/apps",
+      "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/matter/include",
+      "-I/Users/numi/Work/numi-human-connected-surface-069/publication-140/dependencies/include",
+      "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanRegionalMassCompensationCheck.cpp",
+      "-lz",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/replay-roundoff-011/check-before"
+    ],
+    "exit_code": 1
+  },
+  {
+    "label": "after",
+    "argv": [
+      "/usr/bin/clang++",
+      "-std=c++20",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-UNDEBUG",
+      "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+      "-I/Users/numi/Work/current-fractional-020-publication-20261101/apps",
+      "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/source/apps",
+      "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/matter/include",
+      "-I/Users/numi/Work/numi-human-connected-surface-069/publication-140/dependencies/include",
+      "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanRegionalMassCompensationCheck.cpp",
+      "-lz",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/replay-roundoff-011/check-after"
+    ],
+    "exit_code": 1
+  }
+]

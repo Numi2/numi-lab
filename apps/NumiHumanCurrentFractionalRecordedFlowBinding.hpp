@@ -166,6 +166,14 @@ inline bool parseFinitePositiveDistanceDecimal(const std::string& text,double& v
     if(end==text.c_str()||!end||*end!='\0'||!std::isfinite(parsed)||parsed<=0.0)return false;
     value=parsed;return true;
 }
+// The Python envelope reader preserves declared bounds as exact decimal text.
+// Accept that representation only when it equals the authenticated exact_decimal.
+inline bool envelopeDeclaredDistance(std::string_view object,const std::string& exactDecimal,double& value) {
+    if(topLevelFiniteNumber(object,"predeclared_transport_envelope_m",value))return true;
+    std::string text;
+    return topLevelString(object,"predeclared_transport_envelope_m",text)&&text==exactDecimal&&
+        parseFinitePositiveDistanceDecimal(text,value);
+}
 inline bool validateMassTransportDistanceContract(const std::string& exactDecimal,
         const double maximumDeclaredSourceCentroidDistanceM,const double envelopeLimitM,
         const double configuredImportLimitM,const double massReceiptLimitM,
@@ -204,8 +212,8 @@ inline bool validateCurrentGeometryEnvelope(std::string_view candidate,
        !str(envelope,"schema",schema)||schema!="numi.human.mass-transport-envelope.v1"||
        !str(envelope,"rule_id",ruleID)||ruleID!="ceil_max_declared_source_centroid_um_plus_1_floor_200"||
        !receiptNumber(envelope,"maximum_declared_source_centroid_distance_m",maxDeclared)||
-       !receiptNumber(envelope,"predeclared_transport_envelope_m",envelopeLimit)||
-       !str(envelope,"exact_decimal",exactDecimal)||!object(envelope,"input_sha256",inputSHA)) {
+       !str(envelope,"exact_decimal",exactDecimal)||
+       !envelopeDeclaredDistance(envelope,exactDecimal,envelopeLimit)||!object(envelope,"input_sha256",inputSHA)) {
         error="unified admission omits or malforms the authenticated geometry envelope binding";return false;
     }
     std::string geometryReceipt;
@@ -240,7 +248,7 @@ inline bool validateCurrentGeometryEnvelope(std::string_view candidate,
        !str(geometryEnvelope,"exact_decimal",geometryDecimal)||geometryDecimal!=exactDecimal||
        !receiptNumber(geometryEnvelope,"maximum_declared_source_centroid_distance_m",geometryMaxDeclared)||
        geometryMaxDeclared!=maxDeclared||
-       !receiptNumber(geometryEnvelope,"predeclared_transport_envelope_m",geometryLimit)||
+       !envelopeDeclaredDistance(geometryEnvelope,geometryDecimal,geometryLimit)||
        geometryLimit!=envelopeLimit||geometryTopLevelLimit!=envelopeLimit||
        !object(geometryEnvelope,"input_sha256",geometryInputs)) {
         error="pinned geometry envelope values differ from the unified mass receipt";return false;
@@ -347,6 +355,16 @@ inline bool loadRoleEnvironment(const unsigned role,CurrentFractionalRecordedFlo
        !envSHA(fractional+"CARRIERS_"+roleName+"_SHA256",
                binding.roleCarrierPacketSHA256[role],error))return false;
     return true;
+}
+// Match binary64 reduction roundoff without rounding the reported extrema or
+// changing material bounds. This is much narrower than the per-cell source
+// feasibility tolerance; physical mass and density are not modified.
+inline bool observedDensityRangeWithinBounds(double lo,double hi,double minimum,double maximum){
+    if(!std::isfinite(lo)||!std::isfinite(hi)||!std::isfinite(minimum)||!std::isfinite(maximum)||
+       lo<=0.0||hi<lo||minimum>maximum)return false;
+    const double error=64.0*std::numeric_limits<double>::epsilon()*
+        std::max({hi,std::abs(minimum),std::abs(maximum)});
+    return minimum>=lo-error&&maximum<=hi+error;
 }
 inline bool admission(CurrentFractionalRecordedFlowBinding& binding,
                       const ConservativeSpatialMassTransportInput& input,
@@ -588,7 +606,8 @@ inline bool admission(CurrentFractionalRecordedFlowBinding& binding,
        !receiptNumber(skinObserved,"min_kgm3",skinMin)||!receiptNumber(skinObserved,"max_kgm3",skinMax)||
        !receiptNumber(fatObserved,"min_kgm3",fatMin)||!receiptNumber(fatObserved,"max_kgm3",fatMax)||
        !receiptBool(skinObserved,"within_bounds",true)||!receiptBool(fatObserved,"within_bounds",true)||
-       skinMin>skinMax||skinMin<skinLo||skinMax>skinHi||fatMin>fatMax||fatMin<fatLo||fatMax>fatHi){
+       !observedDensityRangeWithinBounds(skinLo,skinHi,skinMin,skinMax)||
+       !observedDensityRangeWithinBounds(fatLo,fatHi,fatMin,fatMax)){
         error="unified admission density ranges violate unchanged material bounds";return false;
     }
     std::string expectedSkinVolumeSHA,expectedFatVolumeSHA,expectedMassSHA;

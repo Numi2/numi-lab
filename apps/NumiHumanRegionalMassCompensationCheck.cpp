@@ -146,6 +146,36 @@ bool runRegionalCompensationControl() {
             input,native.view(),carriers,carried,trace,error)){
         std::cerr<<"carrier compensation replay rejected: "<<error<<'\n';return false;
     }
+    // Unequal carrier pieces exercise exact aggregation through allocator and native replay.
+    auto trialNative=native;trialNative.compensationMaximumMassKg=1.01;
+    auto trialInput=input;auto trialLower=densityLower;trialLower.fill(.9);
+    trialInput.materialDensityLowerKgM3=trialLower;
+    for(unsigned count=3;count<=9;++count){
+        const std::array<std::uint32_t,4> trialOffsets{0,0,0,count};
+        std::vector<double> trialWeights(count),trialDistances(count);
+        std::vector<std::array<double,4>> trialBary(count,{.25,.25,.25,.25});
+        std::vector<std::uint32_t> trialWitnesses(count,2u);
+        for(unsigned r=0;r<count;++r){
+            trialWeights[r]=double(r+1u)/(double(count)*double(count+1u)*.5);
+            trialDistances[r]=source_carrier_transport_detail::pointDistance(
+                source_carrier_transport_detail::barycentricPoint(tetPoints[2],trialBary[r]),childPoints[2]);
+        }
+        auto trial=carriers;trial.parentOffsets=trialOffsets;trial.carrierWeights=trialWeights;
+        trial.carrierBarycentric=trialBary;trial.witnessChildRows=trialWitnesses;
+        trial.witnessChildCentroidDistancesM=trialDistances;
+        ConservativeSpatialMassTransportResult value;SourceCellCarrierTransportTrace path;
+        if(!assembleConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriers(
+                trialInput,trialNative.view(),trial,value,path,error)||
+           !canonicalizeRecordedConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriersFeasibility(
+                trialInput,trialNative.view(),trial,value,path,error)){
+            std::cerr<<"unequal carrier replay count="<<count<<": "<<error<<'\n';return false;
+        }
+        auto altered=value;altered.childParentTransportMassKg.back()=std::nextafter(altered.childParentTransportMassKg.back(),0.0);
+        auto alteredPath=path;
+        if(canonicalizeRecordedConservativeSpatialMassTransportWithSemanticSupportAndSourceCarriersFeasibility(
+                trialInput,trialNative.view(),trial,altered,alteredPath,error))return false;
+    }
+    std::cout<<"unequal 3-9 carrier round-trip and one-ULP tamper rejection PASS\n";
     native.childAdmissibleGroupOffsets={0,1,2,3};
     native.childAdmissibleGroupIndices={0,1,0};native.admissibleGroupEvidenceSHA256=pin;
     ConservativeSpatialMassTransportResult indexed;SourceCellCarrierTransportTrace indexedTrace;
