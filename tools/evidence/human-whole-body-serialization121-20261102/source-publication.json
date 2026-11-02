@@ -1,0 +1,19 @@
+{
+  "commit": "3746de2401f7c3a52855a2f0eb7ff89bf29a9294",
+  "remote_main": "3746de2401f7c3a52855a2f0eb7ff89bf29a9294\trefs/heads/main",
+  "paths": [
+    "matter/src/human_respiration.metal",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/metal/numi_human.metalinc",
+    "matter/src/metal/topology_mutation.metalinc",
+    "matter/src/metal/vascular.metalinc",
+    "matter/src/numi_human.mm",
+    "matter/src/runtime.mm",
+    "matter/tools/human_resting_runtime.hpp",
+    "tests/human_body_parallel_work/parallel_work_test.mm",
+    "tests/human_body_parallel_work/run.py",
+    "tests/human_body_parallel_work/README.md"
+  ],
+  "author": "numi2",
+  "publication_suite": "publication/controls-002/run-receipt.json"
+}

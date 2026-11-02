@@ -1,0 +1,82 @@
+{
+  "source_commit": "3746de2401f7c3a52855a2f0eb7ff89bf29a9294",
+  "execution_revision": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "source_files": {
+    "matter/src/human_respiration.metal": {
+      "execution_sha256": "38b78a7fbd61f81797e9836712439e6caca9ab0ef96e9b9091678c2f93d4cbcd",
+      "publication_sha256": "38b78a7fbd61f81797e9836712439e6caca9ab0ef96e9b9091678c2f93d4cbcd"
+    },
+    "matter/src/metal/fgmres.metalinc": {
+      "execution_sha256": "2dae9b9564bb89fbd6fd4eea95f8a31a3c5a1790b466d95e36e7012767a9e68e",
+      "publication_sha256": "2dae9b9564bb89fbd6fd4eea95f8a31a3c5a1790b466d95e36e7012767a9e68e"
+    },
+    "matter/src/metal/numi_human.metalinc": {
+      "execution_sha256": "6aecb85d4d5fbad2de524df0a03f462c8b413a69ac653a77fb6e5323b244cba2",
+      "publication_sha256": "6aecb85d4d5fbad2de524df0a03f462c8b413a69ac653a77fb6e5323b244cba2"
+    },
+    "matter/src/metal/topology_mutation.metalinc": {
+      "execution_sha256": "a14dcac24f3f8277ae7ee86c24d816baa48db80a66d40a3d2dbd16404610caf7",
+      "publication_sha256": "a14dcac24f3f8277ae7ee86c24d816baa48db80a66d40a3d2dbd16404610caf7"
+    },
+    "matter/src/metal/vascular.metalinc": {
+      "execution_sha256": "33d6a6174dc134af2632f206b07ce6307d7449f8f7587ba092d539c66ac4b714",
+      "publication_sha256": "33d6a6174dc134af2632f206b07ce6307d7449f8f7587ba092d539c66ac4b714"
+    },
+    "matter/src/numi_human.mm": {
+      "execution_sha256": "01e178da42326b171e76ab57fd469d78b7326841555a77a56289f64f91e6bbf7",
+      "publication_sha256": "01e178da42326b171e76ab57fd469d78b7326841555a77a56289f64f91e6bbf7"
+    },
+    "matter/src/runtime.mm": {
+      "execution_sha256": "e1053ab4d54c955e2e169b555095a287916069e3170641e1f68340f2c30293b4",
+      "publication_sha256": "e1053ab4d54c955e2e169b555095a287916069e3170641e1f68340f2c30293b4"
+    },
+    "matter/tools/human_resting_runtime.hpp": {
+      "execution_sha256": "dd3658710092b58a3e10b1ee06eb8ffa1faf5e9fc6e29c1c5f0d33b247ce476b",
+      "publication_sha256": "dd3658710092b58a3e10b1ee06eb8ffa1faf5e9fc6e29c1c5f0d33b247ce476b"
+    },
+    "tests/human_body_parallel_work/parallel_work_test.mm": {
+      "execution_sha256": "cbbc2307732f5eee13fdf068e1c4ec7bd14cdc6d19fc7dac88283cd62e9ab871",
+      "publication_sha256": "cbbc2307732f5eee13fdf068e1c4ec7bd14cdc6d19fc7dac88283cd62e9ab871"
+    },
+    "tests/human_body_parallel_work/run.py": {
+      "execution_sha256": "5b3ee2bd065e83a4d90c90a68b2152a870b42572852559b371dea5a1d073268e",
+      "publication_sha256": "5b3ee2bd065e83a4d90c90a68b2152a870b42572852559b371dea5a1d073268e"
+    },
+    "tests/human_body_parallel_work/README.md": {
+      "execution_sha256": "cf5014d2496ea379b6ef41cf8767746269e6216dac418f87b3caf2ebfa591094",
+      "publication_sha256": "cf5014d2496ea379b6ef41cf8767746269e6216dac418f87b3caf2ebfa591094"
+    }
+  },
+  "runtime_files": {
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native": {
+      "sha256": "e568af2b869ad830c269f4f94efbb45f66c14c5fa5c32f32ecc305e892d9e4f0",
+      "bytes": 10431744
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib": {
+      "sha256": "9cf486faaa78cf08f256345f8740717abc0958b97d6988bd3eb48db277e3d3af",
+      "bytes": 10072992
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib": {
+      "sha256": "686e70e2116a1986e3ab3f113c44176897a76c5241896ae021215a7edb68be7a",
+      "bytes": 29605875
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib": {
+      "sha256": "880f60be6eb17b6af781665c6016c6d050da069685fcf1e8e2cafda0fc2115c8",
+      "bytes": 560736
+    }
+  },
+  "native122": {
+    "exit_code": -15,
+    "elapsed_s": 50.25378894805908,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-import-122/install-motion.plan.json",
+    "plan_sha256": "af346aa4d5469661f0d8e80a22150aee79ff3054383d8511a2b31777a4776fd7",
+    "stdout_sha256": "cbcf47c3f89c24b51b8ac80429499c464d7e5a3733df4a3abd7e0668d7f09af0",
+    "stderr_sha256": "c56fe647984255c756d5c26d03053e9b11b9c81e38ef5daa9673851eb90a2396",
+    "physical_admission": false,
+    "resource_stop_reason": "disk_below_12GiB",
+    "source_import_pass": false
+  },
+  "physical_steps": 0,
+  "motion_verified": false,
+  "integrated_real_time_factor": null
+}

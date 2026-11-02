@@ -1,0 +1,11 @@
+{
+  "exit_code": -15,
+  "elapsed_s": 50.25378894805908,
+  "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-import-122/install-motion.plan.json",
+  "plan_sha256": "af346aa4d5469661f0d8e80a22150aee79ff3054383d8511a2b31777a4776fd7",
+  "stdout_sha256": "cbcf47c3f89c24b51b8ac80429499c464d7e5a3733df4a3abd7e0668d7f09af0",
+  "stderr_sha256": "c56fe647984255c756d5c26d03053e9b11b9c81e38ef5daa9673851eb90a2396",
+  "physical_admission": false,
+  "resource_stop_reason": "disk_below_12GiB",
+  "source_import_pass": false
+}

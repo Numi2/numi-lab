@@ -1,0 +1,12 @@
+{
+  "status": "NO_STORAGE_GAIN_NOT_PROMOTED",
+  "method": "ditto --hfsCompression --rsrc",
+  "source": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-import-078/source-preflight/diagnostics/tissue-mass-reference.txt",
+  "source_sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+  "logical_bytes": 840655370,
+  "attempt_allocated_bytes": 840658944,
+  "original_12_links_untouched": true,
+  "temporary_clone_removed": true,
+  "OS_swap_untouched": true,
+  "disk_free_after": 12098781184
+}

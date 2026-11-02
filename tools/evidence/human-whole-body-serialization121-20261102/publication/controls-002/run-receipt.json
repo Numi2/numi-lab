@@ -1,0 +1,156 @@
+{
+  "status": "PASS",
+  "scope": "GPU algorithm parity and isolated native transactions; no full-Human qualification",
+  "stages": [
+    {
+      "name": "device",
+      "argv": [
+        "system_profiler",
+        "SPHardwareDataType",
+        "SPDisplaysDataType"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.20988320799915527
+    },
+    {
+      "name": "build",
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++23",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fobjc-arc",
+        "-I",
+        "/Users/numi/Work/current-fractional-020-publication-20261101/include",
+        "-I",
+        "/Users/numi/Work/current-fractional-020-publication-20261101/matter/include",
+        "-I",
+        "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src",
+        "/Users/numi/Work/current-fractional-020-publication-20261101/tests/human_body_parallel_work/parallel_work_test.mm",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/controls-002/parallel-work-test"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.6280225829996198
+    },
+    {
+      "name": "matched-0",
+      "argv": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/controls-002/parallel-work-test",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/NumiMatter.metallib",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/HumanRespiration.metallib"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 3.4756640830000833
+    },
+    {
+      "name": "matched-1",
+      "argv": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/controls-002/parallel-work-test",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/NumiMatter.metallib",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/HumanRespiration.metallib"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 2.7904774580001686
+    },
+    {
+      "name": "matched-2",
+      "argv": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/controls-002/parallel-work-test",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/NumiMatter.metallib",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/HumanRespiration.metallib"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 2.789854374999777
+    },
+    {
+      "name": "native-build",
+      "argv": [
+        "/usr/bin/clang++",
+        "-std=c++23",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fobjc-arc",
+        "-I",
+        "/Users/numi/Work/current-fractional-020-publication-20261101/include",
+        "-I",
+        "/Users/numi/Work/current-fractional-020-publication-20261101/matter/include",
+        "-I",
+        "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src",
+        "/Users/numi/Work/current-fractional-020-publication-20261101/tests/numi_human_fem_surface_attachment/native_initialize_test.mm",
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+        "-Wl,-rpath,/Users/numi/Work/skin-fat-native-integration-209/build-native/lib",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/controls-002/native-test"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.9903244580000319
+    },
+    {
+      "name": "native-inactive",
+      "argv": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/controls-002/native-test",
+        "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/silicone.nmatter",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/NumiMatter.metallib"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.9030720829996426,
+      "NUMI_overrides": {
+        "NUMI_HUMAN_PARALLEL_NODE_WORK": "1",
+        "NUMI_HUMAN_SPARSE_ANCHOR_PROJECTION": "1",
+        "NUMI_MATTER_PARALLEL_WORKING_SET_CLEAR": "1",
+        "NUMI_MATTER_SPARSE_TOPOLOGY_INCIDENCE": "1"
+      }
+    },
+    {
+      "name": "native-active",
+      "argv": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/controls-002/native-test",
+        "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/silicone.nmatter",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/NumiMatter.metallib",
+        "active-contact"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.2103354999999283,
+      "NUMI_overrides": {
+        "NUMI_HUMAN_PARALLEL_NODE_WORK": "1",
+        "NUMI_HUMAN_SPARSE_ANCHOR_PROJECTION": "1",
+        "NUMI_MATTER_PARALLEL_WORKING_SET_CLEAR": "1",
+        "NUMI_MATTER_SPARSE_TOPOLOGY_INCIDENCE": "1"
+      }
+    }
+  ],
+  "source_sha256": {
+    "matter/src/numi_human.mm": "01e178da42326b171e76ab57fd469d78b7326841555a77a56289f64f91e6bbf7",
+    "matter/src/runtime.mm": "e1053ab4d54c955e2e169b555095a287916069e3170641e1f68340f2c30293b4",
+    "matter/tools/human_resting_runtime.hpp": "dd3658710092b58a3e10b1ee06eb8ffa1faf5e9fc6e29c1c5f0d33b247ce476b",
+    "matter/src/human_respiration.metal": "38b78a7fbd61f81797e9836712439e6caca9ab0ef96e9b9091678c2f93d4cbcd",
+    "matter/src/metal/numi_human.metalinc": "6aecb85d4d5fbad2de524df0a03f462c8b413a69ac653a77fb6e5323b244cba2",
+    "matter/src/metal/fgmres.metalinc": "2dae9b9564bb89fbd6fd4eea95f8a31a3c5a1790b466d95e36e7012767a9e68e",
+    "matter/src/metal/vascular.metalinc": "33d6a6174dc134af2632f206b07ce6307d7449f8f7587ba092d539c66ac4b714",
+    "matter/src/metal/topology_mutation.metalinc": "a14dcac24f3f8277ae7ee86c24d816baa48db80a66d40a3d2dbd16404610caf7",
+    "tests/human_body_parallel_work/parallel_work_test.mm": "cbbc2307732f5eee13fdf068e1c4ec7bd14cdc6d19fc7dac88283cd62e9ab871",
+    "tests/human_body_parallel_work/run.py": "5b3ee2bd065e83a4d90c90a68b2152a870b42572852559b371dea5a1d073268e"
+  },
+  "metallib_sha256": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/NumiMatter.metallib": "ab79ad31d8a77986bf08b0368f03c2dc3f6d5725a3f2e759807bc004bbb7d4de",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/HumanRespiration.metallib": "094c232ed035be4951181e32c484e5e379dce77dbc4125630ace802eb68f8d56"
+  },
+  "native_library_sha256": "9cf486faaa78cf08f256345f8740717abc0958b97d6988bd3eb48db277e3d3af",
+  "binary_sha256": {
+    "parallel-work-test": "293dadfea47e7e327d4a3189673a589678dfec728df3c40ce9feefb335fe48e9",
+    "native-test": "076f0d39ca60355124cd6efd34c27b2755a7084f3a19b02a4380be7bfe67a0b5"
+  }
+}

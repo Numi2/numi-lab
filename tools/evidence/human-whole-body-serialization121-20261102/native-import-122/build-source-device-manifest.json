@@ -1,0 +1,11 @@
+{
+  "execution_repo": "/Users/numi/Work/skin-fat-native-integration-209",
+  "execution_revision": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "source_pins": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-import-122/execution-source-pins.json",
+    "sha256": "ad19e04a8278da92dc3b77b057189c12573e93d37adee27f607985423462b548",
+    "bytes": 86544
+  },
+  "device_controls": "../whole-body-serialization-121/publication/controls/device.stdout.log",
+  "scope": "all six serial path replacements, unchanged source geometry, no physical qualification claim"
+}

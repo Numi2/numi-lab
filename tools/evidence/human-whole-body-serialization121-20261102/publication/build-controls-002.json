@@ -1,0 +1,112 @@
+[
+  {
+    "name": "HumanRespiration-metal-002",
+    "argv": [
+      "/Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/bin/metal",
+      "-c",
+      "-std=metal4.0",
+      "-O3",
+      "-fno-fast-math",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/include",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/include",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/src/metal",
+      "-I",
+      "/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include",
+      "-I",
+      "/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainMetal/Shaders",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src/human_respiration.metal",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/HumanRespiration.air"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 0.2618843750005908
+  },
+  {
+    "name": "HumanRespiration-library",
+    "argv": [
+      "/Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/bin/metallib",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/HumanRespiration.air",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/HumanRespiration.metallib"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 0.04099129199857998
+  },
+  {
+    "name": "adapter-syntax",
+    "argv": [
+      "/usr/bin/clang++",
+      "-std=c++23",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/include",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/include",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/src/metal",
+      "-I",
+      "/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include",
+      "-I",
+      "/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainMetal/Shaders",
+      "-fsyntax-only",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src/numi_human.mm"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 0.9586144579989195
+  },
+  {
+    "name": "runtime-syntax",
+    "argv": [
+      "/usr/bin/clang++",
+      "-std=c++23",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/include",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/include",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/src/metal",
+      "-I",
+      "/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include",
+      "-I",
+      "/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainMetal/Shaders",
+      "-fsyntax-only",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src/runtime.mm"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 1.7463441670006432
+  },
+  {
+    "name": "suite",
+    "argv": [
+      "/Users/numi/numi-human-prep-venv-20261005/bin/python",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/tests/human_body_parallel_work/run.py",
+      "--matter-metallib",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/NumiMatter.metallib",
+      "--respiration-metallib",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/HumanRespiration.metallib",
+      "--output",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/whole-body-serialization-121/publication/controls",
+      "--native-library",
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+      "--material",
+      "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/silicone.nmatter"
+    ],
+    "exit_code": 1,
+    "elapsed_s": 3.1891059590016084
+  }
+]

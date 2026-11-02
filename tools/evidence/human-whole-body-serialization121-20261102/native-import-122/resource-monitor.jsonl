@@ -1,0 +1,11 @@
+{"elapsed_s": 0.004482746124267578, "rss_kib": 64, "swap_used_mib": 13563.94, "disk_available_bytes": 15360368640}
+{"elapsed_s": 5.022180795669556, "rss_kib": 370560, "swap_used_mib": 13802.69, "disk_available_bytes": 15374299136}
+{"elapsed_s": 10.04140591621399, "rss_kib": 1497504, "swap_used_mib": 14389.75, "disk_available_bytes": 14285717504}
+{"elapsed_s": 15.059240818023682, "rss_kib": 2097120, "swap_used_mib": 14546.69, "disk_available_bytes": 14284648448}
+{"elapsed_s": 20.075153827667236, "rss_kib": 3458880, "swap_used_mib": 15171.25, "disk_available_bytes": 13210923008}
+{"elapsed_s": 25.088826894760132, "rss_kib": 2565152, "swap_used_mib": 15464.75, "disk_available_bytes": 13209587712}
+{"elapsed_s": 30.102831840515137, "rss_kib": 2269424, "swap_used_mib": 15522.44, "disk_available_bytes": 13184126976}
+{"elapsed_s": 35.11790060997009, "rss_kib": 2408496, "swap_used_mib": 15629.25, "disk_available_bytes": 13184053248}
+{"elapsed_s": 40.131361961364746, "rss_kib": 2476032, "swap_used_mib": 15629.25, "disk_available_bytes": 13184049152}
+{"elapsed_s": 45.15096187591553, "rss_kib": 1810256, "swap_used_mib": 15972.56, "disk_available_bytes": 13184045056}
+{"elapsed_s": 50.16477990150452, "rss_kib": 2630544, "swap_used_mib": 16254.5, "disk_available_bytes": 12110127104}

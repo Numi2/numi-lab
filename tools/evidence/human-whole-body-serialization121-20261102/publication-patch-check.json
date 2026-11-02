@@ -1,0 +1,14 @@
+{
+  "paths": [
+    "matter/src/human_respiration.metal",
+    "matter/src/metal/fgmres.metalinc",
+    "matter/src/metal/numi_human.metalinc",
+    "matter/src/metal/topology_mutation.metalinc",
+    "matter/src/metal/vascular.metalinc",
+    "matter/src/numi_human.mm",
+    "matter/src/runtime.mm",
+    "matter/tools/human_resting_runtime.hpp"
+  ],
+  "exit_code": 0,
+  "stderr": ""
+}

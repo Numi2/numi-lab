@@ -1,0 +1,14 @@
+perf(human): remove six whole-body serialization paths
+
+Tile node validation and force audits, project anchors through immutable
+source-order indices, and gate parallel coupled-direction resets with
+GPU-written dispatch arguments. Build deterministic topology incidence from
+actual tet corners and search local particle buckets during blood compaction.
+
+Preserve material/merge equations, ordered topology mass accumulation,
+capacity failure and accepted-state ownership. Correct an existing legacy
+validator overwrite that could clear a duplicate-endpoint rejection.
+
+Validation: production Metal builds, publication owner syntax, three GPU
+parity runs and native attachment/deformation/rollback/replay controls pass.
+Kernel gains do not establish integrated Human throughput or motion.

@@ -1,0 +1,428 @@
+{
+  "status": "PASS",
+  "scope": "production GPU algorithm fixtures, not full scene throughput",
+  "environments": 2,
+  "anchor_fixture_environments": 1,
+  "instrumentation": "whole-command GPU start/end timestamps; no counter sampling or encoder splitting",
+  "pair_order": "three matched runs; original then replacement, fixed order; not statistical confidence intervals",
+  "rows": [
+    {
+      "path": "node_validation",
+      "case": {
+        "nodes": 318974,
+        "fault": 0
+      },
+      "serial_median_ms": 163.209875,
+      "new_median_ms": 0.457374999,
+      "speedup_median": 356.8403943303425,
+      "speedup_range": [
+        355.3783558423666,
+        425.39137647929795
+      ],
+      "matched": [
+        {
+          "path": "node_validation",
+          "nodes": 318974,
+          "fault": 0,
+          "serial_gpu_s": 0.162765375,
+          "parallel_gpu_s": 0.000382624999
+        },
+        {
+          "path": "node_validation",
+          "nodes": 318974,
+          "fault": 0,
+          "serial_gpu_s": 0.163209875,
+          "parallel_gpu_s": 0.000457374999
+        },
+        {
+          "path": "node_validation",
+          "nodes": 318974,
+          "fault": 0,
+          "serial_gpu_s": 0.165428625,
+          "parallel_gpu_s": 0.000465500001
+        }
+      ]
+    },
+    {
+      "path": "node_audit",
+      "case": {
+        "nodes": 318974,
+        "mode": 0
+      },
+      "serial_median_ms": 56.686375,
+      "new_median_ms": 0.155,
+      "speedup_median": 365.541935483871,
+      "speedup_range": [
+        365.42384937680026,
+        1071.3387332012246
+      ],
+      "matched": [
+        {
+          "path": "node_audit",
+          "nodes": 318974,
+          "mode": 0,
+          "validation_gpu_s": 0.000379625,
+          "serial_gpu_s": 0.0578522917,
+          "parallel_gpu_s": 5.40000001e-05
+        },
+        {
+          "path": "node_audit",
+          "nodes": 318974,
+          "mode": 0,
+          "validation_gpu_s": 0.000454249999,
+          "serial_gpu_s": 0.056659,
+          "parallel_gpu_s": 0.000155
+        },
+        {
+          "path": "node_audit",
+          "nodes": 318974,
+          "mode": 0,
+          "validation_gpu_s": 0.000462416667,
+          "serial_gpu_s": 0.056686375,
+          "parallel_gpu_s": 0.000155125001
+        }
+      ]
+    },
+    {
+      "path": "node_audit",
+      "case": {
+        "nodes": 318974,
+        "mode": 1
+      },
+      "serial_median_ms": 45.27125,
+      "new_median_ms": 0.189499999,
+      "speedup_median": 237.26825085629682,
+      "speedup_range": [
+        184.96935573046227,
+        321.6230344040277
+      ],
+      "matched": [
+        {
+          "path": "node_audit",
+          "nodes": 318974,
+          "mode": 1,
+          "validation_gpu_s": 0.000379625,
+          "serial_gpu_s": 0.0460725,
+          "parallel_gpu_s": 0.000143250001
+        },
+        {
+          "path": "node_audit",
+          "nodes": 318974,
+          "mode": 1,
+          "validation_gpu_s": 0.000454249999,
+          "serial_gpu_s": 0.04527125,
+          "parallel_gpu_s": 0.000244750001
+        },
+        {
+          "path": "node_audit",
+          "nodes": 318974,
+          "mode": 1,
+          "validation_gpu_s": 0.000462416667,
+          "serial_gpu_s": 0.0449623333,
+          "parallel_gpu_s": 0.000189499999
+        }
+      ]
+    },
+    {
+      "path": "working_set",
+      "case": {
+        "nodes": 318974,
+        "mode": 1
+      },
+      "serial_median_ms": 4.62275,
+      "new_median_ms": 0.284208334,
+      "speedup_median": 16.26535694762561,
+      "speedup_range": [
+        12.694432365010632,
+        16.821782147516878
+      ],
+      "matched": [
+        {
+          "path": "working_set",
+          "nodes": 318974,
+          "mode": 1,
+          "serial_gpu_s": 0.004883125,
+          "parallel_gpu_s": 0.000384666668
+        },
+        {
+          "path": "working_set",
+          "nodes": 318974,
+          "mode": 1,
+          "serial_gpu_s": 0.00431829167,
+          "parallel_gpu_s": 0.000256708334
+        },
+        {
+          "path": "working_set",
+          "nodes": 318974,
+          "mode": 1,
+          "serial_gpu_s": 0.00462275,
+          "parallel_gpu_s": 0.000284208334
+        }
+      ]
+    },
+    {
+      "path": "working_set",
+      "case": {
+        "nodes": 318974,
+        "mode": 0
+      },
+      "serial_median_ms": 0.00437500057,
+      "new_median_ms": 0.00695833296,
+      "speedup_median": 0.610778421272902,
+      "speedup_range": [
+        0.5891889055579879,
+        0.6325303214719494
+      ],
+      "matched": [
+        {
+          "path": "working_set",
+          "nodes": 318974,
+          "mode": 0,
+          "serial_gpu_s": 4.37500057e-06,
+          "parallel_gpu_s": 6.91666537e-06
+        },
+        {
+          "path": "working_set",
+          "nodes": 318974,
+          "mode": 0,
+          "serial_gpu_s": 4.54166548e-06,
+          "parallel_gpu_s": 7.70833503e-06
+        },
+        {
+          "path": "working_set",
+          "nodes": 318974,
+          "mode": 0,
+          "serial_gpu_s": 4.24999962e-06,
+          "parallel_gpu_s": 6.95833296e-06
+        }
+      ]
+    },
+    {
+      "path": "vascular_working_set",
+      "case": {
+        "nodes": 318974,
+        "mode": 1
+      },
+      "serial_median_ms": 4.53541667,
+      "new_median_ms": 0.340249999,
+      "speedup_median": 13.442689238626565,
+      "speedup_range": [
+        13.179561738262441,
+        17.28174413033062
+      ],
+      "matched": [
+        {
+          "path": "vascular_working_set",
+          "nodes": 318974,
+          "mode": 1,
+          "serial_gpu_s": 0.00453541667,
+          "parallel_gpu_s": 0.000344124999
+        },
+        {
+          "path": "vascular_working_set",
+          "nodes": 318974,
+          "mode": 1,
+          "serial_gpu_s": 0.004508375,
+          "parallel_gpu_s": 0.000260875
+        },
+        {
+          "path": "vascular_working_set",
+          "nodes": 318974,
+          "mode": 1,
+          "serial_gpu_s": 0.004573875,
+          "parallel_gpu_s": 0.000340249999
+        }
+      ]
+    },
+    {
+      "path": "topology",
+      "case": {
+        "nodes": 8193,
+        "mode": 0
+      },
+      "serial_median_ms": 13.6267917,
+      "new_median_ms": 0.21537499899999998,
+      "speedup_median": 63.27007202911235,
+      "speedup_range": [
+        55.947789806601165,
+        82.975233545618
+      ],
+      "matched": [
+        {
+          "path": "topology",
+          "nodes": 8193,
+          "tets": 24579,
+          "mode": 0,
+          "serial_gpu_s": 0.0132622083,
+          "sparse_gpu_s": 0.000159833335
+        },
+        {
+          "path": "topology",
+          "nodes": 8193,
+          "tets": 24579,
+          "mode": 0,
+          "serial_gpu_s": 0.01455575,
+          "sparse_gpu_s": 0.000260166667
+        },
+        {
+          "path": "topology",
+          "nodes": 8193,
+          "tets": 24579,
+          "mode": 0,
+          "serial_gpu_s": 0.0136267917,
+          "sparse_gpu_s": 0.000215374999
+        }
+      ]
+    },
+    {
+      "path": "topology",
+      "case": {
+        "nodes": 8193,
+        "mode": 2
+      },
+      "serial_median_ms": 13.4709167,
+      "new_median_ms": 3.10283333,
+      "speedup_median": 4.315296322140634,
+      "speedup_range": [
+        4.299372887486966,
+        4.558857500734659
+      ],
+      "matched": [
+        {
+          "path": "topology",
+          "nodes": 8193,
+          "tets": 24579,
+          "mode": 2,
+          "serial_gpu_s": 0.014145375,
+          "sparse_gpu_s": 0.00310283333
+        },
+        {
+          "path": "topology",
+          "nodes": 8193,
+          "tets": 24579,
+          "mode": 2,
+          "serial_gpu_s": 0.013226125,
+          "sparse_gpu_s": 0.00307629167
+        },
+        {
+          "path": "topology",
+          "nodes": 8193,
+          "tets": 24579,
+          "mode": 2,
+          "serial_gpu_s": 0.0134709167,
+          "sparse_gpu_s": 0.00312166667
+        }
+      ]
+    },
+    {
+      "path": "blood",
+      "case": {
+        "particles": 1024,
+        "mode": 3
+      },
+      "serial_median_ms": 500.88025000000005,
+      "new_median_ms": 13.3985417,
+      "speedup_median": 37.60936968237372,
+      "speedup_range": [
+        36.906998073384635,
+        37.856475499041274
+      ],
+      "matched": [
+        {
+          "path": "blood",
+          "particles": 1024,
+          "mode": 3,
+          "serial_gpu_s": 0.50088025,
+          "local_gpu_s": 0.0135714167
+        },
+        {
+          "path": "blood",
+          "particles": 1024,
+          "mode": 3,
+          "serial_gpu_s": 0.503910708,
+          "local_gpu_s": 0.0133985417
+        },
+        {
+          "path": "blood",
+          "particles": 1024,
+          "mode": 3,
+          "serial_gpu_s": 0.49492925,
+          "local_gpu_s": 0.0130738333
+        }
+      ]
+    },
+    {
+      "path": "blood",
+      "case": {
+        "particles": 1024,
+        "mode": 0
+      },
+      "serial_median_ms": 1.78766667,
+      "new_median_ms": 2.15225,
+      "speedup_median": 0.8341851550702754,
+      "speedup_range": [
+        0.8232404651162791,
+        0.9086688291038605
+      ],
+      "matched": [
+        {
+          "path": "blood",
+          "particles": 1024,
+          "mode": 0,
+          "serial_gpu_s": 0.001785875,
+          "local_gpu_s": 0.001965375
+        },
+        {
+          "path": "blood",
+          "particles": 1024,
+          "mode": 0,
+          "serial_gpu_s": 0.001795375,
+          "local_gpu_s": 0.00215225
+        },
+        {
+          "path": "blood",
+          "particles": 1024,
+          "mode": 0,
+          "serial_gpu_s": 0.00178766667,
+          "local_gpu_s": 0.0021715
+        }
+      ]
+    },
+    {
+      "path": "anchor_projection",
+      "case": {
+        "nodes": 318974,
+        "anchors": 18765,
+        "dofs": 128
+      },
+      "serial_median_ms": 49.23475,
+      "new_median_ms": 12.127249999999998,
+      "speedup_median": 4.059844564926096,
+      "speedup_range": [
+        3.721811847960896,
+        4.066495149603449
+      ],
+      "matched": [
+        {
+          "serial_gpu_s": 0.0487327083,
+          "sparse_gpu_s": 0.0119839583,
+          "anchors": 18765,
+          "dofs": 128
+        },
+        {
+          "serial_gpu_s": 0.051014875,
+          "sparse_gpu_s": 0.013707,
+          "anchors": 18765,
+          "dofs": 128
+        },
+        {
+          "serial_gpu_s": 0.04923475,
+          "sparse_gpu_s": 0.01212725,
+          "anchors": 18765,
+          "dofs": 128
+        }
+      ]
+    }
+  ],
+  "native_controls": "PASS"
+}
