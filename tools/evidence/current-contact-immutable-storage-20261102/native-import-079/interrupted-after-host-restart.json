@@ -1,0 +1,12 @@
+{
+  "status": "INTERRUPTED_HOST_RESTART_NO_TERMINAL_ACCEPTED_RESULT",
+  "cause": "Numi stopped accepting SSH during first GPU segment; user restarted host",
+  "source_admission": "PASS_SOURCE_078",
+  "accepted_physical_steps_verified": 0,
+  "physical_admission": false,
+  "plan_sha256": "f5fb35a83389985d205c4f1295e072bfac879a04f0e9e298c7d407ac3adb42b1",
+  "stdout_sha256": "3949fabeae16d171095fbb1455bd53b1b527d176f41e2f234c0a25c2f1681c6d",
+  "stderr_sha256": "03b514d9af4805849de95dfaf5f038675ea0ff937bac3a0980a79e066d87444e",
+  "initial_capture_exists": true,
+  "terminal_capture_exists": false
+}

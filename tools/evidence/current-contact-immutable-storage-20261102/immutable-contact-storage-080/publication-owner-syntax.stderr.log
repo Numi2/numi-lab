@@ -1,0 +1,4 @@
+/Users/numi/Work/current-fractional-020-publication-20261101/matter/src/numi_human.mm:6:10: fatal error: 'fem_surface_attachment_validation.hpp' file not found
+    6 | #include "fem_surface_attachment_validation.hpp"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

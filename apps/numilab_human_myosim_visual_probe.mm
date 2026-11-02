@@ -39745,6 +39745,23 @@ int main(int argc, char** argv) {
                              <<(owner.passiveLigaments.size()-owner.registeredLigamentRowCount)
                              <<" FEM_mass_kg="<<cookedMass
                              <<" duplicate_runtime=0 duplicate_load_schedule=0\n";
+                    // bindTendonFEMSource owns validated copies until their exact
+                    // shared Metal uploads replace CPU staging. The preparation
+                    // owner has no further readers of these immutable tables.
+                    const auto releaseContactPreparation = [](auto& rows) {
+                        using Rows = std::remove_reference_t<decltype(rows)>;
+                        const auto bytes = rows.capacity() * sizeof(typename Rows::value_type);
+                        Rows().swap(rows);
+                        return bytes;
+                    };
+                    const auto releasedContactPreparationBytes =
+                        releaseContactPreparation(owner.regionalFasciaBodyContactSamples) +
+                        releaseContactPreparation(owner.regionalFasciaBodyContactNeighborhoodRanges) +
+                        releaseContactPreparation(owner.regionalFasciaBodyContactNeighborhoodTriangles) +
+                        releaseContactPreparation(owner.regionalFasciaBodyContactNeighborhoodBVHNodes);
+                    std::cout << "resting_tissue_contact_preparation=released bytes="
+                              << releasedContactPreparationBytes
+                              << " adapter_owns_all_rows=1 contact_inventory_unchanged=1\n";
                 }
                 std::cout<<"resting_body_source_fingerprint="<<sourceIdentity<<" coupled_program_fingerprint="
                     <<coupled.brain.rootProgramIdentity<<"\n";

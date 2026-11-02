@@ -150,6 +150,16 @@ int main() {
                 groupCounts[i]==expectedCounts[i],
                 "stable group order keeps source row/range alignment and head spans");
     }
+    std::vector<std::uint32_t> contiguousCounts;
+    require(!numi::matter::fem_body_contact_grouping::contiguousSlaveGroupCounts(
+                multiSamples, contiguousCounts) && contiguousCounts.empty(),
+            "interleaved rows retain the stable grouping fallback");
+    require(numi::matter::fem_body_contact_grouping::contiguousSlaveGroupCounts(
+                groupedSamples, contiguousCounts) && contiguousCounts == groupCounts,
+            "already contiguous rows share exact stable-group head counts");
+    std::vector<std::uint32_t> emptyCounts;
+    require(numi::matter::fem_body_contact_grouping::contiguousSlaveGroupCounts({}, emptyCounts) && emptyCounts.empty(),
+            "empty group layout is valid");
     auto duplicateBody=multiSamples;
     duplicateBody[2].bodyIndex=multiSamples[0].bodyIndex;
     require(validateDistinctBodyTriangleSlaves(

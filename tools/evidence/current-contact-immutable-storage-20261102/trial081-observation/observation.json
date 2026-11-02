@@ -1,0 +1,24 @@
+{
+  "status": "FIRST_PHYSICAL_SEGMENT_IN_FLIGHT_NO_ACCEPTED_ENDPOINT",
+  "cpu_preparation_bytes_released": 1611157984,
+  "cpu_adapter_staging_bytes_released": 1611153856,
+  "contact_sample_rows_retained": 15453677,
+  "device_allocated_bytes_at_upload": 9858924544,
+  "device_recommended_working_set_bytes": 12713115648,
+  "accepted_human_steps_verified": 0,
+  "physical_admission": false,
+  "prefix_pins": {
+    "install-motion.stdout.log": {
+      "prefix_bytes": 300664,
+      "prefix_sha256": "7505b0bbe0aaad40d8ec37a2fa5fe171079c4fe9158b6db6926ca2204b8c91a8"
+    },
+    "install-motion.stderr.log": {
+      "prefix_bytes": 66172,
+      "prefix_sha256": "68e7036e49d97361e8a8517d3db75c7bc369770304558b4eb06baaaf62a05a7b"
+    },
+    "resource-monitor.jsonl": {
+      "prefix_bytes": 8222,
+      "prefix_sha256": "64cf23096003e9f72e0b40c7c8a57f23e2d5522d2aff834d5efb44817e4b6cc1"
+    }
+  }
+}

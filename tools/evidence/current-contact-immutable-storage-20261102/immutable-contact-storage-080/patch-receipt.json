@@ -1,0 +1,9 @@
+{
+  "preimage_sha256": "61612f2004fd2ee98385a63027b4d69bfe29e458f35dab4a931cae10172dcd49",
+  "patched_sha256": "c4062631e993a21d238b281e999566e1aa01281ebcd0cd19c2a2ab2c3682b35f",
+  "header_sha256": "dcfbd118474b0bd37977c29dd044d7d0fed574ec6543c7d00d89bfaccf665801",
+  "physical_equations_changed": false,
+  "geometry_changed": false,
+  "contact_rows_removed": 0,
+  "physical_admission": false
+}

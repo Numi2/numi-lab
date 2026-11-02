@@ -1,0 +1,3 @@
+PASS native initialization and source authority; physical nodes unchanged
+active_contact_body_reaction_z_n=-0.000454808 tissue_momentum_rate_z_n=0.000454599
+PASS surface spring and active bounded bank actual Runtime: force_n=0.020999 contact_force_n=0.000998998 free_node_dx_m=5.98119e-06 accepted_steps=2 rejected_nodes_cursor_history=bitwise replay=bitwise

@@ -1,0 +1,8 @@
+In file included from /Users/numi/Work/skin-fat-native-integration-209/tests/numi_human_fem_surface_attachment/native_initialize_test.mm:5:
+/Users/numi/Work/skin-fat-native-integration-209/matter/include/numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp:166:18: error: use of undeclared identifier 'fem_body_triangle_contact'
+  166 |                 !fem_body_triangle_contact::scaledTriangleUnitNormal(t.bodyLocalVertex0,
+      |                  ^
+/Users/numi/Work/skin-fat-native-integration-209/matter/include/numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp:391:14: error: use of undeclared identifier 'fem_body_triangle_contact'
+  391 |             !fem_body_triangle_contact::scaledTriangleUnitNormal(triangle.bodyLocalVertex0,
+      |              ^
+2 errors generated.

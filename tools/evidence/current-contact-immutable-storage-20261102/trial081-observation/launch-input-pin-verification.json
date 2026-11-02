@@ -1,0 +1,626 @@
+{
+  "status": "PASS",
+  "plan_sha256": "8e54baa46748b263d9f7d4a9d4871b46b216b257fbc8f7899c500ea8593a2ed7",
+  "checked_files": 88,
+  "elapsed_s": 1.855309707999936,
+  "records": [
+    {
+      "domain": "input_pins",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+      "expected_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+      "actual_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+      "expected_sha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+      "actual_sha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+      "expected_sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+      "actual_sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json",
+      "expected_sha256": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a",
+      "actual_sha256": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+      "expected_sha256": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+      "actual_sha256": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+      "expected_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "actual_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon",
+      "expected_sha256": "d0f5da8c63d5e3335eef72e7e79e8e5780ae43f0cf254e840dd7ad604b72da48",
+      "actual_sha256": "d0f5da8c63d5e3335eef72e7e79e8e5780ae43f0cf254e840dd7ad604b72da48",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-anatomy-receipt.json",
+      "expected_sha256": "76c6651a86e9353af9007ba6433beb2a7605b607d9c261def9537ab447d43a51",
+      "actual_sha256": "76c6651a86e9353af9007ba6433beb2a7605b607d9c261def9537ab447d43a51",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+      "expected_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+      "actual_sha256": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+      "expected_sha256": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d",
+      "actual_sha256": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/n/numi-human-separation-20261018/passive-fascia-source-173/payload/bodyparts3d-pectoralis-fascia.nhfascia",
+      "expected_sha256": "5a89c6464564528d7f30ce03294793628a41b61bb1f3cdb98645344225d17de1",
+      "actual_sha256": "5a89c6464564528d7f30ce03294793628a41b61bb1f3cdb98645344225d17de1",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/n/numi-lab-native-replay-publish-20261017/matter/materials/blood_high_shear_newtonian_proxy.nmatter",
+      "expected_sha256": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+      "actual_sha256": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-geometry-envelope-1058/run-002/receipt.json",
+      "expected_sha256": "d0285ea1716cbb26b8ddd4967ed6b266a92cb0ef0a0697a46484545b9c7ef224",
+      "actual_sha256": "d0285ea1716cbb26b8ddd4967ed6b266a92cb0ef0a0697a46484545b9c7ef224",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1025-launch/current-native-1025-direct-o-006-source-geometry-scope/native-compatible-candidate-self-audit-001.json",
+      "expected_sha256": "83dd8a2f568fc496393d0d64e0e96d521daf1ea57f8f603666d99901aef2d11a",
+      "actual_sha256": "83dd8a2f568fc496393d0d64e0e96d521daf1ea57f8f603666d99901aef2d11a",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.source.csv",
+      "expected_sha256": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f",
+      "actual_sha256": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-registered-volume-parent-identity-physical-control-365/inputs/deep-attachment-requests.csv",
+      "expected_sha256": "ae91cacdfe5057e7e7120bfbe501153eb85feb5a9371fa3cf07a673e81ebb742",
+      "actual_sha256": "ae91cacdfe5057e7e7120bfbe501153eb85feb5a9371fa3cf07a673e81ebb742",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/candidate.npz",
+      "expected_sha256": "2f547b21c6be0f3e21a021d80dad6c63c3a0e6af31d5ebe1780ca1b32c237a54",
+      "actual_sha256": "2f547b21c6be0f3e21a021d80dad6c63c3a0e6af31d5ebe1780ca1b32c237a54",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/exact-self-521/receipt.json",
+      "expected_sha256": "4f33f1779864b188a127e7a3df8ac68c58f7ba134695d1fd3d3613052f0ae34c",
+      "actual_sha256": "4f33f1779864b188a127e7a3df8ac68c58f7ba134695d1fd3d3613052f0ae34c",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/parent-reduced-boundary.ele",
+      "expected_sha256": "49671889c6711fedd8dd5727bd264e9d652b3c8ef48e15783b6be7a44c32c347",
+      "actual_sha256": "49671889c6711fedd8dd5727bd264e9d652b3c8ef48e15783b6be7a44c32c347",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/parent-reduced-boundary.node",
+      "expected_sha256": "d1238fc477b290c78970d5a7bbf01e7465a5e85aa00fe7414ee3b95503cc1b50",
+      "actual_sha256": "d1238fc477b290c78970d5a7bbf01e7465a5e85aa00fe7414ee3b95503cc1b50",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/reconstructed-receipt.json",
+      "expected_sha256": "70faa10f6952d85e5d7b788cddca4896fc329126c82102215489a97ffc7c685f",
+      "actual_sha256": "70faa10f6952d85e5d7b788cddca4896fc329126c82102215489a97ffc7c685f",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "expected_sha256": "76819990f8b17e27621b2e463ff953baa04f05f1bd0aaa94d27f51fbbac0979b",
+      "actual_sha256": "76819990f8b17e27621b2e463ff953baa04f05f1bd0aaa94d27f51fbbac0979b",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-projection-envelope-001/myosim-fullbody-core-reference.nhrigid",
+      "expected_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+      "actual_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+      "expected_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+      "actual_sha256": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1009-point-update-1018-root/actual-001/candidate-I-point-updated.npz",
+      "expected_sha256": "5557cbb88b46ea83d7977d60e1d362a10c48c290b77afb39b273efa29d32e323",
+      "actual_sha256": "5557cbb88b46ea83d7977d60e1d362a10c48c290b77afb39b273efa29d32e323",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1020-zero-skin-fat-source-qualified-root/proposal-exact-806/report.json",
+      "expected_sha256": "797a15ea8bca5b7f92a6464222a19956518ecb4a0bcaf438f0bdcf2e0c901323",
+      "actual_sha256": "797a15ea8bca5b7f92a6464222a19956518ecb4a0bcaf438f0bdcf2e0c901323",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1020-zero-skin-fat-source-qualified-root/receipt.json",
+      "expected_sha256": "ae08da49dc64d75a58678927b1c043da32546f0ba7cab99c04dc5f76255e7fe1",
+      "actual_sha256": "ae08da49dc64d75a58678927b1c043da32546f0ba7cab99c04dc5f76255e7fe1",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1020-zero-skin-fat-source-qualified-root/source-proof-808.json",
+      "expected_sha256": "265961cf643de8e25c8161246569690b91f783a5e116ada36480d4463abefbbc",
+      "actual_sha256": "265961cf643de8e25c8161246569690b91f783a5e116ada36480d4463abefbbc",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1020-zero-skin-fat-source-qualified-root/verified-state.json",
+      "expected_sha256": "11044a88b2d45ab9a9625f9a2cac46b8a952032b9ac0a07274710c316f5a88a9",
+      "actual_sha256": "11044a88b2d45ab9a9625f9a2cac46b8a952032b9ac0a07274710c316f5a88a9",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-937-b5-backtracking-root/proposal/candidate-O-typed-current.npz",
+      "expected_sha256": "10169962e298586d63794bf94515ecc3a9b1ce91e66cc60566a6919d7c856ac3",
+      "actual_sha256": "10169962e298586d63794bf94515ecc3a9b1ce91e66cc60566a6919d7c856ac3",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-958-D014-root/proposal-003/candidate-D-typed-current.npz",
+      "expected_sha256": "63cec05102fd2dc670d9220ec6472cd7d9ffa7085b4694719c605947086c7da9",
+      "actual_sha256": "63cec05102fd2dc670d9220ec6472cd7d9ffa7085b4694719c605947086c7da9",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/candidate-current-typed-volume.npz",
+      "expected_sha256": "5d31c141b66628801a711c2e745f744f745611882a269e173eddfcd0e99d3372",
+      "actual_sha256": "5d31c141b66628801a711c2e745f744f745611882a269e173eddfcd0e99d3372",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/candidate-node-map.csv",
+      "expected_sha256": "d71ede83bb69ea20304d561c658aa96050175bdf68688075777ea1f611e56bf9",
+      "actual_sha256": "d71ede83bb69ea20304d561c658aa96050175bdf68688075777ea1f611e56bf9",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/inserted-node-ancestry.csv",
+      "expected_sha256": "fbf7481c31f856cfc5f732bfce0b0363ab12141fdb18176e42a9786683b56a09",
+      "actual_sha256": "fbf7481c31f856cfc5f732bfce0b0363ab12141fdb18176e42a9786683b56a09",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1043/candidate-canonical-f32.node",
+      "expected_sha256": "8f47890b86b3a71ce247caf69eff6e72cf4a7080af28a287b8f4cd40efa27424",
+      "actual_sha256": "8f47890b86b3a71ce247caf69eff6e72cf4a7080af28a287b8f4cd40efa27424",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/1022-role-surface-orientation-audit.json",
+      "expected_sha256": "cad9e484357d9340f2ca43638a3e83874156a5693ddb9192f919e5c91ee8ebed",
+      "actual_sha256": "cad9e484357d9340f2ca43638a3e83874156a5693ddb9192f919e5c91ee8ebed",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/mass-436/declared-envelope.stdout",
+      "expected_sha256": "fc2f0ef4d811502a02d0f161404766e048a11aadbd9f73a7c167cfa5b4b3f0e5",
+      "actual_sha256": "fc2f0ef4d811502a02d0f161404766e048a11aadbd9f73a7c167cfa5b4b3f0e5",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/signed-face-controls-receipt.json",
+      "expected_sha256": "8bc805e0c6e8111f1cd0fc578e6e8b845db5faea6901704237055a95e016ee1c",
+      "actual_sha256": "8bc805e0c6e8111f1cd0fc578e6e8b845db5faea6901704237055a95e016ee1c",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/receipt.json",
+      "expected_sha256": "3eb750905bd61f855213b194c55a2bab2dda12b8bdc4ab3dc59c6456e4007b2c",
+      "actual_sha256": "3eb750905bd61f855213b194c55a2bab2dda12b8bdc4ab3dc59c6456e4007b2c",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/registered/donor-frames.csv",
+      "expected_sha256": "b1704fb7b846254583f4b6a08c394ed3cad1603554244078706ca4b3811ac674",
+      "actual_sha256": "b1704fb7b846254583f4b6a08c394ed3cad1603554244078706ca4b3811ac674",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/registered/node-parent-registration.csv",
+      "expected_sha256": "f6fee2cace882673b3835cdf7f0721125b668d377d2dcf8d756727759b7aacab",
+      "actual_sha256": "f6fee2cace882673b3835cdf7f0721125b668d377d2dcf8d756727759b7aacab",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/registered/outer-face-ancestry.csv",
+      "expected_sha256": "027fbf554e0b25c843467a8390a02c9c48ae0573c5a091191b790e2899ded2d7",
+      "actual_sha256": "027fbf554e0b25c843467a8390a02c9c48ae0573c5a091191b790e2899ded2d7",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/registered/registered-D-faces.csv",
+      "expected_sha256": "c33a95e42324d3b752f631db8469e1c4d8ef70226e5c4542b98a2399cbf2bcd8",
+      "actual_sha256": "c33a95e42324d3b752f631db8469e1c4d8ef70226e5c4542b98a2399cbf2bcd8",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/registered/registered-D.csv",
+      "expected_sha256": "fcb4439268f7783c677d7f80f9ab135ea64604ce67f0c305b8bd71be921b2636",
+      "actual_sha256": "fcb4439268f7783c677d7f80f9ab135ea64604ce67f0c305b8bd71be921b2636",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/registered/registered-I-faces.csv",
+      "expected_sha256": "261430e66bd8ea93e87e9056e95405889274c3c8afb68ef0a14f478314e3bb47",
+      "actual_sha256": "261430e66bd8ea93e87e9056e95405889274c3c8afb68ef0a14f478314e3bb47",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/registered/registered-I.csv",
+      "expected_sha256": "f28dee0523513b4c8824d325dbc4e56157fb110a5e298b257b361c84c932be23",
+      "actual_sha256": "f28dee0523513b4c8824d325dbc4e56157fb110a5e298b257b361c84c932be23",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/registered/registered-O-faces.csv",
+      "expected_sha256": "9229362b3cbbf3d108d156f7d7708f0bbe60cafdd82f5e2a40735514cc17fb66",
+      "actual_sha256": "9229362b3cbbf3d108d156f7d7708f0bbe60cafdd82f5e2a40735514cc17fb66",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/registered/registered-O.csv",
+      "expected_sha256": "acd4fcfadd1667a75ca92df9c40689d12b6bfa3807ae1d15e4b021b999d5b38c",
+      "actual_sha256": "acd4fcfadd1667a75ca92df9c40689d12b6bfa3807ae1d15e4b021b999d5b38c",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/D-contact-thickness.csv",
+      "expected_sha256": "968035d9173e6d9a849119f2418fbc92de48ef9efb8b2b99b4f7f2f37e12698a",
+      "actual_sha256": "968035d9173e6d9a849119f2418fbc92de48ef9efb8b2b99b4f7f2f37e12698a",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/D-full86.csv",
+      "expected_sha256": "345622c477200685d8779f76a39cbc86e71c5e8e2080ac21b4c60da5576d3436",
+      "actual_sha256": "345622c477200685d8779f76a39cbc86e71c5e8e2080ac21b4c60da5576d3436",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/D-source.json",
+      "expected_sha256": "fe101d4a6bec2a00561b6fd02feec011ce6db535c46b6d33fd7528b8759cbad8",
+      "actual_sha256": "fe101d4a6bec2a00561b6fd02feec011ce6db535c46b6d33fd7528b8759cbad8",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/I-contact-thickness.csv",
+      "expected_sha256": "7191409f7b249013dfeacff156f4b424397fbb5cc85a5b1a2cc248184a6ca5cc",
+      "actual_sha256": "7191409f7b249013dfeacff156f4b424397fbb5cc85a5b1a2cc248184a6ca5cc",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/I-full86.csv",
+      "expected_sha256": "97343f8dcc6e8f34bd303681442a11cb564efb7b7e641938b2aa3d7420b385a4",
+      "actual_sha256": "97343f8dcc6e8f34bd303681442a11cb564efb7b7e641938b2aa3d7420b385a4",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/I-source.json",
+      "expected_sha256": "536725450478ae10433155d24061d47696fdeb24da8c6e78052dd4aca4b4ef29",
+      "actual_sha256": "536725450478ae10433155d24061d47696fdeb24da8c6e78052dd4aca4b4ef29",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/O-contact-thickness.csv",
+      "expected_sha256": "010a977dd6a77585732e6805e7d449fc595e4ef4692623058fe1bc2e470b2617",
+      "actual_sha256": "010a977dd6a77585732e6805e7d449fc595e4ef4692623058fe1bc2e470b2617",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/O-full86.csv",
+      "expected_sha256": "f0883dd0bb2443d2a04ca8d287f48a8d3d13bc8e5b44b1a25c7a67476e102dba",
+      "actual_sha256": "f0883dd0bb2443d2a04ca8d287f48a8d3d13bc8e5b44b1a25c7a67476e102dba",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/O-source.json",
+      "expected_sha256": "2e59e97512db9142c25ead81f2f8f601b976b3b18cecb6a3be766e52ba2f3e4c",
+      "actual_sha256": "2e59e97512db9142c25ead81f2f8f601b976b3b18cecb6a3be766e52ba2f3e4c",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/source-domain-registry.json",
+      "expected_sha256": "f6cc99af8c158337330fd90bc95f646c0245f949de94c8145f11df016baa33ec",
+      "actual_sha256": "f6cc99af8c158337330fd90bc95f646c0245f949de94c8145f11df016baa33ec",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/volume/cell-parent-map.csv",
+      "expected_sha256": "3ac9ec0bb14ddd129488f588ba3e701801f9a945a318a283ad18da1222895709",
+      "actual_sha256": "3ac9ec0bb14ddd129488f588ba3e701801f9a945a318a283ad18da1222895709",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/volume/child.labels.csv",
+      "expected_sha256": "c48c944a0f4080ecc3df3d6430bf6f8ec8abca00c90c8b990ffbfdd72dc2156d",
+      "actual_sha256": "c48c944a0f4080ecc3df3d6430bf6f8ec8abca00c90c8b990ffbfdd72dc2156d",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/volume/combined-node-map.csv",
+      "expected_sha256": "457cdd42274199f51d5df247cb79e998c319dc49ec5b67820e8e78e09e4caee6",
+      "actual_sha256": "457cdd42274199f51d5df247cb79e998c319dc49ec5b67820e8e78e09e4caee6",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/volume/facet-ancestry.csv",
+      "expected_sha256": "cbfebfc668cada5dc0a3e17f28f573904f805872cfdedd9dbf0980799bfbf5f4",
+      "actual_sha256": "cbfebfc668cada5dc0a3e17f28f573904f805872cfdedd9dbf0980799bfbf5f4",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/volume/mesh.ele",
+      "expected_sha256": "ca1ec9c3ac3afc8964dbddf92bc6db5d1c854e0dc873ed8c4f3dfe4b0c6addeb",
+      "actual_sha256": "ca1ec9c3ac3afc8964dbddf92bc6db5d1c854e0dc873ed8c4f3dfe4b0c6addeb",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/volume/mesh.node",
+      "expected_sha256": "8f47890b86b3a71ce247caf69eff6e72cf4a7080af28a287b8f4cd40efa27424",
+      "actual_sha256": "8f47890b86b3a71ce247caf69eff6e72cf4a7080af28a287b8f4cd40efa27424",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-shell-1022-native/actual-001/receipt.json",
+      "expected_sha256": "b5dd9f69a5a61331141ad69f06466225349526b26916de9d57c7bbbbd71ec10f",
+      "actual_sha256": "b5dd9f69a5a61331141ad69f06466225349526b26916de9d57c7bbbbd71ec10f",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/verified-volume-preparation-010-merged038005/rim/protected149-current-routes.json",
+      "expected_sha256": "ed6e15c6dc9324b09cd4514e1fc3a149fc92a07215128a9820d72fca3f350a71",
+      "actual_sha256": "ed6e15c6dc9324b09cd4514e1fc3a149fc92a07215128a9820d72fca3f350a71",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv",
+      "expected_sha256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+      "actual_sha256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.labels.csv",
+      "expected_sha256": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457",
+      "actual_sha256": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.nodes.csv",
+      "expected_sha256": "7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044",
+      "actual_sha256": "7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.tets.csv",
+      "expected_sha256": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+      "actual_sha256": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.weights.csv",
+      "expected_sha256": "98205ae7de44401544b7969184788f5c2ee39cd4404cd34b8037377e7ae63a76",
+      "actual_sha256": "98205ae7de44401544b7969184788f5c2ee39cd4404cd34b8037377e7ae63a76",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/parent-layer-rows.csv",
+      "expected_sha256": "ae8f0c96ce34f3dedf4b2950eb7009436f827998ad5a35b7f9287d2cf4cc384f",
+      "actual_sha256": "ae8f0c96ce34f3dedf4b2950eb7009436f827998ad5a35b7f9287d2cf4cc384f",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/registered-skin-poses-100.json",
+      "expected_sha256": "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a",
+      "actual_sha256": "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a",
+      "pass": true
+    },
+    {
+      "domain": "input_pins",
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanWholeBodySkinReduction.hpp",
+      "expected_sha256": "d55b1995fff2ee1841d000bd5453f97402a3af25c7bfbf184df81d2718caa772",
+      "actual_sha256": "d55b1995fff2ee1841d000bd5453f97402a3af25c7bfbf184df81d2718caa772",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/skin-recorded-flow-receipt.json",
+      "expected_sha256": "c78241d25b4905208b21a08e2daab25ca48e40fb7ab80e86911fad7bda35cd92",
+      "actual_sha256": "c78241d25b4905208b21a08e2daab25ca48e40fb7ab80e86911fad7bda35cd92",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/skin-child-mass.csv",
+      "expected_sha256": "1267ce8e4d5516be680942bb998a972f3a0429cf8dbaa9b875eb3179a82e203e",
+      "actual_sha256": "1267ce8e4d5516be680942bb998a972f3a0429cf8dbaa9b875eb3179a82e203e",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/skin-transport-flow.csv",
+      "expected_sha256": "6d818052c551bb59ce658ab6817ffaec63f6c1f87b658ef5b058438e0ff7a974",
+      "actual_sha256": "6d818052c551bb59ce658ab6817ffaec63f6c1f87b658ef5b058438e0ff7a974",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/skin-source-carrier-flow.csv",
+      "expected_sha256": "00e336fe0ba4fb7e1c8973a6ba3cfd2aee7087df8cffc235cfcf0e699222c992",
+      "actual_sha256": "00e336fe0ba4fb7e1c8973a6ba3cfd2aee7087df8cffc235cfcf0e699222c992",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/skin-child-source-donor.csv",
+      "expected_sha256": "0b17a21e31507781e9faeb7ce154481be75f32c8ba93270a2e65fe1bcf393128",
+      "actual_sha256": "0b17a21e31507781e9faeb7ce154481be75f32c8ba93270a2e65fe1bcf393128",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/skin-source-parent.csv",
+      "expected_sha256": "4ce250876d18e1fb1833c37dcd9d890418c8af9837e85cd2175b8d472f143a75",
+      "actual_sha256": "4ce250876d18e1fb1833c37dcd9d890418c8af9837e85cd2175b8d472f143a75",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/skin-source-parent-donor.csv",
+      "expected_sha256": "433a5debb87fa7491d3b1044e79b1c7cea44f950f5d3c9360cce3f02dab755ab",
+      "actual_sha256": "433a5debb87fa7491d3b1044e79b1c7cea44f950f5d3c9360cce3f02dab755ab",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/fat-recorded-flow-receipt.json",
+      "expected_sha256": "0f7ccb750140be64172f278e31accec0c628c10cbe98084bf9d77cabd03cda5c",
+      "actual_sha256": "0f7ccb750140be64172f278e31accec0c628c10cbe98084bf9d77cabd03cda5c",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/fat-child-mass.csv",
+      "expected_sha256": "340149ace4ff881d4b5916b5e64d6d57758ef196390740922ceb6b44878edf7e",
+      "actual_sha256": "340149ace4ff881d4b5916b5e64d6d57758ef196390740922ceb6b44878edf7e",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/fat-transport-flow.csv",
+      "expected_sha256": "eab71f11d58b905b7a40de0dd8ef92f2369136cc5ddbca9b285341a62141e71f",
+      "actual_sha256": "eab71f11d58b905b7a40de0dd8ef92f2369136cc5ddbca9b285341a62141e71f",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/fat-source-carrier-flow.csv",
+      "expected_sha256": "0ac33ce57d5ef76f938d722304e17be52ab3c21eeebb533a91ff9432e90a2974",
+      "actual_sha256": "0ac33ce57d5ef76f938d722304e17be52ab3c21eeebb533a91ff9432e90a2974",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/fat-child-source-donor.csv",
+      "expected_sha256": "389b371eae1a4f4a83e5f7c970c96e2e7741d8e6afcc008cd3bffa80ef72f7ee",
+      "actual_sha256": "389b371eae1a4f4a83e5f7c970c96e2e7741d8e6afcc008cd3bffa80ef72f7ee",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/fat-source-parent.csv",
+      "expected_sha256": "d2c33a3391227346dcdf47360af69209cc80c5d6e1d687900e760e7e947e345d",
+      "actual_sha256": "d2c33a3391227346dcdf47360af69209cc80c5d6e1d687900e760e7e947e345d",
+      "pass": true
+    },
+    {
+      "domain": "role_input_pins",
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/fat-source-parent-donor.csv",
+      "expected_sha256": "2f7a618e87dec02b748184a03502a6b19e68e8de5c763ae114fde52212c45bd7",
+      "actual_sha256": "2f7a618e87dec02b748184a03502a6b19e68e8de5c763ae114fde52212c45bd7",
+      "pass": true
+    }
+  ],
+  "qualification_scope": "supplements initial plan builder which did not recognize path-to-hash string dictionaries",
+  "physical_admission": false
+}

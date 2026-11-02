@@ -4,6 +4,7 @@
 #include "numi/matter/fem_body_contact_static_bvh.hpp"
 #include "numi/matter/fem_body_contact_sample_grouping.hpp"
 #include "fem_surface_attachment_validation.hpp"
+#include "immutable_shared_contact_storage.hpp"
 
 #include <CommonCrypto/CommonDigest.h>
 
@@ -14,6 +15,7 @@
 #include <array>
 #include <cmath>
 #include <cstdlib>
+#include <cstdio>
 #include <cstring>
 #include <limits>
 #include <numeric>
@@ -587,22 +589,23 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     std::vector<NMNumiHumanFEMContactSampleGPU> contactSamples;
     std::vector<NMNumiHumanFEMContactContributionGPU> contactContributions;
     std::vector<NMIncidenceRangeGPU> contactRanges;
-    std::vector<NMNumiHumanFEMBodyContactSampleGPU> femBodyContactSamples;
-    std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>
-        femBodyContactNeighborhoodRanges;
-    std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>
-        femBodyContactSolverNeighborhoodRanges;
-    std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>
-        femBodyContactNeighborhoodTriangles;
-    std::vector<NMNumiHumanFEMBodyContactBVHNodeGPU>
-        femBodyContactNeighborhoodBVHNodes;
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> femBodyContactSamplesStaging;
+    std::span<const NMNumiHumanFEMBodyContactSampleGPU> femBodyContactSamples;
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> femBodyContactNeighborhoodRangesStaging;
+    std::span<const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> femBodyContactNeighborhoodRanges;
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> femBodyContactSolverNeighborhoodRangesStaging;
+    std::span<const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> femBodyContactSolverNeighborhoodRanges;
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> femBodyContactNeighborhoodTrianglesStaging;
+    std::span<const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> femBodyContactNeighborhoodTriangles;
+    std::vector<NMNumiHumanFEMBodyContactBVHNodeGPU> femBodyContactNeighborhoodBVHNodesStaging;
+    std::span<const NMNumiHumanFEMBodyContactBVHNodeGPU> femBodyContactNeighborhoodBVHNodes;
     std::vector<NMNumiHumanFEMSurfaceAttachmentGPU> femSurfaceAttachments;
-    std::vector<NMNumiHumanFEMBodyContactSampleGPU>
-        femBodyContactSolverSamples;
-    std::vector<NMNumiHumanFEMBodyContactSampleGPU>
-        femBodyContactGroupedSolverSamples;
-    std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>
-        femBodyContactGroupedSolverNeighborhoodRanges;
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> femBodyContactSolverSamplesStaging;
+    std::span<const NMNumiHumanFEMBodyContactSampleGPU> femBodyContactSolverSamples;
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> femBodyContactGroupedSolverSamplesStaging;
+    std::span<const NMNumiHumanFEMBodyContactSampleGPU> femBodyContactGroupedSolverSamples;
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> femBodyContactGroupedSolverNeighborhoodRangesStaging;
+    std::span<const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> femBodyContactGroupedSolverNeighborhoodRanges;
     std::vector<std::uint32_t> femBodyContactSolverGroupCounts;
     bool hasMultiMasterTriangleContact = false;
     std::vector<NMNumiHumanFEMBodyContactSampleGPU>
@@ -1256,18 +1259,22 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         source.contactContributions.end());
     candidate->contactRanges.assign(
         source.contactRanges.begin(), source.contactRanges.end());
-    candidate->femBodyContactSamples.assign(
+    candidate->femBodyContactSamplesStaging.assign(
         source.femBodyContactSamples.begin(),
         source.femBodyContactSamples.end());
-    candidate->femBodyContactNeighborhoodRanges.assign(
+    candidate->femBodyContactSamples = candidate->femBodyContactSamplesStaging;
+    candidate->femBodyContactNeighborhoodRangesStaging.assign(
         source.femBodyContactNeighborhoodRanges.begin(),
         source.femBodyContactNeighborhoodRanges.end());
-    candidate->femBodyContactNeighborhoodTriangles.assign(
+    candidate->femBodyContactNeighborhoodRanges = candidate->femBodyContactNeighborhoodRangesStaging;
+    candidate->femBodyContactNeighborhoodTrianglesStaging.assign(
         source.femBodyContactNeighborhoodTriangles.begin(),
         source.femBodyContactNeighborhoodTriangles.end());
-    candidate->femBodyContactNeighborhoodBVHNodes.assign(
+    candidate->femBodyContactNeighborhoodTriangles = candidate->femBodyContactNeighborhoodTrianglesStaging;
+    candidate->femBodyContactNeighborhoodBVHNodesStaging.assign(
         source.femBodyContactNeighborhoodBVHNodes.begin(),
         source.femBodyContactNeighborhoodBVHNodes.end());
+    candidate->femBodyContactNeighborhoodBVHNodes = candidate->femBodyContactNeighborhoodBVHNodesStaging;
     candidate->hasMultiMasterTriangleContact =
         hasMultiMasterTriangleContact;
     candidate->femSurfaceAttachments.assign(
@@ -1299,21 +1306,34 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
                 candidate->implicitSpringPointQueries.push_back(query);
             }
         }
-        if (candidate->implicitSpringSamples.size() !=
-            candidate->implicitSpringCount ||
-            !fem_body_contact_neighborhood::appendUnselectedSolverRows(
-                candidate->femBodyContactSamples,
-                candidate->femBodyContactNeighborhoodRanges,
-                selected,
-                candidate->femBodyContactSolverSamples,
-                candidate->femBodyContactSolverNeighborhoodRanges)) return false;
-        if (candidate->hasMultiMasterTriangleContact &&
-            !fem_body_contact_grouping::stableGroupRowsBySlave(
-                candidate->femBodyContactSolverSamples,
-                candidate->femBodyContactSolverNeighborhoodRanges,
-                candidate->femBodyContactGroupedSolverSamples,
-                candidate->femBodyContactGroupedSolverNeighborhoodRanges,
-                candidate->femBodyContactSolverGroupCounts)) return false;
+        if (candidate->implicitSpringSamples.size() != candidate->implicitSpringCount)
+            return false;
+        if (candidate->implicitSpringCount == 0u) {
+            candidate->femBodyContactSolverSamples = candidate->femBodyContactSamples;
+            candidate->femBodyContactSolverNeighborhoodRanges = candidate->femBodyContactNeighborhoodRanges;
+        } else {
+            if (!fem_body_contact_neighborhood::appendUnselectedSolverRows(
+                    candidate->femBodyContactSamples, candidate->femBodyContactNeighborhoodRanges,
+                    selected, candidate->femBodyContactSolverSamplesStaging,
+                    candidate->femBodyContactSolverNeighborhoodRangesStaging)) return false;
+            candidate->femBodyContactSolverSamples = candidate->femBodyContactSolverSamplesStaging;
+            candidate->femBodyContactSolverNeighborhoodRanges = candidate->femBodyContactSolverNeighborhoodRangesStaging;
+        }
+        if (candidate->hasMultiMasterTriangleContact) {
+            if (fem_body_contact_grouping::contiguousSlaveGroupCounts(
+                    candidate->femBodyContactSolverSamples, candidate->femBodyContactSolverGroupCounts)) {
+                candidate->femBodyContactGroupedSolverSamples = candidate->femBodyContactSolverSamples;
+                candidate->femBodyContactGroupedSolverNeighborhoodRanges = candidate->femBodyContactSolverNeighborhoodRanges;
+            } else {
+                if (!fem_body_contact_grouping::stableGroupRowsBySlave(
+                        candidate->femBodyContactSolverSamples, candidate->femBodyContactSolverNeighborhoodRanges,
+                        candidate->femBodyContactGroupedSolverSamplesStaging,
+                        candidate->femBodyContactGroupedSolverNeighborhoodRangesStaging,
+                        candidate->femBodyContactSolverGroupCounts)) return false;
+                candidate->femBodyContactGroupedSolverSamples = candidate->femBodyContactGroupedSolverSamplesStaging;
+                candidate->femBodyContactGroupedSolverNeighborhoodRanges = candidate->femBodyContactGroupedSolverNeighborhoodRangesStaging;
+            }
+        }
     }
     candidate->articularContactSamples.assign(
         source.articularContactSamples.begin(),
@@ -1846,7 +1866,9 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                                 sizeof(NMNumiHumanFEMBodyContactNeighborhoodRangeGPU)
                             options:MTLResourceStorageModeShared];
                 state_->femBodyContactSolverNeighborhoodRangeBuffer =
-                    state_->femBodyContactSolverNeighborhoodRanges.empty()
+                    (state_->femBodyContactSolverNeighborhoodRanges.empty() ||
+                     detail::identicalImmutableRows(state_->femBodyContactSolverNeighborhoodRanges,
+                         state_->femBodyContactNeighborhoodRanges))
                         ? state_->femBodyContactNeighborhoodRangeBuffer
                         : [device newBufferWithBytes:
                             state_->femBodyContactSolverNeighborhoodRanges.data()
@@ -1855,14 +1877,19 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                             options:MTLResourceStorageModeShared];
                 if (state_->hasMultiMasterTriangleContact) {
                     state_->femBodyContactGroupedSolverSampleBuffer =
-                        [device newBufferWithBytes:
+                        detail::identicalImmutableRows(state_->femBodyContactGroupedSolverSamples,
+                            state_->femBodyContactSolverSamples)
+                        ? state_->femBodyContactSolverSampleBuffer
+                        : [device newBufferWithBytes:
                             state_->femBodyContactGroupedSolverSamples.data()
                         length:state_->femBodyContactGroupedSolverSamples.size() *
                             sizeof(NMNumiHumanFEMBodyContactSampleGPU)
                         options:MTLResourceStorageModeShared];
                     state_->femBodyContactGroupedSolverRangeBuffer =
-                        state_->femBodyContactGroupedSolverNeighborhoodRanges.empty()
-                            ? state_->femBodyContactNeighborhoodRangeBuffer
+                        (state_->femBodyContactGroupedSolverNeighborhoodRanges.empty() ||
+                         detail::identicalImmutableRows(state_->femBodyContactGroupedSolverNeighborhoodRanges,
+                             state_->femBodyContactSolverNeighborhoodRanges))
+                            ? state_->femBodyContactSolverNeighborhoodRangeBuffer
                             : [device newBufferWithBytes:
                                 state_->femBodyContactGroupedSolverNeighborhoodRanges.data()
                             length:state_->femBodyContactGroupedSolverNeighborhoodRanges.size() *
@@ -2264,6 +2291,72 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             }
             if (state_->worldStatusBuffer == nil) {
                 state_->message = "Human tendon/FEM world-status buffer is unavailable";
+                return false;
+            }
+            std::size_t releasedImmutableContactBytes = 0u;
+            // Rebind dependent views first: they may share their source staging.
+            if (!detail::retainSharedImmutableRows(state_->femBodyContactGroupedSolverSampleBuffer,
+                    state_->femBodyContactGroupedSolverSamplesStaging, state_->femBodyContactGroupedSolverSamples,
+                    releasedImmutableContactBytes)) {
+                state_->message = "Human immutable contact upload parity failed: femBodyContactGroupedSolverSamples";
+                return false;
+            }
+            if (!detail::retainSharedImmutableRows(state_->femBodyContactGroupedSolverRangeBuffer,
+                    state_->femBodyContactGroupedSolverNeighborhoodRangesStaging, state_->femBodyContactGroupedSolverNeighborhoodRanges,
+                    releasedImmutableContactBytes)) {
+                state_->message = "Human immutable contact upload parity failed: femBodyContactGroupedSolverNeighborhoodRanges";
+                return false;
+            }
+            if (!detail::retainSharedImmutableRows(state_->femBodyContactSolverSampleBuffer,
+                    state_->femBodyContactSolverSamplesStaging, state_->femBodyContactSolverSamples,
+                    releasedImmutableContactBytes)) {
+                state_->message = "Human immutable contact upload parity failed: femBodyContactSolverSamples";
+                return false;
+            }
+            if (!detail::retainSharedImmutableRows(state_->femBodyContactSolverNeighborhoodRangeBuffer,
+                    state_->femBodyContactSolverNeighborhoodRangesStaging, state_->femBodyContactSolverNeighborhoodRanges,
+                    releasedImmutableContactBytes)) {
+                state_->message = "Human immutable contact upload parity failed: femBodyContactSolverNeighborhoodRanges";
+                return false;
+            }
+            if (!detail::retainSharedImmutableRows(state_->femBodyContactSampleBuffer,
+                    state_->femBodyContactSamplesStaging, state_->femBodyContactSamples,
+                    releasedImmutableContactBytes)) {
+                state_->message = "Human immutable contact upload parity failed: femBodyContactSamples";
+                return false;
+            }
+            if (!detail::retainSharedImmutableRows(state_->femBodyContactNeighborhoodRangeBuffer,
+                    state_->femBodyContactNeighborhoodRangesStaging, state_->femBodyContactNeighborhoodRanges,
+                    releasedImmutableContactBytes)) {
+                state_->message = "Human immutable contact upload parity failed: femBodyContactNeighborhoodRanges";
+                return false;
+            }
+            if (!detail::retainSharedImmutableRows(state_->femBodyContactNeighborhoodTriangleBuffer,
+                    state_->femBodyContactNeighborhoodTrianglesStaging, state_->femBodyContactNeighborhoodTriangles,
+                    releasedImmutableContactBytes)) {
+                state_->message = "Human immutable contact upload parity failed: femBodyContactNeighborhoodTriangles";
+                return false;
+            }
+            if (!detail::retainSharedImmutableRows(state_->femBodyContactNeighborhoodBVHNodeBuffer,
+                    state_->femBodyContactNeighborhoodBVHNodesStaging, state_->femBodyContactNeighborhoodBVHNodes,
+                    releasedImmutableContactBytes)) {
+                state_->message = "Human immutable contact upload parity failed: femBodyContactNeighborhoodBVHNodes";
+                return false;
+            }
+            std::fprintf(stderr, "human_immutable_contact_storage=shared_upload_owner cpu_staging_released_bytes=%zu samples=%zu sample_rows_unchanged=1 device_allocated_bytes=%zu recommended_working_set_bytes=%llu\n",
+                releasedImmutableContactBytes, state_->femBodyContactSamples.size(),
+                static_cast<std::size_t>(device.currentAllocatedSize),
+                static_cast<unsigned long long>(device.recommendedMaxWorkingSetSize));
+            // Diagnostic admission bound for large native scenes. This stops
+            // before submission, never accepts a smaller physical workload.
+            const char* workingSetGuard = std::getenv("NUMI_HUMAN_CONTACT_WORKING_SET_GUARD");
+            if (workingSetGuard != nullptr && std::strcmp(workingSetGuard, "1") != 0) {
+                state_->message = "NUMI_HUMAN_CONTACT_WORKING_SET_GUARD must be exactly 1 when set";
+                return false;
+            }
+            if (workingSetGuard != nullptr && device.currentAllocatedSize >
+                    device.recommendedMaxWorkingSetSize) {
+                state_->message = "Human contact preparation exceeds the device recommended working set; physical segment was not submitted";
                 return false;
             }
         } else if (state_->device.registryID != device.registryID) {

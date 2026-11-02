@@ -41,7 +41,7 @@ def main():
            "-Wall", "-Wextra", "-Wpedantic", "-Werror", "-DNDEBUG", "-arch", "arm64"]
     sources = ["matter/include/numi/matter/numi_human_shared.h",
                "matter/include/numi/matter/numi_human.hpp", "matter/src/numi_human.mm",
-               "matter/src/fem_surface_attachment_validation.hpp", "matter/src/metal/numi_human.metalinc"]
+               "matter/src/fem_surface_attachment_validation.hpp", "matter/src/immutable_shared_contact_storage.hpp", "matter/src/metal/numi_human.metalinc"]
     sources += [str(p.relative_to(ROOT)) for p in sorted(TEST.iterdir())
                 if p.suffix in (".cpp", ".mm", ".metal", ".py", ".md")]
     def sha(path):
@@ -50,6 +50,10 @@ def main():
                "source_sha256": {p: sha(ROOT / p) for p in sources}, "stages": stages}
     try:
         run("owner-syntax", cpp + ["-fPIC", "-fobjc-arc", *includes, "-fsyntax-only", ROOT / "matter/src/numi_human.mm"])
+        run("immutable-storage-build", cpp + ["-fobjc-arc", *includes,
+            TEST / "immutable_shared_contact_storage_test.mm", "-framework", "Foundation",
+            "-framework", "Metal", "-o", out / "immutable-storage-test"])
+        run("immutable-storage-run", [out / "immutable-storage-test"])
         run("cpu-build", cpp + includes + [TEST / "fem_surface_attachment_math_test.cpp", "-o", out / "math-test"])
         run("cpu-run", [out / "math-test"])
         run("gpu-build", cpp + ["-fobjc-arc", *includes, TEST / "fem_surface_attachment_coupon.mm",

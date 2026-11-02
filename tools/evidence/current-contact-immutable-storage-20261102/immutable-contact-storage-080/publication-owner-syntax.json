@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "xcrun",
+    "--sdk",
+    "macosx",
+    "clang++",
+    "-std=c++23",
+    "-fobjc-arc",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I",
+    "/Users/numi/Work/current-fractional-020-publication-20261101/include",
+    "-I",
+    "/Users/numi/Work/current-fractional-020-publication-20261101/matter/include",
+    "-I",
+    "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src",
+    "-fsyntax-only",
+    "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src/numi_human.mm"
+  ],
+  "exit_code": 1,
+  "elapsed_s": 0.8297107500000038,
+  "physical_admission": false
+}

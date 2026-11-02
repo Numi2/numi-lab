@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 #include "numi/matter/matter.hpp"
 #include "numi/matter/numi_human.hpp"
+#include "numi/matter/fem_body_triangle_contact_sample.hpp"
 #include "numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp"
 #include <algorithm>
 #include <array>

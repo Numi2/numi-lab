@@ -1,0 +1,19 @@
+{
+  "status": "PASS_APPLIED_NARROW_PATCH",
+  "publisher_head": "21ac9e21edce26d256de6f9ed94ac564bfabae30",
+  "modified_files": [
+    "matter/src/numi_human.mm",
+    "apps/numilab_human_myosim_visual_probe.mm",
+    "matter/include/numi/matter/fem_body_contact_sample_grouping.hpp",
+    "tests/numi_human_fem_surface_attachment/native_initialize_test.mm",
+    "tests/numi_human_fem_surface_attachment/run.py",
+    "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_math_test.cpp"
+  ],
+  "added_files": [
+    "matter/src/immutable_shared_contact_storage.hpp",
+    "tests/numi_human_fem_surface_attachment/immutable_shared_contact_storage_test.mm"
+  ],
+  "patch_sha256": "4b74601e03763f1343eb1780fdf0688206fb486a1cf3bb3f1d923fff2b942dcd",
+  "full_native_source_pin_count": 760,
+  "physical_admission": false
+}

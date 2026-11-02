@@ -1,0 +1,274 @@
+{
+  "README.md": {
+    "bytes": 2974,
+    "sha256": "58fac4a3d773833f623694e88423d9614b625c98da0327547b623d356fd4cdab"
+  },
+  "immutable-contact-storage-080/active-build-control.json": {
+    "bytes": 1095,
+    "sha256": "adb858dc5385f34fa38738f9639f2dfd942df7bebb851604263e131e9dec3b63"
+  },
+  "immutable-contact-storage-080/controls.json": {
+    "bytes": 7488,
+    "sha256": "c25c2ef6a51d1dd341ca6bbd48a592d2acb79dcfe0330b510481f58c2d8eb47e"
+  },
+  "immutable-contact-storage-080/native-attachment-control-build.stderr.log": {
+    "bytes": 811,
+    "sha256": "f06d7600362147a2be57825ada100ed1f5b68d039450c62a10e3c5fe9d52545f"
+  },
+  "immutable-contact-storage-080/native-attachment-control-build.stdout.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/native-build.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/native-build.stdout.log": {
+    "bytes": 356,
+    "sha256": "fd41c0819fae65408399db958a843760142aef7d864e636d0e48666399cb12e7"
+  },
+  "immutable-contact-storage-080/native-source-pins-081.json": {
+    "bytes": 86432,
+    "sha256": "42ab0a050dfa8bf8e5ad97c0d2731c15ddca11b187697a2de6679189ff6f483c"
+  },
+  "immutable-contact-storage-080/patch-receipt.json": {
+    "bytes": 395,
+    "sha256": "2c29a9e3feb580426374de1401b79763c4cb38971934e6e6e225591662b8facc"
+  },
+  "immutable-contact-storage-080/publication-owner-syntax-002.json": {
+    "bytes": 637,
+    "sha256": "9395c2dffc2734336b3d196439b9bb67c13df12ce0021826d6abb23218930d67"
+  },
+  "immutable-contact-storage-080/publication-owner-syntax-002.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/publication-owner-syntax-002.stdout.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/publication-owner-syntax.json": {
+    "bytes": 637,
+    "sha256": "ccce702d938f844faa40be9b6f68f19585d4b203e6dc62a2601efa342ef16409"
+  },
+  "immutable-contact-storage-080/publication-owner-syntax.stderr.log": {
+    "bytes": 293,
+    "sha256": "d713ce4747a7150cd4a969c23e0d281ab26264d2845dbecac51658d468c5ee9e"
+  },
+  "immutable-contact-storage-080/publication-owner-syntax.stdout.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/publication-patch-check.json": {
+    "bytes": 825,
+    "sha256": "f67543503802e689b61d4bb649951d0fe2d0df5bc613bd5a8c73186e7f9a47a9"
+  },
+  "immutable-contact-storage-080/retry-001/active-build-control.json": {
+    "bytes": 518,
+    "sha256": "dc7967ef4e1ce2cee7dad3fb3e1968a328522b6464cce168a6e67c6a8a086307"
+  },
+  "immutable-contact-storage-080/retry-001/build-source-device-manifest.json": {
+    "bytes": 11694,
+    "sha256": "6dda47135740c59e2419d1b84b91e3a05a23459ae5ba97feff64f21c2a42e56e"
+  },
+  "immutable-contact-storage-080/retry-001/controls.json": {
+    "bytes": 10644,
+    "sha256": "5b1fd1d0adee6104677a84143ebfaeac8371a3923265d756384ad4b405fe6090"
+  },
+  "immutable-contact-storage-080/retry-001/native-attachment-active-contact-control.stderr.log": {
+    "bytes": 1621,
+    "sha256": "df7581dcab3c464e4e020545ee94abd56ef2c4923b2033bbbfcc28832a3585fb"
+  },
+  "immutable-contact-storage-080/retry-001/native-attachment-active-contact-control.stdout.log": {
+    "bytes": 359,
+    "sha256": "c1e91a41f7f90064cb68e65bacf5c0ec866411251697f0755e5656f44489a41c"
+  },
+  "immutable-contact-storage-080/retry-001/native-attachment-control-build.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-001/native-attachment-control-build.stdout.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-001/native-attachment-control.stderr.log": {
+    "bytes": 1621,
+    "sha256": "df7581dcab3c464e4e020545ee94abd56ef2c4923b2033bbbfcc28832a3585fb"
+  },
+  "immutable-contact-storage-080/retry-001/native-attachment-control.stdout.log": {
+    "bytes": 263,
+    "sha256": "3ca254530256f37528f5e1c223088d30f8ee1ae96808697f94cf03999d95c61e"
+  },
+  "immutable-contact-storage-080/retry-001/native-build.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-001/native-build.stdout.log": {
+    "bytes": 250,
+    "sha256": "f702ab4b0bcfaab4ae8e0de3ae408da461dd6bc8473569bb2b2f15b9b593c863"
+  },
+  "immutable-contact-storage-080/retry-001/storage-control-build.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-001/storage-control-build.stdout.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-001/storage-control.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-001/storage-control.stdout.log": {
+    "bytes": 105,
+    "sha256": "3a641fa83142a89bf3c5e7c3652d67933b9fa6026c183bffe1d697d33a23ae2a"
+  },
+  "immutable-contact-storage-080/retry-002/active-build-control.json": {
+    "bytes": 518,
+    "sha256": "5b991f058c3e504bf326ea1a968efd30edf79edcaa8a9bd9be857b8434a537ec"
+  },
+  "immutable-contact-storage-080/retry-002/build-source-device-manifest.json": {
+    "bytes": 15226,
+    "sha256": "01bedf9fd8403016815d9d0b89339fa4eb5ffa14473a2a4b03187fa4270b3260"
+  },
+  "immutable-contact-storage-080/retry-002/controls.json": {
+    "bytes": 14176,
+    "sha256": "3fe6750856c6a4e41b1a2df78049b955d27b93e42f63e74a07d65ca1c586d183"
+  },
+  "immutable-contact-storage-080/retry-002/grouping-control-build.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-002/grouping-control-build.stdout.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-002/grouping-control.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-002/grouping-control.stdout.log": {
+    "bytes": 324,
+    "sha256": "b7cb829caed3761ec90a173ca2f2b5db7c5bf92839dab0c5c2b3f459da98d53f"
+  },
+  "immutable-contact-storage-080/retry-002/native-attachment-active-contact-control.stderr.log": {
+    "bytes": 1621,
+    "sha256": "5905fdc41258dcdd5ac4e2f0ce8c370cf949a98edb9480d0353261b73786bbcf"
+  },
+  "immutable-contact-storage-080/retry-002/native-attachment-active-contact-control.stdout.log": {
+    "bytes": 359,
+    "sha256": "c1e91a41f7f90064cb68e65bacf5c0ec866411251697f0755e5656f44489a41c"
+  },
+  "immutable-contact-storage-080/retry-002/native-attachment-control-build.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-002/native-attachment-control-build.stdout.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-002/native-attachment-control.stderr.log": {
+    "bytes": 1621,
+    "sha256": "5905fdc41258dcdd5ac4e2f0ce8c370cf949a98edb9480d0353261b73786bbcf"
+  },
+  "immutable-contact-storage-080/retry-002/native-attachment-control.stdout.log": {
+    "bytes": 263,
+    "sha256": "3ca254530256f37528f5e1c223088d30f8ee1ae96808697f94cf03999d95c61e"
+  },
+  "immutable-contact-storage-080/retry-002/native-build.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-002/native-build.stdout.log": {
+    "bytes": 250,
+    "sha256": "f702ab4b0bcfaab4ae8e0de3ae408da461dd6bc8473569bb2b2f15b9b593c863"
+  },
+  "immutable-contact-storage-080/retry-002/storage-control-build.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-002/storage-control-build.stdout.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-002/storage-control.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/retry-002/storage-control.stdout.log": {
+    "bytes": 105,
+    "sha256": "3a641fa83142a89bf3c5e7c3652d67933b9fa6026c183bffe1d697d33a23ae2a"
+  },
+  "immutable-contact-storage-080/storage-control-build.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/storage-control-build.stdout.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/storage-control.stderr.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "immutable-contact-storage-080/storage-control.stdout.log": {
+    "bytes": 105,
+    "sha256": "3a641fa83142a89bf3c5e7c3652d67933b9fa6026c183bffe1d697d33a23ae2a"
+  },
+  "immutable-contact-storage-080/storage-ownership.patch": {
+    "bytes": 22658,
+    "sha256": "4b74601e03763f1343eb1780fdf0688206fb486a1cf3bb3f1d923fff2b942dcd"
+  },
+  "native-import-079/install-motion.plan.json": {
+    "bytes": 76701,
+    "sha256": "f5fb35a83389985d205c4f1295e072bfac879a04f0e9e298c7d407ac3adb42b1"
+  },
+  "native-import-079/install-motion.stderr.log": {
+    "bytes": 65969,
+    "sha256": "03b514d9af4805849de95dfaf5f038675ea0ff937bac3a0980a79e066d87444e"
+  },
+  "native-import-079/install-motion.stdout.log": {
+    "bytes": 300547,
+    "sha256": "3949fabeae16d171095fbb1455bd53b1b527d176f41e2f234c0a25c2f1681c6d"
+  },
+  "native-import-079/interrupted-after-host-restart.json": {
+    "bytes": 600,
+    "sha256": "f3726757ae5dde92507086483b90369e1ba92ee5f933298b7c269d3636f4c37f"
+  },
+  "trial081-observation/install-motion.plan.json": {
+    "bytes": 77429,
+    "sha256": "8e54baa46748b263d9f7d4a9d4871b46b216b257fbc8f7899c500ea8593a2ed7"
+  },
+  "trial081-observation/install-motion.stderr-prefix.log": {
+    "bytes": 66172,
+    "sha256": "68e7036e49d97361e8a8517d3db75c7bc369770304558b4eb06baaaf62a05a7b"
+  },
+  "trial081-observation/install-motion.stdout-prefix.log": {
+    "bytes": 300664,
+    "sha256": "7505b0bbe0aaad40d8ec37a2fa5fe171079c4fe9158b6db6926ca2204b8c91a8"
+  },
+  "trial081-observation/launch-input-pin-verification.json": {
+    "bytes": 40757,
+    "sha256": "e5a5d229436a1816a5b7201b34f30e6ed4d877c1b8a9915ebcfcb38f727f2251"
+  },
+  "trial081-observation/observation.json": {
+    "bytes": 893,
+    "sha256": "8bfc27254e8e9a678afb68c8447a01315e361fc597e7a6d54cc0db2b890b1d10"
+  },
+  "trial081-observation/prepare_native_motion.py": {
+    "bytes": 2709,
+    "sha256": "fe57648063adad13326bfbe2e40f1edf1c766830ae92e8c482d06b4be76f5c2b"
+  },
+  "trial081-observation/resource-monitor-prefix.jsonl": {
+    "bytes": 8222,
+    "sha256": "64cf23096003e9f72e0b40c7c8a57f23e2d5522d2aff834d5efb44817e4b6cc1"
+  },
+  "trial081-observation/run_native_plan.py": {
+    "bytes": 2569,
+    "sha256": "5b58d8d1b3981fccd19d1ee72ccbe314a021af34402578492eb03d38f3f21864"
+  },
+  "trial081-observation/verify_launch_inputs.py": {
+    "bytes": 1031,
+    "sha256": "8adccdc549bfa59380cbc57b55210b48e1cba1ca5fd8638d438081aebf13a57e"
+  }
+}
