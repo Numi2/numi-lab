@@ -10,6 +10,8 @@ inline void loadRestingParentBindings(
     NSString* surfaceKey, NSString* childDigestKey, bool vesselAttachments,
     std::map<unsigned,std::vector<std::vector<MRHumanRestingInfluence>>>& outputBindings,
     std::size_t existingInfluenceCount=0) {
+    // Only value-owned C++ influences escape this receipt-import pool.
+    @autoreleasepool {
     NSData* data=[NSData dataWithContentsOfFile:[NSString stringWithUTF8String:receiptPath.c_str()]];
     require(data!=nil,"cannot read resting anatomy receipt for tissue parents");
     NSError* error=nil;
@@ -163,6 +165,7 @@ inline void loadRestingParentBindings(
         <<" source_vertex_terms="<<termCount<<" compiled_positive_influences="<<influenceCount
         <<" validated_identity_surfaces="<<identitySurfaceCount
         <<" validated_identity_vertices="<<identityVertexCount<<"\n";
+    }
 }
 
 inline void loadRestingTissueParentBindings(

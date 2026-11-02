@@ -39163,6 +39163,8 @@ int main(int argc, char** argv) {
                         inferredAclSetting==nullptr||
                         std::strcmp(inferredAclSetting,"1")==0;
                     bool registeredDetailCanonicalExportCompleted=false;
+                    // Bound Foundation construction temporaries before Metal residency.
+                    @autoreleasepool {
                     restingPassiveFasciaOwner=makeRestingPassiveFasciaOwner(
                         *pectoralisFasciaPayload,*softTissuePayload,musclePayload,
                         rigid.model,*supportContactPayload,
@@ -39185,6 +39187,7 @@ int main(int argc, char** argv) {
                         selectedMatterMetallib,true,
                         &registeredDetailCanonicalExportCompleted,
                         std::filesystem::path(positional.back()));
+                    }
                     if(registeredDetailCanonicalExportCompleted) {
                         require(!restingPassiveFasciaOwner,
                                 "canonical detail export unexpectedly installed a scene owner");

@@ -1,0 +1,298 @@
+{
+  "status": "PASS",
+  "source_pins": {
+    "matter/src/numi_human.mm": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/numi_human.mm",
+      "sha256": "922f591d262b7adb91251703ce60cbd9c27cfe26325bea6d7960e6b71c069d9a",
+      "bytes": 254131
+    },
+    "matter/src/immutable_shared_contact_storage.hpp": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/immutable_shared_contact_storage.hpp",
+      "sha256": "ca95f8b799bafe6df2e84a006bf0a1d8d6361f5b1334ab30d893deccfe9595a2",
+      "bytes": 1480
+    },
+    "apps/numilab_human_myosim_visual_probe.mm": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "931c7d0a46c111549dda6b9c91cbe5196906bf59b3783ab251bbf0cd58c03cc6",
+      "bytes": 2681914
+    },
+    "tests/numi_human_fem_surface_attachment/run.py": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/tests/numi_human_fem_surface_attachment/run.py",
+      "sha256": "38e3f876627c958396c77923ec8d4a936529b7aadfe155a00183fc69a6f9ac9b",
+      "bytes": 5485
+    },
+    "matter/include/numi/matter/fem_body_contact_sample_grouping.hpp": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/include/numi/matter/fem_body_contact_sample_grouping.hpp",
+      "sha256": "c4bd8870f148235f003fd8dda864c3c3b71d794b02411ec43eb0190d6e3dd078",
+      "bytes": 6127
+    },
+    "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_math_test.cpp": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_math_test.cpp",
+      "sha256": "3e36e88cf3a12aab5228be4a501abc1f63ecdcc59d394c6c9542974f8950239c",
+      "bytes": 41627
+    },
+    "tests/numi_human_fem_surface_attachment/native_initialize_test.mm": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/tests/numi_human_fem_surface_attachment/native_initialize_test.mm",
+      "sha256": "709ff3dcbd8e19bec139dd650e88d5404dd8d175a9727dcbcbc8f9f4334089b4",
+      "bytes": 21395
+    },
+    "tests/numi_human_fem_surface_attachment/immutable_shared_contact_storage_test.mm": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/tests/numi_human_fem_surface_attachment/immutable_shared_contact_storage_test.mm",
+      "sha256": "2f0563f715ca77ebedffe01e142adbd822dda46c4a8b7e9c12932f22760fe011",
+      "bytes": 2695
+    }
+  },
+  "source_unchanged_during_build_and_tests": true,
+  "stages": [
+    {
+      "name": "native-build",
+      "argv": [
+        "/opt/homebrew/bin/cmake",
+        "--build",
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native",
+        "--target",
+        "numi-human-native",
+        "--parallel",
+        "1"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 47.2948722910005,
+      "stdout": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/native-build.stdout.log",
+        "sha256": "4407a5faedc22755bdbcc925eeb402a0bd683bbc4edde00eb5570c433aa646b9",
+        "bytes": 201
+      },
+      "stderr": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/native-build.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "storage-control-build",
+      "argv": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "clang++",
+        "-std=c++23",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DNDEBUG",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-I",
+        "/Users/numi/Work/skin-fat-native-integration-209/include",
+        "-I",
+        "/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+        "-I",
+        "/Users/numi/Work/skin-fat-native-integration-209/matter/src",
+        "/Users/numi/Work/skin-fat-native-integration-209/tests/numi_human_fem_surface_attachment/immutable_shared_contact_storage_test.mm",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/storage-test"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.45739591700021265,
+      "stdout": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/storage-control-build.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/storage-control-build.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "storage-control",
+      "argv": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/storage-test"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.3102518340001552,
+      "stdout": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/storage-control.stdout.log",
+        "sha256": "3a641fa83142a89bf3c5e7c3652d67933b9fa6026c183bffe1d697d33a23ae2a",
+        "bytes": 105
+      },
+      "stderr": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/storage-control.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "grouping-control-build",
+      "argv": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "clang++",
+        "-std=c++23",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DNDEBUG",
+        "-arch",
+        "arm64",
+        "-I",
+        "/Users/numi/Work/skin-fat-native-integration-209/include",
+        "-I",
+        "/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+        "-I",
+        "/Users/numi/Work/skin-fat-native-integration-209/matter/src",
+        "/Users/numi/Work/skin-fat-native-integration-209/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_math_test.cpp",
+        "-o",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/grouping-test"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.6220924159997594,
+      "stdout": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/grouping-control-build.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/grouping-control-build.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "grouping-control",
+      "argv": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/grouping-test"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.2679740829998991,
+      "stdout": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/grouping-control.stdout.log",
+        "sha256": "b7cb829caed3761ec90a173ca2f2b5db7c5bf92839dab0c5c2b3f459da98d53f",
+        "bytes": 324
+      },
+      "stderr": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/grouping-control.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "native-attachment-control-build",
+      "argv": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "clang++",
+        "-std=c++23",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DNDEBUG",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-I",
+        "/Users/numi/Work/skin-fat-native-integration-209/include",
+        "-I",
+        "/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+        "-I",
+        "/Users/numi/Work/skin-fat-native-integration-209/matter/src",
+        "/Users/numi/Work/skin-fat-native-integration-209/tests/numi_human_fem_surface_attachment/native_initialize_test.mm",
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+        "-Wl,-rpath,/Users/numi/Work/skin-fat-native-integration-209/build-native/lib",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/native-test"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.9449776249994102,
+      "stdout": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/native-attachment-control-build.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "stderr": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/native-attachment-control-build.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "name": "native-attachment-control",
+      "argv": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/native-test",
+        "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/silicone.nmatter",
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.4292969580001227,
+      "stdout": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/native-attachment-control.stdout.log",
+        "sha256": "3ca254530256f37528f5e1c223088d30f8ee1ae96808697f94cf03999d95c61e",
+        "bytes": 263
+      },
+      "stderr": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/native-attachment-control.stderr.log",
+        "sha256": "5905fdc41258dcdd5ac4e2f0ce8c370cf949a98edb9480d0353261b73786bbcf",
+        "bytes": 1621
+      }
+    },
+    {
+      "name": "native-attachment-active-contact-control",
+      "argv": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/native-test",
+        "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/silicone.nmatter",
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+        "active-contact"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.15521424999951705,
+      "stdout": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/native-attachment-active-contact-control.stdout.log",
+        "sha256": "c1e91a41f7f90064cb68e65bacf5c0ec866411251697f0755e5656f44489a41c",
+        "bytes": 359
+      },
+      "stderr": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/preparation-autorelease-lifetime-101/retry-001/native-attachment-active-contact-control.stderr.log",
+        "sha256": "5905fdc41258dcdd5ac4e2f0ce8c370cf949a98edb9480d0353261b73786bbcf",
+        "bytes": 1621
+      }
+    }
+  ],
+  "binary": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "sha256": "7c9128a89826d949057d6d64aba96af215791b1580597e82eb088ca6e551b346",
+    "bytes": 10431744
+  },
+  "runtime_dependencies": {
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+      "sha256": "2bc64fd00fbdf5a263ec8abbbfcb3c3710c6acd10165aef117afb776571178e1",
+      "bytes": 10036864
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "sha256": "76819990f8b17e27621b2e463ff953baa04f05f1bd0aaa94d27f51fbbac0979b",
+      "bytes": 29328818
+    }
+  },
+  "physical_admission": false,
+  "accepted_full_human_steps": 0,
+  "maximum_child_resident_bytes": 3040083968
+}

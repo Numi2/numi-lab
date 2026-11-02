@@ -315,6 +315,8 @@ struct NumiHumanRestingAnatomy {
     NumiHumanRestingAnatomy(const char* receipt,const std::filesystem::path& payload,
         const LoadedTorsoAnatomy& anatomy,const LoadedBones& bones,const NMHumanRespirationParameters& physiology,
         const std::vector<std::uint32_t>& sourceBodyToRuntimeMap = {}) {
+        // Release the receipt tree before the native simulation begins.
+        @autoreleasepool {
         const auto authoredSourceBody=[&](const std::uint32_t runtimeIndex) {
             if(sourceBodyToRuntimeMap.empty())return runtimeIndex;
             const auto it=std::find(sourceBodyToRuntimeMap.begin(),sourceBodyToRuntimeMap.end(),runtimeIndex);
@@ -1598,6 +1600,7 @@ struct NumiHumanRestingAnatomy {
         ventricularWallGPU.closureBoundsAndTolerance={float(closureLow),float(closureHigh),
             float(closureRelativeTolerance),0};
         ventricularWallGPU.chambersAndFlags={1,3,1,ventricularWall.vertexCount};
+        }
         }
     }
 

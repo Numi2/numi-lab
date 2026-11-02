@@ -1,0 +1,31 @@
+{
+  "status": "PRODUCTION_BUILD_AND_FOCUSED_PHYSICS_CONTROLS_PASS",
+  "native_memory_benefit": "UNMEASURED_CURRENT_TRIAL106_RUNNING",
+  "accepted_full_human_steps": 0,
+  "source_geometry_changed": false,
+  "material_force_or_acceptance_policy_changed": false,
+  "source_paths": {
+    "apps/NumiHumanRestingAnatomy.hpp": {
+      "execution_preimage_sha256": "3384d2036c311c832a1acdc94ca6ecb9a3c3385406f69c6ec955cdda69da91f6",
+      "execution_current_sha256": "f9abd5f4dcbf67de84bf67324c537bdf1d0d207b158d1bd976ecb6202e070d5b",
+      "publication_preimage_sha256": "3384d2036c311c832a1acdc94ca6ecb9a3c3385406f69c6ec955cdda69da91f6",
+      "publication_current_sha256": "f9abd5f4dcbf67de84bf67324c537bdf1d0d207b158d1bd976ecb6202e070d5b"
+    },
+    "apps/NumiHumanRestingTissueParents.hpp": {
+      "execution_preimage_sha256": "e6c38385940e28103a3e8575c96ec7e7ba751feb6983efc30d57333919a281a9",
+      "execution_current_sha256": "30188564fd359e2314b0b98305d771860aad0f32308cad480b3f6866059934d8",
+      "publication_preimage_sha256": "e6c38385940e28103a3e8575c96ec7e7ba751feb6983efc30d57333919a281a9",
+      "publication_current_sha256": "30188564fd359e2314b0b98305d771860aad0f32308cad480b3f6866059934d8"
+    },
+    "apps/numilab_human_myosim_visual_probe.mm": {
+      "execution_preimage_sha256": "49467e382cf177f597a848bb4c75e3f77d64c3af27619131ecefab8c1478f9ec",
+      "execution_current_sha256": "931c7d0a46c111549dda6b9c91cbe5196906bf59b3783ab251bbf0cd58c03cc6",
+      "publication_preimage_sha256": "73d0338c58938d04552a2dca8b7279655227dac3a81b9b465c5abf1e07d68bff",
+      "publication_current_sha256": "8c1ed8929aa7567f7ef74965687eeb20f4fc1e8b6a1a01ea01c952982ed2bfda"
+    }
+  },
+  "execution_owner_head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "publication_preimage_head": "f87205589afd741bcff787f708517512dc2b60b2",
+  "full_source_pins_sha256": "e2eae5e8b1415cab447986ddeaff6d03437d959fa665e3e3d3ee9a895995d686",
+  "pending_native_plan_sha256": "c5f53fad7da17e746d514940b6b23ee31801bdcd17e531e16316335c9bdff780"
+}

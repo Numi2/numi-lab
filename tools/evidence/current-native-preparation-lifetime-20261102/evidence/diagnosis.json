@@ -1,0 +1,11 @@
+{
+  "status": "IMPLEMENTED_PENDING_NATIVE_MEMORY_MEASUREMENT",
+  "prior_vmmap": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-import-099/gpu-entry-vmmap.stdout.log",
+  "prior_peak_physical_footprint_GiB": 13.3,
+  "prior_live_malloc_allocations": 10338485,
+  "prior_default_malloc_allocated_GiB": 3.0,
+  "finding": "large receipt JSON and Foundation load temporaries share the full process autorelease pool",
+  "hypothesis": "bound their lifetime before physical GPU execution",
+  "scope": "three construction/import pools; no physical equations, rows, state or gates changed",
+  "reference": "https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/MemoryMgmt/Articles/mmAutoreleasePools.html"
+}
