@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/usr/bin/clang++",
+    "-std=c++20",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG",
+    "-I/Users/numi/Work/skin-fat-native-integration-209/apps",
+    "-I/Users/numi/Work/skin-fat-native-integration-209/include",
+    "-I/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanRegisteredSupportSurfaceWitnessCheck.cpp",
+    "-o",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/support-surface-witness-062/support-check"
+  ],
+  "compile_exit": 0,
+  "test_exit": 0
+}

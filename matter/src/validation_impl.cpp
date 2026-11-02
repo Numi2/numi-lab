@@ -118,7 +118,8 @@ constexpr std::uint32_t kKnownRigidFlags =
         return m[0]*(m[4]*m[8]-m[5]*m[7])-m[1]*(m[3]*m[8]-m[5]*m[6])+m[2]*(m[3]*m[7]-m[4]*m[6]);
     };
     const auto m=edges(true);const double d=det(m);
-    double scale=1.0;for (double value:m) scale=std::max(scale,std::abs(value));
+    // Match compiler inverse admission using the actual dimensional edge scale.
+    double scale=0.0;for (double value:m) scale=std::max(scale,std::abs(value));
     if (!(d>6e-18) || !(d>128.0*std::numeric_limits<double>::epsilon()*scale*scale*scale) ||
             !std::isfinite(d)) return false;
     const double r=1/d;

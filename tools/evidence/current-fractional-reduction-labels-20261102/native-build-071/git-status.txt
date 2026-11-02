@@ -1,0 +1,87 @@
+ M CMakeLists.txt
+ M apps/NumiHumanAcceptedFEMSkinRenderPass.hpp
+ M apps/NumiHumanAcceptedFEMSkinTransfer.hpp
+ M apps/NumiHumanCoarseTissuePreparation.hpp
+ M apps/NumiHumanParentReferenceMassTransfer.hpp
+ M apps/NumiHumanParentReferenceMassTransferCheck.cpp
+ M apps/NumiHumanRestingVisual.hpp
+ M apps/NumiHumanSkinFatReductionLabels.hpp
+ M apps/NumiHumanSkinFatReductionLabelsCheck.cpp
+ M apps/NumiHumanUnpairedSkinFatVolume.hpp
+ M apps/NumiHumanUnpairedSkinFatVolumeCheck.cpp
+ M apps/numilab_human_myosim_visual_probe.mm
+ M include/metalrobo/NumiHumanMuscleEquilibrium.hpp
+ M matter/include/numi/matter/compiled_world_partitioned_reduction.hpp
+ M matter/include/numi/matter/fem_body_contact_static_bvh.hpp
+ M matter/include/numi/matter/partitioned_reduction_basis.hpp
+ M matter/src/vascular_impl.cpp
+ M matter/tools/compiled_world_partitioned_reduction_check.cpp
+ M matter/tools/partitioned_reduction_basis_check.cpp
+ M matter/tools/vascular_compiler_check.cpp
+ M src/core/NumiHumanMuscleEquilibrium.cpp
+ M tests/numi_human_fem_body_triangle_contact/fem_body_contact_static_bvh_test.cpp
+ M tests/numi_human_static_support_test.cpp
+?? apps/ConservativeSpatialFractionalSemanticSupport.hpp
+?? apps/ConservativeSpatialSourceCarrierQuadrature.hpp
+?? apps/NumiHumanAcceptedFEMSkinDirectPositionCheck.mm
+?? apps/NumiHumanAcceptedFEMSkinTransferPreparedDomainCheck.cpp
+?? apps/NumiHumanCandidateSkin033.hpp
+?? apps/NumiHumanConformingTissueRefinement.hpp
+?? apps/NumiHumanConformingTissueRefinementAssets.hpp
+?? apps/NumiHumanConformingTissueRefinementCheck.cpp
+?? apps/NumiHumanConservativeSpatialMassTransport.hpp
+?? apps/NumiHumanConservativeSpatialMassTransportCheck.cpp
+?? apps/NumiHumanCurrentFractionalMassMappingCLI.cpp
+?? apps/NumiHumanCurrentFractionalRecordedFlowArtifacts.hpp
+?? apps/NumiHumanCurrentFractionalRecordedFlowBinding.hpp
+?? apps/NumiHumanCurrentFractionalSupportNPZ.hpp
+?? apps/NumiHumanCurrentRegisteredSurfaceRowsCheck.cpp
+?? apps/NumiHumanFEMOuterGroundAlignment.hpp
+?? apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp
+?? apps/NumiHumanFractionalSemanticSupportImport.hpp
+?? apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSV.hpp
+?? apps/NumiHumanPhysicalSkinAuthoringDetailBridgeCSVCheck.cpp
+?? apps/NumiHumanPhysicalSkinAuthoringRoleConsumer.hpp
+?? apps/NumiHumanPhysicalSkinAuthoringRoleConsumerCheck.cpp
+?? apps/NumiHumanPhysicalSkinChildCapacity.hpp
+?? apps/NumiHumanPhysicalSkinChildCapacityProfileCheck.cpp
+?? apps/NumiHumanPhysicalSkinChildIntegration.hpp
+?? apps/NumiHumanPhysicalSkinChildMassMapping.hpp
+?? apps/NumiHumanPhysicalSkinChildMassMappingCLI.cpp
+?? apps/NumiHumanPhysicalSkinChildMassMappingCheck.cpp
+?? apps/NumiHumanPhysicalSkinChildRegisteredFacetMaps.hpp
+?? apps/NumiHumanPhysicalSkinChildRegisteredFacetMapsCheck.cpp
+?? apps/NumiHumanPhysicalSkinChildRegisteredSurfaceSidecars.hpp
+?? apps/NumiHumanPhysicalSkinChildRegisteredSurfaceSidecars.hpp.before-current-parent-inference-229
+?? apps/NumiHumanPhysicalSkinChildRegisteredSurfaceSidecars.hpp.before-parent-reconstruction-225
+?? apps/NumiHumanPhysicalSkinChildRegisteredVolumeCSV.hpp
+?? apps/NumiHumanPhysicalSkinChildRegisteredVolumeCSVCheck.cpp
+?? apps/NumiHumanPhysicalSkinChildRegisteredVolumeImport.hpp
+?? apps/NumiHumanPhysicalSkinChildRegisteredVolumeImportCheck.cpp
+?? apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegration.hpp
+?? apps/NumiHumanPhysicalSkinChildRegisteredVolumeIntegrationCheck.cpp
+?? apps/NumiHumanPhysicalSkinChildTetGen.hpp
+?? apps/NumiHumanPhysicalSkinReplacement.hpp
+?? apps/NumiHumanPhysicalSkinReplacementCheck.cpp
+?? apps/NumiHumanPhysicalSkinSupportParentMap.hpp
+?? apps/NumiHumanPhysicalSkinSupportParentMapCheck.cpp
+?? apps/NumiHumanRecordedCarrierAllocationImport.hpp
+?? apps/NumiHumanRegisteredSkinCandidateCSV.hpp
+?? apps/NumiHumanRegisteredSkinCandidateCSV.hpp.before-conditioned-schema-226
+?? apps/NumiHumanRegisteredSkinCandidateCSVCheck.cpp
+?? apps/NumiHumanRegisteredSupportSurfaceWitness.hpp
+?? apps/NumiHumanRegisteredSupportSurfaceWitnessCheck.cpp
+?? apps/NumiHumanRegisteredSurfaceIntersection.hpp
+?? apps/NumiHumanRegisteredSurfaceIntersectionCheck.cpp
+?? apps/NumiHumanSourceCarrierQuadratureImport.hpp
+?? apps/numilab_human_myosim_visual_probe.mm.before-source-preflight-witness-226
+?? docs/evidence/native-current-parent-registration-229/
+?? docs/evidence/skin-fat-kind-aware-native-preflight-226/
+?? docs/evidence/skin-fat-kind-aware-source-fix-219/
+?? include/metalrobo/NumiHumanMuscleEquilibrium.hpp.orig
+?? src/core/NumiHumanMuscleEquilibrium.cpp.orig
+?? tests/human_registered_skin_candidate_native_placement.cpp
+?? tests/human_skin_current_parent_registration.cpp
+?? tools/human_accepted_skin_export.cpp
+?? tools/prepare_candidate033_d37.py
+?? tools/test_prepare_candidate033_kind_aware.py

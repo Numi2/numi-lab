@@ -1,0 +1,17 @@
+[
+  {
+    "name": "numi-human-registered-support-surface-witness-check",
+    "exit": 0,
+    "seconds": 0.24228787422180176
+  },
+  {
+    "name": "numi-human-registered-surface-intersection-check",
+    "exit": 0,
+    "seconds": 0.009507179260253906
+  },
+  {
+    "name": "numi-human-unpaired-skin-fat-volume-check",
+    "exit": 0,
+    "seconds": 0.06729698181152344
+  }
+]

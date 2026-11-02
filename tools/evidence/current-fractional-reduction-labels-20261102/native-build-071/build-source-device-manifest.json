@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/cmake",
+    "--build",
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native",
+    "--target",
+    "numi-human-native",
+    "numi-human-unpaired-skin-fat-volume-check",
+    "numi-human-registered-surface-intersection-check",
+    "numi-human-registered-support-surface-witness-check",
+    "--parallel",
+    "1"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 54.32264280319214,
+  "binary": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "sha256": "753cc303fe794a936937d15166c070d2598468b2422ad16008b4805d7b116421",
+    "bytes": 10431744
+  },
+  "source": {
+    "head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+    "pins": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-build-071/source-pins-before.json",
+      "sha256": "1b20b085ffabab134d7cd5a5c3162a3fb945a57423ffcf15f05b7f7c56fb4f3c"
+    },
+    "source_unchanged_during_build": true
+  },
+  "physical_admission": false,
+  "native_steps": 0
+}

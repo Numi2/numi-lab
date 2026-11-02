@@ -1,0 +1,78 @@
+{
+  "README.md": {
+    "sha256": "b4a1cbfa3c296b59ea1fe1b9a95a75d636ead390aa6a81cd9b3e8fede842d3d7",
+    "bytes": 1715
+  },
+  "compiler-rest-audit-073/first-fixture-control-0.log": {
+    "sha256": "1df2c429aad8bfc06cde9ede5b0524fad16d851fd70ad1a76e95a2c755fbf5b7",
+    "bytes": 253
+  },
+  "compiler-rest-audit-073/first-fixture-controls.json": {
+    "sha256": "aec3f2b75f0d5cd53e9bfd37b9315cfffdcb83af4e7fc4e00aec28cb13c3cc62",
+    "bytes": 1004
+  },
+  "compiler-rest-audit-073/inverse-scale-audit.json": {
+    "sha256": "3c6811b53a1aba7cbd45c49146cab9d550de5d8b5761dd94966ed3b51c43cf5f",
+    "bytes": 506
+  },
+  "compiler-rest-audit-073/paired-scale-control-077.json": {
+    "sha256": "854e1c977d79ecb4a3398cfdab6e9674cfaec43537eed66ae4a52798a842ef2c",
+    "bytes": 2105
+  },
+  "compiler-rest-audit-073/paired-scale-control-077.log": {
+    "sha256": "be343e3efd4ae9a01a80ec26e8b8ddb07cdbe312d79cd49b88be71ab7c4c4065",
+    "bytes": 1633
+  },
+  "compiler-rest-audit-073/reference-det-audit.json": {
+    "sha256": "276b3744c9435fd37b62a8543434d2550dc33f69f683611c8079daabe93871ef",
+    "bytes": 586
+  },
+  "compiler-rest-audit-073/regional-fixture-control.json": {
+    "sha256": "e898a2995561c3c9c076b1cef1bd6c6eda90f9e223294dd6df260a150617f27c",
+    "bytes": 679
+  },
+  "compiler-rest-audit-073/regional-fixture-control.log": {
+    "sha256": "9430c2554304bf2e657208b5857fbd4dfa428c871cbc85e307a07497d531cc63",
+    "bytes": 215
+  },
+  "native-build-077/build-source-device-manifest.json": {
+    "sha256": "850115034e6bbb7b28f5de69ae2c5995d8b8cd68b22293c0778f2c286d37e56f",
+    "bytes": 3978
+  },
+  "native-build-077/build.stderr.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "native-build-077/build.stdout.log": {
+    "sha256": "21a00a985c6cc8d716509b4799654d3f4b613f074f8e5762cfb3f8d0c296869a",
+    "bytes": 459
+  },
+  "native-build-077/git-status.txt": {
+    "sha256": "1d671a111f34ea51b4c5094895ae20114bb2ebd93ebf3be77518eac6369b8b96",
+    "bytes": 4855
+  },
+  "native-build-077/source-pins-before.json": {
+    "sha256": "16434bbd1d21580d7a719c9280e8a41995c95cbd8c9340277004a0fdbb53a4ab",
+    "bytes": 153451
+  },
+  "native-import-075/source-preflight.execution.json": {
+    "sha256": "c04c700e016d1f9ea50444ca98071f6c9300f7ee084a36dc257c7ef1ddb6dc4f",
+    "bytes": 594
+  },
+  "native-import-075/source-preflight.plan.json": {
+    "sha256": "ef3f1c1c120738d73f29d782ab463ebaa599cbb2b31d9d4a61a92778f925c18c",
+    "bytes": 75641
+  },
+  "native-import-075/source-preflight.stderr.log": {
+    "sha256": "72256a95ea89b197a378e986dffa794003e46d5bc9e154ea9ffd37704411ab7a",
+    "bytes": 588
+  },
+  "native-import-075/source-preflight.stdout.log": {
+    "sha256": "c864773c0dba059f680280d498d64ef22b8c961d6b4261af98594a0f8d281798",
+    "bytes": 30349
+  },
+  "native-import-078/controls.json": {
+    "sha256": "ab254c717459d4f2e6cb72f462d76b277bb525c65b11fead76939e4c3d5670d0",
+    "bytes": 768
+  }
+}

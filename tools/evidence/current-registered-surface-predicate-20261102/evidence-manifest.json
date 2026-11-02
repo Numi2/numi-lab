@@ -3,19 +3,19 @@
     "sha256": "ee77d941e912bcb91ad5a0cbea1b5294e370435d1d5d67b535eca9bf2bc7b940",
     "bytes": 1921
   },
-  "build/build-source-device-manifest.json": {
+  "native-build-pins/build-source-device-manifest.json": {
     "sha256": "cf9728402b7b017ded15fb4380ba07d0bade3b13d75e8060fb4aad63881c6c9e",
     "bytes": 1071
   },
-  "build/build.stderr.log": {
+  "native-build-pins/build.stderr.log": {
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "bytes": 0
   },
-  "build/build.stdout.log": {
+  "native-build-pins/build.stdout.log": {
     "sha256": "410426e132fb13a2352f07df6253732e5679f719c84a79284d73596a3c7460d6",
     "bytes": 242
   },
-  "build/source-pins-before.json": {
+  "native-build-pins/source-pins-before.json": {
     "sha256": "077b7b7ca729d8fa6b9d5a04b2b8d942f3256d07d7d5ae9a6bc4d6778bf92695",
     "bytes": 153024
   },

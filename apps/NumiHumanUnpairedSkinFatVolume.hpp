@@ -141,6 +141,46 @@ struct ExplicitUnpairedVolumeTopology {
     std::array<std::uint64_t,4> materialSourceIdentity{};
 };
 
+// A child geometric donor is a mechanical partition label. Fractional mass
+// ancestry may use a different parent donor, but only through the authenticated
+// source group admitted by the full volume/flow verifier. Share this rule with
+// reduction labels so they cannot impose the obsolete scalar-only assumption.
+[[nodiscard]] inline bool validateUnpairedDominantParentSemanticIdentity(
+        const ExplicitUnpairedVolumeTopology& topology,const std::size_t child,
+        const std::span<const std::uint32_t> groupForParent,std::string& error) {
+    const auto fail=[&](const char* message){error=message;return false;};
+    if(child>=topology.childDominantParentTetrahedra.size()||
+       child>=topology.childMaterialIndices.size()||child>=topology.childDonorBodyIndices.size()||
+       child>=topology.childAnatomicalRegionIndices.size())
+        return fail("unpaired dominant-parent semantic child arrays are incomplete");
+    const auto parent=topology.childDominantParentTetrahedra[child];
+    if(parent>=topology.parentMaterialIndices.size()||
+       parent>=topology.parentDonorBodyIndices.size()||
+       parent>=topology.parentAnatomicalRegionIndices.size()||
+       topology.parentMaterialIndices[parent]!=topology.childMaterialIndices[child])
+        return fail("unpaired dominant-parent semantic source material or row is invalid");
+    if(!topology.fractionalSemanticMassRouteRequired) {
+        if(topology.parentDonorBodyIndices[parent]!=topology.childDonorBodyIndices[child]||
+           topology.parentAnatomicalRegionIndices[parent]!=topology.childAnatomicalRegionIndices[child])
+            return fail("unpaired skin/fat child dominant donor or region differs from its scalar label");
+    } else {
+        const auto& support=topology.fractionalSemanticSupport;
+        if(parent>=groupForParent.size())
+            return fail("unpaired fractional semantic source-parent group map is incomplete or ambiguous");
+        const auto group=groupForParent[parent];
+        if(group>=support.groupMaterialIndices.size()||group>=support.donorBodyIndices.size()||
+           group>=support.anatomicalRegionIndices.size()||
+           support.groupMaterialIndices[group]!=topology.childMaterialIndices[child]||
+           support.donorBodyIndices[group]!=topology.parentDonorBodyIndices[parent]||
+           support.anatomicalRegionIndices[group]!=topology.parentAnatomicalRegionIndices[parent])
+            return fail("unpaired fractional semantic dominant parent is absent from its registered source group");
+        if(!fractional_semantic_transport_detail::childAllowsSourceGroup(
+                support,static_cast<std::uint32_t>(child),group))
+            return fail("unpaired fractional semantic dominant parent is outside the child's authenticated one-hop support or legacy P1 preference");
+    }
+    error.clear();return true;
+}
+
 // Shared namespace validator used by both volume admission and reduction-label
 // construction. An empty registry is the legacy canonical path; mixed domains
 // require complete pinned namespace metadata and never use canonical counts.
@@ -675,24 +715,8 @@ struct ExplicitUnpairedVolumeReport {
            topology.parentStableSourceFaceIdentities[parent]==invalid||
            (topology.childParentSurfaceFaces[child]!=invalid&&topology.childParentSurfaceFaces[child]>=surface.faces.size()))
             return fail("unpaired skin/fat child has inconsistent material, dominant parent, or source-face identity at tet "+std::to_string(child));
-        if(!topology.fractionalSemanticMassRouteRequired){
-            if(topology.parentDonorBodyIndices[parent]!=donor||
-               topology.parentAnatomicalRegionIndices[parent]!=topology.childAnatomicalRegionIndices[child])
-                return fail("unpaired skin/fat child dominant donor or region differs from its scalar label");
-        }else{
-            const auto group=semanticGroupForParent[parent];
-            if(group>=semanticSupport.groupMaterialIndices.size()||
-               semanticSupport.groupMaterialIndices[group]!=material||
-               semanticSupport.donorBodyIndices[group]!=topology.parentDonorBodyIndices[parent]||
-               semanticSupport.anatomicalRegionIndices[group]!=topology.parentAnatomicalRegionIndices[parent])
-                return fail("unpaired fractional semantic dominant parent is absent from its registered source group");
-            const bool admissible=
-                semanticSupport.groupMaterialIndices[group]==material&&
-                fractional_semantic_transport_detail::childAllowsSourceGroup(
-                    semanticSupport,static_cast<std::uint32_t>(child),group);
-            if(!admissible)
-                return fail("unpaired fractional semantic dominant parent is outside the child's authenticated one-hop support or legacy P1 preference");
-        }
+        if(!validateUnpairedDominantParentSemanticIdentity(
+                topology,child,semanticGroupForParent,error))return false;
         auto ids=topology.childTetrahedra[child];auto sorted=ids;std::sort(sorted.begin(),sorted.end());
         if(sorted[0]==sorted[1]||sorted[1]==sorted[2]||sorted[2]==sorted[3]||sorted[3]>=n)
             return fail("unpaired skin/fat child has repeated or out-of-range node IDs at tet "+std::to_string(child));

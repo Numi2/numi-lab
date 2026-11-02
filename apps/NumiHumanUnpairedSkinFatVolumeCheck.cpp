@@ -442,6 +442,37 @@ void accumulateSourceMoments(SourceMoments& moments,double mass,const V3& positi
 }
 
 int main() {
+    {
+        // The same fractional parent can be valid for a different geometric
+        // donor, while missing support and the scalar path must still reject it.
+        ExplicitUnpairedVolumeTopology semantic;
+        const std::vector<std::uint32_t> parent{1u},material{15u},donor{20u},region{21u};
+        const std::vector<std::uint32_t> parentMaterial{15u,15u},parentDonor{20u,49u},parentRegion{21u,50u};
+        const std::vector<std::uint32_t> offsets{0u,1u},groups{1u},groupForParent{0u,1u};
+        const std::vector<double> fractions{1.0};
+        semantic.childDominantParentTetrahedra=parent;semantic.childMaterialIndices=material;
+        semantic.childDonorBodyIndices=donor;semantic.childAnatomicalRegionIndices=region;
+        semantic.parentMaterialIndices=parentMaterial;semantic.parentDonorBodyIndices=parentDonor;
+        semantic.parentAnatomicalRegionIndices=parentRegion;
+        semantic.fractionalSemanticSupport.childOffsets=offsets;
+        semantic.fractionalSemanticSupport.slotGroupIndices=groups;
+        semantic.fractionalSemanticSupport.volumeFractions=fractions;
+        semantic.fractionalSemanticSupport.groupMaterialIndices=parentMaterial;
+        semantic.fractionalSemanticSupport.donorBodyIndices=parentDonor;
+        semantic.fractionalSemanticSupport.anatomicalRegionIndices=parentRegion;
+        std::string semanticError;
+        assert(!validateUnpairedDominantParentSemanticIdentity(semantic,0u,groupForParent,semanticError));
+        semantic.fractionalSemanticMassRouteRequired=true;
+        assert(validateUnpairedDominantParentSemanticIdentity(semantic,0u,groupForParent,semanticError));
+        const std::vector<std::uint32_t> wrongGroups{0u};
+        semantic.fractionalSemanticSupport.slotGroupIndices=wrongGroups;
+        assert(!validateUnpairedDominantParentSemanticIdentity(semantic,0u,groupForParent,semanticError));
+        semantic.fractionalSemanticSupport.slotGroupIndices=groups;
+        assert(!validateUnpairedDominantParentSemanticIdentity(semantic,0u,{},semanticError));
+        semantic.fractionalSemanticSupport.donorBodyIndices=parentRegion;
+        assert(!validateUnpairedDominantParentSemanticIdentity(semantic,0u,groupForParent,semanticError));
+    }
+
     Fixture f;auto world=worldFor();ExplicitUnpairedVolumeReport report;std::string error;
     PreparedOrganicFEM legacySkin,legacyFat;
     if(!emit(f,world,report,error,&legacySkin,&legacyFat)){std::cerr<<error;return 1;}

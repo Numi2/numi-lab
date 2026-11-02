@@ -1,0 +1,2 @@
+reference_abi=47
+fem reference check failed: reference fixture compile: reference-displacement FEM requires authored reference nodes and regional materials on explicit immutable non-mixed FEM without nodal fields, Human attachments, or identification; 

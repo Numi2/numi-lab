@@ -3550,13 +3550,21 @@ template<class VerifyBoundBody, class ParentBodyAt>
     // Preserve it while partitioning each verified (source face, donor) pair.
     using SourceFaceDonorKey=std::pair<std::uint32_t,std::uint32_t>;
     std::set<SourceFaceDonorKey> donorFaces;
+    std::vector<std::uint32_t> semanticGroupForParent;
+    if(topology.fractionalSemanticMassRouteRequired&&
+       !fractional_semantic_transport_detail::buildSourceParentGroupMap(
+            topology.fractionalSemanticSupport,topology.parentTetrahedra.size(),semanticGroupForParent))
+        return fail("unpaired fractional semantic source-parent group map is incomplete or ambiguous");
     for(std::size_t ti=0;ti<nt;++ti){
         const auto parent=topology.childDominantParentTetrahedra[ti],donor=topology.childDonorBodyIndices[ti];
         const auto stable=topology.childStableSourceFaceIdentities[ti];
         if(parent>=topology.parentTetrahedra.size()||donor>=sourceBodyCount||stable==invalid||
            topology.parentMaterialIndices[parent]!=topology.childMaterialIndices[ti]||
-           topology.parentDonorBodyIndices[parent]!=donor||topology.parentStableSourceFaceIdentities[parent]==invalid)
+           (!topology.fractionalSemanticMassRouteRequired&&topology.parentDonorBodyIndices[parent]!=donor)||
+           topology.parentStableSourceFaceIdentities[parent]==invalid)
             return fail("unpaired label child has invalid dominant donor or parent provenance");
+        if(!validateUnpairedDominantParentSemanticIdentity(
+                topology,ti,semanticGroupForParent,error))return fail(error);
         next.tetrahedronSourceFaceIndices[ti]=topology.childParentSurfaceFaces[ti];
         const auto bodyParent=parentBodyAt(donor);
         if((bodyParent!=invalid&&bodyParent>=sourceBodyCount)||bodyParent==donor)

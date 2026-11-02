@@ -1,0 +1,23 @@
+[
+  {
+    "argv": [
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-unpaired-skin-fat-volume-check"
+    ],
+    "exit_code": 0,
+    "output": "unpaired skin/fat volume owner tests passed\n"
+  },
+  {
+    "argv": [
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-registered-surface-intersection-check"
+    ],
+    "exit_code": 0,
+    "output": "registered_surface_exact_features=PASS synthetic=15 native_tiny_face_regressions=8\n"
+  },
+  {
+    "argv": [
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-registered-support-surface-witness-check"
+    ],
+    "exit_code": 0,
+    "output": "registered_support_surface_witness=PASS bound_m=0.030 physical_contact_changed=0\n"
+  }
+]

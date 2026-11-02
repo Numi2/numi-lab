@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/numi-matter-fem-reference-check",
+    "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/rodero2021_ventricular_guccione_passive.nmatter",
+    "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter",
+    "--cpu-only"
+  ],
+  "exit_code": 1,
+  "elapsed_s": 0.3547799587249756,
+  "output": "reference_abi=47\nfem reference check failed: reference fixture compile: compiled Matter layout is invalid: FEM tetrahedron 0: reference coordinates, rest operator, reference volume or initial deformation disagree; \n"
+}

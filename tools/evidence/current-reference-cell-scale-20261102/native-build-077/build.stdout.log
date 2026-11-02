@@ -1,0 +1,7 @@
+[0/2] Re-checking globbed directories...
+[1/7] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[2/7] Linking CXX static library matter/libnumi_matter_compiler.a
+[3/7] Linking CXX shared library lib/libmetalrobo.dylib
+[4/7] Linking CXX executable numi-human-unpaired-skin-fat-volume-check
+[5/7] Linking OBJCXX executable bin/numi-human-native
+[6/7] Linking CXX executable matter/numi-matter-fem-reference-check

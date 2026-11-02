@@ -7323,3 +7323,15 @@ if(BUILD_TESTING)
     add_test(NAME numi_human_registered_surface_intersection
         COMMAND numi-human-registered-surface-intersection-check)
 endif()
+
+add_executable(numi-human-registered-support-surface-witness-check EXCLUDE_FROM_ALL
+    apps/NumiHumanRegisteredSupportSurfaceWitnessCheck.cpp)
+target_include_directories(numi-human-registered-support-surface-witness-check PRIVATE
+    include matter/include apps)
+target_compile_features(numi-human-registered-support-surface-witness-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-registered-support-surface-witness-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME numi_human_registered_support_surface_witness
+        COMMAND numi-human-registered-support-surface-witness-check)
+endif()

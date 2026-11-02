@@ -109,7 +109,11 @@ constexpr std::uint32_t kMaximumRegionalGalerkinModes = 32u;
 
 [[nodiscard]] bool inverse(const Mat3& matrix, Mat3& output) noexcept {
     const double det = determinant(matrix);
-    double scale = 1.0;
+    // Dm contains lengths, not normalized world coordinates. A one-metre
+    // floor makes this relative singularity test reject small, well-shaped
+    // cells solely because of their units. Keep the same relative condition
+    // threshold; the caller independently enforces positive physical volume.
+    double scale = 0.0;
     for (const double value : matrix) {
         scale = std::max(scale, std::abs(value));
     }

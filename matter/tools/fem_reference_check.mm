@@ -75,6 +75,37 @@ WorldSource thinSkewSource(const WorldSource& regionalReference,bool displacemen
     return s;
 }
 CompiledWorld cook(const WorldSource& s){auto c=compileWorld(s,{.maximumRateExponent=0,.emitSpecializedMetal=false});need(c.succeeded(),"reference fixture compile: "+diagnostic(c.diagnostics));return std::move(c.world);}
+void smallCellScaleChecks(const WorldSource& baseline){
+    for(const double length:{1.0,1.0e-3,1.0e-5,2.0e-6}){
+        auto s=baseline;auto& o=s.objects.front();
+        o.femReferenceNodes={{{0,0,0}},{{length,0,0}},{{0,length,0}},
+            {{0,0,length}},{{0,0,-length}}};
+        o.femNodes=o.femReferenceNodes;o.femReferenceDisplacementGradient=true;
+        const auto world=cook(s);need(world.fem.tetrahedra.size()==2u,"small-cell scale element count");
+        for(std::size_t ti=0;ti<world.fem.tetrahedra.size();++ti){
+            const auto& tet=world.fem.tetrahedra[ti];const auto inv=inverseRest(tet);
+            const Matrix expected=ti==0u?Matrix{1,0,0,0,1,0,0,0,1}:Matrix{0,1,0,1,0,0,0,0,-1};
+            for(unsigned entry=0;entry<9u;++entry)
+                need(std::abs(inv[entry]*length-expected[entry])<2.0e-7,
+                    "small-cell normalized inverse changed with scale");
+            need(std::isfinite(tet.inverseRestRow0.w)&&tet.inverseRestRow0.w>0.0f,
+                "small-cell physical volume is not representable");
+        }
+        auto inverted=s;std::swap(inverted.objects[0].tetrahedra[0].nodes[0],inverted.objects[0].tetrahedra[0].nodes[1]);
+        need(!compileWorld(inverted,{.maximumRateExponent=0,.emitSpecializedMetal=false}).succeeded(),
+            "small-cell scale check admitted an inverted tetrahedron");
+        auto singular=s;singular.objects[0].femReferenceNodes[3]=singular.objects[0].femReferenceNodes[0];
+        singular.objects[0].femNodes=singular.objects[0].femReferenceNodes;
+        need(!compileWorld(singular,{.maximumRateExponent=0,.emitSpecializedMetal=false}).succeeded(),
+            "small-cell scale check admitted a singular tetrahedron");
+    }
+    auto belowVolume=baseline;auto& o=belowVolume.objects.front();
+    for(auto& x:o.femReferenceNodes)for(auto& component:x)component*=1.0e-5;
+    o.femNodes=o.femReferenceNodes;o.femReferenceDisplacementGradient=true;
+    need(!compileWorld(belowVolume,{.maximumRateExponent=0,.emitSpecializedMetal=false}).succeeded(),
+        "small-cell scale check weakened the physical volume floor");
+    std::cout<<"reference_small_cell_scale=PASS scales=4 inverted=REJECT singular=REJECT physical_volume_floor=unchanged\n";
+}
 struct Device {
     id<MTLDevice> device;id<MTLCommandQueue> queue;id<MTLLibrary> library;
     id<MTLComputePipelineState> forcePipeline,operatorPipeline,backtrackingPipeline;
@@ -1246,7 +1277,7 @@ int main(int argc,char** argv){@autoreleasepool{try{
     set(a.material,"density",900);set(b.material,"density",1200); // synthetic fixture only
     const auto simple=source(a.material,b.material),combined=source(a.material,b.material,true);
     auto displacement=combined;displacement.objects[0].femReferenceDisplacementGradient=true;
-    std::cout<<std::setprecision(17)<<"reference_abi="<<NM_MATTER_ABI_VERSION<<'\n';cpuChecks(simple);cpuChecks(combined);referenceDisplacementChecks(combined);thinSkewArithmeticChecks(combined);generalReferenceChecks(simple);generalReferenceChecks(combined);executableBoundaryChecks(simple);
+    std::cout<<std::setprecision(17)<<"reference_abi="<<NM_MATTER_ABI_VERSION<<'\n';smallCellScaleChecks(combined);cpuChecks(simple);cpuChecks(combined);referenceDisplacementChecks(combined);thinSkewArithmeticChecks(combined);generalReferenceChecks(simple);generalReferenceChecks(combined);executableBoundaryChecks(simple);
     if(argc==4){std::cout<<"fem_reference_compiler_check=pass unloaded_reference_recovered=false anatomical_wall_qualified=false\n";return 0;}
     Device device;std::cout<<"reference_device="<<[device.device name].UTF8String<<'\n';
     backtrackingLaneReductionChecks(device);

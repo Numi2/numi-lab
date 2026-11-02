@@ -1,0 +1,523 @@
+{
+  "diagnostic_only": true,
+  "native_witness_agreement_m": {
+    "37607": 4.2840877975541666e-08,
+    "3412": 3.0719530773294423e-08
+  },
+  "source_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+  "records": [
+    {
+      "source_row": 25847,
+      "dominant_donor": 23,
+      "nhcnt_body": 23,
+      "posed_point": [
+        -0.035726189613342285,
+        -0.11437401175498962,
+        0.024240124970674515
+      ],
+      "nearest_same_donor_node_gap_m": 0.0030851120319064103,
+      "nearest_any_node_gap_m": 0.0030851120319064103,
+      "nearest_any_node": 25442,
+      "nearest_any_donor": 23,
+      "source_donor_weight_at_nearest_any": 0.9408204555511475
+    },
+    {
+      "source_row": 17764,
+      "dominant_donor": 20,
+      "nhcnt_body": 20,
+      "posed_point": [
+        -0.09749917685985565,
+        -0.4117845892906189,
+        7.265512635967752e-08
+      ],
+      "nearest_same_donor_node_gap_m": 0.013628642959511605,
+      "nearest_any_node_gap_m": 0.013628642959511605,
+      "nearest_any_node": 24344,
+      "nearest_any_donor": 20,
+      "source_donor_weight_at_nearest_any": 0.7472628959257774
+    },
+    {
+      "source_row": 37607,
+      "dominant_donor": 20,
+      "nhcnt_body": 20,
+      "posed_point": [
+        0.04782886430621147,
+        -0.4104890525341034,
+        0.0005981573485769331
+      ],
+      "nearest_same_donor_node_gap_m": 0.032865711710436445,
+      "nearest_any_node_gap_m": 0.032865711710436445,
+      "nearest_any_node": 28167,
+      "nearest_any_donor": 20,
+      "source_donor_weight_at_nearest_any": 0.6779155618838891
+    },
+    {
+      "source_row": 15823,
+      "dominant_donor": 20,
+      "nhcnt_body": 20,
+      "posed_point": [
+        -0.11998260021209717,
+        -0.4428468644618988,
+        0.003545647719874978
+      ],
+      "nearest_same_donor_node_gap_m": 0.026397763829629384,
+      "nearest_any_node_gap_m": 0.026397763829629384,
+      "nearest_any_node": 23198,
+      "nearest_any_donor": 20,
+      "source_donor_weight_at_nearest_any": 0.7095323605159296
+    },
+    {
+      "source_row": 34318,
+      "dominant_donor": 128,
+      "nhcnt_body": 128,
+      "posed_point": [
+        0.018748266622424126,
+        -0.8567646145820618,
+        4.4165262806927785e-06
+      ],
+      "nearest_same_donor_node_gap_m": 0.004610406958245566,
+      "nearest_any_node_gap_m": 0.004610406958245566,
+      "nearest_any_node": 26133,
+      "nearest_any_donor": 128,
+      "source_donor_weight_at_nearest_any": 0.42368945246516687
+    },
+    {
+      "source_row": 21161,
+      "dominant_donor": 128,
+      "nhcnt_body": 128,
+      "posed_point": [
+        -0.06729794293642044,
+        -0.8506719470024109,
+        -8.481947588734329e-09
+      ],
+      "nearest_same_donor_node_gap_m": 0.010044783862963263,
+      "nearest_any_node_gap_m": 0.010044783862963263,
+      "nearest_any_node": 24551,
+      "nearest_any_donor": 128,
+      "source_donor_weight_at_nearest_any": 0.40025651756560954
+    },
+    {
+      "source_row": 33528,
+      "dominant_donor": 128,
+      "nhcnt_body": 1,
+      "posed_point": [
+        0.01113599631935358,
+        -0.8225564956665039,
+        0.0038663246668875217
+      ],
+      "nearest_same_donor_node_gap_m": 1.277134976534271e-07,
+      "nearest_any_node_gap_m": 1.277134976534271e-07,
+      "nearest_any_node": 26089,
+      "nearest_any_donor": 128,
+      "source_donor_weight_at_nearest_any": 0.39184529637703563
+    },
+    {
+      "source_row": 20346,
+      "dominant_donor": 128,
+      "nhcnt_body": 128,
+      "posed_point": [
+        -0.07342653721570969,
+        -0.8148731589317322,
+        0.005264864303171635
+      ],
+      "nearest_same_donor_node_gap_m": 0.013392335424263541,
+      "nearest_any_node_gap_m": 0.013392335424263541,
+      "nearest_any_node": 24833,
+      "nearest_any_donor": 128,
+      "source_donor_weight_at_nearest_any": 0.3582153271962603
+    },
+    {
+      "source_row": 7240,
+      "dominant_donor": 42,
+      "nhcnt_body": 42,
+      "posed_point": [
+        -0.209371879696846,
+        -0.6099427342414856,
+        0.05376226827502251
+      ],
+      "nearest_same_donor_node_gap_m": 0.015607447639739144,
+      "nearest_any_node_gap_m": 0.012258345894473848,
+      "nearest_any_node": 21890,
+      "nearest_any_donor": 20,
+      "source_donor_weight_at_nearest_any": 0.26992068081563797
+    },
+    {
+      "source_row": 47752,
+      "dominant_donor": 92,
+      "nhcnt_body": 92,
+      "posed_point": [
+        0.1499892771244049,
+        -0.6025983691215515,
+        0.04343800246715546
+      ],
+      "nearest_same_donor_node_gap_m": 0.006536384016866168,
+      "nearest_any_node_gap_m": 0.006536384016866168,
+      "nearest_any_node": 29674,
+      "nearest_any_donor": 92,
+      "source_donor_weight_at_nearest_any": 0.33172294542401726
+    },
+    {
+      "source_row": 18299,
+      "dominant_donor": 136,
+      "nhcnt_body": 136,
+      "posed_point": [
+        -0.09264414012432098,
+        -1.42244553565979,
+        0.034387361258268356
+      ],
+      "nearest_same_donor_node_gap_m": 0.017956184538646957,
+      "nearest_any_node_gap_m": 0.017956184538646957,
+      "nearest_any_node": 24606,
+      "nearest_any_donor": 136,
+      "source_donor_weight_at_nearest_any": 0.6187657523838253
+    },
+    {
+      "source_row": 36233,
+      "dominant_donor": 150,
+      "nhcnt_body": 150,
+      "posed_point": [
+        0.03864508122205734,
+        -1.4176955223083496,
+        0.034599170088768005
+      ],
+      "nearest_same_donor_node_gap_m": 0.02611677746426707,
+      "nearest_any_node_gap_m": 0.02611677746426707,
+      "nearest_any_node": 26659,
+      "nearest_any_donor": 150,
+      "source_donor_weight_at_nearest_any": 0.6025491789619997
+    },
+    {
+      "source_row": 6889,
+      "dominant_donor": 42,
+      "nhcnt_body": 42,
+      "posed_point": [
+        -0.21735583245754242,
+        -0.6148610711097717,
+        0.05464078485965729
+      ],
+      "nearest_same_donor_node_gap_m": 0.006402651709201668,
+      "nearest_any_node_gap_m": 0.006402651709201668,
+      "nearest_any_node": 20831,
+      "nearest_any_donor": 42,
+      "source_donor_weight_at_nearest_any": 0.2977584088606529
+    },
+    {
+      "source_row": 3412,
+      "dominant_donor": 62,
+      "nhcnt_body": 62,
+      "posed_point": [
+        -0.30670642852783203,
+        -0.8869183659553528,
+        0.12189968675374985
+      ],
+      "nearest_same_donor_node_gap_m": 0.035847210962765594,
+      "nearest_any_node_gap_m": 0.003368375799903239,
+      "nearest_any_node": 10687,
+      "nearest_any_donor": 49,
+      "source_donor_weight_at_nearest_any": 0.0867545895290358
+    },
+    {
+      "source_row": 5298,
+      "dominant_donor": 72,
+      "nhcnt_body": 72,
+      "posed_point": [
+        -0.3053409159183502,
+        -0.8792992234230042,
+        0.09712601453065872
+      ],
+      "nearest_same_donor_node_gap_m": 0.007152138049937376,
+      "nearest_any_node_gap_m": 0.001168343675646035,
+      "nearest_any_node": 9599,
+      "nearest_any_donor": 67,
+      "source_donor_weight_at_nearest_any": 0.22314822336178028
+    },
+    {
+      "source_row": 519,
+      "dominant_donor": 54,
+      "nhcnt_body": 54,
+      "posed_point": [
+        -0.26863551139831543,
+        -0.9375780820846558,
+        0.17674259841442108
+      ],
+      "nearest_same_donor_node_gap_m": 0.006160453752428818,
+      "nearest_any_node_gap_m": 0.005960649722785789,
+      "nearest_any_node": 18543,
+      "nearest_any_donor": 53,
+      "source_donor_weight_at_nearest_any": 0.38105970152648727
+    },
+    {
+      "source_row": 753,
+      "dominant_donor": 61,
+      "nhcnt_body": 61,
+      "posed_point": [
+        -0.29689422249794006,
+        -1.0019642114639282,
+        0.1627751588821411
+      ],
+      "nearest_same_donor_node_gap_m": 7.009376979628919e-06,
+      "nearest_any_node_gap_m": 7.009376979628919e-06,
+      "nearest_any_node": 13677,
+      "nearest_any_donor": 61,
+      "source_donor_weight_at_nearest_any": 0.4079270265515135
+    },
+    {
+      "source_row": 2758,
+      "dominant_donor": 66,
+      "nhcnt_body": 66,
+      "posed_point": [
+        -0.3148591220378876,
+        -1.0089616775512695,
+        0.12301695346832275
+      ],
+      "nearest_same_donor_node_gap_m": 0.00267892639997887,
+      "nearest_any_node_gap_m": 0.00267892639997887,
+      "nearest_any_node": 3476,
+      "nearest_any_donor": 66,
+      "source_donor_weight_at_nearest_any": 0.4493238811715256
+    },
+    {
+      "source_row": 4378,
+      "dominant_donor": 71,
+      "nhcnt_body": 71,
+      "posed_point": [
+        -0.31431108713150024,
+        -1.007094144821167,
+        0.09386361390352249
+      ],
+      "nearest_same_donor_node_gap_m": 0.00026084764145330386,
+      "nearest_any_node_gap_m": 0.00026084764145330386,
+      "nearest_any_node": 4005,
+      "nearest_any_donor": 71,
+      "source_donor_weight_at_nearest_any": 0.5350254200946882
+    },
+    {
+      "source_row": 6104,
+      "dominant_donor": 76,
+      "nhcnt_body": 76,
+      "posed_point": [
+        -0.30478358268737793,
+        -0.9872751235961914,
+        0.07535003125667572
+      ],
+      "nearest_same_donor_node_gap_m": 0.004004474077216093,
+      "nearest_any_node_gap_m": 0.004004474077216093,
+      "nearest_any_node": 11735,
+      "nearest_any_donor": 76,
+      "source_donor_weight_at_nearest_any": 0.49344788861305183
+    },
+    {
+      "source_row": 20233,
+      "dominant_donor": 138,
+      "nhcnt_body": 138,
+      "posed_point": [
+        -0.09586852043867111,
+        -1.721572995185852,
+        0.04277941212058067
+      ],
+      "nearest_same_donor_node_gap_m": 0.010782133351460447,
+      "nearest_any_node_gap_m": 0.010782133351460447,
+      "nearest_any_node": 24289,
+      "nearest_any_donor": 138,
+      "source_donor_weight_at_nearest_any": 0.6878216848259229
+    },
+    {
+      "source_row": 18300,
+      "dominant_donor": 136,
+      "nhcnt_body": 136,
+      "posed_point": [
+        -0.09499507397413254,
+        -1.4183764457702637,
+        0.034399379044771194
+      ],
+      "nearest_same_donor_node_gap_m": 0.020429318851467555,
+      "nearest_any_node_gap_m": 0.020429318851467555,
+      "nearest_any_node": 24606,
+      "nearest_any_donor": 136,
+      "source_donor_weight_at_nearest_any": 0.6187657523838253
+    },
+    {
+      "source_row": 47595,
+      "dominant_donor": 92,
+      "nhcnt_body": 92,
+      "posed_point": [
+        0.1477757841348648,
+        -0.6058189868927002,
+        0.04377603530883789
+      ],
+      "nearest_same_donor_node_gap_m": 0.008334300175109612,
+      "nearest_any_node_gap_m": 0.008334300175109612,
+      "nearest_any_node": 29674,
+      "nearest_any_donor": 92,
+      "source_donor_weight_at_nearest_any": 0.33172294542401726
+    },
+    {
+      "source_row": 51582,
+      "dominant_donor": 112,
+      "nhcnt_body": 112,
+      "posed_point": [
+        0.2559051811695099,
+        -0.8872636556625366,
+        0.12706810235977173
+      ],
+      "nearest_same_donor_node_gap_m": 0.010042501547345747,
+      "nearest_any_node_gap_m": 0.0002724552126401506,
+      "nearest_any_node": 46572,
+      "nearest_any_donor": 99,
+      "source_donor_weight_at_nearest_any": 0.20010953425372957
+    },
+    {
+      "source_row": 49891,
+      "dominant_donor": 122,
+      "nhcnt_body": 122,
+      "posed_point": [
+        0.2547510266304016,
+        -0.8878851532936096,
+        0.09831184893846512
+      ],
+      "nearest_same_donor_node_gap_m": 0.0010666378702467339,
+      "nearest_any_node_gap_m": 0.0010666378702467339,
+      "nearest_any_node": 45959,
+      "nearest_any_donor": 122,
+      "source_donor_weight_at_nearest_any": 0.22948086581933042
+    },
+    {
+      "source_row": 54176,
+      "dominant_donor": 104,
+      "nhcnt_body": 104,
+      "posed_point": [
+        0.21051271259784698,
+        -0.9514040946960449,
+        0.17722806334495544
+      ],
+      "nearest_same_donor_node_gap_m": 0.00027552284481630225,
+      "nearest_any_node_gap_m": 0.00027552284481630225,
+      "nearest_any_node": 32990,
+      "nearest_any_donor": 104,
+      "source_donor_weight_at_nearest_any": 0.5130355253797727
+    },
+    {
+      "source_row": 52654,
+      "dominant_donor": 111,
+      "nhcnt_body": 111,
+      "posed_point": [
+        0.25064554810523987,
+        -0.9999276995658875,
+        0.1432657688856125
+      ],
+      "nearest_same_donor_node_gap_m": 0.002623568884154542,
+      "nearest_any_node_gap_m": 0.002623568884154542,
+      "nearest_any_node": 43926,
+      "nearest_any_donor": 111,
+      "source_donor_weight_at_nearest_any": 0.3782960867948026
+    },
+    {
+      "source_row": 51773,
+      "dominant_donor": 116,
+      "nhcnt_body": 116,
+      "posed_point": [
+        0.26745203137397766,
+        -1.0090630054473877,
+        0.12427805364131927
+      ],
+      "nearest_same_donor_node_gap_m": 0.0021676351494527945,
+      "nearest_any_node_gap_m": 0.0021676351494527945,
+      "nearest_any_node": 53418,
+      "nearest_any_donor": 116,
+      "source_donor_weight_at_nearest_any": 0.4813205389153208
+    },
+    {
+      "source_row": 50654,
+      "dominant_donor": 121,
+      "nhcnt_body": 121,
+      "posed_point": [
+        0.2643049359321594,
+        -1.003387689590454,
+        0.09792229533195496
+      ],
+      "nearest_same_donor_node_gap_m": 0.006846117630519499,
+      "nearest_any_node_gap_m": 0.0032818572872206687,
+      "nearest_any_node": 50879,
+      "nearest_any_donor": 120,
+      "source_donor_weight_at_nearest_any": 0.40185019339400224
+    },
+    {
+      "source_row": 47935,
+      "dominant_donor": 126,
+      "nhcnt_body": 126,
+      "posed_point": [
+        0.253041535615921,
+        -0.9848120212554932,
+        0.07092849910259247
+      ],
+      "nearest_same_donor_node_gap_m": 0.007557701993691096,
+      "nearest_any_node_gap_m": 0.007557701993691096,
+      "nearest_any_node": 44533,
+      "nearest_any_donor": 126,
+      "source_donor_weight_at_nearest_any": 0.37067784835060197
+    },
+    {
+      "source_row": 34830,
+      "dominant_donor": 152,
+      "nhcnt_body": 152,
+      "posed_point": [
+        0.043728504329919815,
+        -1.7229326963424683,
+        0.04216230660676956
+      ],
+      "nearest_same_donor_node_gap_m": 0.00944325941293083,
+      "nearest_any_node_gap_m": 0.00944325941293083,
+      "nearest_any_node": 26920,
+      "nearest_any_donor": 152,
+      "source_donor_weight_at_nearest_any": 0.6753431043286504
+    },
+    {
+      "source_row": 36890,
+      "dominant_donor": 150,
+      "nhcnt_body": 150,
+      "posed_point": [
+        0.043611057102680206,
+        -1.4147601127624512,
+        0.034614089876413345
+      ],
+      "nearest_same_donor_node_gap_m": 0.02388814782905404,
+      "nearest_any_node_gap_m": 0.02388814782905404,
+      "nearest_any_node": 26659,
+      "nearest_any_donor": 150,
+      "source_donor_weight_at_nearest_any": 0.6025491789619997
+    }
+  ],
+  "count": 32,
+  "node_bound_failures": [
+    {
+      "source_row": 37607,
+      "dominant_donor": 20,
+      "nhcnt_body": 20,
+      "posed_point": [
+        0.04782886430621147,
+        -0.4104890525341034,
+        0.0005981573485769331
+      ],
+      "nearest_same_donor_node_gap_m": 0.032865711710436445,
+      "nearest_any_node_gap_m": 0.032865711710436445,
+      "nearest_any_node": 28167,
+      "nearest_any_donor": 20,
+      "source_donor_weight_at_nearest_any": 0.6779155618838891
+    },
+    {
+      "source_row": 3412,
+      "dominant_donor": 62,
+      "nhcnt_body": 62,
+      "posed_point": [
+        -0.30670642852783203,
+        -0.8869183659553528,
+        0.12189968675374985
+      ],
+      "nearest_same_donor_node_gap_m": 0.035847210962765594,
+      "nearest_any_node_gap_m": 0.003368375799903239,
+      "nearest_any_node": 10687,
+      "nearest_any_donor": 49,
+      "source_donor_weight_at_nearest_any": 0.0867545895290358
+    }
+  ]
+}

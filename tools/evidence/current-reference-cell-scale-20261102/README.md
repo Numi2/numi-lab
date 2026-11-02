@@ -1,0 +1,9 @@
+# Small reference-cell inverse admission
+
+The native current Skin/Fat import passed complete mass and surface admission, but trial 072 rejected 68,549 rest cells because the matrix inverse condition test used max(1 metre, actual edge scale). Every emitted reference cell has positive volume above the unchanged 1e-18 m3 floor. The minimum dimensionless determinant divided by maximum edge-matrix-entry cubed is 1.0028e-5, far above the unchanged 128*binary64-epsilon threshold (2.8422e-14). The old failures were dimensional scale failures, not singular cells.
+
+Both the compiler inverse and the serialized reference-cell validator now use the actual edge-matrix scale. The cofactor inverse arithmetic is unchanged. Positive physical volume, finite/representable stored values, exact stored reference operators, material bounds, and conservative executable Float32 determinant admission remain mandatory.
+
+The existing reference compiler/material/package regressions pass (117 reported reference checks plus the added four-scale controls). The new test compiles unit, millimetre and micrometre cells, compares their normalized inverses, and rejects inverted, singular and below-volume-floor cells. Two failed test preparations are retained: the first used a nonregional displacement-gradient fixture, and the second exposed the matching scale floor in layout validation. Both are corrected; neither was a physics qualification.
+
+Trial 075 used the compiler fix before the layout-validator fix and correctly rejected in the latter. Trial 078 pins the corrected executable, dynamic compiler/runtime library, production metallib and source tree for the complete current scene. Accepted motion remains a separate test.

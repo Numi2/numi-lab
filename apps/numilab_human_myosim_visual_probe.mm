@@ -44,6 +44,7 @@
 #include "numi/matter/fem_body_contact_static_bvh.hpp"
 #include "numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp"
 #include "NumiHumanInitialSkinBoneContactWitness.hpp"
+#include "NumiHumanRegisteredSupportSurfaceWitness.hpp"
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <ImageIO/ImageIO.h>
@@ -22173,6 +22174,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::vector<std::uint8_t> wholeBodySkinDetailUsed;
     std::vector<std::uint32_t> wholeBodySkinRepresentativeCoarseIndex;
     double registeredSupportWitnessMaximumGapM=0.0;
+    std::size_t registeredSupportSurfaceFallbackRows=0u;
+    double registeredSupportRepresentativeMaximumGapM=0.0;
     bool registeredComparedVerifiedCookedParentBaseline=false;
     // NHCNT rows keep their original NHSKIN identities even when a replacement
     // uses an independent detailed/render domain. This is a witness-map domain,
@@ -25604,6 +25607,45 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                                     }
                                 }
                             }
+                    // Distance to a triangulated source surface is not distance
+                    // to its closest vertex. The representative is observational;
+                    // the physical plane contacts every actual O FEM node below.
+                    double representativeDistanceSquared=bestDistanceSquared;
+                    if(bestRow==NM_INVALID_INDEX||bestDistanceSquared>maximumGapSquared) {
+                        RegisteredSupportSurfaceWitness surfaceWitness;
+                        std::array<RegisteredSupportSourceInfluence,4> sourceInfluences{};
+                        require(registeredSupportSourceInfluences(*skin,sourceRow,sourceInfluences),
+                                "NHCNT source has invalid retained source binding weights");
+                        std::uint32_t witnessDonor=NM_INVALID_INDEX;float witnessDonorSourceWeight=0.0f;
+                        for(const auto influence:sourceInfluences) {
+                            if(influence.body==NM_INVALID_INDEX||influence.weight<=0.0f)continue;
+                            RegisteredSupportSurfaceWitness candidate;
+                            if(findRegisteredSupportSurfaceWitness(outer.worldPoints,outer.faces,
+                                    outer.frameOwnerBodyIndices,influence.body,sourcePoint,cellWidthM,candidate)&&
+                               candidate.surfaceDistanceM<surfaceWitness.surfaceDistanceM) {
+                                surfaceWitness=candidate;witnessDonor=influence.body;
+                                witnessDonorSourceWeight=influence.weight;
+                            }
+                        }
+                        if(witnessDonor!=NM_INVALID_INDEX) {
+                            bestRow=surfaceWitness.representativeRow;
+                            bestDistanceSquared=surfaceWitness.surfaceDistanceM*surfaceWitness.surfaceDistanceM;
+                            representativeDistanceSquared=surfaceWitness.representativeDistanceM*
+                                surfaceWitness.representativeDistanceM;
+                            ++registeredSupportSurfaceFallbackRows;
+                            std::cout<<std::setprecision(17)
+                                <<"registered_volume_NHCNT_surface_witness source_row="<<sourceRow
+                                <<" donor="<<donor<<" retained_source_donor="<<witnessDonor
+                                <<" retained_source_weight="<<witnessDonorSourceWeight
+                                <<" O_face="<<surfaceWitness.faceRow
+                                <<" representative="<<bestRow
+                                <<" surface_gap_m="<<surfaceWitness.surfaceDistanceM
+                                <<" representative_gap_m="<<surfaceWitness.representativeDistanceM
+                                <<" barycentric="<<surfaceWitness.barycentric[0]<<","
+                                <<surfaceWitness.barycentric[1]<<","<<surfaceWitness.barycentric[2]
+                                <<" registration_bound_m="<<cellWidthM<<" physical_force_rows_changed=0\n";
+                        }
+                    }
                     if(bestRow==NM_INVALID_INDEX||bestDistanceSquared>maximumGapSquared) {
                         double globalSameDonorSquared=std::numeric_limits<double>::infinity();
                         std::uint32_t globalSameDonorRow=NM_INVALID_INDEX;
@@ -25661,6 +25703,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             witnessError<<" global_any_donor_id="<<outer.frameOwnerBodyIndices[globalAnyDonorRow];
                         throw std::runtime_error(witnessError.str());
                     }
+                    registeredSupportRepresentativeMaximumGapM=std::max(
+                        registeredSupportRepresentativeMaximumGapM,std::sqrt(representativeDistanceSquared));
                     auto& representative=wholeBodySkinRepresentativeCoarseIndex[sourceRow];
                     require(representative==kWholeBodySkinTransferUnassigned||representative==bestRow,
                             "one NHCNT source vertex maps to inconsistent typed O witness rows");
@@ -25670,7 +25714,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 }
             }
             if(useFEMSkinSupport&&!registeredParentSupportWitnessMap)
-                registeredSupportWitnessMapping="bounded_same_donor_nearest";
+                registeredSupportWitnessMapping=registeredSupportSurfaceFallbackRows>0u?
+                    "bounded_source_four_influence_surface":"bounded_same_donor_nearest";
             if(wholeBodySkinRegisteredRenderPayload) {
                 auto& directSkin=*wholeBodySkinRegisteredRenderPayload;
                 require(directSkin.usesRegisteredDirectWorldSurface&&
@@ -25727,6 +25772,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     <<" retained_original_node_proof="<<(registeredRetainedSupportNodesProven?"PASS":"not_used")
                     <<" parent_node_displacement_max_m="<<registeredSupportParentTopology.maximumNodeDisplacementM
                     <<" bounded_nearest_max_gap_m="<<registeredSupportWitnessMaximumGapM
+                    <<" surface_projection_rows="<<registeredSupportSurfaceFallbackRows
+                    <<" representative_max_gap_m="<<registeredSupportRepresentativeMaximumGapM
+                    <<" physical_contact_owner=all_current_O_FEM_nodes"
                     <<" physical_admission=0 simulation_steps=0"<<std::endl;
 
             // Preserve only the 14 explicitly remapped D-domain constraints.
@@ -26543,6 +26591,10 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     }
                 }
                 basisPartitionTrials.push_back(std::move(partitionTrial));
+                // The first admitted partition is the selected one. Repeating
+                // the complete volume/flow proof for unused coarser candidates
+                // cannot change that choice and multiplies initialization work.
+                if(selectedRegisteredLabels)break;
             }
             std::ostringstream basisPartitionReceipt;
             for(std::size_t index=0;index<basisPartitionTrials.size();++index) {

@@ -1,0 +1,27 @@
+{
+  "policy": "same 128*binary64 epsilon condition threshold, using actual edge-matrix scale rather than metre floor",
+  "source_cells": 1495294,
+  "old_inverse_rejects": 68549,
+  "actual_scale_inverse_rejects": 0,
+  "minimum_scaled_determinant": 1.0028226618224079e-05,
+  "threshold": 2.842170943040401e-14,
+  "worst_cell": 957615,
+  "first_old_rejects": [
+    81,
+    109,
+    167,
+    176,
+    198,
+    251,
+    272,
+    281,
+    335,
+    362,
+    388,
+    432,
+    466,
+    468,
+    474,
+    475
+  ]
+}

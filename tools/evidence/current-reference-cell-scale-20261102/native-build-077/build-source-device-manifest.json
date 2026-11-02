@@ -1,0 +1,55 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/cmake",
+    "--build",
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native",
+    "--target",
+    "numi-human-native",
+    "numi-human-unpaired-skin-fat-volume-check",
+    "numi-human-registered-surface-intersection-check",
+    "numi-human-registered-support-surface-witness-check",
+    "numi-matter-fem-reference-check",
+    "--parallel",
+    "1"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 1.3130087852478027,
+  "binary": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "sha256": "753cc303fe794a936937d15166c070d2598468b2422ad16008b4805d7b116421",
+    "bytes": 10431744
+  },
+  "source": {
+    "head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+    "pins": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-build-077/source-pins-before.json",
+      "sha256": "16434bbd1d21580d7a719c9280e8a41995c95cbd8c9340277004a0fdbb53a4ab"
+    },
+    "source_unchanged_during_build": true
+  },
+  "physical_admission": false,
+  "native_steps": 0,
+  "runtime_dependencies": {
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib": {
+      "sha256": "b8018662530bd0bf162a1db59b1d49ab0d2cfd18d1b6bdabe2baacf876af212e",
+      "bytes": 10034800
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib": {
+      "sha256": "76819990f8b17e27621b2e463ff953baa04f05f1bd0aaa94d27f51fbbac0979b",
+      "bytes": 29328818
+    }
+  },
+  "device_hardware": {
+    "chip_type": "Apple M6",
+    "machine_model": "Mac18,5",
+    "machine_name": "Mac mini",
+    "number_processors": "proc 12:2:4:6",
+    "physical_memory": "16 GB"
+  },
+  "validation_source_pins": {
+    "/Users/numi/Work/skin-fat-native-integration-209/matter/tools/fem_reference_check.mm": {
+      "sha256": "6938f52a99f2fc5986ad5a7e5f45df50526345124be348b8a7dd34c1dbd30007"
+    }
+  },
+  "linked_libraries": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native:\n\t@rpath/libmetalrobo.dylib (compatibility version 0.0.0, current version 0.0.0)\n\t/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 5027.0.69)\n\t/System/Library/Frameworks/Metal.framework/Versions/A/Metal (compatibility version 1.0.0, current version 382.5.3)\n\t/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics (compatibility version 64.0.0, current version 2050.0.0)\n\t/System/Library/Frameworks/ImageIO.framework/Versions/A/ImageIO (compatibility version 1.0.0, current version 1.0.0)\n\t/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit (compatibility version 45.0.0, current version 2775.10.103)\n\t/System/Library/Frameworks/MetalKit.framework/Versions/A/MetalKit (compatibility version 1.0.0, current version 174.4.0)\n\t/System/Library/Frameworks/AVFoundation.framework/Versions/A/AVFoundation (compatibility version 1.0.0, current version 2.0.0)\n\t/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo (compatibility version 1.2.0, current version 758.27.0)\n\t/System/Library/Frameworks/CoreMedia.framework/Versions/A/CoreMedia (compatibility version 1.0.0, current version 3350.77.5)\n\t/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore (compatibility version 1.2.0, current version 1223.2.2)\n\t/usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.12)\n\t/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2200.27.0)\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1359.0.0)\n\t/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5027.0.69)\n\t/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)\n"
+}

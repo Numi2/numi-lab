@@ -1,0 +1,74 @@
+{
+  "README.md": {
+    "sha256": "5ca3450914b2553763f46a010dbc5b0332ffa50cc7ae46309426a19c8e31adad",
+    "bytes": 1591
+  },
+  "controls/controls.json": {
+    "sha256": "d6ecfbe7afbbce38e5aeceaf0646dc324aa6d7601f52bf062c5b873298fecc7f",
+    "bytes": 714
+  },
+  "controls/native-controls.json": {
+    "sha256": "7c96bdfdad6d2e8bed009e4672bab107195275981918d899d3d02a6d44036b46",
+    "bytes": 369
+  },
+  "controls/test.log": {
+    "sha256": "f32a6a12ede81636a633bb382cd662da297e2e7126785f71151de972de6be6c9",
+    "bytes": 81
+  },
+  "first-witness/nearest-surface-witness.json": {
+    "sha256": "c401dd647988d3f0c1338c175dce3e0164889e12f31a6053ba01afe4b0dd8e53",
+    "bytes": 917
+  },
+  "native-069/cpu-stage-sample.txt": {
+    "sha256": "9294394f99893992c241e6bfa1c17c6fbca6fcc301d3380c170c891116a54eb8",
+    "bytes": 169057
+  },
+  "native-069/source-preflight.execution.json": {
+    "sha256": "2e7c9830a56ab1b84591b01414a3da2619e11a06d6e2c5623f3867a214cf1f26",
+    "bytes": 593
+  },
+  "native-069/source-preflight.plan.json": {
+    "sha256": "3a20829c8f4b3fa592ab171ff6beb5fdcd7a0cbb235e365099e9740fec1a5db3",
+    "bytes": 75641
+  },
+  "native-069/source-preflight.stderr.log": {
+    "sha256": "bd50d8b63cd513601441aae52380ad9bd0319cf4ca6fc40b14e058cf064f7593",
+    "bytes": 645
+  },
+  "native-069/source-preflight.stdout.log": {
+    "sha256": "b06c6f6e03197122b1c42220a01560bc63b58dc3e275b40d583657076d8a54c1",
+    "bytes": 23771
+  },
+  "source-support/audit.py": {
+    "sha256": "e8fd50f518ef37585fb3bb00c39faed0d01a41731398504dfb0f6b75f165d4e3",
+    "bytes": 4311
+  },
+  "source-support/compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "source-support/decode.cpp": {
+    "sha256": "c7198518286bfd1542174a06b80842a830a7a2f33565bfbb28b90236450dfa58",
+    "bytes": 894
+  },
+  "source-support/mixed-owner-surface-witness.json": {
+    "sha256": "399cc62d2c12a76cf2399ac3a0fc203366372bcbb87011473a82b3cda076001c",
+    "bytes": 2276
+  },
+  "source-support/source-pose-and-ownership-audit.json": {
+    "sha256": "bb5e477f5d27da503b356fde179c7b3ae88d5048ded80bcf6e4b5bb810e9958a",
+    "bytes": 15745
+  },
+  "source-support/source-records.csv": {
+    "sha256": "d57df6054e27a3fe477f6c5e37862f4be00c795a63acc98aa82234ae4672caa0",
+    "bytes": 3767
+  },
+  "source-support/surface-projection.py": {
+    "sha256": "f5985f00783b38ae86e2da838ffbacb5b99c0fa35d33744b93b3a9ab56655b8d",
+    "bytes": 1906
+  },
+  "source-support/test.log": {
+    "sha256": "f32a6a12ede81636a633bb382cd662da297e2e7126785f71151de972de6be6c9",
+    "bytes": 81
+  }
+}

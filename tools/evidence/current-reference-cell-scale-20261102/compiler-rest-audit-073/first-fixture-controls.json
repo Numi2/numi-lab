@@ -1,0 +1,21 @@
+[
+  {
+    "argv": [
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/numi-matter-fem-reference-check",
+      "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/rodero2021_ventricular_guccione_passive.nmatter",
+      "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter",
+      "--cpu-only"
+    ],
+    "exit_code": 1,
+    "elapsed_s": 0.3149881362915039,
+    "output": "reference_abi=47\nfem reference check failed: reference fixture compile: reference-displacement FEM requires authored reference nodes and regional materials on explicit immutable non-mixed FEM without nodal fields, Human attachments, or identification; \n"
+  },
+  {
+    "argv": [
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native/numi-human-unpaired-skin-fat-volume-check"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 0.6800038814544678,
+    "output": "unpaired skin/fat volume owner tests passed\n"
+  }
+]

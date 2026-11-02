@@ -1,0 +1,58 @@
+{
+  "README.md": {
+    "sha256": "fe6b1478c9e95d1e131f669674aeb7b943d19fab7e00fa20e5fa877c1d701933",
+    "bytes": 1547
+  },
+  "fractional-reduction-labels-070/controls.json": {
+    "sha256": "e20a5e28cb9254f30e109355cbb1e4c3bb7e2eead625ca5367fbd9d267da6ddb",
+    "bytes": 884
+  },
+  "fractional-reduction-labels-070/numi-human-registered-support-surface-witness-check.log": {
+    "sha256": "f32a6a12ede81636a633bb382cd662da297e2e7126785f71151de972de6be6c9",
+    "bytes": 81
+  },
+  "fractional-reduction-labels-070/numi-human-registered-surface-intersection-check.log": {
+    "sha256": "21493d7bf27c2fae22a6b8f07ea03af23e987aa4da67f9dd335e874faeac166c",
+    "bytes": 83
+  },
+  "fractional-reduction-labels-070/numi-human-unpaired-skin-fat-volume-check.log": {
+    "sha256": "b0a42c125e1dfdfa61e715c62a7c5d3e6eeb4c7a007d608cae05a1c09ece2378",
+    "bytes": 44
+  },
+  "native-072/source-preflight.execution.json": {
+    "sha256": "addbdf912737858de0ea5b090ffcb3fe9a7b02851237ad3f9d964421cd5f9aae",
+    "bytes": 594
+  },
+  "native-072/source-preflight.plan.json": {
+    "sha256": "7aa75c0bbc8ead2d1654f48472f2b879ca09bd272c3e82de4d2bdc16a7a7b505",
+    "bytes": 75641
+  },
+  "native-072/source-preflight.stderr.log": {
+    "sha256": "59511983d996abc78289ee7e01d63d912744af4d79665912045001b2b9270500",
+    "bytes": 4181947
+  },
+  "native-072/source-preflight.stdout.log": {
+    "sha256": "e366883cc86b0d9d5d96a58b2646c86df47bafddffd72fcefa99387ff44d5dea",
+    "bytes": 30349
+  },
+  "native-build-071/build-source-device-manifest.json": {
+    "sha256": "8e2543de5ebcb528d5380ceae6730b61401839c6dbef9aa784c399687e11abf2",
+    "bytes": 1131
+  },
+  "native-build-071/build.stderr.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "native-build-071/build.stdout.log": {
+    "sha256": "6af427ccf6d86cbce2be71a7ba466fb5c63d3d01b174e108215de7808d2284ec",
+    "bytes": 402
+  },
+  "native-build-071/git-status.txt": {
+    "sha256": "186febcade593d7f80a6bba671e53201950afb80887337ac1d664df58ecd56c4",
+    "bytes": 4750
+  },
+  "native-build-071/source-pins-before.json": {
+    "sha256": "1b20b085ffabab134d7cd5a5c3162a3fb945a57423ffcf15f05b7f7c56fb4f3c",
+    "bytes": 153451
+  }
+}

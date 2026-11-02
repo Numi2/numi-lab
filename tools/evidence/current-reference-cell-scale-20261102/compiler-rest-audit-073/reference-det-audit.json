@@ -1,0 +1,17 @@
+{
+  "source": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/candidate-current-typed-volume.npz",
+  "tets": 1495294,
+  "reference_float32_det_min": 6.0017408696862415e-18,
+  "inverted_or_zero": 0,
+  "volume_le_1e_18": 0,
+  "abs_det_lt_1e_12": 278414,
+  "abs_det_lt_1e_18": 0,
+  "det_quantiles": [
+    6.0017408696862415e-18,
+    3.4553783223286065e-17,
+    1.3385447563323466e-15,
+    3.4505324592783834e-14,
+    4.83443729346853e-11,
+    0.00010842705023767415
+  ]
+}
