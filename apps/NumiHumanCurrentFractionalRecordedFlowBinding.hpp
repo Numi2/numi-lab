@@ -3,6 +3,8 @@
 #include "NumiHumanCurrentFractionalRecordedFlowArtifacts.hpp"
 #include <algorithm>
 #include <array>
+#include <cctype>
+#include <cmath>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -15,8 +17,10 @@
 
 namespace metalrobo::human::coarse_tissue {
 struct CurrentFractionalRecordedFlowBinding {
-    std::filesystem::path admissionReceiptPath;
-    std::string admissionReceiptSHA256,transportReceiptSHA256,source330LabelSHA256;
+    std::filesystem::path admissionReceiptPath,massTransportEnvelopeReceiptPath;
+    std::string admissionReceiptSHA256,massTransportEnvelopeReceiptSHA256,transportReceiptSHA256,source330LabelSHA256;
+    double transportDistanceLimitM=0.0;
+    bool massTransportEnvelopeEnabled=false;
     std::array<PhysicalSkinRecordedCarrierAllocationCSVAssets,2> roleAssets{};
     std::array<PhysicalSkinRecordedCarrierAllocationCSVImportReport,2> roleReports{};
     std::array<std::string,2> roleP1SHA256{},roleCarrierPacketSHA256{};
@@ -132,6 +136,12 @@ inline bool topLevelString(std::string_view json,std::string_view key,std::strin
     std::string raw;if(!topLevelRawValue(json,key,raw)||raw.size()<2u||raw.front()!='"'||raw.back()!='"')return false;
     value.assign(raw.substr(1u,raw.size()-2u));return value.find('\"')==std::string::npos;
 }
+inline bool topLevelFiniteNumber(std::string_view json,std::string_view key,double& value) {
+    std::string raw;if(!topLevelRawValue(json,key,raw)||raw.empty())return false;
+    char* end=nullptr;const double parsed=std::strtod(raw.c_str(),&end);
+    if(end==raw.c_str()||!end||*end!='\0'||!std::isfinite(parsed))return false;
+    value=parsed;return true;
+}
 inline bool receiptNumber(std::string_view json,std::string_view key,double& value) {
     return source_carrier_quadrature_import_detail::real(json,key,value)&&std::isfinite(value);
 }
@@ -149,6 +159,173 @@ inline bool readPin(std::string_view map,const std::string& name,std::filesystem
 }
 inline bool receiptBool(std::string_view json,std::string_view key,bool expected) {
     bool value=false;return boolean(json,key,value)&&value==expected;
+}
+inline bool parseFinitePositiveDistanceDecimal(const std::string& text,double& value) {
+    if(text.empty()||std::any_of(text.begin(),text.end(),[](unsigned char c){return std::isspace(c);}))return false;
+    char* end=nullptr;const double parsed=std::strtod(text.c_str(),&end);
+    if(end==text.c_str()||!end||*end!='\0'||!std::isfinite(parsed)||parsed<=0.0)return false;
+    value=parsed;return true;
+}
+inline bool validateMassTransportDistanceContract(const std::string& exactDecimal,
+        const double maximumDeclaredSourceCentroidDistanceM,const double envelopeLimitM,
+        const double configuredImportLimitM,const double massReceiptLimitM,
+        const double actualMaximumUsedM,std::string& error) {
+    double parsedDecimal=0.0;
+    if(!parseFinitePositiveDistanceDecimal(exactDecimal,parsedDecimal)||
+       !std::isfinite(maximumDeclaredSourceCentroidDistanceM)||maximumDeclaredSourceCentroidDistanceM<0.0||
+       !std::isfinite(envelopeLimitM)||envelopeLimitM<=0.0||
+       !std::isfinite(configuredImportLimitM)||configuredImportLimitM<=0.0||
+       !std::isfinite(massReceiptLimitM)||massReceiptLimitM<=0.0||
+       !std::isfinite(actualMaximumUsedM)||actualMaximumUsedM<0.0) {
+        error="mass transport envelope has a nonfinite or nonpositive bound";return false;
+    }
+    const double derivedLimitM=std::max(200.0,std::ceil(maximumDeclaredSourceCentroidDistanceM*1.0e6)+1.0)/1.0e6;
+    if(parsedDecimal!=envelopeLimitM||derivedLimitM!=envelopeLimitM||
+       configuredImportLimitM!=envelopeLimitM||massReceiptLimitM!=envelopeLimitM) {
+        error="geometry, stage import, and mass receipt transport bounds differ";return false;
+    }
+    if(actualMaximumUsedM>envelopeLimitM) {
+        error="recorded mass transport exceeds the authenticated geometry envelope";return false;
+    }
+    error.clear();return true;
+}
+inline bool validateCurrentGeometryEnvelope(std::string_view candidate,
+        const CurrentFractionalRecordedFlowBinding& binding,const double massReceiptLimitM,
+        double& resolvedLimitM,std::string& error) {
+    std::string envelope,receiptRef,receiptPathText,receiptSHA,schema,ruleID,exactDecimal,inputSHA;
+    double maxDeclared=0.0,envelopeLimit=0.0;
+    if(!object(candidate,"mass_transport_envelope",envelope)||
+       !objectHasExactKeys(envelope,{"receipt","schema","rule_id",
+          "maximum_declared_source_centroid_distance_m","predeclared_transport_envelope_m","exact_decimal","input_sha256"})||
+       !object(envelope,"receipt",receiptRef)||!objectHasExactKeys(receiptRef,{"path","sha256"})||
+       !str(receiptRef,"path",receiptPathText)||!str(receiptRef,"sha256",receiptSHA)||
+       !validSHA256(receiptSHA)||receiptPathText!=binding.massTransportEnvelopeReceiptPath.string()||
+       receiptSHA!=binding.massTransportEnvelopeReceiptSHA256||
+       !str(envelope,"schema",schema)||schema!="numi.human.mass-transport-envelope.v1"||
+       !str(envelope,"rule_id",ruleID)||ruleID!="ceil_max_declared_source_centroid_um_plus_1_floor_200"||
+       !receiptNumber(envelope,"maximum_declared_source_centroid_distance_m",maxDeclared)||
+       !receiptNumber(envelope,"predeclared_transport_envelope_m",envelopeLimit)||
+       !str(envelope,"exact_decimal",exactDecimal)||!object(envelope,"input_sha256",inputSHA)) {
+        error="unified admission omits or malforms the authenticated geometry envelope binding";return false;
+    }
+    std::string geometryReceipt;
+    if(!readSmallPinnedJSON(binding.massTransportEnvelopeReceiptPath,
+                            binding.massTransportEnvelopeReceiptSHA256,geometryReceipt,error))return false;
+    std::string geometrySchema,geometryEnvelope,geometryInputs,geometryPhysicalAdmission,geometryNativeSteps;
+    double geometryTopLevelLimit=0.0;
+    if(!topLevelString(geometryReceipt,"schema",geometrySchema)||
+       geometrySchema!="numi-human.registered-volume-parent-identity-source-control.v1") {
+        error="pinned geometry receipt has an unexpected top-level schema";return false;
+    }
+    if(!topLevelRawValue(geometryReceipt,"physical_admission",geometryPhysicalAdmission)||
+       geometryPhysicalAdmission!="false") {
+        error="pinned geometry receipt claims physical admission or omits its source-only flag";return false;
+    }
+    if(!topLevelRawValue(geometryReceipt,"native_steps",geometryNativeSteps)||geometryNativeSteps!="0") {
+        error="pinned geometry receipt claims native steps or omits its source-only count";return false;
+    }
+    if(!topLevelFiniteNumber(geometryReceipt,"mass_mapping_maximum_transport_distance_m",geometryTopLevelLimit)||
+       !object(geometryReceipt,"mass_transport_envelope",geometryEnvelope)||
+       !objectHasExactKeys(geometryEnvelope,{"exact_decimal","input_sha256",
+          "maximum_declared_source_centroid_distance_m","predeclared_transport_envelope_m","rule_id","schema","status"})) {
+        error="pinned geometry receipt omits the declared mass transport envelope or its exact schema";return false;
+    }
+    std::string geometryEnvelopeSchema,geometryStatus,geometryRule,geometryDecimal;
+    double geometryMaxDeclared=0.0,geometryLimit=0.0;
+    if(!str(geometryEnvelope,"schema",geometryEnvelopeSchema)||
+       geometryEnvelopeSchema!="numi.human.mass-transport-envelope.v1"||
+       !str(geometryEnvelope,"status",geometryStatus)||geometryStatus!="PREDECLARED_CURRENT_GEOMETRY_ENVELOPE"||
+       !str(geometryEnvelope,"rule_id",geometryRule)||
+       geometryRule!="ceil_max_declared_source_centroid_um_plus_1_floor_200"||
+       !str(geometryEnvelope,"exact_decimal",geometryDecimal)||geometryDecimal!=exactDecimal||
+       !receiptNumber(geometryEnvelope,"maximum_declared_source_centroid_distance_m",geometryMaxDeclared)||
+       geometryMaxDeclared!=maxDeclared||
+       !receiptNumber(geometryEnvelope,"predeclared_transport_envelope_m",geometryLimit)||
+       geometryLimit!=envelopeLimit||geometryTopLevelLimit!=envelopeLimit||
+       !object(geometryEnvelope,"input_sha256",geometryInputs)) {
+        error="pinned geometry envelope values differ from the unified mass receipt";return false;
+    }
+    constexpr std::array<std::string_view,13> inputNames{
+      "candidate","child_element","child_labels","child_node","coordinate_frame","geometry_fat","geometry_skin",
+      "source330_labels","source330_mass","source330_nodes","source330_source","source330_tets","state"};
+    if(!objectHasExactKeys(inputSHA,inputNames)||!objectHasExactKeys(geometryInputs,inputNames)) {
+        error="geometry envelope input digest map has an unexpected key set";return false;
+    }
+    constexpr std::array<std::pair<std::string_view,std::string_view>,13> liveInputEnv{{
+      {"candidate","NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_VOLUME_SHA256"},
+      {"child_element","NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_TETGEN_ELEMENTS_SHA256"},
+      {"child_labels","NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_CHILD_LABELS_SHA256"},
+      {"child_node","NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_TETGEN_NODE_SHA256"},
+      {"coordinate_frame","NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_COORDINATE_FRAME_SHA256"},
+      {"geometry_fat","NUMI_H706_FRACTIONAL_GEOMETRY_FAT_SHA256"},
+      {"geometry_skin","NUMI_H706_FRACTIONAL_GEOMETRY_SKIN_SHA256"},
+      {"source330_labels","NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_LABELS_SHA256"},
+      {"source330_mass","NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_PACKET_SHA256"},
+      {"source330_nodes","NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_NODES_SHA256"},
+      {"source330_source","NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_SOURCE_SHA256"},
+      {"source330_tets","NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_TETS_SHA256"},
+      {"state","NUMI_H706_FRACTIONAL_STATE_SHA256"}}};
+    for(const auto& [name,envKey]:liveInputEnv) {
+        std::string candidateSHA,geometrySHA,liveSHA;
+        if(!str(inputSHA,name,candidateSHA)||!str(geometryInputs,name,geometrySHA)||
+           !validSHA256(candidateSHA)||candidateSHA!=geometrySHA||!envSHA(std::string(envKey),liveSHA,error)||
+           liveSHA!=geometrySHA) {
+            if(error.empty())error="geometry envelope input SHA differs from live import configuration: "+std::string(name);
+            return false;
+        }
+    }
+    std::string configuredText;double configuredLimit=0.0;
+    if(!env("NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_MAXIMUM_MASS_TRANSPORT_DISTANCE_M",
+            configuredText,error)||!parseFinitePositiveDistanceDecimal(configuredText,configuredLimit)) {
+        error="configured recorded-volume transport envelope is missing or malformed";return false;
+    }
+    if(!validateMassTransportDistanceContract(exactDecimal,maxDeclared,envelopeLimit,
+            configuredLimit,massReceiptLimitM,0.0,error))return false;
+    resolvedLimitM=envelopeLimit;return true;
+}
+inline bool candidateHasExpectedShape(std::string_view candidate,const bool envelopeEnabled) {
+    if(envelopeEnabled)return objectHasExactKeys(candidate,{"current_state","skin_volume","fat_volume",
+      "child_mesh_sha256","region_label_sha256","coordinate_frame_sha256","child_node_count",
+      "child_tetrahedron_count","mass_transport_envelope"});
+    return objectHasExactKeys(candidate,{"current_state","skin_volume","fat_volume","child_mesh_sha256",
+      "region_label_sha256","coordinate_frame_sha256","child_node_count","child_tetrahedron_count"});
+}
+inline bool validateLegacyTransportDistance(const double receiptLimitM,const double actualMaximumUsedM,
+        double& resolvedLimitM,std::string& error) {
+    constexpr double legacyLimitM=0.019353;
+    if(!std::isfinite(receiptLimitM)||receiptLimitM!=legacyLimitM||
+       !std::isfinite(actualMaximumUsedM)||actualMaximumUsedM<0.0||actualMaximumUsedM>legacyLimitM) {
+        error="legacy recorded-flow transport bound differs from the strict 0.019353 m contract";return false;
+    }
+    resolvedLimitM=legacyLimitM;error.clear();return true;
+}
+inline bool configureMassTransportEnvelopeFromEnvironment(CurrentFractionalRecordedFlowBinding& binding,
+                                                              std::string& error) {
+    constexpr const char* envelopePathKey=
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_MASS_TRANSPORT_ENVELOPE_RECEIPT";
+    constexpr const char* envelopeSHAKey=
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_MASS_TRANSPORT_ENVELOPE_RECEIPT_SHA256";
+    constexpr const char* legacyDistanceKey=
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_MAXIMUM_MASS_TRANSPORT_DISTANCE_M";
+    const char* envelopePath=std::getenv(envelopePathKey);
+    const char* envelopeSHA=std::getenv(envelopeSHAKey);
+    if((envelopePath==nullptr)!=(envelopeSHA==nullptr)) {
+        error="mass transport envelope receipt path and SHA must be provided together";return false;
+    }
+    binding.massTransportEnvelopeEnabled=envelopePath!=nullptr;
+    if(binding.massTransportEnvelopeEnabled) {
+        if(!envPath(envelopePathKey,binding.massTransportEnvelopeReceiptPath,error)||
+           !envSHA(envelopeSHAKey,binding.massTransportEnvelopeReceiptSHA256,error))return false;
+        return true;
+    }
+    const char* configuredDistance=std::getenv(legacyDistanceKey);
+    if(configuredDistance&&std::string(configuredDistance)!="0.019353") {
+        error="legacy recorded-flow mode rejects a nonlegacy transport envelope configuration";return false;
+    }
+    binding.massTransportEnvelopeReceiptPath.clear();
+    binding.massTransportEnvelopeReceiptSHA256.clear();
+    binding.transportDistanceLimitM=0.019353;
+    error.clear();return true;
 }
 inline bool loadRoleEnvironment(const unsigned role,CurrentFractionalRecordedFlowBinding& binding,
                                 std::string& error) {
@@ -183,8 +360,8 @@ inline bool admission(CurrentFractionalRecordedFlowBinding& binding,
        !topLevelString(receipt,"status",status)||status!="PASS_SOURCE_ONLY_REPLAY"||
        !noAdmission(receipt)||!num(receipt,"native_steps",nativeSteps)||nativeSteps!=0u||
        !topLevelString(receipt,"allocation",allocation)||allocation!="NOT_NATIVE_EXECUTED"||
-       !object(receipt,"solver",solver)||!object(receipt,"candidate",candidate)||
-       !object(receipt,"source330",source330)||!object(receipt,"input_sha256",inputs)||
+       !object(receipt,"solver",solver)||!topLevelRawValue(receipt,"candidate",candidate)||
+       !object(receipt,"source330",source330)||!topLevelRawValue(receipt,"input_sha256",inputs)||
        !object(receipt,"output_sha256",outputs)||!object(receipt,"replay",replay)||
        !object(receipt,"claims",claims)||!object(receipt,"closure_tolerances",tolerances)||
        !object(receipt,"semantic_group_rows",semanticRows)||!object(receipt,"source_donor_rows",donorRows)||
@@ -192,8 +369,7 @@ inline bool admission(CurrentFractionalRecordedFlowBinding& binding,
        !objectHasExactKeys(receipt,{"schema","status","physical_admission","native_steps","allocation","claims",
          "transport_distance_limit_m","closure_tolerances","input_sha256","output_sha256","candidate","source330",
          "solver","replay","semantic_group_rows","source_donor_rows","density"})||
-       !objectHasExactKeys(candidate,{"current_state","skin_volume","fat_volume","child_mesh_sha256","region_label_sha256",
-         "coordinate_frame_sha256","child_node_count","child_tetrahedron_count"})||
+       !candidateHasExpectedShape(candidate,binding.massTransportEnvelopeEnabled)||
        !objectHasExactKeys(source330,{"mass_packet","parent_source_contributions","labels","nodes","tets","source_mass_kg",
          "parent_count","source_donor_contribution_count"})||
        !objectHasExactKeys(solver,{"method","status","optimality_certified","transport_receipt_sha256","mapping_path_sha256",
@@ -222,6 +398,11 @@ inline bool admission(CurrentFractionalRecordedFlowBinding& binding,
     }
     std::string solverMethod,solverStatus,solverReceipt,mappingSHA,replayStatus;
     std::uint64_t transportEdges=0,augmentations=0;double distanceLimit=0.0,scale=0.0,elapsed=0.0;
+    double authenticatedDistanceLimitM=0.0;
+    if(!receiptNumber(receipt,"transport_distance_limit_m",distanceLimit))return false;
+    if(binding.massTransportEnvelopeEnabled) {
+        if(!validateCurrentGeometryEnvelope(candidate,binding,distanceLimit,authenticatedDistanceLimitM,error))return false;
+    } else if(!validateLegacyTransportDistance(distanceLimit,0.0,authenticatedDistanceLimitM,error))return false;
     if(!str(solver,"method",solverMethod)||solverMethod!="deterministic_dinic_feasibility"||
        !str(solver,"transport_receipt_sha256",solverReceipt)||!validSHA256(solverReceipt)||
        !str(solver,"status",solverStatus)||solverStatus!="PASS_FEASIBLE_NOT_OPTIMAL"||
@@ -232,7 +413,7 @@ inline bool admission(CurrentFractionalRecordedFlowBinding& binding,
        !receiptNumber(solver,"elapsed_s",elapsed)||elapsed<0.0||
        !receiptNumber(solver,"scale_factor",scale)||scale!=1.0||
        !receiptBool(solver,"postsolve_rescaling",false)||
-       !receiptNumber(receipt,"transport_distance_limit_m",distanceLimit)||distanceLimit!=0.019353||
+       distanceLimit!=authenticatedDistanceLimitM||
        !str(replay,"status",replayStatus)||replayStatus!="PASS_DETERMINISTIC_REPLAY"||
        !receiptBool(replay,"flow_array_equality",true)){
         error="unified admission solver/replay/distance claims are incomplete or changed";return false;
@@ -431,6 +612,7 @@ inline bool admission(CurrentFractionalRecordedFlowBinding& binding,
           binding.roleP1SHA256[role],binding.roleCarrierPacketSHA256[role]};
     }
     binding.transportReceiptSHA256=solverReceipt;
+    binding.transportDistanceLimitM=authenticatedDistanceLimitM;
     binding.candidateParentRows=input.parentMassKg.size();
     binding.candidateChildRows=input.childMaterialIndices.size();
     binding.admissionVerified=true;return true;
@@ -439,6 +621,7 @@ inline bool loadEnvironment(CurrentFractionalRecordedFlowBinding& binding,std::s
     const std::string prefix="NUMI_H706_FRACTIONAL_RECORDED_FLOW_ADMISSION_RECEIPT_";
     if(!envPath(prefix+"JSON",binding.admissionReceiptPath,error)||
        !envSHA(prefix+"SHA256",binding.admissionReceiptSHA256,error))return false;
+    if(!configureMassTransportEnvelopeFromEnvironment(binding,error))return false;
     for(unsigned role=0;role<2u;++role)if(!loadRoleEnvironment(role,binding,error))return false;
     binding.environmentLoaded=true;return true;
 }
@@ -467,7 +650,7 @@ inline bool loadEnvironment(CurrentFractionalRecordedFlowBinding& binding,std::s
             input.childMaterialIndices.begin(),input.childMaterialIndices.end(),material));
         PhysicalSkinRecordedCarrierAllocationCSVImportReport report;
         if(!loadPhysicalSkinRecordedCarrierAllocationCSVs(binding->roleAssets[role],material,
-                parentCount,childCount,roles[role],report,error))return false;
+                parentCount,childCount,binding->transportDistanceLimitM,roles[role],report,error))return false;
         if(!report.verified||report.physicalAdmission||report.nativeSteps!=0u||
            !report.solverFreeFeasibility||report.deterministicOptimizerReplay||
            report.transportReceiptSHA256!=binding->transportReceiptSHA256||

@@ -34,6 +34,7 @@ struct PhysicalSkinRecordedCarrierAllocationCSVImportReport {
     std::size_t sourceParentRows=0,childRows=0,aggregateFlowRows=0,carrierFlowRows=0,
         childSourceDonorRows=0,sourceDonorRows=0;
     std::uint64_t augmentationCount=0,semanticCandidateEdgeCount=0;
+    double transportDistanceLimitM=0.0;
     bool verified=false,physicalAdmission=false;
     bool deterministicOptimizerReplay=false,solverFreeFeasibility=false;
     std::uint32_t nativeSteps=0;
@@ -187,17 +188,21 @@ inline bool boolean(std::string_view json,std::string_view key,bool& value) {
 }
 inline bool validPositive(const double value){return std::isfinite(value)&&value>0.0;}
 inline bool validNonnegative(const double value){return std::isfinite(value)&&value>=0.0;}
+inline bool validWithinTransportDistance(const double distance,const double maximumDistanceM){
+    return validPositive(maximumDistanceM)&&validNonnegative(distance)&&distance<=maximumDistanceM;
+}
 
 [[nodiscard]] inline bool loadPhysicalSkinRecordedCarrierAllocationCSVs(
         const PhysicalSkinRecordedCarrierAllocationCSVAssets& assets,
         const std::uint32_t expectedMaterial,const std::size_t expectedParentRows,
-        const std::size_t expectedChildRows,
+        const std::size_t expectedChildRows,const double maximumTransportDistanceM,
         PhysicalSkinSourceCarrierRoleRecordedAllocationData& output,
         PhysicalSkinRecordedCarrierAllocationCSVImportReport& report,std::string& error) {
     const auto fail=[&](std::string message){error=std::move(message);return false;};
     if((expectedMaterial!=15u&&expectedMaterial!=16u)||assets.materialIndex!=expectedMaterial||
        expectedParentRows==0u||expectedChildRows==0u||expectedParentRows>1000000u||
-       expectedChildRows>2000000u||!validSHA(assets.receiptSHA256)||assets.receiptPath.empty())
+       expectedChildRows>2000000u||!validPositive(maximumTransportDistanceM)||
+       !validSHA(assets.receiptSHA256)||assets.receiptPath.empty())
         return fail("recorded carrier allocation import has an invalid parent/child domain or receipt pin");
     for(std::size_t i=0;i<assets.csvPaths.size();++i)
         if(assets.csvPaths[i].empty()||!validSHA(assets.csvSHA256[i]))
@@ -320,7 +325,7 @@ inline bool validNonnegative(const double value){return std::isfinite(value)&&va
             if(row.size()!=5u||!parseNumber(row[0],c)||!parseNumber(row[1],p)||
                !parseNumber(row[2],mass)||!parseNumber(row[3],measure)||!parseNumber(row[4],distance)||
                c>=expectedChildRows||p>=expectedParentRows||!validPositive(mass)||!validPositive(measure)||
-               !validNonnegative(distance)||distance>0.019353)
+               !validWithinTransportDistance(distance,maximumTransportDistanceM))
                 return fail("recorded transport-flow row has an invalid ID, mass, measure, or distance");
             if(rowIndex==0u){child=c;priorParent=p;haveParent=true;}
             else if(c<child||(c==child&&p<=priorParent))
@@ -379,7 +384,7 @@ inline bool validNonnegative(const double value){return std::isfinite(value)&&va
                !parseNumber(row[2],v)||!parseNumber(row[3],carrierRow)||
                !parseNumber(row[4],mass)||!parseNumber(row[5],measure)||!parseNumber(row[6],distance)||
                c>=expectedChildRows||p>=expectedParentRows||!validPositive(mass)||!validPositive(measure)||
-               !validNonnegative(distance)||distance>0.019353)
+               !validWithinTransportDistance(distance,maximumTransportDistanceM))
                 return fail("recorded source-carrier flow row has an invalid identity or value");
             const auto found=edgeIndex.find({c,p});
             if(found==edgeIndex.end()||found->second<currentEdge||v>=1000000u)
@@ -518,10 +523,23 @@ inline bool validNonnegative(const double value){return std::isfinite(value)&&va
     measured.aggregateFlowRows=next.aggregateFlowRows;measured.carrierFlowRows=next.carrierFlowRows;
     measured.childSourceDonorRows=next.childSourceDonorRows;measured.sourceDonorRows=next.sourceDonorRows;
     measured.augmentationCount=augmentations;measured.semanticCandidateEdgeCount=candidates;
+    measured.transportDistanceLimitM=maximumTransportDistanceM;
     measured.verified=true;measured.physicalAdmission=false;measured.nativeSteps=0;
     measured.deterministicOptimizerReplay=deterministicReplayPath;
     measured.solverFreeFeasibility=solverFreeFeasibilityPath;
     output=std::move(next);report=std::move(measured);error.clear();return true;
+}
+
+
+// Legacy source-only imports retain the original strict transport radius.
+[[nodiscard]] inline bool loadPhysicalSkinRecordedCarrierAllocationCSVs(
+        const PhysicalSkinRecordedCarrierAllocationCSVAssets& assets,
+        const std::uint32_t expectedMaterial,const std::size_t expectedParentRows,
+        const std::size_t expectedChildRows,
+        PhysicalSkinSourceCarrierRoleRecordedAllocationData& output,
+        PhysicalSkinRecordedCarrierAllocationCSVImportReport& report,std::string& error) {
+    return loadPhysicalSkinRecordedCarrierAllocationCSVs(assets,expectedMaterial,expectedParentRows,
+        expectedChildRows,0.019353,output,report,error);
 }
 
 } // namespace recorded_carrier_allocation_import_detail
