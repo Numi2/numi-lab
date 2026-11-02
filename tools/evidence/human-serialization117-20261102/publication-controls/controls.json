@@ -1,0 +1,119 @@
+[
+  {
+    "name": "publication-metal",
+    "argv": [
+      "/Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/bin/metal",
+      "-c",
+      "-std=metal4.0",
+      "-O3",
+      "-fno-fast-math",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/include",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/include",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src/matter_kernels.metal",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/publication-controls/kernels.air"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 5.431754958000056
+  },
+  {
+    "name": "publication-metallib",
+    "argv": [
+      "/Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/bin/metallib",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/publication-controls/kernels.air",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/publication-controls/NumiMatter.metallib"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 2.012683958000707
+  },
+  {
+    "name": "publication-test-build",
+    "argv": [
+      "xcrun",
+      "--sdk",
+      "macosx",
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/include",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/include",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/tests/numi_human_fem_surface_attachment/contact_audit_reduction_test.mm",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/publication-controls/contact-reduction-test"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 0.7023677090001001
+  },
+  {
+    "name": "publication-reduction",
+    "argv": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/publication-controls/contact-reduction-test",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/publication-controls/NumiMatter.metallib"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 3.194893208999929
+  },
+  {
+    "name": "publication-native-inactive",
+    "argv": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/native-test",
+      "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/silicone.nmatter",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/publication-controls/NumiMatter.metallib"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 95.05127099999936
+  },
+  {
+    "name": "publication-native-active",
+    "argv": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/native-test",
+      "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/silicone.nmatter",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/publication-controls/NumiMatter.metallib",
+      "active-contact"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 0.1691103329994803
+  },
+  {
+    "name": "publication-runtime-syntax",
+    "argv": [
+      "xcrun",
+      "--sdk",
+      "macosx",
+      "clang++",
+      "-std=c++23",
+      "-fobjc-arc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/include",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/include",
+      "-I",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src",
+      "-fsyntax-only",
+      "/Users/numi/Work/current-fractional-020-publication-20261101/matter/src/runtime.mm"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 1.8129776660007337
+  }
+]

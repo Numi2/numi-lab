@@ -1,0 +1,21 @@
+{
+  "status": "PASS_REQUIRED_TRANSITIVE_INPUTS_RESTORED",
+  "cause": "native-import-118 identified transitive mass proof dependency incorrectly classified as superseded by cleanup114",
+  "restored": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/actual-038-global-allchild-census-003/skin-global-allchild-witnesses-out007-v2.csv.gz",
+      "sha256": "e81884c98e3925983c3ecc6d0003acfe56bce11f04eea05e6feb883a603b7bee",
+      "bytes": 832188086,
+      "archive": "part-002.tar.gz",
+      "elapsed_s": 29.575343665999753
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/actual-038-global-allchild-census-003/fat-global-allchild-witnesses-out007-v2.csv.gz",
+      "sha256": "35d7a0505dc61e9b09d2e054b99926193d80036cca3b45a86a7eac036b59ec06",
+      "bytes": 673892000,
+      "archive": "part-003.tar.gz",
+      "elapsed_s": 23.220061041000008
+    }
+  ],
+  "free_bytes": 28565647360
+}

@@ -2116,6 +2116,90 @@ kernel void nm_numi_human_assemble_fem_body_contact_wrenches(
     bodyWrenches[global].torque = float4(torque, 0.0f);
 }
 
+
+inline float4 humanContactSumSIMD(float4 v) {
+    return float4(simd_sum(v.x),simd_sum(v.y),simd_sum(v.z),simd_sum(v.w));
+}
+inline NMNumiHumanBodyWrenchGPU humanContactWrenchGroup(
+    NMNumiHumanBodyWrenchGPU v,threadgroup NMNumiHumanBodyWrenchGPU* scratch,
+    uint lane,uint simdLane,uint simdGroup) {
+    v.force=humanContactSumSIMD(v.force);v.torque=humanContactSumSIMD(v.torque);
+    if(simdLane==0u) scratch[simdGroup]=v;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    NMNumiHumanBodyWrenchGPU out{};
+    if(lane<8u) out=scratch[lane];
+    if(simdGroup==0u) {out.force=humanContactSumSIMD(out.force);out.torque=humanContactSumSIMD(out.torque);}
+    return out;
+}
+// Stable per-body indices are compiler/preparation metadata, not duplicated
+// contact state. Every original row remains queried under its current pose.
+kernel void nm_numi_human_fem_body_contact_wrench_partial(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* poses [[buffer(3)]],
+    device NMNumiHumanBodyWrenchGPU* partials [[buffer(4)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges [[buffer(5)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvh [[buffer(7)]],
+    device const uint* rowIndices [[buffer(8)]],device const uint4* tiles [[buffer(9)]],
+    constant uint& tileCount [[buffer(10)]],
+    uint group [[threadgroup_position_in_grid]],uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],uint simdGroup [[simdgroup_index_in_threadgroup]]) {
+    if(tileCount==0u || group/tileCount>=dispatch.environmentCount) return;
+    const uint environment=group/tileCount;
+    const uint4 tile=tiles[group%tileCount];
+    NMNumiHumanBodyWrenchGPU value{};
+    if(lane<tile.y) {
+        const uint row=rowIndices[tile.x+lane];
+        const NMNumiHumanFEMBodyContactSampleGPU sample=row<dispatch.femBodyContactSampleCount
+            ?samples[row]:NMNumiHumanFEMBodyContactSampleGPU{};
+        if(row>=dispatch.femBodyContactSampleCount || sample.slaveNode>=dispatch.femNodeCount ||
+            sample.bodyIndex!=dispatch.articulationFirstBody+tile.z || !validBody(sample.bodyIndex,dispatch)) {
+            value.force=float4(NAN);value.torque=float4(NAN);
+        } else {
+            const MRArticulatedBodyPoseGPU pose=poses[environment*dispatch.bodyPoseStride+tile.z];
+            float3 slavePoint,bodyPoint,normal;float closure,area,slip;float3x3 tangent;
+            if(!humanFEMBodyContactStateForSample(row,dispatch,sample,ranges,triangles,bvh,
+                nodes[environment*dispatch.femNodeCount+sample.slaveNode],pose,
+                slavePoint,bodyPoint,normal,closure,area,tangent,slip)) {
+                value.force=float4(NAN);value.torque=float4(NAN);
+            } else {
+                const bool triangle=sample.flags==(NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE|
+                    NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
+                const float stiffness=triangle?sample.bodyLocalNormalAndReferenceSeparation.w:
+                    sample.stiffnessAndNormalStrainPerPressure.x;
+                const float pressure=stiffness*closure;
+                const float3 force=-normal*(pressure*area);
+                value.force=float4(force,0.0f);
+                value.torque=float4(cross(bodyPoint-pose.position.xyz,force),0.0f);
+            }
+        }
+    }
+    threadgroup NMNumiHumanBodyWrenchGPU scratch[8];
+    value=humanContactWrenchGroup(value,scratch,lane,simdLane,simdGroup);
+    if(lane==0u) partials[group]=value;
+}
+kernel void nm_numi_human_fem_body_contact_wrench_finish(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanBodyWrenchGPU* partials [[buffer(1)]],
+    device NMNumiHumanBodyWrenchGPU* wrenches [[buffer(2)]],
+    device const NMIncidenceRangeGPU* bodyTiles [[buffer(3)]],
+    constant uint& tileCount [[buffer(4)]],
+    uint group [[threadgroup_position_in_grid]],uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],uint simdGroup [[simdgroup_index_in_threadgroup]]) {
+    if(group>=dispatch.environmentCount*dispatch.bodyPoseStride) return;
+    const uint environment=group/dispatch.bodyPoseStride;const uint body=group%dispatch.bodyPoseStride;
+    const NMIncidenceRangeGPU range=bodyTiles[body];NMNumiHumanBodyWrenchGPU v{};
+    for(uint i=lane;i<range.count;i+=256u) {
+        const NMNumiHumanBodyWrenchGPU p=partials[environment*tileCount+range.first+i];
+        v.force+=p.force;v.torque+=p.torque;
+    }
+    threadgroup NMNumiHumanBodyWrenchGPU scratch[8];
+    v=humanContactWrenchGroup(v,scratch,lane,simdLane,simdGroup);
+    if(lane==0u) wrenches[group]=v;
+}
+
 kernel void nm_numi_human_assemble_fem_surface_attachment_loads(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
     device const NMNumiHumanFEMSurfaceAttachmentGPU* samples [[buffer(1)]],
@@ -2347,6 +2431,246 @@ kernel void nm_numi_human_audit_fem_body_contact(
         return;
     }
     audits[environment] = audit;
+}
+
+inline NMNumiHumanArticularContactAuditGPU humanFEMBodyContactAuditRange(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples,
+    device const NMFEMNodeStateGPU* acceptedNodes,
+    device const MRArticulatedBodyPoseGPU* bodyPoses,
+    device const NMNumiHumanFEMSurfaceAttachmentGPU* surfaceAttachments,
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*
+        femBodyContactNeighborhoodRanges,
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU*
+        femBodyContactNeighborhoodTriangles,
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* femBodyContactBVHNodes,
+    uint environment, uint firstSample, uint sampleCount,
+    uint firstAttachment, uint attachmentCount
+) {
+    NMNumiHumanArticularContactAuditGPU invalid{};
+    invalid.forceResidualAndL1 = float4(NAN);
+    if (environment >= dispatch.environmentCount) return invalid;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint poseBase = environment * dispatch.bodyPoseStride;
+    float3 forceResidual = float3(0.0f);
+    float3 momentResidual = float3(0.0f);
+    float maximumTangentialSlip = 0.0f;
+    float maximumPressure = 0.0f;
+    float normalForce = 0.0f;
+    float contactArea = 0.0f;
+    float closedSamples = 0.0f;
+    float storedEnergy = 0.0f;
+    float maximumNormalStrain = 0.0f;
+    float maximumClosure = 0.0f;
+    for (uint index = firstSample; index < firstSample + sampleCount; ++index) {
+        const NMNumiHumanFEMBodyContactSampleGPU sample = samples[index];
+        if (sample.slaveNode >= dispatch.femNodeCount ||
+            !validBody(sample.bodyIndex, dispatch)) {
+            return invalid;
+        }
+        float3 slavePoint;
+        float3 bodyPoint;
+        float3 normal;
+        float closure;
+        float contactAreaForSample;
+        float3x3 contactTangent;
+        float tangentialSlip;
+        const MRArticulatedBodyPoseGPU bodyPose = bodyPoses[
+            poseBase + sample.bodyIndex - dispatch.articulationFirstBody];
+        if (!humanFEMBodyContactStateForSample(
+                index, dispatch, sample, femBodyContactNeighborhoodRanges,
+                femBodyContactNeighborhoodTriangles, femBodyContactBVHNodes,
+                acceptedNodes[nodeBase + sample.slaveNode], bodyPose,
+                slavePoint, bodyPoint, normal, closure, contactAreaForSample,
+                contactTangent, tangentialSlip)) {
+            return invalid;
+        }
+        if (closure <= 0.0f) continue;
+        const bool triangle =
+            sample.flags == (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                             NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
+        const float pressureOverclosure = triangle
+            ? sample.bodyLocalNormalAndReferenceSeparation.w
+            : sample.stiffnessAndNormalStrainPerPressure.x;
+        const float strainPerPressure = triangle
+            ? sample.stiffnessAndNormalStrainPerPressure.w
+            : sample.stiffnessAndNormalStrainPerPressure.y;
+        const float pressure = pressureOverclosure * closure;
+        const float3 slaveForce =
+            normal * (pressure * contactAreaForSample);
+        const float3 bodyForce = -slaveForce;
+        forceResidual += slaveForce + bodyForce;
+        momentResidual += cross(slavePoint, slaveForce) +
+            cross(bodyPoint, bodyForce);
+        maximumTangentialSlip = max(
+            maximumTangentialSlip, tangentialSlip);
+        normalForce += length(slaveForce);
+        contactArea += contactAreaForSample;
+        closedSamples += 1.0f;
+        maximumPressure = max(maximumPressure, pressure);
+        storedEnergy += 0.5f * pressure * closure *
+            contactAreaForSample;
+        maximumNormalStrain = max(
+            maximumNormalStrain, pressure * strainPerPressure);
+        maximumClosure = max(maximumClosure, closure);
+    }
+    for (uint index = firstAttachment; index < firstAttachment + attachmentCount; ++index) {
+        const NMNumiHumanFEMSurfaceAttachmentGPU sample = surfaceAttachments[index];
+        if (sample.node[0] >= dispatch.femNodeCount ||
+            sample.node[1] >= dispatch.femNodeCount ||
+            sample.node[2] >= dispatch.femNodeCount ||
+            !validBody(sample.bodyIndex, dispatch)) {
+            return invalid;
+        }
+        const MRArticulatedBodyPoseGPU bodyPose = bodyPoses[
+            poseBase + sample.bodyIndex - dispatch.articulationFirstBody];
+        float3 slavePoint, bodyPoint, gap, slaveForce;
+        float pressure, normalStrain, energy;
+        if (!humanFEMSurfaceAttachmentState(
+                dispatch, sample,
+                acceptedNodes[nodeBase + sample.node[0]].positionAndMass.xyz,
+                acceptedNodes[nodeBase + sample.node[1]].positionAndMass.xyz,
+                acceptedNodes[nodeBase + sample.node[2]].positionAndMass.xyz,
+                bodyPose, slavePoint, bodyPoint, gap, slaveForce, pressure,
+                normalStrain, energy)) {
+            return invalid;
+        }
+        const float gapLength = length(gap);
+        const float3 bodyForce = -slaveForce;
+        forceResidual += slaveForce + bodyForce;
+        momentResidual += cross(slavePoint, slaveForce) +
+            cross(bodyPoint, bodyForce);
+        normalForce += length(slaveForce);
+        contactArea += sample.bodyLocalPointAndArea.w;
+        closedSamples += gapLength > 0.0f ? 1.0f : 0.0f;
+        maximumPressure = max(maximumPressure, pressure);
+        storedEnergy += energy;
+        maximumNormalStrain = max(maximumNormalStrain, normalStrain);
+        maximumClosure = max(maximumClosure, gapLength);
+    }
+    NMNumiHumanArticularContactAuditGPU audit{};
+    // w is maximum tangential glide for this sample family; unlike articular
+    // audit rows this contact type has analytically balanced force magnitude.
+    audit.forceResidualAndL1 =
+        float4(forceResidual, maximumTangentialSlip);
+    audit.momentResidualAndMaximumPressure =
+        float4(momentResidual, maximumPressure);
+    audit.normalForceAreaAndCounts =
+        float4(normalForce, contactArea, closedSamples,
+               float(dispatch.femBodyContactSampleCount +
+                   dispatch.femSurfaceAttachmentSampleCount));
+    audit.energyStrainClosureAndAccepted =
+        float4(storedEnergy, maximumNormalStrain, maximumClosure, 0.0f);
+    if (!finite4(audit.forceResidualAndL1) ||
+        !finite4(audit.momentResidualAndMaximumPressure) ||
+        !finite4(audit.normalForceAreaAndCounts) ||
+        !finite4(audit.energyStrainClosureAndAccepted)) {
+        return invalid;
+    }
+    return audit;
+}
+
+
+// One audit row per lane, followed by two-level SIMD/threadgroup reductions.
+// Point/contact evaluation and all finite checks match the serial owner oracle.
+inline NMNumiHumanArticularContactAuditGPU humanContactAuditMerge(
+    NMNumiHumanArticularContactAuditGPU a,
+    const NMNumiHumanArticularContactAuditGPU b) {
+    const bool valid = finite4(a.forceResidualAndL1) &&
+        finite4(a.momentResidualAndMaximumPressure) &&
+        finite4(a.normalForceAreaAndCounts) && finite4(a.energyStrainClosureAndAccepted) &&
+        finite4(b.forceResidualAndL1) && finite4(b.momentResidualAndMaximumPressure) &&
+        finite4(b.normalForceAreaAndCounts) && finite4(b.energyStrainClosureAndAccepted);
+    a.forceResidualAndL1 = float4(a.forceResidualAndL1.xyz + b.forceResidualAndL1.xyz,
+        max(a.forceResidualAndL1.w,b.forceResidualAndL1.w));
+    a.momentResidualAndMaximumPressure = float4(
+        a.momentResidualAndMaximumPressure.xyz+b.momentResidualAndMaximumPressure.xyz,
+        max(a.momentResidualAndMaximumPressure.w,b.momentResidualAndMaximumPressure.w));
+    a.normalForceAreaAndCounts += b.normalForceAreaAndCounts;
+    a.energyStrainClosureAndAccepted = float4(
+        a.energyStrainClosureAndAccepted.x+b.energyStrainClosureAndAccepted.x,
+        max(a.energyStrainClosureAndAccepted.y,b.energyStrainClosureAndAccepted.y),
+        max(a.energyStrainClosureAndAccepted.z,b.energyStrainClosureAndAccepted.z),0.0f);
+    if (!valid) a.forceResidualAndL1.x=NAN;
+    return a;
+}
+inline NMNumiHumanArticularContactAuditGPU humanContactAuditSIMD(
+    NMNumiHumanArticularContactAuditGPU a) {
+    const bool invalid=simd_any(!finite4(a.forceResidualAndL1) ||
+        !finite4(a.momentResidualAndMaximumPressure) ||
+        !finite4(a.normalForceAreaAndCounts) || !finite4(a.energyStrainClosureAndAccepted));
+    a.forceResidualAndL1=float4(simd_sum(a.forceResidualAndL1.x),
+        simd_sum(a.forceResidualAndL1.y),simd_sum(a.forceResidualAndL1.z),
+        simd_max(a.forceResidualAndL1.w));
+    a.momentResidualAndMaximumPressure=float4(simd_sum(a.momentResidualAndMaximumPressure.x),
+        simd_sum(a.momentResidualAndMaximumPressure.y),simd_sum(a.momentResidualAndMaximumPressure.z),
+        simd_max(a.momentResidualAndMaximumPressure.w));
+    a.normalForceAreaAndCounts=float4(simd_sum(a.normalForceAreaAndCounts.x),
+        simd_sum(a.normalForceAreaAndCounts.y),simd_sum(a.normalForceAreaAndCounts.z),
+        simd_sum(a.normalForceAreaAndCounts.w));
+    a.energyStrainClosureAndAccepted=float4(simd_sum(a.energyStrainClosureAndAccepted.x),
+        simd_max(a.energyStrainClosureAndAccepted.y),simd_max(a.energyStrainClosureAndAccepted.z),0.0f);
+    if(invalid) a.forceResidualAndL1.x=NAN;
+    return a;
+}
+inline NMNumiHumanArticularContactAuditGPU humanContactAuditGroup(
+    NMNumiHumanArticularContactAuditGPU a,
+    threadgroup NMNumiHumanArticularContactAuditGPU* scratch,
+    uint lane,uint simdLane,uint simdGroup) {
+    a=humanContactAuditSIMD(a);
+    if(simdLane==0u) scratch[simdGroup]=a;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    NMNumiHumanArticularContactAuditGPU b{};
+    if(lane<8u) b=scratch[lane];
+    // The first SIMD owns the second level; all threads reach the barrier.
+    if(simdGroup==0u) b=humanContactAuditSIMD(b);
+    return b;
+}
+kernel void nm_numi_human_audit_fem_body_contact_partial(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
+    device NMNumiHumanArticularContactAuditGPU* partials [[buffer(4)]],
+    device const NMNumiHumanFEMSurfaceAttachmentGPU* attachments [[buffer(5)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles [[buffer(7)]],
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvh [[buffer(8)]],
+    uint group [[threadgroup_position_in_grid]], uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],uint simdGroup [[simdgroup_index_in_threadgroup]]) {
+    const uint count=dispatch.femBodyContactSampleCount+dispatch.femSurfaceAttachmentSampleCount;
+    const uint tiles=count/256u+(count%256u!=0u);
+    if(tiles==0u || group/tiles>=dispatch.environmentCount) return;
+    const uint environment=group/tiles;
+    const uint index=(group%tiles)*256u+lane;
+    NMNumiHumanArticularContactAuditGPU a{};
+    if(index<count) a=humanFEMBodyContactAuditRange(dispatch,samples,acceptedNodes,bodyPoses,
+        attachments,ranges,triangles,bvh,environment,
+        min(index,dispatch.femBodyContactSampleCount),index<dispatch.femBodyContactSampleCount?1u:0u,
+        index<dispatch.femBodyContactSampleCount?0u:index-dispatch.femBodyContactSampleCount,
+        index>=dispatch.femBodyContactSampleCount?1u:0u);
+    threadgroup NMNumiHumanArticularContactAuditGPU scratch[8];
+    a=humanContactAuditGroup(a,scratch,lane,simdLane,simdGroup);
+    if(lane==0u) partials[group]=a;
+}
+kernel void nm_numi_human_audit_fem_body_contact_finish(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanArticularContactAuditGPU* partials [[buffer(1)]],
+    device NMNumiHumanArticularContactAuditGPU* audits [[buffer(2)]],
+    uint environment [[threadgroup_position_in_grid]], uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],uint simdGroup [[simdgroup_index_in_threadgroup]]) {
+    if(environment>=dispatch.environmentCount) return;
+    const uint count=dispatch.femBodyContactSampleCount+dispatch.femSurfaceAttachmentSampleCount;
+    const uint tiles=count/256u+(count%256u!=0u);
+    NMNumiHumanArticularContactAuditGPU a{};
+    for(uint tile=lane;tile<tiles;tile+=256u)
+        a=humanContactAuditMerge(a,partials[environment*tiles+tile]);
+    threadgroup NMNumiHumanArticularContactAuditGPU scratch[8];
+    a=humanContactAuditGroup(a,scratch,lane,simdLane,simdGroup);
+    if(lane==0u) {
+        a.normalForceAreaAndCounts.w=float(count);
+        audits[environment]=a;
+    }
 }
 
 kernel void nm_numi_human_assemble_articular_contact_wrenches(

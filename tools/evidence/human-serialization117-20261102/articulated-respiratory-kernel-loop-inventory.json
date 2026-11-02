@@ -1,0 +1,1573 @@
+{
+  "scope": "source candidates, not measured bottlenecks",
+  "kernels": [
+    {
+      "file": "matter/src/human_respiration.metal",
+      "kernel": "nm_human_resting_skin",
+      "line": 166,
+      "thread_contract": "kernel void nm_human_resting_skin(\n    constant uint4& d [[buffer(0)]], device const MRHumanRestingVertexMap* map [[buffer(1)]],\n    device const MRHumanRestingInfluence* influences [[buffer(2)]], device const MRBodyStateGPU* bodies [[buffer(3)]],\n    device MRVisualVertexGPUV2* vertices [[buffer(4)]],\n    device const NMHumanRespirationState* respiration [[buffer(5)]],\n    constant MRHumanRestingAnatomyGPU& anatomy [[buffer(6)]],device const float* cardiacQ [[buffer(7)]],\n    device const MRHumanRestingCardiacWallVertexGPU* wallMap [[buffer(8)]],\n    constant MRHumanRestingCardiacWallGPU& wall [[buffer(9)]],device const float4* wallQ [[buffer(10)]],\n    device const MRHumanRestingCommonFieldVertexGPU* commonMap [[buffer(11)]],\n    device const MRHumanRestingCommonCoordinatesGPU* commonCoordinates [[buffer(12)]],\n    uint i [[thread_position_in_grid]])",
+      "loops": [
+        {
+          "line": 191,
+          "expression": "uint j=0;j<m.influenceCount;++j"
+        }
+      ]
+    },
+    {
+      "file": "matter/src/human_respiration.metal",
+      "kernel": "nm_human_resting_audit_volume_partials",
+      "line": 473,
+      "thread_contract": "kernel void nm_human_resting_audit_volume_partials(\n    constant uint4& d [[buffer(0)]],\n    device const MRHumanRestingSurfaceAuditGPU* surfaces [[buffer(1)]],\n    device const uint* indices [[buffer(2)]],\n    device const MRVisualVertexGPUV2* vertices [[buffer(3)]],\n    device const MRHumanRestingVolumeAuditGroupGPU* groups [[buffer(4)]],\n    device MRHumanRestingVolumeAuditPartialGPU* partials [[buffer(5)]],\n    uint lane [[thread_index_in_threadgroup]],uint3 group [[threadgroup_position_in_grid]])",
+      "loops": [
+        {
+          "line": 507,
+          "expression": "uint stride=MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS/2u;stride;stride>>=1u"
+        }
+      ]
+    },
+    {
+      "file": "matter/src/human_respiration.metal",
+      "kernel": "nm_human_resting_reduce_volume_audits",
+      "line": 520,
+      "thread_contract": "kernel void nm_human_resting_reduce_volume_audits(\n    constant uint4& d [[buffer(0)]],\n    device const MRHumanRestingSurfaceAuditGPU* surfaces [[buffer(1)]],\n    device const uint* indices [[buffer(2)]],\n    device const MRVisualVertexGPUV2* vertices [[buffer(3)]],\n    device const MRHumanRestingVolumeAuditRangeGPU* groupRanges [[buffer(4)]],\n    device const MRHumanRestingVolumeAuditPartialGPU* partials [[buffer(5)]],\n    device const NMHumanRespirationState* respiration [[buffer(6)]],\n    constant MRHumanRestingAnatomyGPU& anatomy [[buffer(7)]],\n    device float4* result [[buffer(8)]],\n    constant MRHumanRestingCardiacWallGPU& wall [[buffer(9)]],\n    device MRHumanRestingSurfaceFailureGPU* failureResults [[buffer(10)]],\n    constant MRHumanRestingCommonFieldGPU& common [[buffer(11)]],\n    device const MRHumanRestingCommonCoordinatesGPU* commonCoordinates [[buffer(12)]],\n    uint i [[thread_position_in_grid]])",
+      "loops": [
+        {
+          "line": 540,
+          "expression": "uint g=groupRange.x;g<groupRange.x+groupRange.y;++g"
+        }
+      ]
+    },
+    {
+      "file": "matter/src/human_respiration.metal",
+      "kernel": "nm_human_resting_audit_mesh_triangles",
+      "line": 584,
+      "thread_contract": "kernel void nm_human_resting_audit_mesh_triangles(\n    constant uint4& d [[buffer(0)]],device const uint* indices [[buffer(1)]],\n    device const MRVisualVertexGPUV2* vertices [[buffer(2)]],\n    device uint4* partials [[buffer(3)]],\n    uint lane [[thread_index_in_threadgroup]],uint3 group [[threadgroup_position_in_grid]])",
+      "loops": [
+        {
+          "line": 604,
+          "expression": "uint stride=128;stride;stride>>=1"
+        }
+      ]
+    },
+    {
+      "file": "matter/src/human_respiration.metal",
+      "kernel": "nm_human_resting_audit_skin",
+      "line": 642,
+      "thread_contract": "kernel void nm_human_resting_audit_skin(\n    constant uint4& d [[buffer(0)]], device const MRHumanRestingVertexMap* map [[buffer(1)]],\n    device const MRVisualVertexGPUV2* vertices [[buffer(2)]],device float4* result [[buffer(3)]],\n    uint lane [[thread_index_in_threadgroup]])",
+      "loops": [
+        {
+          "line": 656,
+          "expression": "uint stride=128;stride;stride>>=1"
+        }
+      ]
+    },
+    {
+      "file": "matter/src/human_respiration.metal",
+      "kernel": "nm_human_resting_audit_skin_partials",
+      "line": 684,
+      "thread_contract": "kernel void nm_human_resting_audit_skin_partials(\n    constant uint4& d [[buffer(0)]],device const MRHumanRestingVertexMap* map [[buffer(1)]],\n    device const MRVisualVertexGPUV2* vertices [[buffer(2)]],device uint4* partials [[buffer(3)]],\n    constant MRHumanRestingBedGPU& bed [[buffer(4), function_constant(kUseRestingContouredBed)]],\n    device const float* bedHeights [[buffer(5), function_constant(kUseRestingContouredBed)]],\n    uint lane [[thread_index_in_threadgroup]],uint3 group [[threadgroup_position_in_grid]])",
+      "loops": [
+        {
+          "line": 708,
+          "expression": "uint stride=128;stride;stride>>=1"
+        }
+      ]
+    },
+    {
+      "file": "matter/src/human_respiration.metal",
+      "kernel": "nm_human_resting_reduce_skin_audit",
+      "line": 722,
+      "thread_contract": "kernel void nm_human_resting_reduce_skin_audit(\n    constant uint4& d [[buffer(0)]],device const uint4* partials [[buffer(1)]],\n    device float4* result [[buffer(2)]],uint lane [[thread_index_in_threadgroup]])",
+      "loops": [
+        {
+          "line": 737,
+          "expression": "uint stride=128;stride;stride>>=1"
+        }
+      ]
+    },
+    {
+      "file": "matter/src/human_respiration.metal",
+      "kernel": "nm_human_blood_mpm_handoff",
+      "line": 1312,
+      "thread_contract": "kernel void nm_human_blood_mpm_handoff(\n    constant NMHumanRespirationDispatch& d [[buffer(0)]],\n    device NMHumanRespirationState* respirationCandidate [[buffer(1)]],\n    device NMMatterStatusGPU* statuses [[buffer(2)]],\n    device NMParticleStateGPU* particleAccepted [[buffer(3)]],\n    device NMParticleStateGPU* particleCandidate [[buffer(4)]],\n    device const NMParticleStateGPU* particleCheckpoint [[buffer(5)]],\n    device const float* materialStateDefaults [[buffer(6)]],\n    device float* materialStateAccepted [[buffer(7)]],\n    device float* materialStateCandidate [[buffer(8)]],\n    uint env [[thread_position_in_grid]])",
+      "loops": [
+        {
+          "line": 1378,
+          "expression": "uint local = 0u; local < d.bloodMpmParticleCount; ++local"
+        },
+        {
+          "line": 1419,
+          "expression": "uint mergePass = 0u;\n             mergePass < d.bloodMpmParticleCount &&\n             batch.x > capacityVolume + capacityTolerance;\n             ++mergePass"
+        },
+        {
+          "line": 1426,
+          "expression": "uint localA = 0u; localA < d.bloodMpmParticleCount; ++localA"
+        },
+        {
+          "line": 1431,
+          "expression": "uint localB = localA + 1u; localB < d.bloodMpmParticleCount; ++localB"
+        },
+        {
+          "line": 1585,
+          "expression": "uint stateIndex = 0u; stateIndex < d.materialStateStride; ++stateIndex"
+        },
+        {
+          "line": 1618,
+          "expression": "uint local = 0u; local < d.bloodMpmParticleCount; ++local"
+        },
+        {
+          "line": 1643,
+          "expression": "uint stateIndex = 0u; stateIndex < d.materialStateStride; ++stateIndex"
+        }
+      ]
+    },
+    {
+      "file": "matter/src/human_respiration.metal",
+      "kernel": "nm_human_respiration_exchange",
+      "line": 1710,
+      "thread_contract": "kernel void nm_human_respiration_exchange(\n    constant NMHumanRespirationParameters& p [[buffer(0)]],\n    constant NMHumanRespirationDispatch& d [[buffer(1)]],\n    device const NMHumanRespirationState* accepted [[buffer(2)]],\n    device NMHumanRespirationState* candidate [[buffer(3)]],\n    device const float4* vascularBefore [[buffer(4)]],\n    device float4* vascularAfter [[buffer(5)]],\n    device const NMVascularUnknownGPU* unknowns [[buffer(6)]],\n    device const NMVascularConnectionGPU* connections [[buffer(7)]],\n    device NMMatterStatusGPU* statuses [[buffer(8)]],\n    device const NMVascularCompartmentGPU* compartments [[buffer(9)]],\n    device const float* elastance [[buffer(10)]],\n    device const MRArticulatedBodyPoseGPU* bodyPosesAccepted [[buffer(11)]],\n    device MRBodyPropertiesGPU* bodyPropertiesCandidate [[buffer(12)]],\n    device const float4* bodyPositionLow [[buffer(13)]],\n    device const float* pointJacobians [[buffer(14)]],\n    device const float* generalizedVelocity [[buffer(15)]],\n    device float* mujocoGeneralizedForceArena [[buffer(16)]],\n    device const MRBodyPropertiesGPU* bodyPropertiesReference [[buffer(17)]],\n    uint globalIndex [[thread_position_in_grid]],\n    uint lane [[thread_index_in_simdgroup]],\n    uint simdWidth [[threads_per_simdgroup]])",
+      "loops": [
+        {
+          "line": 1962,
+          "expression": "uint bodyOrdinal=0u;bodyOrdinal<d.bodyPropertyCount;++bodyOrdinal"
+        },
+        {
+          "line": 1987,
+          "expression": "uint bodyOrdinal=0u;bodyOrdinal<d.bodyPropertyCount;++bodyOrdinal"
+        },
+        {
+          "line": 2009,
+          "expression": "uint dof=0u;dof<d.dofCount;++dof"
+        },
+        {
+          "line": 2049,
+          "expression": "uint bodyOrdinal=0u;bodyOrdinal<d.bodyPropertyCount;++bodyOrdinal"
+        },
+        {
+          "line": 2094,
+          "expression": "uint dof=0u;dof<d.dofCount;++dof"
+        },
+        {
+          "line": 2122,
+          "expression": "uint dof=0u;dof<d.dofCount;++dof"
+        },
+        {
+          "line": 2250,
+          "expression": "uint bodyOrdinal=0u;bodyOrdinal<d.bodyPropertyCount;++bodyOrdinal"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/ArticulatedABA.metal",
+      "kernel": "MR_ABA_KERNEL_NAME",
+      "line": 357,
+      "thread_contract": "kernel void MR_ABA_KERNEL_NAME(\n    device const MRWorldGPU* worlds [[buffer(0)]],\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRJointDescriptorGPU* joints [[buffer(2)]],\n    device const MRDofPropertiesGPU* dofs [[buffer(3)]],\n    device const MRBodyPropertiesGPU* bodies [[buffer(4)]],\n#ifdef MR_ABA_MULTI_ARTICULATION\n    device const MRMultiABADispatchGPU* dispatchInputs [[buffer(5)]],\n#else\n    device const MRABADispatchGPU& dispatchInput [[buffer(5)]],\n#endif\n    device const float* qInput [[buffer(6)]],\n    device const float* vInput [[buffer(7)]],\n    device const float* effortInput [[buffer(8)]],\n    device const MRABABodyWrenchGPU* bodyWrenchInput [[buffer(9)]],\n    device float* accelerationOutputBase [[buffer(10)]],\n    device float* nextVOutputBase [[buffer(11)]],\n    device float* nextQOutputBase [[buffer(12)]],\n    device MRABAStatusGPU* statusOutput [[buffer(13)]],\n#if MR_ABA_BODY_PARAMETERS\n    device const float4* bodyParameters [[buffer(14)]],\n    device const float4* controllerParameters [[buffer(15)]],\n#endif\n#ifdef MR_ABA_MULTI_ARTICULATION\n    uint2 workPosition [[threadgroup_position_in_grid]],\n#else\n    uint environment [[threadgroup_position_in_grid]],\n#endif\n    uint lane [[thread_index_in_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 524,
+          "expression": "uint localBody = 0u;\n         localBody < articulation.bodyCount;\n         ++localBody"
+        },
+        {
+          "line": 538,
+          "expression": "uint localJoint = 0u;\n         localJoint < articulation.jointCount;\n         ++localJoint"
+        },
+        {
+          "line": 625,
+          "expression": "uint pass = 0u;\n         pass < articulation.bodyCount &&\n             discovered < articulation.bodyCount;\n         ++pass"
+        },
+        {
+          "line": 630,
+          "expression": "uint localJoint = 0u;\n             localJoint < articulation.jointCount;\n             ++localJoint"
+        },
+        {
+          "line": 747,
+          "expression": "uint traversalIndex = 1u;\n         traversalIndex < articulation.bodyCount;\n         ++traversalIndex"
+        },
+        {
+          "line": 922,
+          "expression": "uint localBody = 0u;\n         localBody < articulation.bodyCount;\n         ++localBody"
+        },
+        {
+          "line": 1076,
+          "expression": "uint reverse = 0u;\n         reverse + 1u < articulation.bodyCount;\n         ++reverse"
+        },
+        {
+          "line": 1395,
+          "expression": "uint traversalIndex = 1u;\n         traversalIndex < articulation.bodyCount;\n         ++traversalIndex"
+        },
+        {
+          "line": 1537,
+          "expression": "uint localJoint = 0u;\n         localJoint < articulation.jointCount;\n         ++localJoint"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/ArticulatedInverseMass.metal",
+      "kernel": "MR_INVERSE_MASS_KERNEL_NAME",
+      "line": 359,
+      "thread_contract": "kernel void MR_INVERSE_MASS_KERNEL_NAME(\n    device const MRWorldGPU* worlds [[buffer(0)]],\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRJointDescriptorGPU* joints [[buffer(2)]],\n    device const MRDofPropertiesGPU* dofs [[buffer(3)]],\n    device const MRBodyPropertiesGPU* bodies [[buffer(4)]],\n#if MR_INVERSE_MASS_STREAMING_RHS\n    constant const MRInverseMassDispatchGPU& streamingDispatch\n        [[buffer(5)]],\n#elif MR_INVERSE_MASS_MULTI_ARTICULATION\n    device const MRMultiInverseMassDispatchGPU* dispatches [[buffer(5)]],\n#else\n    device const MRInverseMassDispatchGPU* dispatches [[buffer(5)]],\n#endif\n    device const float* q [[buffer(6)]],\n    device const float* rightHandSides [[buffer(7)]],\n    device float* output [[buffer(8)]],\n    device MRInverseMassStatusGPU* statuses [[buffer(9)]],\n#if MR_INVERSE_MASS_BODY_PARAMETERS\n    device const float4* bodyParameters [[buffer(10)]],\n    device const float4* controllerParameters [[buffer(11)]],\n#endif\n#if MR_INVERSE_MASS_STREAMING_RHS\n    device const MRMetalWorldContactStatusGPU* contactStatuses\n        [[buffer(12)]],\n#endif\n    uint2 packet [[threadgroup_position_in_grid]],\n    uint lane [[thread_index_in_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 567,
+          "expression": "uint localBody = 0u;\n         localBody < articulation.bodyCount;\n         ++localBody"
+        },
+        {
+          "line": 580,
+          "expression": "uint localJoint = 0u;\n         localJoint < articulation.jointCount;\n         ++localJoint"
+        },
+        {
+          "line": 730,
+          "expression": "uint pass = 0u;\n         pass < articulation.bodyCount &&\n             discovered < articulation.bodyCount;\n         ++pass"
+        },
+        {
+          "line": 735,
+          "expression": "uint localJoint = 0u;\n             localJoint < articulation.jointCount;\n             ++localJoint"
+        },
+        {
+          "line": 787,
+          "expression": "uint rhsIndex = 0u;\n         rhsIndex < activeRhsCount;\n         ++rhsIndex"
+        },
+        {
+          "line": 851,
+          "expression": "uint traversalIndex = 1u;\n         traversalIndex < articulation.bodyCount;\n         ++traversalIndex"
+        },
+        {
+          "line": 970,
+          "expression": "uint localBody = 0u;\n         localBody < articulation.bodyCount;\n         ++localBody"
+        },
+        {
+          "line": 1086,
+          "expression": "uint reverse = 0u;\n         reverse + 1u < articulation.bodyCount;\n         ++reverse"
+        },
+        {
+          "line": 1294,
+          "expression": "uint rhsIndex = 0u;\n         rhsIndex < activeRhsCount;\n         ++rhsIndex"
+        },
+        {
+          "line": 1300,
+          "expression": "uint localBody = 0u;\n             localBody < articulation.bodyCount;\n             ++localBody"
+        },
+        {
+          "line": 1323,
+          "expression": "uint reverse = 0u;\n             reverse + 1u < articulation.bodyCount;\n             ++reverse"
+        },
+        {
+          "line": 1452,
+          "expression": "uint traversalIndex = 1u;\n             traversalIndex < articulation.bodyCount;\n             ++traversalIndex"
+        },
+        {
+          "line": 1547,
+          "expression": "uint rhsIndex = 0u;\n         rhsIndex < dispatch.rhsCount;\n         ++rhsIndex"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/ArticulatedInverseMass.metal",
+      "kernel": "MR_PARALLEL_INVERSE_MASS_KERNEL_NAME",
+      "line": 1652,
+      "thread_contract": "kernel void MR_PARALLEL_INVERSE_MASS_KERNEL_NAME(\n    device const MRWorldGPU* worlds [[buffer(0)]],\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRJointDescriptorGPU* joints [[buffer(2)]],\n    device const MRDofPropertiesGPU* dofs [[buffer(3)]],\n    device const MRBodyPropertiesGPU* bodies [[buffer(4)]],\n#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS\n    constant const MRInverseMassDispatchGPU& streamingDispatch\n        [[buffer(5)]],\n#else\n    device const MRMultiInverseMassDispatchGPU* dispatches [[buffer(5)]],\n#endif\n    device const float* q [[buffer(6)]],\n    device const float* rightHandSides [[buffer(7)]],\n    device float* output [[buffer(8)]],\n    device MRInverseMassStatusGPU* statuses [[buffer(9)]],\n    device const MRParallelABAArticulationGPU*\n        scheduleArticulations [[buffer(10)]],\n    device const MRParallelABALevelGPU* scheduleLevels [[buffer(11)]],\n    device const MRParallelABAParentReductionGPU*\n        parentReductions [[buffer(12)]],\n    device const uint* levelBodies [[buffer(13)]],\n    device const uint* scheduleParentLocal [[buffer(14)]],\n    device const uint* scheduleInboundJoint [[buffer(15)]],\n    device const uint* childOffsets [[buffer(16)]],\n    device const uint* childIndices [[buffer(17)]],\n#if MR_INVERSE_MASS_BODY_PARAMETERS\n    device const float4* bodyParameters [[buffer(18)]],\n    device const float4* controllerParameters [[buffer(19)]],\n#endif\n#if MR_PARALLEL_INVERSE_MASS_STREAMING_RHS\n    device MRMetalWorldContactStatusGPU* contactStatuses\n        [[buffer(20)]],\n    constant const MRMetalWorldContactDispatchGPU& contactDispatch\n        [[buffer(21)]],\n    device const float* pointJacobians [[buffer(22)]],\n    device const MRBodyStateGPU* candidateBodies [[buffer(23)]],\n    device const MRContactConstraintGPU* contacts [[buffer(24)]],\n    device const MREvaluatedConstraintIRRowGPU* evaluatedRows\n        [[buffer(25)]],\n#endif\n    uint2 packet [[threadgroup_position_in_grid]],\n    uint lane [[thread_index_in_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 1972,
+          "expression": "uint flat = lane;\n         flat < activeRhsCount * articulation.nv;\n         flat += 32u"
+        },
+        {
+          "line": 2018,
+          "expression": "uint forwardLevel = 0u;\n         forwardLevel < schedule.forwardLevelCount;\n         ++forwardLevel"
+        },
+        {
+          "line": 2399,
+          "expression": "uint reverseLevel = 0u;\n         reverseLevel < schedule.reverseLevelCount;\n         ++reverseLevel"
+        },
+        {
+          "line": 2596,
+          "expression": "uint childOrdinal = 0u;\n                     childOrdinal < reduction.childCount;\n                     ++childOrdinal"
+        },
+        {
+          "line": 2716,
+          "expression": "uint rhsIndex = 0u;\n         rhsIndex < activeRhsCount;\n         ++rhsIndex"
+        },
+        {
+          "line": 2739,
+          "expression": "uint reverseLevel = 0u;\n             reverseLevel < schedule.reverseLevelCount;\n             ++reverseLevel"
+        },
+        {
+          "line": 2804,
+          "expression": "uint childOrdinal = 0u;\n                     childOrdinal < reduction.childCount;\n                     ++childOrdinal"
+        },
+        {
+          "line": 2891,
+          "expression": "uint forwardLevel = 1u;\n             forwardLevel < schedule.forwardLevelCount;\n             ++forwardLevel"
+        },
+        {
+          "line": 3026,
+          "expression": "uint flat = lane;\n         flat < activeRhsCount * articulation.nv;\n         flat += 32u"
+        },
+        {
+          "line": 3070,
+          "expression": "uint flat = lane;\n         flat < activeRhsCount * articulation.nv;\n         flat += 32u"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/ArticulatedOperator.metal",
+      "kernel": "MR_ARTICULATED_OPERATOR_KERNEL_NAME",
+      "line": 1825,
+      "thread_contract": "kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(\n    device const MRWorldGPU* worlds [[buffer(0)]],\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRJointDescriptorGPU* joints [[buffer(2)]],\n    device const MRDofPropertiesGPU* dofs [[buffer(3)]],\n    device const MRBodyPropertiesGPU* bodies [[buffer(4)]],\n    device const MRArticulatedOperatorDispatchGPU& dispatch [[buffer(5)]],\n    device const float* q [[buffer(6)]],\n    device const MRArticulatedPointImpulseGPU* points [[buffer(7)]],\n    device MRArticulatedBodyPoseGPU* bodyPoses [[buffer(8)]],\n    device MRArticulatedPointWorldGPU* pointWorld [[buffer(9)]],\n    device float* diagnosticMassMatrix [[buffer(10)]],\n    device float* pointJacobians [[buffer(11)]],\n    device float* generalizedImpulse [[buffer(12)]],\n    device float* deltaVelocity [[buffer(13)]],\n    device MRArticulatedOperatorStatusGPU* statuses [[buffer(14)]],\n#if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS\n    device const float4* bodyParameters [[buffer(15)]],\n    device const float4* controllerParameters [[buffer(16)]],\n#else\n    device const MROpenSimSpatialTransformGPU* functionPrograms\n        [[buffer(15)]],\n#endif\n#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION\n    device const MRCompensatedRootTranslationGPU* rootTranslations [[buffer(17)]],\n    device float4* bodyPositionLow [[buffer(18)]],\n    device float4* pointPositionLow [[buffer(19)]],\n    device uchar* kinematicsCacheBytes [[buffer(20)]],\n#endif\n    device float* bodySpatialJacobians [[buffer(21)]],\n    threadgroup uchar* scratch [[threadgroup(0)]],\n    uint3 workGroup [[threadgroup_position_in_grid]],\n    uint3 groupCount [[threadgroups_per_grid]],\n    uint lane [[thread_index_in_threadgroup]],\n    uint simdLane [[thread_index_in_simdgroup]],\n    uint simdWidth [[threads_per_simdgroup]],\n    uint3 threadgroupSize [[threads_per_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 2067,
+          "expression": "uint localBody = lane;\n             localBody < articulation.bodyCount;\n             localBody += threadsPerThreadgroup"
+        },
+        {
+          "line": 2144,
+          "expression": "uint body = lane; body < articulation.bodyCount;\n                 body += threadsPerThreadgroup"
+        },
+        {
+          "line": 2173,
+          "expression": "uint point = lane; point < dispatch.pointCount;\n                 point += threadsPerThreadgroup"
+        },
+        {
+          "line": 2194,
+          "expression": "uint body = lane; body < articulation.bodyCount;\n                 body += threadsPerThreadgroup"
+        },
+        {
+          "line": 2215,
+          "expression": "uint point = lane; point < dispatch.pointCount;\n                 point += threadsPerThreadgroup"
+        },
+        {
+          "line": 2267,
+          "expression": "uint localBody = lane;\n             localBody < articulation.bodyCount;\n             localBody += threadsPerThreadgroup"
+        },
+        {
+          "line": 2292,
+          "expression": "uint body = lane; body < articulation.bodyCount; body += threadsPerThreadgroup"
+        },
+        {
+          "line": 2298,
+          "expression": "uint depth = 0u; depth < articulation.bodyCount && cursor != rootLocal; ++depth"
+        },
+        {
+          "line": 2322,
+          "expression": "uint point = tile * simdGroupCount + simdGroup;\n                 point < dispatch.pointCount;\n                 point += tileCount * simdGroupCount"
+        },
+        {
+          "line": 2376,
+          "expression": "uint probe = 0u; probe < fusedPointCount; ++probe"
+        },
+        {
+          "line": 2451,
+          "expression": "uint probe = 0u; probe < fusedPointCount; ++probe"
+        },
+        {
+          "line": 2503,
+          "expression": "uint packedEntry = lane;\n         packedEntry < packedEntryCount;\n         packedEntry += threadsPerThreadgroup"
+        },
+        {
+          "line": 2702,
+          "expression": "uint point = 0u;\n         point < dispatch.pointCount;\n         ++point"
+        },
+        {
+          "line": 2856,
+          "expression": "uint localBody = 0u;\n         localBody < articulation.bodyCount;\n         ++localBody"
+        },
+        {
+          "line": 2870,
+          "expression": "uint point = 0u;\n         point < dispatch.pointCount;\n         ++point"
+        },
+        {
+          "line": 2941,
+          "expression": "uint inner = 0u;\n                     inner < innerCount;\n                     ++inner"
+        },
+        {
+          "line": 2972,
+          "expression": "uint localBody = 0u;\n         localBody < articulation.bodyCount;\n         ++localBody"
+        },
+        {
+          "line": 2994,
+          "expression": "uint point = 0u;\n         point < dispatch.pointCount;\n         ++point"
+        },
+        {
+          "line": 3085,
+          "expression": "uint inner = 0u;\n                     inner < innerCount;\n                     ++inner"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/ArticulatedOperator.metal",
+      "kernel": "mr_articulated_materialize_body_velocities",
+      "line": 3139,
+      "thread_contract": "kernel void mr_articulated_materialize_body_velocities(\n    device const MRWorldGPU* worlds [[buffer(0)]],\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRJointDescriptorGPU* joints [[buffer(2)]],\n    device const MRDofPropertiesGPU* dofs [[buffer(3)]],\n    device const MRBodyPropertiesGPU* bodies [[buffer(4)]],\n    device const MRArticulatedOperatorDispatchGPU& dispatch\n        [[buffer(5)]],\n    device const float* q [[buffer(6)]],\n    device const float* v [[buffer(7)]],\n    device MRBodyStateGPU* bodyStates [[buffer(8)]],\n    device MRArticulatedOperatorStatusGPU* statuses [[buffer(9)]],\n    uint environment [[threadgroup_position_in_grid]],\n    uint lane [[thread_index_in_threadgroup]],\n    uint threadsPerThreadgroup [[threads_per_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 3274,
+          "expression": "uint localBody = lane;\n         localBody < articulation.bodyCount;\n         localBody += threadsPerThreadgroup"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/ArticulatedOperator.metal",
+      "kernel": "mr_articulated_source_mass_operation",
+      "line": 3304,
+      "thread_contract": "kernel void mr_articulated_source_mass_operation(\n    device const MRArticulatedSourceMassOperationDispatchGPU& dispatch [[buffer(0)]],\n    device const float* sourceMass [[buffer(1)]],\n    device const float* input [[buffer(2)]],\n    device float* output [[buffer(3)]],\n    device atomic_uint* statuses [[buffer(4)]],\n    device float* factorScratch [[buffer(5)]],\n    device const MRArticulatedOperatorStatusGPU* assemblyStatuses [[buffer(6)]],\n    device float* diagonalScaleScratch [[buffer(7)]],\n    device atomic_uint* factorValidity [[buffer(8)]],\n    uint3 group [[threadgroup_position_in_grid]],\n    uint lane [[thread_index_in_threadgroup]],\n    uint3 groupSize [[threads_per_threadgroup]],\n    uint simdWidth [[threads_per_simdgroup]])",
+      "loops": [
+        {
+          "line": 3361,
+          "expression": "uint row = firstRow; row < dispatch.dofCount; row += rowStride"
+        },
+        {
+          "line": 3363,
+          "expression": "uint column = 0u; column < dispatch.dofCount; ++column"
+        },
+        {
+          "line": 3556,
+          "expression": "uint part = 0u; part < simdCount; ++part"
+        },
+        {
+          "line": 3571,
+          "expression": "uint part = 0u; part < simdCount; ++part"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/ArticulatedOperator.metal",
+      "kernel": "mr_articulated_validate_staged_generalized_force",
+      "line": 3653,
+      "thread_contract": "kernel void mr_articulated_validate_staged_generalized_force(\n    device const MRArticulatedStagedGeneralizedForceDispatchGPU& dispatch [[buffer(0)]],\n    device const float* staged [[buffer(1)]],\n    device const float* forceArena [[buffer(2)]],\n    device MRNumiHumanStandStatusGPU* statuses [[buffer(3)]],\n    constant uint& step [[buffer(4)]],\n    uint3 group [[threadgroup_position_in_grid]],\n    uint lane [[thread_index_in_threadgroup]],\n    uint simdLane [[thread_index_in_simdgroup]],\n    uint simdGroup [[simdgroup_index_in_threadgroup]],\n    uint3 groupSize [[threads_per_threadgroup]])",
+      "loops": [
+        {
+          "line": 3668,
+          "expression": "uint dof = lane; dof < dispatch.dofCount; dof += groupSize.x"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/ArticulatedParallelABA.metal",
+      "kernel": "MR_PARALLEL_ABA_KERNEL_NAME",
+      "line": 83,
+      "thread_contract": "kernel void MR_PARALLEL_ABA_KERNEL_NAME(\n    device const MRWorldGPU* worlds [[buffer(0)]],\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRJointDescriptorGPU* joints [[buffer(2)]],\n    device const MRDofPropertiesGPU* dofs [[buffer(3)]],\n    device const MRBodyPropertiesGPU* bodies [[buffer(4)]],\n#ifdef MR_ABA_MULTI_ARTICULATION\n    device const MRMultiABADispatchGPU* dispatchInputs [[buffer(5)]],\n#else\n    device const MRABADispatchGPU& dispatchInput [[buffer(5)]],\n#endif\n    device const float* qInput [[buffer(6)]],\n    device const float* vInput [[buffer(7)]],\n    device const float* effortInput [[buffer(8)]],\n    device const MRABABodyWrenchGPU* bodyWrenchInput [[buffer(9)]],\n    device float* accelerationOutputBase [[buffer(10)]],\n    device float* nextVOutputBase [[buffer(11)]],\n    device float* nextQOutputBase [[buffer(12)]],\n    device MRABAStatusGPU* statusOutput [[buffer(13)]],\n#if MR_ABA_BODY_PARAMETERS\n    device const float4* bodyParameters [[buffer(14)]],\n    device const float4* controllerParameters [[buffer(15)]],\n#endif\n    device const MRParallelABAArticulationGPU*\n        scheduleArticulations [[buffer(16)]],\n    device const MRParallelABALevelGPU* scheduleLevels [[buffer(17)]],\n    device const MRParallelABAParentReductionGPU*\n        parentReductions [[buffer(18)]],\n    device const uint* levelBodies [[buffer(19)]],\n    device const uint* scheduleParentLocal [[buffer(20)]],\n    device const uint* scheduleInboundJoint [[buffer(21)]],\n    device const uint* childOffsets [[buffer(22)]],\n    device const uint* childIndices [[buffer(23)]],\n#ifdef MR_ABA_MULTI_ARTICULATION\n    uint2 workPosition [[threadgroup_position_in_grid]],\n#else\n    uint environment [[threadgroup_position_in_grid]],\n#endif\n    uint lane [[thread_index_in_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 388,
+          "expression": "uint forwardLevel = 0u;\n         forwardLevel < schedule.forwardLevelCount;\n         ++forwardLevel"
+        },
+        {
+          "line": 899,
+          "expression": "uint reverseLevel = 0u;\n         reverseLevel < schedule.reverseLevelCount;\n         ++reverseLevel"
+        },
+        {
+          "line": 1210,
+          "expression": "uint childOrdinal = 0u;\n                 childOrdinal < reduction.childCount;\n                 ++childOrdinal"
+        },
+        {
+          "line": 1399,
+          "expression": "uint forwardLevel = 1u;\n         forwardLevel < schedule.forwardLevelCount;\n         ++forwardLevel"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/HumanBehavior.metal",
+      "kernel": "human_behavior_measure",
+      "line": 147,
+      "thread_contract": "kernel void human_behavior_measure(\n    constant MRHumanBehaviorProgramGPU& p [[buffer(0)]],\n    constant MRHumanBehaviorDispatchGPU& d [[buffer(1)]],\n    const device MRArticulatedBodyPoseGPU* bodies [[buffer(2)]],\n    const device float4* bodyLow [[buffer(3)]],\n    const device float* jacobians [[buffer(4)]],\n    const device float* velocity [[buffer(5)]],\n    const device MRHumanBehaviorAuditGPU* audit [[buffer(6)]],\n    device MRHumanBehaviorCandidateGPU* samples [[buffer(7)]],\n    uint env [[thread_position_in_grid]])",
+      "loops": [
+        {
+          "line": 185,
+          "expression": "uint j=0;j<p.dofCount;++j"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/MetalMultiArticulatedContact.metal",
+      "kernel": "mr_multi_contact_pack_free_velocity",
+      "line": 427,
+      "thread_contract": "kernel void mr_multi_contact_pack_free_velocity(\n    device const MRMultiContactDispatchGPU& dispatch [[buffer(0)]],\n    device const float* articulatedVelocity [[buffer(1)]],\n    device const MRBodyStateGPU* sceneBodies [[buffer(2)]],\n    device const uint* sceneVelocityOffsets [[buffer(3)]],\n    device float* packedVelocity [[buffer(4)]],\n    uint2 index [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 450,
+          "expression": "uint body = 0u;\n         body < dispatch.sceneBodyCount;\n         ++body"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/MetalMultiArticulatedContact.metal",
+      "kernel": "mr_multi_contact_apply_scene_response",
+      "line": 646,
+      "thread_contract": "kernel void mr_multi_contact_apply_scene_response(\n    device const MRMultiContactDispatchGPU& dispatch [[buffer(0)]],\n    device const float* jacobian [[buffer(1)]],\n    device const MRBodyStateGPU* sceneBodies [[buffer(2)]],\n    device const uint* sceneVelocityOffsets [[buffer(3)]],\n    device float* responseColumns [[buffer(4)]],\n    uint3 index [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 663,
+          "expression": "uint body = 0u;\n         body < dispatch.sceneBodyCount;\n         ++body"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/MetalMultiArticulatedContact.metal",
+      "kernel": "mr_multi_contact_project_equalities",
+      "line": 708,
+      "thread_contract": "kernel void mr_multi_contact_project_equalities(\n    device const MRMultiContactDispatchGPU& dispatch [[buffer(0)]],\n    device const MRConstraintIRRowGPU* sourceRows [[buffer(1)]],\n    device const float* combinedJacobian [[buffer(2)]],\n    device const float* combinedResponse [[buffer(3)]],\n    device const MRInverseMassStatusGPU* inverseStatuses\n        [[buffer(4)]],\n    device const float* packedFreeVelocity [[buffer(5)]],\n    device float* projectedResponse [[buffer(6)]],\n    device float* projectedFreeVelocity [[buffer(7)]],\n    device float* equalityOperator [[buffer(8)]],\n    device float* equalityCoupling [[buffer(9)]],\n    device float* equalityFreeImpulses [[buffer(10)]],\n    device float* equalityTargets [[buffer(11)]],\n    device float* equalityRegularization [[buffer(12)]],\n    device MRMultiContactEqualityStatusGPU* statuses\n        [[buffer(13)]],\n    uint environment [[threadgroup_position_in_grid]],\n    uint lane [[thread_index_in_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 790,
+          "expression": "uint work = 0u;\n             statusCode ==\n                     MR_MULTI_CONTACT_EQUALITY_SUCCESS &&\n                 work < dispatch.inverseWorkCount;\n             ++work"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/MetalMultiArticulatedContact.metal",
+      "kernel": "mr_multi_contact_free_contact_velocity",
+      "line": 1237,
+      "thread_contract": "kernel void mr_multi_contact_free_contact_velocity(\n    device const MRMultiContactDispatchGPU& dispatch [[buffer(0)]],\n    device const MRMultiContactGPU* contacts [[buffer(1)]],\n    device const MRMultiContactEndpointsGPU* endpoints\n        [[buffer(2)]],\n    device const float* jacobian [[buffer(3)]],\n    device const float* packedVelocity [[buffer(4)]],\n    device const MRBodyStateGPU* sceneBodies [[buffer(5)]],\n    device const uint* sceneVelocityOffsets [[buffer(6)]],\n    device float* freeContactVelocity [[buffer(7)]],\n    uint2 index [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 1280,
+          "expression": "uint endpointIndex = 0u;\n         endpointIndex < 2u;\n         ++endpointIndex"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/MetalMultiArticulatedContact.metal",
+      "kernel": "mr_multi_contact_finalize",
+      "line": 1389,
+      "thread_contract": "kernel void mr_multi_contact_finalize(\n    device const MRMultiContactDispatchGPU& dispatch [[buffer(0)]],\n    device const MRArticulatedOperatorStatusGPU* pointStatuses\n        [[buffer(1)]],\n    device const MRInverseMassStatusGPU* inverseStatuses\n        [[buffer(2)]],\n    device const MRMetalQualityStatusGPU* qualityStatuses\n        [[buffer(3)]],\n    device const float* scales [[buffer(4)]],\n    device const float* compactImpulses [[buffer(5)]],\n    device const float* packedFreeVelocity [[buffer(6)]],\n    device const float* responseColumns [[buffer(7)]],\n    device const float* delassus [[buffer(8)]],\n    device float* physicalImpulses [[buffer(9)]],\n    device float* nextVelocity [[buffer(10)]],\n    device MRMultiContactStatusGPU* statuses [[buffer(11)]],\n    device const float* projectedFreeVelocity [[buffer(12)]],\n    device const float* combinedJacobian [[buffer(13)]],\n    device const float* equalityTargets [[buffer(14)]],\n    device const float* equalityRegularization [[buffer(15)]],\n    device const float* equalityFreeImpulses [[buffer(16)]],\n    device const float* equalityCoupling [[buffer(17)]],\n    device float* equalityImpulses [[buffer(18)]],\n    device MRMultiContactEqualityStatusGPU* equalityStatuses\n        [[buffer(19)]],\n    uint environment [[threadgroup_position_in_grid]],\n    uint lane [[thread_index_in_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 1427,
+          "expression": "uint articulation = 0u;\n         articulation < dispatch.articulationCount;\n         ++articulation"
+        },
+        {
+          "line": 1443,
+          "expression": "uint work = 0u;\n         status.code == MR_MULTI_CONTACT_SUCCESS &&\n             work < dispatch.inverseWorkCount;\n         ++work"
+        },
+        {
+          "line": 1486,
+          "expression": "uint row = 0u;\n         row < dispatch.rowCount;\n         ++row"
+        },
+        {
+          "line": 1508,
+          "expression": "uint row = 0u;\n             row < dispatch.rowCount;\n             ++row"
+        },
+        {
+          "line": 1513,
+          "expression": "uint row = 0u;\n             row < dispatch.equalityRowCount;\n             ++row"
+        },
+        {
+          "line": 1528,
+          "expression": "uint row = 0u;\n                 row < dispatch.rowCount;\n                 ++row"
+        },
+        {
+          "line": 1560,
+          "expression": "uint row = 0u;\n         row < dispatch.equalityRowCount;\n         ++row"
+        },
+        {
+          "line": 1566,
+          "expression": "uint contactRow = 0u;\n                 contactRow < dispatch.rowCount;\n                 ++contactRow"
+        },
+        {
+          "line": 1609,
+          "expression": "uint contactRow = 0u;\n             contactRow < dispatch.rowCount;\n             ++contactRow"
+        },
+        {
+          "line": 1660,
+          "expression": "uint row = 0u;\n             row < dispatch.rowCount;\n             ++row"
+        },
+        {
+          "line": 1665,
+          "expression": "uint row = 0u;\n             row < dispatch.equalityRowCount;\n             ++row"
+        },
+        {
+          "line": 1684,
+          "expression": "uint row = 0u;\n         row < dispatch.rowCount;\n         ++row"
+        },
+        {
+          "line": 1693,
+          "expression": "uint column = row + 1u;\n             column < dispatch.rowCount;\n             ++column"
+        },
+        {
+          "line": 1723,
+          "expression": "uint row = 0u;\n             row < dispatch.rowCount;\n             ++row"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/MillardMuscleReference.metal",
+      "kernel": "mr_millard_reference",
+      "line": 635,
+      "thread_contract": "kernel void mr_millard_reference(\n    device const MRArticulatedOperatorDispatchGPU& operatorDispatch [[buffer(5)]],\n    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(8)]],\n    device const MRArticulatedPointWorldGPU* pointWorld [[buffer(9)]],\n    device const float* pointJacobians [[buffer(11)]],\n    device const MRMillardReferenceDispatchGPU& dispatch [[buffer(16)]],\n    device const MRMillardMuscleGPU* muscles [[buffer(17)]],\n    device const MRMillardMuscleStateGPU* states [[buffer(18)]],\n    device const MRMillardPathPointGPU* pathPoints [[buffer(19)]],\n    device const MRMillardSourceCurveGPU* curves [[buffer(20)]],\n    device const MRMillardCylinderWrapGPU* wraps [[buffer(21)]],\n    device MRMillardMuscleResultGPU* results [[buffer(22)]],\n    device float* generalizedForces [[buffer(23)]],\n    uint globalIndex [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 657,
+          "expression": "uint dof = 0u; dof < dispatch.dofCount; ++dof"
+        },
+        {
+          "line": 704,
+          "expression": "uint segment = 0u; segment + 1u < pathCount; ++segment"
+        },
+        {
+          "line": 722,
+          "expression": "uint wrapLocal = 0u; wrapLocal < wrapCount; ++wrapLocal"
+        },
+        {
+          "line": 774,
+          "expression": "uint segment = 0u; segment + 1u < pathCount; ++segment"
+        },
+        {
+          "line": 785,
+          "expression": "uint wrapLocal = 0u; wrapLocal < wrapCount; ++wrapLocal"
+        },
+        {
+          "line": 809,
+          "expression": "uint dof = 0u; dof < dispatch.dofCount; ++dof"
+        },
+        {
+          "line": 824,
+          "expression": "uint dof = 0u; dof < dispatch.dofCount; ++dof"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/MillardMuscleReference.metal",
+      "kernel": "mr_millard_accumulate_effort",
+      "line": 841,
+      "thread_contract": "kernel void mr_millard_accumulate_effort(\n    device const MRMillardReferenceDispatchGPU& dispatch [[buffer(0)]],\n    device const float* generalizedForces [[buffer(1)]],\n    device float* workingEffort [[buffer(2)]],\n    uint index [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 858,
+          "expression": "uint muscle = 0u; muscle < dispatch.muscleCount; ++muscle"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/MujocoMuscleReference.metal",
+      "kernel": "MR_MUJOCO_REFERENCE_KERNEL_NAME",
+      "line": 719,
+      "thread_contract": "kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(\n    device const float* generalizedVelocities [[buffer(7)]],\n    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(8)]],\n    device const float* pointJacobians [[buffer(11)]],\n#if MR_MUJOCO_ANGULAR_CACHE\n    device const float4* angularCache [[buffer(12)]],\n#endif\n    device const MRMujocoMuscleReferenceDispatchGPU& dispatch [[buffer(24)]],\n    device const MRMujocoMuscleGPU* muscles [[buffer(25)]],\n    device const MRMujocoMuscleStateGPU* states [[buffer(26)]],\n    device const MRMujocoMuscleSiteGPU* sites [[buffer(27)]],\n    device const MRMujocoMuscleWrapGPU* wraps [[buffer(28)]],\n    device const MRMujocoMuscleRouteNodeGPU* routes [[buffer(29)]],\n    device MRMujocoMuscleResultGPU* results [[buffer(30)]],\n    device float* muscleGeneralizedForces [[buffer(23)]],\n#if MR_SOURCE_PAIRED_GEOMETRY\n    device const float4* bodyPositionLow [[buffer(10)]],\n#endif\n#if MR_MUJOCO_COOPERATIVE\n    uint3 workGroup [[threadgroup_position_in_grid]],\n    uint dofLane [[thread_index_in_threadgroup]]\n#else\n    uint globalIndex [[thread_position_in_grid]]\n#endif\n)",
+      "loops": [
+        {
+          "line": 772,
+          "expression": "uint dof = dofLane; dof < dispatch.dofCount; dof += dofStride"
+        },
+        {
+          "line": 977,
+          "expression": "uint dof = 0u; dof < dispatch.dofCount; ++dof"
+        },
+        {
+          "line": 1022,
+          "expression": "uint dof = dofLane; dof < dispatch.dofCount; dof += dofStride"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/MujocoMuscleReference.metal",
+      "kernel": "mr_mujoco_muscle_active_force_rows",
+      "line": 1062,
+      "thread_contract": "kernel void mr_mujoco_muscle_active_force_rows(\n    device const MRMujocoMuscleGPU* muscles [[buffer(0)]],\n    device const MRMujocoMuscleStateGPU* states [[buffer(1)]],\n    device MRMujocoMuscleResultGPU* results [[buffer(2)]],\n    device float* muscleGeneralizedForces [[buffer(3)]],\n    constant MRMujocoMuscleActiveForceDispatchGPU& dispatch [[buffer(4)]],\n    uint globalIndex [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 1094,
+          "expression": "uint dof = 0u; dof < dispatch.dofCount; ++dof"
+        },
+        {
+          "line": 1105,
+          "expression": "uint dof = 0u; dof < dispatch.dofCount; ++dof"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/MujocoMuscleReference.metal",
+      "kernel": "mr_mujoco_muscle_reduce",
+      "line": 1110,
+      "thread_contract": "kernel void mr_mujoco_muscle_reduce(\n    device const MRMujocoMuscleReferenceDispatchGPU& dispatch [[buffer(24)]],\n    device float* muscleAndGeneralizedForces [[buffer(23)]],\n    uint globalIndex [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 1122,
+          "expression": "uint muscle = 0u; muscle < dispatch.muscleCount; ++muscle"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/MujocoMuscleReference.metal",
+      "kernel": "MR_MUJOCO_SUFFIX_KERNEL_NAME",
+      "line": 1208,
+      "thread_contract": "kernel void MR_MUJOCO_SUFFIX_KERNEL_NAME(\n    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(0)]],\n    device const float* pointJacobians [[buffer(1)]],\n    constant MRMujocoMuscleReferenceDispatchGPU& dispatch [[buffer(2)]],\n    device const MRMujocoMuscleGPU* muscles [[buffer(3)]],\n    device const MRMujocoMuscleSiteGPU* sites [[buffer(4)]],\n    device const MRMujocoMuscleWrapGPU* wraps [[buffer(5)]],\n    device const MRMujocoMuscleRouteNodeGPU* routes [[buffer(6)]],\n    constant MRMujocoMuscleRouteCutDispatchGPU& cutDispatch [[buffer(7)]],\n    device const MRMujocoMuscleRouteCutGPU* cuts [[buffer(8)]],\n    device float* suffixJacobians [[buffer(9)]],\n#if MR_SOURCE_PAIRED_GEOMETRY\n    device const float4* bodyPositionLow [[buffer(10)]],\n#endif\n    uint globalIndex [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 1233,
+          "expression": "uint dof = 0u; dof < dispatch.dofCount; ++dof"
+        },
+        {
+          "line": 1244,
+          "expression": "uint dof = 0u; dof < dispatch.dofCount; ++dof"
+        },
+        {
+          "line": 1425,
+          "expression": "uint dof = 0u; dof < dispatch.dofCount; ++dof"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXCoupledHuman.metal",
+      "kernel": "numanx_coupled_human_validate_candidate",
+      "line": 297,
+      "thread_contract": "kernel void numanx_coupled_human_validate_candidate(\n    constant MRNumanXCoupledHumanDispatchGPU& dispatch [[buffer(0)]],\n    device const float* candidateQ [[buffer(1)]],\n    device const MRBodyStateGPU* candidateBodies [[buffer(2)]],\n    device const float* pointJacobians [[buffer(3)]],\n    device MRNumanXCoupledHumanStatusGPU* statuses [[buffer(4)]],\n    device const MRNumanXCoupledHumanSlotMetadataGPU* metadata [[buffer(5)]],\n    const uint environment [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 344,
+          "expression": "uint body = 0u; body < dispatch.bodyCount; ++body"
+        },
+        {
+          "line": 361,
+          "expression": "uint point = 0u; point < dispatch.pointCount; ++point"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXCoupledHuman.metal",
+      "kernel": "numanx_coupled_human_effective_tangent_action",
+      "line": 378,
+      "thread_contract": "kernel void numanx_coupled_human_effective_tangent_action(\n    constant MRNumanXCoupledHumanDispatchGPU& dispatch [[buffer(0)]],\n    device const float* factor [[buffer(1)]],\n    device const float* projector [[buffer(2)]],\n    device const float* input [[buffer(3)]],\n    device float* output [[buffer(4)]],\n    device MRNumanXCoupledHumanStatusGPU* statuses [[buffer(5)]],\n    device const MRNumanXCoupledHumanSlotMetadataGPU* metadata [[buffer(6)]],\n    const uint environment [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 399,
+          "expression": "uint dof = 0u; dof < count; ++dof"
+        },
+        {
+          "line": 413,
+          "expression": "uint dof = 0u; dof < count; ++dof"
+        },
+        {
+          "line": 437,
+          "expression": "uint dof = 0u; dof < count; ++dof"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXCoupledHuman.metal",
+      "kernel": "numanx_coupled_human_effective_tangent_action_cooperative",
+      "line": 444,
+      "thread_contract": "kernel void numanx_coupled_human_effective_tangent_action_cooperative(\n    constant MRNumanXCoupledHumanDispatchGPU& dispatch [[buffer(0)]],\n    device const float* factor [[buffer(1)]],\n    device const float* projector [[buffer(2)]],\n    device const float* input [[buffer(3)]],\n    device float* output [[buffer(4)]],\n    device MRNumanXCoupledHumanStatusGPU* statuses [[buffer(5)]],\n    device const MRNumanXCoupledHumanSlotMetadataGPU* metadata [[buffer(6)]],\n    const uint lane [[thread_index_in_threadgroup]],\n    const uint3 threadsPerGroup [[threads_per_threadgroup]],\n    const uint3 groupPosition [[threadgroup_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 482,
+          "expression": "uint row = lane; row < count; row += laneCount"
+        },
+        {
+          "line": 489,
+          "expression": "uint row = lane; row < count; row += laneCount"
+        },
+        {
+          "line": 495,
+          "expression": "uint row = 0u; row < count; ++row"
+        },
+        {
+          "line": 511,
+          "expression": "uint row = lane; row < count; row += laneCount"
+        },
+        {
+          "line": 515,
+          "expression": "uint column = 0u; column < count; ++column"
+        },
+        {
+          "line": 533,
+          "expression": "uint row = 0u; row < count; ++row"
+        },
+        {
+          "line": 548,
+          "expression": "uint column = lane; column < count; column += laneCount"
+        },
+        {
+          "line": 551,
+          "expression": "uint row = column; row < count; ++row"
+        },
+        {
+          "line": 566,
+          "expression": "uint row = 0u; row < count; ++row"
+        },
+        {
+          "line": 581,
+          "expression": "uint row = lane; row < count; row += laneCount"
+        },
+        {
+          "line": 599,
+          "expression": "uint row = 0u; row < count; ++row"
+        },
+        {
+          "line": 614,
+          "expression": "uint row = lane; row < count; row += laneCount"
+        },
+        {
+          "line": 618,
+          "expression": "uint column = 0u; column < count; ++column"
+        },
+        {
+          "line": 636,
+          "expression": "uint row = 0u; row < count; ++row"
+        },
+        {
+          "line": 650,
+          "expression": "uint row = lane; row < count; row += laneCount"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXCoupledHuman.metal",
+      "kernel": "numanx_coupled_human_effective_tangent_preconditioner",
+      "line": 654,
+      "thread_contract": "kernel void numanx_coupled_human_effective_tangent_preconditioner(\n    constant MRNumanXCoupledHumanDispatchGPU& dispatch [[buffer(0)]],\n    device const float* factor [[buffer(1)]],\n    device const float* projector [[buffer(2)]],\n    device const float* input [[buffer(3)]],\n    device float* output [[buffer(4)]],\n    device MRInverseMassStatusGPU* inverseStatuses [[buffer(5)]],\n    device MRNumanXCoupledHumanStatusGPU* jointStatuses [[buffer(6)]],\n    device const MRNumanXCoupledHumanSlotMetadataGPU* metadata [[buffer(7)]],\n    const uint environment [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 703,
+          "expression": "uint dof = 0u; dof < count; ++dof"
+        },
+        {
+          "line": 751,
+          "expression": "uint dof = 0u; dof < count; ++dof"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXCoupledHuman.metal",
+      "kernel": "numanx_coupled_human_stage_generalized_reaction",
+      "line": 769,
+      "thread_contract": "kernel void numanx_coupled_human_stage_generalized_reaction(\n    constant MRNumanXCoupledHumanDispatchGPU& dispatch [[buffer(0)]],\n    device const float* factor [[buffer(1)]],\n    device const float* projector [[buffer(2)]],\n    device const float* input [[buffer(3)]],\n    device float* generalizedImpulse [[buffer(4)]],\n    device float* matterReaction [[buffer(5)]],\n    device const MRNumanXCoupledMatterOutcomeGPU* matterOutcomes\n        [[buffer(6)]],\n    constant uint& matterOutcomeStride [[buffer(7)]],\n    constant uint& matterSuccessCode [[buffer(8)]],\n    constant uint& expectedMatterCompletedMicrosteps [[buffer(9)]],\n    device MRNumanXCoupledHumanStatusGPU* statuses [[buffer(10)]],\n    device const MRNumanXCoupledHumanSlotMetadataGPU* metadata [[buffer(11)]],\n    const uint environment [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 829,
+          "expression": "uint dof = 0u; dof < count; ++dof"
+        },
+        {
+          "line": 861,
+          "expression": "uint dof = 0u; dof < count; ++dof"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXCoupledHuman.metal",
+      "kernel": "numanx_coupled_human_resolve",
+      "line": 956,
+      "thread_contract": "kernel void numanx_coupled_human_resolve(\n    constant MRNumanXCoupledHumanResolveDispatchGPU& dispatch [[buffer(0)]],\n    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],\n    device const MRNumanXCoupledMatterOutcomeGPU* matterOutcomes\n        [[buffer(2)]],\n    device float* matterReaction [[buffer(3)]],\n    device MRNumanXCoupledHumanStatusGPU* statuses [[buffer(4)]],\n    device const MRNumanXCoupledHumanSlotMetadataGPU* metadata [[buffer(5)]],\n    const uint environment [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 1047,
+          "expression": "uint dof = 0u; dof < dispatch.dofCount; ++dof"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXCoupledHuman.metal",
+      "kernel": "numanx_coupled_human_advance",
+      "line": 1056,
+      "thread_contract": "kernel void numanx_coupled_human_advance(\n    device MRNumanXCoupledHumanSlotMetadataGPU* metadata [[buffer(0)]],\n    device const MRNumanXCoupledHumanStatusGPU* statuses [[buffer(1)]],\n    constant MRNumanXCoupledHumanAdvanceDispatchGPU& dispatch [[buffer(2)]],\n    const uint threadIndex [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 1138,
+          "expression": "uint environment = 0u;\n             environment < dispatch.environmentCount;\n             ++environment"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXHumanIO.metal",
+      "kernel": "numanx_human_validate_motor_output",
+      "line": 155,
+      "thread_contract": "kernel void numanx_human_validate_motor_output(\n    const device MRNumanXBrainMotorOutputHeaderGPU* headers [[buffer(0)]],\n    const device float* excitations [[buffer(1)]],\n    device uint* headerValidation [[buffer(2)]],\n    constant MRNumanXHumanMotorDispatchGPU& dispatch [[buffer(3)]],\n    const device MRNumanXBrainMotorReadyGateGPU* motorReadyGate [[buffer(4)]],\n    uint environment [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 295,
+          "expression": "uint muscle = 0u; muscle < dispatch.muscleCount; ++muscle"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXHumanIO.metal",
+      "kernel": "numanx_human_validate_motor_output_v2",
+      "line": 319,
+      "thread_contract": "kernel void numanx_human_validate_motor_output_v2(\n    const device MRNumanXBrainMotorOutputHeaderGPUV2* headers [[buffer(0)]],\n    const device float* excitations [[buffer(1)]],\n    device uint* headerValidation [[buffer(2)]],\n    constant MRNumanXHumanMotorDispatchGPUV2& dispatch [[buffer(3)]],\n    const device MRNumanXBrainMotorReadyGateGPUV2* motorReadyGate\n        [[buffer(4)]],\n    device MRNumanXExactInboundAuthorityGPUV2* inboundAuthority\n        [[buffer(5)]],\n    uint environment [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 496,
+          "expression": "uint muscle = 0u; muscle < dispatch.muscleCount; ++muscle"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXHumanIO.metal",
+      "kernel": "numanx_human_gate_proprioception",
+      "line": 688,
+      "thread_contract": "kernel void numanx_human_gate_proprioception(\n    const device MRMujocoMuscleStateGPU* states [[buffer(0)]],\n    const device MRMujocoMuscleResultGPU* results [[buffer(1)]],\n    const device uint* motorValidation [[buffer(2)]],\n    device MRNumiHumanStandStatusGPU* standStatuses [[buffer(3)]],\n    device uint* environmentGate [[buffer(4)]],\n    constant MRNumanXHumanProprioceptionDispatchGPU& dispatch [[buffer(5)]],\n    uint environment [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 724,
+          "expression": "uint muscle = 0u; muscle < dispatch.muscleCount; ++muscle"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXHumanIO.metal",
+      "kernel": "numanx_human_gate_proprioception_v2",
+      "line": 761,
+      "thread_contract": "kernel void numanx_human_gate_proprioception_v2(\n    const device MRMujocoMuscleStateGPU* states [[buffer(0)]],\n    const device MRMujocoMuscleResultGPU* results [[buffer(1)]],\n    const device uint* motorValidation [[buffer(2)]],\n    device MRNumiHumanStandStatusGPU* standStatuses [[buffer(3)]],\n    device uint* environmentGate [[buffer(4)]],\n    const device MRNumanXExactInboundAuthorityGPUV2* inboundAuthority\n        [[buffer(5)]],\n    constant MRNumanXHumanSensorDispatchGPUV2& dispatch [[buffer(6)]],\n    uint environment [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 863,
+          "expression": "uint muscle = 0u; muscle < dispatch.muscleCount; ++muscle"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXHumanIO.metal",
+      "kernel": "numanx_human_write_proprioception",
+      "line": 897,
+      "thread_contract": "kernel void numanx_human_write_proprioception(\n    const device MRMujocoMuscleStateGPU* states [[buffer(0)]],\n    const device MRMujocoMuscleResultGPU* results [[buffer(1)]],\n    const device uint* environmentGate [[buffer(2)]],\n    device float* proprioception [[buffer(3)]],\n    device uint* validity [[buffer(4)]],\n    device float* interoception [[buffer(5)]],\n    device uint* interoceptionValidity [[buffer(6)]],\n    constant MRNumanXHumanProprioceptionDispatchGPU& dispatch [[buffer(7)]],\n    uint index [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 930,
+          "expression": "uint feature = 0u; feature < dispatch.featureCount; ++feature"
+        },
+        {
+          "line": 936,
+          "expression": "uint feature = 0u;\n             feature < MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;\n             ++feature"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXHumanIO.metal",
+      "kernel": "numanx_human_write_proprioception_v2",
+      "line": 1031,
+      "thread_contract": "kernel void numanx_human_write_proprioception_v2(\n    const device MRMujocoMuscleStateGPU* states [[buffer(0)]],\n    const device MRMujocoMuscleResultGPU* results [[buffer(1)]],\n    const device uint* environmentGate [[buffer(2)]],\n    device float* proprioception [[buffer(3)]],\n    device uint* validity [[buffer(4)]],\n    device float* interoception [[buffer(5)]],\n    device uint* interoceptionValidity [[buffer(6)]],\n    constant MRNumanXHumanSensorDispatchGPUV2& dispatch [[buffer(7)]],\n    uint index [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 1094,
+          "expression": "uint feature = 0u; feature < dispatch.featureCount; ++feature"
+        },
+        {
+          "line": 1100,
+          "expression": "uint feature = 0u;\n             feature < MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;\n             ++feature"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXHumanIO.metal",
+      "kernel": "numanx_human_write_supplemental_sensors",
+      "line": 1257,
+      "thread_contract": "kernel void numanx_human_write_supplemental_sensors(\n    const device float* q [[buffer(0)]],\n    const device float* v [[buffer(1)]],\n    const device MRArticulatedBodyPoseGPU* bodyPoses [[buffer(2)]],\n    const device MRArticulatedPointWorldGPU* pointWorld [[buffer(3)]],\n    const device MRNumiHumanStandStatusGPU* standStatuses [[buffer(4)]],\n    const device MRNumanXActiveSensingCommandGPU* activeSensing [[buffer(5)]],\n    const device MRNumanXVisualBodyBoundsGPU* bodyBounds [[buffer(6)]],\n    device float* kinesthesia [[buffer(7)]],\n    device uint* kinesthesiaValidity [[buffer(8)]],\n    device float* vestibular [[buffer(9)]],\n    device uint* vestibularValidity [[buffer(10)]],\n    device float* audition [[buffer(11)]],\n    device uint* auditionValidity [[buffer(12)]],\n    device float* vision [[buffer(13)]],\n    device uint* visionValidity [[buffer(14)]],\n    device float* touch [[buffer(15)]],\n    device uint* touchValidity [[buffer(16)]],\n    constant MRNumanXHumanSupplementalDispatchGPU& dispatch [[buffer(17)]],\n    const device MRNumanXHumanSupportConsequenceGPU* supportConsequences\n        [[buffer(18)]],\n    const device float4* bodyPositionLow [[buffer(19)]],\n    const device float4* pointPositionLow [[buffer(20)]],\n    const device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(21)]],\n    uint index [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 1320,
+          "expression": "uint feature = 0u;\n             feature < MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT;\n             ++feature"
+        },
+        {
+          "line": 1345,
+          "expression": "uint feature = 0u;\n             feature < MR_NUMANX_HUMAN_VESTIBULAR_FEATURE_COUNT;\n             ++feature"
+        },
+        {
+          "line": 1380,
+          "expression": "uint feature = 0u;\n             feature < MR_NUMANX_HUMAN_AUDITION_FEATURE_COUNT;\n             ++feature"
+        },
+        {
+          "line": 1417,
+          "expression": "uint feature = 0u;\n             feature < MR_NUMANX_HUMAN_TOUCH_FEATURE_COUNT;\n             ++feature"
+        },
+        {
+          "line": 1456,
+          "expression": "uint feature = 0u;\n             feature < MR_NUMANX_HUMAN_VISION_FEATURE_COUNT;\n             ++feature"
+        },
+        {
+          "line": 1515,
+          "expression": "uint body = 0u; body < dispatch.bodyBoundsCount; ++body"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXHumanMatterOwner.metal",
+      "kernel": "mr_numanx_human_matter_prepare_candidate",
+      "line": 646,
+      "thread_contract": "kernel void mr_numanx_human_matter_prepare_candidate(\n    constant MRNumanXHumanMatterCandidateDispatchGPU& dispatch [[buffer(0)]],\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRDofPropertiesGPU* dofs [[buffer(2)]],\n    device const float* sourceQ [[buffer(3)]],\n    device const float* sourceV [[buffer(4)]],\n    device const float* deltaVelocity [[buffer(5)]],\n    device float* candidateQ [[buffer(6)]],\n    device const MRArticulatedPointImpulseGPU* sourcePoints [[buffer(7)]],\n    device const MRArticulatedPointImpulseGPU* candidatePoints [[buffer(8)]],\n    device MRArticulatedPointImpulseGPU* combinedPoints [[buffer(9)]],\n    device const MRCompensatedRootTranslationGPU* acceptedRootTranslations [[buffer(10)]],\n    device MRCompensatedRootTranslationGPU* candidateRootTranslations [[buffer(11)]],\n    const uint environment [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 756,
+          "expression": "uint point = 0u; point < dispatch.bodyProbeCount; ++point"
+        },
+        {
+          "line": 761,
+          "expression": "uint point = 0u;\n         point < dispatch.candidatePointCount; ++point"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXHumanMatterOwner.metal",
+      "kernel": "mr_numanx_human_matter_materialize_candidate",
+      "line": 771,
+      "thread_contract": "kernel void mr_numanx_human_matter_materialize_candidate(\n    constant MRNumanXHumanMatterCandidateDispatchGPU& dispatch [[buffer(0)]],\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRBodyPropertiesGPU* bodies [[buffer(2)]],\n    device const float* sourceV [[buffer(3)]],\n    device const float* deltaVelocity [[buffer(4)]],\n    device float* candidateQ [[buffer(5)]],\n    device const MRArticulatedBodyPoseGPU* privateBodyPoses [[buffer(6)]],\n    device const MRArticulatedPointWorldGPU* privatePointWorld [[buffer(7)]],\n    device const float* privatePointJacobians [[buffer(8)]],\n    device const MRArticulatedOperatorStatusGPU* operatorStatuses [[buffer(9)]],\n    device MRBodyStateGPU* candidateBodies [[buffer(10)]],\n    device MRArticulatedPointWorldGPU* candidatePointWorld [[buffer(11)]],\n    device float* candidatePointJacobians [[buffer(12)]],\n    device const float4* privateBodyPositionLow [[buffer(13)]],\n    device const float4* privatePointPositionLow [[buffer(14)]],\n    device float4* candidateBodyPositionLow [[buffer(15)]],\n    device float4* candidatePointPositionLow [[buffer(16)]],\n    threadgroup uint& valid [[threadgroup(0)]],\n    const uint environment [[threadgroup_position_in_grid]],\n    const uint lane [[thread_index_in_threadgroup]],\n    const uint threadCount [[threads_per_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 830,
+          "expression": "uint localBody = lane;\n         localBody < dispatch.bodyCount; localBody += threadCount"
+        },
+        {
+          "line": 921,
+          "expression": "uint point = lane;\n             point < dispatch.candidatePointCount; point += threadCount"
+        },
+        {
+          "line": 929,
+          "expression": "uint logicalIndex = lane; logicalIndex < logicalJacobianCount;\n         logicalIndex += threadCount"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXHumanMatterOwner.metal",
+      "kernel": "mr_numanx_human_matter_source_factor",
+      "line": 945,
+      "thread_contract": "kernel void mr_numanx_human_matter_source_factor(\n    device const MRWorldGPU* worlds [[buffer(0)]],\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRDofPropertiesGPU* dofs [[buffer(2)]],\n    device const MRBodyPropertiesGPU* bodies [[buffer(3)]],\n    constant const MRNumiHumanStandDispatchGPU& stand [[buffer(4)]],\n    constant const MRNumanXHumanMatterDispatchGPU& dispatch [[buffer(5)]],\n    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(6)]],\n    device const float* pointJacobians [[buffer(7)]],\n    device float* spatialJacobians [[buffer(8)]],\n    device float* factors [[buffer(9)]],\n    device MRNumanXHumanMatterOwnerStatusGPU* ownerStatuses [[buffer(10)]],\n    const uint environment [[threadgroup_position_in_grid]],\n    const uint lane [[thread_index_in_threadgroup]],\n    const uint threadCount [[threads_per_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 1008,
+          "expression": "uint index = lane; index < spatialElements; index += threadCount"
+        },
+        {
+          "line": 1054,
+          "expression": "uint index = lane; index < matrixElements; index += threadCount"
+        },
+        {
+          "line": 1058,
+          "expression": "uint localBody = 0u; localBody < bodyCount; ++localBody"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXHumanMatterOwner.metal",
+      "kernel": "mr_numanx_human_matter_consume_reaction",
+      "line": 1135,
+      "thread_contract": "kernel void mr_numanx_human_matter_consume_reaction(\n    constant MRNumanXHumanMatterDispatchGPU& dispatch [[buffer(0)]],\n    device const float* matterReaction [[buffer(1)]],\n    device const MRNumanXCoupledHumanStatusGPU* jointStatuses [[buffer(2)]],\n    device float* generalizedForces [[buffer(3)]],\n    device MRNumanXHumanMatterOwnerStatusGPU* ownerStatuses [[buffer(4)]],\n    threadgroup atomic_uint& invalid [[threadgroup(0)]],\n    const uint environment [[threadgroup_position_in_grid]],\n    const uint lane [[thread_index_in_threadgroup]],\n    const uint threadCount [[threads_per_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 1169,
+          "expression": "uint dof = lane; dof < dispatch.nv; dof += threadCount"
+        },
+        {
+          "line": 1189,
+          "expression": "uint dof = lane; dof < dispatch.nv; dof += threadCount"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXHumanMatterOwner.metal",
+      "kernel": "mr_numanx_human_matter_prepare_physical",
+      "line": 1204,
+      "thread_contract": "kernel void mr_numanx_human_matter_prepare_physical(\n    constant MRNumanXHumanMatterDispatchGPU& dispatch [[buffer(0)]],\n    device const MRNumanXCoupledHumanStatusGPU* jointStatuses [[buffer(1)]],\n    device uchar* preparedTokens [[buffer(2)]],\n    device float* q [[buffer(3)]],\n    device float* v [[buffer(4)]],\n    device MRMujocoMuscleStateGPU* mujocoStates [[buffer(5)]],\n    device const float* qCheckpoint [[buffer(6)]],\n    device const float* vCheckpoint [[buffer(7)]],\n    device const MRMujocoMuscleStateGPU* mujocoCheckpoint [[buffer(8)]],\n    device MRNumanXHumanMatterOwnerStatusGPU* ownerStatuses [[buffer(9)]],\n    device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(10)]],\n    device const MRCompensatedRootTranslationGPU* acceptedRootTranslations [[buffer(11)]],\n    threadgroup atomic_uint& restore [[threadgroup(0)]],\n    const uint environment [[threadgroup_position_in_grid]],\n    const uint lane [[thread_index_in_threadgroup]],\n    const uint threadCount [[threads_per_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 1270,
+          "expression": "uint coordinate = lane;\n         coordinate < dispatch.nq; coordinate += threadCount"
+        },
+        {
+          "line": 1275,
+          "expression": "uint dof = lane; dof < dispatch.nv; dof += threadCount"
+        },
+        {
+          "line": 1279,
+          "expression": "uint state = lane;\n         state < dispatch.mujocoStateCount; state += threadCount"
+        },
+        {
+          "line": 1284,
+          "expression": "uint byte = lane;\n         byte < MR_NUMANX_HUMAN_MATTER_PREPARED_TOKEN_BYTES;\n         byte += threadCount"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumanXHumanMatterOwner.metal",
+      "kernel": "mr_numanx_human_matter_complete_apply",
+      "line": 1669,
+      "thread_contract": "kernel void mr_numanx_human_matter_complete_apply(\n    constant MRNumanXHumanMatterApplyDispatchGPU& dispatch [[buffer(0)]],\n    device const MRNumanXHumanMatterProposalGPU* proposals [[buffer(1)]],\n    device const MRNumanXHumanMatterApplyActionGPU* actions [[buffer(2)]],\n    device const MRNumanXHumanMatterMatterApplyOutcomeGPU*\n        matterOutcomes [[buffer(3)]],\n    device const uchar* proposedTokens [[buffer(4)]],\n    device float* q [[buffer(5)]],\n    device float* v [[buffer(6)]],\n    device MRMujocoMuscleStateGPU* mujocoStates [[buffer(7)]],\n    device const float* qCheckpoint [[buffer(8)]],\n    device const float* vCheckpoint [[buffer(9)]],\n    device const MRMujocoMuscleStateGPU* mujocoCheckpoint [[buffer(10)]],\n    device MRNumanXHumanMatterOwnerStatusGPU* ownerStatuses [[buffer(11)]],\n    device MRNumanXHumanMatterAppliedOutcomeGPU* appliedOutcomes [[buffer(12)]],\n    device uchar* finalTokens [[buffer(13)]],\n    device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(14)]],\n    device const MRCompensatedRootTranslationGPU* acceptedRootTranslations [[buffer(15)]],\n    threadgroup MRNumanXHumanMatterAppliedOutcomeGPU& pending [[threadgroup(0)]],\n    threadgroup uint& tokenAction [[threadgroup(1)]],\n    const uint environment [[threadgroup_position_in_grid]],\n    const uint lane [[thread_index_in_threadgroup]],\n    const uint threadCount [[threads_per_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 1891,
+          "expression": "uint coordinate = lane; coordinate < dispatch.nq;\n             coordinate += threadCount"
+        },
+        {
+          "line": 1895,
+          "expression": "uint dof = lane; dof < dispatch.nv; dof += threadCount"
+        },
+        {
+          "line": 1898,
+          "expression": "uint state = lane; state < dispatch.mujocoStateCount;\n             state += threadCount"
+        },
+        {
+          "line": 1905,
+          "expression": "uint byte = lane; byte < MR_NUMANX_HUMAN_MATTER_ACCEPTED_TOKEN_BYTES;\n             byte += threadCount"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumiHumanExtensorHood.metal",
+      "kernel": "MR_HOOD_ASSEMBLE_KERNEL_NAME",
+      "line": 717,
+      "thread_contract": "kernel void MR_HOOD_ASSEMBLE_KERNEL_NAME(\n    constant MRNumiHumanExtensorHoodDispatchGPU& dispatch [[buffer(0)]],\n    device const MRNumiHumanExtensorHoodRayGPU* rays [[buffer(1)]],\n    device const MRNumiHumanExtensorHoodNodeGPU* nodes [[buffer(2)]],\n    device const MRNumiHumanExtensorHoodInputGPU* inputs [[buffer(3)]],\n    device const MRMujocoMuscleGPU* muscles [[buffer(4)]],\n    device const MRMujocoMuscleSiteGPU* sites [[buffer(5)]],\n    device const MRMujocoMuscleRouteNodeGPU* routeNodes [[buffer(6)]],\n    device const MRMujocoMuscleResultGPU* muscleResults [[buffer(7)]],\n    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(8)]],\n    device const float* pointJacobians [[buffer(9)]],\n    device const MRNumiHumanExtensorHoodNodeResultGPU* nodeResults [[buffer(10)]],\n    device const MRNumiHumanExtensorHoodRayResultGPU* rayResults [[buffer(11)]],\n    device float* corrections [[buffer(12)]],\n    device const float* suffixJacobians [[buffer(13)]],\n#if MR_SOURCE_PAIRED_GEOMETRY\n    device const float4* bodyPositionLow [[buffer(14)]],\n    device const float4* relativeNodePositions [[buffer(15)]],\n#endif\n    uint global [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 745,
+          "expression": "uint rayIndex = 0u; rayIndex < dispatch.rayCount; ++rayIndex"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumiHumanRestingSupportGeometry.metalinc",
+      "kernel": "nm_human_resting_support_probe_velocities",
+      "line": 397,
+      "thread_contract": "kernel void nm_human_resting_support_probe_velocities(\n    constant MRHumanRestingSupportDispatchGPU& dispatch [[buffer(0)]],\n    device const float* pointJacobians [[buffer(1)]],\n    device const float* sourceFreeVelocity [[buffer(2)]],\n    device float4* bodyProbeVelocities [[buffer(3)]],\n    uint globalIndex [[thread_position_in_grid]])",
+      "loops": [
+        {
+          "line": 427,
+          "expression": "uint dof = 0u; dof < dofCount; ++dof"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumiHumanRestingSupportGeometry.metalinc",
+      "kernel": "nm_human_resting_support_publish",
+      "line": 604,
+      "thread_contract": "kernel void nm_human_resting_support_publish(\n    constant MRHumanRestingSupportDispatchGPU& dispatch [[buffer(0)]],\n    device const MRHumanRestingVertexMap* vertexMap [[buffer(1)]],\n    device const MRHumanRestingInfluence* influences [[buffer(2)]],\n    device const MRHumanRestingSupportRegionGPU* regions [[buffer(3)]],\n    device const atomic_uint* selectedVertices [[buffer(4)]],\n    device const uint* positionKeys [[buffer(5)]],\n    device MRNumiHumanStandContactGPU* contacts [[buffer(6)]],\n    device MRArticulatedPointWorldGPU* pointWorld [[buffer(7)]],\n    device float4* pointPositionLow [[buffer(8)]],\n    device float* pointJacobians [[buffer(9)]],\n    device const atomic_uint* invalidRegionFlags [[buffer(10)]],\n    device const MRArticulatedBodyPoseGPU* bodies [[buffer(11)]],\n    device const float4* bodyPositionLow [[buffer(12)]],\n    device const float4* normalizedOrientations [[buffer(13)]],\n    device const uchar* bodyDofAncestry [[buffer(14)]],\n    constant uint* ancestryBodyCount [[buffer(15)]],\n    constant MRHumanRestingBedGPU& bed [[buffer(16), function_constant(kUseRestingContouredBed)]],\n    device const float* bedHeights [[buffer(17), function_constant(kUseRestingContouredBed)]],\n    uint globalIndex [[thread_position_in_grid]],\n    uint lane [[thread_index_in_simdgroup]],\n    uint simdWidth [[threads_per_simdgroup]])",
+      "loops": [
+        {
+          "line": 739,
+          "expression": "uint influenceIndex = 0u;\n         influenceIndex < mappedVertex.influenceCount;\n         ++influenceIndex"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumiHumanRestingSupportGeometry.metalinc",
+      "kernel": "nm_human_resting_support_debug",
+      "line": 786,
+      "thread_contract": "kernel void nm_human_resting_support_debug(\n    constant MRHumanRestingSupportDispatchGPU& dispatch [[buffer(0)]],\n    device const MRHumanRestingSupportRegionGPU* regions [[buffer(1)]],\n    device const atomic_uint* selectedVertices [[buffer(2)]],\n    device const atomic_uint* invalidRegionFlags [[buffer(3)]],\n    device const MRArticulatedPointWorldGPU* pointWorld [[buffer(4)]],\n    device const float4* pointPositionLow [[buffer(5)]],\n    device const float* pointJacobians [[buffer(6)]],\n    device MRHumanRestingSupportDebugGPU* output [[buffer(7)]],\n    uint globalIndex [[thread_position_in_grid]])",
+      "loops": [
+        {
+          "line": 833,
+          "expression": "uint row = 0u; row < 3u * dofCount; ++row"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumiHumanStand.metal",
+      "kernel": "mr_numi_human_stand_step",
+      "line": 1358,
+      "thread_contract": "kernel void mr_numi_human_stand_step(\n    device const MRWorldGPU* worlds [[buffer(0)]],\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRDofPropertiesGPU* dofs [[buffer(2)]],\n    device const MRBodyPropertiesGPU* bodies [[buffer(3)]],\n    constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],\n    device float* qState [[buffer(5)]],\n    device float* vState [[buffer(6)]],\n    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(7)]],\n    device const MRArticulatedPointWorldGPU* pointWorld [[buffer(8)]],\n    device const float* pointJacobians [[buffer(9)]],\n    device const float* generalizedForceWorkspace [[buffer(10)]],\n    device const MRNumiHumanStandContactGPU* contacts [[buffer(11)]],\n    device float* spatialJacobianScratch [[buffer(12)]],\n    device float4* bodyMotionScratch [[buffer(13)]],\n    device float* factorScratch [[buffer(14)]],\n    device float* vectorScratch [[buffer(15)]],\n    device float* responseScratch [[buffer(16)]],\n    device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],\n    device const MRNumiHumanTendonBindingGPU* tendonBindings [[buffer(18)]],\n    device const MRNumiHumanTendonTransferResultGPU* tendonTransfers [[buffer(19)]],\n    device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],\n    device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(21)]],\n    device const float4* bodyPositionLow [[buffer(22)]],\n    device const float4* pointPositionLow [[buffer(23)]],\n    device const float* passiveJointProgram [[buffer(24)]],\n    device float* sourceDynamicsWitness [[buffer(25)]],\n    device const MRJointDescriptorGPU* joints [[buffer(27)]],\n    device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],\n    device MRNumiHumanStandContactWarmStartSlotGPU* contactWarmStartHistory\n        [[buffer(30), function_constant(kUseStandContactWarmStart)]],\n    uint environment [[threadgroup_position_in_grid]],\n    uint lane [[thread_index_in_threadgroup]],\n    uint threadCount [[threads_per_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 1516,
+          "expression": "uint index = 0u;\n                 index < 3u * dispatch.supportContactCount;\n                 ++index"
+        },
+        {
+          "line": 1614,
+          "expression": "uint contact = 0u;\n                 contact < dispatch.supportContactPlaneCount; ++contact"
+        },
+        {
+          "line": 1645,
+          "expression": "uint endpoint = lane; endpoint < dispatch.tendonEndpointCount;\n             endpoint += threadCount"
+        },
+        {
+          "line": 1670,
+          "expression": "uint index = 0u; index < threadCount; ++index"
+        },
+        {
+          "line": 1673,
+          "expression": "uint index = 0u; index < threadCount; ++index"
+        },
+        {
+          "line": 1685,
+          "expression": "uint endpoint = 0u; endpoint <= firstFailure;\n                     ++endpoint"
+        },
+        {
+          "line": 1731,
+          "expression": "uint index = 0u;\n             index < 3u * dispatch.supportContactCount;\n             ++index"
+        },
+        {
+          "line": 1736,
+          "expression": "uint index = 0u;\n             index < dispatch.jointEqualityCount;\n             ++index"
+        },
+        {
+          "line": 1762,
+          "expression": "uint later = index + 1u;\n                 later < dispatch.jointEqualityCount && valid; ++later"
+        },
+        {
+          "line": 1779,
+          "expression": "uint index = lane; index < spatialElements; index += threadCount"
+        },
+        {
+          "line": 1844,
+          "expression": "uint localBody = lane; localBody < bodyCount; localBody += threadCount"
+        },
+        {
+          "line": 1877,
+          "expression": "uint localBody = 0u; localBody < bodyCount; ++localBody"
+        },
+        {
+          "line": 1884,
+          "expression": "uint pass = 0u;\n                 pass < bodyCount && resolvedBodies < bodyCount &&\n                    status.code == MR_NUMI_HUMAN_STAND_SUCCESS;\n                 ++pass"
+        },
+        {
+          "line": 1889,
+          "expression": "uint jointOffset = 0u;\n                     jointOffset < articulation.jointCount &&\n                        status.code == MR_NUMI_HUMAN_STAND_SUCCESS;\n                     ++jointOffset"
+        },
+        {
+          "line": 1969,
+          "expression": "uint row = lane; row < nv; row += threadCount"
+        },
+        {
+          "line": 1974,
+          "expression": "uint localBody = 0u; localBody < bodyCount; ++localBody"
+        },
+        {
+          "line": 2030,
+          "expression": "uint termIndex = 0u;\n             termIndex < dispatch.hipCapsuleTermCount; ++termIndex"
+        },
+        {
+          "line": 2062,
+          "expression": "uint index = lane; index < matrixElements; index += threadCount"
+        },
+        {
+          "line": 2069,
+          "expression": "uint localBody = 0u; localBody < bodyCount; ++localBody"
+        },
+        {
+          "line": 2121,
+          "expression": "uint termIndex = 0u;\n             termIndex < dispatch.hipCapsuleTermCount; ++termIndex"
+        },
+        {
+          "line": 2178,
+          "expression": "uint row = lane; row < nv; row += threadCount"
+        },
+        {
+          "line": 2199,
+          "expression": "uint row = lane; row < nv; row += threadCount"
+        },
+        {
+          "line": 2220,
+          "expression": "uint j = levelOffsets[level] + lane;\n                 j < levelOffsets[level + 1u]; j += threadCount"
+        },
+        {
+          "line": 2244,
+          "expression": "uint j = entryOffsets[level] + lane;\n                 j < entryOffsets[level + 1u]; j += threadCount"
+        },
+        {
+          "line": 2290,
+          "expression": "uint row = column + 1u + lane; row < nv;\n             row += threadCount"
+        },
+        {
+          "line": 2312,
+          "expression": "uint contact = 0u; contact < dispatch.supportContactCount; ++contact"
+        },
+        {
+          "line": 2345,
+          "expression": "uint column = lane; column < equalityColumnsEnd + nv; column += threadCount"
+        },
+        {
+          "line": 2405,
+          "expression": "uint equalityIndex = 0u;\n             equalityIndex < dispatch.jointEqualityCount;\n             ++equalityIndex"
+        },
+        {
+          "line": 2434,
+          "expression": "uint row=0u; row<equalityCount &&\n                status.code == MR_NUMI_HUMAN_STAND_SUCCESS; ++row"
+        },
+        {
+          "line": 2438,
+          "expression": "uint column=0u; column<equalityCount; ++column"
+        },
+        {
+          "line": 2454,
+          "expression": "uint index = 0u; index < equalityCount * equalityCount; ++index"
+        },
+        {
+          "line": 2466,
+          "expression": "uint column = lane; column < contactColumns;\n             column += threadCount"
+        },
+        {
+          "line": 2479,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 2484,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 2500,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 2504,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 2539,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        },
+        {
+          "line": 2551,
+          "expression": "uint ei = 0u; ei < equalityCount; ++ei"
+        },
+        {
+          "line": 2560,
+          "expression": "uint ei = 0u; ei < equalityCount; ++ei"
+        },
+        {
+          "line": 2578,
+          "expression": "uint ei = 0u; ei < equalityCount; ++ei"
+        },
+        {
+          "line": 2582,
+          "expression": "uint ei = 0u; ei < equalityCount; ++ei"
+        },
+        {
+          "line": 2602,
+          "expression": "uint ei = 0u; ei < equalityCount; ++ei"
+        },
+        {
+          "line": 2615,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        },
+        {
+          "line": 2616,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumiHumanStand.metal",
+      "kernel": "mr_numi_human_stand_equality_response_cooperative",
+      "line": 2763,
+      "thread_contract": "kernel void mr_numi_human_stand_equality_response_cooperative(\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],\n    device const float* qState [[buffer(5)]],\n    device const float* factorScratch [[buffer(14)]],\n    device float* responseScratch [[buffer(16)]],\n    device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],\n    device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],\n    device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],\n    uint3 group [[threadgroup_position_in_grid]],\n    uint lane [[thread_index_in_threadgroup]],\n    uint3 groupSize [[threads_per_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 2832,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        },
+        {
+          "line": 2866,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumiHumanStand.metal",
+      "kernel": "mr_numi_human_stand_equality_prepare",
+      "line": 3020,
+      "thread_contract": "kernel void mr_numi_human_stand_equality_prepare(\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],\n    device const float* qState [[buffer(5)]],\n    device float* spatialJacobianScratch [[buffer(12)]],\n    device float* responseScratch [[buffer(16)]],\n    device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],\n    device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],\n    threadgroup float* factorCache [[threadgroup(0)]],\n    uint environment [[threadgroup_position_in_grid]],\n    uint lane [[thread_index_in_threadgroup]],\n    uint threadCount [[threads_per_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 3092,
+          "expression": "uint word = lane; word < bitmapWords; word += threadCount"
+        },
+        {
+          "line": 3115,
+          "expression": "uint equalityIndex = 0u; equalityIndex < equalityCount;\n             ++equalityIndex"
+        },
+        {
+          "line": 3133,
+          "expression": "uint row = lane; row < equalityCount; row += threadCount"
+        },
+        {
+          "line": 3136,
+          "expression": "uint column = 0u; column < equalityCount; ++column"
+        },
+        {
+          "line": 3148,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        },
+        {
+          "line": 3149,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumiHumanStand.metal",
+      "kernel": "mr_numi_human_stand_projected_response_assemble",
+      "line": 3282,
+      "thread_contract": "kernel void mr_numi_human_stand_projected_response_assemble(\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRDofPropertiesGPU* dofs [[buffer(2)]],\n    constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],\n    device const MRArticulatedPointWorldGPU* pointWorld [[buffer(8)]],\n    device const float* pointJacobians [[buffer(9)]],\n    device const MRNumiHumanStandContactGPU* contacts [[buffer(11)]],\n    device float* spatialJacobianScratch [[buffer(12)]],\n    device const float* factorScratch [[buffer(14)]],\n    device float* responseScratch [[buffer(16)]],\n    device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],\n    device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],\n    device const float4* pointPositionLow [[buffer(23)]],\n    device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],\n    uint2 position [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 3391,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 3397,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 3410,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 3414,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 3436,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 3447,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 3462,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 3466,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 3485,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumiHumanStand.metal",
+      "kernel": "mr_numi_human_stand_projected_response_cooperative",
+      "line": 3493,
+      "thread_contract": "kernel void mr_numi_human_stand_projected_response_cooperative(\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRDofPropertiesGPU* dofs [[buffer(2)]],\n    constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],\n    device const MRArticulatedPointWorldGPU* pointWorld [[buffer(8)]],\n    device const float* pointJacobians [[buffer(9)]],\n    device const MRNumiHumanStandContactGPU* contacts [[buffer(11)]],\n    device float* spatialJacobianScratch [[buffer(12)]],\n    device const float* factorScratch [[buffer(14)]],\n    device float* responseScratch [[buffer(16)]],\n    device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],\n    device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],\n    device const float4* pointPositionLow [[buffer(23)]],\n    device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],\n    device uint* reducedResponseDiagnostics [[buffer(29), function_constant(kUseReducedResponseDiagnostics)]],\n    uint3 group [[threadgroup_position_in_grid]],\n    uint lane [[thread_index_in_threadgroup]],\n    uint3 groupSize [[threads_per_threadgroup]]\n)",
+      "loops": [
+        {
+          "line": 3635,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        },
+        {
+          "line": 3662,
+          "expression": "uint row = lane; row < equalityCount; row += threadCount"
+        },
+        {
+          "line": 3667,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        },
+        {
+          "line": 3702,
+          "expression": "uint coordinate = lane; coordinate < freeDofs;\n                 coordinate += threadCount"
+        },
+        {
+          "line": 3727,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        },
+        {
+          "line": 3737,
+          "expression": "uint row = lane; row < equalityCount;\n                     row += threadCount"
+        },
+        {
+          "line": 3764,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        },
+        {
+          "line": 3766,
+          "expression": "uint row = lane; row < equalityCount;\n                             row += threadCount"
+        },
+        {
+          "line": 3771,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        },
+        {
+          "line": 3773,
+          "expression": "uint row = lane; row < equalityCount;\n                         row += threadCount"
+        },
+        {
+          "line": 3801,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        },
+        {
+          "line": 3819,
+          "expression": "uint row = lane; row < equalityCount; row += threadCount"
+        },
+        {
+          "line": 3826,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 3842,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 3854,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        },
+        {
+          "line": 3856,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 3883,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 3888,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        },
+        {
+          "line": 3908,
+          "expression": "uint dof = lane; dof < nv; dof += threadCount"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumiHumanStand.metal",
+      "kernel": "mr_numi_human_stand_mass_assemble",
+      "line": 3915,
+      "thread_contract": "kernel void mr_numi_human_stand_mass_assemble(\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRDofPropertiesGPU* dofs [[buffer(2)]],\n    device const MRBodyPropertiesGPU* bodies [[buffer(3)]],\n    constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],\n    device const float* qState [[buffer(5)]],\n    device const float* spatialJacobianScratch [[buffer(12)]],\n    device float* factorScratch [[buffer(14)]],\n    device float* responseScratch [[buffer(16)]],\n    device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],\n    device const float* passiveJointProgram [[buffer(24)]],\n    device float* sourceDynamicsWitness [[buffer(25)]],\n    device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],\n    device float* vectorScratch [[buffer(26)]],\n    uint2 position [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 3968,
+          "expression": "uint localBody = 0u; localBody < bodyCount; ++localBody"
+        },
+        {
+          "line": 4022,
+          "expression": "uint termIndex = 0u;\n         termIndex < dispatch.hipCapsuleTermCount; ++termIndex"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumiHumanStand.metal",
+      "kernel": "mr_numi_human_stand_finish",
+      "line": 4055,
+      "thread_contract": "kernel void mr_numi_human_stand_finish(\n    device const MRWorldGPU* worlds [[buffer(0)]],\n    device const MRArticulationGPU* articulations [[buffer(1)]],\n    device const MRDofPropertiesGPU* dofs [[buffer(2)]],\n    device const MRBodyPropertiesGPU* bodies [[buffer(3)]],\n    constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],\n    device float* qState [[buffer(5)]],\n    device float* vState [[buffer(6)]],\n    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(7)]],\n    device const MRArticulatedPointWorldGPU* pointWorld [[buffer(8)]],\n    device const float* pointJacobians [[buffer(9)]],\n    device const float* generalizedForceWorkspace [[buffer(10)]],\n    device const MRNumiHumanStandContactGPU* contacts [[buffer(11)]],\n    device float* spatialJacobianScratch [[buffer(12)]],\n    device float4* bodyMotionScratch [[buffer(13)]],\n    device float* factorScratch [[buffer(14)]],\n    device float* vectorScratch [[buffer(15)]],\n    device float* responseScratch [[buffer(16)]],\n    device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],\n    device const MRNumiHumanTendonBindingGPU* tendonBindings [[buffer(18)]],\n    device const MRNumiHumanTendonTransferResultGPU* tendonTransfers [[buffer(19)]],\n    device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],\n    device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(21)]],\n    device const float4* bodyPositionLow [[buffer(22)]],\n    device const float4* pointPositionLow [[buffer(23)]],\n    device const float* passiveJointProgram [[buffer(24)]],\n    device float* sourceDynamicsWitness [[buffer(25)]],\n    device const MRNumiHumanStandCpuFinishGPU* cpuFinishes [[buffer(26)]],\n    device float* cachedLimitEqualityResponse [[buffer(27), function_constant(kUseCachedLimitEqualityResponse)]],\n    device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],\n    device uint* finishWorkCounters [[buffer(29)]],\n    device MRNumiHumanStandContactWarmStartSlotGPU* contactWarmStartHistory\n        [[buffer(30), function_constant(kUseStandContactWarmStart)]],\n    uint environment [[threadgroup_position_in_grid]],\n    uint lane [[thread_index_in_threadgroup]],\n    uint threadCount [[threads_per_threadgroup]],\n    uint simdWidth [[threads_per_simdgroup]]\n)",
+      "loops": [
+        {
+          "line": 4285,
+          "expression": "uint row = 0u; row < equalityCount; ++row"
+        },
+        {
+          "line": 4299,
+          "expression": "uint index = 0u; index < equalityCount * equalityCount;\n                 ++index"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumiHumanStand.metal",
+      "kernel": "mr_numi_human_stand_reconcile",
+      "line": 4337,
+      "thread_contract": "kernel void mr_numi_human_stand_reconcile(\n    constant uint4& shape [[buffer(0)]], // environments, attempted step, muscles, vectors\n    constant uint4& strides [[buffer(1)]], // q, v\n    device float* q [[buffer(2)]],\n    device float* v [[buffer(3)]],\n    device MRMujocoMuscleStateGPU* muscles [[buffer(4)]],\n    device MRNumiHumanStandStatusGPU* statuses [[buffer(5)]],\n    device float* vectors [[buffer(6)]],\n    device const float* acceptedQ [[buffer(7)]],\n    device const float* acceptedV [[buffer(8)]],\n    device const MRMujocoMuscleStateGPU* acceptedMuscles [[buffer(9)]],\n    device const MRNumiHumanStandStatusGPU* acceptedStatuses [[buffer(10)]],\n    device const float* acceptedVectors [[buffer(11)]],\n    device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(12)]],\n    device const MRCompensatedRootTranslationGPU* acceptedRootTranslations [[buffer(13)]],\n    device MRNumiHumanStandContactWarmStartSlotGPU* contactWarmStartHistory [[buffer(14)]],\n    device MRBodyPropertiesGPU* bodyProperties [[buffer(15)]],\n    device const MRBodyPropertiesGPU* acceptedBodyProperties [[buffer(16)]],\n    constant uint4& bodyPropertyTransaction [[buffer(17)]],\n    uint environment [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 4390,
+          "expression": "uint i=0u; i<strides.x; ++i"
+        },
+        {
+          "line": 4391,
+          "expression": "uint i=0u; i<strides.y; ++i"
+        }
+      ]
+    },
+    {
+      "file": "src/metal/NumiHumanTendonTransfer.metal",
+      "kernel": "MR_TENDON_TRANSFER_KERNEL_NAME",
+      "line": 42,
+      "thread_contract": "kernel void MR_TENDON_TRANSFER_KERNEL_NAME(\n    constant MRNumiHumanTendonTransferDispatchGPU& dispatch [[buffer(0)]],\n    device const MRNumiHumanTendonBindingGPU* bindings [[buffer(1)]],\n    device const MRNumiHumanTendonEnvelopeGPU* envelopes [[buffer(2)]],\n    device const MRMujocoMuscleResultGPU* muscleResults [[buffer(3)]],\n    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(4)]],\n    device const float* pointJacobians [[buffer(5)]],\n    device MRNumiHumanTendonTransferResultGPU* results [[buffer(6)]],\n    device float* generalizedCorrections [[buffer(7)]],\n#if MR_SOURCE_PAIRED_GEOMETRY\n    device const float4* bodyPositionLow [[buffer(8)]],\n#endif\n    uint globalIndex [[thread_position_in_grid]]\n)",
+      "loops": [
+        {
+          "line": 67,
+          "expression": "uint dof = 0u; dof < dispatch.dofCount; ++dof"
+        },
+        {
+          "line": 216,
+          "expression": "uint dof = 0u; dof < dispatch.dofCount; ++dof"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+[
+  {
+    "name": "audit-reduction-build",
+    "argv": [
+      "xcrun",
+      "--sdk",
+      "macosx",
+      "clang++",
+      "-std=c++23",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-DNDEBUG",
+      "-arch",
+      "arm64",
+      "-fobjc-arc",
+      "-I",
+      "/Users/numi/Work/skin-fat-native-integration-209/include",
+      "-I",
+      "/Users/numi/Work/skin-fat-native-integration-209/matter/include",
+      "/Users/numi/Work/skin-fat-native-integration-209/tests/numi_human_fem_surface_attachment/contact_audit_reduction_test.mm",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/audit-reduction-test"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 0.3904877919999308
+  },
+  {
+    "name": "audit-reduction",
+    "argv": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/audit-reduction-test",
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 2.5140966659996593
+  }
+]

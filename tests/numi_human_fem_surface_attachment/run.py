@@ -4,6 +4,7 @@ from pathlib import Path
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 import tempfile
 import time
@@ -26,10 +27,11 @@ def main():
     includes = ["-I", str(ROOT / "include"), "-I", str(ROOT / "matter/include"),
                 "-I", str(ROOT / "matter/src")]
     stages = []
-    def run(name, command):
+    def run(name, command, environment=None):
         started = time.monotonic()
         result = subprocess.run([str(x) for x in command], cwd=ROOT,
-                                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                env=environment)
         (out / (name + ".log")).write_text(result.stdout)
         stages.append({"name": name, "command": [str(x) for x in command],
                        "returncode": result.returncode, "seconds": time.monotonic() - started,
@@ -74,6 +76,20 @@ def main():
                                       "-framework", "Metal", "-o", out / "native-test"])
             run("native-run", [out / "native-test", ROOT / "matter/materials/silicone.nmatter", args.native_metallib.resolve()])
             run("native-active-contact-run", [out / "native-test", ROOT / "matter/materials/silicone.nmatter", args.native_metallib.resolve(), "active-contact"])
+            run("contact-reduction-build", cpp + ["-fobjc-arc", *includes,
+                TEST / "contact_audit_reduction_test.mm", "-framework", "Foundation",
+                "-framework", "Metal", "-o", out / "contact-reduction-test"])
+            run("contact-reduction-run",
+                [out / "contact-reduction-test", args.native_metallib.resolve()])
+            parallel_environment = os.environ.copy()
+            parallel_environment["NUMI_HUMAN_PARALLEL_CONTACT_AUDIT"] = "1"
+            parallel_environment["NUMI_HUMAN_PARALLEL_CONTACT_WRENCH"] = "1"
+            run("native-parallel-contact-run",
+                [out / "native-test", ROOT / "matter/materials/silicone.nmatter",
+                 args.native_metallib.resolve()], parallel_environment)
+            run("native-parallel-active-contact-run",
+                [out / "native-test", ROOT / "matter/materials/silicone.nmatter",
+                 args.native_metallib.resolve(), "active-contact"], parallel_environment)
             receipt["native_library_sha256"] = sha(lib)
             receipt["native_metallib_sha256"] = sha(args.native_metallib.resolve())
         receipt["status"] = "PASS"

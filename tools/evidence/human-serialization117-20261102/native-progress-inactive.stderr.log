@@ -1,0 +1,90 @@
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+human_contact_audit_layout parallel=1 rows=2 solver_rows=1 tiles=1
+human_immutable_contact_storage=shared_upload_owner cpu_staging_released_bytes=448 samples=1 sample_rows_unchanged=1 device_allocated_bytes=31784960 recommended_working_set_bytes=12713115648
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=630 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=490 element=140 environment_count=1
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples","sequence":1,"wall_elapsed_s":0.002804084,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_reduce_fem_body_contact_sample_validation","sequence":2,"wall_elapsed_s":0.00281125,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_prepare_provisional_status","sequence":3,"wall_elapsed_s":0.00281625,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_assemble_tendon_fem_loads","sequence":4,"wall_elapsed_s":0.00281925,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_assemble_fem_body_contact_loads","sequence":5,"wall_elapsed_s":0.00284925,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_fem_body_contact_wrench_partial","sequence":6,"wall_elapsed_s":0.003034209,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_fem_body_contact_wrench_finish","sequence":7,"wall_elapsed_s":0.003037417,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_assemble_fem_surface_attachment_loads","sequence":8,"wall_elapsed_s":0.003041,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_add_fem_surface_attachment_wrenches","sequence":9,"wall_elapsed_s":0.003043875,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_audit_fem_body_contact_partial","sequence":10,"wall_elapsed_s":0.0032685,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_audit_fem_body_contact_finish","sequence":11,"wall_elapsed_s":0.003271459,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_audit_tendon_fem_loads","sequence":12,"wall_elapsed_s":0.003283667,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_assemble_fem_kinematic_targets","sequence":13,"wall_elapsed_s":0.003286959,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":1,"wall_elapsed_s":0.003073041,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":2,"wall_elapsed_s":0.0221085,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":3,"wall_elapsed_s":0.029706125,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":4,"wall_elapsed_s":0.02975925,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":5,"wall_elapsed_s":0.030575958,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":6,"wall_elapsed_s":0.034568166,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":7,"wall_elapsed_s":0.034580083,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":8,"wall_elapsed_s":0.035177541,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":9,"wall_elapsed_s":0.035339916,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":10,"wall_elapsed_s":0.03537525,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":11,"wall_elapsed_s":0.03583825,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":12,"wall_elapsed_s":0.035998416,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":13,"wall_elapsed_s":0.036030708,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":14,"wall_elapsed_s":0.036472083,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":15,"wall_elapsed_s":0.036608541,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":16,"wall_elapsed_s":0.036636708,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":17,"wall_elapsed_s":0.037052541,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":18,"wall_elapsed_s":0.03718225,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":19,"wall_elapsed_s":0.037211708,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":20,"wall_elapsed_s":0.037607583,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":21,"wall_elapsed_s":0.037747291,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"end","sequence":22,"wall_elapsed_s":0.037775333,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_audit_fem_anchor_reactions","sequence":14,"wall_elapsed_s":0.03845075,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_apply_fem_anchor_reactions","sequence":15,"wall_elapsed_s":0.038465959,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=630 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=490 element=140 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=630 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=2 node=490 element=140 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=630 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=490 element=140 environment_count=1
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples","sequence":1,"wall_elapsed_s":0.001074458,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_reduce_fem_body_contact_sample_validation","sequence":2,"wall_elapsed_s":0.001079583,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_prepare_provisional_status","sequence":3,"wall_elapsed_s":0.001084875,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_assemble_tendon_fem_loads","sequence":4,"wall_elapsed_s":0.001087708,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_assemble_fem_body_contact_loads","sequence":5,"wall_elapsed_s":0.001115416,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_fem_body_contact_wrench_partial","sequence":6,"wall_elapsed_s":0.001121625,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_fem_body_contact_wrench_finish","sequence":7,"wall_elapsed_s":0.001148,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_assemble_fem_surface_attachment_loads","sequence":8,"wall_elapsed_s":0.001152416,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_add_fem_surface_attachment_wrenches","sequence":9,"wall_elapsed_s":0.00115525,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_audit_fem_body_contact_partial","sequence":10,"wall_elapsed_s":0.001222875,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_audit_fem_body_contact_finish","sequence":11,"wall_elapsed_s":0.00122675,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_audit_tendon_fem_loads","sequence":12,"wall_elapsed_s":0.001229458,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_assemble_fem_kinematic_targets","sequence":13,"wall_elapsed_s":0.001232083,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":1,"wall_elapsed_s":0.001190333,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":2,"wall_elapsed_s":0.001595708,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":3,"wall_elapsed_s":0.003900208,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":4,"wall_elapsed_s":0.0039255,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":5,"wall_elapsed_s":0.004315208,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":6,"wall_elapsed_s":0.006543791,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":7,"wall_elapsed_s":0.006554541,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":8,"wall_elapsed_s":0.006948208,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":9,"wall_elapsed_s":0.007090166,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":10,"wall_elapsed_s":0.007117958,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":11,"wall_elapsed_s":0.007524916,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":12,"wall_elapsed_s":0.007655375,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":13,"wall_elapsed_s":0.00768275,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":14,"wall_elapsed_s":0.008083083,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":15,"wall_elapsed_s":0.008222708,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":16,"wall_elapsed_s":0.008249791,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":17,"wall_elapsed_s":0.008653541,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":18,"wall_elapsed_s":0.008792541,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":19,"wall_elapsed_s":0.008812,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_linear","sequence":20,"wall_elapsed_s":0.009227583,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_globalization","sequence":21,"wall_elapsed_s":0.009367208,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"end","sequence":22,"wall_elapsed_s":0.009393125,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_audit_fem_anchor_reactions","sequence":14,"wall_elapsed_s":0.00988125,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_apply_fem_anchor_reactions","sequence":15,"wall_elapsed_s":0.009891333,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=630 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=490 element=140 environment_count=1

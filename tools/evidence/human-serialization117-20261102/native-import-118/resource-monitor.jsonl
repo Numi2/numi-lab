@@ -1,0 +1,4 @@
+{"elapsed_s": 0.00537872314453125, "rss_kib": 64, "swap_used_mib": 2563.81, "disk_available_bytes": 30145728512}
+{"elapsed_s": 5.019162893295288, "rss_kib": 672096, "swap_used_mib": 2563.81, "disk_available_bytes": 30121517056}
+{"elapsed_s": 10.033205032348633, "rss_kib": 1784800, "swap_used_mib": 2563.81, "disk_available_bytes": 30120460288}
+{"elapsed_s": 15.049663066864014, "rss_kib": 2230752, "swap_used_mib": 2563.81, "disk_available_bytes": 30120407040}

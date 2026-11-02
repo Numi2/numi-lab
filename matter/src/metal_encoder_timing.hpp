@@ -16,6 +16,55 @@
 namespace numi::matter::detail {
 // Host submission time is distinct from GPU execution time. This optional
 // observer does not split encoders, wait for completion, or read solver state.
+
+// Optional progress notifications identify which queued GPU stage actually
+// finished even when a later stage prevents command-buffer completion. These
+// are CPU notification arrival times, never claimed as GPU kernel durations.
+class CommandProgress {
+    using Clock=std::chrono::steady_clock;
+    __strong id<MTLSharedEvent> event_=nil;
+    __strong MTLSharedEventListener* listener_=nil;
+    Clock::time_point start_{};
+    std::uint64_t next_=0;
+    unsigned root_=0;
+    std::string phase_;
+public:
+    CommandProgress(id<MTLDevice> device,id<MTLCommandBuffer> command,
+                    unsigned root,const char* phase):root_(root),phase_(phase) {
+        const char* flag=std::getenv("NUMI_GPU_PROGRESS");
+        if(flag==nullptr || std::strcmp(flag,"1")!=0) return;
+        unsigned selectedRoot=0;
+        if(const char* value=std::getenv("NUMI_GPU_PROGRESS_ROOT")) {
+            char* end=nullptr;const unsigned long parsed=std::strtoul(value,&end,10);
+            if(end==value || *end!=0 || parsed>0xfffffffful) return;
+            selectedRoot=static_cast<unsigned>(parsed);
+        }
+        if(root!=selectedRoot) return;
+        event_=[device newSharedEvent];
+        listener_=[[MTLSharedEventListener alloc] initWithDispatchQueue:
+            dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0)];
+        start_=Clock::now();
+        id<MTLSharedEvent> event=event_;MTLSharedEventListener* listener=listener_;
+        [command addCompletedHandler:^(id<MTLCommandBuffer> completed){
+            (void)completed;(void)event;(void)listener;
+        }];
+    }
+    bool enabled() const {return event_!=nil && listener_!=nil;}
+    void signal(id<MTLCommandBuffer> command,const char* label) {
+        if(!enabled()) return;
+        const std::string stage=label==nullptr?"end":label;
+        const std::string phase=phase_;const unsigned root=root_;
+        const auto begin=start_;const std::uint64_t value=++next_;
+        [event_ notifyListener:listener_ atValue:value block:^(id<MTLSharedEvent> event,uint64_t observed){
+            (void)event;(void)observed;
+            const double elapsed=std::chrono::duration<double>(Clock::now()-begin).count();
+            std::fprintf(stderr,"gpu_progress={\"root\":%u,\"phase\":\"%s\",\"boundary\":\"%s\",\"sequence\":%llu,\"wall_elapsed_s\":%.9g,\"scope\":\"gpu_signal_cpu_arrival_not_kernel_duration\"}\n",
+                root,phase.c_str(),stage.c_str(),static_cast<unsigned long long>(value),elapsed);
+        }];
+        [command encodeSignalEvent:event_ value:value];
+    }
+};
+
 class HostStageTiming {
     using Clock = std::chrono::steady_clock;
     struct Total { double seconds = 0.0; std::uint64_t spans = 0u; };

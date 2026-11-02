@@ -19286,6 +19286,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
         }
         detail::HostStageTiming hostStageTiming(request.controlStep,
             request.phase == EncodePhase::preDynamics ? "pre" : "post");
+        detail::CommandProgress gpuProgress(state.device,commandBuffer,request.controlStep,
+            request.phase==EncodePhase::preDynamics?"matter_pre":"matter_post");
         detail::TimingSpan solverTimingSpan{};
         id<MTLBuffer> timingMarkerWord = nil;
         if (measureSolverStages) {
@@ -19304,11 +19306,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
         }
         const auto beginSolverStage = [&](const char* stage) {
             hostStageTiming.boundary(stage);
-            if (!measureSolverStages) return;
+            if (!measureSolverStages && !gpuProgress.enabled()) return;
             [encoder endEncoding]; encoder = nil;
+            gpuProgress.signal(commandBuffer,stage);
             bool sampledBoundary = false;
-            encoder = detail::timingSpanBoundary(commandBuffer, state.device,
-                request.controlStep, stage, solverTimingSpan, &sampledBoundary);
+            encoder = measureSolverStages
+                ? detail::timingSpanBoundary(commandBuffer,state.device,
+                    request.controlStep,stage,solverTimingSpan,&sampledBoundary)
+                : [commandBuffer computeCommandEncoder];
             primalResourcesEncoder = nil;
             if (!sampledBoundary || encoder == nil) return;
             const id<MTLComputePipelineState> markerPipeline =

@@ -1,0 +1,513 @@
+{
+  "scope": "confirmed source/dispatch findings; only contact kernels measured individually; no full-Human throughput claim",
+  "execution_owner_head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "physical_workload": {
+    "fem_nodes": 318974,
+    "skin_fat_tetrahedra": 1495294,
+    "fem_body_contact_rows": 15453677,
+    "generalized_dofs": 128
+  },
+  "implemented": [
+    "tiled contact audit: all rows, finite/failure propagation, hierarchical reduction",
+    "stable per-body contact index tiles and hierarchical wrench reduction; original pressure, area, points and torque",
+    "optional shared-event GPU progress observer; no physical readback or alternate physics"
+  ],
+  "remaining_findings": [
+    {
+      "id": "node-validation",
+      "file": "matter/src/metal/numi_human.metalinc",
+      "locations": [
+        {
+          "symbol": "nm_numi_human_prepare_provisional_status",
+          "line": 1496
+        }
+      ],
+      "selection": "normal Human adapter pre-load validation; native120 reached adapter setup but did not produce GPU progress",
+      "finding": "one GPU thread per environment validates every FEM node and up to four load slots, then other source banks",
+      "individual_full_scene_cost": "UNMEASURED",
+      "next_change": "tile validation with deterministic minimum invalid witness; retain dynamic transfer and pose checks; version immutable source validation"
+    },
+    {
+      "id": "force-audits",
+      "file": "matter/src/metal/numi_human.metalinc",
+      "locations": [
+        {
+          "symbol": "nm_numi_human_audit_tendon_fem_loads",
+          "line": 3060
+        },
+        {
+          "symbol": "nm_numi_human_audit_fem_anchor_reactions",
+          "line": 3112
+        }
+      ],
+      "selection": "normal force/reaction owner graph",
+      "finding": "one GPU thread per environment sums 318974 node force rows; second full node scan filters anchors",
+      "individual_full_scene_cost": "UNMEASURED",
+      "next_change": "hierarchical finite-aware reductions, preserve existing rejection and force-balance tolerances"
+    },
+    {
+      "id": "anchor-projection",
+      "file": "matter/src/metal/numi_human.metalinc",
+      "locations": [
+        {
+          "symbol": "nm_numi_human_add_fem_anchor_reactions_to_pending_load",
+          "line": 2934
+        },
+        {
+          "symbol": "nm_numi_human_apply_fem_anchor_reactions",
+          "line": 3527
+        }
+      ],
+      "selection": "normal anchor-reaction graph after Matter; actual cost not reached in120",
+      "finding": "each generalized DOF scans all FEM nodes and discards inactive anchors; 128 x 318974 = 40828672 anchor tests per pass",
+      "individual_full_scene_cost": "UNMEASURED",
+      "next_change": "prepare stable source-order active-anchor incidence once; project only active anchors; preserve generalized work and invalid-state semantics"
+    },
+    {
+      "id": "working-set-clear",
+      "file": "matter/src/metal/vascular.metalinc",
+      "locations": [
+        {
+          "symbol": "nm_vascular_resolve_working_set",
+          "line": 2539
+        }
+      ],
+      "selection": "conditional when valve/transport working set changes",
+      "finding": "one SIMD32 group clears full mechanical and backing-field solution arrays, in addition to bounded vascular rows",
+      "individual_full_scene_cost": "UNMEASURED",
+      "next_change": "separate small decision kernel from tiled masked row clear; retain current status and dependency barriers"
+    },
+    {
+      "id": "support-working-set-clear",
+      "file": "matter/src/metal/fgmres.metalinc",
+      "locations": [
+        {
+          "symbol": "nm_human_support_resolve_working_set",
+          "line": 13711
+        }
+      ],
+      "selection": "conditional changed support working set",
+      "finding": "one SIMD32 group clears the whole coupled direction, including node arrays",
+      "individual_full_scene_cost": "UNMEASURED",
+      "next_change": "reuse tiled current-operator row clearing with a GPU predicate"
+    },
+    {
+      "id": "regional-restart",
+      "file": "matter/src/metal/fgmres.metalinc",
+      "locations": [
+        {
+          "symbol": "nm_fgmres_regional_restart_measure",
+          "line": 2763
+        }
+      ],
+      "selection": "only when NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION is enabled and admitted; not requested in120",
+      "finding": "lane0 measures all node basis/operator products and compensated signed energy",
+      "individual_full_scene_cost": "UNMEASURED",
+      "next_change": "tiled compensated energy and norm reduction; preserve cancellation/sign admission guards"
+    },
+    {
+      "id": "topology-rebuild",
+      "file": "matter/src/metal/topology_mutation.metalinc",
+      "locations": [
+        {
+          "symbol": "nm_topology_rebuild_count_mass",
+          "line": 2220
+        },
+        {
+          "symbol": "nm_topology_rebuild_scatter",
+          "line": 2377
+        }
+      ],
+      "selection": "only topology rebuild/growth; not established active in this unchanged-topology trial",
+      "finding": "every node scans every tetrahedron twice; O(nodes x tets), about 4.77e11 node/tet tests per pass at current skin/fat scale",
+      "individual_full_scene_cost": "UNMEASURED",
+      "next_change": "emit four node/tet corners, deterministic sort/ranges and segmented mass sum; preserve ancestry and conservation"
+    },
+    {
+      "id": "blood-particle-compaction",
+      "file": "matter/src/human_respiration.metal",
+      "locations": [
+        {
+          "symbol": "nm_human_blood_mpm_handoff",
+          "line": 1312
+        }
+      ],
+      "selection": "blood_mpm_enabled=0 in120, therefore inactive; future active bleeding path",
+      "finding": "one environment thread enumerates particle pairs for each required merge; worst-case cubic in particle capacity",
+      "individual_full_scene_cost": "UNMEASURED",
+      "next_change": "reuse MPM spatial bins to emit local compatible merge candidates, deterministic minimum and conservative merge; retain strict capacity rollback"
+    },
+    {
+      "id": "tangent-diagnostic",
+      "file": "matter/src/metal/fem.metalinc",
+      "locations": [
+        {
+          "symbol": "nm_fem_finalize_algorithmic_tangent_columns",
+          "line": 3356
+        }
+      ],
+      "selection": "only native tangent verification function constant; normal finalization already per tet",
+      "finding": "diagnostic branch lane0 scans all tetrahedra twice; not a normal production bottleneck",
+      "individual_full_scene_cost": "UNMEASURED",
+      "next_change": "parallel minimum witness before existing per-entry normalization if this diagnostic must run at full body scale"
+    }
+  ],
+  "retained_isolated_measurements": [
+    {
+      "source_log": "audit-reduction.stdout.log",
+      "matched_pair": 0,
+      "case_count": 262145,
+      "serial_gpu_s": 0.200681042,
+      "parallel_gpu_s": 0.000279375,
+      "speedup": 718.321402
+    },
+    {
+      "source_log": "audit-reduction.stdout.log",
+      "matched_pair": 1,
+      "case_count": 262145,
+      "serial_gpu_s": 0.203062417,
+      "parallel_gpu_s": 0.000248125,
+      "speedup": 818.387574
+    },
+    {
+      "source_log": "audit-reduction.stdout.log",
+      "matched_pair": 2,
+      "case_count": 262145,
+      "serial_gpu_s": 0.203849292,
+      "parallel_gpu_s": 0.000266666666,
+      "speedup": 764.434844
+    },
+    {
+      "source_log": "audit-reduction.stdout.log",
+      "status": "PASS",
+      "maximum_relative_error": 0.000420067377,
+      "maximum_absolute_error": 0.0236816406,
+      "scope": "production audit kernels; not integrated throughput"
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 0,
+      "mode": 0,
+      "serial_gpu_s": 5.04166655e-06,
+      "parallel_gpu_s": 5.95833353e-06,
+      "speedup": 0.846153799
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 0,
+      "mode": 1,
+      "serial_gpu_s": 4.33333389e-06,
+      "parallel_gpu_s": 5.70833254e-06,
+      "speedup": 0.759124291
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 1,
+      "mode": 0,
+      "serial_gpu_s": 9.62500053e-06,
+      "parallel_gpu_s": 1.61666667e-05,
+      "speedup": 0.595360857
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 1,
+      "mode": 1,
+      "serial_gpu_s": 9.04166609e-06,
+      "parallel_gpu_s": 1.56250007e-05,
+      "speedup": 0.578666602
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 255,
+      "mode": 0,
+      "serial_gpu_s": 0.0004425,
+      "parallel_gpu_s": 1.6125e-05,
+      "speedup": 27.4418604
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 255,
+      "mode": 1,
+      "serial_gpu_s": 0.000445916667,
+      "parallel_gpu_s": 1.60000009e-05,
+      "speedup": 27.8697902
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 256,
+      "mode": 0,
+      "serial_gpu_s": 0.000432708333,
+      "parallel_gpu_s": 1.55416665e-05,
+      "speedup": 27.8418234
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 256,
+      "mode": 1,
+      "serial_gpu_s": 0.000423333333,
+      "parallel_gpu_s": 1.57499999e-05,
+      "speedup": 26.8783071
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 257,
+      "mode": 0,
+      "serial_gpu_s": 0.000425124999,
+      "parallel_gpu_s": 1.54999998e-05,
+      "speedup": 27.4274197
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 257,
+      "mode": 1,
+      "serial_gpu_s": 0.000424958333,
+      "parallel_gpu_s": 1.56249998e-05,
+      "speedup": 27.1973336
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 8193,
+      "mode": 0,
+      "serial_gpu_s": 0.011542125,
+      "parallel_gpu_s": 1.54166673e-05,
+      "speedup": 748.678346
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 8193,
+      "mode": 1,
+      "serial_gpu_s": 0.0040845,
+      "parallel_gpu_s": 8.37500011e-06,
+      "speedup": 487.701486
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 262145,
+      "mode": 0,
+      "serial_gpu_s": 0.1508755,
+      "parallel_gpu_s": 0.0002625,
+      "speedup": 574.76381
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "wrench_case_count": 262145,
+      "mode": 1,
+      "serial_gpu_s": 0.151447083,
+      "parallel_gpu_s": 0.0002515,
+      "speedup": 602.175282
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "matched_pair": 0,
+      "case_count": 262145,
+      "serial_gpu_s": 0.197494,
+      "parallel_gpu_s": 0.000312458334,
+      "speedup": 632.065075
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "matched_pair": 1,
+      "case_count": 262145,
+      "serial_gpu_s": 0.202226208,
+      "parallel_gpu_s": 0.000322375,
+      "speedup": 627.30115
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "matched_pair": 2,
+      "case_count": 262145,
+      "serial_gpu_s": 0.20031625,
+      "parallel_gpu_s": 0.000281208334,
+      "speedup": 712.341086
+    },
+    {
+      "source_log": "combined-coupon.stdout.log",
+      "status": "PASS",
+      "maximum_relative_error": 0.000420067377,
+      "maximum_absolute_error": 0.00427246094,
+      "scope": "production audit kernels; not integrated throughput"
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 0,
+      "mode": 0,
+      "serial_gpu_s": 5.375e-06,
+      "parallel_gpu_s": 6.41666611e-06,
+      "speedup": 0.83766241
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 0,
+      "mode": 1,
+      "serial_gpu_s": 4.7500007e-06,
+      "parallel_gpu_s": 5.75000013e-06,
+      "speedup": 0.82608706
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 1,
+      "mode": 0,
+      "serial_gpu_s": 1.03749999e-05,
+      "parallel_gpu_s": 1.57499999e-05,
+      "speedup": 0.658730156
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 1,
+      "mode": 1,
+      "serial_gpu_s": 1.01249998e-05,
+      "parallel_gpu_s": 1.66250002e-05,
+      "speedup": 0.609022537
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 255,
+      "mode": 0,
+      "serial_gpu_s": 0.000444625,
+      "parallel_gpu_s": 1.63749992e-05,
+      "speedup": 27.1526731
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 255,
+      "mode": 1,
+      "serial_gpu_s": 0.000441041667,
+      "parallel_gpu_s": 1.64166668e-05,
+      "speedup": 26.8654821
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 256,
+      "mode": 0,
+      "serial_gpu_s": 0.000424416667,
+      "parallel_gpu_s": 1.63333334e-05,
+      "speedup": 25.9846938
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 256,
+      "mode": 1,
+      "serial_gpu_s": 0.000433166667,
+      "parallel_gpu_s": 1.73333337e-05,
+      "speedup": 24.990384
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 257,
+      "mode": 0,
+      "serial_gpu_s": 0.0004295,
+      "parallel_gpu_s": 1.7958333e-05,
+      "speedup": 23.9164737
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 257,
+      "mode": 1,
+      "serial_gpu_s": 0.00043,
+      "parallel_gpu_s": 1.6125e-05,
+      "speedup": 26.6666667
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 8193,
+      "mode": 0,
+      "serial_gpu_s": 0.0121140833,
+      "parallel_gpu_s": 1.84999999e-05,
+      "speedup": 654.815319
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 8193,
+      "mode": 1,
+      "serial_gpu_s": 0.004321625,
+      "parallel_gpu_s": 8.50000015e-06,
+      "speedup": 508.426462
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 262145,
+      "mode": 0,
+      "serial_gpu_s": 0.147155167,
+      "parallel_gpu_s": 0.000395166667,
+      "speedup": 372.3876
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "wrench_case_count": 262145,
+      "mode": 1,
+      "serial_gpu_s": 0.1471855,
+      "parallel_gpu_s": 0.00039325,
+      "speedup": 374.27972
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "matched_pair": 0,
+      "case_count": 262145,
+      "serial_gpu_s": 0.199506,
+      "parallel_gpu_s": 0.000253166667,
+      "speedup": 788.042132
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "matched_pair": 1,
+      "case_count": 262145,
+      "serial_gpu_s": 0.201478875,
+      "parallel_gpu_s": 0.000235958333,
+      "speedup": 853.874802
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "matched_pair": 2,
+      "case_count": 262145,
+      "serial_gpu_s": 0.202397958,
+      "parallel_gpu_s": 0.000511499999,
+      "speedup": 395.694934
+    },
+    {
+      "source_log": "post-progress-reduction-control.stdout.log",
+      "status": "PASS",
+      "maximum_relative_error": 0.000420067377,
+      "maximum_absolute_error": 0.00427246094,
+      "scope": "production audit kernels; not integrated throughput"
+    }
+  ],
+  "excluded_old_findings": [
+    "Armijo norm reductions and object-range determinant validation already have tiled paths",
+    "distributed FGMRES initialization, correction and true residual are explicitly enabled",
+    "source loop count does not establish active execution or runtime cost"
+  ],
+  "native120": {
+    "exit_code": -15,
+    "elapsed_s": 271.0018241405487,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-import-120/install-motion.plan.json",
+    "plan_sha256": "6f44c2d6b9e13173190ddfd6b650af67879657bb5e39b7b0bd1efeb75df6fbcc",
+    "stdout_sha256": "15abdee86a6f32caf7e7293f1b83647db1e0548170dcf15c6c5e5989de5e2be3",
+    "stderr_sha256": "15ffe8d1b155d6c8ea7ff726689c8be372eb59cb771b9d349608e02a00797010",
+    "physical_admission": false,
+    "resource_stop_reason": "swap_growth_above_3GiB",
+    "source_import_pass": false
+  },
+  "startup_observation": "2s CPU sample at approximately135s: main thread in appendRegisteredSkinFatUnpairedVolume and exact registered-surface orientation predicates; startup cost, not per-step GPU cost",
+  "storage_correction": {
+    "status": "PASS_REQUIRED_TRANSITIVE_INPUTS_RESTORED",
+    "cause": "native-import-118 identified transitive mass proof dependency incorrectly classified as superseded by cleanup114",
+    "restored": [
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/actual-038-global-allchild-census-003/skin-global-allchild-witnesses-out007-v2.csv.gz",
+        "sha256": "e81884c98e3925983c3ecc6d0003acfe56bce11f04eea05e6feb883a603b7bee",
+        "bytes": 832188086,
+        "archive": "part-002.tar.gz",
+        "elapsed_s": 29.575343665999753
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/actual-038-global-allchild-census-003/fat-global-allchild-witnesses-out007-v2.csv.gz",
+        "sha256": "35d7a0505dc61e9b09d2e054b99926193d80036cca3b45a86a7eac036b59ec06",
+        "bytes": 673892000,
+        "archive": "part-003.tar.gz",
+        "elapsed_s": 23.220061041000008
+      }
+    ],
+    "free_bytes": 28565647360
+  },
+  "next_priority": "complete a resource-admitted, stage-observed current-body step; distribute validation/force reductions and compact anchor incidence before conditional dormant paths"
+}

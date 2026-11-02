@@ -1,0 +1,16 @@
+[
+  {
+    "name": "progress-production-build",
+    "argv": [
+      "/opt/homebrew/bin/cmake",
+      "--build",
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native",
+      "--target",
+      "numi-human-native",
+      "--parallel",
+      "1"
+    ],
+    "exit_code": 1,
+    "elapsed_s": 9.151211042000796
+  }
+]

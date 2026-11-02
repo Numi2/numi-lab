@@ -1,0 +1,18 @@
+{
+  "purpose": "exploratory owner-level serialization repair; no full Human gain assumed",
+  "baseline_native_trial": "115: 904.893s operational timeout,0 accepted steps",
+  "question": "Does tiled audit remove the single-thread complete BVH contact traversal without changing audit validity or physical acceptance?",
+  "prediction": "large audit GPU duration at least10x lower on same inputs; refuted if below10x or output parity/failure controls fail",
+  "controls": [
+    "serial owner audit vs tiled audit at0,1,255,256,257,8193 and large rows",
+    "two environments; active/inactive/attachment/malformed states",
+    "all audit fields <=1% relative with absolute near-zero floor and exact failure propagation",
+    "existing active/inactive native attachment rollback/replay controls",
+    "complete source-pinned native scene after coupon pass"
+  ],
+  "max_gpu_jobs": 1,
+  "full_trial_budget_s": 900,
+  "minimum_free_bytes": 12884901888,
+  "physical_gates_changed": false,
+  "source_geometry_or_mass_changed": false
+}

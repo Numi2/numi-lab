@@ -1,0 +1,2 @@
+PASS native initialization and source authority; physical nodes unchanged
+PASS surface spring and inactive bounded bank actual Runtime: force_n=0.02 contact_force_n=0 free_node_dx_m=5.9918e-06 accepted_steps=2 rejected_nodes_cursor_history=bitwise replay=bitwise

@@ -1,0 +1,17 @@
+{
+  "build-native/bin/numi-human-native": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/preimage-build/numi-human-native",
+    "sha256": "7c9128a89826d949057d6d64aba96af215791b1580597e82eb088ca6e551b346",
+    "bytes": 10431744
+  },
+  "build-native/lib/libmetalrobo.dylib": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/preimage-build/libmetalrobo.dylib",
+    "sha256": "2bc64fd00fbdf5a263ec8abbbfcb3c3710c6acd10165aef117afb776571178e1",
+    "bytes": 10036864
+  },
+  "build-native/matter/shaders/NumiMatter.metallib": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/preimage-build/NumiMatter.metallib",
+    "sha256": "76819990f8b17e27621b2e463ff953baa04f05f1bd0aaa94d27f51fbbac0979b",
+    "bytes": 29328818
+  }
+}

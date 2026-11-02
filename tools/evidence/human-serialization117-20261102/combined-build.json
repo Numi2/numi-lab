@@ -1,0 +1,13 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 9.180890417000228,
+  "argv": [
+    "/opt/homebrew/bin/cmake",
+    "--build",
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native",
+    "--target",
+    "numi-human-native",
+    "--parallel",
+    "1"
+  ]
+}

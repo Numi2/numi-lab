@@ -1,0 +1,46 @@
+[
+  {
+    "name": "progress-production-build",
+    "argv": [
+      "/opt/homebrew/bin/cmake",
+      "--build",
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native",
+      "--target",
+      "numi-human-native",
+      "--parallel",
+      "1"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 51.02161979199991
+  },
+  {
+    "name": "post-progress-reduction-control",
+    "argv": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/combined-reduction-test",
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 2.1304775830003564
+  },
+  {
+    "name": "native-progress-inactive",
+    "argv": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/native-test",
+      "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/silicone.nmatter",
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 0.6197422089999236
+  },
+  {
+    "name": "native-progress-active",
+    "argv": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-performance-117/native-test",
+      "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/silicone.nmatter",
+      "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "active-contact"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 0.21036012500007928
+  }
+]

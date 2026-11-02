@@ -49,3 +49,19 @@ This is a force-owner extension, not a remesher, site correspondence solver,
 implicit surface-spring tangent, global bone broadphase, or whole-human motion
 qualification. Callers must supply anatomically valid triangle/site mappings.
 The CPU force/tangent oracle exists only in tests; simulation stays on Metal.
+
+
+The native-library run additionally compares production serial and tiled contact
+audits and body wrenches at empty, tile-boundary and 262,145-row sizes, in two
+environments. It checks inactive/active contacts, malformed inputs, all audit
+fields, body forces and torques, then repeats adapter acceptance, rejection
+and replay with both parallel paths forced on. Isolated fixture kernel timings
+do not establish Human throughput.
+
+NUMI_HUMAN_PARALLEL_CONTACT_AUDIT=0|1 and
+NUMI_HUMAN_PARALLEL_CONTACT_WRENCH=0|1 select the retained serial oracle or
+tiled path. Unset selects tiled execution above 256 rows. All source rows and
+the original contact law remain present. Optional NUMI_GPU_PROGRESS=1 with
+NUMI_GPU_PROGRESS_ROOT=0 reports shared-event CPU arrival markers at existing
+command-buffer boundaries. These are progress signals, not kernel durations;
+the observer performs no physical-state readback.
