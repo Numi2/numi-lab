@@ -2217,6 +2217,165 @@ kernel void nm_topology_rebuild_clear(
     cursors[global] = 0u;
 }
 
+
+// Emit actual tetrahedron corners. Duplicate corners in malformed input retain
+// the legacy one-incidence-per-(node,tet) rule; no full-mesh node scan remains.
+kernel void nm_topology_rebuild_count_corners(
+    constant NMMatterDispatchGPU& d [[buffer(0)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(1)]],
+    device atomic_uint* counts [[buffer(2)]],
+    device NMMatterStatusGPU* statuses [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    if (d.tetrahedronCount==0u || global>=d.environmentCount*d.tetrahedronCount) return;
+    const uint env=global/d.tetrahedronCount;
+    if (!environmentHealthy(statuses,env)) return;
+    const auto tet=tetrahedra[global];
+    if ((tet.identity.w & NM_OBJECT_ACTIVE)==0u) return;
+    for (uint corner=0u;corner<4u;++corner) {
+        const uint node=tet.nodes[corner];
+        bool first=true;
+        for (uint prev=0u;prev<corner;++prev) first=first && tet.nodes[prev]!=node;
+        if (!first) continue;
+        if (node>=d.femNodeCount) {
+            recordFailure(statuses[env],NM_STATUS_TOPOLOGY_FAILURE,
+                NM_INVALID_INDEX,global%d.tetrahedronCount,float4(float(node),0,0,0));
+            continue;
+        }
+        atomic_fetch_add_explicit(counts+env*d.femNodeCount+node,1u,memory_order_relaxed);
+    }
+}
+kernel void nm_topology_rebuild_prefix_tiles(
+    constant NMMatterDispatchGPU& d [[buffer(0)]],
+    device uint* cursors [[buffer(1)]],
+    device NMIncidenceRangeGPU* ranges [[buffer(2)]],
+    device uint* blockTotals [[buffer(3)]],
+    device const NMMatterStatusGPU* statuses [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    const uint blocks=(d.femNodeCount+255u)/256u;
+    if (blocks==0u) return;
+    const uint env=group/blocks, block=group%blocks, local=block*256u+lane;
+    if (env>=d.environmentCount || !environmentHealthy(statuses,env)) return;
+    const uint count=local<d.femNodeCount?cursors[env*d.femNodeCount+local]:0u;
+    const uint within=simd_prefix_exclusive_sum(count);
+    const uint subtotal=simd_sum(count);
+    threadgroup uint shared[9];
+    if ((lane&31u)==0u) shared[lane>>5u]=subtotal;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    const uint subtotalLane=lane<8u?shared[lane]:0u;
+    const uint offset=simd_prefix_exclusive_sum(subtotalLane);
+    const uint total=simd_sum(subtotalLane);
+    if (lane<8u) shared[lane]=offset;
+    if (lane==0u) shared[8]=total;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (local<d.femNodeCount) {
+        const uint global=env*d.femNodeCount+local;
+        ranges[global].count=count;
+        ranges[global].first=env*d.tetrahedronCount*4u+within+shared[lane>>5u];
+        cursors[global]=0u;
+    }
+    if (lane==0u) blockTotals[group]=shared[8];
+}
+kernel void nm_topology_rebuild_prefix_block_offsets(
+    constant NMMatterDispatchGPU& d [[buffer(0)]],
+    device uint* blockTotals [[buffer(1)]],
+    device NMMatterStatusGPU* statuses [[buffer(2)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint env [[threadgroup_position_in_grid]]) {
+    if (lane>=32u || env>=d.environmentCount || !environmentHealthy(statuses,env)) return;
+    const uint blocks=(d.femNodeCount+255u)/256u;
+    uint running=0u;
+    for (uint first=0u;first<blocks;first+=32u) {
+        const uint block=first+lane;
+        const uint count=block<blocks?blockTotals[env*blocks+block]:0u;
+        const uint prefix=simd_prefix_exclusive_sum(count);
+        if (block<blocks) blockTotals[env*blocks+block]=running+prefix;
+        running+=simd_sum(count);
+    }
+    if (lane==0u && running>d.tetrahedronCount*4u)
+        recordFailure(statuses[env],NM_STATUS_CAPACITY_OVERFLOW,
+            NM_INVALID_INDEX,running,float4(float(d.tetrahedronCount*4u),0,0,0));
+}
+kernel void nm_topology_rebuild_add_block_offsets(
+    constant NMMatterDispatchGPU& d [[buffer(0)]],
+    device NMIncidenceRangeGPU* ranges [[buffer(1)]],
+    device const uint* blockOffsets [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    if (d.femNodeCount==0u || global>=d.environmentCount*d.femNodeCount) return;
+    const uint env=global/d.femNodeCount, local=global%d.femNodeCount;
+    if (!environmentHealthy(statuses,env)) return;
+    const uint blocks=(d.femNodeCount+255u)/256u;
+    ranges[global].first+=blockOffsets[env*blocks+local/256u];
+}
+kernel void nm_topology_rebuild_scatter_corners(
+    constant NMMatterDispatchGPU& d [[buffer(0)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(1)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(2)]],
+    device atomic_uint* cursors [[buffer(3)]],
+    device uint* incidence [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint global [[thread_position_in_grid]]) {
+    if (d.tetrahedronCount==0u || global>=d.environmentCount*d.tetrahedronCount) return;
+    const uint env=global/d.tetrahedronCount, localTet=global%d.tetrahedronCount;
+    if (!environmentHealthy(statuses,env)) return;
+    const auto tet=tetrahedra[global];
+    if ((tet.identity.w & NM_OBJECT_ACTIVE)==0u) return;
+    for (uint corner=0u;corner<4u;++corner) {
+        const uint node=tet.nodes[corner];
+        bool first=true;
+        for (uint prev=0u;prev<corner;++prev) first=first && tet.nodes[prev]!=node;
+        if (!first || node>=d.femNodeCount) continue;
+        const uint row=env*d.femNodeCount+node;
+        const auto range=ranges[row];
+        const uint ordinal=atomic_fetch_add_explicit(cursors+row,1u,memory_order_relaxed);
+        if (ordinal<range.count && range.first>=env*d.tetrahedronCount*4u &&
+            range.first+ordinal<(env+1u)*d.tetrahedronCount*4u)
+            incidence[range.first+ordinal]=localTet;
+        else recordFailure(statuses[env],NM_STATUS_CAPACITY_OVERFLOW,
+            NM_INVALID_INDEX,node,float4(float(ordinal),float(range.count),0,0));
+    }
+}
+inline void topologySiftIncidence(device uint* values,uint root,uint count) {
+    for (;;) {
+        uint child=root*2u+1u;
+        if (child>=count) return;
+        if (child+1u<count && values[child]<values[child+1u]) ++child;
+        if (values[root]>=values[child]) return;
+        const uint tmp=values[root];values[root]=values[child];values[child]=tmp;
+        root=child;
+    }
+}
+// Atomics select storage positions only. Sorting each actual adjacency restores
+// exact source tetrahedron order before mass accumulation or solver consumption.
+kernel void nm_topology_rebuild_sort_and_mass(
+    constant NMMatterDispatchGPU& d [[buffer(0)]],
+    device const NMMaterialGPU* materials [[buffer(1)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(2)]],
+    device NMFEMNodeStateGPU* nodes [[buffer(3)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(4)]],
+    device uint* incidence [[buffer(5)]],
+    device const NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint global [[thread_position_in_grid]]) {
+    if (d.femNodeCount==0u || global>=d.environmentCount*d.femNodeCount) return;
+    const uint env=global/d.femNodeCount;
+    if (!environmentHealthy(statuses,env)) return;
+    const auto range=ranges[global];
+    device uint* values=incidence+range.first;
+    for (uint root=range.count/2u;root>0u;--root)
+        topologySiftIncidence(values,root-1u,range.count);
+    for (uint end=range.count;end>1u;--end) {
+        const uint tmp=values[0];values[0]=values[end-1u];values[end-1u]=tmp;
+        topologySiftIncidence(values,0u,end-1u);
+    }
+    float mass=0.0f;
+    for (uint ordinal=0u;ordinal<range.count;++ordinal) {
+        const auto tet=tetrahedra[env*d.tetrahedronCount+values[ordinal]];
+        mass+=materials[tet.identity.x].bulk.x*tet.inverseRestRow0.w*0.25f;
+    }
+    nodes[global].positionAndMass.w=mass;
+}
+
 kernel void nm_topology_rebuild_count_mass(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMMaterialGPU* materials [[buffer(1)]],

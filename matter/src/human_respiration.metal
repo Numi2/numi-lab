@@ -1682,6 +1682,459 @@ kernel void nm_human_blood_mpm_handoff(
     respirationCandidate[env] = n;
 }
 
+// Spatial hash is acceleration metadata only: collisions are filtered by
+// exact integer cell coordinates, and pair admissibility remains unchanged.
+inline uint nmHumanBloodCellHash(int3 cell) {
+    const uint3 u=as_type<uint3>(cell);
+    return (u.x*73856093u)^(u.y*19349663u)^(u.z*83492791u);
+}
+kernel void nm_human_blood_mpm_handoff_local(
+    constant NMHumanRespirationDispatch& d [[buffer(0)]],
+    device NMHumanRespirationState* respirationCandidate [[buffer(1)]],
+    device NMMatterStatusGPU* statuses [[buffer(2)]],
+    device NMParticleStateGPU* particleAccepted [[buffer(3)]],
+    device NMParticleStateGPU* particleCandidate [[buffer(4)]],
+    device const NMParticleStateGPU* particleCheckpoint [[buffer(5)]],
+    device const float* materialStateDefaults [[buffer(6)]],
+    device float* materialStateAccepted [[buffer(7)]],
+    device float* materialStateCandidate [[buffer(8)]],
+    device atomic_uint* bucketHeads [[buffer(9)]],
+    device uint* nextParticle [[buffer(10)]],
+    constant uint& hashCapacity [[buffer(11)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint3 group [[threadgroup_position_in_grid]]) {
+    const uint env=group.x;
+    threadgroup uint control[3];
+    threadgroup float freeVolume;
+    threadgroup float distances[256];
+    threadgroup uint candidatesA[256],candidatesB[256];
+    if (env >= d.environmentCount || d.bloodMpmEnabled == 0u) return;
+    if (statuses[env].code != NM_STATUS_SUCCESS) return;
+    if(hashCapacity==0u||(hashCapacity&(hashCapacity-1u))!=0u) return;
+
+    NMHumanRespirationState n = respirationCandidate[env];
+    const float4 batch = n.externalBlood.pendingParcel;
+    if (batch.x == 0.0f && batch.y == 0.0f &&
+        batch.z == 0.0f && batch.w == 0.0f) return;
+
+    bool valid = d.bloodMpmParticleCount > 0u &&
+        d.bloodMpmFirstParticle <= d.particleCount &&
+        d.bloodMpmParticleCount <= d.particleCount - d.bloodMpmFirstParticle &&
+        d.bloodMpmObjectIndex != NM_INVALID_INDEX &&
+        d.bloodMpmMaterialIndex != NM_INVALID_INDEX &&
+        d.bloodMpmMaterialStateCount <= d.materialStateStride &&
+        isfinite(d.bloodMpmDensity) && d.bloodMpmDensity > 0.0f &&
+        isfinite(d.bloodMpmBulkModulus) && d.bloodMpmBulkModulus > 0.0f &&
+        isfinite(d.bloodMpmGridCellWidth) && d.bloodMpmGridCellWidth > 0.0f &&
+        all(d.bloodMpmGridNodeDimensions.xyz > uint3(2u)) &&
+        all(isfinite(batch)) && batch.x > 0.0f && batch.y > 0.0f &&
+        batch.z >= 0.0f && batch.w >= 0.0f;
+    const float4 positionMass = n.externalBlood.pendingPositionMass;
+    const float3 momentum = n.externalBlood.pendingMomentum.xyz;
+    const float4 angular = n.externalBlood.pendingAngularMomentum;
+    if (!all(isfinite(positionMass)) || !(positionMass.w > 0.0f) ||
+        !all(isfinite(momentum)) || !all(isfinite(angular.xyz))) valid = false;
+
+    const float densityMass = d.bloodMpmDensity * batch.x;
+    const float densityTolerance = max(1.0e-12f, 4.0e-6f * max(batch.y, densityMass));
+    if (!isfinite(densityMass) || abs(batch.y - densityMass) > densityTolerance ||
+        abs(positionMass.w - batch.y) > max(1.0e-12f, 4.0e-6f * batch.y))
+        valid = false;
+
+    const float4 external = n.externalBlood.total - n.externalBlood.compensation;
+    const float4 represented = n.externalBlood.mpmRepresented -
+        n.externalBlood.mpmRepresentedCompensation;
+    const float4 inventoryTolerance = max(float4(1.0e-11f), 2.0e-5f * max(abs(external), abs(batch)));
+    if (!all(isfinite(external)) || !all(isfinite(represented)) ||
+        any(represented < float4(0.0f)) ||
+        any(represented + batch > external + inventoryTolerance))
+        valid = false;
+
+    const float3 spawn = positionMass.xyz / positionMass.w;
+    const float3 intrinsicAngular = angular.xyz - cross(spawn, momentum);
+    const float h = d.bloodMpmGridCellWidth;
+    const int3 base = int3(floor(spawn / h - 0.5f));
+    const int3 minimum = d.bloodMpmGridNodeMinimum.xyz;
+    const int3 maximum = minimum + int3(d.bloodMpmGridNodeDimensions.xyz) - 1;
+    if (!all(isfinite(spawn)) || !all(isfinite(intrinsicAngular)) ||
+        any(base < minimum) || any(base + int3(2) > maximum))
+        valid = false;
+
+    const uint particleBase = env * d.particleCount;
+    const uint stateBase = env * d.particleCount * d.materialStateStride;
+    float capacityVolume = 0.0f;
+    if (valid && lane==0u) {
+        for (uint local = 0u; local < d.bloodMpmParticleCount; ++local) {
+            const uint index = d.bloodMpmFirstParticle + local;
+            const uint global = particleBase + index;
+            const NMParticleStateGPU slot = particleCheckpoint[global];
+            const NMParticleStateGPU accepted = particleAccepted[global];
+            const uint stableFlags = ~NM_OBJECT_ACTIVE;
+            if (slot.identity.x != d.bloodMpmObjectIndex ||
+                slot.identity.y != d.bloodMpmMaterialIndex ||
+                slot.identity.z != d.bloodMpmTopologyGeneration ||
+                accepted.identity.x != slot.identity.x ||
+                accepted.identity.y != slot.identity.y ||
+                accepted.identity.z != slot.identity.z ||
+                (accepted.identity.w & stableFlags) != (slot.identity.w & stableFlags) ||
+                !all(isfinite(accepted.positionAndMass)) ||
+                !all(isfinite(accepted.velocityAndReferenceVolume)) ||
+                !(accepted.positionAndMass.w > 0.0f) ||
+                !(accepted.velocityAndReferenceVolume.w > 0.0f) ||
+                abs(accepted.positionAndMass.w -
+                    d.bloodMpmDensity * accepted.velocityAndReferenceVolume.w) >
+                    max(1.0e-12f, 4.0e-6f * accepted.positionAndMass.w)) {
+                valid = false;
+                break;
+            }
+            if ((accepted.identity.w & NM_OBJECT_ACTIVE) == 0u)
+                capacityVolume += accepted.velocityAndReferenceVolume.w;
+        }
+    }
+    if(lane==0u) {control[0]=valid?1u:0u;freeVolume=capacityVolume;}
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    valid=control[0]!=0u;capacityVolume=freeVolume;
+    const float capacityTolerance = max(1.0e-12f, batch.x * 2.0e-6f);
+
+    // Only compact when the pending batch cannot fit. This is bounded MPM
+    // coarsening inside a half-cell radius, never a long-distance pool: choose
+    // the closest compatible pair, preserve mass/reference volume, center-of-
+    // mass momentum, APIC angular momentum, and total deformed volume. Exact
+    // material history, F, and temperature preserve constitutive state; merged
+    // deformed volume is capped at half a grid-cell volume. If no local pair is
+    // admissible, fail closed and let frame rollback
+    // restore the immutable accepted-step checkpoint.
+    const float mergeRadius = 0.5f * h;
+    const float mergeRadiusSquared = mergeRadius * mergeRadius;
+    const float hSquared = h * h;
+    if (valid && batch.x > capacityVolume + capacityTolerance) {
+        for (uint mergePass = 0u;
+             mergePass < d.bloodMpmParticleCount &&
+             batch.x > capacityVolume + capacityTolerance;
+             ++mergePass) {
+            // Rebuild a local hash after each merge: the COM and constitutive
+            // state have changed. Hash order is irrelevant; the explicit
+            // (distance,A,B) reduction reproduces the legacy strict-< tie rule.
+            const uint hashBase=env*hashCapacity;
+            for(uint i=lane;i<hashCapacity;i+=256u)
+                atomic_store_explicit(bucketHeads+hashBase+i,NM_INVALID_INDEX,memory_order_relaxed);
+            threadgroup_barrier(mem_flags::mem_device);
+            uint unhashable=0u;
+            for(uint local=lane;local<d.bloodMpmParticleCount;local+=256u) {
+                const uint index=d.bloodMpmFirstParticle+local;
+                const NMParticleStateGPU p=particleAccepted[particleBase+index];
+                if((p.identity.w&NM_OBJECT_ACTIVE)==0u) continue;
+                const float3 cellFloat=floor(p.positionAndMass.xyz/h);
+                // Very large finite coordinates retain the exact brute-force
+                // fallback below instead of relying on undefined int conversion.
+                if(any(abs(cellFloat)>float3(1073741823.0f))) {unhashable=1u;continue;}
+                const int3 cell=int3(cellFloat);
+                const uint key=nmHumanBloodCellHash(cell)&(hashCapacity-1u);
+                nextParticle[env*d.bloodMpmParticleCount+local]=
+                    atomic_exchange_explicit(bucketHeads+hashBase+key,local,memory_order_relaxed);
+            }
+            candidatesA[lane]=unhashable;
+            threadgroup_barrier(mem_flags::mem_device|mem_flags::mem_threadgroup);
+            for(uint stride=128u;stride>0u;stride/=2u) {
+                if(lane<stride) candidatesA[lane]|=candidatesA[lane+stride];
+                threadgroup_barrier(mem_flags::mem_threadgroup);
+            }
+            const bool useHash=candidatesA[0]==0u;
+            uint localBestA=NM_INVALID_INDEX,localBestB=NM_INVALID_INDEX;
+            float localDistance=mergeRadiusSquared;
+            for(uint localA=lane;localA<d.bloodMpmParticleCount;localA+=256u) {
+                const uint indexA=d.bloodMpmFirstParticle+localA;
+                const NMParticleStateGPU a=particleAccepted[particleBase+indexA];
+                if((a.identity.w&NM_OBJECT_ACTIVE)==0u) continue;
+                const float3 cellFloat=floor(a.positionAndMass.xyz/h);
+                const bool hashed=useHash;
+                const int3 cell=hashed?int3(cellFloat):int3(0);
+                const uint searches=hashed?27u:1u;
+                for(uint neighbor=0u;neighbor<searches;++neighbor) {
+                    const int3 target=cell+int3(int(neighbor%3u)-1,
+                        int((neighbor/3u)%3u)-1,int(neighbor/9u)-1);
+                    uint localB=hashed?atomic_load_explicit(bucketHeads+hashBase+
+                        (nmHumanBloodCellHash(target)&(hashCapacity-1u)),memory_order_relaxed):localA+1u;
+                    while(localB!=NM_INVALID_INDEX && localB<d.bloodMpmParticleCount) {
+                        const uint indexB=d.bloodMpmFirstParticle+localB;
+                        const NMParticleStateGPU b=particleAccepted[particleBase+indexB];
+                        const uint following=hashed?nextParticle[env*d.bloodMpmParticleCount+localB]:localB+1u;
+                        if(indexB>indexA && (b.identity.w&NM_OBJECT_ACTIVE)!=0u &&
+                           (!hashed||all(int3(floor(b.positionAndMass.xyz/h))==target))) {
+                            const float3 delta=b.positionAndMass.xyz-a.positionAndMass.xyz;
+                            const float distanceSquared=dot(delta,delta);
+                            const bool better=distanceSquared<localDistance ||
+                                (distanceSquared==localDistance &&
+                                 (indexA<localBestA||(indexA==localBestA&&indexB<localBestB)));
+                            if(distanceSquared<mergeRadiusSquared && better &&
+                               nmHumanBloodMergeStatesCompatible(a,b,materialStateAccepted,
+                                   stateBase+indexA*d.materialStateStride,
+                                   stateBase+indexB*d.materialStateStride,d.materialStateStride,
+                                   d.bloodMpmMaterialStateCount,h,d.bloodMpmBulkModulus) &&
+                               nmHumanBloodMergeKineticAdmissible(a,b,h)) {
+                                localBestA=indexA;localBestB=indexB;localDistance=distanceSquared;
+                            }
+                        }
+                        localB=following;
+                    }
+                }
+            }
+            distances[lane]=localDistance;candidatesA[lane]=localBestA;candidatesB[lane]=localBestB;
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            for(uint stride=128u;stride>0u;stride/=2u) {
+                if(lane<stride) {
+                    const uint other=lane+stride;
+                    const bool better=distances[other]<distances[lane] ||
+                        (distances[other]==distances[lane] &&
+                         (candidatesA[other]<candidatesA[lane] ||
+                          (candidatesA[other]==candidatesA[lane]&&candidatesB[other]<candidatesB[lane])));
+                    if(better) {
+                        distances[lane]=distances[other];
+                        candidatesA[lane]=candidatesA[other];candidatesB[lane]=candidatesB[other];
+                    }
+                }
+                threadgroup_barrier(mem_flags::mem_threadgroup);
+            }
+            const uint bestA=candidatesA[0],bestB=candidatesB[0];
+            if(bestA==NM_INVALID_INDEX||bestB==NM_INVALID_INDEX) break;
+            if(lane==0u) { do {
+            const uint globalA = particleBase + bestA;
+            const uint globalB = particleBase + bestB;
+            NMParticleStateGPU a = particleAccepted[globalA];
+            const NMParticleStateGPU b = particleAccepted[globalB];
+            const float massA = a.positionAndMass.w;
+            const float massB = b.positionAndMass.w;
+            const float volumeA = a.velocityAndReferenceVolume.w;
+            const float volumeB = b.velocityAndReferenceVolume.w;
+            const float mergedMass = massA + massB;
+            const float mergedVolume = volumeA + volumeB;
+            if (!isfinite(mergedMass) || !(mergedMass > 0.0f) ||
+                !isfinite(mergedVolume) || !(mergedVolume > 0.0f)) {
+                valid = false;
+                break;
+            }
+
+            const float3 momentumA = massA * a.velocityAndReferenceVolume.xyz;
+            const float3 momentumB = massB * b.velocityAndReferenceVolume.xyz;
+            const float3 totalMomentum = momentumA + momentumB;
+            const float3 center = (massA * a.positionAndMass.xyz +
+                massB * b.positionAndMass.xyz) / mergedMass;
+            const float3 velocity = totalMomentum / mergedMass;
+
+            const float3 omegaA = nmHumanBloodAngularVelocity(
+                a.affineRow0, a.affineRow1, a.affineRow2);
+            const float3 omegaB = nmHumanBloodAngularVelocity(
+                b.affineRow0, b.affineRow1, b.affineRow2);
+            const float3 angularMomentumAboutCenter =
+                cross(a.positionAndMass.xyz - center, momentumA - massA * velocity) +
+                cross(b.positionAndMass.xyz - center, momentumB - massB * velocity) +
+                (0.5f * hSquared) * (massA * omegaA + massB * omegaB);
+            const float3 omegaMerged =
+                (2.0f / (mergedMass * hSquared)) * angularMomentumAboutCenter;
+            float4 affineRow0 = (massA * a.affineRow0 + massB * b.affineRow0) / mergedMass;
+            float4 affineRow1 = (massA * a.affineRow1 + massB * b.affineRow1) / mergedMass;
+            float4 affineRow2 = (massA * a.affineRow2 + massB * b.affineRow2) / mergedMass;
+            const float3 omegaAveraged = nmHumanBloodAngularVelocity(
+                affineRow0, affineRow1, affineRow2);
+            const float3 omegaCorrection = omegaMerged - omegaAveraged;
+            affineRow0.y -= omegaCorrection.z;
+            affineRow0.z += omegaCorrection.y;
+            affineRow1.x += omegaCorrection.z;
+            affineRow1.z -= omegaCorrection.x;
+            affineRow2.x -= omegaCorrection.y;
+            affineRow2.y += omegaCorrection.x;
+            const float3x3 mergedAffine =
+                nmHumanBloodMatrixFromRows(affineRow0, affineRow1, affineRow2);
+
+            float3x3 mergedDeformation;
+            float bulkEnergyLoss=0.0f;
+            if(!nmHumanBloodMergeDeformation(
+                    a,b,h,d.bloodMpmBulkModulus,
+                    mergedDeformation,bulkEnergyLoss)) {
+                valid=false;
+                break;
+            }
+            float4 deformationRow0;
+            float4 deformationRow1;
+            float4 deformationRow2;
+            nmHumanBloodMatrixToRows(mergedDeformation,
+                deformationRow0, deformationRow1, deformationRow2);
+            nmHumanBloodMatrixToRows(mergedAffine, affineRow0, affineRow1, affineRow2);
+
+            const float kineticBefore =
+                0.5f * massA * dot(a.velocityAndReferenceVolume.xyz,
+                    a.velocityAndReferenceVolume.xyz) +
+                0.5f * massB * dot(b.velocityAndReferenceVolume.xyz,
+                    b.velocityAndReferenceVolume.xyz) +
+                (hSquared / 8.0f) * (
+                    massA * nmHumanBloodAffineNormSquared(
+                        a.affineRow0, a.affineRow1, a.affineRow2) +
+                    massB * nmHumanBloodAffineNormSquared(
+                        b.affineRow0, b.affineRow1, b.affineRow2));
+            const float kineticAfter =
+                0.5f * mergedMass * dot(velocity, velocity) +
+                (mergedMass * hSquared / 8.0f) *
+                    nmHumanBloodAffineNormSquared(
+                        affineRow0, affineRow1, affineRow2);
+            const float signedKineticLoss=kineticBefore-kineticAfter;
+            const float kineticTolerance=max(1.0e-30f,
+                16.0f*1.1920928955078125e-7f*max(kineticBefore,kineticAfter));
+            if (!isfinite(kineticBefore) || !isfinite(kineticAfter) ||
+                !isfinite(signedKineticLoss)||signedKineticLoss < -kineticTolerance) {
+                // The candidate scan applies the same test; this second check
+                // protects the write path against changed/corrupt state.
+                valid = false;
+                break;
+            }
+
+            const float mergeLoss=max(0.0f,signedKineticLoss);
+            const float totalMergeLoss=mergeLoss+bulkEnergyLoss;
+            const float energyAdjusted = totalMergeLoss - n.externalBlood.energyLedger.z;
+            const float energyNext = n.externalBlood.energyLedger.y + energyAdjusted;
+            if(!isfinite(totalMergeLoss)||totalMergeLoss<0.0f||
+               !isfinite(energyAdjusted)||!isfinite(energyNext)) {
+                valid=false;
+                break;
+            }
+
+            a.positionAndMass = float4(center, mergedMass);
+            a.velocityAndReferenceVolume = float4(velocity, mergedVolume);
+            a.deformationRow0 = deformationRow0;
+            a.deformationRow1 = deformationRow1;
+            a.deformationRow2 = deformationRow2;
+            a.affineRow0 = affineRow0;
+            a.affineRow1 = affineRow1;
+            a.affineRow2 = affineRow2;
+            a.referenceAndTemperature =
+                (volumeA / mergedVolume) * a.referenceAndTemperature +
+                (volumeB / mergedVolume) * b.referenceAndTemperature;
+            particleAccepted[globalA] = a;
+            particleCandidate[globalA] = a;
+
+            NMParticleStateGPU dormant = b;
+            dormant.positionAndMass =
+                float4(center, d.bloodMpmDensity * volumeB);
+            dormant.velocityAndReferenceVolume = float4(0.0f, 0.0f, 0.0f, volumeB);
+            dormant.deformationRow0 = float4(1.0f, 0.0f, 0.0f, 0.0f);
+            dormant.deformationRow1 = float4(0.0f, 1.0f, 0.0f, 0.0f);
+            dormant.deformationRow2 = float4(0.0f, 0.0f, 1.0f, 0.0f);
+            dormant.affineRow0 = float4(0.0f);
+            dormant.affineRow1 = float4(0.0f);
+            dormant.affineRow2 = float4(0.0f);
+            dormant.referenceAndTemperature =
+                float4(center, a.referenceAndTemperature.w);
+            dormant.identity.w &= ~NM_OBJECT_ACTIVE;
+            particleAccepted[globalB] = dormant;
+            particleCandidate[globalB] = dormant;
+            const uint materialBaseB =
+                stateBase + bestB * d.materialStateStride;
+            for (uint stateIndex = 0u; stateIndex < d.materialStateStride; ++stateIndex) {
+                const float initial = materialStateDefaults[materialBaseB + stateIndex];
+                materialStateAccepted[materialBaseB + stateIndex] = initial;
+                materialStateCandidate[materialBaseB + stateIndex] = initial;
+            }
+
+            n.externalBlood.energyLedger.z =
+                (energyNext - n.externalBlood.energyLedger.y) - energyAdjusted;
+            n.externalBlood.energyLedger.y = energyNext;
+            capacityVolume += volumeB;
+            } while(false);
+                control[0]=valid?1u:0u;freeVolume=capacityVolume;
+            }
+            threadgroup_barrier(mem_flags::mem_device|mem_flags::mem_threadgroup);
+            valid=control[0]!=0u;capacityVolume=freeVolume;
+            if(!valid) break;
+        }
+    }
+    if(lane!=0u) return;
+    if (!isfinite(capacityVolume) || batch.x > capacityVolume + capacityTolerance)
+        valid = false;
+
+    if (!valid) {
+        if (statuses[env].code == NM_STATUS_SUCCESS) {
+            statuses[env].code = NM_STATUS_MULTIPHYSICS_FAILURE;
+            statuses[env].environment = env;
+            statuses[env].objectIndex = d.bloodMpmObjectIndex;
+            statuses[env].failingIndex = d.bloodMpmFirstParticle;
+            statuses[env].diagnostics = float4(batch.x, batch.y, capacityVolume, h);
+        }
+        n.status.w = 11u;
+        respirationCandidate[env] = n;
+        return;
+    }
+
+    const float mass = batch.y;
+    const float3 velocity = momentum / mass;
+    const float3 omega = 2.0f * intrinsicAngular / (mass * h * h);
+    float remainingVolume = batch.x;
+    float remainingMass = batch.y;
+    for (uint local = 0u; local < d.bloodMpmParticleCount; ++local) {
+        if (!(remainingVolume > 0.0f)) break;
+        const uint index = d.bloodMpmFirstParticle + local;
+        const uint global = particleBase + index;
+        NMParticleStateGPU particle = particleAccepted[global];
+        if ((particle.identity.w & NM_OBJECT_ACTIVE) != 0u) continue;
+        const float slotVolume = particle.velocityAndReferenceVolume.w;
+        const float assignedVolume = min(slotVolume, remainingVolume);
+        const bool lastSlot = assignedVolume >= remainingVolume;
+        const float assignedMass = lastSlot
+            ? remainingMass : batch.y * (assignedVolume / batch.x);
+        particle.positionAndMass = float4(spawn, assignedMass);
+        particle.velocityAndReferenceVolume =
+            float4(velocity, assignedVolume);
+        particle.deformationRow0 = float4(1.0f, 0.0f, 0.0f, 0.0f);
+        particle.deformationRow1 = float4(0.0f, 1.0f, 0.0f, 0.0f);
+        particle.deformationRow2 = float4(0.0f, 0.0f, 1.0f, 0.0f);
+        particle.affineRow0 = float4(0.0f, -omega.z, omega.y, 0.0f);
+        particle.affineRow1 = float4(omega.z, 0.0f, -omega.x, 0.0f);
+        particle.affineRow2 = float4(-omega.y, omega.x, 0.0f, 0.0f);
+        particle.referenceAndTemperature.xyz = spawn;
+        particle.identity.w |= NM_OBJECT_ACTIVE;
+        particleAccepted[global] = particle;
+        particleCandidate[global] = particle;
+        const uint materialBase = stateBase + index * d.materialStateStride;
+        for (uint stateIndex = 0u; stateIndex < d.materialStateStride; ++stateIndex) {
+            const float initial = materialStateDefaults[materialBase + stateIndex];
+            materialStateAccepted[materialBase + stateIndex] = initial;
+            materialStateCandidate[materialBase + stateIndex] = initial;
+        }
+        remainingVolume -= assignedVolume;
+        remainingMass -= assignedMass;
+    }
+    if (remainingVolume > capacityTolerance || remainingMass > max(1.0e-12f, batch.y * 4.0e-6f)) {
+        // Capacity was validated before any writes; this guard is defensive
+        // against nonfinite FP32 accumulation or corrupted slot metadata.
+        statuses[env].code = NM_STATUS_MULTIPHYSICS_FAILURE;
+        statuses[env].environment = env;
+        statuses[env].objectIndex = d.bloodMpmObjectIndex;
+        statuses[env].failingIndex = d.bloodMpmFirstParticle;
+        n.status.w = 11u;
+        respirationCandidate[env] = n;
+        return;
+    }
+
+    const float3 spinOmega = omega;
+    const float angularEnergy = mass * h * h * dot(spinOmega, spinOmega) * 0.25f;
+    const float kineticAfter = 0.5f * dot(momentum, momentum) / mass + angularEnergy;
+    const float mergeLoss = max(0.0f, n.externalBlood.energyLedger.x - kineticAfter);
+    const float energyAdjusted = mergeLoss - n.externalBlood.energyLedger.z;
+    const float energyNext = n.externalBlood.energyLedger.y + energyAdjusted;
+    n.externalBlood.energyLedger.z =
+        (energyNext - n.externalBlood.energyLedger.y) - energyAdjusted;
+    n.externalBlood.energyLedger.y = energyNext;
+    const float4 transfer = batch - n.externalBlood.mpmRepresentedCompensation;
+    const float4 representedNext = n.externalBlood.mpmRepresented + transfer;
+    n.externalBlood.mpmRepresentedCompensation =
+        (representedNext - n.externalBlood.mpmRepresented) - transfer;
+    n.externalBlood.mpmRepresented = representedNext;
+    n.externalBlood.pendingParcel = 0.0f;
+    n.externalBlood.pendingMomentum = 0.0f;
+    n.externalBlood.pendingPositionMass = 0.0f;
+    n.externalBlood.pendingAngularMomentum = 0.0f;
+    n.externalBlood.energyLedger.x = 0.0f;
+    respirationCandidate[env] = n;
+}
+
 kernel void nm_human_respiration_predict(
     constant NMHumanRespirationParameters& p [[buffer(0)]],
     constant NMHumanRespirationDispatch& d [[buffer(1)]],

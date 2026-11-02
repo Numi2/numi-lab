@@ -681,6 +681,17 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLComputePipelineState> statusPipeline = nil;
     __strong id<MTLComputePipelineState> forcePipeline = nil;
     __strong id<MTLComputePipelineState> forceAuditPipeline = nil;
+    std::uint32_t nodeWorkTiles = 0u;
+    bool sparseAnchorProjection = true;
+    __strong id<MTLBuffer> nodeValidationPartials = nil;
+    __strong id<MTLBuffer> nodeValidationFirstInvalid = nil;
+    __strong id<MTLBuffer> nodeForceAuditPartials = nil;
+    __strong id<MTLBuffer> activeAnchorIndices = nil;
+    __strong id<MTLComputePipelineState> nodeValidationPartialPipeline = nil;
+    __strong id<MTLComputePipelineState> nodeValidationFinishPipeline = nil;
+    __strong id<MTLComputePipelineState> nodeForceAuditPartialPipeline = nil;
+    __strong id<MTLComputePipelineState> nodeForceAuditFinishPipeline = nil;
+
     __strong id<MTLComputePipelineState> contactForcePipeline = nil;
     __strong id<MTLComputePipelineState> femBodyContactForcePipeline = nil;
     __strong id<MTLComputePipelineState> femBodyContactGroupedForcePipeline = nil;
@@ -1715,6 +1726,67 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 "nm_numi_human_assemble_tendon_fem_loads");
             state_->forceAuditPipeline = pipeline(
                 "nm_numi_human_audit_tendon_fem_loads");
+
+            const char* nodeWork = std::getenv("NUMI_HUMAN_PARALLEL_NODE_WORK");
+            const char* sparseAnchors = std::getenv("NUMI_HUMAN_SPARSE_ANCHOR_PROJECTION");
+            for (const char* setting : {nodeWork, sparseAnchors}) {
+                if (setting != nullptr && std::strcmp(setting, "0") != 0 &&
+                    std::strcmp(setting, "1") != 0) {
+                    state_->message = "Human node-work settings must be 0 or 1";
+                    return false;
+                }
+            }
+            state_->sparseAnchorProjection = sparseAnchors == nullptr ||
+                std::strcmp(sparseAnchors, "0") != 0;
+            state_->nodeValidationFirstInvalid = [device newBufferWithLength:
+                std::max<NSUInteger>(16u, state_->environmentCount*sizeof(std::uint32_t))
+                options:MTLResourceStorageModePrivate];
+            std::vector<std::uint32_t> activeAnchors;
+            activeAnchors.reserve(state_->activeAnchorCount);
+            for (std::uint32_t node=0u; node<state_->nodeAnchors.size(); ++node)
+                if ((state_->nodeAnchors[node].flags &
+                     NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) != 0u)
+                    activeAnchors.push_back(node);
+            if (activeAnchors.size()!=state_->activeAnchorCount) return false;
+            state_->activeAnchorIndices = [device newBufferWithLength:
+                std::max<NSUInteger>(16u, activeAnchors.size()*sizeof(std::uint32_t))
+                options:MTLResourceStorageModeShared];
+            if (state_->activeAnchorIndices == nil ||
+                state_->nodeValidationFirstInvalid == nil) return false;
+            if (!activeAnchors.empty())
+                std::memcpy(state_->activeAnchorIndices.contents, activeAnchors.data(),
+                    activeAnchors.size()*sizeof(std::uint32_t));
+            if ((state_->nodeLoads.size()>256u ||
+                 (nodeWork!=nullptr && std::strcmp(nodeWork,"1")==0)) &&
+                (nodeWork==nullptr || std::strcmp(nodeWork,"0")!=0)) {
+                state_->nodeWorkTiles=static_cast<std::uint32_t>(
+                    (state_->nodeLoads.size()+255u)/256u);
+                const std::uint64_t tiles=std::uint64_t(state_->environmentCount)*
+                    state_->nodeWorkTiles;
+                if (tiles>UINT32_MAX/256u ||
+                    tiles>std::numeric_limits<NSUInteger>::max()/sizeof(nm_float4))
+                    return false;
+                state_->nodeValidationPartials=[device newBufferWithLength:
+                    tiles*sizeof(std::uint32_t) options:MTLResourceStorageModePrivate];
+                state_->nodeForceAuditPartials=[device newBufferWithLength:
+                    tiles*sizeof(nm_float4) options:MTLResourceStorageModePrivate];
+                state_->nodeValidationPartialPipeline=pipeline("nm_numi_human_validate_node_load_tiles");
+                state_->nodeValidationFinishPipeline=pipeline("nm_numi_human_finish_node_load_validation");
+                state_->nodeForceAuditPartialPipeline=pipeline("nm_numi_human_node_force_audit_tiles");
+                state_->nodeForceAuditFinishPipeline=pipeline("nm_numi_human_finish_node_force_audit");
+                for (id<MTLComputePipelineState> pso :
+                    {state_->nodeValidationPartialPipeline,state_->nodeValidationFinishPipeline,
+                     state_->nodeForceAuditPartialPipeline,state_->nodeForceAuditFinishPipeline}) {
+                    if (pso==nil || pso.threadExecutionWidth!=32u ||
+                        pso.maxTotalThreadsPerThreadgroup<256u) return false;
+                }
+                if (state_->nodeValidationPartials==nil ||
+                    state_->nodeForceAuditPartials==nil) return false;
+            }
+            std::fprintf(stderr,"human_node_work_layout tiles=%u nodes=%zu active_anchors=%u sparse=%u\n",
+                state_->nodeWorkTiles,state_->nodeLoads.size(),state_->activeAnchorCount,
+                state_->sparseAnchorProjection);
+
             if (!state_->contactSamples.empty()) {
                 state_->contactForcePipeline = pipeline(
                     "nm_numi_human_assemble_internal_fem_contact_loads");
@@ -1897,7 +1969,9 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->reactionAuditCommitPipeline = pipeline(
                     "nm_numi_human_commit_fem_anchor_reaction_audit");
                 state_->reactionPipeline = pipeline(
-                    "nm_numi_human_apply_fem_anchor_reactions");
+                    state_->sparseAnchorProjection ?
+                        "nm_numi_human_apply_fem_anchor_reactions_sparse" :
+                        "nm_numi_human_apply_fem_anchor_reactions");
             } else {
                 state_->preSourceCorrectionPipeline = pipeline(
                     "nm_numi_human_apply_pre_source_rigid_corrections");
@@ -2557,6 +2631,41 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             gpuProgress.signal(command,pipeline.label.UTF8String);
             return true;
         };
+
+        const auto encodeNodeAudit = [&](bool reaction, id<MTLBuffer> forces,
+                                        id<MTLBuffer> statuses, id<MTLBuffer> output) {
+            if (state_->nodeWorkTiles==0u) {
+                return encodeKernel(reaction?state_->reactionAuditPipeline:state_->forceAuditPipeline,
+                    state_->environmentCount,[&](id<MTLComputeCommandEncoder> encoder) {
+                    if (reaction) {
+                        [encoder setBuffer:state_->nodeAnchorBuffer offset:0u atIndex:1u];
+                        [encoder setBuffer:forces offset:0u atIndex:2u];
+                        [encoder setBuffer:statuses offset:0u atIndex:3u];
+                        [encoder setBuffer:output offset:0u atIndex:4u];
+                    } else {
+                        [encoder setBuffer:forces offset:0u atIndex:1u];
+                        [encoder setBuffer:output offset:0u atIndex:2u];
+                    }
+                });
+            }
+            const std::uint32_t mode=reaction?1u:0u;
+            return encodeKernel(state_->nodeForceAuditPartialPipeline,
+                NSUInteger(state_->environmentCount)*state_->nodeWorkTiles*256u,
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:forces offset:0u atIndex:1u];
+                    [encoder setBuffer:state_->nodeAnchorBuffer offset:0u atIndex:2u];
+                    if (statuses!=nil) [encoder setBuffer:statuses offset:0u atIndex:3u];
+                    else { const NMMatterStatusGPU empty{};
+                        [encoder setBytes:&empty length:sizeof(empty) atIndex:3u]; }
+                    [encoder setBuffer:state_->nodeForceAuditPartials offset:0u atIndex:4u];
+                    [encoder setBytes:&mode length:sizeof(mode) atIndex:5u];
+                }) && encodeKernel(state_->nodeForceAuditFinishPipeline,
+                    NSUInteger(state_->environmentCount)*256u,
+                    [&](id<MTLComputeCommandEncoder> encoder) {
+                        [encoder setBuffer:state_->nodeForceAuditPartials offset:0u atIndex:1u];
+                        [encoder setBuffer:output offset:0u atIndex:2u];
+                    });
+        };
         id<MTLBuffer> acceptedNodes = nil;
         if (!state_->contactSamples.empty() ||
             state_->hasFEMBodyInteraction()) {
@@ -2614,9 +2723,33 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 return false;
             }
         }
+
+        if (state_->nodeWorkTiles!=0u &&
+            (!encodeKernel(state_->nodeValidationPartialPipeline,
+                NSUInteger(state_->environmentCount)*state_->nodeWorkTiles*256u,
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:state_->nodeLoadBuffer offset:0u atIndex:1u];
+                    [encoder setBuffer:state_->nodeAnchorBuffer offset:0u atIndex:2u];
+                    [encoder setBuffer:transfers offset:0u atIndex:3u];
+                    [encoder setBuffer:bodyPoses offset:0u atIndex:4u];
+                    [encoder setBuffer:state_->nodeValidationPartials offset:0u atIndex:5u];
+                    [encoder setBytes:&state_->nodeWorkTiles length:sizeof(std::uint32_t) atIndex:6u];
+                }) || !encodeKernel(state_->nodeValidationFinishPipeline,
+                    NSUInteger(state_->environmentCount)*256u,
+                    [&](id<MTLComputeCommandEncoder> encoder) {
+                        [encoder setBuffer:state_->nodeValidationPartials offset:0u atIndex:1u];
+                        [encoder setBuffer:state_->nodeValidationFirstInvalid offset:0u atIndex:2u];
+                        [encoder setBytes:&state_->nodeWorkTiles length:sizeof(std::uint32_t) atIndex:3u];
+                    }))) {
+            state_->message="Human node validation encoding failed";
+            return false;
+        }
+
         if (!encodeKernel(
                 state_->provisionalStatusPipeline, state_->environmentCount,
                 [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:state_->nodeValidationFirstInvalid offset:0u atIndex:18u];
+                    [encoder setBytes:&state_->nodeWorkTiles length:sizeof(std::uint32_t) atIndex:19u];
                     [encoder setBuffer:state_->nodeLoadBuffer offset:0u atIndex:1u];
                     [encoder setBuffer:state_->nodeAnchorBuffer offset:0u atIndex:2u];
                     [encoder setBuffer:state_->replacementBuffer offset:0u atIndex:3u];
@@ -2949,6 +3082,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             }
             if (state_->femAnchorReactionLoadAddPipeline == nil) {
                 const std::string qualified =
+                    state_->sparseAnchorProjection ?
+                    "numi_matter_metal::nm_numi_human_add_fem_anchor_reactions_to_pending_load_sparse" :
                     "numi_matter_metal::nm_numi_human_add_fem_anchor_reactions_to_pending_load";
                 id<MTLFunction> function = [state_->library newFunctionWithName:
                     [NSString stringWithUTF8String:qualified.c_str()]];
@@ -3082,15 +3217,9 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 "Human articular contact pair audit encoding failed";
             return false;
         }
-        if (!encodeKernel(
-                state_->forceAuditPipeline, state_->environmentCount,
-                [&](id<MTLComputeCommandEncoder> encoder) {
-                    [encoder setBuffer:state_->externalForceBuffer
-                                offset:0u atIndex:1u];
-                    [encoder setBuffer:state_->externalForceAuditBuffer
-                                offset:0u atIndex:2u];
-                })) {
-            state_->message = "Human tendon/FEM assembly kernel encoding failed";
+        if (!encodeNodeAudit(false,state_->externalForceBuffer,nil,
+                             state_->externalForceAuditBuffer)) {
+            state_->message = "Human tendon/FEM force audit encoding failed";
             return false;
         }
         if (state_->executionMode ==
@@ -3347,6 +3476,11 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->femBodyContactGeneralizedLoadPendingBuffer
                                   offset:0u atIndex:5u];
             [anchorLoadEncoder setBuffer:matterStatuses offset:0u atIndex:6u];
+            if (state_->sparseAnchorProjection) {
+                [anchorLoadEncoder setBuffer:state_->activeAnchorIndices offset:0u atIndex:7u];
+                [anchorLoadEncoder setBytes:&state_->activeAnchorCount length:sizeof(std::uint32_t) atIndex:8u];
+            }
+
             const NSUInteger width = std::min<NSUInteger>(pass.dofCount,
                 std::min<NSUInteger>(state_->femAnchorReactionLoadAddPipeline
                     .maxTotalThreadsPerThreadgroup, 256u));
@@ -3355,19 +3489,15 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             [anchorLoadEncoder endEncoding];
         }
         if (reactions == nil || matterStatuses == nil ||
-            !encodeKernel(
-                state_->reactionAuditPipeline, state_->environmentCount,
-                [&](id<MTLComputeCommandEncoder> encoder) {
-                    [encoder setBuffer:state_->nodeAnchorBuffer offset:0u atIndex:1u];
-                    [encoder setBuffer:reactions offset:0u atIndex:2u];
-                    [encoder setBuffer:matterStatuses offset:0u atIndex:3u];
-                    [encoder setBuffer:state_->anchorReactionAuditBuffer
-                                offset:0u atIndex:4u];
-                }
-            ) || !encodeKernel(
+            !encodeNodeAudit(true,reactions,matterStatuses,
+                             state_->anchorReactionAuditBuffer) || !encodeKernel(
                 state_->reactionPipeline,
                 state_->environmentCount * pass.dofCount,
                 [&](id<MTLComputeCommandEncoder> encoder) {
+                    if (state_->sparseAnchorProjection) {
+                        [encoder setBuffer:state_->activeAnchorIndices offset:0u atIndex:14u];
+                        [encoder setBytes:&state_->activeAnchorCount length:sizeof(std::uint32_t) atIndex:15u];
+                    }
                     [encoder setBuffer:state_->nodeAnchorBuffer offset:0u atIndex:1u];
                     [encoder setBuffer:state_->replacementBuffer offset:0u atIndex:2u];
                     [encoder setBuffer:bindings offset:0u atIndex:3u];

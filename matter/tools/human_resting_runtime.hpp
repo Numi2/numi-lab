@@ -86,6 +86,9 @@ struct Respiration {
     std::uint64_t bodyPropertiesReferenceCount=0u;
     void* bodyPropertiesReferenceCaptureCommand=nullptr;
     id<MTLComputePipelineState> predict,exchange,resolve,bloodMpmHandoff=nil;
+    bool localBloodCompaction=true;
+    uint32_t bloodHashCapacity=0u;
+    id<MTLBuffer> bloodBucketHeads=nil,bloodNextParticle=nil;
     id<MTLComputePipelineState> commonCoordinatesSolvePipeline=nil,commonCoordinateStatusPipeline=nil;
     id<MTLBuffer> commonGeometryParameters=nil,commonGeometryBoxes=nil,commonCandidateCoordinates=nil;
     bool commonGeometryGateEnabled=false;
@@ -346,8 +349,32 @@ struct Respiration {
             };
             predict=specialized(@"nm_human_respiration_predict");
             exchange=specialized(@"nm_human_respiration_exchange");
-            if(dispatch.bloodMpmEnabled)
-                bloodMpmHandoff=pipeline(@"nm_human_blood_mpm_handoff");
+            if(dispatch.bloodMpmEnabled) {
+                const char* setting=std::getenv("NUMI_HUMAN_LOCAL_BLOOD_COMPACTION");
+                need(!setting||std::strcmp(setting,"0")==0||std::strcmp(setting,"1")==0,
+                     "NUMI_HUMAN_LOCAL_BLOOD_COMPACTION must be 0 or 1");
+                localBloodCompaction=!setting||std::strcmp(setting,"0")!=0;
+                bloodMpmHandoff=pipeline(localBloodCompaction?
+                    @"nm_human_blood_mpm_handoff_local":@"nm_human_blood_mpm_handoff");
+                if(localBloodCompaction) {
+                    need(bloodMpmHandoff.threadExecutionWidth==32u&&
+                         bloodMpmHandoff.maxTotalThreadsPerThreadgroup>=256u,
+                         "local blood compaction requires SIMD32 and 256 threads");
+                    uint64_t capacity=1u;
+                    while(capacity<uint64_t(dispatch.bloodMpmParticleCount)*2u) capacity*=2u;
+                    need(capacity<=UINT32_MAX&&capacity*dispatch.environmentCount<=UINT32_MAX&&
+                         uint64_t(dispatch.bloodMpmParticleCount)*dispatch.environmentCount<=UINT32_MAX,
+                         "blood compaction scratch indexing overflow");
+                    bloodHashCapacity=uint32_t(capacity);
+                    bloodBucketHeads=[device newBufferWithLength:
+                        capacity*dispatch.environmentCount*sizeof(uint32_t)
+                        options:MTLResourceStorageModePrivate];
+                    bloodNextParticle=[device newBufferWithLength:
+                        uint64_t(dispatch.bloodMpmParticleCount)*dispatch.environmentCount*sizeof(uint32_t)
+                        options:MTLResourceStorageModePrivate];
+                    need(bloodBucketHeads&&bloodNextParticle,"blood compaction scratch allocation");
+                }
+            }
             need(!parallelRespiratoryMuscles||exchange.threadExecutionWidth>=2,
                  "parallel respiratory muscles require at least two SIMD lanes");
             need(!parallelRespiratoryGas||exchange.threadExecutionWidth>=21,
@@ -570,8 +597,16 @@ struct Respiration {
                 [enc setBuffer:buffer(v.particleMaterialStateDefaults) offset:0 atIndex:6];
                 [enc setBuffer:buffer(v.particleMaterialStateAccepted) offset:0 atIndex:7];
                 [enc setBuffer:buffer(v.particleMaterialStateCandidate) offset:0 atIndex:8];
-                [enc dispatchThreads:MTLSizeMake(dispatch.environmentCount,1,1)
-                    threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+                if(localBloodCompaction) {
+                    [enc setBuffer:bloodBucketHeads offset:0 atIndex:9];
+                    [enc setBuffer:bloodNextParticle offset:0 atIndex:10];
+                    [enc setBytes:&bloodHashCapacity length:sizeof(bloodHashCapacity) atIndex:11];
+                    [enc dispatchThreadgroups:MTLSizeMake(dispatch.environmentCount,1,1)
+                        threadsPerThreadgroup:MTLSizeMake(256,1,1)];
+                } else {
+                    [enc dispatchThreads:MTLSizeMake(dispatch.environmentCount,1,1)
+                        threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+                }
                 dispatched=true;
             }
         } else if(phase==AcceptedStepExtensionPhase::candidateReady) {

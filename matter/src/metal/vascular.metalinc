@@ -2657,6 +2657,93 @@ kernel void nm_vascular_resolve_working_set(
     }
 }
 
+kernel void nm_vascular_resolve_working_set_decision(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    device const NMVascularConnectionGPU* connections [[buffer(2)]],
+    device const float4* candidate [[buffer(3)]],
+    device float4* solution [[buffer(4)]],
+    device uint* workingSet [[buffer(5)]],
+    device uint* changed [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    device const NMVascularUnknownGPU* unknowns [[buffer(8)]],
+    device const NMVascularCompartmentGPU* compartments [[buffer(9)]],
+    device const float* elastance [[buffer(10)]],
+    device const NMVascularCavityGPU* cavities [[buffer(11)]],
+    device const uint* compartmentCavity [[buffer(12)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    bool activated = false;
+    if (environmentHealthy(statuses, environment)) {
+        for (uint edge = lane; edge < graph.counts.y; edge += 32u) {
+            const uint row = environment * graph.ranges.z + graph.offsets.y + edge;
+            const bool semismoothTransport =
+                (graph.ranges.w & NM_VASCULAR_LAYOUT_SEMISMOOTH_TRANSPORT) != 0u &&
+                vascularHasBidirectionalTransportBranch(connections[edge]);
+            if (semismoothTransport) {
+                const float q = vascularWordsValue(vascularStateWords(candidate[row]));
+                const float correction = solution[layout.vascularBase + row].x;
+                if (!all(isfinite(solution[layout.vascularBase + row]))) {
+                    recordFailure(statuses[environment], NM_STATUS_LINEAR_SOLVER_FAILURE,
+                        NM_INVALID_INDEX, graph.offsets.y + edge,
+                        solution[layout.vascularBase + row]);
+                    continue;
+                }
+                if (q == 0.0f && correction != 0.0f) {
+                    const bool desiredReverse = correction < 0.0f;
+                    const uint word = workingSet[row];
+                    const bool currentReverse =
+                        vascularWorkingSetTransportReverse(word, !desiredReverse);
+                    if (!vascularWorkingSetHasTransportBranch(word) ||
+                        currentReverse != desiredReverse) {
+                        workingSet[row] = vascularWorkingSetSetTransportBranch(
+                            word, desiredReverse);
+                        activated = true;
+                    }
+                }
+                continue;
+            }
+            if (!vascularUnilateral(connections[edge])) continue;
+            const float q = vascularWordsValue(vascularStateWords(candidate[row]));
+            if (!all(isfinite(solution[layout.vascularBase + row]))) {
+                recordFailure(statuses[environment], NM_STATUS_LINEAR_SOLVER_FAILURE,
+                    NM_INVALID_INDEX, graph.offsets.y + edge, solution[layout.vascularBase + row]);
+                continue;
+            }
+            if (vascularWorkingSetValveState(workingSet[row]) != 0u) {
+                // A completed constrained free solve may need no movement.
+                // When Q=0 violates the pressure inequality at the current
+                // and full trial states, release now; do not let an Armijo
+                // rejection prevent a solved working set from being released.
+                const uint a = connections[edge].identity.y, b = connections[edge].identity.z;
+                const uint base = environment * graph.ranges.z;
+                const uint eb = environment * graph.counts.x;
+                const uint db = layout.vascularBase + base;
+                const float dp = vascularDrivingPressure(connections[edge],
+                    vascularNodePressure(a, base, eb, db, false, 0.0f, unknowns, compartments, cavities, compartmentCavity, candidate, solution, elastance).x,
+                    vascularNodePressure(b, base, eb, db, false, 0.0f, unknowns, compartments, cavities, compartmentCavity, candidate, solution, elastance).x);
+                const float nextDP = vascularDrivingPressure(connections[edge],
+                    vascularNodePressure(a, base, eb, db, false, 1.0f, unknowns, compartments, cavities, compartmentCavity, candidate, solution, elastance).x,
+                    vascularNodePressure(b, base, eb, db, false, 1.0f, unknowns, compartments, cavities, compartmentCavity, candidate, solution, elastance).x);
+                if (q == 0.0f && isfinite(dp) && isfinite(nextDP) &&
+                    dp > 0.0f && nextDP > 0.0f) {
+                    workingSet[row] = vascularWorkingSetSetValveState(workingSet[row], 0u);
+                    activated = true;
+                } else solution[layout.vascularBase + row].x = -q;
+            } else if (q + solution[layout.vascularBase + row].x < 0.0f) {
+                workingSet[row] = vascularWorkingSetSetValveState(workingSet[row], 1u);
+                activated = true;
+            }
+        }
+    }
+    const bool anyActivated = simd_any(activated);
+    if (lane == 0u) changed[environment] = anyActivated ? 1u : 0u;
+    threadgroup_barrier(mem_flags::mem_device);
+}
+
+
 kernel void nm_vascular_limit_line_search(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMVascularLayoutGPU& graph [[buffer(1)]],

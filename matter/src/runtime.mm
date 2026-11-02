@@ -3650,6 +3650,9 @@ struct Runtime::State {
     id<MTLBuffer> femNodeIncidenceCheckpoint = nil;
     id<MTLBuffer> femNodeRangesCheckpoint = nil;
     id<MTLBuffer> topologyIncidenceCursors = nil;
+    id<MTLBuffer> topologyPrefixBlocks = nil;
+    id<MTLBuffer> workingSetClearIndirectArgs = nil;
+    bool sparseTopologyIncidenceEnabled = true;
     id<MTLBuffer> fieldBoundaries = nil;
     id<MTLBuffer> rigidProxies = nil;
     id<MTLBuffer> contactPairs = nil;
@@ -4098,6 +4101,7 @@ struct Runtime::State {
     id<MTLBuffer> femRegionalCoarseRHS = nil;
     id<MTLBuffer> femRegionalCoarseCoefficients = nil;
     id<MTLBuffer> femRegionalCoarseValid = nil;
+    bool parallelWorkingSetClearEnabled = true;
     bool femRegionalRestartAugmentationEnabled = false;
     std::uint32_t femRegionalAugmentedModeCount = 0u;
     id<MTLBuffer> femRegionalAugmentedCoarseMatrix = nil;
@@ -5045,6 +5049,20 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
             candidate->femRegionalAcceptedCorrectionRecycleEnabled = true;
+        }
+        if (const char* flag=std::getenv("NUMI_MATTER_SPARSE_TOPOLOGY_INCIDENCE")) {
+            if (std::strcmp(flag,"0")!=0 && std::strcmp(flag,"1")!=0) {
+                diagnostics.message="NUMI_MATTER_SPARSE_TOPOLOGY_INCIDENCE must be 0 or 1";
+                return diagnostics;
+            }
+            candidate->sparseTopologyIncidenceEnabled=std::strcmp(flag,"1")==0;
+        }
+        if (const char* flag=std::getenv("NUMI_MATTER_PARALLEL_WORKING_SET_CLEAR")) {
+            if (std::strcmp(flag,"0")!=0 && std::strcmp(flag,"1")!=0) {
+                diagnostics.message="NUMI_MATTER_PARALLEL_WORKING_SET_CLEAR must be 0 or 1";
+                return diagnostics;
+            }
+            candidate->parallelWorkingSetClearEnabled=std::strcmp(flag,"1")==0;
         }
         const char* acceptedZ0Recycle = std::getenv(
             "NM_FEM_REGIONAL_SELECTOR6_ACCEPTED_Z0_RECYCLE");
@@ -8066,6 +8084,12 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_topology_execute_transaction",
             "nm_topology_rebuild_clear",
             "nm_topology_rebuild_count_mass",
+            "nm_topology_rebuild_count_corners",
+            "nm_topology_rebuild_prefix_tiles",
+            "nm_topology_rebuild_prefix_block_offsets",
+            "nm_topology_rebuild_add_block_offsets",
+            "nm_topology_rebuild_scatter_corners",
+            "nm_topology_rebuild_sort_and_mass",
             "nm_topology_rebuild_prefix",
             "nm_topology_rebuild_scatter",
             "nm_topology_rebuild_finalize",
@@ -8415,6 +8439,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_restart_residual_support",
             "nm_human_support_select_working_set",
             "nm_human_support_resolve_working_set",
+            "nm_human_support_resolve_working_set_decision",
+            "nm_fgmres_clear_changed_direction_rows",
+            "nm_fgmres_prepare_changed_direction_dispatch",
             "nm_human_support_limit_line_search",
             "nm_human_support_validate_final_line_search",
             "nm_human_support_apply_solution",
@@ -8439,6 +8466,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_vascular_apply_principal_block",
             "nm_vascular_begin_working_set",
             "nm_vascular_resolve_working_set",
+            "nm_vascular_resolve_working_set_decision",
             "nm_vascular_limit_line_search",
             "nm_vascular_apply_solution",
             "nm_vascular_certify",
@@ -9334,6 +9362,13 @@ RuntimeDiagnostics Runtime::initialize(
             if (pipeline == nil) {
                 diagnostics.message = std::string("failed to compile pipeline ") + name +
                     ": " + errorString(pipelineError);
+                return diagnostics;
+            }
+            if ((std::strcmp(name,"nm_topology_rebuild_prefix_tiles")==0 ||
+                 std::strcmp(name,"nm_fgmres_clear_changed_direction_rows")==0) &&
+                (pipeline.threadExecutionWidth!=32u ||
+                 pipeline.maxTotalThreadsPerThreadgroup<256u)) {
+                diagnostics.message=std::string("parallel body work requires SIMD32 and 256 threads: ")+name;
                 return diagnostics;
             }
             if (tracePipeline) std::fprintf(stderr, "matter_pipeline_compile_end=%s\n", name);
@@ -11356,6 +11391,12 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->device,
             static_cast<std::size_t>(environments) * world.dispatch.femNodeCount,
             valid, candidate->residentBytes);
+        candidate->workingSetClearIndirectArgs = privateScratch<std::uint32_t>(
+            candidate->device,4u,valid,diagnostics.residentBytes);
+        candidate->topologyPrefixBlocks = privateScratch<std::uint32_t>(
+            candidate->device, static_cast<std::size_t>(environments) *
+                ((world.dispatch.femNodeCount+255u)/256u),
+            valid,candidate->residentBytes);
         candidate->fieldBoundaries = uploads.one(
             std::span<const NMFieldBoundaryGPU>(world.fem.fieldBoundaries),
             valid, candidate->residentBytes);
@@ -28508,6 +28549,33 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setLabel:@"Numi Matter deformable CCD trace continuation"];
                 return true;
             };
+            const auto encodeChangedDirectionClear = [&] {
+                if (!state.parallelWorkingSetClearEnabled) return;
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                const NSUInteger width=NSUInteger(state.dispatch.femNodeCount)*2u+
+                    state.dispatch.rigidGeneralizedCapacity+state.dispatch.mpmActiveNodeCapacity+
+                    state.fgmresLayout.supportContactCount+state.fgmresLayout.vascularUnknownCount;
+                if(width==0u) return;
+                [encoder setComputePipelineState:state.pipelines.at(
+                    "nm_fgmres_prepare_changed_direction_dispatch")];
+                setDispatch();
+                [encoder setBuffer:state.vascularWorkingSetChanged offset:0u atIndex:1u];
+                [encoder setBuffer:state.workingSetClearIndirectArgs offset:0u atIndex:2u];
+                [encoder setBytes:&state.fgmresLayout length:sizeof(state.fgmresLayout) atIndex:30u];
+                [encoder dispatchThreadgroups:MTLSizeMake(1u,1u,1u)
+                    threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                [encoder setComputePipelineState:state.pipelines.at(
+                    "nm_fgmres_clear_changed_direction_rows")];
+                setDispatch();
+                [encoder setBuffer:state.femSolution offset:0u atIndex:1u];
+                [encoder setBuffer:state.vascularWorkingSetChanged offset:0u atIndex:2u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                [encoder setBytes:&state.fgmresLayout length:sizeof(state.fgmresLayout) atIndex:30u];
+                [encoder dispatchThreadgroupsWithIndirectBuffer:state.workingSetClearIndirectArgs
+                    indirectBufferOffset:0u threadsPerThreadgroup:MTLSizeMake(256u,1u,1u)];
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            };
             const auto encodeTopologyRebuild = [&](id<MTLBuffer> nodes) {
                 dispatchThreads("nm_topology_rebuild_clear", femNodeTotal, [&] {
                     setDispatch();
@@ -28516,6 +28584,62 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.topologyIncidenceCursors offset:0u atIndex:3u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:4u];
                 }, WorkDomain::femNodes);
+                if (state.sparseTopologyIncidenceEnabled) {
+                    [&] {
+                        const NSUInteger nodeTotal=NSUInteger(state.dispatch.environmentCount)*state.dispatch.femNodeCount;
+                        const NSUInteger tetTotal=NSUInteger(state.dispatch.environmentCount)*state.dispatch.tetrahedronCount;
+                        const std::uint32_t blocks=(state.dispatch.femNodeCount+255u)/256u;
+                        dispatchThreads("nm_topology_rebuild_count_corners",tetTotal,[&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:1u];
+                            [encoder setBuffer:state.topologyIncidenceCursors offset:0u atIndex:2u];
+                            [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchThreads("nm_topology_rebuild_prefix_tiles",NSUInteger(state.dispatch.environmentCount)*blocks*256u,[&] {
+                            setDispatch();
+                            [encoder setBuffer:state.topologyIncidenceCursors offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                            [encoder setBuffer:state.topologyPrefixBlocks offset:0u atIndex:3u];
+                            [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        id<MTLComputePipelineState> prefixPipeline=state.pipeline("nm_topology_rebuild_prefix_block_offsets");
+                        [encoder setComputePipelineState:prefixPipeline];
+                        setDispatch();
+                        [encoder setBuffer:state.topologyPrefixBlocks offset:0u atIndex:1u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                        [encoder dispatchThreadgroups:MTLSizeMake(state.dispatch.environmentCount,1u,1u)
+                            threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchThreads("nm_topology_rebuild_add_block_offsets",nodeTotal,[&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femNodeRanges offset:0u atIndex:1u];
+                            [encoder setBuffer:state.topologyPrefixBlocks offset:0u atIndex:2u];
+                            [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchThreads("nm_topology_rebuild_scatter_corners",tetTotal,[&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                            [encoder setBuffer:state.topologyIncidenceCursors offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:4u];
+                            [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchThreads("nm_topology_rebuild_sort_and_mass",nodeTotal,[&] {
+                            setDispatch();
+                            [encoder setBuffer:state.materials offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:2u];
+                            [encoder setBuffer:nodes offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femNodeRanges offset:0u atIndex:4u];
+                            [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:5u];
+                            [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }();
+                } else {
                 dispatchThreads("nm_topology_rebuild_count_mass", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.materials offset:0u atIndex:1u];
@@ -28538,6 +28662,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:4u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:5u];
                 }, WorkDomain::femNodes);
+                }
                 dispatchThreads("nm_topology_rebuild_finalize", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:nodes offset:0u atIndex:1u];
@@ -30403,7 +30528,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 };
                 const auto resolvePredictorWorkingSet = [&] {
-                    dispatchGroups32("nm_vascular_resolve_working_set",
+                    dispatchGroups32(state.parallelWorkingSetClearEnabled ? "nm_vascular_resolve_working_set_decision" : "nm_vascular_resolve_working_set",
                         environments, [&] {
                         setDispatch();
                         [encoder setBytes:&state.vascularValue.layout
@@ -30426,6 +30551,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&state.fgmresLayout
                             length:sizeof(state.fgmresLayout) atIndex:30u];
                     });
+                    encodeChangedDirectionClear();
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 };
                 const auto limitPredictorStep = [&] {
@@ -45160,7 +45286,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 diagnostics.message = "failed to open Newton globalization timing stage";
                 return diagnostics;
             }
-            dispatchGroups32("nm_vascular_resolve_working_set", environments, [&] {
+            dispatchGroups32(state.parallelWorkingSetClearEnabled ? "nm_vascular_resolve_working_set_decision" : "nm_vascular_resolve_working_set", environments, [&] {
                 setDispatch();
                 [encoder setBytes:&state.vascularValue.layout length:sizeof(state.vascularValue.layout) atIndex:1u];
                 [encoder setBuffer:state.vascularConnections offset:0u atIndex:2u];
@@ -45175,7 +45301,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.vascularCavities offset:0u atIndex:11u];
                 [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:12u];
             });
-            dispatchGroups32("nm_human_support_resolve_working_set",
+            encodeChangedDirectionClear();
+            dispatchGroups32(state.parallelWorkingSetClearEnabled ? "nm_human_support_resolve_working_set_decision" : "nm_human_support_resolve_working_set",
                 environments, [&] {
                 setDispatch();
                 [encoder setBytes:&state.humanSupportDispatch
@@ -45198,6 +45325,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.humanSupportSamples
                              offset:0u atIndex:10u];
             });
+            encodeChangedDirectionClear();
             if (state.femHumanHybridCoordinatesEnabled)
                 encodeHybridLift(state.femSolution, 0u,
                     state.femSolution, 0u);
@@ -53913,6 +54041,62 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
             [growthEncoder setBuffer:destination.statuses
                               offset:0u atIndex:4u];
         });
+        if (destination.sparseTopologyIncidenceEnabled) {
+            [&] {
+                const NSUInteger nodeTotal=NSUInteger(destination.dispatch.environmentCount)*destination.dispatch.femNodeCount;
+                const NSUInteger tetTotal=NSUInteger(destination.dispatch.environmentCount)*destination.dispatch.tetrahedronCount;
+                const std::uint32_t blocks=(destination.dispatch.femNodeCount+255u)/256u;
+                dispatchGrowthThreads("nm_topology_rebuild_count_corners",tetTotal,[&] {
+                    setGrowthDispatch();
+                    [growthEncoder setBuffer:destination.femTetrahedraAccepted offset:0u atIndex:1u];
+                    [growthEncoder setBuffer:destination.topologyIncidenceCursors offset:0u atIndex:2u];
+                    [growthEncoder setBuffer:destination.statuses offset:0u atIndex:3u];
+                });
+                [growthEncoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGrowthThreads("nm_topology_rebuild_prefix_tiles",NSUInteger(destination.dispatch.environmentCount)*blocks*256u,[&] {
+                    setGrowthDispatch();
+                    [growthEncoder setBuffer:destination.topologyIncidenceCursors offset:0u atIndex:1u];
+                    [growthEncoder setBuffer:destination.femNodeRanges offset:0u atIndex:2u];
+                    [growthEncoder setBuffer:destination.topologyPrefixBlocks offset:0u atIndex:3u];
+                    [growthEncoder setBuffer:destination.statuses offset:0u atIndex:4u];
+                });
+                [growthEncoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                id<MTLComputePipelineState> prefixPipeline=destination.pipeline("nm_topology_rebuild_prefix_block_offsets");
+                [growthEncoder setComputePipelineState:prefixPipeline];
+                setGrowthDispatch();
+                [growthEncoder setBuffer:destination.topologyPrefixBlocks offset:0u atIndex:1u];
+                [growthEncoder setBuffer:destination.statuses offset:0u atIndex:2u];
+                [growthEncoder dispatchThreadgroups:MTLSizeMake(destination.dispatch.environmentCount,1u,1u)
+                    threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+                [growthEncoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGrowthThreads("nm_topology_rebuild_add_block_offsets",nodeTotal,[&] {
+                    setGrowthDispatch();
+                    [growthEncoder setBuffer:destination.femNodeRanges offset:0u atIndex:1u];
+                    [growthEncoder setBuffer:destination.topologyPrefixBlocks offset:0u atIndex:2u];
+                    [growthEncoder setBuffer:destination.statuses offset:0u atIndex:3u];
+                });
+                [growthEncoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGrowthThreads("nm_topology_rebuild_scatter_corners",tetTotal,[&] {
+                    setGrowthDispatch();
+                    [growthEncoder setBuffer:destination.femTetrahedraAccepted offset:0u atIndex:1u];
+                    [growthEncoder setBuffer:destination.femNodeRanges offset:0u atIndex:2u];
+                    [growthEncoder setBuffer:destination.topologyIncidenceCursors offset:0u atIndex:3u];
+                    [growthEncoder setBuffer:destination.femNodeIncidence offset:0u atIndex:4u];
+                    [growthEncoder setBuffer:destination.statuses offset:0u atIndex:5u];
+                });
+                [growthEncoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGrowthThreads("nm_topology_rebuild_sort_and_mass",nodeTotal,[&] {
+                    setGrowthDispatch();
+                    [growthEncoder setBuffer:destination.materials offset:0u atIndex:1u];
+                    [growthEncoder setBuffer:destination.femTetrahedraAccepted offset:0u atIndex:2u];
+                    [growthEncoder setBuffer:destination.femAccepted offset:0u atIndex:3u];
+                    [growthEncoder setBuffer:destination.femNodeRanges offset:0u atIndex:4u];
+                    [growthEncoder setBuffer:destination.femNodeIncidence offset:0u atIndex:5u];
+                    [growthEncoder setBuffer:destination.statuses offset:0u atIndex:6u];
+                });
+                [growthEncoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }();
+        } else {
         dispatchGrowthThreads(
             "nm_topology_rebuild_count_mass", destinationNodes, [&] {
                 setGrowthDispatch();
@@ -53957,6 +54141,7 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
                 [growthEncoder setBuffer:destination.statuses
                                   offset:0u atIndex:5u];
             });
+        }
         dispatchGrowthThreads(
             "nm_topology_rebuild_finalize", destinationNodes, [&] {
                 setGrowthDispatch();
