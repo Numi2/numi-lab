@@ -1,0 +1,44 @@
+#include "NumiHumanCoarseTissuePreparation.hpp"
+#include <cassert>
+#include <iostream>
+using namespace metalrobo::human::coarse_tissue::registered_surface_intersection_detail;
+int main(){
+const Triangle a{{{0,0,0},{1,0,0},{0,1,0}}};const Indices ia{0,1,2},separate{3,4,5};
+auto check=[&](const Triangle& b,const Indices& ib,bool expected){assert(intersectsBeyondSharedFeatures(a,ia,b,ib)==expected);assert(intersectsBeyondSharedFeatures(b,ib,a,ia)==expected);};
+check(Triangle{{{0,0,1},{1,0,1},{0,1,1}}},separate,false);
+check(Triangle{{{0,0,1e-12},{1,0,1e-12},{0,1,1e-12}}},separate,false);
+check(Triangle{{{0,0,0},{-1,0,1},{0,-1,1}}},Indices{0,3,4},false);
+check(Triangle{{{0,0,0},{-1,0,0},{0,-1,0}}},Indices{0,3,4},false);
+check(Triangle{{{1,0,0},{0,0,0},{0,-1,0}}},Indices{1,0,3},false);
+check(Triangle{{{1,0,0},{0,0,0},{0,-1,1}}},Indices{1,0,3},false);
+check(Triangle{{{1,0,0},{0,0,0},{.2,.2,0}}},Indices{1,0,3},true);
+check(Triangle{{{.1,.1,0},{.2,.1,0},{.1,.2,0}}},separate,true);
+check(Triangle{{{.25,.25,-1},{.25,.25,1},{.5,.25,1}}},separate,true);
+check(Triangle{{{0,0,0},{-1,0,1},{0,-1,1}}},separate,true);
+check(Triangle{{{0,0,0},{.5,.5,1},{.5,.5,-1}}},Indices{0,3,4},true);
+check(Triangle{{{.5,0,0},{1.5,0,0},{1.5,-1,0}}},separate,true);
+// The exact common edge is the only legal intersection, even at tiny scale.
+for(double h:{1.0,1e-6,1e-12}){Triangle x=a,y{{{1,0,0},{0,0,0},{0,-1,0}}};for(auto& p:x)for(auto& v:p)v=v*h+1.;for(auto& p:y)for(auto& v:p)v=v*h+1.;assert(!intersectsBeyondSharedFeatures(x,ia,y,Indices{1,0,3}));}
+assert(!intersectsBeyondSharedFeatures(Triangle{{{-0.32180443406105042,-1.0104968547821045,0.12308035790920258},{-0.32406178116798401,-1.0101896524429321,0.1224953681230545},{-0.3218156099319458,-1.0105301141738892,0.12307187169790268}}},Indices{244,111,239},Triangle{{{-0.32406178116798401,-1.0101896524429321,0.1224953681230545},{-0.32179713249206543,-1.0104833841323853,0.12308458238840103},{-0.32174396514892578,-1.010392427444458,0.12311415374279022}}},Indices{111,246,275}));
+assert(!intersectsBeyondSharedFeatures(Triangle{{{-0.31941908597946167,-1.008305549621582,0.1213378831744194},{-0.32218116521835327,-1.0095353126525879,0.1209193617105484},{-0.32066887617111206,-1.009620189666748,0.1211862787604332}}},Indices{1090,201,472},Triangle{{{-0.32066887617111206,-1.009620189666748,0.1211862787604332},{-0.31940746307373047,-1.0085597038269043,0.12135255336761475},{-0.31941872835159302,-1.0083189010620117,0.1213386133313179}}},Indices{472,1102,1091}));
+assert(!intersectsBeyondSharedFeatures(Triangle{{{-0.32176521420478821,-1.0111321210861206,0.12266112864017487},{-0.32155075669288635,-1.0112473964691162,0.12303216010332108},{-0.32169455289840698,-1.0110263824462891,0.12292707711458206}}},Indices{266,296,285},Triangle{{{-0.32176521420478821,-1.0109387636184692,0.12285444885492325},{-0.32169455289840698,-1.0110263824462891,0.12292707711458206},{-0.32176521420478821,-1.0107041597366333,0.12308905273675919}}},Indices{267,285,268}));
+assert(!intersectsBeyondSharedFeatures(Triangle{{{-0.32094240188598633,-1.0247042179107666,0.14624831080436707},{-0.32071831822395325,-1.0254409313201904,0.14658704400062561},{-0.32075279951095581,-1.0257778167724609,0.14697420597076416}}},Indices{378,449,435},Triangle{{{-0.32075279951095581,-1.0257778167724609,0.14697420597076416},{-0.32071384787559509,-1.0255093574523926,0.14664618670940399},{-0.32069513201713562,-1.0257548093795776,0.146853968501091}}},Indices{435,454,460}));
+assert(!intersectsBeyondSharedFeatures(Triangle{{{-0.32101729512214661,-1.0302853584289551,0.12133778631687164},{-0.32193785905838013,-1.0312583446502686,0.1206258162856102},{-0.32106655836105347,-1.0301827192306519,0.12120940536260605}}},Indices{179,64,166},Triangle{{{-0.32193785905838013,-1.0312583446502686,0.1206258162856102},{-0.32101443409919739,-1.0302911996841431,0.12134518474340439},{-0.32099515199661255,-1.0303313732147217,0.12139543890953064}}},Indices{64,180,188}));
+assert(!intersectsBeyondSharedFeatures(Triangle{{{-0.32170009613037109,-1.0272107124328613,0.11859495937824249},{-0.32137382030487061,-1.0257954597473145,0.11901693046092987},{-0.32105517387390137,-1.0259889364242554,0.11905086785554886}}},Indices{71,106,170},Triangle{{{-0.32137382030487061,-1.0257954597473145,0.11901693046092987},{-0.32105737924575806,-1.0258551836013794,0.11908241361379623},{-0.32106316089630127,-1.0259416103363037,0.1190602108836174}}},Indices{106,169,167}));
+assert(!intersectsBeyondSharedFeatures(Triangle{{{-0.32076320052146912,-1.0239409208297729,0.11970569938421249},{-0.32036367058753967,-1.0217199325561523,0.12036182731389999},{-0.3215351402759552,-1.0282083749771118,0.12026253342628479}}},Indices{355,459,85},Triangle{{{-0.32052430510520935,-1.0226130485534668,0.12008469551801682},{-0.32037413120269775,-1.0217783451080322,0.12032291293144226},{-0.32036367058753967,-1.0217199325561523,0.12036182731389999}}},Indices{424,456,459}));
+assert(!intersectsBeyondSharedFeatures(Triangle{{{-0.32152342796325684,-1.0290951728820801,0.12003789097070694},{-0.32144859433174133,-1.028814435005188,0.11988019198179245},{-0.32148334383964539,-1.0287306308746338,0.11988092958927155}}},Indices{87,98,94},Triangle{{{-0.32148334383964539,-1.0287306308746338,0.11988092958927155},{-0.3214457631111145,-1.0287888050079346,0.11986914277076721},{-0.32143247127532959,-1.0286680459976196,0.11981715261936188}}},Indices{94,99,100}));
+// Multiple components remain opt-in and cannot hide geometric overlap.
+{
+using namespace metalrobo::human::coarse_tissue;
+RegisteredSurface s;s.name="two closed components";s.provider="fixture";s.sourceMember="fixture";s.sourceMeshSHA256=s.sourcePayloadSHA256=std::string(64,'a');s.aggregateIdentity=true;s.sourceBodyIndex=0;
+s.worldPoints={{0,0,0},{1,0,0},{0,1,0},{0,0,1},{2,0,0},{3,0,0},{2,1,0},{2,0,1}};s.donorLocalPoints=s.worldPoints;
+s.faces={{1,2,3},{0,3,2},{0,1,3},{0,2,1},{5,6,7},{4,7,6},{4,5,7},{4,6,5}};
+GeometryAudit audit;std::string error;
+assert(!auditClosedSurface(s,audit,error));assert(error=="source has disconnected surface components");
+assert(auditClosedSurface(s,audit,error,false,nullptr,true));
+for(unsigned v=4;v<8;++v)s.worldPoints[v][0]-=1.75;
+s.donorLocalPoints=s.worldPoints;assert(!auditClosedSurface(s,audit,error,false,nullptr,true));
+assert(error.find("self-intersecting triangle pair")!=std::string::npos);
+}
+std::cout<<"registered_surface_exact_features=PASS synthetic=15 native_tiny_face_regressions=8\n";
+}

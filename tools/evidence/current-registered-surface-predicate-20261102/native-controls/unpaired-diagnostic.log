@@ -1,0 +1,2 @@
+badRegion witness: unpaired skin/fat child dominant donor or region differs from its scalar label
+Assertion failed: (error.find("current-tet/material/region/source admission")!=std::string::npos), function main, file unpaired-diagnostic.cpp, line 904.

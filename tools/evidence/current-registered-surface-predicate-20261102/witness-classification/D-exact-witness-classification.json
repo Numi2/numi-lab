@@ -1,0 +1,11 @@
+[
+  {
+    "triangle_pairs": [],
+    "count": 0,
+    "aabb_candidate_pairs": 30951,
+    "allowed_shared_vertex_or_edge_pairs": 26410,
+    "role": "D",
+    "seconds": 0.2631211280822754,
+    "source_binary_sha256": "5ee6750d13b1baf21de24476758934cf2b52996b326f3ad2a6ade2928b4c9754"
+  }
+]

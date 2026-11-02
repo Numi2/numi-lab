@@ -3,6 +3,7 @@
 // WorldSource/ObjectSource and Human tissue-mass partition APIs. No new asset
 // format, constitutive law, or runtime solver is introduced.
 #include "numi/matter/matter.hpp"
+#include "NumiHumanRegisteredSurfaceIntersection.hpp"
 #include "metalrobo/NumiHumanTissueMass.hpp"
 #include <algorithm>
 #include <array>
@@ -667,7 +668,7 @@ inline bool validateExplicitBoundaryAreaCoverage(
 }
 
 inline bool auditClosedSurface(const RegisteredSurface& s, GeometryAudit& out, std::string& error,bool allowBoundaryLoops=false,
-        std::vector<std::array<std::uint32_t,2>>* crossingPairs=nullptr) {
+        std::vector<std::array<std::uint32_t,2>>* crossingPairs=nullptr,bool allowMultipleComponents=false) {
     if(crossingPairs)crossingPairs->clear();
     out={};
     auto fail=[&](const char* m){error=m;return false;};
@@ -730,7 +731,7 @@ inline bool auditClosedSurface(const RegisteredSurface& s, GeometryAudit& out, s
     for(const auto& vf:vertexFaces)if(vf.empty())return fail("source has an unused vertex");
     std::vector<char> seen(nf);std::vector<std::uint32_t> stack{0};seen[0]=1;
     while(!stack.empty()){auto f=stack.back();stack.pop_back();for(auto g:faceAdj[f])if(!seen[g]){seen[g]=1;stack.push_back(g);}}
-    if(std::count(seen.begin(),seen.end(),char(1))!=static_cast<long>(nf))return fail("source has disconnected surface components");
+    if(!allowMultipleComponents&&std::count(seen.begin(),seen.end(),char(1))!=static_cast<long>(nf))return fail("source has disconnected surface components");
     // Each vertex's link must be one simple cycle, ruling out pinched fans.
     for(std::uint32_t v=0;v<n;v++){
         std::map<std::uint32_t,std::vector<std::uint32_t>> link;
@@ -739,23 +740,18 @@ inline bool auditClosedSurface(const RegisteredSurface& s, GeometryAudit& out, s
         if(endpoints!=0&&(!allowBoundaryLoops||endpoints!=2))return fail("source vertex link is not one boundary path or closed cycle");
         if(!link.empty()){std::set<std::uint32_t> got;std::vector<std::uint32_t> q{link.begin()->first};got.insert(q[0]);while(!q.empty()){auto a=q.back();q.pop_back();for(auto b:link[a])if(got.insert(b).second)q.push_back(b);}if(got.size()!=link.size())return fail("source vertex link is disconnected");}
     }
-    // Sweep-and-prune AABBs followed by segment/triangle tests. Shared-edge
-    // contact is the registered manifold adjacency; all other crossings fail.
-    auto segTri=[&](V3 p,V3 q,const std::array<V3,3>& t){
-        V3 d=sub(q,p),e1=sub(t[1],t[0]),e2=sub(t[2],t[0]),h=cross(d,e2);double det=dot(e1,h);
-        if(std::abs(det)<=eps*scale*scale)return false;double inv=1/det;V3 z=sub(p,t[0]);double u=dot(z,h)*inv;if(u<-1e-10||u>1+1e-10)return false;
-        V3 r=cross(z,e1);double v=dot(d,r)*inv;if(v<-1e-10||u+v>1+1e-10)return false;double tval=dot(e2,r)*inv;
-        return tval>1e-10&&tval<1-1e-10;
-    };
+    // Sweep all face pairs, including adjacent edges: only an intersection
+    // confined to the exact common indexed feature is authorized.
     std::vector<std::uint32_t> order(nf);for(std::uint32_t i=0;i<nf;i++)order[i]=i;
     std::sort(order.begin(),order.end(),[&](auto a,auto b){return tl[a][0]<tl[b][0];});
     for(std::size_t ii=0;ii<nf;ii++){auto i=order[ii];for(std::size_t jj=ii+1;jj<nf&&tl[order[jj]][0]<=th[i][0]+eps;jj++){
         auto j=order[jj];if(tl[i][1]>th[j][1]+eps||tl[j][1]>th[i][1]+eps||tl[i][2]>th[j][2]+eps||tl[j][2]>th[i][2]+eps)continue;
-        auto a=s.faces[i],b=s.faces[j];unsigned shared=0;for(auto x:a)for(auto y:b)shared+=x==y;if(shared>=2)continue;
+        auto a=s.faces[i],b=s.faces[j];
         out.testedPairs++;
-        bool hit=false;for(int e=0;e<3;e++)hit=hit||segTri(tri[i][e],tri[i][(e+1)%3],tri[j])||segTri(tri[j][e],tri[j][(e+1)%3],tri[i]);
-        if(!hit)hit=coplanarTriangleOverlap(tri[i],a,tri[j],b,scale,std::max(eps*10.0,scale*1e-8));
-        if(hit){if(crossingPairs)crossingPairs->push_back({i,j});else return fail("source has a self-intersecting triangle pair");}
+        const bool hit=registered_surface_intersection_detail::intersectsBeyondSharedFeatures(tri[i],a,tri[j],b);
+        if(hit){if(crossingPairs)crossingPairs->push_back({i,j});else {
+            error="source has a self-intersecting triangle pair: surface="+s.name+
+                " faces="+std::to_string(i)+","+std::to_string(j);return false;}}
     }}
     if(crossingPairs&&!crossingPairs->empty())return fail("source has self-intersecting triangle pairs");
     out.volumeM3=out.boundaryEdgeCount==0?vol:0.0;out.minFaceAreaM2=minArea;return true;

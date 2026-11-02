@@ -1,0 +1,68 @@
+{
+  "child_row": 68,
+  "edges": [
+    {
+      "child_row": "68",
+      "parent_row": "17",
+      "mass_kg": "1.577387542027652e-07",
+      "source_measure_m3": "1.5773377221574697e-10",
+      "distance_m": "0.049936415134954934"
+    },
+    {
+      "child_row": "68",
+      "parent_row": "23",
+      "mass_kg": "8.7426992523692221e-07",
+      "source_measure_m3": "8.7426127151506309e-10",
+      "distance_m": "0.048115983798191889"
+    },
+    {
+      "child_row": "68",
+      "parent_row": "29",
+      "mass_kg": "1.9640140713459529e-07",
+      "source_measure_m3": "1.9640891018698795e-10",
+      "distance_m": "0.049241121094189329"
+    },
+    {
+      "child_row": "68",
+      "parent_row": "32",
+      "mass_kg": "1.7066347531693933e-06",
+      "source_measure_m3": "1.7066181134772503e-09",
+      "distance_m": "0.048087180270470258"
+    },
+    {
+      "child_row": "68",
+      "parent_row": "38",
+      "mass_kg": "7.336208468968356e-07",
+      "source_measure_m3": "7.3364776429515952e-10",
+      "distance_m": "0.050272871732159406"
+    },
+    {
+      "child_row": "68",
+      "parent_row": "44",
+      "mass_kg": "7.6261664142017813e-07",
+      "source_measure_m3": "7.6263366923774365e-10",
+      "distance_m": "0.048713189439009388"
+    },
+    {
+      "child_row": "68",
+      "parent_row": "47",
+      "mass_kg": "1.5264107160631996e-07",
+      "source_measure_m3": "1.5264003162027609e-10",
+      "distance_m": "0.047266303868822905"
+    },
+    {
+      "child_row": "68",
+      "parent_row": "49",
+      "mass_kg": "2.3533979258372132e-07",
+      "source_measure_m3": "2.3533657606660513e-10",
+      "distance_m": "0.047397187034928408"
+    }
+  ],
+  "ordinary_left_fold_m3": 4.819280108614832e-09,
+  "exact_rounded_sum_m3": 4.819280108614833e-09,
+  "ordinary_sum_hex": "0x1.4b2dac19f2311p-28",
+  "exact_rounded_sum_hex": "0x1.4b2dac19f2312p-28",
+  "ratio_difference_max": 5.551115123125783e-17,
+  "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/converter-020/role-output/skin-transport-flow.csv",
+  "source_sha256": "6d818052c551bb59ce658ab6817ffaec63f6c1f87b658ef5b058438e0ff7a974"
+}

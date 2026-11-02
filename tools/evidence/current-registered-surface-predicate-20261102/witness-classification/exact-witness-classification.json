@@ -1,0 +1,20 @@
+[
+  {
+    "triangle_pairs": [],
+    "count": 0,
+    "aabb_candidate_pairs": 7839,
+    "allowed_shared_vertex_or_edge_pairs": 6130,
+    "role": "O",
+    "seconds": 0.06237220764160156,
+    "source_binary_sha256": "1c44edd6369044261d909039e57c0f3a26bc0202720f9b4620608daf41c83f65"
+  },
+  {
+    "triangle_pairs": [],
+    "count": 0,
+    "aabb_candidate_pairs": 17630,
+    "allowed_shared_vertex_or_edge_pairs": 15099,
+    "role": "I",
+    "seconds": 0.13552570343017578,
+    "source_binary_sha256": "29c1986795062fa79e3cbbd8589f86b2b8547d532d9a66dbf6ad81c009387871"
+  }
+]

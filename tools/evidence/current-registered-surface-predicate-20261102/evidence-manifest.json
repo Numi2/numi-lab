@@ -1,0 +1,74 @@
+{
+  "README.md": {
+    "sha256": "ee77d941e912bcb91ad5a0cbea1b5294e370435d1d5d67b535eca9bf2bc7b940",
+    "bytes": 1921
+  },
+  "build/build-source-device-manifest.json": {
+    "sha256": "cf9728402b7b017ded15fb4380ba07d0bade3b13d75e8060fb4aad63881c6c9e",
+    "bytes": 1071
+  },
+  "build/build.stderr.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "build/build.stdout.log": {
+    "sha256": "410426e132fb13a2352f07df6253732e5679f719c84a79284d73596a3c7460d6",
+    "bytes": 242
+  },
+  "build/source-pins-before.json": {
+    "sha256": "077b7b7ca729d8fa6b9d5a04b2b8d942f3256d07d7d5ae9a6bc4d6778bf92695",
+    "bytes": 153024
+  },
+  "native-controls/D.stdout": {
+    "sha256": "b96e5cc8fb8b8da35c3e718e94b929dfe702def4f7e6ec667a974561bde3ff9b",
+    "bytes": 47
+  },
+  "native-controls/I.stdout": {
+    "sha256": "31788874413083101e8fdc7f46e3c629346aada49898dcd2faeaf35af53ff895",
+    "bytes": 47
+  },
+  "native-controls/O.stdout": {
+    "sha256": "4d227b4ee6b053ecd63ee40ea48c079591de162d41be8c65317cdab3c141c007",
+    "bytes": 47
+  },
+  "native-controls/execution.json": {
+    "sha256": "00a963318962c9ac135f3e17f9833e3314ce90a7f75a367cd24ca915207ad32e",
+    "bytes": 225
+  },
+  "native-controls/native-controls-002.json": {
+    "sha256": "4c45b14cd6968de32ee8a3aba95f9e0d8fb4ddf9a817b136d29d87720fb34859",
+    "bytes": 403
+  },
+  "native-controls/numi-human-registered-surface-intersection-check-002.stdout": {
+    "sha256": "21493d7bf27c2fae22a6b8f07ea03af23e987aa4da67f9dd335e874faeac166c",
+    "bytes": 83
+  },
+  "native-controls/numi-human-unpaired-skin-fat-volume-check-002.stdout": {
+    "sha256": "b0a42c125e1dfdfa61e715c62a7c5d3e6eeb4c7a007d608cae05a1c09ece2378",
+    "bytes": 44
+  },
+  "native-controls/unpaired-diagnostic.log": {
+    "sha256": "f7d897e23efb5600ca01d77a578227fbf793703770a126e468d9d0346785c8be",
+    "bytes": 252
+  },
+  "witness-classification/D-exact-witness-classification.json": {
+    "sha256": "26c7f0e1a11de31d81bca101a788adb9de07dc258189934b7917073e894be223",
+    "bytes": 286
+  },
+  "witness-classification/classify-D.py": {
+    "sha256": "fe76e8b8013d884b7f73262b58b4ab0a5519ef7ca7861964f460fba9777a2ca0",
+    "bytes": 1896
+  },
+  "witness-classification/classify.py": {
+    "sha256": "01ca9eccbe185d7150689524d5a021f1eeae49575faee36735e28c0f914e2e0e",
+    "bytes": 1880
+  },
+  "witness-classification/exact-witness-classification.json": {
+    "sha256": "233d3c8aae61209e07e675173702c35722f16409d3110b5c8a89c2285a82737a",
+    "bytes": 569
+  },
+  "witness-classification/input-pins.json": {
+    "sha256": "94f70bf3f9a40cdfa9617d8773d9bfa899cf9be7e402a540becb3a6db9f0b9d0",
+    "bytes": 935
+  }
+}

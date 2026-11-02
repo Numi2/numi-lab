@@ -1,0 +1,70 @@
+{
+  "README.md": {
+    "sha256": "4d6fd622a837a09f4fd1b31158588d422c33d1d008b934e20918736853cd30e8",
+    "bytes": 1386
+  },
+  "actual-summation-witness.json": {
+    "sha256": "db45e1e34287fd26b8a083f4afd05f108710369f47ceb83bcf02c3e96b571060",
+    "bytes": 2219
+  },
+  "compile.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "controls.json": {
+    "sha256": "0b2af19fe9ac93c11067525c54758795dca40f34fd0c3a0e430349869cdaea6d",
+    "bytes": 876
+  },
+  "native-049-source-preflight.execution.json": {
+    "sha256": "71e9e11c6d5f6ff4f69af1335372570088e9f294098aedde4ae70f4cfd6630dd",
+    "bytes": 593
+  },
+  "native-049-source-preflight.stderr.log": {
+    "sha256": "77ce95f8350f2204b8cca86197787e565f51939137f2f2367f97f495f46c26d2",
+    "bytes": 562
+  },
+  "native-052-source-preflight.execution.json": {
+    "sha256": "9d1969ff9ee40df73b79db03d14a08d472c6f17d5170288e99df04e04d45e9f4",
+    "bytes": 594
+  },
+  "native-052-source-preflight.stderr.log": {
+    "sha256": "6d9e7c46d1b638e7bb40581f12c7a4d5874350fd92ec7dc4b930a35e69f72279",
+    "bytes": 555
+  },
+  "native-052-source-preflight.stdout.log": {
+    "sha256": "149abaad607af8139df79f8bc7bbd6aa925d1f5e1f3965a38710c8984a3cf10a",
+    "bytes": 20651
+  },
+  "native-054-source-preflight.active.json": {
+    "sha256": "073445f3bc3aed4e50be2c2c468b4c7be4026473633251e33f3cb8dc351ad4ef",
+    "bytes": 357
+  },
+  "native-054-source-preflight.execution.json": {
+    "sha256": "37900df122c3782be3fe271bd4974efbb65cd028fa031b807754491d68777a74",
+    "bytes": 594
+  },
+  "native-054-source-preflight.plan.json": {
+    "sha256": "f44613a8734be36eb628ae34b2302706763c09b2187df8ea729e2ce0ccece90a",
+    "bytes": 75641
+  },
+  "native-054-source-preflight.plan.sh": {
+    "sha256": "206311a8b19fa06af7a7217d9318d78e17145c4ccb7f692c7002424976875dc7",
+    "bytes": 38878
+  },
+  "native-054-source-preflight.stderr.log": {
+    "sha256": "a284f1876da5f61c3ccbe4e590cfcd4c56d8b568109b0003fcadc081d6d5aa3f",
+    "bytes": 495
+  },
+  "native-054-source-preflight.stdout.log": {
+    "sha256": "048d3d769c2fde6c140fe1d46e5113ba5a34704b6416398c8977c93b68b37fc0",
+    "bytes": 22005
+  },
+  "registered-volume-fractional-mass-c2d2d1cff49f5f85.json": {
+    "sha256": "8398174f001528e07286c8952d02199d1b7f274a4de8a2ecde68d1aac8a98084",
+    "bytes": 4886
+  },
+  "test.log": {
+    "sha256": "6b83db69537f3443c63cdf27330b2ad2870878d7e577247ea93190455b25b877",
+    "bytes": 48
+  }
+}

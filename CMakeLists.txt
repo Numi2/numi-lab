@@ -7311,3 +7311,15 @@ if(BUILD_TESTING)
     add_test(NAME numi_human_canonical_deep_attachment_remap
         COMMAND numi-human-canonical-deep-attachment-remap-check)
 endif()
+
+add_executable(numi-human-registered-surface-intersection-check EXCLUDE_FROM_ALL
+    apps/NumiHumanRegisteredSurfaceIntersectionCheck.cpp)
+target_include_directories(numi-human-registered-surface-intersection-check PRIVATE
+    include matter/include apps)
+target_compile_features(numi-human-registered-surface-intersection-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-registered-surface-intersection-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME numi_human_registered_surface_intersection
+        COMMAND numi-human-registered-surface-intersection-check)
+endif()

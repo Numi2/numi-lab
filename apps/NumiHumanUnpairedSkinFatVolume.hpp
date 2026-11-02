@@ -789,10 +789,10 @@ struct ExplicitUnpairedVolumeReport {
         mapped.worldPoints.clear();mapped.worldPoints.reserve(roleSizes[role]);
         for(auto node:*mappedRoles[role])mapped.worldPoints.push_back(current[node]);
         GeometryAudit audit;
-        if(!auditClosedSurface(mapped,audit,error,true))return false;
+        if(!auditClosedSurface(mapped,audit,error,true,nullptr,independent))return false;
         mapped.worldPoints.clear();mapped.worldPoints.reserve(roleSizes[role]);
         for(auto node:*mappedRoles[role])mapped.worldPoints.push_back(reference[node]);
-        if(!auditClosedSurface(mapped,audit,error,true))return false;
+        if(!auditClosedSurface(mapped,audit,error,true,nullptr,independent))return false;
     }
 
     const bool hasAncestry=!topology.childParentAncestryOffsets.empty()||
