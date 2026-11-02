@@ -22544,7 +22544,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     surfaceFiles.maxParentRegistrationDistanceM=
                         doubleValue("MAX_PARENT_REGISTRATION_DISTANCE_M");
                     surfaceFiles.parentRegistrationIsHistoricalProvenanceOnly=
-                        separatedRegisteredOperationalReference;
+                        separatedRegisteredOperationalReference||registeredFractionalMassSupportRequested;
 
                     std::vector<PhysicalSkinRegisteredBodyPose> nativePoses(model.bodies.size());
                     require(bodies.size()==nativePoses.size()&&
@@ -22582,6 +22582,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         frame.currentR=pose.currentLocalToWorld;frame.restR=pose.restLocalToWorld;
                     }
                     surfaceFiles.nativeFloat32FramesByDonor=nativeFrames;
+                    if(registeredFractionalMassSupportRequested)for(unsigned layer=0u;layer<3u;++layer){
+                        const std::string rp="ROLE_"+std::string(roleNames[layer])+"_";
+                        const auto sourceAsset=pathValue(rp+"SOURCE_ASSET");
+                        surfaceFiles.currentSourceDomains[layer]={value(rp+"SOURCE_DOMAIN"),
+                            pinFile(sourceAsset,rp+"SOURCE_ASSET_SHA256"),
+                            uintValue(rp+"SOURCE_VERTEX_COUNT"),uintValue(rp+"SOURCE_FACE_COUNT")};
+                    }
                     PhysicalSkinRegisteredSurfaceCSVSet registered;
                     PhysicalSkinRegisteredSurfaceCSVReport surfaceReport;
                     PhysicalSkinSurfaceParentRegistrationReport parentRegistrationReport;
@@ -22702,9 +22709,11 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     }
 
                     PhysicalSkinRegisteredVolumeAssetFiles volumeFiles;
-                    volumeFiles.registrationDomain=separatedRegisteredOperationalReference?
-                        PhysicalSkinRegisteredVolumeRegistrationDomain::candidateOperationalReference:
-                        PhysicalSkinRegisteredVolumeRegistrationDomain::sourceMassParent;
+                    volumeFiles.registrationDomain=registeredFractionalMassSupportRequested?
+                        PhysicalSkinRegisteredVolumeRegistrationDomain::currentFractionalReference:
+                        (separatedRegisteredOperationalReference?
+                         PhysicalSkinRegisteredVolumeRegistrationDomain::candidateOperationalReference:
+                         PhysicalSkinRegisteredVolumeRegistrationDomain::sourceMassParent);
                     volumeFiles.tetgenNode=pathValue("TETGEN_NODE");
                     volumeFiles.tetgenElements=pathValue("TETGEN_ELEMENTS");
                     volumeFiles.childLabels=pathValue("CHILD_LABELS");

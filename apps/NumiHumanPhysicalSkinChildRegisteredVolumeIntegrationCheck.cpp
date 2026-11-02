@@ -1015,6 +1015,42 @@ int main() {
     checkFailureIsAtomic(splitFixture,splitFiles,
         "requires authenticated source and candidate receipts plus a same-topology pullback proof");
 
+    // The fractional route has its own pinned current reference, with source
+    // offsets retained as provenance. It does not claim an ancestry pullback
+    // or physical admission; conservative recorded mass admission follows later.
+    auto fractionalFiles=splitFiles;
+    fractionalFiles.registrationDomain=PhysicalSkinRegisteredVolumeRegistrationDomain::currentFractionalReference;
+    auto currentBundle=splitFixture.parentBundle;
+    PhysicalSkinRegisteredVolumeImportSidecars currentSidecars;
+    PhysicalSkinRegisteredVolumeFileImportReport currentReport;
+    assert(importPhysicalSkinRegisteredVolumeFiles(fractionalFiles,std::string(64u,'0'),157u,0.02,
+        0.0004,"",0u,0u,splitFixture.registered,attachments,splitFixture.poses,
+        currentBundle,currentSidecars,currentReport,error,
+        std::span<const PhysicalSkinSourceDomainRegistration>(typedDomains)));
+    assert(!currentReport.physicalAdmission&&!currentReport.operationalReferencePullbackVerified&&
+           currentReport.operationalReferencePullbackSHA256.empty());
+    assert(currentBundle.usesSeparatedOperationalReference&&!currentBundle.conformingLineageMassRouteRequired);
+    assert(physical_skin_registered_volume_integration_detail::sameImmutableParentPacket(
+        currentBundle.parent,splitFixture.parentBundle.parent));
+    auto currentReject=[&](const auto& candidateFiles,const auto& candidateRegistered,
+                           const std::span<const PhysicalSkinSourceDomainRegistration> domains){
+        auto b=currentBundle;auto before=b.referenceWorldPoints;
+        PhysicalSkinRegisteredVolumeImportSidecars sc;
+        PhysicalSkinRegisteredVolumeFileImportReport rep;
+        assert(!importPhysicalSkinRegisteredVolumeFiles(candidateFiles,std::string(64u,'0'),157u,0.02,
+            0.0004,"",0u,0u,candidateRegistered,attachments,splitFixture.poses,b,sc,rep,error,domains));
+        assert(b.referenceWorldPoints==before&&!rep.physicalAdmission);
+    };
+    currentReject(fractionalFiles,splitFixture.registered,{});
+    auto notHistorical=splitFixture.registered;notHistorical.parentRegistrationIsHistoricalProvenanceOnly=false;
+    currentReject(fractionalFiles,notHistorical,typedDomains);
+    auto wrongSupport=rewriteSplitMapField(fractionalFiles,root,"current-wrong-support.csv",0u,43u,"999999");
+    currentReject(wrongSupport,splitFixture.registered,typedDomains);
+    auto wrongDistance=rewriteSplitMapField(fractionalFiles,root,"current-wrong-distance.csv",0u,51u,"0.001");
+    currentReject(wrongDistance,splitFixture.registered,typedDomains);
+    auto wrongSource=rewriteSplitMapField(fractionalFiles,root,"current-wrong-source.csv",0u,19u,"100000");
+    currentReject(wrongSource,splitFixture.registered,typedDomains);
+
     // The complete native body table uses the same explicit arithmetic policy,
     // including bodies without registered skin bindings. Default stays strict.
     auto roundedPoses=fixture.poses;

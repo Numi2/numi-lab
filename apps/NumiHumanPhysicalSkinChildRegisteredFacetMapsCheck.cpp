@@ -75,7 +75,12 @@ std::string serializeWalls(const Fixture& fixture) {
                    std::to_string(wall.parentNodes[2])+"]";
         fields[17]=std::to_string(wall.childTet+1u);fields[18]=std::to_string(wall.childTet);
         for(unsigned c=0;c<3u;++c)fields[19u+c]=std::to_string(wall.childNodes[c]+1u);
-        fields[22]="[1,149,1]";fields[23]="[98,99,100]";write(fields);
+        fields[22]="[1,149,1]";fields[23]="[98,99,100]";
+        if(wall.currentSourceAncestorFace!=NM_INVALID_INDEX){
+            fields[16]="[-1,-1,-1]";fields[13]=fields[22]="["+std::to_string(wall.currentSourceAncestorFace)+"]";
+            fields[23]="["+std::to_string(wall.childTet)+"]";
+        }
+        write(fields);
     }
     return output.str();
 }
@@ -134,6 +139,33 @@ int main() {
     bad=Fixture{};std::swap(bad.bundle.childTetrahedra[1][0],bad.bundle.childTetrahedra[1][1]);
     reject(bad,"equally oriented");
     bad=Fixture{};bad.walls[0].material=16u;reject(bad,"missing/duplicate");
+    auto current=Fixture{};
+    current.bundle.usesSeparatedOperationalReference=true;
+    current.bundle.operationalReferenceDomainSHA256=std::string(64,'a');
+    for(std::size_t cell=0;cell<current.bundle.childTetrahedra.size();++cell){
+        current.bundle.parent.stableSourceFaceIdentities.push_back(1000u+cell);
+        current.bundle.childStableSourceFaceIdentities.push_back(1000u+cell);
+    }
+    for(auto& wall:current.walls){
+        wall.parentNodes={NM_INVALID_INDEX,NM_INVALID_INDEX,NM_INVALID_INDEX};
+        wall.currentSourceAncestorFace=1000u+wall.parentTet;
+    }
+    assert(preparePhysicalSkinRegisteredFacetMaps(current.bundle,current.walls,15u,16u,report,error,true));
+    const auto currentCSV=serializeWalls(current);
+    std::istringstream currentInput(currentCSV);
+    assert(readPhysicalSkinAuthoredHeadWallsCSV(currentInput,6u,9u,parsedWalls,csvReport,error,true));
+    assert(parsedWalls.size()==12u&&parsedWalls.front().currentSourceAncestorFace==current.walls.front().currentSourceAncestorFace);
+    assert(preparePhysicalSkinRegisteredFacetMaps(current.bundle,parsedWalls,15u,16u,report,error,true));
+    auto wrongCurrent=current;wrongCurrent.walls[0].currentSourceAncestorFace++;
+    assert(!preparePhysicalSkinRegisteredFacetMaps(wrongCurrent.bundle,wrongCurrent.walls,15u,16u,report,error,true));
+    assert(!preparePhysicalSkinRegisteredFacetMaps(current.bundle,current.walls,15u,16u,report,error));
+    std::istringstream legacyCurrent(currentCSV);
+    assert(!readPhysicalSkinAuthoredHeadWallsCSV(legacyCurrent,6u,9u,parsedWalls,csvReport,error));
+    auto noOwner=current;noOwner.bundle.usesSeparatedOperationalReference=false;
+    assert(!preparePhysicalSkinRegisteredFacetMaps(noOwner.bundle,noOwner.walls,15u,16u,report,error,true));
+    auto wrongIncidence=current;wrongIncidence.walls[0].childNodes={0,1,8};
+    assert(!preparePhysicalSkinRegisteredFacetMaps(wrongIncidence.bundle,wrongIncidence.walls,15u,16u,report,error,true));
+    std::cout<<"current_reference_authored_wall_lineage=PASS historical_strict_default=PASS negative_cases=5\n";
     std::cout<<"physical_skin_registered_facet_maps=PASS positive_prism_cells=6 exact_O_I_D_uses=1,2,1"
         <<" retained_wall_faces=12 corruptions_rejected=10 failure_transaction_preserved=1"
         <<" csv_quoted_ancestry_roundtrip=PASS csv_corruptions_rejected=4 full_scene_admission=NOT_CLAIMED\n";

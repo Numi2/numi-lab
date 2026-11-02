@@ -7215,6 +7215,20 @@ add_fractional_semantic_allocator_028_check(
     numi-human-fractional-semantic-support-028-check
     apps/NumiHumanFractionalSemanticSupport028Check.cpp human.fractional-semantic-support-028)
 
+# Typed current O/I/D row domains use the existing source sidecar contract.
+add_executable(numi-human-current-registered-surface-rows-check EXCLUDE_FROM_ALL
+    apps/NumiHumanCurrentRegisteredSurfaceRowsCheck.cpp)
+target_include_directories(numi-human-current-registered-surface-rows-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+target_compile_features(numi-human-current-registered-surface-rows-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-current-registered-surface-rows-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME human.current-registered-surface-rows
+        COMMAND numi-human-current-registered-surface-rows-check)
+endif()
+
 # Internal registered-surface candidate import; no runtime state or new artifact format.
 add_executable(numi-human-registered-skin-candidate-csv-check EXCLUDE_FROM_ALL
     apps/NumiHumanRegisteredSkinCandidateCSVCheck.cpp)

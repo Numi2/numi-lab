@@ -42,6 +42,7 @@ struct PhysicalSkinRegisteredSurfaceCSVFiles {
     // separate repaired operational reference is explicitly enabled. It is
     // never used as an operational support-distance gate in that mode.
     bool parentRegistrationIsHistoricalProvenanceOnly=false;
+    std::array<RegisteredSkinCurrentSourceDomain,3> currentSourceDomains{};
     // Populated only by the live native owner, never by a CSV field. Every
     // admitted F32 frame must exactly match this complete donor-indexed table.
     std::span<const PhysicalSkinDonorFrameRow> nativeFloat32FramesByDonor{};
@@ -197,7 +198,8 @@ inline bool readID(const PhysicalSkinRegisteredLayerCSV& file,unsigned layer,con
                    const std::vector<PhysicalSkinDonorFrameRow>& frames,std::string_view payload,
                    RegisteredSurface& s,std::vector<PhysicalSkinNodeSourceRow>& nodeSource,
                    std::vector<PhysicalSkinFaceSourceRow>& faceSource,
-                   std::string& ns,std::string& fs,std::string& e){
+                   std::string& ns,std::string& fs,std::string& e,
+                   const RegisteredSkinCurrentSourceDomain* currentSource=nullptr){
  const auto fail=[&](std::string x){e=std::move(x);return false;};
  if(layer!=1&&layer!=2)return fail("I/D reader called with non-I/D role");
  if(!hash(file.nodes,file.nodesSHA256,ns,e)||!hash(file.faces,file.facesSHA256,fs,e))return false;
@@ -207,6 +209,13 @@ inline bool readID(const PhysicalSkinRegisteredLayerCSV& file,unsigned layer,con
   "d37_parent_node_row","d37_parent_surface_face_row","beta0","beta1","beta2",
   "source_residual_x_m","source_residual_y_m","source_residual_z_m","frame_owner_method"};
  std::vector<std::string> fh{"face","v0","v1","v2","d37_parent_surface_face_row","d37_parent_tet_row","material_index","source_role"};
+ if(currentSource){
+  if(currentSource->name.empty()||currentSource->assetSHA256.size()!=64||
+     !currentSource->vertexCount||currentSource->vertexCount>300000||
+     !currentSource->faceCount||currentSource->faceCount>600000)
+   return fail("I/D current source domain is incomplete");
+  nh.push_back("source_vertex_row");
+ }
  if(!header(ni,file.nodes,nh,e)||!header(fi,file.faces,fh,e))return false;
  const unsigned expectedMaterial=layer==1?15:16;
  s=identity(file,layer,ns,payload);std::string line;std::size_t n=0;
@@ -214,8 +223,14 @@ inline bool readID(const PhysicalSkinRegisteredLayerCSV& file,unsigned layer,con
   if(line.size()>8192||n>=300000)return fail("I/D node CSV exceeds row bound");
   auto v=splitCSV(line);std::uint32_t id=0,donor=0;std::int64_t sv=-1,sf=-1;
   if(v.size()!=nh.size()||!parseNumber(v[0],id)||id!=n||!parseNumber(v[1],donor)||donor>=donors||
-     !optInt(v[21],sv)||!optInt(v[22],sf)||(sv>=0)==(sf>=0)||v[20]!="D37_coarse_parent"||v[29].empty())
+     !optInt(v[21],sv)||!optInt(v[22],sf)||(sv>=0)==(sf>=0)||
+     v[20]!=(currentSource?currentSource->name:"D37_coarse_parent")||v[29].empty())
    return fail("I/D node has invalid row, frame owner, or source identity");
+  if(currentSource){
+   if(sv!=std::int64_t(n)||sf!=-1||!parseNumber(v[30],sv)||sv<0||
+      std::uint64_t(sv)>=currentSource->vertexCount)
+    return fail("I/D current source row is outside its pinned domain");
+  }
   V3 p{},normal{},local{},sr{};std::array<double,9> w2l{};
   for(unsigned a=0;a<3;++a)if(!number(v[2+a],p[a])||double(float(p[a]))!=p[a]||
       !number(v[5+a],normal[a])||!number(v[8+a],local[a])||!number(v[26+a],sr[a]))
@@ -408,15 +423,18 @@ inline bool validateFrames(const RegisteredSurface& s,const std::vector<Physical
     return sha256File(path,digest,hashError)?digest:std::string{};
    };
    if(!loadRegisteredSkinCandidateCSV(in.nodes,in.faces,f.donorCount,id,in.facesSHA256,hashPath,
-      next.surfaces[0],parsed,error))return false;
+      next.surfaces[0],parsed,error,
+      f.currentSourceDomains[0].name.empty()?nullptr:&f.currentSourceDomains[0]))return false;
    measured.nodes[0]=parsed.nodeRows;measured.faces[0]=parsed.faceRows;
    if(!readOuterSourceRows(in,next.nodeSource[0],measured,error))return false;
    if(next.nodeSource[0].size()!=parsed.nodeRows)return fail("O source ancestry row count differs from registered surface");
   }else{
    std::string ns,fs;if(!readID(in,l,f.donorCount,next.framesByDonor,next.payloadSHA256,
-      next.surfaces[l],next.nodeSource[l],next.faceSource[l],ns,fs,error))return false;
+      next.surfaces[l],next.nodeSource[l],next.faceSource[l],ns,fs,error,
+      f.currentSourceDomains[l].name.empty()?nullptr:&f.currentSourceDomains[l]))return false;
    measured.nodes[l]=next.surfaces[l].worldPoints.size();measured.faces[l]=next.surfaces[l].faces.size();
-   const auto sfcount=l==1?f.d37InnerFaceCount:f.d37DeepFaceCount;
+   const auto sfcount=!f.currentSourceDomains[l].name.empty()?f.currentSourceDomains[l].faceCount:
+      (l==1?f.d37InnerFaceCount:f.d37DeepFaceCount);
    if(!validateRegisteredSourceEmbedding(next.surfaces[l],sfcount,error))return false;
    for(const auto& a:next.nodeSource[l])if(a.vertex>=0)++measured.directSourceNodes[l];else ++measured.faceEmbeddedNodes[l];
    for(const auto& a:next.faceSource[l])if(a.material!=(l==1?15u:16u)||a.parentTet==NM_INVALID_INDEX||

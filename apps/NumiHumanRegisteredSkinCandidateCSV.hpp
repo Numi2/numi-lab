@@ -9,8 +9,15 @@
 #include <string_view>
 
 namespace metalrobo::human::coarse_tissue {
+// An explicit current source domain is supplied only by the native owner after
+// pinning its producer asset. Legacy compatibility slots are not D37 ancestry.
+struct RegisteredSkinCurrentSourceDomain {
+    std::string name,assetSHA256;
+    std::size_t vertexCount=0,faceCount=0;
+};
 struct RegisteredSkinCandidateCSVReport {
     std::size_t nodeRows=0,faceRows=0,directPredecessorRows=0,derivedPredecessorRows=0;
+    std::size_t currentRegisteredRows=0;
     double maximumPredecessorProjectionDistanceM=0.0;
 };
 namespace registered_skin_candidate_csv_detail {
@@ -30,7 +37,8 @@ template<class SHA256OfPath> inline bool loadRegisteredSkinCandidateCSV(
     const std::filesystem::path& nodesPath,const std::filesystem::path& facesPath,
     const std::size_t bodyCount,const RegisteredSurface& identity,
     const std::string_view facesSHA256,const SHA256OfPath& sha256OfPath,
-    RegisteredSurface& output,RegisteredSkinCandidateCSVReport& report,std::string& error) {
+    RegisteredSurface& output,RegisteredSkinCandidateCSVReport& report,std::string& error,
+    const RegisteredSkinCurrentSourceDomain* currentSource=nullptr) {
     using namespace registered_skin_candidate_csv_detail;
     const auto fail=[&](std::string message){error=std::move(message);return false;};
     if(bodyCount==0||identity.sourcePayloadSHA256.size()!=64||identity.sourceMeshSHA256.size()!=64||
@@ -39,6 +47,10 @@ template<class SHA256OfPath> inline bool loadRegisteredSkinCandidateCSV(
     if(facesSHA256.size()!=64||sha256OfPath(nodesPath)!=identity.sourceMeshSHA256||
        sha256OfPath(facesPath)!=facesSHA256)
         return fail("registered skin CSV source hash mismatch");
+    if(currentSource&&(currentSource->name.empty()||currentSource->assetSHA256.size()!=64||
+       currentSource->vertexCount==0||currentSource->vertexCount>300000||
+       currentSource->faceCount==0||currentSource->faceCount>600000))
+        return fail("registered skin current source domain is incomplete");
     RegisteredSurface next=identity;RegisteredSkinCandidateCSVReport measured;
     if(!next.worldPoints.empty()||!next.faces.empty()||!next.sourceVertexIndices.empty())
         return fail("registered skin CSV identity contains previous geometry");
@@ -51,6 +63,9 @@ template<class SHA256OfPath> inline bool loadRegisteredSkinCandidateCSV(
                         "m00","m01","m02","m10","m11","m12","m20","m21","m22",
                         "d37_source_vertex_row","d37_source_face_row","beta0","beta1","beta2","projection_distance_m"})
         if(!columns.contains(key))return fail("registered skin CSV misses required column "+std::string(key));
+    if(currentSource)for(const auto* key:{"source_vertex_row","source_face_row","source_bary0",
+            "source_bary1","source_bary2","source_domain"})
+        if(!columns.contains(key))return fail("registered skin current source column missing");
     while(std::getline(nodes,line)) {
         if(measured.nodeRows>=300000u||line.size()>16384)return fail("registered skin CSV capacity exceeded");
         const auto row=split(line);if(row.size()!=names.size())return fail("registered skin CSV row width mismatch");
@@ -71,15 +86,51 @@ template<class SHA256OfPath> inline bool loadRegisteredSkinCandidateCSV(
             for(unsigned b=0;b<3;++b)if(!number(row[columns.at("m"+std::to_string(a)+std::to_string(b))],matrix[3*a+b])||!std::isfinite(matrix[3*a+b]))
                 return fail("registered skin CSV invalid donor frame");
         }
-        if(std::abs(norm(normal)-1.0)>1e-5||parentVertex < -1||parentFace < -1||
-           parentVertex>=61950||parentFace>=108987||(parentVertex>=0)==(parentFace>=0))return fail("registered skin CSV invalid normal or missing predecessor ancestry");
-        if(parentFace>=0&&!validateBarycentricCoordinates(beta,error))return false;
-        measured.directPredecessorRows+=parentVertex>=0;measured.derivedPredecessorRows+=parentVertex<0;
+        if(std::abs(norm(normal)-1.0)>1e-5)
+            return fail("registered skin CSV invalid normal at row "+std::to_string(id));
+        std::int64_t currentVertex=-1,currentFace=-1;V3 currentSourceBeta{};
+        if(currentSource){
+            // The 433 exporter writes the compact current row into these old
+            // compatibility columns; never promote it to historical ancestry.
+            if(parentVertex!=id||parentFace!=-1||beta!=V3{1.,0.,0.}||distance!=0.)
+                return fail("registered skin current compatibility slots differ at row "+std::to_string(id));
+            std::int64_t vertex=-1,face=-1;V3 sourceBeta{};
+            if(!get("source_vertex_row",vertex)||!get("source_face_row",face)||
+               vertex < -1||face < -1||(vertex>=0)==(face>=0)||
+               (vertex>=0&&std::uint64_t(vertex)>=currentSource->vertexCount)||
+               (face>=0&&std::uint64_t(face)>=currentSource->faceCount)||
+               row[columns.at("source_domain")]!=currentSource->name)
+                return fail("registered skin current source identity out of domain at row "+std::to_string(id));
+            for(unsigned a=0;a<3;++a)if(!get(("source_bary"+std::to_string(a)).c_str(),sourceBeta[a])||
+                    !std::isfinite(sourceBeta[a]))return fail("registered skin current source barycentric invalid");
+            if(face>=0&&!validateBarycentricCoordinates(sourceBeta,error))return false;
+            currentVertex=vertex;currentFace=face;currentSourceBeta=sourceBeta;
+            ++measured.currentRegisteredRows;
+        }else{
+            if(parentVertex < -1||parentFace < -1||parentVertex>=61950||parentFace>=108987||
+               (parentVertex>=0)==(parentFace>=0))
+                return fail("registered skin CSV missing or invalid D37 predecessor ancestry at row "+std::to_string(id));
+            if(parentFace>=0&&!validateBarycentricCoordinates(beta,error))return false;
+            measured.directPredecessorRows+=parentVertex>=0;measured.derivedPredecessorRows+=parentVertex<0;
+        }
         measured.maximumPredecessorProjectionDistanceM=std::max(measured.maximumPredecessorProjectionDistanceM,distance);
         next.worldPoints.push_back(world);next.donorLocalPoints.push_back(local);next.outwardWorldNormals.push_back(normal);
         next.donorBodyIndices.push_back(donor);next.worldToDonorLocalLinear.push_back(matrix);
         // Current NHSKIN row IDs are distinct from recorded predecessor IDs.
-        next.sourceVertexIndices.push_back(id);++measured.nodeRows;
+        next.sourceVertexIndices.push_back(currentSource?
+            (currentVertex>=0?static_cast<std::uint32_t>(currentVertex):NM_INVALID_INDEX):id);
+        if(currentSource){
+            next.sourceEmbeddingFaceIndices.push_back(currentFace>=0?static_cast<std::uint32_t>(currentFace):NM_INVALID_INDEX);
+            next.sourceEmbeddingBarycentric.push_back(currentSourceBeta);
+            V3 residual{};
+            for(unsigned a=0;a<3;++a){
+                const auto key="source_residual_"+std::string(1,"xyz"[a])+"_m";
+                if(!columns.contains(key)||!get(key.c_str(),residual[a])||!std::isfinite(residual[a]))
+                    return fail("registered skin current source residual invalid");
+            }
+            next.sourceEmbeddingResidualWorldM.push_back(residual);
+        }
+        ++measured.nodeRows;
     }
     if(!nodes.eof()||measured.nodeRows<4||!std::getline(faces,line))
         return fail("registered skin CSV missing rows or wrong face schema");

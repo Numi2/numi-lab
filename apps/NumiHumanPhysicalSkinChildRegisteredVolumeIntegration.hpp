@@ -712,11 +712,17 @@ inline bool verifyOperationalReferencePullback(
     nextBundle.sourceCarrierQuadrature={};
     const std::array<std::string,3> tetgenHashes{
         tetgenReport.nodeFileSHA256,tetgenReport.elementFileSHA256,tetgenReport.labelFileSHA256};
-    const bool separatedOperationalReference=files.registrationDomain==
+    const bool currentFractionalReference=files.registrationDomain==
+        PhysicalSkinRegisteredVolumeRegistrationDomain::currentFractionalReference;
+    const bool ancestryOperationalReference=files.registrationDomain==
         PhysicalSkinRegisteredVolumeRegistrationDomain::candidateOperationalReference;
-    if(separatedOperationalReference&&!files.operationalReferencePullback)
+    const bool separatedOperationalReference=ancestryOperationalReference||currentFractionalReference;
+    if(currentFractionalReference&&(sourceDomains.size()!=3u||
+       std::any_of(registered.surfaces.begin(),registered.surfaces.end(),[](const auto& s){return s.worldPoints.empty();})))
+        return fail("current fractional reference requires all three explicit source domains and registered surfaces");
+    if(ancestryOperationalReference&&!files.operationalReferencePullback)
         return fail("candidate operational-reference import requires authenticated source and candidate receipts plus a same-topology pullback proof");
-    if(!separatedOperationalReference&&files.operationalReferencePullback)
+    if(!ancestryOperationalReference&&files.operationalReferencePullback)
         return fail("source-parent import cannot carry an operational-reference pullback packet");
     auto operationalDomainHash=separatedOperationalReference?
         operationalReferenceDomainSHA256(tetgenReport,coordinateFrameSHA256):std::string{};
@@ -725,7 +731,7 @@ inline bool verifyOperationalReferencePullback(
         return fail("candidate operational-reference hash could not be derived from its pinned geometry/label inputs");
     if(separatedOperationalReference!=registered.parentRegistrationIsHistoricalProvenanceOnly)
         return fail("surface source-parent registration mode differs from the declared operational-reference split");
-    const bool fractionalRequired=separatedOperationalReference&&
+    const bool fractionalRequired=ancestryOperationalReference&&
         files.operationalReferencePullback->fractionalSemanticMassRouteRequired;
     if(fractionalRequired!=files.fractionalSemanticSupport.has_value())
         return fail("fractional semantic route flag and its two-role support assets must be supplied together");
@@ -800,7 +806,7 @@ inline bool verifyOperationalReferencePullback(
     nextBundle.operationalSpatialReferenceVerificationSHA256.clear();
     nextBundle.operationalSpatialTransportReceiptSHA256.clear();
     nextBundle.usesSeparatedOperationalReference=separatedOperationalReference;
-    nextBundle.conformingLineageMassRouteRequired=separatedOperationalReference&&
+    nextBundle.conformingLineageMassRouteRequired=ancestryOperationalReference&&
         files.operationalReferencePullback->conformingTissueRefinement.has_value();
     std::string mapHashBefore,mapHashAfter;
     if(!pinnedFile(files.combinedNodeMapCSV,files.expectedSHA256[3],mapHashBefore,error))return false;
@@ -821,7 +827,7 @@ inline bool verifyOperationalReferencePullback(
     ConservativeSpatialMassTransportResult verifiedSpatialTransport;
     SourceCellCarrierTransportTrace verifiedSourceCarrierTrace;
     std::string spatialReferenceVerificationSHA256;
-    if(separatedOperationalReference&&
+    if(ancestryOperationalReference&&
        !verifyOperationalReferencePullback(*files.operationalReferencePullback,coordinateFrameSHA256,
            sourceBodyCount,maximumMassTransportDistanceM,nextBundle,nodeRows,tetgenHashes,
            mapHashAfter,files.expectedSHA256[4],pullbackProof,maximumSourceParentRegistrationDistance,
@@ -873,7 +879,7 @@ inline bool verifyOperationalReferencePullback(
     PhysicalSkinRegisteredFacetCSVReport facetCSVReport;
     std::vector<PhysicalSkinAuthoredHeadWallRow> authoredWalls;
     if(!readPhysicalSkinAuthoredHeadWallsCSV(facetInput,nextBundle.childTetrahedra.size(),
-            nextBundle.referenceWorldPoints.size(),authoredWalls,facetCSVReport,error))
+            nextBundle.referenceWorldPoints.size(),authoredWalls,facetCSVReport,error,currentFractionalReference))
         return false;
     if(!pinnedFile(files.facetAncestryCSV,files.expectedSHA256[4],facetHashAfter,error)||
        facetHashAfter!=facetHashBefore)
@@ -892,7 +898,7 @@ inline bool verifyOperationalReferencePullback(
             nextSidecars,registeredReport,error,sourceDomains,files.registrationDomain,operationalDomainHash))
         return false;
     PhysicalSkinRegisteredFacetMapReport facetMapReport;
-    if(!preparePhysicalSkinRegisteredFacetMaps(nextBundle,authoredWalls,15u,16u,facetMapReport,error))
+    if(!preparePhysicalSkinRegisteredFacetMaps(nextBundle,authoredWalls,15u,16u,facetMapReport,error,currentFractionalReference))
         return false;
     if(!sameImmutableParentPacket(outputBundle.parent,nextBundle.parent))
         return fail("registered operational-reference import mutated the immutable source-mass parent packet");
@@ -904,13 +910,13 @@ inline bool verifyOperationalReferencePullback(
         measured.tetgen.labelFileSHA256,mapHashAfter,facetHashAfter};
     measured.registrationDomain=files.registrationDomain;
     measured.operationalReferenceDomainSHA256=operationalDomainHash;
-    measured.operationalReferencePullbackVerified=separatedOperationalReference&&
+    measured.operationalReferencePullbackVerified=ancestryOperationalReference&&
         spatialReferenceVerificationSHA256.empty();
     measured.operationalReferenceSpatialTransportVerified=!spatialReferenceVerificationSHA256.empty();
     measured.operationalReferenceSpatialTransportVerificationSHA256=spatialReferenceVerificationSHA256;
     if(measured.operationalReferenceSpatialTransportVerified)
         measured.maximumSpatialMassTransportDistanceM=nextBundle.spatialMassTransportResult.maximumTransportDistanceUsedM;
-    if(separatedOperationalReference){
+    if(ancestryOperationalReference){
         measured.operationalReferencePullbackSHA256=pullbackProof.verificationSHA256;
         measured.conformingTissueRefinementVerified=!conformingTissueVerificationSHA256.empty();
         measured.conformingTissueRefinementVerificationSHA256=conformingTissueVerificationSHA256;

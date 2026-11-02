@@ -85,7 +85,8 @@ struct PhysicalSkinRegisteredBodyPose {
 };
 enum class PhysicalSkinRegisteredVolumeRegistrationDomain : std::uint8_t {
     sourceMassParent=0,
-    candidateOperationalReference=1
+    candidateOperationalReference=1,
+    currentFractionalReference=2
 };
 
 struct PhysicalSkinRegisteredVolumeImportReport {
@@ -388,8 +389,12 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
     using namespace physical_skin_registered_volume_import_detail;
     const auto fail=[&](std::string message){error=std::move(message);return false;};
     const bool typedSourceDomains=!declaredSourceDomains.empty();
-    const bool separatedOperationalReference=registrationDomain==
+    const bool currentFractionalReference=registrationDomain==
+        PhysicalSkinRegisteredVolumeRegistrationDomain::currentFractionalReference;
+    const bool separatedOperationalReference=currentFractionalReference||registrationDomain==
         PhysicalSkinRegisteredVolumeRegistrationDomain::candidateOperationalReference;
+    if(currentFractionalReference&&!typedSourceDomains)
+        return fail("current fractional reference requires explicit typed O/I/D source domains");
     if(separatedOperationalReference&&(!physical_skin_child_mass_detail::validSHA256(operationalReferenceDomainSHA256)||
        bundle.childTetrahedra.empty()||!registered.parentRegistrationIsHistoricalProvenanceOnly))
         return fail("separated operational reference requires a pinned positive candidate mesh and label domain");
@@ -724,7 +729,7 @@ inline bool compareSource(const PhysicalSkinRegisteredVolumeNodeRow& row,
     }
     if(std::find(seen.begin(),seen.end(),0u)!=seen.end())
         return fail("combined TetGen node-map omits one or more joint volume node rows");
-    if(separatedOperationalReference&&
+    if(separatedOperationalReference&&!currentFractionalReference&&
        (sourceParentNodeSeen.size()!=bundle.parent.currentWorldPoints.size()||
         std::find(sourceParentNodeSeen.begin(),sourceParentNodeSeen.end(),0u)!=sourceParentNodeSeen.end()))
         return fail("separated operational-reference map does not retain every immutable source-parent node identity exactly once");

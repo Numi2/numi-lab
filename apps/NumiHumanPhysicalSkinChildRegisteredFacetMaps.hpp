@@ -13,6 +13,7 @@ struct PhysicalSkinAuthoredHeadWallRow {
     std::array<std::uint32_t,3> childNodes{};
     std::uint32_t parentTet=NM_INVALID_INDEX,material=NM_INVALID_INDEX;
     std::array<std::uint32_t,3> parentNodes{};
+    std::uint32_t currentSourceAncestorFace=NM_INVALID_INDEX;
 };
 struct PhysicalSkinRegisteredFacetMapReport {
     std::array<std::size_t,3> layerFaceUses{};
@@ -25,7 +26,8 @@ struct PhysicalSkinRegisteredFacetMapReport {
         PhysicalSkinChildMassMappingBundle& bundle,
         const std::span<const PhysicalSkinAuthoredHeadWallRow> authoredWalls,
         const std::uint32_t skinMaterial,const std::uint32_t fatMaterial,
-        PhysicalSkinRegisteredFacetMapReport& report,std::string& error) {
+        PhysicalSkinRegisteredFacetMapReport& report,std::string& error,
+        const bool currentReferenceWalls=false) {
     using Key=std::array<std::uint32_t,3>;
     struct RegisteredFace { unsigned layer;std::uint32_t row,stable; };
     struct FacetUse { std::uint32_t cell,omitted;int orientation; };
@@ -93,6 +95,19 @@ struct PhysicalSkinRegisteredFacetMapReport {
            !wallIDs.insert(wall.stableWallFace).second||
            !wallByFacet.emplace(std::pair{wall.childTet,key},&wall).second)
             return fail("authored head wall has a missing/duplicate source, child, parent, or material identity");
+        if(wall.currentSourceAncestorFace!=NM_INVALID_INDEX){
+            if(!currentReferenceWalls||!bundle.usesSeparatedOperationalReference||
+               !physical_skin_child_mass_detail::validSHA256(bundle.operationalReferenceDomainSHA256)||
+               bundle.parent.stableSourceFaceIdentities.size()!=bundle.parent.tetrahedra.size()||
+               bundle.childStableSourceFaceIdentities.size()!=cells||
+               wall.parentNodes!=Key{NM_INVALID_INDEX,NM_INVALID_INDEX,NM_INVALID_INDEX}||
+               wall.currentSourceAncestorFace!=bundle.parent.stableSourceFaceIdentities[wall.parentTet]||
+               wall.currentSourceAncestorFace!=bundle.childStableSourceFaceIdentities[wall.childTet])
+                return fail("current authored head wall differs from its explicit source-face lineage or current-reference owner");
+            // Exact current child-facet incidence is certified below. An inferred
+            // repaired face does not claim unchanged historical node coordinates.
+            continue;
+        }
         auto parentNodes=wall.parentNodes;std::sort(parentNodes.begin(),parentNodes.end());
         const auto parentTet=bundle.parent.tetrahedra[wall.parentTet];
         if(std::adjacent_find(parentNodes.begin(),parentNodes.end())!=parentNodes.end())
@@ -233,7 +248,8 @@ inline bool parentFaceNodes(const std::string& field,std::array<std::uint32_t,3>
 [[nodiscard]] inline bool readPhysicalSkinAuthoredHeadWallsCSV(
         std::istream& input,const std::size_t childCellCount,const std::size_t childNodeCount,
         std::vector<PhysicalSkinAuthoredHeadWallRow>& output,
-        PhysicalSkinRegisteredFacetCSVReport& report,std::string& error) {
+        PhysicalSkinRegisteredFacetCSVReport& report,std::string& error,
+        const bool currentReferenceWalls=false) {
     using physical_skin_child_mass_detail::parseNumber;
     using physical_skin_registered_facet_csv_detail::splitQuotedRow;
     const auto fail=[&](std::string message){error=std::move(message);return false;};
@@ -276,9 +292,22 @@ inline bool parentFaceNodes(const std::string& field,std::array<std::uint32_t,3>
                !parseNumber(fields[4],row.stableWallFace)||row.stableWallFace==NM_INVALID_INDEX||
                !stableWallIDs.insert(row.stableWallFace).second||
                !parseNumber(fields[14],row.parentTet)||row.parentTet==NM_INVALID_INDEX||
-               !parseNumber(fields[15],row.material)||row.material!=(skin?15u:16u)||
-               !physical_skin_registered_facet_csv_detail::parentFaceNodes(fields[16],row.parentNodes))
+               !parseNumber(fields[15],row.material)||row.material!=(skin?15u:16u))
                 return fail("facet CSV authored head wall lacks exact source/material/parent identities");
+            if(!physical_skin_registered_facet_csv_detail::parentFaceNodes(fields[16],row.parentNodes)){
+                if(!currentReferenceWalls)return fail("facet CSV authored head wall lacks exact source/material/parent identities");
+                const auto singleton=[&](const std::string& value,std::uint32_t& id){
+                    return value.size()>2u&&value.front()=='['&&value.back()==']'&&
+                        parseNumber(value.substr(1u,value.size()-2u),id)&&id!=NM_INVALID_INDEX;
+                };
+                std::uint32_t source=NM_INVALID_INDEX,parentFace=NM_INVALID_INDEX;
+                if(!currentReferenceWalls||fields[16]!="[-1,-1,-1]"||
+                   !singleton(fields[13],source)||fields[22]!=fields[13]||
+                   !singleton(fields[23],parentFace)||parentFace!=row.childTet)
+                    return fail("facet CSV derived current head wall lacks explicit exact source-face lineage");
+                row.currentSourceAncestorFace=source;
+                row.parentNodes={NM_INVALID_INDEX,NM_INVALID_INDEX,NM_INVALID_INDEX};
+            }
             next.push_back(row);++measured.authoredWallRows;
         } else ++measured.registeredRows;
         ++measured.fileRows;
