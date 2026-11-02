@@ -24883,6 +24883,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 proofFiles.fatCarrierWitnessCSVPath=fractionalPath("CARRIER_WITNESS_FAT_CSV");
                 proofFiles.fatCarrierWitnessCSV_SHA256=requireSHA("CARRIER_WITNESS_FAT_SHA256");
                 proofFiles.carriers=&carrierData;
+                proofFiles.skinChildGlobalRows=skinChildRows;
+                proofFiles.fatChildGlobalRows=fatChildRows;
                 const auto carrierView=carrierData.view();
                 SourceCellCarrierTransportTrace carrierTrace;
                 require(preparePhysicalSkinChildMassMapping(bundle,identityDensityLower,
@@ -39130,7 +39132,7 @@ int main(int argc, char** argv) {
                         initialTissueQ,*muscleStepSeconds,
                         selectedMatterMetallib,true,
                         &registeredDetailCanonicalExportCompleted,
-                        std::filesystem::path(restingScene->second));
+                        std::filesystem::path(positional.back()));
                     if(registeredDetailCanonicalExportCompleted) {
                         require(!restingPassiveFasciaOwner,
                                 "canonical detail export unexpectedly installed a scene owner");

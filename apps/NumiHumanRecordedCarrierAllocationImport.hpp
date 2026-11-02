@@ -350,6 +350,15 @@ inline bool validWithinTransportDistance(const double distance,const double maxi
         for(std::size_t c=0;c<expectedChildRows;++c){
             const auto begin=result.childParentOffsets[c],end=result.childParentOffsets[c+1u];
             if(begin>=end)return fail("recorded transport-flow CSV leaves a current child without a source flow");
+            // Match the original carrier writer and solver-free verifier: the
+            // denominator is the rounded exact sum of collapsed edge measures.
+            // Ordinary += can differ by one ULP and fail exact replay parity.
+            spatial_mass_transport_detail::ExactDoubleSum aggregateMeasure;
+            for(std::uint32_t e=begin;e<end;++e)
+                aggregateMeasure.add(result.childParentTransportMeasureM3[e]);
+            result.childAncestryMeasureVolumeM3[c]=aggregateMeasure.rounded();
+            if(!aggregateMeasure.valid()||!validPositive(result.childAncestryMeasureVolumeM3[c]))
+                return fail("recorded aggregate source-measure total is invalid");
             double best=-1.0;std::uint32_t dominant=spatial_mass_transport_detail::kInvalid;
             double fractionSum=0.0;
             for(std::uint32_t e=begin;e<end;++e){
