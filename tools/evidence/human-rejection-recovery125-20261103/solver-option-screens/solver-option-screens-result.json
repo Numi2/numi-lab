@@ -303,5 +303,150 @@
       }
     ],
     "claims": "Screen only; unbalanced release transient; no resting/motion/performance qualification; endpoint field comparison still required."
+  },
+  "vascular-predictor-native-030": {
+    "native_exit": 1,
+    "elapsed_s_including_initialization_and_failed_attempt": 447.5965929031372,
+    "resource_stop_reason": null,
+    "accepted_steps": 12,
+    "accepted_time_s": 0.000187500008906,
+    "accepted_GPU_seconds": [
+      18.503597624999998,
+      18.887003,
+      18.110380083299997,
+      17.962594499999998,
+      17.932115375000002,
+      19.077676083300002,
+      18.052941875000002,
+      21.992723583300002,
+      21.91605775,
+      31.856216,
+      18.102520916699998,
+      17.905262750000002
+    ],
+    "accepted_GPU_mean_seconds": 20.024924128466665,
+    "GPU_only_RTF": 7.80277613026663e-07,
+    "elapsed_inclusive_RTF": 4.189039929546028e-07,
+    "last_terminal_certificate": {
+      "root": 12,
+      "status": [
+        {
+          "code": 10,
+          "object_index": 19,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0.000318382285,
+            0.286084622,
+            0,
+            0
+          ]
+        }
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            1.83871782e-06,
+            0.000424171565,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000688256463,
+            0.000424171565,
+            1.57086015,
+            0
+          ]
+        }
+      ]
+    },
+    "profiles": [
+      {
+        "step": "1",
+        "command_ms": "18504.636083",
+        "gpu_ms": "18503.597625",
+        "host_copy_ms": "0.26",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "2",
+        "command_ms": "18887.622375",
+        "gpu_ms": "18887.003",
+        "host_copy_ms": "2.376875",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "3",
+        "command_ms": "18110.975417",
+        "gpu_ms": "18110.3800833",
+        "host_copy_ms": "0.095375",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "4",
+        "command_ms": "17963.280083",
+        "gpu_ms": "17962.5945",
+        "host_copy_ms": "0.053292",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "5",
+        "command_ms": "17932.829375",
+        "gpu_ms": "17932.115375",
+        "host_copy_ms": "0.054125",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "6",
+        "command_ms": "19078.382875",
+        "gpu_ms": "19077.6760833",
+        "host_copy_ms": "0.053959",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "7",
+        "command_ms": "18053.670958",
+        "gpu_ms": "18052.941875",
+        "host_copy_ms": "0.0535",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "8",
+        "command_ms": "21993.43625",
+        "gpu_ms": "21992.7235833",
+        "host_copy_ms": "0.053833",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "9",
+        "command_ms": "21916.767875",
+        "gpu_ms": "21916.05775",
+        "host_copy_ms": "0.054208",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "10",
+        "command_ms": "31857.082208",
+        "gpu_ms": "31856.216",
+        "host_copy_ms": "0.053917",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "11",
+        "command_ms": "18103.217791",
+        "gpu_ms": "18102.5209167",
+        "host_copy_ms": "0.055375",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "12",
+        "command_ms": "17905.9985",
+        "gpu_ms": "17905.26275",
+        "host_copy_ms": "0.0495",
+        "full_state_readback": "1"
+      }
+    ],
+    "claims": "Screen only; unbalanced release transient; no resting/motion/performance qualification; endpoint field comparison still required."
   }
 }

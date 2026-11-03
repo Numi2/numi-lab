@@ -1,0 +1,15 @@
+{
+  "status": "Regression passed; native trial ready",
+  "reference": "025:12 accepted then descending-thoracic-aorta row5 residual1.57541544e-5>1e-5",
+  "change": "Existing four-update fixed-FEM vascular block predictor, followed by complete coupled FGMRES and the unchanged physical acceptance gates. Existing principal-block LU, valve working set, positivity and true nonlinear residual are retained.",
+  "unchanged": "Source/binaries, mesh, masses, all physical equations/tolerances, dt, Newton/Krylovbudgets and contact settings. Thin-cellSchwarz off as in025.",
+  "requested_steps": 16,
+  "dt_s": 1.5625e-05,
+  "hypothesis": "Better vascular initial Newton state may avoid the global contact fraction starving the vascular correction. This is a hypothesis, not a measured improvement.",
+  "resource": "One GPUjob;>=12GiB free;900s and3GiBswapgrowth limits;source and binaries frozen.",
+  "regression_log": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/vascular-predictor-regression-030b.log",
+    "sha256": "0386aa2042155340ba292cde31203a8cf1a9fd630cafbc5280a4de2478907027",
+    "bytes": 14848
+  }
+}

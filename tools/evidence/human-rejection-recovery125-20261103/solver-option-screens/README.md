@@ -9,3 +9,5 @@ The current qualified source increment remains the certified dyadic contact pref
 - The unchanged body is an unbalanced release transient. GPU-only timing excludes initialization and the rejected attempt; elapsed-inclusive timing is reported separately. Neither is end-to-end native-viewer qualification.
 - Two verified identical-output consolidation passes recovered 21,556,989,952 bytes (20.08 GiB). All logical sources, assets and evidence paths were retained.
 - Successful endpoint stdout captures exceed 833 MB. Full captures remain local with original execution hashes; bounded prefixes here are not substitutes for endpoint comparisons.
+
+- 030: existing four-pass vascular block predictor; twelve accepted steps, then mechanical rejection at object19. It does not improve over the twelve-step baseline. The refreshed native cavity regression passed conservation, moving-wall coupling and rollback. The first stale-checker specialization failure is retained.
