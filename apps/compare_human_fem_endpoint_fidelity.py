@@ -92,10 +92,24 @@ def _vector(fields: dict[str, str], prefix: str, unit: str,
                  for axis in FORCE_COMPONENTS)  # type: ignore[return-value]
 
 
+def _capture_lines(path: Path):
+    with path.open(errors="strict") as source:
+        for line in source:
+            yield line.rstrip("\r\n")
+
+
 def parse_capture(path: Path) -> dict[str, Any]:
-    text = path.read_text(errors="strict")
-    lines = text.splitlines()
-    begin_line = next((p for line in lines if (p := _payload(line, BEGIN_MARKER))), None)
+    # Endpoint captures can contain millions of source rows. Scan marker
+    # metadata without retaining the complete text and a second list of lines.
+    # Keep the original validation order, including the end-marker check before
+    # parsing records, so malformed or truncated captures fail identically.
+    begin_line = None
+    complete = False
+    with path.open(errors="strict") as source:
+        for line in source:
+            if begin_line is None:
+                begin_line = _payload(line, BEGIN_MARKER)
+            complete = complete or _payload(line, END_MARKER) is not None
     require(begin_line is not None, f"{path}: missing endpoint capture begin record")
     header = _kv_words(begin_line[len(BEGIN_MARKER):])
     require(header.get("version") == "1",
@@ -110,12 +124,11 @@ def parse_capture(path: Path) -> dict[str, Any]:
                 header.get("strain_unit") == "1" and
                 header.get("mechanical_residual_unit") == "N_s",
             f"{path}: endpoint capture does not declare required SI units")
-    require(any(_payload(line, END_MARKER) is not None for line in lines),
-            f"{path}: endpoint capture is incomplete")
+    require(complete, f"{path}: endpoint capture is incomplete")
     nodes: dict[tuple[str, int], dict[str, Any]] = {}
     tets: dict[tuple[str, int], dict[str, Any]] = {}
     reactions: dict[int, tuple[float, float, float]] = {}
-    for line in lines:
+    for line in _capture_lines(path):
         node_line = _payload(line, NODE_MARKER)
         if node_line is not None:
             fields = _kv_commas(node_line)

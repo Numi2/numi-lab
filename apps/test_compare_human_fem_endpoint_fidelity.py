@@ -116,6 +116,16 @@ class EndpointFidelityTests(unittest.TestCase):
             reduced.write_text(reduced_text)
             return module.compare(full, reduced)
 
+    def test_capture_streams_without_whole_file_allocation(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "endpoint.log"
+            path.write_bytes(make_log().replace("\n", "\r\n").encode())
+            with patch.object(Path, "read_text", side_effect=AssertionError(
+                    "endpoint captures must be streamed")):
+                capture = module.parse_capture(path)
+            self.assertIsNotNone(capture)
+
     def test_identical_endpoint_passes(self):
         report = self.compare_logs(make_log(), make_log())
         self.assertTrue(report["gates"]["measured_channel_fidelity_pass"])

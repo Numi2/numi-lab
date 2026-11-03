@@ -1,0 +1,341 @@
+test_active_tag2_force_is_compared (__main__.EndpointFidelityTests.test_active_tag2_force_is_compared) ... ERROR
+test_active_tag2_rows_fail_closed_when_unmapped (__main__.EndpointFidelityTests.test_active_tag2_rows_fail_closed_when_unmapped) ... ok
+test_force_error_over_one_percent_fails (__main__.EndpointFidelityTests.test_force_error_over_one_percent_fails) ... ERROR
+test_green_strain_error_over_five_percent_fails (__main__.EndpointFidelityTests.test_green_strain_error_over_five_percent_fails) ... ERROR
+test_identical_endpoint_passes (__main__.EndpointFidelityTests.test_identical_endpoint_passes) ... ERROR
+test_matched_physical_time_accepts_different_schedules_and_final_anchor (__main__.EndpointFidelityTests.test_matched_physical_time_accepts_different_schedules_and_final_anchor) ... ERROR
+test_matched_physical_time_rejects_different_endpoints (__main__.EndpointFidelityTests.test_matched_physical_time_rejects_different_endpoints) ... FAIL
+test_matched_physical_time_rejects_nonpositive_steps_and_inconsistent_product (__main__.EndpointFidelityTests.test_matched_physical_time_rejects_nonpositive_steps_and_inconsistent_product) ... FAIL
+test_matched_physical_time_requires_positive_dt_and_consistent_endpoint (__main__.EndpointFidelityTests.test_matched_physical_time_requires_positive_dt_and_consistent_endpoint) ... FAIL
+test_missing_force_channel_is_not_a_pass (__main__.EndpointFidelityTests.test_missing_force_channel_is_not_a_pass) ... ERROR
+test_per_tet_gate_catches_localized_error_hidden_by_volume_average (__main__.EndpointFidelityTests.test_per_tet_gate_catches_localized_error_hidden_by_volume_average) ... ERROR
+test_reference_displacement_pair_defines_current_position (__main__.EndpointFidelityTests.test_reference_displacement_pair_defines_current_position) ... ERROR
+test_region_coverage_reports_registered_labels_and_unlabeled_gap (__main__.EndpointFidelityTests.test_region_coverage_reports_registered_labels_and_unlabeled_gap) ... ERROR
+test_residual_is_kept_in_impulse_units (__main__.EndpointFidelityTests.test_residual_is_kept_in_impulse_units) ... ERROR
+test_source_mass_mismatch_is_rejected (__main__.EndpointFidelityTests.test_source_mass_mismatch_is_rejected) ... ok
+test_strict_mode_rejects_different_step_counts (__main__.EndpointFidelityTests.test_strict_mode_rejects_different_step_counts) ... ok
+test_time_mismatch_is_rejected (__main__.EndpointFidelityTests.test_time_mismatch_is_rejected) ... ok
+test_unowned_tag2_force_is_rejected (__main__.EndpointFidelityTests.test_unowned_tag2_force_is_rejected) ... ok
+test_zero_force_reference_is_not_counted_as_a_pass (__main__.EndpointFidelityTests.test_zero_force_reference_is_not_counted_as_a_pass) ... ERROR
+test_zero_reference_local_strain_error_is_counted_as_failure (__main__.EndpointFidelityTests.test_zero_reference_local_strain_error_is_counted_as_failure) ... ERROR
+test_zero_tag2_rows_are_not_applicable_not_missing (__main__.EndpointFidelityTests.test_zero_tag2_rows_are_not_applicable_not_missing) ... ERROR
+
+======================================================================
+ERROR: test_active_tag2_force_is_compared (__main__.EndpointFidelityTests.test_active_tag2_force_is_compared)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 155, in test_active_tag2_force_is_compared
+    report = self.compare_logs(
+        make_log(tag2_available="1", tag2_nodes=1, tag2_force=10.0),
+        make_log(tag2_available="1", tag2_nodes=1, tag2_force=10.2))
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 117, in compare_logs
+    return module.compare(full, reduced)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 778, in compare
+    full, reduced = parse_capture(full_path), parse_capture(reduced_path)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 159, in parse_capture
+    require(region_source in (None, "registered_skin_fat_donor_body"),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{context} has an unsupported anatomical region source")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 35, in require
+    raise ComparisonError(message)
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpjpib83fy/full.log: node record has an unsupported anatomical region source
+
+======================================================================
+ERROR: test_force_error_over_one_percent_fails (__main__.EndpointFidelityTests.test_force_error_over_one_percent_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 127, in test_force_error_over_one_percent_fails
+    report = self.compare_logs(make_log(reaction=10.0), make_log(reaction=10.2))
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 117, in compare_logs
+    return module.compare(full, reduced)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 778, in compare
+    full, reduced = parse_capture(full_path), parse_capture(reduced_path)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 159, in parse_capture
+    require(region_source in (None, "registered_skin_fat_donor_body"),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{context} has an unsupported anatomical region source")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 35, in require
+    raise ComparisonError(message)
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpv7f7sww_/full.log: node record has an unsupported anatomical region source
+
+======================================================================
+ERROR: test_green_strain_error_over_five_percent_fails (__main__.EndpointFidelityTests.test_green_strain_error_over_five_percent_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 133, in test_green_strain_error_over_five_percent_fails
+    report = self.compare_logs(make_log(stretch=1.1), make_log(stretch=1.107))
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 117, in compare_logs
+    return module.compare(full, reduced)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 778, in compare
+    full, reduced = parse_capture(full_path), parse_capture(reduced_path)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 159, in parse_capture
+    require(region_source in (None, "registered_skin_fat_donor_body"),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{context} has an unsupported anatomical region source")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 35, in require
+    raise ComparisonError(message)
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmp5msj8m7w/full.log: node record has an unsupported anatomical region source
+
+======================================================================
+ERROR: test_identical_endpoint_passes (__main__.EndpointFidelityTests.test_identical_endpoint_passes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 120, in test_identical_endpoint_passes
+    report = self.compare_logs(make_log(), make_log())
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 117, in compare_logs
+    return module.compare(full, reduced)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 778, in compare
+    full, reduced = parse_capture(full_path), parse_capture(reduced_path)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 159, in parse_capture
+    require(region_source in (None, "registered_skin_fat_donor_body"),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{context} has an unsupported anatomical region source")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 35, in require
+    raise ComparisonError(message)
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpfae_3so8/full.log: node record has an unsupported anatomical region source
+
+======================================================================
+ERROR: test_matched_physical_time_accepts_different_schedules_and_final_anchor (__main__.EndpointFidelityTests.test_matched_physical_time_accepts_different_schedules_and_final_anchor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 188, in test_matched_physical_time_accepts_different_schedules_and_final_anchor
+    report = module.compare(full_path, reduced_path, matched_physical_time=True)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 778, in compare
+    full, reduced = parse_capture(full_path), parse_capture(reduced_path)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 159, in parse_capture
+    require(region_source in (None, "registered_skin_fat_donor_body"),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{context} has an unsupported anatomical region source")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 35, in require
+    raise ComparisonError(message)
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpvu0dk3m_/full.log: node record has an unsupported anatomical region source
+
+======================================================================
+ERROR: test_missing_force_channel_is_not_a_pass (__main__.EndpointFidelityTests.test_missing_force_channel_is_not_a_pass)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 247, in test_missing_force_channel_is_not_a_pass
+    report = self.compare_logs(make_log(contact_available="0"),
+                               make_log(contact_available="0"))
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 117, in compare_logs
+    return module.compare(full, reduced)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 778, in compare
+    full, reduced = parse_capture(full_path), parse_capture(reduced_path)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 159, in parse_capture
+    require(region_source in (None, "registered_skin_fat_donor_body"),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{context} has an unsupported anatomical region source")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 35, in require
+    raise ComparisonError(message)
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmp3yfw4rfb/full.log: node record has an unsupported anatomical region source
+
+======================================================================
+ERROR: test_per_tet_gate_catches_localized_error_hidden_by_volume_average (__main__.EndpointFidelityTests.test_per_tet_gate_catches_localized_error_hidden_by_volume_average)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 261, in test_per_tet_gate_catches_localized_error_hidden_by_volume_average
+    report = self.compare_logs(full, reduced)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 117, in compare_logs
+    return module.compare(full, reduced)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 778, in compare
+    full, reduced = parse_capture(full_path), parse_capture(reduced_path)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 159, in parse_capture
+    require(region_source in (None, "registered_skin_fat_donor_body"),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{context} has an unsupported anatomical region source")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 35, in require
+    raise ComparisonError(message)
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpykom5qm6/full.log: node record has an unsupported anatomical region source
+
+======================================================================
+ERROR: test_reference_displacement_pair_defines_current_position (__main__.EndpointFidelityTests.test_reference_displacement_pair_defines_current_position)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 255, in test_reference_displacement_pair_defines_current_position
+    report = self.compare_logs(full, reduced)
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 117, in compare_logs
+    return module.compare(full, reduced)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 778, in compare
+    full, reduced = parse_capture(full_path), parse_capture(reduced_path)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 159, in parse_capture
+    require(region_source in (None, "registered_skin_fat_donor_body"),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{context} has an unsupported anatomical region source")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 35, in require
+    raise ComparisonError(message)
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpp11jtrmo/full.log: node record has an unsupported anatomical region source
+
+======================================================================
+ERROR: test_region_coverage_reports_registered_labels_and_unlabeled_gap (__main__.EndpointFidelityTests.test_region_coverage_reports_registered_labels_and_unlabeled_gap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 270, in test_region_coverage_reports_registered_labels_and_unlabeled_gap
+    report = self.compare_logs(
+        make_log(second_stretch=1.1, region_ids=(7, 9)),
+        make_log(second_stretch=1.1, region_ids=(7, 9)))
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 117, in compare_logs
+    return module.compare(full, reduced)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 778, in compare
+    full, reduced = parse_capture(full_path), parse_capture(reduced_path)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 159, in parse_capture
+    require(region_source in (None, "registered_skin_fat_donor_body"),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{context} has an unsupported anatomical region source")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 35, in require
+    raise ComparisonError(message)
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpzyf3aceb/full.log: node record has an unsupported anatomical region source
+
+======================================================================
+ERROR: test_residual_is_kept_in_impulse_units (__main__.EndpointFidelityTests.test_residual_is_kept_in_impulse_units)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 291, in test_residual_is_kept_in_impulse_units
+    report = self.compare_logs(make_log(), make_log())
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 117, in compare_logs
+    return module.compare(full, reduced)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 778, in compare
+    full, reduced = parse_capture(full_path), parse_capture(reduced_path)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 159, in parse_capture
+    require(region_source in (None, "registered_skin_fat_donor_body"),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{context} has an unsupported anatomical region source")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 35, in require
+    raise ComparisonError(message)
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpkibh_9z8/full.log: node record has an unsupported anatomical region source
+
+======================================================================
+ERROR: test_zero_force_reference_is_not_counted_as_a_pass (__main__.EndpointFidelityTests.test_zero_force_reference_is_not_counted_as_a_pass)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 242, in test_zero_force_reference_is_not_counted_as_a_pass
+    report = self.compare_logs(make_log(reaction=0.0), make_log(reaction=0.0))
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 117, in compare_logs
+    return module.compare(full, reduced)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 778, in compare
+    full, reduced = parse_capture(full_path), parse_capture(reduced_path)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 159, in parse_capture
+    require(region_source in (None, "registered_skin_fat_donor_body"),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{context} has an unsupported anatomical region source")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 35, in require
+    raise ComparisonError(message)
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmp7gdgj4ti/full.log: node record has an unsupported anatomical region source
+
+======================================================================
+ERROR: test_zero_reference_local_strain_error_is_counted_as_failure (__main__.EndpointFidelityTests.test_zero_reference_local_strain_error_is_counted_as_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 283, in test_zero_reference_local_strain_error_is_counted_as_failure
+    report = self.compare_logs(
+        make_log(stretch=1.0), make_log(stretch=1.000001))
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 117, in compare_logs
+    return module.compare(full, reduced)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 778, in compare
+    full, reduced = parse_capture(full_path), parse_capture(reduced_path)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 159, in parse_capture
+    require(region_source in (None, "registered_skin_fat_donor_body"),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{context} has an unsupported anatomical region source")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 35, in require
+    raise ComparisonError(message)
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpb3m9_sj5/full.log: node record has an unsupported anatomical region source
+
+======================================================================
+ERROR: test_zero_tag2_rows_are_not_applicable_not_missing (__main__.EndpointFidelityTests.test_zero_tag2_rows_are_not_applicable_not_missing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 138, in test_zero_tag2_rows_are_not_applicable_not_missing
+    report = self.compare_logs(make_log(), make_log())
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 117, in compare_logs
+    return module.compare(full, reduced)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 778, in compare
+    full, reduced = parse_capture(full_path), parse_capture(reduced_path)
+                    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 159, in parse_capture
+    require(region_source in (None, "registered_skin_fat_donor_body"),
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{context} has an unsupported anatomical region source")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/compare_human_fem_endpoint_fidelity.py", line 35, in require
+    raise ComparisonError(message)
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpo_jy9jxv/full.log: node record has an unsupported anatomical region source
+
+======================================================================
+FAIL: test_matched_physical_time_rejects_different_endpoints (__main__.EndpointFidelityTests.test_matched_physical_time_rejects_different_endpoints)
+----------------------------------------------------------------------
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpxmpny2z6/full.log: node record has an unsupported anatomical region source
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 207, in test_matched_physical_time_rejects_different_endpoints
+    with self.assertRaisesRegex(module.ComparisonError, "endpoint_time_s"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "endpoint_time_s" does not match "/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpxmpny2z6/full.log: node record has an unsupported anatomical region source"
+
+======================================================================
+FAIL: test_matched_physical_time_rejects_nonpositive_steps_and_inconsistent_product (__main__.EndpointFidelityTests.test_matched_physical_time_rejects_nonpositive_steps_and_inconsistent_product)
+----------------------------------------------------------------------
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpf65u_d11/full.log: node record has an unsupported anatomical region source
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 228, in test_matched_physical_time_rejects_nonpositive_steps_and_inconsistent_product
+    with self.assertRaisesRegex(module.ComparisonError, "steps must be positive"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "steps must be positive" does not match "/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpf65u_d11/full.log: node record has an unsupported anatomical region source"
+
+======================================================================
+FAIL: test_matched_physical_time_requires_positive_dt_and_consistent_endpoint (__main__.EndpointFidelityTests.test_matched_physical_time_requires_positive_dt_and_consistent_endpoint)
+----------------------------------------------------------------------
+endpoint_fidelity.ComparisonError: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmp8uulvo77/full.log: node record has an unsupported anatomical region source
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/endpoint-streaming-candidate/test_compare_human_fem_endpoint_fidelity.py", line 218, in test_matched_physical_time_requires_positive_dt_and_consistent_endpoint
+    with self.assertRaisesRegex(module.ComparisonError, "must be positive"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "must be positive" does not match "/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmp8uulvo77/full.log: node record has an unsupported anatomical region source"
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.010s
+
+FAILED (failures=3, errors=13)

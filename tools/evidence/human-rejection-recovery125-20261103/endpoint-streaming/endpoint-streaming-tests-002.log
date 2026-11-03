@@ -1,0 +1,26 @@
+test_active_tag2_force_is_compared (__main__.EndpointFidelityTests.test_active_tag2_force_is_compared) ... ok
+test_active_tag2_rows_fail_closed_when_unmapped (__main__.EndpointFidelityTests.test_active_tag2_rows_fail_closed_when_unmapped) ... ok
+test_force_error_over_one_percent_fails (__main__.EndpointFidelityTests.test_force_error_over_one_percent_fails) ... ok
+test_green_strain_error_over_five_percent_fails (__main__.EndpointFidelityTests.test_green_strain_error_over_five_percent_fails) ... ok
+test_identical_endpoint_passes (__main__.EndpointFidelityTests.test_identical_endpoint_passes) ... ok
+test_matched_physical_time_accepts_different_schedules_and_final_anchor (__main__.EndpointFidelityTests.test_matched_physical_time_accepts_different_schedules_and_final_anchor) ... ok
+test_matched_physical_time_rejects_different_endpoints (__main__.EndpointFidelityTests.test_matched_physical_time_rejects_different_endpoints) ... ok
+test_matched_physical_time_rejects_nonpositive_steps_and_inconsistent_product (__main__.EndpointFidelityTests.test_matched_physical_time_rejects_nonpositive_steps_and_inconsistent_product) ... ok
+test_matched_physical_time_requires_positive_dt_and_consistent_endpoint (__main__.EndpointFidelityTests.test_matched_physical_time_requires_positive_dt_and_consistent_endpoint) ... ok
+test_missing_force_channel_is_not_a_pass (__main__.EndpointFidelityTests.test_missing_force_channel_is_not_a_pass) ... ok
+test_per_tet_gate_catches_localized_error_hidden_by_volume_average (__main__.EndpointFidelityTests.test_per_tet_gate_catches_localized_error_hidden_by_volume_average) ... ok
+test_reference_displacement_pair_defines_current_position (__main__.EndpointFidelityTests.test_reference_displacement_pair_defines_current_position) ... ok
+test_region_coverage_reports_registered_labels_and_unlabeled_gap (__main__.EndpointFidelityTests.test_region_coverage_reports_registered_labels_and_unlabeled_gap) ... ok
+test_residual_is_kept_in_impulse_units (__main__.EndpointFidelityTests.test_residual_is_kept_in_impulse_units) ... ok
+test_source_mass_mismatch_is_rejected (__main__.EndpointFidelityTests.test_source_mass_mismatch_is_rejected) ... ok
+test_strict_mode_rejects_different_step_counts (__main__.EndpointFidelityTests.test_strict_mode_rejects_different_step_counts) ... ok
+test_time_mismatch_is_rejected (__main__.EndpointFidelityTests.test_time_mismatch_is_rejected) ... ok
+test_unowned_tag2_force_is_rejected (__main__.EndpointFidelityTests.test_unowned_tag2_force_is_rejected) ... ok
+test_zero_force_reference_is_not_counted_as_a_pass (__main__.EndpointFidelityTests.test_zero_force_reference_is_not_counted_as_a_pass) ... ok
+test_zero_reference_local_strain_error_is_counted_as_failure (__main__.EndpointFidelityTests.test_zero_reference_local_strain_error_is_counted_as_failure) ... ok
+test_zero_tag2_rows_are_not_applicable_not_missing (__main__.EndpointFidelityTests.test_zero_tag2_rows_are_not_applicable_not_missing) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.013s
+
+OK

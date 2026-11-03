@@ -1,0 +1,10 @@
+{
+  "change": "Stream endpoint marker and record passes rather than retain a whole-file text string and line list. Public records, validation order and engineering thresholds preserved.",
+  "validation": "22 unit tests including CRLF input and a guard forbidding Path.read_text. Earlier newline-handling failure retained.",
+  "limits": "Node/tetrahedron dictionaries remain. Full-Human peak-memory and full-field algorithm comparison unmeasured; no simulation-throughput claim.",
+  "large_capture_bytes": {
+    "budget16-native-026": 833592224,
+    "thin-cell-native-027": 833731890
+  },
+  "execution_source": "R remains frozen during native029; this isolated Python change is applied to publication checkout only until native completion."
+}
