@@ -1,0 +1,3 @@
+skin_fat_cavity_transport_failures={"diagnostic_only":true,"maximum_transport_distance_m":1.0000000000000001e-05,"cavity_indices":[0],"complete":true}
+skin_fat_cavity_transport_failures={"diagnostic_only":true,"maximum_transport_distance_m":0.01,"cavity_indices":[0],"complete":true}
+skin_fat_fixed_cavity PASS exact_geometry conservative_heterogeneous_mass complete_ancestry frozen_transport_radius shared_boundary_vertices rollback negative_cases=14

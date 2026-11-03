@@ -1,0 +1,51 @@
+{
+  "before": {
+    "one": 360422,
+    "two": 2810377,
+    "more": 0
+  },
+  "after": {
+    "one": 360422,
+    "two": 2727069,
+    "more": 0
+  },
+  "boundary_identical": true,
+  "missing_boundary": 0,
+  "extra_boundary": 0,
+  "witness_facets": [
+    {
+      "native_source": 3428121,
+      "new_local_row": 853715,
+      "face": 1,
+      "nodes": [
+        272617,
+        305226,
+        272305,
+        272676
+      ],
+      "triangle": [
+        272617,
+        272676,
+        272305
+      ],
+      "old_row_if_retained": 924166
+    },
+    {
+      "native_source": 4964632,
+      "new_local_row": 1237843,
+      "face": 0,
+      "nodes": [
+        307765,
+        272672,
+        272567,
+        272604
+      ],
+      "triangle": [
+        272672,
+        272567,
+        272604
+      ],
+      "old_row_if_retained": 1348074
+    }
+  ]
+}

@@ -7365,3 +7365,13 @@ if(APPLE AND TARGET numi_matter_shaders)
     set_tests_properties(human.contact_row_cache_gpu_parity PROPERTIES
         LABELS "human;contact;gpu;regression" TIMEOUT 60 RUN_SERIAL TRUE)
 endif()
+
+add_executable(numi-human-skin-fat-fixed-cavity-check EXCLUDE_FROM_ALL
+    apps/NumiHumanSkinFatFixedCavityReconditioningCheck.cpp)
+target_include_directories(numi-human-skin-fat-fixed-cavity-check PRIVATE include matter/include apps)
+target_compile_features(numi-human-skin-fat-fixed-cavity-check PRIVATE cxx_std_20)
+target_compile_options(numi-human-skin-fat-fixed-cavity-check PRIVATE -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+target_link_libraries(numi-human-skin-fat-fixed-cavity-check PRIVATE z)
+if(BUILD_TESTING)
+    add_test(NAME numi_human_skin_fat_fixed_cavity COMMAND numi-human-skin-fat-fixed-cavity-check)
+endif()

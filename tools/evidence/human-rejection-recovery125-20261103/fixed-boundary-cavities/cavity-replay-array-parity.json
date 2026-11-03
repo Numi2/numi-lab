@@ -1,0 +1,8 @@
+{
+  "retained_input_cell_rows": true,
+  "replacement_tetrahedra": true,
+  "replacement_tet_offsets": true,
+  "replacement_parent_offsets": true,
+  "replacement_parent_cell_rows": true,
+  "source_volume_sha256": true
+}

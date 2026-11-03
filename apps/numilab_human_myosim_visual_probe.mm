@@ -10,6 +10,7 @@
 #include "NumiHumanFinal128CandidateRegistration.hpp"
 #include "NumiHumanImplicitSpringRows.hpp"
 #include "NumiHumanSkinFatReductionLabels.hpp"
+#include "NumiHumanSkinFatFixedCavityReconditioning.hpp"
 #include "NumiHumanOrganEventRollbackProbe.hpp"
 #include "NumiHumanSharedTissueRollbackProbe.hpp"
 #include "NumiHumanPassiveCoordinateRemap.hpp"
@@ -26795,6 +26796,39 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     <<" basis_provenance=verified_imported_physical_donor_and_stable_source_face"
                     <<" solver_dynamics_equivalence=NOT_CLAIMED"
                     <<" physical_admission=0 simulation_steps=0"<<std::endl;
+            }
+            if(const char* cavities=std::getenv("NUMI_HUMAN_SKIN_FAT_FIXED_CAVITIES_NPZ")) {
+                const char* cavitiesSHA=std::getenv("NUMI_HUMAN_SKIN_FAT_FIXED_CAVITIES_SHA256");
+                const char* volumeSHA=std::getenv(
+                    "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_VOLUME_SHA256");
+                require(cavities[0]&&cavitiesSHA&&volumeSHA&&!wholeBodySkinRegisteredOuterTetrahedral,
+                    "fixed cavities require explicit proposal/source pins and direct registered-node presentation");
+                SkinFatCavityReconditioningReport cavityReport;
+                const bool cavitiesAccepted=reconditionPreparedSkinFatFixedCavities(
+                    source,installedObject,bundle,preparedSkin,preparedFat,registeredLabels,
+                    cavities,cavitiesSHA,volumeSHA,cavityReport,tissueError);
+                require(cavitiesAccepted,"fixed-cavity initialization rejected: "+tissueError);
+                installedReport.tetrahedronCount=static_cast<std::uint32_t>(cavityReport.outputCells);
+                std::cout<<std::setprecision(17)
+                    <<"registered_volume_fixed_cavities=PASS"
+                    <<" cavities="<<cavityReport.cavities
+                    <<" input_cells="<<cavityReport.inputCells<<" output_cells="<<cavityReport.outputCells
+                    <<" affected_nodes="<<cavityReport.affectedNodes
+                    <<" minimum_patch_quality_before="<<cavityReport.minimumQualityBefore
+                    <<" minimum_patch_quality_after="<<cavityReport.minimumQualityAfter
+                    <<" maximum_nodal_mass_change_kg="<<cavityReport.maximumNodalMassChangeKg
+                    <<" nodal_mass_l1_change_kg="<<cavityReport.nodalMassL1ChangeKg
+                    <<" maximum_source_mass_change_kg="<<cavityReport.maximumSourceMassChangeKg
+                    <<" maximum_source_first_moment_change_kg_m="<<cavityReport.maximumSourceMomentChangeKgM
+                    <<" lumped_first_moment_change_kg_m="
+                    <<cavityReport.lumpedFirstMomentChangeKgM[0]<<","
+                    <<cavityReport.lumpedFirstMomentChangeKgM[1]<<","
+                    <<cavityReport.lumpedFirstMomentChangeKgM[2]
+                    <<" proposal_sha256="<<cavityReport.proposalSHA256
+                    <<" composition_sha256="<<cavityReport.compositionSHA256
+                    <<" points_fixed=1 boundary_exact=1 volume_exact=1 mass_conservative=1"
+                    <<" source_bundle=immutable_provenance physical_steps=0 motion_qualification=pending"
+                    <<std::endl;
             }
             skinFatCaptureNodeRegionLabels=registeredLabels.sourceNodeDonorBodyIndices;
             skinFatCaptureTetRegionLabels=registeredLabels.tetrahedronRegionLabels;
