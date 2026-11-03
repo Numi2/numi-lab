@@ -195,14 +195,28 @@ inline float ipcBarrierEnergy(
         0.5f * radialCurvature * displacement * displacement, 0.0f);
 }
 
-// Two-word evaluation of the unshifted FEM IPC barrier. The scalar law,
-// activation width, floor location, and linear C1 continuation are identical
-// to ipcBarrierEnergy; only intermediate rounding retains the paired distance.
+// Two-word FEM IPC energy. With zero numerical offset this is the exact
+// legacy unshifted law; the optional immutable-source offset translates gap
+// and activation width together. The same C1 continuation is retained.
+constant bool nmFEMClearanceAlignedBarrier [[function_constant(39)]];
+constant bool nmFEMClearanceAlignedBarrierActive =
+    is_function_constant_defined(nmFEMClearanceAlignedBarrier)
+        ? nmFEMClearanceAlignedBarrier : false;
 inline MRCompensatedScalar ipcFEMBarrierEnergyCompensated(
-    const MRCompensatedScalar separation,
-    const float thickness,
-    const float stiffness
+    MRCompensatedScalar separation,
+    float thickness,
+    const float stiffness,
+    const float clearanceOffset = 0.0f
 ) {
+    // FEM numerical clearance must be the same boundary in the potential,
+    // gradient, CCD and final certificate. Offset zero is the legacy law.
+    if (clearanceOffset != 0.0f) {
+        if (!isfinite(clearanceOffset) || clearanceOffset < 0.0f ||
+            !(thickness > clearanceOffset)) return {NAN, 0.0f};
+        separation=mrCompensatedAdd(separation,{-clearanceOffset,0.0f});
+        thickness-=clearanceOffset;
+        if (separation.high<0.0f || (separation.high==0.0f && separation.low<=0.0f)) return {NAN,0.0f};
+    }
     if (!(thickness > 0.0f) || !(stiffness > 0.0f))
         return {0.0f, 0.0f};
     if (!isfinite(separation.high) || !isfinite(separation.low) ||

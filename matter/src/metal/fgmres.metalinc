@@ -839,6 +839,9 @@ inline bool deformableExactVertexTriangleDirectionalForce(
     action = float3(0.0f);
     if ((contact.identity.w & NM_CONTACT_VALID) == 0u ||
         contact.identity.z != NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE ||
+        // This optional exact derivative is for the unshifted law only.
+        // Shifted contacts use the stored, consistent PSD metric below.
+        contact.barrierHessianRow2.w != 0.0f ||
         (contact.identity.w & NM_CONTACT_MAPPED_FEATURE) != 0u ||
         contact.extraNodes.x != NM_INVALID_INDEX ||
         contact.extraNodes.y != NM_INVALID_INDEX ||

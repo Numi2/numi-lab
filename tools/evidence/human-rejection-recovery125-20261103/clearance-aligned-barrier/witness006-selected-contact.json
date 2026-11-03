@@ -1,0 +1,288 @@
+{
+  "schema": 1,
+  "root": 2,
+  "microtick": 0,
+  "iteration": 12,
+  "stage": "after_deformable_limit",
+  "trace_slots_per_environment": 1,
+  "active_counts": [
+    657111
+  ],
+  "line_search_alpha": [
+    0
+  ],
+  "truncated": [
+    true
+  ],
+  "contacts": [
+    {
+      "environment": 0,
+      "active_slot": 355158,
+      "active_count": 657111,
+      "contact_slot": 2052768,
+      "identity": [
+        15,
+        15,
+        0,
+        1
+      ],
+      "source": [
+        124098,
+        124103,
+        2052768,
+        1
+      ],
+      "nodes": [
+        61202,
+        61204,
+        61325,
+        61213,
+        4294967295,
+        4294967295
+      ],
+      "weights": [
+        1,
+        -0.982911527,
+        -0.00236619567,
+        -0.0147223128,
+        0,
+        0
+      ],
+      "feature_side_by_vertex": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "feature_barycentric": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "geometry_coordinate_frame": "reference_local",
+      "reference_origin_m": [
+        0.0411022492,
+        -0.0679877475,
+        0.078004919
+      ],
+      "feature_start": [
+        [
+          3.05519721e-10,
+          -1.29405031e-09,
+          1.63202007e-10
+        ],
+        [
+          -5.36122252e-06,
+          4.16672577e-07,
+          -2.51595375e-05
+        ],
+        [
+          0.000654500094,
+          -0.000513226201,
+          0.00167432753
+        ],
+        [
+          0.000252704689,
+          5.45452385e-05,
+          0.00141065777
+        ]
+      ],
+      "feature_end": [
+        [
+          3.35674571e-10,
+          -1.67996483e-09,
+          -3.15234297e-11
+        ],
+        [
+          -5.36138305e-06,
+          4.16505543e-07,
+          -2.51612364e-05
+        ],
+        [
+          0.000654500094,
+          -0.000513226318,
+          0.00167432649
+        ],
+        [
+          0.000252704544,
+          5.45451112e-05,
+          0.00141065638
+        ]
+      ],
+      "feature_endpoint_role": "ccd_projected",
+      "potential_feature_start_high": [
+        [
+          3.05519721e-10,
+          -1.29405031e-09,
+          1.63202007e-10
+        ],
+        [
+          -5.36122252e-06,
+          4.16672577e-07,
+          -2.51595375e-05
+        ],
+        [
+          0.000654500094,
+          -0.000513226201,
+          0.00167432753
+        ],
+        [
+          0.000252704689,
+          5.45452385e-05,
+          0.00141065777
+        ]
+      ],
+      "potential_feature_start_low": [
+        [
+          4.74144518e-18,
+          -4.2812344e-17,
+          3.31078709e-18
+        ],
+        [
+          1.55057892e-13,
+          -1.26600467e-14,
+          4.02148502e-13
+        ],
+        [
+          9.42168826e-12,
+          -1.01367725e-11,
+          5.30975229e-11
+        ],
+        [
+          -5.94717895e-12,
+          -5.8996433e-13,
+          9.83274833e-12
+        ]
+      ],
+      "potential_feature_end_high": [
+        [
+          3.35674571e-10,
+          -1.67996483e-09,
+          -3.15234297e-11
+        ],
+        [
+          -5.36138305e-06,
+          4.16505543e-07,
+          -2.51612364e-05
+        ],
+        [
+          0.000654500094,
+          -0.000513226318,
+          0.00167432649
+        ],
+        [
+          0.000252704544,
+          5.45451112e-05,
+          0.00141065638
+        ]
+      ],
+      "potential_feature_end_low": [
+        [
+          6.39576835e-18,
+          -2.82796971e-17,
+          7.78674741e-19
+        ],
+        [
+          -1.48223596e-13,
+          2.23141764e-17,
+          -3.02904267e-13
+        ],
+        [
+          1.12972938e-11,
+          7.88521321e-13,
+          2.94767578e-11
+        ],
+        [
+          9.57957238e-12,
+          -7.5450361e-13,
+          -5.8381403e-12
+        ]
+      ],
+      "collision_thickness_m": 3.19352633e-09,
+      "ccd_toi": 0,
+      "ccd_separation_m": 9.99983096e-10,
+      "lane_bound_before": 1,
+      "lane_bound_after": 0,
+      "requested_alpha": 1,
+      "ccd_hit": true,
+      "ccd_certified": true,
+      "zero_bound_source": true,
+      "ccd_shortened_sweep_retries": 0,
+      "ccd_tested_fraction": 1,
+      "diagnostic_reason_code": 7,
+      "diagnostic_reason": "ccd_hit_at_zero_time",
+      "normal": [
+        0.839923978,
+        0.515262663,
+        -0.170388088
+      ],
+      "initial_toi": 0,
+      "contact_point_and_separation": [
+        0.0411022492,
+        -0.0679877475,
+        0.078004919,
+        1.00000086e-09
+      ],
+      "barrier_parameters": [
+        7.44866137e-14,
+        2.03145722e-09,
+        1.99999994e-09,
+        1.37637579e+17
+      ],
+      "barrier": [
+        -2.19377849e-09,
+        -2.08770584e-10,
+        1.71725135e-18,
+        1.00000086e-09
+      ],
+      "per_alpha_trace": {
+        "schema": 1,
+        "microtick": 0,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "selected_contact_slot": 2052768,
+        "contact_active_slot": 355158,
+        "solver_iteration": 12,
+        "is_failure": false,
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "trials": []
+      }
+    }
+  ],
+  "minimum_lane_bounds": [],
+  "recorded_count": 1,
+  "trial_trace_capture_summary": {
+    "contact_slot": 2052768,
+    "payload_bytes": 11264,
+    "contact_records_attached": 1,
+    "trial_records_attached": 0
+  }
+}

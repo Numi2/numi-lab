@@ -1,0 +1,3 @@
+graph_cache81_specialization=true trials=12 probes=96 matrix_parity=bitwise failure_guards=true result=PASS
+graph_tet_block_reuse=true rows=12 tet=1 dedicated_cached_rows=true result=PASS
+PASS graph tet block reuse 1919 checks

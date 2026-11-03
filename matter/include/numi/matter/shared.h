@@ -727,6 +727,8 @@ typedef struct NM_ALIGN16 NMDeformableContactGPU {
     nm_float4 barrier;
     // Rows of the PSD-projected spatial barrier/friction Hessian. Signed
     // feature weights map this 3x3 metric into the complete nodal block.
+    // Row2.w is the optional immutable-source numerical FEM clearance offset
+    // (zero selects the legacy law); xyz alone is the spatial metric.
     nm_float4 barrierHessianRow0;
     nm_float4 barrierHessianRow1;
     nm_float4 barrierHessianRow2;

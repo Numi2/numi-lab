@@ -66,12 +66,17 @@ id<MTLComputePipelineState> pipeline(
     id<MTLFunction> function = [library newFunctionWithName:functionName];
     require(function != nil, std::string("missing Metal function: ") + name);
     NSError* error = nil;
+    MTLFunctionConstantValues* contactConstants=[MTLFunctionConstantValues new];
+    bool specializeContact=false;
     for (MTLFunctionConstant* constant in function.functionConstantsDictionary.allValues) {
-        if (constant.index!=38u) continue;
-        MTLFunctionConstantValues* values=[MTLFunctionConstantValues new];
-        [values setConstantValue:&referenceContactWidth type:MTLDataTypeBool atIndex:38u];
-        function=[library newFunctionWithName:functionName constantValues:values error:&error];
-        require(function!=nil,"cannot specialize default reference contact width");break;
+        if (constant.index!=38u && constant.index!=39u) continue;
+        const bool enabled=constant.index==38u ? referenceContactWidth : false;
+        [contactConstants setConstantValue:&enabled type:MTLDataTypeBool atIndex:constant.index];
+        specializeContact=true;
+    }
+    if(specializeContact) {
+        function=[library newFunctionWithName:functionName constantValues:contactConstants error:&error];
+        require(function!=nil,"cannot specialize default contact geometry policy");
     }
     id<MTLComputePipelineState> result =
         [device newComputePipelineStateWithFunction:function error:&error];
@@ -92,6 +97,7 @@ id<MTLFunction> functionWithRelativeInnerForcingDisabled(
         [[MTLFunctionConstantValues alloc] init];
     const BOOL enabled = NO;
     [values setConstantValue:&enabled type:MTLDataTypeBool atIndex:34u];
+    [values setConstantValue:&enabled type:MTLDataTypeBool atIndex:39u];
     NSError* error = nil;
     id<MTLFunction> result = [library newFunctionWithName:functionName
         constantValues:values error:&error];
@@ -14261,7 +14267,8 @@ void checkReferenceContactArithmeticFrame(
                          const float clearance, const bool nonfinite = false,
                           const bool minimumTrace = false, const bool planeMode = false,
                          const bool tiled = false, const unsigned contactCount = 1u,
-                          const bool completed = false, const bool selectedTrial = false) {
+                          const bool completed = false, const bool selectedTrial = false,
+                          const bool tiledRecords = false) {
         NMMatterDispatchGPU d{};
         d.environmentCount = 1u; d.objectCount = 1u; d.femNodeCount = 2u;
         d.deformableContactCapacity = contactCount;
@@ -14308,12 +14315,14 @@ void checkReferenceContactArithmeticFrame(
         auto direction = makeBuffer(device, correction);
         auto line = makeBuffer(device, std::vector<nm_float4>{{1.0f, 7.0f, 8.0f, 9.0f}});
         auto status = makeBuffer(device, std::vector<NMMatterStatusGPU>(1u));
-        auto trace = makeBuffer(device, std::vector<NMDeformableContactLimitTraceGPU>(minimumTrace ? 32u : 1u));
+        std::vector<NMDeformableContactLimitTraceGPU> traceRows(tiledRecords?4097u:minimumTrace?32u:1u);
+        if(tiledRecords)traceRows.back().source={0xfeedcafeu,37u,41u,43u};
+        auto trace = makeBuffer(device,traceRows);
         auto dummy = makeBuffer(device, std::vector<std::uint32_t>(512u));
         auto zero = makeBuffer(device, std::vector<std::uint32_t>{0u});
-        auto captureMode = makeBuffer(device, std::vector<std::uint32_t>{tiled ? (minimumTrace ? 3u : 0u) : minimumTrace ? 2u : 1u});
+        auto captureMode = makeBuffer(device, std::vector<std::uint32_t>{tiled ? (tiledRecords?4u:minimumTrace ? 3u : 0u) : minimumTrace ? 2u : 1u});
         auto collisionMode=makeBuffer(device,std::vector<std::uint32_t>{planeMode ? 3u : 1u});
-        auto traceCount = makeBuffer(device, std::vector<std::uint32_t>{selectedTrial ? 1u : tiled ? 0u : minimumTrace ? 32u : 1u});
+        auto traceCount = makeBuffer(device, std::vector<std::uint32_t>{selectedTrial ? 1u : tiledRecords?4096u:tiled ? 0u : minimumTrace ? 32u : 1u});
         auto selectedSlot = makeBuffer(device, std::vector<std::uint32_t>{
             selectedTrial ? contactCount-1u : NM_INVALID_INDEX});
         auto trialRecords = makeBuffer(device,
@@ -14400,6 +14409,12 @@ void checkReferenceContactArithmeticFrame(
             require(values.back().x==31 && values.back().y==37 &&
                     values.back().z==41 && values.back().w==43,
                 "tiled minimum witness wrote beyond its value capacity");
+            const auto recordRows=tiledRecords
+                ? readBuffer<NMDeformableContactLimitTraceGPU>(trace,4097u)
+                : std::vector<NMDeformableContactLimitTraceGPU>{};
+            if(tiledRecords)require(recordRows.back().source.x==0xfeedcafeu &&
+                recordRows.back().source.y==37u && recordRows.back().source.z==41u &&
+                recordRows.back().source.w==43u,"tiled record witness output canary");
             float minimum = 1.0f;
             for (unsigned i=0u;i<witnessSlots;++i) {
                 if (identities[i].y==NM_INVALID_INDEX) continue;
@@ -14407,6 +14422,11 @@ void checkReferenceContactArithmeticFrame(
                         identities[i].x % witnessSlots == i &&
                         identities[i].y == identities[i].x,
                     "tiled minimum witness used a different tile/lane owner");
+                if(tiledRecords)require(recordRows[i].lineSearch.w==1.0f &&
+                    recordRows[i].result.x==identities[i].x &&
+                    recordRows[i].result.y==identities[i].y &&
+                    recordRows[i].lineSearch.y==values[i].x,
+                    "tiled full record does not match its minimum-producing contact");
                 minimum = std::min(minimum,values[i].x);
             }
             require(minimum == output.x,
@@ -14478,6 +14498,10 @@ void checkReferenceContactArithmeticFrame(
             const auto minimum=run(bodyOrigin,true,2.0e-6f,closing,1.0e-9f,false,true,true,true,count);
             require(minimum.alpha==tiled.alpha && minimum.status.code==tiled.status.code,
                 "parallel minimum witness changed physical contact bounds");
+            const auto fullRecords=run(bodyOrigin,true,2.0e-6f,closing,1.0e-9f,
+                false,true,true,true,count,false,false,true);
+            require(fullRecords.alpha==tiled.alpha && fullRecords.status.code==tiled.status.code,
+                "parallel full minimum record changed physical contact bounds");
             if (closing==4.0e-6f) {
                 const auto selected=run(bodyOrigin,true,2.0e-6f,closing,1.0e-9f,
                     false,false,true,true,count,false,true);
@@ -15907,6 +15931,69 @@ void checkReferenceContactPlaneCertificate(
         <<" certified="<<certified<<" result=PASS\n";
 }
 
+
+void checkFEMAlignedBarrier(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    std::vector<nm_float4> input,parameters;
+    for(float width:{2.0e-9f,2.0e-5f,0.02f})for(float fraction:{1.0e-6f,5.0e-5f,2.0e-4f,0.01f,0.1f,0.4f,0.8f,0.99f,1.0f,1.2f}) {
+        const float offset=0.5f*width;
+        input.push_back({offset+fraction*(width-offset),width,offset,0.0f});
+        parameters.push_back({7.4e10f,1.5625e-5f,0.0f,0.0f});
+    }
+    const unsigned validCount=unsigned(input.size());
+    for(unsigned mode=0;mode<4;++mode) {
+        input.push_back({mode==0?1.0e-9f:mode==1?0.5e-9f:1.5e-9f,2.0e-9f,
+            mode==2?-1.0e-9f:mode==3?2.0e-9f:1.0e-9f,0.0f});
+        parameters.push_back({7.4e10f,1.5625e-5f,0,0});
+    }
+    const unsigned count=unsigned(input.size());
+    auto output=makeBuffer(device,std::vector<nm_float4>(count+1,{-7,-7,-7,-7}));
+    auto metadata=makeBuffer(device,std::vector<nm_float4>(count+1,{-7,-7,-7,-7}));
+    dispatch(device,queue,pipeline(device,library,"numi_matter_metal::nm_contact_fem_aligned_barrier_check"),{
+        {0u,makeBuffer(device,input)},{1u,makeBuffer(device,parameters)},{2u,output},
+        {3u,metadata},{4u,makeBuffer(device,std::vector<unsigned>{count})}},(count+31)/32,32u);
+    auto got=readBuffer<nm_float4>(output,count+1),meta=readBuffer<nm_float4>(metadata,count+1);
+    auto close=[](double a,double b,double tolerance) {
+        return std::isfinite(a)&&std::isfinite(b)&&std::abs(a-b)<=tolerance*std::max(std::abs(b),1.0e-300);
+    };
+    for(unsigned i=0;i<validCount;++i) {
+        const auto a=input[i],p=parameters[i];
+        const double gap=double(a.x)-a.z,w=double(a.y)-a.z,dt=p.y;
+        require(meta[i].x==a.y,"aligned barrier changed activation metadata");
+        if(gap>=w) {
+            require(got[i].x==0&&got[i].y==0&&got[i].z==0&&got[i].w==0,
+                "aligned barrier must deactivate at unchanged world activation");continue;
+        }
+        require(std::isfinite(meta[i].y)&&meta[i].y>0,"aligned stiffness finite");
+        const double k=meta[i].y,d=std::max(gap,1.0e-4*w),s=d*d-w*w;
+        const double l=std::log((d*d)/(w*w));
+        const double first=-k*(2*s*l+s*s/(d*d));
+        const double second=-k*(2*l+4*s/(d*d)-s*s/(d*d*d*d));
+        const double e0=-k*s*s*l;
+        const double energy=e0+(gap<1.0e-4*w?2*d*first*(gap-1.0e-4*w):0.0);
+        const double impulse=-2*d*first*dt;
+        const double curvature=gap<1.0e-4*w?0.0:std::max(4*d*d*second+2*first,0.0)*dt*dt;
+        const double gpuEnergy=double(got[i].x)+got[i].y;
+        require(close(gpuEnergy,energy,5.0e-4),"shifted paired potential differs from Float64 IPC");
+        require(close(got[i].z,impulse,5.0e-4),"shifted force is not potential derivative");
+        require(curvature==0?got[i].w==0:close(got[i].w,curvature,7.0e-4),
+            "shifted curvature differs from potential Hessian");
+        require(close(meta[i].z,energy,8.0e-4),"shifted scalar and paired potential disagree");
+        // Independent finite difference of the same potential with frozen k.
+        if(gap>2.0e-4*w&&gap<0.9*w) {
+            const auto energyAt=[&](double x) {const double s0=x*x-w*w;return -k*s0*s0*std::log(x*x/(w*w));};
+            const double h=std::min(gap,w-gap)*1.0e-4;
+            const double derivative=(energyAt(gap+h)-energyAt(gap-h))/(2*h);
+            require(close(got[i].z,-derivative*dt,8.0e-4),"aligned finite-difference force");
+        }
+    }
+    for(unsigned i=validCount;i<count;++i)
+        require(!std::isfinite(got[i].x)&&!std::isfinite(got[i].z),"invalid shifted domain accepted");
+    require(got[count].x==-7&&meta[count].w==-7,"aligned barrier output canary");
+    std::cout<<"fem_clearance_aligned_barrier=true Float64_energy_force_curvature=true "
+        "nanometre_underflow_avoided=true invalid_domain_rejected=true cases="<<count<<" PASS\n";
+}
+
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -15924,6 +16011,9 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if(argc==2&&std::string(argv[1])=="--fem-aligned-barrier-only") {
+                checkFEMAlignedBarrier(device,queue,library);return 0;
+            }
             if(argc==2&&std::string(argv[1])=="--thin-contact-energy-only") {
                 checkThinContactEnergy(device,queue,library);return 0;
             }
@@ -16630,6 +16720,7 @@ int main(int argc, const char* argv[]) {
             checkReferenceContactArithmeticFrame(device, queue, library);
             checkCompensatedContactEnergyContinuity(device,queue,library);
             checkLeftRowEquilibration(device,queue,library);
+            checkFEMAlignedBarrier(device,queue,library);
             checkReferenceSelfContactWidth(device,queue,library);
             checkResolvedMollifierCurvature(device,queue,library);
             checkCompensatedBarrierEnergyWords(device,queue,library);

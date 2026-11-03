@@ -468,6 +468,53 @@ inline float4 ipcBarrierResponse(
     );
 }
 
+// Offset only the numerical geometry boundary, retaining the existing FEM
+// IPC law and its C1 continuation. Metadata keeps the world activation width.
+inline float4 nmFEMClearanceAlignedResponse(float separation,float thickness,
+    float inverseResponse,float dt,float closing,float offset) {
+    if(offset==0.0f)
+        return ipcBarrierResponse(separation,thickness,inverseResponse,dt,closing,false,0.0f,0.0f);
+    if(!isfinite(offset)||offset<0.0f||!(thickness>offset)||!(separation>offset))
+        return float4(NAN);
+    if(!(inverseResponse>0.0f)||!(dt>0.0f))return float4(0.0f,0.0f,thickness,0.0f);
+    const float width=thickness-offset,gap=separation-offset;
+    if(gap>=width)return float4(0.0f,0.0f,thickness,0.0f);
+    const float distance=max(gap,1.0e-4f*width);
+    const float w2=width*width;
+    const float k=max(10.0f/max(inverseResponse*dt*dt*w2,1.0e-20f),
+        max(closing,0.0f)/max(inverseResponse*dt*
+            max(width-distance,1.0e-3f*width)*w2,1.0e-20f));
+    // Dimensionless derivatives of the identical IPC polynomial avoid d^4
+    // underflow for nanometre gaps. Do not reduce precision or clamp curvature.
+    const float u=distance/width,r2=u*u,v=r2-1.0f,l=log(r2);
+    const float scale=(k*width)*width;
+    const float force=2.0f*scale*width*(2.0f*u*v*l+v*v/u);
+    const float radial=max(-scale*((12.0f*r2-4.0f)*l+16.0f*v-2.0f*v*v/r2),0.0f);
+    return float4(max(force,0.0f)*dt,
+        (gap<1.0e-4f*width?0.0f:radial)*dt*dt,thickness,k);
+}
+inline float nmFEMClearanceAlignedEnergy(float separation,float thickness,float k,float offset) {
+    if(offset==0.0f)return ipcBarrierEnergy(separation,thickness,k,false,0.0f);
+    if(!isfinite(offset)||offset<0.0f||!(thickness>offset)||!(separation>offset))return NAN;
+    return ipcBarrierEnergy(separation-offset,thickness-offset,k,false,0.0f);
+}
+
+// Direct arithmetic check of the production aligned potential and response.
+kernel void nm_contact_fem_aligned_barrier_check(
+    device const float4* inputs [[buffer(0)]],
+    device const float4* parameters [[buffer(1)]],
+    device float4* outputs [[buffer(2)]],
+    device float4* metadata [[buffer(3)]],
+    constant uint& count [[buffer(4)]],uint i [[thread_position_in_grid]]) {
+    if(i>=count)return;
+    const float4 a=inputs[i],p=parameters[i];
+    const float4 response=nmFEMClearanceAlignedResponse(a.x,a.y,p.x,p.y,p.z,a.z);
+    const auto energy=ipcFEMBarrierEnergyCompensated({a.x,a.w},a.y,response.w,a.z);
+    outputs[i]=float4(energy.high,energy.low,response.x,response.y);
+    metadata[i]=float4(response.z,response.w,
+        nmFEMClearanceAlignedEnergy(a.x,a.y,response.w,a.z),0.0f);
+}
+
 // Freeze the MPM barrier coefficient from the accepted P2G predictor and
 // accepted rigid pose. The matrix-free contact operator differentiates the
 // barrier potential with respect to the current candidate separation, not with
@@ -1195,7 +1242,8 @@ inline bool deformableBarrierEnergyAt(
     separation = distance.high + distance.low;
     const MRCompensatedScalar barrierEnergy =
         ipcFEMBarrierEnergyCompensated(
-            distance, contact.barrier.z, contact.mollifier.w);
+            distance, contact.barrier.z, contact.mollifier.w,
+            nmFEMClearanceAlignedBarrierActive ? contact.barrierHessianRow2.w : 0.0f);
     const MRCompensatedScalar mollifiedEnergy = mrCompensatedMultiply(
         barrierEnergy, energyWords != nullptr
             ? featureMollifierWords : MRCompensatedScalar{featureMollifier, 0.0f});
@@ -1248,8 +1296,9 @@ inline bool deformableBarrierEnergyAt(
         separation = -INFINITY;
         return false;
     }
-    energy = featureMollifier * ipcBarrierEnergy(
-        separation, contact.barrier.z, contact.mollifier.w, false, 0.0f);
+    energy = featureMollifier * nmFEMClearanceAlignedEnergy(
+        separation, contact.barrier.z, contact.mollifier.w,
+        nmFEMClearanceAlignedBarrierActive ? contact.barrierHessianRow2.w : 0.0f);
     return isfinite(separation) && isfinite(energy);
 }
 
@@ -8233,11 +8282,34 @@ kernel void nm_contact_narrowphase_deformable(
         barrierThickness=nmReferenceSelfContactBarrierWidth(rest,thickness,
             solver.contactAcceptance.x*dispatch.numericalLimits.x,referenceGap);
     }
-    const float4 baseBarrier = ipcBarrierResponse(
+    float barrierClearance=0.0f;
+    if(nmFEMClearanceAlignedBarrierActive && referenceModeContact &&
+       contact.identity.x==contact.identity.y) {
+        MRCompensatedPositionGPU restFeatures[4];
+        if(!nmMixedReferenceContactFeatures(dispatch,contact,femNodes,
+                environment,restFeatures,true)) {
+            recordFailure(statuses[environment],NM_STATUS_CONTACT_FAILURE,
+                contact.identity.x,candidateGlobal,float4(0.0f,0.0f,0.0f,41.0f));
+            return;
+        }
+        barrierClearance=nmReferenceContactRestClearance(contact.identity.z,
+            restFeatures,bestNormal,solver.contactAcceptance.x*dispatch.numericalLimits.x);
+        if(!(barrierClearance>0.0f) || !(barrierThickness>barrierClearance)) {
+            recordFailure(statuses[environment],NM_STATUS_CONTACT_FAILURE,
+                contact.identity.x,candidateGlobal,float4(bestSeparation,barrierThickness,barrierClearance,39.0f));
+            return;
+        }
+    }
+    const float4 baseBarrier = nmFEMClearanceAlignedResponse(
         bestSeparation, barrierThickness, inverseResponse, contactTimestep,
-        max(-dot(bestNormal, relativeVelocity), 0.0f), false, 0.0f, 0.0f);
-    const float baseBarrierEnergy = ipcBarrierEnergy(
-        bestSeparation, barrierThickness, baseBarrier.w, false, 0.0f);
+        max(-dot(bestNormal, relativeVelocity), 0.0f), barrierClearance);
+    const float baseBarrierEnergy = nmFEMClearanceAlignedEnergy(
+        bestSeparation, barrierThickness, baseBarrier.w, barrierClearance);
+    if(barrierClearance>0.0f && (!all(isfinite(baseBarrier)) || !isfinite(baseBarrierEnergy))) {
+        recordFailure(statuses[environment],NM_STATUS_CONTACT_FAILURE,
+            contact.identity.x,candidateGlobal,float4(bestSeparation,barrierThickness,barrierClearance,40.0f));
+        return;
+    }
     float4 barrier = baseBarrier;
     barrier.x *= featureMollifier;
     barrier.y *= featureMollifier;
@@ -8305,6 +8377,8 @@ kernel void nm_contact_narrowphase_deformable(
         contact.barrierHessianRow0,
         contact.barrierHessianRow1,
         contact.barrierHessianRow2);
+    // Internal transient metadata; xyz remains the stored PSD spatial metric.
+    contact.barrierHessianRow2.w=barrierClearance;
     contact.mollifierGradientRow0 =
         float4(extendedMollifierGradient[0], 0.0f);
     contact.mollifierGradientRow1 =
@@ -13650,10 +13724,11 @@ inline void nmContactLimitDeformableLineSearch(
             slot == trialTraceContactSlot;
         // Diagnostic mode2 records the minimum-producing contact of every
         // lane in one run, rather than requiring a replay per selected row.
-        const bool minimumTraceMode = captureMinimumWitness == 2u &&
+        const bool minimumTraceMode = (captureMinimumWitness == 2u || captureMinimumWitness == 4u) &&
             trialTraceContactSlot == NM_INVALID_INDEX &&
-            traceSlotsPerEnvironment >= 32u;
-        const uint traceRecordSlot = minimumTraceMode ? lane :
+            traceSlotsPerEnvironment >= (captureMinimumWitness==4u ? tileCount*32u : 32u);
+        const uint traceRecordSlot = minimumTraceMode
+            ? (captureMinimumWitness==4u ? tile*32u+lane : lane) :
             (trialTraceContactSlot != NM_INVALID_INDEX ? 0u : activeSlot);
         const bool captureTrace = minimumTraceMode || selectedTrialTraceContact ||
             (trialTraceContactSlot == NM_INVALID_INDEX &&
@@ -14488,7 +14563,7 @@ inline void nmContactLimitDeformableLineSearch(
         // Mode 3 is the bounded, witness-only production-tiled diagnostic.
         // Each tile/lane owns a distinct slot; physical bounds and ordering
         // are unchanged and no detailed per-contact record is allocated.
-        const uint witnessIndex = captureMinimumWitness == 3u
+        const uint witnessIndex = (captureMinimumWitness == 3u || captureMinimumWitness == 4u)
             ? (environment * tileCount + tile) * 32u + lane
             : environment * 32u + lane;
         minimumWitnessIdentity[witnessIndex] = laneMinimumIdentity;

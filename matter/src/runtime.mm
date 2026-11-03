@@ -9144,6 +9144,22 @@ RuntimeDiagnostics Runtime::initialize(
             diagnostics.message="reference self-contact width requires one immutable FEM contact scene";
             return diagnostics;
         }
+        const char* alignedBarrierSetting=std::getenv("NM_FEM_CLEARANCE_ALIGNED_BARRIER");
+        if(alignedBarrierSetting!=nullptr && std::strcmp(alignedBarrierSetting,"0")!=0 &&
+           std::strcmp(alignedBarrierSetting,"1")!=0) {
+            diagnostics.message="clearance-aligned FEM barrier requires explicit 0 or 1";
+            return diagnostics;
+        }
+        const bool alignedBarrierEnabled=alignedBarrierSetting!=nullptr &&
+            std::strcmp(alignedBarrierSetting,"1")==0;
+        if(alignedBarrierEnabled && !referenceWidthEnabled) {
+            diagnostics.message="clearance-aligned FEM barrier requires immutable reference self-contact width";
+            return diagnostics;
+        }
+        if(alignedBarrierEnabled) {
+            candidate->executionFingerprint=mixFingerprint(candidate->executionFingerprint,0x46454d4741503031ull);
+            std::fprintf(stderr,"matter_fem_clearance_aligned_barrier=1 boundary=immutable_source_clearance\n");
+        }
         const auto kernel = [&](const char* name,
                                 const bool materialOffsetsSpecialized,
                                 const std::uint32_t tangentProgramOffset,
@@ -9171,6 +9187,10 @@ RuntimeDiagnostics Runtime::initialize(
                     }
                     specialize=true;
                     continue;
+                }
+                if (constant.index==39u) {
+                    [values setConstantValue:&alignedBarrierEnabled type:MTLDataTypeBool atIndex:39u];
+                    specialize=true;continue;
                 }
                 if (constant.index==38u) {
                     [values setConstantValue:&referenceWidthEnabled type:MTLDataTypeBool atIndex:38u];
@@ -25523,6 +25543,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             id<MTLBuffer> deformableLimitMinimumWitnessIdentity = nil;
             id<MTLBuffer> deformableLimitMinimumWitnessValues = nil;
             bool deformableLimitTiledWitnessOnly = false;
+            bool deformableLimitTiledFailureTrace = false;
             bool deformableLimitTiledSelectedTrial = false;
             id<MTLBuffer> deformableLimitTrialTraceRecords = nil;
             std::uint64_t deformableLimitTrialTraceBytes = 0u;
@@ -28339,6 +28360,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const NSUInteger minimumWitnessIdentityOffset =
                     trialTraceOffset + trialTraceBytes;
                 const NSUInteger minimumWitnessRecordBytes =
+                    !deformableLimitTiledFailureTrace &&
                     deformableLimitMinimumWitnessIdentity != nil &&
                     deformableLimitMinimumWitnessValues != nil
                         ? static_cast<NSUInteger>(environments) * 32u *
@@ -28347,8 +28369,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     minimumWitnessIdentityOffset + minimumWitnessRecordBytes;
                 const NSUInteger totalBytes =
                     minimumWitnessValuesOffset + minimumWitnessRecordBytes;
-                const NSUInteger snapshotLimit =
-                    femDeformableContactCaptureSelected
+                const NSUInteger snapshotLimit = deformableLimitTiledFailureTrace
+                    ? 16u*1024u*1024u : femDeformableContactCaptureSelected
                         ? 4u * 1024u * 1024u : 1024u * 1024u;
                 if (totalBytes > snapshotLimit) {
                     std::fprintf(stderr,
@@ -28432,6 +28454,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto capturedEnvironments = environments;
                 const auto capturedObjectCount = state.dispatch.objectCount;
                 const auto capturedTraceSlots = deformableLimitTraceSlots;
+                const bool capturedZeroBoundOnly=deformableLimitTiledFailureTrace;
                 const std::string capturedStage(stage);
                 const auto capturedAppendFloat = appendTraceFloat;
                 const auto capturedAppendFeatureArray = [capturedAppendFloat](std::ostringstream& line,
@@ -28511,6 +28534,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             ? reinterpret_cast<const nm_float4*>(
                                 bytes + capturedMinimumWitnessValuesOffset)
                             : nullptr;
+                    // Diagnostic readback only: the GPU owns every physical
+                    // bound. Healthy steps produce no expanded contact output.
+                    if(capturedZeroBoundOnly && capturedObjectCount>0u && lineSearch[0].x>0.0f)return;
                     std::ostringstream line;
                     line << "fem_deformable_limit_trace={\"schema\":1,\"root\":"
                          << root << ",\"microtick\":" << tick
@@ -28554,7 +28580,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             const auto& record = records[
                                 static_cast<std::size_t>(environment) *
                                     capturedTraceSlots + activeSlot];
-                            if (record.lineSearch.w != 1.0f) continue;
+                            if (record.lineSearch.w != 1.0f ||
+                                (capturedZeroBoundOnly && record.lineSearch.y!=0.0f)) continue;
                             if (!firstRecord) line << ',';
                             firstRecord = false;
                             ++recorded;
@@ -28688,6 +28715,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             capturedAppendFloat(line, record.normalAndTOI.x); line << ',';
                             capturedAppendFloat(line, record.normalAndTOI.y); line << ',';
                             capturedAppendFloat(line, record.normalAndTOI.z); line << ']';
+                            line << ",\"numerical_clearance_offset_m\":";
+                            capturedAppendFloat(line,record.contact.barrierHessianRow2.w);
                             line << ",\"initial_toi\":";
                             capturedAppendFloat(line, record.normalAndTOI.w);
                             line << ",\"contact_point_and_separation\":[";
@@ -47830,6 +47859,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return diagnostics;
             }
             deformableLimitTiledWitnessOnly = false;
+            deformableLimitTiledFailureTrace = false;
             deformableLimitTiledSelectedTrial = false;
             deformableLimitTraceRecords = nil;
             deformableLimitMinimumWitnessIdentity = nil;
@@ -47901,8 +47931,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     requestedTrialTraceSlot =
                         static_cast<std::uint32_t>(parsedSlot);
             }
-            const char* deformableTraceRoot = std::getenv(
-                "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT");
+            const char* automaticFailureSetting=std::getenv("NM_FEM_DEFORMABLE_LIMIT_TRACE_FAILURES");
+            const bool automaticFailureTrace=automaticFailureSetting!=nullptr &&
+                std::strcmp(automaticFailureSetting,"1")==0 && environments==1u &&
+                state.femTiledDeformableLimitEnabled && microtick==0u;
+            const std::string automaticFailureRoot=std::to_string(request.controlStep);
+            const char* deformableTraceRoot = automaticFailureTrace
+                ? automaticFailureRoot.c_str() : std::getenv("NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT");
             if (deformableTraceRoot != nullptr ||
                 femDeformableContactCaptureSelected) {
                 const char* traceRoot = femDeformableContactCaptureSelected
@@ -47991,8 +48026,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     "NM_FEM_DEFORMABLE_LIMIT_TRACE_MINIMA");
                 if (selected && state.femTiledDeformableLimitEnabled &&
                     !trialTraceRequested && !femDeformableContactCaptureSelected &&
-                    minimaSetting != nullptr &&
-                    std::strcmp(minimaSetting, "1") == 0) {
+                    (automaticFailureTrace || (minimaSetting != nullptr &&
+                    std::strcmp(minimaSetting, "1") == 0))) {
                     const std::uint64_t slots = static_cast<std::uint64_t>(
                         environments) * state.femDeformableLimitTileCount * 32u;
                     const std::uint64_t bytes = slots * sizeof(nm_uint4);
@@ -48020,9 +48055,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             NM_INVALID_INDEX, 0u};
                         values[slot] = {1.0f, 1.0f, 1.0f, 0.0f};
                     }
-                    deformableLimitTiledWitnessOnly = true;
+                    deformableLimitTiledFailureTrace=automaticFailureTrace;
+                    deformableLimitTiledWitnessOnly=!automaticFailureTrace;
+                    if(automaticFailureTrace) {
+                        deformableLimitTraceSlots=state.femDeformableLimitTileCount*32u;
+                        const NSUInteger recordBytes=static_cast<NSUInteger>(slots)*
+                            sizeof(NMDeformableContactLimitTraceGPU);
+                        if(recordBytes>16u*1024u*1024u) {
+                            diagnostics.message="automatic contact witness exceeds 16 MiB";return diagnostics;
+                        }
+                        deformableLimitTraceRecords=[state.device newBufferWithLength:recordBytes
+                            options:MTLResourceStorageModeShared];
+                        if(deformableLimitTraceRecords==nil) {
+                            diagnostics.message="automatic contact witness allocation failed";return diagnostics;
+                        }
+                        std::memset(deformableLimitTraceRecords.contents,0,recordBytes);
+                    }
                 }
-                if (selected && !deformableLimitTiledWitnessOnly) {
+                if (selected && !deformableLimitTiledWitnessOnly && !deformableLimitTiledFailureTrace) {
                     deformableLimitTraceSlots = selectedTrialTrace ? 1u :
                         std::min(
                             state.dispatch.deformableContactCapacity,
@@ -48137,9 +48187,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // fallback CCD and final physical acceptance remain unchanged. Like
             // the existing32lanes, partitions reduce to one common alpha.
             const bool tiledDeformableLimit=state.femTiledDeformableLimitEnabled &&
-                (deformableLimitTraceRecords==nil || deformableLimitTiledSelectedTrial) &&
+                (deformableLimitTraceRecords==nil || deformableLimitTiledSelectedTrial ||
+                 deformableLimitTiledFailureTrace) &&
                 (deformableLimitMinimumWitnessIdentity==nil ||
-                 deformableLimitTiledWitnessOnly);
+                 deformableLimitTiledWitnessOnly || deformableLimitTiledFailureTrace);
             dispatchGroups32(
                 tiledDeformableLimit ? "nm_contact_limit_deformable_line_search_tiled" :
                     "nm_contact_limit_deformable_line_search",
@@ -48192,7 +48243,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const std::uint32_t captureMinimumWitness =
                         deformableLimitMinimumWitnessIdentity != nil &&
                         deformableLimitMinimumWitnessValues != nil
-                            ? (deformableLimitTiledWitnessOnly ? 3u :
+                            ? (deformableLimitTiledFailureTrace ? 4u : deformableLimitTiledWitnessOnly ? 3u :
                                (!femDeformableContactCaptureSelected &&
                                 deformableLimitTrialTraceContactSlot ==
                                     std::numeric_limits<std::uint32_t>::max() &&
