@@ -151,3 +151,41 @@ pathname is absent and does not occur in any retirement manifest. Current
 execution inputs are independently pinned and validated by the native loader.
 The aerial decoder remains absent. Trial014 is the next bounded full Human
 convergence diagnostic; no accepted motion or0.1x performance is claimed yet.
+
+### Parent-input recovery and first inexact integrated trials
+
+Correction to the earlier protection-list statement: trial014 failed before GPU
+execution because four active parent-mesh files nested under the anatomy
+receipt were omitted from the protection roster and archived in batch025.
+They were recovered from the independently downloaded archive at their exact
+original paths and hashes. All eight parent source hashes now pass; both
+canonical and aliased paths and content hashes are protected, and the runner
+checks these transitive input pins before launch. The failed014 log, original
+roster, recovery receipt and corrected roster are retained. No missing source
+was substituted or synthesized. The original cleanup receipts remain historical
+records rather than a claim that this omission did not occur.
+
+Trials015/016 passed loading and reached the coupled GPU solve. Each used two
+actual Krylov columns in one active Newton solve and accepted zero physical
+steps. The complete true linear residual was0.0966456309 from RHS0.709982038;
+that meets the guarded relative linear certificate, but is not the final
+nonlinear physical tolerance. The first shared line-search fraction becomes
+zero and the physical step rejects code10. Failed authoritative segments took
+24.135009208s and23.944809791s, respectively.016 enabled the existing fresh
+common-alpha reset; its unchanged failure does not support that hypothesis.
+A bounded existing alpha/vascular trace is the next diagnostic, not another
+iteration-budget increase.
+
+The new linear policy now contributes an explicit INEXCER1 execution-fingerprint
+marker. The final full production GPU measurement checker passes77,514checks;
+the existing fresh-direction reset focused checker passes28checks. These are
+numerical and scheduling fixtures, not full-Human convergence or throughput.
+
+Trial015 inherited four output environment paths from013. Its actual failure
+and reference-pose diagnostics were copied into015/inherited-diagnostic-outputs
+with an ownership notice.013 stdout/stderr/source/config were separately
+preserved before015 and remain valid; the overwritten diagnostic output paths
+must not be treated as immutable013 evidence.016 rebases all four output paths.
+The runner's legacy source_import_pass Boolean requires an absent log token;
+false there is not a loader failure when the same trial reached GPU execution.
+The0.1x, motion and physiological qualification requirements remain unmet.

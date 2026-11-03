@@ -7870,6 +7870,10 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x434f4c4c47415031ull); // COLLGAP1
         }
+        if (candidate->fgmresInexactCoupledLinearCertificateEnabled) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x494e455843455231ull); // INEXCER1
+        }
         if (candidate->femFreshDirectionAlphaResetEnabled) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x4644414c50484131ull); // FDALPHA1
