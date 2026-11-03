@@ -1,0 +1,36 @@
+{
+  "name": "cooperative-cavity-capture-066",
+  "execution": {
+    "exit_code": 0,
+    "elapsed_s": 212.17243123054504,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-cavity-capture-066/install-motion.plan.json",
+    "plan_sha256": "47a72cfcc591c9dc5742f4d7bc6bff043cf43fad7c3321347ce13a9f50c98ee2",
+    "stdout_sha256": "7aebf31b13f01836b90096830e16901e89afd0442cfc438dd9833e00a5875ec6",
+    "stderr_sha256": "206cafdd49cc3ec7f80a38981df05093a85974d0526f187562752e1ca7faed2d",
+    "physical_admission": false,
+    "resource_stop_reason": null,
+    "source_import_pass": false,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "endpoint_bytes": 833232924,
+  "endpoint_sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+  "endpoint_available": true,
+  "profiles": [
+    "resting_native_profile step=1 command_ms=6150.634875 gpu_ms=6134.99475001 host_copy_ms=0.309542 full_state_readback=1",
+    "resting_native_profile step=2 command_ms=6300.133542 gpu_ms=6299.36541666 host_copy_ms=0.129208 full_state_readback=1",
+    "resting_native_profile step=3 command_ms=6215.544125 gpu_ms=6214.39741667 host_copy_ms=0.129458 full_state_readback=1",
+    "resting_native_profile step=4 command_ms=6185.199042 gpu_ms=6184.29491666 host_copy_ms=0.061875 full_state_readback=1"
+  ],
+  "completion": [
+    "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=32.397443416000002 real_time_factor=1.9291646617314275e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ],
+  "stages_root0_ms": {},
+  "selected_kernel_ms": {},
+  "traces": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-cavity-capture-066/install-motion/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+      "bytes": 4523
+    }
+  ]
+}

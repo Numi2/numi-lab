@@ -1,0 +1,36 @@
+{
+  "name": "completed-incidence-capture-067",
+  "execution": {
+    "exit_code": 0,
+    "elapsed_s": 207.51469707489014,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-incidence-capture-067/install-motion.plan.json",
+    "plan_sha256": "e4f42158f33af4bd56d3e4225a952a0f1da90dc1b2350ffeb31bb5687433f8b0",
+    "stdout_sha256": "a832f687e0d3dd75d0fd6c87f81f9a51a0ce259b3db3ba90dbfc62ed9846c401",
+    "stderr_sha256": "7dfe0b2cfe1f1e461a8663d7ed00a99a8daaa5ccc29568dfe028bdde9c530be1",
+    "physical_admission": false,
+    "resource_stop_reason": null,
+    "source_import_pass": false,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "endpoint_bytes": 833232924,
+  "endpoint_sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+  "endpoint_available": true,
+  "profiles": [
+    "resting_native_profile step=1 command_ms=5772.706625 gpu_ms=5768.31195834 host_copy_ms=0.338708 full_state_readback=1",
+    "resting_native_profile step=2 command_ms=5838.272209 gpu_ms=5837.490875 host_copy_ms=0.39725 full_state_readback=1",
+    "resting_native_profile step=3 command_ms=5819.95 gpu_ms=5818.87649999 host_copy_ms=0.088583 full_state_readback=1",
+    "resting_native_profile step=4 command_ms=5796.944791 gpu_ms=5796.08316667 host_copy_ms=0.062667 full_state_readback=1"
+  ],
+  "completion": [
+    "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=30.903663708 real_time_factor=2.0224140269948446e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ],
+  "stages_root0_ms": {},
+  "selected_kernel_ms": {},
+  "traces": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-incidence-capture-067/install-motion/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+      "bytes": 4523
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "final-combined-capture-068",
+  "execution": {
+    "exit_code": -15,
+    "elapsed_s": 202.28757071495056,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-combined-capture-068/install-motion.plan.json",
+    "plan_sha256": "639cfb28ef93194cf8660bb6a6b0d0565056a3b66e27448143049e28a5aeb085",
+    "stdout_sha256": "c35b66a358a7d6cc06e6dec681ffbcd133ac4ea3f14aa42fedb0007aea40a043",
+    "stderr_sha256": "b628718fd73aa9742dc05326c50f7c13e3ff510bd6bc95d402420f8c7c1f9e2e",
+    "physical_admission": false,
+    "resource_stop_reason": "disk_below_12GiB",
+    "source_import_pass": false,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "endpoint_bytes": 575271254,
+  "endpoint_sha256": "024a0fc6611c15d34c047a9ad13d8af80d0cdc2d3c5d1bca2fd26af98b1d813b",
+  "endpoint_available": true,
+  "profiles": [
+    "resting_native_profile step=1 command_ms=5806.277291 gpu_ms=5795.48487499 host_copy_ms=0.794542 full_state_readback=1",
+    "resting_native_profile step=2 command_ms=5897.556292 gpu_ms=5890.31816667 host_copy_ms=3.951667 full_state_readback=1",
+    "resting_native_profile step=3 command_ms=5805.050291 gpu_ms=5804.30720834 host_copy_ms=0.106042 full_state_readback=1",
+    "resting_native_profile step=4 command_ms=5842.455083 gpu_ms=5841.39029167 host_copy_ms=0.081125 full_state_readback=1"
+  ],
+  "completion": [],
+  "stages_root0_ms": {},
+  "selected_kernel_ms": {},
+  "traces": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-combined-capture-068/install-motion/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+      "bytes": 4523
+    }
+  ]
+}

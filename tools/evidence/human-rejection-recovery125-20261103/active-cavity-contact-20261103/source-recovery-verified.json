@@ -1,0 +1,18 @@
+{
+  "archive_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-incidence-067/execution-source-recovery.tar.gz",
+  "bytes": 13391987,
+  "sha256": "092694f84f8acd9bc4dd73714c8539be3a106325201a6280b22230c3849edee3",
+  "base_revision": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "base_code_files": 1436,
+  "tracked_dirty_files_restored": 55,
+  "source_overlays_restored": 64,
+  "actual_build_source_inputs_verified": 282,
+  "restore_test": "all captured source SHA256 equal after base-code extraction, patch application and overlays",
+  "restore_order": [
+    "extract _execution_recovery/base-code.tar into a fresh source directory",
+    "git apply _execution_recovery/execution-source.patch from that directory",
+    "extract source overlays from the outer archive",
+    "verify _execution_recovery/manifest.json SHA256 entries"
+  ],
+  "runtime_assets": "preserved and pinned separately; not uploaded or relicensed"
+}

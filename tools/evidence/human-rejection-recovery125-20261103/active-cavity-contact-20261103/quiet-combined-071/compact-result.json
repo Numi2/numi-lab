@@ -1,0 +1,36 @@
+{
+  "name": "quiet-combined-071",
+  "execution": {
+    "exit_code": 0,
+    "elapsed_s": 200.57510089874268,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/quiet-combined-071/install-motion.plan.json",
+    "plan_sha256": "09128585a43316fa0f36cc7f7265f7601f0bb9e518ce49c243a3892fe3d9a813",
+    "stdout_sha256": "51f10a90ddc1b211e6c54435cb88b3858977ca2dd54919ce2dcdb5eaf8d9b92f",
+    "stderr_sha256": "4611de8c3907209bea6b1473e8900b8ef0362a0987550456eecaba68faea755a",
+    "physical_admission": false,
+    "resource_stop_reason": null,
+    "source_import_pass": false,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "endpoint_bytes": 0,
+  "endpoint_sha256": null,
+  "endpoint_available": false,
+  "profiles": [
+    "resting_native_profile step=1 command_ms=6061.45425 gpu_ms=6054.9225 host_copy_ms=0.436583 full_state_readback=1",
+    "resting_native_profile step=2 command_ms=5851.901375 gpu_ms=5851.296625 host_copy_ms=0.136125 full_state_readback=1",
+    "resting_native_profile step=3 command_ms=5835.114625 gpu_ms=5834.17479166 host_copy_ms=0.130833 full_state_readback=1",
+    "resting_native_profile step=4 command_ms=5823.670375 gpu_ms=5822.85633333 host_copy_ms=0.074042 full_state_readback=1"
+  ],
+  "completion": [
+    "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=25.554788541000001 real_time_factor=2.4457256951399128e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ],
+  "stages_root0_ms": {},
+  "selected_kernel_ms": {},
+  "traces": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/quiet-combined-071/install-motion/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+      "bytes": 4523
+    }
+  ]
+}

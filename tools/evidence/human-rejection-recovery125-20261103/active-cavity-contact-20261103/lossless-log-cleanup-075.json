@@ -1,0 +1,57 @@
+{
+  "files": [
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-linear-builders-063/install-motion.stdout.log",
+      "original_bytes": 833592286,
+      "original_sha256": "65c2cfa7408e244488006931688bc297fb4afb799be39f7b42637b3c3736f257",
+      "gzip_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-linear-builders-063/install-motion.stdout.log.gz",
+      "gzip_bytes": 121955538,
+      "gzip_sha256": "15fd7b158b7efe56fee0efc5fd1e83f365aa7b710b9e8d5c33def780e4607d4d",
+      "restore_command": "gzip -dc '/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-linear-builders-063/install-motion.stdout.log.gz' > '/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-linear-builders-063/install-motion.stdout.log'",
+      "recovered_bytes": 711636748
+    },
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-cavity-capture-066/install-motion.stdout.log",
+      "original_bytes": 833592322,
+      "original_sha256": "7aebf31b13f01836b90096830e16901e89afd0442cfc438dd9833e00a5875ec6",
+      "gzip_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-cavity-capture-066/install-motion.stdout.log.gz",
+      "gzip_bytes": 121955523,
+      "gzip_sha256": "0a11ed8beaa465a5f9dc8ad5883f4307d745e542c399b5841ea370381f4b556e",
+      "restore_command": "gzip -dc '/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-cavity-capture-066/install-motion.stdout.log.gz' > '/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-cavity-capture-066/install-motion.stdout.log'",
+      "recovered_bytes": 711636799
+    },
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-incidence-capture-067/install-motion.stdout.log",
+      "original_bytes": 833592303,
+      "original_sha256": "a832f687e0d3dd75d0fd6c87f81f9a51a0ce259b3db3ba90dbfc62ed9846c401",
+      "gzip_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-incidence-capture-067/install-motion.stdout.log.gz",
+      "gzip_bytes": 121955539,
+      "gzip_sha256": "b1e0fc73f0cfa18c9b63f253ccc58546a28a25d414f655ac1fd3957612741dd7",
+      "restore_command": "gzip -dc '/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-incidence-capture-067/install-motion.stdout.log.gz' > '/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-incidence-capture-067/install-motion.stdout.log'",
+      "recovered_bytes": 711636764
+    },
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-combined-capture-068/install-motion.stdout.log",
+      "original_bytes": 575581891,
+      "original_sha256": "c35b66a358a7d6cc06e6dec681ffbcd133ac4ea3f14aa42fedb0007aea40a043",
+      "gzip_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-combined-capture-068/install-motion.stdout.log.gz",
+      "gzip_bytes": 90487148,
+      "gzip_sha256": "7447b5b697c2aeb47c18c08ee31895ea52600c21358208c05f64ef47c6fd4b7a",
+      "restore_command": "gzip -dc '/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-combined-capture-068/install-motion.stdout.log.gz' > '/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-combined-capture-068/install-motion.stdout.log'",
+      "recovered_bytes": 485094743
+    },
+    {
+      "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-combined-capture-068-retry1/install-motion.stdout.log",
+      "original_bytes": 833592323,
+      "original_sha256": "d0288c2033a03946f3c40ad51289fbb5aa3ecd68dbe4b70f3548befdc8f00dd5",
+      "gzip_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-combined-capture-068-retry1/install-motion.stdout.log.gz",
+      "gzip_bytes": 121955592,
+      "gzip_sha256": "09d73190f9e96ab3f91c324d045108c413407406bd28faaffaf8e76d96d37252",
+      "restore_command": "gzip -dc '/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-combined-capture-068-retry1/install-motion.stdout.log.gz' > '/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-combined-capture-068-retry1/install-motion.stdout.log'",
+      "recovered_bytes": 711636731
+    }
+  ],
+  "original_stdout_receipt_hashes": "verified",
+  "roundtrip_sha256": "verified",
+  "clinical_or_physical_qualification": "not_claimed"
+}

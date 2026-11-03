@@ -1,102 +1,902 @@
 [
   {
     "path": "README.md",
-    "bytes": 2111,
-    "sha256": "8b92fbeeef79cd420618d612828e8f066b7fb736c9df405204ce80eacc1c1203"
+    "bytes": 7364,
+    "sha256": "10131f6a939db336b0caa569796bb21fc7e61f317df10b7a4e809bc4f4a50eb6",
+    "symlink_target": null
+  },
+  {
+    "path": "archive-execution-source-075.py",
+    "bytes": 6246,
+    "sha256": "98220122b887b7dad48453d4da2d532bdf5e6aac68128edcd1380c7d5e50736e",
+    "symlink_target": null
+  },
+  {
+    "path": "benchmark-quiet-068.py",
+    "bytes": 4697,
+    "sha256": "133e00c34eb74fb671a959e0d82f6a28ea657ea130a789cc17a1509fee715ba9",
+    "symlink_target": null
   },
   {
     "path": "build-final.log",
     "bytes": 14852,
-    "sha256": "afa02d77a59c0d45317aa6d27d69fef1f6f6081c78e2a0f239febee9fb5c224b"
+    "sha256": "afa02d77a59c0d45317aa6d27d69fef1f6f6081c78e2a0f239febee9fb5c224b",
+    "symlink_target": null
   },
   {
     "path": "cavity-final.stderr.log",
     "bytes": 0,
-    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "symlink_target": null
   },
   {
     "path": "cavity-final.stdout.log",
     "bytes": 556,
-    "sha256": "c5abf732ee0165d3e37206e4c0101c325701f519e8ee8f2857b702372eb6ee0e"
+    "sha256": "c5abf732ee0165d3e37206e4c0101c325701f519e8ee8f2857b702372eb6ee0e",
+    "symlink_target": null
+  },
+  {
+    "path": "collect-performance-065.py",
+    "bytes": 2584,
+    "sha256": "d8fe3f57fd4c8d16a5844f3d0282dd62c036ea9f87e467ead11492ae5225adba",
+    "symlink_target": null
+  },
+  {
+    "path": "completed-incidence-capture-067/build-manifest.json",
+    "bytes": 9779,
+    "sha256": "6496596a3b114e88c72d56c4b098d4cb88e91e8eec5fc6b6a10c73acbc67fdc0",
+    "symlink_target": null
+  },
+  {
+    "path": "completed-incidence-capture-067/compact-result.json",
+    "bytes": 2217,
+    "sha256": "369c00a5f2e11b6820d0c64cc2d695624c1163df83af1fc5aabbaf36ec015627",
+    "symlink_target": null
+  },
+  {
+    "path": "completed-incidence-capture-067/execution-source-snapshots.tar.gz",
+    "bytes": 1796969,
+    "sha256": "67432f3b8c436ff4c8505f17312c144692f7a55303df469b642faa46bb52b7cb",
+    "symlink_target": "../source-snapshots/4bba1b00bb7821f35cbe0e6ebfd38a4d7d929bf37247331f6f4dad5076c3a8d7.tar.gz"
+  },
+  {
+    "path": "completed-incidence-capture-067/install-motion.execution.json",
+    "bytes": 751,
+    "sha256": "6ac9e2f40d32cec16858d3f29067d375053f1b51abfd31d1ed43f86969a553c7",
+    "symlink_target": null
+  },
+  {
+    "path": "completed-incidence-capture-067/install-motion.plan.json",
+    "bytes": 100328,
+    "sha256": "e4f42158f33af4bd56d3e4225a952a0f1da90dc1b2350ffeb31bb5687433f8b0",
+    "symlink_target": null
+  },
+  {
+    "path": "completed-incidence-capture-067/install-motion.stderr.log",
+    "bytes": 205993,
+    "sha256": "7dfe0b2cfe1f1e461a8663d7ed00a99a8daaa5ccc29568dfe028bdde9c530be1",
+    "symlink_target": null
+  },
+  {
+    "path": "completed-incidence-capture-067/resource-monitor.jsonl",
+    "bytes": 4767,
+    "sha256": "3bdc0344642a5f3cd89e608d484a0a38423d6a19f3665c8e128f65fc110ef168",
+    "symlink_target": null
+  },
+  {
+    "path": "completed-incidence-capture-067/resource-policy.json",
+    "bytes": 352,
+    "sha256": "980d71086fa8d422824309c7fa60100506c97bf4657ef9001692ad6820e66979",
+    "symlink_target": null
+  },
+  {
+    "path": "completed-incidence-capture-067/resting-coupled.csv",
+    "bytes": 4523,
+    "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "symlink_target": null
+  },
+  {
+    "path": "completed-incidence-capture-067/run_native_plan.py",
+    "bytes": 4730,
+    "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f",
+    "symlink_target": null
+  },
+  {
+    "path": "cooperative-cavity-capture-066/build-manifest.json",
+    "bytes": 9778,
+    "sha256": "9437773b13ceaee7067b3e164102c0a50aa238ed92c6fa392f3d9e8c2e4ea795",
+    "symlink_target": null
+  },
+  {
+    "path": "cooperative-cavity-capture-066/compact-result.json",
+    "bytes": 2227,
+    "sha256": "85605957f95542c37b9725ca9f8df60abfd893ef127b0a7aad948b6654a165bc",
+    "symlink_target": null
+  },
+  {
+    "path": "cooperative-cavity-capture-066/execution-source-snapshots.tar.gz",
+    "bytes": 1795493,
+    "sha256": "a8d001ef3172306b538ce17eb4d75a35a4a945c7f47c0d32b35290ff817f65ee",
+    "symlink_target": "../source-snapshots/c5f026dcc747d5b1fa43bcf3a122ce0a3ea03e0bd3cd07438cccfb658a69e7c9.tar.gz"
+  },
+  {
+    "path": "cooperative-cavity-capture-066/install-motion.execution.json",
+    "bytes": 750,
+    "sha256": "9f960c6926c920dc8b64053423f9e2dcd6f7d50a985b5f1debd7ba077913a106",
+    "symlink_target": null
+  },
+  {
+    "path": "cooperative-cavity-capture-066/install-motion.plan.json",
+    "bytes": 100267,
+    "sha256": "47a72cfcc591c9dc5742f4d7bc6bff043cf43fad7c3321347ce13a9f50c98ee2",
+    "symlink_target": null
+  },
+  {
+    "path": "cooperative-cavity-capture-066/install-motion.stderr.log",
+    "bytes": 205993,
+    "sha256": "206cafdd49cc3ec7f80a38981df05093a85974d0526f187562752e1ca7faed2d",
+    "symlink_target": null
+  },
+  {
+    "path": "cooperative-cavity-capture-066/resource-monitor.jsonl",
+    "bytes": 4889,
+    "sha256": "d43bb7d37b546158099c3711ea099a463a61c8deeaaf3409c7793b00f4458781",
+    "symlink_target": null
+  },
+  {
+    "path": "cooperative-cavity-capture-066/resource-policy.json",
+    "bytes": 352,
+    "sha256": "22dd2c562fe8e78f47710230ec87ebfabb8c070301285bf33ddc4f556962ab99",
+    "symlink_target": null
+  },
+  {
+    "path": "cooperative-cavity-capture-066/resting-coupled.csv",
+    "bytes": 4523,
+    "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "symlink_target": null
+  },
+  {
+    "path": "cooperative-cavity-capture-066/run_native_plan.py",
+    "bytes": 4730,
+    "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f",
+    "symlink_target": null
+  },
+  {
+    "path": "execution-source-recovery.tar.gz",
+    "bytes": 13391987,
+    "sha256": "092694f84f8acd9bc4dd73714c8539be3a106325201a6280b22230c3849edee3",
+    "symlink_target": null
+  },
+  {
+    "path": "final-combined-capture-068/build-manifest.json",
+    "bytes": 10048,
+    "sha256": "eeb8d6686630e8c18606e857f84ea8a3bd2923c3511d23ead79b9d309dce9943",
+    "symlink_target": null
+  },
+  {
+    "path": "final-combined-capture-068/compact-result.json",
+    "bytes": 2000,
+    "sha256": "ee347c958e726a78c4461791a25495a9a0129f5b8fa4ce0788e70a9005726966",
+    "symlink_target": null
+  },
+  {
+    "path": "final-combined-capture-068/execution-source-snapshots.tar.gz",
+    "bytes": 1839991,
+    "sha256": "83e83f857cb04c48c8faa179ad2e006d2e69585a910890e566a1cb9e87870b91",
+    "symlink_target": "../source-snapshots/13a19de36d7423d9c783e7d5c6c39815c201d08a391d1482e7c70f6a8cccfe53.tar.gz"
+  },
+  {
+    "path": "final-combined-capture-068/failure-classification.json",
+    "bytes": 406,
+    "sha256": "da44c7abde6f5b9744f035866f8cc2e6436411af3eb94ea7e822d6ba7b82f0eb",
+    "symlink_target": null
+  },
+  {
+    "path": "final-combined-capture-068/install-motion.execution.json",
+    "bytes": 762,
+    "sha256": "7a0f7728f4e2b1fa76ffe927cc57c10686cca971b6485a489670149e42d2f653",
+    "symlink_target": null
+  },
+  {
+    "path": "final-combined-capture-068/install-motion.plan.json",
+    "bytes": 100515,
+    "sha256": "639cfb28ef93194cf8660bb6a6b0d0565056a3b66e27448143049e28a5aeb085",
+    "symlink_target": null
+  },
+  {
+    "path": "final-combined-capture-068/install-motion.stderr.log",
+    "bytes": 205993,
+    "sha256": "b628718fd73aa9742dc05326c50f7c13e3ff510bd6bc95d402420f8c7c1f9e2e",
+    "symlink_target": null
+  },
+  {
+    "path": "final-combined-capture-068/resource-monitor.jsonl",
+    "bytes": 4772,
+    "sha256": "acff3630a148b51bb82b889876dd01af27ddeaf6588fcd6a68e380da0da0b58c",
+    "symlink_target": null
+  },
+  {
+    "path": "final-combined-capture-068/resource-policy.json",
+    "bytes": 352,
+    "sha256": "69084e000c773006f949cb90485244a20833960ee7c04fc0d7cfa4a972c59c72",
+    "symlink_target": null
+  },
+  {
+    "path": "final-combined-capture-068/resting-coupled.csv",
+    "bytes": 4523,
+    "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "symlink_target": null
+  },
+  {
+    "path": "final-combined-capture-068/run_native_plan.py",
+    "bytes": 4730,
+    "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f",
+    "symlink_target": null
   },
   {
     "path": "final-combined-capture-068-retry1/accepted-parity.json",
     "bytes": 5137,
-    "sha256": "168441ebe7e31f21acb4e16a090f9c86582009cb294fc6f8642ca8392dca1f4b"
+    "sha256": "168441ebe7e31f21acb4e16a090f9c86582009cb294fc6f8642ca8392dca1f4b",
+    "symlink_target": null
   },
   {
     "path": "final-combined-capture-068-retry1/build-manifest.json",
     "bytes": 10055,
-    "sha256": "335e71c1aeecd780e3c9c28ed0fb11fb6bf980c1afcb2066d8be1c055e55e31b"
+    "sha256": "335e71c1aeecd780e3c9c28ed0fb11fb6bf980c1afcb2066d8be1c055e55e31b",
+    "symlink_target": null
   },
   {
     "path": "final-combined-capture-068-retry1/compact-result.json",
     "bytes": 2228,
-    "sha256": "161ebb8151cd79fe6b7ee097e4984bddb22c21fad836438e595c39cac70acd5d"
+    "sha256": "161ebb8151cd79fe6b7ee097e4984bddb22c21fad836438e595c39cac70acd5d",
+    "symlink_target": null
   },
   {
     "path": "final-combined-capture-068-retry1/execution-source-snapshots.tar.gz",
     "bytes": 1839991,
-    "sha256": "83e83f857cb04c48c8faa179ad2e006d2e69585a910890e566a1cb9e87870b91"
+    "sha256": "83e83f857cb04c48c8faa179ad2e006d2e69585a910890e566a1cb9e87870b91",
+    "symlink_target": "../source-snapshots/13a19de36d7423d9c783e7d5c6c39815c201d08a391d1482e7c70f6a8cccfe53.tar.gz"
   },
   {
     "path": "final-combined-capture-068-retry1/install-motion.execution.json",
     "bytes": 753,
-    "sha256": "442b434f803f04316d83e981c477a795cf10460829e046fc6f82c7f3f6aa6909"
+    "sha256": "442b434f803f04316d83e981c477a795cf10460829e046fc6f82c7f3f6aa6909",
+    "symlink_target": null
   },
   {
     "path": "final-combined-capture-068-retry1/install-motion.plan.json",
     "bytes": 101184,
-    "sha256": "5b5461957c80de4846c93063447258d0b07c9cfa30dc0b53ab06413544f807dd"
+    "sha256": "5b5461957c80de4846c93063447258d0b07c9cfa30dc0b53ab06413544f807dd",
+    "symlink_target": null
   },
   {
     "path": "final-combined-capture-068-retry1/install-motion.stderr.log",
     "bytes": 205993,
-    "sha256": "a55e474f13e07a72e5a2c95cc6deb04310b600235a4c8fb949edd7ba90061965"
+    "sha256": "a55e474f13e07a72e5a2c95cc6deb04310b600235a4c8fb949edd7ba90061965",
+    "symlink_target": null
   },
   {
     "path": "final-combined-capture-068-retry1/resource-monitor.jsonl",
     "bytes": 5011,
-    "sha256": "d5d838c8fd3808eb5dc7dfe821777016910577f6858a49f8901d510d9a9edcc2"
+    "sha256": "d5d838c8fd3808eb5dc7dfe821777016910577f6858a49f8901d510d9a9edcc2",
+    "symlink_target": null
   },
   {
     "path": "final-combined-capture-068-retry1/resource-policy.json",
     "bytes": 352,
-    "sha256": "23dea8d13fa7e7ed77edb66e7cf2bddfbd9e19262b9a3c794f82bbecb06b1680"
+    "sha256": "23dea8d13fa7e7ed77edb66e7cf2bddfbd9e19262b9a3c794f82bbecb06b1680",
+    "symlink_target": null
   },
   {
     "path": "final-combined-capture-068-retry1/resting-coupled.csv",
     "bytes": 4523,
-    "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee"
+    "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "symlink_target": null
   },
   {
     "path": "final-combined-capture-068-retry1/run_native_plan.py",
     "bytes": 4982,
-    "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922"
+    "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+    "symlink_target": null
+  },
+  {
+    "path": "final-publication-verification.json",
+    "bytes": 788,
+    "sha256": "30f0a071170090cd4f2c559d7565b0fb22b73ec8489ec12b69aa4f710cd5be81",
+    "symlink_target": null
   },
   {
     "path": "gate-final.stderr.log",
     "bytes": 0,
-    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "symlink_target": null
   },
   {
     "path": "gate-final.stdout.log",
     "bytes": 51,
-    "sha256": "b3479251dd1fea7392fbd67e6e27eb768a546e20cc471d38a8d6edd88e6814ff"
+    "sha256": "b3479251dd1fea7392fbd67e6e27eb768a546e20cc471d38a8d6edd88e6814ff",
+    "symlink_target": null
+  },
+  {
+    "path": "lossless-log-cleanup-075.json",
+    "bytes": 7257,
+    "sha256": "d4e4a9310f94d18955f3b84683892fe1e1ad9cb9b547c23cd36b20333183bb0c",
+    "symlink_target": null
+  },
+  {
+    "path": "matched-measurements.json",
+    "bytes": 2512,
+    "sha256": "3a0700d1643ace82a5fc9ed98564530e47c0be045b2b63bc71f7f2266a202b30",
+    "symlink_target": null
+  },
+  {
+    "path": "publication-source-parity.json",
+    "bytes": 237,
+    "sha256": "ccda682cc7130c41510dfedaef4e12b5114e04fdb6f6b779df2cd902a71664b3",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-070/accepted-parity.json",
+    "bytes": 5138,
+    "sha256": "c220c136e7d5e8c60775dcf895885b33679d9ebcc21e0593310279e1ea281f88",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-070/build-manifest.json",
+    "bytes": 10040,
+    "sha256": "1841d78c63442ec7c54d80f1b1115664f77c69b1252823e7cbe281ac16f85ada",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-070/compact-result.json",
+    "bytes": 2107,
+    "sha256": "1bdbfaf9de04059f78b4d9eb84ecb144a5e293570529a9aa2629d5e0debb6801",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-070/execution-source-snapshots.tar.gz",
+    "bytes": 1839991,
+    "sha256": "83e83f857cb04c48c8faa179ad2e006d2e69585a910890e566a1cb9e87870b91",
+    "symlink_target": "../source-snapshots/13a19de36d7423d9c783e7d5c6c39815c201d08a391d1482e7c70f6a8cccfe53.tar.gz"
+  },
+  {
+    "path": "quiet-combined-070/install-motion.execution.json",
+    "bytes": 736,
+    "sha256": "06410e9c5f8b18ce87e89bdf506b192158c006fe1e4fec811117d4cef28cced4",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-070/install-motion.plan.json",
+    "bytes": 101097,
+    "sha256": "2ca06a89716bb9dc6d34be9a91d4d4ef41f7dabdb7e65bb1b4410cedfe553515",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-070/install-motion.stderr.log",
+    "bytes": 205993,
+    "sha256": "02bd6192cd23a338104b9e3bd496b2e9bc29a5cf5cb0db9e68121308105629d0",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-070/install-motion.stdout.log",
+    "bytes": 359286,
+    "sha256": "29891694d4318360385d1c13c705d18786bce91614dd59275626c6f81b451ae7",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-070/resource-monitor.jsonl",
+    "bytes": 4652,
+    "sha256": "1a7d628eac841e6128dec34fe9ce46c5af10ad42b4e40dd5cddb727f68712802",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-070/resource-policy.json",
+    "bytes": 352,
+    "sha256": "b1c1002f34a2de089406560892bd2cdb6b0482f428439b49cb7e12e08765eaac",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-070/resting-coupled.csv",
+    "bytes": 4523,
+    "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-070/run_native_plan.py",
+    "bytes": 4982,
+    "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-071/accepted-parity.json",
+    "bytes": 5138,
+    "sha256": "c220c136e7d5e8c60775dcf895885b33679d9ebcc21e0593310279e1ea281f88",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-071/build-manifest.json",
+    "bytes": 10040,
+    "sha256": "25b9ae2ad9e78c34541a95c343f991d47a324c7267636b0217bed8746ebecc05",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-071/compact-result.json",
+    "bytes": 2115,
+    "sha256": "86d7685a69d68d7cd5d94a8376aa035c6076099bdea10b774139377af91f8c6e",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-071/execution-source-snapshots.tar.gz",
+    "bytes": 1839991,
+    "sha256": "83e83f857cb04c48c8faa179ad2e006d2e69585a910890e566a1cb9e87870b91",
+    "symlink_target": "../source-snapshots/13a19de36d7423d9c783e7d5c6c39815c201d08a391d1482e7c70f6a8cccfe53.tar.gz"
+  },
+  {
+    "path": "quiet-combined-071/install-motion.execution.json",
+    "bytes": 738,
+    "sha256": "3d819d6dcf0ec6192bc1a480f4788d45b0802e869f9fb0981ce7c058a8ea37ab",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-071/install-motion.plan.json",
+    "bytes": 101097,
+    "sha256": "09128585a43316fa0f36cc7f7265f7601f0bb9e518ce49c243a3892fe3d9a813",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-071/install-motion.stderr.log",
+    "bytes": 205993,
+    "sha256": "4611de8c3907209bea6b1473e8900b8ef0362a0987550456eecaba68faea755a",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-071/install-motion.stdout.log",
+    "bytes": 359308,
+    "sha256": "51f10a90ddc1b211e6c54435cb88b3858977ca2dd54919ce2dcdb5eaf8d9b92f",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-071/resource-monitor.jsonl",
+    "bytes": 4654,
+    "sha256": "a1d7478c4c51425d5b972458f311fee647aa9a8ede2e20468054c4415fba3af3",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-071/resource-policy.json",
+    "bytes": 352,
+    "sha256": "6b5cfa13ef549e6294799ac5aaa4434b27d02e48d05291ec71e2bd29f054dc4e",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-071/resting-coupled.csv",
+    "bytes": 4523,
+    "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-071/run_native_plan.py",
+    "bytes": 4982,
+    "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-074/accepted-parity.json",
+    "bytes": 5138,
+    "sha256": "c220c136e7d5e8c60775dcf895885b33679d9ebcc21e0593310279e1ea281f88",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-074/build-manifest.json",
+    "bytes": 10040,
+    "sha256": "b50ecf87d253c2d8a967fa72b9844f26d0feff382ff5ca852ad5117c4c2a7226",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-074/compact-result.json",
+    "bytes": 2112,
+    "sha256": "0648fcf2e6f4c0fcdc149af856ea9c58e3d5def303c914c0de1edb1c665ae3fc",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-074/execution-source-snapshots.tar.gz",
+    "bytes": 1839991,
+    "sha256": "83e83f857cb04c48c8faa179ad2e006d2e69585a910890e566a1cb9e87870b91",
+    "symlink_target": "../source-snapshots/13a19de36d7423d9c783e7d5c6c39815c201d08a391d1482e7c70f6a8cccfe53.tar.gz"
+  },
+  {
+    "path": "quiet-combined-074/install-motion.execution.json",
+    "bytes": 737,
+    "sha256": "096c746b05c955624648690ebaf29bf467244b98d20fb71579d85afb447cd224",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-074/install-motion.plan.json",
+    "bytes": 101097,
+    "sha256": "7287974dd17d6ae9b5f59df72c055b902f52afde9561c335cc97461c609491d5",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-074/install-motion.stderr.log",
+    "bytes": 205993,
+    "sha256": "e245fa8c3a91ddf6621623651e558513e3f97e9bdf84b40efc5f7cf4b46d1989",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-074/install-motion.stdout.log",
+    "bytes": 359294,
+    "sha256": "53ce0d87a51a7ac54afb919d86efdf9962cee6fbe61c52f9999310689f2e3ee7",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-074/resource-monitor.jsonl",
+    "bytes": 4647,
+    "sha256": "bf19d13b909f856cb36ea1c69c5f8cb6ce9d6ba1f043e519c6165f26d88f697b",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-074/resource-policy.json",
+    "bytes": 351,
+    "sha256": "9c1a1600b432e0cf7045ac9f5348f2a3628a9166c570fb48bda10ea4f58a6f3e",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-074/resting-coupled.csv",
+    "bytes": 4523,
+    "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-combined-074/run_native_plan.py",
+    "bytes": 4982,
+    "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-069/accepted-parity.json",
+    "bytes": 5138,
+    "sha256": "c220c136e7d5e8c60775dcf895885b33679d9ebcc21e0593310279e1ea281f88",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-069/build-manifest.json",
+    "bytes": 10039,
+    "sha256": "e2ae2de888ee1f96209dfc81215597e8a7fe39f89126ffb3190b9405f8e9d918",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-069/compact-result.json",
+    "bytes": 2111,
+    "sha256": "298148f7ef2751c612718bdb6e18182fbe1edc61600037ea16f14dfa6d56f8f5",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-069/execution-source-snapshots.tar.gz",
+    "bytes": 1839991,
+    "sha256": "83e83f857cb04c48c8faa179ad2e006d2e69585a910890e566a1cb9e87870b91",
+    "symlink_target": "../source-snapshots/13a19de36d7423d9c783e7d5c6c39815c201d08a391d1482e7c70f6a8cccfe53.tar.gz"
+  },
+  {
+    "path": "quiet-control-069/install-motion.execution.json",
+    "bytes": 737,
+    "sha256": "50e533c433a85b7bb559191788250e3c3670564d040ceeda4cdc0cdcc09f120f",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-069/install-motion.plan.json",
+    "bytes": 101088,
+    "sha256": "d8963b349415c49b57a0bbc4d8a8a53ac6bfc8b809d05b4fea6cf0ac68b9e486",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-069/install-motion.stderr.log",
+    "bytes": 205993,
+    "sha256": "19ab7e8c468f9bc8378348b218bb657ba902841b1e02d78341c06407d90fd72e",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-069/install-motion.stdout.log",
+    "bytes": 359284,
+    "sha256": "cd5ceaf1cb02345e716f1ce7cc6b393cd22ee601894d73b492a75e8a8ae47655",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-069/resource-monitor.jsonl",
+    "bytes": 4772,
+    "sha256": "343725c68b4d2a9de2297299abc2b2396a6d2b5b016719767eeb04600aa1fb08",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-069/resource-policy.json",
+    "bytes": 352,
+    "sha256": "8dde7367fdde1db1f560600d5f77f2bc7b90f2c045361bb7cc516ded3bee6c1a",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-069/resting-coupled.csv",
+    "bytes": 4523,
+    "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-069/run_native_plan.py",
+    "bytes": 4982,
+    "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-072/accepted-parity.json",
+    "bytes": 5138,
+    "sha256": "c220c136e7d5e8c60775dcf895885b33679d9ebcc21e0593310279e1ea281f88",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-072/build-manifest.json",
+    "bytes": 10039,
+    "sha256": "9d4ab3477bc7274eeed868fdca69540d8cda396ceee0e8477f33f1fa33e31ddc",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-072/compact-result.json",
+    "bytes": 2107,
+    "sha256": "4198d60d0935dc3ddd936996eecccfc3d1d73d01af81e1db33afc93f9018fff6",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-072/execution-source-snapshots.tar.gz",
+    "bytes": 1839991,
+    "sha256": "83e83f857cb04c48c8faa179ad2e006d2e69585a910890e566a1cb9e87870b91",
+    "symlink_target": "../source-snapshots/13a19de36d7423d9c783e7d5c6c39815c201d08a391d1482e7c70f6a8cccfe53.tar.gz"
+  },
+  {
+    "path": "quiet-control-072/install-motion.execution.json",
+    "bytes": 737,
+    "sha256": "76d348e971671513aa41aee76339d8890335a6a85ebf04244dd7dae62a8352c2",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-072/install-motion.plan.json",
+    "bytes": 101088,
+    "sha256": "1e6363a6dfe1b8a4c5d6556abec93cd25f04ce6255ae26a8293e42da7f9c2981",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-072/install-motion.stderr.log",
+    "bytes": 205993,
+    "sha256": "e5f01f7cc4d56745768ea572780bec81a56a7f773a41aaa1d805ce5e854bb898",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-072/install-motion.stdout.log",
+    "bytes": 359276,
+    "sha256": "e1eb2c2d3e47000074ff1c1e4714b110fe0b7e1b801a7c450efe4bffe0d5df86",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-072/resource-monitor.jsonl",
+    "bytes": 5007,
+    "sha256": "02d99a6a839a616e3ac2bbe2177b898486b47650cd2cc183bcd5a3a8b30f2245",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-072/resource-policy.json",
+    "bytes": 352,
+    "sha256": "b61225880c569574d615cf2c4119d5d0a50b15e2becb314e0565d71f397f9034",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-072/resting-coupled.csv",
+    "bytes": 4523,
+    "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-072/run_native_plan.py",
+    "bytes": 4982,
+    "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-073/accepted-parity.json",
+    "bytes": 5138,
+    "sha256": "c220c136e7d5e8c60775dcf895885b33679d9ebcc21e0593310279e1ea281f88",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-073/build-manifest.json",
+    "bytes": 10039,
+    "sha256": "c15082f8aa36f3a8f02981279fe51e03d8ea2125acf5eb8bab4008d569bb0502",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-073/compact-result.json",
+    "bytes": 2113,
+    "sha256": "8cd80bf93456693e1f8e1bbce8cac28020c228381ad8dcff1971800c8b149a7a",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-073/execution-source-snapshots.tar.gz",
+    "bytes": 1839991,
+    "sha256": "83e83f857cb04c48c8faa179ad2e006d2e69585a910890e566a1cb9e87870b91",
+    "symlink_target": "../source-snapshots/13a19de36d7423d9c783e7d5c6c39815c201d08a391d1482e7c70f6a8cccfe53.tar.gz"
+  },
+  {
+    "path": "quiet-control-073/install-motion.execution.json",
+    "bytes": 737,
+    "sha256": "30b1d1cf78011aa40f60dfe4987c961a80bc06bb8f9bce1c2967e09bc8c74b03",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-073/install-motion.plan.json",
+    "bytes": 101088,
+    "sha256": "a2e406a3ef1ed08cb8fb4d5c4c7d928111f07a8e887bf6ec32ef4df6c8fb880a",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-073/install-motion.stderr.log",
+    "bytes": 205993,
+    "sha256": "93de7e796550f3abbe51bd02ac309a03d4c65ba3a85cad3401d4aa5519833f32",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-073/install-motion.stdout.log",
+    "bytes": 359291,
+    "sha256": "e6d2dd02a96509258710b7ab9d7c0cdebda3bce6aa34244e960a63dc765a2110",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-073/resource-monitor.jsonl",
+    "bytes": 4627,
+    "sha256": "a2b2e9f578c18f98e237d3182576ad0735b17116fb30e66edbeef9b7a59c7a0d",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-073/resource-policy.json",
+    "bytes": 351,
+    "sha256": "7b143e1e9abc9a163add4f69481ccf83ed4527fb5d70b6ae535553a8d578ceb3",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-073/resting-coupled.csv",
+    "bytes": 4523,
+    "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet-control-073/run_native_plan.py",
+    "bytes": 4982,
+    "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+    "symlink_target": null
+  },
+  {
+    "path": "quiet_launcher_068.py",
+    "bytes": 1164,
+    "sha256": "fa8dc046319547d30c33c4d86bf506245f3aae25993f662c9c365484046c5ffe",
+    "symlink_target": null
+  },
+  {
+    "path": "resource-summary-068-074.json",
+    "bytes": 1102,
+    "sha256": "fb19b949a2c28ad86012f9a6f090b3894eb77ea468fe2053e9c8aff0612c059d",
+    "symlink_target": null
+  },
+  {
+    "path": "run-performance-068.py",
+    "bytes": 4600,
+    "sha256": "3a080b347181315c897e8cdffb976d6c4e2d59b0e0af8f237c807d8247c11a3c",
+    "symlink_target": null
+  },
+  {
+    "path": "runtime-cavity-enabled.execution.json",
+    "bytes": 334,
+    "sha256": "721ce49ac9c27d4f10f1c628efa6a50919c71086c8fd45a3e2d4b09c4dfde17d",
+    "symlink_target": null
+  },
+  {
+    "path": "runtime-cavity-enabled.stderr.log",
+    "bytes": 11349,
+    "sha256": "382c85e127dfc1025d920277144f5c15d41f60684e3443b5deba9c4fccc89bf5",
+    "symlink_target": null
+  },
+  {
+    "path": "runtime-cavity-enabled.stdout.log",
+    "bytes": 4232,
+    "sha256": "6d9966bddfc138381960937abcb2e040d1038444a7631c44a958fb8b20033b2e",
+    "symlink_target": null
   },
   {
     "path": "solver-final.stderr.log",
     "bytes": 0,
-    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "symlink_target": null
   },
   {
     "path": "solver-final.stdout.log",
     "bytes": 14022,
-    "sha256": "31f665bde360b6048189ead1fe51f98ccefdd4954bacec88acb3205538ed3633"
+    "sha256": "31f665bde360b6048189ead1fe51f98ccefdd4954bacec88acb3205538ed3633",
+    "symlink_target": null
+  },
+  {
+    "path": "source-recovery-verified.json",
+    "bytes": 1087,
+    "sha256": "77ce67cbe3705c7bdd4519c654259e7037bfc7ae3a199a426575dc624529c9ff",
+    "symlink_target": null
   },
   {
     "path": "source-snapshots/13a19de36d7423d9c783e7d5c6c39815c201d08a391d1482e7c70f6a8cccfe53.tar.gz",
     "bytes": 1839991,
-    "sha256": "83e83f857cb04c48c8faa179ad2e006d2e69585a910890e566a1cb9e87870b91"
+    "sha256": "83e83f857cb04c48c8faa179ad2e006d2e69585a910890e566a1cb9e87870b91",
+    "symlink_target": null
+  },
+  {
+    "path": "source-snapshots/4bba1b00bb7821f35cbe0e6ebfd38a4d7d929bf37247331f6f4dad5076c3a8d7.tar.gz",
+    "bytes": 1796969,
+    "sha256": "67432f3b8c436ff4c8505f17312c144692f7a55303df469b642faa46bb52b7cb",
+    "symlink_target": null
+  },
+  {
+    "path": "source-snapshots/c5f026dcc747d5b1fa43bcf3a122ce0a3ea03e0bd3cd07438cccfb658a69e7c9.tar.gz",
+    "bytes": 1795493,
+    "sha256": "a8d001ef3172306b538ce17eb4d75a35a4a945c7f47c0d32b35290ff817f65ee",
+    "symlink_target": null
+  },
+  {
+    "path": "trial_tools.py",
+    "bytes": 1796,
+    "sha256": "e93260306f5128535328583d99004ad4a2b9348fc98f5cdfa04113faeb358dae",
+    "symlink_target": null
+  },
+  {
+    "path": "verified-identical-output-links-20261103-066.json",
+    "bytes": 7890,
+    "sha256": "fbf5f0b637ad07884188f46a118a6004b973f8dad2137b204a62044851647859",
+    "symlink_target": null
+  },
+  {
+    "path": "verified-identical-output-links-20261103-067.json",
+    "bytes": 7900,
+    "sha256": "6c7950a916180613d3434f2f6917907b3a37b035c27588a61386510581cb6866",
+    "symlink_target": null
+  },
+  {
+    "path": "verified-identical-output-links-20261103-final-combined-capture-068-retry1.json",
+    "bytes": 7920,
+    "sha256": "20ad34f9932164aff9df9d96586a9e6b48211d404f4b7606646d25348e280453",
+    "symlink_target": null
+  },
+  {
+    "path": "verified-identical-output-links-20261103-quiet-combined-070.json",
+    "bytes": 7770,
+    "sha256": "02417027febeed3e953a8c67ee58d93190dd4f88750447a6bc8ea2fc6da9a080",
+    "symlink_target": null
+  },
+  {
+    "path": "verified-identical-output-links-20261103-quiet-combined-071.json",
+    "bytes": 7770,
+    "sha256": "8667a063236c91f81e85f4840606236055c8b4bda4f6af88f1f1c79de26d0cb3",
+    "symlink_target": null
+  },
+  {
+    "path": "verified-identical-output-links-20261103-quiet-combined-074.json",
+    "bytes": 7770,
+    "sha256": "bdc0830dd8966dc7c52489dc74d93564116920d4395717a67abc7bfad70c8cf6",
+    "symlink_target": null
+  },
+  {
+    "path": "verified-identical-output-links-20261103-quiet-control-069.json",
+    "bytes": 7760,
+    "sha256": "89252e5267e6ce27d1155e9d2c4273ee0112835ae9aed598994081485a978952",
+    "symlink_target": null
+  },
+  {
+    "path": "verified-identical-output-links-20261103-quiet-control-072.json",
+    "bytes": 7760,
+    "sha256": "065ef8184567e5a11d612d990a65f5a72832072a5712891433844eed95a82723",
+    "symlink_target": null
+  },
+  {
+    "path": "verified-identical-output-links-20261103-quiet-control-073.json",
+    "bytes": 7760,
+    "sha256": "a3424880b036822c3e1576446c26dba1a721e0568498896db63a83e7f40ba50b",
+    "symlink_target": null
   }
 ]

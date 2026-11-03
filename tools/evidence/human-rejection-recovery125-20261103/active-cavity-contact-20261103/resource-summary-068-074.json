@@ -1,0 +1,40 @@
+{
+  "successful_runs": [
+    {
+      "name": "final-combined-capture-068-retry1",
+      "minimum_disk_GiB": 15.733867645263672,
+      "maximum_additional_swap_MiB": 2816.9400000000005
+    },
+    {
+      "name": "quiet-control-069",
+      "minimum_disk_GiB": 15.27008056640625,
+      "maximum_additional_swap_MiB": 2572.0699999999997
+    },
+    {
+      "name": "quiet-combined-070",
+      "minimum_disk_GiB": 16.231597900390625,
+      "maximum_additional_swap_MiB": 1851.5
+    },
+    {
+      "name": "quiet-combined-071",
+      "minimum_disk_GiB": 16.191856384277344,
+      "maximum_additional_swap_MiB": 1642.0599999999995
+    },
+    {
+      "name": "quiet-control-072",
+      "minimum_disk_GiB": 16.163734436035156,
+      "maximum_additional_swap_MiB": 888.5
+    },
+    {
+      "name": "quiet-control-073",
+      "minimum_disk_GiB": 17.152111053466797,
+      "maximum_additional_swap_MiB": 940.25
+    },
+    {
+      "name": "quiet-combined-074",
+      "minimum_disk_GiB": 16.12155532836914,
+      "maximum_additional_swap_MiB": 1443.12
+    }
+  ],
+  "available_disk_after_cleanup_bytes": 20155011072
+}

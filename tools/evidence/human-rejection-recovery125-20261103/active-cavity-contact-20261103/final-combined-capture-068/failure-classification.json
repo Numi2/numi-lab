@@ -1,0 +1,8 @@
+{
+  "trial_status": "resource_stopped",
+  "resource_stop_reason": "disk_below_12GiB",
+  "physical_steps_observed_accepted": 4,
+  "endpoint_capture": "incomplete; never used as a parity reference",
+  "retained_stdout": "lossless gzip; SHA and restore command in lossless-log-cleanup-075.json",
+  "recovery": "additional verified duplicate-output sharing and lossless log compression; disk guard retained"
+}

@@ -1,0 +1,91 @@
+{
+  "measurements": [
+    {
+      "name": "final-combined-capture-068-retry1",
+      "cavity": 1,
+      "incidence": 1,
+      "capture": 1,
+      "mean_gpu_ms": 5840.1189062525,
+      "loop_wall_s": 30.978589125,
+      "process_elapsed_s": 216.11733889579773
+    },
+    {
+      "name": "quiet-control-069",
+      "cavity": 0,
+      "incidence": 0,
+      "capture": 0,
+      "mean_gpu_ms": 6340.174677082499,
+      "loop_wall_s": 27.673542958,
+      "process_elapsed_s": 205.59878516197205
+    },
+    {
+      "name": "quiet-combined-070",
+      "cavity": 1,
+      "incidence": 1,
+      "capture": 0,
+      "mean_gpu_ms": 5834.988458335,
+      "loop_wall_s": 25.461366458,
+      "process_elapsed_s": 200.620600938797
+    },
+    {
+      "name": "quiet-combined-071",
+      "cavity": 1,
+      "incidence": 1,
+      "capture": 0,
+      "mean_gpu_ms": 5890.8125624975,
+      "loop_wall_s": 25.554788541,
+      "process_elapsed_s": 200.57510089874268
+    },
+    {
+      "name": "quiet-control-072",
+      "cavity": 0,
+      "incidence": 0,
+      "capture": 0,
+      "mean_gpu_ms": 6350.4645729175,
+      "loop_wall_s": 27.677802833,
+      "process_elapsed_s": 215.66237616539001
+    },
+    {
+      "name": "quiet-control-073",
+      "cavity": 0,
+      "incidence": 0,
+      "capture": 0,
+      "mean_gpu_ms": 6336.564937492501,
+      "loop_wall_s": 27.573108792,
+      "process_elapsed_s": 200.57231783866882
+    },
+    {
+      "name": "quiet-combined-074",
+      "cavity": 1,
+      "incidence": 1,
+      "capture": 0,
+      "mean_gpu_ms": 5830.103875,
+      "loop_wall_s": 25.4005915,
+      "process_elapsed_s": 200.6203920841217
+    }
+  ],
+  "pairs": [
+    {
+      "control": "quiet-control-069",
+      "optimized": "quiet-combined-070",
+      "gpu_reduction_percent": 7.968017357212087,
+      "loop_throughput_gain_percent": 8.688365189076208
+    },
+    {
+      "control": "quiet-control-072",
+      "optimized": "quiet-combined-071",
+      "gpu_reduction_percent": 7.238084791154565,
+      "loop_throughput_gain_percent": 8.307696573555457
+    },
+    {
+      "control": "quiet-control-073",
+      "optimized": "quiet-combined-074",
+      "gpu_reduction_percent": 7.992675329433574,
+      "loop_throughput_gain_percent": 8.553018507462706
+    }
+  ],
+  "median_gpu_reduction_percent": 7.968017357212087,
+  "median_loop_throughput_gain_percent": 8.553018507462706,
+  "simulated_seconds_per_run": 6.25e-05,
+  "scope": "four-step initialization prefix; supported motion and end-to-end native presentation unqualified"
+}

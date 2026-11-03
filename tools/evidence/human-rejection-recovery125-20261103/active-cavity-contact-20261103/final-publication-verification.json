@@ -1,0 +1,20 @@
+{
+  "verified_utc": "2026-11-03T22:01:05Z",
+  "runs": [
+    "final-combined-capture-068-retry1",
+    "quiet-control-069",
+    "quiet-combined-070",
+    "quiet-combined-071",
+    "quiet-control-072",
+    "quiet-control-073",
+    "quiet-combined-074"
+  ],
+  "same_execution_binary_dependencies_and_28_source_pins": true,
+  "current_execution_sources_and_binaries_match": true,
+  "zero_exit_and_no_resource_stop": true,
+  "execution_plan_stderr_launcher_sha256_match": true,
+  "paired_flag_selection_match": true,
+  "enabled_runtime_regression_exit_code": 0,
+  "recovery_archive_sha256": "092694f84f8acd9bc4dd73714c8539be3a106325201a6280b22230c3849edee3",
+  "scope": "source/evidence consistency only; physical and end-to-end performance qualification remain limited to recorded receipts"
+}
