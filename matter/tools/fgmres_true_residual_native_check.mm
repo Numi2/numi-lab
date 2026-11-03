@@ -4526,6 +4526,148 @@ void checkHumanExactContactMotionCache(
         "nonfinite_fails_closed=true direct_force_validity_parity=bitwise\n";
 }
 
+
+void checkTiledSchedulerObserve(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    constexpr unsigned elements=1538,nodesPerEnvironment=4*elements,objectsCount=4;
+    NMMatterDispatchGPU d{};d.environmentCount=2;d.objectCount=objectsCount;
+    d.femNodeCount=nodesPerEnvironment;d.tetrahedronCount=elements;
+    d.particleCount=2;d.gridNodeCount=2;d.contactPairCount=5;
+    d.maximumRateExponent=3;d.numericalLimits.z=0.55f;
+    NMMicrostepGPU m{};m.reserved=73;
+    std::vector<NMContinuumObjectGPU> objects(objectsCount);
+    for(unsigned i=0;i<objectsCount;++i) {
+        objects[i].representation=i==3?NM_REPRESENTATION_MPM:NM_REPRESENTATION_FEM;
+        objects[i].flags=NM_OBJECT_ACTIVE;objects[i].solver.y=3;
+    }
+    objects[0].elementCount=1025;objects[1].elementOffset=1025;
+    objects[1].elementCount=513;objects[3].stateCount=2;
+    std::vector<NMTetrahedronGPU> tetrahedra(elements);
+    std::vector<NMFEMNodeStateGPU> nodes(2*nodesPerEnvironment);
+    for(unsigned i=0;i<elements;++i) {
+        auto& t=tetrahedra[i];t.nodes={4*i,4*i+1,4*i+2,4*i+3};
+        t.identity={i<1025?0u:1u,0,0,NM_OBJECT_ACTIVE};
+        t.inverseRestRow0={1,0,0,0};t.inverseRestRow1={0,1,0,0};
+        t.inverseRestRow2={0,0,1,0};
+        for(unsigned e=0;e<2;++e) {
+            const unsigned b=e*nodesPerEnvironment+4*i;
+            const float scale=0.8f+float(i%101)*0.002f;
+            nodes[b].positionAndMass={0,0,0,1};
+            nodes[b+1].positionAndMass={scale,0.01f*std::sin(float(i)),0,1};
+            nodes[b+2].positionAndMass={0.04f*std::cos(float(i)),1.05f+0.05f*e,0,1};
+            nodes[b+3].positionAndMass={0,0.002f,0.95f,1};
+        }
+    }
+    std::vector<nm_uint4> tiles;
+    std::vector<std::array<unsigned,2>> ranges(objectsCount);
+    for(unsigned o=0;o<objectsCount;++o) {
+        ranges[o]={unsigned(tiles.size()),0};
+        for(unsigned k=0;k<objects[o].elementCount;k+=256) {
+            tiles.push_back({o,objects[o].elementOffset+k,
+                std::min(256u,objects[o].elementCount-k),unsigned(tiles.size())});
+            ++ranges[o][1];
+        }
+    }
+    const unsigned tileCount=tiles.size();
+    std::vector<NMParticleStateGPU> particles(4);
+    for(auto& v:particles) {
+        v.identity.w=NM_OBJECT_ACTIVE;v.deformationRow0={1.1f,0,0,0};
+        v.deformationRow1={0,0.9f,0,0};v.deformationRow2={0,0,1,0};
+    }
+    std::vector<NMGridNodeStateGPU> grid(4);
+    for(unsigned i=0;i<grid.size();++i)grid[i].forceAndEnergy.w=0.2f+0.1f*i;
+    std::vector<NMIncidenceRangeGPU> gridRanges(2);
+    for(auto& v:gridRanges)v.objectIndex=3;
+    std::vector<NMContactSampleGPU> samples(10);
+    for(unsigned i=0;i<samples.size();++i) {
+        samples[i].identity={0,0,i%4,NM_CONTACT_VALID};
+        samples[i].normalAndVelocity.w=-0.03f*float(i+1);
+        samples[i].angularImpulseAndTangent.w=0.02f*float(i);
+    }
+    std::vector<NMMatterStatusGPU> statuses(2);
+    statuses[1].code=NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    statuses[1].objectIndex=1;statuses[1].diagnostics.z=-0.17f;
+    std::vector<NMSchedulerStateGPU> seed(9);
+    for(auto& v:seed) {
+        v.physical={0.05f,0.01f,0.03f,0.02f};
+        v.numerical={1.4f,0.01f,0,1};
+        v.thresholds={0.15f,0.2f,0.18f,0.11f};
+        v.activeExponent=1;v.quietFrames=7;
+    }
+    seed.back().physical={-77,-77,-77,-77};
+    auto db=makeBuffer(device,std::vector<NMMatterDispatchGPU>{d});
+    auto mb=makeBuffer(device,std::vector<NMMicrostepGPU>{m});
+    auto ob=makeBuffer(device,objects),nb=makeBuffer(device,nodes);
+    auto environmentTetrahedra=tetrahedra;
+    environmentTetrahedra.insert(environmentTetrahedra.end(),tetrahedra.begin(),tetrahedra.end());
+    auto tb=makeBuffer(device,environmentTetrahedra);
+    auto count=makeBuffer(device,std::vector<unsigned>{tileCount});
+    auto tileBuffer=makeBuffer(device,tiles),rangeBuffer=makeBuffer(device,ranges);
+    auto partials=makeBuffer(device,std::vector<std::array<float,2>>(2*tileCount+2,{-77,-77}));
+    auto direct=makeBuffer(device,seed),tiled=makeBuffer(device,seed);
+    auto zero=makeBuffer(device,std::vector<unsigned>{0});
+    auto dummy=makeBuffer(device,std::vector<unsigned>(32));
+    auto old=pipeline(device,library,"numi_matter_metal::nm_scheduler_observe");
+    auto split=pipeline(device,library,"numi_matter_metal::nm_scheduler_observe_tiled");
+    auto partial=pipeline(device,library,"numi_matter_metal::nm_scheduler_observe_fem_partials");
+    auto sampleBuffer=makeBuffer(device,samples),gridBuffer=makeBuffer(device,grid);
+    auto gridRangeBuffer=makeBuffer(device,gridRanges);
+    auto generations=makeBuffer(device,std::vector<unsigned>(4,73));
+    auto particleBuffer=makeBuffer(device,particles),statusBuffer=makeBuffer(device,statuses);
+    for(unsigned trial=0;trial<4;++trial) {
+        if(trial==1)static_cast<NMTetrahedronGPU*>(tb.contents)[17].identity.w=0;
+        if(trial==2)
+            for(unsigned i=0;i<2*elements;++i)
+                static_cast<NMTetrahedronGPU*>(tb.contents)[i].identity.w=0;
+        if(trial==3) {
+            std::memcpy(tb.contents,environmentTetrahedra.data(),environmentTetrahedra.size()*sizeof(NMTetrahedronGPU));
+            static_cast<NMFEMNodeStateGPU*>(nb.contents)[3].positionAndMass.x=
+                std::numeric_limits<float>::quiet_NaN();
+        }
+        std::memcpy(direct.contents,seed.data(),seed.size()*sizeof(NMSchedulerStateGPU));
+        std::memcpy(tiled.contents,seed.data(),seed.size()*sizeof(NMSchedulerStateGPU));
+        dispatch(device,queue,partial,{{0,db},{1,ob},{2,nb},{3,tb},{4,count},
+            {5,tileBuffer},{6,partials}},2*tileCount,256);
+        for(unsigned optimized=0;optimized<2;++optimized) {
+            std::vector<std::pair<NSUInteger,id<MTLBuffer>>> binds{
+                {0,db},{1,mb},{2,ob},{3,sampleBuffer},{4,gridBuffer},{5,gridRangeBuffer},
+                {6,generations},{7,particleBuffer},{8,nb},{9,tb},{10,statusBuffer},
+                {11,optimized?tiled:direct},{12,zero},{13,dummy},{14,dummy},
+                {15,dummy},{16,dummy}};
+            if(optimized) {
+                binds.push_back({17,count});binds.push_back({18,rangeBuffer});
+                binds.push_back({19,partials});
+            }
+            dispatch(device,queue,optimized?split:old,binds,2*objectsCount,32);
+        }
+        if(std::memcmp(direct.contents,tiled.contents,seed.size()*sizeof(NMSchedulerStateGPU))!=0) {
+            const auto* a=static_cast<const unsigned char*>(direct.contents);
+            const auto* b=static_cast<const unsigned char*>(tiled.contents);
+            for(unsigned byte=0;byte<seed.size()*sizeof(NMSchedulerStateGPU);++byte)
+                if(a[byte]!=b[byte]) {
+                    const unsigned index=byte/4;
+                    std::cerr<<"scheduler trial="<<trial<<" word="<<index<<" object="
+                        <<(byte/sizeof(NMSchedulerStateGPU))<<" float_direct="
+                        <<static_cast<const float*>(direct.contents)[index]
+                        <<" float_tiled="<<static_cast<const float*>(tiled.contents)[index]
+                        <<" bits_direct="<<static_cast<const unsigned*>(direct.contents)[index]
+                        <<" bits_tiled="<<static_cast<const unsigned*>(tiled.contents)[index]<<"\n";
+                    byte=(index+1)*4-1;
+                }
+        }
+        require(std::memcmp(direct.contents,tiled.contents,seed.size()*sizeof(NMSchedulerStateGPU))==0,
+            "tiled scheduler changed strain/determinant/urgency or rejected-object observation");
+        const auto pp=readBuffer<std::array<float,2>>(partials,2*tileCount+2);
+        require(pp[2*tileCount][0]==-77 && pp[2*tileCount+1][1]==-77,
+            "scheduler partial reduction exceeded tile capacity");
+        require(readBuffer<NMSchedulerStateGPU>(tiled,9).back().physical.x==-77,
+            "scheduler finish exceeded object capacity");
+    }
+    std::cout<<"tiled_scheduler_observe=PASS serial_parity=bitwise environments=2 "
+        "objects=4 irregular_tiles=8 tetrahedra=1538 MPM_and_contacts_unchanged=true "
+        "inactive_empty_nonfinite_rejected_status_urgency_canaries=true\n";
+}
+
 void checkCompletedContactGeometry(
     id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     auto full=pipeline(device,library,"numi_matter_metal::nm_contact_narrowphase_deformable");
@@ -11344,8 +11486,9 @@ void checkCompletedCycleWorkRanges(
         NMMatterStatusGPU status;
         std::uint32_t fullGroups;
         std::uint32_t expectedGroups;
+        float nonlinear{1.0f};
     };
-    const std::array<Scenario, 10u> scenarios{{
+    const std::array<Scenario, 17u> scenarios{{
         {"begin-latched-tail", 0u, 1u, 1.0f, 0.0f, 0u, healthy, 3u, 0u},
         {"begin-first-cycle", 0u, 0u, 1.0f, 0.0f, 0u, healthy, 3u, 3u},
         {"begin-support-rows", 0u, 1u, 1.0f, 0.0f, 1u, healthy, 3u, 3u},
@@ -11357,6 +11500,16 @@ void checkCompletedCycleWorkRanges(
         {"accum-invalid-latch", 2u, 1u,
             std::numeric_limits<float>::quiet_NaN(), 0.0f, 0u, healthy, 1u, 1u},
         {"accum-unhealthy", 2u, 1u, 1.0f, 0.0f, 0u, failed, 1u, 1u},
+        {"builders-complete", 3u, 0u, 1.0f, 0.0f, 0u, healthy, 1247u, 0u},
+        {"builders-linear-only", 3u, 0u, 1.0f, 0.0f, 0u, healthy, 1u, 1u, 0.0f},
+        {"builders-active", 3u, 0u, 0.0f, 0.0f, 0u, healthy, 1u, 1u},
+        {"builders-invalid-latch", 3u, 0u,
+            std::numeric_limits<float>::quiet_NaN(), 0.0f, 0u, healthy, 1u, 1u},
+        {"builders-invalid-outer", 3u, 0u, 1.0f, 0.0f, 0u, healthy, 1u, 1u,
+            std::numeric_limits<float>::quiet_NaN()},
+        {"builders-infinite-outer", 3u, 0u, 1.0f, 0.0f, 0u, healthy, 1u, 1u,
+            std::numeric_limits<float>::infinity()},
+        {"builders-unhealthy", 3u, 0u, 1.0f, 0.0f, 0u, failed, 1u, 1u},
     }};
     auto runPrepare = [&](const Scenario& scenario) {
         NMFGMRESLayoutGPU selectedLayout = baseLayout;
@@ -11366,6 +11519,7 @@ void checkCompletedCycleWorkRanges(
         NMFGMRESStateGPU selectedState = baseState;
         selectedState.diagnostics.z = scenario.latch;
         selectedState.diagnostics.w = scenario.used;
+        selectedState.nonlinear.w = scenario.nonlinear;
         std::memcpy([states contents], &selectedState, sizeof(selectedState));
         std::memcpy([statuses contents], &scenario.status,
             sizeof(scenario.status));
@@ -11386,6 +11540,13 @@ void checkCompletedCycleWorkRanges(
             std::string("completed-cycle range mismatch: ") + scenario.name);
     };
     for (const Scenario& scenario : scenarios) runPrepare(scenario);
+    shape.environmentCount = 2u;
+    std::memcpy([dispatchBuffer contents], &shape, sizeof(shape));
+    runPrepare(Scenario{"builders-multi-environment", 3u, 0u,
+        1.0f, 0.0f, 0u, healthy, 1247u, 1247u});
+    shape.environmentCount = 1u;
+    std::memcpy([dispatchBuffer contents], &shape, sizeof(shape));
+
 
     // An empty range must leave the existing solution untouched, while the
     // active path must still perform the established full-coordinate update.
@@ -11467,7 +11628,7 @@ void checkCompletedCycleWorkRanges(
     for (std::uint32_t row = 0u; row < nodes; ++row)
         require(std::abs(direct[row].x - activeSolution[row].x) < 1.0e-7f,
             "default direct-dispatch fallback diverged from active indirect work");
-    std::cout << "completed_cycle_work_ranges=true scenarios=10 "
+    std::cout << "completed_cycle_work_ranges=true scenarios=" << scenarios.size() + 1u << " "
                  "active_accumulator=preserved zero_used_accumulator=skipped "
                  "direct_optout_parity=true result=PASS\n";
 }
@@ -17134,10 +17295,16 @@ int main(int argc, const char* argv[]) {
                 std::cout << "PASS graph product precompute " << checks << " checks" << std::endl;
                 return 0;
             }
+            if (argc == 2 && std::string(argv[1]) == "--scheduler-only") {
+                checkTiledSchedulerObserve(device,queue,library);
+                std::cout << "checks=" << checks << " result=PASS\n";
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--completed-contact-only") {
                 checkCompactedHumanContactQueries(device,queue,library);
                 checkHumanExactContactMotionCache(device,queue,library);
                 checkCompletedContactGeometry(device,queue,library);
+            checkTiledSchedulerObserve(device,queue,library);
                 std::cout << "PASS completed contact " << checks << " checks" << std::endl;
                 return 0;
             }
@@ -17732,6 +17899,7 @@ int main(int argc, const char* argv[]) {
             checkCompactedHumanContactQueries(device,queue,library);
             checkHumanExactContactMotionCache(device,queue,library);
             checkCompletedContactGeometry(device,queue,library);
+            checkTiledSchedulerObserve(device,queue,library);
             checkZeroStepGeometryReuse(device, queue, library);
             checkReferenceSurfaceGeometry(device,queue,library);
                 checkPolynomialReferenceSweep(device,queue,library);

@@ -1,0 +1,129 @@
+{
+  "name": "active-linear-ew-058",
+  "execution": {
+    "exit_code": 0,
+    "elapsed_s": 222.17553186416626,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/active-linear-ew-058/install-motion.plan.json",
+    "plan_sha256": "540817bb14bc7e2ef93352719e11be984948fca32b498a9b96e3b4b3492866f1",
+    "stdout_sha256": "232c6cb8f101f6e7fb6b874bb61ba5ac8cf4f845290f33e0f11f75034eb67336",
+    "stderr_sha256": "b589e9113f0329bf3ce70776f6def96f7e7821a28a8f0d393b69a6764f4b9aa1",
+    "physical_admission": false,
+    "resource_stop_reason": null,
+    "source_import_pass": false,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "endpoint_bytes": 833232924,
+  "endpoint_sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+  "profiles": [
+    "resting_native_profile step=1 command_ms=6477.712875 gpu_ms=6457.20454167 host_copy_ms=0.942958 full_state_readback=1",
+    "resting_native_profile step=2 command_ms=6600.196334 gpu_ms=6599.214 host_copy_ms=0.132958 full_state_readback=1",
+    "resting_native_profile step=3 command_ms=6573.336375 gpu_ms=6572.06841667 host_copy_ms=0.105542 full_state_readback=1",
+    "resting_native_profile step=4 command_ms=6534.178 gpu_ms=6533.26345833 host_copy_ms=0.055542 full_state_readback=1"
+  ],
+  "completion": [
+    "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=34.257430667000001 real_time_factor=1.8244217897168984e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ],
+  "stages_root0_ms": {
+    "matter_pre": [
+      8.983208
+    ],
+    "brain_advance": [
+      0.014291
+    ],
+    "respiratory_mechanics": [
+      2.177459
+    ],
+    "matter_after_frame_begin": [
+      0.777
+    ],
+    "matter_newton_assembly": [
+      209.904708,
+      208.850041,
+      210.332917,
+      51.794959,
+      51.806583,
+      52.219875,
+      52.618583,
+      52.161292,
+      52.31425,
+      51.550208,
+      52.417291,
+      52.176917,
+      52.043875,
+      51.593584,
+      51.88625,
+      52.400958
+    ],
+    "matter_newton_linear": [
+      1110.404959,
+      1124.217834,
+      427.460125,
+      22.257708,
+      22.439,
+      22.504375,
+      22.502959,
+      22.702708,
+      22.524625,
+      22.445,
+      22.822625,
+      22.183166,
+      22.505791,
+      22.223583,
+      22.315041,
+      319.962167
+    ],
+    "matter_newton_globalization": [
+      43.093375,
+      45.380333,
+      29.513791,
+      28.862125,
+      28.782417,
+      29.031375,
+      28.978291,
+      28.903709,
+      28.932458,
+      28.846834,
+      28.877417,
+      28.987834,
+      28.677,
+      30.185167,
+      28.785417,
+      14.825083
+    ],
+    "matter_final_certificate": [
+      235.82
+    ],
+    "respiratory_gas_exchange": [
+      1.795209
+    ],
+    "matter_after_candidate_ready": [
+      3.532416
+    ],
+    "nm_scheduler_observe_fem_partials": [
+      8.85025
+    ],
+    "nm_scheduler_observe_tiled": [
+      0.791334
+    ],
+    "matter_after_microstep": [
+      2.424291
+    ],
+    "matter_post": [
+      15.24225
+    ],
+    "brain_resolve": [
+      0.001458
+    ],
+    "respiratory_resolve": [
+      0.698834
+    ]
+  },
+  "selected_kernel_ms": {},
+  "traces": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/active-linear-ew-058/install-motion/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+      "bytes": 4523
+    }
+  ]
+}

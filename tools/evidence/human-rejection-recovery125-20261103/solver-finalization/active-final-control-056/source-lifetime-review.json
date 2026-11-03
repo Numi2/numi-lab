@@ -1,0 +1,32 @@
+{
+  "shared_patch_values": {
+    "owner": "Matter FGMRES prefix ICB",
+    "physics_change": false,
+    "scratch": "Existing elementOperator arena, dense float4 prefix; original operator rewrites before next operator consumer",
+    "dependency": "ICB barrier after value production and before gather; subsequent operator barrier retained",
+    "ordering": "Identical four-corner local sum and original node-incidence gather order",
+    "cache_validity": "Rebuilt on each active preconditioner application; no reuse across basis changes",
+    "admission": "Strict flag plus existing admitted prefix-preconditioner group; otherwise error"
+  },
+  "tiled_scheduler": {
+    "owner": "Matter accepted-step observation",
+    "physics_change": false,
+    "scratch": "Existing uint2 Armijo geometry partial arena reinterpreted as float2 after final certification; rewritten before next Armijo consumer",
+    "dependency": "Buffer barriers surrounding tiled producer; same FEM accepted state/tetrahedra as serial observer",
+    "ordering": "Associative min/max hierarchy; exact existing polar rotation/deformation helpers and final urgency update",
+    "admission": "Immutable non-adaptive FEM, existing distributed geometry tiles and scratch"
+  },
+  "final_broadphase_reuse": {
+    "owner": "Matter final contact reassembly",
+    "physics_change": false,
+    "proof": "Existing GPU exact-zero correction and unchanged working-set geometry certificate",
+    "still_mandatory": "Full current narrowphase, friction/history, true residual, final physical certificate, accept/reject transaction",
+    "admission": "Immutable single-environment FEM, existing zero-step proof; no rigid-generalized or coupled candidate"
+  },
+  "limitations": [
+    "No conditioning or tolerance changes",
+    "No tissue simplification",
+    "No clinical or supported-rest qualification",
+    "No 0.1x claim"
+  ]
+}

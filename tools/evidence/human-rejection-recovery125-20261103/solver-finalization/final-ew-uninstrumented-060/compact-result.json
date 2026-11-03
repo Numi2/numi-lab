@@ -1,0 +1,35 @@
+{
+  "name": "final-ew-uninstrumented-060",
+  "execution": {
+    "exit_code": 0,
+    "elapsed_s": 212.2001669406891,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-ew-uninstrumented-060/install-motion.plan.json",
+    "plan_sha256": "c3cdb48ce3f4a48842fc9d721a286b9a20c39acb047f549139f6dc78473a52d9",
+    "stdout_sha256": "e40beadc13ca9de3e6143183345aec26b47b21aa6db34a71e9b8185a690930fb",
+    "stderr_sha256": "eb7697136453ff72e8e5e8ddb19d238d64f2b3b7f3cb2696a1702465fae4666b",
+    "physical_admission": false,
+    "resource_stop_reason": null,
+    "source_import_pass": false,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "endpoint_bytes": 833055272,
+  "endpoint_sha256": "c0f5469b72fbd5056334c01e123be40faeb26aec9466eb65b75a031bf7ef743a",
+  "profiles": [
+    "resting_native_profile step=1 command_ms=5466.406209 gpu_ms=5447.3265 host_copy_ms=1.104916 full_state_readback=1",
+    "resting_native_profile step=2 command_ms=5992.647125 gpu_ms=5991.82204167 host_copy_ms=2.352583 full_state_readback=1",
+    "resting_native_profile step=3 command_ms=6032.212291 gpu_ms=6031.28787501 host_copy_ms=0.112459 full_state_readback=1",
+    "resting_native_profile step=4 command_ms=9877.934709 gpu_ms=9876.89270833 host_copy_ms=0.063791 full_state_readback=1"
+  ],
+  "completion": [
+    "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=35.218589125000001 real_time_factor=1.774631083226015e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ],
+  "stages_root0_ms": {},
+  "selected_kernel_ms": {},
+  "traces": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-ew-uninstrumented-060/install-motion/resting-coupled.csv",
+      "sha256": "4f0ec32aa360adffce19417fde76a509ae8e1fc74512e4d21f67709b1a972c01",
+      "bytes": 4635
+    }
+  ]
+}

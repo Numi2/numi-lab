@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/opt/homebrew/bin/python3",
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/compare_human_fem_endpoint_fidelity.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-control-uninstrumented-059/install-motion.stdout.log",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-ew-uninstrumented-060/install-motion.stdout.log"
+  ],
+  "exit_code": 2,
+  "elapsed_s": 60.264083333007875,
+  "peak_rss_kib": 5784240,
+  "resource_stop_reason": null
+}

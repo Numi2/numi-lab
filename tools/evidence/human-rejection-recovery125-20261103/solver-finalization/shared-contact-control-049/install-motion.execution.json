@@ -1,0 +1,12 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 217.45420479774475,
+  "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-contact-control-049/install-motion.plan.json",
+  "plan_sha256": "b038e70a473b3d9533d3861c76c63d3411d1f0f979278d106d8e88915bda6270",
+  "stdout_sha256": "234c8dc4758191a3da4f6e6538ca513d4a097ab9bc17839e334ebcd1409b60d0",
+  "stderr_sha256": "0f87405acbae3fd30918c65d75f2774e11e8ced9ab9a42f93709ece2b5d642f7",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

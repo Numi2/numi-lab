@@ -1,0 +1,17 @@
+{
+  "scheduler_first_fixture": {
+    "result": "invalid_fixture",
+    "reason": "Two environments were declared but only one environment of tetrahedra was allocated. Serial observer read past the fixture; mismatch caught by bitwise parity. Corrected by allocating both environment-major ranges, no physics/tolerance change.",
+    "observed_first_difference": "trial0 object4 word86 direct_bits1948190322 tiled_bits1022739087",
+    "original_tool_output_retained_in_chat": true,
+    "old_generated_fixture_script": "/tmp/tiled-scheduler-056-test.py"
+  },
+  "corrected_focus": "91 checks pass; includes two environments, four objects, irregular partial tiles, MPM/contact observations, inactive/empty/nonfinite cases and rejected-status urgency",
+  "final_suite": "916531 checks pass after actual shader/runtime/test rebuild",
+  "negative_experiments_removed": [
+    "shared contact directional cache v1",
+    "split exact/generic contact directional cache v2",
+    "shared tetrahedron patch values"
+  ],
+  "final_physical_acceptance": "Unchanged: full current narrowphase, friction refresh, true residual, final mixed certificate and accepted-state transaction remain mandatory"
+}

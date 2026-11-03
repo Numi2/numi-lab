@@ -1,0 +1,18 @@
+{
+  "purpose": "Attribute actual active linear and full final-certificate kernel costs. ICB scheduling disabled for per-kernel attribution only; instrumented observations are not throughput.",
+  "source_revision": "6b0e61bc3 published scoped increment; full dirty execution identity pinned",
+  "question": "Which active operator/preconditioner/reduction and final-certification kernels dominate?",
+  "prediction": "At least one active operator or final-contact stage exceeds50ms/call; optimize measured duplicate work only, no law/tolerance changes",
+  "steps": 1,
+  "dt_s": 1.5625e-05,
+  "mode": "exploratory attribution, ICB controls disabled to expose kernel boundaries",
+  "gates": [
+    "one accepted step",
+    "full endpoint and physiology parity against same-horizon039",
+    "no failure receipt",
+    "final physical certificate retained"
+  ],
+  "stop": "one root or existing900s,3GiB additional swap,12GiB disk guard",
+  "limitation": "Individual instrumented costs may be perturbed; subsequent source changes require same-binary uninstrumented control",
+  "correction": "045 failed initialization: optional ICB keys must be omitted to disable, rather than explicit0. Physical state never advanced. No admission restriction bypassed."
+}

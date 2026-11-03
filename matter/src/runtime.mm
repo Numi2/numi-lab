@@ -8913,6 +8913,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_commit_microstep",
             "nm_fem_commit_microstep",
             "nm_scheduler_observe",
+            "nm_scheduler_observe_fem_partials",
+            "nm_scheduler_observe_tiled",
             "nm_complete_microstep",
             "nm_publish_accepted_control_cursor",
             "nm_merge_accepted_step_gate_into_status",
@@ -25039,6 +25041,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return diagnostics;
                 }
             }
+            bool completedLinearBuildersRequested = false;
+            if (const char* setting = std::getenv(
+                    "NM_FGMRES_SKIP_COMPLETED_LINEAR_BUILDERS")) {
+                if (std::strcmp(setting, "1") == 0)
+                    completedLinearBuildersRequested = true;
+                else if (std::strcmp(setting, "0") != 0) {
+                    diagnostics.message =
+                        "NM_FGMRES_SKIP_COMPLETED_LINEAR_BUILDERS must be 0 or 1";
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+            }
+            if (completedLinearBuildersRequested && !femCompletedCycleWorkRequested) {
+                diagnostics.message =
+                    "completed linear builders require completed-cycle work admission";
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             if (const char* zeroAction = std::getenv(
                     "NM_FGMRES_SKIP_COMPLETED_ZERO_OPERATOR_ACTION")) {
                 if (std::strcmp(zeroAction, "1") == 0) {
@@ -29823,13 +29843,34 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             if (completedContactCacheEligible)
                 std::fprintf(stderr, "contact_completed_geometry_cache=1 root=%u final_certificate=full friction_history=fresh\n", request.controlStep);
+            const char* finalGeometrySetting = std::getenv(
+                "NM_CONTACT_FINAL_ZERO_GEOMETRY_REUSE");
+            if (finalGeometrySetting != nullptr &&
+                std::strcmp(finalGeometrySetting, "0") != 0 &&
+                std::strcmp(finalGeometrySetting, "1") != 0) {
+                diagnostics.message = "NM_CONTACT_FINAL_ZERO_GEOMETRY_REUSE must be 0 or 1";
+                [encoder endEncoding]; encoder = nil;
+                return diagnostics;
+            }
+            const bool finalBroadphaseReuseRequested = finalGeometrySetting &&
+                std::strcmp(finalGeometrySetting, "1") == 0;
+            if (finalBroadphaseReuseRequested &&
+                (!zeroStepGeometryReuseEligible || state.hasAdaptive ||
+                 state.hasMutableFEMTopology || state.requiresCoupledCandidate ||
+                 state.dispatch.environmentCount != 1u ||
+                 state.dispatch.rigidGeneralizedCapacity != 0u)) {
+                diagnostics.message = "final broadphase reuse requires immutable single-environment FEM and the existing exact-zero geometry proof";
+                [encoder endEncoding]; encoder = nil;
+                return diagnostics;
+            }
             const auto encodeCoupledPrimalContact = [&] (
                 const bool certify,
                 id<MTLBuffer> histories,
                 id<MTLBuffer> deformableContactHistories
             ) -> bool {
                 const std::uint32_t useZeroStepGeometryReuse =
-                    (!certify && zeroStepGeometryReuseEligible) ? 2u : 0u;
+                    (zeroStepGeometryReuseEligible &&
+                     (!certify || finalBroadphaseReuseRequested)) ? 2u : 0u;
                 const id<MTLBuffer> geometryReuseFlags =
                     zeroStepGeometryReuseEligible
                         ? state.contactGeometryReuseFlags
@@ -40193,8 +40234,40 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 (state.mixedSolverValue.executionBudgets.z == 0u ||
                  state.mixedSolverValue.executionBudgets.z == 6u) &&
                 (!reuseNewtonPreconditioner || restartCycle == 0u);
+            // These builders follow the real current-RHS begin measurement.
+            // Suppress only intermediate complete-Newton tails. Active linear
+            // solves and the final refresh retain every producer and consumer.
+            const bool completedLinearBuildersMaySkip =
+                completedLinearBuildersRequested && femCompletedCycleWorkEnabled &&
+                nonlinearIteration + 1u < nonlinearIterationBudget &&
+                !state.forceCompletedTangentCacheRebuild &&
+                !state.femOperatorFDRichCaptureEnabled &&
+                !femRegionalRAPCaptureOnly && !femCoupledCaptureRequested &&
+                !state.femHumanGlobalCoarseRapCaptureEnabled;
+            const auto dispatchLinearBuilderThreads = [&](
+                const char* name, const NSUInteger count, const auto& bind,
+                const WorkDomain domain) {
+                if (completedLinearBuildersMaySkip) {
+                    prepareFGMRESCycleWorkRange(
+                        3u, (count + 255u) / 256u, restartCycle);
+                    if (dispatchIndirectAtOffset(name,
+                            state.fgmresCycleWorkDispatch, 256u, 0u, bind))
+                        return;
+                }
+                dispatchThreads(name, count, bind, domain);
+            };
+            const auto dispatchLinearBuilderGroups = [&](
+                const char* name, const NSUInteger groups, const auto& bind) {
+                if (completedLinearBuildersMaySkip) {
+                    prepareFGMRESCycleWorkRange(3u, groups, restartCycle);
+                    if (dispatchIndirectAtOffset(name,
+                            state.fgmresCycleWorkDispatch, 32u, 0u, bind))
+                        return;
+                }
+                dispatchGroups32(name, groups, bind);
+            };
             if (buildFEMPreconditionerThisCycle) {
-                dispatchThreads(
+                dispatchLinearBuilderThreads(
                     "nm_fgmres_build_preconditioner", femNodeTotal, [&] {
                         setDispatch();
                         [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
@@ -40217,7 +40290,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 const bool blockCavitySchur = state.vascularBlockCavitySchurEnabled &&
                     state.femRegionalNodeBlockInverse != nil;
-                dispatchGroups32(blockCavitySchur
+                dispatchLinearBuilderGroups(blockCavitySchur
                     ? "nm_vascular_cavity_schur_preconditioner_coupled_fem_block"
                     : "nm_vascular_cavity_schur_preconditioner",
                     environments * state.vascularValue.layout.cavities.x, [&] {
@@ -40243,7 +40316,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 // Newton solve. Reuse the GPU LU across Krylov restarts.
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 const std::uint32_t useWorkingSet = 1u;
-                dispatchGroups32("nm_vascular_factor_principal_block",
+                dispatchLinearBuilderGroups("nm_vascular_factor_principal_block",
                     environments, [&] {
                     setDispatch();
                     [encoder setBytes:&state.vascularValue.layout
@@ -49877,6 +49950,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     "fem_operator_fd_not_captured={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"selected_iteration_not_encoded\"}\n",
                     femOperatorFDTraceRoot, femOperatorFDTraceIteration);
             }
+            beginSolverStage("matter_final_certificate");
             // Reassemble the accepted Newton candidate once, then certify the
             // same generalized residual. This is a certificate pass only: no
             // post-contact FEM correction or second linear solve is encoded.
@@ -50441,6 +50515,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
+            beginSolverStage(nullptr);
+            if (encoder == nil) {
+                diagnostics.message = "failed to close final certificate timing span";
+                return diagnostics;
+            }
             dispatchThreads(
                 "nm_mask_primal_rigid_candidate",
                 rigidCandidateTotal,
@@ -50658,7 +50737,46 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.deformableContactHistoriesCandidate
                                  offset:0u atIndex:3u];
                 });
-            dispatchGroups32("nm_scheduler_observe", objectTotal, [&] {
+            const char* schedulerTilingSetting =
+                std::getenv("NM_SCHEDULER_TILED_FEM_OBSERVE");
+            if (schedulerTilingSetting &&
+                std::strcmp(schedulerTilingSetting, "0") != 0 &&
+                std::strcmp(schedulerTilingSetting, "1") != 0) {
+                diagnostics.message = "NM_SCHEDULER_TILED_FEM_OBSERVE must be 0 or 1";
+                [encoder endEncoding]; encoder = nil;
+                return diagnostics;
+            }
+            const bool tiledScheduler = schedulerTilingSetting &&
+                std::strcmp(schedulerTilingSetting, "1") == 0;
+            if (tiledScheduler &&
+                (!state.femDistributedGlobalMeasurementsEnabled ||
+                 state.hasMutableFEMTopology || state.hasAdaptive ||
+                 state.femArmijoGeometryTiles == nil ||
+                 state.femArmijoGeometryRanges == nil ||
+                 state.femArmijoGeometryPartials == nil)) {
+                diagnostics.message = "tiled scheduler requires immutable FEM and existing distributed object tiles";
+                [encoder endEncoding]; encoder = nil;
+                return diagnostics;
+            }
+            if (tiledScheduler) {
+                // Armijo geometry scratch is dead after final certification.
+                // Its next reader is preceded by a complete next-step rewrite.
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups256("nm_scheduler_observe_fem_partials",
+                    environments * state.femArmijoGeometryTileCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+                    [encoder setBytes:&state.femArmijoGeometryTileCount
+                        length:sizeof(state.femArmijoGeometryTileCount) atIndex:4u];
+                    [encoder setBuffer:state.femArmijoGeometryTiles offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femArmijoGeometryPartials offset:0u atIndex:6u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+            dispatchGroups32(tiledScheduler ? "nm_scheduler_observe_tiled" :
+                "nm_scheduler_observe", objectTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -50675,6 +50793,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.contactSamplePageComplete,
                     state.contactSampleSlotsByPair,
                     state.contactActiveCounts, 12u);
+                if (tiledScheduler) {
+                    [encoder setBytes:&state.femArmijoGeometryTileCount
+                        length:sizeof(state.femArmijoGeometryTileCount) atIndex:17u];
+                    [encoder setBuffer:state.femArmijoGeometryRanges offset:0u atIndex:18u];
+                    [encoder setBuffer:state.femArmijoGeometryPartials offset:0u atIndex:19u];
+                }
             });
             dispatchThreads("nm_complete_microstep", environments, [&] {
                 setDispatch();

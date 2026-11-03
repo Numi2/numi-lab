@@ -1,0 +1,2 @@
+shared_patch_values=PASS serial_parity=bitwise environments=2 directions=9 signed_tiny_large=true inactive_duplicate_invalid_incidence=true fixed_components=true completed_environment=true canaries=true\ntiled_scheduler_observe=PASS serial_parity=bitwise environments=2 objects=4 irregular_tiles=8 tetrahedra=1538 MPM_and_contacts_unchanged=true inactive_empty_nonfinite_rejected_status_urgency_canaries=true
+checks=189 result=PASS

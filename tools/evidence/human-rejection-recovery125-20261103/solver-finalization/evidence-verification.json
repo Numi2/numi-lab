@@ -1,0 +1,8 @@
+{
+  "source_parity": true,
+  "endpoint_parity": true,
+  "csv_parity": true,
+  "selected_roots_status_zero": true,
+  "JSON_parse_errors": [],
+  "free_disk_bytes_after_lossless_cleanup": 20890492928
+}

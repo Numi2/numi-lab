@@ -380,26 +380,76 @@ kernel void nm_publish_identification_means(
     ] = distribution.update.w > 0.5f ? exp(latent) : latent;
 }
 
-kernel void nm_scheduler_observe(
+
+// Reuse the immutable 256-tetrahedron Armijo object tiles and its expired
+// uint2 scratch (same 8-byte stride as float2). No constitutive approximation.
+kernel void nm_scheduler_observe_fem_partials(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    constant NMMicrostepGPU& microstep [[buffer(1)]],
-    device const NMContinuumObjectGPU* objects [[buffer(2)]],
-    device const NMContactSampleGPU* samples [[buffer(3)]],
-    device const NMGridNodeStateGPU* mpmNodes [[buffer(4)]],
-    device const NMIncidenceRangeGPU* mpmNodeRanges [[buffer(5)]],
-    device const uint* mpmNodeGenerations [[buffer(6)]],
-    device const NMParticleStateGPU* particles [[buffer(7)]],
-    device const NMFEMNodeStateGPU* femNodes [[buffer(8)]],
-    device const NMTetrahedronGPU* tetrahedra [[buffer(9)]],
-    device const NMMatterStatusGPU* statuses [[buffer(10)]],
-    device NMSchedulerStateGPU* schedulers [[buffer(11)]],
-    device const uint* sampleStorageMode [[buffer(12)]],
-    device const uint* samplePageComplete [[buffer(13)]],
-    device const uint* sampleSlotsByPair [[buffer(14)]],
-    device const uint* sampleCounts [[buffer(15)]],
-    device const uint* sampleCapacity [[buffer(16)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(2)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(3)]],
+    constant uint& tileCount [[buffer(4)]],
+    device const uint4* tiles [[buffer(5)]],
+    device float2* partials [[buffer(6)]],
     uint lane [[thread_index_in_threadgroup]],
-    uint group [[threadgroup_position_in_grid]]
+    uint group [[threadgroup_position_in_grid]]) {
+    if (tileCount == 0u || group >= dispatch.environmentCount * tileCount) return;
+    const uint environment = group / tileCount;
+    const uint tile = group - environment * tileCount;
+    const uint4 descriptor = tiles[tile];
+    float strain = 0.0f;
+    float minimumJ = INFINITY;
+    if (descriptor.x < dispatch.objectCount && lane < descriptor.z &&
+        objects[descriptor.x].representation == NM_REPRESENTATION_FEM) {
+        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+            dispatch, tetrahedra, environment, descriptor.y + lane);
+        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u) {
+            const float3x3 deformation = tetrahedronDeformation(
+                tetrahedron, nodes, environment * dispatch.femNodeCount);
+            strain = max(strain,
+                maximumAbs(deformation - polarRotation(deformation)));
+            minimumJ = min(minimumJ, determinant(deformation));
+        }
+    }
+    strain = simd_max(strain);
+    minimumJ = simd_min(minimumJ);
+    threadgroup float2 simdPartials[8];
+    if ((lane & 31u) == 0u)
+        simdPartials[lane / 32u] = float2(strain, minimumJ);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane < 32u) {
+        const float2 value = lane < 8u ? simdPartials[lane]
+                                      : float2(0.0f, INFINITY);
+        const float maximumStrain = simd_max(value.x);
+        const float minimumDeterminant = simd_min(value.y);
+        if (lane == 0u)
+            partials[group] = float2(maximumStrain, minimumDeterminant);
+    }
+}
+template <bool tiledFEM>
+inline void schedulerObserveShared(
+    constant NMMatterDispatchGPU& dispatch,
+    constant NMMicrostepGPU& microstep,
+    device const NMContinuumObjectGPU* objects,
+    device const NMContactSampleGPU* samples,
+    device const NMGridNodeStateGPU* mpmNodes,
+    device const NMIncidenceRangeGPU* mpmNodeRanges,
+    device const uint* mpmNodeGenerations,
+    device const NMParticleStateGPU* particles,
+    device const NMFEMNodeStateGPU* femNodes,
+    device const NMTetrahedronGPU* tetrahedra,
+    device const NMMatterStatusGPU* statuses,
+    device NMSchedulerStateGPU* schedulers,
+    device const uint* sampleStorageMode,
+    device const uint* samplePageComplete,
+    device const uint* sampleSlotsByPair,
+    device const uint* sampleCounts,
+    device const uint* sampleCapacity,
+    const uint tileCount,
+    device const uint2* objectTileRanges,
+    device const float2* tilePartials,
+    uint lane,
+    uint group
 ) {
     if (lane >= 32u || dispatch.objectCount == 0u) {
         return;
@@ -458,22 +508,32 @@ kernel void nm_scheduler_observe(
             minimumJ = min(minimumJ, determinant(deformation));
         }
     } else if (object.representation == NM_REPRESENTATION_FEM) {
-        const uint nodeBase = environment * dispatch.femNodeCount;
-        for (uint local = lane; local < object.elementCount; local += 32u) {
-            const NMTetrahedronGPU tetrahedron =
-                environmentTetrahedron(dispatch, tetrahedra, environment,
-                    object.elementOffset + local);
-            if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
-            const float3x3 deformation = tetrahedronDeformation(
-                tetrahedron,
-                femNodes,
-                nodeBase
-            );
-            maximumStrain = max(
-                maximumStrain,
-                maximumAbs(deformation - polarRotation(deformation))
-            );
-            minimumJ = min(minimumJ, determinant(deformation));
+        if (tiledFEM) {
+            const uint2 range = objectTileRanges[objectIndex];
+            for (uint local = lane; local < range.y; local += 32u) {
+                const float2 value = tilePartials[
+                    environment * tileCount + range.x + local];
+                maximumStrain = max(maximumStrain, value.x);
+                minimumJ = min(minimumJ, value.y);
+            }
+        } else {
+            const uint nodeBase = environment * dispatch.femNodeCount;
+            for (uint local = lane; local < object.elementCount; local += 32u) {
+                const NMTetrahedronGPU tetrahedron =
+                    environmentTetrahedron(dispatch, tetrahedra, environment,
+                        object.elementOffset + local);
+                if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+                const float3x3 deformation = tetrahedronDeformation(
+                    tetrahedron,
+                    femNodes,
+                    nodeBase
+                );
+                maximumStrain = max(
+                    maximumStrain,
+                    maximumAbs(deformation - polarRotation(deformation))
+                );
+                minimumJ = min(minimumJ, determinant(deformation));
+            }
         }
     }
     maximumStrain = simd_max(maximumStrain);
@@ -511,6 +571,67 @@ kernel void nm_scheduler_observe(
             state.quietFrames = 0u;
         }
     }
+}
+
+kernel void nm_scheduler_observe(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMContactSampleGPU* samples [[buffer(3)]],
+    device const NMGridNodeStateGPU* mpmNodes [[buffer(4)]],
+    device const NMIncidenceRangeGPU* mpmNodeRanges [[buffer(5)]],
+    device const uint* mpmNodeGenerations [[buffer(6)]],
+    device const NMParticleStateGPU* particles [[buffer(7)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(8)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(9)]],
+    device const NMMatterStatusGPU* statuses [[buffer(10)]],
+    device NMSchedulerStateGPU* schedulers [[buffer(11)]],
+    device const uint* sampleStorageMode [[buffer(12)]],
+    device const uint* samplePageComplete [[buffer(13)]],
+    device const uint* sampleSlotsByPair [[buffer(14)]],
+    device const uint* sampleCounts [[buffer(15)]],
+    device const uint* sampleCapacity [[buffer(16)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    schedulerObserveShared<false>(
+        dispatch, microstep, objects, samples, mpmNodes, mpmNodeRanges,
+        mpmNodeGenerations, particles, femNodes, tetrahedra, statuses, schedulers,
+        sampleStorageMode, samplePageComplete, sampleSlotsByPair, sampleCounts,
+        sampleCapacity, 0u,
+        reinterpret_cast<device const uint2*>(mpmNodeRanges),
+        reinterpret_cast<device const float2*>(mpmNodes), lane, group);
+}
+
+kernel void nm_scheduler_observe_tiled(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMContactSampleGPU* samples [[buffer(3)]],
+    device const NMGridNodeStateGPU* mpmNodes [[buffer(4)]],
+    device const NMIncidenceRangeGPU* mpmNodeRanges [[buffer(5)]],
+    device const uint* mpmNodeGenerations [[buffer(6)]],
+    device const NMParticleStateGPU* particles [[buffer(7)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(8)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(9)]],
+    device const NMMatterStatusGPU* statuses [[buffer(10)]],
+    device NMSchedulerStateGPU* schedulers [[buffer(11)]],
+    device const uint* sampleStorageMode [[buffer(12)]],
+    device const uint* samplePageComplete [[buffer(13)]],
+    device const uint* sampleSlotsByPair [[buffer(14)]],
+    device const uint* sampleCounts [[buffer(15)]],
+    device const uint* sampleCapacity [[buffer(16)]],
+    constant uint& tileCount [[buffer(17)]],
+    device const uint2* objectTileRanges [[buffer(18)]],
+    device const float2* tilePartials [[buffer(19)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    schedulerObserveShared<true>(
+        dispatch, microstep, objects, samples, mpmNodes, mpmNodeRanges,
+        mpmNodeGenerations, particles, femNodes, tetrahedra, statuses, schedulers,
+        sampleStorageMode, samplePageComplete, sampleSlotsByPair, sampleCounts,
+        sampleCapacity, tileCount, objectTileRanges, tilePartials, lane, group);
 }
 
 inline uint writeEvent(

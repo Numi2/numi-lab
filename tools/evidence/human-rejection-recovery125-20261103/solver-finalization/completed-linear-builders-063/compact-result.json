@@ -1,0 +1,35 @@
+{
+  "name": "completed-linear-builders-063",
+  "execution": {
+    "exit_code": 0,
+    "elapsed_s": 212.2869098186493,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-linear-builders-063/install-motion.plan.json",
+    "plan_sha256": "057ced5713011b1873368b9c7572cb8095d02295c8843380a25b069bf5db9207",
+    "stdout_sha256": "65c2cfa7408e244488006931688bc297fb4afb799be39f7b42637b3c3736f257",
+    "stderr_sha256": "0c16b590b4cd0a731d6554c4fe1c376b88551d3394b03a90433fdd9aeafd1607",
+    "physical_admission": false,
+    "resource_stop_reason": null,
+    "source_import_pass": false,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "endpoint_bytes": 833232924,
+  "endpoint_sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+  "profiles": [
+    "resting_native_profile step=1 command_ms=6400.462208 gpu_ms=6398.472125 host_copy_ms=0.140709 full_state_readback=1",
+    "resting_native_profile step=2 command_ms=6366.041625 gpu_ms=6365.197875 host_copy_ms=2.365792 full_state_readback=1",
+    "resting_native_profile step=3 command_ms=6359.334125 gpu_ms=6358.53649999 host_copy_ms=0.104375 full_state_readback=1",
+    "resting_native_profile step=4 command_ms=6371.559333 gpu_ms=6370.32795833 host_copy_ms=0.065 full_state_readback=1"
+  ],
+  "completion": [
+    "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=33.544268582999997 real_time_factor=1.8632095916458668e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ],
+  "stages_root0_ms": {},
+  "selected_kernel_ms": {},
+  "traces": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-linear-builders-063/install-motion/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+      "bytes": 4523
+    }
+  ]
+}

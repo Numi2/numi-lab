@@ -1,0 +1,1141 @@
+{
+  "reason": "remove duplicate staged copies; remote original evidence unchanged",
+  "all_content_verified_equal_before_duplicate_removal": true,
+  "files": [
+    {
+      "previous_curated_path": "trials/split-contact-control-054/run_native_plan.py",
+      "curated_path": "split-contact-control-054/run_native_plan.py",
+      "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/gpu-entry-pressure.stderr.log",
+      "curated_path": "split-contact-control-054/gpu-entry-pressure.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/gpu-entry-vmmap.stderr.log",
+      "curated_path": "split-contact-control-054/gpu-entry-vmmap.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/runner.log",
+      "curated_path": "split-contact-control-054/runner.log",
+      "sha256": "b22625a592879f690cbb9466fbdac5a5f98140030a21f697594b3421df6d0523"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/resource-policy.json",
+      "curated_path": "split-contact-control-054/resource-policy.json",
+      "sha256": "063e22b5c57e0e36d99689d9eeb2b0c78c969e2fcc82a87c2edcef01fd302180"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/build-manifest.json",
+      "curated_path": "split-contact-control-054/build-manifest.json",
+      "sha256": "36a0eb85492cdf5e074804c6be04d9f216a7af61932a720d18d4f1fbdc9d600a"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/predeclared-checks.json",
+      "curated_path": "split-contact-control-054/predeclared-checks.json",
+      "sha256": "ccc4fb752d6aab3a214286d588ae3dcdafa0073eb4eea46a6716b43c1231004e"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/resource-monitor.jsonl",
+      "curated_path": "split-contact-control-054/resource-monitor.jsonl",
+      "sha256": "1b2b336cf74ad6ab407fcad75354b08243dcee1e8a7b56664c3fcedbf13754b7"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/install-motion.stderr.log",
+      "curated_path": "split-contact-control-054/install-motion.stderr.log",
+      "sha256": "6b6ce1d5bdb484de94a015f7f62d1986d04bea1336a15f2ca274664c2325eeb3"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/compact-result.json",
+      "curated_path": "split-contact-control-054/compact-result.json",
+      "sha256": "26cf739833f225691440843f3bc4429f9930a4abf329c2fd24bc68a76d54f4b7"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/install-motion.active.json",
+      "curated_path": "split-contact-control-054/install-motion.active.json",
+      "sha256": "a7469befd10590bd144bf227ccd4cb0a86c43f1fb612d9b28556b4878bb3ff6b"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/install-motion.plan.json",
+      "curated_path": "split-contact-control-054/install-motion.plan.json",
+      "sha256": "bc2f687e86a26cfcecbe84ba3524b1035bcf8b798aa5aac202a1152bfb7ebb87"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/execution-source-snapshots.tar.gz",
+      "curated_path": "split-contact-control-054/execution-source-snapshots.tar.gz",
+      "sha256": "f7a4661e3c735de8f70667bd3fff9a53d5f538e64335a2b855d695ac60ad496d"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/early-cpu-sample.txt",
+      "curated_path": "split-contact-control-054/early-cpu-sample.txt",
+      "sha256": "6b2b2d3e12f1ffa149f2e738847cf61881e1909fb909c6d10529f8deccaaf946"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/gpu-entry-vmmap.stdout.log",
+      "curated_path": "split-contact-control-054/gpu-entry-vmmap.stdout.log",
+      "sha256": "378fb72828237b1239221a2e74ddb05d9526e511b414f37447410b9caa086058"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/gpu-entry-pressure.stdout.log",
+      "curated_path": "split-contact-control-054/gpu-entry-pressure.stdout.log",
+      "sha256": "244c3cb44d9a50c1c74fc5704ebcf0f29f8bdcfe861642efd7f7548025c8a326"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/resting-coupled.csv",
+      "curated_path": "split-contact-control-054/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/install-motion.execution.json",
+      "curated_path": "split-contact-control-054/install-motion.execution.json",
+      "sha256": "419302f09d5a0294c4c712c2db35ecaf21377281426af51d9f040844482c0de2"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-control-054/install-motion.stdout.log",
+      "curated_path": "split-contact-control-054/install-motion.stdout.log",
+      "sha256": "1a4e38b52f051cf93d859188c1a6ce91a25bf748430ca7a7bed239c247685d2d"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-combined-052/run_native_plan.py",
+      "curated_path": "shared-contact-stage-combined-052/run_native_plan.py",
+      "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-combined-052/build-manifest.json",
+      "curated_path": "shared-contact-stage-combined-052/build-manifest.json",
+      "sha256": "415744836c54573627cd5bc320468dfd0dd5c1911bbbf0ba0c0dfc9fbd40d1fb"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-combined-052/predeclared-checks.json",
+      "curated_path": "shared-contact-stage-combined-052/predeclared-checks.json",
+      "sha256": "31000cda9e7d91e99036bfa1506352e0d8dbad39410e45d7855aaca468ef481c"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-combined-052/install-motion.plan.json",
+      "curated_path": "shared-contact-stage-combined-052/install-motion.plan.json",
+      "sha256": "deea85aed721fb9692a290d44c5b98621c1c7346c9862ef50fba1d392dbdb28c"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-combined-052/execution-source-snapshots.tar.gz",
+      "curated_path": "shared-contact-stage-combined-052/execution-source-snapshots.tar.gz",
+      "sha256": "43a3962adb36462e3b28c3a4387d60b43342dbaabddd3de6cd5899ae13eaea73"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-combined-052/NOT_RUN.txt",
+      "curated_path": "shared-contact-stage-combined-052/NOT_RUN.txt",
+      "sha256": "8cfb1795799ba5bef76c4553094a3d03ce68f95fbbf6d94919a189a4aa8a1b5a"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/run_native_plan.py",
+      "curated_path": "active-linear-ew-058/run_native_plan.py",
+      "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/gpu-entry-pressure.stderr.log",
+      "curated_path": "active-linear-ew-058/gpu-entry-pressure.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/gpu-entry-vmmap.stderr.log",
+      "curated_path": "active-linear-ew-058/gpu-entry-vmmap.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/runner.log",
+      "curated_path": "active-linear-ew-058/runner.log",
+      "sha256": "aacffa4fbbeba27c9c0d216c4c7360923e7aa4d624aad23a271a183b37081375"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/resource-policy.json",
+      "curated_path": "active-linear-ew-058/resource-policy.json",
+      "sha256": "7b9b2a34370c612d076b6409082bb1658f5c69c1bc8887bff5b5b1ee26ff0b9f"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/build-manifest.json",
+      "curated_path": "active-linear-ew-058/build-manifest.json",
+      "sha256": "070200ae7b32f73c53ae21c46af3ccd8020af02eaabbb3eb0f18af2d88f4761c"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/resource-monitor.jsonl",
+      "curated_path": "active-linear-ew-058/resource-monitor.jsonl",
+      "sha256": "f20addf6e61286dd2a46c0e03152a2d00aade2ef53d885ccb855eb17547f9334"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/install-motion.stderr.log",
+      "curated_path": "active-linear-ew-058/install-motion.stderr.log",
+      "sha256": "b589e9113f0329bf3ce70776f6def96f7e7821a28a8f0d393b69a6764f4b9aa1"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/compact-result.json",
+      "curated_path": "active-linear-ew-058/compact-result.json",
+      "sha256": "6ada8957287ad986c00ea320497fb77dbc1235db7fcb838cfc6c0d8bcb8138eb"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/install-motion.active.json",
+      "curated_path": "active-linear-ew-058/install-motion.active.json",
+      "sha256": "eb8d71b73bf510b49d45c2c3f78dbc97c0fdd5d2d6736d1d48a5309bdc7a77e7"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/install-motion.plan.json",
+      "curated_path": "active-linear-ew-058/install-motion.plan.json",
+      "sha256": "540817bb14bc7e2ef93352719e11be984948fca32b498a9b96e3b4b3492866f1"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/execution-source-snapshots.tar.gz",
+      "curated_path": "active-linear-ew-058/execution-source-snapshots.tar.gz",
+      "sha256": "09bb929dd2d6c554efd0169df578e6a2ca9d4c8ea0b34d926ea8e82c5b371f2e"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/early-cpu-sample.txt",
+      "curated_path": "active-linear-ew-058/early-cpu-sample.txt",
+      "sha256": "ccf5de96d77708cf5d1abf7ecdbf6861cc197c3f9bd3ca5a86987f4657b23c9b"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/gpu-entry-vmmap.stdout.log",
+      "curated_path": "active-linear-ew-058/gpu-entry-vmmap.stdout.log",
+      "sha256": "74c87a0304948aab86bcc754f06b9c340baa46040c966e52696d71432b08a607"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/gpu-entry-pressure.stdout.log",
+      "curated_path": "active-linear-ew-058/gpu-entry-pressure.stdout.log",
+      "sha256": "c0774774e490babb2df637e36ca9252a2f08bcbd16900f2d124f0d39892eb799"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/resting-coupled.csv",
+      "curated_path": "active-linear-ew-058/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/shared-patch-056-build.log",
+      "curated_path": "active-linear-ew-058/shared-patch-056-build.log",
+      "sha256": "aa3e657b947c241000848cc431c8f7d08f87fc6595cbfdbf0d86ea6fc97486af"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/install-motion.execution.json",
+      "curated_path": "active-linear-ew-058/install-motion.execution.json",
+      "sha256": "c30e8e5a8266da93d3a2be6d178d7c5648f1d0d821cb5aec9f5041b65ccf7c05"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/shared-patch-056-full-check.log",
+      "curated_path": "active-linear-ew-058/shared-patch-056-full-check.log",
+      "sha256": "115f7f0682f6c083eb15ed7ad5338ea129f5fbc138bfbe8be5f2e561db99eaf2"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/install-motion.stdout.compact.log",
+      "curated_path": "active-linear-ew-058/install-motion.stdout.compact.log",
+      "sha256": "5847bb3b93fa4f1df5a898c02e3804f831ea9f25557b58b4c1ffd0fae27c6bc5"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/retained-full-stdout.json",
+      "curated_path": "active-linear-ew-058/retained-full-stdout.json",
+      "sha256": "b086a400135e60eb74c626405cd1502bd574dc8092c23154e0cbbf58836efd9a"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-ew-058/shared-patch-056-check.log",
+      "curated_path": "active-linear-ew-058/shared-patch-056-check.log",
+      "sha256": "a50da453fb1050dc71bae09a930fafdfe7d66210fba524100c3ed79f6b10dc45"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/run_native_plan.py",
+      "curated_path": "active-linear-certificate-profile-046/run_native_plan.py",
+      "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/gpu-entry-pressure.stderr.log",
+      "curated_path": "active-linear-certificate-profile-046/gpu-entry-pressure.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/gpu-entry-vmmap.stderr.log",
+      "curated_path": "active-linear-certificate-profile-046/gpu-entry-vmmap.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/runner.log",
+      "curated_path": "active-linear-certificate-profile-046/runner.log",
+      "sha256": "946d8d16facee55acebf9f2eec7babd8dad41fdf07e31613ebd14e9fc3741b3c"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/resource-policy.json",
+      "curated_path": "active-linear-certificate-profile-046/resource-policy.json",
+      "sha256": "004f07b945d3b3a8bfae0c0a5661a9a3673beb43189bb99b78e9c4e99b4678fb"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/build-manifest.json",
+      "curated_path": "active-linear-certificate-profile-046/build-manifest.json",
+      "sha256": "965bf11d9a5598b001f76a58e5d915efe3fba30ebabdedbf96215b60a1f50250"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/predeclared-checks.json",
+      "curated_path": "active-linear-certificate-profile-046/predeclared-checks.json",
+      "sha256": "dfba7338816c8acdfa4b531d11f92ff6a7f05a8fb0207f96d9da6d448f87f712"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/resource-monitor.jsonl",
+      "curated_path": "active-linear-certificate-profile-046/resource-monitor.jsonl",
+      "sha256": "95b8efe17c3c379da6d10f0ff829fb09dd42087b40f38b74f1889d070552b15b"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/install-motion.stderr.log",
+      "curated_path": "active-linear-certificate-profile-046/install-motion.stderr.log",
+      "sha256": "4ffd9a0f478d77963930c290850574548b2bfc4c53c1ad0db92551e52c9290ab"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/install-motion.active.json",
+      "curated_path": "active-linear-certificate-profile-046/install-motion.active.json",
+      "sha256": "b3d2bc72b0d1e1bee73087161b25a55eeadb3701683d33dd8b659143ba7b07fd"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/install-motion.plan.json",
+      "curated_path": "active-linear-certificate-profile-046/install-motion.plan.json",
+      "sha256": "cf0a1f8fb04b812e81d5ffc0823e3462244a4182e61defc0757ff677e2fc77d1"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/execution-source-snapshots.tar.gz",
+      "curated_path": "active-linear-certificate-profile-046/execution-source-snapshots.tar.gz",
+      "sha256": "5404bf2c045df34e87050922031628293d44903000717ab6bb52e06f9b09510d"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/early-cpu-sample.txt",
+      "curated_path": "active-linear-certificate-profile-046/early-cpu-sample.txt",
+      "sha256": "2e72962f22f7d442406de8bd1ac7dc03dca405a60b7c2a5171181c3153016cd0"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/gpu-entry-vmmap.stdout.log",
+      "curated_path": "active-linear-certificate-profile-046/gpu-entry-vmmap.stdout.log",
+      "sha256": "102681624defd748f7e3132a1bc72b8fb5047f0d053e8216010d3d8acd01d96a"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/gpu-entry-pressure.stdout.log",
+      "curated_path": "active-linear-certificate-profile-046/gpu-entry-pressure.stdout.log",
+      "sha256": "8c67736f4c7a4344a3b5d00ca392a0a303a63a6b21c39b71591969b6e5aaa7e8"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/resting-coupled.csv",
+      "curated_path": "active-linear-certificate-profile-046/resting-coupled.csv",
+      "sha256": "87dab5a67b452ee9fae9b409b70a062c04ca1debea44a7a28391751ed9c361f1"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-046/install-motion.execution.json",
+      "curated_path": "active-linear-certificate-profile-046/install-motion.execution.json",
+      "sha256": "7d49a0d4599298d8742e48d64611994d6ef0d8e3e09affaa827272f7aad1f3f4"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/run_native_plan.py",
+      "curated_path": "split-contact-combined-055/run_native_plan.py",
+      "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/gpu-entry-pressure.stderr.log",
+      "curated_path": "split-contact-combined-055/gpu-entry-pressure.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/gpu-entry-vmmap.stderr.log",
+      "curated_path": "split-contact-combined-055/gpu-entry-vmmap.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/runner.log",
+      "curated_path": "split-contact-combined-055/runner.log",
+      "sha256": "360cdb3261c35600ff9290067fa5e9d2bd6b848145e690beaf211f44deeaee1e"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/resource-policy.json",
+      "curated_path": "split-contact-combined-055/resource-policy.json",
+      "sha256": "146571f80b60a5fa40a74280f35df801fe00f16766f2e2394cd5bb72a05c6d93"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/build-manifest.json",
+      "curated_path": "split-contact-combined-055/build-manifest.json",
+      "sha256": "dafdef49e2b9eb5944ac6f6e0243c0f50947bd9ad79db277dea29c9ee70e2448"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/predeclared-checks.json",
+      "curated_path": "split-contact-combined-055/predeclared-checks.json",
+      "sha256": "ccc4fb752d6aab3a214286d588ae3dcdafa0073eb4eea46a6716b43c1231004e"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/resource-monitor.jsonl",
+      "curated_path": "split-contact-combined-055/resource-monitor.jsonl",
+      "sha256": "eb933eff3d39ee47101dbf2c108f5540a57ef82e186fcf859fa8dba77e4a1b3d"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/install-motion.stderr.log",
+      "curated_path": "split-contact-combined-055/install-motion.stderr.log",
+      "sha256": "d394f7804a67c3af35bbced7860372b69a8efc658d683229589e6329944666e3"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/compact-result.json",
+      "curated_path": "split-contact-combined-055/compact-result.json",
+      "sha256": "791cf40d22f17c7e35b17f7dade8ea66a7f736f56f778628e0d37a98bee5707d"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/install-motion.active.json",
+      "curated_path": "split-contact-combined-055/install-motion.active.json",
+      "sha256": "9bf698d5f40f5fd3a26e93539cdcbad2a4b948348ba047093fe5846fd580ea5c"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/install-motion.plan.json",
+      "curated_path": "split-contact-combined-055/install-motion.plan.json",
+      "sha256": "381b7ce78009628358f4a1822b0bfb1417e10d943492c20fa62352a96637482a"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/execution-source-snapshots.tar.gz",
+      "curated_path": "split-contact-combined-055/execution-source-snapshots.tar.gz",
+      "sha256": "f7a4661e3c735de8f70667bd3fff9a53d5f538e64335a2b855d695ac60ad496d"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/early-cpu-sample.txt",
+      "curated_path": "split-contact-combined-055/early-cpu-sample.txt",
+      "sha256": "b16f6d7280ad3f4b9928c68f38d965a646cb4f98bd3c10db95cd0a9561c277eb"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/gpu-entry-vmmap.stdout.log",
+      "curated_path": "split-contact-combined-055/gpu-entry-vmmap.stdout.log",
+      "sha256": "8521785f928f040bd15c0606b3bced088501bae6b2ce61a2916298d5178137c7"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/gpu-entry-pressure.stdout.log",
+      "curated_path": "split-contact-combined-055/gpu-entry-pressure.stdout.log",
+      "sha256": "44b006f576c4dd6bb6fd4540ea424a5fac05816bdd13f294877e30e39a296abd"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/resting-coupled.csv",
+      "curated_path": "split-contact-combined-055/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/install-motion.execution.json",
+      "curated_path": "split-contact-combined-055/install-motion.execution.json",
+      "sha256": "c238c80043bde45bf579e76a9308ffae99d49ee5a0d9d8d7851c1e9faadb8f4c"
+    },
+    {
+      "previous_curated_path": "trials/split-contact-combined-055/install-motion.stdout.log",
+      "curated_path": "split-contact-combined-055/install-motion.stdout.log",
+      "sha256": "9f3ef8ba7cac4a444e96d2c5c657626a047c08672ccb9f8b71a06aa7c5cb25b3"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/run_native_plan.py",
+      "curated_path": "active-linear-certificate-profile-047/run_native_plan.py",
+      "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/gpu-entry-pressure.stderr.log",
+      "curated_path": "active-linear-certificate-profile-047/gpu-entry-pressure.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/gpu-entry-vmmap.stderr.log",
+      "curated_path": "active-linear-certificate-profile-047/gpu-entry-vmmap.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/runner.log",
+      "curated_path": "active-linear-certificate-profile-047/runner.log",
+      "sha256": "79fa02d4c9518292fd6bf7846045e49ec03fd37403b225b4d0206c03dea2a520"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/resource-policy.json",
+      "curated_path": "active-linear-certificate-profile-047/resource-policy.json",
+      "sha256": "b1e0b3d561df605ea0eb16f008b54930487ad239d447142e1190c55fa07705b1"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/build-manifest.json",
+      "curated_path": "active-linear-certificate-profile-047/build-manifest.json",
+      "sha256": "8a4e3a94f5f98dd61b57a48a4c958413766dda3d91595cc52326452b9a3b8e28"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/predeclared-checks.json",
+      "curated_path": "active-linear-certificate-profile-047/predeclared-checks.json",
+      "sha256": "156e4ce8b8ea81577aa2f36f67137eb5f34702d9a624abb9bc69c0797e05faf2"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/resource-monitor.jsonl",
+      "curated_path": "active-linear-certificate-profile-047/resource-monitor.jsonl",
+      "sha256": "b4b465da3bd2acf4afa92e7a0016dab694f9ef0775c1dca2c8a98fbb27454a39"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/install-motion.stderr.log",
+      "curated_path": "active-linear-certificate-profile-047/install-motion.stderr.log",
+      "sha256": "508c0b3a0b5b727db848266de5942e633bcfe1ffd7fcf85e2ad6c13e904a6614"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/install-motion.active.json",
+      "curated_path": "active-linear-certificate-profile-047/install-motion.active.json",
+      "sha256": "59fa5680c849bd92eefa2af309b66f0afbea81c19a61f36b7244250e349ffc54"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/install-motion.plan.json",
+      "curated_path": "active-linear-certificate-profile-047/install-motion.plan.json",
+      "sha256": "5e16319d34208ca04f1406f31802597e03f23e981cad134d31b664feab495825"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/execution-source-snapshots.tar.gz",
+      "curated_path": "active-linear-certificate-profile-047/execution-source-snapshots.tar.gz",
+      "sha256": "5404bf2c045df34e87050922031628293d44903000717ab6bb52e06f9b09510d"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/early-cpu-sample.txt",
+      "curated_path": "active-linear-certificate-profile-047/early-cpu-sample.txt",
+      "sha256": "e6f6fcbd8a1ef4f4c1eec4cc34dba574ea226bf8303bcdc0a578d835ef570160"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/gpu-entry-vmmap.stdout.log",
+      "curated_path": "active-linear-certificate-profile-047/gpu-entry-vmmap.stdout.log",
+      "sha256": "94213a180f41f21fd212c35faf6b7015e46789fca091257ae553672defcc1f4b"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/gpu-entry-pressure.stdout.log",
+      "curated_path": "active-linear-certificate-profile-047/gpu-entry-pressure.stdout.log",
+      "sha256": "ef0aa9f1d8c422ee9ed705bb70e1ca646d543a4051c90c18d149cafdf86588c9"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/resting-coupled.csv",
+      "curated_path": "active-linear-certificate-profile-047/resting-coupled.csv",
+      "sha256": "87dab5a67b452ee9fae9b409b70a062c04ca1debea44a7a28391751ed9c361f1"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-047/install-motion.execution.json",
+      "curated_path": "active-linear-certificate-profile-047/install-motion.execution.json",
+      "sha256": "eeaaa0f0c76cd2c38af11a48d801cbf1c374f26f9fd3f9337bf116aef7f737ec"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/run_native_plan.py",
+      "curated_path": "shared-contact-control-049/run_native_plan.py",
+      "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/gpu-entry-pressure.stderr.log",
+      "curated_path": "shared-contact-control-049/gpu-entry-pressure.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/gpu-entry-vmmap.stderr.log",
+      "curated_path": "shared-contact-control-049/gpu-entry-vmmap.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/runner.log",
+      "curated_path": "shared-contact-control-049/runner.log",
+      "sha256": "ce70f574ec3a30ab31310629cd98b50ecf412df08437eb4d04b1b1efcc5b7d14"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/resource-policy.json",
+      "curated_path": "shared-contact-control-049/resource-policy.json",
+      "sha256": "a77da065f9fc3f1eea6718cfc01bc3cc8f706a29118820cf4b36459e469a965f"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/build-manifest.json",
+      "curated_path": "shared-contact-control-049/build-manifest.json",
+      "sha256": "ab98b33d7663ece1225b2b40a4948fbf5c3ee9951b09054dc1e8738dbd7fbe4e"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/predeclared-checks.json",
+      "curated_path": "shared-contact-control-049/predeclared-checks.json",
+      "sha256": "0ff66c5400e2de49d7dbf173a41db6a079649628a795106c3f8fa4d61d5a3074"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/resource-monitor.jsonl",
+      "curated_path": "shared-contact-control-049/resource-monitor.jsonl",
+      "sha256": "99e54bcd8df3d18bdf897a2e3968adc748df3985cc3a46702db0501fdcba2d48"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/install-motion.stderr.log",
+      "curated_path": "shared-contact-control-049/install-motion.stderr.log",
+      "sha256": "0f87405acbae3fd30918c65d75f2774e11e8ced9ab9a42f93709ece2b5d642f7"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/compact-result.json",
+      "curated_path": "shared-contact-control-049/compact-result.json",
+      "sha256": "e3970a482ec6e1d2534f241e263de010e694b64fca73b4e7e2ed426fc8a6a6b1"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/install-motion.active.json",
+      "curated_path": "shared-contact-control-049/install-motion.active.json",
+      "sha256": "5f94258acd307eff34a8f1d4d4e6aea8269a25f7b11dadfe6ea26999d3420dc7"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/install-motion.plan.json",
+      "curated_path": "shared-contact-control-049/install-motion.plan.json",
+      "sha256": "b038e70a473b3d9533d3861c76c63d3411d1f0f979278d106d8e88915bda6270"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/execution-source-snapshots.tar.gz",
+      "curated_path": "shared-contact-control-049/execution-source-snapshots.tar.gz",
+      "sha256": "551bf45e09f5ddd944c372c016477a3544b7a00fb439aa80a1548f9ce1db4076"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/early-cpu-sample.txt",
+      "curated_path": "shared-contact-control-049/early-cpu-sample.txt",
+      "sha256": "5cb115b73720aa075850069d31212a2a6533dcb09badcc7958c2d97a518a9346"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/gpu-entry-vmmap.stdout.log",
+      "curated_path": "shared-contact-control-049/gpu-entry-vmmap.stdout.log",
+      "sha256": "121a5e9592f63c89eaf50d003990c36481015b463c71f07b62b70ea3996ee61b"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/gpu-entry-pressure.stdout.log",
+      "curated_path": "shared-contact-control-049/gpu-entry-pressure.stdout.log",
+      "sha256": "277437ac97262664abf21961bbe3268b4f72b9c58ea84b0781e5b0046f806c31"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/resting-coupled.csv",
+      "curated_path": "shared-contact-control-049/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-control-049/install-motion.execution.json",
+      "curated_path": "shared-contact-control-049/install-motion.execution.json",
+      "sha256": "3ee4465ec2cddb81b894c81973dd459e911379573d1d54d3a7fd044654a60976"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-control-051/run_native_plan.py",
+      "curated_path": "shared-contact-stage-control-051/run_native_plan.py",
+      "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-control-051/runner.log",
+      "curated_path": "shared-contact-stage-control-051/runner.log",
+      "sha256": "6325c42125b9dda5383c83f3a4ca49d963c138220774d686e627e1c08ae49267"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-control-051/resource-policy.json",
+      "curated_path": "shared-contact-stage-control-051/resource-policy.json",
+      "sha256": "9205593cfe0a2815ebb9d8974b09142956a9c718c5a5922d0b703cadb42a9b8b"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-control-051/build-manifest.json",
+      "curated_path": "shared-contact-stage-control-051/build-manifest.json",
+      "sha256": "c8c1305363014b3cbe89cc45fdde08e08ddbfa002babda27a806423498c23392"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-control-051/predeclared-checks.json",
+      "curated_path": "shared-contact-stage-control-051/predeclared-checks.json",
+      "sha256": "31000cda9e7d91e99036bfa1506352e0d8dbad39410e45d7855aaca468ef481c"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-control-051/resource-monitor.jsonl",
+      "curated_path": "shared-contact-stage-control-051/resource-monitor.jsonl",
+      "sha256": "ee0e5e0d6ab2ac43f7ec6bda5a1d5310144bbe0fe545e66f75002ee0bd3255ff"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-control-051/install-motion.stderr.log",
+      "curated_path": "shared-contact-stage-control-051/install-motion.stderr.log",
+      "sha256": "75522278f1038019b93e2fbbed718726572f86d37c34c4e9ab008429a340b402"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-control-051/install-motion.active.json",
+      "curated_path": "shared-contact-stage-control-051/install-motion.active.json",
+      "sha256": "5bf062c8bc4dbe17b8f04cde5bb1d433545f5dd93d3b10a28f44d221f1b64e10"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-control-051/install-motion.plan.json",
+      "curated_path": "shared-contact-stage-control-051/install-motion.plan.json",
+      "sha256": "c1880a60ee403b849754a0098efef16bafda47903a88adf6f6250dd87b274bc9"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-control-051/execution-source-snapshots.tar.gz",
+      "curated_path": "shared-contact-stage-control-051/execution-source-snapshots.tar.gz",
+      "sha256": "43a3962adb36462e3b28c3a4387d60b43342dbaabddd3de6cd5899ae13eaea73"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-control-051/resting-coupled.csv",
+      "curated_path": "shared-contact-stage-control-051/resting-coupled.csv",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-control-051/install-motion.execution.json",
+      "curated_path": "shared-contact-stage-control-051/install-motion.execution.json",
+      "sha256": "e2353c559d75cd1c49ad03ef9603d298c9977567725e77d4af99fb9e03a4e1ff"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-stage-control-051/install-motion.stdout.log",
+      "curated_path": "shared-contact-stage-control-051/install-motion.stdout.log",
+      "sha256": "bda2772d2f7e57600e4c3c85ecc0c4197a88c317b603d459316741d41491cb9b"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/run_native_plan.py",
+      "curated_path": "shared-contact-combined-050/run_native_plan.py",
+      "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/gpu-entry-pressure.stderr.log",
+      "curated_path": "shared-contact-combined-050/gpu-entry-pressure.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/gpu-entry-vmmap.stderr.log",
+      "curated_path": "shared-contact-combined-050/gpu-entry-vmmap.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/runner.log",
+      "curated_path": "shared-contact-combined-050/runner.log",
+      "sha256": "b4e4c0751aa9247314e456f41a62b0a288695e7eb1075a1fce217e9d5e71d7fe"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/resource-policy.json",
+      "curated_path": "shared-contact-combined-050/resource-policy.json",
+      "sha256": "5a32f54d737480b95a675f743fe23806b3d63f58f8a98d8c031135568df4d19d"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/build-manifest.json",
+      "curated_path": "shared-contact-combined-050/build-manifest.json",
+      "sha256": "939b938872e8b9d6caac824840a072d170aee18448df1d2e757dd3d1ae0ead2f"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/predeclared-checks.json",
+      "curated_path": "shared-contact-combined-050/predeclared-checks.json",
+      "sha256": "0ff66c5400e2de49d7dbf173a41db6a079649628a795106c3f8fa4d61d5a3074"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/resource-monitor.jsonl",
+      "curated_path": "shared-contact-combined-050/resource-monitor.jsonl",
+      "sha256": "c044b941fc46d649278a2848dbbedf864c992469c73158015a8b4b823f3028b4"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/install-motion.stderr.log",
+      "curated_path": "shared-contact-combined-050/install-motion.stderr.log",
+      "sha256": "2ecbd697f8479f5ffa1d30514cf90523cb7bbd9b0a81ca0d234b377eb5f40328"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/compact-result.json",
+      "curated_path": "shared-contact-combined-050/compact-result.json",
+      "sha256": "4a6433e5dfc959c1e1b0ca9c9950a20eea70d9992970820d3c1f490739fe4578"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/install-motion.active.json",
+      "curated_path": "shared-contact-combined-050/install-motion.active.json",
+      "sha256": "414e40a94445d9de96d8403a6f3ee9dfcdc2dd3038da651e3ee445c105fc2c2d"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/install-motion.plan.json",
+      "curated_path": "shared-contact-combined-050/install-motion.plan.json",
+      "sha256": "e690d2cb19bf7ea9f563d7ccfb3f92a4f27d455459b1a136b8e02c1b1cc4c95e"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/execution-source-snapshots.tar.gz",
+      "curated_path": "shared-contact-combined-050/execution-source-snapshots.tar.gz",
+      "sha256": "89bd6b2e9f61b7702748137afddb6bde4c6686e06e8a65c2f1182e576259197b"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/early-cpu-sample.txt",
+      "curated_path": "shared-contact-combined-050/early-cpu-sample.txt",
+      "sha256": "a99cd283bfc436bacc7eaef1f924c39784f8186c90e2b07016d9652d77641f76"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/gpu-entry-vmmap.stdout.log",
+      "curated_path": "shared-contact-combined-050/gpu-entry-vmmap.stdout.log",
+      "sha256": "b61412c6f3e5d36591813a6dee49498fffb7df8e93509f90da7a5064dbc54a97"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/gpu-entry-pressure.stdout.log",
+      "curated_path": "shared-contact-combined-050/gpu-entry-pressure.stdout.log",
+      "sha256": "244c3cb44d9a50c1c74fc5704ebcf0f29f8bdcfe861642efd7f7548025c8a326"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/resting-coupled.csv",
+      "curated_path": "shared-contact-combined-050/resting-coupled.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/install-motion.execution.json",
+      "curated_path": "shared-contact-combined-050/install-motion.execution.json",
+      "sha256": "36e0ae2950aa06f307aeb3a1de283ea0c93e033778886f4a6e9fbccafbe9177c"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-050/install-motion.stdout.log",
+      "curated_path": "shared-contact-combined-050/install-motion.stdout.log",
+      "sha256": "0f97196770bea6620040d224f3e1abad8b9e8122a10bce274ebe980e690d8946"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/run_native_plan.py",
+      "curated_path": "active-linear-certificate-profile-045/run_native_plan.py",
+      "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/runner.log",
+      "curated_path": "active-linear-certificate-profile-045/runner.log",
+      "sha256": "38623dfa73cad6edab37881974d61d290edac8ccc898eff1353e14687349a23f"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/resource-policy.json",
+      "curated_path": "active-linear-certificate-profile-045/resource-policy.json",
+      "sha256": "502e143af0be209bbaa494cdc1b0a2ee45bcbb97eeff584fd638204d3b7ba124"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/build-manifest.json",
+      "curated_path": "active-linear-certificate-profile-045/build-manifest.json",
+      "sha256": "3acce38b439b7fd42fdfbaa7adae769a28e210b656a9831b009b524745e2cf9e"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/predeclared-checks.json",
+      "curated_path": "active-linear-certificate-profile-045/predeclared-checks.json",
+      "sha256": "471b6a86e4fcab8de6043d3a773036b1a04e086b61e0c4373925321af118a15c"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/resource-monitor.jsonl",
+      "curated_path": "active-linear-certificate-profile-045/resource-monitor.jsonl",
+      "sha256": "e438ed16c242a8b01f9fc5f9435eb223de3687fa9eef11777bebea64075a4c51"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/install-motion.stderr.log",
+      "curated_path": "active-linear-certificate-profile-045/install-motion.stderr.log",
+      "sha256": "641c721778cf7b8dbea19d78a49ad3eb5b1194970fceda8d6dd721833a4273f5"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/install-motion.active.json",
+      "curated_path": "active-linear-certificate-profile-045/install-motion.active.json",
+      "sha256": "879452f30c097926303569b463830cdd963df29b57a01a65240809d3b975466c"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/install-motion.plan.json",
+      "curated_path": "active-linear-certificate-profile-045/install-motion.plan.json",
+      "sha256": "dd14dd8c758ff0fce96f90d2c7a122ac835f1083572702f2e928260a595c9bce"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/execution-source-snapshots.tar.gz",
+      "curated_path": "active-linear-certificate-profile-045/execution-source-snapshots.tar.gz",
+      "sha256": "5404bf2c045df34e87050922031628293d44903000717ab6bb52e06f9b09510d"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/early-cpu-sample.txt",
+      "curated_path": "active-linear-certificate-profile-045/early-cpu-sample.txt",
+      "sha256": "110d3d708887d856d353f84456339c0d2aa04bbcfddaa05587fe5561ec4a4e71"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/resting-coupled.csv",
+      "curated_path": "active-linear-certificate-profile-045/resting-coupled.csv",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/install-motion.execution.json",
+      "curated_path": "active-linear-certificate-profile-045/install-motion.execution.json",
+      "sha256": "34376412e5e67669b351421541a7aa59edb889ea47f063b73618882b05a666b7"
+    },
+    {
+      "previous_curated_path": "trials/active-linear-certificate-profile-045/install-motion.stdout.log",
+      "curated_path": "active-linear-certificate-profile-045/install-motion.stdout.log",
+      "sha256": "1299153b2b150bdadacdc88b31bf7d04cd085c2b2eb9004e7d019f3580240f11"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/run_native_plan.py",
+      "curated_path": "active-final-control-056/run_native_plan.py",
+      "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/gpu-entry-pressure.stderr.log",
+      "curated_path": "active-final-control-056/gpu-entry-pressure.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/gpu-entry-vmmap.stderr.log",
+      "curated_path": "active-final-control-056/gpu-entry-vmmap.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/runner.log",
+      "curated_path": "active-final-control-056/runner.log",
+      "sha256": "b5f72dbdd72013d7bee68013e757dbff52bbe0e5ec761fb3f903e309e8761cab"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/resource-policy.json",
+      "curated_path": "active-final-control-056/resource-policy.json",
+      "sha256": "f4ec4833625df5ccb5cefb030cb1603e3d3b768ecffdee3cf580c6cbaa8ea942"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/source-lifetime-review.json",
+      "curated_path": "active-final-control-056/source-lifetime-review.json",
+      "sha256": "733ef5bb2e10df679f014124b29b93ba75fcf05459688472be21402aaf30b756"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/build-manifest.json",
+      "curated_path": "active-final-control-056/build-manifest.json",
+      "sha256": "cefe659210cf2d5f8174c714f749b0710d8810c73dce48db5436479a256d8536"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/resource-monitor.jsonl",
+      "curated_path": "active-final-control-056/resource-monitor.jsonl",
+      "sha256": "f59298d316ef282995c3a30543df60cf6ac8029478dd4a3c234caa99d2119541"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/install-motion.stderr.log",
+      "curated_path": "active-final-control-056/install-motion.stderr.log",
+      "sha256": "d0609ea4fe648105c113147d5d4e418cd40f8dae732cfcfdf095f2044540ae85"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/compact-result.json",
+      "curated_path": "active-final-control-056/compact-result.json",
+      "sha256": "dac7578670ec4a775e17a9aedf6b1aa0b3c0d043e6265184f4d977e87a95be07"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/install-motion.active.json",
+      "curated_path": "active-final-control-056/install-motion.active.json",
+      "sha256": "ab600beace0edab35eb0be5b6cd407f0a9223b749350b3202fb45c7a786fe01b"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/install-motion.plan.json",
+      "curated_path": "active-final-control-056/install-motion.plan.json",
+      "sha256": "9f057d6c1854527a229cf2a061f646332020f1aea9d06048b564b95b65cd5142"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/execution-source-snapshots.tar.gz",
+      "curated_path": "active-final-control-056/execution-source-snapshots.tar.gz",
+      "sha256": "32f19b09c102534ea114b34f0371ea7c11afe3d29da69bfc9c66747e0234ca7d"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/early-cpu-sample.txt",
+      "curated_path": "active-final-control-056/early-cpu-sample.txt",
+      "sha256": "c781fae2baececb02868328def6db9857818a0cd7d9006a7e6f0f67af35f41d8"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/gpu-entry-vmmap.stdout.log",
+      "curated_path": "active-final-control-056/gpu-entry-vmmap.stdout.log",
+      "sha256": "f7555346a68e8f79294633953a0d1064d0ea7f234fe54eb334445aab2805a959"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/gpu-entry-pressure.stdout.log",
+      "curated_path": "active-final-control-056/gpu-entry-pressure.stdout.log",
+      "sha256": "17a8ae1dd97aacd13ec6c86f57f01f8093ec32c67f9d1d08920b3dce1d298ad8"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/resting-coupled.csv",
+      "curated_path": "active-final-control-056/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/shared-patch-056-build.log",
+      "curated_path": "active-final-control-056/shared-patch-056-build.log",
+      "sha256": "aa3e657b947c241000848cc431c8f7d08f87fc6595cbfdbf0d86ea6fc97486af"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/install-motion.execution.json",
+      "curated_path": "active-final-control-056/install-motion.execution.json",
+      "sha256": "03f1a4953aafabeb453fb7aa36ab41d0d55ab0beb987ae7626ccfc93c6b30572"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/shared-patch-056-full-check.log",
+      "curated_path": "active-final-control-056/shared-patch-056-full-check.log",
+      "sha256": "115f7f0682f6c083eb15ed7ad5338ea129f5fbc138bfbe8be5f2e561db99eaf2"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/install-motion.stdout.compact.log",
+      "curated_path": "active-final-control-056/install-motion.stdout.compact.log",
+      "sha256": "4c55a87caf6340af08c58071ffb4442bb6b0c7c0a18592118a1af075efd2b9d7"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/retained-full-stdout.json",
+      "curated_path": "active-final-control-056/retained-full-stdout.json",
+      "sha256": "923b2e81a04ceaa459cd66f52c4fde0a6afde7dd7b6d4707e0bb9917c3d08868"
+    },
+    {
+      "previous_curated_path": "trials/active-final-control-056/shared-patch-056-check.log",
+      "curated_path": "active-final-control-056/shared-patch-056-check.log",
+      "sha256": "a50da453fb1050dc71bae09a930fafdfe7d66210fba524100c3ed79f6b10dc45"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/run_native_plan.py",
+      "curated_path": "shared-contact-combined-053/run_native_plan.py",
+      "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/gpu-entry-pressure.stderr.log",
+      "curated_path": "shared-contact-combined-053/gpu-entry-pressure.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/gpu-entry-vmmap.stderr.log",
+      "curated_path": "shared-contact-combined-053/gpu-entry-vmmap.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/runner.log",
+      "curated_path": "shared-contact-combined-053/runner.log",
+      "sha256": "f507493bfc005045260704fdb0aab6c1a9f6ec040c704a79d259da548c2710e5"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/resource-policy.json",
+      "curated_path": "shared-contact-combined-053/resource-policy.json",
+      "sha256": "227af4ec34077cac01def57c41704cfa71b236b35689249f7bb054ec5588d147"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/build-manifest.json",
+      "curated_path": "shared-contact-combined-053/build-manifest.json",
+      "sha256": "bfe417b96a224292b2ea2ec78c43f26ae7a597f63343905b000162b4e9ecdca3"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/predeclared-checks.json",
+      "curated_path": "shared-contact-combined-053/predeclared-checks.json",
+      "sha256": "0ff66c5400e2de49d7dbf173a41db6a079649628a795106c3f8fa4d61d5a3074"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/resource-monitor.jsonl",
+      "curated_path": "shared-contact-combined-053/resource-monitor.jsonl",
+      "sha256": "cb2c0e4735570a58efbf1ecaa5fff14e4a0a44b31afa36089a2cd6958562d3fe"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/install-motion.stderr.log",
+      "curated_path": "shared-contact-combined-053/install-motion.stderr.log",
+      "sha256": "84e6bce7e963454c56872a8a9217cf1140ee708ce53222735726f1ab54266e5a"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/compact-result.json",
+      "curated_path": "shared-contact-combined-053/compact-result.json",
+      "sha256": "6826b9a6f94e0d3ec6d50efa377deb8e873e32a2dd46f69ea4e872fbc6495e08"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/install-motion.active.json",
+      "curated_path": "shared-contact-combined-053/install-motion.active.json",
+      "sha256": "411ca00a6be4c04d8828ca13c1cda9fcb98c8bef2fb1e1c04d19a91866023fd6"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/install-motion.plan.json",
+      "curated_path": "shared-contact-combined-053/install-motion.plan.json",
+      "sha256": "6020bdab6961e88f57ac5083f7ab9aff62be3708b088903959ddce90ca6d5287"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/execution-source-snapshots.tar.gz",
+      "curated_path": "shared-contact-combined-053/execution-source-snapshots.tar.gz",
+      "sha256": "89bd6b2e9f61b7702748137afddb6bde4c6686e06e8a65c2f1182e576259197b"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/early-cpu-sample.txt",
+      "curated_path": "shared-contact-combined-053/early-cpu-sample.txt",
+      "sha256": "defdd2e26fa51d0a9a90696e238d76d2c13e54295bc11eef821b62ac8125b82b"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/gpu-entry-vmmap.stdout.log",
+      "curated_path": "shared-contact-combined-053/gpu-entry-vmmap.stdout.log",
+      "sha256": "7d502650971efa5fd8812a40bd719e4c095bfc658ceafd4cd037409efb3c02b1"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/gpu-entry-pressure.stdout.log",
+      "curated_path": "shared-contact-combined-053/gpu-entry-pressure.stdout.log",
+      "sha256": "244c3cb44d9a50c1c74fc5704ebcf0f29f8bdcfe861642efd7f7548025c8a326"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/resting-coupled.csv",
+      "curated_path": "shared-contact-combined-053/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee"
+    },
+    {
+      "previous_curated_path": "trials/shared-contact-combined-053/install-motion.execution.json",
+      "curated_path": "shared-contact-combined-053/install-motion.execution.json",
+      "sha256": "7f307c38ab0689d35699db7634b8fc6e127758c3ee7a4b802c17e940dc3f3d42"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/run_native_plan.py",
+      "curated_path": "active-final-combined-057/run_native_plan.py",
+      "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/gpu-entry-pressure.stderr.log",
+      "curated_path": "active-final-combined-057/gpu-entry-pressure.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/gpu-entry-vmmap.stderr.log",
+      "curated_path": "active-final-combined-057/gpu-entry-vmmap.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/runner.log",
+      "curated_path": "active-final-combined-057/runner.log",
+      "sha256": "21844ab51b38006d206ce9d2f80777356180fa2d43ad5e7ca028711c16e94fb5"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/resource-policy.json",
+      "curated_path": "active-final-combined-057/resource-policy.json",
+      "sha256": "96034e770554202278772804d465f5500746fbfed4e9153ae3ca5a2cde42ac16"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/build-manifest.json",
+      "curated_path": "active-final-combined-057/build-manifest.json",
+      "sha256": "e1091bea8ebff2b92a11743710d9cd30d70ff059e5cdfd7131958b1343aea4ad"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/resource-monitor.jsonl",
+      "curated_path": "active-final-combined-057/resource-monitor.jsonl",
+      "sha256": "b3f79e7fddaa3fd5cb8edb0352eef5f3e154d90fd948131a4d8d2bbd51c81fff"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/install-motion.stderr.log",
+      "curated_path": "active-final-combined-057/install-motion.stderr.log",
+      "sha256": "8f4477b92850be9661a5e8d0e44183a1f4a428d002493d3300c71e7e31b1ef17"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/compact-result.json",
+      "curated_path": "active-final-combined-057/compact-result.json",
+      "sha256": "90d38b46c3dd3e2d61ad6f0c66501015d89fb5fddc5a89f6d0962d51c0d278e4"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/install-motion.active.json",
+      "curated_path": "active-final-combined-057/install-motion.active.json",
+      "sha256": "14c6fb835b1b5a3626ffbceec6faf98d4ca5ad2c3bd6f552505e81b2b4bf5bcb"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/install-motion.plan.json",
+      "curated_path": "active-final-combined-057/install-motion.plan.json",
+      "sha256": "bf94b1df93360fa96303e172874306898b691b3306a1534e68a89469d4accda9"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/execution-source-snapshots.tar.gz",
+      "curated_path": "active-final-combined-057/execution-source-snapshots.tar.gz",
+      "sha256": "f1870bafe14ee4ae392a4c32491516bfe643a64cd5b4edc4a4093c80b2027013"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/early-cpu-sample.txt",
+      "curated_path": "active-final-combined-057/early-cpu-sample.txt",
+      "sha256": "6143e4229d4a34120043e85d947149a9a204b0608389722a1316d9998e1ac08a"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/gpu-entry-vmmap.stdout.log",
+      "curated_path": "active-final-combined-057/gpu-entry-vmmap.stdout.log",
+      "sha256": "ba7c97f28432ffa4dd66e6b63ec2b3b926f02aaedf703e527c5cffce1a3d5008"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/gpu-entry-pressure.stdout.log",
+      "curated_path": "active-final-combined-057/gpu-entry-pressure.stdout.log",
+      "sha256": "806710f49520ef2eaf0fa5d9802962038897d0dff71d93e0d0aed34fad5ac32a"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/resting-coupled.csv",
+      "curated_path": "active-final-combined-057/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/shared-patch-056-build.log",
+      "curated_path": "active-final-combined-057/shared-patch-056-build.log",
+      "sha256": "aa3e657b947c241000848cc431c8f7d08f87fc6595cbfdbf0d86ea6fc97486af"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/install-motion.execution.json",
+      "curated_path": "active-final-combined-057/install-motion.execution.json",
+      "sha256": "f2b3f698972334d4f37379510de4831fb382b0be839ffb072b582645f23e242c"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/shared-patch-056-full-check.log",
+      "curated_path": "active-final-combined-057/shared-patch-056-full-check.log",
+      "sha256": "115f7f0682f6c083eb15ed7ad5338ea129f5fbc138bfbe8be5f2e561db99eaf2"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/install-motion.stdout.compact.log",
+      "curated_path": "active-final-combined-057/install-motion.stdout.compact.log",
+      "sha256": "c04e91dd4925c5029d393dd9ddc69bf45331783bf3f1750c4425b53d52654fa4"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/retained-full-stdout.json",
+      "curated_path": "active-final-combined-057/retained-full-stdout.json",
+      "sha256": "8629fc08a60c90040b2f586bf895b2708b11763a6e01241e1dc7c907a20133a9"
+    },
+    {
+      "previous_curated_path": "trials/active-final-combined-057/shared-patch-056-check.log",
+      "curated_path": "active-final-combined-057/shared-patch-056-check.log",
+      "sha256": "a50da453fb1050dc71bae09a930fafdfe7d66210fba524100c3ed79f6b10dc45"
+    }
+  ]
+}

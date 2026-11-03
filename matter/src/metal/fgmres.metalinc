@@ -10472,6 +10472,8 @@ inline bool fgmresTrueResidualHasInvalidDispatch(
 // begin_finish published a converged latch); mode 2 covers FEM accumulation
 // (skip only a later restart whose latched solve used no columns). The host
 // retains direct dispatch whenever this experiment is disabled or unsupported.
+// Mode 3 suppresses intermediate preconditioner-only producers after fresh
+// complete nonlinear convergence; invalid state/status always retains work.
 kernel void nm_fgmres_prepare_distributed_work_dispatch(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
@@ -10496,6 +10498,12 @@ kernel void nm_fgmres_prepare_distributed_work_dispatch(
         } else if (mode == 2u) {
             skip = restartCycle > 0u && latched &&
                 isfinite(diagnostics.w) && diagnostics.w == 0.0f;
+        } else if (mode == 3u) {
+            // Preconditioner-only producers may retain scratch only after
+            // the fresh begin certifies complete nonlinear convergence.
+            // The host always retains the final Newton refresh.
+            const float nonlinear = states[0].nonlinear.w;
+            skip = latched && isfinite(nonlinear) && nonlinear > 0.5f;
         }
     }
     range[0] = {skip ? 0u : fullGroupCount, 1u, 1u, 0u};

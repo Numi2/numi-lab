@@ -1,0 +1,4 @@
+{
+  "accepted": false,
+  "reason": "Restoring preimages with copy2 preserved old timestamps; Ninja reported no work and unit count still included the removed experiment. Caught before any059 native plan; touch all restored sources and rebuild."
+}

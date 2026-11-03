@@ -1,0 +1,35 @@
+{
+  "name": "final-ew-midpoint-062",
+  "execution": {
+    "exit_code": 0,
+    "elapsed_s": 207.1249761581421,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-ew-midpoint-062/install-motion.plan.json",
+    "plan_sha256": "34b9012153dc481f5c2fdb21b9678b0f4504202c19744d82237a5a55818d5194",
+    "stdout_sha256": "b84e03c5436080a0ab86294ff24e8fe56ce8acf9e3c3e13afbbe55256b2f6d61",
+    "stderr_sha256": "b1319cd6f2afa110d7bb21105c34fcde5e3fdf1d98d2967f213b3cd8e465e96c",
+    "physical_admission": false,
+    "resource_stop_reason": null,
+    "source_import_pass": false,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "endpoint_bytes": 833271069,
+  "endpoint_sha256": "3bda7ceb178112a6dcc5945f5a6cad234f0f8058a31046d1a52c92f6ac04d759",
+  "profiles": [
+    "resting_native_profile step=1 command_ms=6193.405708 gpu_ms=6176.30945833 host_copy_ms=0.303459 full_state_readback=1",
+    "resting_native_profile step=2 command_ms=7151.227708 gpu_ms=7150.43825 host_copy_ms=2.387917 full_state_readback=1",
+    "resting_native_profile step=3 command_ms=6200.824041 gpu_ms=6199.75304167 host_copy_ms=0.097209 full_state_readback=1",
+    "resting_native_profile step=4 command_ms=6220.64675 gpu_ms=6219.23279167 host_copy_ms=0.070292 full_state_readback=1"
+  ],
+  "completion": [
+    "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=33.385541750000002 real_time_factor=1.8720679579384301e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ],
+  "stages_root0_ms": {},
+  "selected_kernel_ms": {},
+  "traces": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-ew-midpoint-062/install-motion/resting-coupled.csv",
+      "sha256": "a6dad49f3dce02efa972c5da47c1d804e00ce9994d02b6ac65f885ac98435615",
+      "bytes": 4553
+    }
+  ]
+}

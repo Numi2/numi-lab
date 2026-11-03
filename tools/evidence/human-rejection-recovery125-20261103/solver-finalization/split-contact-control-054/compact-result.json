@@ -1,0 +1,22 @@
+{
+  "execution": {
+    "exit_code": 0,
+    "elapsed_s": 212.19585013389587,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/split-contact-control-054/install-motion.plan.json",
+    "plan_sha256": "bc2f687e86a26cfcecbe84ba3524b1035bcf8b798aa5aac202a1152bfb7ebb87",
+    "stdout_sha256": "1a4e38b52f051cf93d859188c1a6ce91a25bf748430ca7a7bed239c247685d2d",
+    "stderr_sha256": "6b6ce1d5bdb484de94a015f7f62d1986d04bea1336a15f2ca274664c2325eeb3",
+    "physical_admission": false,
+    "resource_stop_reason": null,
+    "source_import_pass": false,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "endpoint_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "endpoint_bytes": 0,
+  "profiles": [
+    "resting_native_profile step=1 command_ms=8218.931708 gpu_ms=8216.99474999 host_copy_ms=0.2455 full_state_readback=1",
+    "resting_native_profile step=2 command_ms=8299.603334 gpu_ms=8298.07333334 host_copy_ms=0.112291 full_state_readback=1",
+    "resting_native_profile step=3 command_ms=8286.726958 gpu_ms=8285.49054168 host_copy_ms=0.101583 full_state_readback=1",
+    "resting_native_profile step=4 command_ms=8271.693541 gpu_ms=8270.71591667 host_copy_ms=0.05975 full_state_readback=1"
+  ]
+}

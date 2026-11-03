@@ -1,0 +1,6 @@
+{
+  "accepted_steps": 1,
+  "stage_scope": "active linear and final residual/contact/certificate reassembly",
+  "numerical_gate": "CSV and accepted MRV parity against one-step retained reference; four-step full endpoint gate belongs to049/050",
+  "profiling_limit": "whole stage profiling is attribution; authoritative throughput pair is uninstrumented049/050"
+}

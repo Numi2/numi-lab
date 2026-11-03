@@ -1,0 +1,661 @@
+--- a/matter/src/metal/identification_scheduler.metalinc
++++ b/matter/src/metal/identification_scheduler.metalinc
+@@ -380,6 +380,199 @@
+     ] = distribution.update.w > 0.5f ? exp(latent) : latent;
+ }
+ 
++
++// Reuse the immutable 256-tetrahedron Armijo object tiles and its expired
++// uint2 scratch (same 8-byte stride as float2). No constitutive approximation.
++kernel void nm_scheduler_observe_fem_partials(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const NMContinuumObjectGPU* objects [[buffer(1)]],
++    device const NMFEMNodeStateGPU* nodes [[buffer(2)]],
++    device const NMTetrahedronGPU* tetrahedra [[buffer(3)]],
++    constant uint& tileCount [[buffer(4)]],
++    device const uint4* tiles [[buffer(5)]],
++    device float2* partials [[buffer(6)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint group [[threadgroup_position_in_grid]]) {
++    if (tileCount == 0u || group >= dispatch.environmentCount * tileCount) return;
++    const uint environment = group / tileCount;
++    const uint tile = group - environment * tileCount;
++    const uint4 descriptor = tiles[tile];
++    float strain = 0.0f;
++    float minimumJ = INFINITY;
++    if (descriptor.x < dispatch.objectCount && lane < descriptor.z &&
++        objects[descriptor.x].representation == NM_REPRESENTATION_FEM) {
++        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
++            dispatch, tetrahedra, environment, descriptor.y + lane);
++        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u) {
++            const float3x3 deformation = tetrahedronDeformation(
++                tetrahedron, nodes, environment * dispatch.femNodeCount);
++            strain = max(strain,
++                maximumAbs(deformation - polarRotation(deformation)));
++            minimumJ = min(minimumJ, determinant(deformation));
++        }
++    }
++    strain = simd_max(strain);
++    minimumJ = simd_min(minimumJ);
++    threadgroup float2 simdPartials[8];
++    if ((lane & 31u) == 0u)
++        simdPartials[lane / 32u] = float2(strain, minimumJ);
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    if (lane < 32u) {
++        const float2 value = lane < 8u ? simdPartials[lane]
++                                      : float2(0.0f, INFINITY);
++        const float maximumStrain = simd_max(value.x);
++        const float minimumDeterminant = simd_min(value.y);
++        if (lane == 0u)
++            partials[group] = float2(maximumStrain, minimumDeterminant);
++    }
++}
++template <bool tiledFEM>
++inline void schedulerObserveShared(
++    constant NMMatterDispatchGPU& dispatch,
++    constant NMMicrostepGPU& microstep,
++    device const NMContinuumObjectGPU* objects,
++    device const NMContactSampleGPU* samples,
++    device const NMGridNodeStateGPU* mpmNodes,
++    device const NMIncidenceRangeGPU* mpmNodeRanges,
++    device const uint* mpmNodeGenerations,
++    device const NMParticleStateGPU* particles,
++    device const NMFEMNodeStateGPU* femNodes,
++    device const NMTetrahedronGPU* tetrahedra,
++    device const NMMatterStatusGPU* statuses,
++    device NMSchedulerStateGPU* schedulers,
++    device const uint* sampleStorageMode,
++    device const uint* samplePageComplete,
++    device const uint* sampleSlotsByPair,
++    device const uint* sampleCounts,
++    device const uint* sampleCapacity,
++    const uint tileCount,
++    device const uint2* objectTileRanges,
++    device const float2* tilePartials,
++    uint lane,
++    uint group
++) {
++    if (lane >= 32u || dispatch.objectCount == 0u) {
++        return;
++    }
++    const uint environment = group / dispatch.objectCount;
++    const uint objectIndex = group - environment * dispatch.objectCount;
++    if (environment >= dispatch.environmentCount) {
++        return;
++    }
++    const NMContinuumObjectGPU object = objects[objectIndex];
++    float contactSpeed = 0.0f;
++    float slipImpulse = 0.0f;
++    for (uint pair = lane; pair < dispatch.contactPairCount; pair += 32u) {
++        const NMContactSampleGPU sample = contactSampleAt(
++            dispatch, samples, sampleStorageMode, samplePageComplete,
++            sampleSlotsByPair, sampleCounts, sampleCapacity,
++            environment, pair);
++        if ((sample.identity.w & NM_CONTACT_VALID) != 0u &&
++            sample.identity.z == objectIndex) {
++            contactSpeed = max(contactSpeed, max(-sample.normalAndVelocity.w, 0.0f));
++            slipImpulse = max(slipImpulse, sample.angularImpulseAndTangent.w);
++        }
++    }
++    contactSpeed = simd_max(contactSpeed);
++    slipImpulse = simd_max(slipImpulse);
++
++    float maximumStress = 0.0f;
++    const uint mpmNodeBase = environment * dispatch.gridNodeCount;
++    for (uint node = lane; node < dispatch.gridNodeCount; node += 32u) {
++        if (mpmNodeRanges[node].objectIndex == objectIndex &&
++            mpmNodeGenerations[mpmNodeBase + node] == microstep.reserved) {
++            maximumStress = max(
++                maximumStress,
++                mpmNodes[mpmNodeBase + node].forceAndEnergy.w
++            );
++        }
++    }
++    maximumStress = simd_max(maximumStress);
++
++    float maximumStrain = 0.0f;
++    float minimumJ = INFINITY;
++    if (object.representation == NM_REPRESENTATION_MPM) {
++        const uint base = environment * dispatch.particleCount + object.stateOffset;
++        for (uint local = lane; local < object.stateCount; local += 32u) {
++            const NMParticleStateGPU particle = particles[base + local];
++            if ((particle.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
++            const float3x3 deformation = matrixFromRows(
++                particle.deformationRow0,
++                particle.deformationRow1,
++                particle.deformationRow2
++            );
++            maximumStrain = max(
++                maximumStrain,
++                maximumAbs(deformation - polarRotation(deformation))
++            );
++            minimumJ = min(minimumJ, determinant(deformation));
++        }
++    } else if (object.representation == NM_REPRESENTATION_FEM) {
++        if (tiledFEM) {
++            const uint2 range = objectTileRanges[objectIndex];
++            for (uint local = lane; local < range.y; local += 32u) {
++                const float2 value = tilePartials[
++                    environment * tileCount + range.x + local];
++                maximumStrain = max(maximumStrain, value.x);
++                minimumJ = min(minimumJ, value.y);
++            }
++        } else {
++            const uint nodeBase = environment * dispatch.femNodeCount;
++            for (uint local = lane; local < object.elementCount; local += 32u) {
++                const NMTetrahedronGPU tetrahedron =
++                    environmentTetrahedron(dispatch, tetrahedra, environment,
++                        object.elementOffset + local);
++                if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
++                const float3x3 deformation = tetrahedronDeformation(
++                    tetrahedron,
++                    femNodes,
++                    nodeBase
++                );
++                maximumStrain = max(
++                    maximumStrain,
++                    maximumAbs(deformation - polarRotation(deformation))
++                );
++                minimumJ = min(minimumJ, determinant(deformation));
++            }
++        }
++    }
++    maximumStrain = simd_max(maximumStrain);
++    minimumJ = simd_min(minimumJ);
++    if (lane == 0u) {
++        device NMSchedulerStateGPU& state =
++            schedulers[environment * dispatch.objectCount + objectIndex];
++        state.physical.x = max(state.physical.x, contactSpeed);
++        state.physical.y = max(state.physical.y, slipImpulse);
++        state.physical.z = max(state.physical.z, maximumStrain);
++        state.physical.w = max(state.physical.w, maximumStress);
++        state.numerical.x = min(state.numerical.x, minimumJ);
++        if (statuses[environment].code != NM_STATUS_SUCCESS &&
++            statuses[environment].objectIndex == objectIndex) {
++            state.numerical.y = max(
++                state.numerical.y,
++                abs(statuses[environment].diagnostics.z)
++            );
++        }
++        const bool urgent =
++            state.physical.x > state.thresholds.x ||
++            state.physical.y > state.thresholds.y ||
++            state.physical.z > state.thresholds.z ||
++            state.numerical.x < dispatch.numericalLimits.z ||
++            state.numerical.y > state.thresholds.w;
++        if (urgent) {
++            state.requestedExponent = min(
++                state.activeExponent + 1u,
++                min(object.solver.y, dispatch.maximumRateExponent)
++            );
++            state.activeExponent = max(
++                state.activeExponent,
++                state.requestedExponent
++            );
++            state.quietFrames = 0u;
++        }
++    }
++}
++
+ kernel void nm_scheduler_observe(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     constant NMMicrostepGPU& microstep [[buffer(1)]],
+@@ -401,116 +594,44 @@
+     uint lane [[thread_index_in_threadgroup]],
+     uint group [[threadgroup_position_in_grid]]
+ ) {
+-    if (lane >= 32u || dispatch.objectCount == 0u) {
+-        return;
+-    }
+-    const uint environment = group / dispatch.objectCount;
+-    const uint objectIndex = group - environment * dispatch.objectCount;
+-    if (environment >= dispatch.environmentCount) {
+-        return;
+-    }
+-    const NMContinuumObjectGPU object = objects[objectIndex];
+-    float contactSpeed = 0.0f;
+-    float slipImpulse = 0.0f;
+-    for (uint pair = lane; pair < dispatch.contactPairCount; pair += 32u) {
+-        const NMContactSampleGPU sample = contactSampleAt(
+-            dispatch, samples, sampleStorageMode, samplePageComplete,
+-            sampleSlotsByPair, sampleCounts, sampleCapacity,
+-            environment, pair);
+-        if ((sample.identity.w & NM_CONTACT_VALID) != 0u &&
+-            sample.identity.z == objectIndex) {
+-            contactSpeed = max(contactSpeed, max(-sample.normalAndVelocity.w, 0.0f));
+-            slipImpulse = max(slipImpulse, sample.angularImpulseAndTangent.w);
+-        }
+-    }
+-    contactSpeed = simd_max(contactSpeed);
+-    slipImpulse = simd_max(slipImpulse);
+-
+-    float maximumStress = 0.0f;
+-    const uint mpmNodeBase = environment * dispatch.gridNodeCount;
+-    for (uint node = lane; node < dispatch.gridNodeCount; node += 32u) {
+-        if (mpmNodeRanges[node].objectIndex == objectIndex &&
+-            mpmNodeGenerations[mpmNodeBase + node] == microstep.reserved) {
+-            maximumStress = max(
+-                maximumStress,
+-                mpmNodes[mpmNodeBase + node].forceAndEnergy.w
+-            );
+-        }
+-    }
+-    maximumStress = simd_max(maximumStress);
+-
+-    float maximumStrain = 0.0f;
+-    float minimumJ = INFINITY;
+-    if (object.representation == NM_REPRESENTATION_MPM) {
+-        const uint base = environment * dispatch.particleCount + object.stateOffset;
+-        for (uint local = lane; local < object.stateCount; local += 32u) {
+-            const NMParticleStateGPU particle = particles[base + local];
+-            if ((particle.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+-            const float3x3 deformation = matrixFromRows(
+-                particle.deformationRow0,
+-                particle.deformationRow1,
+-                particle.deformationRow2
+-            );
+-            maximumStrain = max(
+-                maximumStrain,
+-                maximumAbs(deformation - polarRotation(deformation))
+-            );
+-            minimumJ = min(minimumJ, determinant(deformation));
+-        }
+-    } else if (object.representation == NM_REPRESENTATION_FEM) {
+-        const uint nodeBase = environment * dispatch.femNodeCount;
+-        for (uint local = lane; local < object.elementCount; local += 32u) {
+-            const NMTetrahedronGPU tetrahedron =
+-                environmentTetrahedron(dispatch, tetrahedra, environment,
+-                    object.elementOffset + local);
+-            if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+-            const float3x3 deformation = tetrahedronDeformation(
+-                tetrahedron,
+-                femNodes,
+-                nodeBase
+-            );
+-            maximumStrain = max(
+-                maximumStrain,
+-                maximumAbs(deformation - polarRotation(deformation))
+-            );
+-            minimumJ = min(minimumJ, determinant(deformation));
+-        }
+-    }
+-    maximumStrain = simd_max(maximumStrain);
+-    minimumJ = simd_min(minimumJ);
+-    if (lane == 0u) {
+-        device NMSchedulerStateGPU& state =
+-            schedulers[environment * dispatch.objectCount + objectIndex];
+-        state.physical.x = max(state.physical.x, contactSpeed);
+-        state.physical.y = max(state.physical.y, slipImpulse);
+-        state.physical.z = max(state.physical.z, maximumStrain);
+-        state.physical.w = max(state.physical.w, maximumStress);
+-        state.numerical.x = min(state.numerical.x, minimumJ);
+-        if (statuses[environment].code != NM_STATUS_SUCCESS &&
+-            statuses[environment].objectIndex == objectIndex) {
+-            state.numerical.y = max(
+-                state.numerical.y,
+-                abs(statuses[environment].diagnostics.z)
+-            );
+-        }
+-        const bool urgent =
+-            state.physical.x > state.thresholds.x ||
+-            state.physical.y > state.thresholds.y ||
+-            state.physical.z > state.thresholds.z ||
+-            state.numerical.x < dispatch.numericalLimits.z ||
+-            state.numerical.y > state.thresholds.w;
+-        if (urgent) {
+-            state.requestedExponent = min(
+-                state.activeExponent + 1u,
+-                min(object.solver.y, dispatch.maximumRateExponent)
+-            );
+-            state.activeExponent = max(
+-                state.activeExponent,
+-                state.requestedExponent
+-            );
+-            state.quietFrames = 0u;
+-        }
+-    }
++    schedulerObserveShared<false>(
++        dispatch, microstep, objects, samples, mpmNodes, mpmNodeRanges,
++        mpmNodeGenerations, particles, femNodes, tetrahedra, statuses, schedulers,
++        sampleStorageMode, samplePageComplete, sampleSlotsByPair, sampleCounts,
++        sampleCapacity, 0u,
++        reinterpret_cast<device const uint2*>(mpmNodeRanges),
++        reinterpret_cast<device const float2*>(mpmNodes), lane, group);
++}
++
++kernel void nm_scheduler_observe_tiled(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMMicrostepGPU& microstep [[buffer(1)]],
++    device const NMContinuumObjectGPU* objects [[buffer(2)]],
++    device const NMContactSampleGPU* samples [[buffer(3)]],
++    device const NMGridNodeStateGPU* mpmNodes [[buffer(4)]],
++    device const NMIncidenceRangeGPU* mpmNodeRanges [[buffer(5)]],
++    device const uint* mpmNodeGenerations [[buffer(6)]],
++    device const NMParticleStateGPU* particles [[buffer(7)]],
++    device const NMFEMNodeStateGPU* femNodes [[buffer(8)]],
++    device const NMTetrahedronGPU* tetrahedra [[buffer(9)]],
++    device const NMMatterStatusGPU* statuses [[buffer(10)]],
++    device NMSchedulerStateGPU* schedulers [[buffer(11)]],
++    device const uint* sampleStorageMode [[buffer(12)]],
++    device const uint* samplePageComplete [[buffer(13)]],
++    device const uint* sampleSlotsByPair [[buffer(14)]],
++    device const uint* sampleCounts [[buffer(15)]],
++    device const uint* sampleCapacity [[buffer(16)]],
++    constant uint& tileCount [[buffer(17)]],
++    device const uint2* objectTileRanges [[buffer(18)]],
++    device const float2* tilePartials [[buffer(19)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint group [[threadgroup_position_in_grid]]
++) {
++    schedulerObserveShared<true>(
++        dispatch, microstep, objects, samples, mpmNodes, mpmNodeRanges,
++        mpmNodeGenerations, particles, femNodes, tetrahedra, statuses, schedulers,
++        sampleStorageMode, samplePageComplete, sampleSlotsByPair, sampleCounts,
++        sampleCapacity, tileCount, objectTileRanges, tilePartials, lane, group);
+ }
+ 
+ inline uint writeEvent(
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -8913,6 +8913,8 @@
+             "nm_mpm_commit_microstep",
+             "nm_fem_commit_microstep",
+             "nm_scheduler_observe",
++            "nm_scheduler_observe_fem_partials",
++            "nm_scheduler_observe_tiled",
+             "nm_complete_microstep",
+             "nm_publish_accepted_control_cursor",
+             "nm_merge_accepted_step_gate_into_status",
+@@ -29823,13 +29825,34 @@
+             }
+             if (completedContactCacheEligible)
+                 std::fprintf(stderr, "contact_completed_geometry_cache=1 root=%u final_certificate=full friction_history=fresh\n", request.controlStep);
++            const char* finalGeometrySetting = std::getenv(
++                "NM_CONTACT_FINAL_ZERO_GEOMETRY_REUSE");
++            if (finalGeometrySetting != nullptr &&
++                std::strcmp(finalGeometrySetting, "0") != 0 &&
++                std::strcmp(finalGeometrySetting, "1") != 0) {
++                diagnostics.message = "NM_CONTACT_FINAL_ZERO_GEOMETRY_REUSE must be 0 or 1";
++                [encoder endEncoding]; encoder = nil;
++                return diagnostics;
++            }
++            const bool finalBroadphaseReuseRequested = finalGeometrySetting &&
++                std::strcmp(finalGeometrySetting, "1") == 0;
++            if (finalBroadphaseReuseRequested &&
++                (!zeroStepGeometryReuseEligible || state.hasAdaptive ||
++                 state.hasMutableFEMTopology || state.requiresCoupledCandidate ||
++                 state.dispatch.environmentCount != 1u ||
++                 state.dispatch.rigidGeneralizedCapacity != 0u)) {
++                diagnostics.message = "final broadphase reuse requires immutable single-environment FEM and the existing exact-zero geometry proof";
++                [encoder endEncoding]; encoder = nil;
++                return diagnostics;
++            }
+             const auto encodeCoupledPrimalContact = [&] (
+                 const bool certify,
+                 id<MTLBuffer> histories,
+                 id<MTLBuffer> deformableContactHistories
+             ) -> bool {
+                 const std::uint32_t useZeroStepGeometryReuse =
+-                    (!certify && zeroStepGeometryReuseEligible) ? 2u : 0u;
++                    (zeroStepGeometryReuseEligible &&
++                     (!certify || finalBroadphaseReuseRequested)) ? 2u : 0u;
+                 const id<MTLBuffer> geometryReuseFlags =
+                     zeroStepGeometryReuseEligible
+                         ? state.contactGeometryReuseFlags
+@@ -49877,6 +49900,7 @@
+                     "fem_operator_fd_not_captured={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"selected_iteration_not_encoded\"}\n",
+                     femOperatorFDTraceRoot, femOperatorFDTraceIteration);
+             }
++            beginSolverStage("matter_final_certificate");
+             // Reassemble the accepted Newton candidate once, then certify the
+             // same generalized residual. This is a certificate pass only: no
+             // post-contact FEM correction or second linear solve is encoded.
+@@ -50439,6 +50463,11 @@
+             }
+             if (!encodeFEMNewtonCertificateTrace()) {
+                 ownership->preDynamicsOpen = false;
++                return diagnostics;
++            }
++            beginSolverStage(nullptr);
++            if (encoder == nil) {
++                diagnostics.message = "failed to close final certificate timing span";
+                 return diagnostics;
+             }
+             dispatchThreads(
+@@ -50658,7 +50687,46 @@
+                     [encoder setBuffer:state.deformableContactHistoriesCandidate
+                                  offset:0u atIndex:3u];
+                 });
+-            dispatchGroups32("nm_scheduler_observe", objectTotal, [&] {
++            const char* schedulerTilingSetting =
++                std::getenv("NM_SCHEDULER_TILED_FEM_OBSERVE");
++            if (schedulerTilingSetting &&
++                std::strcmp(schedulerTilingSetting, "0") != 0 &&
++                std::strcmp(schedulerTilingSetting, "1") != 0) {
++                diagnostics.message = "NM_SCHEDULER_TILED_FEM_OBSERVE must be 0 or 1";
++                [encoder endEncoding]; encoder = nil;
++                return diagnostics;
++            }
++            const bool tiledScheduler = schedulerTilingSetting &&
++                std::strcmp(schedulerTilingSetting, "1") == 0;
++            if (tiledScheduler &&
++                (!state.femDistributedGlobalMeasurementsEnabled ||
++                 state.hasMutableFEMTopology || state.hasAdaptive ||
++                 state.femArmijoGeometryTiles == nil ||
++                 state.femArmijoGeometryRanges == nil ||
++                 state.femArmijoGeometryPartials == nil)) {
++                diagnostics.message = "tiled scheduler requires immutable FEM and existing distributed object tiles";
++                [encoder endEncoding]; encoder = nil;
++                return diagnostics;
++            }
++            if (tiledScheduler) {
++                // Armijo geometry scratch is dead after final certification.
++                // Its next reader is preceded by a complete next-step rewrite.
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                dispatchGroups256("nm_scheduler_observe_fem_partials",
++                    environments * state.femArmijoGeometryTileCount, [&] {
++                    setDispatch();
++                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
++                    [encoder setBuffer:state.femAccepted offset:0u atIndex:2u];
++                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
++                    [encoder setBytes:&state.femArmijoGeometryTileCount
++                        length:sizeof(state.femArmijoGeometryTileCount) atIndex:4u];
++                    [encoder setBuffer:state.femArmijoGeometryTiles offset:0u atIndex:5u];
++                    [encoder setBuffer:state.femArmijoGeometryPartials offset:0u atIndex:6u];
++                });
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            }
++            dispatchGroups32(tiledScheduler ? "nm_scheduler_observe_tiled" :
++                "nm_scheduler_observe", objectTotal, [&] {
+                 setDispatch();
+                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
+@@ -50675,6 +50743,12 @@
+                     state.contactSamplePageComplete,
+                     state.contactSampleSlotsByPair,
+                     state.contactActiveCounts, 12u);
++                if (tiledScheduler) {
++                    [encoder setBytes:&state.femArmijoGeometryTileCount
++                        length:sizeof(state.femArmijoGeometryTileCount) atIndex:17u];
++                    [encoder setBuffer:state.femArmijoGeometryRanges offset:0u atIndex:18u];
++                    [encoder setBuffer:state.femArmijoGeometryPartials offset:0u atIndex:19u];
++                }
+             });
+             dispatchThreads("nm_complete_microstep", environments, [&] {
+                 setDispatch();
+--- a/matter/tools/fgmres_true_residual_native_check.mm
++++ b/matter/tools/fgmres_true_residual_native_check.mm
+@@ -4524,6 +4524,148 @@
+     std::cout<<"human_exact_contact_motion_cache=PASS first_use=true unchanged_skip=true "
+         "node_motion=true body_translation_rotation=true environments=2 restore_retry=true "
+         "nonfinite_fails_closed=true direct_force_validity_parity=bitwise\n";
++}
++
++
++void checkTiledSchedulerObserve(
++    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
++    constexpr unsigned elements=1538,nodesPerEnvironment=4*elements,objectsCount=4;
++    NMMatterDispatchGPU d{};d.environmentCount=2;d.objectCount=objectsCount;
++    d.femNodeCount=nodesPerEnvironment;d.tetrahedronCount=elements;
++    d.particleCount=2;d.gridNodeCount=2;d.contactPairCount=5;
++    d.maximumRateExponent=3;d.numericalLimits.z=0.55f;
++    NMMicrostepGPU m{};m.reserved=73;
++    std::vector<NMContinuumObjectGPU> objects(objectsCount);
++    for(unsigned i=0;i<objectsCount;++i) {
++        objects[i].representation=i==3?NM_REPRESENTATION_MPM:NM_REPRESENTATION_FEM;
++        objects[i].flags=NM_OBJECT_ACTIVE;objects[i].solver.y=3;
++    }
++    objects[0].elementCount=1025;objects[1].elementOffset=1025;
++    objects[1].elementCount=513;objects[3].stateCount=2;
++    std::vector<NMTetrahedronGPU> tetrahedra(elements);
++    std::vector<NMFEMNodeStateGPU> nodes(2*nodesPerEnvironment);
++    for(unsigned i=0;i<elements;++i) {
++        auto& t=tetrahedra[i];t.nodes={4*i,4*i+1,4*i+2,4*i+3};
++        t.identity={i<1025?0u:1u,0,0,NM_OBJECT_ACTIVE};
++        t.inverseRestRow0={1,0,0,0};t.inverseRestRow1={0,1,0,0};
++        t.inverseRestRow2={0,0,1,0};
++        for(unsigned e=0;e<2;++e) {
++            const unsigned b=e*nodesPerEnvironment+4*i;
++            const float scale=0.8f+float(i%101)*0.002f;
++            nodes[b].positionAndMass={0,0,0,1};
++            nodes[b+1].positionAndMass={scale,0.01f*std::sin(float(i)),0,1};
++            nodes[b+2].positionAndMass={0.04f*std::cos(float(i)),1.05f+0.05f*e,0,1};
++            nodes[b+3].positionAndMass={0,0.002f,0.95f,1};
++        }
++    }
++    std::vector<nm_uint4> tiles;
++    std::vector<std::array<unsigned,2>> ranges(objectsCount);
++    for(unsigned o=0;o<objectsCount;++o) {
++        ranges[o]={unsigned(tiles.size()),0};
++        for(unsigned k=0;k<objects[o].elementCount;k+=256) {
++            tiles.push_back({o,objects[o].elementOffset+k,
++                std::min(256u,objects[o].elementCount-k),unsigned(tiles.size())});
++            ++ranges[o][1];
++        }
++    }
++    const unsigned tileCount=tiles.size();
++    std::vector<NMParticleStateGPU> particles(4);
++    for(auto& v:particles) {
++        v.identity.w=NM_OBJECT_ACTIVE;v.deformationRow0={1.1f,0,0,0};
++        v.deformationRow1={0,0.9f,0,0};v.deformationRow2={0,0,1,0};
++    }
++    std::vector<NMGridNodeStateGPU> grid(4);
++    for(unsigned i=0;i<grid.size();++i)grid[i].forceAndEnergy.w=0.2f+0.1f*i;
++    std::vector<NMIncidenceRangeGPU> gridRanges(2);
++    for(auto& v:gridRanges)v.objectIndex=3;
++    std::vector<NMContactSampleGPU> samples(10);
++    for(unsigned i=0;i<samples.size();++i) {
++        samples[i].identity={0,0,i%4,NM_CONTACT_VALID};
++        samples[i].normalAndVelocity.w=-0.03f*float(i+1);
++        samples[i].angularImpulseAndTangent.w=0.02f*float(i);
++    }
++    std::vector<NMMatterStatusGPU> statuses(2);
++    statuses[1].code=NM_STATUS_NONLINEAR_SOLVER_FAILURE;
++    statuses[1].objectIndex=1;statuses[1].diagnostics.z=-0.17f;
++    std::vector<NMSchedulerStateGPU> seed(9);
++    for(auto& v:seed) {
++        v.physical={0.05f,0.01f,0.03f,0.02f};
++        v.numerical={1.4f,0.01f,0,1};
++        v.thresholds={0.15f,0.2f,0.18f,0.11f};
++        v.activeExponent=1;v.quietFrames=7;
++    }
++    seed.back().physical={-77,-77,-77,-77};
++    auto db=makeBuffer(device,std::vector<NMMatterDispatchGPU>{d});
++    auto mb=makeBuffer(device,std::vector<NMMicrostepGPU>{m});
++    auto ob=makeBuffer(device,objects),nb=makeBuffer(device,nodes);
++    auto environmentTetrahedra=tetrahedra;
++    environmentTetrahedra.insert(environmentTetrahedra.end(),tetrahedra.begin(),tetrahedra.end());
++    auto tb=makeBuffer(device,environmentTetrahedra);
++    auto count=makeBuffer(device,std::vector<unsigned>{tileCount});
++    auto tileBuffer=makeBuffer(device,tiles),rangeBuffer=makeBuffer(device,ranges);
++    auto partials=makeBuffer(device,std::vector<std::array<float,2>>(2*tileCount+2,{-77,-77}));
++    auto direct=makeBuffer(device,seed),tiled=makeBuffer(device,seed);
++    auto zero=makeBuffer(device,std::vector<unsigned>{0});
++    auto dummy=makeBuffer(device,std::vector<unsigned>(32));
++    auto old=pipeline(device,library,"numi_matter_metal::nm_scheduler_observe");
++    auto split=pipeline(device,library,"numi_matter_metal::nm_scheduler_observe_tiled");
++    auto partial=pipeline(device,library,"numi_matter_metal::nm_scheduler_observe_fem_partials");
++    auto sampleBuffer=makeBuffer(device,samples),gridBuffer=makeBuffer(device,grid);
++    auto gridRangeBuffer=makeBuffer(device,gridRanges);
++    auto generations=makeBuffer(device,std::vector<unsigned>(4,73));
++    auto particleBuffer=makeBuffer(device,particles),statusBuffer=makeBuffer(device,statuses);
++    for(unsigned trial=0;trial<4;++trial) {
++        if(trial==1)static_cast<NMTetrahedronGPU*>(tb.contents)[17].identity.w=0;
++        if(trial==2)
++            for(unsigned i=0;i<2*elements;++i)
++                static_cast<NMTetrahedronGPU*>(tb.contents)[i].identity.w=0;
++        if(trial==3) {
++            std::memcpy(tb.contents,environmentTetrahedra.data(),environmentTetrahedra.size()*sizeof(NMTetrahedronGPU));
++            static_cast<NMFEMNodeStateGPU*>(nb.contents)[3].positionAndMass.x=
++                std::numeric_limits<float>::quiet_NaN();
++        }
++        std::memcpy(direct.contents,seed.data(),seed.size()*sizeof(NMSchedulerStateGPU));
++        std::memcpy(tiled.contents,seed.data(),seed.size()*sizeof(NMSchedulerStateGPU));
++        dispatch(device,queue,partial,{{0,db},{1,ob},{2,nb},{3,tb},{4,count},
++            {5,tileBuffer},{6,partials}},2*tileCount,256);
++        for(unsigned optimized=0;optimized<2;++optimized) {
++            std::vector<std::pair<NSUInteger,id<MTLBuffer>>> binds{
++                {0,db},{1,mb},{2,ob},{3,sampleBuffer},{4,gridBuffer},{5,gridRangeBuffer},
++                {6,generations},{7,particleBuffer},{8,nb},{9,tb},{10,statusBuffer},
++                {11,optimized?tiled:direct},{12,zero},{13,dummy},{14,dummy},
++                {15,dummy},{16,dummy}};
++            if(optimized) {
++                binds.push_back({17,count});binds.push_back({18,rangeBuffer});
++                binds.push_back({19,partials});
++            }
++            dispatch(device,queue,optimized?split:old,binds,2*objectsCount,32);
++        }
++        if(std::memcmp(direct.contents,tiled.contents,seed.size()*sizeof(NMSchedulerStateGPU))!=0) {
++            const auto* a=static_cast<const unsigned char*>(direct.contents);
++            const auto* b=static_cast<const unsigned char*>(tiled.contents);
++            for(unsigned byte=0;byte<seed.size()*sizeof(NMSchedulerStateGPU);++byte)
++                if(a[byte]!=b[byte]) {
++                    const unsigned index=byte/4;
++                    std::cerr<<"scheduler trial="<<trial<<" word="<<index<<" object="
++                        <<(byte/sizeof(NMSchedulerStateGPU))<<" float_direct="
++                        <<static_cast<const float*>(direct.contents)[index]
++                        <<" float_tiled="<<static_cast<const float*>(tiled.contents)[index]
++                        <<" bits_direct="<<static_cast<const unsigned*>(direct.contents)[index]
++                        <<" bits_tiled="<<static_cast<const unsigned*>(tiled.contents)[index]<<"\n";
++                    byte=(index+1)*4-1;
++                }
++        }
++        require(std::memcmp(direct.contents,tiled.contents,seed.size()*sizeof(NMSchedulerStateGPU))==0,
++            "tiled scheduler changed strain/determinant/urgency or rejected-object observation");
++        const auto pp=readBuffer<std::array<float,2>>(partials,2*tileCount+2);
++        require(pp[2*tileCount][0]==-77 && pp[2*tileCount+1][1]==-77,
++            "scheduler partial reduction exceeded tile capacity");
++        require(readBuffer<NMSchedulerStateGPU>(tiled,9).back().physical.x==-77,
++            "scheduler finish exceeded object capacity");
++    }
++    std::cout<<"tiled_scheduler_observe=PASS serial_parity=bitwise environments=2 "
++        "objects=4 irregular_tiles=8 tetrahedra=1538 MPM_and_contacts_unchanged=true "
++        "inactive_empty_nonfinite_rejected_status_urgency_canaries=true\n";
+ }
+ 
+ void checkCompletedContactGeometry(
+@@ -17134,10 +17276,16 @@
+                 std::cout << "PASS graph product precompute " << checks << " checks" << std::endl;
+                 return 0;
+             }
++            if (argc == 2 && std::string(argv[1]) == "--scheduler-only") {
++                checkTiledSchedulerObserve(device,queue,library);
++                std::cout << "checks=" << checks << " result=PASS\n";
++                return 0;
++            }
+             if (argc == 2 && std::string(argv[1]) == "--completed-contact-only") {
+                 checkCompactedHumanContactQueries(device,queue,library);
+                 checkHumanExactContactMotionCache(device,queue,library);
+                 checkCompletedContactGeometry(device,queue,library);
++            checkTiledSchedulerObserve(device,queue,library);
+                 std::cout << "PASS completed contact " << checks << " checks" << std::endl;
+                 return 0;
+             }
+@@ -17732,6 +17880,7 @@
+             checkCompactedHumanContactQueries(device,queue,library);
+             checkHumanExactContactMotionCache(device,queue,library);
+             checkCompletedContactGeometry(device,queue,library);
++            checkTiledSchedulerObserve(device,queue,library);
+             checkZeroStepGeometryReuse(device, queue, library);
+             checkReferenceSurfaceGeometry(device,queue,library);
+                 checkPolynomialReferenceSweep(device,queue,library);
