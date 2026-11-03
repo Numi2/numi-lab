@@ -8323,6 +8323,53 @@ kernel void nm_contact_narrowphase_deformable(
     (void)microstep;
 }
 
+// Candidate statuses are independent outputs of the parallel narrowphase.
+// Select their first failure with a deterministic atomic minimum over compact
+// active ordinals, then let one invocation publish the complete failure tuple.
+kernel void nm_contact_reset_narrowphase_failure_selection(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device atomic_uint* selected [[buffer(1)]],uint environment [[thread_position_in_grid]]) {
+    if(environment<dispatch.environmentCount)
+        atomic_store_explicit(selected+environment,NM_INVALID_INDEX,memory_order_relaxed);
+}
+kernel void nm_contact_select_narrowphase_failure(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* counts [[buffer(1)]],
+    device const uint* offsets [[buffer(2)]],
+    device const NMMatterStatusGPU* candidates [[buffer(3)]],
+    device const NMMatterStatusGPU* statuses [[buffer(4)]],
+    device atomic_uint* selected [[buffer(5)]],uint global [[thread_position_in_grid]]) {
+    const uint capacity=dispatch.deformableContactCapacity;
+    if(capacity==0u)return;
+    for(uint environment=0u;environment<dispatch.environmentCount;++environment) {
+        const uint count=min(counts[environment],capacity),offset=offsets[environment];
+        if(global<offset||global-offset>=count)continue;
+        if(!environmentHealthy(statuses,environment))return;
+        const uint slot=global-offset;
+        if(candidates[environment*capacity+slot].code!=NM_STATUS_SUCCESS)
+            atomic_fetch_min_explicit(selected+environment,slot,memory_order_relaxed);
+        return;
+    }
+}
+// Comparative test instrument only; production never calls the serial scan.
+kernel void nm_contact_select_narrowphase_failure_serial_check(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* counts [[buffer(1)]],
+    device const NMMatterStatusGPU* candidates [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    device uint* selected [[buffer(4)]],uint environment [[thread_position_in_grid]]) {
+    if(environment>=dispatch.environmentCount)return;
+    uint first=NM_INVALID_INDEX;
+    if(environmentHealthy(statuses,environment)) {
+        const uint count=min(counts[environment],dispatch.deformableContactCapacity);
+        for(uint i=0u;i<count;++i)
+            if(candidates[environment*dispatch.deformableContactCapacity+i].code!=NM_STATUS_SUCCESS) {
+                first=i;break;
+            }
+    }
+    selected[environment]=first;
+}
+
 // Stable device compaction keeps the dynamic rows dense for every downstream
 // primal solve while preserving candidate order and therefore deterministic
 // history ownership.
@@ -8339,6 +8386,7 @@ kernel void nm_contact_reduce_deformable_narrowphase_failures(
     device NMDeformableContactFailureGPU* failures [[buffer(9)]],
     constant NMMicrostepGPU& micro [[buffer(10)]],
     constant uint& captureDiagnostics [[buffer(11)]],
+    device const uint* selectedFailures [[buffer(12)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) return;
@@ -8349,14 +8397,27 @@ kernel void nm_contact_reduce_deformable_narrowphase_failures(
         statuses[environment].code != NM_STATUS_SUCCESS) return;
     if (captureDiagnostics != 0u) failures[environment] = {};
     const uint capacity = dispatch.deformableContactCapacity;
-    const uint count = min(candidateCounts[environment], capacity);
+    const uint count=candidateCounts[environment];
+    if(count>capacity) {
+        recordFailure(statuses[environment],NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX,0u,float4(float(count),float(capacity),0.0f,1.0f));
+        return;
+    }
     const uint base = environment * capacity;
-    // Candidate slots are emitted in deterministic source traversal order.
-    // Selecting the first failing slot makes the reported status independent
-    // of Metal thread arrival order without changing contact acceptance.
-    for (uint slot = 0u; slot < count; ++slot) {
-        const NMMatterStatusGPU failure = candidateStatuses[base + slot];
-        if (failure.code == NM_STATUS_SUCCESS) continue;
+    const uint slot=selectedFailures[environment];
+    if(slot==NM_INVALID_INDEX)return;
+    if(slot>=count) {
+        recordFailure(statuses[environment],NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX,slot,float4(float(slot),float(count),float(capacity),2.0f));
+        return;
+    }
+    const NMMatterStatusGPU failure = candidateStatuses[base + slot];
+    if(failure.code==NM_STATUS_SUCCESS) {
+        recordFailure(statuses[environment],NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX,slot,float4(float(slot),float(count),float(capacity),3.0f));
+        return;
+    }
+    {
         if (captureDiagnostics != 0u &&
             failure.code == NM_STATUS_CONTACT_FAILURE &&
             (failure.diagnostics.w == 3.0f ||

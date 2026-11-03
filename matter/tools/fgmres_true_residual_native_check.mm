@@ -61,7 +61,7 @@ std::vector<T> readBuffer(id<MTLBuffer> buffer, std::size_t count) {
 }
 
 id<MTLComputePipelineState> pipeline(
-    id<MTLDevice> device, id<MTLLibrary> library, const char* name) {
+    id<MTLDevice> device, id<MTLLibrary> library, const char* name, bool referenceContactWidth=false) {
     NSString* functionName = [NSString stringWithUTF8String:name];
     id<MTLFunction> function = [library newFunctionWithName:functionName];
     require(function != nil, std::string("missing Metal function: ") + name);
@@ -69,8 +69,7 @@ id<MTLComputePipelineState> pipeline(
     for (MTLFunctionConstant* constant in function.functionConstantsDictionary.allValues) {
         if (constant.index!=38u) continue;
         MTLFunctionConstantValues* values=[MTLFunctionConstantValues new];
-        const bool disabled=false;
-        [values setConstantValue:&disabled type:MTLDataTypeBool atIndex:38u];
+        [values setConstantValue:&referenceContactWidth type:MTLDataTypeBool atIndex:38u];
         function=[library newFunctionWithName:functionName constantValues:values error:&error];
         require(function!=nil,"cannot specialize default reference contact width");break;
     }
@@ -14612,36 +14611,68 @@ void checkFinalReferenceContactClearance(
 void checkFinalContactActivePrefix(
     id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     const auto certify=pipeline(device,library,"numi_matter_metal::nm_mixed_certify");
+    const auto sourceCertify=pipeline(device,library,"numi_matter_metal::nm_mixed_certify",true);
     auto layoutFunction=[library newFunctionWithName:
         @"numi_matter_metal::nm_primal_contact_argument_layout"];
     auto arguments=[layoutFunction newArgumentEncoderWithBufferIndex:0u];
     require(arguments!=nil,"contact certificate argument encoder unavailable");
-    for(unsigned mode=0u;mode<9u;++mode) {
+    for(unsigned mode=0u;mode<16u;++mode) {
         NMMatterDispatchGPU d{};d.environmentCount=1u;d.objectCount=1u;
-        d.femNodeCount=2u;d.deformableContactCapacity=8u;
+        d.femNodeCount=mode==15u?4u:2u;d.deformableContactCapacity=8u;
         d.numericalLimits.x=1e-5f;d.numericalLimits.z=0.05f;
         NMMixedSolverGPU solver{};solver.residualTolerances={1e-5f,1e-5f,1e-5f,1e-5f};
         solver.contactAcceptance.x=1e-4f;
         NMFGMRESLayoutGPU layout{};NMFGMRESStateGPU state{};state.diagnostics.y=1.0f;
         NMContinuumObjectGPU object{};object.representation=NM_REPRESENTATION_FEM;
-        object.flags=NM_OBJECT_ACTIVE;object.stateCount=2u;
-        const float gap=mode==5u?7e-10f:mode==8u?-5e-10f:
+        object.flags=NM_OBJECT_ACTIVE;object.stateCount=d.femNodeCount;
+        const float gap=mode>=9u?(mode==12u?4e-10f:mode==14u?-6e-10f:6e-10f):mode==5u?7e-10f:mode==8u?-5e-10f:
             (mode==1u||mode>=4u)?5e-10f:1e-8f;
-        const float initialGap=mode==6u?7e-10f:mode==7u?0.0f:
+        const float initialGap=mode>=9u?8e-10f:mode==6u?7e-10f:mode==7u?0.0f:
             mode>=4u?5e-10f:1e-8f;
-        std::vector<NMFEMNodeStateGPU> nodes(2u);
+        std::vector<NMFEMNodeStateGPU> nodes(d.femNodeCount);
         for(unsigned i=0u;i<2u;++i) {
             nodes[i].restAndFixed={1.0f,1.0f,0.0f,0.0f};
             nodes[i].positionAndMass={1.0f,1.0f,0.0f,1.0f};
             nodes[i].referenceDisplacementAndMode={0.0f,0.0f,i==0u?gap:0.0f,1.0f};
         }
         auto initialNodes=nodes;initialNodes[0].referenceDisplacementAndMode.z=initialGap;
+        if(mode>=9u&&mode<15u) {
+            nodes[0].restAndFixed.z=mode==11u?0.0f:7e-10f;
+            initialNodes[0].restAndFixed.z=nodes[0].restAndFixed.z;
+            nodes[0].referenceDisplacementAndMode.z=gap-nodes[0].restAndFixed.z;
+            initialNodes[0].referenceDisplacementAndMode.z=initialGap-nodes[0].restAndFixed.z;
+            if(mode==13u)nodes[0].referenceDisplacementAndMode.w=0.0f;
+        }
         std::vector<NMDeformableContactGPU> contacts(8u);
         for(unsigned slot:{1u,5u,6u}) {
             auto& c=contacts[slot];c.nodes={0u,1u,NM_INVALID_INDEX,NM_INVALID_INDEX};
             c.extraNodes={NM_INVALID_INDEX,NM_INVALID_INDEX,0u,0u};
             c.identity={0u,0u,NM_DEFORMABLE_CONTACT_POINT_POINT,NM_CONTACT_VALID};
             c.normalAndTOI={0,0,1,0};c.pointAndSeparation={1,1,0,std::abs(gap)};
+        }
+        if(mode==15u) {
+            const float rest[4][3]={{0.0f,0.0f,0.0f},{3.7997961044311523e-06f,9.775161743164062e-06f,-1.2621283531188965e-05f},{-1.2218952178955078e-06f,-3.2186508178710938e-06f,4.0084123611450195e-06f},{0.00021311640739440918f,0.003581523895263672f,0.0015106499195098877f}};
+            const float currentHigh[4][3]={{6.340850622343908e-10f,4.231919703556741e-09f,-1.7631238691251383e-08f},{3.800809508902603e-06f,9.77997751760995e-06f,-1.263965623365948e-05f},{-1.220938315782405e-06f,-3.21404741043807e-06f,3.9904166442283895e-06f},{0.0002131059009116143f,0.003581523895263672f,0.001510553527623415f}},currentLow[4][3]={{1.7238836049215447e-17f,7.654939823313552e-17f,-6.242760934997466e-16f},{5.84714094091672e-14f,-3.957887349022998e-13f,2.8064440420021153e-13f},{5.040827577942365e-14f,-2.7110602377942127e-14f,1.3339520731504156e-13f},{-3.9828928458281176e-13f,-7.671274032672315e-11f,4.4868071064074755e-11f}};
+            const float initialHigh[4][3]={{5.622190490939261e-10f,3.939301329580758e-09f,-1.5472584991016447e-08f},{3.8007144667062676e-06f,9.779606443771627e-06f,-1.2637385225389153e-05f},{-1.2210247177790734e-06f,-3.214370508430875e-06f,3.992610800196417e-06f},{0.00021310834563337266f,0.0035815236624330282f,0.0015105721540749073f}},initialLow[4][3]={{8.052223587302563e-18f,1.1238876512978385e-16f,-1.5226330434292307e-16f},{-4.2955985041790226e-14f,2.0969620286612027e-14f,-3.195142989163152e-13f},{1.1771963104019543e-14f,5.91055186022725e-14f,-1.0433345946090147e-13f},{-3.142800906671961e-12f,-3.963985042987339e-11f,5.7958405436098204e-11f}};
+            for(unsigned i=0u;i<4u;++i) {
+                nodes[i].restAndFixed={rest[i][0],rest[i][1],rest[i][2],0.0f};
+                initialNodes[i]=nodes[i];
+                for(unsigned j=0u;j<3u;++j) {
+                    const double c=double(currentHigh[i][j])+currentLow[i][j]-rest[i][j];
+                    const double a=double(initialHigh[i][j])+initialLow[i][j]-rest[i][j];
+                    reinterpret_cast<float*>(&nodes[i].referenceDisplacementAndMode)[j]=float(c);
+                    reinterpret_cast<float*>(&nodes[i].referenceDisplacementLow)[j]=float(c-double(float(c)));
+                    reinterpret_cast<float*>(&initialNodes[i].referenceDisplacementAndMode)[j]=float(a);
+                    reinterpret_cast<float*>(&initialNodes[i].referenceDisplacementLow)[j]=float(a-double(float(a)));
+                }
+                nodes[i].referenceDisplacementAndMode.w=initialNodes[i].referenceDisplacementAndMode.w=1.0f;
+            }
+            for(unsigned slot:{1u,5u}) {
+                auto& c=contacts[slot];c.nodes={0u,1u,2u,3u};
+                c.identity.z=NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
+                c.normalAndTOI={-0.9728127121925354f,0.13672375679016113f,-0.18692810833454132f,0.0f};
+                c.pointAndSeparation.w=8.71025363e-10f;
+            }
         }
         contacts[6].pointAndSeparation.w=std::numeric_limits<float>::quiet_NaN();
         auto zero=makeBuffer(device,std::vector<unsigned>(64u,0u));
@@ -14654,8 +14685,8 @@ void checkFinalContactActivePrefix(
         [arguments setBuffer:contactBuffer offset:0u atIndex:7u];
         [arguments setBuffer:count offset:0u atIndex:14u];
         auto nodeBuffer=makeBuffer(device,nodes);
-        auto fields=makeBuffer(device,std::vector<NMFEMFieldStateGPU>(2u));
-        auto residual=makeBuffer(device,std::vector<nm_float4>(4u));
+        auto fields=makeBuffer(device,std::vector<NMFEMFieldStateGPU>(d.femNodeCount));
+        auto residual=makeBuffer(device,std::vector<nm_float4>(2u*d.femNodeCount));
         std::vector<NMSolverCertificateGPU> certificates(2u);
         std::memset(&certificates[1],0xa5,sizeof(certificates[1]));
         std::vector<NMMatterStatusGPU> statuses(2u);
@@ -14674,7 +14705,7 @@ void checkFinalContactActivePrefix(
             {22u,makeBuffer(device,std::vector<unsigned>{mode==2u?9u:5u,1u})},
             {30u,makeBuffer(device,std::vector<NMFGMRESLayoutGPU>{layout})}};
         auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];
-        [encoder setComputePipelineState:certify];
+        [encoder setComputePipelineState:mode>=10u?sourceCertify:certify];
         for(const auto& [index,buffer]:bindings)[encoder setBuffer:buffer offset:0u atIndex:index];
         for(auto buffer:{zero,count,contactBuffer})[encoder useResource:buffer usage:MTLResourceUsageRead];
         [encoder dispatchThreadgroups:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
@@ -14682,9 +14713,13 @@ void checkFinalContactActivePrefix(
         require(command.status==MTLCommandBufferStatusCompleted,"contact certificate GPU command failed");
         const auto got=readBuffer<NMMatterStatusGPU>(status,2u);
         const auto cert=readBuffer<NMSolverCertificateGPU>(output,2u);
-        require(got[0].code==(mode==1u||mode==2u||mode>=6u?NM_STATUS_NONLINEAR_SOLVER_FAILURE:0u),
+        const bool expectedFailure=mode==1u||mode==2u||(mode>=6u&&mode<=9u)||
+            (mode>=11u&&mode<=14u);
+        if(got[0].code!=(expectedFailure?NM_STATUS_NONLINEAR_SOLVER_FAILURE:0u))
+            std::cerr<<"final_contact_active_case="<<mode<<" got="<<got[0].code<<"\n";
+        require(got[0].code==(expectedFailure?NM_STATUS_NONLINEAR_SOLVER_FAILURE:0u),
             "final certificate active prefix/clearance result");
-        if(mode==1u||mode>=6u)require(got[0].failingIndex==1u&&got[0].diagnostics.x==std::abs(gap),
+        if(mode==1u||(mode>=6u&&mode<=9u)||(mode>=11u&&mode<=14u))require(got[0].failingIndex==1u&&got[0].diagnostics.x==std::abs(gap),
             "contact certificate lost deterministic minimum-slot witness");
         require(std::memcmp(&got[1],&statuses[1],sizeof(got[1]))==0,
             "contact certificate status canary");
@@ -14695,7 +14730,7 @@ void checkFinalContactActivePrefix(
     }
     std::cout<<"final_contact_active_prefix=true sparse_order=true poisoned_padding_ignored=true"
         " empty=true invalid_index_rejected=true hard_clearance_preserved=true"
-        " deterministic_witness=true canaries=2 cases=9 initially_close_nonclosing=true new_closure_rejected=true PASS\n";
+        " deterministic_witness=true canaries=2 cases=16 initially_close_nonclosing=true default_clearance_preserved=true source_margin_pipeline=true captured_full_Human_case=true source_overlap_rejected=true below_source_margin_rejected=true PASS\n";
 }
 
 void checkCapturedInitialNonclosing(
@@ -14887,6 +14922,154 @@ void checkUnresolvedReferenceSweepProof(
     std::cout<<"unresolved_reference_sweep=true full_activation_thickness=true"
         " compensated_translation=true VT_EE_PP=true crossing_rejected=true"
         " within_activation_retained=true nonfinite_rejected=true cases=30 canaries=4 PASS\n";
+}
+
+void checkParallelNarrowphaseFailureSelection(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    constexpr unsigned environments=5u,capacity=65539u;
+    NMMatterDispatchGPU d{};d.environmentCount=environments;d.deformableContactCapacity=capacity;
+    std::vector<unsigned> counts{capacity,17u,0u,capacity,3u},offsets(environments);
+    unsigned total=0u;for(unsigned i=0u;i<environments;++i){offsets[i]=total;total+=counts[i];}
+    std::vector<NMMatterStatusGPU> candidates(environments*capacity),statuses(environments);
+    for(auto& c:candidates)c.code=NM_STATUS_SUCCESS;
+    candidates[capacity+2u].code=NM_STATUS_CONTACT_FAILURE;
+    candidates[capacity+2u].objectIndex=15u;candidates[capacity+2u].failingIndex=2u;
+    candidates[capacity+9u].code=NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    candidates[3u*capacity+capacity-1u].code=NM_STATUS_CONTACT_FAILURE;
+    candidates[3u*capacity+capacity-1u].failingIndex=capacity-1u;
+    candidates[2u*capacity].code=NM_STATUS_CONTACT_FAILURE; // Poison empty environment.
+    candidates[4u*capacity].code=NM_STATUS_CONTACT_FAILURE;
+    statuses[4u].code=NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    auto db=makeBuffer(device,std::vector<NMMatterDispatchGPU>{d});
+    auto cb=makeBuffer(device,counts),ob=makeBuffer(device,offsets);
+    auto candidatesBuffer=makeBuffer(device,candidates),statusBuffer=makeBuffer(device,statuses);
+    auto selected=makeBuffer(device,std::vector<unsigned>(environments+2u,0xdeadbeefu));
+    auto serial=makeBuffer(device,std::vector<unsigned>(environments+2u,0xdeadbeefu));
+    dispatch(device,queue,pipeline(device,library,
+        "numi_matter_metal::nm_contact_reset_narrowphase_failure_selection"),
+        {{0u,db},{1u,selected}},1u,32u);
+    dispatch(device,queue,pipeline(device,library,
+        "numi_matter_metal::nm_contact_select_narrowphase_failure"),
+        {{0u,db},{1u,cb},{2u,ob},{3u,candidatesBuffer},{4u,statusBuffer},{5u,selected}},
+        (total+255u)/256u,256u);
+    dispatch(device,queue,pipeline(device,library,
+        "numi_matter_metal::nm_contact_select_narrowphase_failure_serial_check"),
+        {{0u,db},{1u,cb},{2u,candidatesBuffer},{3u,statusBuffer},{4u,serial}},1u,32u);
+    const auto got=readBuffer<unsigned>(selected,environments+2u);
+    const auto reference=readBuffer<unsigned>(serial,environments+2u);
+    const unsigned expected[]{NM_INVALID_INDEX,2u,NM_INVALID_INDEX,capacity-1u,NM_INVALID_INDEX};
+    for(unsigned i=0u;i<environments;++i) {
+        require(got[i]==expected[i]&&got[i]==reference[i],"parallel deterministic first failure mismatch");
+    }
+    for(unsigned i=environments;i<environments+2u;++i)
+        require(got[i]==0xdeadbeefu&&reference[i]==0xdeadbeefu,"failure selector canary");
+    auto dummy=makeBuffer(device,std::vector<unsigned>(16u,0u));
+    NMMicrostepGPU micro{};auto mb=makeBuffer(device,std::vector<NMMicrostepGPU>{micro});
+    auto capture=makeBuffer(device,std::vector<unsigned>{0u});
+    auto reduce=pipeline(device,library,"numi_matter_metal::nm_contact_reduce_deformable_narrowphase_failures");
+    auto reduceNow=[&] {
+        dispatch(device,queue,reduce,{{0u,db},{1u,cb},{2u,candidatesBuffer},{3u,statusBuffer},
+            {4u,dummy},{5u,dummy},{6u,dummy},{7u,dummy},{8u,dummy},{9u,dummy},
+            {10u,mb},{11u,capture},{12u,selected}},1u,32u);
+    };
+    reduceNow();
+    auto result=readBuffer<NMMatterStatusGPU>(statusBuffer,environments);
+    require(result[0].code==NM_STATUS_SUCCESS&&result[2].code==NM_STATUS_SUCCESS,
+        "healthy or empty environment changed");
+    require(result[1].code==NM_STATUS_CONTACT_FAILURE&&result[1].failingIndex==2u&&result[1].objectIndex==15u,
+        "first failure tuple was not published");
+    require(result[3].code==NM_STATUS_CONTACT_FAILURE&&result[3].failingIndex==capacity-1u,
+        "last-slot failure tuple lost");
+    require(result[4].code==statuses[4u].code,"upstream failure overwritten");
+    // Invalid internal metadata fails before any candidate read.
+    std::fill(statuses.begin(),statuses.end(),NMMatterStatusGPU{});
+    std::memcpy(statusBuffer.contents,statuses.data(),statuses.size()*sizeof(statuses[0]));
+    auto* selection=static_cast<unsigned*>(selected.contents);
+    for(unsigned i=0u;i<environments;++i)selection[i]=NM_INVALID_INDEX;
+    selection[1u]=counts[1u];
+    reduceNow();result=readBuffer<NMMatterStatusGPU>(statusBuffer,environments);
+    require(result[1u].code==NM_STATUS_INVALID_DISPATCH,"invalid selected slot did not fail closed");
+    std::memcpy(statusBuffer.contents,statuses.data(),statuses.size()*sizeof(statuses[0]));
+    static_cast<unsigned*>(cb.contents)[0u]=capacity+1u;selection[1u]=NM_INVALID_INDEX;
+    reduceNow();result=readBuffer<NMMatterStatusGPU>(statusBuffer,environments);
+    require(result[0u].code==NM_STATUS_INVALID_DISPATCH,"candidate count overflow did not fail closed");
+    std::cout<<"parallel_narrowphase_failure_selection=true deterministic=true compact_prefix=true"
+        " empty=true poisoned_padding_ignored=true last_slot=true upstream_failure_preserved=true"
+        " capacity_guard=true invalid_metadata_rejected=true serial_parity=true canaries=2 PASS\n";
+}
+
+void benchmarkNarrowphaseFailureSelection(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    const char* enabled=std::getenv("NM_CONTACT_FAILURE_SELECTION_BENCHMARK");
+    if(enabled==nullptr||std::string(enabled)!="1")return;
+    constexpr unsigned capacity=4000000u,repeats=5u;
+    NMMatterDispatchGPU d{};d.environmentCount=1u;d.deformableContactCapacity=capacity;
+    auto db=makeBuffer(device,std::vector<NMMatterDispatchGPU>{d});
+    auto cb=makeBuffer(device,std::vector<unsigned>{0u}),ob=makeBuffer(device,std::vector<unsigned>{0u});
+    auto candidates=makeBuffer(device,std::vector<NMMatterStatusGPU>(capacity));
+    auto statuses=makeBuffer(device,std::vector<NMMatterStatusGPU>(1u));
+    auto selected=makeBuffer(device,std::vector<unsigned>(1u,NM_INVALID_INDEX));
+    auto reset=pipeline(device,library,"numi_matter_metal::nm_contact_reset_narrowphase_failure_selection");
+    auto parallel=pipeline(device,library,"numi_matter_metal::nm_contact_select_narrowphase_failure");
+    auto serial=pipeline(device,library,"numi_matter_metal::nm_contact_select_narrowphase_failure_serial_check");
+    auto measure=[&](bool useParallel,unsigned active) {
+        id<MTLCommandBuffer> command=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
+        for(unsigned iteration=0u;iteration<repeats;++iteration) {
+            if(useParallel) {
+                [encoder setComputePipelineState:reset];
+                [encoder setBuffer:db offset:0u atIndex:0u];
+                [encoder setBuffer:selected offset:0u atIndex:1u];
+                [encoder dispatchThreads:MTLSizeMake(1u,1u,1u) threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                [encoder setComputePipelineState:parallel];
+                [encoder setBuffer:db offset:0u atIndex:0u];[encoder setBuffer:cb offset:0u atIndex:1u];
+                [encoder setBuffer:ob offset:0u atIndex:2u];[encoder setBuffer:candidates offset:0u atIndex:3u];
+                [encoder setBuffer:statuses offset:0u atIndex:4u];[encoder setBuffer:selected offset:0u atIndex:5u];
+                [encoder dispatchThreads:MTLSizeMake(active,1u,1u) threadsPerThreadgroup:MTLSizeMake(256u,1u,1u)];
+            } else {
+                [encoder setComputePipelineState:serial];
+                [encoder setBuffer:db offset:0u atIndex:0u];[encoder setBuffer:cb offset:0u atIndex:1u];
+                [encoder setBuffer:candidates offset:0u atIndex:2u];[encoder setBuffer:statuses offset:0u atIndex:3u];
+                [encoder setBuffer:selected offset:0u atIndex:4u];
+                [encoder dispatchThreads:MTLSizeMake(1u,1u,1u) threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+            }
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        }
+        [encoder endEncoding];[command commit];[command waitUntilCompleted];
+        require(command.status==MTLCommandBufferStatusCompleted,"selection benchmark command failed");
+        require(command.GPUEndTime>=command.GPUStartTime&&command.GPUStartTime>0.0,
+            "selection benchmark GPU timestamps unavailable");
+        return (command.GPUEndTime-command.GPUStartTime)*1000.0/repeats;
+    };
+    for(unsigned active:{657111u,capacity}) {
+        static_cast<unsigned*>(cb.contents)[0]=active;
+        auto* records=static_cast<NMMatterStatusGPU*>(candidates.contents);
+        for(unsigned mode=0u;mode<3u;++mode) {
+            records[0].code=NM_STATUS_SUCCESS;records[active-1u].code=NM_STATUS_SUCCESS;
+            if(mode==1u)records[active-1u].code=NM_STATUS_CONTACT_FAILURE;
+            if(mode==2u)records[0].code=NM_STATUS_CONTACT_FAILURE;
+            measure(false,active);measure(true,active);
+            double oldValues[3],newValues[3];
+            for(unsigned pair=0u;pair<3u;++pair) {
+                if(pair%2u==0u){oldValues[pair]=measure(false,active);newValues[pair]=measure(true,active);}
+                else {newValues[pair]=measure(true,active);oldValues[pair]=measure(false,active);}
+                const unsigned expected=mode==0u?NM_INVALID_INDEX:mode==1u?active-1u:0u;
+                require(static_cast<unsigned*>(selected.contents)[0]==expected,
+                    "selection benchmark first-failure result mismatch");
+            }
+            records[0].code=NM_STATUS_SUCCESS;records[active-1u].code=NM_STATUS_SUCCESS;
+            std::cout<<"narrowphase_failure_selection_benchmark={\"active\":"<<active
+                <<",\"capacity\":"<<capacity<<",\"case\":\""
+                <<(mode==0u?"healthy":mode==1u?"last_failure":"first_failure")
+                <<"\",\"pairs\":3,\"repeats_per_sample\":"<<repeats
+                <<",\"scope\":\"GPU_selection_only_including_parallel_reset_barrier\",\"serial_ms\":[";
+            for(unsigned i=0u;i<3u;++i)std::cout<<(i?",":"")<<oldValues[i];
+            std::cout<<"],\"parallel_ms\":[";
+            for(unsigned i=0u;i<3u;++i)std::cout<<(i?",":"")<<newValues[i];
+            std::cout<<"]}\n";
+        }
+    }
 }
 
 void checkResolvedMollifierCurvature(
@@ -15981,6 +16164,8 @@ int main(int argc, const char* argv[]) {
             checkCapturedInitialNonclosing(device,queue,library);
             checkCapturedRestMarginSweep(device,queue,library);
             checkUnresolvedReferenceSweepProof(device,queue,library);
+            checkParallelNarrowphaseFailureSelection(device,queue,library);
+            benchmarkNarrowphaseFailureSelection(device,queue,library);
             std::cout << "PASS native FGMRES true-residual kernel contract "
                       << checks
                       << " checks; correction_accumulated=true; unit_action=true; "

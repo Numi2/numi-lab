@@ -4013,6 +4013,7 @@ struct Runtime::State {
     id<MTLBuffer> femArmijoDeformableCandidates = nil;
     id<MTLBuffer> femArmijoDeformableCandidateCounts = nil;
     id<MTLBuffer> femArmijoDeformableCandidateStatuses = nil;
+    id<MTLBuffer> femArmijoNarrowphaseFailureSelection = nil;
     id<MTLBuffer> femArmijoDeformableContacts = nil;
     id<MTLBuffer> femArmijoDeformableActiveIndices = nil;
     id<MTLBuffer> femArmijoDeformableActiveCounts = nil;
@@ -8692,6 +8693,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_scatter_deformable_candidates",
             "nm_contact_validate_armijo_deformable_sweep",
             "nm_contact_narrowphase_deformable",
+            "nm_contact_reset_narrowphase_failure_selection",
+            "nm_contact_select_narrowphase_failure",
             "nm_contact_reduce_deformable_narrowphase_failures",
             "nm_contact_capture_deformable_failure",
             "nm_contact_compact_deformable",
@@ -14363,6 +14366,9 @@ RuntimeDiagnostics Runtime::initialize(
                     candidate->femArmijoDeformableCandidateCounts =
                         privateScratch<std::uint32_t>(candidate->device,
                             environments, valid, candidate->residentBytes);
+                    candidate->femArmijoNarrowphaseFailureSelection =
+                        privateScratch<std::uint32_t>(candidate->device,
+                            environments,valid,candidate->residentBytes);
                     candidate->femArmijoDeformableCandidateStatuses =
                         privateScratch<NMMatterStatusGPU>(candidate->device,
                             multiplied(static_cast<std::size_t>(capacity)),
@@ -23634,6 +23640,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.femArmijoDeformableCandidates == nil ||
                     state.femArmijoDeformableCandidateCounts == nil ||
                     state.femArmijoDeformableCandidateStatuses == nil ||
+                    state.femArmijoNarrowphaseFailureSelection == nil ||
                     state.femArmijoDeformableContacts == nil ||
                     state.femArmijoDeformableActiveIndices == nil ||
                     state.femArmijoDeformableActiveCounts == nil ||
@@ -30603,6 +30610,28 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 const std::uint32_t captureVTCCDFailure =
                     (state.captureDiagnostics || state.privateContactFailureCapture) ? 1u : 0u;
+                dispatchThreads("nm_contact_reset_narrowphase_failure_selection",
+                    environments,[&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femArmijoNarrowphaseFailureSelection
+                               offset:0u atIndex:1u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if(!dispatchIndirectWithPaddedFallback(
+                    "nm_contact_select_narrowphase_failure",
+                    state.femArmijoDeformableActiveDispatch,256u,
+                    environments*state.dispatch.deformableContactCapacity,[&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femArmijoDeformableCandidateCounts offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femArmijoDeformableActiveOffsets offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femArmijoDeformableCandidateStatuses offset:0u atIndex:3u];
+                    [encoder setBuffer:trialStatuses offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femArmijoNarrowphaseFailureSelection offset:0u atIndex:5u];
+                })) {
+                    diagnostics.message="narrowphase failure selection indirect dispatch unavailable";
+                    return false;
+                }
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_contact_reduce_deformable_narrowphase_failures",
                     environments, [&] {
                     setDispatch();
@@ -30623,6 +30652,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&micro length:sizeof(micro) atIndex:10u];
                     [encoder setBytes:&captureVTCCDFailure
                               length:sizeof(captureVTCCDFailure) atIndex:11u];
+                    [encoder setBuffer:state.femArmijoNarrowphaseFailureSelection
+                               offset:0u atIndex:12u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (captureTrialSummaryStatus &&

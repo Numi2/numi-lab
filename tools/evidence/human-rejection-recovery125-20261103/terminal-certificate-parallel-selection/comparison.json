@@ -1,0 +1,624 @@
+{
+  "nonlinear16-native-001": {
+    "accepted_steps": 8,
+    "accepted_simulated_seconds": 0.000125,
+    "command_gpu_ms": [
+      [
+        "21297.278625",
+        "21292.7352917"
+      ],
+      [
+        "21787.78075",
+        "21787.1791667"
+      ],
+      [
+        "22459.277791",
+        "22458.6633333"
+      ],
+      [
+        "21563.893125",
+        "21563.295625"
+      ],
+      [
+        "21612.244583",
+        "21611.6410417"
+      ],
+      [
+        "21633.500084",
+        "21632.9010833"
+      ],
+      [
+        "21650.249292",
+        "21649.65775"
+      ],
+      [
+        "21864.373709",
+        "21863.794625"
+      ]
+    ],
+    "root0_profiled_stage_ms": {
+      "matter_pre": [
+        9.226875
+      ],
+      "brain_advance": [
+        0.085834
+      ],
+      "respiratory_mechanics": [
+        6.070333
+      ],
+      "matter_after_frame_begin": [
+        0.781875
+      ],
+      "matter_newton_assembly": [
+        245.086667,
+        243.1095,
+        242.948208,
+        227.826458,
+        228.365625,
+        229.164,
+        226.839708,
+        227.200625,
+        227.700792,
+        227.069875,
+        227.115917,
+        226.887917,
+        228.284958,
+        227.518125,
+        227.248667,
+        227.213375
+      ],
+      "matter_newton_linear": [
+        816.559958,
+        930.679334,
+        598.735709,
+        490.420834,
+        472.305708,
+        493.257083,
+        485.58925,
+        499.849375,
+        484.210333,
+        487.598542,
+        479.198791,
+        478.585042,
+        475.411333,
+        487.223292,
+        481.712792,
+        476.3055
+      ],
+      "matter_newton_globalization": [
+        43.371833,
+        44.452583,
+        27.567583,
+        27.11925,
+        27.028625,
+        27.111459,
+        26.999458,
+        26.97275,
+        27.15375,
+        26.92625,
+        26.93375,
+        26.845125,
+        26.813375,
+        26.885833,
+        26.906583,
+        27.121958
+      ],
+      "respiratory_gas_exchange": [
+        1.801
+      ],
+      "matter_after_candidate_ready": [
+        1712.312875
+      ],
+      "matter_after_microstep": [
+        2.473917
+      ],
+      "matter_post": [
+        15.242333
+      ],
+      "brain_resolve": [
+        0.001458
+      ],
+      "respiratory_resolve": [
+        0.7005
+      ]
+    },
+    "root0_profiled_stage_sum_ms": 14542.130458,
+    "terminal_certificates": [
+      {
+        "root": 0,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 8,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.945040703
+      },
+      {
+        "root": 1,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 15,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.893259645
+      },
+      {
+        "root": 2,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 32,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.761443257
+      },
+      {
+        "root": 3,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.709858537
+      },
+      {
+        "root": 4,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.640435994
+      },
+      {
+        "root": 5,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.583631873
+      },
+      {
+        "root": 6,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.520411372
+      },
+      {
+        "root": 7,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.458236665
+      },
+      {
+        "root": 8,
+        "status": [
+          {
+            "code": 10,
+            "object_index": 15,
+            "failing_index": 1206888,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 9,
+            "diagnostics": [
+              8.71025363e-10,
+              9.99999972e-10,
+              1.40542602e-06,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.496498972
+      }
+    ]
+  },
+  "parallel-selector-native-001": {
+    "accepted_steps": 9,
+    "accepted_simulated_seconds": 0.00014062500000000002,
+    "command_gpu_ms": [
+      [
+        "21291.892958",
+        "21280.34225"
+      ],
+      [
+        "21647.548417",
+        "21646.962375"
+      ],
+      [
+        "22459.0545",
+        "22458.4587917"
+      ],
+      [
+        "21542.638916",
+        "21542.04875"
+      ],
+      [
+        "21620.432209",
+        "21619.838625"
+      ],
+      [
+        "21567.802209",
+        "21567.2003333"
+      ],
+      [
+        "21640.314125",
+        "21639.712375"
+      ],
+      [
+        "21850.603417",
+        "21849.9994167"
+      ],
+      [
+        "23142.518083",
+        "23141.712875"
+      ]
+    ],
+    "root0_profiled_stage_ms": {
+      "matter_pre": [
+        9.177916
+      ],
+      "brain_advance": [
+        0.094625
+      ],
+      "respiratory_mechanics": [
+        6.116167
+      ],
+      "matter_after_frame_begin": [
+        0.782208
+      ],
+      "matter_newton_assembly": [
+        244.073709,
+        243.3175,
+        243.140041,
+        229.360875,
+        227.784958,
+        228.605708,
+        227.840875,
+        227.467125,
+        227.17475,
+        228.129583,
+        227.475834,
+        227.987667,
+        227.431625,
+        227.57,
+        229.373917,
+        227.932667
+      ],
+      "matter_newton_linear": [
+        805.774375,
+        933.464458,
+        597.677875,
+        485.557333,
+        488.258792,
+        480.044833,
+        487.535667,
+        497.586083,
+        486.188625,
+        479.038125,
+        483.678333,
+        490.451166,
+        489.922458,
+        479.297667,
+        480.044041,
+        466.791958
+      ],
+      "matter_newton_globalization": [
+        43.315583,
+        44.481834,
+        27.668292,
+        26.871792,
+        26.964292,
+        26.862167,
+        26.789083,
+        26.931084,
+        26.83,
+        26.632833,
+        26.869625,
+        26.814917,
+        27.036625,
+        27.031125,
+        26.744792,
+        26.961625
+      ],
+      "respiratory_gas_exchange": [
+        1.802792
+      ],
+      "matter_after_candidate_ready": [
+        1717.082209
+      ],
+      "matter_after_microstep": [
+        2.466125
+      ],
+      "matter_post": [
+        15.224
+      ],
+      "brain_resolve": [
+        0.001542
+      ],
+      "respiratory_resolve": [
+        0.690167
+      ]
+    },
+    "root0_profiled_stage_sum_ms": 14544.222043,
+    "terminal_certificates": [
+      {
+        "root": 0,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 8,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.945040703
+      },
+      {
+        "root": 1,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 15,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.893259645
+      },
+      {
+        "root": 2,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 32,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.761443257
+      },
+      {
+        "root": 3,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.709858537
+      },
+      {
+        "root": 4,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.640435994
+      },
+      {
+        "root": 5,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.583631873
+      },
+      {
+        "root": 6,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.520411372
+      },
+      {
+        "root": 7,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.458236665
+      },
+      {
+        "root": 8,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 9,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.496498972
+      },
+      {
+        "root": 9,
+        "status": [
+          {
+            "code": 6,
+            "object_index": 15,
+            "failing_index": 1207017,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 10,
+            "diagnostics": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              0
+            ]
+          }
+        ],
+        "min_J": 0.49704054
+      }
+    ]
+  },
+  "coupled_csv_baseline_lines": 9,
+  "coupled_csv_exact_prefix": true,
+  "performance_interpretation": "No measurable whole-step gain. Parallel selector is a private full-contact Armijo path; this Human run does not enable that path. Selection microbenchmark gains do not apply to the active Human graph."
+}

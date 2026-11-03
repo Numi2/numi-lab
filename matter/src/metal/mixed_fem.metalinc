@@ -971,6 +971,8 @@ kernel void nm_mixed_certify(
         const bool separated=isfinite(separation)&&
             (separation>legacyFloor || nmMixedReferenceContactClearance(
                 dispatch,deformable,candidateNodes,environment,clearance) ||
+             nmMixedReferenceRestContactClearance(dispatch,deformable,
+                candidateNodes,environment,clearance) ||
              nmMixedReferenceInitialContactNonclosing(dispatch,deformable,
                 acceptedNodes,candidateNodes,environment,clearance));
         const float failureScore=isfinite(separation)?separation:-INFINITY;
