@@ -13048,11 +13048,20 @@ kernel void nm_contact_limit_deformable_line_search(
         for (uint local = 0u; local < 6u; ++local) {
             if (deformableContactNode(contact, local) == NM_INVALID_INDEX)
                 continue;
+            // CCD consumes reference-local projected coordinates when every
+            // support is in compensated FEM reference mode. Its roundoff floor
+            // must use that same arithmetic frame, not the unrelated rounded
+            // world projection (which can erase a resolved micron-scale gap).
+            // Keep the legacy world-coordinate calculation exactly unchanged
+            // for MPM and nonreference/mixed contacts. Authored clearance below
+            // remains an independent lower bound in either frame.
             coordinateScale = max(coordinateScale,
-                maximumAbsoluteCoordinate(worldPosition[local]));
+                maximumAbsoluteCoordinate(referenceModeContact
+                    ? position[local] : worldPosition[local]));
             coordinateScale = max(coordinateScale,
-                maximumAbsoluteCoordinate(
-                    worldPosition[local] + worldDisplacement[local]));
+                maximumAbsoluteCoordinate(referenceModeContact
+                    ? endpoint[local]
+                    : worldPosition[local] + worldDisplacement[local]));
         }
         const float collisionThickness = max(
             solver.contactAcceptance.x * dispatch.numericalLimits.x,

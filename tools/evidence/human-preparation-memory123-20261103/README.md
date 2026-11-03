@@ -189,3 +189,40 @@ must not be treated as immutable013 evidence.016 rebases all four output paths.
 The runner's legacy source_import_pass Boolean requires an absent log token;
 false there is not a loader failure when the same trial reached GPU execution.
 The0.1x, motion and physiological qualification requirements remain unmet.
+
+### Reference-frame collision-floor fix
+
+Trial017's bounded alpha snapshots locate the first zero at the deformable
+contact limiter, before rigid, support or vascular line search.018 identifies
+all32 lane minima as initial-hit fractions on the bonded skin/fat owner15.
+One retained VT witness (contact1714, active slot180) has a1.9333072um gap
+but receives a3.20477875um arithmetic floor derived from the world position
+at y=-1.68022704m. Its CCD geometry is already evaluated in reference-local
+coordinates. This mixes coordinate frames and creates a zero-time numerical
+hit before the coupled Newton correction can progress. It is distinct from
+an actual source intersection and from the authored clearance requirement.
+
+The limiter now derives its roundoff scale from the same reference-local
+projected start/end coordinates used by CCD when every support is in
+compensated FEM reference mode. Nonreference and MPM contacts retain their
+exact world-coordinate calculation. Authored minimum separation remains an
+independent lower bound; material/contact forces, actual geometry, masses,
+nonlinear residuals, true intersection tests and rollback are unchanged.
+
+A production-limiter GPU regression fails on the old shader with
+"reference contact uses world-coordinate roundoff floor" and passes384checks
+with the fix. It covers rigid world translation of authoritative compensated
+coordinates, crossing motion, a larger authored clearance, a closing initial
+contact, nonfinite direction rejection, untouched physical state and preserved
+legacy behavior. The complete GPU checker now passes77,895checks. Full current
+Human trial019 separately tests the fix; it is not yet accepted-motion or
+performance evidence. No0.1x result is claimed.
+
+Completed task-owned diagnostic runs001-018 also had32byte-identical large
+output duplicates replaced atomically by hard links after per-file SHA checks.
+Sources, assets, mass proofs and active-run files were excluded. Frozen shared
+outputs are read-only, and the next runner rejects output environment paths
+outside its newly created run root. The retained manifest records each alias
+and hash. Available disk after this operation was39,378,882,560bytes, a net
+27,273,719,808bytes above the original starting snapshot; OS paging still
+changes current availability during execution.

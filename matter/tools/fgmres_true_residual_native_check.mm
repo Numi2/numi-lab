@@ -13899,6 +13899,134 @@ void checkFreshDirectionCommonAlphaReset(
     std::cout << "fresh_direction_common_alpha_reset=true envs=2 objects=3 healthy_only=true metadata_preserved=true result=PASS\n";
 }
 
+
+// Use the production limiter, including its exact FEM endpoint and CCD calls.
+// Coordinates in reference mode are authoritative rest-plus-compensated
+// displacement; the rounded world projection is intentionally not the shape.
+void checkReferenceContactArithmeticFrame(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    const auto limiter = pipeline(device, library,
+        "numi_matter_metal::nm_contact_limit_deformable_line_search");
+    struct Result { float alpha; NMMatterStatusGPU status;
+        NMDeformableContactLimitTraceGPU trace; };
+    const auto run = [&](const nm_float4 origin, const bool reference,
+                         const float gap, const float closing,
+                         const float clearance, const bool nonfinite = false) {
+        NMMatterDispatchGPU d{};
+        d.environmentCount = 1u; d.objectCount = 1u; d.femNodeCount = 2u;
+        d.deformableContactCapacity = 1u;
+        d.gravityAndTimestep.w = 1.0f;
+        d.numericalLimits.x = 1.0e-5f;
+        NMContinuumObjectGPU object{};
+        object.flags = NM_OBJECT_ACTIVE;
+        object.representation = NM_REPRESENTATION_FEM;
+        NMSchedulerStateGPU scheduler{}; scheduler.numerical.w = 1.0f;
+        NMAdaptiveStateGPU adaptive{};
+        adaptive.activeRepresentation = NM_REPRESENTATION_FEM;
+        NMMicrostepGPU micro{}; micro.time.x = 1.0f;
+        NMMixedSolverGPU solver{};
+        solver.nonlinearIterations.w = 16u;
+        solver.contactAcceptance.x = clearance / d.numericalLimits.x;
+        std::vector<NMFEMNodeStateGPU> nodes(2u);
+        for (std::uint32_t n = 0u; n < 2u; ++n) {
+            const float z = n == 0u ? 0.0f : gap;
+            nodes[n].restAndFixed = {origin.x, origin.y, origin.z, 0.0f};
+            nodes[n].positionAndMass = {
+                origin.x, origin.y, origin.z + z, 1.0f};
+            nodes[n].velocityAndInverseMass.w = 1.0f;
+            nodes[n].referenceDisplacementAndMode = {
+                0.0f, 0.0f, z, reference ? 1.0f : 0.0f};
+        }
+        NMDeformableContactGPU contact{};
+        contact.nodes = {0u, 1u, NM_INVALID_INDEX, NM_INVALID_INDEX};
+        contact.extraNodes = {NM_INVALID_INDEX, NM_INVALID_INDEX,
+            NM_INVALID_INDEX, NM_INVALID_INDEX};
+        contact.identity = {0u, 0u, NM_DEFORMABLE_CONTACT_POINT_POINT,
+            NM_CONTACT_VALID};
+        contact.weights = {1.0f, -1.0f, 0.0f, 0.0f};
+        contact.timeScales = {1.0f, 1.0f, 1.0f, 1.0f};
+        contact.normalAndTOI = {0.0f, 0.0f, -1.0f, 0.0f};
+        contact.barrier = {1.0e-10f, 0.0f, 1.0e-5f, 1.0f};
+        contact.mollifier = {1.0f, 0.0f, 0.0f, 1.0f};
+        std::vector<NMIncidenceRangeGPU> ranges(2u);
+        std::vector<nm_float4> correction(2u);
+        correction[0].z = nonfinite
+            ? std::numeric_limits<float>::quiet_NaN() : closing;
+        auto state = makeBuffer(device, nodes);
+        auto direction = makeBuffer(device, correction);
+        auto line = makeBuffer(device, std::vector<nm_float4>{{1.0f, 7.0f, 8.0f, 9.0f}});
+        auto status = makeBuffer(device, std::vector<NMMatterStatusGPU>(1u));
+        auto trace = makeBuffer(device, std::vector<NMDeformableContactLimitTraceGPU>(1u));
+        auto dummy = makeBuffer(device, std::vector<std::uint32_t>(512u));
+        auto zero = makeBuffer(device, std::vector<std::uint32_t>{0u});
+        auto one = makeBuffer(device, std::vector<std::uint32_t>{1u});
+        auto invalid = makeBuffer(device, std::vector<std::uint32_t>{NM_INVALID_INDEX});
+        auto witnessIdentity = makeBuffer(device, std::vector<nm_uint4>(32u));
+        auto witnessValues = makeBuffer(device, std::vector<nm_float4>(32u));
+        dispatch(device, queue, limiter, {
+            {0u, makeBuffer(device, std::vector<NMMatterDispatchGPU>{d})},
+            {1u, makeBuffer(device, std::vector<NMContinuumObjectGPU>{object})},
+            {2u, makeBuffer(device, ranges)},
+            {3u, makeBuffer(device, std::vector<NMSchedulerStateGPU>{scheduler})},
+            {4u, makeBuffer(device, std::vector<NMDeformableContactGPU>{contact})},
+            {5u, zero}, {6u, one}, {7u, state}, {8u, direction},
+            {9u, line}, {10u, status}, {11u, dummy}, {12u, dummy},
+            {13u, zero},
+            {14u, makeBuffer(device, std::vector<NMMixedSolverGPU>{solver})},
+            {15u, one}, {16u, trace},
+            {17u, makeBuffer(device, std::vector<NMMicrostepGPU>{micro})},
+            {18u, makeBuffer(device, std::vector<NMAdaptiveStateGPU>{adaptive})},
+            {19u, state}, {20u, zero}, {21u, dummy}, {22u, invalid},
+            {23u, witnessIdentity}, {24u, witnessValues}, {25u, one},
+            {26u, one}}, 1u, 32u);
+        const auto output = readBuffer<nm_float4>(line, 1u)[0];
+        require(output.y == 7.0f && output.z == 8.0f && output.w == 9.0f,
+            "contact frame fix changed unrelated line-search metadata");
+        const auto unchanged = readBuffer<NMFEMNodeStateGPU>(state, nodes.size());
+        require(std::memcmp(nodes.data(), unchanged.data(), nodes.size()*sizeof(nodes[0])) == 0,
+            "contact limiter mutated candidate/accepted physical state");
+        return Result{output.x, readBuffer<NMMatterStatusGPU>(status,1u)[0],
+            readBuffer<NMDeformableContactLimitTraceGPU>(trace,1u)[0]};
+    };
+    const nm_float4 nearOrigin{0.0f, 0.0f, 0.0f, 0.0f};
+    const nm_float4 bodyOrigin{-0.125671074f, -1.68022704f, 0.0939362198f, 0.0f};
+    const nm_float4 distantOrigin{256.0f, -1024.0f, 512.0f, 0.0f};
+    const auto base = run(nearOrigin,true,2.0e-6f,0.5e-6f,1.0e-9f);
+    const auto body = run(bodyOrigin,true,2.0e-6f,0.5e-6f,1.0e-9f);
+    const auto distant = run(distantOrigin,true,2.0e-6f,0.5e-6f,1.0e-9f);
+    require(base.status.code == 0u && base.alpha == 1.0f,
+        "reference near-origin nonintersecting contact unexpectedly limited");
+    require(body.status.code == 0u && body.alpha == base.alpha,
+        "reference contact uses world-coordinate roundoff floor");
+    require(distant.status.code == 0u && distant.alpha == base.alpha,
+        "compensated reference contact changed under rigid world translation");
+    require(body.trace.metrics.x == base.trace.metrics.x &&
+            distant.trace.metrics.x == base.trace.metrics.x,
+        "reference collision clearance depends on rounded world projection");
+    require(body.trace.metrics.x >= 1.0e-9f,
+        "authored physical clearance was reduced");
+    const auto crossing = run(bodyOrigin,true,2.0e-6f,4.0e-6f,1.0e-9f);
+    require(crossing.status.code == 0u && crossing.alpha > 0.0f && crossing.alpha < 0.5f,
+        "reference contact permitted a crossing endpoint");
+    require(crossing.trace.result.z == 1u && crossing.trace.result.w == 1u,
+        "crossing sweep lost CCD hit/certification");
+    const auto higherClearance = run(bodyOrigin,true,2.0e-6f,0.5e-6f,1.8e-6f);
+    require(higherClearance.alpha > 0.0f && higherClearance.alpha < 1.0f,
+        "reference arithmetic bypassed authored contact clearance");
+    const auto touching = run(bodyOrigin,true,2.0e-6f,0.5e-6f,3.0e-6f);
+    require(touching.alpha == 0.0f || touching.status.code != 0u,
+        "closing contact starting inside physical clearance was admitted");
+    const auto bad = run(bodyOrigin,true,2.0e-6f,0.5e-6f,1.0e-9f,true);
+    require(bad.alpha == 0.0f && bad.status.code != 0u,
+        "nonfinite reference correction was admitted");
+    const auto legacy = run(bodyOrigin,false,2.0e-6f,0.5e-6f,1.0e-9f);
+    require(legacy.alpha == 0.0f || legacy.status.code != 0u,
+        "nonreference world-coordinate safety floor changed");
+    std::cout << "reference_contact_arithmetic_frame=true production_limiter=true "
+        "translation_invariant=true authored_clearance_preserved=true "
+        "crossing_limited=true nonfinite_rejected=true legacy_unchanged=true result=PASS\n";
+}
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -13916,6 +14044,12 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if (argc == 2 && std::string(argv[1]) ==
+                    "--reference-contact-frame-only") {
+                checkReferenceContactArithmeticFrame(device, queue, library);
+                std::cout << "PASS native reference contact frame " << checks << " checks\n";
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) ==
                     "--inexact-coupled-certificate-only") {
                 checkInexactCoupledLinearCertificate(device, queue, library);
@@ -14588,6 +14722,7 @@ int main(int argc, const char* argv[]) {
                 hybridPhysicalPreserve, hybridPhysicalPartial, hybridPhysicalFinish);
             checkFreshRhsPreconditionerBeginVerification(device, queue, library);
             checkZeroStepGeometryReuse(device, queue, library);
+            checkReferenceContactArithmeticFrame(device, queue, library);
             std::cout << "PASS native FGMRES true-residual kernel contract "
                       << checks
                       << " checks; correction_accumulated=true; unit_action=true; "
