@@ -1,0 +1,162 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 1595,
+    "sha256": "5080fb550e2b267ff1bb8cf69c3ce32ab820e117bf11616aef7eb9cfdd6cd4c9"
+  },
+  {
+    "path": "comparison.json",
+    "bytes": 833,
+    "sha256": "b201c05cbebc8b930e4dbb635a3b52783f31f1f76ed44d503c6512a7347629ec"
+  },
+  {
+    "path": "conditioned-convergence-native-019/build-manifest.json",
+    "bytes": 7403,
+    "sha256": "dba12a413022106a3286c494b16482dc59404f2a7ad8273271cc832626d5e4fd"
+  },
+  {
+    "path": "conditioned-convergence-native-019/execution-source-snapshots.tar.gz",
+    "bytes": 1618558,
+    "sha256": "4e39ef83e5232cc18c20732a7620184e680d2ea20a6803efea87b04ccd7ae55c"
+  },
+  {
+    "path": "conditioned-convergence-native-019/execution-source.patch.gz",
+    "bytes": 291779,
+    "sha256": "a0b8ae94069c66ab5ba9a01bc7b8639517e74c5d9affd40ed6d22166b4f65774"
+  },
+  {
+    "path": "conditioned-convergence-native-019/install-motion.execution.json",
+    "bytes": 770,
+    "sha256": "f140c10c5eb682e792332be45406a8f048275ae3dfb16a5b08e6b783aff4ea2e"
+  },
+  {
+    "path": "conditioned-convergence-native-019/install-motion.plan.json",
+    "bytes": 97053,
+    "sha256": "b7b9fc089adefa6ecd488d6b04408d66bac90c1305ade798ce1b74695a9d4e6d"
+  },
+  {
+    "path": "conditioned-convergence-native-019/install-motion.stderr.log.gz",
+    "bytes": 2631,
+    "sha256": "5373bd3d68109cd20b7377f4e786859e96d1c08bc4ec8f09d257d2e1a7fdc7c7"
+  },
+  {
+    "path": "conditioned-convergence-native-019/install-motion.stdout.log.gz",
+    "bytes": 40751,
+    "sha256": "101b7cc3944cbff552c5eb5127a713be21b8383155621a8f5e94770ca4c81e40"
+  },
+  {
+    "path": "conditioned-convergence-native-019/predeclared-checks.json",
+    "bytes": 802,
+    "sha256": "d588d719996afb255606d4e58ea3bff1515add0a528d8bd545295d961ec5a934"
+  },
+  {
+    "path": "conditioned-convergence-native-019/resource-monitor.jsonl",
+    "bytes": 4189,
+    "sha256": "79655dec71cb629aa809e8703a6873ef88415743103cd92c6e8d6035bc48edf5"
+  },
+  {
+    "path": "conditioned-convergence-native-019/resource-policy.json",
+    "bytes": 352,
+    "sha256": "bfd143879579dbd27d7290084b6336d20824debd125fcf89f35f4c733baeb31a"
+  },
+  {
+    "path": "conditioned-convergence-native-019/resting-coupled.csv",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "conditioned-convergence-native-019/run_native_plan.py",
+    "bytes": 4730,
+    "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+  },
+  {
+    "path": "conditioned-convergence-native-019/runner.log",
+    "bytes": 9750,
+    "sha256": "443bfe36849e15d9d630c718435b29df8eda6b92c363ca4f6a28e1bddad98cf2"
+  },
+  {
+    "path": "conditioned-convergence-native-020/build-manifest.json",
+    "bytes": 7403,
+    "sha256": "d8f3012e51d925eca908ee1b610371cfdeca2d3d26b64a49db3238589adf02b6"
+  },
+  {
+    "path": "conditioned-convergence-native-020/common-field-failure.json",
+    "bytes": 4208,
+    "sha256": "e45b184ed24557ce0f438a6de322c1f01500b2a93a66a1a16b4801f3c701d5c3"
+  },
+  {
+    "path": "conditioned-convergence-native-020/execution-source-snapshots.tar.gz",
+    "bytes": 1618558,
+    "sha256": "4e39ef83e5232cc18c20732a7620184e680d2ea20a6803efea87b04ccd7ae55c"
+  },
+  {
+    "path": "conditioned-convergence-native-020/execution-source.patch.gz",
+    "bytes": 291779,
+    "sha256": "a0b8ae94069c66ab5ba9a01bc7b8639517e74c5d9affd40ed6d22166b4f65774"
+  },
+  {
+    "path": "conditioned-convergence-native-020/install-motion.execution.json",
+    "bytes": 753,
+    "sha256": "597fdccd56a536220d8526a092303bcf1648ae59b47a6d5b270978be52d1c6d8"
+  },
+  {
+    "path": "conditioned-convergence-native-020/install-motion.plan.json",
+    "bytes": 97060,
+    "sha256": "40c471adf88bf0de2ec94ddfb53c95d9cd9b3dfb2a85db795fd009ec4301fa7d"
+  },
+  {
+    "path": "conditioned-convergence-native-020/install-motion.stderr.log.gz",
+    "bytes": 19714,
+    "sha256": "146531f76f65805e0b9ebe0b4a6cf8b644f53ec41be06ce1f672d8228a53fe51"
+  },
+  {
+    "path": "conditioned-convergence-native-020/install-motion.stdout.log.gz",
+    "bytes": 41845,
+    "sha256": "eed243c98ea27cce53e44ee2435cc0a3785cdc0f1249f8fc2879d9211b771aeb"
+  },
+  {
+    "path": "conditioned-convergence-native-020/predeclared-checks.json",
+    "bytes": 1354,
+    "sha256": "7b1c9e6251b8e6675886204abea12fc89bc415d84cd29eeca7491d4d0555ba6c"
+  },
+  {
+    "path": "conditioned-convergence-native-020/resource-monitor.jsonl",
+    "bytes": 7655,
+    "sha256": "313fa30ad47a7596b567e6ec2209e9233dfce79d3d82dd72925b235a90b477b3"
+  },
+  {
+    "path": "conditioned-convergence-native-020/resource-policy.json",
+    "bytes": 352,
+    "sha256": "b2f9fc9474cb3467266a71fb756418630abdef539832c1b712e4cbaea65f7a67"
+  },
+  {
+    "path": "conditioned-convergence-native-020/resting-coupled.csv",
+    "bytes": 5292,
+    "sha256": "39e13c8fe9d403afbd242b80a645c4eaf140b7d8313a1d2cb667067f98476b70"
+  },
+  {
+    "path": "conditioned-convergence-native-020/run_native_plan.py",
+    "bytes": 4730,
+    "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+  },
+  {
+    "path": "conditioned-convergence-native-020/runner.log",
+    "bytes": 9733,
+    "sha256": "3034f77c05318485ab27c4056674c77ad0e2fdd219bce43ef99174ee1e16f09f"
+  },
+  {
+    "path": "root5-fem_backtracking_trials.json",
+    "bytes": 350,
+    "sha256": "d6e1ffc63b8c0b2998c29a470d440b46e8fe03034ca1687a2d883205be488e35"
+  },
+  {
+    "path": "root5-globalization.json",
+    "bytes": 268224,
+    "sha256": "b175235adfa46195611287b79c634769bb3a4c278e6cfb4d33209fe25806479e"
+  },
+  {
+    "path": "verified-identical-output-links-20261103-012.json",
+    "bytes": 103883,
+    "sha256": "8c3a5c1c5ad54d2305226c3f5f7042814f27852620fb4c94b8e263d200cea317"
+  }
+]

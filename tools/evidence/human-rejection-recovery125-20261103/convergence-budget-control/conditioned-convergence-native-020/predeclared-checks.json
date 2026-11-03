@@ -1,0 +1,29 @@
+{
+  "purpose": "bounded convergence experiment after all 16 corrections used in 018; not a performance improvement claim",
+  "prediction": "additional at most 8 Newton corrections may reduce vascular row0 from1.08423055e-5 below unchanged1e-5; if geometry saturates, retain exact witnesses",
+  "unchanged": [
+    "binary/shader/source",
+    "dt",
+    "model/forces",
+    "residual/contact/determinant gates",
+    "FGMRES budget"
+  ],
+  "changes": {
+    "Newton_budget": [
+      16,
+      24
+    ],
+    "diagnostic_root": 5,
+    "backtracking_iteration": 21
+  },
+  "requested_steps": 16,
+  "dt_seconds": 1.5625e-05,
+  "bounded_stopping_rule": "one run; existing900s wall/12GiB disk/3GiB swap-delta guard",
+  "acceptance": "must pass full native physical transaction; extra work alone is not progress",
+  "retry_reason": "019 resource-stopped disk_below_12GiB before accepted motion; identical sources/binary/config after15.9GiB verified duplicate recovery",
+  "cleanup_manifest": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/verified-identical-output-links-20261103-012.json",
+    "sha256": "8c3a5c1c5ad54d2305226c3f5f7042814f27852620fb4c94b8e263d200cea317",
+    "bytes": 103883
+  }
+}

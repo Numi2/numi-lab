@@ -1,0 +1,19 @@
+{
+  "root": 5,
+  "iteration": 21,
+  "object": 15,
+  "selected_alpha": 1,
+  "trials": [
+    {
+      "alpha": 1,
+      "valid_tile_min_J": 0.813203,
+      "first_bad_tet": 4294967295,
+      "trial_J": 0,
+      "current_J": 0,
+      "reason": 0,
+      "invalid_tiles": 0,
+      "tile_witness_tets": [],
+      "tile_witnesses_complete": true
+    }
+  ]
+}

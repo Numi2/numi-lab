@@ -1,0 +1,26 @@
+{
+  "dt_s": 1.5625e-05,
+  "accepted_steps_both": 5,
+  "accepted_simulated_s": 7.8125e-05,
+  "16_Newton_018_accepted_GPU_s": [
+    18.442679875000003,
+    20.153362249999997,
+    17.410905875,
+    17.321306125,
+    18.236578833299998
+  ],
+  "24_Newton_020_accepted_GPU_s": [
+    22.465921875,
+    24.6157825417,
+    22.245803916699998,
+    21.6955925,
+    22.9500045833
+  ],
+  "accepted_compact_physiological_rows_exactly_equal": true,
+  "mean_GPU_s": [
+    18.31296659166,
+    22.794621083339997
+  ],
+  "qualification": "single instrumented pair, exact compact trace parity only; no sustained or full-state performance qualification",
+  "conclusion": "24Newton gains no accepted steps. Geometry permits alpha1 atNewton21; deformablecontact restricts about0.006. Preserve16budget, capture exact contact, do not raise budget again."
+}
