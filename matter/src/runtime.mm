@@ -3225,6 +3225,7 @@ struct Runtime::State {
     id<MTLBuffer> vascularCavityNodeIncidence = nil;
     id<MTLBuffer> vascularCavityNodeRanges = nil;
     id<MTLBuffer> vascularCavitySchurDiagonal = nil;
+    bool vascularCooperativeCavityOperator = false;
     bool vascularBlockCavitySchurEnabled = false;
     bool vascularBlockPreconditionerEnabled = false;
     bool vascularBloodMassTangentRequested = false;
@@ -3699,6 +3700,8 @@ struct Runtime::State {
     id<MTLBuffer> femSurfaceSortIndicesB = nil;
     id<MTLBuffer> femSurfaceActiveCounts = nil;
     id<MTLBuffer> contactGeometryReuseFlags = nil;
+    id<MTLBuffer> contactCompletedIncidenceDispatch = nil;
+    bool contactCompletedIncidenceReuseEnabled = false;
     id<MTLBuffer> contactGeometryReuseHits = nil;
     id<MTLBuffer> femSurfaceMortonOrderCacheFlags = nil;
     id<MTLBuffer> femSurfaceBVHBounds = nil;
@@ -5407,6 +5410,28 @@ RuntimeDiagnostics Runtime::initialize(
                 "zero-step contact geometry reuse requires static FEM contact without MPM or topology mutation";
             return diagnostics;
         }
+        if (const char* policy =
+                std::getenv("NM_CONTACT_COMPLETED_INCIDENCE_REUSE")) {
+            if (std::strcmp(policy, "0") != 0 &&
+                std::strcmp(policy, "1") != 0) {
+                diagnostics.message =
+                    "NM_CONTACT_COMPLETED_INCIDENCE_REUSE must be exactly 0 or 1";
+                return diagnostics;
+            }
+            candidate->contactCompletedIncidenceReuseEnabled =
+                std::strcmp(policy, "1") == 0;
+        }
+        if (candidate->contactCompletedIncidenceReuseEnabled) {
+            const char* cache = std::getenv("NM_CONTACT_COMPLETED_GEOMETRY_CACHE");
+            if (!candidate->contactGeometryZeroStepReuseEnabled ||
+                !cache || std::strcmp(cache, "1") != 0 ||
+                world.dispatch.environmentCount != 1u ||
+                world.dispatch.rigidGeneralizedCapacity != 0u) {
+                diagnostics.message =
+                    "completed incidence reuse requires admitted immutable single-environment FEM completed geometry reuse";
+                return diagnostics;
+            }
+        }
         const char* hierarchicalNodePrefix = std::getenv(
             "NM_CONTACT_NODE_INCIDENCE_HIERARCHICAL_PREFIX");
         if (hierarchicalNodePrefix != nullptr &&
@@ -5866,6 +5891,17 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->vascularValue.layout.ranges.w |=
                     NM_VASCULAR_LAYOUT_COMPENSATED_CAVITY_WORDS;
             }
+        }
+        if (const char* policy =
+                std::getenv("NM_VASCULAR_COOPERATIVE_CAVITY_OPERATOR")) {
+            if (std::strcmp(policy, "0") != 0 &&
+                std::strcmp(policy, "1") != 0) {
+                diagnostics.message =
+                    "NM_VASCULAR_COOPERATIVE_CAVITY_OPERATOR must be exactly 0 or 1";
+                return diagnostics;
+            }
+            candidate->vascularCooperativeCavityOperator =
+                std::strcmp(policy, "1") == 0;
         }
         if (const char* policy = std::getenv("NUMI_MATTER_VASCULAR_BLOCK_CAVITY_SCHUR")) {
             if (std::strcmp(policy,"0") != 0 && std::strcmp(policy,"1") != 0) {
@@ -8096,6 +8132,12 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x5a30414343505432ull); // Z0ACPT2
         }
+        if (candidate->contactCompletedIncidenceReuseEnabled)
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x4354494e43494431ull); // CTINCID1
+        if (candidate->vascularCooperativeCavityOperator)
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x564153434f4f5031ull); // VASCOOP1
         if (candidate->contactGeometryZeroStepReuseEnabled) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x43545a45524f3031ull); // CTZERO01
@@ -8756,6 +8798,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_vascular_residual",
             "nm_vascular_dense_solve",
             "nm_vascular_operator",
+            "nm_vascular_operator_cooperative",
             "nm_vascular_predictor_prepare",
             "nm_vascular_cavity_forces",
             "nm_vascular_cavity_operator",
@@ -8820,6 +8863,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_clear_trial_samples",
             "nm_contact_clear_armijo_surface_cache",
             "nm_contact_reset_zero_step_geometry_reuse",
+            "nm_contact_prepare_completed_incidence_dispatch",
             "nm_contact_mark_zero_step_geometry_reuse",
             "nm_contact_validate_armijo_surface_cache",
             "nm_contact_mark_armijo_surface_cache",
@@ -9361,6 +9405,7 @@ RuntimeDiagnostics Runtime::initialize(
                 || std::strcmp(name, "nm_mixed_apply_operator_nodes") == 0
                 || std::strcmp(name, "nm_vascular_cavity_operator") == 0
                 || std::strcmp(name, "nm_vascular_operator") == 0
+                || std::strcmp(name, "nm_vascular_operator_cooperative") == 0
                 || std::strcmp(name, "nm_fgmres_clear_coupled_mass_action") == 0
                 || std::strcmp(name, "nm_fgmres_import_rigid") == 0
                 || std::strcmp(name, "nm_merge_source_mass_status_into_matter") == 0;
@@ -9560,6 +9605,12 @@ RuntimeDiagnostics Runtime::initialize(
         if (schurGraphOnlyRequested)
             std::fprintf(stderr,"matter_selector6_schur_graph_only=1 partitioned_12mode_apply=0 shared_nodal_inverse=1\n");
         for (const char* name : kernelNames) {
+            if (!candidate->contactCompletedIncidenceReuseEnabled &&
+                std::strcmp(name, "nm_contact_prepare_completed_incidence_dispatch") == 0)
+                continue;
+            if (!candidate->vascularCooperativeCavityOperator &&
+                std::strcmp(name, "nm_vascular_operator_cooperative") == 0)
+                continue;
             // These optional scheduler pipelines have no consumers when
             // tiled observation is disabled; retain the legacy pipeline only.
             if ((std::strcmp(name, "nm_scheduler_observe_fem_partials") == 0 ||
@@ -12398,6 +12449,15 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femSurfaceActiveCounts = privateScratch<std::uint32_t>(
             candidate->device, environments,
             valid, candidate->residentBytes);
+        if (candidate->contactCompletedIncidenceReuseEnabled) {
+            candidate->contactCompletedIncidenceDispatch =
+                privateScratch<std::uint32_t>(candidate->device, 4u,
+                    valid, candidate->residentBytes);
+            if (!valid || candidate->contactCompletedIncidenceDispatch == nil) {
+                diagnostics.message = "failed to allocate completed contact incidence dispatch";
+                return diagnostics;
+            }
+        }
         const std::array<std::uint32_t, 1u> zeroGeometryReuseWord{0u};
         candidate->contactGeometryReuseFlags = uploads.repeated(
             std::span<const std::uint32_t>(zeroGeometryReuseWord),
@@ -19676,6 +19736,29 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 phase = (phase ^ *c) * 16777619u;
             return (count + phase % gpuTimingSampleEvery) % gpuTimingSampleEvery == 0u;
         };
+        // This gate is scoped to the main candidate's incidence builder.
+        // Trial contact, active candidates and final certification never inherit it.
+        bool gateCompletedContactIncidence = false;
+        const auto prepareCompletedContactIncidenceDispatch = [&](
+            NSUInteger groupCount, id<MTLBuffer> source) -> id<MTLBuffer> {
+            if (!gateCompletedContactIncidence) return source;
+            id<MTLBuffer> output = state.contactCompletedIncidenceDispatch;
+            const nm_uint4 requested{
+                static_cast<std::uint32_t>(groupCount), 1u, 1u,
+                source != nil ? 1u : 0u};
+            [encoder setComputePipelineState:state.pipeline(
+                "nm_contact_prepare_completed_incidence_dispatch")];
+            [encoder setBuffer:state.fgmresStates offset:0u atIndex:0u];
+            [encoder setBuffer:state.contactGeometryReuseFlags offset:0u atIndex:1u];
+            [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+            [encoder setBytes:&requested length:sizeof(requested) atIndex:3u];
+            [encoder setBuffer:source != nil ? source : output offset:0u atIndex:4u];
+            [encoder setBuffer:output offset:0u atIndex:5u];
+            [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            return output;
+        };
         const auto dispatchThreads = [&](
             const char* name,
             const NSUInteger count,
@@ -19700,12 +19783,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
             }
             id<MTLComputePipelineState> pipeline = state.pipeline(name);
+            const NSUInteger width = std::min<NSUInteger>(
+                256u, pipeline.maxTotalThreadsPerThreadgroup);
+            explicitIndirectDispatch = prepareCompletedContactIncidenceDispatch(
+                (count + width - 1u) / width, explicitIndirectDispatch);
             [encoder setComputePipelineState:pipeline];
             bind();
-            const NSUInteger width = std::min<NSUInteger>(
-                256u,
-                pipeline.maxTotalThreadsPerThreadgroup
-            );
             id<MTLBuffer> fgmresActiveDispatch = nil;
             id<MTLBuffer> newtonTailActiveDispatch = nil;
             if (state.dispatch.environmentCount == 1u && width == 256u) {
@@ -19743,7 +19826,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
             }
             if (explicitIndirectDispatch != nil &&
-                state.dispatch.environmentCount == 1u && width == 256u) {
+                state.dispatch.environmentCount == 1u &&
+                (width == 256u || gateCompletedContactIncidence)) {
                 [encoder useResource:explicitIndirectDispatch
                              usage:MTLResourceUsageRead];
                 ++diagnostics.indirectDispatchCount;
@@ -19916,6 +20000,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     profileKernel ? name : "vascular_dense45", request.controlStep);
                 primalResourcesEncoder = nil;
             }
+            indirectDispatch = prepareCompletedContactIncidenceDispatch(
+                groupCount, indirectDispatch);
             [encoder setComputePipelineState:pipelineOverride != nil
                 ? pipelineOverride : state.pipeline(name)];
             bind();
@@ -19969,6 +20055,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             ++diagnostics.simdgroupDispatchCount;
             diagnostics.requestedThreadgroupCount +=
                 static_cast<std::uint64_t>(groupCount);
+            explicitIndirectDispatch = prepareCompletedContactIncidenceDispatch(
+                groupCount, explicitIndirectDispatch);
             [encoder setComputePipelineState:pipeline];
             bind();
             if (explicitIndirectDispatch != nil &&
@@ -22896,7 +22984,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     id<MTLBuffer> equationStates = nil,
                     id<MTLBuffer> equationStatuses = nil,
                     const NMMicrostepGPU* equationMicro = nullptr) {
-                dispatchThreads(kernel, vascularTotal, [&] {
+                const auto bindEquation = [&] {
                     setDispatch();
                     [encoder setBytes:&state.vascularValue.layout
                         length:sizeof(state.vascularValue.layout) atIndex:1u];
@@ -22926,7 +23014,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:25u];
                     [encoder setBuffer:state.femCandidate offset:0u atIndex:26u];
                     [encoder setBuffer:state.femAccepted offset:0u atIndex:27u];
-                });
+                };
+                if (state.vascularCooperativeCavityOperator &&
+                    std::strcmp(kernel, "nm_vascular_operator") == 0) {
+                    dispatchGroups32("nm_vascular_operator_cooperative",
+                        vascularTotal, bindEquation);
+                } else {
+                    dispatchThreads(kernel, vascularTotal, bindEquation);
+                }
             };
             // Reassemble hydraulic wall work with borrowed loads at the same
             // candidate used by the mechanical residual and final certificate.
@@ -29848,6 +29943,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder endEncoding]; encoder = nil;
                 return diagnostics;
             }
+            if (state.contactCompletedIncidenceReuseEnabled &&
+                !completedContactCacheEligible) {
+                diagnostics.message = "completed contact incidence reuse lost geometry-cache admission";
+                [encoder endEncoding]; encoder = nil;
+                return diagnostics;
+            }
             if (completedContactCacheEligible)
                 std::fprintf(stderr, "contact_completed_geometry_cache=1 root=%u final_certificate=full friction_history=fresh\n", request.controlStep);
             const char* finalGeometrySetting = std::getenv(
@@ -30208,6 +30309,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.deformableContactGlobalActiveIndices
                                    offset:0u atIndex:4u];
                     });
+                gateCompletedContactIncidence =
+                    state.contactCompletedIncidenceReuseEnabled &&
+                    reuseCompletedContact && micro.solverIteration > 0u;
                 buildDeformableNodeIncidence(
                     state.deformableContacts,
                     state.deformableContactActiveIndices,
@@ -30216,6 +30320,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.deformableContactNodeIncidence,
                     state.statuses,
                     continuumNodeTotal);
+                gateCompletedContactIncidence = false;
                 if (state.compactMainContactSamples) {
                     dispatchGroups32(
                         "nm_contact_begin_compact_samples",
@@ -43607,7 +43712,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     finish(cmd, "nm_fgmres_apply_support_dual", humanSupportTotal);
 
                     if (vascularTotal != 0u) {
-                        cmd = makeCommand(tailGraph, tailOrdinal, "nm_vascular_operator");
+                        const char* vascularOperator =
+                            state.vascularCooperativeCavityOperator
+                            ? "nm_vascular_operator_cooperative"
+                            : "nm_vascular_operator";
+                        cmd = makeCommand(tailGraph, tailOrdinal, vascularOperator);
                         if (cmd == nil) {
                             diagnostics.message = "FGMRES operator ICB vascular pipeline is unavailable";
                             return diagnostics;
@@ -43637,7 +43746,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         bind(cmd, 24u, state.vascularCavityFaces);
                         bind(cmd, 25u, state.vascularCompartmentCavity);
                         bind(cmd, 26u, state.femCandidate); bind(cmd, 27u, state.femAccepted);
-                        finish(cmd, "nm_vascular_operator", vascularTotal);
+                        if (state.vascularCooperativeCavityOperator) {
+                            [cmd concurrentDispatchThreadgroups:
+                                MTLSizeMake(vascularTotal, 1u, 1u)
+                                threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+                            [cmd setBarrier];
+                        } else {
+                            finish(cmd, vascularOperator, vascularTotal);
+                        }
                     }
                     if (state.humanEqualityDispatch.count != 0u) {
                         cmd = makeCommand(tailGraph, tailOrdinal, "nm_human_equality_operator");

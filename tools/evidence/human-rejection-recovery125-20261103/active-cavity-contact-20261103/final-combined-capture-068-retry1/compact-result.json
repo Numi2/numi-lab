@@ -1,0 +1,36 @@
+{
+  "name": "final-combined-capture-068-retry1",
+  "execution": {
+    "exit_code": 0,
+    "elapsed_s": 216.11733889579773,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-combined-capture-068-retry1/install-motion.plan.json",
+    "plan_sha256": "5b5461957c80de4846c93063447258d0b07c9cfa30dc0b53ab06413544f807dd",
+    "stdout_sha256": "d0288c2033a03946f3c40ad51289fbb5aa3ecd68dbe4b70f3548befdc8f00dd5",
+    "stderr_sha256": "a55e474f13e07a72e5a2c95cc6deb04310b600235a4c8fb949edd7ba90061965",
+    "physical_admission": false,
+    "resource_stop_reason": null,
+    "source_import_pass": false,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "endpoint_bytes": 833232924,
+  "endpoint_sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+  "endpoint_available": true,
+  "profiles": [
+    "resting_native_profile step=1 command_ms=5790.031083 gpu_ms=5785.69012501 host_copy_ms=0.89875 full_state_readback=1",
+    "resting_native_profile step=2 command_ms=5881.382083 gpu_ms=5871.43920833 host_copy_ms=2.329458 full_state_readback=1",
+    "resting_native_profile step=3 command_ms=5876.671042 gpu_ms=5875.99341667 host_copy_ms=0.108166 full_state_readback=1",
+    "resting_native_profile step=4 command_ms=5828.4935 gpu_ms=5827.352875 host_copy_ms=0.067 full_state_readback=1"
+  ],
+  "completion": [
+    "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=30.978589124999999 real_time_factor=2.0175225771709738e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ],
+  "stages_root0_ms": {},
+  "selected_kernel_ms": {},
+  "traces": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-combined-capture-068-retry1/install-motion/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+      "bytes": 4523
+    }
+  ]
+}

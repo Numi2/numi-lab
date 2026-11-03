@@ -1413,6 +1413,30 @@ kernel void nm_contact_clear_armijo_surface_cache(
         memory_order_relaxed);
 }
 
+// Suppress only incidence bookkeeping for a completed, exactly unchanged
+// candidate. Friction refresh, residual assembly and final full certification
+// remain outside this range. No contact identity or physical state is cached here.
+kernel void nm_contact_prepare_completed_incidence_dispatch(
+    device const NMFGMRESStateGPU* states [[buffer(0)]],
+    device const atomic_uint* geometryReuseFlags [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    constant uint4& requested [[buffer(3)]],
+    device const uint* source [[buffer(4)]],
+    device uint* output [[buffer(5)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global != 0u) return;
+    const float completed = states[0].nonlinear.w;
+    const bool unchanged = isfinite(completed) && completed > 0.5f &&
+        environmentHealthy(statuses, 0u) &&
+        atomic_load_explicit(geometryReuseFlags, memory_order_relaxed) == 1u;
+    const uint3 groups = requested.w != 0u
+        ? uint3(source[0], source[1], source[2]) : requested.xyz;
+    output[0] = unchanged ? 0u : groups.x;
+    output[1] = unchanged ? 1u : groups.y;
+    output[2] = unchanged ? 1u : groups.z;
+    output[3] = 0u;
+}
+
 kernel void nm_contact_reset_zero_step_geometry_reuse(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device atomic_uint* reuseFlags [[buffer(1)]],

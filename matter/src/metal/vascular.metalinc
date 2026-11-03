@@ -596,23 +596,15 @@ inline bool vascularCavityFiniteWords(const MRCompensatedScalar value) {
         isfinite(value.high + value.low);
 }
 
-// The opt-in path retains the FEM reference-displacement low limb and the
-// residuals of every cross product, dot product, and face-volume sum. The
-// default float helper above remains unchanged.
-inline NMVascularCavityGeometryWords vascularCavityVolumeWords(
-    const NMVascularCavityGPU cavity,
-    device const NMVascularCavityFaceGPU* faces,
-    device const NMFEMNodeStateGPU* accepted,
+// Shared face algebra for serial and cooperative cavity JVPs. Each face
+// retains compensated cross/dot products; its caller owns the summation order.
+inline NMVascularCavityGeometryWords vascularCavityFaceVolumeWords(
+    const NMVascularCavityFaceGPU face, const NMFEMNodeStateGPU origin,
     device const NMFEMNodeStateGPU* candidate,
     device const float4* direction, uint nodeBase, float dt,
     bool derivative, float trialAlpha) {
-    const uint originNode = nodeBase + faces[cavity.faces.x].nodes.x;
-    const NMFEMNodeStateGPU origin = accepted[originNode];
-    MRCompensatedScalar volume{0.0f, 0.0f};
-    MRCompensatedScalar tangent{0.0f, 0.0f};
     const bool needsDirection = derivative || trialAlpha != 0.0f;
-    for (uint slot = 0u; slot < cavity.faces.y; ++slot) {
-        const uint3 n = faces[cavity.faces.x + slot].nodes.xyz + nodeBase;
+        const uint3 n = face.nodes.xyz + nodeBase;
         auto a = vascularCavityRelativePositionWords(candidate[n.x], origin);
         auto b = vascularCavityRelativePositionWords(candidate[n.y], origin);
         auto c = vascularCavityRelativePositionWords(candidate[n.z], origin);
@@ -634,18 +626,41 @@ inline NMVascularCavityGeometryWords vascularCavityVolumeWords(
         const auto crossBC = mrCompensatedVectorCross(b, c);
         const auto faceVolume = mrCompensatedDivide(
             mrCompensatedVectorDot(a, crossBC), {6.0f, 0.0f});
-        volume = mrCompensatedAdd(volume, faceVolume);
+        MRCompensatedScalar faceTangent{0.0f, 0.0f};
         if (derivative) {
             const auto derivativeCross = mrCompensatedVectorAdd(
                 mrCompensatedVectorCross(db, c),
                 mrCompensatedVectorCross(b, dc));
-            const auto faceTangent = mrCompensatedDivide(
+            faceTangent = mrCompensatedDivide(
                 mrCompensatedAdd(
                     mrCompensatedVectorDot(da, crossBC),
                     mrCompensatedVectorDot(a, derivativeCross)),
                 {6.0f, 0.0f});
-            tangent = mrCompensatedAdd(tangent, faceTangent);
+
         }
+    return {faceVolume, faceTangent};
+}
+
+// The opt-in path retains the FEM reference-displacement low limb and the
+// residuals of every cross product, dot product, and face-volume sum. The
+// default float helper above remains unchanged.
+inline NMVascularCavityGeometryWords vascularCavityVolumeWords(
+    const NMVascularCavityGPU cavity,
+    device const NMVascularCavityFaceGPU* faces,
+    device const NMFEMNodeStateGPU* accepted,
+    device const NMFEMNodeStateGPU* candidate,
+    device const float4* direction, uint nodeBase, float dt,
+    bool derivative, float trialAlpha) {
+    const uint originNode = nodeBase + faces[cavity.faces.x].nodes.x;
+    const NMFEMNodeStateGPU origin = accepted[originNode];
+    MRCompensatedScalar volume{0.0f, 0.0f};
+    MRCompensatedScalar tangent{0.0f, 0.0f};
+    for (uint slot = 0u; slot < cavity.faces.y; ++slot) {
+        const auto face = vascularCavityFaceVolumeWords(
+            faces[cavity.faces.x + slot], origin, candidate, direction,
+            nodeBase, dt, derivative, trialAlpha);
+        volume = mrCompensatedAdd(volume, face.volume);
+        if (derivative) tangent = mrCompensatedAdd(tangent, face.derivative);
     }
     if (!vascularCavityFiniteWords(volume) ||
         mrCompensatedCompare(volume, {0.0f, 0.0f}) <= 0 ||
@@ -1992,6 +2007,79 @@ kernel void nm_vascular_operator(NM_VASCULAR_EQUATION_ARGUMENTS) {
         return;
     }
     output[layout.vascularBase + global] = float4(value, 0.0f, 0.0f, 0.0f);
+}
+// One SIMD group per equation. Only compensated cavity rows use all
+// lanes. Face evaluation is parallel; lane zero adds contributions in the
+// original face order, preserving the existing compensated arithmetic policy.
+// No geometry, Jacobian, or physical state cache is introduced.
+kernel void nm_vascular_operator_cooperative(NM_VASCULAR_EQUATION_ARGUMENTS) {
+    const uint row = global / 32u;
+    const uint lane = global % 32u;
+    if (row >= dispatch.environmentCount * graph.ranges.z) return;
+    const uint environment = row / graph.ranges.z;
+    const uint local = row - environment * graph.ranges.z;
+    // Broadcast the gate: a concurrently reported failure cannot strand a
+    // subset of a SIMD group before its shuffle operations.
+    const bool active = simd_broadcast_first(uint(
+        environmentHealthy(statuses, environment) &&
+        !(states[environment].diagnostics.z > 0.5f))) != 0u;
+    if (!active) return;
+    float value = 0.0f;
+    if (local >= graph.cavities.z &&
+        (graph.ranges.w & NM_VASCULAR_LAYOUT_COMPENSATED_CAVITY_WORDS) != 0u) {
+        const auto cavity = cavities[local - graph.cavities.z];
+        const uint nodeBase = environment * dispatch.femNodeCount;
+        const auto origin = femAccepted[
+            nodeBase + cavityFaces[cavity.faces.x].nodes.x];
+        MRCompensatedScalar volume{0.0f, 0.0f};
+        MRCompensatedScalar tangent{0.0f, 0.0f};
+        for (uint first = 0u; first < cavity.faces.y; first += 32u) {
+            const uint count = min(32u, cavity.faces.y - first);
+            float4 contribution = float4(0.0f);
+            if (lane < count) {
+                const auto face = vascularCavityFaceVolumeWords(
+                    cavityFaces[cavity.faces.x + first + lane], origin,
+                    femCandidate, direction, nodeBase, microstep.time.x,
+                    true, 0.0f);
+                contribution = float4(face.volume.high, face.volume.low,
+                    face.derivative.high, face.derivative.low);
+            }
+            for (uint source = 0u; source < count; ++source) {
+                const float4 ordered = simd_shuffle(contribution, source);
+                if (lane == 0u) {
+                    volume = mrCompensatedAdd(volume, {ordered.x, ordered.y});
+                    tangent = mrCompensatedAdd(tangent, {ordered.z, ordered.w});
+                }
+            }
+        }
+        if (lane == 0u) {
+            if (!vascularCavityFiniteWords(volume) ||
+                mrCompensatedCompare(volume, {0.0f, 0.0f}) <= 0 ||
+                !vascularCavityFiniteWords(tangent)) {
+                tangent = {INFINITY, 0.0f};
+            }
+            const uint volumeRow = cavity.identity.y;
+            const auto difference = mrCompensatedAdd(
+                mrCompensatedProduct(
+                    vascularDirection(direction,
+                        layout.vascularBase + environment * graph.ranges.z,
+                        volumeRow, NM_INVALID_INDEX),
+                    unknowns[volumeRow].initialAndScaling.y),
+                mrCompensatedNegate(tangent));
+            value = vascularWordsValue(mrCompensatedDivide(difference,
+                {unknowns[local].initialAndScaling.z, 0.0f}));
+        }
+    } else if (lane == 0u) {
+        value = NM_VASCULAR_EVALUATE(true).y;
+    }
+    if (lane != 0u) return;
+    output[layout.vascularBase + row] = float4(0.0f);
+    if (!isfinite(value)) {
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, local, float4(value, 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    output[layout.vascularBase + row] = float4(value, 0.0f, 0.0f, 0.0f);
 }
 #undef NM_VASCULAR_EVALUATE
 #undef NM_VASCULAR_EQUATION_ARGUMENTS

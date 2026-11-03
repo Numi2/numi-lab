@@ -1,0 +1,102 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 2111,
+    "sha256": "8b92fbeeef79cd420618d612828e8f066b7fb736c9df405204ce80eacc1c1203"
+  },
+  {
+    "path": "build-final.log",
+    "bytes": 14852,
+    "sha256": "afa02d77a59c0d45317aa6d27d69fef1f6f6081c78e2a0f239febee9fb5c224b"
+  },
+  {
+    "path": "cavity-final.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "cavity-final.stdout.log",
+    "bytes": 556,
+    "sha256": "c5abf732ee0165d3e37206e4c0101c325701f519e8ee8f2857b702372eb6ee0e"
+  },
+  {
+    "path": "final-combined-capture-068-retry1/accepted-parity.json",
+    "bytes": 5137,
+    "sha256": "168441ebe7e31f21acb4e16a090f9c86582009cb294fc6f8642ca8392dca1f4b"
+  },
+  {
+    "path": "final-combined-capture-068-retry1/build-manifest.json",
+    "bytes": 10055,
+    "sha256": "335e71c1aeecd780e3c9c28ed0fb11fb6bf980c1afcb2066d8be1c055e55e31b"
+  },
+  {
+    "path": "final-combined-capture-068-retry1/compact-result.json",
+    "bytes": 2228,
+    "sha256": "161ebb8151cd79fe6b7ee097e4984bddb22c21fad836438e595c39cac70acd5d"
+  },
+  {
+    "path": "final-combined-capture-068-retry1/execution-source-snapshots.tar.gz",
+    "bytes": 1839991,
+    "sha256": "83e83f857cb04c48c8faa179ad2e006d2e69585a910890e566a1cb9e87870b91"
+  },
+  {
+    "path": "final-combined-capture-068-retry1/install-motion.execution.json",
+    "bytes": 753,
+    "sha256": "442b434f803f04316d83e981c477a795cf10460829e046fc6f82c7f3f6aa6909"
+  },
+  {
+    "path": "final-combined-capture-068-retry1/install-motion.plan.json",
+    "bytes": 101184,
+    "sha256": "5b5461957c80de4846c93063447258d0b07c9cfa30dc0b53ab06413544f807dd"
+  },
+  {
+    "path": "final-combined-capture-068-retry1/install-motion.stderr.log",
+    "bytes": 205993,
+    "sha256": "a55e474f13e07a72e5a2c95cc6deb04310b600235a4c8fb949edd7ba90061965"
+  },
+  {
+    "path": "final-combined-capture-068-retry1/resource-monitor.jsonl",
+    "bytes": 5011,
+    "sha256": "d5d838c8fd3808eb5dc7dfe821777016910577f6858a49f8901d510d9a9edcc2"
+  },
+  {
+    "path": "final-combined-capture-068-retry1/resource-policy.json",
+    "bytes": 352,
+    "sha256": "23dea8d13fa7e7ed77edb66e7cf2bddfbd9e19262b9a3c794f82bbecb06b1680"
+  },
+  {
+    "path": "final-combined-capture-068-retry1/resting-coupled.csv",
+    "bytes": 4523,
+    "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee"
+  },
+  {
+    "path": "final-combined-capture-068-retry1/run_native_plan.py",
+    "bytes": 4982,
+    "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922"
+  },
+  {
+    "path": "gate-final.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "gate-final.stdout.log",
+    "bytes": 51,
+    "sha256": "b3479251dd1fea7392fbd67e6e27eb768a546e20cc471d38a8d6edd88e6814ff"
+  },
+  {
+    "path": "solver-final.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "solver-final.stdout.log",
+    "bytes": 14022,
+    "sha256": "31f665bde360b6048189ead1fe51f98ccefdd4954bacec88acb3205538ed3633"
+  },
+  {
+    "path": "source-snapshots/13a19de36d7423d9c783e7d5c6c39815c201d08a391d1482e7c70f6a8cccfe53.tar.gz",
+    "bytes": 1839991,
+    "sha256": "83e83f857cb04c48c8faa179ad2e006d2e69585a910890e566a1cb9e87870b91"
+  }
+]

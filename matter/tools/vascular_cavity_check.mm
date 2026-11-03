@@ -2053,6 +2053,117 @@ void blockPreconditioner(const std::filesystem::path& physiologyPath){
     need(same(accepted,std::vector<nm_float4>(static_cast<const nm_float4*>(acceptedBuffer.contents),static_cast<const nm_float4*>(acceptedBuffer.contents)+accepted.size()))&&
         same(candidate,std::vector<nm_float4>(static_cast<const nm_float4*>(candidateBuffer.contents),static_cast<const nm_float4*>(candidateBuffer.contents)+candidate.size())),
         "principal fixture modified accepted/candidate vascular state");
+    // Compare the cooperative production JVP with its serial arithmetic
+    // oracle. Repeated closed surfaces exercise multiple SIMD face blocks;
+    // these synthetic overlays are operator tests, not anatomical assets.
+    const auto cooperativePipeline = pipeline(device, library,
+        @"numi_matter_metal::nm_vascular_operator_cooperative");
+    unsigned cooperativeCases = 0;
+    for (unsigned mode = 0; mode < 9; ++mode) {
+        auto graph = v.layout;
+        if (mode != 0u) graph.ranges.w |=
+            NM_VASCULAR_LAYOUT_PERSISTENT_LOW_WORDS |
+            NM_VASCULAR_LAYOUT_COMPENSATED_CAVITY_WORDS;
+        auto cavities = v.cavities;
+        auto faces = v.cavityFaces;
+        if (mode >= 2u) {
+            for (unsigned copy = 1; copy < 17u; ++copy)
+                faces.insert(faces.end(), v.cavityFaces.begin(),
+                    v.cavityFaces.end());
+            cavities[0].faces.y = unsigned(faces.size());
+            graph.cavities.y = unsigned(faces.size());
+        }
+        if (mode == 6u)
+            for (auto& face : faces) std::swap(face.nodes.y, face.nodes.z);
+        auto nodes = femState;
+        if (mode >= 3u) {
+            for (unsigned i = 0; i < nodes.size(); ++i) {
+                auto& node = nodes[i];
+                node.referenceDisplacementAndMode.w = 1.0f;
+                node.restAndFixed.x = node.positionAndMass.x + .375f;
+                node.restAndFixed.y = node.positionAndMass.y + .375f;
+                node.restAndFixed.z = node.positionAndMass.z + .375f;
+                node.referenceDisplacementAndMode.x = -.375f;
+                node.referenceDisplacementAndMode.y = -.375f;
+                node.referenceDisplacementAndMode.z = -.375f;
+                const float low = float(int(i % 3u) - 1) * 1.e-9f;
+                node.referenceDisplacementLow = {low, -low, low, 0.f};
+            }
+        }
+        if (mode == 7u)
+            nodes[faces[0].nodes.x].referenceDisplacementLow.x =
+                std::numeric_limits<float>::quiet_NaN();
+        auto graphCase = gpuBuffer(device,
+            std::vector<NMVascularLayoutGPU>{graph});
+        auto cavitiesCase = gpuBuffer(device, cavities);
+        auto facesCase = gpuBuffer(device, faces);
+        auto nodesCase = gpuBuffer(device, nodes);
+        for (unsigned probe = 0; probe < 4; ++probe) {
+            std::vector<nm_float4> direction(solverLayout.unknownCount);
+            for (unsigned i = 0; i < direction.size(); ++i) {
+                const float scale = probe == 2u ? 1.e-9f : .03125f;
+                const auto component = [&](unsigned axis) {
+                    return probe == 3u ? 0.f :
+                        scale * float(std::sin(double(i * 3u + axis + 1u) *
+                            (probe == 0u ? .31 : 1.7)));
+                };
+                direction[i] = {component(0), component(1), component(2), 0.f};
+            }
+            auto directionCase = gpuBuffer(device, direction);
+            std::vector<NMFGMRESStateGPU> gate(envs);
+            std::vector<NMMatterStatusGPU> health(envs);
+            if (mode == 4u) gate[1].diagnostics.z = 1.f;
+            if (mode == 8u) gate[1].diagnostics.z =
+                std::numeric_limits<float>::quiet_NaN();
+            if (mode == 5u) health[1].code = NM_STATUS_LINEAR_SOLVER_FAILURE;
+            auto gatesCase = gpuBuffer(device, gate);
+            std::vector<nm_float4> seeds(solverLayout.unknownCount,
+                nm_float4{13,17,19,23});
+            id<MTLBuffer> results[2], statuses[2];
+            for (unsigned algorithm = 0; algorithm < 2; ++algorithm) {
+                results[algorithm] = gpuBuffer(device, seeds);
+                statuses[algorithm] = gpuBuffer(device, health);
+                auto command = [queue commandBuffer];
+                auto encoder = [command computeCommandEncoder];
+                [encoder setComputePipelineState:algorithm == 0u
+                    ? operatorPipeline : cooperativePipeline];
+                bindOperator(encoder, directionCase, results[algorithm]);
+                [encoder setBuffer:graphCase offset:0 atIndex:1];
+                [encoder setBuffer:gatesCase offset:0 atIndex:18];
+                [encoder setBuffer:statuses[algorithm] offset:0 atIndex:19];
+                [encoder setBuffer:cavitiesCase offset:0 atIndex:23];
+                [encoder setBuffer:facesCase offset:0 atIndex:24];
+                [encoder setBuffer:nodesCase offset:0 atIndex:26];
+                [encoder setBuffer:nodesCase offset:0 atIndex:27];
+                if (algorithm == 0u)
+                    [encoder dispatchThreads:MTLSizeMake(envs*n,1,1)
+                        threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+                else
+                    [encoder dispatchThreadgroups:MTLSizeMake(envs*n,1,1)
+                        threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+                [encoder endEncoding]; completed(command);
+            }
+            if (mode != 6u && mode != 7u) {
+                need(std::memcmp(results[0].contents, results[1].contents,
+                    seeds.size()*sizeof(nm_float4)) == 0,
+                    "cooperative cavity JVP differs from serial words/canaries");
+                need(std::memcmp(statuses[0].contents, statuses[1].contents,
+                    envs*sizeof(NMMatterStatusGPU)) == 0,
+                    "cooperative cavity status differs on valid input");
+            } else {
+                for (unsigned algorithm = 0; algorithm < 2; ++algorithm)
+                    need(static_cast<const NMMatterStatusGPU*>(
+                        statuses[algorithm].contents)[0].code != NM_STATUS_SUCCESS,
+                        "invalid cavity geometry escaped operator rejection");
+            }
+            ++cooperativeCases;
+        }
+    }
+    std::cout << "vascular_cooperative_operator=pass cases="
+        << cooperativeCases
+        << " valid_outputs=bitwise invalid_geometry=rejected "
+        << "multi_environment=2 completed_and_failed_gates=preserved "
+        << "face_order=serial compensated_words=preserved\n";
     std::cout<<"vascular_principal_block=pass source_compartments=21 source_edges=24 synthetic_cavity_overlay=1 rows="<<n
         <<" vascular_base="<<solverLayout.vascularBase<<" closed_valve_edge_stable_id="<<constrainedStableEdge
         <<" fp64_lu_relative_solution_error="<<std::max({a0[0],a1[0],b0[0],b1[0]})

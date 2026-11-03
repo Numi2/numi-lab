@@ -11446,6 +11446,48 @@ void dispatchIndirect(
     id<MTLBuffer> arguments,
     const NSUInteger threads);
 
+void checkCompletedContactIncidenceRanges(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    auto prepare = pipeline(device, library,
+        "numi_matter_metal::nm_contact_prepare_completed_incidence_dispatch");
+    NMFGMRESStateGPU state{};
+    NMMatterStatusGPU healthy{}, failed{};
+    healthy.code = NM_STATUS_SUCCESS;
+    failed.code = NM_STATUS_CONTACT_FAILURE;
+    const nm_uint4 sentinel{91u, 92u, 93u, 94u};
+    const nm_uint4 indirect{37u, 2u, 3u, 99u};
+    const auto source = makeBuffer(device, std::vector<nm_uint4>{indirect});
+    for (unsigned scenario = 0u; scenario < 7u; ++scenario) {
+        state.nonlinear.w = scenario == 1u ? 0.f : 1.f;
+        if (scenario == 4u)
+            state.nonlinear.w = std::numeric_limits<float>::quiet_NaN();
+        if (scenario == 5u)
+            state.nonlinear.w = std::numeric_limits<float>::infinity();
+        auto states = makeBuffer(device, std::vector<NMFGMRESStateGPU>{state});
+        auto flags = makeBuffer(device, std::vector<std::uint32_t>{
+            scenario == 2u ? 0u : scenario == 6u ? 2u : 1u});
+        auto statuses = makeBuffer(device, std::vector<NMMatterStatusGPU>{
+            scenario == 3u ? failed : healthy});
+        for (unsigned useSource = 0u; useSource < 2u; ++useSource) {
+            const nm_uint4 requested{1247u, 1u, 1u, useSource};
+            auto request = makeBuffer(device, std::vector<nm_uint4>{requested});
+            auto output = makeBuffer(device, std::vector<nm_uint4>{sentinel});
+            dispatch(device, queue, prepare, {{0u, states}, {1u, flags},
+                {2u, statuses}, {3u, request}, {4u, source}, {5u, output}},
+                1u, 1u);
+            const auto actual = readBuffer<nm_uint4>(output, 1u)[0];
+            const nm_uint4 expected = scenario == 0u
+                ? nm_uint4{0u, 1u, 1u, 0u}
+                : useSource != 0u ? nm_uint4{37u, 2u, 3u, 0u}
+                    : nm_uint4{1247u, 1u, 1u, 0u};
+            require(std::memcmp(&actual, &expected, sizeof(expected)) == 0,
+                "completed contact incidence range predicate or source changed");
+            require(readBuffer<nm_uint4>(source, 1u)[0].w == indirect.w,
+                "completed contact gate modified source dispatch arguments");
+        }
+    }
+}
+
 void checkCompletedCycleWorkRanges(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
@@ -17340,6 +17382,11 @@ int main(int argc, const char* argv[]) {
             if (argc == 2 && std::string(argv[1]) == "--completed-zero-action-only") {
                 checkCompletedZeroOperatorAction(device, queue, library);
                 std::cout << "PASS completed zero operator action " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--completed-contact-incidence-only") {
+                checkCompletedContactIncidenceRanges(device, queue, library);
+                std::cout << "PASS completed contact incidence ranges " << checks << " checks" << std::endl;
                 return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--completed-cycle-work-only") {
