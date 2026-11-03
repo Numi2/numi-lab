@@ -861,7 +861,8 @@ inline bool humanFEMBodyContactStateForSample(
     thread float& closure,
     thread float& contactArea,
     thread float3x3& contactTangent,
-    thread float& tangentialSlip
+    thread float& tangentialSlip,
+    const bool allowCertifiedInactiveAABB = false
 ) {
     // Reject any host/Metal ABI mismatch before reading a range or triangle.
     // In particular, v15 hosts stride this triangle table at 80 bytes while
@@ -934,8 +935,12 @@ inline bool humanFEMBodyContactStateForSample(
     // A strict closed/oriented bank proves every point outside its bounds is
     // outside the solid. If the conservative AABB distance already exceeds
     // the prepared band, return a finite inactive state without traversing the
-    // complete tree. Uncertified/open banks keep the full-query behavior;
-    // points inside the box (including outside a concave surface) always query.
+    // complete tree. The opt-in force cache may also certify zero unilateral
+    // contact outside the box with the same FP32 separation guard, even within
+    // the prepared band. This uses closed-solid containment, not a nearest-face
+    // estimate. No active contact is discarded; inside/uncertain queries and
+    // uncertified/open banks retain the complete query. The direct path keeps
+    // its original band cutoff as an independent parity oracle.
     if (closedOrientedStaticBVHRange) {
         const uint treeEnd=range.firstTriangle+range.triangleCount;
         const NMNumiHumanFEMBodyContactBVHNodeGPU root=
@@ -946,6 +951,13 @@ inline bool humanFEMBodyContactStateForSample(
             root.escapeIndex!=treeEnd ||
             (root.flags!=NM_NUMI_HUMAN_FEM_BODY_CONTACT_BVH_NODE_LEAF &&
              root.flags!=0u)) return false;
+        // Match complete-query root admission before tighter cached exclusion.
+        // Static child tables retain their immutable host certificate.
+        if (allowCertifiedInactiveAABB && (root.reserved0!=0u ||
+            (root.flags==0u
+                ? root.triangleIndex!=NM_INVALID_INDEX || range.triangleCount<3u
+                : root.triangleIndex>=dispatch.femBodyContactCandidateTriangleCount ||
+                    range.triangleCount!=1u))) return false;
         const float3 outsideDelta=max(max(
             root.boundsMinimum.xyz-queryLocal,
             queryLocal-root.boundsMaximum.xyz),float3(0.0f));
@@ -956,7 +968,8 @@ inline bool humanFEMBodyContactStateForSample(
         const float bandSquared=
             range.maximumDistanceMeters*range.maximumDistanceMeters;
         if (isfinite(distanceSquared) && isfinite(roundingGuard) &&
-            distanceSquared>bandSquared+roundingGuard) {
+            distanceSquared>(allowCertifiedInactiveAABB ? 0.0f : bandSquared)+
+                roundingGuard) {
             if (!(distanceSquared>0.0f) ||
                 !finite4(sample.bodyLocalPointAndArea) ||
                 sample.bodyLocalPointAndArea.w<0.0f) return false;
@@ -1466,7 +1479,8 @@ kernel void nm_numi_human_validate_fem_body_contact_samples(
 }
 
 // Exact validation and derived contact data share one current-pose query.
-kernel void nm_numi_human_validate_fem_body_contact_samples_cached(
+template <bool certifiedInactiveAABB>
+kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
     device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
     device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges
@@ -1511,7 +1525,7 @@ kernel void nm_numi_human_validate_fem_body_contact_samples_cached(
             sampleIndex, dispatch, sample, ranges, triangles, bvhNodes,
             acceptedNodes[environment * dispatch.femNodeCount + sample.slaveNode],
             pose, slavePoint, bodyPoint, normal, closure, contactArea,
-            contactTangent, tangentialSlip);
+            contactTangent, tangentialSlip, certifiedInactiveAABB);
         if(valid) {
             const bool triangle=sample.flags==(NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE|
                 NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
@@ -1523,6 +1537,32 @@ kernel void nm_numi_human_validate_fem_body_contact_samples_cached(
     }
     sampleValid[global] = valid ? 1u : 0u;
 }
+template [[host_name("numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached")]]
+kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<false>(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples,
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles,
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvhNodes,
+    device const NMFEMNodeStateGPU* acceptedNodes,
+    device const MRArticulatedBodyPoseGPU* bodyPoses,
+    device uint* sampleValid,
+    device float4* rowCache,
+    uint global
+);
+template [[host_name("numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_aabb")]]
+kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<true>(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples,
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles,
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvhNodes,
+    device const NMFEMNodeStateGPU* acceptedNodes,
+    device const MRArticulatedBodyPoseGPU* bodyPoses,
+    device uint* sampleValid,
+    device float4* rowCache,
+    uint global
+);
 
 kernel void nm_numi_human_reduce_fem_body_contact_sample_validation(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],

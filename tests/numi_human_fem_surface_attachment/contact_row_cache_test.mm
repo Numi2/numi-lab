@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "numi/matter/numi_human_shared.h"
+#include "numi/matter/fem_body_contact_static_bvh.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -21,7 +22,7 @@ int main(int argc,const char** argv){@autoreleasepool {
  require(partial.threadExecutionWidth==32 && finish.threadExecutionWidth==32 && partial.maxTotalThreadsPerThreadgroup>=256 && finish.maxTotalThreadsPerThreadgroup>=256,"SIMD and threadgroup admission");
  id<MTLCommandQueue> q=[d newCommandQueue];require(q!=nil,"queue");
  auto buffer=[&](const void* data,NSUInteger n){auto b=data?[d newBufferWithBytes:data length:std::max<NSUInteger>(n,16) options:MTLResourceStorageModeShared]:[d newBufferWithLength:std::max<NSUInteger>(n,16) options:MTLResourceStorageModeShared];require(b!=nil,"buffer allocation");return b;};
- auto rowQuery=pipeline("nm_numi_human_validate_fem_body_contact_samples_cached");
+ auto rowQuery=pipeline("nm_numi_human_validate_fem_body_contact_samples_cached_aabb");
  auto validationOracle=pipeline("nm_numi_human_validate_fem_body_contact_samples");
  auto auditCached=pipeline("nm_numi_human_audit_fem_body_contact_partial_cached");
  auto wrenchCached=pipeline("nm_numi_human_fem_body_contact_wrench_partial_cached");
@@ -34,7 +35,7 @@ int main(int argc,const char** argv){@autoreleasepool {
    const double diff=std::abs(double(x[k])-y[k]);maxForceAbsolute=std::max(maxForceAbsolute,diff);maxForceRelative=std::max(maxForceRelative,diff/std::max(1.e-6,std::abs(double(x[k]))));
    require(diff<=1.e-6+.01*std::abs(double(x[k])),"source-order cached force comparison1percent");}
  };
- for(unsigned count:{0u,1u,255u,256u,257u,8193u,262145u}) for(unsigned mode=0;mode<7;++mode){@autoreleasepool {
+ for(unsigned count:{0u,1u,255u,256u,257u,8193u,262145u}) for(unsigned mode=0;mode<13;++mode){@autoreleasepool {
   if(mode>=4 && count>8193)continue;
   // Mode0 inactive;1 active contacts and attachments;2 malformed late sample;3 malformed attachment.
   NMNumiHumanTendonFEMLoadDispatchGPU dispatch{};dispatch.abiVersion=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;dispatch.environmentCount=2;dispatch.femNodeCount=3;dispatch.bodyPoseStride=3;dispatch.articulationFirstBody=0;dispatch.femBodyContactSampleCount=count;dispatch.femSurfaceAttachmentSampleCount=mode==0?0:1;
@@ -48,7 +49,8 @@ int main(int argc,const char** argv){@autoreleasepool {
   std::array<MRArticulatedBodyPoseGPU,6> poses{};
   for(unsigned i=0;i<6;++i){poses[i].position={0,0,mode==0?0.f:.01f*float(i%3),0};poses[i].orientation={0,0,0,1};}
   std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> queryRanges(std::max(count,1u));
-  std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,2> queryTriangles{};
+  std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> queryTriangles(2);
+  std::vector<NMNumiHumanFEMBodyContactBVHNodeGPU> queryBVH(1);
   if(mode>=4){
    dispatch.femBodyContactCandidateTriangleCount=2;
    for(unsigned j=0;j<2;++j){auto& t=queryTriangles[j];t.bodyIndex=j+1;t.boneStableId=j+21;t.triangleStableId=j+101;
@@ -59,7 +61,33 @@ int main(int argc,const char** argv){@autoreleasepool {
    if(mode==4)for(auto& v:poses)v.position.z=-.01f;
    if(mode==6 && count)queryRanges[count-1].maximumDistanceMeters=0;
   }
-  auto rb=buffer(queryRanges.data(),queryRanges.size()*sizeof(queryRanges[0]));auto tb=buffer(queryTriangles.data(),sizeof(queryTriangles));
+  if(mode>=7 && count){
+   // Certified closed cubes exercise active interiors, separated points inside
+   // the 50mm prepared band, and uncertain near-boundary queries. The direct
+   // validator is an unchanged full nearest-feature oracle for this band.
+   const std::array<nm_float4,8> v={f4(-.01f,-.01f,-.01f,0),f4(.01f,-.01f,-.01f,0),f4(.01f,.01f,-.01f,0),f4(-.01f,.01f,-.01f,0),f4(-.01f,-.01f,.01f,0),f4(.01f,-.01f,.01f,0),f4(.01f,.01f,.01f,0),f4(-.01f,.01f,.01f,0)};
+   const unsigned faces[12][3]={{0,2,1},{0,3,2},{4,5,6},{4,6,7},{0,1,5},{0,5,4},{3,7,6},{3,6,2},{0,4,7},{0,7,3},{1,2,6},{1,6,5}};
+   queryTriangles.clear();
+   for(unsigned body=1;body<=2;++body)for(unsigned i=0;i<12;++i){NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU t{};
+    t.bodyIndex=body;t.boneStableId=20+body;t.triangleStableId=101+i;
+    t.bodyLocalVertex0=v[faces[i][0]];t.bodyLocalVertex1=v[faces[i][1]];t.bodyLocalVertex2=v[faces[i][2]];
+    const auto a=t.bodyLocalVertex0,b=t.bodyLocalVertex1,c=t.bodyLocalVertex2;
+    float x=(b.y-a.y)*(c.z-a.z)-(b.z-a.z)*(c.y-a.y),y=(b.z-a.z)*(c.x-a.x)-(b.x-a.x)*(c.z-a.z),z=(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
+    float l=std::sqrt(x*x+y*y+z*z);t.authoredOutwardNormal=f4(x/l,y/l,z/l,0);queryTriangles.push_back(t);}
+   auto prepared=numi::matter::fem_body_contact_bvh::prepareStaticCompleteBodyContactAsset(samples,queryTriangles,queryTriangles.size(),.05f,{true,false});
+   require(prepared.succeeded(),"closed cube topology and feature normals certified");
+   queryTriangles=std::move(prepared.triangles);queryRanges=std::move(prepared.ranges);queryBVH=std::move(prepared.nodes);
+   dispatch.femBodyContactCandidateTriangleCount=unsigned(queryTriangles.size());
+   for(unsigned env=0;env<2;++env){nodes[env*3].positionAndMass=f4(0,0,0,1);nodes[env*3+1].positionAndMass=f4(.015f,0,0,1);nodes[env*3+2].positionAndMass=f4(.01005f,.001f,0,1);}
+   for(auto& pose:poses)pose.position={0,0,0,0};
+   if(mode==8)queryRanges.back().maximumDistanceMeters=0;
+   if(mode==9)queryBVH[queryRanges.back().firstTriangle].boundsMinimum.x=NAN;
+   if(mode==10)for(auto& range:queryRanges)range.reserved0=NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_STATIC_COMPLETE_BVH;
+   if(mode==11)queryBVH[queryRanges.back().firstTriangle].reserved0=1u;
+   if(mode==12)queryBVH[queryRanges.back().firstTriangle].triangleIndex=0u;
+  }
+  auto rb=buffer(queryRanges.data(),queryRanges.size()*sizeof(queryRanges[0]));auto tb=buffer(queryTriangles.data(),queryTriangles.size()*sizeof(queryTriangles[0]));
+  auto bb=buffer(queryBVH.data(),queryBVH.size()*sizeof(queryBVH[0]));
   auto sb=buffer(samples.data(),samples.size()*sizeof(samples[0]));auto nb=buffer(nodes.data(),sizeof(nodes));auto pb=buffer(poses.data(),sizeof(poses));auto ab=buffer(&attachment,sizeof(attachment));
   auto dummy=buffer(nullptr,256);const unsigned total=count+dispatch.femSurfaceAttachmentSampleCount;const unsigned tiles=total/256+(total%256!=0);auto scratch=buffer(nullptr,std::max(1u,tiles)*2*sizeof(NMNumiHumanArticularContactAuditGPU));auto out=buffer(nullptr,2*sizeof(NMNumiHumanArticularContactAuditGPU));
      auto cache=buffer(nullptr,std::max(count,1u)*2*sizeof(nm_float4));
@@ -68,17 +96,17 @@ int main(int argc,const char** argv){@autoreleasepool {
    auto query=[&](id<MTLCommandBuffer> command,bool oracle=false){auto e=[command computeCommandEncoder];
     [e setComputePipelineState:oracle?validationOracle:rowQuery];[e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
     [e setBuffer:sb offset:0 atIndex:1];[e setBuffer:rb offset:0 atIndex:2];[e setBuffer:tb offset:0 atIndex:3];
-    [e setBuffer:dummy offset:0 atIndex:4];[e setBuffer:nb offset:0 atIndex:5];[e setBuffer:pb offset:0 atIndex:6];
+    [e setBuffer:bb offset:0 atIndex:4];[e setBuffer:nb offset:0 atIndex:5];[e setBuffer:pb offset:0 atIndex:6];
     [e setBuffer:oracle?originalValidity:validity offset:0 atIndex:7];if(!oracle)[e setBuffer:cache offset:0 atIndex:8];
     if(count)[e dispatchThreads:MTLSizeMake(2*count,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];[e endEncoding];};
    {auto cb=[q commandBuffer];query(cb,true);query(cb);[cb commit];[cb waitUntilCompleted];
     require(cb.status==MTLCommandBufferStatusCompleted,"validation GPU completion");
     require(std::memcmp(validity.contents,originalValidity.contents,2*count*sizeof(unsigned))==0,"fused validation flags bitwise parity");}
-   auto run=[&](bool parallel,bool cached=false){auto command=[q commandBuffer];require(command!=nil,"command");if(cached)query(command);auto e=[command computeCommandEncoder];[e setComputePipelineState:cached?auditCached:(parallel?partial:serial)];[e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBuffer:sb offset:0 atIndex:1];[e setBuffer:nb offset:0 atIndex:2];[e setBuffer:pb offset:0 atIndex:3];[e setBuffer:parallel?scratch:out offset:0 atIndex:4];[e setBuffer:ab offset:0 atIndex:5];[e setBuffer:dummy offset:0 atIndex:6];[e setBuffer:dummy offset:0 atIndex:7];[e setBuffer:dummy offset:0 atIndex:8];if(cached)[e setBuffer:cache offset:0 atIndex:9];[e setBuffer:rb offset:0 atIndex:6];[e setBuffer:tb offset:0 atIndex:7];
+   auto run=[&](bool parallel,bool cached=false){auto command=[q commandBuffer];require(command!=nil,"command");if(cached)query(command);auto e=[command computeCommandEncoder];[e setComputePipelineState:cached?auditCached:(parallel?partial:serial)];[e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBuffer:sb offset:0 atIndex:1];[e setBuffer:nb offset:0 atIndex:2];[e setBuffer:pb offset:0 atIndex:3];[e setBuffer:parallel?scratch:out offset:0 atIndex:4];[e setBuffer:ab offset:0 atIndex:5];[e setBuffer:dummy offset:0 atIndex:6];[e setBuffer:dummy offset:0 atIndex:7];[e setBuffer:bb offset:0 atIndex:8];if(cached)[e setBuffer:cache offset:0 atIndex:9];[e setBuffer:rb offset:0 atIndex:6];[e setBuffer:tb offset:0 atIndex:7];
    if(parallel){if(tiles)[e dispatchThreadgroups:MTLSizeMake(2*tiles,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];}else [e dispatchThreads:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(2,1,1)];[e endEncoding];
    if(parallel){e=[command computeCommandEncoder];[e setComputePipelineState:finish];[e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBuffer:scratch offset:0 atIndex:1];[e setBuffer:out offset:0 atIndex:2];[e dispatchThreadgroups:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];[e endEncoding];}
    [command commit];[command waitUntilCompleted];require(command.status==MTLCommandBufferStatusCompleted,"GPU command completed");std::array<NMNumiHumanArticularContactAuditGPU,2> result{};std::memcpy(result.data(),out.contents,sizeof(result));return std::pair{result,command.GPUEndTime-command.GPUStartTime};};
-  auto compare=[&](const auto& a,const auto& b){for(unsigned env=0;env<2;++env){bool bad=mode==3 || ((mode==2 || mode==6) && count);const float* x=reinterpret_cast<const float*>(&a[env]);const float* y=reinterpret_cast<const float*>(&b[env]);if(bad){require(std::isnan(x[0])&&std::isnan(y[0]),"same rejection for malformed row");continue;}
+  auto compare=[&](const auto& a,const auto& b){for(unsigned env=0;env<2;++env){bool bad=mode==3 || ((mode==2 || mode==6 || mode==8 || mode==9 || mode==11 || mode==12) && count);const float* x=reinterpret_cast<const float*>(&a[env]);const float* y=reinterpret_cast<const float*>(&b[env]);if(bad){require(std::isnan(x[0])&&std::isnan(y[0]),"same rejection for malformed row");continue;}
    for(unsigned k=0;k<16;++k){require(std::isfinite(x[k])&&std::isfinite(y[k]),"finite audit");double diff=std::abs(double(x[k])-y[k]);double scale=std::max(1.e-6,std::abs(double(x[k])));maxAbsolute=std::max(maxAbsolute,diff);maxRelative=std::max(maxRelative,diff/scale);require(diff<=1.e-6+.01*std::abs(double(x[k])),"audit field comparison1percent");}
    require(a[env].normalForceAreaAndCounts.w==b[env].normalForceAreaAndCounts.w,"exact source row count");
   }};
@@ -93,13 +121,13 @@ int main(int argc,const char** argv){@autoreleasepool {
   auto rowIndexBuffer=buffer(indices.empty()?nullptr:indices.data(),indices.size()*sizeof(unsigned));
   auto tileBuffer=buffer(tilesForBody.empty()?nullptr:tilesForBody.data(),tilesForBody.size()*sizeof(nm_uint4));
   auto bodyRangeBuffer=buffer(rangesForBody.data(),sizeof(rangesForBody));auto wrenchScratch=buffer(nullptr,std::max(1u,wrenchTiles)*2*sizeof(NMNumiHumanBodyWrenchGPU));auto wrenchOut=buffer(nullptr,6*sizeof(NMNumiHumanBodyWrenchGPU));
-  auto runWrench=[&](bool parallel,bool cached=false){auto cb=[q commandBuffer];if(cached)query(cb);auto en=[cb computeCommandEncoder];[en setComputePipelineState:cached?wrenchCached:(parallel?wrenchPartial:wrenchSerial)];[en setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[en setBuffer:sb offset:0 atIndex:1];[en setBuffer:nb offset:0 atIndex:2];[en setBuffer:pb offset:0 atIndex:3];[en setBuffer:parallel?wrenchScratch:wrenchOut offset:0 atIndex:4];[en setBuffer:dummy offset:0 atIndex:5];[en setBuffer:dummy offset:0 atIndex:6];[en setBuffer:dummy offset:0 atIndex:7];[en setBuffer:rb offset:0 atIndex:5];[en setBuffer:tb offset:0 atIndex:6];
+  auto runWrench=[&](bool parallel,bool cached=false){auto cb=[q commandBuffer];if(cached)query(cb);auto en=[cb computeCommandEncoder];[en setComputePipelineState:cached?wrenchCached:(parallel?wrenchPartial:wrenchSerial)];[en setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[en setBuffer:sb offset:0 atIndex:1];[en setBuffer:nb offset:0 atIndex:2];[en setBuffer:pb offset:0 atIndex:3];[en setBuffer:parallel?wrenchScratch:wrenchOut offset:0 atIndex:4];[en setBuffer:dummy offset:0 atIndex:5];[en setBuffer:dummy offset:0 atIndex:6];[en setBuffer:bb offset:0 atIndex:7];[en setBuffer:rb offset:0 atIndex:5];[en setBuffer:tb offset:0 atIndex:6];
    if(parallel){[en setBuffer:rowIndexBuffer offset:0 atIndex:8];[en setBuffer:tileBuffer offset:0 atIndex:9];[en setBytes:&wrenchTiles length:sizeof(wrenchTiles) atIndex:10];if(cached)[en setBuffer:cache offset:0 atIndex:11];if(wrenchTiles)[en dispatchThreadgroups:MTLSizeMake(2*wrenchTiles,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];}else [en dispatchThreads:MTLSizeMake(6,1,1) threadsPerThreadgroup:MTLSizeMake(6,1,1)];[en endEncoding];
    if(parallel){en=[cb computeCommandEncoder];[en setComputePipelineState:wrenchFinish];[en setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[en setBuffer:wrenchScratch offset:0 atIndex:1];[en setBuffer:wrenchOut offset:0 atIndex:2];[en setBuffer:bodyRangeBuffer offset:0 atIndex:3];[en setBytes:&wrenchTiles length:sizeof(wrenchTiles) atIndex:4];[en dispatchThreadgroups:MTLSizeMake(6,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];[en endEncoding];}
    [cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"wrench GPU completed");std::array<NMNumiHumanBodyWrenchGPU,6> result{};std::memcpy(result.data(),wrenchOut.contents,sizeof(result));return std::pair{result,cb.GPUEndTime-cb.GPUStartTime};};
   if(mode<2){const auto wa=runWrench(false),wb=runWrench(true);for(unsigned i=0;i<6;++i){const float* x=reinterpret_cast<const float*>(&wa.first[i]);const float* y=reinterpret_cast<const float*>(&wb.first[i]);for(unsigned j=0;j<8;++j){require(std::isfinite(x[j])&&std::isfinite(y[j]),"finite wrench");require(std::abs(double(x[j])-y[j])<=1.e-6+.01*std::abs(double(x[j])),"wrench comparison1percent");}}
    std::printf("{\"wrench_case_count\":%u,\"mode\":%u,\"serial_gpu_s\":%.9g,\"parallel_gpu_s\":%.9g,\"speedup\":%.9g}\n",count,mode,wa.second,wb.second,wa.second/wb.second);}
-     auto a=run(false);auto b=run(true);auto c=run(true,true);compare(a.first,b.first);compare(b.first,c.first);
+     auto a=run(false);auto b=run(true);auto c=run(true,true);if(mode>=7){auto* av=reinterpret_cast<const float*>(a.first.data());auto* bv=reinterpret_cast<const float*>(b.first.data());auto* cv=reinterpret_cast<const float*>(c.first.data());std::fprintf(stderr,"closedcase count%u mode%u valid%u direct%g tiled%g cached%g\n",count,mode,count?static_cast<unsigned*>(validity.contents)[0]:0,av[0],bv[0],cv[0]);}compare(a.first,b.first);compare(b.first,c.first);
    auto wa=runWrench(true),wc=runWrench(true,true);
    for(unsigned i=0;i<6;++i){const float* x=reinterpret_cast<const float*>(&wa.first[i]);const float* y=reinterpret_cast<const float*>(&wc.first[i]);
     for(unsigned j=0;j<8;++j){if(!std::isfinite(x[j])){require(!std::isfinite(y[j]),"cached invalid wrench retained");continue;}
@@ -111,7 +139,7 @@ int main(int argc,const char** argv){@autoreleasepool {
     auto forceOut=buffer(nullptr,6*sizeof(nm_float4));
     auto runForce=[&](bool cached){std::array<nm_float4,6> initial{};for(auto& v:initial)v=f4(.125f,-.25f,.5f,0);std::memcpy(forceOut.contents,initial.data(),sizeof(initial));
      auto cb=[q commandBuffer];if(cached)query(cb);auto e=[cb computeCommandEncoder];[e setComputePipelineState:cached?forceCached:forceDirect];
-     [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBuffer:sb offset:0 atIndex:1];[e setBuffer:nb offset:0 atIndex:2];[e setBuffer:pb offset:0 atIndex:3];[e setBuffer:forceOut offset:0 atIndex:4];[e setBuffer:dummy offset:0 atIndex:5];[e setBuffer:dummy offset:0 atIndex:6];[e setBuffer:dummy offset:0 atIndex:8];[e setBuffer:gb offset:0 atIndex:9];if(cached)[e setBuffer:cache offset:0 atIndex:10];[e setBuffer:rb offset:0 atIndex:5];[e setBuffer:tb offset:0 atIndex:6];
+     [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBuffer:sb offset:0 atIndex:1];[e setBuffer:nb offset:0 atIndex:2];[e setBuffer:pb offset:0 atIndex:3];[e setBuffer:forceOut offset:0 atIndex:4];[e setBuffer:dummy offset:0 atIndex:5];[e setBuffer:dummy offset:0 atIndex:6];[e setBuffer:bb offset:0 atIndex:8];[e setBuffer:gb offset:0 atIndex:9];if(cached)[e setBuffer:cache offset:0 atIndex:10];[e setBuffer:rb offset:0 atIndex:5];[e setBuffer:tb offset:0 atIndex:6];
      if(count)[e dispatchThreads:MTLSizeMake(2*count,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];[e endEncoding];[cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"force GPU completion");std::array<nm_float4,6> result{};std::memcpy(result.data(),forceOut.contents,sizeof(result));return result;};
     auto fd=runForce(false),fc=runForce(true);compareForces(fd,fc);
     // Mutate the accepted-node input, then rebuild scratch. A stale cache would fail.

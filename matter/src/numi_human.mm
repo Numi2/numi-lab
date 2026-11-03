@@ -610,6 +610,7 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     std::vector<std::uint32_t> femBodyContactSolverGroupCounts;
     bool hasMultiMasterTriangleContact = false;
     bool contactRowCache = false;
+    bool contactAABBExclusion = false;
     __strong id<MTLBuffer> femBodyContactRowCache = nil;
     std::vector<NMNumiHumanFEMBodyContactSampleGPU>
         implicitSpringSamples;
@@ -1944,6 +1945,20 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                         state_->contactRowCache,state_->femBodyContactSamples.size(),
                         static_cast<unsigned long long>(state_->femBodyContactRowCache.length));
                 }
+                const char* aabbExclusion = std::getenv("NUMI_HUMAN_CONTACT_AABB_EXCLUSION");
+                if(aabbExclusion && std::strcmp(aabbExclusion,"0")!=0 &&
+                    std::strcmp(aabbExclusion,"1")!=0) {
+                    state_->message="NUMI_HUMAN_CONTACT_AABB_EXCLUSION must be 0 or 1";
+                    return false;
+                }
+                state_->contactAABBExclusion=aabbExclusion &&
+                    std::strcmp(aabbExclusion,"1")==0;
+                if(state_->contactAABBExclusion && !state_->contactRowCache) {
+                    state_->message="contact AABB exclusion requires admitted contact row cache";
+                    return false;
+                }
+                std::fprintf(stderr,"human_contact_aabb_exclusion enabled=%u\n",
+                    state_->contactAABBExclusion?1u:0u);
                 std::fprintf(stderr,"human_contact_audit_layout parallel=%u rows=%llu solver_rows=%zu tiles=%u\n",
                     state_->femBodyContactAuditTiles != 0u,
                     static_cast<unsigned long long>(auditRows),
@@ -1951,7 +1966,9 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
 
                 if (!state_->femBodyContactSamples.empty()) {
                     state_->femBodyContactSampleValidationPipeline = pipeline(state_->contactRowCache
-                        ? "nm_numi_human_validate_fem_body_contact_samples_cached"
+                        ? (state_->contactAABBExclusion
+                            ? "nm_numi_human_validate_fem_body_contact_samples_cached_aabb"
+                            : "nm_numi_human_validate_fem_body_contact_samples_cached")
                         : "nm_numi_human_validate_fem_body_contact_samples");
                     state_->femBodyContactSampleValidationReducePipeline = pipeline(
                         "nm_numi_human_reduce_fem_body_contact_sample_validation");

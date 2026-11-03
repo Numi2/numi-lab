@@ -46,3 +46,50 @@ Private recovery release: https://github.com/Numi2/macmini-evidence-archive/rele
 `memory123-native009-source.tar.gz` plus its existing per-file manifest and verification receipt preserves 556 native source/configuration dependencies, with no source retirement. Its SHA256 is `e9d6d3adef4309125d0bc3fd00aa7c001527dd4b63dcd4bf01d3d564efdcbafd`. Apple toolchain source is excluded. Background media analysis was restored after measurements; no task-owned native GPU benchmark remains running.
 
 All included `.gz` files are compressed copies of existing configuration, receipt, trace, patch or log formats. Failed and inconclusive trials remain alongside passing controls. This checkpoint is numerical/software evidence, not anatomical motion, physiological, or clinical validation.
+
+### Background decoder root cause resolved
+
+A fresh `sudo launchctl procinfo` mapped the recurrent VTDecoderXPCService
+allocation to macOS WallpaperAerialsExtension (responsible PID 463). Selecting
+a static black desktop through the public NSWorkspace desktop-image API, then
+ending the old aerial client, released its retained surfaces without a reboot.
+The post-change snapshot reports kernel_task 237 MiB (previously 8,426 MiB),
+6,927 MiB unused physical memory, swap used 486.19 MiB, and 32,866,764 KiB
+available disk. No simulation was running. These are host-memory observations,
+not solver performance. The old wallpaper configuration is retained in the
+remote diagnostics; no login/security setting or system service was disabled.
+The idle-screen configuration is unchanged. Native trials should use a bounded
+task-owned `caffeinate -di` while running. See `wallpaper-memory-resolution.json.gz`
+and `decoder-procinfo.txt.gz`.
+
+### Certified closed-solid contact exclusion
+
+`NUMI_HUMAN_CONTACT_AABB_EXCLUSION=1` is an additional opt-in requiring the
+admitted `NUMI_HUMAN_CONTACT_ROW_CACHE=1` layout. It returns exact zero unilateral
+closure only for points separated from a certified closed/oriented rigid bank's
+AABB by the existing Float32 guard. Points inside/near the box and uncertified
+banks retain complete nearest-feature queries. The existing cache and direct
+paths remain available as controls. Material laws, mass, timestep, contact row
+identity, physiological state and physical acceptance thresholds are unchanged.
+
+The production GPU test passes closed interiors, exterior queries inside the
+50mm band, uncertain near-boundary points, uncertified banks, malformed ranges
+and root metadata, source-order loads, reactions and changed-node cache refresh
+across two environments. Maximum force error is 1.49011612e-8 N absolute and
+1.22301988e-7 relative; the existing 1% comparison passes. The first new fixture
+failed because its attachment triangle was collinear; that failed log is retained.
+
+Same-build, same-input trials011(control) and012(exclusion) took32.100873917s
+and27.023549791s per rejected root: one instrumented pair, **1.187885x**, not a
+sustained-throughput qualification. All64 true-residual cycle records match
+exactly, including exhaustion after256 columns and final valid residual
+6.03974695e-5. Both accept **zero** physical steps. No accepted-time real-time
+factor is reported. Initial trial010 agrees; the final source additionally
+checks malformed root metadata before tighter exclusion, validated by the
+retained GPU test. Native013 separately tests this final source at an existing
+1024-column diagnostic budget, without promoting that budget to a default.
+
+The runtime currently still requires dense basis coefficients. Compiler sparse
+fields and export helpers alone do not make the full Human basis usable. Sparse
+construction **and runtime consumption** remain required; neither the384MiB
+coefficient guard nor the170-region bound was removed.
