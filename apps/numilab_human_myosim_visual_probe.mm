@@ -39633,10 +39633,10 @@ int main(int argc, char** argv) {
                         restingFgmresBudgetSetting, end, requestedFgmresBudget);
                     require(parsed.ec == std::errc{} && parsed.ptr == end &&
                                 (requestedFgmresBudget == 0u ||
-                                 requestedFgmresBudget == 16u ||
-                                 requestedFgmresBudget == 32u ||
-                                 requestedFgmresBudget == 64u),
-                            "NUMI_HUMAN_RESTING_FGMRES_BUDGET must be unset, 0, 16, 32, or 64");
+                                 (requestedFgmresBudget >= 16u &&
+                                  requestedFgmresBudget <= NM_MIXED_FGMRES_MAX_ITERATIONS &&
+                                  requestedFgmresBudget % 16u == 0u)),
+                            "NUMI_HUMAN_RESTING_FGMRES_BUDGET must be unset, 0, or a multiple of 16 from 16 through 1024");
                 }
                 const auto cookedFgmresBudget =
                     coupled.physiology.runtime.fgmresIterationBudget();

@@ -609,6 +609,8 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     std::span<const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> femBodyContactGroupedSolverNeighborhoodRanges;
     std::vector<std::uint32_t> femBodyContactSolverGroupCounts;
     bool hasMultiMasterTriangleContact = false;
+    bool contactRowCache = false;
+    __strong id<MTLBuffer> femBodyContactRowCache = nil;
     std::vector<NMNumiHumanFEMBodyContactSampleGPU>
         implicitSpringSamples;
     std::vector<MRArticulatedPointImpulseGPU> implicitSpringPointQueries;
@@ -1904,14 +1906,53 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                         return false;
                     }
                 }
+                const char* rowCache = std::getenv("NUMI_HUMAN_CONTACT_ROW_CACHE");
+                if (rowCache && std::strcmp(rowCache,"0")!=0 && std::strcmp(rowCache,"1")!=0) {
+                    state_->message="NUMI_HUMAN_CONTACT_ROW_CACHE must be 0 or 1";
+                    return false;
+                }
+                if (rowCache && std::strcmp(rowCache,"1")==0) {
+                    // All consumers must refer to the same immutable rows/ranges.
+                    // Filtered or reordered layouts retain the existing path.
+                    state_->contactRowCache = state_->hasMultiMasterTriangleContact &&
+                        !state_->femBodyContactSamples.empty() &&
+                        state_->femBodyContactSolverSamples.data()==state_->femBodyContactSamples.data() &&
+                        state_->femBodyContactSolverSamples.size()==state_->femBodyContactSamples.size() &&
+                        state_->femBodyContactGroupedSolverSamples.data()==state_->femBodyContactSamples.data() &&
+                        state_->femBodyContactGroupedSolverSamples.size()==state_->femBodyContactSamples.size() &&
+                        state_->femBodyContactSolverNeighborhoodRanges.data()==state_->femBodyContactNeighborhoodRanges.data() &&
+                        state_->femBodyContactGroupedSolverNeighborhoodRanges.data()==state_->femBodyContactNeighborhoodRanges.data() &&
+                        state_->femBodyContactAuditTiles!=0u && state_->femBodyContactWrenchTileCount!=0u;
+                    if(state_->contactRowCache) {
+                        const std::uint64_t rows=std::uint64_t(state_->environmentCount)*state_->femBodyContactSamples.size();
+                        if(rows>std::numeric_limits<std::uint32_t>::max() ||
+                            rows>std::numeric_limits<NSUInteger>::max()/sizeof(nm_float4)) return false;
+                        state_->femBodyContactRowCache=[device newBufferWithLength:rows*sizeof(nm_float4)
+                            options:MTLResourceStorageModePrivate];
+                        state_->femBodyContactGroupedForcePipeline=pipeline("nm_numi_human_assemble_fem_body_contact_loads_grouped_cached");
+                        state_->femBodyContactWrenchPartialPipeline=pipeline("nm_numi_human_fem_body_contact_wrench_partial_cached");
+                        state_->femBodyContactAuditPartialPipeline=pipeline("nm_numi_human_audit_fem_body_contact_partial_cached");
+                        if(state_->femBodyContactRowCache==nil ||
+                            state_->femBodyContactGroupedForcePipeline==nil || state_->femBodyContactWrenchPartialPipeline==nil ||
+                            state_->femBodyContactAuditPartialPipeline==nil) return false;
+                        for(id<MTLComputePipelineState> pso : {state_->femBodyContactGroupedForcePipeline,state_->femBodyContactWrenchPartialPipeline,
+                            state_->femBodyContactAuditPartialPipeline}) {
+                            if(pso.threadExecutionWidth!=32u || pso.maxTotalThreadsPerThreadgroup<256u) return false;
+                        }
+                    }
+                    std::fprintf(stderr,"human_contact_row_cache requested=1 admitted=%u rows=%zu bytes=%llu\n",
+                        state_->contactRowCache,state_->femBodyContactSamples.size(),
+                        static_cast<unsigned long long>(state_->femBodyContactRowCache.length));
+                }
                 std::fprintf(stderr,"human_contact_audit_layout parallel=%u rows=%llu solver_rows=%zu tiles=%u\n",
                     state_->femBodyContactAuditTiles != 0u,
                     static_cast<unsigned long long>(auditRows),
                     state_->femBodyContactSolverSamples.size(), state_->femBodyContactAuditTiles);
 
                 if (!state_->femBodyContactSamples.empty()) {
-                    state_->femBodyContactSampleValidationPipeline = pipeline(
-                        "nm_numi_human_validate_fem_body_contact_samples");
+                    state_->femBodyContactSampleValidationPipeline = pipeline(state_->contactRowCache
+                        ? "nm_numi_human_validate_fem_body_contact_samples_cached"
+                        : "nm_numi_human_validate_fem_body_contact_samples");
                     state_->femBodyContactSampleValidationReducePipeline = pipeline(
                         "nm_numi_human_reduce_fem_body_contact_sample_validation");
                 }
@@ -2708,6 +2749,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                         [encoder setBuffer:bodyPoses offset:0u atIndex:6u];
                         [encoder setBuffer:state_->femBodyContactSampleValidationBuffer
                                     offset:0u atIndex:7u];
+                        if(state_->contactRowCache)
+                            [encoder setBuffer:state_->femBodyContactRowCache offset:0u atIndex:8u];
                     }) ||
                 !encodeKernel(
                     state_->femBodyContactSampleValidationReducePipeline,
@@ -2878,6 +2921,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     if (state_->hasMultiMasterTriangleContact) {
                         [encoder setBuffer:state_->femBodyContactSolverGroupCountBuffer
                                     offset:0u atIndex:9u];
+                        if(state_->contactRowCache)
+                            [encoder setBuffer:state_->femBodyContactRowCache offset:0u atIndex:10u];
                     }
                 })) {
             state_->message = "Human FEM/body contact force encoding failed";
@@ -2909,6 +2954,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                         [encoder setBuffer:state_->femBodyContactWrenchTiles offset:0u atIndex:9u];
                         [encoder setBytes:&state_->femBodyContactWrenchTileCount
                             length:sizeof(std::uint32_t) atIndex:10u];
+                        if(state_->contactRowCache)
+                            [encoder setBuffer:state_->femBodyContactRowCache offset:0u atIndex:11u];
                     }
 
                 })) {
@@ -2973,6 +3020,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                                 offset:0u atIndex:7u];
                     [encoder setBuffer:state_->femBodyContactNeighborhoodBVHNodeBuffer
                                 offset:0u atIndex:8u];
+                    if(state_->contactRowCache)
+                        [encoder setBuffer:state_->femBodyContactRowCache offset:0u atIndex:9u];
                     if (state_->femSurfaceAttachmentBuffer != nil) {
                         [encoder setBuffer:state_->femSurfaceAttachmentBuffer
                                     offset:0u atIndex:5u];

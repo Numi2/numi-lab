@@ -1465,6 +1465,65 @@ kernel void nm_numi_human_validate_fem_body_contact_samples(
     sampleValid[global] = valid ? 1u : 0u;
 }
 
+// Exact validation and derived contact data share one current-pose query.
+kernel void nm_numi_human_validate_fem_body_contact_samples_cached(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges
+        [[buffer(2)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles
+        [[buffer(3)]],
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvhNodes [[buffer(4)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(5)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(6)]],
+    device uint* sampleValid [[buffer(7)]],
+    device float4* rowCache [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint sampleCount = dispatch.femBodyContactSampleCount;
+    if (sampleCount == 0u || dispatch.environmentCount == 0u) return;
+    const uint totalCount = dispatch.environmentCount * sampleCount;
+    if (global >= totalCount) return;
+    rowCache[global] = float4(NAN);
+    const uint environment = global / sampleCount;
+    const uint sampleIndex = global - environment * sampleCount;
+    if (dispatch.abiVersion != NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION) {
+        sampleValid[global] = 0u;
+        return;
+    }
+    const NMNumiHumanFEMBodyContactSampleGPU sample = samples[sampleIndex];
+    bool valid = dispatch.femNodeCount > 0u &&
+        dispatch.bodyPoseStride > 0u &&
+        sample.slaveNode < dispatch.femNodeCount &&
+        validBody(sample.bodyIndex, dispatch);
+    if (valid) {
+        const MRArticulatedBodyPoseGPU pose = bodyPoses[
+            environment * dispatch.bodyPoseStride +
+            sample.bodyIndex - dispatch.articulationFirstBody];
+        float3 slavePoint;
+        float3 bodyPoint;
+        float3 normal;
+        float closure;
+        float contactArea;
+        float3x3 contactTangent;
+        float tangentialSlip;
+        valid = humanFEMBodyContactStateForSample(
+            sampleIndex, dispatch, sample, ranges, triangles, bvhNodes,
+            acceptedNodes[environment * dispatch.femNodeCount + sample.slaveNode],
+            pose, slavePoint, bodyPoint, normal, closure, contactArea,
+            contactTangent, tangentialSlip);
+        if(valid) {
+            const bool triangle=sample.flags==(NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE|
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
+            const float stiffness=triangle?sample.bodyLocalNormalAndReferenceSeparation.w:
+                sample.stiffnessAndNormalStrainPerPressure.x;
+            const float pressure=stiffness*closure;
+            rowCache[global]=float4(normal*(pressure*contactArea),closure);
+        }
+    }
+    sampleValid[global] = valid ? 1u : 0u;
+}
+
 kernel void nm_numi_human_reduce_fem_body_contact_sample_validation(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
     device const uint* sampleValid [[buffer(1)]],
@@ -2204,6 +2263,77 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads_grouped(
     externalForces[nodeBase + node].xyz += nodeForce;
 }
 
+// One row per GPU thread. Rebuilt from current nodes/poses before every use;
+// not accepted state, no persistence across steps or contact generations.
+kernel void nm_numi_human_fem_body_contact_row_cache(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* poses [[buffer(3)]],
+    device float4* rowCache [[buffer(4)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges [[buffer(5)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvh [[buffer(7)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint count=dispatch.femBodyContactSampleCount;
+    if(count==0u || global/count>=dispatch.environmentCount) return;
+    rowCache[global]=float4(NAN);
+    if(dispatch.abiVersion!=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION) return;
+    const uint environment=global/count,row=global%count;
+    const NMNumiHumanFEMBodyContactSampleGPU sample=samples[row];
+    if(sample.slaveNode>=dispatch.femNodeCount || !validBody(sample.bodyIndex,dispatch)) return;
+    float3 slavePoint,bodyPoint,normal;float closure,area,slip;float3x3 tangent;
+    if(!humanFEMBodyContactStateForSample(row,dispatch,sample,ranges,triangles,bvh,
+        nodes[environment*dispatch.femNodeCount+sample.slaveNode],
+        poses[environment*dispatch.bodyPoseStride+sample.bodyIndex-dispatch.articulationFirstBody],
+        slavePoint,bodyPoint,normal,closure,area,tangent,slip)) return;
+    const bool triangle=sample.flags==(NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE|
+        NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
+    const float stiffness=triangle?sample.bodyLocalNormalAndReferenceSeparation.w:
+        sample.stiffnessAndNormalStrainPerPressure.x;
+    const float pressure=stiffness*closure;
+    rowCache[global]=float4(normal*(pressure*area),closure);
+}
+
+kernel void nm_numi_human_assemble_fem_body_contact_loads_grouped_cached(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
+    device float4* externalForces [[buffer(4)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*
+        femBodyContactNeighborhoodRanges [[buffer(5)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU*
+        femBodyContactNeighborhoodTriangles [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* femBodyContactBVHNodes
+        [[buffer(8)]],
+    device const uint* groupCounts [[buffer(9)]],
+    device const float4* rowCache [[buffer(10)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.femBodyContactSampleCount;
+    if (global >= total || dispatch.femBodyContactSampleCount == 0u) return;
+    const uint environment = global / dispatch.femBodyContactSampleCount;
+    const uint head = global - environment * dispatch.femBodyContactSampleCount;
+    const uint span = groupCounts[head];
+    if (span == 0u || span > dispatch.femBodyContactSampleCount-head) return;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint node = samples[head].slaveNode;
+    if (node >= dispatch.femNodeCount) return;
+    float3 nodeForce = float3(0.0f);
+    for (uint local = 0u; local < span; ++local) {
+        const uint index = head + local;
+        const NMNumiHumanFEMBodyContactSampleGPU sample = samples[index];
+        if (sample.slaveNode != node || !validBody(sample.bodyIndex, dispatch))
+            return;
+        const float4 cached=rowCache[environment*dispatch.femBodyContactSampleCount+index];
+        if(!finite4(cached)) return;
+        nodeForce += cached.xyz;
+    }
+    externalForces[nodeBase + node].xyz += nodeForce;
+}
+
 kernel void nm_numi_human_assemble_fem_body_contact_wrenches(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
     device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
@@ -2304,6 +2434,59 @@ kernel void nm_numi_human_fem_body_contact_wrench_partial(
         if(row>=dispatch.femBodyContactSampleCount || sample.slaveNode>=dispatch.femNodeCount ||
             sample.bodyIndex!=dispatch.articulationFirstBody+tile.z || !validBody(sample.bodyIndex,dispatch)) {
             value.force=float4(NAN);value.torque=float4(NAN);
+        } else {
+            const MRArticulatedBodyPoseGPU pose=poses[environment*dispatch.bodyPoseStride+tile.z];
+            float3 slavePoint,bodyPoint,normal;float closure,area,slip;float3x3 tangent;
+            if(!humanFEMBodyContactStateForSample(row,dispatch,sample,ranges,triangles,bvh,
+                nodes[environment*dispatch.femNodeCount+sample.slaveNode],pose,
+                slavePoint,bodyPoint,normal,closure,area,tangent,slip)) {
+                value.force=float4(NAN);value.torque=float4(NAN);
+            } else {
+                const bool triangle=sample.flags==(NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE|
+                    NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
+                const float stiffness=triangle?sample.bodyLocalNormalAndReferenceSeparation.w:
+                    sample.stiffnessAndNormalStrainPerPressure.x;
+                const float pressure=stiffness*closure;
+                const float3 force=-normal*(pressure*area);
+                value.force=float4(force,0.0f);
+                value.torque=float4(cross(bodyPoint-pose.position.xyz,force),0.0f);
+            }
+        }
+    }
+    threadgroup NMNumiHumanBodyWrenchGPU scratch[8];
+    value=humanContactWrenchGroup(value,scratch,lane,simdLane,simdGroup);
+    if(lane==0u) partials[group]=value;
+}
+
+kernel void nm_numi_human_fem_body_contact_wrench_partial_cached(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* poses [[buffer(3)]],
+    device NMNumiHumanBodyWrenchGPU* partials [[buffer(4)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges [[buffer(5)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvh [[buffer(7)]],
+    device const uint* rowIndices [[buffer(8)]],device const uint4* tiles [[buffer(9)]],
+    constant uint& tileCount [[buffer(10)]],
+    device const float4* rowCache [[buffer(11)]],
+    uint group [[threadgroup_position_in_grid]],uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],uint simdGroup [[simdgroup_index_in_threadgroup]]) {
+    if(tileCount==0u || group/tileCount>=dispatch.environmentCount) return;
+    const uint environment=group/tileCount;
+    const uint4 tile=tiles[group%tileCount];
+    NMNumiHumanBodyWrenchGPU value{};
+    if(lane<tile.y) {
+        const uint row=rowIndices[tile.x+lane];
+        const NMNumiHumanFEMBodyContactSampleGPU sample=row<dispatch.femBodyContactSampleCount
+            ?samples[row]:NMNumiHumanFEMBodyContactSampleGPU{};
+        if(row>=dispatch.femBodyContactSampleCount || sample.slaveNode>=dispatch.femNodeCount ||
+            sample.bodyIndex!=dispatch.articulationFirstBody+tile.z || !validBody(sample.bodyIndex,dispatch)) {
+            value.force=float4(NAN);value.torque=float4(NAN);
+        } else if(finite4(rowCache[environment*dispatch.femBodyContactSampleCount+row]) &&
+            rowCache[environment*dispatch.femBodyContactSampleCount+row].w==0.0f) {
+            // The current-generation query certified this row inactive. Invalid
+            // cache entries must fall through to the authoritative validator.
         } else {
             const MRArticulatedBodyPoseGPU pose=poses[environment*dispatch.bodyPoseStride+tile.z];
             float3 slavePoint,bodyPoint,normal;float closure,area,slip;float3x3 tangent;
@@ -2792,6 +2975,38 @@ kernel void nm_numi_human_audit_fem_body_contact_partial(
     const uint index=(group%tiles)*256u+lane;
     NMNumiHumanArticularContactAuditGPU a{};
     if(index<count) a=humanFEMBodyContactAuditRange(dispatch,samples,acceptedNodes,bodyPoses,
+        attachments,ranges,triangles,bvh,environment,
+        min(index,dispatch.femBodyContactSampleCount),index<dispatch.femBodyContactSampleCount?1u:0u,
+        index<dispatch.femBodyContactSampleCount?0u:index-dispatch.femBodyContactSampleCount,
+        index>=dispatch.femBodyContactSampleCount?1u:0u);
+    threadgroup NMNumiHumanArticularContactAuditGPU scratch[8];
+    a=humanContactAuditGroup(a,scratch,lane,simdLane,simdGroup);
+    if(lane==0u) partials[group]=a;
+}
+
+kernel void nm_numi_human_audit_fem_body_contact_partial_cached(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
+    device NMNumiHumanArticularContactAuditGPU* partials [[buffer(4)]],
+    device const NMNumiHumanFEMSurfaceAttachmentGPU* attachments [[buffer(5)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles [[buffer(7)]],
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvh [[buffer(8)]],
+    device const float4* rowCache [[buffer(9)]],
+    uint group [[threadgroup_position_in_grid]], uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],uint simdGroup [[simdgroup_index_in_threadgroup]]) {
+    const uint count=dispatch.femBodyContactSampleCount+dispatch.femSurfaceAttachmentSampleCount;
+    const uint tiles=count/256u+(count%256u!=0u);
+    if(tiles==0u || group/tiles>=dispatch.environmentCount) return;
+    const uint environment=group/tiles;
+    const uint index=(group%tiles)*256u+lane;
+    NMNumiHumanArticularContactAuditGPU a{};
+    const bool inactive=index<dispatch.femBodyContactSampleCount &&
+        finite4(rowCache[environment*dispatch.femBodyContactSampleCount+index]) &&
+        rowCache[environment*dispatch.femBodyContactSampleCount+index].w==0.0f;
+    if(index<count && !inactive) a=humanFEMBodyContactAuditRange(dispatch,samples,acceptedNodes,bodyPoses,
         attachments,ranges,triangles,bvh,environment,
         min(index,dispatch.femBodyContactSampleCount),index<dispatch.femBodyContactSampleCount?1u:0u,
         index<dispatch.femBodyContactSampleCount?0u:index-dispatch.femBodyContactSampleCount,

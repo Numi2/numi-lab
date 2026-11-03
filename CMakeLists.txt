@@ -7348,3 +7348,20 @@ if(BUILD_TESTING)
     add_test(NAME numi_human_current_fractional_npz_reader
         COMMAND numi-human-current-fractional-npz-reader-check)
 endif()
+
+if(APPLE AND TARGET numi_matter_shaders)
+    add_executable(numi-human-contact-row-cache-check EXCLUDE_FROM_ALL
+        tests/numi_human_fem_surface_attachment/contact_row_cache_test.mm)
+    target_include_directories(numi-human-contact-row-cache-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+    target_compile_features(numi-human-contact-row-cache-check PRIVATE cxx_std_20)
+    target_compile_options(numi-human-contact-row-cache-check PRIVATE -fobjc-arc)
+    target_link_libraries(numi-human-contact-row-cache-check PRIVATE
+        "-framework Foundation" "-framework Metal")
+    add_dependencies(numi-human-contact-row-cache-check numi_matter_shaders)
+    add_test(NAME human.contact_row_cache_gpu_parity
+        COMMAND numi-human-contact-row-cache-check
+        "${CMAKE_BINARY_DIR}/matter/shaders/NumiMatter.metallib")
+    set_tests_properties(human.contact_row_cache_gpu_parity PROPERTIES
+        LABELS "human;contact;gpu;regression" TIMEOUT 60 RUN_SERIAL TRUE)
+endif()
