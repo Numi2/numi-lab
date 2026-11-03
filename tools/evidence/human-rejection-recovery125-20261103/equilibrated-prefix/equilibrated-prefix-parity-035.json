@@ -1,0 +1,27 @@
+{
+  "control": "completed-preconditioner-native-031",
+  "candidate": "equilibrated-prefix-native-035",
+  "endpoint_captures": [
+    {
+      "bytes": 833232924,
+      "sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+      "complete_begin_and_end": true
+    },
+    {
+      "bytes": 833232924,
+      "sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+      "complete_begin_and_end": true
+    }
+  ],
+  "complete_endpoint_byte_identity": true,
+  "physiology_sha256": [
+    "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee"
+  ],
+  "physiology_byte_identity": true,
+  "actual_row_equilibrated_prefix": true,
+  "control_GPU_mean_s": 13.562547677074999,
+  "candidate_GPU_mean_s": 13.545727927075,
+  "GPU_time_reduction_fraction": 0.0012401615390027487,
+  "claims": "One exploratory four-step pair; not sustained, settled rest or >=0.1x."
+}

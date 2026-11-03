@@ -1,0 +1,22 @@
+{
+  "purpose": "exploratory matched whole-Human scheduling comparison",
+  "control": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-preconditioner-native-031/install-motion.execution.json",
+    "sha256": "4f1db4557b07c35d0a73955e33b28e5db3cbf3d045007ba35e0a2125c1dc0624",
+    "bytes": 755
+  },
+  "question": "Does explicit row-equilibrated selector6 prefix ICB reduce cost without changing accepted physical state?",
+  "change": "preconditioner prefix ICB opt-in only; correct S^-1*v captured input; unchanged equations and gates",
+  "prediction": "Four accepted steps; complete endpoint and physiology byte identity; GPU time reported without forecast",
+  "physics": "15.625 us, four accepted steps, same 16-column diagnostic budget; not sustained/rest qualification",
+  "validity": [
+    "source/binary/dependency and asset pins",
+    "actual row_equilibrated_prefix=1 receipt",
+    "no competing GPU job",
+    "no resource stop",
+    "complete output comparison"
+  ],
+  "refutation": "Any state/physiology disagreement or rejected step prevents equivalence claim",
+  "measurements": "all accepted GPU times and inclusive elapsed; one exploratory pair, not three matched pairs",
+  "limits": "No >=0.1x or supported-rest inference; no iteration budget promotion"
+}

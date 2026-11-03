@@ -40067,7 +40067,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 !state.femHumanGlobalCoarseEnabled &&
                 !state.femHumanPartitionedPreconditionerEnabled;
             const bool femSelector6BasePreconditionerICBForCurrentSolve =
-                !state.femCoupledRowEquilibrationEnabled &&
+                // The prefix consumes the same physical S^-1*v scratch as
+                // direct preconditioning. Partitioned/flat graphs retain
+                // their separate admission restrictions below.
+                (!state.femCoupledRowEquilibrationEnabled ||
+                 (state.femLeftRowEquilibrationScale != nil &&
+                  state.femLeftRowEquilibrationResidual != nil)) &&
                 state.fgmresPrefixPreconditionerICBEnabled &&
                 state.fgmresOperatorICBEnabled &&
                 state.fgmresSkipEmptyFieldPreconditionerEnabled &&
@@ -42507,6 +42512,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     mixShape(shapeSignature, assembledXYZNNZ);
                     mixShape(shapeSignature, columnOffset);
                     mixShape(shapeSignature, arnoldiOperatorInputOffset);
+                    // Cached commands capture buffer identity and byte
+                    // offsets, including row-equilibration's reused RHS.
+                    mixShape(shapeSignature, preconditionerInputOffset);
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)preconditionerInputBasis));
+                    mixShape(shapeSignature,
+                        state.femCoupledRowEquilibrationEnabled ? 1u : 0u);
                     mixShape(shapeSignature,
                         state.femHumanHybridCoordinatesEnabled ? 1u : 0u);
                     mixShape(shapeSignature, fieldVectorOffset);
@@ -42801,7 +42813,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         }
                         bind(preCmd, 1u, state.femNodeRanges);
                         bind(preCmd, 2u, state.femPreconditioned);
-                        bind(preCmd, 3u, state.fgmresBasis, columnOffset);
+                        bind(preCmd, 3u, preconditionerInputBasis,
+                            preconditionerInputOffset);
                         bind(preCmd, 4u, state.fgmresPreconditionedBasis,
                             columnOffset);
                         bind(preCmd, 5u, state.fgmresStates);
@@ -42819,7 +42832,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     "selector-6 coupled tangent block ICB pipeline is unavailable";
                                 return diagnostics;
                             }
-                            bind(preCmd, 1u, state.fgmresBasis, columnOffset);
+                            bind(preCmd, 1u, preconditionerInputBasis,
+                            preconditionerInputOffset);
                             bind(preCmd, 2u,
                                 state.fgmresPreconditionedBasis, columnOffset);
                             bind(preCmd, 3u,
@@ -42840,7 +42854,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         bind(preCmd, 1u, state.femTetrahedraCandidate);
                         bind(preCmd, 2u, state.femNodeIncidence);
                         bind(preCmd, 3u, state.femNodeRanges);
-                        bind(preCmd, 4u, state.fgmresBasis, columnOffset);
+                        bind(preCmd, 4u, preconditionerInputBasis,
+                            preconditionerInputOffset);
                         bind(preCmd, 5u, state.femPreconditioned);
                         bind(preCmd, 6u, state.fgmresPreconditionedBasis,
                             columnOffset);
@@ -42856,7 +42871,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             return diagnostics;
                         }
                         bind(preCmd, 1u, state.objects);
-                        bind(preCmd, 2u, state.fgmresBasis, columnOffset);
+                        bind(preCmd, 2u, preconditionerInputBasis,
+                            preconditionerInputOffset);
                         bind(preCmd, 3u, state.femPreconditioned);
                         bind(preCmd, 4u, state.fgmresPreconditionedBasis,
                             columnOffset);
@@ -43662,7 +43678,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.fgmresBasis, state.femPreconditioned,
                         state.femNodeRanges, state.primalContactArguments,
                         state.femMaterialStateAccepted, state.fgmresPreconditionedBasis,
-                        arnoldiOperatorInput,
+                        arnoldiOperatorInput, preconditionerInputBasis,
                         state.schedulers, state.adaptive, state.elementOperator,
                         state.statuses, state.mixedMaterials, state.femFieldsCandidate,
                         state.learnedMaterials, state.learnedLayers,
@@ -43761,9 +43777,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     if (column == 0u && restartCycle == 0u &&
                         state.fgmresOperatorICBLoggedControlStep != request.controlStep) {
                         std::fprintf(stderr,
-                            "matter_fgmres_operator_icb=1 preconditioner_prefix=%u prefix_commands=%u tail_commands=%u mpm_empty=1 env=1\n",
+                            "matter_fgmres_operator_icb=1 preconditioner_prefix=%u prefix_commands=%u tail_commands=%u row_equilibrated_prefix=%u mpm_empty=1 env=1\n",
                             femPreconditionerGroupICBForCurrentSolve ? 1u : 0u,
-                            prefixCount, tailCount);
+                            prefixCount, tailCount,
+                            femPreconditionerGroupICBForCurrentSolve &&
+                                state.femCoupledRowEquilibrationEnabled ? 1u : 0u);
                         state.fgmresOperatorICBLoggedControlStep = request.controlStep;
                     }
                     if (useFlatColumnGraph) {

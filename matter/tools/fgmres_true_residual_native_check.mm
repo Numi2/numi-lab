@@ -12939,6 +12939,78 @@ void checkLeftRowEquilibration(
                 "conjugated diagonal preconditioner lost identity");
         }
 
+    // Reuse a selector-6 prefix command with row-equilibrated physical
+    // input. Its captured input is the reusable S^-1*v buffer at offset zero,
+    // never an Arnoldi column. Change that scratch between executions and
+    // exercise the convergence latch without rerecording the command.
+    auto blockDirect = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_apply_coupled_tangent_block");
+    auto blockIndirect = indirectPipeline(device, library,
+        "numi_matter_metal::nm_fgmres_apply_coupled_tangent_block");
+    auto prefixState = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    auto directOutput = makeBuffer(device,
+        std::vector<nm_float4>(source.size()+1u, canary));
+    auto cachedOutput = makeBuffer(device,
+        std::vector<nm_float4>(source.size()+1u, canary));
+    MTLIndirectCommandBufferDescriptor* prefixDescriptor =
+        [MTLIndirectCommandBufferDescriptor new];
+    prefixDescriptor.commandTypes = MTLIndirectCommandTypeConcurrentDispatch;
+    prefixDescriptor.inheritBuffers = NO;
+    prefixDescriptor.inheritPipelineState = NO;
+    prefixDescriptor.maxKernelBufferBindCount = 31u;
+    auto prefixGraph = [device newIndirectCommandBufferWithDescriptor:prefixDescriptor
+        maxCommandCount:1u options:MTLResourceStorageModeShared];
+    require(prefixGraph != nil, "equilibrated prefix graph allocation failed");
+    auto prefixCommand = [prefixGraph indirectComputeCommandAtIndex:0u];
+    [prefixCommand setComputePipelineState:blockIndirect];
+    [prefixCommand setKernelBuffer:dispatchBuffer offset:0u atIndex:0u];
+    [prefixCommand setKernelBuffer:physicalInput offset:0u atIndex:1u];
+    [prefixCommand setKernelBuffer:cachedOutput offset:0u atIndex:2u];
+    [prefixCommand setKernelBuffer:inverseBlockBuffer offset:0u atIndex:3u];
+    [prefixCommand setKernelBuffer:prefixState offset:0u atIndex:4u];
+    [prefixCommand concurrentDispatchThreadgroups:MTLSizeMake(1u,1u,1u)
+        threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+    [prefixCommand setBarrier];
+    for (std::uint32_t pass=0u; pass<3u; ++pass) {
+        auto nextSource = source;
+        for (auto& row: nextSource) {
+            row.x += float(pass)*0.375f;
+            row.y -= float(pass)*0.125f;
+        }
+        std::memcpy(sourceBuffer.contents,nextSource.data(),
+            nextSource.size()*sizeof(nm_float4));
+        dispatch(device,queue,unscale,
+            {{0u,dispatchBuffer},{30u,layoutBuffer},{1u,extremeScaleBuffer},
+             {2u,sourceBuffer},{3u,physicalInput}},source.size(),32u);
+        NMFGMRESStateGPU nextState{};
+        nextState.diagnostics.z = pass==2u ? 1.0f : 0.0f;
+        std::memcpy(prefixState.contents,&nextState,sizeof(nextState));
+        dispatch(device,queue,blockDirect,
+            {{0u,dispatchBuffer},{1u,physicalInput},{2u,directOutput},
+             {3u,inverseBlockBuffer},{4u,prefixState}},1u,32u);
+        auto commandBuffer=[queue commandBuffer];
+        auto encoder=[commandBuffer computeCommandEncoder];
+        for (id<MTLBuffer> resource:
+             {dispatchBuffer,physicalInput,cachedOutput,inverseBlockBuffer,prefixState})
+            [encoder useResource:resource
+                usage:MTLResourceUsageRead|MTLResourceUsageWrite];
+        [encoder executeCommandsInBuffer:prefixGraph withRange:NSMakeRange(0u,1u)];
+        [encoder endEncoding];
+        [commandBuffer commit];[commandBuffer waitUntilCompleted];
+        require(commandBuffer.status==MTLCommandBufferStatusCompleted,
+            "equilibrated prefix execution failed");
+        const auto direct=readBuffer<nm_float4>(directOutput,source.size()+1u);
+        const auto cached=readBuffer<nm_float4>(cachedOutput,source.size()+1u);
+        require(std::memcmp(direct.data(),cached.data(),
+                    cached.size()*sizeof(nm_float4))==0,
+            "cached equilibrated block differs from direct physical input");
+        for (std::size_t row=3u;row<cached.size();++row)
+            require(std::memcmp(&cached[row],&canary,sizeof(canary))==0,
+                "cached equilibrated block wrote an inactive tail or guard");
+    }
+    std::memcpy(sourceBuffer.contents,source.data(),source.size()*sizeof(nm_float4));
+
     // Dense nonsymmetric oracle for mode 1: solve S*A*M^-1 u=S*b,
     // then recover the physical correction x=M^-1*u.
     constexpr std::size_t n = 12u; // nine mechanical coordinates + three tails
