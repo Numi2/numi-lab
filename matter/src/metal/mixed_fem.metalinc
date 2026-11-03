@@ -739,6 +739,119 @@ kernel void nm_mixed_contact_energy_check(
     if(i<count)energy[i]=nmMixedDeformableContactEnergy(contacts[i]);
 }
 
+// Bounded internal scratch: 128 SIMD tiles per object, 112 bytes each.
+// The environment norm is measured once, not once per object. Object-local
+// contacts and elements retain their original ownership and traversal filters.
+constant uint kMixedCertificateTiles = 128u;
+struct NMMixedCertificatePartialGPU {
+    float4 nonlinear;
+    float4 transportNorm2;
+    float4 transportScaleNorm2;
+    float4 contact;
+    uint4 counts;
+    uint4 witness;
+    float4 invalidValues;
+};
+// Legacy and tiled measurement share one publication/acceptance authority.
+inline void nmMixedPublishCertificate(
+    constant NMMatterDispatchGPU& dispatch,
+    constant NMMixedSolverGPU& solver,
+    const NMContinuumObjectGPU object, const uint objectIndex,
+    const uint telemetryWriterObject, const uint environment, const uint lane,
+    device NMSolverCertificateGPU* certificates,
+    device NMMatterStatusGPU* statuses,
+    device NMFGMRESTelemetryGPU* fgmresTelemetry,
+    const float residualNorm2, const float pressureNorm2,
+    const float4 transportNorm2, const float4 transportScaleNorm2,
+    const float initialNorm, const float relativeResidual,
+    const float relativeCorrection, const float maximumBarrierImpulse,
+    const float minimumSeparation, const float maximumTangentialImpulse,
+    const float contactEnergy, const bool contactClearancesValid,
+    const uint fixedPlaneKKTCount, const bool fixedPlaneKKTValuesFinite,
+    const uint invalidContact, const float4 invalidContactValues,
+    const float minimumJ, const float volumeNorm2, const uint activeElements
+) {
+    if (lane == 0u) {
+        const float volumeResidual =
+            (object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+            activeElements > 0u
+            ? sqrt(max(volumeNorm2 / float(activeElements), 0.0f)) : 0.0f;
+        NMSolverCertificateGPU certificate =
+            certificates[environment * dispatch.objectCount + objectIndex];
+        const float4 transport = sqrt(max(transportNorm2, float4(0.0f))) /
+            max(sqrt(max(transportScaleNorm2, float4(0.0f))), float4(1.0f));
+        const float pressureResidual = sqrt(max(pressureNorm2, 0.0f)) /
+            initialNorm;
+        if (fgmresTelemetry != nullptr &&
+            objectIndex == telemetryWriterObject) {
+            const float transportResidualNorm2 = max(
+                transportNorm2.x + transportNorm2.y +
+                transportNorm2.z + transportNorm2.w,
+                0.0f);
+            const float nonpressureNontransportNorm2 = max(
+                residualNorm2 - pressureNorm2 - transportResidualNorm2,
+                0.0f);
+            const float nonpressureNontransportResidual =
+                sqrt(nonpressureNontransportNorm2) / initialNorm;
+            const float aggregateTransportResidual =
+                sqrt(transportResidualNorm2) / initialNorm;
+            fgmresTelemetry[environment].nonlinear.z =
+                as_type<nm_u32>(nonpressureNontransportResidual);
+            fgmresTelemetry[environment].nonlinear.w =
+                as_type<nm_u32>(aggregateTransportResidual);
+        }
+        certificate.nonlinear = float4(
+            relativeResidual, relativeCorrection,
+            volumeResidual, pressureResidual
+        );
+        certificate.contact = float4(
+            maximumBarrierImpulse, minimumSeparation,
+            maximumTangentialImpulse, contactEnergy
+        );
+        certificate.transport = transport;
+        certificate.validity = float4(
+            minimumJ, 0.0f, 0.0f, 1.0f
+        );
+        certificates[environment * dispatch.objectCount + objectIndex] =
+            certificate;
+        const bool residualValid =
+            isfinite(relativeResidual) &&
+            relativeResidual <= solver.residualTolerances.x &&
+            isfinite(volumeResidual) &&
+            volumeResidual <= solver.residualTolerances.y &&
+            isfinite(pressureResidual) &&
+            pressureResidual <= solver.residualTolerances.z;
+        // Post-step equilibrium is the physical acceptance authority. The
+        // final assembled correction remains convergence telemetry only; a
+        // residual-authoritative early exit publishes zero because it forms
+        // no additional direction. It cannot invalidate a candidate that
+        // already satisfies the KKT, incompressibility, pressure, and
+        // transport residual gates.
+        const bool correctionFinite = isfinite(relativeCorrection);
+        const bool contactValid =
+            isfinite(maximumBarrierImpulse) &&
+            isfinite(minimumSeparation) &&
+            isfinite(maximumTangentialImpulse) &&
+            isfinite(contactEnergy) &&
+            contactClearancesValid &&
+            (fixedPlaneKKTCount == 0u || fixedPlaneKKTValuesFinite);
+        const bool transportValid = all(isfinite(transport)) &&
+            all(transport <= float4(solver.residualTolerances.w));
+        if (!isfinite(minimumJ) || minimumJ < dispatch.numericalLimits.z ||
+            !residualValid || !correctionFinite || !contactValid ||
+            !transportValid) {
+            const bool contactWitness=!contactValid&&invalidContact!=NM_INVALID_INDEX;
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                objectIndex, contactWitness?invalidContact:NM_INVALID_INDEX,
+                contactWitness?invalidContactValues:
+                residualValid && correctionFinite && contactValid
+                    ? transport
+                    : float4(relativeResidual, relativeCorrection,
+                             volumeResidual, pressureResidual));
+        }
+    }
+}
+
 kernel void nm_mixed_certify(
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
@@ -1074,86 +1187,476 @@ kernel void nm_mixed_certify(
     } else if (activeElements == 0u) {
         minimumJ = 1.0f;
     }
-    if (lane == 0u) {
-        const float volumeResidual =
-            (object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
-            activeElements > 0u
-            ? sqrt(max(volumeNorm2 / float(activeElements), 0.0f)) : 0.0f;
-        NMSolverCertificateGPU certificate =
-            certificates[environment * dispatch.objectCount + objectIndex];
-        const float4 transport = sqrt(max(transportNorm2, float4(0.0f))) /
-            max(sqrt(max(transportScaleNorm2, float4(0.0f))), float4(1.0f));
-        const float pressureResidual = sqrt(max(pressureNorm2, 0.0f)) /
-            initialNorm;
-        if (fgmresTelemetry != nullptr &&
-            objectIndex == telemetryWriterObject) {
-            const float transportResidualNorm2 = max(
-                transportNorm2.x + transportNorm2.y +
-                transportNorm2.z + transportNorm2.w,
-                0.0f);
-            const float nonpressureNontransportNorm2 = max(
-                residualNorm2 - pressureNorm2 - transportResidualNorm2,
-                0.0f);
-            const float nonpressureNontransportResidual =
-                sqrt(nonpressureNontransportNorm2) / initialNorm;
-            const float aggregateTransportResidual =
-                sqrt(transportResidualNorm2) / initialNorm;
-            fgmresTelemetry[environment].nonlinear.z =
-                as_type<nm_u32>(nonpressureNontransportResidual);
-            fgmresTelemetry[environment].nonlinear.w =
-                as_type<nm_u32>(aggregateTransportResidual);
-        }
-        certificate.nonlinear = float4(
-            relativeResidual, relativeCorrection,
-            volumeResidual, pressureResidual
-        );
-        certificate.contact = float4(
-            maximumBarrierImpulse, minimumSeparation,
-            maximumTangentialImpulse, contactEnergy
-        );
-        certificate.transport = transport;
-        certificate.validity = float4(
-            minimumJ, 0.0f, 0.0f, 1.0f
-        );
-        certificates[environment * dispatch.objectCount + objectIndex] =
-            certificate;
-        const bool residualValid =
-            isfinite(relativeResidual) &&
-            relativeResidual <= solver.residualTolerances.x &&
-            isfinite(volumeResidual) &&
-            volumeResidual <= solver.residualTolerances.y &&
-            isfinite(pressureResidual) &&
-            pressureResidual <= solver.residualTolerances.z;
-        // Post-step equilibrium is the physical acceptance authority. The
-        // final assembled correction remains convergence telemetry only; a
-        // residual-authoritative early exit publishes zero because it forms
-        // no additional direction. It cannot invalidate a candidate that
-        // already satisfies the KKT, incompressibility, pressure, and
-        // transport residual gates.
-        const bool correctionFinite = isfinite(relativeCorrection);
-        const bool contactValid =
-            isfinite(maximumBarrierImpulse) &&
-            isfinite(minimumSeparation) &&
-            isfinite(maximumTangentialImpulse) &&
-            isfinite(contactEnergy) &&
-            contactClearancesValid &&
-            (fixedPlaneKKTCount == 0u || fixedPlaneKKTValuesFinite);
-        const bool transportValid = all(isfinite(transport)) &&
-            all(transport <= float4(solver.residualTolerances.w));
-        if (!isfinite(minimumJ) || minimumJ < dispatch.numericalLimits.z ||
-            !residualValid || !correctionFinite || !contactValid ||
-            !transportValid) {
-            const bool contactWitness=!contactValid&&invalidContact!=NM_INVALID_INDEX;
-            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
-                objectIndex, contactWitness?invalidContact:NM_INVALID_INDEX,
-                contactWitness?invalidContactValues:
-                residualValid && correctionFinite && contactValid
-                    ? transport
-                    : float4(relativeResidual, relativeCorrection,
-                             volumeResidual, pressureResidual));
+    nmMixedPublishCertificate(dispatch, solver, object, objectIndex,
+        telemetryWriterObject, environment, lane, certificates, statuses,
+        fgmresTelemetry, residualNorm2, pressureNorm2, transportNorm2,
+        transportScaleNorm2, initialNorm, relativeResidual, relativeCorrection,
+        maximumBarrierImpulse, minimumSeparation, maximumTangentialImpulse,
+        contactEnergy, contactClearancesValid, fixedPlaneKKTCount,
+        fixedPlaneKKTValuesFinite, invalidContact, invalidContactValues,
+        minimumJ, volumeNorm2, activeElements);
+}
+
+kernel void nm_mixed_certify_partials(
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(3)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(4)]],
+    device const NMFEMFieldStateGPU* acceptedFields [[buffer(5)]],
+    device const NMFEMFieldStateGPU* candidateFields [[buffer(6)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(7)]],
+    device NMSolverCertificateGPU* certificates [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    device const float4* generalizedResidual [[buffer(10)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(11)]],
+    device const float4* physicalFieldResidual [[buffer(12)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(13)]],
+    device const float4* nonlinearCorrection [[buffer(14)]],
+    device const NMGridNodeStateGPU* mpmNodes [[buffer(15)]],
+    device const uint* mpmActiveIndices [[buffer(16)]],
+    device const uint* mpmActiveCounts [[buffer(17)]],
+    device const float4* lineSearch [[buffer(18)]],
+    constant NMPrimalContactArguments& contact [[buffer(19)]],
+    device const float* rigidCandidate [[buffer(20)]],
+    device NMFGMRESTelemetryGPU* fgmresTelemetry [[buffer(21)]],
+    device const uint* deformableActiveIndices [[buffer(22)]],
+    device NMMixedCertificatePartialGPU* partials [[buffer(23)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || dispatch.objectCount == 0u) return;
+    const uint objectGroup = group / kMixedCertificateTiles;
+    const uint tile = group - objectGroup * kMixedCertificateTiles;
+    const uint environment = objectGroup / dispatch.objectCount;
+    const uint objectIndex = objectGroup - environment * dispatch.objectCount;
+    const uint first = tile * 32u + lane;
+    const uint stride = kMixedCertificateTiles * 32u;
+    if (environment >= dispatch.environmentCount) return;
+    // Every object group computes the same environment-wide certificate. Pick
+    // one deterministic continuum object as the single telemetry writer.
+    uint telemetryWriterObject = NM_INVALID_INDEX;
+    for (uint candidateObject = 0u; candidateObject < dispatch.objectCount;
+         ++candidateObject) {
+        const uint representation = objects[candidateObject].representation;
+        if (representation == NM_REPRESENTATION_FEM ||
+            representation == NM_REPRESENTATION_MPM) {
+            telemetryWriterObject = candidateObject;
+            break;
         }
     }
+    if (telemetryWriterObject == NM_INVALID_INDEX) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM &&
+        object.representation != NM_REPRESENTATION_MPM) return;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    float correction = 0.0f;
+    float residualNorm2 = 0.0f;
+    float pressureNorm2 = 0.0f;
+    float4 transportNorm2 = float4(0.0f);
+    float4 transportScaleNorm2 = float4(0.0f);
+    // Certification is environment-wide, just like the Newton unknown and the
+    // FGMRES convergence norm. Repeat that same coupled norm in every object
+    // certificate; object-local norms can otherwise each pass while their
+    // combined post-contact residual still exceeds the global tolerance.
+    if (objectIndex == telemetryWriterObject) {
+    for (uint continuumObject = 0u;
+         continuumObject < dispatch.objectCount; ++continuumObject) {
+        const NMContinuumObjectGPU continuum = objects[continuumObject];
+        if (continuum.representation == NM_REPRESENTATION_FEM) {
+            for (uint local = first; local < continuum.stateCount; local += stride) {
+                const uint node = nodeBase + continuum.stateOffset + local;
+                correction = max(
+                    correction,
+                    length(nonlinearCorrection[node].xyz) / max(length(
+                        candidateNodes[node].velocityAndInverseMass.xyz), 1.0f));
+                const float4 residual = generalizedResidual[node];
+                residualNorm2 += dot(residual, residual);
+                pressureNorm2 += residual.w * residual.w;
+                if ((continuum.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+                    continuum.materialIndex < dispatch.mixedMaterialCount) {
+                    const float pressureCorrection =
+                        mixedMaterials[continuum.materialIndex].mechanics.x *
+                        nonlinearCorrection[node].w;
+                    correction = max(correction,
+                        abs(pressureCorrection) / max(
+                            abs(candidateFields[node].primary.x), 1.0f));
+                }
+                if ((continuum.flags & NM_OBJECT_MULTIPHYSICS) != 0u) {
+                    const float4 fieldResidual = physicalFieldResidual[node];
+                    const float4 candidateField =
+                        mixedFieldVector(candidateFields[node]);
+                    const float4 acceptedField =
+                        mixedFieldVector(acceptedFields[node]);
+                    const float4 fieldScale = max(
+                        abs(candidateField), abs(acceptedField));
+                    correction = max(correction,
+                        length(nonlinearCorrection[totalNodes + node]) /
+                            max(length(candidateField), 1.0f));
+                    residualNorm2 += dot(fieldResidual, fieldResidual);
+                    transportNorm2 += fieldResidual * fieldResidual;
+                    transportScaleNorm2 += fieldScale * fieldScale;
+                }
+            }
+        } else if (continuum.representation == NM_REPRESENTATION_MPM) {
+            const uint activeCount = min(
+                mpmActiveCounts[environment],
+                dispatch.mpmActiveNodeCapacity);
+            for (uint slot = first; slot < activeCount; slot += stride) {
+                const uint nodeIndex = mpmActiveIndices[
+                    environment * dispatch.mpmActiveNodeCapacity + slot];
+                if (nodeIndex < continuum.auxiliaryOffset ||
+                    nodeIndex - continuum.auxiliaryOffset >=
+                        continuum.auxiliaryCount)
+                    continue;
+                const uint row = fgmresMPMIndex(
+                    dispatch, environment, slot);
+                correction = max(
+                    correction,
+                    length(nonlinearCorrection[row].xyz) / max(length(mpmNodes[
+                        environment * dispatch.gridNodeCount + nodeIndex]
+                            .candidateVelocity.xyz), 1.0f));
+                const float3 residual = generalizedResidual[row].xyz;
+                residualNorm2 += dot(residual, residual);
+            }
+        }
+    }
+    // The rigid block completes that same environment-wide norm, preventing a
+    // continuum transaction from committing with unresolved articulated or
+    // free-body equilibrium.
+    for (uint dof = first; dof < dispatch.rigidGeneralizedCapacity;
+         dof += stride) {
+        const uint row = fgmresRigidIndex(dispatch, environment, dof);
+        const float rigidResidual = generalizedResidual[row].x;
+        residualNorm2 += rigidResidual * rigidResidual;
+        correction = max(correction,
+            abs(nonlinearCorrection[row].x) / max(abs(rigidCandidate[
+                environment * dispatch.rigidGeneralizedCapacity + dof]), 1.0f));
+    }
+    for (uint row = first; row < layout.supportContactCount; row += stride) {
+        const float3 value = generalizedResidual[layout.supportBase +
+            environment * layout.supportContactCount + row].xyz;
+        residualNorm2 += dot(value, value);
+    }
+    }
+    correction = simd_max(correction);
+    residualNorm2 = simd_sum(residualNorm2);
+    pressureNorm2 = simd_sum(pressureNorm2);
+    transportNorm2 = float4(
+        simd_sum(transportNorm2.x), simd_sum(transportNorm2.y),
+        simd_sum(transportNorm2.z), simd_sum(transportNorm2.w));
+    transportScaleNorm2 = float4(
+        simd_sum(transportScaleNorm2.x), simd_sum(transportScaleNorm2.y),
+        simd_sum(transportScaleNorm2.z), simd_sum(transportScaleNorm2.w));
+    const float initialNorm = max(
+        fgmresStates[environment]
+            .diagnostics.y,
+        1.0f
+    );
+    const float relativeResidual = sqrt(max(residualNorm2, 0.0f)) /
+        initialNorm;
+    const float relativeCorrection = correction;
+    float maximumBarrierImpulse = 0.0f;
+    float minimumSeparation = INFINITY;
+    float maximumTangentialImpulse = 0.0f;
+    float contactEnergy = 0.0f;
+    bool contactClearancesValid = true;
+    uint firstInvalidContact=NM_INVALID_INDEX;
+    float firstInvalidSeparation=INFINITY;
+    float4 firstInvalidContactValues=float4(0.0f);
+    // Fixed-plane velocity KKT witnesses have no positional gap. Keep their
+    // finite dual/reaction check separate from geometric IPC separation; the
+    // independent grid-velocity and particle-sweep certificates own KKT feasibility.
+    uint geometricContactCount = 0u;
+    uint fixedPlaneKKTCount = 0u;
+    bool fixedPlaneKKTValuesFinite = true;
+    const uint analyticCapacity = dispatch.reservedMixed1;
+    const uint analyticCount = min(
+        contact.activeCounts[environment], analyticCapacity);
+    const uint analyticBase = environment * analyticCapacity;
+    for (uint activeSlot = first; activeSlot < analyticCount;
+         activeSlot += stride) {
+        const uint pairIndex = contact.activePairs[
+            analyticBase + activeSlot];
+        if (pairIndex >= dispatch.contactPairCount) continue;
+        const NMContactPairGPU pair = contact.pairs[pairIndex];
+        const NMContactSampleGPU sample = primalContactSample(
+            dispatch, contact, environment, pairIndex);
+        if (pair.objectIndex != objectIndex ||
+            (sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        maximumBarrierImpulse = max(
+            maximumBarrierImpulse,
+            max(max(sample.barrier.x, 0.0f),
+                sample.impulseAndNormal.w));
+        const bool fixedPlaneKKT =
+            (sample.identity.w & NM_CONTACT_MPM_FIXED_PLANE_KKT) != 0u;
+        if (fixedPlaneKKT) {
+            ++fixedPlaneKKTCount;
+            const float lambda = sample.impulseAndNormal.w;
+            fixedPlaneKKTValuesFinite = fixedPlaneKKTValuesFinite &&
+                all(isfinite(sample.normalAndVelocity)) &&
+                all(isfinite(sample.impulseAndNormal)) &&
+                all(isfinite(sample.angularImpulseAndTangent)) &&
+                lambda >= 0.0f &&
+                all(sample.impulseAndNormal.xyz ==
+                    -lambda * sample.normalAndVelocity.xyz);
+        } else {
+            ++geometricContactCount;
+            minimumSeparation = min(
+                minimumSeparation, sample.pointAndSeparation.w);
+        }
+        if(!fixedPlaneKKT) {
+            const float floor=max(solver.contactAcceptance.x*dispatch.numericalLimits.x,
+                16.0f*kEpsilon*max(maximumAbsoluteCoordinate(sample.pointAndSeparation.xyz),1.0e-12f));
+            contactClearancesValid=contactClearancesValid&&
+                isfinite(sample.pointAndSeparation.w)&&sample.pointAndSeparation.w>floor;
+        }
+        maximumTangentialImpulse = max(
+            maximumTangentialImpulse,
+            abs(sample.angularImpulseAndTangent.w));
+        const bool mpmContact =
+            object.representation == NM_REPRESENTATION_MPM;
+        if (!fixedPlaneKKT)
+            contactEnergy += ipcBarrierEnergy(
+                sample.pointAndSeparation.w,
+                sample.barrier.z,
+                sample.barrier.w,
+                mpmContact,
+                mpmContact ? sample.barrierHessianRow2.w : 0.0f);
+    }
+    const uint deformableCapacity = dispatch.deformableContactCapacity;
+    const uint deformableBase = environment * deformableCapacity;
+    const uint deformableCount=min(contact.deformableActiveCounts[environment],deformableCapacity);
+    for (uint activeSlot=first;activeSlot<deformableCount;activeSlot+=stride) {
+        const uint slot=deformableActiveIndices[deformableBase+activeSlot];
+        if(slot>=deformableCapacity){contactClearancesValid=false;continue;}
+        const NMDeformableContactGPU deformable =
+            contact.deformableContacts[deformableBase + slot];
+        if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
+            (deformable.identity.x != objectIndex &&
+             deformable.identity.y != objectIndex)) continue;
+        ++geometricContactCount;
+        maximumBarrierImpulse = max(
+            maximumBarrierImpulse, max(deformable.barrier.x, 0.0f));
+        minimumSeparation = min(
+            minimumSeparation, deformable.pointAndSeparation.w);
+        const float separation=deformable.pointAndSeparation.w;
+        const float clearance=solver.contactAcceptance.x*dispatch.numericalLimits.x;
+        const float legacyFloor=max(clearance,16.0f*kEpsilon*
+            max(maximumAbsoluteCoordinate(deformable.pointAndSeparation.xyz),1.0e-12f));
+        const bool separated=isfinite(separation)&&
+            (separation>legacyFloor || nmMixedReferenceContactClearance(
+                dispatch,deformable,candidateNodes,environment,clearance) ||
+             nmMixedReferenceRestContactClearance(dispatch,deformable,
+                candidateNodes,environment,clearance) ||
+             nmMixedReferenceInitialContactNonclosing(dispatch,deformable,
+                acceptedNodes,candidateNodes,environment,clearance));
+        const float failureScore=isfinite(separation)?separation:-INFINITY;
+        if(!separated&&(failureScore<firstInvalidSeparation||
+           (failureScore==firstInvalidSeparation&&slot<firstInvalidContact))) {
+            firstInvalidSeparation=failureScore;
+            firstInvalidContact=slot;
+            firstInvalidContactValues=float4(separation,clearance,legacyFloor,
+                float(deformable.identity.z));
+        }
+        contactClearancesValid=contactClearancesValid&&separated;
+        maximumTangentialImpulse = max(
+            maximumTangentialImpulse,
+            length(deformable.impulseAndFriction.yz));
+        contactEnergy += nmMixedDeformableContactEnergy(deformable);
+    }
+    maximumBarrierImpulse = simd_max(maximumBarrierImpulse);
+    minimumSeparation = simd_min(minimumSeparation);
+    maximumTangentialImpulse = simd_max(maximumTangentialImpulse);
+    contactEnergy = simd_sum(contactEnergy);
+    contactClearancesValid = simd_all(contactClearancesValid);
+    const float invalidSeparation=simd_min(firstInvalidSeparation);
+    const uint invalidContact=simd_min(firstInvalidSeparation==invalidSeparation?
+        firstInvalidContact:NM_INVALID_INDEX);
+    const uint invalidContactLane=simd_min(
+        firstInvalidContact==invalidContact?lane:NM_INVALID_INDEX);
+    const float4 invalidContactValues=simd_broadcast(
+        firstInvalidContactValues,invalidContactLane);
+    geometricContactCount = simd_sum(geometricContactCount);
+    fixedPlaneKKTCount = simd_sum(fixedPlaneKKTCount);
+    fixedPlaneKKTValuesFinite = simd_all(fixedPlaneKKTValuesFinite);
+    float minimumJ = INFINITY;
+    float volumeNorm2 = 0.0f;
+    uint activeElements = 0u;
+    for (uint local = first;
+         object.representation == NM_REPRESENTATION_FEM &&
+             local < object.elementCount;
+         local += stride) {
+        const uint tetIndex = object.elementOffset + local;
+        const NMTetrahedronGPU tet = environmentTetrahedron(
+            dispatch, tetrahedra, environment, tetIndex
+        );
+        if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+        ++activeElements;
+        const float j = determinant(tetrahedronDeformation(
+            tet, candidateNodes, nodeBase
+        ));
+        minimumJ = min(minimumJ, j);
+        float constraint = 0.0f;
+        if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+            object.materialIndex < dispatch.mixedMaterialCount) {
+            constraint = log(max(j, 1.0e-20f));
+            const NMMixedMaterialGPU material =
+                mixedMaterials[object.materialIndex];
+            const uint4 nodes = tet.nodes;
+            const float temperature = 0.25f * (
+                candidateFields[nodeBase + nodes.x].primary.y +
+                candidateFields[nodeBase + nodes.y].primary.y +
+                candidateFields[nodeBase + nodes.z].primary.y +
+                candidateFields[nodeBase + nodes.w].primary.y
+            );
+            const float pressure = 0.25f * (
+                candidateFields[nodeBase + nodes.x].primary.x +
+                candidateFields[nodeBase + nodes.y].primary.x +
+                candidateFields[nodeBase + nodes.z].primary.x +
+                candidateFields[nodeBase + nodes.w].primary.x
+            );
+            constraint += pressure / max(
+                material.mechanics.x, solver.regularization.x
+            ) - 3.0f * material.mechanics.y *
+                (temperature - material.mechanics.w);
+        }
+        if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u)
+            volumeNorm2 += constraint * constraint;
+    }
+    minimumJ = simd_min(minimumJ);
+    volumeNorm2 = simd_sum(volumeNorm2);
+    activeElements = simd_sum(activeElements);
+    if (lane == 0u) {
+        NMMixedCertificatePartialGPU p;
+        p.nonlinear = float4(correction, residualNorm2, pressureNorm2, volumeNorm2);
+        p.transportNorm2 = transportNorm2;
+        p.transportScaleNorm2 = transportScaleNorm2;
+        // Keep +infinity in empty tiles; the final reduction applies the
+        // original no-contact/no-element fallbacks exactly once.
+        p.contact = float4(maximumBarrierImpulse, minimumSeparation,
+            maximumTangentialImpulse, contactEnergy);
+        p.counts = uint4(activeElements, geometricContactCount, fixedPlaneKKTCount,
+            (contactClearancesValid ? 1u : 0u) | (fixedPlaneKKTValuesFinite ? 2u : 0u));
+        p.witness = uint4(invalidContact, as_type<uint>(invalidSeparation),
+            as_type<uint>(minimumJ), 0u);
+        p.invalidValues = invalidContactValues;
+        partials[group] = p;
+    }
 }
+
+kernel void nm_mixed_certify_finish(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device NMSolverCertificateGPU* certificates [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(11)]],
+    device const float4* lineSearch [[buffer(18)]],
+    device NMFGMRESTelemetryGPU* fgmresTelemetry [[buffer(21)]],
+    device const NMMixedCertificatePartialGPU* partials [[buffer(23)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || dispatch.objectCount == 0u) return;
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+    if (environment >= dispatch.environmentCount) return;
+    uint telemetryWriterObject = NM_INVALID_INDEX;
+    for (uint i = 0u; i < dispatch.objectCount; ++i)
+        if (objects[i].representation == NM_REPRESENTATION_FEM ||
+            objects[i].representation == NM_REPRESENTATION_MPM) {
+            telemetryWriterObject = i; break;
+        }
+    if (telemetryWriterObject == NM_INVALID_INDEX) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM &&
+        object.representation != NM_REPRESENTATION_MPM) return;
+    const uint normBase = (environment * dispatch.objectCount +
+        telemetryWriterObject) * kMixedCertificateTiles;
+    const uint objectBase = group * kMixedCertificateTiles;
+    float correction = 0.0f, residualNorm2 = 0.0f, pressureNorm2 = 0.0f;
+    float4 transportNorm2(0.0f), transportScaleNorm2(0.0f);
+    float maximumBarrierImpulse = 0.0f, minimumSeparation = INFINITY;
+    float maximumTangentialImpulse = 0.0f, contactEnergy = 0.0f;
+    float minimumJ = INFINITY, volumeNorm2 = 0.0f;
+    uint activeElements = 0u, geometricContactCount = 0u, fixedPlaneKKTCount = 0u;
+    bool contactClearancesValid = true, fixedPlaneKKTValuesFinite = true;
+    float firstInvalidSeparation = INFINITY;
+    uint firstInvalidContact = NM_INVALID_INDEX;
+    float4 firstInvalidContactValues(0.0f);
+    for (uint tile = lane; tile < kMixedCertificateTiles; tile += 32u) {
+        const NMMixedCertificatePartialGPU n = partials[normBase + tile];
+        const NMMixedCertificatePartialGPU p = partials[objectBase + tile];
+        correction = max(correction, n.nonlinear.x);
+        residualNorm2 += n.nonlinear.y;
+        pressureNorm2 += n.nonlinear.z;
+        transportNorm2 += n.transportNorm2;
+        transportScaleNorm2 += n.transportScaleNorm2;
+        maximumBarrierImpulse = max(maximumBarrierImpulse, p.contact.x);
+        minimumSeparation = min(minimumSeparation, p.contact.y);
+        maximumTangentialImpulse = max(maximumTangentialImpulse, p.contact.z);
+        contactEnergy += p.contact.w;
+        volumeNorm2 += p.nonlinear.w;
+        minimumJ = min(minimumJ, as_type<float>(p.witness.z));
+        activeElements += p.counts.x;
+        geometricContactCount += p.counts.y;
+        fixedPlaneKKTCount += p.counts.z;
+        contactClearancesValid = contactClearancesValid && (p.counts.w & 1u) != 0u;
+        fixedPlaneKKTValuesFinite = fixedPlaneKKTValuesFinite && (p.counts.w & 2u) != 0u;
+        const float score = as_type<float>(p.witness.y);
+        if (score < firstInvalidSeparation ||
+            (score == firstInvalidSeparation && p.witness.x < firstInvalidContact)) {
+            firstInvalidSeparation = score;
+            firstInvalidContact = p.witness.x;
+            firstInvalidContactValues = p.invalidValues;
+        }
+    }
+    correction = simd_max(correction);
+    residualNorm2 = simd_sum(residualNorm2);
+    pressureNorm2 = simd_sum(pressureNorm2);
+    transportNorm2 = float4(simd_sum(transportNorm2.x),simd_sum(transportNorm2.y),
+        simd_sum(transportNorm2.z),simd_sum(transportNorm2.w));
+    transportScaleNorm2 = float4(simd_sum(transportScaleNorm2.x),simd_sum(transportScaleNorm2.y),
+        simd_sum(transportScaleNorm2.z),simd_sum(transportScaleNorm2.w));
+    maximumBarrierImpulse = simd_max(maximumBarrierImpulse);
+    minimumSeparation = simd_min(minimumSeparation);
+    maximumTangentialImpulse = simd_max(maximumTangentialImpulse);
+    contactEnergy = simd_sum(contactEnergy);
+    minimumJ = simd_min(minimumJ);
+    volumeNorm2 = simd_sum(volumeNorm2);
+    activeElements = simd_sum(activeElements);
+    geometricContactCount = simd_sum(geometricContactCount);
+    fixedPlaneKKTCount = simd_sum(fixedPlaneKKTCount);
+    contactClearancesValid = simd_all(contactClearancesValid);
+    fixedPlaneKKTValuesFinite = simd_all(fixedPlaneKKTValuesFinite);
+    const float invalidSeparation = simd_min(firstInvalidSeparation);
+    const uint invalidContact = simd_min(firstInvalidSeparation == invalidSeparation ?
+        firstInvalidContact : NM_INVALID_INDEX);
+    const uint invalidLane = simd_min(firstInvalidContact == invalidContact ?
+        lane : NM_INVALID_INDEX);
+    const float4 invalidContactValues = simd_broadcast(firstInvalidContactValues, invalidLane);
+    const float initialNorm = max(fgmresStates[environment].diagnostics.y, 1.0f);
+    const float relativeResidual = sqrt(max(residualNorm2, 0.0f)) / initialNorm;
+    const float relativeCorrection = correction;
+    if (geometricContactCount == 0u) minimumSeparation = 0.0f;
+    if (object.representation == NM_REPRESENTATION_MPM) {
+        const float lineSearchMinimum = lineSearch[group].y;
+        minimumJ = isfinite(lineSearchMinimum) ? lineSearchMinimum : 1.0f;
+        activeElements = object.stateCount > 0u ? 1u : 0u;
+    } else if (activeElements == 0u) minimumJ = 1.0f;
+    nmMixedPublishCertificate(dispatch, solver, object, objectIndex,
+        telemetryWriterObject, environment, lane, certificates, statuses,
+        fgmresTelemetry, residualNorm2, pressureNorm2, transportNorm2,
+        transportScaleNorm2, initialNorm, relativeResidual, relativeCorrection,
+        maximumBarrierImpulse, minimumSeparation, maximumTangentialImpulse,
+        contactEnergy, contactClearancesValid, fixedPlaneKKTCount,
+        fixedPlaneKKTValuesFinite, invalidContact, invalidContactValues,
+        minimumJ, volumeNorm2, activeElements);
+}
+
 
 kernel void nm_mixed_commit(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],

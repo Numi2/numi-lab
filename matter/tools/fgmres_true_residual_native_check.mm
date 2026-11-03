@@ -14910,6 +14910,9 @@ void checkFinalContactActivePrefix(
     id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     const auto certify=pipeline(device,library,"numi_matter_metal::nm_mixed_certify");
     const auto sourceCertify=pipeline(device,library,"numi_matter_metal::nm_mixed_certify",true);
+    const auto tiled=pipeline(device,library,"numi_matter_metal::nm_mixed_certify_partials");
+    const auto tiledSource=pipeline(device,library,"numi_matter_metal::nm_mixed_certify_partials",true);
+    const auto finish=pipeline(device,library,"numi_matter_metal::nm_mixed_certify_finish");
     auto layoutFunction=[library newFunctionWithName:
         @"numi_matter_metal::nm_primal_contact_argument_layout"];
     auto arguments=[layoutFunction newArgumentEncoderWithBufferIndex:0u];
@@ -15011,6 +15014,38 @@ void checkFinalContactActivePrefix(
         require(command.status==MTLCommandBufferStatusCompleted,"contact certificate GPU command failed");
         const auto got=readBuffer<NMMatterStatusGPU>(status,2u);
         const auto cert=readBuffer<NMSolverCertificateGPU>(output,2u);
+        // Replay the identical GPU inputs through distributed measurement and
+        // the shared acceptance authority, preserving output canaries.
+        std::memcpy(output.contents,certificates.data(),certificates.size()*sizeof(certificates[0]));
+        std::memcpy(status.contents,statuses.data(),statuses.size()*sizeof(statuses[0]));
+        auto partials=makeBuffer(device,std::vector<nm_float4>(128u*7u+4u,
+            nm_float4{123.0f,124.0f,125.0f,126.0f}));
+        auto distributed=[queue commandBuffer];
+        auto e=[distributed computeCommandEncoder];
+        [e setComputePipelineState:mode>=10u?tiledSource:tiled];
+        for(const auto& [index,buffer]:bindings)[e setBuffer:buffer offset:0u atIndex:index];
+        [e setBuffer:partials offset:0u atIndex:23u];
+        for(auto buffer:{zero,count,contactBuffer})[e useResource:buffer usage:MTLResourceUsageRead];
+        [e dispatchThreadgroups:MTLSizeMake(128u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+        [e memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        [e setComputePipelineState:finish];
+        [e dispatchThreadgroups:MTLSizeMake(1u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+        [e endEncoding];[distributed commit];[distributed waitUntilCompleted];
+        require(distributed.status==MTLCommandBufferStatusCompleted,
+            "tiled mixed certificate GPU command failed");
+        const auto tiledStatus=readBuffer<NMMatterStatusGPU>(status,2u);
+        const auto tiledCert=readBuffer<NMSolverCertificateGPU>(output,2u);
+        require(std::memcmp(got.data(),tiledStatus.data(),2u*sizeof(got[0]))==0,
+            "tiled contact certificate status/witness and canary parity");
+        require(std::memcmp(cert.data(),tiledCert.data(),2u*sizeof(cert[0]))==0,
+            "tiled contact certificate value and canary parity");
+        const auto tail=readBuffer<nm_float4>(partials,128u*7u+4u);
+        for(unsigned i=128u*7u;i<tail.size();++i)
+            require(tail[i].x==123.0f&&tail[i].y==124.0f&&
+                    tail[i].z==125.0f&&tail[i].w==126.0f,
+                "tiled certificate partial canary");
         const bool expectedFailure=mode==1u||mode==2u||(mode>=6u&&mode<=9u)||
             (mode>=11u&&mode<=14u);
         if(got[0].code!=(expectedFailure?NM_STATUS_NONLINEAR_SOLVER_FAILURE:0u))
@@ -15029,6 +15064,135 @@ void checkFinalContactActivePrefix(
     std::cout<<"final_contact_active_prefix=true sparse_order=true poisoned_padding_ignored=true"
         " empty=true invalid_index_rejected=true hard_clearance_preserved=true"
         " deterministic_witness=true canaries=2 cases=16 initially_close_nonclosing=true default_clearance_preserved=true source_margin_pipeline=true captured_full_Human_case=true source_overlap_rejected=true below_source_margin_rejected=true PASS\n";
+}
+
+
+void checkTiledMixedCertificateDomains(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    const auto legacy=pipeline(device,library,"numi_matter_metal::nm_mixed_certify");
+    const auto tiled=pipeline(device,library,"numi_matter_metal::nm_mixed_certify_partials");
+    const auto finish=pipeline(device,library,"numi_matter_metal::nm_mixed_certify_finish");
+    auto f=[library newFunctionWithName:@"numi_matter_metal::nm_primal_contact_argument_layout"];
+    auto ae=[f newArgumentEncoderWithBufferIndex:0u];
+    require(ae!=nil,"mixed tiled domain argument encoder");
+    for(unsigned fault=0;fault<5u;++fault) {
+        NMMatterDispatchGPU d{};d.environmentCount=2;d.objectCount=3;
+        d.femNodeCount=519;d.tetrahedronCount=2;d.mixedMaterialCount=1;
+        d.deformableContactCapacity=520;d.numericalLimits={1e-5f,0,0.05f,0};
+        NMMixedSolverGPU solver{};solver.regularization.x=1e-6f;
+        solver.residualTolerances={1e-3f,1e-3f,1e-3f,1e-3f};
+        solver.contactAcceptance.x=1e-4f;
+        NMFGMRESLayoutGPU layout{};
+        std::vector<NMContinuumObjectGPU> objects(3);
+        for(unsigned o=0;o<2u;++o) {
+            objects[o].representation=NM_REPRESENTATION_FEM;
+            objects[o].flags=NM_OBJECT_ACTIVE|NM_OBJECT_MIXED_FEM|NM_OBJECT_MULTIPHYSICS;
+            objects[o].stateOffset=o==0?0:4;objects[o].stateCount=o==0?4:515;
+            objects[o].elementOffset=o;objects[o].elementCount=1;
+        }
+        std::vector<NMFEMNodeStateGPU> nodes(2*d.femNodeCount);
+        std::vector<NMFEMFieldStateGPU> fields(nodes.size());
+        std::vector<nm_float4> residual(2*nodes.size()),fieldResidual(nodes.size()),
+            correction(residual.size());
+        for(unsigned env=0;env<2u;++env)for(unsigned i=0;i<d.femNodeCount;++i) {
+            const unsigned g=env*d.femNodeCount+i;
+            const unsigned corner=i%4u;
+            const float x=corner==1?1.0f:0.0f,y=corner==2?1.0f:0.0f,z=corner==3?1.0f:0.0f;
+            nodes[g].positionAndMass={x,y,z,1};
+            nodes[g].restAndFixed={x,y,z,0};
+            nodes[g].velocityAndInverseMass={0.01f*float(i%7u),0,0,1};
+            fields[g].primary={0.02f,300.0f+float(i%3u),0,0};
+            fields[g].secondary={0.1f,0.2f,0.3f,0.4f};
+            residual[g]={1e-7f*float(i%11u),-2e-7f,3e-7f,1e-8f};
+            fieldResidual[g]={1e-7f,2e-7f,-3e-7f,4e-7f};
+            correction[g]={1e-5f,2e-5f,3e-5f,1e-9f};
+            correction[nodes.size()+g]={1e-6f,2e-6f,3e-6f,4e-6f};
+        }
+        if(fault==2)residual[517].x=1.0f;
+        if(fault==3)nodes[1].positionAndMass.x=-1.0f;
+        if(fault==4)fieldResidual[517].y=INFINITY;
+        std::vector<NMTetrahedronGPU> tets(4);
+        for(unsigned env=0;env<2u;++env)for(unsigned o=0;o<2u;++o) {
+            auto& t=tets[2u*env+o];t.nodes={4u*o,4u*o+1u,4u*o+2u,4u*o+3u};
+            t.identity={0,o,0,NM_OBJECT_ACTIVE};
+            t.inverseRestRow0={1,0,0,0};t.inverseRestRow1={0,1,0,0};
+            t.inverseRestRow2={0,0,1,0};
+        }
+        NMMixedMaterialGPU material{};material.mechanics={1000,0,0,300};
+        std::vector<NMDeformableContactGPU> contacts(1040);
+        std::vector<unsigned> indices(1040,NM_INVALID_INDEX);
+        for(unsigned env=0;env<2u;++env)for(unsigned i=0;i<519u;++i) {
+            auto& c=contacts[env*520u+i];
+            c.identity={0,1,NM_DEFORMABLE_CONTACT_POINT_POINT,NM_CONTACT_VALID};
+            c.nodes={0,4,NM_INVALID_INDEX,NM_INVALID_INDEX};
+            c.extraNodes={NM_INVALID_INDEX,NM_INVALID_INDEX,0,0};
+            c.pointAndSeparation={0,0,0,0.001f};c.barrier.x=float(i%9u);
+            c.impulseAndFriction={0,0.02f,0.03f,0};
+            indices[env*520u+i]=518u-i;
+        }
+        if(fault==1)for(unsigned i:{317u,320u})contacts[i].pointAndSeparation.w=0;
+        auto zero=makeBuffer(device,std::vector<unsigned>(4096,0));
+        auto cb=makeBuffer(device,contacts),counts=makeBuffer(device,std::vector<unsigned>{519,519});
+        auto ab=[device newBufferWithLength:ae.encodedLength options:MTLResourceStorageModeShared];
+        [ae setArgumentBuffer:ab offset:0];
+        for(NSUInteger i=0;i<20u;++i)[ae setBuffer:zero offset:0 atIndex:i];
+        [ae setBuffer:cb offset:0 atIndex:7];[ae setBuffer:counts offset:0 atIndex:14];
+        NMFGMRESStateGPU st{};st.diagnostics.y=1;
+        auto out=makeBuffer(device,std::vector<NMSolverCertificateGPU>(6));
+        auto status=makeBuffer(device,std::vector<NMMatterStatusGPU>(2));
+        auto telemetry=makeBuffer(device,std::vector<NMFGMRESTelemetryGPU>(2));
+        auto nb=makeBuffer(device,nodes),fb=makeBuffer(device,fields);
+        std::vector<std::pair<NSUInteger,id<MTLBuffer>>> bindings{
+            {0,makeBuffer(device,std::vector<NMMatterDispatchGPU>{d})},
+            {1,makeBuffer(device,std::vector<NMMixedSolverGPU>{solver})},
+            {2,makeBuffer(device,objects)},{3,nb},{4,nb},{5,fb},{6,fb},
+            {7,makeBuffer(device,tets)},{8,out},{9,status},{10,makeBuffer(device,residual)},
+            {11,makeBuffer(device,std::vector<NMFGMRESStateGPU>(2,st))},
+            {12,makeBuffer(device,fieldResidual)},
+            {13,makeBuffer(device,std::vector<NMMixedMaterialGPU>{material})},
+            {14,makeBuffer(device,correction)},{15,zero},{16,zero},{17,zero},
+            {18,zero},{19,ab},{20,zero},{21,telemetry},{22,makeBuffer(device,indices)},
+            {30,makeBuffer(device,std::vector<NMFGMRESLayoutGPU>{layout})}};
+        auto execute=[&](bool fast) {
+            std::memset(out.contents,0,out.length);std::memset(status.contents,0,status.length);
+            std::memset(telemetry.contents,0,telemetry.length);
+            auto partial=makeBuffer(device,std::vector<nm_float4>(6u*128u*7u));
+            auto command=[queue commandBuffer];auto e=[command computeCommandEncoder];
+            for(auto [i,b]:bindings)[e setBuffer:b offset:0 atIndex:i];
+            [e useResource:zero usage:MTLResourceUsageRead];
+            [e useResource:cb usage:MTLResourceUsageRead];
+            [e useResource:counts usage:MTLResourceUsageRead];
+            [e setComputePipelineState:fast?tiled:legacy];
+            if(fast)[e setBuffer:partial offset:0 atIndex:23];
+            [e dispatchThreadgroups:MTLSizeMake(6u*(fast?128u:1u),1,1)
+                threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+            if(fast) {
+                [e memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                [e setComputePipelineState:finish];
+                [e dispatchThreadgroups:MTLSizeMake(6,1,1)
+                    threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+            }
+            [e endEncoding];[command commit];[command waitUntilCompleted];
+            require(command.status==MTLCommandBufferStatusCompleted,"mixed domain GPU execution");
+        };
+        execute(false);auto ref=readBuffer<NMSolverCertificateGPU>(out,6);
+        auto rs=readBuffer<NMMatterStatusGPU>(status,2);
+        execute(true);auto actual=readBuffer<NMSolverCertificateGPU>(out,6);
+        auto as=readBuffer<NMMatterStatusGPU>(status,2);
+        const float* r=reinterpret_cast<const float*>(ref.data());
+        const float* a=reinterpret_cast<const float*>(actual.data());
+        for(unsigned i=0;i<6u*sizeof(NMSolverCertificateGPU)/sizeof(float);++i)
+            require((std::isnan(r[i])&&std::isnan(a[i]))||r[i]==a[i]||
+                std::abs(r[i]-a[i])<=1e-8f+1e-5f*std::abs(r[i]),
+                "tiled mixed node/field/contact/element certificate parity");
+        for(unsigned env=0;env<2;++env) {
+            require(rs[env].code==as[env].code,"mixed tiled failure acceptance parity");
+            if(fault==1&&env==0)require(as[env].failingIndex==317,
+                "mixed tiled deterministic contact witness");
+        }
+    }
+    std::cout<<"mixed_certificate_tiled domains=FEM_pressure_transport contacts=519 environments=2 objects=3 "
+        "faults=clearance_residual_inversion_nonfinite PASS\n";
 }
 
 void checkCapturedInitialNonclosing(
@@ -16085,6 +16249,12 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if(argc==2&&std::string(argv[1])=="--tiled-mixed-certificate-only") {
+                checkFinalContactActivePrefix(device,queue,library);
+                checkTiledMixedCertificateDomains(device,queue,library);
+                std::cout<<"PASS tiled mixed certificate "<<checks<<" checks\n";
+                return 0;
+            }
             if(argc==2&&std::string(argv[1])=="--fem-aligned-barrier-only") {
                 checkFEMAlignedBarrier(device,queue,library);return 0;
             }
@@ -16801,6 +16971,7 @@ int main(int argc, const char* argv[]) {
             checkReferenceContactPlaneCertificate(device,queue,library);
             checkFinalReferenceContactClearance(device,queue,library);
             checkFinalContactActivePrefix(device,queue,library);
+            checkTiledMixedCertificateDomains(device,queue,library);
             checkCapturedInitialNonclosing(device,queue,library);
             checkCapturedRestMarginSweep(device,queue,library);
             checkUnresolvedReferenceSweepProof(device,queue,library);

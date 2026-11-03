@@ -4010,6 +4010,8 @@ struct Runtime::State {
     id<MTLBuffer> femArmijoCohesiveFaces = nil;
     id<MTLBuffer> femArmijoCohesiveFaceForces = nil;
     id<MTLBuffer> femArmijoMetrics = nil;
+    bool mixedCertificateTiledEnabled = false;
+    id<MTLBuffer> mixedCertificatePartials = nil;
     bool femDistributedGlobalMeasurementsEnabled = false;
     bool femDomainNonlinearLatchEnabled = false;
     std::uint32_t femDomainMechanicalTightening = 0u;
@@ -6329,6 +6331,22 @@ RuntimeDiagnostics Runtime::initialize(
         }
         candidate->fgmresInexactCoupledLinearCertificateEnabled =
             inexactLinearCertificateEnabled;
+        if (const char* setting = std::getenv("NM_MIXED_CERTIFICATE_TILED")) {
+            if (std::strcmp(setting, "0") != 0 && std::strcmp(setting, "1") != 0) {
+                diagnostics.message = "NM_MIXED_CERTIFICATE_TILED requires 0 or 1";
+                return diagnostics;
+            }
+            candidate->mixedCertificateTiledEnabled = std::strcmp(setting, "1") == 0;
+            if (candidate->mixedCertificateTiledEnabled &&
+                std::any_of(world.objects.begin(), world.objects.end(),
+                    [](const NMContinuumObjectGPU& object) {
+                        return object.representation == NM_REPRESENTATION_MPM;
+                    })) {
+                diagnostics.message =
+                    "tiled mixed certification is qualified for FEM layouts only; MPM retains legacy certification";
+                return diagnostics;
+            }
+        }
         candidate->femDistributedGlobalMeasurementsEnabled = distributedGlobals != nullptr;
         candidate->femDomainNonlinearLatchEnabled =
             domainNonlinearLatchEnabled;
@@ -8351,6 +8369,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mixed_build_residual_diagonal",
             "nm_mixed_apply_kkt_solution",
             "nm_mixed_certify",
+            "nm_mixed_certify_partials",
+            "nm_mixed_certify_finish",
             "nm_mixed_capture_contact_certificate_witness",
             "nm_mixed_commit",
             "nm_mixed_rollback",
@@ -12059,6 +12079,15 @@ RuntimeDiagnostics Runtime::initialize(
             environments, valid, candidate->residentBytes);
         const std::size_t mixedNodeTotal =
             environments * world.dispatch.femNodeCount;
+        if (candidate->mixedCertificateTiledEnabled) {
+            // Seven 16-byte records per tile, matching the private Metal
+            // NMMixedCertificatePartialGPU. No accepted state is duplicated.
+            candidate->mixedCertificatePartials =
+                privateScratch<std::array<nm_float4, 7>>(
+                    candidate->device,
+                    environments * world.dispatch.objectCount * 128u,
+                    valid, candidate->residentBytes);
+        }
         candidate->mixedFieldSolution = privateScratch<nm_float4>(
             candidate->device, mixedNodeTotal,
             valid, candidate->residentBytes);
@@ -47747,8 +47776,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // already computed trial records, never re-evaluate CPU physics.
             const char* backtrackingObjectSetting = std::getenv("NM_FEM_BACKTRACKING_TRACE_OBJECT");
             const char* backtrackingRootSetting = std::getenv("NM_FEM_BACKTRACKING_TRACE_ROOT");
+            const char* backtrackingNewtonSetting =
+                std::getenv("NM_FEM_BACKTRACKING_TRACE_NEWTON");
+            const std::uint32_t backtrackingNewton = backtrackingNewtonSetting == nullptr
+                ? 0u : std::strtoul(backtrackingNewtonSetting, nullptr, 10);
+
             if (backtrackingObjectSetting != nullptr && backtrackingRootSetting != nullptr &&
-                micro.solverIteration == 0u && environments == 1u &&
+                micro.solverIteration == backtrackingNewton && environments == 1u &&
                 request.controlStep == std::strtoul(backtrackingRootSetting,nullptr,10) &&
                 state.femParallelBacktrackingEnabled && state.femParallelBacktrackingPartials != nil) {
                 const std::uint32_t objectIndex = std::strtoul(backtrackingObjectSetting,nullptr,10);
@@ -47784,12 +47818,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         toBuffer:snapshot destinationOffset:partialBytes size:sizeof(nm_float4)];
                     [copy endEncoding];
                     const auto root=request.controlStep;
+                    const auto iteration=micro.solverIteration;
                     [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
                         if (completed.status != MTLCommandBufferStatusCompleted) return;
                         const auto* records=static_cast<const nm_float4*>(snapshot.contents);
                         const nm_float4 selected=records[partialBytes/sizeof(nm_float4)];
                         std::ostringstream line;
-                        line<<"fem_backtracking_trials={\"root\":"<<root<<",\"iteration\":0,\"object\":"
+                        line<<"fem_backtracking_trials={\"root\":"<<root<<",\"iteration\":"<<iteration<<",\"object\":"
                             <<objectIndex<<",\"selected_alpha\":"<<selected.x<<",\"trials\":[";
                         bool first=true;
                         for (std::uint32_t trial=0u;selected.z>0.0f && trial<trials;++trial) {
@@ -50234,7 +50269,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return diagnostics;
                 }
             }
-            dispatchGroups32("nm_mixed_certify", objectTotal, [&] {
+            dispatchGroups32(
+                state.mixedCertificateTiledEnabled ? "nm_mixed_certify_partials" :
+                    "nm_mixed_certify",
+                objectTotal * (state.mixedCertificateTiledEnabled ? 128u : 1u), [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -50262,7 +50300,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 // disabled it is neither initialized nor presented/read back.
                 [encoder setBuffer:state.fgmresTelemetry offset:0u atIndex:21u];
                 [encoder setBuffer:state.deformableContactActiveIndices offset:0u atIndex:22u];
+                if (state.mixedCertificateTiledEnabled)
+                    [encoder setBuffer:state.mixedCertificatePartials offset:0u atIndex:23u];
             });
+            if (state.mixedCertificateTiledEnabled) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32("nm_mixed_certify_finish", objectTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.solverCertificates offset:0u atIndex:8u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:11u];
+                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:18u];
+                    [encoder setBuffer:state.fgmresTelemetry offset:0u atIndex:21u];
+                    [encoder setBuffer:state.mixedCertificatePartials offset:0u atIndex:23u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             if (!encodeFEMNewtonCertificateTrace()) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;

@@ -1,0 +1,4 @@
+{
+  "reason": "Extra MRV capture steps 2 and 8 are outside the native submission/terminal capture cadence. Early preflight rejected before physical execution. Replacement013 keeps the supported initial/terminal captures.",
+  "physical_result": "none"
+}

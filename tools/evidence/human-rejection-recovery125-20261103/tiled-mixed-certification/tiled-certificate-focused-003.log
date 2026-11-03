@@ -1,0 +1,3 @@
+final_contact_active_prefix=true sparse_order=true poisoned_padding_ignored=true empty=true invalid_index_rejected=true hard_clearance_preserved=true deterministic_witness=true canaries=2 cases=16 initially_close_nonclosing=true default_clearance_preserved=true source_margin_pipeline=true captured_full_Human_case=true source_overlap_rejected=true below_source_margin_rejected=true PASS
+mixed_certificate_tiled domains=FEM_pressure_transport contacts=519 environments=2 objects=3 faults=clearance_residual_inversion_nonfinite PASS
+PASS tiled mixed certificate 1583 checks

@@ -1,0 +1,206 @@
+{
+  "scope": "full Human unbalanced release transient; initialization and failed attempts excluded from accepted-step GPU mean; not supported rest",
+  "trials": {
+    "cooperative-bundle-native-012": {
+      "retained_files": {
+        "install-motion.plan.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-012/install-motion.plan.json",
+          "bytes": 95979,
+          "sha256": "9d40b55c4dacab1c7f1e4347966881d8f698a05fa282d9fee5e8d3d80bc2bd95"
+        },
+        "build-manifest.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-012/build-manifest.json",
+          "bytes": 6972,
+          "sha256": "5b5fc0f314d69f895d1bb95420f9a6bea7407e6c60138e93fa0295390b245701"
+        },
+        "install-motion.execution.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-012/install-motion.execution.json",
+          "bytes": 749,
+          "sha256": "fee9c3b6c1b58e7a2c5608f63972912769f40d2fcfe7ffd0153699f0d342a5d3"
+        },
+        "resource-policy.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-012/resource-policy.json",
+          "bytes": 352,
+          "sha256": "9681bc38a4cf3a1667d93aa67cf9aa133af9ce06cdd87f8ae969402b50fc4423"
+        },
+        "resource-monitor.jsonl": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-012/resource-monitor.jsonl",
+          "bytes": 229,
+          "sha256": "30308babe080acce017fa06eaa8764fec7cbccbbfbd949ea6e098c31275d103a"
+        },
+        "install-motion.stdout.log": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-012/install-motion.stdout.log",
+          "bytes": 5110,
+          "sha256": "77b638aefbad3a4f909d453567850b7774f22c616801e8b3aafe4b87b8b61bda"
+        },
+        "install-motion.stderr.log": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-012/install-motion.stderr.log",
+          "bytes": 138,
+          "sha256": "1eb6f2574bcfc5b908ad33f29fbb8fe35821e6a0013d084ec9f6bde3faba5bec"
+        },
+        "early-stop-reason.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-012/early-stop-reason.json",
+          "bytes": 253,
+          "sha256": "1d3b5a961535259753b7305fd15adb50ed963e5d89a5a8d1038f930c32eb5ada"
+        }
+      },
+      "accepted_steps": 0,
+      "accepted_simulated_seconds": 0.0,
+      "accepted_step_gpu_s": [],
+      "accepted_gpu_s_total": 0,
+      "physical_admission": false
+    },
+    "cooperative-bundle-native-013": {
+      "retained_files": {
+        "install-motion.plan.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-013/install-motion.plan.json",
+          "bytes": 95949,
+          "sha256": "a21bd708ff195b762359e9a68ab4d609eae21adad695a67688ceadb73aab4997"
+        },
+        "build-manifest.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-013/build-manifest.json",
+          "bytes": 6972,
+          "sha256": "5274c5baeb498218ca6bc9f08b4cef1aced9573b9ffcde5ee4b776fe4a036201"
+        },
+        "install-motion.execution.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-013/install-motion.execution.json",
+          "bytes": 748,
+          "sha256": "2d2585df56be974d085d358eb1d6b6f1fcb4d790d1d36906f3dc54cbcd370ff0"
+        },
+        "resource-policy.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-013/resource-policy.json",
+          "bytes": 352,
+          "sha256": "46a410708579c94bde5bdc9c113613398bd36f185cd99c62cf6b9b46e60e094e"
+        },
+        "resource-monitor.jsonl": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-013/resource-monitor.jsonl",
+          "bytes": 8974,
+          "sha256": "58b9559bd67ac9355710151f5ce389efc87d2719d82e8fd0ec1f03816d3488e4"
+        },
+        "install-motion.stdout.log": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-013/install-motion.stdout.log",
+          "bytes": 310814,
+          "sha256": "fc7093d587ac6a5275e618224de92a52fb5f8b86d3e8a7f4df945b6bab99bd71"
+        },
+        "install-motion.stderr.log": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-013/install-motion.stderr.log",
+          "bytes": 368610,
+          "sha256": "dc961c96b9b40c5a4ed164b7015b566f3e502b61c95b2a41806a3a496079029b"
+        },
+        "install-motion/resting-coupled.csv": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-013/install-motion/resting-coupled.csv",
+          "bytes": 7398,
+          "sha256": "ec13de094dfdca8baa1fc7e388edf363b405aaf631f0aca69f88f8dea3ca65da"
+        },
+        "install-motion/diagnostics/common-field-failure.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cooperative-bundle-native-013/install-motion/diagnostics/common-field-failure.json",
+          "bytes": 4231,
+          "sha256": "2ae7887e4fa361a345a131b5d0916d80a2d9e7072ddee9bfe2abed93554734f6"
+        }
+      },
+      "accepted_steps": 8,
+      "accepted_simulated_seconds": 0.000125,
+      "accepted_step_gpu_s": [
+        20.0324677083,
+        20.1508121667,
+        19.30367425,
+        19.1063053333,
+        19.140234375,
+        19.171302124999997,
+        20.242638749999998,
+        19.37752075
+      ],
+      "accepted_gpu_s_total": 156.52495545829998,
+      "physical_admission": false
+    },
+    "tiled-certificate-native-014": {
+      "retained_files": {
+        "install-motion.plan.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-certificate-native-014/install-motion.plan.json",
+          "bytes": 96134,
+          "sha256": "652123adab31f3cce159a7c95fc63c3e67704a87b5b3debc5c2bee4d05c103a7"
+        },
+        "build-manifest.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-certificate-native-014/build-manifest.json",
+          "bytes": 6971,
+          "sha256": "667203b37fff29ce1c6c696ca290f955bc62df52330cf2a6ffa161a39f914b79"
+        },
+        "install-motion.execution.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-certificate-native-014/install-motion.execution.json",
+          "bytes": 747,
+          "sha256": "30e211467ef91793bf91fb497cb76c74fccbbb44121934e9029b36c99d890a24"
+        },
+        "resource-policy.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-certificate-native-014/resource-policy.json",
+          "bytes": 352,
+          "sha256": "577b2b012a259a6e443d34e16a7fc0de80c54ac2375258f4a9981b0d720eeec9"
+        },
+        "resource-monitor.jsonl": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-certificate-native-014/resource-monitor.jsonl",
+          "bytes": 8696,
+          "sha256": "a12615ae830e093470a18c7956d3755ec0c547ee71619cefd0c57140ad0e5c61"
+        },
+        "install-motion.stdout.log": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-certificate-native-014/install-motion.stdout.log",
+          "bytes": 310819,
+          "sha256": "ea6ac73050e69892123180b354c7dd9dfa5f44e6a5e19f43204a15ff1fc8dbb1"
+        },
+        "install-motion.stderr.log": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-certificate-native-014/install-motion.stderr.log",
+          "bytes": 373683,
+          "sha256": "7186ca55017d7ffea34924c731adc3b276f4e243fab57cf50b5303a2c7b55dda"
+        },
+        "install-motion/resting-coupled.csv": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-certificate-native-014/install-motion/resting-coupled.csv",
+          "bytes": 7398,
+          "sha256": "ec13de094dfdca8baa1fc7e388edf363b405aaf631f0aca69f88f8dea3ca65da"
+        },
+        "install-motion/diagnostics/common-field-failure.json": {
+          "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-certificate-native-014/install-motion/diagnostics/common-field-failure.json",
+          "bytes": 4231,
+          "sha256": "2ae7887e4fa361a345a131b5d0916d80a2d9e7072ddee9bfe2abed93554734f6"
+        }
+      },
+      "accepted_steps": 8,
+      "accepted_simulated_seconds": 0.000125,
+      "accepted_step_gpu_s": [
+        18.8164968333,
+        18.41396375,
+        17.617502708299998,
+        17.4560025,
+        17.4892430833,
+        17.521936125,
+        18.4756482917,
+        17.7326125833
+      ],
+      "accepted_gpu_s_total": 143.5234058749,
+      "physical_admission": false
+    }
+  },
+  "matched_baseline": "vascular-domain-native-011; 8 accepted; mean GPU 19.4268632552s",
+  "tiled_mean_gpu_s": 17.9404257343625,
+  "single_pair_gpu_time_reduction_fraction": 0.0765145407836042,
+  "single_pair_gpu_throughput_ratio": 1.0828540828878117,
+  "repeat_pairs_completed": 1,
+  "statistical_speedup_qualification": false,
+  "compact_coupled_csv_bitwise_parity": true,
+  "compact_csv_sha256": "ec13de094dfdca8baa1fc7e388edf363b405aaf631f0aca69f88f8dea3ca65da",
+  "mesh_bitwise_parity_claimed": false,
+  "final_physical_gates_changed": false,
+  "blocking_witness": {
+    "root": 8,
+    "newton_iteration": 14,
+    "object": 15,
+    "tet": 988111,
+    "upper_J": 2.5,
+    "selected_alpha": 2.98023224e-08,
+    "earliest_invalid_tet_unique": true
+  },
+  "tests": {
+    "full_kernel_checks": 811076,
+    "focused_tiled_checks": 1583
+  },
+  "scratch_bytes_for_22_objects_1_environment": 315392,
+  "native_motion_qualified": false,
+  "target_0_1_realtime_achieved": false
+}
