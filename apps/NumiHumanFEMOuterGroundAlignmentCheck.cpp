@@ -54,6 +54,25 @@ int main() {
         if(i!=3u)assert(result.q[i]==seed[i]);
     assert(result.q[3]<seed[3]);
 
+    FEMBedBarrierRelease release;std::string releaseError;
+    assert(makeFEMBedBarrierRelease(0.0,4.043023693611758e-8,
+        double(float(1.0e-5)),release,releaseError));
+    assert(release.minimumGapM>=double(float(1.0e-5))&&release.minimumGapM<=1.1e-5);
+    assert(release.compiledOffsetM<0.0f&&release.offsetDeltaM<0.0);
+    for(double offset:{-0.0003,0.01,2.0}) {
+        assert(makeFEMBedBarrierRelease(offset,4.0e-8,1.0e-5,release,releaseError));
+        assert(release.minimumGapM>=1.0e-5&&release.minimumGapM<=1.1e-5);
+    }
+    const auto preserved=release;
+    for(double bad:{-1.0e-8,2.0e-6,double(INFINITY),double(NAN)}) {
+        assert(!makeFEMBedBarrierRelease(0.0,bad,1.0e-5,release,releaseError));
+        assert(release.compiledOffsetM==preserved.compiledOffsetM);
+    }
+    for(double bad:{0.0,-1.0e-5,.01,double(INFINITY),double(NAN)})
+        assert(!makeFEMBedBarrierRelease(0.0,4.0e-8,bad,release,releaseError));
+    assert(!makeFEMBedBarrierRelease(double(NAN),4.0e-8,1.0e-5,release,releaseError));
+    assert(!makeFEMBedBarrierRelease(1.0e30,4.0e-8,1.0e-5,release,releaseError));
+
     FEMOuterGroundAlignment unchanged;
     unchanged.outerNodeCount=999u;
     unchanged.q={9.0f};

@@ -27606,6 +27606,30 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             groundNormal[0] * groundPoint[0] +
             groundNormal[1] * groundPoint[1] +
             groundNormal[2] * groundPoint[2];
+        const char* barrierRelease=std::getenv("NUMI_HUMAN_FEM_SUPPORT_BARRIER_RELEASE");
+        require(!barrierRelease||std::string_view(barrierRelease)=="0"||
+            std::string_view(barrierRelease)=="1","FEM support barrier release must be 0 or 1");
+        if(barrierRelease&&std::string_view(barrierRelease)=="1") {
+            double minimumGap=std::numeric_limits<double>::infinity();
+            for(const auto row:wholeBodySkinBoundaryNodeMap.outer) {
+                const auto& x=outerSkin.femNodes.at(row);
+                minimumGap=std::min(minimumGap,groundNormal[0]*x[0]+
+                    groundNormal[1]*x[1]+groundNormal[2]*x[2]-bed.radiusOrOffset);
+            }
+            metalrobo::human::coarse_tissue::FEMBedBarrierRelease release;
+            std::string releaseError;
+            require(metalrobo::human::coarse_tissue::makeFEMBedBarrierRelease(
+                bed.radiusOrOffset,minimumGap,double(float(source.contactSlop)),
+                release,releaseError),"FEM bed barrier release rejected: "+releaseError);
+            bed.radiusOrOffset=release.compiledOffsetM;
+            std::cout<<std::setprecision(17)<<"resting_fem_bed_barrier_release=applied"
+                <<" original_min_gap_m="<<minimumGap
+                <<" activation_width_m="<<source.contactSlop
+                <<" plane_offset_delta_m="<<release.offsetDeltaM
+                <<" compiled_min_gap_m="<<release.minimumGapM
+                <<" anatomy_frames=unchanged per_step_adjustment=none"
+                <<" added_force_rows=0 initialization=unbalanced_release"<<std::endl;
+        }
         source.rigidProxies.push_back(bed);
         require(std::count_if(source.objects.begin(), source.objects.end(),
                     [](const auto& object) { return object.rigidContactEnabled; }) == 1 &&
@@ -28004,8 +28028,11 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             minimumGap = std::min(minimumGap, gap);
             maximumGap = std::max(maximumGap, gap);
         }
-        require(minimumGap >= -1.0e-6 && minimumGap <= 1.0e-6,
-                "compiled outer skin is not within the 1um first-touch bed bound");
+        const char* barrierRelease=std::getenv("NUMI_HUMAN_FEM_SUPPORT_BARRIER_RELEASE");
+        const double targetGap=barrierRelease&&std::string_view(barrierRelease)=="1"
+            ? source.contactSlop : 0.0;
+        require(minimumGap >= targetGap-1.0e-6 && minimumGap <= targetGap+1.0e-6,
+                "compiled outer skin is not within 1um of its declared bed release target");
         std::cout << "resting_fem_skin_bed_compiled=validated"
                   << " pair_rows=" << compiled.world.contact.pairs.size()
                   << " initial_outer_min_gap_m=" << minimumGap

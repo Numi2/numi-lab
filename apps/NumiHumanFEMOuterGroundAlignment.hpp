@@ -165,5 +165,36 @@ template<class EvaluateOuterF32>
     return true;
 }
 
+// One-time placement of the existing fixed support plane. Keep the pinned
+// body/rest frames unchanged and start outside the IPC activation band instead
+// of injecting a large barrier impulse into an otherwise unloaded release.
+struct FEMBedBarrierRelease {
+    float compiledOffsetM=0.0f;
+    double offsetDeltaM=0.0;
+    double minimumGapM=0.0;
+};
+[[nodiscard]] inline bool makeFEMBedBarrierRelease(
+        const double originalOffsetM, const double originalMinimumGapM,
+        const double activationWidthM, FEMBedBarrierRelease& result,
+        std::string& error) {
+    const auto fail=[&](const char* why){error=why;return false;};
+    if(!std::isfinite(originalOffsetM)||!std::isfinite(originalMinimumGapM)||
+       originalMinimumGapM<0.0||originalMinimumGapM>1.0e-6||
+       !std::isfinite(activationWidthM)||activationWidthM<1.0e-8||
+       activationWidthM>1.0e-3)
+        return fail("bed barrier release requires a finite admitted first-touch gap and bounded activation width");
+    const double desiredOffset=originalOffsetM+originalMinimumGapM-activationWidthM;
+    float offset=static_cast<float>(desiredOffset);
+    if(!std::isfinite(offset))
+        return fail("bed barrier release plane offset is not representable");
+    if(double(offset)>desiredOffset)
+        offset=std::nextafter(offset,-std::numeric_limits<float>::infinity());
+    const double gap=originalMinimumGapM+(originalOffsetM-double(offset));
+    if(!std::isfinite(gap)||gap<activationWidthM||gap>activationWidthM+1.0e-6)
+        return fail("bed barrier release cannot preserve its target under Float32 emission");
+    result={offset,double(offset)-originalOffsetM,gap};
+    error.clear();return true;
+}
+
 } // namespace metalrobo::human::coarse_tissue
 

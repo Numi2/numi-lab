@@ -5902,6 +5902,21 @@ inline float nmReferenceSelfContactBarrierWidth(
         cross(local[1]-local[0],local[2]-local[0]),authored));
     certifiedGap=max(certifiedGap,nmReferenceTriangleSeparatingGap(rest,
         cross(local[4]-local[3],local[5]-local[3]),authored));
+    if(certifiedGap<=2.0f*clearance) {
+        const float3 normalA=cross(local[1]-local[0],local[2]-local[0]);
+        const float3 normalB=cross(local[4]-local[3],local[5]-local[3]);
+        for(uint a=0u;a<3u;++a) {
+            const float3 edgeA=local[(a+1u)%3u]-local[a];
+            const float3 edgeB=local[3u+(a+1u)%3u]-local[3u+a];
+            certifiedGap=max(certifiedGap,nmReferenceTriangleSeparatingGap(
+                rest,cross(edgeA,normalA),authored));
+            certifiedGap=max(certifiedGap,nmReferenceTriangleSeparatingGap(
+                rest,cross(edgeB,normalB),authored));
+            for(uint b=0u;b<3u;++b)
+                certifiedGap=max(certifiedGap,nmReferenceTriangleSeparatingGap(rest,
+                    cross(edgeA,local[3u+(b+1u)%3u]-local[3u+b]),authored));
+        }
+    }
     if (!isfinite(certifiedGap) || !(certifiedGap>2.0f*clearance))
         return authored;
     return min(authored,0.5f*certifiedGap);

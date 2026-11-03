@@ -1,0 +1,4 @@
+[0/2] Re-checking globbed directories...
+[1/4] Building OBJCXX object CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o
+[2/4] Linking CXX executable numi-human-fem-outer-ground-alignment-check
+[3/4] Linking OBJCXX executable bin/numi-human-native

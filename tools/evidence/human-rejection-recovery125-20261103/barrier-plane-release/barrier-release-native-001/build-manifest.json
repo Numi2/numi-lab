@@ -1,0 +1,99 @@
+{
+  "native_binary": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "sha256": "aa36dc017547c48060bf4ccef6e21d15da5b1c3488d7a3c9a7c1ae7f91232741",
+    "bytes": 10499648
+  },
+  "runtime_dependencies": {
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+      "sha256": "fda7e25a89a10739c99a06aa61b496ed773e2e43f944bbe4e8e419af356c2337",
+      "bytes": 10108640
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "sha256": "2006fcbc07d3f7b69afbb20499e8facf78ec7a9aaaf0c5bf05daf4efa0fefe06",
+      "bytes": 30081262
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib",
+      "sha256": "880f60be6eb17b6af781665c6016c6d050da069685fcf1e8e2cafda0fc2115c8",
+      "bytes": 560736
+    }
+  },
+  "source": {
+    "head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+    "dirty_patch": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/barrier-release-native-001/execution-source.patch",
+      "sha256": "649b3170014f7546d153056fdde8e64044b7ca436c3a8da42c8922e3378a6d2a",
+      "bytes": 1173865
+    },
+    "sources": {
+      "matter/src/metal/contact.metalinc": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/contact.metalinc",
+        "sha256": "3281252b870b0cd20f5adb3481d5ff7552388a49ad0e5532cfcedb246f50f9e7",
+        "bytes": 708470
+      },
+      "matter/src/metal/fem.metalinc": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fem.metalinc",
+        "sha256": "bb08f26cb8be9c81fe50d0125c6bdd8c2cd218a9b02abb0dcde66dd45b3636fb",
+        "bytes": 369707
+      },
+      "matter/src/metal/fgmres.metalinc": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc",
+        "sha256": "da32e22ee81ac54d35f3fd90bffb7a9c5405758c18814537bc3cb59c990e2d05",
+        "bytes": 793964
+      },
+      "matter/src/metal/vascular.metalinc": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/vascular.metalinc",
+        "sha256": "33d6a6174dc134af2632f206b07ce6307d7449f8f7587ba092d539c66ac4b714",
+        "bytes": 194879
+      },
+      "matter/src/runtime.mm": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm",
+        "sha256": "fb5d7fb1c6b97406303577929b9ab01c9356786245c11bd80967539d2c380db2",
+        "bytes": 3446819
+      },
+      "matter/tools/fem_reference_check.mm": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/tools/fem_reference_check.mm",
+        "sha256": "9b24aad48c93bd7a38679f16298c37e0643294d3510efbe18ce2e2fb80fe5f4e",
+        "bytes": 107191
+      },
+      "matter/include/numi/matter/shared.h": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/include/numi/matter/shared.h",
+        "sha256": "0f7b054b466452cc762b5c88fe1ba8756062fcd7dd5bca94cd9eb731549b0ff7",
+        "bytes": 66015
+      },
+      "CMakeLists.txt": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/CMakeLists.txt",
+        "sha256": "e619256ea0a8c134f8b4d0cf4517b24595a779f2922e7ce120d9f6bf13f9c36a",
+        "bytes": 276810
+      },
+      "apps/numilab_human_myosim_visual_probe.mm": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/numilab_human_myosim_visual_probe.mm",
+        "sha256": "6dbcc0fa770e2d58ab240fbb71e42f99db783119f1e1ace0242b6916522cc77e",
+        "bytes": 2688492
+      },
+      "apps/NumiHumanSkinFatFixedCavityReconditioning.hpp": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanSkinFatFixedCavityReconditioning.hpp",
+        "sha256": "be673e8d64d3d69f26b655c695ef9211966b0dd9859120b49689c3e74445209b",
+        "bytes": 35599
+      },
+      "apps/NumiHumanSkinFatFixedCavityReconditioningCheck.cpp": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanSkinFatFixedCavityReconditioningCheck.cpp",
+        "sha256": "062c9ce69167c572f01579dd70242eb75027bb3b79047a239a8ef266d33a9ae6",
+        "bytes": 14782
+      },
+      "apps/NumiHumanFEMOuterGroundAlignment.hpp": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanFEMOuterGroundAlignment.hpp",
+        "sha256": "50b15e0daa614a9496b291b98233e29d27043441f39a4e00baf0a53105dffa2f",
+        "bytes": 8921
+      },
+      "apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp",
+        "sha256": "628f2ca2c5bf3d07f0ac850ec205f87f8f7bd653e0df30e0ecad086b4dbb0597",
+        "bytes": 5235
+      }
+    }
+  }
+}
