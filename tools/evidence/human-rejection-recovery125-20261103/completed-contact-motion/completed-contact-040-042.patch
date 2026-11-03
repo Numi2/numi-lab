@@ -1,0 +1,1250 @@
+--- a/matter/src/numi_human.mm
++++ b/matter/src/numi_human.mm
+@@ -611,6 +611,18 @@
+     bool hasMultiMasterTriangleContact = false;
+     bool contactRowCache = false;
+     bool contactAABBExclusion = false;
++    bool contactExactMotionCache = false;
++    bool contactCompactQueries = false;
++    std::uint32_t contactQueryTileCount = 0u, contactQueryBlockCount = 0u;
++    __strong id<MTLBuffer> contactQueryTiles = nil, contactQueryBlockSums = nil;
++    __strong id<MTLBuffer> contactQueryBlockOffsets = nil, contactQueryIndices = nil;
++    __strong id<MTLBuffer> contactQueryWork = nil;
++    __strong id<MTLComputePipelineState> contactQueryClassify = nil, contactQueryScanTiles = nil;
++    __strong id<MTLComputePipelineState> contactQueryScanBlocks = nil, contactQueryScatter = nil;
++    __strong id<MTLBuffer> contactMotionFlags = nil;
++    __strong id<MTLBuffer> contactMotionPositions = nil;
++    __strong id<MTLBuffer> contactMotionPoseWords = nil;
++    __strong id<MTLComputePipelineState> contactMotionPreparePipeline = nil;
+     __strong id<MTLBuffer> femBodyContactRowCache = nil;
+     std::vector<NMNumiHumanFEMBodyContactSampleGPU>
+         implicitSpringSamples;
+@@ -1964,11 +1976,83 @@
+                     static_cast<unsigned long long>(auditRows),
+                     state_->femBodyContactSolverSamples.size(), state_->femBodyContactAuditTiles);
+ 
++                const char* motionCache = std::getenv("NUMI_HUMAN_CONTACT_EXACT_MOTION_CACHE");
++                if (motionCache && std::strcmp(motionCache,"0")!=0 &&
++                    std::strcmp(motionCache,"1")!=0) {
++                    state_->message="NUMI_HUMAN_CONTACT_EXACT_MOTION_CACHE must be 0 or 1";
++                    return false;
++                }
++                state_->contactExactMotionCache = motionCache && std::strcmp(motionCache,"1")==0;
++                if (state_->contactExactMotionCache) {
++                    if (!state_->contactRowCache) {
++                        state_->message="exact motion cache requires admitted immutable contact row cache";
++                        return false;
++                    }
++                    const std::uint64_t nodeCount = std::uint64_t(state_->environmentCount)*state_->nodeLoads.size();
++                    const std::uint64_t poseCount = std::uint64_t(state_->environmentCount)*pass.bodyPoseStride;
++                    if (nodeCount+poseCount > std::numeric_limits<std::uint32_t>::max() ||
++                        nodeCount > std::numeric_limits<NSUInteger>::max()/sizeof(nm_float4) ||
++                        poseCount > std::numeric_limits<NSUInteger>::max()/(2u*sizeof(nm_float4)))
++                        return false;
++                    std::vector<std::uint32_t> initialFlags(nodeCount+poseCount,0u);
++                    state_->contactMotionFlags = [device newBufferWithBytes:initialFlags.data()
++                        length:initialFlags.size()*sizeof(std::uint32_t) options:MTLResourceStorageModeShared];
++                    state_->contactMotionPositions = [device newBufferWithLength:nodeCount*sizeof(nm_float4)
++                        options:MTLResourceStorageModePrivate];
++                    state_->contactMotionPoseWords = [device newBufferWithLength:2u*poseCount*sizeof(nm_float4)
++                        options:MTLResourceStorageModePrivate];
++                    state_->contactMotionPreparePipeline = pipeline("nm_numi_human_prepare_contact_motion_cache");
++                    if (state_->contactMotionFlags==nil || state_->contactMotionPositions==nil ||
++                        state_->contactMotionPoseWords==nil || state_->contactMotionPreparePipeline==nil)
++                        return false;
++                    std::fprintf(stderr,"human_contact_exact_motion_cache=1 nodes=%llu bodies=%llu bytes=%llu\n",
++                        nodeCount,poseCount,nodeCount*20u+poseCount*36u);
++                }
++                const char* compactQueries = std::getenv("NUMI_HUMAN_CONTACT_COMPACT_QUERIES");
++                if (compactQueries && std::strcmp(compactQueries,"0")!=0 &&
++                    std::strcmp(compactQueries,"1")!=0) {
++                    state_->message="NUMI_HUMAN_CONTACT_COMPACT_QUERIES must be 0 or 1";
++                    return false;
++                }
++                state_->contactCompactQueries = compactQueries && std::strcmp(compactQueries,"1")==0;
++                if (state_->contactCompactQueries) {
++                    if (!state_->contactExactMotionCache || !state_->contactAABBExclusion) {
++                        state_->message="contact query compaction requires exact motion cache and certified closed-bank AABB exclusion";
++                        return false;
++                    }
++                    const std::uint64_t rows=std::uint64_t(state_->environmentCount)*state_->femBodyContactSamples.size();
++                    if(rows==0u || rows>std::numeric_limits<std::uint32_t>::max()-255u) return false;
++                    state_->contactQueryTileCount=(rows+255u)/256u;
++                    state_->contactQueryBlockCount=(state_->contactQueryTileCount+255u)/256u;
++                    state_->contactQueryTiles=[device newBufferWithLength:state_->contactQueryTileCount*2u*sizeof(std::uint32_t) options:MTLResourceStorageModePrivate];
++                    state_->contactQueryBlockSums=[device newBufferWithLength:state_->contactQueryBlockCount*sizeof(std::uint32_t) options:MTLResourceStorageModePrivate];
++                    state_->contactQueryBlockOffsets=[device newBufferWithLength:state_->contactQueryBlockCount*sizeof(std::uint32_t) options:MTLResourceStorageModePrivate];
++                    state_->contactQueryIndices=[device newBufferWithLength:rows*sizeof(std::uint32_t) options:MTLResourceStorageModePrivate];
++                    state_->contactQueryWork=[device newBufferWithLength:sizeof(NMIndirectDispatchGPU) options:MTLResourceStorageModePrivate];
++                    state_->contactQueryClassify=pipeline("nm_numi_human_classify_contact_queries");
++                    state_->contactQueryScanTiles=pipeline("nm_numi_human_scan_contact_query_tiles");
++                    state_->contactQueryScanBlocks=pipeline("nm_numi_human_scan_contact_query_blocks");
++                    state_->contactQueryScatter=pipeline("nm_numi_human_scatter_contact_queries");
++                    if(state_->contactQueryTiles==nil || state_->contactQueryBlockSums==nil ||
++                        state_->contactQueryBlockOffsets==nil || state_->contactQueryIndices==nil || state_->contactQueryWork==nil)
++                        return false;
++                    for(id<MTLComputePipelineState> pso:{state_->contactQueryClassify,
++                        state_->contactQueryScanTiles,state_->contactQueryScanBlocks,state_->contactQueryScatter})
++                        if(pso==nil || pso.threadExecutionWidth!=32u || pso.maxTotalThreadsPerThreadgroup<256u) return false;
++                    std::fprintf(stderr,"human_contact_compact_queries=1 rows=%llu index_bytes=%llu\n",
++                        static_cast<unsigned long long>(rows),static_cast<unsigned long long>(rows*sizeof(std::uint32_t)));
++                }
+                 if (!state_->femBodyContactSamples.empty()) {
+-                    state_->femBodyContactSampleValidationPipeline = pipeline(state_->contactRowCache
++                    state_->femBodyContactSampleValidationPipeline = pipeline(state_->contactCompactQueries
++                        ? "nm_numi_human_validate_fem_body_contact_samples_cached_aabb_compacted"
++                        : state_->contactRowCache
+                         ? (state_->contactAABBExclusion
+-                            ? "nm_numi_human_validate_fem_body_contact_samples_cached_aabb"
+-                            : "nm_numi_human_validate_fem_body_contact_samples_cached")
++                            ? (state_->contactExactMotionCache
++                                ? "nm_numi_human_validate_fem_body_contact_samples_cached_aabb_motion"
++                                : "nm_numi_human_validate_fem_body_contact_samples_cached_aabb")
++                            : (state_->contactExactMotionCache
++                                ? "nm_numi_human_validate_fem_body_contact_samples_cached_motion"
++                                : "nm_numi_human_validate_fem_body_contact_samples_cached"))
+                         : "nm_numi_human_validate_fem_body_contact_samples");
+                     state_->femBodyContactSampleValidationReducePipeline = pipeline(
+                         "nm_numi_human_reduce_fem_body_contact_sample_validation");
+@@ -2673,8 +2757,11 @@
+         const auto encodeKernel = [&](id<MTLComputePipelineState> pipeline,
+                                       const NSUInteger count,
+                                       const auto& bind) {
++            const char* contactTiming = std::getenv("NUMI_HUMAN_CONTACT_GPU_TIMING");
+             id<MTLComputeCommandEncoder> encoder =
+-                [command computeCommandEncoder];
++                contactTiming && std::strcmp(contactTiming,"1")==0
++                    ? detail::timedEncoder(command,state_->device,pipeline.label.UTF8String,pass.stepIndex)
++                    : [command computeCommandEncoder];
+             if (encoder == nil) return false;
+             [encoder setComputePipelineState:pipeline];
+             [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+@@ -2740,6 +2827,20 @@
+                 return false;
+             }
+         }
++        if (state_->contactExactMotionCache &&
++            !encodeKernel(state_->contactMotionPreparePipeline,
++                NSUInteger(state_->environmentCount) *
++                    (state_->nodeLoads.size()+pass.bodyPoseStride),
++                [&](id<MTLComputeCommandEncoder> encoder) {
++                    [encoder setBuffer:acceptedNodes offset:0u atIndex:1u];
++                    [encoder setBuffer:bodyPoses offset:0u atIndex:2u];
++                    [encoder setBuffer:state_->contactMotionPositions offset:0u atIndex:3u];
++                    [encoder setBuffer:state_->contactMotionPoseWords offset:0u atIndex:4u];
++                    [encoder setBuffer:state_->contactMotionFlags offset:0u atIndex:5u];
++                })) {
++            state_->message="Human exact contact motion-cache preparation failed";
++            return false;
++        }
+         if (!state_->femBodyContactSamples.empty()) {
+             const NSUInteger sampleCount = state_->femBodyContactSamples.size();
+             constexpr NSUInteger blockSize =
+@@ -2750,9 +2851,64 @@
+                 static_cast<NSUInteger>(state_->environmentCount) * sampleCount;
+             const NSUInteger blockWork =
+                 static_cast<NSUInteger>(state_->environmentCount) * blockCount;
+-            if (!encodeKernel(
+-                    state_->femBodyContactSampleValidationPipeline,
+-                    sampleWork,
++            if(state_->contactCompactQueries) {
++                if (!encodeKernel(state_->contactQueryClassify,
++                    NSUInteger(state_->contactQueryTileCount)*256u,
++                    [&](id<MTLComputeCommandEncoder> encoder) {
++                        [encoder setBuffer:state_->femBodyContactSampleBuffer offset:0u atIndex:1u];
++                        [encoder setBuffer:state_->femBodyContactNeighborhoodRangeBuffer offset:0u atIndex:2u];
++                        [encoder setBuffer:state_->femBodyContactNeighborhoodBVHNodeBuffer offset:0u atIndex:3u];
++                        [encoder setBuffer:acceptedNodes offset:0u atIndex:4u];
++                        [encoder setBuffer:bodyPoses offset:0u atIndex:5u];
++                        [encoder setBuffer:state_->contactMotionFlags offset:0u atIndex:6u];
++                        [encoder setBuffer:state_->femBodyContactSampleValidationBuffer offset:0u atIndex:7u];
++                        [encoder setBuffer:state_->femBodyContactRowCache offset:0u atIndex:8u];
++                        [encoder setBuffer:state_->contactQueryTiles offset:0u atIndex:9u];
++                    }) ||
++                    !encodeKernel(state_->contactQueryScanTiles,
++                    NSUInteger(state_->contactQueryBlockCount)*256u,
++                    [&](id<MTLComputeCommandEncoder> encoder) {
++                        [encoder setBuffer:state_->contactQueryTiles offset:0u atIndex:1u];
++                        [encoder setBuffer:state_->contactQueryBlockSums offset:0u atIndex:2u];
++                    }) ||
++                    !encodeKernel(state_->contactQueryScanBlocks,256u,
++                    [&](id<MTLComputeCommandEncoder> encoder) {
++                        [encoder setBuffer:state_->contactQueryBlockSums offset:0u atIndex:1u];
++                        [encoder setBuffer:state_->contactQueryBlockOffsets offset:0u atIndex:2u];
++                        [encoder setBuffer:state_->contactQueryWork offset:0u atIndex:3u];
++                    }) ||
++                    !encodeKernel(state_->contactQueryScatter,
++                    NSUInteger(state_->contactQueryTileCount)*256u,
++                    [&](id<MTLComputeCommandEncoder> encoder) {
++                        [encoder setBuffer:state_->femBodyContactSampleValidationBuffer offset:0u atIndex:1u];
++                        [encoder setBuffer:state_->contactQueryTiles offset:0u atIndex:2u];
++                        [encoder setBuffer:state_->contactQueryBlockOffsets offset:0u atIndex:3u];
++                        [encoder setBuffer:state_->contactQueryIndices offset:0u atIndex:4u];
++                    })) {
++                    state_->message="Human contact query compaction failed";
++                    return false;
++                }
++            }
++            const auto validateRows = [&](const auto& bind) {
++                if(!state_->contactCompactQueries)
++                    return encodeKernel(state_->femBodyContactSampleValidationPipeline,sampleWork,bind);
++                const char* timing=std::getenv("NUMI_HUMAN_CONTACT_GPU_TIMING");
++                auto encoder=timing && std::strcmp(timing,"1")==0
++                    ? detail::timedEncoder(command,state_->device,state_->femBodyContactSampleValidationPipeline.label.UTF8String,pass.stepIndex)
++                    : [command computeCommandEncoder];
++                if(encoder==nil) return false;
++                [encoder setComputePipelineState:state_->femBodyContactSampleValidationPipeline];
++                [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
++                bind(encoder);
++                [encoder setBuffer:state_->contactQueryIndices offset:0u atIndex:10u];
++                [encoder setBuffer:state_->contactQueryWork offset:0u atIndex:11u];
++                [encoder dispatchThreadgroupsWithIndirectBuffer:state_->contactQueryWork indirectBufferOffset:0u
++                    threadsPerThreadgroup:MTLSizeMake(256u,1u,1u)];
++                [encoder endEncoding];
++                gpuProgress.signal(command,state_->femBodyContactSampleValidationPipeline.label.UTF8String);
++                return true;
++            };
++            if (!validateRows(
+                     [&](id<MTLComputeCommandEncoder> encoder) {
+                         [encoder setBuffer:state_->femBodyContactSampleBuffer
+                                     offset:0u atIndex:1u];
+@@ -2768,6 +2924,8 @@
+                                     offset:0u atIndex:7u];
+                         if(state_->contactRowCache)
+                             [encoder setBuffer:state_->femBodyContactRowCache offset:0u atIndex:8u];
++                        if(state_->contactExactMotionCache)
++                            [encoder setBuffer:state_->contactMotionFlags offset:0u atIndex:9u];
+                     }) ||
+                 !encodeKernel(
+                     state_->femBodyContactSampleValidationReducePipeline,
+--- a/matter/src/metal/numi_human.metalinc
++++ b/matter/src/metal/numi_human.metalinc
+@@ -1479,7 +1479,211 @@
+ }
+ 
+ // Exact validation and derived contact data share one current-pose query.
+-template <bool certifiedInactiveAABB>
++// Derived scratch, never physical history: exact current input comparison
++// permits reuse only where the old contact function sees identical bits.
++// First use, any motion, reset or nonfinite input takes the full query.
++kernel void nm_numi_human_prepare_contact_motion_cache(
++    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
++    device const NMFEMNodeStateGPU* nodes [[buffer(1)]],
++    device const MRArticulatedBodyPoseGPU* poses [[buffer(2)]],
++    device float4* oldPositions [[buffer(3)]],
++    device float4* oldPoseWords [[buffer(4)]],
++    device uint* flags [[buffer(5)]],
++    uint global [[thread_position_in_grid]]
++) {
++    const uint nodeCount = dispatch.environmentCount * dispatch.femNodeCount;
++    const uint poseCount = dispatch.environmentCount * dispatch.bodyPoseStride;
++    if (global < nodeCount) {
++        const float4 current = nodes[global].positionAndMass;
++        const bool same = (flags[global] & 1u) != 0u &&
++            all(as_type<uint4>(current) == as_type<uint4>(oldPositions[global])) &&
++            finite4(current);
++        oldPositions[global] = current;
++        flags[global] = same ? 3u : 1u;
++    } else if (global - nodeCount < poseCount) {
++        const uint pose = global - nodeCount;
++        const auto current = poses[pose];
++        const bool same = (flags[global] & 1u) != 0u &&
++            all(as_type<uint4>(current.position) == as_type<uint4>(oldPoseWords[2u*pose])) &&
++            all(as_type<uint4>(current.orientation) == as_type<uint4>(oldPoseWords[2u*pose+1u])) &&
++            finite4(current.position) && finite4(current.orientation);
++        oldPoseWords[2u*pose] = current.position;
++        oldPoseWords[2u*pose+1u] = current.orientation;
++        flags[global] = same ? 3u : 1u;
++    }
++}
++
++
++inline bool humanBodyContactCertifiedZeroRow(
++    const uint global,
++    constant NMNumiHumanTendonFEMLoadDispatchGPU& d,
++    device const NMNumiHumanFEMBodyContactSampleGPU* samples,
++    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
++    device const NMNumiHumanFEMBodyContactBVHNodeGPU* trees,
++    device const NMFEMNodeStateGPU* nodes,
++    device const MRArticulatedBodyPoseGPU* poses,
++    thread float4& row
++) {
++    if (d.abiVersion!=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION ||
++        d.femBodyContactSampleCount==0u ||
++        d.femBodyContactCandidateTriangleCount==0u) return false;
++    const uint env=global/d.femBodyContactSampleCount;
++    const uint i=global-env*d.femBodyContactSampleCount;
++    const auto sample=samples[i];
++    if (sample.slaveNode>=d.femNodeCount || !validBody(sample.bodyIndex,d) ||
++        sample.flags!=(NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
++            NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT) ||
++        sample.reserved0!=0u || !finite4(sample.bodyLocalPointAndArea) ||
++        !finite4(sample.bodyLocalNormalAndReferenceSeparation) ||
++        !finite4(sample.stiffnessAndNormalStrainPerPressure)) return false;
++    const auto range=ranges[i];
++    if (range.reserved0!=NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_STATIC_CLOSED_ORIENTED_BVH ||
++        range.triangleCount==0u || range.firstTriangle>NM_INVALID_INDEX-range.triangleCount ||
++        any(range.restPointAndMotionRadius!=float4(0.0f)) ||
++        !isfinite(range.maximumDistanceMeters) ||
++        range.maximumDistanceMeters<=0.0f || range.maximumDistanceMeters>0.05f)
++        return false;
++    const auto node=nodes[env*d.femNodeCount+sample.slaveNode];
++    const auto pose=poses[env*d.bodyPoseStride+sample.bodyIndex-d.articulationFirstBody];
++    if (!finite4(node.positionAndMass) || !finite4(pose.position) ||
++        !finite4(pose.orientation) || abs(length(pose.orientation)-1.0f)>1.0e-5f)
++        return false;
++    const float3 query=humanQuaternionRotate(humanQuaternionConjugate(pose.orientation),
++        node.positionAndMass.xyz-pose.position.xyz);
++    if (!finite4(float4(query,0.0f))) return false;
++    const auto root=trees[range.firstTriangle];
++    const uint end=range.firstTriangle+range.triangleCount;
++    if (!finite4(root.boundsMinimum) || !finite4(root.boundsMaximum) ||
++        root.boundsMinimum.w!=0.0f || root.boundsMaximum.w!=0.0f ||
++        any(root.boundsMinimum.xyz>root.boundsMaximum.xyz) ||
++        root.escapeIndex!=end || root.reserved0!=0u ||
++        (root.flags!=NM_NUMI_HUMAN_FEM_BODY_CONTACT_BVH_NODE_LEAF && root.flags!=0u) ||
++        (root.flags==0u ? root.triangleIndex!=NM_INVALID_INDEX || range.triangleCount<3u
++            : root.triangleIndex>=d.femBodyContactCandidateTriangleCount || range.triangleCount!=1u))
++        return false;
++    const float3 delta=max(max(root.boundsMinimum.xyz-query,
++        query-root.boundsMaximum.xyz),float3(0.0f));
++    const float distanceSquared=dot(delta,delta);
++    const float guard=32.0f*1.1920928955078125e-7f*max(1.0f,dot(query,query));
++    if (!isfinite(distanceSquared) || !isfinite(guard) ||
++        !(distanceSquared>guard) || sample.bodyLocalPointAndArea.w<0.0f)
++        return false;
++    // Retain the original arithmetic, including signed zero components.
++    const float3 normal=humanQuaternionRotate(pose.orientation,delta*rsqrt(distanceSquared));
++    const float pressure=sample.bodyLocalNormalAndReferenceSeparation.w*0.0f;
++    row=float4(normal*(pressure*sample.bodyLocalPointAndArea.w),0.0f);
++    return finite4(row);
++}
++
++inline uint humanContactTileSum(uint value,uint lane,threadgroup uint* groupSums) {
++    const uint sum=simd_sum(value);
++    if ((lane&31u)==0u) groupSums[lane>>5u]=sum;
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    return simd_sum(lane<8u ? groupSums[lane] : 0u);
++}
++inline uint humanContactTilePrefix(uint value,uint lane,threadgroup uint* groupSums) {
++    const uint prefix=simd_prefix_exclusive_sum(value);
++    const uint sum=simd_sum(value);
++    if ((lane&31u)==0u) groupSums[lane>>5u]=sum;
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    uint groupPrefix=0u;
++    for (uint g=0u;g<(lane>>5u);++g) groupPrefix+=groupSums[g];
++    return groupPrefix+prefix;
++}
++// Validation tag 2 is private pending-query scratch. Every pending row is
++// consumed by the exact validator before the ordinary validation reduction.
++kernel void nm_numi_human_classify_contact_queries(
++    constant NMNumiHumanTendonFEMLoadDispatchGPU& d [[buffer(0)]],
++    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
++    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges [[buffer(2)]],
++    device const NMNumiHumanFEMBodyContactBVHNodeGPU* trees [[buffer(3)]],
++    device const NMFEMNodeStateGPU* nodes [[buffer(4)]],
++    device const MRArticulatedBodyPoseGPU* poses [[buffer(5)]],
++    device const uint* motionFlags [[buffer(6)]],
++    device uint* valid [[buffer(7)]],
++    device float4* rows [[buffer(8)]],
++    device uint2* tileRanges [[buffer(9)]],
++    uint global [[thread_position_in_grid]],uint lane [[thread_index_in_threadgroup]],
++    uint tile [[threadgroup_position_in_grid]]
++) {
++    const uint total=d.environmentCount*d.femBodyContactSampleCount;
++    uint pending=0u;
++    if (global<total) {
++        const uint env=global/d.femBodyContactSampleCount;
++        const auto sample=samples[global%d.femBodyContactSampleCount];
++        const bool reuse=d.abiVersion==NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
++            sample.slaveNode<d.femNodeCount && validBody(sample.bodyIndex,d) &&
++            motionFlags[env*d.femNodeCount+sample.slaveNode]==3u &&
++            motionFlags[d.environmentCount*d.femNodeCount+env*d.bodyPoseStride+
++                sample.bodyIndex-d.articulationFirstBody]==3u;
++        float4 zeroRow;
++        if (reuse) {
++            // An already invalid row stays invalid; no failed state is hidden.
++        } else if (humanBodyContactCertifiedZeroRow(global,d,samples,ranges,trees,nodes,poses,zeroRow)) {
++            rows[global]=zeroRow;valid[global]=1u;
++        } else {
++            pending=1u;valid[global]=2u;
++        }
++    }
++    threadgroup uint sums[8];
++    const uint count=humanContactTileSum(pending,lane,sums);
++    if(lane==0u)tileRanges[tile]=uint2(count,0u);
++}
++kernel void nm_numi_human_scan_contact_query_tiles(
++    constant NMNumiHumanTendonFEMLoadDispatchGPU& d [[buffer(0)]],
++    device uint2* tiles [[buffer(1)]],device uint* blockSums [[buffer(2)]],
++    uint global [[thread_position_in_grid]],uint lane [[thread_index_in_threadgroup]],
++    uint block [[threadgroup_position_in_grid]]
++) {
++    const uint total=d.environmentCount*d.femBodyContactSampleCount;
++    const uint tileCount=(total+255u)/256u;
++    const uint value=global<tileCount?tiles[global].x:0u;
++    threadgroup uint sums[8];
++    const uint prefix=humanContactTilePrefix(value,lane,sums);
++    if(global<tileCount)tiles[global].y=prefix;
++    if(lane==255u)blockSums[block]=prefix+value;
++}
++kernel void nm_numi_human_scan_contact_query_blocks(
++    constant NMNumiHumanTendonFEMLoadDispatchGPU& d [[buffer(0)]],
++    device const uint* blockSums [[buffer(1)]],device uint* blockOffsets [[buffer(2)]],
++    device NMIndirectDispatchGPU* work [[buffer(3)]],
++    uint lane [[thread_index_in_threadgroup]]
++) {
++    const uint total=d.environmentCount*d.femBodyContactSampleCount;
++    const uint blocks=(((total+255u)/256u)+255u)/256u;
++    // At most UINT32_MAX rows => at most 65536 blocks. Scan them in
++    // cooperative 256-block batches; no per-row or per-tetrahedron serial scan.
++    threadgroup uint sums[8];
++    threadgroup uint carry;
++    if(lane==0u)carry=0u;
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    for(uint first=0u;first<blocks;first+=256u) {
++        const uint index=first+lane;
++        const uint value=index<blocks?blockSums[index]:0u;
++        const uint prefix=humanContactTilePrefix(value,lane,sums);
++        const uint base=carry;
++        if(index<blocks)blockOffsets[index]=base+prefix;
++        threadgroup_barrier(mem_flags::mem_threadgroup);
++        if(lane==255u)carry=base+prefix+value;
++        threadgroup_barrier(mem_flags::mem_threadgroup);
++    }
++    if(lane==0u)work[0]={carry/256u+uint(carry%256u!=0u),1u,1u,carry};
++}
++kernel void nm_numi_human_scatter_contact_queries(
++    constant NMNumiHumanTendonFEMLoadDispatchGPU& d [[buffer(0)]],
++    device const uint* valid [[buffer(1)]],device const uint2* tiles [[buffer(2)]],
++    device const uint* blockOffsets [[buffer(3)]],device uint* indices [[buffer(4)]],
++    uint global [[thread_position_in_grid]],uint lane [[thread_index_in_threadgroup]],
++    uint tile [[threadgroup_position_in_grid]]
++) {
++    const uint total=d.environmentCount*d.femBodyContactSampleCount;
++    const uint pending=global<total && valid[global]==2u ? 1u:0u;
++    threadgroup uint sums[8];
++    const uint prefix=humanContactTilePrefix(pending,lane,sums);
++    if(pending)indices[blockOffsets[tile/256u]+tiles[tile].y+prefix]=global;
++}
++
++template <bool certifiedInactiveAABB, bool exactMotionCache, bool compactQueryWork>
+ kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl(
+     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+     device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+@@ -1492,13 +1696,19 @@
+     device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(6)]],
+     device uint* sampleValid [[buffer(7)]],
+     device float4* rowCache [[buffer(8)]],
++    device const uint* motionFlags [[buffer(9)]],
++    device const uint* queryIndices [[buffer(10)]],
++    device const NMIndirectDispatchGPU* queryWork [[buffer(11)]],
+     uint global [[thread_position_in_grid]]
+ ) {
++    if (compactQueryWork) {
++        if (global>=queryWork[0].reserved) return;
++        global=queryIndices[global];
++    }
+     const uint sampleCount = dispatch.femBodyContactSampleCount;
+     if (sampleCount == 0u || dispatch.environmentCount == 0u) return;
+     const uint totalCount = dispatch.environmentCount * sampleCount;
+     if (global >= totalCount) return;
+-    rowCache[global] = float4(NAN);
+     const uint environment = global / sampleCount;
+     const uint sampleIndex = global - environment * sampleCount;
+     if (dispatch.abiVersion != NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION) {
+@@ -1510,6 +1720,16 @@
+         dispatch.bodyPoseStride > 0u &&
+         sample.slaveNode < dispatch.femNodeCount &&
+         validBody(sample.bodyIndex, dispatch);
++    if (valid && exactMotionCache && !compactQueryWork &&
++        motionFlags[environment * dispatch.femNodeCount + sample.slaveNode] == 3u &&
++        motionFlags[dispatch.environmentCount * dispatch.femNodeCount +
++            environment * dispatch.bodyPoseStride +
++            sample.bodyIndex - dispatch.articulationFirstBody] == 3u) {
++        // Preserve both the prior finite row and its validation result.
++        // An invalid row remains invalid and still fails closed downstream.
++        return;
++    }
++    rowCache[global] = float4(NAN);
+     if (valid) {
+         const MRArticulatedBodyPoseGPU pose = bodyPoses[
+             environment * dispatch.bodyPoseStride +
+@@ -1538,7 +1758,7 @@
+     sampleValid[global] = valid ? 1u : 0u;
+ }
+ template [[host_name("numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached")]]
+-kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<false>(
++kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<false, false, false>(
+     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+     device const NMNumiHumanFEMBodyContactSampleGPU* samples,
+     device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
+@@ -1548,10 +1768,13 @@
+     device const MRArticulatedBodyPoseGPU* bodyPoses,
+     device uint* sampleValid,
+     device float4* rowCache,
++    device const uint* motionFlags,
++    device const uint* queryIndices,
++    device const NMIndirectDispatchGPU* queryWork,
+     uint global
+ );
+ template [[host_name("numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_aabb")]]
+-kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<true>(
++kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<true, false, false>(
+     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+     device const NMNumiHumanFEMBodyContactSampleGPU* samples,
+     device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
+@@ -1561,6 +1784,57 @@
+     device const MRArticulatedBodyPoseGPU* bodyPoses,
+     device uint* sampleValid,
+     device float4* rowCache,
++    device const uint* motionFlags,
++    device const uint* queryIndices,
++    device const NMIndirectDispatchGPU* queryWork,
++    uint global
++);
++template [[host_name("numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_motion")]]
++kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<false, true, false>(
++    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
++    device const NMNumiHumanFEMBodyContactSampleGPU* samples,
++    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
++    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles,
++    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvhNodes,
++    device const NMFEMNodeStateGPU* acceptedNodes,
++    device const MRArticulatedBodyPoseGPU* bodyPoses,
++    device uint* sampleValid,
++    device float4* rowCache,
++    device const uint* motionFlags,
++    device const uint* queryIndices,
++    device const NMIndirectDispatchGPU* queryWork,
++    uint global
++);
++template [[host_name("numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_aabb_motion")]]
++kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<true, true, false>(
++    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
++    device const NMNumiHumanFEMBodyContactSampleGPU* samples,
++    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
++    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles,
++    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvhNodes,
++    device const NMFEMNodeStateGPU* acceptedNodes,
++    device const MRArticulatedBodyPoseGPU* bodyPoses,
++    device uint* sampleValid,
++    device float4* rowCache,
++    device const uint* motionFlags,
++    device const uint* queryIndices,
++    device const NMIndirectDispatchGPU* queryWork,
++    uint global
++);
++template [[host_name("numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_aabb_compacted")]]
++kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<true, false, true>(
++    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
++    device const NMNumiHumanFEMBodyContactSampleGPU* samples,
++    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
++    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles,
++    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvhNodes,
++    device const NMFEMNodeStateGPU* acceptedNodes,
++    device const MRArticulatedBodyPoseGPU* bodyPoses,
++    device uint* sampleValid,
++    device float4* rowCache,
++    device const uint* motionFlags,
++    device const uint* queryIndices,
++    device const NMIndirectDispatchGPU* queryWork,
+     uint global
+ );
+ 
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -7223,7 +7223,90 @@
+     }
+ }
+ 
+-kernel void nm_contact_narrowphase_deformable(
++// Geometry and friction have different lifetimes. Completed Newton tails
++// freeze the candidate geometry, but must still transport current friction
++// history. Both the full and cached path call this exact arithmetic.
++inline bool refreshDeformableContactFriction(
++    constant NMMatterDispatchGPU& dispatch,
++    device const NMContinuumObjectGPU* objects,
++    device const NMMaterialGPU* materials,
++    const NMDeformableContactHistoryGPU previous,
++    const float contactTimestep,
++    thread NMDeformableContactGPU& contact
++) {
++    const float thickness = dispatch.numericalLimits.x;
++    const bool sameSource =
++        previous.laggedTangentAndFriction.w > 0.5f &&
++        all(previous.source.xy == contact.source.xy) &&
++        previous.source.w == contact.source.w;
++    const float4 barrier = contact.barrier;
++    const uint positiveMaterial = objects[contact.identity.x].materialIndex;
++    const uint negativeMaterial = objects[contact.identity.y].materialIndex;
++    if (positiveMaterial >= dispatch.materialCount ||
++        negativeMaterial >= dispatch.materialCount) return false;
++    const float staticFriction = sqrt(max(
++        materials[positiveMaterial].interfaceResponse.x *
++        materials[negativeMaterial].interfaceResponse.x, 0.0f));
++    const float dynamicFriction = sqrt(max(
++        materials[positiveMaterial].interfaceResponse.y *
++        materials[negativeMaterial].interfaceResponse.y, 0.0f));
++    float2 transportedTangent = float2(0.0f);
++    if (sameSource) {
++        float3 previousTangent0, previousTangent1;
++        float3 nextTangent0, nextTangent1;
++        deformableContactFrame(
++            previous.normalAndBarrier.xyz,
++            previousTangent0, previousTangent1);
++        deformableContactFrame(
++            contact.normalAndTOI.xyz, nextTangent0, nextTangent1);
++        const float3 previousWorldTangent =
++            previous.laggedTangentAndFriction.x * previousTangent0 +
++            previous.laggedTangentAndFriction.y * previousTangent1;
++        transportedTangent = float2(
++            dot(nextTangent0, previousWorldTangent),
++            dot(nextTangent1, previousWorldTangent));
++        const float tangentLimit = staticFriction *
++            max(previous.normalAndBarrier.w, 0.0f);
++        const float tangentLength = length(transportedTangent);
++        if (tangentLength > tangentLimit && tangentLength > 1.0e-20f)
++            transportedTangent *= tangentLimit / tangentLength;
++    }
++    float3 tangent0, tangent1;
++    deformableContactFrame(contact.normalAndTOI.xyz, tangent0, tangent1);
++    const float2 tangentVelocity = float2(
++        dot(tangent0, contact.velocityAndResponse.xyz), dot(tangent1, contact.velocityAndResponse.xyz));
++    const float tangentSpeed = length(tangentVelocity);
++    const float transitionSpeed = max(
++        0.05f * thickness / max(contactTimestep, 1.0e-12f), 1.0e-6f);
++    const float transition = smoothstep(
++        0.25f * transitionSpeed, transitionSpeed, tangentSpeed);
++    const float friction = mix(staticFriction, dynamicFriction, transition);
++    const float frictionLimit = friction * barrier.x;
++    const float regularizedSpeed = sqrt(
++        tangentSpeed * tangentSpeed +
++        transitionSpeed * transitionSpeed);
++    float2 laggedFriction = tangentSpeed > 0.0f
++        ? -frictionLimit * tangentVelocity / regularizedSpeed
++        : float2(0.0f);
++    if (sameSource && tangentSpeed < 0.25f * transitionSpeed)
++        laggedFriction = transportedTangent;
++    contact.impulseAndFriction = float4(
++        barrier.x,
++        laggedFriction,
++        friction);
++    const float3x3 projectedHessian = ipcProjectedSpatialHessian(
++        contact.normalAndTOI.xyz, barrier.y, contact.velocityAndResponse.xyz,
++        frictionLimit, transitionSpeed);
++    matrixToRows(
++        projectedHessian,
++        contact.barrierHessianRow0,
++        contact.barrierHessianRow1,
++        contact.barrierHessianRow2);
++    return true;
++}
++
++template <bool reuseCompletedGeometry>
++kernel void nm_contact_narrowphase_deformable_impl(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     constant NMMicrostepGPU& microstep [[buffer(1)]],
+     device const NMContinuumObjectGPU* objects [[buffer(2)]],
+@@ -7247,6 +7330,7 @@
+     device NMMortarComplementAuditGPU* mortarAudit [[buffer(20)]],
+     device const uint* candidateOffsets [[buffer(21)]],
+     constant NMMixedSolverGPU& solver [[buffer(22)]],
++    device const NMFGMRESStateGPU* completedStates [[buffer(23)]],
+     uint global [[thread_position_in_grid]]
+ ) {
+     const uint capacity = dispatch.deformableContactCapacity;
+@@ -7285,6 +7369,35 @@
+     if (deterministicStatusSelection != 0u)
+         candidateStatuses[candidateGlobal] = {};
+     const NMDeformableContactHistoryGPU previous = histories[candidateGlobal];
++    if (reuseCompletedGeometry && microstep.solverIteration > 0u &&
++        environmentHealthy(statuses, environment) &&
++        completedStates[environment].nonlinear.w > 0.5f &&
++        vtccdAuditSelector.x != candidateGlobal) {
++        NMDeformableContactGPU cached = contacts[candidateGlobal];
++        // The admitted immutable FEM-only owner has no post-latch geometry,
++        // clock, mass, topology or material changes. Empty candidates stay
++        // empty. Friction history is deliberately NOT frozen.
++        if ((cached.identity.w & NM_CONTACT_VALID) == 0u) return;
++        if (cached.identity.x >= dispatch.objectCount ||
++            cached.identity.y >= dispatch.objectCount) {
++            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
++                NM_INVALID_INDEX, candidateGlobal, float4(0.0f));
++            return;
++        }
++        const float clearance = cached.barrierHessianRow2.w;
++        const float dt = objectTimestep(dispatch,
++            schedulers[environment * dispatch.objectCount + cached.identity.x]);
++        if (!(dt > 0.0f) || !isfinite(dt) ||
++            !refreshDeformableContactFriction(dispatch, objects, materials,
++                previous, dt, cached)) {
++            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
++                cached.identity.x, candidateGlobal, float4(dt, 0, 0, 42));
++            return;
++        }
++        cached.barrierHessianRow2.w = clearance;
++        contacts[candidateGlobal] = cached;
++        return;
++    }
+     contacts[candidateGlobal] = {};
+     if (!environmentHealthy(statuses, environment)) return;
+     const NMDeformableContactCandidateGPU candidate =
+@@ -8126,10 +8239,6 @@
+         candidate.identity.x, candidate.identity.y, candidate.identity.z,
+         max(left.identity.z, right.identity.z)
+     };
+-    const bool sameSource =
+-        previous.laggedTangentAndFriction.w > 0.5f &&
+-        all(previous.source.xy == contact.source.xy) &&
+-        previous.source.w == contact.source.w;
+     if (bestPositiveObject >= dispatch.objectCount ||
+         bestNegativeObject >= dispatch.objectCount) return;
+     const float contactTimestep = objectTimestep(
+@@ -8366,69 +8475,9 @@
+     barrier.x *= featureMollifier;
+     barrier.y *= featureMollifier;
+     barrier.w *= featureMollifier;
+-    const uint positiveMaterial = objects[bestPositiveObject].materialIndex;
+-    const uint negativeMaterial = objects[bestNegativeObject].materialIndex;
+-    if (positiveMaterial >= dispatch.materialCount ||
+-        negativeMaterial >= dispatch.materialCount) return;
+-    const float staticFriction = sqrt(max(
+-        materials[positiveMaterial].interfaceResponse.x *
+-        materials[negativeMaterial].interfaceResponse.x, 0.0f));
+-    const float dynamicFriction = sqrt(max(
+-        materials[positiveMaterial].interfaceResponse.y *
+-        materials[negativeMaterial].interfaceResponse.y, 0.0f));
+-    float2 transportedTangent = float2(0.0f);
+-    if (sameSource) {
+-        float3 previousTangent0, previousTangent1;
+-        float3 nextTangent0, nextTangent1;
+-        deformableContactFrame(
+-            previous.normalAndBarrier.xyz,
+-            previousTangent0, previousTangent1);
+-        deformableContactFrame(
+-            bestNormal, nextTangent0, nextTangent1);
+-        const float3 previousWorldTangent =
+-            previous.laggedTangentAndFriction.x * previousTangent0 +
+-            previous.laggedTangentAndFriction.y * previousTangent1;
+-        transportedTangent = float2(
+-            dot(nextTangent0, previousWorldTangent),
+-            dot(nextTangent1, previousWorldTangent));
+-        const float tangentLimit = staticFriction *
+-            max(previous.normalAndBarrier.w, 0.0f);
+-        const float tangentLength = length(transportedTangent);
+-        if (tangentLength > tangentLimit && tangentLength > 1.0e-20f)
+-            transportedTangent *= tangentLimit / tangentLength;
+-    }
+-    float3 tangent0, tangent1;
+-    deformableContactFrame(bestNormal, tangent0, tangent1);
+-    const float2 tangentVelocity = float2(
+-        dot(tangent0, relativeVelocity), dot(tangent1, relativeVelocity));
+-    const float tangentSpeed = length(tangentVelocity);
+-    const float transitionSpeed = max(
+-        0.05f * thickness / max(contactTimestep, 1.0e-12f), 1.0e-6f);
+-    const float transition = smoothstep(
+-        0.25f * transitionSpeed, transitionSpeed, tangentSpeed);
+-    const float friction = mix(staticFriction, dynamicFriction, transition);
+-    const float frictionLimit = friction * barrier.x;
+-    const float regularizedSpeed = sqrt(
+-        tangentSpeed * tangentSpeed +
+-        transitionSpeed * transitionSpeed);
+-    float2 laggedFriction = tangentSpeed > 0.0f
+-        ? -frictionLimit * tangentVelocity / regularizedSpeed
+-        : float2(0.0f);
+-    if (sameSource && tangentSpeed < 0.25f * transitionSpeed)
+-        laggedFriction = transportedTangent;
+-    contact.impulseAndFriction = float4(
+-        barrier.x,
+-        laggedFriction,
+-        friction);
+     contact.barrier = barrier;
+-    const float3x3 projectedHessian = ipcProjectedSpatialHessian(
+-        bestNormal, barrier.y, relativeVelocity,
+-        frictionLimit, transitionSpeed);
+-    matrixToRows(
+-        projectedHessian,
+-        contact.barrierHessianRow0,
+-        contact.barrierHessianRow1,
+-        contact.barrierHessianRow2);
++    if (!refreshDeformableContactFriction(dispatch, objects, materials,
++            previous, contactTimestep, contact)) return;
+     // Internal transient metadata; xyz remains the stored PSD spatial metric.
+     contact.barrierHessianRow2.w=barrierClearance;
+     contact.mollifierGradientRow0 =
+@@ -8453,6 +8502,64 @@
+     contacts[candidateGlobal] = contact;
+     (void)microstep;
+ }
++
++
++template [[host_name("numi_matter_metal::nm_contact_narrowphase_deformable")]]
++kernel void nm_contact_narrowphase_deformable_impl<false>(
++    constant NMMatterDispatchGPU& dispatch,
++    constant NMMicrostepGPU& microstep,
++    device const NMContinuumObjectGPU* objects,
++    device const NMMaterialGPU* materials,
++    device const NMFEMNodeStateGPU* femNodes,
++    device const NMSchedulerStateGPU* schedulers,
++    device const NMGridNodeStateGPU* gridNodes,
++    device const NMContinuumSurfacePrimitiveGPU* primitives,
++    device const NMDeformableContactCandidateGPU* candidates,
++    device const uint* candidateCounts,
++    device const NMDeformableContactHistoryGPU* histories,
++    device NMDeformableContactGPU* contacts,
++    device NMMatterStatusGPU* statuses,
++    device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges,
++    device const nm_uint4* cohesiveSurfaceFaceRefs,
++    device const NMCohesiveFaceGPU* cohesiveFaces,
++    constant uint& deterministicStatusSelection,
++    device NMMatterStatusGPU* candidateStatuses,
++    device NMDeformableVTCCDAuditGPU* vtccdAudit,
++    constant nm_uint4& vtccdAuditSelector,
++    device NMMortarComplementAuditGPU* mortarAudit,
++    device const uint* candidateOffsets,
++    constant NMMixedSolverGPU& solver,
++    device const NMFGMRESStateGPU* completedStates,
++    uint global
++);
++template [[host_name("numi_matter_metal::nm_contact_narrowphase_deformable_completed")]]
++kernel void nm_contact_narrowphase_deformable_impl<true>(
++    constant NMMatterDispatchGPU& dispatch,
++    constant NMMicrostepGPU& microstep,
++    device const NMContinuumObjectGPU* objects,
++    device const NMMaterialGPU* materials,
++    device const NMFEMNodeStateGPU* femNodes,
++    device const NMSchedulerStateGPU* schedulers,
++    device const NMGridNodeStateGPU* gridNodes,
++    device const NMContinuumSurfacePrimitiveGPU* primitives,
++    device const NMDeformableContactCandidateGPU* candidates,
++    device const uint* candidateCounts,
++    device const NMDeformableContactHistoryGPU* histories,
++    device NMDeformableContactGPU* contacts,
++    device NMMatterStatusGPU* statuses,
++    device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges,
++    device const nm_uint4* cohesiveSurfaceFaceRefs,
++    device const NMCohesiveFaceGPU* cohesiveFaces,
++    constant uint& deterministicStatusSelection,
++    device NMMatterStatusGPU* candidateStatuses,
++    device NMDeformableVTCCDAuditGPU* vtccdAudit,
++    constant nm_uint4& vtccdAuditSelector,
++    device NMMortarComplementAuditGPU* mortarAudit,
++    device const uint* candidateOffsets,
++    constant NMMixedSolverGPU& solver,
++    device const NMFGMRESStateGPU* completedStates,
++    uint global
++);
+ 
+ // Candidate statuses are independent outputs of the parallel narrowphase.
+ // Select their first failure with a deterministic atomic minimum over compact
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -8843,6 +8843,7 @@
+             "nm_contact_scatter_deformable_candidates",
+             "nm_contact_validate_armijo_deformable_sweep",
+             "nm_contact_narrowphase_deformable",
++            "nm_contact_narrowphase_deformable_completed",
+             "nm_contact_reset_narrowphase_failure_selection",
+             "nm_contact_select_narrowphase_failure",
+             "nm_contact_reduce_deformable_narrowphase_failures",
+@@ -29797,6 +29798,31 @@
+             // the primal barrier gradient before the fused FGMRES solve. The
+             // callback only encodes into the borrowed command buffer; it
+             // never commits, waits, or opens another queue.
++            const char* completedContactSetting =
++                std::getenv("NM_CONTACT_COMPLETED_GEOMETRY_CACHE");
++            const bool completedContactCacheRequested =
++                completedContactSetting != nullptr &&
++                std::strcmp(completedContactSetting, "1") == 0;
++            if (completedContactSetting != nullptr &&
++                std::strcmp(completedContactSetting, "0") != 0 &&
++                std::strcmp(completedContactSetting, "1") != 0) {
++                diagnostics.message = "NM_CONTACT_COMPLETED_GEOMETRY_CACHE must be 0 or 1";
++                [encoder endEncoding]; encoder = nil;
++                return diagnostics;
++            }
++            const bool completedContactCacheEligible =
++                completedContactCacheRequested && zeroStepGeometryReuseEligible &&
++                !state.hasAdaptive && !state.hasMutableFEMTopology &&
++                !state.requiresCoupledCandidate &&
++                state.dispatch.environmentCount == 1u &&
++                state.dispatch.rigidGeneralizedCapacity == 0u;
++            if (completedContactCacheRequested && !completedContactCacheEligible) {
++                diagnostics.message = "completed contact cache requires immutable single-environment FEM geometry and the existing zero-step cache";
++                [encoder endEncoding]; encoder = nil;
++                return diagnostics;
++            }
++            if (completedContactCacheEligible)
++                std::fprintf(stderr, "contact_completed_geometry_cache=1 root=%u final_certificate=full friction_history=fresh\n", request.controlStep);
+             const auto encodeCoupledPrimalContact = [&] (
+                 const bool certify,
+                 id<MTLBuffer> histories,
+@@ -30041,8 +30067,11 @@
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 const std::uint32_t narrowphaseDeterministicFailureSelection = 0u;
++                const bool reuseCompletedContact = completedContactCacheEligible && !certify;
+                 if (!dispatchIndirectWithPaddedFallback(
+-                    "nm_contact_narrowphase_deformable", state.deformableContactActiveDispatch, 256u,
++                    reuseCompletedContact ? "nm_contact_narrowphase_deformable_completed"
++                                          : "nm_contact_narrowphase_deformable",
++                    state.deformableContactActiveDispatch, 256u,
+                     environments * state.dispatch.deformableContactCapacity, [&] {
+                         setDispatch();
+                         [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+@@ -30078,6 +30107,8 @@
+                         [encoder setBuffer:state.deformableContactActiveOffsets
+                                    offset:0u atIndex:21u];
+                         [encoder setBuffer:state.mixedSolver offset:0u atIndex:22u];
++                        if (reuseCompletedContact)
++                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:23u];
+                     }
+                 )) {
+                     diagnostics.message = "nm_contact_narrowphase_deformable indirect dispatch unavailable; padded fallback ineligible";
+@@ -36576,7 +36607,10 @@
+                 }
+                 if (!state.femCacheProjectionReuseEnabled) {
+                     dispatchThreads("nm_fem_finalize_algorithmic_tangent_columns",
+-                        tetrahedronTotal, bindTangentCache, WorkDomain::tetrahedra);
++                        tetrahedronTotal, bindTangentCache,
++                        forceCompletedCacheRebuild == 0u
++                            ? WorkDomain::newtonAssemblyTetrahedra
++                            : WorkDomain::tetrahedra);
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 }
+                 if (state.femAssembledXYZOperatorEnabled) {
+--- a/matter/tools/fgmres_true_residual_native_check.mm
++++ b/matter/tools/fgmres_true_residual_native_check.mm
+@@ -4420,6 +4420,307 @@
+                  "current_A_applied=true result=PASS\n";
+ }
+ 
++
++
++
++void checkHumanExactContactMotionCache(
++    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
++    auto prepare=pipeline(device,library,
++        "numi_matter_metal::nm_numi_human_prepare_contact_motion_cache");
++    auto direct=pipeline(device,library,
++        "numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached");
++    auto cached=pipeline(device,library,
++        "numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_motion");
++    NMNumiHumanTendonFEMLoadDispatchGPU d{};
++    d.abiVersion=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
++    d.environmentCount=2;d.femNodeCount=2;d.bodyPoseStride=2;
++    d.articulationFirstBody=1;d.femBodyContactSampleCount=2;
++    std::vector<NMFEMNodeStateGPU> nodes(4);
++    for(auto& n:nodes)n.positionAndMass={0,0,-0.001f,1};
++    std::vector<MRArticulatedBodyPoseGPU> poses(4);
++    for(auto& pose:poses)pose.orientation={0,0,0,1};
++    std::vector<NMNumiHumanFEMBodyContactSampleGPU> samples(2);
++    for(unsigned i=0;i<2;++i) {
++        samples[i].slaveNode=i;samples[i].bodyIndex=i+1;
++        samples[i].flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE;
++        samples[i].bodyLocalPointAndArea={0,0,0,1};
++        samples[i].bodyLocalNormalAndReferenceSeparation={0,0,1,0};
++        samples[i].stiffnessAndNormalStrainPerPressure={1000,1,0,0};
++    }
++    const nm_float4 guard{31,-42,53,-64};
++    auto db=makeBuffer(device,std::vector<NMNumiHumanTendonFEMLoadDispatchGPU>{d});
++    auto nb=makeBuffer(device,nodes),pb=makeBuffer(device,poses);
++    auto sb=makeBuffer(device,samples);
++    auto dummy=makeBuffer(device,std::vector<std::uint8_t>(512,0));
++    auto flags=makeBuffer(device,std::vector<unsigned>(9,0));
++    auto oldNodes=makeBuffer(device,std::vector<nm_float4>(5,guard));
++    auto oldPoses=makeBuffer(device,std::vector<nm_float4>(9,guard));
++    auto out=makeBuffer(device,std::vector<nm_float4>(5,guard));
++    auto oracle=makeBuffer(device,std::vector<nm_float4>(5,guard));
++    auto valid=makeBuffer(device,std::vector<unsigned>(5,91));
++    auto oracleValid=makeBuffer(device,std::vector<unsigned>(5,91));
++    const auto prep=[&] {
++        dispatch(device,queue,prepare,{{0,db},{1,nb},{2,pb},{3,oldNodes},
++            {4,oldPoses},{5,flags}},1,256);
++    };
++    const auto evaluate=[&](bool reuse) {
++        dispatch(device,queue,reuse?cached:direct,{{0,db},{1,sb},
++            {2,dummy},{3,dummy},{4,dummy},{5,nb},{6,pb},
++            {7,reuse?valid:oracleValid},{8,reuse?out:oracle},{9,flags}},1,256);
++    };
++    const auto parity=[&](const char* label) {
++        evaluate(true);evaluate(false);
++        require(std::memcmp(out.contents,oracle.contents,5*sizeof(nm_float4))==0,
++            std::string("exact contact motion cache differs from direct query: ")+label);
++        require(readBuffer<unsigned>(valid,5)==readBuffer<unsigned>(oracleValid,5),
++            std::string("exact contact motion cache validity differs: ")+label);
++    };
++    prep();require(readBuffer<unsigned>(flags,8)==std::vector<unsigned>(8,1),
++        "first motion-cache use was marked unchanged");
++    parity("first query");
++    require(readBuffer<unsigned>(valid,4)==std::vector<unsigned>(4,1),
++        "manufactured contact rows were invalid");
++    prep();require(readBuffer<unsigned>(flags,8)==std::vector<unsigned>(8,3),
++        "identical current inputs were not reusable");
++    parity("unchanged");
++    // Observe reuse directly with a diagnostic canary, then restore the exact
++    // derived row before testing motion. This canary is not physical evidence.
++    auto original=readBuffer<nm_float4>(out,5);
++    static_cast<nm_float4*>(out.contents)[0]=guard;
++    evaluate(true);
++    require(std::memcmp(out.contents,&guard,sizeof(guard))==0,
++        "unchanged row was unnecessarily recomputed");
++    std::memcpy(out.contents,original.data(),original.size()*sizeof(nm_float4));
++    static_cast<NMFEMNodeStateGPU*>(nb.contents)[1].positionAndMass.z-=0.0002f;
++    static_cast<MRArticulatedBodyPoseGPU*>(pb.contents)[2].position.z=0.0003f;
++    prep();
++    require(readBuffer<unsigned>(flags,8)==
++        std::vector<unsigned>({3,1,3,3,3,3,1,3}),
++        "motion invalidation crossed node/body/environment ownership");
++    parity("node and body translation");
++    static_cast<MRArticulatedBodyPoseGPU*>(pb.contents)[3].orientation=
++        {0,0.6f,0,0.8f};
++    prep();parity("body rotation");
++    // Restoring coordinates is another real input change, including a retry
++    // after a rejected transaction; derived cache history never commits state.
++    std::memcpy(nb.contents,nodes.data(),nodes.size()*sizeof(nodes[0]));
++    std::memcpy(pb.contents,poses.data(),poses.size()*sizeof(poses[0]));
++    prep();parity("restore and retry");
++    auto* n=static_cast<NMFEMNodeStateGPU*>(nb.contents);
++    n[0].positionAndMass.x=std::numeric_limits<float>::quiet_NaN();
++    prep();evaluate(true);
++    require(readBuffer<unsigned>(valid,4)[0]==0,
++        "nonfinite contact input reused a valid row");
++    prep();evaluate(true);
++    require(readBuffer<unsigned>(valid,4)[0]==0 &&
++        readBuffer<unsigned>(flags,8)[0]==1,
++        "repeated nonfinite bits were incorrectly marked reusable");
++    require(std::memcmp(static_cast<nm_float4*>(out.contents)+4,&guard,sizeof(guard))==0 &&
++        readBuffer<unsigned>(valid,5)[4]==91 &&
++        std::memcmp(static_cast<nm_float4*>(oldNodes.contents)+4,&guard,sizeof(guard))==0 &&
++        std::memcmp(static_cast<nm_float4*>(oldPoses.contents)+8,&guard,sizeof(guard))==0 &&
++        readBuffer<unsigned>(flags,9)[8]==0,
++        "exact contact motion-cache extent guard overwritten");
++    std::cout<<"human_exact_contact_motion_cache=PASS first_use=true unchanged_skip=true "
++        "node_motion=true body_translation_rotation=true environments=2 restore_retry=true "
++        "nonfinite_fails_closed=true direct_force_validity_parity=bitwise\n";
++}
++
++void checkCompletedContactGeometry(
++    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
++    auto full=pipeline(device,library,"numi_matter_metal::nm_contact_narrowphase_deformable");
++    auto reuse=pipeline(device,library,"numi_matter_metal::nm_contact_narrowphase_deformable_completed");
++    NMMatterDispatchGPU d{};d.abiVersion=NM_MATTER_ABI_VERSION;
++    d.environmentCount=1;d.objectCount=2;d.materialCount=2;
++    d.femNodeCount=2;d.deformableContactCapacity=1;
++    d.flags=NM_MATTER_STATIC_FEM_SURFACE_MAP;d.surfaceFaceCount=2;
++    d.gravityAndTimestep={0,0,0,0.001f};d.numericalLimits.x=0.001f;
++    std::vector<NMContinuumObjectGPU> objects(2);
++    for(unsigned i=0;i<2;++i) {
++        objects[i].representation=NM_REPRESENTATION_FEM;
++        objects[i].flags=NM_OBJECT_ACTIVE;objects[i].materialIndex=i;
++    }
++    std::vector<NMMaterialGPU> materials(2);
++    for(auto& v:materials)v.interfaceResponse={0.5f,0.3f,0,0};
++    std::vector<NMFEMNodeStateGPU> nodes(2);
++    nodes[0].positionAndMass={0,0,0,1};
++    nodes[1].positionAndMass={0,0,0.0005f,1};
++    for(auto& n:nodes)n.velocityAndInverseMass={0.0001f,0,0,1};
++    std::vector<NMContinuumSurfacePrimitiveGPU> surfaces(2);
++    for(unsigned i=0;i<2;++i) {
++        surfaces[i].identity={i,NM_CONTINUUM_SURFACE_POINT,0,NM_TOPOLOGY_ACTIVE};
++        surfaces[i].nodesAndObject={i,NM_INVALID_INDEX,NM_INVALID_INDEX,i};
++    }
++    NMDeformableContactCandidateGPU candidate{};candidate.identity={0,1,0,NM_TOPOLOGY_ACTIVE};
++    auto db=makeBuffer(device,std::vector<NMMatterDispatchGPU>{d});
++    NMMicrostepGPU m{};m.solverIteration=0;
++    auto mb=makeBuffer(device,std::vector<NMMicrostepGPU>{m});
++    auto ob=makeBuffer(device,objects),mat=makeBuffer(device,materials);
++    auto nb=makeBuffer(device,nodes),sur=makeBuffer(device,surfaces);
++    auto sch=makeBuffer(device,std::vector<NMSchedulerStateGPU>(2));
++    auto cb=makeBuffer(device,std::vector<NMDeformableContactCandidateGPU>{candidate});
++    auto count=makeBuffer(device,std::vector<unsigned>{1});
++    auto offset=makeBuffer(device,std::vector<unsigned>{0});
++    auto hist=makeBuffer(device,std::vector<NMDeformableContactHistoryGPU>(1));
++    auto direct=makeBuffer(device,std::vector<NMDeformableContactGPU>(1));
++    auto cached=makeBuffer(device,std::vector<NMDeformableContactGPU>(1));
++    auto status=makeBuffer(device,std::vector<NMMatterStatusGPU>(1));
++    auto dummy=makeBuffer(device,std::vector<std::uint8_t>(1024,0));
++    auto zero=makeBuffer(device,std::vector<unsigned>{0});
++    auto selector=makeBuffer(device,std::vector<nm_uint4>{{NM_INVALID_INDEX,0,0,0}});
++    NMMixedSolverGPU solver{};
++    auto solverBuffer=makeBuffer(device,std::vector<NMMixedSolverGPU>{solver});
++    auto states=makeBuffer(device,std::vector<NMFGMRESStateGPU>(1));
++    const auto run=[&](bool optimized) {
++        dispatch(device,queue,optimized?reuse:full,{{0,db},{1,mb},{2,ob},{3,mat},
++            {4,nb},{5,sch},{6,dummy},{7,sur},{8,cb},{9,count},{10,hist},
++            {11,optimized?cached:direct},{12,status},{13,dummy},{14,dummy},
++            {15,dummy},{16,zero},{17,dummy},{18,dummy},{19,selector},
++            {20,dummy},{21,offset},{22,solverBuffer},{23,states}},1,256);
++    };
++    run(false);run(true);
++    auto contact=readBuffer<NMDeformableContactGPU>(direct,1)[0];
++    require((contact.identity.w&NM_CONTACT_VALID)!=0,
++        "completed-contact manufactured active feature was not valid");
++    require(std::memcmp(direct.contents,cached.contents,sizeof(contact))==0,
++        "unlatched completed-contact specialization changed full narrowphase");
++    NMFGMRESStateGPU completed{};completed.nonlinear.w=1;
++    std::memcpy(states.contents,&completed,sizeof(completed));
++    m.solverIteration=3;std::memcpy(mb.contents,&m,sizeof(m));
++    // A current friction history differs from the one used to build geometry.
++    // Its transport must remain bit-identical to a full fresh narrowphase.
++    NMDeformableContactHistoryGPU previous{};
++    previous.source=contact.source;previous.normalAndBarrier=
++        {contact.normalAndTOI.x,contact.normalAndTOI.y,contact.normalAndTOI.z,
++         contact.barrier.x};
++    previous.laggedTangentAndFriction={0.00000001f,-0.00000002f,0,1};
++    std::memcpy(hist.contents,&previous,sizeof(previous));
++    for(unsigned pass=0;pass<4;++pass) {
++        run(false);run(true);
++        require(std::memcmp(direct.contents,cached.contents,sizeof(contact))==0,
++            "completed geometry refresh lost exact current friction/Hessian");
++        contact=readBuffer<NMDeformableContactGPU>(direct,1)[0];
++        previous.laggedTangentAndFriction.x*=0.5f;
++        std::memcpy(hist.contents,&previous,sizeof(previous));
++    }
++    // An active Newton iteration must rebuild when coordinates actually move.
++    completed.nonlinear.w=0;std::memcpy(states.contents,&completed,sizeof(completed));
++    static_cast<NMFEMNodeStateGPU*>(nb.contents)[1].positionAndMass.z=0.0004f;
++    run(false);run(true);
++    require(std::memcmp(direct.contents,cached.contents,sizeof(contact))==0,
++        "active contact iteration failed to rebuild moved geometry");
++    require(readBuffer<NMMatterStatusGPU>(status,1)[0].code==NM_STATUS_SUCCESS,
++        "completed geometry fixture produced a physical rejection");
++    std::cout<<"completed_contact_geometry=PASS active_rebuild=bitwise "
++        "frozen_geometry_current_friction=bitwise histories=4 final_full_path=preserved\n";
++}
++
++
++void checkCompactedHumanContactQueries(
++    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
++    auto classify=pipeline(device,library,"numi_matter_metal::nm_numi_human_classify_contact_queries");
++    auto scanTiles=pipeline(device,library,"numi_matter_metal::nm_numi_human_scan_contact_query_tiles");
++    auto scanBlocks=pipeline(device,library,"numi_matter_metal::nm_numi_human_scan_contact_query_blocks");
++    auto scatter=pipeline(device,library,"numi_matter_metal::nm_numi_human_scatter_contact_queries");
++    auto exact=pipeline(device,library,"numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_aabb_compacted");
++    auto direct=pipeline(device,library,"numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_aabb");
++    constexpr unsigned count=66049,tiles=(count+255)/256,blocks=(tiles+255)/256;
++    NMNumiHumanTendonFEMLoadDispatchGPU d{};
++    d.abiVersion=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
++    d.environmentCount=1;d.femNodeCount=2;d.bodyPoseStride=1;
++    d.femBodyContactSampleCount=count;d.femBodyContactCandidateTriangleCount=1;
++    std::vector<NMNumiHumanFEMBodyContactSampleGPU> samples(count);
++    for(unsigned i=0;i<count;++i) {
++        auto& s=samples[i];s.slaveNode=i%2;s.bodyIndex=0;
++        s.flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE;
++        s.bodyLocalPointAndArea={0,0,0,1};
++        s.bodyLocalNormalAndReferenceSeparation={0,0,1,0};
++        s.stiffnessAndNormalStrainPerPressure={1000,1,0,0};
++    }
++    std::vector<NMFEMNodeStateGPU> nodes(2);
++    for(auto& n:nodes)n.positionAndMass={0.1f,0,-0.001f,1};
++    MRArticulatedBodyPoseGPU pose{};pose.orientation={0,0,0,1};
++    auto db=makeBuffer(device,std::vector<NMNumiHumanTendonFEMLoadDispatchGPU>{d});
++    auto sb=makeBuffer(device,samples),nb=makeBuffer(device,nodes);
++    auto pb=makeBuffer(device,std::vector<MRArticulatedBodyPoseGPU>{pose});
++    auto ranges=makeBuffer(device,std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>(count));
++    NMNumiHumanFEMBodyContactBVHNodeGPU root{};
++    root.boundsMinimum={-0.01f,-0.01f,-0.01f,0};
++    root.boundsMaximum={0.01f,0.01f,0.01f,0};
++    root.flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_BVH_NODE_LEAF;
++    root.escapeIndex=1;root.triangleIndex=0;
++    auto tree=makeBuffer(device,std::vector<NMNumiHumanFEMBodyContactBVHNodeGPU>{root});
++    auto dummy=makeBuffer(device,std::vector<std::uint8_t>(512,0));
++    auto flags=makeBuffer(device,std::vector<unsigned>{1,1,1});
++    auto valid=makeBuffer(device,std::vector<unsigned>(count+1,91));
++    auto oracleValid=makeBuffer(device,std::vector<unsigned>(count+1,91));
++    const nm_float4 guard={31,-42,53,-64};
++    auto rows=makeBuffer(device,std::vector<nm_float4>(count+1,guard));
++    auto oracle=makeBuffer(device,std::vector<nm_float4>(count+1,guard));
++    struct U2 {unsigned x,y;};
++    auto tileRanges=makeBuffer(device,std::vector<U2>(tiles+1,{91,92}));
++    auto sums=makeBuffer(device,std::vector<unsigned>(blocks+1,91));
++    auto offsets=makeBuffer(device,std::vector<unsigned>(blocks+1,91));
++    auto indices=makeBuffer(device,std::vector<unsigned>(count+1,91));
++    auto work=makeBuffer(device,std::vector<NMIndirectDispatchGPU>(1));
++    const auto query=[&] {
++        dispatch(device,queue,classify,{{0,db},{1,sb},{2,ranges},{3,tree},{4,nb},
++            {5,pb},{6,flags},{7,valid},{8,rows},{9,tileRanges}},tiles,256);
++        dispatch(device,queue,scanTiles,{{0,db},{1,tileRanges},{2,sums}},blocks,256);
++        dispatch(device,queue,scanBlocks,{{0,db},{1,sums},{2,offsets},{3,work}},1,256);
++        dispatch(device,queue,scatter,{{0,db},{1,valid},{2,tileRanges},{3,offsets},{4,indices}},tiles,256);
++        const auto active=readBuffer<NMIndirectDispatchGPU>(work,1)[0];
++        if(active.threadgroupsX)dispatch(device,queue,exact,{{0,db},{1,sb},{2,ranges},
++            {3,dummy},{4,tree},{5,nb},{6,pb},{7,valid},{8,rows},
++            {9,flags},{10,indices},{11,work}},active.threadgroupsX,256);
++        return active.reserved;
++    };
++    const auto parity=[&] {
++        dispatch(device,queue,direct,{{0,db},{1,sb},{2,ranges},{3,dummy},{4,tree},
++            {5,nb},{6,pb},{7,oracleValid},{8,oracle}},tiles,256);
++        require(std::memcmp(rows.contents,oracle.contents,(count+1)*sizeof(nm_float4))==0,
++            "compacted Human query force rows differ from full original query");
++        require(readBuffer<unsigned>(valid,count+1)==readBuffer<unsigned>(oracleValid,count+1),
++            "compacted Human query validity differs from full original query");
++    };
++    require(query()==count,"all-active compact query count incorrect across two scan blocks");
++    auto ids=readBuffer<unsigned>(indices,count+1);
++    for(unsigned i=0;i<count;++i)require(ids[i]==i,"compacted query order is not deterministic");
++    parity();
++    static_cast<unsigned*>(flags.contents)[0]=3;
++    static_cast<unsigned*>(flags.contents)[2]=3;
++    require(query()==count/2,"mixed exact-reuse query count incorrect");
++    ids=readBuffer<unsigned>(indices,count/2);
++    for(unsigned i=0;i<count/2;++i)require(ids[i]==2*i+1,"mixed compacted query indices incorrect");
++    parity();
++    static_cast<unsigned*>(flags.contents)[1]=3;
++    require(query()==0,"empty compact query domain still scheduled work");
++    parity();
++    // Exercise certified outside-box exclusion with original AABB arithmetic;
++    // this is an explicitly synthetic bank-admission fixture, not anatomy.
++    auto* sf=static_cast<unsigned*>(flags.contents);sf[0]=sf[1]=sf[2]=1;
++    auto* authored=static_cast<NMNumiHumanFEMBodyContactSampleGPU*>(sb.contents);
++    authored[0].flags|=NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT;
++    authored[0].bodyLocalNormalAndReferenceSeparation.w=1000;
++    auto* range=static_cast<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*>(ranges.contents);
++    range[0].triangleCount=1;range[0].maximumDistanceMeters=0.01f;
++    range[0].reserved0=NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_STATIC_CLOSED_ORIENTED_BVH;
++    require(query()==count-1,"certified inactive AABB row entered exact BVH work");
++    parity();
++    authored[count-2].slaveNode=NM_INVALID_INDEX;
++    require(query()==count-1,"invalid row was dropped from exact validation");
++    parity();
++    require(readBuffer<unsigned>(valid,count)[count-2]==0,
++        "invalid compacted query failed to reject");
++    require(readBuffer<unsigned>(indices,count+1)[count]==91 &&
++        readBuffer<U2>(tileRanges,tiles+1)[tiles].x==91 &&
++        readBuffer<unsigned>(sums,blocks+1)[blocks]==91 &&
++        readBuffer<unsigned>(offsets,blocks+1)[blocks]==91,
++        "compacted Human query capacity guard overwritten");
++    std::cout<<"human_compacted_contact_queries=PASS rows="<<count
++        <<" scan_blocks="<<blocks<<" partial_tile=true all_active=true mixed=true "
++        "empty=true deterministic=true certified_aabb=true invalid_fails_closed=true bitwise_parity=true\n";
++}
+ 
+ 
+ void checkZeroStepGeometryReuse(
+@@ -16833,6 +17134,13 @@
+                 std::cout << "PASS graph product precompute " << checks << " checks" << std::endl;
+                 return 0;
+             }
++            if (argc == 2 && std::string(argv[1]) == "--completed-contact-only") {
++                checkCompactedHumanContactQueries(device,queue,library);
++                checkHumanExactContactMotionCache(device,queue,library);
++                checkCompletedContactGeometry(device,queue,library);
++                std::cout << "PASS completed contact " << checks << " checks" << std::endl;
++                return 0;
++            }
+             if (argc == 2 && std::string(argv[1]) == "--contact-zero-step-geometry-reuse-only") {
+                 checkZeroStepGeometryReuse(device, queue, library);
+             checkReferenceSurfaceGeometry(device,queue,library);
+@@ -17421,6 +17729,9 @@
+             checkHybridFullPhysicalResidualDiagnostic(device, queue,
+                 hybridPhysicalPreserve, hybridPhysicalPartial, hybridPhysicalFinish);
+             checkFreshRhsPreconditionerBeginVerification(device, queue, library);
++            checkCompactedHumanContactQueries(device,queue,library);
++            checkHumanExactContactMotionCache(device,queue,library);
++            checkCompletedContactGeometry(device,queue,library);
+             checkZeroStepGeometryReuse(device, queue, library);
+             checkReferenceSurfaceGeometry(device,queue,library);
+                 checkPolynomialReferenceSweep(device,queue,library);

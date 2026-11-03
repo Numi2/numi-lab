@@ -1,0 +1,19 @@
+{
+  "purpose": "matched full-Human short screen of completed geometry/current friction and coherent motion query compaction",
+  "control": "equilibrated-prefix-native-035",
+  "steps": 4,
+  "dt_seconds": 1.5625e-05,
+  "unchanged_physics_and_acceptance": true,
+  "gates": [
+    "four common-state accepted steps",
+    "bitwise endpoint and physiology parity at identical 62.5us endpoint",
+    "no common failure receipt",
+    "full final contact and material certification retained"
+  ],
+  "measurements": [
+    "whole physical command GPU and wall duration",
+    "root0 whole Newton stages",
+    "actual per-kernel timings; no scaled totals"
+  ],
+  "qualification_limit": "short release-transient replay; no supported rest, sustained motion or 0.1x claim"
+}

@@ -1,0 +1,12 @@
+{
+  "purpose": "attribute completed-tail assembly and motion contact; instrumented screen, not throughput qualification",
+  "unchanged_physics": true,
+  "dt_seconds": 1.5625e-05,
+  "steps": 1,
+  "gates": [
+    "native accept and common-state consistency",
+    "compare before/after endpoint hashes at matched horizon",
+    "mandatory final physical certification"
+  ],
+  "profiling_caveat": "selected kernel encoders perturb scheduling; whole-stage and uninstrumented controls required"
+}

@@ -7223,7 +7223,90 @@ inline void recordDeformableNarrowphaseFailure(
     }
 }
 
-kernel void nm_contact_narrowphase_deformable(
+// Geometry and friction have different lifetimes. Completed Newton tails
+// freeze the candidate geometry, but must still transport current friction
+// history. Both the full and cached path call this exact arithmetic.
+inline bool refreshDeformableContactFriction(
+    constant NMMatterDispatchGPU& dispatch,
+    device const NMContinuumObjectGPU* objects,
+    device const NMMaterialGPU* materials,
+    const NMDeformableContactHistoryGPU previous,
+    const float contactTimestep,
+    thread NMDeformableContactGPU& contact
+) {
+    const float thickness = dispatch.numericalLimits.x;
+    const bool sameSource =
+        previous.laggedTangentAndFriction.w > 0.5f &&
+        all(previous.source.xy == contact.source.xy) &&
+        previous.source.w == contact.source.w;
+    const float4 barrier = contact.barrier;
+    const uint positiveMaterial = objects[contact.identity.x].materialIndex;
+    const uint negativeMaterial = objects[contact.identity.y].materialIndex;
+    if (positiveMaterial >= dispatch.materialCount ||
+        negativeMaterial >= dispatch.materialCount) return false;
+    const float staticFriction = sqrt(max(
+        materials[positiveMaterial].interfaceResponse.x *
+        materials[negativeMaterial].interfaceResponse.x, 0.0f));
+    const float dynamicFriction = sqrt(max(
+        materials[positiveMaterial].interfaceResponse.y *
+        materials[negativeMaterial].interfaceResponse.y, 0.0f));
+    float2 transportedTangent = float2(0.0f);
+    if (sameSource) {
+        float3 previousTangent0, previousTangent1;
+        float3 nextTangent0, nextTangent1;
+        deformableContactFrame(
+            previous.normalAndBarrier.xyz,
+            previousTangent0, previousTangent1);
+        deformableContactFrame(
+            contact.normalAndTOI.xyz, nextTangent0, nextTangent1);
+        const float3 previousWorldTangent =
+            previous.laggedTangentAndFriction.x * previousTangent0 +
+            previous.laggedTangentAndFriction.y * previousTangent1;
+        transportedTangent = float2(
+            dot(nextTangent0, previousWorldTangent),
+            dot(nextTangent1, previousWorldTangent));
+        const float tangentLimit = staticFriction *
+            max(previous.normalAndBarrier.w, 0.0f);
+        const float tangentLength = length(transportedTangent);
+        if (tangentLength > tangentLimit && tangentLength > 1.0e-20f)
+            transportedTangent *= tangentLimit / tangentLength;
+    }
+    float3 tangent0, tangent1;
+    deformableContactFrame(contact.normalAndTOI.xyz, tangent0, tangent1);
+    const float2 tangentVelocity = float2(
+        dot(tangent0, contact.velocityAndResponse.xyz), dot(tangent1, contact.velocityAndResponse.xyz));
+    const float tangentSpeed = length(tangentVelocity);
+    const float transitionSpeed = max(
+        0.05f * thickness / max(contactTimestep, 1.0e-12f), 1.0e-6f);
+    const float transition = smoothstep(
+        0.25f * transitionSpeed, transitionSpeed, tangentSpeed);
+    const float friction = mix(staticFriction, dynamicFriction, transition);
+    const float frictionLimit = friction * barrier.x;
+    const float regularizedSpeed = sqrt(
+        tangentSpeed * tangentSpeed +
+        transitionSpeed * transitionSpeed);
+    float2 laggedFriction = tangentSpeed > 0.0f
+        ? -frictionLimit * tangentVelocity / regularizedSpeed
+        : float2(0.0f);
+    if (sameSource && tangentSpeed < 0.25f * transitionSpeed)
+        laggedFriction = transportedTangent;
+    contact.impulseAndFriction = float4(
+        barrier.x,
+        laggedFriction,
+        friction);
+    const float3x3 projectedHessian = ipcProjectedSpatialHessian(
+        contact.normalAndTOI.xyz, barrier.y, contact.velocityAndResponse.xyz,
+        frictionLimit, transitionSpeed);
+    matrixToRows(
+        projectedHessian,
+        contact.barrierHessianRow0,
+        contact.barrierHessianRow1,
+        contact.barrierHessianRow2);
+    return true;
+}
+
+template <bool reuseCompletedGeometry>
+kernel void nm_contact_narrowphase_deformable_impl(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
     device const NMContinuumObjectGPU* objects [[buffer(2)]],
@@ -7247,6 +7330,7 @@ kernel void nm_contact_narrowphase_deformable(
     device NMMortarComplementAuditGPU* mortarAudit [[buffer(20)]],
     device const uint* candidateOffsets [[buffer(21)]],
     constant NMMixedSolverGPU& solver [[buffer(22)]],
+    device const NMFGMRESStateGPU* completedStates [[buffer(23)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
@@ -7285,6 +7369,35 @@ kernel void nm_contact_narrowphase_deformable(
     if (deterministicStatusSelection != 0u)
         candidateStatuses[candidateGlobal] = {};
     const NMDeformableContactHistoryGPU previous = histories[candidateGlobal];
+    if (reuseCompletedGeometry && microstep.solverIteration > 0u &&
+        environmentHealthy(statuses, environment) &&
+        completedStates[environment].nonlinear.w > 0.5f &&
+        vtccdAuditSelector.x != candidateGlobal) {
+        NMDeformableContactGPU cached = contacts[candidateGlobal];
+        // The admitted immutable FEM-only owner has no post-latch geometry,
+        // clock, mass, topology or material changes. Empty candidates stay
+        // empty. Friction history is deliberately NOT frozen.
+        if ((cached.identity.w & NM_CONTACT_VALID) == 0u) return;
+        if (cached.identity.x >= dispatch.objectCount ||
+            cached.identity.y >= dispatch.objectCount) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, candidateGlobal, float4(0.0f));
+            return;
+        }
+        const float clearance = cached.barrierHessianRow2.w;
+        const float dt = objectTimestep(dispatch,
+            schedulers[environment * dispatch.objectCount + cached.identity.x]);
+        if (!(dt > 0.0f) || !isfinite(dt) ||
+            !refreshDeformableContactFriction(dispatch, objects, materials,
+                previous, dt, cached)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                cached.identity.x, candidateGlobal, float4(dt, 0, 0, 42));
+            return;
+        }
+        cached.barrierHessianRow2.w = clearance;
+        contacts[candidateGlobal] = cached;
+        return;
+    }
     contacts[candidateGlobal] = {};
     if (!environmentHealthy(statuses, environment)) return;
     const NMDeformableContactCandidateGPU candidate =
@@ -8126,10 +8239,6 @@ kernel void nm_contact_narrowphase_deformable(
         candidate.identity.x, candidate.identity.y, candidate.identity.z,
         max(left.identity.z, right.identity.z)
     };
-    const bool sameSource =
-        previous.laggedTangentAndFriction.w > 0.5f &&
-        all(previous.source.xy == contact.source.xy) &&
-        previous.source.w == contact.source.w;
     if (bestPositiveObject >= dispatch.objectCount ||
         bestNegativeObject >= dispatch.objectCount) return;
     const float contactTimestep = objectTimestep(
@@ -8366,69 +8475,9 @@ kernel void nm_contact_narrowphase_deformable(
     barrier.x *= featureMollifier;
     barrier.y *= featureMollifier;
     barrier.w *= featureMollifier;
-    const uint positiveMaterial = objects[bestPositiveObject].materialIndex;
-    const uint negativeMaterial = objects[bestNegativeObject].materialIndex;
-    if (positiveMaterial >= dispatch.materialCount ||
-        negativeMaterial >= dispatch.materialCount) return;
-    const float staticFriction = sqrt(max(
-        materials[positiveMaterial].interfaceResponse.x *
-        materials[negativeMaterial].interfaceResponse.x, 0.0f));
-    const float dynamicFriction = sqrt(max(
-        materials[positiveMaterial].interfaceResponse.y *
-        materials[negativeMaterial].interfaceResponse.y, 0.0f));
-    float2 transportedTangent = float2(0.0f);
-    if (sameSource) {
-        float3 previousTangent0, previousTangent1;
-        float3 nextTangent0, nextTangent1;
-        deformableContactFrame(
-            previous.normalAndBarrier.xyz,
-            previousTangent0, previousTangent1);
-        deformableContactFrame(
-            bestNormal, nextTangent0, nextTangent1);
-        const float3 previousWorldTangent =
-            previous.laggedTangentAndFriction.x * previousTangent0 +
-            previous.laggedTangentAndFriction.y * previousTangent1;
-        transportedTangent = float2(
-            dot(nextTangent0, previousWorldTangent),
-            dot(nextTangent1, previousWorldTangent));
-        const float tangentLimit = staticFriction *
-            max(previous.normalAndBarrier.w, 0.0f);
-        const float tangentLength = length(transportedTangent);
-        if (tangentLength > tangentLimit && tangentLength > 1.0e-20f)
-            transportedTangent *= tangentLimit / tangentLength;
-    }
-    float3 tangent0, tangent1;
-    deformableContactFrame(bestNormal, tangent0, tangent1);
-    const float2 tangentVelocity = float2(
-        dot(tangent0, relativeVelocity), dot(tangent1, relativeVelocity));
-    const float tangentSpeed = length(tangentVelocity);
-    const float transitionSpeed = max(
-        0.05f * thickness / max(contactTimestep, 1.0e-12f), 1.0e-6f);
-    const float transition = smoothstep(
-        0.25f * transitionSpeed, transitionSpeed, tangentSpeed);
-    const float friction = mix(staticFriction, dynamicFriction, transition);
-    const float frictionLimit = friction * barrier.x;
-    const float regularizedSpeed = sqrt(
-        tangentSpeed * tangentSpeed +
-        transitionSpeed * transitionSpeed);
-    float2 laggedFriction = tangentSpeed > 0.0f
-        ? -frictionLimit * tangentVelocity / regularizedSpeed
-        : float2(0.0f);
-    if (sameSource && tangentSpeed < 0.25f * transitionSpeed)
-        laggedFriction = transportedTangent;
-    contact.impulseAndFriction = float4(
-        barrier.x,
-        laggedFriction,
-        friction);
     contact.barrier = barrier;
-    const float3x3 projectedHessian = ipcProjectedSpatialHessian(
-        bestNormal, barrier.y, relativeVelocity,
-        frictionLimit, transitionSpeed);
-    matrixToRows(
-        projectedHessian,
-        contact.barrierHessianRow0,
-        contact.barrierHessianRow1,
-        contact.barrierHessianRow2);
+    if (!refreshDeformableContactFriction(dispatch, objects, materials,
+            previous, contactTimestep, contact)) return;
     // Internal transient metadata; xyz remains the stored PSD spatial metric.
     contact.barrierHessianRow2.w=barrierClearance;
     contact.mollifierGradientRow0 =
@@ -8453,6 +8502,64 @@ kernel void nm_contact_narrowphase_deformable(
     contacts[candidateGlobal] = contact;
     (void)microstep;
 }
+
+
+template [[host_name("numi_matter_metal::nm_contact_narrowphase_deformable")]]
+kernel void nm_contact_narrowphase_deformable_impl<false>(
+    constant NMMatterDispatchGPU& dispatch,
+    constant NMMicrostepGPU& microstep,
+    device const NMContinuumObjectGPU* objects,
+    device const NMMaterialGPU* materials,
+    device const NMFEMNodeStateGPU* femNodes,
+    device const NMSchedulerStateGPU* schedulers,
+    device const NMGridNodeStateGPU* gridNodes,
+    device const NMContinuumSurfacePrimitiveGPU* primitives,
+    device const NMDeformableContactCandidateGPU* candidates,
+    device const uint* candidateCounts,
+    device const NMDeformableContactHistoryGPU* histories,
+    device NMDeformableContactGPU* contacts,
+    device NMMatterStatusGPU* statuses,
+    device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges,
+    device const nm_uint4* cohesiveSurfaceFaceRefs,
+    device const NMCohesiveFaceGPU* cohesiveFaces,
+    constant uint& deterministicStatusSelection,
+    device NMMatterStatusGPU* candidateStatuses,
+    device NMDeformableVTCCDAuditGPU* vtccdAudit,
+    constant nm_uint4& vtccdAuditSelector,
+    device NMMortarComplementAuditGPU* mortarAudit,
+    device const uint* candidateOffsets,
+    constant NMMixedSolverGPU& solver,
+    device const NMFGMRESStateGPU* completedStates,
+    uint global
+);
+template [[host_name("numi_matter_metal::nm_contact_narrowphase_deformable_completed")]]
+kernel void nm_contact_narrowphase_deformable_impl<true>(
+    constant NMMatterDispatchGPU& dispatch,
+    constant NMMicrostepGPU& microstep,
+    device const NMContinuumObjectGPU* objects,
+    device const NMMaterialGPU* materials,
+    device const NMFEMNodeStateGPU* femNodes,
+    device const NMSchedulerStateGPU* schedulers,
+    device const NMGridNodeStateGPU* gridNodes,
+    device const NMContinuumSurfacePrimitiveGPU* primitives,
+    device const NMDeformableContactCandidateGPU* candidates,
+    device const uint* candidateCounts,
+    device const NMDeformableContactHistoryGPU* histories,
+    device NMDeformableContactGPU* contacts,
+    device NMMatterStatusGPU* statuses,
+    device const NMIncidenceRangeGPU* cohesiveSurfaceFaceRanges,
+    device const nm_uint4* cohesiveSurfaceFaceRefs,
+    device const NMCohesiveFaceGPU* cohesiveFaces,
+    constant uint& deterministicStatusSelection,
+    device NMMatterStatusGPU* candidateStatuses,
+    device NMDeformableVTCCDAuditGPU* vtccdAudit,
+    constant nm_uint4& vtccdAuditSelector,
+    device NMMortarComplementAuditGPU* mortarAudit,
+    device const uint* candidateOffsets,
+    constant NMMixedSolverGPU& solver,
+    device const NMFGMRESStateGPU* completedStates,
+    uint global
+);
 
 // Candidate statuses are independent outputs of the parallel narrowphase.
 // Select their first failure with a deterministic atomic minimum over compact

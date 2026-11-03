@@ -1,0 +1,288 @@
+{
+  "equilibrated-prefix-native-035": {
+    "exit": 0,
+    "elapsed_s": 237.3582248687744,
+    "profiles": [
+      "resting_native_profile step=1 command_ms=13327.861583 gpu_ms=13307.1604583 host_copy_ms=1.491417 full_state_readback=1",
+      "resting_native_profile step=2 command_ms=13724.179959 gpu_ms=13723.57875 host_copy_ms=0.121125 full_state_readback=1",
+      "resting_native_profile step=3 command_ms=13604.836208 gpu_ms=13603.7277917 host_copy_ms=0.102292 full_state_readback=1",
+      "resting_native_profile step=4 command_ms=13549.383875 gpu_ms=13548.4447083 host_copy_ms=0.059875 full_state_readback=1"
+    ],
+    "stages_ms": {
+      "matter_pre": [
+        9.007625
+      ],
+      "brain_advance": [
+        0.00575
+      ],
+      "respiratory_mechanics": [
+        2.079167
+      ],
+      "matter_after_frame_begin": [
+        0.775834
+      ],
+      "matter_newton_assembly": [
+        241.595917,
+        242.362041,
+        242.250125,
+        163.303709,
+        162.313959,
+        135.843666,
+        136.701333,
+        136.592417,
+        136.781584,
+        136.5665,
+        136.262792,
+        136.348708,
+        136.592208,
+        135.679084,
+        136.57075,
+        164.656125
+      ],
+      "matter_newton_linear": [
+        1121.770583,
+        1139.9285,
+        448.170792,
+        22.336125,
+        22.157666,
+        22.183959,
+        22.374167,
+        22.325958,
+        22.432041,
+        22.388625,
+        22.288958,
+        22.286917,
+        22.374542,
+        22.373666,
+        22.615375,
+        344.809208
+      ],
+      "matter_newton_globalization": [
+        43.085167,
+        44.303625,
+        33.280583,
+        28.975166,
+        28.942709,
+        28.975625,
+        29.020333,
+        28.863083,
+        28.836584,
+        28.824583,
+        28.912417,
+        28.677958,
+        28.875708,
+        28.85125,
+        28.851834,
+        28.863167
+      ],
+      "respiratory_gas_exchange": [
+        1.802792
+      ],
+      "matter_after_candidate_ready": [
+        1689.253166
+      ],
+      "matter_after_microstep": [
+        2.408625
+      ],
+      "matter_post": [
+        15.234458
+      ],
+      "brain_resolve": [
+        0.00125
+      ],
+      "respiratory_resolve": [
+        0.70175
+      ]
+    },
+    "hashes": {
+      "install-motion/resting-coupled.csv": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee"
+    },
+    "failure_receipt": false
+  },
+  "completed-contact-native-042": {
+    "exit": 0,
+    "elapsed_s": 357.7323417663574,
+    "profiles": [
+      "resting_native_profile step=1 command_ms=8241.054375 gpu_ms=8233.96316667 host_copy_ms=0.919375 full_state_readback=1",
+      "resting_native_profile step=2 command_ms=8251.279042 gpu_ms=8250.67679166 host_copy_ms=0.108 full_state_readback=1",
+      "resting_native_profile step=3 command_ms=8267.9605 gpu_ms=8265.775875 host_copy_ms=0.129584 full_state_readback=1",
+      "resting_native_profile step=4 command_ms=8232.706084 gpu_ms=8230.56820834 host_copy_ms=0.125583 full_state_readback=1"
+    ],
+    "stages_ms": {
+      "numi_matter_metal::nm_numi_human_prepare_contact_motion_cache": [
+        0.257875
+      ],
+      "numi_matter_metal::nm_numi_human_classify_contact_queries": [
+        16.911125
+      ],
+      "numi_matter_metal::nm_numi_human_scan_contact_query_tiles": [
+        0.008958
+      ],
+      "numi_matter_metal::nm_numi_human_scan_contact_query_blocks": [
+        0.002875
+      ],
+      "numi_matter_metal::nm_numi_human_scatter_contact_queries": [
+        0.675708
+      ],
+      "numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_aabb_compacted": [
+        1038.492292
+      ],
+      "numi_matter_metal::nm_numi_human_reduce_fem_body_contact_sample_validation": [
+        0.917333
+      ],
+      "numi_matter_metal::nm_numi_human_validate_node_load_tiles": [
+        0.336042
+      ],
+      "numi_matter_metal::nm_numi_human_finish_node_load_validation": [
+        0.033959
+      ],
+      "numi_matter_metal::nm_numi_human_prepare_provisional_status": [
+        6.070042
+      ],
+      "numi_matter_metal::nm_numi_human_assemble_tendon_fem_loads": [
+        0.327334
+      ],
+      "numi_matter_metal::nm_numi_human_assemble_fem_body_contact_loads_grouped_cached": [
+        24.673958
+      ],
+      "numi_matter_metal::nm_numi_human_fem_body_contact_wrench_partial_cached": [
+        34.9715
+      ],
+      "numi_matter_metal::nm_numi_human_fem_body_contact_wrench_finish": [
+        0.008708
+      ],
+      "numi_matter_metal::nm_numi_human_audit_fem_body_contact_partial_cached": [
+        8.669917
+      ],
+      "numi_matter_metal::nm_numi_human_audit_fem_body_contact_finish": [
+        0.0705
+      ],
+      "numi_matter_metal::nm_numi_human_audit_passive_ligaments": [
+        0.0345
+      ],
+      "numi_matter_metal::nm_numi_human_node_force_audit_tiles": [
+        0.029875,
+        0.190041
+      ],
+      "numi_matter_metal::nm_numi_human_finish_node_force_audit": [
+        0.002584,
+        0.060416
+      ],
+      "numi_matter_metal::nm_numi_human_assemble_fem_kinematic_targets": [
+        0.104166
+      ],
+      "matter_pre": [
+        9.17825
+      ],
+      "brain_advance": [
+        0.015333
+      ],
+      "respiratory_mechanics": [
+        2.219083
+      ],
+      "matter_after_frame_begin": [
+        0.793333
+      ],
+      "nm_contact_narrowphase_deformable_completed": [
+        85.201708,
+        83.822875,
+        84.00075,
+        5.504291,
+        5.481417,
+        5.491917,
+        5.49725,
+        5.49875,
+        5.50425,
+        5.493667,
+        5.469542,
+        5.478542,
+        5.483375,
+        5.489333,
+        5.671166,
+        5.650833
+      ],
+      "matter_newton_assembly": [
+        212.335209,
+        209.99825,
+        210.351959,
+        52.640291,
+        52.464792,
+        52.423709,
+        52.393625,
+        52.447959,
+        52.594167,
+        52.753625,
+        52.2355,
+        52.45775,
+        52.898,
+        54.8555,
+        52.519,
+        52.439333
+      ],
+      "matter_newton_linear": [
+        1143.381333,
+        1137.356042,
+        443.1505,
+        22.364792,
+        22.382791,
+        22.286791,
+        22.337667,
+        22.404041,
+        22.5895,
+        22.32175,
+        22.432125,
+        22.690542,
+        22.355667,
+        22.368125,
+        22.364375,
+        322.036125
+      ],
+      "matter_newton_globalization": [
+        43.003125,
+        45.406666,
+        29.7415,
+        28.894,
+        28.849625,
+        28.980125,
+        28.845708,
+        28.914125,
+        29.24875,
+        28.737125,
+        28.931125,
+        28.927416,
+        28.950167,
+        28.79175,
+        28.768875,
+        28.750458
+      ],
+      "nm_contact_narrowphase_deformable": [
+        119.414666
+      ],
+      "respiratory_gas_exchange": [
+        1.760125
+      ],
+      "matter_after_candidate_ready": [
+        1642.91825
+      ],
+      "matter_after_microstep": [
+        2.408334
+      ],
+      "numi_matter_metal::nm_numi_human_apply_fem_anchor_reactions_sparse": [
+        0.238167
+      ],
+      "matter_post": [
+        15.114166
+      ],
+      "brain_resolve": [
+        0.00125
+      ],
+      "respiratory_resolve": [
+        0.6985
+      ]
+    },
+    "hashes": {
+      "install-motion/resting-coupled.csv": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee"
+    },
+    "failure_receipt": false
+  }
+}

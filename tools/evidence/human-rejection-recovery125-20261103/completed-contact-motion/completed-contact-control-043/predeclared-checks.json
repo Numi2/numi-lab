@@ -1,0 +1,9 @@
+{
+  "purpose": "same-binary four-step baseline with detailed GPU timing disabled; new contact switches all zero",
+  "accepted_steps_required": 4,
+  "dt_s": 1.5625e-05,
+  "equivalent_physics": "complete mechanical endpoint and physiology must be byte-identical to035/042",
+  "resource_policy": "same900s/3GiB additional swap/12GiB disk guard",
+  "comparison": "matched optimized run044 after043, same source/binary; no source mutation while native job active",
+  "not_qualification": "not settledrest,motioncycle,physiologyrangeor0.1x qualification"
+}

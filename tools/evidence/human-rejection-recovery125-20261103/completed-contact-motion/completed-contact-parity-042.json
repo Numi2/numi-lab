@@ -1,0 +1,16 @@
+{
+  "endpoint_captures": {
+    "equilibrated-prefix-native-035": {
+      "bytes": 833232924,
+      "sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+      "complete_begin_and_end": true
+    },
+    "completed-contact-native-042": {
+      "bytes": 833232924,
+      "sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+      "complete_begin_and_end": true
+    }
+  },
+  "endpoint_byte_identical": true,
+  "physiology_byte_identical": true
+}

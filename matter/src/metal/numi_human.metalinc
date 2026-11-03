@@ -1479,7 +1479,211 @@ kernel void nm_numi_human_validate_fem_body_contact_samples(
 }
 
 // Exact validation and derived contact data share one current-pose query.
-template <bool certifiedInactiveAABB>
+// Derived scratch, never physical history: exact current input comparison
+// permits reuse only where the old contact function sees identical bits.
+// First use, any motion, reset or nonfinite input takes the full query.
+kernel void nm_numi_human_prepare_contact_motion_cache(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(1)]],
+    device const MRArticulatedBodyPoseGPU* poses [[buffer(2)]],
+    device float4* oldPositions [[buffer(3)]],
+    device float4* oldPoseWords [[buffer(4)]],
+    device uint* flags [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint nodeCount = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint poseCount = dispatch.environmentCount * dispatch.bodyPoseStride;
+    if (global < nodeCount) {
+        const float4 current = nodes[global].positionAndMass;
+        const bool same = (flags[global] & 1u) != 0u &&
+            all(as_type<uint4>(current) == as_type<uint4>(oldPositions[global])) &&
+            finite4(current);
+        oldPositions[global] = current;
+        flags[global] = same ? 3u : 1u;
+    } else if (global - nodeCount < poseCount) {
+        const uint pose = global - nodeCount;
+        const auto current = poses[pose];
+        const bool same = (flags[global] & 1u) != 0u &&
+            all(as_type<uint4>(current.position) == as_type<uint4>(oldPoseWords[2u*pose])) &&
+            all(as_type<uint4>(current.orientation) == as_type<uint4>(oldPoseWords[2u*pose+1u])) &&
+            finite4(current.position) && finite4(current.orientation);
+        oldPoseWords[2u*pose] = current.position;
+        oldPoseWords[2u*pose+1u] = current.orientation;
+        flags[global] = same ? 3u : 1u;
+    }
+}
+
+
+inline bool humanBodyContactCertifiedZeroRow(
+    const uint global,
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& d,
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples,
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* trees,
+    device const NMFEMNodeStateGPU* nodes,
+    device const MRArticulatedBodyPoseGPU* poses,
+    thread float4& row
+) {
+    if (d.abiVersion!=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION ||
+        d.femBodyContactSampleCount==0u ||
+        d.femBodyContactCandidateTriangleCount==0u) return false;
+    const uint env=global/d.femBodyContactSampleCount;
+    const uint i=global-env*d.femBodyContactSampleCount;
+    const auto sample=samples[i];
+    if (sample.slaveNode>=d.femNodeCount || !validBody(sample.bodyIndex,d) ||
+        sample.flags!=(NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+            NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT) ||
+        sample.reserved0!=0u || !finite4(sample.bodyLocalPointAndArea) ||
+        !finite4(sample.bodyLocalNormalAndReferenceSeparation) ||
+        !finite4(sample.stiffnessAndNormalStrainPerPressure)) return false;
+    const auto range=ranges[i];
+    if (range.reserved0!=NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_STATIC_CLOSED_ORIENTED_BVH ||
+        range.triangleCount==0u || range.firstTriangle>NM_INVALID_INDEX-range.triangleCount ||
+        any(range.restPointAndMotionRadius!=float4(0.0f)) ||
+        !isfinite(range.maximumDistanceMeters) ||
+        range.maximumDistanceMeters<=0.0f || range.maximumDistanceMeters>0.05f)
+        return false;
+    const auto node=nodes[env*d.femNodeCount+sample.slaveNode];
+    const auto pose=poses[env*d.bodyPoseStride+sample.bodyIndex-d.articulationFirstBody];
+    if (!finite4(node.positionAndMass) || !finite4(pose.position) ||
+        !finite4(pose.orientation) || abs(length(pose.orientation)-1.0f)>1.0e-5f)
+        return false;
+    const float3 query=humanQuaternionRotate(humanQuaternionConjugate(pose.orientation),
+        node.positionAndMass.xyz-pose.position.xyz);
+    if (!finite4(float4(query,0.0f))) return false;
+    const auto root=trees[range.firstTriangle];
+    const uint end=range.firstTriangle+range.triangleCount;
+    if (!finite4(root.boundsMinimum) || !finite4(root.boundsMaximum) ||
+        root.boundsMinimum.w!=0.0f || root.boundsMaximum.w!=0.0f ||
+        any(root.boundsMinimum.xyz>root.boundsMaximum.xyz) ||
+        root.escapeIndex!=end || root.reserved0!=0u ||
+        (root.flags!=NM_NUMI_HUMAN_FEM_BODY_CONTACT_BVH_NODE_LEAF && root.flags!=0u) ||
+        (root.flags==0u ? root.triangleIndex!=NM_INVALID_INDEX || range.triangleCount<3u
+            : root.triangleIndex>=d.femBodyContactCandidateTriangleCount || range.triangleCount!=1u))
+        return false;
+    const float3 delta=max(max(root.boundsMinimum.xyz-query,
+        query-root.boundsMaximum.xyz),float3(0.0f));
+    const float distanceSquared=dot(delta,delta);
+    const float guard=32.0f*1.1920928955078125e-7f*max(1.0f,dot(query,query));
+    if (!isfinite(distanceSquared) || !isfinite(guard) ||
+        !(distanceSquared>guard) || sample.bodyLocalPointAndArea.w<0.0f)
+        return false;
+    // Retain the original arithmetic, including signed zero components.
+    const float3 normal=humanQuaternionRotate(pose.orientation,delta*rsqrt(distanceSquared));
+    const float pressure=sample.bodyLocalNormalAndReferenceSeparation.w*0.0f;
+    row=float4(normal*(pressure*sample.bodyLocalPointAndArea.w),0.0f);
+    return finite4(row);
+}
+
+inline uint humanContactTileSum(uint value,uint lane,threadgroup uint* groupSums) {
+    const uint sum=simd_sum(value);
+    if ((lane&31u)==0u) groupSums[lane>>5u]=sum;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    return simd_sum(lane<8u ? groupSums[lane] : 0u);
+}
+inline uint humanContactTilePrefix(uint value,uint lane,threadgroup uint* groupSums) {
+    const uint prefix=simd_prefix_exclusive_sum(value);
+    const uint sum=simd_sum(value);
+    if ((lane&31u)==0u) groupSums[lane>>5u]=sum;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    uint groupPrefix=0u;
+    for (uint g=0u;g<(lane>>5u);++g) groupPrefix+=groupSums[g];
+    return groupPrefix+prefix;
+}
+// Validation tag 2 is private pending-query scratch. Every pending row is
+// consumed by the exact validator before the ordinary validation reduction.
+kernel void nm_numi_human_classify_contact_queries(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& d [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges [[buffer(2)]],
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* trees [[buffer(3)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(4)]],
+    device const MRArticulatedBodyPoseGPU* poses [[buffer(5)]],
+    device const uint* motionFlags [[buffer(6)]],
+    device uint* valid [[buffer(7)]],
+    device float4* rows [[buffer(8)]],
+    device uint2* tileRanges [[buffer(9)]],
+    uint global [[thread_position_in_grid]],uint lane [[thread_index_in_threadgroup]],
+    uint tile [[threadgroup_position_in_grid]]
+) {
+    const uint total=d.environmentCount*d.femBodyContactSampleCount;
+    uint pending=0u;
+    if (global<total) {
+        const uint env=global/d.femBodyContactSampleCount;
+        const auto sample=samples[global%d.femBodyContactSampleCount];
+        const bool reuse=d.abiVersion==NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
+            sample.slaveNode<d.femNodeCount && validBody(sample.bodyIndex,d) &&
+            motionFlags[env*d.femNodeCount+sample.slaveNode]==3u &&
+            motionFlags[d.environmentCount*d.femNodeCount+env*d.bodyPoseStride+
+                sample.bodyIndex-d.articulationFirstBody]==3u;
+        float4 zeroRow;
+        if (reuse) {
+            // An already invalid row stays invalid; no failed state is hidden.
+        } else if (humanBodyContactCertifiedZeroRow(global,d,samples,ranges,trees,nodes,poses,zeroRow)) {
+            rows[global]=zeroRow;valid[global]=1u;
+        } else {
+            pending=1u;valid[global]=2u;
+        }
+    }
+    threadgroup uint sums[8];
+    const uint count=humanContactTileSum(pending,lane,sums);
+    if(lane==0u)tileRanges[tile]=uint2(count,0u);
+}
+kernel void nm_numi_human_scan_contact_query_tiles(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& d [[buffer(0)]],
+    device uint2* tiles [[buffer(1)]],device uint* blockSums [[buffer(2)]],
+    uint global [[thread_position_in_grid]],uint lane [[thread_index_in_threadgroup]],
+    uint block [[threadgroup_position_in_grid]]
+) {
+    const uint total=d.environmentCount*d.femBodyContactSampleCount;
+    const uint tileCount=(total+255u)/256u;
+    const uint value=global<tileCount?tiles[global].x:0u;
+    threadgroup uint sums[8];
+    const uint prefix=humanContactTilePrefix(value,lane,sums);
+    if(global<tileCount)tiles[global].y=prefix;
+    if(lane==255u)blockSums[block]=prefix+value;
+}
+kernel void nm_numi_human_scan_contact_query_blocks(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& d [[buffer(0)]],
+    device const uint* blockSums [[buffer(1)]],device uint* blockOffsets [[buffer(2)]],
+    device NMIndirectDispatchGPU* work [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint total=d.environmentCount*d.femBodyContactSampleCount;
+    const uint blocks=(((total+255u)/256u)+255u)/256u;
+    // At most UINT32_MAX rows => at most 65536 blocks. Scan them in
+    // cooperative 256-block batches; no per-row or per-tetrahedron serial scan.
+    threadgroup uint sums[8];
+    threadgroup uint carry;
+    if(lane==0u)carry=0u;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for(uint first=0u;first<blocks;first+=256u) {
+        const uint index=first+lane;
+        const uint value=index<blocks?blockSums[index]:0u;
+        const uint prefix=humanContactTilePrefix(value,lane,sums);
+        const uint base=carry;
+        if(index<blocks)blockOffsets[index]=base+prefix;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if(lane==255u)carry=base+prefix+value;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if(lane==0u)work[0]={carry/256u+uint(carry%256u!=0u),1u,1u,carry};
+}
+kernel void nm_numi_human_scatter_contact_queries(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& d [[buffer(0)]],
+    device const uint* valid [[buffer(1)]],device const uint2* tiles [[buffer(2)]],
+    device const uint* blockOffsets [[buffer(3)]],device uint* indices [[buffer(4)]],
+    uint global [[thread_position_in_grid]],uint lane [[thread_index_in_threadgroup]],
+    uint tile [[threadgroup_position_in_grid]]
+) {
+    const uint total=d.environmentCount*d.femBodyContactSampleCount;
+    const uint pending=global<total && valid[global]==2u ? 1u:0u;
+    threadgroup uint sums[8];
+    const uint prefix=humanContactTilePrefix(pending,lane,sums);
+    if(pending)indices[blockOffsets[tile/256u]+tiles[tile].y+prefix]=global;
+}
+
+template <bool certifiedInactiveAABB, bool exactMotionCache, bool compactQueryWork>
 kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
     device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
@@ -1492,13 +1696,19 @@ kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl(
     device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(6)]],
     device uint* sampleValid [[buffer(7)]],
     device float4* rowCache [[buffer(8)]],
+    device const uint* motionFlags [[buffer(9)]],
+    device const uint* queryIndices [[buffer(10)]],
+    device const NMIndirectDispatchGPU* queryWork [[buffer(11)]],
     uint global [[thread_position_in_grid]]
 ) {
+    if (compactQueryWork) {
+        if (global>=queryWork[0].reserved) return;
+        global=queryIndices[global];
+    }
     const uint sampleCount = dispatch.femBodyContactSampleCount;
     if (sampleCount == 0u || dispatch.environmentCount == 0u) return;
     const uint totalCount = dispatch.environmentCount * sampleCount;
     if (global >= totalCount) return;
-    rowCache[global] = float4(NAN);
     const uint environment = global / sampleCount;
     const uint sampleIndex = global - environment * sampleCount;
     if (dispatch.abiVersion != NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION) {
@@ -1510,6 +1720,16 @@ kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl(
         dispatch.bodyPoseStride > 0u &&
         sample.slaveNode < dispatch.femNodeCount &&
         validBody(sample.bodyIndex, dispatch);
+    if (valid && exactMotionCache && !compactQueryWork &&
+        motionFlags[environment * dispatch.femNodeCount + sample.slaveNode] == 3u &&
+        motionFlags[dispatch.environmentCount * dispatch.femNodeCount +
+            environment * dispatch.bodyPoseStride +
+            sample.bodyIndex - dispatch.articulationFirstBody] == 3u) {
+        // Preserve both the prior finite row and its validation result.
+        // An invalid row remains invalid and still fails closed downstream.
+        return;
+    }
+    rowCache[global] = float4(NAN);
     if (valid) {
         const MRArticulatedBodyPoseGPU pose = bodyPoses[
             environment * dispatch.bodyPoseStride +
@@ -1538,7 +1758,7 @@ kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl(
     sampleValid[global] = valid ? 1u : 0u;
 }
 template [[host_name("numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached")]]
-kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<false>(
+kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<false, false, false>(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
     device const NMNumiHumanFEMBodyContactSampleGPU* samples,
     device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
@@ -1548,10 +1768,13 @@ kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<false>(
     device const MRArticulatedBodyPoseGPU* bodyPoses,
     device uint* sampleValid,
     device float4* rowCache,
+    device const uint* motionFlags,
+    device const uint* queryIndices,
+    device const NMIndirectDispatchGPU* queryWork,
     uint global
 );
 template [[host_name("numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_aabb")]]
-kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<true>(
+kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<true, false, false>(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
     device const NMNumiHumanFEMBodyContactSampleGPU* samples,
     device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
@@ -1561,6 +1784,57 @@ kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<true>(
     device const MRArticulatedBodyPoseGPU* bodyPoses,
     device uint* sampleValid,
     device float4* rowCache,
+    device const uint* motionFlags,
+    device const uint* queryIndices,
+    device const NMIndirectDispatchGPU* queryWork,
+    uint global
+);
+template [[host_name("numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_motion")]]
+kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<false, true, false>(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples,
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles,
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvhNodes,
+    device const NMFEMNodeStateGPU* acceptedNodes,
+    device const MRArticulatedBodyPoseGPU* bodyPoses,
+    device uint* sampleValid,
+    device float4* rowCache,
+    device const uint* motionFlags,
+    device const uint* queryIndices,
+    device const NMIndirectDispatchGPU* queryWork,
+    uint global
+);
+template [[host_name("numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_aabb_motion")]]
+kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<true, true, false>(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples,
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles,
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvhNodes,
+    device const NMFEMNodeStateGPU* acceptedNodes,
+    device const MRArticulatedBodyPoseGPU* bodyPoses,
+    device uint* sampleValid,
+    device float4* rowCache,
+    device const uint* motionFlags,
+    device const uint* queryIndices,
+    device const NMIndirectDispatchGPU* queryWork,
+    uint global
+);
+template [[host_name("numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_aabb_compacted")]]
+kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl<true, false, true>(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples,
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles,
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU* bvhNodes,
+    device const NMFEMNodeStateGPU* acceptedNodes,
+    device const MRArticulatedBodyPoseGPU* bodyPoses,
+    device uint* sampleValid,
+    device float4* rowCache,
+    device const uint* motionFlags,
+    device const uint* queryIndices,
+    device const NMIndirectDispatchGPU* queryWork,
     uint global
 );
 

@@ -8843,6 +8843,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_scatter_deformable_candidates",
             "nm_contact_validate_armijo_deformable_sweep",
             "nm_contact_narrowphase_deformable",
+            "nm_contact_narrowphase_deformable_completed",
             "nm_contact_reset_narrowphase_failure_selection",
             "nm_contact_select_narrowphase_failure",
             "nm_contact_reduce_deformable_narrowphase_failures",
@@ -29797,6 +29798,31 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // the primal barrier gradient before the fused FGMRES solve. The
             // callback only encodes into the borrowed command buffer; it
             // never commits, waits, or opens another queue.
+            const char* completedContactSetting =
+                std::getenv("NM_CONTACT_COMPLETED_GEOMETRY_CACHE");
+            const bool completedContactCacheRequested =
+                completedContactSetting != nullptr &&
+                std::strcmp(completedContactSetting, "1") == 0;
+            if (completedContactSetting != nullptr &&
+                std::strcmp(completedContactSetting, "0") != 0 &&
+                std::strcmp(completedContactSetting, "1") != 0) {
+                diagnostics.message = "NM_CONTACT_COMPLETED_GEOMETRY_CACHE must be 0 or 1";
+                [encoder endEncoding]; encoder = nil;
+                return diagnostics;
+            }
+            const bool completedContactCacheEligible =
+                completedContactCacheRequested && zeroStepGeometryReuseEligible &&
+                !state.hasAdaptive && !state.hasMutableFEMTopology &&
+                !state.requiresCoupledCandidate &&
+                state.dispatch.environmentCount == 1u &&
+                state.dispatch.rigidGeneralizedCapacity == 0u;
+            if (completedContactCacheRequested && !completedContactCacheEligible) {
+                diagnostics.message = "completed contact cache requires immutable single-environment FEM geometry and the existing zero-step cache";
+                [encoder endEncoding]; encoder = nil;
+                return diagnostics;
+            }
+            if (completedContactCacheEligible)
+                std::fprintf(stderr, "contact_completed_geometry_cache=1 root=%u final_certificate=full friction_history=fresh\n", request.controlStep);
             const auto encodeCoupledPrimalContact = [&] (
                 const bool certify,
                 id<MTLBuffer> histories,
@@ -30041,8 +30067,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 const std::uint32_t narrowphaseDeterministicFailureSelection = 0u;
+                const bool reuseCompletedContact = completedContactCacheEligible && !certify;
                 if (!dispatchIndirectWithPaddedFallback(
-                    "nm_contact_narrowphase_deformable", state.deformableContactActiveDispatch, 256u,
+                    reuseCompletedContact ? "nm_contact_narrowphase_deformable_completed"
+                                          : "nm_contact_narrowphase_deformable",
+                    state.deformableContactActiveDispatch, 256u,
                     environments * state.dispatch.deformableContactCapacity, [&] {
                         setDispatch();
                         [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -30078,6 +30107,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.deformableContactActiveOffsets
                                    offset:0u atIndex:21u];
                         [encoder setBuffer:state.mixedSolver offset:0u atIndex:22u];
+                        if (reuseCompletedContact)
+                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:23u];
                     }
                 )) {
                     diagnostics.message = "nm_contact_narrowphase_deformable indirect dispatch unavailable; padded fallback ineligible";
@@ -36576,7 +36607,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
                 if (!state.femCacheProjectionReuseEnabled) {
                     dispatchThreads("nm_fem_finalize_algorithmic_tangent_columns",
-                        tetrahedronTotal, bindTangentCache, WorkDomain::tetrahedra);
+                        tetrahedronTotal, bindTangentCache,
+                        forceCompletedCacheRebuild == 0u
+                            ? WorkDomain::newtonAssemblyTetrahedra
+                            : WorkDomain::tetrahedra);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
                 if (state.femAssembledXYZOperatorEnabled) {

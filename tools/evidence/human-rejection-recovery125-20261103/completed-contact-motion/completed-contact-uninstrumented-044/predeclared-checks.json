@@ -1,0 +1,14 @@
+{
+  "purpose": "same-binary matched optimized run with detailed GPU timing disabled",
+  "baseline": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-contact-control-043",
+  "accepted_steps_required": 4,
+  "dt_s": 1.5625e-05,
+  "equivalent_physics": "complete mechanical endpoint and physiology must remain byte-identical",
+  "changed_settings": [
+    "NM_CONTACT_COMPLETED_GEOMETRY_CACHE",
+    "NUMI_HUMAN_CONTACT_EXACT_MOTION_CACHE",
+    "NUMI_HUMAN_CONTACT_COMPACT_QUERIES"
+  ],
+  "detailed_timing": false,
+  "not_qualification": "not supported rest, motion cycle, sustained throughput or0.1x"
+}

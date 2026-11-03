@@ -1,0 +1,15 @@
+{
+  "endpoint_bytes": 833232924,
+  "endpoint_sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+  "endpoint_complete": true,
+  "endpoint_matches035_042": true,
+  "physiology_sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+  "physiology_matches035_042": true,
+  "profiles": [
+    "resting_native_profile step=1 command_ms=13305.556208 gpu_ms=13283.889 host_copy_ms=2.189334 full_state_readback=1",
+    "resting_native_profile step=2 command_ms=13718.015166 gpu_ms=13717.376125 host_copy_ms=0.139875 full_state_readback=1",
+    "resting_native_profile step=3 command_ms=13657.579792 gpu_ms=13656.29225 host_copy_ms=0.091 full_state_readback=1",
+    "resting_native_profile step=4 command_ms=13584.3625 gpu_ms=13583.13875 host_copy_ms=0.061459 full_state_readback=1"
+  ],
+  "summary": "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=61.878407916 real_time_factor=1.0100454273716046e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+}

@@ -1,0 +1,172 @@
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=1 eligible_materials=1 total_materials=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=1 eligible_materials=1 total_materials=1
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":0,"icb_tangent_cache_commands":0}
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=3584 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=3584 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":1,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":0,"icb_tangent_cache_commands":0}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=3584 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":1,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=3584 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":1,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":0,"icb_tangent_cache_commands":0}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=3584 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":1,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=3584 element=1024 environment_count=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=1 eligible_materials=1 total_materials=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=1 eligible_materials=1 total_materials=1
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":0,"icb_tangent_cache_commands":0}
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=3584 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=3584 element=1024 environment_count=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=2 eligible_materials=1 total_materials=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=2 eligible_materials=1 total_materials=1
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":0,"icb_tangent_cache_commands":0}
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=3584 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=3584 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":1,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":0,"icb_tangent_cache_commands":0}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=3584 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":1,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=3584 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":1,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":0,"icb_tangent_cache_commands":0}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=3584 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":1,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=3584 element=1024 environment_count=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=2 eligible_materials=1 total_materials=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=2 eligible_materials=1 total_materials=1
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":0,"icb_tangent_cache_commands":0}
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=3584 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=3584 element=1024 environment_count=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=1 eligible_materials=1 total_materials=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=1 eligible_materials=1 total_materials=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=4096 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=4096 element=1024 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=4096 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":1,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=4096 element=1024 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=4096 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":1,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=4096 element=1024 environment_count=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=1 eligible_materials=1 total_materials=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=1 eligible_materials=1 total_materials=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=4096 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=4096 element=1024 environment_count=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=2 eligible_materials=1 total_materials=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=2 eligible_materials=1 total_materials=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=4096 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=4096 element=1024 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=4096 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":1,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=4096 element=1024 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=4096 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":1,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=4096 element=1024 environment_count=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=2 eligible_materials=1 total_materials=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=1 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_stateless_tangent_bundle mode=2 eligible_materials=1 total_materials=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=4096 element=1024 environment_count=1
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":50,"fem_nodes":25,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=4608 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=4096 element=1024 environment_count=1
+newton_tail_runtime=PASS bundle_mode=1 coupled_node_blocks=0 accepted_state_bitwise=true certificates_bitwise=true late_rejection_rollback=true replay=true static_completed_tail=true scope=synthetic_one_environment_not_Human_qualification
+newton_tail_runtime=PASS bundle_mode=2 coupled_node_blocks=0 accepted_state_bitwise=true certificates_bitwise=true late_rejection_rollback=true replay=true static_completed_tail=true scope=synthetic_one_environment_not_Human_qualification
+newton_tail_runtime=PASS bundle_mode=1 coupled_node_blocks=1 accepted_state_bitwise=true certificates_bitwise=true late_rejection_rollback=true replay=true static_completed_tail=true scope=synthetic_one_environment_not_Human_qualification
+newton_tail_runtime=PASS bundle_mode=2 coupled_node_blocks=1 accepted_state_bitwise=true certificates_bitwise=true late_rejection_rollback=true replay=true static_completed_tail=true scope=synthetic_one_environment_not_Human_qualification

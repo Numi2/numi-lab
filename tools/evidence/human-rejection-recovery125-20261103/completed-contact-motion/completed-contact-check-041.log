@@ -1,0 +1,3 @@
+human_compacted_contact_queries=PASS rows=66049 scan_blocks=2 partial_tile=true all_active=true mixed=true empty=true deterministic=true certified_aabb=true invalid_fails_closed=true bitwise_parity=true
+human_exact_contact_motion_cache=PASS first_use=true unchanged_skip=true node_motion=true body_translation_rotation=true environments=2 restore_retry=true nonfinite_fails_closed=true direct_force_validity_parity=bitwise
+FAIL native FGMRES true-residual kernel contract: completed-contact manufactured active feature was not valid

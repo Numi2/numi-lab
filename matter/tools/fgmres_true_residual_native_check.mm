@@ -4422,6 +4422,307 @@ void checkAcceptedZ0Recycle(
 
 
 
+
+void checkHumanExactContactMotionCache(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    auto prepare=pipeline(device,library,
+        "numi_matter_metal::nm_numi_human_prepare_contact_motion_cache");
+    auto direct=pipeline(device,library,
+        "numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached");
+    auto cached=pipeline(device,library,
+        "numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_motion");
+    NMNumiHumanTendonFEMLoadDispatchGPU d{};
+    d.abiVersion=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
+    d.environmentCount=2;d.femNodeCount=2;d.bodyPoseStride=2;
+    d.articulationFirstBody=1;d.femBodyContactSampleCount=2;
+    std::vector<NMFEMNodeStateGPU> nodes(4);
+    for(auto& n:nodes)n.positionAndMass={0,0,-0.001f,1};
+    std::vector<MRArticulatedBodyPoseGPU> poses(4);
+    for(auto& pose:poses)pose.orientation={0,0,0,1};
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> samples(2);
+    for(unsigned i=0;i<2;++i) {
+        samples[i].slaveNode=i;samples[i].bodyIndex=i+1;
+        samples[i].flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE;
+        samples[i].bodyLocalPointAndArea={0,0,0,1};
+        samples[i].bodyLocalNormalAndReferenceSeparation={0,0,1,0};
+        samples[i].stiffnessAndNormalStrainPerPressure={1000,1,0,0};
+    }
+    const nm_float4 guard{31,-42,53,-64};
+    auto db=makeBuffer(device,std::vector<NMNumiHumanTendonFEMLoadDispatchGPU>{d});
+    auto nb=makeBuffer(device,nodes),pb=makeBuffer(device,poses);
+    auto sb=makeBuffer(device,samples);
+    auto dummy=makeBuffer(device,std::vector<std::uint8_t>(512,0));
+    auto flags=makeBuffer(device,std::vector<unsigned>(9,0));
+    auto oldNodes=makeBuffer(device,std::vector<nm_float4>(5,guard));
+    auto oldPoses=makeBuffer(device,std::vector<nm_float4>(9,guard));
+    auto out=makeBuffer(device,std::vector<nm_float4>(5,guard));
+    auto oracle=makeBuffer(device,std::vector<nm_float4>(5,guard));
+    auto valid=makeBuffer(device,std::vector<unsigned>(5,91));
+    auto oracleValid=makeBuffer(device,std::vector<unsigned>(5,91));
+    const auto prep=[&] {
+        dispatch(device,queue,prepare,{{0,db},{1,nb},{2,pb},{3,oldNodes},
+            {4,oldPoses},{5,flags}},1,256);
+    };
+    const auto evaluate=[&](bool reuse) {
+        dispatch(device,queue,reuse?cached:direct,{{0,db},{1,sb},
+            {2,dummy},{3,dummy},{4,dummy},{5,nb},{6,pb},
+            {7,reuse?valid:oracleValid},{8,reuse?out:oracle},{9,flags}},1,256);
+    };
+    const auto parity=[&](const char* label) {
+        evaluate(true);evaluate(false);
+        require(std::memcmp(out.contents,oracle.contents,5*sizeof(nm_float4))==0,
+            std::string("exact contact motion cache differs from direct query: ")+label);
+        require(readBuffer<unsigned>(valid,5)==readBuffer<unsigned>(oracleValid,5),
+            std::string("exact contact motion cache validity differs: ")+label);
+    };
+    prep();require(readBuffer<unsigned>(flags,8)==std::vector<unsigned>(8,1),
+        "first motion-cache use was marked unchanged");
+    parity("first query");
+    require(readBuffer<unsigned>(valid,4)==std::vector<unsigned>(4,1),
+        "manufactured contact rows were invalid");
+    prep();require(readBuffer<unsigned>(flags,8)==std::vector<unsigned>(8,3),
+        "identical current inputs were not reusable");
+    parity("unchanged");
+    // Observe reuse directly with a diagnostic canary, then restore the exact
+    // derived row before testing motion. This canary is not physical evidence.
+    auto original=readBuffer<nm_float4>(out,5);
+    static_cast<nm_float4*>(out.contents)[0]=guard;
+    evaluate(true);
+    require(std::memcmp(out.contents,&guard,sizeof(guard))==0,
+        "unchanged row was unnecessarily recomputed");
+    std::memcpy(out.contents,original.data(),original.size()*sizeof(nm_float4));
+    static_cast<NMFEMNodeStateGPU*>(nb.contents)[1].positionAndMass.z-=0.0002f;
+    static_cast<MRArticulatedBodyPoseGPU*>(pb.contents)[2].position.z=0.0003f;
+    prep();
+    require(readBuffer<unsigned>(flags,8)==
+        std::vector<unsigned>({3,1,3,3,3,3,1,3}),
+        "motion invalidation crossed node/body/environment ownership");
+    parity("node and body translation");
+    static_cast<MRArticulatedBodyPoseGPU*>(pb.contents)[3].orientation=
+        {0,0.6f,0,0.8f};
+    prep();parity("body rotation");
+    // Restoring coordinates is another real input change, including a retry
+    // after a rejected transaction; derived cache history never commits state.
+    std::memcpy(nb.contents,nodes.data(),nodes.size()*sizeof(nodes[0]));
+    std::memcpy(pb.contents,poses.data(),poses.size()*sizeof(poses[0]));
+    prep();parity("restore and retry");
+    auto* n=static_cast<NMFEMNodeStateGPU*>(nb.contents);
+    n[0].positionAndMass.x=std::numeric_limits<float>::quiet_NaN();
+    prep();evaluate(true);
+    require(readBuffer<unsigned>(valid,4)[0]==0,
+        "nonfinite contact input reused a valid row");
+    prep();evaluate(true);
+    require(readBuffer<unsigned>(valid,4)[0]==0 &&
+        readBuffer<unsigned>(flags,8)[0]==1,
+        "repeated nonfinite bits were incorrectly marked reusable");
+    require(std::memcmp(static_cast<nm_float4*>(out.contents)+4,&guard,sizeof(guard))==0 &&
+        readBuffer<unsigned>(valid,5)[4]==91 &&
+        std::memcmp(static_cast<nm_float4*>(oldNodes.contents)+4,&guard,sizeof(guard))==0 &&
+        std::memcmp(static_cast<nm_float4*>(oldPoses.contents)+8,&guard,sizeof(guard))==0 &&
+        readBuffer<unsigned>(flags,9)[8]==0,
+        "exact contact motion-cache extent guard overwritten");
+    std::cout<<"human_exact_contact_motion_cache=PASS first_use=true unchanged_skip=true "
+        "node_motion=true body_translation_rotation=true environments=2 restore_retry=true "
+        "nonfinite_fails_closed=true direct_force_validity_parity=bitwise\n";
+}
+
+void checkCompletedContactGeometry(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    auto full=pipeline(device,library,"numi_matter_metal::nm_contact_narrowphase_deformable");
+    auto reuse=pipeline(device,library,"numi_matter_metal::nm_contact_narrowphase_deformable_completed");
+    NMMatterDispatchGPU d{};d.abiVersion=NM_MATTER_ABI_VERSION;
+    d.environmentCount=1;d.objectCount=2;d.materialCount=2;
+    d.femNodeCount=2;d.deformableContactCapacity=1;
+    d.flags=NM_MATTER_STATIC_FEM_SURFACE_MAP;d.surfaceFaceCount=2;
+    d.gravityAndTimestep={0,0,0,0.001f};d.numericalLimits.x=0.001f;
+    std::vector<NMContinuumObjectGPU> objects(2);
+    for(unsigned i=0;i<2;++i) {
+        objects[i].representation=NM_REPRESENTATION_FEM;
+        objects[i].flags=NM_OBJECT_ACTIVE;objects[i].materialIndex=i;
+    }
+    std::vector<NMMaterialGPU> materials(2);
+    for(auto& v:materials)v.interfaceResponse={0.5f,0.3f,0,0};
+    std::vector<NMFEMNodeStateGPU> nodes(2);
+    nodes[0].positionAndMass={0,0,0,1};
+    nodes[1].positionAndMass={0,0,0.0005f,1};
+    for(auto& n:nodes)n.velocityAndInverseMass={0.0001f,0,0,1};
+    std::vector<NMContinuumSurfacePrimitiveGPU> surfaces(2);
+    for(unsigned i=0;i<2;++i) {
+        surfaces[i].identity={i,NM_CONTINUUM_SURFACE_POINT,0,NM_TOPOLOGY_ACTIVE};
+        surfaces[i].nodesAndObject={i,NM_INVALID_INDEX,NM_INVALID_INDEX,i};
+    }
+    NMDeformableContactCandidateGPU candidate{};candidate.identity={0,1,0,NM_TOPOLOGY_ACTIVE};
+    auto db=makeBuffer(device,std::vector<NMMatterDispatchGPU>{d});
+    NMMicrostepGPU m{};m.solverIteration=0;
+    auto mb=makeBuffer(device,std::vector<NMMicrostepGPU>{m});
+    auto ob=makeBuffer(device,objects),mat=makeBuffer(device,materials);
+    auto nb=makeBuffer(device,nodes),sur=makeBuffer(device,surfaces);
+    auto sch=makeBuffer(device,std::vector<NMSchedulerStateGPU>(2));
+    auto cb=makeBuffer(device,std::vector<NMDeformableContactCandidateGPU>{candidate});
+    auto count=makeBuffer(device,std::vector<unsigned>{1});
+    auto offset=makeBuffer(device,std::vector<unsigned>{0});
+    auto hist=makeBuffer(device,std::vector<NMDeformableContactHistoryGPU>(1));
+    auto direct=makeBuffer(device,std::vector<NMDeformableContactGPU>(1));
+    auto cached=makeBuffer(device,std::vector<NMDeformableContactGPU>(1));
+    auto status=makeBuffer(device,std::vector<NMMatterStatusGPU>(1));
+    auto dummy=makeBuffer(device,std::vector<std::uint8_t>(1024,0));
+    auto zero=makeBuffer(device,std::vector<unsigned>{0});
+    auto selector=makeBuffer(device,std::vector<nm_uint4>{{NM_INVALID_INDEX,0,0,0}});
+    NMMixedSolverGPU solver{};
+    auto solverBuffer=makeBuffer(device,std::vector<NMMixedSolverGPU>{solver});
+    auto states=makeBuffer(device,std::vector<NMFGMRESStateGPU>(1));
+    const auto run=[&](bool optimized) {
+        dispatch(device,queue,optimized?reuse:full,{{0,db},{1,mb},{2,ob},{3,mat},
+            {4,nb},{5,sch},{6,dummy},{7,sur},{8,cb},{9,count},{10,hist},
+            {11,optimized?cached:direct},{12,status},{13,dummy},{14,dummy},
+            {15,dummy},{16,zero},{17,dummy},{18,dummy},{19,selector},
+            {20,dummy},{21,offset},{22,solverBuffer},{23,states}},1,256);
+    };
+    run(false);run(true);
+    auto contact=readBuffer<NMDeformableContactGPU>(direct,1)[0];
+    require((contact.identity.w&NM_CONTACT_VALID)!=0,
+        "completed-contact manufactured active feature was not valid");
+    require(std::memcmp(direct.contents,cached.contents,sizeof(contact))==0,
+        "unlatched completed-contact specialization changed full narrowphase");
+    NMFGMRESStateGPU completed{};completed.nonlinear.w=1;
+    std::memcpy(states.contents,&completed,sizeof(completed));
+    m.solverIteration=3;std::memcpy(mb.contents,&m,sizeof(m));
+    // A current friction history differs from the one used to build geometry.
+    // Its transport must remain bit-identical to a full fresh narrowphase.
+    NMDeformableContactHistoryGPU previous{};
+    previous.source=contact.source;previous.normalAndBarrier=
+        {contact.normalAndTOI.x,contact.normalAndTOI.y,contact.normalAndTOI.z,
+         contact.barrier.x};
+    previous.laggedTangentAndFriction={0.00000001f,-0.00000002f,0,1};
+    std::memcpy(hist.contents,&previous,sizeof(previous));
+    for(unsigned pass=0;pass<4;++pass) {
+        run(false);run(true);
+        require(std::memcmp(direct.contents,cached.contents,sizeof(contact))==0,
+            "completed geometry refresh lost exact current friction/Hessian");
+        contact=readBuffer<NMDeformableContactGPU>(direct,1)[0];
+        previous.laggedTangentAndFriction.x*=0.5f;
+        std::memcpy(hist.contents,&previous,sizeof(previous));
+    }
+    // An active Newton iteration must rebuild when coordinates actually move.
+    completed.nonlinear.w=0;std::memcpy(states.contents,&completed,sizeof(completed));
+    static_cast<NMFEMNodeStateGPU*>(nb.contents)[1].positionAndMass.z=0.0004f;
+    run(false);run(true);
+    require(std::memcmp(direct.contents,cached.contents,sizeof(contact))==0,
+        "active contact iteration failed to rebuild moved geometry");
+    require(readBuffer<NMMatterStatusGPU>(status,1)[0].code==NM_STATUS_SUCCESS,
+        "completed geometry fixture produced a physical rejection");
+    std::cout<<"completed_contact_geometry=PASS active_rebuild=bitwise "
+        "frozen_geometry_current_friction=bitwise histories=4 final_full_path=preserved\n";
+}
+
+
+void checkCompactedHumanContactQueries(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    auto classify=pipeline(device,library,"numi_matter_metal::nm_numi_human_classify_contact_queries");
+    auto scanTiles=pipeline(device,library,"numi_matter_metal::nm_numi_human_scan_contact_query_tiles");
+    auto scanBlocks=pipeline(device,library,"numi_matter_metal::nm_numi_human_scan_contact_query_blocks");
+    auto scatter=pipeline(device,library,"numi_matter_metal::nm_numi_human_scatter_contact_queries");
+    auto exact=pipeline(device,library,"numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_aabb_compacted");
+    auto direct=pipeline(device,library,"numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_aabb");
+    constexpr unsigned count=66049,tiles=(count+255)/256,blocks=(tiles+255)/256;
+    NMNumiHumanTendonFEMLoadDispatchGPU d{};
+    d.abiVersion=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
+    d.environmentCount=1;d.femNodeCount=2;d.bodyPoseStride=1;
+    d.femBodyContactSampleCount=count;d.femBodyContactCandidateTriangleCount=1;
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> samples(count);
+    for(unsigned i=0;i<count;++i) {
+        auto& s=samples[i];s.slaveNode=i%2;s.bodyIndex=0;
+        s.flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE;
+        s.bodyLocalPointAndArea={0,0,0,1};
+        s.bodyLocalNormalAndReferenceSeparation={0,0,1,0};
+        s.stiffnessAndNormalStrainPerPressure={1000,1,0,0};
+    }
+    std::vector<NMFEMNodeStateGPU> nodes(2);
+    for(auto& n:nodes)n.positionAndMass={0.1f,0,-0.001f,1};
+    MRArticulatedBodyPoseGPU pose{};pose.orientation={0,0,0,1};
+    auto db=makeBuffer(device,std::vector<NMNumiHumanTendonFEMLoadDispatchGPU>{d});
+    auto sb=makeBuffer(device,samples),nb=makeBuffer(device,nodes);
+    auto pb=makeBuffer(device,std::vector<MRArticulatedBodyPoseGPU>{pose});
+    auto ranges=makeBuffer(device,std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>(count));
+    NMNumiHumanFEMBodyContactBVHNodeGPU root{};
+    root.boundsMinimum={-0.01f,-0.01f,-0.01f,0};
+    root.boundsMaximum={0.01f,0.01f,0.01f,0};
+    root.flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_BVH_NODE_LEAF;
+    root.escapeIndex=1;root.triangleIndex=0;
+    auto tree=makeBuffer(device,std::vector<NMNumiHumanFEMBodyContactBVHNodeGPU>{root});
+    auto dummy=makeBuffer(device,std::vector<std::uint8_t>(512,0));
+    auto flags=makeBuffer(device,std::vector<unsigned>{1,1,1});
+    auto valid=makeBuffer(device,std::vector<unsigned>(count+1,91));
+    auto oracleValid=makeBuffer(device,std::vector<unsigned>(count+1,91));
+    const nm_float4 guard={31,-42,53,-64};
+    auto rows=makeBuffer(device,std::vector<nm_float4>(count+1,guard));
+    auto oracle=makeBuffer(device,std::vector<nm_float4>(count+1,guard));
+    struct U2 {unsigned x,y;};
+    auto tileRanges=makeBuffer(device,std::vector<U2>(tiles+1,{91,92}));
+    auto sums=makeBuffer(device,std::vector<unsigned>(blocks+1,91));
+    auto offsets=makeBuffer(device,std::vector<unsigned>(blocks+1,91));
+    auto indices=makeBuffer(device,std::vector<unsigned>(count+1,91));
+    auto work=makeBuffer(device,std::vector<NMIndirectDispatchGPU>(1));
+    const auto query=[&] {
+        dispatch(device,queue,classify,{{0,db},{1,sb},{2,ranges},{3,tree},{4,nb},
+            {5,pb},{6,flags},{7,valid},{8,rows},{9,tileRanges}},tiles,256);
+        dispatch(device,queue,scanTiles,{{0,db},{1,tileRanges},{2,sums}},blocks,256);
+        dispatch(device,queue,scanBlocks,{{0,db},{1,sums},{2,offsets},{3,work}},1,256);
+        dispatch(device,queue,scatter,{{0,db},{1,valid},{2,tileRanges},{3,offsets},{4,indices}},tiles,256);
+        const auto active=readBuffer<NMIndirectDispatchGPU>(work,1)[0];
+        if(active.threadgroupsX)dispatch(device,queue,exact,{{0,db},{1,sb},{2,ranges},
+            {3,dummy},{4,tree},{5,nb},{6,pb},{7,valid},{8,rows},
+            {9,flags},{10,indices},{11,work}},active.threadgroupsX,256);
+        return active.reserved;
+    };
+    const auto parity=[&] {
+        dispatch(device,queue,direct,{{0,db},{1,sb},{2,ranges},{3,dummy},{4,tree},
+            {5,nb},{6,pb},{7,oracleValid},{8,oracle}},tiles,256);
+        require(std::memcmp(rows.contents,oracle.contents,(count+1)*sizeof(nm_float4))==0,
+            "compacted Human query force rows differ from full original query");
+        require(readBuffer<unsigned>(valid,count+1)==readBuffer<unsigned>(oracleValid,count+1),
+            "compacted Human query validity differs from full original query");
+    };
+    require(query()==count,"all-active compact query count incorrect across two scan blocks");
+    auto ids=readBuffer<unsigned>(indices,count+1);
+    for(unsigned i=0;i<count;++i)require(ids[i]==i,"compacted query order is not deterministic");
+    parity();
+    static_cast<unsigned*>(flags.contents)[0]=3;
+    static_cast<unsigned*>(flags.contents)[2]=3;
+    require(query()==count/2,"mixed exact-reuse query count incorrect");
+    ids=readBuffer<unsigned>(indices,count/2);
+    for(unsigned i=0;i<count/2;++i)require(ids[i]==2*i+1,"mixed compacted query indices incorrect");
+    parity();
+    static_cast<unsigned*>(flags.contents)[1]=3;
+    require(query()==0,"empty compact query domain still scheduled work");
+    parity();
+    // Exercise certified outside-box exclusion with original AABB arithmetic;
+    // this is an explicitly synthetic bank-admission fixture, not anatomy.
+    auto* sf=static_cast<unsigned*>(flags.contents);sf[0]=sf[1]=sf[2]=1;
+    auto* authored=static_cast<NMNumiHumanFEMBodyContactSampleGPU*>(sb.contents);
+    authored[0].flags|=NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT;
+    authored[0].bodyLocalNormalAndReferenceSeparation.w=1000;
+    auto* range=static_cast<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*>(ranges.contents);
+    range[0].triangleCount=1;range[0].maximumDistanceMeters=0.01f;
+    range[0].reserved0=NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_STATIC_CLOSED_ORIENTED_BVH;
+    require(query()==count-1,"certified inactive AABB row entered exact BVH work");
+    parity();
+    authored[count-2].slaveNode=NM_INVALID_INDEX;
+    require(query()==count-1,"invalid row was dropped from exact validation");
+    parity();
+    require(readBuffer<unsigned>(valid,count)[count-2]==0,
+        "invalid compacted query failed to reject");
+    require(readBuffer<unsigned>(indices,count+1)[count]==91 &&
+        readBuffer<U2>(tileRanges,tiles+1)[tiles].x==91 &&
+        readBuffer<unsigned>(sums,blocks+1)[blocks]==91 &&
+        readBuffer<unsigned>(offsets,blocks+1)[blocks]==91,
+        "compacted Human query capacity guard overwritten");
+    std::cout<<"human_compacted_contact_queries=PASS rows="<<count
+        <<" scan_blocks="<<blocks<<" partial_tile=true all_active=true mixed=true "
+        "empty=true deterministic=true certified_aabb=true invalid_fails_closed=true bitwise_parity=true\n";
+}
+
+
 void checkZeroStepGeometryReuse(
     id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
     auto reset = pipeline(device, library,
@@ -16833,6 +17134,13 @@ int main(int argc, const char* argv[]) {
                 std::cout << "PASS graph product precompute " << checks << " checks" << std::endl;
                 return 0;
             }
+            if (argc == 2 && std::string(argv[1]) == "--completed-contact-only") {
+                checkCompactedHumanContactQueries(device,queue,library);
+                checkHumanExactContactMotionCache(device,queue,library);
+                checkCompletedContactGeometry(device,queue,library);
+                std::cout << "PASS completed contact " << checks << " checks" << std::endl;
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--contact-zero-step-geometry-reuse-only") {
                 checkZeroStepGeometryReuse(device, queue, library);
             checkReferenceSurfaceGeometry(device,queue,library);
@@ -17421,6 +17729,9 @@ int main(int argc, const char* argv[]) {
             checkHybridFullPhysicalResidualDiagnostic(device, queue,
                 hybridPhysicalPreserve, hybridPhysicalPartial, hybridPhysicalFinish);
             checkFreshRhsPreconditionerBeginVerification(device, queue, library);
+            checkCompactedHumanContactQueries(device,queue,library);
+            checkHumanExactContactMotionCache(device,queue,library);
+            checkCompletedContactGeometry(device,queue,library);
             checkZeroStepGeometryReuse(device, queue, library);
             checkReferenceSurfaceGeometry(device,queue,library);
                 checkPolynomialReferenceSweep(device,queue,library);

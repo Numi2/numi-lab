@@ -611,6 +611,18 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     bool hasMultiMasterTriangleContact = false;
     bool contactRowCache = false;
     bool contactAABBExclusion = false;
+    bool contactExactMotionCache = false;
+    bool contactCompactQueries = false;
+    std::uint32_t contactQueryTileCount = 0u, contactQueryBlockCount = 0u;
+    __strong id<MTLBuffer> contactQueryTiles = nil, contactQueryBlockSums = nil;
+    __strong id<MTLBuffer> contactQueryBlockOffsets = nil, contactQueryIndices = nil;
+    __strong id<MTLBuffer> contactQueryWork = nil;
+    __strong id<MTLComputePipelineState> contactQueryClassify = nil, contactQueryScanTiles = nil;
+    __strong id<MTLComputePipelineState> contactQueryScanBlocks = nil, contactQueryScatter = nil;
+    __strong id<MTLBuffer> contactMotionFlags = nil;
+    __strong id<MTLBuffer> contactMotionPositions = nil;
+    __strong id<MTLBuffer> contactMotionPoseWords = nil;
+    __strong id<MTLComputePipelineState> contactMotionPreparePipeline = nil;
     __strong id<MTLBuffer> femBodyContactRowCache = nil;
     std::vector<NMNumiHumanFEMBodyContactSampleGPU>
         implicitSpringSamples;
@@ -1964,11 +1976,83 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     static_cast<unsigned long long>(auditRows),
                     state_->femBodyContactSolverSamples.size(), state_->femBodyContactAuditTiles);
 
+                const char* motionCache = std::getenv("NUMI_HUMAN_CONTACT_EXACT_MOTION_CACHE");
+                if (motionCache && std::strcmp(motionCache,"0")!=0 &&
+                    std::strcmp(motionCache,"1")!=0) {
+                    state_->message="NUMI_HUMAN_CONTACT_EXACT_MOTION_CACHE must be 0 or 1";
+                    return false;
+                }
+                state_->contactExactMotionCache = motionCache && std::strcmp(motionCache,"1")==0;
+                if (state_->contactExactMotionCache) {
+                    if (!state_->contactRowCache) {
+                        state_->message="exact motion cache requires admitted immutable contact row cache";
+                        return false;
+                    }
+                    const std::uint64_t nodeCount = std::uint64_t(state_->environmentCount)*state_->nodeLoads.size();
+                    const std::uint64_t poseCount = std::uint64_t(state_->environmentCount)*pass.bodyPoseStride;
+                    if (nodeCount+poseCount > std::numeric_limits<std::uint32_t>::max() ||
+                        nodeCount > std::numeric_limits<NSUInteger>::max()/sizeof(nm_float4) ||
+                        poseCount > std::numeric_limits<NSUInteger>::max()/(2u*sizeof(nm_float4)))
+                        return false;
+                    std::vector<std::uint32_t> initialFlags(nodeCount+poseCount,0u);
+                    state_->contactMotionFlags = [device newBufferWithBytes:initialFlags.data()
+                        length:initialFlags.size()*sizeof(std::uint32_t) options:MTLResourceStorageModeShared];
+                    state_->contactMotionPositions = [device newBufferWithLength:nodeCount*sizeof(nm_float4)
+                        options:MTLResourceStorageModePrivate];
+                    state_->contactMotionPoseWords = [device newBufferWithLength:2u*poseCount*sizeof(nm_float4)
+                        options:MTLResourceStorageModePrivate];
+                    state_->contactMotionPreparePipeline = pipeline("nm_numi_human_prepare_contact_motion_cache");
+                    if (state_->contactMotionFlags==nil || state_->contactMotionPositions==nil ||
+                        state_->contactMotionPoseWords==nil || state_->contactMotionPreparePipeline==nil)
+                        return false;
+                    std::fprintf(stderr,"human_contact_exact_motion_cache=1 nodes=%llu bodies=%llu bytes=%llu\n",
+                        nodeCount,poseCount,nodeCount*20u+poseCount*36u);
+                }
+                const char* compactQueries = std::getenv("NUMI_HUMAN_CONTACT_COMPACT_QUERIES");
+                if (compactQueries && std::strcmp(compactQueries,"0")!=0 &&
+                    std::strcmp(compactQueries,"1")!=0) {
+                    state_->message="NUMI_HUMAN_CONTACT_COMPACT_QUERIES must be 0 or 1";
+                    return false;
+                }
+                state_->contactCompactQueries = compactQueries && std::strcmp(compactQueries,"1")==0;
+                if (state_->contactCompactQueries) {
+                    if (!state_->contactExactMotionCache || !state_->contactAABBExclusion) {
+                        state_->message="contact query compaction requires exact motion cache and certified closed-bank AABB exclusion";
+                        return false;
+                    }
+                    const std::uint64_t rows=std::uint64_t(state_->environmentCount)*state_->femBodyContactSamples.size();
+                    if(rows==0u || rows>std::numeric_limits<std::uint32_t>::max()-255u) return false;
+                    state_->contactQueryTileCount=(rows+255u)/256u;
+                    state_->contactQueryBlockCount=(state_->contactQueryTileCount+255u)/256u;
+                    state_->contactQueryTiles=[device newBufferWithLength:state_->contactQueryTileCount*2u*sizeof(std::uint32_t) options:MTLResourceStorageModePrivate];
+                    state_->contactQueryBlockSums=[device newBufferWithLength:state_->contactQueryBlockCount*sizeof(std::uint32_t) options:MTLResourceStorageModePrivate];
+                    state_->contactQueryBlockOffsets=[device newBufferWithLength:state_->contactQueryBlockCount*sizeof(std::uint32_t) options:MTLResourceStorageModePrivate];
+                    state_->contactQueryIndices=[device newBufferWithLength:rows*sizeof(std::uint32_t) options:MTLResourceStorageModePrivate];
+                    state_->contactQueryWork=[device newBufferWithLength:sizeof(NMIndirectDispatchGPU) options:MTLResourceStorageModePrivate];
+                    state_->contactQueryClassify=pipeline("nm_numi_human_classify_contact_queries");
+                    state_->contactQueryScanTiles=pipeline("nm_numi_human_scan_contact_query_tiles");
+                    state_->contactQueryScanBlocks=pipeline("nm_numi_human_scan_contact_query_blocks");
+                    state_->contactQueryScatter=pipeline("nm_numi_human_scatter_contact_queries");
+                    if(state_->contactQueryTiles==nil || state_->contactQueryBlockSums==nil ||
+                        state_->contactQueryBlockOffsets==nil || state_->contactQueryIndices==nil || state_->contactQueryWork==nil)
+                        return false;
+                    for(id<MTLComputePipelineState> pso:{state_->contactQueryClassify,
+                        state_->contactQueryScanTiles,state_->contactQueryScanBlocks,state_->contactQueryScatter})
+                        if(pso==nil || pso.threadExecutionWidth!=32u || pso.maxTotalThreadsPerThreadgroup<256u) return false;
+                    std::fprintf(stderr,"human_contact_compact_queries=1 rows=%llu index_bytes=%llu\n",
+                        static_cast<unsigned long long>(rows),static_cast<unsigned long long>(rows*sizeof(std::uint32_t)));
+                }
                 if (!state_->femBodyContactSamples.empty()) {
-                    state_->femBodyContactSampleValidationPipeline = pipeline(state_->contactRowCache
+                    state_->femBodyContactSampleValidationPipeline = pipeline(state_->contactCompactQueries
+                        ? "nm_numi_human_validate_fem_body_contact_samples_cached_aabb_compacted"
+                        : state_->contactRowCache
                         ? (state_->contactAABBExclusion
-                            ? "nm_numi_human_validate_fem_body_contact_samples_cached_aabb"
-                            : "nm_numi_human_validate_fem_body_contact_samples_cached")
+                            ? (state_->contactExactMotionCache
+                                ? "nm_numi_human_validate_fem_body_contact_samples_cached_aabb_motion"
+                                : "nm_numi_human_validate_fem_body_contact_samples_cached_aabb")
+                            : (state_->contactExactMotionCache
+                                ? "nm_numi_human_validate_fem_body_contact_samples_cached_motion"
+                                : "nm_numi_human_validate_fem_body_contact_samples_cached"))
                         : "nm_numi_human_validate_fem_body_contact_samples");
                     state_->femBodyContactSampleValidationReducePipeline = pipeline(
                         "nm_numi_human_reduce_fem_body_contact_sample_validation");
@@ -2673,8 +2757,11 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
         const auto encodeKernel = [&](id<MTLComputePipelineState> pipeline,
                                       const NSUInteger count,
                                       const auto& bind) {
+            const char* contactTiming = std::getenv("NUMI_HUMAN_CONTACT_GPU_TIMING");
             id<MTLComputeCommandEncoder> encoder =
-                [command computeCommandEncoder];
+                contactTiming && std::strcmp(contactTiming,"1")==0
+                    ? detail::timedEncoder(command,state_->device,pipeline.label.UTF8String,pass.stepIndex)
+                    : [command computeCommandEncoder];
             if (encoder == nil) return false;
             [encoder setComputePipelineState:pipeline];
             [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
@@ -2740,6 +2827,20 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 return false;
             }
         }
+        if (state_->contactExactMotionCache &&
+            !encodeKernel(state_->contactMotionPreparePipeline,
+                NSUInteger(state_->environmentCount) *
+                    (state_->nodeLoads.size()+pass.bodyPoseStride),
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:acceptedNodes offset:0u atIndex:1u];
+                    [encoder setBuffer:bodyPoses offset:0u atIndex:2u];
+                    [encoder setBuffer:state_->contactMotionPositions offset:0u atIndex:3u];
+                    [encoder setBuffer:state_->contactMotionPoseWords offset:0u atIndex:4u];
+                    [encoder setBuffer:state_->contactMotionFlags offset:0u atIndex:5u];
+                })) {
+            state_->message="Human exact contact motion-cache preparation failed";
+            return false;
+        }
         if (!state_->femBodyContactSamples.empty()) {
             const NSUInteger sampleCount = state_->femBodyContactSamples.size();
             constexpr NSUInteger blockSize =
@@ -2750,9 +2851,64 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 static_cast<NSUInteger>(state_->environmentCount) * sampleCount;
             const NSUInteger blockWork =
                 static_cast<NSUInteger>(state_->environmentCount) * blockCount;
-            if (!encodeKernel(
-                    state_->femBodyContactSampleValidationPipeline,
-                    sampleWork,
+            if(state_->contactCompactQueries) {
+                if (!encodeKernel(state_->contactQueryClassify,
+                    NSUInteger(state_->contactQueryTileCount)*256u,
+                    [&](id<MTLComputeCommandEncoder> encoder) {
+                        [encoder setBuffer:state_->femBodyContactSampleBuffer offset:0u atIndex:1u];
+                        [encoder setBuffer:state_->femBodyContactNeighborhoodRangeBuffer offset:0u atIndex:2u];
+                        [encoder setBuffer:state_->femBodyContactNeighborhoodBVHNodeBuffer offset:0u atIndex:3u];
+                        [encoder setBuffer:acceptedNodes offset:0u atIndex:4u];
+                        [encoder setBuffer:bodyPoses offset:0u atIndex:5u];
+                        [encoder setBuffer:state_->contactMotionFlags offset:0u atIndex:6u];
+                        [encoder setBuffer:state_->femBodyContactSampleValidationBuffer offset:0u atIndex:7u];
+                        [encoder setBuffer:state_->femBodyContactRowCache offset:0u atIndex:8u];
+                        [encoder setBuffer:state_->contactQueryTiles offset:0u atIndex:9u];
+                    }) ||
+                    !encodeKernel(state_->contactQueryScanTiles,
+                    NSUInteger(state_->contactQueryBlockCount)*256u,
+                    [&](id<MTLComputeCommandEncoder> encoder) {
+                        [encoder setBuffer:state_->contactQueryTiles offset:0u atIndex:1u];
+                        [encoder setBuffer:state_->contactQueryBlockSums offset:0u atIndex:2u];
+                    }) ||
+                    !encodeKernel(state_->contactQueryScanBlocks,256u,
+                    [&](id<MTLComputeCommandEncoder> encoder) {
+                        [encoder setBuffer:state_->contactQueryBlockSums offset:0u atIndex:1u];
+                        [encoder setBuffer:state_->contactQueryBlockOffsets offset:0u atIndex:2u];
+                        [encoder setBuffer:state_->contactQueryWork offset:0u atIndex:3u];
+                    }) ||
+                    !encodeKernel(state_->contactQueryScatter,
+                    NSUInteger(state_->contactQueryTileCount)*256u,
+                    [&](id<MTLComputeCommandEncoder> encoder) {
+                        [encoder setBuffer:state_->femBodyContactSampleValidationBuffer offset:0u atIndex:1u];
+                        [encoder setBuffer:state_->contactQueryTiles offset:0u atIndex:2u];
+                        [encoder setBuffer:state_->contactQueryBlockOffsets offset:0u atIndex:3u];
+                        [encoder setBuffer:state_->contactQueryIndices offset:0u atIndex:4u];
+                    })) {
+                    state_->message="Human contact query compaction failed";
+                    return false;
+                }
+            }
+            const auto validateRows = [&](const auto& bind) {
+                if(!state_->contactCompactQueries)
+                    return encodeKernel(state_->femBodyContactSampleValidationPipeline,sampleWork,bind);
+                const char* timing=std::getenv("NUMI_HUMAN_CONTACT_GPU_TIMING");
+                auto encoder=timing && std::strcmp(timing,"1")==0
+                    ? detail::timedEncoder(command,state_->device,state_->femBodyContactSampleValidationPipeline.label.UTF8String,pass.stepIndex)
+                    : [command computeCommandEncoder];
+                if(encoder==nil) return false;
+                [encoder setComputePipelineState:state_->femBodyContactSampleValidationPipeline];
+                [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+                bind(encoder);
+                [encoder setBuffer:state_->contactQueryIndices offset:0u atIndex:10u];
+                [encoder setBuffer:state_->contactQueryWork offset:0u atIndex:11u];
+                [encoder dispatchThreadgroupsWithIndirectBuffer:state_->contactQueryWork indirectBufferOffset:0u
+                    threadsPerThreadgroup:MTLSizeMake(256u,1u,1u)];
+                [encoder endEncoding];
+                gpuProgress.signal(command,state_->femBodyContactSampleValidationPipeline.label.UTF8String);
+                return true;
+            };
+            if (!validateRows(
                     [&](id<MTLComputeCommandEncoder> encoder) {
                         [encoder setBuffer:state_->femBodyContactSampleBuffer
                                     offset:0u atIndex:1u];
@@ -2768,6 +2924,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                                     offset:0u atIndex:7u];
                         if(state_->contactRowCache)
                             [encoder setBuffer:state_->femBodyContactRowCache offset:0u atIndex:8u];
+                        if(state_->contactExactMotionCache)
+                            [encoder setBuffer:state_->contactMotionFlags offset:0u atIndex:9u];
                     }) ||
                 !encodeKernel(
                     state_->femBodyContactSampleValidationReducePipeline,

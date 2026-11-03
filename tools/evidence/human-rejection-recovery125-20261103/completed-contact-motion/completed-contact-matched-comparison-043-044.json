@@ -1,0 +1,133 @@
+{
+  "completed-contact-control-043": {
+    "profiles": [
+      {
+        "step": "1",
+        "command_ms": "13305.556208",
+        "gpu_ms": "13283.889",
+        "host_copy_ms": "2.189334",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "2",
+        "command_ms": "13718.015166",
+        "gpu_ms": "13717.376125",
+        "host_copy_ms": "0.139875",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "3",
+        "command_ms": "13657.579792",
+        "gpu_ms": "13656.29225",
+        "host_copy_ms": "0.091",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "4",
+        "command_ms": "13584.3625",
+        "gpu_ms": "13583.13875",
+        "host_copy_ms": "0.061459",
+        "full_state_readback": "1"
+      }
+    ],
+    "mean_gpu_ms": 13560.17403125,
+    "mean_command_ms": 13566.3784165,
+    "endpoint_bytes": 833232924,
+    "endpoint_sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+    "physiology_sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "complete_endpoint_matches035_042": true,
+    "physiology_matches035_042": true,
+    "summary": "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=61.878407916 real_time_factor=1.0100454273716046e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending",
+    "launch_inclusive_elapsed_s": 237.40621328353882
+  },
+  "completed-contact-uninstrumented-044": {
+    "profiles": [
+      {
+        "step": "1",
+        "command_ms": "8235.762459",
+        "gpu_ms": "8233.810625",
+        "host_copy_ms": "0.143708",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "2",
+        "command_ms": "8353.353583",
+        "gpu_ms": "8351.5485",
+        "host_copy_ms": "0.134459",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "3",
+        "command_ms": "8311.52075",
+        "gpu_ms": "8310.376375",
+        "host_copy_ms": "0.105625",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "4",
+        "command_ms": "8298.635417",
+        "gpu_ms": "8297.67145833",
+        "host_copy_ms": "0.0595",
+        "full_state_readback": "1"
+      }
+    ],
+    "mean_gpu_ms": 8298.3517395825,
+    "mean_command_ms": 8299.81805225,
+    "endpoint_bytes": 833232924,
+    "endpoint_sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+    "physiology_sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "complete_endpoint_matches035_042": true,
+    "physiology_matches035_042": true,
+    "summary": "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=41.245688833000003 real_time_factor=1.5153099569181029e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending",
+    "launch_inclusive_elapsed_s": 217.3108160495758
+  },
+  "comparison": {
+    "mean_gpu_time_reduction_fraction": 0.3880350119062931,
+    "gpu_throughput_ratio": 1.6340804122063195,
+    "scope": "one matched same-binary pair of four-step initialization prefixes; detailed GPU timing disabled; existing work counters/progress/native timestamps and endpoint readbacks retained"
+  },
+  "same_binary": true,
+  "same_compiled_physics_libraries": true,
+  "changed_environment": {
+    "NUMI_MATTER_GPU_TIMING_PHASE": [
+      "43",
+      "44"
+    ],
+    "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-contact-control-043/install-motion/diagnostics/common-field-failure.json",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-contact-uninstrumented-044/install-motion/diagnostics/common-field-failure.json"
+    ],
+    "NUMI_HUMAN_CONTACT_EXACT_MOTION_CACHE": [
+      "0",
+      "1"
+    ],
+    "NUMI_HUMAN_CONTACT_COMPACT_QUERIES": [
+      "0",
+      "1"
+    ],
+    "NUMI_HUMAN_SKIN_FAT_PARENT_MASS_LEDGER_CSV": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-contact-control-043/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-contact-uninstrumented-044/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv"
+    ],
+    "NM_CONTACT_COMPLETED_GEOMETRY_CACHE": [
+      "0",
+      "1"
+    ],
+    "NUMI_HUMAN_SKIN_REFERENCE_POSE_DUMP": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-contact-control-043/install-motion/diagnostics/registered-skin-poses.json",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-contact-uninstrumented-044/install-motion/diagnostics/registered-skin-poses.json"
+    ],
+    "NUMI_HUMAN_SKIN_REFERENCE_DUMP": [
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-contact-control-043/install-motion/diagnostics/registered-skin-native.csv",
+      "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-contact-uninstrumented-044/install-motion/diagnostics/registered-skin-native.csv"
+    ]
+  },
+  "device": {
+    "host": "ssh numi",
+    "cpu": "Apple M6",
+    "model": "Mac18,5",
+    "memory_bytes": 17179869184,
+    "macos": "27.0",
+    "os_build": "26A425"
+  }
+}
