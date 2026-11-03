@@ -1,4 +1,8 @@
 {
+  "curvature-minima-summary.json": {
+    "sha256": "7eefd81023c73cb4a289dc0eede1266b10f922b20c2623992801d76dc4c21419",
+    "bytes": 5673
+  },
   "minimum-witnesses.json": {
     "sha256": "fa37ea95d5eca5eac2fdbd15ef75251a2e3f769a62aae0c9e8e9a90fe7d683cd",
     "bytes": 65254
@@ -15,9 +19,21 @@
     "sha256": "169efbd529195abd0bc04345c08bf848ad7904d0cd7923d5afb290798b3771ba",
     "bytes": 110
   },
+  "paired-minima-summary.json": {
+    "sha256": "7442bab9b7d84842e22856012693cceb5bec9fd0301b654e09526decab402251",
+    "bytes": 5676
+  },
   "README.md": {
-    "sha256": "6a332b3c2a8c400163a994d9e4834565499b2fea86b2217fea213bdb974dbd9b",
-    "bytes": 1266
+    "sha256": "5ea7b73126a5fa4c37802b445c63f5fd3dd176ce7eec22c3998f566e1af83a41",
+    "bytes": 2931
+  },
+  "curvature-source.patch": {
+    "sha256": "e036abf741e33dd66963728e39f3aa1cc70959c75c895a73532e96cba2eb816b",
+    "bytes": 8919
+  },
+  "matched-results.json": {
+    "sha256": "6004048d272950d9382a8431b3ff1643dbea05a482b19e99673964cca23e5128",
+    "bytes": 6216
   },
   "probe-command.json": {
     "sha256": "d131cd450b05226ffced06e39c296cf14da24c05817c78c85caf6b89de3f0566",
@@ -30,5 +46,69 @@
   "paired-full.log": {
     "sha256": "c91e6b00705c693253d2179611b69041a636528bc077a54564ee7d7679a9ac43",
     "bytes": 8755
+  },
+  "curvature-full.log": {
+    "sha256": "88cda4a880008c419a24c68231a2617617029c5eee60930deb513930b7039fa0",
+    "bytes": 8867
+  },
+  "curvature-tight4/common-field-failure.json": {
+    "sha256": "7555418792dd0d0ebe5df7eff9791c5163d1b204dc15efd2641c11008b84dd6e",
+    "bytes": 4191
+  },
+  "curvature-tight4/resource-policy.json": {
+    "sha256": "676cc1f7809dffe0b8b68efa458bb079f529a39a3777de44b29e07d3410b779c",
+    "bytes": 351
+  },
+  "curvature-tight4/build-manifest.json": {
+    "sha256": "7c882463f54bedc49364d3160d28176f7c61ed2966de17b2fd0d6ad22f6b7155",
+    "bytes": 3038
+  },
+  "curvature-tight4/install-motion.plan.json": {
+    "sha256": "67e2445afcee177c87c5e7391621327322f24406e7d40e523f3c6a70749a2177",
+    "bytes": 87837
+  },
+  "curvature-tight4/install-motion.execution.json": {
+    "sha256": "408f96487273bad166c12b87c7eeaa789cc78e5b1fd2072668f07d2a1b7ff8ba",
+    "bytes": 736
+  },
+  "paired-energy/common-field-failure.json": {
+    "sha256": "701c363706d7a0f40298c0d4112214e601c7130488ddb5a6d9b7076fa01a9b32",
+    "bytes": 4119
+  },
+  "paired-energy/resource-policy.json": {
+    "sha256": "17da402bbcd42c129369abe2b57415fe7c19c6229cb92cd4c1bc356c3bdd6538",
+    "bytes": 351
+  },
+  "paired-energy/build-manifest.json": {
+    "sha256": "d4a192df6e2bddece307f6d88db2c240508a9b6ac9dc74006b63feb806ef4a32",
+    "bytes": 3035
+  },
+  "paired-energy/install-motion.plan.json": {
+    "sha256": "73efe1d4ad716ca7d8839d47823cb1fda40bde62d705f003a82cec909e7e1246",
+    "bytes": 87643
+  },
+  "paired-energy/install-motion.execution.json": {
+    "sha256": "e02a5fc64a5799bd36c86de206b2fb99be76dbb5044e0036cbbb2fa13ea64c19",
+    "bytes": 731
+  },
+  "resolved-curvature/common-field-failure.json": {
+    "sha256": "c437caf033a2f194073db5e88a9cab6cb67635d7783a39a774f3f029da377c9a",
+    "bytes": 4119
+  },
+  "resolved-curvature/resource-policy.json": {
+    "sha256": "8b45e82e065763010c2e8c4b40887e652b082561d7c737ab7f453ce3a3a6b2b4",
+    "bytes": 351
+  },
+  "resolved-curvature/build-manifest.json": {
+    "sha256": "79ee80065c81c080881adae0d8579c4778d0463d8a7921ae121496b4bcdcaa8b",
+    "bytes": 3040
+  },
+  "resolved-curvature/install-motion.plan.json": {
+    "sha256": "03fb019e520f4dd1dda4334a235565568b9f4add92cb11f7d7755c5cf8bf601e",
+    "bytes": 87737
+  },
+  "resolved-curvature/install-motion.execution.json": {
+    "sha256": "c1cd13825c501b20f704b1be289017949c4c42903ad0641422c824058539c661",
+    "bytes": 738
   }
 }

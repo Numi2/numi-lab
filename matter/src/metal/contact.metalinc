@@ -1091,6 +1091,39 @@ inline bool contactCompensatedVectorLength(
         isfinite(lengthValue) && lengthValue >= 0.0f;
 }
 
+// Optional quasi-Newton metric. The contact residual and potential do not
+// use this coefficient. Retain the historical metric unless explicitly enabled.
+constant bool nmDeformableResolvedMollifierCurvature [[function_constant(37)]];
+constant bool nmDeformableResolvedMollifierCurvatureActive =
+    is_function_constant_defined(nmDeformableResolvedMollifierCurvature)
+        ? nmDeformableResolvedMollifierCurvature : false;
+
+inline float nmDeformableMollifierCurvature(
+    const float dt, const float energy, const float mollifier,
+    const bool resolved
+) {
+    // For m ~ c theta^2, grad(m) grad(m)^T / m stays finite and
+    // resolves angular curvature as theta tends to zero. The old 1e-3
+    // denominator suppresses this metric on the thin-layer active features.
+    // At exactly zero the stored gradient is zero, retaining the old policy.
+    const float denominator = resolved && mollifier > 0.0f
+        ? mollifier : max(mollifier, 1.0e-3f);
+    return dt * dt * energy / denominator;
+}
+
+kernel void nm_contact_check_mollifier_curvature(
+    device const float4* inputs [[buffer(0)]],
+    device float2* outputs [[buffer(1)]],
+    constant uint& count [[buffer(2)]],
+    uint index [[thread_position_in_grid]]
+) {
+    if (index >= count) return;
+    const float4 p = inputs[index];
+    outputs[index] = float2(
+        nmDeformableMollifierCurvature(p.x,p.y,p.z,false),
+        nmDeformableMollifierCurvature(p.x,p.y,p.z,true));
+}
+
 inline bool deformableBarrierEnergyAt(
     const NMDeformableContactGPU contact,
     thread const MRCompensatedPositionGPU* position,
@@ -8097,8 +8130,9 @@ kernel void nm_contact_narrowphase_deformable(
     contact.mollifier = float4(
         featureMollifier,
         contactTimestep * baseBarrierEnergy,
-        contactTimestep * contactTimestep * baseBarrierEnergy /
-            max(featureMollifier, 1.0e-3f),
+        nmDeformableMollifierCurvature(
+            contactTimestep, baseBarrierEnergy, featureMollifier,
+            nmDeformableResolvedMollifierCurvatureActive),
         baseBarrier.w);
     contacts[candidateGlobal] = contact;
     (void)microstep;

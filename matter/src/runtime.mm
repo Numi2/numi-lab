@@ -8963,6 +8963,25 @@ RuntimeDiagnostics Runtime::initialize(
                 materialPipelineTetIndices.size());
         }
         candidate->femNativeTangentVerifyRequested = nativeVerifyRequested;
+        const char* resolvedMollifierCurvatureSetting =
+            std::getenv("NM_FEM_RESOLVED_MOLLIFIER_CURVATURE");
+        if (resolvedMollifierCurvatureSetting != nullptr &&
+            std::strcmp(resolvedMollifierCurvatureSetting,"0") != 0 &&
+            std::strcmp(resolvedMollifierCurvatureSetting,"1") != 0) {
+            diagnostics.message = "resolved mollifier curvature requires explicit 0 or 1";
+            return diagnostics;
+        }
+        const bool resolvedMollifierCurvatureEnabled =
+            resolvedMollifierCurvatureSetting != nullptr &&
+            std::strcmp(resolvedMollifierCurvatureSetting,"1") == 0;
+        if (resolvedMollifierCurvatureEnabled &&
+            (world.dispatch.gridNodeCount != 0u ||
+             world.dispatch.deformableContactCapacity == 0u ||
+             world.dispatch.environmentCount != 1u)) {
+            diagnostics.message =
+                "resolved mollifier curvature requires one FEM-only contact environment";
+            return diagnostics;
+        }
         const auto kernel = [&](const char* name,
                                 const bool materialOffsetsSpecialized,
                                 const std::uint32_t tangentProgramOffset,
@@ -8989,6 +9008,12 @@ RuntimeDiagnostics Runtime::initialize(
                         stressOffsetFound=true;
                     }
                     specialize=true;
+                    continue;
+                }
+                if (constant.index == 37u) {
+                    const bool enabled = resolvedMollifierCurvatureEnabled;
+                    [values setConstantValue:&enabled type:MTLDataTypeBool atIndex:37u];
+                    specialize = true;
                     continue;
                 }
                 if(constant.index!=30u && constant.index!=31u &&

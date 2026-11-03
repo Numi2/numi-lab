@@ -14234,6 +14234,62 @@ void checkCompensatedContactEnergyContinuity(
     std::cout<<"compensated_mollifier Float64_value_and_gradient=true scales=3 degenerate_and_nonfinite=true result=PASS\n";
 }
 
+void checkResolvedMollifierCurvature(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    struct Pair { float x,y; };
+    std::vector<nm_float4> inputs;
+    for(float dt:{1.5625e-5f,1.0e-3f})
+        for(float e:{1.0e-8f,1.0f,1.0e8f})
+            for(float m:{0.0f,1.0e-30f,1.0e-12f,1.0e-7f,5.0e-5f,1.0e-3f,0.1f,1.0f})
+                inputs.push_back({dt,e,m,0.0f});
+    const unsigned angularBegin=inputs.size();
+    const std::array<double,4u> angles{1.0e-5,1.0e-4,1.0e-3,1.0e-2};
+    for(double theta:angles){
+        const double r=std::sin(theta)*std::sin(theta)/double(1.0e-3f);
+        inputs.push_back({1.5625e-5f,1.0f,float(r*(2.0-r)),0.0f});
+    }
+    const unsigned count=inputs.size();
+    const auto output=makeBuffer(device,std::vector<Pair>(count+4u,{-7.0f,-7.0f}));
+    dispatch(device,queue,pipeline(device,library,
+        "numi_matter_metal::nm_contact_check_mollifier_curvature"),{
+        {0u,makeBuffer(device,inputs)},{1u,output},
+        {2u,makeBuffer(device,std::vector<unsigned>{count})}},(count+31u)/32u,32u);
+    const auto values=readBuffer<Pair>(output,count+4u);
+    for(unsigned i=0u;i<count;++i){
+        const auto p=inputs[i];
+        const double denominator=p.z>0.0f ? p.z : 1.0e-3f;
+        const double expected=double(p.x)*p.x*p.y/denominator;
+        require(std::isfinite(values[i].y) && values[i].y>=0.0f,
+            "resolved mollifier metric lost finite PSD coefficient");
+        require(std::abs(double(values[i].y)/expected-1.0)<=3.0e-7,
+            "resolved mollifier curvature differs from Float64 equation");
+        if(p.z>=1.0e-3f || p.z==0.0f)
+            require(values[i].x==values[i].y,
+                "resolved metric changed an unaffected or zero-gradient case");
+        else require(values[i].y>=values[i].x,
+            "resolved metric weakened a small-angle contact metric");
+    }
+    // Nonlinear consequence: resolve the small-angle potential rather
+    // than proposing a correction that must backtrack through the same fold.
+    for(unsigned j=0u;j<angles.size();++j){
+        const unsigned i=angularBegin+j;
+        const double theta=angles[j],dt=inputs[i].x;
+        const double r=std::sin(theta)*std::sin(theta)/double(1.0e-3f);
+        const double g=2.0*(1.0-r)*std::sin(2.0*theta)/double(1.0e-3f);
+        const double deltaV=-(dt*g)/(double(values[i].y)*g*g);
+        const double next=theta+dt*deltaV;
+        const double rn=std::clamp(std::sin(next)*std::sin(next)/
+            double(1.0e-3f),0.0,1.0);
+        require(rn*(2.0-rn)<r*(2.0-r),
+            "resolved metric correction failed the unchanged angular potential");
+    }
+    for(unsigned i=count;i<count+4u;++i)
+        require(values[i].x==-7.0f && values[i].y==-7.0f,
+            "mollifier metric exceeded active capacity");
+    std::cout<<"resolved_mollifier_curvature cases="<<count
+        <<" Float64=true PSD=true residual_equations=unchanged canaries=4 result=PASS\n";
+}
+
 void checkCompensatedBarrierEnergyWords(
     id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
     // Native Human contact3390947, Newton8..12: legacy scalar energies
@@ -14562,6 +14618,10 @@ int main(int argc, const char* argv[]) {
             if (argc==2 && std::string(argv[1])=="--reference-plane-only") {
                 checkReferenceContactPlaneCertificate(device,queue,library);
                 std::cout<<"PASS reference contact plane "<<checks<<" checks\n";
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--resolved-mollifier-curvature-only") {
+                checkResolvedMollifierCurvature(device,queue,library);
                 return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--paired-contact-energy-only") {
@@ -15253,6 +15313,7 @@ int main(int argc, const char* argv[]) {
             checkZeroStepGeometryReuse(device, queue, library);
             checkReferenceContactArithmeticFrame(device, queue, library);
             checkCompensatedContactEnergyContinuity(device,queue,library);
+            checkResolvedMollifierCurvature(device,queue,library);
             checkCompensatedBarrierEnergyWords(device,queue,library);
             checkReferenceContactPlaneCertificate(device,queue,library);
             std::cout << "PASS native FGMRES true-residual kernel contract "
