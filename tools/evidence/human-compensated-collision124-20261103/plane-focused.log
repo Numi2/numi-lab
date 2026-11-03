@@ -1,0 +1,7 @@
+captured_plane_case=0 fraction=0.0221158
+captured_plane_case=1 fraction=1
+captured_plane_case=2 fraction=0.306457
+captured_plane_case=3 fraction=0.00876136
+captured_plane_case=4 fraction=1
+reference_plane_certificate=true exact_Float32_inputs=true Float64_clearance=true captured_zero_hit_refined=true invalid_rejected=true cases=172 certified=79 result=PASS
+PASS reference contact plane 396 checks

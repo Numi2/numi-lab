@@ -1,0 +1,2 @@
+reference_contact_arithmetic_frame=true production_limiter=true translation_invariant=true authored_clearance_preserved=true crossing_limited=true nonfinite_rejected=true legacy_unchanged=true result=PASS
+PASS native reference contact frame 750 checks

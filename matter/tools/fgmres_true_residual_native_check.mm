@@ -13912,7 +13912,8 @@ void checkReferenceContactArithmeticFrame(
         NMDeformableContactLimitTraceGPU trace; };
     const auto run = [&](const nm_float4 origin, const bool reference,
                          const float gap, const float closing,
-                         const float clearance, const bool nonfinite = false) {
+                         const float clearance, const bool nonfinite = false,
+                          const bool minimumTrace = false, const bool planeMode = false) {
         NMMatterDispatchGPU d{};
         d.environmentCount = 1u; d.objectCount = 1u; d.femNodeCount = 2u;
         d.deformableContactCapacity = 1u;
@@ -13957,10 +13958,13 @@ void checkReferenceContactArithmeticFrame(
         auto direction = makeBuffer(device, correction);
         auto line = makeBuffer(device, std::vector<nm_float4>{{1.0f, 7.0f, 8.0f, 9.0f}});
         auto status = makeBuffer(device, std::vector<NMMatterStatusGPU>(1u));
-        auto trace = makeBuffer(device, std::vector<NMDeformableContactLimitTraceGPU>(1u));
+        auto trace = makeBuffer(device, std::vector<NMDeformableContactLimitTraceGPU>(minimumTrace ? 32u : 1u));
         auto dummy = makeBuffer(device, std::vector<std::uint32_t>(512u));
         auto zero = makeBuffer(device, std::vector<std::uint32_t>{0u});
         auto one = makeBuffer(device, std::vector<std::uint32_t>{1u});
+        auto captureMode = makeBuffer(device, std::vector<std::uint32_t>{minimumTrace ? 2u : 1u});
+        auto collisionMode=makeBuffer(device,std::vector<std::uint32_t>{planeMode ? 3u : 1u});
+        auto traceCount = makeBuffer(device, std::vector<std::uint32_t>{minimumTrace ? 32u : 1u});
         auto invalid = makeBuffer(device, std::vector<std::uint32_t>{NM_INVALID_INDEX});
         auto witnessIdentity = makeBuffer(device, std::vector<nm_uint4>(32u));
         auto witnessValues = makeBuffer(device, std::vector<nm_float4>(32u));
@@ -13974,12 +13978,12 @@ void checkReferenceContactArithmeticFrame(
             {9u, line}, {10u, status}, {11u, dummy}, {12u, dummy},
             {13u, zero},
             {14u, makeBuffer(device, std::vector<NMMixedSolverGPU>{solver})},
-            {15u, one}, {16u, trace},
+            {15u, traceCount}, {16u, trace},
             {17u, makeBuffer(device, std::vector<NMMicrostepGPU>{micro})},
             {18u, makeBuffer(device, std::vector<NMAdaptiveStateGPU>{adaptive})},
             {19u, state}, {20u, zero}, {21u, dummy}, {22u, invalid},
-            {23u, witnessIdentity}, {24u, witnessValues}, {25u, one},
-            {26u, one}}, 1u, 32u);
+            {23u, witnessIdentity}, {24u, witnessValues}, {25u, captureMode},
+            {26u, collisionMode}}, 1u, 32u);
         const auto output = readBuffer<nm_float4>(line, 1u)[0];
         require(output.y == 7.0f && output.z == 8.0f && output.w == 9.0f,
             "contact frame fix changed unrelated line-search metadata");
@@ -14011,6 +14015,27 @@ void checkReferenceContactArithmeticFrame(
         "reference contact permitted a crossing endpoint");
     require(crossing.trace.result.z == 1u && crossing.trace.result.w == 1u,
         "crossing sweep lost CCD hit/certification");
+    const auto batchCrossing=run(bodyOrigin,true,2.0e-6f,4.0e-6f,1.0e-9f,false,true);
+    require(batchCrossing.alpha==crossing.alpha &&
+            batchCrossing.status.code==crossing.status.code,
+        "batch minimum diagnostic changed physical limiter result");
+    require(batchCrossing.trace.diagnostic.x==1u &&
+            batchCrossing.trace.result.x==crossing.trace.result.x &&
+            batchCrossing.trace.result.y==crossing.trace.result.y &&
+            batchCrossing.trace.metrics.x==crossing.trace.metrics.x &&
+            batchCrossing.trace.metrics.w==crossing.trace.metrics.w,
+        "batch diagnostic did not preserve exact minimum witness");
+    const auto planeCrossing=run(bodyOrigin,true,2.0e-6f,4.0e-6f,1.0e-9f,false,false,true);
+    require(planeCrossing.status.code==0u && planeCrossing.alpha>0.0f && planeCrossing.alpha<0.5f,
+        "plane production path admitted crossing endpoint");
+    const auto planeBad=run(bodyOrigin,true,2.0e-6f,0.5e-6f,1.0e-9f,true,false,true);
+    require(planeBad.alpha==0.0f && planeBad.status.code!=0u,"plane production path admitted nonfinite correction");
+    const auto planeTouch=run(bodyOrigin,true,2.0e-6f,0.5e-6f,3.0e-6f,false,false,true);
+    require(planeTouch.alpha==0.0f || planeTouch.status.code!=0u,"plane production path bypassed initial clearance");
+    const auto planeLegacy=run(bodyOrigin,false,2.0e-6f,0.5e-6f,1.0e-9f,false,false,true);
+    const auto oldLegacy=run(bodyOrigin,false,2.0e-6f,0.5e-6f,1.0e-9f);
+    require(planeLegacy.alpha==oldLegacy.alpha && planeLegacy.status.code==oldLegacy.status.code,
+        "plane flag changed nonreference safety behavior");
     const auto higherClearance = run(bodyOrigin,true,2.0e-6f,0.5e-6f,1.8e-6f);
     require(higherClearance.alpha > 0.0f && higherClearance.alpha < 1.0f,
         "reference arithmetic bypassed authored contact clearance");
@@ -14162,6 +14187,161 @@ void checkCompensatedContactEnergyContinuity(
     std::cout<<"compensated_mollifier Float64_value_and_gradient=true scales=3 degenerate_and_nonfinite=true result=PASS\n";
 }
 
+void checkReferenceContactPlaneCertificate(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    using P=MRCompensatedPositionGPU;
+    const std::array<P,8u> captured{{
+        {{0.0f,0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{0.0100208893f,-0.0320475101f,0.0188365206f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-0.000156655908f,0.000551939011f,-2.63974071e-05f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{1.02818012e-06f,-3.57627869e-06f,2.38418579e-07f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-4.67227039e-08f,6.35531627e-09f,-4.17429149e-08f,0.0f},{1.64614331e-15f,1.73963627e-16f,-1.69846496e-15f,0.0f}},
+        {{0.0100199254f,-0.0320485085f,0.0188354738f,0.0f},{-1.60000443e-10f,-1.48573986e-09f,-3.31484146e-10f,0.0f}},
+        {{-0.000156618102f,0.000551972771f,-2.63442762e-05f,0.0f},{-3.84718602e-12f,1.00860804e-11f,-5.94105006e-13f,0.0f}},
+        {{1.01344312e-06f,-3.66645918e-06f,1.37817466e-07f,0.0f},{-3.43512755e-14f,-7.92132253e-15f,4.51298307e-16f,0.0f}},
+    }};
+    std::vector<P> positions(captured.begin(),captured.end());
+    std::vector<nm_float4> parameters{
+        {-0.165507495f,-0.0940507874f,-0.981713653f,0.0f},{1.0e-9f,0.0f,0.0f,0.0f}};
+    const auto add=[&](const std::array<P,8u>& p,nm_float4 axis,float clearance) {
+        positions.insert(positions.end(),p.begin(),p.end());parameters.push_back(axis);
+        parameters.push_back({clearance,0.0f,0.0f,0.0f});
+    };
+    add(captured,parameters[0],2.0e-7f); // initial authored clearance violation
+    auto crossing=captured;
+    for (unsigned j=1u;j<4u;++j) crossing[4u+j]=captured[j];
+    crossing[4u]=captured[0];
+    crossing[4u].high.x=-1.0e-6f*parameters[0].x;
+    crossing[4u].high.y=-1.0e-6f*parameters[0].y;
+    crossing[4u].high.z=-1.0e-6f*parameters[0].z;
+    add(crossing,parameters[0],1.0e-9f);
+    auto bad=captured;bad[5u].low.x=std::numeric_limits<float>::quiet_NaN();
+    add(bad,parameters[0],1.0e-9f);
+    add(captured,{0.0f,0.0f,0.0f,0.0f},1.0e-9f);
+    std::mt19937 random(124u);std::uniform_real_distribution<float> value(-1.0f,1.0f);
+    for (unsigned kind=0u;kind<3u;++kind) for (unsigned sample=0u;sample<48u;++sample) {
+        std::array<P,8u> p{};
+        for (auto& q:p) {
+            q.high={value(random)*0.03f,value(random)*0.03f,value(random)*0.03f,0.0f};
+            q.low={value(random)*1.0e-10f,value(random)*1.0e-10f,value(random)*1.0e-10f,0.0f};
+        }
+        add(p,{value(random),value(random),value(random),float(kind)},1.0e-9f);
+    }
+    // Deterministic complete/prefix controls at three scales and every kind.
+    for (float scale:{1.0e-6f,1.0f,1.0e6f}) for (unsigned kind=0u;kind<3u;++kind) {
+        std::array<P,8u> p{};
+        for (unsigned t=0u;t<2u;++t) {
+            p[4u*t+0u].high={0.0f,0.0f,1.0e-3f*scale,0.0f};
+            p[4u*t+1u].high={0.0f,scale,kind==1u?1.0e-3f*scale:0.0f,0.0f};
+            p[4u*t+2u].high={scale,0.0f,0.0f,0.0f};
+            p[4u*t+3u].high={scale,scale,0.0f,0.0f};
+        }
+        add(p,{0.0f,0.0f,1.0f,float(kind)},1.0e-5f*scale);
+        p[4u].high.z=-1.0e-3f*scale;
+        if (kind==1u) p[5u].high.z=-1.0e-3f*scale;
+        add(p,{0.0f,0.0f,1.0f,float(kind)},1.0e-5f*scale);
+    }
+    // Exact emitted Float32 lane-minimum witnesses; all are physically
+    // separated initially despite legacy zero-time numerical-floor hits.
+    const unsigned witnessBegin=parameters.size()/2u;
+    add(std::array<P,8u>{{ // contact 1080749
+        {{0.0f,0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-7.84993172e-05f,5.78165054e-05f,5.97387552e-05f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{0.0011369586f,-0.000720858574f,-0.000956580043f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{0.000572621822f,-0.000478863716f,-0.000391095877f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-1.37628919e-09f,-2.35156583e-09f,-6.84157286e-10f,0.0f},{2.25594388e-17f,9.25876627e-17f,-1.73966935e-17f,0.0f}},
+        {{-7.84979566e-05f,5.78188265e-05f,5.97417275e-05f,0.0f},{-1.70682966e-12f,7.44759018e-13f,1.31335792e-13f,0.0f}},
+        {{0.00113699574f,-0.000720799319f,-0.000956529286f,0.0f},{-5.23451178e-11f,-1.31302894e-11f,-1.56409e-11f,0.0f}},
+        {{0.000572640216f,-0.000478835689f,-0.000391069596f,0.0f},{-2.55504732e-11f,7.34823053e-12f,-1.09217834e-11f,0.0f}},
+    }},{0.725221634f,0.424482971f,0.542095721f,0.0f},1.0e-9f);
+    add(std::array<P,8u>{{ // contact 10916
+        {{0.0f,0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{0.0100208893f,-0.0320475101f,0.0188365206f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-0.000156655908f,0.000551939011f,-2.63974071e-05f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{1.02818012e-06f,-3.57627869e-06f,2.38418579e-07f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-4.67227039e-08f,6.35531627e-09f,-4.17429149e-08f,0.0f},{1.64614331e-15f,1.73963627e-16f,-1.69846496e-15f,0.0f}},
+        {{0.0100199254f,-0.0320485085f,0.0188354738f,0.0f},{-1.60000443e-10f,-1.48573986e-09f,-3.31484146e-10f,0.0f}},
+        {{-0.000156618102f,0.000551972771f,-2.63442762e-05f,0.0f},{-3.84718602e-12f,1.00860804e-11f,-5.94105006e-13f,0.0f}},
+        {{1.01344312e-06f,-3.66645918e-06f,1.37817466e-07f,0.0f},{-3.43512755e-14f,-7.92132253e-15f,4.51298307e-16f,0.0f}},
+    }},{-0.165507495f,-0.0940507874f,-0.981713653f,0.0f},1.0e-9f);
+    add(std::array<P,8u>{{ // contact 1638384
+        {{0.0f,0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-1.67638063e-08f,0.0f,3.7252903e-09f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{0.000595508143f,1.34706497e-05f,-0.000185575336f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-0.000468734652f,2.93552876e-06f,9.06251371e-05f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-1.83892524e-07f,-8.69895533e-09f,4.67091699e-09f,0.0f},{6.49961076e-15f,7.70963036e-17f,1.86329514e-16f,0.0f}},
+        {{-1.52066988e-07f,1.36299523e-08f,5.25928356e-10f,0.0f},{6.19268329e-15f,-2.76317606e-16f,-9.40889492e-18f,0.0f}},
+        {{0.00059418811f,1.35043765e-05f,-0.000185557714f,0.0f},{-2.36950095e-11f,2.08966728e-13f,-6.70395814e-12f,0.0f}},
+        {{-0.000468790531f,3.73230819e-06f,9.05077759e-05f,0.0f},{-9.67604035e-12f,-4.40095348e-14f,-3.43982633e-12f,0.0f}},
+    }},{0.293216348f,-0.249967381f,0.922789514f,0.0f},1.0e-9f);
+    add(std::array<P,8u>{{ // contact 2052768
+        {{0.0f,0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-5.36069274e-06f,4.17232513e-07f,-2.51531601e-05f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{0.000654499978f,-0.000513225794f,0.00167433172f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{0.000252705067f,5.45457006e-05f,0.00141066313f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{5.40203402e-08f,-1.12952627e-07f,-2.90899642e-08f,0.0f},{-1.24268077e-15f,6.03597372e-16f,3.52025199e-16f,0.0f}},
+        {{-5.33871207e-06f,3.64476108e-07f,-2.51731508e-05f,0.0f},{-7.89915076e-14f,-1.36892637e-15f,3.19192643e-13f,0.0f}},
+        {{0.000654554868f,-0.000513260427f,0.00167429028f,0.0f},{-2.07884421e-11f,4.44396559e-12f,-3.70511434e-11f,0.0f}},
+        {{0.000252842059f,5.44373906e-05f,0.00141061679f,0.0f},{8.30109852e-12f,1.60284232e-12f,1.5273673e-11f,0.0f}},
+    }},{0.839924157f,0.515262306f,-0.170388103f,0.0f},1.0e-9f);
+    add(std::array<P,8u>{{ // contact 2544360
+        {{0.0f,0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{3.27825546e-07f,7.15255737e-07f,6.55651093e-07f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{0.0153342634f,0.00974559784f,-0.00265869498f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-0.000178813934f,-0.000432729721f,-0.000373244286f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{9.89107463e-08f,1.80833084e-07f,1.16456384e-07f,0.0f},{1.4010899e-15f,-4.25750269e-15f,1.4954985e-15f,0.0f}},
+        {{2.74489878e-07f,5.92403808e-07f,4.86261342e-07f,0.0f},{-2.98805568e-15f,1.32642361e-14f,-2.25974973e-14f,0.0f}},
+        {{0.0153342551f,0.00974562112f,-0.00265868637f,0.0f},{4.25287555e-10f,2.06669223e-10f,-3.94662046e-11f,0.0f}},
+        {{-0.00017883259f,-0.000432731817f,-0.000373256771f,0.0f},{-6.57289544e-12f,-4.30587467e-12f,-1.4121408e-11f,0.0f}},
+    }},{-0.592836082f,0.65235436f,-0.472206682f,0.0f},1.0e-9f);
+    const unsigned witnessEnd=parameters.size()/2u;
+    const std::uint32_t count=parameters.size()/2u;
+    const auto output=makeBuffer(device,std::vector<float>(count+1u,-7.0f));
+    dispatch(device,queue,pipeline(device,library,
+        "numi_matter_metal::nm_contact_reference_plane_check"),{
+        {0u,makeBuffer(device,positions)},{1u,makeBuffer(device,parameters)},
+        {2u,output},{3u,makeBuffer(device,std::vector<std::uint32_t>{count})}},
+        (count+31u)/32u,32u);
+    const auto fractions=readBuffer<float>(output,count+1u);
+    require(fractions[0]==1.0f,"captured clear67.9nm reference sweep was not certified");
+    require(fractions[1]==0.0f,"reference plane ignored authored initial clearance");
+    require(fractions[2]>0.0f && fractions[2]<0.1f,"crossing sweep lacked a safe prefix");
+    require(fractions[3]==0.0f && fractions[4]==0.0f,"invalid or zero axis certified");
+    require(fractions[count]==-7.0f,"plane certificate wrote beyond active count");
+    for (unsigned i=witnessBegin;i<witnessEnd;++i) {
+        require(fractions[i]>0.0f,"captured lane minimum still lacks a positive certified prefix");
+        std::cout<<"captured_plane_case="<<(i-witnessBegin)<<" fraction="<<fractions[i]<<"\n";
+    }
+    unsigned certified=0u;
+    for (unsigned i=0u;i<count;++i) {
+        const float fraction=fractions[i];
+        require(std::isfinite(fraction) && fraction>=0.0f && fraction<=1.0f,
+            "plane certificate returned invalid fraction");
+        if (!(fraction>0.0f)) continue;
+        ++certified;
+        const auto axis=parameters[2u*i];const unsigned kind=unsigned(axis.w);
+        const unsigned firstCount=kind==1u?2u:1u,secondBegin=kind==1u?2u:1u;
+        const unsigned secondCount=kind==0u?3u:kind==1u?2u:1u;
+        const double norm=std::sqrt(double(axis.x)*axis.x+double(axis.y)*axis.y+double(axis.z)*axis.z);
+        const double threshold=double(parameters[2u*i+1u].x)*norm;
+        const auto projection=[&](unsigned t,unsigned a,unsigned b) {
+            const auto p=positions[8u*i+4u*t+a],q=positions[8u*i+4u*t+b];
+            return double(axis.x)*((double(p.high.x)+p.low.x)-(double(q.high.x)+q.low.x))+
+                double(axis.y)*((double(p.high.y)+p.low.y)-(double(q.high.y)+q.low.y))+
+                double(axis.z)*((double(p.high.z)+p.low.z)-(double(q.high.z)+q.low.z));
+        };
+        for (unsigned a=0u;a<firstCount;++a) for (unsigned b=secondBegin;b<secondBegin+secondCount;++b) {
+            const double start=projection(0u,a,b),end=projection(1u,a,b);
+            require(start>threshold && (1.0-double(fraction))*start+double(fraction)*end>threshold,
+                "outward-rounded plane certificate violated Float64 clearance bound");
+        }
+    }
+    require(certified>=20u,"plane corpus did not exercise enough successful certificates");
+    std::cout<<"reference_plane_certificate=true exact_Float32_inputs=true Float64_clearance=true "
+        <<"captured_zero_hit_refined=true invalid_rejected=true cases="<<count
+        <<" certified="<<certified<<" result=PASS\n";
+}
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -14179,6 +14359,11 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if (argc==2 && std::string(argv[1])=="--reference-plane-only") {
+                checkReferenceContactPlaneCertificate(device,queue,library);
+                std::cout<<"PASS reference contact plane "<<checks<<" checks\n";
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--compensated-contact-continuity-only") {
                 checkCompensatedContactEnergyContinuity(device,queue,library);
                 std::cout << "PASS compensated contact continuity " << checks << " checks\n";
@@ -14864,6 +15049,7 @@ int main(int argc, const char* argv[]) {
             checkZeroStepGeometryReuse(device, queue, library);
             checkReferenceContactArithmeticFrame(device, queue, library);
             checkCompensatedContactEnergyContinuity(device,queue,library);
+            checkReferenceContactPlaneCertificate(device,queue,library);
             std::cout << "PASS native FGMRES true-residual kernel contract "
                       << checks
                       << " checks; correction_accumulated=true; unit_action=true; "

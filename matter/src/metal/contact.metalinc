@@ -12770,6 +12770,104 @@ kernel void nm_contact_publish_primal_history(
         sampleSlotsByPair, sampleCounts, sampleCapacity,
         environment, pair).impulseAndNormal;
 }
+// Outward-rounded intervals are certificates, not contact regularization.
+// Each input high/low coordinate and axis component is an exact Float32 datum.
+// nextafter encloses every rounded operation; the normal-minimum guard also
+// encloses underflow on devices that flush subnormal results. Invalid/overflow
+// intervals never certify a sweep. Keep this path under strict FP arithmetic.
+struct NMContactInterval { float lower; float upper; };
+inline float nmContactIntervalDown(float x) {
+    constexpr float minimumNormal=1.1754943508222875e-38f;
+    return abs(x)<minimumNormal ? -minimumNormal : nextafter(x,-INFINITY);
+}
+inline float nmContactIntervalUp(float x) {
+    constexpr float minimumNormal=1.1754943508222875e-38f;
+    return abs(x)<minimumNormal ? minimumNormal : nextafter(x,INFINITY);
+}
+inline NMContactInterval nmContactIntervalAdd(NMContactInterval a,NMContactInterval b) {
+    if (a.lower==0.0f && a.upper==0.0f) return b;
+    if (b.lower==0.0f && b.upper==0.0f) return a;
+    return {nmContactIntervalDown(a.lower+b.lower),nmContactIntervalUp(a.upper+b.upper)};
+}
+inline NMContactInterval nmContactIntervalNegate(NMContactInterval a) {
+    return {-a.upper,-a.lower};
+}
+inline NMContactInterval nmContactIntervalScale(NMContactInterval a,float b) {
+    if (b==0.0f || (a.lower==0.0f && a.upper==0.0f)) return {0.0f,0.0f};
+    return b>0.0f
+        ? NMContactInterval{nmContactIntervalDown(a.lower*b),nmContactIntervalUp(a.upper*b)}
+        : NMContactInterval{nmContactIntervalDown(a.upper*b),nmContactIntervalUp(a.lower*b)};
+}
+inline NMContactInterval nmContactProjectionInterval(
+    MRCompensatedPositionGPU a,MRCompensatedPositionGPU b,float3 axis) {
+    NMContactInterval sum{0.0f,0.0f};
+    for (uint i=0u;i<3u;++i) {
+        auto difference=nmContactIntervalAdd({a.high[i],a.high[i]},
+            {-b.high[i],-b.high[i]});
+        difference=nmContactIntervalAdd(difference,{a.low[i],a.low[i]});
+        difference=nmContactIntervalAdd(difference,{-b.low[i],-b.low[i]});
+        sum=nmContactIntervalAdd(sum,nmContactIntervalScale(difference,axis[i]));
+    }
+    return sum;
+}
+// A fixed plane separates two convex features throughout a linear sweep if
+// every pairwise projected difference stays above clearance*|axis|. Bounds at
+// both endpoints enclose their affine interpolation. A shorter certified
+// prefix is returned when an endpoint approaches the plane; all other cases
+// fall back to the existing CCD. This includes mapped reference-mode features.
+inline float nmReferenceContactPlaneFraction(
+    uint kind,thread const MRCompensatedPositionGPU* start,
+    thread const MRCompensatedPositionGPU* finish,float3 axis,float clearance) {
+    if (!all(isfinite(axis)) || !isfinite(clearance) || !(clearance>=0.0f)) return 0.0f;
+    uint firstCount=1u,secondBegin=1u,secondCount=1u;
+    if (kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) secondCount=3u;
+    else if (kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+        firstCount=2u;secondBegin=2u;secondCount=2u;
+    } else if (kind!=NM_DEFORMABLE_CONTACT_POINT_POINT) return 0.0f;
+    NMContactInterval normSquared{0.0f,0.0f};
+    for (uint i=0u;i<3u;++i)
+        normSquared=nmContactIntervalAdd(normSquared,
+            nmContactIntervalScale({axis[i],axis[i]},axis[i]));
+    if (!(normSquared.lower>0.0f) || !isfinite(normSquared.upper)) return 0.0f;
+    const float normUpper=nmContactIntervalUp(sqrt(normSquared.upper));
+    const float threshold=nmContactIntervalScale({clearance,clearance},normUpper).upper;
+    if (!isfinite(threshold)) return 0.0f;
+    float fraction=1.0f;
+    for (uint a=0u;a<firstCount;++a) for (uint b=secondBegin;b<secondBegin+secondCount;++b) {
+        if (!all(isfinite(start[a].high.xyz)) || !all(isfinite(start[a].low.xyz)) ||
+            !all(isfinite(start[b].high.xyz)) || !all(isfinite(start[b].low.xyz)) ||
+            !all(isfinite(finish[a].high.xyz)) || !all(isfinite(finish[a].low.xyz)) ||
+            !all(isfinite(finish[b].high.xyz)) || !all(isfinite(finish[b].low.xyz))) return 0.0f;
+        const auto lo=nmContactProjectionInterval(start[a],start[b],axis);
+        const auto hi=nmContactProjectionInterval(finish[a],finish[b],axis);
+        if (!isfinite(lo.lower) || !isfinite(lo.upper) ||
+            !isfinite(hi.lower) || !isfinite(hi.upper) || !(lo.lower>threshold)) return 0.0f;
+        if (!(hi.lower>threshold)) {
+            const float numerator=nmContactIntervalDown(lo.lower-threshold);
+            const float denominator=nmContactIntervalUp(lo.lower-hi.lower);
+            if (!(numerator>0.0f) || !(denominator>0.0f) || !isfinite(denominator)) return 0.0f;
+            const float prefix=nmContactIntervalDown(0.9f*
+                nmContactIntervalDown(numerator/denominator));
+            if (!(prefix>0.0f) || !isfinite(prefix)) return 0.0f;
+            fraction=min(fraction,prefix);
+        }
+    }
+    return fraction;
+}
+
+// Native verification uses the production certificate with exact emitted
+// high/low features. No candidate, force, controller or history is modified.
+kernel void nm_contact_reference_plane_check(
+    device const MRCompensatedPositionGPU* positions [[buffer(0)]],
+    device const float4* parameters [[buffer(1)]],device float* fractions [[buffer(2)]],
+    constant uint& count [[buffer(3)]],uint index [[thread_position_in_grid]]) {
+    if (index>=count) return;
+    MRCompensatedPositionGPU a[4],b[4];
+    for (uint j=0u;j<4u;++j) {a[j]=positions[8u*index+j];b[j]=positions[8u*index+4u+j];}
+    fractions[index]=nmReferenceContactPlaneFraction(uint(parameters[2u*index].w),
+        a,b,parameters[2u*index].xyz,parameters[2u*index+1u].x);
+}
+
 kernel void nm_contact_limit_deformable_line_search(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumObjectGPU* objects [[buffer(1)]],
@@ -12827,9 +12925,14 @@ kernel void nm_contact_limit_deformable_line_search(
         const bool selectedTrialTraceContact =
             trialTraceContactSlot != NM_INVALID_INDEX &&
             slot == trialTraceContactSlot;
-        const uint traceRecordSlot =
-            trialTraceContactSlot != NM_INVALID_INDEX ? 0u : activeSlot;
-        const bool captureTrace = selectedTrialTraceContact ||
+        // Diagnostic mode2 records the minimum-producing contact of every
+        // lane in one run, rather than requiring a replay per selected row.
+        const bool minimumTraceMode = captureMinimumWitness == 2u &&
+            trialTraceContactSlot == NM_INVALID_INDEX &&
+            traceSlotsPerEnvironment >= 32u;
+        const uint traceRecordSlot = minimumTraceMode ? lane :
+            (trialTraceContactSlot != NM_INVALID_INDEX ? 0u : activeSlot);
+        const bool captureTrace = minimumTraceMode || selectedTrialTraceContact ||
             (trialTraceContactSlot == NM_INVALID_INDEX &&
              activeSlot < traceSlotsPerEnvironment);
         if (captureTrace) {
@@ -13052,6 +13155,7 @@ kernel void nm_contact_limit_deformable_line_search(
         if (!geometryValid) {
             if (captureTrace) {
                 traceRecord.lineSearch.y = bound;
+                if (!minimumTraceMode || laneMinimumIdentity.y == slot)
                 traceRecords[environment * traceSlotsPerEnvironment +
                              traceRecordSlot] = traceRecord;
             }
@@ -13116,6 +13220,7 @@ kernel void nm_contact_limit_deformable_line_search(
                 float4(0.0f, 0.0f, 0.0f, 2.0f));
             if (captureTrace) {
                 traceRecord.lineSearch.y = bound;
+                if (!minimumTraceMode || laneMinimumIdentity.y == slot)
                 traceRecords[environment * traceSlotsPerEnvironment +
                              traceRecordSlot] = traceRecord;
             }
@@ -13170,11 +13275,23 @@ kernel void nm_contact_limit_deformable_line_search(
         bool certified = false;
         float ccdTestedFraction = 1.0f;
         uint ccdShortenedRetries = 0u;
-        const bool hit = certifyDeformableNewtonSweepToEndpoint(
-            contact.identity.z, featurePosition, featureEndpoint,
-            collisionThickness, toi, ccdNormal, ccdPoint,
-            ccdSeparation, certified, ccdTestedFraction,
-            ccdShortenedRetries);
+        const float planeFraction = referenceModeContact &&
+                (collisionGapEnabled & 2u) != 0u
+            ? nmReferenceContactPlaneFraction(contact.identity.z,
+                featurePotentialPosition,featurePotentialEndpoint,
+                contact.normalAndTOI.xyz,
+                solver.contactAcceptance.x*dispatch.numericalLimits.x) : 0.0f;
+        bool hit = false;
+        if (planeFraction>0.0f) {
+            certified=true;toi=1.0f;ccdTestedFraction=planeFraction;
+            ccdNormal=float3(0.0f);ccdPoint=float3(0.0f);
+        } else {
+            hit=certifyDeformableNewtonSweepToEndpoint(
+                contact.identity.z, featurePosition, featureEndpoint,
+                collisionThickness, toi, ccdNormal, ccdPoint,
+                ccdSeparation, certified, ccdTestedFraction,
+                ccdShortenedRetries);
+        }
         if (captureTrace) traceRecord.diagnostic.z = ccdShortenedRetries;
         if (!certified || !isfinite(toi)) {
             recordFailure(
@@ -13197,6 +13314,7 @@ kernel void nm_contact_limit_deformable_line_search(
                 traceRecord.result.z = hit ? 1u : 0u;
                 traceRecord.result.w = certified ? 1u : 0u;
                 traceRecord.lineSearch.y = bound;
+                if (!minimumTraceMode || laneMinimumIdentity.y == slot)
                 traceRecords[environment * traceSlotsPerEnvironment +
                              traceRecordSlot] = traceRecord;
             }
@@ -13248,7 +13366,7 @@ kernel void nm_contact_limit_deformable_line_search(
         // contacts must be allowed to enter the force-bearing barrier region.
         // The exact CCD certificate above and final contact checks remain
         // authoritative. Preserve the old threshold unless explicitly opted in.
-        const float gapThreshold = collisionGapEnabled != 0u
+        const float gapThreshold = (collisionGapEnabled & 1u) != 0u
             ? collisionThickness : dispatch.numericalLimits.x;
         const float gap = dot(
             contact.normalAndTOI.xyz, weightedPosition) - gapThreshold;
@@ -13294,6 +13412,7 @@ kernel void nm_contact_limit_deformable_line_search(
                 traceRecord.result.z = hit ? 1u : 0u;
                 traceRecord.result.w = certified ? 1u : 0u;
                 traceRecord.lineSearch.y = bound;
+                if (!minimumTraceMode || laneMinimumIdentity.y == slot)
                 traceRecords[environment * traceSlotsPerEnvironment +
                              traceRecordSlot] = traceRecord;
             }
@@ -13465,12 +13584,22 @@ kernel void nm_contact_limit_deformable_line_search(
                     bool trialCertified = false;
                     float trialTestedFraction = 1.0f;
                     uint trialShortenedRetries = 0u;
-                    const bool trialHit =
-                        certifyDeformableNewtonSweepToEndpoint(
+                    const bool planeTrialClear=referenceModeContact &&
+                        (collisionGapEnabled & 2u)!=0u &&
+                        nmReferenceContactPlaneFraction(contact.identity.z,
+                            featurePotentialPosition,trialPotentialPosition,
+                            contact.normalAndTOI.xyz,
+                            solver.contactAcceptance.x*dispatch.numericalLimits.x)==1.0f;
+                    bool trialHit=false;
+                    if (planeTrialClear) {
+                        trialCertified=true;trialTOI=1.0f;
+                    } else {
+                        trialHit=certifyDeformableNewtonSweepToEndpoint(
                             contact.identity.z, featurePosition, trialPosition,
                             collisionThickness, trialTOI, trialNormal,
                             trialPoint, trialCCDSeparation, trialCertified,
                             trialTestedFraction, trialShortenedRetries);
+                    }
                     if (captureThisTrial) {
                         trialTraceRecords[trialTraceIndex].outcome.z = trialHit ? 1u : 0u;
                         trialTraceRecords[trialTraceIndex].outcome.w = trialCertified ? 1u : 0u;
@@ -13599,7 +13728,8 @@ kernel void nm_contact_limit_deformable_line_search(
             if (selectedTrialTraceContact &&
                 traceRecord.diagnostic.y == 6u)
                 traceRecord.diagnostic.w = microstep.solverIteration;
-            traceRecords[environment * traceSlotsPerEnvironment +
+            if (!minimumTraceMode || laneMinimumIdentity.y == slot)
+                traceRecords[environment * traceSlotsPerEnvironment +
                          traceRecordSlot] = traceRecord;
         }
     }

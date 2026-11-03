@@ -1,0 +1,54 @@
+{
+  "native_binary": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "sha256": "b8f89c4f09363f3cad49408fe165c671404e3895eb10a18c428243898f78f444",
+    "bytes": 10432832
+  },
+  "runtime_dependencies": {
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+      "sha256": "86849b7540d90b4b269ce2aa427e63d0cd6dfea1450abcb76e94c85e9ca8c530",
+      "bytes": 10089728
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "sha256": "502776c78a2d27aab5077a430c481ca49ad63a69308fe2460885cb9da48e9355",
+      "bytes": 29916683
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib",
+      "sha256": "880f60be6eb17b6af781665c6016c6d050da069685fcf1e8e2cafda0fc2115c8",
+      "bytes": 560736
+    }
+  },
+  "sources": {
+    "head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+    "dirty_patch": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/collision-batch-124/plane-trial/execution-source.patch",
+      "sha256": "62ae0b58a01eeb49f2d10c22b063a919fc294c418639626224ef5a354b1560d6",
+      "bytes": 1051732
+    },
+    "sources": {
+      "matter/src/metal/contact.metalinc": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/contact.metalinc",
+        "sha256": "fb979ce65696571e9c9e4da1ba04b9d5b611ed90df2eb4bf24201f6cf5d95a7b",
+        "bytes": 691944
+      },
+      "matter/src/runtime.mm": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm",
+        "sha256": "fe0b4aeb3f2ab489f7681b268268a3f3314f2cf1a80f9dddc081fb4aae315ad0",
+        "bytes": 3423873
+      },
+      "matter/tools/fgmres_true_residual_native_check.mm": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/tools/fgmres_true_residual_native_check.mm",
+        "sha256": "44dbc211e901cf8b73a5603858ae55a9866a611e6df204d0de9f2d65680e8f45",
+        "bytes": 820533
+      }
+    }
+  },
+  "checks": [
+    "plane-focused.log",
+    "plane-frame.log",
+    "plane-full.log"
+  ]
+}

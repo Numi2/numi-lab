@@ -3226,6 +3226,7 @@ struct Runtime::State {
     bool femCompletedBacktrackingCollapseRequested = false;
     bool femFreshDirectionAlphaResetEnabled = false;
     bool femDeformableCollisionGapEnabled = false;
+    bool femReferenceContactPlaneCCDEnabled = false;
     bool femParallelBacktrackingRequested = false;
     bool femParallelBacktrackingEnabled = false;
     bool femBacktrackingConstitutiveValidityEnabled = false;
@@ -5039,6 +5040,17 @@ RuntimeDiagnostics Runtime::initialize(
             }
             candidate->femDeformableCollisionGapEnabled =
                 std::strcmp(collisionGap, "1") == 0;
+        }
+        if (const char* planeCCD=std::getenv("NM_FEM_COMPENSATED_CONTACT_PLANE_CCD")) {
+            if (std::strcmp(planeCCD,"0")!=0 && std::strcmp(planeCCD,"1")!=0) {
+                diagnostics.message="NM_FEM_COMPENSATED_CONTACT_PLANE_CCD must be exactly 0 or 1";
+                return diagnostics;
+            }
+            candidate->femReferenceContactPlaneCCDEnabled=std::strcmp(planeCCD,"1")==0;
+            if (candidate->femReferenceContactPlaneCCDEnabled && !candidate->femDeformableCollisionGapEnabled) {
+                diagnostics.message="reference plane CCD requires authored deformable collision gap";
+                return diagnostics;
+            }
         }
         const char* freshDirectionAlphaReset = std::getenv(
             "NM_FEM_FRESH_DIRECTION_ALPHA_RESET");
@@ -7865,6 +7877,10 @@ RuntimeDiagnostics Runtime::initialize(
         if (candidate->femHumanPartitionedFEMTangentPairedProjectEnabled) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x54414e5041495231ull); // TANPAIR1
+        }
+        if (candidate->femReferenceContactPlaneCCDEnabled) {
+            candidate->executionFingerprint=mixFingerprint(
+                candidate->executionFingerprint,0x504c4e4343443031ull); // PLNCCD01
         }
         if (candidate->femDeformableCollisionGapEnabled) {
             candidate->executionFingerprint = mixFingerprint(
@@ -47557,12 +47573,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                offset:0u atIndex:24u];
                     const std::uint32_t captureMinimumWitness =
                         deformableLimitMinimumWitnessIdentity != nil &&
-                        deformableLimitMinimumWitnessValues != nil ? 1u : 0u;
+                        deformableLimitMinimumWitnessValues != nil
+                            ? ((!femDeformableContactCaptureSelected &&
+                                deformableLimitTrialTraceContactSlot ==
+                                    std::numeric_limits<std::uint32_t>::max() &&
+                                deformableLimitTraceSlots >= 32u &&
+                                std::getenv("NM_FEM_DEFORMABLE_LIMIT_TRACE_MINIMA") != nullptr &&
+                                std::strcmp(std::getenv("NM_FEM_DEFORMABLE_LIMIT_TRACE_MINIMA"), "1") == 0)
+                                ? 2u : 1u)
+                            : 0u;
                     [encoder setBytes:&captureMinimumWitness
                                length:sizeof(captureMinimumWitness)
                               atIndex:25u];
                     const std::uint32_t collisionGap =
-                        state.femDeformableCollisionGapEnabled ? 1u : 0u;
+                        (state.femDeformableCollisionGapEnabled ? 1u : 0u) |
+                        (state.femReferenceContactPlaneCCDEnabled ? 2u : 0u);
                     [encoder setBytes:&collisionGap length:sizeof(collisionGap)
                               atIndex:26u];
                 });

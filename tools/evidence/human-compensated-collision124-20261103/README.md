@@ -1,0 +1,17 @@
+# Compensated reference collision certificate124
+
+Current-source full Human on SSH Numi, Apple M6,16GiB. This is a tested opt-in numerical correction, not native motion qualification. Source geometry, anatomy, mass, material energy, forces, contact rows, final physical admission and accepted-state rollback are retained.
+
+The actual baseline batch has five zero-bound lane minima, not the previously reported six. Their contact IDs are1080749,10916,1638384,2052768,2544360; all are reference-mode vertex/triangle skin/fat contacts. Authored clearance is1nm. The old limiter first adds a16epsilon coordinate-scale thickness and CCD adds another8epsilon roundoff term. These are numerical inflation, not anatomical thickness. Each captured feature is initially above authored clearance.
+
+The new optional NM_FEM_COMPENSATED_CONTACT_PLANE_CCD=1 uses outward-rounded interval projections of the existing Float32 high/low positions. A fixed separating axis proves separation of all feature convex combinations over the affine sweep. If a full sweep is not clear, a conservatively rounded90percent safe prefix is computed. Unsupported, invalid, uncertain or initially nonseparated inputs fall back to existing CCD. Trial endpoints are separately checked. Both energy and analytic force equations remain unchanged. The option requires the existing authored-collision-gap mode. Default is off.
+
+Native GPU checks:172cases, including all five exact captured witnesses, Float64 clearance comparisons, true crossings, nonfinite inputs and canaries. Positive witness fractions are0.0221158,1,0.306457,0.00876136,1. Production limiter translation/clearance/crossing/nonfinite/legacy controls pass. Full kernel contract passes78,791checks; this is not full FEM qualification.
+
+Complete Human comparison: baseline201.956wall seconds, zero accepted steps, zero first limiter alpha. Certificate run216.997wall seconds, zero accepted steps, first limiter alpha0.000122070312; three active Newton solves and six active Krylov columns versus one/two previously. It then rejects tiny correction/line-search progress. The original zero-bound problem is removed in this run; convergence remains unresolved. More successful intermediate Newton work makes this failed run longer. No end-to-end speedup or0.1x claim is justified.
+
+Detailed GPU stages show active globalization still about8.08–8.28seconds. A preliminary commentary mistook a0.9second linear interval for globalization; that estimate is withdrawn. The next work distributes this limiter and captures remaining line-search precision failures. The original serial path remains available for diagnosis and comparison.
+
+Build uses the existing working Metal compiler shim and -fno-fast-math. Apple Metal Shading Language Specification2026-06-04, numerical compliance tables8.1/8.2, documents the arithmetic/nextafter accuracy used by the interval implementation: https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf . The locally retrieved specification is retained with its hash in the source checkpoint, not redistributed here.
+
+Plans pin exact binary/runtime/metallib hashes, source patches, input identities, transitive parent proofs and commands. Both trials retain their failure logs and memory monitors. Current source/mass artifacts are preserved; neither source admission nor tests imply accepted motion. Follow-up tiled work is separately qualified and measured.

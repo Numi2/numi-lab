@@ -1,0 +1,18 @@
+{
+  "scope": "Remove numerical discontinuities and serial contact work while preserving authored clearance, physical residuals, rollback, precision",
+  "batch_witness_prediction": "All lane minimum rows captured together without changing physical state or alpha",
+  "numerical_gates": [
+    "production limiter debug on/off equality",
+    "Float64 geometry and derivative checks",
+    "true residual and CCD regression suite",
+    "full Human first-step transaction"
+  ],
+  "performance_measurements": [
+    "first globalization GPU stage",
+    "whole failed/accepted segment separately",
+    "total accepted physical time",
+    "working set and swap"
+  ],
+  "control": "8b4df906e numerical implementation,022source pins; no accepted throughput from failures",
+  "stopping": "Classify all batch witnesses before rerunning; no iteration budget increase to mask zero bounds"
+}

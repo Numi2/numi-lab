@@ -1,0 +1,7 @@
+{
+  "url": "https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf",
+  "sha256": "41538b30d2f1140a5b2a0c84ce0a9f7b67bf0c707e224cfea0bfe5a44aa26cf5",
+  "publication_date": "2026-06-04",
+  "relevant_tables": "8.1 and8.2",
+  "shader_compiler_flag": "-fno-fast-math"
+}
