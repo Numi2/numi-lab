@@ -586,11 +586,14 @@ inline bool nmReferenceInitialContactNonclosing(
     uint kind,thread const MRCompensatedPositionGPU* initial,
     thread const MRCompensatedPositionGPU* candidate,float4 weights,float3 normal,
     float clearance);
+inline bool nmReferenceSelfContactMarginEnabled();
+inline float nmReferenceContactRestClearance(
+    uint kind,thread const MRCompensatedPositionGPU* rest,float3 normal,float clearance);
 inline bool nmMixedReferenceContactFeatures(
     constant NMMatterDispatchGPU& dispatch,
     thread const NMDeformableContactGPU& contact,
     device const NMFEMNodeStateGPU* nodes,
-    uint environment,thread MRCompensatedPositionGPU* feature) {
+    uint environment,thread MRCompensatedPositionGPU* feature,bool restOnly=false) {
     const uint kind=contact.identity.z;
     if(kind!=NM_DEFORMABLE_CONTACT_POINT_POINT&&
        kind!=NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE&&
@@ -610,7 +613,12 @@ inline bool nmMixedReferenceContactFeatures(
             unified-dispatch.gridNodeCount];
         if(node.referenceDisplacementAndMode.w!=1.0f)return false;
         if(!hasOrigin){origin=node.restAndFixed.xyz;hasOrigin=true;}
-        position[i]=femContactPositionRelativeExpansion(node,origin);
+        auto localNode=node;
+        if(restOnly) {
+            localNode.referenceDisplacementAndMode.xyz=float3(0.0f);
+            localNode.referenceDisplacementLow.xyz=float3(0.0f);
+        }
+        position[i]=femContactPositionRelativeExpansion(localNode,origin);
     }
     if(!hasOrigin)return false;
     for(uint i=0u;i<4u;++i) {
@@ -635,6 +643,18 @@ inline bool nmMixedReferenceContactClearance(
     return nmMixedReferenceContactFeatures(dispatch,contact,nodes,environment,feature)&&
         nmReferenceContactStaticClearance(contact.identity.z,feature,
             contact.normalAndTOI.xyz,clearance);
+}
+inline bool nmMixedReferenceRestContactClearance(
+    constant NMMatterDispatchGPU& dispatch,thread const NMDeformableContactGPU& contact,
+    device const NMFEMNodeStateGPU* candidate,uint environment,float clearance) {
+    if(!nmReferenceSelfContactMarginEnabled()||contact.identity.x!=contact.identity.y)return false;
+    MRCompensatedPositionGPU rest[4],feature[4];
+    if(!nmMixedReferenceContactFeatures(dispatch,contact,candidate,environment,rest,true)||
+       !nmMixedReferenceContactFeatures(dispatch,contact,candidate,environment,feature))return false;
+    const float margin=nmReferenceContactRestClearance(
+        contact.identity.z,rest,contact.normalAndTOI.xyz,clearance);
+    return margin>0.0f&&margin<clearance&&nmReferenceContactStaticClearance(
+        contact.identity.z,feature,contact.normalAndTOI.xyz,margin);
 }
 inline bool nmMixedReferenceInitialContactNonclosing(
     constant NMMatterDispatchGPU& dispatch,

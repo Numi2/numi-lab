@@ -14750,6 +14750,145 @@ void checkCapturedInitialNonclosing(
         " initial_intersection_rejected=true nonfinite_rejected=true fixtures=2 cases=10 canaries=4 PASS\n";
 }
 
+void checkCapturedRestMarginSweep(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    using P=MRCompensatedPositionGPU;
+    const std::array<P,12u> captured{{
+        {{0.0f,0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{3.7997961044311523e-06f,9.775161743164062e-06f,-1.2621283531188965e-05f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-1.2218952178955078e-06f,-3.2186508178710938e-06f,4.0084123611450195e-06f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{0.00021311640739440918f,0.003581523895263672f,0.0015106499195098877f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-7.34185004e-11f,5.66093734e-11f,-7.54383112e-10f,0.0f},{-2.76554665e-18f,-1.2247353e-18f,-4.74502894e-18f,0.0f}},
+        {{3.79978292e-06f,9.77531272e-06f,-1.26221876e-05f,0.0f},{1.11059646e-13f,1.5639409e-13f,5.81931489e-14f,0.0f}},
+        {{-1.22190784e-06f,-3.21852758e-06f,4.00758336e-06f,0.0f},{-1.43753231e-14f,-3.52814735e-14f,-1.13285676e-13f,0.0f}},
+        {{0.000213116102f,0.0035815239f,0.00151064293f,0.0f},{5.75899181e-12f,-1.94773659e-11f,2.36515339e-11f,0.0f}},
+        {{-7.86957305e-11f,7.38325859e-11f,-1.28796562e-09f,0.0f},{-1.85046734e-18f,2.00805849e-18f,-4.07469798e-17f,0.0f}},
+        {{3.79977496e-06f,9.77533364e-06f,-1.2622746e-05f,0.0f},{7.21126514e-14f,5.08901291e-14f,-3.14754563e-14f,0.0f}},
+        {{-1.22191125e-06f,-3.21850712e-06f,4.00704175e-06f,0.0f},{-5.94286627e-16f,-5.84530864e-14f,4.09616358e-14f,0.0f}},
+        {{0.000213115592f,0.0035815239f,0.00151063676f,0.0f},{4.1306303e-12f,-1.0951625e-10f,-1.47117023e-11f,0.0f}},
+    }};
+    constexpr unsigned count=8u;
+    std::vector<P> positions;std::vector<nm_float4> parameters;
+    for(unsigned mode=0u;mode<count;++mode) {
+        auto p=captured;
+        if(mode==1u)for(unsigned i=0u;i<4u;++i)p[8u+i]=p[4u+i];
+        if(mode==2u)p[8]=p[9];
+        if(mode==3u)p[0]=p[1];
+        if(mode==4u)p[8].low.x=std::numeric_limits<float>::quiet_NaN();
+        if(mode==5u)p[4]=p[5];
+        nm_float4 normal{-0.972812414f,0.136729226f,-0.186925352f,0.0f};
+        if(mode==6u){normal.x=-normal.x;normal.y=-normal.y;normal.z=-normal.z;}
+        if(mode==7u) {
+            p[0].high.x+=normal.x*1.0e-6f;
+            p[0].high.y+=normal.y*1.0e-6f;
+            p[0].high.z+=normal.z*1.0e-6f;
+            for(unsigned i=0u;i<4u;++i)p[4u+i]=p[8u+i]=p[i];
+        }
+        positions.insert(positions.end(),p.begin(),p.end());
+        parameters.push_back(normal);parameters.push_back({1.0e-9f,0,0,0});
+    }
+    struct Result {float margin,fraction;};
+    auto output=makeBuffer(device,std::vector<Result>(count+4u,{-7.0f,-7.0f}));
+    dispatch(device,queue,pipeline(device,library,
+        "numi_matter_metal::nm_contact_reference_rest_sweep_check"),{
+        {0u,makeBuffer(device,positions)},{1u,makeBuffer(device,parameters)},
+        {2u,output},{3u,makeBuffer(device,std::vector<unsigned>{count})}},1u,32u);
+    const auto got=readBuffer<Result>(output,count+4u);
+    for(unsigned mode=0u;mode<count;++mode) {
+        const auto value=got[mode];
+        if(mode==3u)require(value.margin==0.0f&&value.fraction==0.0f,
+            "invalid immutable source cannot acquire a contact margin");
+        else require(value.margin==(mode==7u?1.0e-9f:5.0e-10f),
+            "source-bound margin changed with current configuration");
+        if(mode==0u||mode==1u||mode==7u)require(value.fraction==1.0f,
+            "captured positive sweep blocked by rounded collision floor");
+        if(mode==2u)require(value.fraction>0.0f&&value.fraction<1.0f,
+            "crossing sweep must stop at a certified prefix");
+        if(mode==4u||mode==5u||mode==6u)require(value.fraction==0.0f,
+            "invalid endpoint or initial intersection accepted");
+        if(value.fraction>0.0f) {
+            // Independent Float64 plane-distance lower bound through the
+            // certified prefix, including the crossing endpoint's shortened path.
+            for(unsigned sample=0u;sample<=100u;++sample) {
+                const double t=double(value.fraction)*sample/100.0;
+                double p[4][3]{};
+                for(unsigned i=0u;i<4u;++i)for(unsigned j=0u;j<3u;++j) {
+                    const auto& a=positions[12u*mode+4u+i];
+                    const auto& b=positions[12u*mode+8u+i];
+                    const auto* ah=reinterpret_cast<const float*>(&a.high);
+                    const auto* al=reinterpret_cast<const float*>(&a.low);
+                    const auto* bh=reinterpret_cast<const float*>(&b.high);
+                    const auto* bl=reinterpret_cast<const float*>(&b.low);
+                    p[i][j]=(double(ah[j])+al[j])*(1.0-t)+(double(bh[j])+bl[j])*t;
+                }
+                double a[3],b[3],n[3];
+                for(unsigned j=0u;j<3u;++j){a[j]=p[2][j]-p[1][j];b[j]=p[3][j]-p[1][j];}
+                for(unsigned j=0u;j<3u;++j)n[j]=a[(j+1)%3]*b[(j+2)%3]-a[(j+2)%3]*b[(j+1)%3];
+                double norm=0.0,dot=0.0;
+                for(unsigned j=0u;j<3u;++j){norm+=n[j]*n[j];dot+=n[j]*(p[0][j]-p[1][j]);}
+                require(std::abs(dot)/std::sqrt(norm)>double(value.margin),
+                    "certified sweep violated independent Float64 margin");
+            }
+        }
+    }
+    for(unsigned i=count;i<count+4u;++i)require(got[i].margin==-7.0f&&got[i].fraction==-7.0f,
+        "rest-margin sweep output canary");
+    std::cout<<"reference_source_margin=true immutable=true captured_closing_picometres=true"
+        " swept_intersection_rejected=true nonfinite_rejected=true cases=8 canaries=4 PASS\n";
+}
+
+void checkUnresolvedReferenceSweepProof(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    using P=MRCompensatedPositionGPU;
+    auto point=[](double x,double y,double z) {
+        nm_float4 h{float(x),float(y),float(z),0.0f};
+        return P{{h.x,h.y,h.z,0.0f},{float(x-double(h.x)),float(y-double(h.y)),float(z-double(h.z)),0.0f}};
+    };
+    std::vector<P> positions;std::vector<nm_float4> parameters;std::vector<unsigned> expected;
+    for(unsigned kind=0u;kind<3u;++kind)for(double origin:{0.0,1.0})for(unsigned mode=0u;mode<5u;++mode) {
+        constexpr double thickness=1.0e-5;
+        const double height=mode==1u?thickness-1.0e-11:thickness+1.0e-11;
+        std::array<P,8u> p{};
+        for(unsigned endpoint=0u;endpoint<2u;++endpoint) {
+            const double h=(mode==2u&&endpoint==1u)||(mode==3u&&endpoint==0u)?-height:height;
+            const unsigned base=4u*endpoint;
+            if(kind==0u) {
+                p[base]=point(origin+3e-6,origin+3e-4,origin+h);
+                p[base+1u]=point(origin,origin,origin);
+                p[base+2u]=point(origin+1e-5,origin,origin);
+                p[base+3u]=point(origin,origin+3e-3,origin);
+            } else if(kind==1u) {
+                p[base]=point(origin-1e-3,origin,origin+h);
+                p[base+1u]=point(origin+1e-3,origin,origin+h);
+                p[base+2u]=point(origin,origin-1e-3,origin);
+                p[base+3u]=point(origin,origin+1e-3,origin);
+            } else {
+                p[base]=point(origin,origin,origin+h);
+                p[base+1u]=point(origin,origin,origin);
+            }
+        }
+        if(mode==4u)p[4u].low.z=std::numeric_limits<float>::quiet_NaN();
+        positions.insert(positions.end(),p.begin(),p.end());
+        parameters.push_back({float(thickness),float(kind),0,0});
+        expected.push_back(mode==0u?1u:0u);
+    }
+    const unsigned count=unsigned(expected.size());
+    auto output=makeBuffer(device,std::vector<unsigned>(count+4u,0xdeadbeefu));
+    dispatch(device,queue,pipeline(device,library,
+        "numi_matter_metal::nm_contact_reference_unresolved_sweep_check"),{
+        {0u,makeBuffer(device,positions)},{1u,makeBuffer(device,parameters)},
+        {2u,output},{3u,makeBuffer(device,std::vector<unsigned>{count})}},1u,64u);
+    const auto got=readBuffer<unsigned>(output,count+4u);
+    for(unsigned i=0u;i<count;++i) {
+        if(got[i]!=expected[i])std::cerr<<"unresolved_reference_proof_case="<<i<<" got="<<got[i]<<"\n";
+        require(got[i]==expected[i],"complete activation-band sweep proof mismatch");
+    }
+    for(unsigned i=count;i<count+4u;++i)require(got[i]==0xdeadbeefu,"unresolved sweep canary");
+    std::cout<<"unresolved_reference_sweep=true full_activation_thickness=true"
+        " compensated_translation=true VT_EE_PP=true crossing_rejected=true"
+        " within_activation_retained=true nonfinite_rejected=true cases=30 canaries=4 PASS\n";
+}
+
 void checkResolvedMollifierCurvature(
     id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     struct Pair { float x,y; };
@@ -15840,6 +15979,8 @@ int main(int argc, const char* argv[]) {
             checkFinalReferenceContactClearance(device,queue,library);
             checkFinalContactActivePrefix(device,queue,library);
             checkCapturedInitialNonclosing(device,queue,library);
+            checkCapturedRestMarginSweep(device,queue,library);
+            checkUnresolvedReferenceSweepProof(device,queue,library);
             std::cout << "PASS native FGMRES true-residual kernel contract "
                       << checks
                       << " checks; correction_accumulated=true; unit_action=true; "

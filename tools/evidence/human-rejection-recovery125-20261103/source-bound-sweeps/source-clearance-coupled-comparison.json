@@ -1,0 +1,10 @@
+{
+  "comparison": "accepted coupled CSV only; no full FEM endpoint available from rejected horizon",
+  "before": "precise-axis-native-001",
+  "after": "source-clearance-native-001",
+  "matched_rows": 2,
+  "changed_fields": 0,
+  "maximum_relative_change": 0,
+  "over_one_percent": [],
+  "changes": []
+}

@@ -1,0 +1,73 @@
+{
+  "scope": "third root; full Human release transient; not resting or motion qualification",
+  "first_failure_owner": "deformable contact limiter",
+  "linear_true_residual": 4.51523374e-06,
+  "linear_rhs_l2": 0.000201805917,
+  "active_columns": 5,
+  "krylov_budget_exhausted": false,
+  "same_feature_zero_bounds": [
+    {
+      "slot": 1206895,
+      "nodes": [
+        24347,
+        24353,
+        24345,
+        24409
+      ],
+      "source": [
+        49442,
+        49602,
+        1206895,
+        1
+      ],
+      "start_plane_distance_m": 7.186770429192373e-10,
+      "end_plane_distance_m": 7.166960087863947e-10,
+      "change_m": -1.981034132842665e-12,
+      "rounded_ccd_thickness_m": 6.83121471e-09,
+      "actual_intersection": false,
+      "method": "Float64 point/triangle-plane; diagnostic measurement, not runtime acceptance authority"
+    },
+    {
+      "slot": 1207105,
+      "nodes": [
+        24347,
+        24353,
+        24345,
+        24409
+      ],
+      "source": [
+        49605,
+        49602,
+        1207105,
+        1
+      ],
+      "start_plane_distance_m": 7.186770429192373e-10,
+      "end_plane_distance_m": 7.166960087863947e-10,
+      "change_m": -1.981034132842665e-12,
+      "rounded_ccd_thickness_m": 6.83121471e-09,
+      "actual_intersection": false,
+      "method": "Float64 point/triangle-plane; diagnostic measurement, not runtime acceptance authority"
+    },
+    {
+      "slot": 1206872,
+      "nodes": [
+        24347,
+        24353,
+        24345,
+        24409
+      ],
+      "source": [
+        49441,
+        49602,
+        1206872,
+        1
+      ],
+      "start_plane_distance_m": 7.186770429192373e-10,
+      "end_plane_distance_m": 7.166960087863947e-10,
+      "change_m": -1.981034132842665e-12,
+      "rounded_ccd_thickness_m": 6.83121471e-09,
+      "actual_intersection": false,
+      "method": "Float64 point/triangle-plane; diagnostic measurement, not runtime acceptance authority"
+    }
+  ]
+}

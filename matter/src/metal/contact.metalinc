@@ -5822,13 +5822,17 @@ kernel void nm_contact_human_failure_vtccd_replay(
 // remain separated; the minimum closing time is a safe interval lower bound.
 
 // Experimental immutable-reference activation width. This changes numerical
-// barrier regularization, never the authored collision clearance or CCD.
+// barrier regularization. Sub-margin source gaps additionally require a fixed
+// positive rest-geometry margin and a complete compensated sweep certificate.
 // A separating-plane lower bound avoids trusting an approximate closest
 // distance as a clearance certificate.
 constant bool nmReferenceSelfContactWidth [[function_constant(38)]];
 constant bool nmReferenceSelfContactWidthActive =
     is_function_constant_defined(nmReferenceSelfContactWidth)
         ? nmReferenceSelfContactWidth : false;
+inline bool nmReferenceSelfContactMarginEnabled() {
+    return nmReferenceSelfContactWidthActive;
+}
 
 inline float nmReferenceTriangleSeparatingGap(
     thread const float3* rest, float3 direction, float authored
@@ -7066,6 +7070,31 @@ kernel void nm_contact_capture_deformable_failure(
     failures[environment] = captured;
 }
 
+inline bool nmReferenceUnresolvedSweepSeparated(
+    uint kind,thread const MRCompensatedPositionGPU* start,
+    thread const MRCompensatedPositionGPU* finish,float thickness);
+
+// Only a failed rounded CCD query reaches this proof. Preserve all legacy
+// certified hits/misses. The proof covers the FULL activation thickness, not
+// the smaller numerical collision margin, so no force-bearing row is removed.
+inline bool nmReferenceNarrowphaseSeparated(
+    uint kind,uint4 sources,thread const MRCompensatedPositionGPU* finishExpansion,
+    thread const float3* velocity,float leftDt,float rightDt,float thickness) {
+    MRCompensatedPositionGPU start[4],finish[4];
+    const uint count=kind==NM_DEFORMABLE_CONTACT_POINT_POINT?2u:4u;
+    for(uint i=0u;i<4u;++i) {
+        if(i>=count){start[i]=finish[i]=mrCompensatedVector(float4(0.0f));continue;}
+        const uint source=sources[i];
+        if(source>=6u)return false;
+        const float dt=source<3u?leftDt:rightDt;
+        if(!isfinite(dt)||!(dt>0.0f)||!finite3(velocity[source]))return false;
+        finish[i]=finishExpansion[source];
+        start[i]=mrCompensatedVectorAdd(finish[i],mrCompensatedVectorScale(
+            mrCompensatedVector(float4(velocity[source],0.0f)),{-dt,0.0f}));
+    }
+    return nmReferenceUnresolvedSweepSeparated(kind,start,finish,thickness);
+}
+
 inline void recordDeformableNarrowphaseFailure(
     const uint deterministicSelection,
     device NMMatterStatusGPU* environmentStatuses,
@@ -7437,7 +7466,7 @@ kernel void nm_contact_narrowphase_deformable(
                 float toi, separation;
                 float3 normal, barycentric, point;
                 bool certified = false;
-                const bool hit = vertexTriangleCCDWithSeparatingPlane(
+                bool hit = vertexTriangleCCDWithSeparatingPlane(
                     start[vertexBase + vertexIndex],
                     finish[vertexBase + vertexIndex],
                     start[triangleBase], finish[triangleBase],
@@ -7445,6 +7474,15 @@ kernel void nm_contact_narrowphase_deformable(
                     start[triangleBase + 2u], finish[triangleBase + 2u],
                     thickness, toi, normal, barycentric, point, separation,
                     certified);
+                if(!certified&&referenceModePair&&
+                   nmReferenceNarrowphaseSeparated(NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE,
+                       uint4(vertexBase+vertexIndex,triangleBase,triangleBase+1u,triangleBase+2u),
+                       finishExpansion,velocity,
+                       objectTimestep(dispatch,schedulers[environment*dispatch.objectCount+left.nodesAndObject.w]),
+                       objectTimestep(dispatch,schedulers[environment*dispatch.objectCount+right.nodesAndObject.w]),
+                       thickness)) {
+                    certified=true;hit=false;toi=1.0f;separation=INFINITY;
+                }
                 const uint packedFeature = direction * 3u + vertexIndex;
                 if (vtccdAuditSelector.x == candidateGlobal &&
                     candidate.identity.x == vtccdAuditSelector.y &&
@@ -7534,12 +7572,20 @@ kernel void nm_contact_narrowphase_deformable(
                 float3 normal, point;
                 float2 parameters;
                 bool certified = false;
-                const bool hit = edgeEdgeCCDWithSeparatingPlane(
+                bool hit = edgeEdgeCCDWithSeparatingPlane(
                     start[a.x], finish[a.x], start[a.y], finish[a.y],
                     start[3u + b.x], finish[3u + b.x],
                     start[3u + b.y], finish[3u + b.y],
                     thickness, toi, normal, parameters, point, separation,
                     certified);
+                if(!certified&&referenceModePair&&
+                   nmReferenceNarrowphaseSeparated(NM_DEFORMABLE_CONTACT_EDGE_EDGE,
+                       uint4(a.x,a.y,3u+b.x,3u+b.y),finishExpansion,velocity,
+                       objectTimestep(dispatch,schedulers[environment*dispatch.objectCount+left.nodesAndObject.w]),
+                       objectTimestep(dispatch,schedulers[environment*dispatch.objectCount+right.nodesAndObject.w]),
+                       thickness)) {
+                    certified=true;hit=false;toi=1.0f;separation=INFINITY;
+                }
                 if (!certified) {
                     recordDeformableNarrowphaseFailure(
                         deterministicStatusSelection, statuses, candidateStatuses,
@@ -13124,11 +13170,15 @@ inline float nmReferenceContactPlaneFraction(
     return fraction;
 }
 
-inline bool nmReferenceContactCompensatedStaticAxis(
-    uint kind,thread const MRCompensatedPositionGPU* feature,
-    MRCompensatedPositionGPU axis,float3 referenceNormal,float clearance) {
+// A single fixed axis certifies the entire affine sweep. A compensated axis
+// avoids an angular Float32 error becoming a distance floor on long features.
+inline float nmReferenceContactCompensatedPlaneFraction(
+    uint kind,thread const MRCompensatedPositionGPU* start,
+    thread const MRCompensatedPositionGPU* finish,MRCompensatedPositionGPU axis,
+    float3 referenceNormal,float clearance) {
+    if(!isfinite(clearance)||clearance<0.0f)return 0.0f;
     const float alignment=dot(axis.high.xyz+axis.low.xyz,referenceNormal);
-    if(!isfinite(alignment)||alignment==0.0f)return false;
+    if(!isfinite(alignment)||alignment==0.0f)return 0.0f;
     if(alignment<0.0f){axis.high=-axis.high;axis.low=-axis.low;}
     float normSquaredUpper=0.0f;
     for(uint i=0u;i<3u;++i) {
@@ -13137,34 +13187,87 @@ inline bool nmReferenceContactCompensatedStaticAxis(
     }
     const float normUpper=nmContactIntervalUp(sqrt(normSquaredUpper));
     const float threshold=nmContactIntervalUp(clearance*normUpper);
-    if(!isfinite(normUpper)||!(normUpper>0.0f)||!isfinite(threshold))return false;
+    if(!isfinite(normUpper)||!(normUpper>0.0f)||!isfinite(threshold))return 0.0f;
     uint firstCount=1u,secondBegin=1u,secondCount=1u;
     if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE)secondCount=3u;
     else if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE){firstCount=2u;secondBegin=2u;secondCount=2u;}
-    else if(kind!=NM_DEFORMABLE_CONTACT_POINT_POINT)return false;
+    else if(kind!=NM_DEFORMABLE_CONTACT_POINT_POINT)return 0.0f;
+    float fraction=1.0f;
     for(uint a=0u;a<firstCount;++a)for(uint b=secondBegin;b<secondBegin+secondCount;++b) {
-        const auto projection=nmContactIntervalAdd(
-            nmContactProjectionIntervalRefined(feature[a],feature[b],axis.high.xyz),
-            nmContactProjectionInterval(feature[a],feature[b],axis.low.xyz));
-        if(!isfinite(projection.lower)||!(projection.lower>threshold))return false;
+        const auto lo=nmContactIntervalAdd(
+            nmContactProjectionIntervalRefined(start[a],start[b],axis.high.xyz),
+            nmContactProjectionInterval(start[a],start[b],axis.low.xyz));
+        const auto hi=nmContactIntervalAdd(
+            nmContactProjectionIntervalRefined(finish[a],finish[b],axis.high.xyz),
+            nmContactProjectionInterval(finish[a],finish[b],axis.low.xyz));
+        if(!isfinite(lo.lower)||!isfinite(hi.lower)||!(lo.lower>threshold))return 0.0f;
+        if(!(hi.lower>threshold)) {
+            const float numerator=nmContactIntervalDown(lo.lower-threshold);
+            const float denominator=nmContactIntervalUp(lo.lower-hi.lower);
+            if(!(numerator>0.0f)||!(denominator>0.0f)||!isfinite(denominator))return 0.0f;
+            const float prefix=nmContactIntervalDown(0.9f*
+                nmContactIntervalDown(numerator/denominator));
+            if(!(prefix>0.0f)||!isfinite(prefix))return 0.0f;
+            fraction=min(fraction,prefix);
+        }
     }
-    return true;
+    return fraction;
+}
+inline MRCompensatedPositionGPU nmReferenceContactFeatureAxis(
+    uint kind,thread const MRCompensatedPositionGPU* feature) {
+    if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE)
+        return mrCompensatedVectorCross(
+            mrCompensatedVectorAdd(feature[2],mrCompensatedVectorNegate(feature[1])),
+            mrCompensatedVectorAdd(feature[3],mrCompensatedVectorNegate(feature[1])));
+    if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE)
+        return mrCompensatedVectorCross(
+            mrCompensatedVectorAdd(feature[1],mrCompensatedVectorNegate(feature[0])),
+            mrCompensatedVectorAdd(feature[3],mrCompensatedVectorNegate(feature[2])));
+    if(kind==NM_DEFORMABLE_CONTACT_POINT_POINT)
+        return mrCompensatedVectorAdd(feature[0],mrCompensatedVectorNegate(feature[1]));
+    return mrCompensatedVector(float4(0.0f));
 }
 inline bool nmReferenceContactPreciseFeatureAxis(
     uint kind,thread const MRCompensatedPositionGPU* feature,float3 normal,float clearance) {
-    MRCompensatedPositionGPU axis;
-    if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE)
-        axis=mrCompensatedVectorCross(
-            mrCompensatedVectorAdd(feature[2],mrCompensatedVectorNegate(feature[1])),
-            mrCompensatedVectorAdd(feature[3],mrCompensatedVectorNegate(feature[1])));
-    else if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE)
-        axis=mrCompensatedVectorCross(
-            mrCompensatedVectorAdd(feature[1],mrCompensatedVectorNegate(feature[0])),
-            mrCompensatedVectorAdd(feature[3],mrCompensatedVectorNegate(feature[2])));
-    else if(kind==NM_DEFORMABLE_CONTACT_POINT_POINT)
-        axis=mrCompensatedVectorAdd(feature[0],mrCompensatedVectorNegate(feature[1]));
-    else return false;
-    return nmReferenceContactCompensatedStaticAxis(kind,feature,axis,normal,clearance);
+    return nmReferenceContactCompensatedPlaneFraction(kind,feature,feature,
+        nmReferenceContactFeatureAxis(kind,feature),normal,clearance)==1.0f;
+}
+inline float nmReferenceContactSweepFraction(
+    uint kind,thread const MRCompensatedPositionGPU* start,
+    thread const MRCompensatedPositionGPU* finish,float3 normal,float clearance) {
+    float fraction=nmReferenceContactPlaneFraction(kind,start,finish,normal,clearance);
+    if(fraction==1.0f)return fraction;
+    fraction=max(fraction,nmReferenceContactCompensatedPlaneFraction(kind,start,finish,
+        nmReferenceContactFeatureAxis(kind,start),normal,clearance));
+    if(fraction==1.0f)return fraction;
+    return max(fraction,nmReferenceContactCompensatedPlaneFraction(kind,start,finish,
+        nmReferenceContactFeatureAxis(kind,finish),normal,clearance));
+}
+
+inline bool nmReferenceUnresolvedSweepSeparated(
+    uint kind,thread const MRCompensatedPositionGPU* start,
+    thread const MRCompensatedPositionGPU* finish,float thickness) {
+    if(!isfinite(thickness)||thickness<0.0f)return false;
+    for(uint endpoint=0u;endpoint<2u;++endpoint) {
+        float3 p[4];
+        for(uint i=0u;i<4u;++i) {
+            const auto value=endpoint==0u?start[i]:finish[i];
+            if(!all(isfinite(value.high.xyz))||!all(isfinite(value.low.xyz)))return false;
+            p[i]=value.high.xyz+value.low.xyz;
+        }
+        float3 direction;
+        if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+            float3 bary;
+            direction=p[0]-closestPointOnTriangle(p[0],p[1],p[2],p[3],bary);
+        } else if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+            float u,v;float3 a,b;
+            closestPointsOnSegments(p[0],p[1],p[2],p[3],u,v,a,b);direction=a-b;
+        } else if(kind==NM_DEFORMABLE_CONTACT_POINT_POINT)direction=p[0]-p[1];
+        else return false;
+        if(nmReferenceContactSweepFraction(kind,start,finish,direction,thickness)==1.0f)
+            return true;
+    }
+    return false;
 }
 
 // Candidate axes need not be exact: every success is certified against the
@@ -13204,6 +13307,23 @@ inline bool nmReferenceContactStaticClearance(
         }
     }
     return nmReferenceContactPreciseFeatureAxis(kind,feature,normal,clearance);
+}
+
+// This is a numerical separation margin, not material thickness. Some
+// registered reference features start below the ordinary numerical margin.
+// Choose a positive dyadic margin certified on IMMUTABLE REST geometry; never
+// derive it from the last accepted iterate, so repeated steps cannot erode it.
+// No proof (including a source intersection) returns zero and remains rejected.
+inline float nmReferenceContactRestClearance(
+    uint kind,thread const MRCompensatedPositionGPU* rest,float3 normal,float clearance) {
+    if(!isfinite(clearance)||!(clearance>0.0f))return 0.0f;
+    float margin=clearance;
+    for(uint pass=0u;pass<17u;++pass) {
+        if(nmReferenceContactStaticClearance(kind,rest,normal,margin)||
+           nmReferenceContactStaticClearance(kind,rest,-normal,margin))return margin;
+        margin*=0.5f;
+    }
+    return 0.0f;
 }
 
 // Preserve the existing initial-touch rule without relaxing ordinary clearance.
@@ -13250,6 +13370,38 @@ inline bool nmReferenceInitialContactNonclosing(
     if(!isfinite(initialUpper)||!(initialUpper>0.0f)||initialUpper>clearance)return false;
     return unchanged||nmReferenceContactStaticClearance(
         kind,candidate,normal,initialUpper);
+}
+
+kernel void nm_contact_reference_unresolved_sweep_check(
+    device const MRCompensatedPositionGPU* positions [[buffer(0)]],
+    device const float4* parameters [[buffer(1)]],
+    device uint* results [[buffer(2)]],
+    constant uint& count [[buffer(3)]],uint index [[thread_position_in_grid]]) {
+    if(index>=count)return;
+    MRCompensatedPositionGPU start[4],finish[4];
+    for(uint i=0u;i<4u;++i){start[i]=positions[8u*index+i];finish[i]=positions[8u*index+4u+i];}
+    results[index]=nmReferenceUnresolvedSweepSeparated(
+        uint(parameters[index].y),start,finish,parameters[index].x)?1u:0u;
+}
+
+kernel void nm_contact_reference_rest_sweep_check(
+    device const MRCompensatedPositionGPU* positions [[buffer(0)]],
+    device const float4* parameters [[buffer(1)]],
+    device float2* results [[buffer(2)]],
+    constant uint& count [[buffer(3)]],
+    uint index [[thread_position_in_grid]]) {
+    if(index>=count)return;
+    MRCompensatedPositionGPU rest[4],start[4],finish[4];
+    for(uint i=0u;i<4u;++i) {
+        rest[i]=positions[12u*index+i];
+        start[i]=positions[12u*index+4u+i];
+        finish[i]=positions[12u*index+8u+i];
+    }
+    const auto axis=parameters[2u*index];
+    const float margin=nmReferenceContactRestClearance(
+        uint(axis.w),rest,axis.xyz,parameters[2u*index+1u].x);
+    results[index]=float2(margin,margin>0.0f?
+        nmReferenceContactSweepFraction(uint(axis.w),start,finish,axis.xyz,margin):0.0f);
 }
 
 kernel void nm_contact_reference_initial_nonclosing_check(
@@ -13692,12 +13844,28 @@ inline void nmContactLimitDeformableLineSearch(
         bool certified = false;
         float ccdTestedFraction = 1.0f;
         uint ccdShortenedRetries = 0u;
-        const float planeFraction = referenceModeContact &&
+        float referenceClearance=solver.contactAcceptance.x*dispatch.numericalLimits.x;
+        float planeFraction = referenceModeContact &&
                 (collisionGapEnabled & 2u) != 0u
-            ? nmReferenceContactPlaneFraction(contact.identity.z,
+            ? nmReferenceContactSweepFraction(contact.identity.z,
                 featurePotentialPosition,featurePotentialEndpoint,
-                contact.normalAndTOI.xyz,
-                solver.contactAcceptance.x*dispatch.numericalLimits.x) : 0.0f;
+                contact.normalAndTOI.xyz,referenceClearance) : 0.0f;
+        if(planeFraction==0.0f&&referenceModeContact&&
+           (collisionGapEnabled&2u)!=0u&&nmReferenceSelfContactWidthActive&&
+           contact.identity.x==contact.identity.y) {
+            MRCompensatedPositionGPU restFeature[4];
+            if(nmMixedReferenceContactFeatures(dispatch,contact,candidate,
+                    environment,restFeature,true)) {
+                const float restClearance=nmReferenceContactRestClearance(
+                    contact.identity.z,restFeature,contact.normalAndTOI.xyz,referenceClearance);
+                if(restClearance>0.0f&&restClearance<referenceClearance) {
+                    referenceClearance=restClearance;
+                    planeFraction=nmReferenceContactSweepFraction(contact.identity.z,
+                        featurePotentialPosition,featurePotentialEndpoint,
+                        contact.normalAndTOI.xyz,referenceClearance);
+                }
+            }
+        }
         bool hit = false;
         if (planeFraction>0.0f) {
             certified=true;toi=1.0f;ccdTestedFraction=planeFraction;
@@ -14004,10 +14172,9 @@ inline void nmContactLimitDeformableLineSearch(
                     uint trialShortenedRetries = 0u;
                     const bool planeTrialClear=referenceModeContact &&
                         (collisionGapEnabled & 2u)!=0u &&
-                        nmReferenceContactPlaneFraction(contact.identity.z,
+                        nmReferenceContactSweepFraction(contact.identity.z,
                             featurePotentialPosition,trialPotentialPosition,
-                            contact.normalAndTOI.xyz,
-                            solver.contactAcceptance.x*dispatch.numericalLimits.x)==1.0f;
+                            contact.normalAndTOI.xyz,referenceClearance)==1.0f;
                     bool trialHit=false;
                     if (planeTrialClear) {
                         trialCertified=true;trialTOI=1.0f;

@@ -1,0 +1,494 @@
+[
+  {
+    "trial": "third-step-globalization-native-001",
+    "accepted_steps": 2,
+    "accepted_simulated_seconds": 3.125e-05,
+    "total_process_wall_seconds": 212.11884808540344,
+    "root0_profiled_stage_sum_seconds": 5.709094416,
+    "root_certificates": [
+      {
+        "root": 0,
+        "status": {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 8,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            7.69763938e-06,
+            7.69763938e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            8.51954319e-05,
+            7.69763938e-06,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.945040703
+      },
+      {
+        "root": 1,
+        "status": {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 15,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            7.6791639e-06,
+            7.6791639e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000144422564,
+            7.6791639e-06,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.893259645
+      },
+      {
+        "root": 2,
+        "status": {
+          "code": 10,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 5,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000201805917,
+            0,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.893259645
+      }
+    ]
+  },
+  {
+    "trial": "source-clearance-native-001",
+    "accepted_steps": 2,
+    "accepted_simulated_seconds": 3.125e-05,
+    "total_process_wall_seconds": 222.22041606903076,
+    "root0_profiled_stage_sum_seconds": 5.724178171,
+    "root_certificates": [
+      {
+        "root": 0,
+        "status": {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 8,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            7.69763938e-06,
+            7.69763938e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            8.51954319e-05,
+            7.69763938e-06,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.945040703
+      },
+      {
+        "root": 1,
+        "status": {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 15,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            7.6791639e-06,
+            7.6791639e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000144422564,
+            7.6791639e-06,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.893259645
+      },
+      {
+        "root": 2,
+        "status": {
+          "code": 6,
+          "object_index": 15,
+          "failing_index": 413209,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 5,
+          "diagnostics": [
+            353077,
+            353107,
+            1,
+            4
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000201805917,
+            0,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.840523362
+      }
+    ]
+  },
+  {
+    "trial": "narrowphase-proof-native-001",
+    "accepted_steps": 8,
+    "accepted_simulated_seconds": 0.000125,
+    "total_process_wall_seconds": 312.3690011501312,
+    "root0_profiled_stage_sum_seconds": 5.675267706,
+    "root_certificates": [
+      {
+        "root": 0,
+        "status": {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 8,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            7.69763938e-06,
+            7.69763938e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            8.51954319e-05,
+            7.69763938e-06,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.945040703
+      },
+      {
+        "root": 1,
+        "status": {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 15,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            7.6791639e-06,
+            7.6791639e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000144422564,
+            7.6791639e-06,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.893259645
+      },
+      {
+        "root": 2,
+        "status": {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 32,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            8.49110256e-06,
+            8.49110256e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000201805917,
+            8.49110256e-06,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.761443257
+      },
+      {
+        "root": 3,
+        "status": {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            6.18678314e-06,
+            6.18678314e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000261869194,
+            6.18678314e-06,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.709858537
+      },
+      {
+        "root": 4,
+        "status": {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            4.6226387e-06,
+            4.6226387e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000320109859,
+            4.6226387e-06,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.640435994
+      },
+      {
+        "root": 5,
+        "status": {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            5.26080521e-06,
+            5.26080521e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000372646726,
+            5.26080521e-06,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.583631873
+      },
+      {
+        "root": 6,
+        "status": {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            5.96340215e-06,
+            5.96340215e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000418965501,
+            5.96340215e-06,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.520411372
+      },
+      {
+        "root": 7,
+        "status": {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            5.98981887e-06,
+            5.98981887e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000463632226,
+            5.98981887e-06,
+            0,
+            1
+          ]
+        },
+        "minimum_J": 0.458236665
+      },
+      {
+        "root": 8,
+        "status": {
+          "code": 10,
+          "object_index": 4294967295,
+          "failing_index": 0,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 9,
+          "diagnostics": [
+            1.21581488e-05,
+            9.99999975e-06,
+            0.460444033,
+            -5.9022276e-09
+          ]
+        },
+        "fgmres": {
+          "diagnostics": [
+            3.11874601e-06,
+            0.000426447921,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000509915466,
+            0.000426447921,
+            2.47940469,
+            0
+          ]
+        },
+        "minimum_J": 0.467225164
+      }
+    ]
+  }
+]
