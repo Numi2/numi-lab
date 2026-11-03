@@ -14485,7 +14485,12 @@ inline void nmContactLimitDeformableLineSearch(
         }
     }
     if (captureMinimumWitness != 0u) {
-        const uint witnessIndex = environment * 32u + lane;
+        // Mode 3 is the bounded, witness-only production-tiled diagnostic.
+        // Each tile/lane owns a distinct slot; physical bounds and ordering
+        // are unchanged and no detailed per-contact record is allocated.
+        const uint witnessIndex = captureMinimumWitness == 3u
+            ? (environment * tileCount + tile) * 32u + lane
+            : environment * 32u + lane;
         minimumWitnessIdentity[witnessIndex] = laneMinimumIdentity;
         minimumWitnessValues[witnessIndex] = float4(
             laneMinimumBound, laneMinimumBefore, existing,

@@ -4,6 +4,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <cmath>
 #include <deque>
 #include <limits>
 #include <set>
@@ -111,6 +112,33 @@ struct RegionalGraphSchwarzLayout {
         return false;
     result = a * b;
     return true;
+}
+
+// Conditioning selector, not a geometric validity threshold. The four
+// barycentric shape gradients are rows 1..3 of Dm^-1 and their negative sum.
+// Their reciprocal norms are the four altitudes; include all four faces.
+[[nodiscard]] inline bool regionalGraphThinCellSelected(
+    const std::array<std::array<double, 3>, 3>& inverse,
+    const double altitudeThreshold
+) noexcept {
+    if (!std::isfinite(altitudeThreshold) || !(altitudeThreshold > 0.0))
+        return false;
+    std::array<double, 3> zeroth{};
+    double maximumSquared = 0.0;
+    for (const auto& gradient : inverse) {
+        double squared = 0.0;
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            if (!std::isfinite(gradient[axis])) return false;
+            squared += gradient[axis] * gradient[axis];
+            zeroth[axis] -= gradient[axis];
+        }
+        maximumSquared = std::max(maximumSquared, squared);
+    }
+    double squared = 0.0;
+    for (const auto value : zeroth) squared += value * value;
+    maximumSquared = std::max(maximumSquared, squared);
+    return std::isfinite(maximumSquared) &&
+        maximumSquared * altitudeThreshold * altitudeThreshold >= 1.0;
 }
 
 [[nodiscard]] inline RegionalGraphSchwarzLayout buildRegionalGraphSchwarzLayout(

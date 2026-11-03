@@ -8299,6 +8299,70 @@ void checkCompactGraphPatchScratch(
         32u);
 }
 
+void checkThinCellPartialCoverage(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    auto validate = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_graph_validate_mask");
+    NMMatterDispatchGPU shape{}; shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = 1u; shape.femNodeCount = 3u;
+    auto shapeBuffer = makeBuffer(device, std::vector<NMMatterDispatchGPU>{shape});
+    std::vector<NMFEMNodeStateGPU> nodes(3u);
+    for (auto& node : nodes) {
+        node.positionAndMass.w = 2.0f;
+        node.velocityAndInverseMass.w = 0.5f;
+    }
+    auto nodeBuffer = makeBuffer(device, nodes);
+    auto coverage = makeBuffer(device, std::vector<std::uint32_t>{1u,0u,0u});
+    NMMatterStatusGPU healthy{}; healthy.failingIndex = NM_INVALID_INDEX;
+    auto statuses = makeBuffer(device, std::vector<NMMatterStatusGPU>{healthy});
+    for (std::uint32_t partial : {0u,1u,2u}) {
+        std::memcpy(statuses.contents, &healthy, sizeof(healthy));
+        dispatch(device,queue,validate,{{0u,shapeBuffer},{1u,nodeBuffer},
+            {2u,coverage},{3u,statuses},
+            {4u,makeBuffer(device,std::vector<std::uint32_t>{partial})}},3u,32u);
+        const auto status = readBuffer<NMMatterStatusGPU>(statuses,1u)[0];
+        require((status.code==NM_STATUS_SUCCESS)==(partial==1u),
+            "partial graph coverage changed strict coverage or admitted an invalid flag");
+    }
+    for (std::uint32_t bad : {0u,1u}) {
+        auto trial = nodes;
+        if (bad==0u) trial[1].positionAndMass.w = 0.0f;
+        else trial[1].velocityAndInverseMass.w = 0.0f;
+        std::memcpy(nodeBuffer.contents,trial.data(),trial.size()*sizeof(trial[0]));
+        std::memcpy(statuses.contents,&healthy,sizeof(healthy));
+        dispatch(device,queue,validate,{{0u,shapeBuffer},{1u,nodeBuffer},
+            {2u,coverage},{3u,statuses},
+            {4u,makeBuffer(device,std::vector<std::uint32_t>{1u})}},3u,32u);
+        require(readBuffer<NMMatterStatusGPU>(statuses,1u)[0].code!=NM_STATUS_SUCCESS,
+            "partial graph bypassed invalid mass on an uncovered row");
+    }
+    std::memcpy(nodeBuffer.contents,nodes.data(),nodes.size()*sizeof(nodes[0]));
+    auto apply = pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_graph_apply_patches");
+    auto u32=[&](std::uint32_t x){return makeBuffer(device,std::vector<std::uint32_t>{x});};
+    auto dummy = makeBuffer(device,std::vector<nm_float4>{nm_float4{}});
+    NMFGMRESStateGPU state{};
+    auto states = makeBuffer(device,std::vector<NMFGMRESStateGPU>{state});
+    auto output = makeBuffer(device,std::vector<nm_float4>{
+        nm_float4{1,2,3,7},nm_float4{4,5,6,8},nm_float4{7,8,9,10}});
+    dispatch(device,queue,apply,{
+        {0u,shapeBuffer},{1u,u32(0u)},
+        {2u,makeBuffer(device,std::vector<std::uint32_t>{0u,1u,1u,1u})},
+        {3u,u32(0u)},{4u,coverage},{5u,dummy},{6u,dummy},
+        {7u,makeBuffer(device,std::vector<nm_float4>{nm_float4{2,3,4,0}})},
+        {8u,output},{9u,states},{10u,u32(1u)},{11u,u32(0u)},
+        {12u,nodeBuffer},{13u,u32(0u)}},3u,32u);
+    const auto result=readBuffer<nm_float4>(output,3u);
+    require(result[0].x==3 && result[0].y==5 && result[0].z==7 && result[0].w==7,
+        "covered graph row lost additive local correction");
+    require(result[1].x==4 && result[1].y==5 && result[1].z==6 && result[1].w==8 &&
+        result[2].x==7 && result[2].y==8 && result[2].z==9 && result[2].w==10,
+        "uncovered graph rows changed nodal-block correction");
+    checkParallelGraphPatchTriangularSolve(device,queue,library,8u,
+        "numi_matter_metal::nm_fgmres_graph_solve_patches_capacity48_threads32",32u);
+    std::cout << "thin_cell_partial_graph=PASS mass_checks=retained uncovered_rows=exact_base\n";
+}
+
 void checkGraphSchwarzCompletedDispatch(
     id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
     NMMatterDispatchGPU shape{};
@@ -13266,6 +13330,117 @@ void checkGraphTetBlockReuse(
             }
         }
     }
+
+    // Compare the cache-only specialization with the production generic
+    // cache81 path, including rotated anisotropic tangents and fixed columns.
+    const auto cache81Build = pipelineWithRelativeInnerForcingDisabled(
+        device, library,
+        "numi_matter_metal::nm_fgmres_graph_build_patch_matrices_cached81");
+    const auto assemble81 = [&](id<MTLComputePipelineState> builder,
+                                const std::uint32_t mode = 2u,
+                                const std::uint32_t reuse = 0u) {
+        NMMatterStatusGPU healthy{};
+        std::memcpy([status contents], &healthy, sizeof(healthy));
+        dispatch(device, queue, builder, {
+            {0u, dispatchBuffer}, {1u, objectsBuffer},
+            {2u, candidateBuffer}, {3u, tetBuffer}, {4u, incidenceBuffer},
+            {5u, rangesBuffer}, {6u, schedulerBuffer},
+            {7u, materialBuffer}, {8u, programBuffer},
+            {9u, instructionBuffer}, {10u, parameterBuffer},
+            {11u, stateBuffer}, {12u, tangentBuffer}, {13u, tangentValid},
+            {14u, u32(mode)}, {15u, patchesBuffer},
+            {16u, patchNodesBuffer}, {17u, rowsBuffer},
+            {18u, coverageBuffer}, {19u, matrix}, {20u, status},
+            {21u, u32(rowCount)}, {22u, u32(patchCount)},
+            {23u, u32(matrixFloats)}, {24u, statesBuffer},
+            {25u, u32(reuse)}, {26u, priorValidBuffer},
+            {27u, adaptiveBuffer}, {28u, microBuffer},
+            {29u, u32(dueAwareRows)}, {30u, elementBlocksBuffer}},
+            1u, rowCount);
+        return readBuffer<NMMatterStatusGPU>(status, 1u)[0].code;
+    };
+    tet.inverseRestRow0 = {1.0f, 0.125f, -0.0625f, 1.0f / 6.0f};
+    tet.inverseRestRow1 = {0.0f, 0.75f, 0.25f, 0.0f};
+    tet.inverseRestRow2 = {0.0f, 0.0f, 1.25f, 0.0f};
+    tet.materialFrameRotation = {0.18257418f, -0.36514836f,
+                                0.54772256f, 0.73029673f};
+    std::memcpy([tetBuffer contents], &tet, sizeof(tet));
+    std::uint32_t randomState = 0x53b24a19u;
+    const auto randomFloat = [&]() {
+        randomState = 1664525u * randomState + 1013904223u;
+        return float(int((randomState >> 8u) & 0xffffu) - 32768) / 16384.0f;
+    };
+    for (std::uint32_t trial = 0u; trial < 12u; ++trial) {
+        object.flags = NM_OBJECT_ACTIVE |
+            ((trial & 1u) ? NM_OBJECT_FEM_MATERIAL_FRAME : 0u);
+        std::memcpy([objectsBuffer contents], &object, sizeof(object));
+        nodes[1].restAndFixed.w = (trial & 2u) ? 1.0f : 0.0f;
+        nodes[1].velocityAndInverseMass.w =
+            (trial & 2u) ? 0.0f : 1.0f / masses[1];
+        std::memcpy([candidateBuffer contents], nodes.data(),
+                    nodes.size() * sizeof(nodes[0]));
+        auto* cache = reinterpret_cast<float*>([tangentBuffer contents]);
+        for (std::uint32_t entry = 0u; entry < 81u; ++entry)
+            cache[entry] = randomFloat();
+        for (std::uint32_t axis = 0u; axis < 9u; ++axis)
+            cache[axis * 9u + axis] += 16.0f;
+        require(assemble81(graphBuild) == NM_STATUS_SUCCESS,
+            "generic cache81 graph reference failed");
+        const auto reference = readBuffer<float>(matrix, matrixFloats);
+        require(assemble81(cache81Build) == NM_STATUS_SUCCESS,
+            "cache81-only graph assembly failed");
+        const auto specialized = readBuffer<float>(matrix, matrixFloats);
+        require(std::memcmp(reference.data(), specialized.data(),
+                            matrixFloats * sizeof(float)) == 0,
+            "cache81-only assembly changed the production matrix arithmetic");
+        for (std::uint32_t probe = 0u; probe < 8u; ++probe) {
+            std::array<float, 12u> direction{};
+            for (auto& component : direction) component = randomFloat();
+            for (std::uint32_t row = 0u; row < 12u; ++row) {
+                double a = 0.0, b = 0.0;
+                for (std::uint32_t column = 0u; column < 12u; ++column) {
+                    a += double(reference[row * 12u + column]) * direction[column];
+                    b += double(specialized[row * 12u + column]) * direction[column];
+                }
+                require(a == b,
+                    "cache81-only random-direction product changed");
+            }
+        }
+    }
+    const std::uint32_t invalidCache = 0u;
+    std::memcpy([tangentValid contents], &invalidCache, sizeof(invalidCache));
+    require(assemble81(cache81Build) == NM_STATUS_UNSUPPORTED,
+        "cache81-only assembly accepted a missing cache");
+    std::memcpy([tangentValid contents], &restoredValidTangent,
+                sizeof(restoredValidTangent));
+    require(assemble81(cache81Build, 1u) == NM_STATUS_UNSUPPORTED,
+        "cache81-only assembly accepted a different cache arithmetic policy");
+    object.flags |= NM_OBJECT_MIXED_FEM;
+    std::memcpy([objectsBuffer contents], &object, sizeof(object));
+    require(assemble81(cache81Build) == NM_STATUS_UNSUPPORTED,
+        "cache81-only assembly accepted a mixed FEM object");
+    object.flags &= ~NM_OBJECT_MIXED_FEM;
+    std::memcpy([objectsBuffer contents], &object, sizeof(object));
+    reinterpret_cast<float*>([tangentBuffer contents])[0] =
+        std::numeric_limits<float>::quiet_NaN();
+    require(assemble81(cache81Build) == NM_STATUS_NONFINITE_RESULT,
+        "cache81-only assembly accepted a nonfinite tangent");
+    // A completed tail with a factor from this transaction must not rebuild
+    // or inspect the now-invalid tangent.
+    NMFGMRESStateGPU completed{}; completed.nonlinear.w = 1.0f;
+    std::memcpy([statesBuffer contents], &completed, sizeof(completed));
+    std::memcpy([priorValidBuffer contents], &restoredValidTangent,
+                sizeof(restoredValidTangent));
+    const std::vector<float> tailCanary(matrixFloats, -37.0f);
+    std::memcpy([matrix contents], tailCanary.data(),
+                matrixFloats * sizeof(float));
+    require(assemble81(cache81Build, 2u, 1u) == NM_STATUS_SUCCESS,
+        "cache81-only completed tail rejected instead of reusing");
+    require(readBuffer<float>(matrix, matrixFloats) == tailCanary,
+        "cache81-only completed tail modified a retained factor");
+    std::cout << "graph_cache81_specialization=true trials=12 probes=96 "
+                 "matrix_parity=bitwise failure_guards=true result=PASS\n";
+
     std::cout << "graph_tet_block_reuse=true rows=12 tet=1 dedicated_cached_rows=true result=PASS\n";
 }
 
@@ -14086,7 +14261,7 @@ void checkReferenceContactArithmeticFrame(
                          const float clearance, const bool nonfinite = false,
                           const bool minimumTrace = false, const bool planeMode = false,
                          const bool tiled = false, const unsigned contactCount = 1u,
-                          const bool completed = false) {
+                          const bool completed = false, const bool selectedTrial = false) {
         NMMatterDispatchGPU d{};
         d.environmentCount = 1u; d.objectCount = 1u; d.femNodeCount = 2u;
         d.deformableContactCapacity = contactCount;
@@ -14136,12 +14311,22 @@ void checkReferenceContactArithmeticFrame(
         auto trace = makeBuffer(device, std::vector<NMDeformableContactLimitTraceGPU>(minimumTrace ? 32u : 1u));
         auto dummy = makeBuffer(device, std::vector<std::uint32_t>(512u));
         auto zero = makeBuffer(device, std::vector<std::uint32_t>{0u});
-        auto captureMode = makeBuffer(device, std::vector<std::uint32_t>{tiled ? 0u : minimumTrace ? 2u : 1u});
+        auto captureMode = makeBuffer(device, std::vector<std::uint32_t>{tiled ? (minimumTrace ? 3u : 0u) : minimumTrace ? 2u : 1u});
         auto collisionMode=makeBuffer(device,std::vector<std::uint32_t>{planeMode ? 3u : 1u});
-        auto traceCount = makeBuffer(device, std::vector<std::uint32_t>{tiled ? 0u : minimumTrace ? 32u : 1u});
-        auto invalid = makeBuffer(device, std::vector<std::uint32_t>{NM_INVALID_INDEX});
-        auto witnessIdentity = makeBuffer(device, std::vector<nm_uint4>(32u));
-        auto witnessValues = makeBuffer(device, std::vector<nm_float4>(32u));
+        auto traceCount = makeBuffer(device, std::vector<std::uint32_t>{selectedTrial ? 1u : tiled ? 0u : minimumTrace ? 32u : 1u});
+        auto selectedSlot = makeBuffer(device, std::vector<std::uint32_t>{
+            selectedTrial ? contactCount-1u : NM_INVALID_INDEX});
+        auto trialRecords = makeBuffer(device,
+            std::vector<NMDeformableContactLimitTrialTraceGPU>(32u));
+        const unsigned witnessSlots = tiled && minimumTrace ? 128u * 32u : 32u;
+        const nm_uint4 witnessCanary{0xfedcba98u,0x76543210u,0xabcdef12u,0x12345678u};
+        std::vector<nm_uint4> ids(witnessSlots + 1u,
+            nm_uint4{NM_INVALID_INDEX,NM_INVALID_INDEX,NM_INVALID_INDEX,0u});
+        ids.back() = witnessCanary;
+        std::vector<nm_float4> vals(witnessSlots + 1u, nm_float4{1,1,1,0});
+        vals.back() = {31,37,41,43};
+        auto witnessIdentity = makeBuffer(device, ids);
+        auto witnessValues = makeBuffer(device, vals);
         std::vector<std::uint32_t> indices(contactCount);
         std::iota(indices.begin(),indices.end(),0u);
         const unsigned tileCount=128u;
@@ -14160,7 +14345,7 @@ void checkReferenceContactArithmeticFrame(
             {15u, traceCount}, {16u, trace},
             {17u, makeBuffer(device, std::vector<NMMicrostepGPU>{micro})},
             {18u, makeBuffer(device, std::vector<NMAdaptiveStateGPU>{adaptive})},
-            {19u, state}, {20u, zero}, {21u, dummy}, {22u, invalid},
+            {19u, state}, {20u, zero}, {21u, trialRecords}, {22u, selectedSlot},
             {23u, witnessIdentity}, {24u, witnessValues}, {25u, captureMode},
             {26u, collisionMode},
             {29u, makeBuffer(device,std::vector<NMFGMRESStateGPU>{nonlinearState})}};
@@ -14202,6 +14387,31 @@ void checkReferenceContactArithmeticFrame(
                 require(bounds[t]==1.0f,"completed contact tile retained stale bound");
         } else dispatch(device,queue,limiter,bindings,1u,32u);
         const auto output = readBuffer<nm_float4>(line, 1u)[0];
+        if (selectedTrial) {
+            const auto selected = readBuffer<NMDeformableContactLimitTraceGPU>(trace,1u)[0];
+            require(selected.result.x==contactCount-1u && selected.result.y==contactCount-1u,
+                "parallel selected-contact trace recorded another tile's feature");
+        }
+        if (tiled && minimumTrace) {
+            const auto identities = readBuffer<nm_uint4>(witnessIdentity,witnessSlots+1u);
+            const auto values = readBuffer<nm_float4>(witnessValues,witnessSlots+1u);
+            require(std::memcmp(&identities.back(),&witnessCanary,sizeof(witnessCanary))==0,
+                "tiled minimum witness wrote beyond its identity capacity");
+            require(values.back().x==31 && values.back().y==37 &&
+                    values.back().z==41 && values.back().w==43,
+                "tiled minimum witness wrote beyond its value capacity");
+            float minimum = 1.0f;
+            for (unsigned i=0u;i<witnessSlots;++i) {
+                if (identities[i].y==NM_INVALID_INDEX) continue;
+                require(identities[i].x < contactCount &&
+                        identities[i].x % witnessSlots == i &&
+                        identities[i].y == identities[i].x,
+                    "tiled minimum witness used a different tile/lane owner");
+                minimum = std::min(minimum,values[i].x);
+            }
+            require(minimum == output.x,
+                "tiled minimum telemetry disagrees with GPU physical reduction");
+        }
         require(output.y == 7.0f && output.z == 8.0f && output.w == 9.0f,
             "contact frame fix changed unrelated line-search metadata");
         const auto unchanged = readBuffer<NMFEMNodeStateGPU>(state, nodes.size());
@@ -14259,12 +14469,21 @@ void checkReferenceContactArithmeticFrame(
     const auto oldLegacy=run(bodyOrigin,false,2.0e-6f,0.5e-6f,1.0e-9f);
     require(planeLegacy.alpha==oldLegacy.alpha && planeLegacy.status.code==oldLegacy.status.code,
         "plane flag changed nonreference safety behavior");
-    for (unsigned count:{1u,127u,128u,129u,257u}) {
+    for (unsigned count:{1u,127u,128u,129u,257u,4097u}) {
         for (float closing:{0.0f,0.5e-6f,4.0e-6f}) {
             const auto serial=run(bodyOrigin,true,2.0e-6f,closing,1.0e-9f,false,false,true,false,count);
             const auto tiled=run(bodyOrigin,true,2.0e-6f,closing,1.0e-9f,false,false,true,true,count);
             require(serial.alpha==tiled.alpha && serial.status.code==tiled.status.code,
                 "tiled contact bound disagrees on repeated feature/capacity corpus");
+            const auto minimum=run(bodyOrigin,true,2.0e-6f,closing,1.0e-9f,false,true,true,true,count);
+            require(minimum.alpha==tiled.alpha && minimum.status.code==tiled.status.code,
+                "parallel minimum witness changed physical contact bounds");
+            if (closing==4.0e-6f) {
+                const auto selected=run(bodyOrigin,true,2.0e-6f,closing,1.0e-9f,
+                    false,false,true,true,count,false,true);
+                require(selected.alpha==tiled.alpha && selected.status.code==tiled.status.code,
+                    "parallel selected-contact trace changed physical contact bounds");
+            }
         }
     }
     const auto higherClearance = run(bodyOrigin,true,2.0e-6f,0.5e-6f,1.8e-6f);
@@ -15902,6 +16121,7 @@ int main(int argc, const char* argv[]) {
                 return 0;
             }
             require(argc == 1, "unknown native-check option; use a declared focused checker or no arguments");
+            checkThinCellPartialCoverage(device, queue, library);
             checkIndirectMassActionDispatchArguments(device, queue, library);
             checkAcceptedSubspacePredictor(device, queue, library);
             checkSourceMassStatusMerge(device, queue, library);

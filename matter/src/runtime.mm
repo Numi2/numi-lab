@@ -2143,7 +2143,8 @@ struct RegionalGraphSchwarzHostLayout {
     const std::uint32_t requestedPatchNodes = 0u,
     const std::uint64_t requestedArenaBytes = 96ull * 1024ull * 1024ull,
     const bool omitAuthoredFixedRows = false,
-    const bool appendOpticGraphPatches = false
+    const bool appendOpticGraphPatches = false,
+    const bool thinCellsOnly = false
 ) {
     RegionalGraphSchwarzHostLayout result;
     result.omitAuthoredFixedRows = omitAuthoredFixedRows;
@@ -2204,6 +2205,54 @@ struct RegionalGraphSchwarzHostLayout {
         for (std::uint32_t node = 0u; node < nodes; ++node)
             if (world.fem.nodes[node].restAndFixed.w == 3.0f)
                 layoutFreeMask[node] = 1u;
+    }
+    if (thinCellsOnly) {
+        // The source geometry is unchanged. Select only ill-scaled immutable
+        // cells for an additive local solve; all other rows retain selector-6
+        // nodal blocks. The reciprocal shape-gradient norm is a tetrahedron
+        // altitude, evaluated from the compiler's executable rest operator.
+        std::vector<std::array<std::uint32_t, 4>> selectedTets;
+        std::fill(layoutFreeMask.begin(), layoutFreeMask.end(), 0u);
+        for (const NMTetrahedronGPU& tet : world.fem.tetrahedra) {
+            if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                tet.identity.y >= world.objects.size()) continue;
+            const auto& owner = world.objects[tet.identity.y];
+            if (owner.representation != NM_REPRESENTATION_FEM ||
+                (owner.flags & (NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
+                    NM_OBJECT_MUTABLE_TOPOLOGY | NM_OBJECT_ADAPTIVE)) != 0u)
+                continue;
+            const std::array<std::array<double, 3>, 3> inverse{{
+                {{tet.inverseRestRow0.x, tet.inverseRestRow0.y, tet.inverseRestRow0.z}},
+                {{tet.inverseRestRow1.x, tet.inverseRestRow1.y, tet.inverseRestRow1.z}},
+                {{tet.inverseRestRow2.x, tet.inverseRestRow2.y, tet.inverseRestRow2.z}}}};
+            if (!detail::regionalGraphThinCellSelected(inverse, 1.0e-7))
+                continue;
+            selectedTets.push_back({tet.nodes.x, tet.nodes.y, tet.nodes.z, tet.nodes.w});
+            for (const auto node : selectedTets.back())
+                if (node < nodes) layoutFreeMask[node] = result.sourceFreeMask[node];
+        }
+        if (selectedTets.empty()) {
+            result.layout.error = "thin-cell Schwarz found no eligible thin rest cells";
+            return result;
+        }
+        result.layout = detail::buildRegionalGraphSchwarzLayout(
+            nodes, selectedTets, layoutFreeMask, world.dispatch.environmentCount,
+            requestedArenaBytes, 524288u, 131072u, 32768u, 8u, 4u, false, true);
+        if (!result.layout.error.empty()) return result;
+        for (std::uint32_t node = 0u; node < nodes; ++node)
+            result.potentialMask[node] = result.layout.nodeCoverage[node] != 0u ? 1u : 0u;
+        result.potentialMaskSHA256 = sha256Hex(
+            result.potentialMask.data(), result.potentialMask.size());
+        for (const auto& patch : result.layout.patches)
+            result.patches.push_back({patch.nodeOffset, patch.nodeCount,
+                patch.matrixFloatOffset, patch.pivotOffset});
+        result.rows = result.layout.rows;
+        std::fprintf(stderr,
+            "matter_thin_cell_schwarz={\"schema\":1,\"selected_cells\":%zu,\"covered_nodes\":%zu,\"patches\":%zu,\"device_bytes\":%llu,\"altitude_threshold_m\":1e-7,\"partial_additive_only\":true}\n",
+            selectedTets.size(), std::size_t(std::count(
+                result.potentialMask.begin(), result.potentialMask.end(), std::uint8_t{1u})),
+            result.patches.size(), static_cast<unsigned long long>(result.layout.deviceBytes));
+        return result;
     }
     // This option changes only additive preconditioner neighborhoods. Exact
     // residuals, full coordinates, and the existing arena bound remain.
@@ -4243,6 +4292,7 @@ struct Runtime::State {
     // selector 6's regional Human coarse correction. It leaves the coupled
     // operator and all residual/final acceptance paths unchanged.
     bool femHuman6GraphSchwarzEnabled = false;
+    bool femThinCellSchwarzEnabled = false;
     bool femHuman6GraphFullPSDContactBlocksEnabled = false;
     // Strict opt-in identity rows for statically isolated not-due FEM objects.
     // This affects only the additive graph preconditioner; the full operator,
@@ -6605,9 +6655,35 @@ RuntimeDiagnostics Runtime::initialize(
                 "NM_FEM_HUMAN6_GRAPH_SCHWARZ must be exactly 0 or 1";
             return diagnostics;
         }
-        const bool human6GraphRequested =
-            human6GraphSetting != nullptr &&
-            std::strcmp(human6GraphSetting, "1") == 0;
+        const char* thinCellSetting = std::getenv("NM_FEM_THIN_CELL_SCHWARZ");
+        if (thinCellSetting != nullptr &&
+            std::strcmp(thinCellSetting, "0") != 0 &&
+            std::strcmp(thinCellSetting, "1") != 0) {
+            diagnostics.message = "NM_FEM_THIN_CELL_SCHWARZ must be 0 or 1";
+            return diagnostics;
+        }
+        // This integrated invocation also creates respiratory/Cardiac runtimes.
+        // Scope local tissue conditioning to the actual coupled FEM/vascular owner.
+        const bool thinCellSchwarzRequested = thinCellSetting != nullptr &&
+            std::strcmp(thinCellSetting, "1") == 0 && hasCoupledFEMVascularOwner;
+        const bool human6GraphRequested = thinCellSchwarzRequested ||
+            (human6GraphSetting != nullptr &&
+             std::strcmp(human6GraphSetting, "1") == 0);
+        if (thinCellSchwarzRequested &&
+            (world.mixedSolver.executionBudgets.z != 6u ||
+             world.mixedSolver.executionBudgets.w != 2u ||
+             world.humanPartitionedPreconditioner.enabled ||
+             humanHybridRequested || candidate->hasMutableFEMTopology ||
+             candidate->hasAdaptive || world.dispatch.environmentCount != 1u ||
+             world.dispatch.femNodeCount > 524288u ||
+             world.dispatch.mpmActiveNodeCapacity != 0u ||
+             world.dispatch.cohesiveFaceCount != 0u ||
+             (human6GraphSetting != nullptr &&
+              std::strcmp(human6GraphSetting, "0") == 0))) {
+            diagnostics.message = "thin-cell Schwarz requires immutable one-environment cached selector-6 full coordinates, no Human basis/MPM/cohesive rows";
+            return diagnostics;
+        }
+
         const char* graphPSDContactSetting =
             std::getenv("NM_FGMRES_GRAPH_FULL_PSD_CONTACT_BLOCKS");
         if (graphPSDContactSetting != nullptr &&
@@ -6879,7 +6955,7 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
         if (human6GraphRequested &&
-            (!world.humanPartitionedPreconditioner.enabled ||
+            ((!world.humanPartitionedPreconditioner.enabled && !thinCellSchwarzRequested) ||
              world.mixedSolver.executionBudgets.z != 6u)) {
             diagnostics.message =
                 "Human selector-6 graph Schwarz requires an enabled selector-6 Human basis";
@@ -7243,6 +7319,20 @@ RuntimeDiagnostics Runtime::initialize(
             diagnostics.message =
                 "hybrid global coarse correction requires admitted one-environment selector-6 Bq coordinates and no MPM/cohesive rows";
             return diagnostics;
+        }
+        if (thinCellSchwarzRequested) {
+            if (requestedHumanGraphPatchNodes != 0u ||
+                graphOmitAuthoredFixedRowsRequested || opticGraphPatchesRequested ||
+                graphTetBlocksRequested || graphDueRowsRequested ||
+                graphSolveSIMD32Requested || graphSolveJacobiSweepsRequested != 0u ||
+                human6SchurRequested || human6GraphFactorLagRequested ||
+                globalCoarseRequested || graphMatrixParityRequested) {
+                diagnostics.message = "thin-cell Schwarz uses the bounded eight-node exact graph path without condensation, factor lag or coarse-basis specializations";
+                return diagnostics;
+            }
+            candidate->femThinCellSchwarzEnabled = true;
+            candidate->femHuman6GraphSchwarzEnabled = true;
+            candidate->femHuman6GraphFullPSDContactBlocksEnabled = graphPSDContactRequested;
         }
         if (world.humanPartitionedPreconditioner.enabled) {
             const auto& source = world.humanPartitionedPreconditioner;
@@ -7969,7 +8059,11 @@ RuntimeDiagnostics Runtime::initialize(
         if (candidate->femRegionalGraphParallelProductPrecompute)
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x475250524f445031ull); // GRPRODP1
-        if (graphSolveSIMD32Requested) {
+        if (thinCellSchwarzRequested) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x5448494e53434832ull); // THINSCH2 (cache81-only assembly)
+        }
+        if (graphSolveSIMD32Requested || thinCellSchwarzRequested) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x475253494d443332ull); // GRSIMD32
         }
@@ -9517,7 +9611,11 @@ RuntimeDiagnostics Runtime::initialize(
             if(candidate->femTangentBundleMode!=2u &&
                std::strcmp(name,"nm_fem_build_algorithmic_tangent_cache_bundle_cooperative")==0)
                 continue;
-            id<MTLFunction> function = kernel(name, false, 0u, 0u);
+            const char* shaderName =
+                candidate->femThinCellSchwarzEnabled &&
+                std::strcmp(name, "nm_fgmres_graph_build_patch_matrices") == 0
+                    ? "nm_fgmres_graph_build_patch_matrices_cached81" : name;
+            id<MTLFunction> function = kernel(shaderName, false, 0u, 0u);
             if (function == nil) {
                 diagnostics.message = std::string("missing Metal function ") + name;
                 return diagnostics;
@@ -10014,7 +10112,8 @@ RuntimeDiagnostics Runtime::initialize(
                 requestedHumanGraphPatchNodes,
                 requestedHumanGraphArenaBytes,
                 graphOmitAuthoredFixedRowsRequested,
-                opticGraphPatchesRequested);
+                opticGraphPatchesRequested,
+                candidate->femThinCellSchwarzEnabled);
             if (!graphSchwarz.layout.error.empty()) {
                 diagnostics.message = graphSchwarz.layout.error;
                 return diagnostics;
@@ -10220,7 +10319,7 @@ RuntimeDiagnostics Runtime::initialize(
                     "graph Schwarz arenas exceed checked Metal buffer or environment-major uint32 indexing limits";
                 return diagnostics;
             }
-            if (compactGraphScratchRequested) {
+            if (compactGraphScratchRequested || thinCellSchwarzRequested) {
                 std::uint32_t maximumDofs = 0u;
                 for (const auto& patch : graphSchwarz.patches)
                     maximumDofs = std::max(maximumDofs, patch[1] * 3u);
@@ -10237,7 +10336,7 @@ RuntimeDiagnostics Runtime::initialize(
                         "NM_FEM_GRAPH_SOLVE_SIMD32 is supported only for compact 48/96-DOF graph patches";
                     return diagnostics;
                 }
-                const bool use32Threadgroup = graphSolveSIMD32Requested;
+                const bool use32Threadgroup = graphSolveSIMD32Requested || thinCellSchwarzRequested;
                 const std::string variant = use32Threadgroup
                     ? "nm_fgmres_graph_solve_patches_capacity" +
                         std::to_string(capacity) + "_threads32"
@@ -12841,6 +12940,11 @@ RuntimeDiagnostics Runtime::initialize(
                     " identification_program=" + std::to_string(!world.identification.empty());
                 return diagnostics;
             }
+        }
+        if (candidate->femThinCellSchwarzEnabled &&
+            !candidate->femFullCoupledTrueResidualEnabled) {
+            diagnostics.message = "thin-cell Schwarz requires the mandatory full coupled true-residual certificate";
+            return diagnostics;
         }
         if (candidate->femAcceptedSubspacePredictorRequested) {
             if (!candidate->femFullCoupledTrueResidualEnabled ||
@@ -16513,6 +16617,11 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
             candidate->fgmresAggregateFirstCycleICBEnabled = true;
+        }
+        if (candidate->femThinCellSchwarzEnabled) {
+            candidate->femHumanPartitionedBasis = candidate->dummy;
+            candidate->femHumanPartitionedProjectedRHS = candidate->dummy;
+            candidate->femHumanPartitionedCoefficients = candidate->dummy;
         }
         state_ = std::move(candidate);
         return diagnostics;
@@ -25413,6 +25522,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             id<MTLBuffer> deformableLimitTraceRecords = nil;
             id<MTLBuffer> deformableLimitMinimumWitnessIdentity = nil;
             id<MTLBuffer> deformableLimitMinimumWitnessValues = nil;
+            bool deformableLimitTiledWitnessOnly = false;
+            bool deformableLimitTiledSelectedTrial = false;
             id<MTLBuffer> deformableLimitTrialTraceRecords = nil;
             std::uint64_t deformableLimitTrialTraceBytes = 0u;
             std::uint32_t deformableLimitTrialTraceContactSlot =
@@ -27512,11 +27623,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (!selectedFEMNewtonTraceRoot(root)) return true;
                 // The Human transaction's host microtick starts at one while its
                 // local GPU dispatch starts at zero. This diagnostic copies only
-                // bounded alpha/status arenas; no contact capture or physics
-                // eligibility is widened.
+                // bounded alpha/status arenas (not per-node arrays); no contact
+                // capture or physics eligibility is widened.
                 const bool boundedHumanAlphaTrace =
                     state.femFullCoupledTrueResidualEnabled &&
-                    environments == 1u && state.dispatch.femNodeCount <= 32768u &&
+                    environments == 1u && state.dispatch.femNodeCount <= 524288u &&
                     objectTotal <= 512u && microtick <= 4u;
                 if (microtick != 0u && !boundedHumanAlphaTrace) {
                     if (microtick == 1u && !femNewtonTraceCapturedAny &&
@@ -37321,6 +37432,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:2u];
                     [encoder setBuffer:state.statuses
                                  offset:0u atIndex:3u];
+                    const std::uint32_t allowPartialCoverage =
+                        state.femThinCellSchwarzEnabled ? 1u : 0u;
+                    [encoder setBytes:&allowPartialCoverage
+                        length:sizeof(allowPartialCoverage) atIndex:4u];
                 }, WorkDomain::femNodes);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 const std::uint32_t graphRows =
@@ -38887,6 +39002,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:2u];
                         [encoder setBuffer:state.statuses
                                      offset:0u atIndex:3u];
+                        const std::uint32_t allowPartialCoverage = 0u;
+                        [encoder setBytes:&allowPartialCoverage
+                            length:sizeof(allowPartialCoverage) atIndex:4u];
                     }, WorkDomain::femNodes);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const std::uint32_t graphRows =
@@ -41972,8 +42090,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:1u];
                         [encoder setBuffer:state.femRegionalGraphPatchNodes
                                      offset:0u atIndex:2u];
-                        [encoder setBuffer:state.fgmresBasis
-                                     offset:columnOffset atIndex:3u];
+                        [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:3u];
                         [encoder setBuffer:state.femHumanPartitionedBasis
                                      offset:0u atIndex:4u];
                         [encoder setBuffer:state.femHumanPartitionedBasis
@@ -47711,6 +47829,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
+            deformableLimitTiledWitnessOnly = false;
+            deformableLimitTiledSelectedTrial = false;
             deformableLimitTraceRecords = nil;
             deformableLimitMinimumWitnessIdentity = nil;
             deformableLimitMinimumWitnessValues = nil;
@@ -47864,7 +47984,45 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         trialTraceSlotSyntaxValid ? "true" : "false",
                         reason);
                 }
-                if (selected) {
+                // Keep minimum-only diagnostics on the production tiled
+                // schedule. Full contact/trial snapshots retain their existing
+                // serial diagnostic ordering and checked byte limits.
+                const char* minimaSetting = std::getenv(
+                    "NM_FEM_DEFORMABLE_LIMIT_TRACE_MINIMA");
+                if (selected && state.femTiledDeformableLimitEnabled &&
+                    !trialTraceRequested && !femDeformableContactCaptureSelected &&
+                    minimaSetting != nullptr &&
+                    std::strcmp(minimaSetting, "1") == 0) {
+                    const std::uint64_t slots = static_cast<std::uint64_t>(
+                        environments) * state.femDeformableLimitTileCount * 32u;
+                    const std::uint64_t bytes = slots * sizeof(nm_uint4);
+                    if (slots == 0u || bytes > 512u * 1024u) {
+                        diagnostics.message = "tiled contact minimum witness exceeds its one-MiB pair bound";
+                        return diagnostics;
+                    }
+                    deformableLimitMinimumWitnessIdentity = [state.device
+                        newBufferWithLength:static_cast<NSUInteger>(bytes)
+                        options:MTLResourceStorageModeShared];
+                    deformableLimitMinimumWitnessValues = [state.device
+                        newBufferWithLength:static_cast<NSUInteger>(bytes)
+                        options:MTLResourceStorageModeShared];
+                    if (deformableLimitMinimumWitnessIdentity == nil ||
+                        deformableLimitMinimumWitnessValues == nil) {
+                        diagnostics.message = "tiled contact minimum witness allocation failed";
+                        return diagnostics;
+                    }
+                    auto* identities = static_cast<nm_uint4*>(
+                        deformableLimitMinimumWitnessIdentity.contents);
+                    auto* values = static_cast<nm_float4*>(
+                        deformableLimitMinimumWitnessValues.contents);
+                    for (std::uint64_t slot = 0u; slot < slots; ++slot) {
+                        identities[slot] = {NM_INVALID_INDEX, NM_INVALID_INDEX,
+                            NM_INVALID_INDEX, 0u};
+                        values[slot] = {1.0f, 1.0f, 1.0f, 0.0f};
+                    }
+                    deformableLimitTiledWitnessOnly = true;
+                }
+                if (selected && !deformableLimitTiledWitnessOnly) {
                     deformableLimitTraceSlots = selectedTrialTrace ? 1u :
                         std::min(
                             state.dispatch.deformableContactCapacity,
@@ -47961,6 +48119,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                 }
             }
+            // Only the selected contact can write this trace row and its
+            // trial records. Keep every other contact on its production tile;
+            // no lane-local minimum arena is needed in this sparse mode.
+            if (state.femTiledDeformableLimitEnabled &&
+                deformableLimitTrialTraceRecords != nil &&
+                deformableLimitTrialTraceContactSlot != NM_INVALID_INDEX &&
+                !femDeformableContactCaptureSelected) {
+                deformableLimitTiledSelectedTrial = true;
+                deformableLimitMinimumWitnessIdentity = nil;
+                deformableLimitMinimumWitnessValues = nil;
+            }
             const std::uint32_t fullResidualContactFeasibilityOnly =
                 femFullContactResidualArmijoEnabled ? 1u : 0u;
             // Diagnostic mode retains exact historical lane ordering. Production
@@ -47968,8 +48137,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // fallback CCD and final physical acceptance remain unchanged. Like
             // the existing32lanes, partitions reduce to one common alpha.
             const bool tiledDeformableLimit=state.femTiledDeformableLimitEnabled &&
-                deformableLimitTraceRecords==nil &&
-                deformableLimitMinimumWitnessIdentity==nil;
+                (deformableLimitTraceRecords==nil || deformableLimitTiledSelectedTrial) &&
+                (deformableLimitMinimumWitnessIdentity==nil ||
+                 deformableLimitTiledWitnessOnly);
             dispatchGroups32(
                 tiledDeformableLimit ? "nm_contact_limit_deformable_line_search_tiled" :
                     "nm_contact_limit_deformable_line_search",
@@ -48022,7 +48192,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const std::uint32_t captureMinimumWitness =
                         deformableLimitMinimumWitnessIdentity != nil &&
                         deformableLimitMinimumWitnessValues != nil
-                            ? ((!femDeformableContactCaptureSelected &&
+                            ? (deformableLimitTiledWitnessOnly ? 3u :
+                               (!femDeformableContactCaptureSelected &&
                                 deformableLimitTrialTraceContactSlot ==
                                     std::numeric_limits<std::uint32_t>::max() &&
                                 deformableLimitTraceSlots >= 32u &&
@@ -48055,6 +48226,61 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&state.femDeformableLimitTileCount
                         length:sizeof(state.femDeformableLimitTileCount) atIndex:4u];
                 });
+            }
+            if (deformableLimitTiledWitnessOnly) {
+                // A bounded telemetry copy; no state update or acceptance
+                // decision occurs on the CPU. The GPU partial reduction above
+                // remains the sole owner of the physical step fraction.
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                [encoder endEncoding]; encoder = nil;
+                const NSUInteger bytes = deformableLimitMinimumWitnessIdentity.length;
+                id<MTLBuffer> snapshot = [state.device
+                    newBufferWithLength:2u * bytes options:MTLResourceStorageModeShared];
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (snapshot == nil || copy == nil) {
+                    if (copy != nil) [copy endEncoding];
+                    diagnostics.message = "tiled contact minimum snapshot allocation failed";
+                    return diagnostics;
+                }
+                [copy copyFromBuffer:deformableLimitMinimumWitnessIdentity
+                    sourceOffset:0u toBuffer:snapshot destinationOffset:0u size:bytes];
+                [copy copyFromBuffer:deformableLimitMinimumWitnessValues
+                    sourceOffset:0u toBuffer:snapshot destinationOffset:bytes size:bytes];
+                [copy endEncoding];
+                const auto capturedRoot = request.controlStep;
+                const auto capturedIteration = micro.solverIteration;
+                const auto capturedTick = microtick;
+                const auto capturedEnvironments = environments;
+                const auto capturedTiles = state.femDeformableLimitTileCount;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) return;
+                    const auto* ids = static_cast<const nm_uint4*>(snapshot.contents);
+                    const auto* vals = reinterpret_cast<const nm_float4*>(
+                        static_cast<const unsigned char*>(snapshot.contents) + bytes);
+                    for (std::uint32_t e = 0u; e < capturedEnvironments; ++e) {
+                        std::uint32_t best = NM_INVALID_INDEX;
+                        for (std::uint32_t i = e * capturedTiles * 32u;
+                             i < (e + 1u) * capturedTiles * 32u; ++i) {
+                            if (ids[i].y == NM_INVALID_INDEX) continue;
+                            if (best == NM_INVALID_INDEX || vals[i].x < vals[best].x ||
+                                (vals[i].x == vals[best].x && ids[i].x < ids[best].x))
+                                best = i;
+                        }
+                        if (best != NM_INVALID_INDEX)
+                            std::fprintf(stderr,
+                                "fem_deformable_limit_minimum={\"schema\":1,\"root\":%u,\"microtick\":%u,\"iteration\":%u,\"environment\":%u,\"tiled\":true,\"tiles\":%u,\"active_slot\":%u,\"contact_slot\":%u,\"object\":%u,\"reason\":%u,\"bound\":%.9g,\"prior_bound\":%.9g,\"incoming_alpha\":%.9g}\n",
+                                capturedRoot, capturedTick, capturedIteration, e,
+                                capturedTiles, ids[best].x, ids[best].y,
+                                ids[best].z, ids[best].w,
+                                double(vals[best].x), double(vals[best].y),
+                                double(vals[best].z));
+                    }
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message = "failed to resume after tiled contact minimum snapshot";
+                    return diagnostics;
+                }
             }
             // Common alpha is consumed by the rigid limiter even when all
             // diagnostic encoders are disabled. Do not depend on a diagnostic

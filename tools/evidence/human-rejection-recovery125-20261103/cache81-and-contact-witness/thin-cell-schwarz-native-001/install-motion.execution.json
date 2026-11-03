@@ -1,0 +1,12 @@
+{
+  "exit_code": -15,
+  "elapsed_s": 193.18663597106934,
+  "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/thin-cell-schwarz-native-001/install-motion.plan.json",
+  "plan_sha256": "357bf1077e0d2124c36fb538ca0d483eab0563049c33215ed5455919aaafff5d",
+  "stdout_sha256": "214df098d24ec472d0b18502c4ed044031f20faaa600bcfdcf5c52b399007cce",
+  "stderr_sha256": "b5f7905fae11a1ea60b16d8ba8b78eac35459e9c4a5c573cd3636ce577cfefb0",
+  "physical_admission": false,
+  "resource_stop_reason": "disk_below_12GiB",
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

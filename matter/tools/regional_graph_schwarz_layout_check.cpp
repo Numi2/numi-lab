@@ -166,7 +166,56 @@ bool checkCavityPressureMode() {
     return true;
 }
 
+bool checkThinCellSelectionAndPartialLayout() {
+    using numi::matter::detail::regionalGraphThinCellSelected;
+    const std::array<std::array<double,3>,3> regular{{
+        {{1.0,0.0,0.0}},{{0.0,1.0,0.0}},{{0.0,0.0,1.0}}}};
+    auto thin = regular; thin[2][2] = 1.0e9;
+    if (regionalGraphThinCellSelected(regular, 1.0e-7) ||
+        !regionalGraphThinCellSelected(thin, 1.0e-7) ||
+        regionalGraphThinCellSelected(thin, 0.0) ||
+        regionalGraphThinCellSelected(thin, -1.0)) return false;
+    auto invalid = thin; invalid[0][0] = std::numeric_limits<double>::quiet_NaN();
+    if (regionalGraphThinCellSelected(invalid, 1.0e-7)) return false;
+    // The face opposite node zero must be included, not only the three
+    // inverse-rest rows. This example is full rank.
+    const std::array<std::array<double,3>,3> zeroth{{
+        {{0.6,0.0,0.0}},{{0.6,0.01,0.0}},{{0.6,0.0,0.01}}}};
+    if (!regionalGraphThinCellSelected(zeroth, 1.0)) return false;
+    auto scaled = thin;
+    for (auto& row : scaled) for (auto& value : row) value *= 1.0e-3;
+    if (!regionalGraphThinCellSelected(scaled, 1.0e-4)) return false;
+
+    constexpr std::uint32_t count = 319000u;
+    std::vector<std::uint8_t> selected(count, 0u);
+    const std::vector<std::array<std::uint32_t,4>> tets{{
+        {200000u,200001u,200002u,200003u},
+        {200001u,200002u,200003u,200004u}}};
+    for (const auto& tet : tets) for (const auto node : tet) selected[node] = 1u;
+    const auto layout = buildRegionalGraphSchwarzLayout(
+        count, tets, selected, 1u, 96ull*1024ull*1024ull,
+        524288u,131072u,32768u,8u,4u,false,true);
+    const auto repeat = buildRegionalGraphSchwarzLayout(
+        count, tets, selected, 1u, 96ull*1024ull*1024ull,
+        524288u,131072u,32768u,8u,4u,false,true);
+    if (!layout.error.empty() || !repeat.error.empty() ||
+        layout.patchNodes != repeat.patchNodes ||
+        layout.nodePatchValues != repeat.nodePatchValues ||
+        layout.nodeCoverage != repeat.nodeCoverage ||
+        layout.nodeCoverage[0] != 0u ||
+        layout.nodeCoverage[count-1u] != 0u) return false;
+    for (std::uint32_t node = 0u; node < count; ++node)
+        if ((layout.nodeCoverage[node] != 0u) != (selected[node] != 0u)) return false;
+    if (buildRegionalGraphSchwarzLayout(
+        count,tets,selected,1u,1u,524288u,131072u,32768u,8u,4u,false,true)
+            .error.empty()) return false;
+    std::cout << "thin_cell_schwarz_layout=PASS full_index_domain=" << count
+              << " selected_nodes=5 exact_partial_coverage=true byte_bound=guarded\n";
+    return true;
+}
+
 int main() {
+    if (!checkThinCellSelectionAndPartialLayout()) return 28;
     if (!checkCavityPressureMode()) return 1;
     {
         numi::matter::detail::RegionalGraphSchwarzLayout isolated;

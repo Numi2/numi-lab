@@ -1,0 +1,62 @@
+[
+  {
+    "trial": "thin-cell-schwarz-native-001",
+    "evidence_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/thin-cell-schwarz-native-001",
+    "install-motion.stdout.log": {
+      "bytes": 301285,
+      "sha256": "214df098d24ec472d0b18502c4ed044031f20faaa600bcfdcf5c52b399007cce"
+    },
+    "install-motion.stderr.log": {
+      "bytes": 15303,
+      "sha256": "b5f7905fae11a1ea60b16d8ba8b78eac35459e9c4a5c573cd3636ce577cfefb0"
+    }
+  },
+  {
+    "trial": "thin-cell-schwarz-native-002",
+    "evidence_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/thin-cell-schwarz-native-002",
+    "install-motion.stdout.log": {
+      "bytes": 303792,
+      "sha256": "dc00ee0633fdff38256216f00c0701dd6f5364b0253a7b002d57cac7218c9cbf"
+    },
+    "install-motion.stderr.log": {
+      "bytes": 109855,
+      "sha256": "770064ed83cf4469957a4b215876b699b4cdf5c31ac0e872cb30f09b47465fc2"
+    }
+  },
+  {
+    "trial": "thin-cell-schwarz-alpha-trace-003",
+    "evidence_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/thin-cell-schwarz-alpha-trace-003",
+    "install-motion.stdout.log": {
+      "bytes": 303815,
+      "sha256": "d4f1be671877fc5db32542c2f75878285c0e8c5bb27be527a65afd6a6ccf91da"
+    },
+    "install-motion.stderr.log": {
+      "bytes": 2008147,
+      "sha256": "97e25f92b1451ab049a21c2259258b21128e8d04e0dabcdcde2995e298331a1b"
+    }
+  },
+  {
+    "trial": "tiled-contact-minimum-native-004",
+    "evidence_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-004",
+    "install-motion.stdout.log": {
+      "bytes": 303828,
+      "sha256": "597df36ec290fd13eb9cd4b4002f11a45cc9715bd5b78e9d99795ac48608839d"
+    },
+    "install-motion.stderr.log": {
+      "bytes": 102717,
+      "sha256": "246126689a9d749d5c81e5de3a0c3565198ea9e2936e75d7fb075356130756ec"
+    }
+  },
+  {
+    "trial": "tiled-contact-minimum-native-005",
+    "evidence_dir": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005",
+    "install-motion.stdout.log": {
+      "bytes": 303812,
+      "sha256": "6d1641c12654490b7d23f8373692433af5dd2c28b9e4725be71625b43989d0c1"
+    },
+    "install-motion.stderr.log": {
+      "bytes": 267033,
+      "sha256": "62ddd9450d93c1850fef56438a9544fdefb9c997ee69f4147c32afe441433721"
+    }
+  }
+]
