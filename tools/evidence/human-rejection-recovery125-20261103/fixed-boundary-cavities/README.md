@@ -45,3 +45,5 @@ python replay_cavity_filter.py --proposal conditioning-shared-cavities-001/fixed
 
 The C++ screen is a reproduction tool for trusted prepared inputs, not a public importer.
 Native composition remains authoritative. Failed and excluded cavities are retained.
+
+The large construction report is losslessly gzip-compressed; decompression was verified byte for byte. No source or runtime state was removed.

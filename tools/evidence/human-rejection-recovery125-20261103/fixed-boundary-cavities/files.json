@@ -1,8 +1,8 @@
 [
   {
     "path": "README.md",
-    "bytes": 3289,
-    "sha256": "f93b04386e815e3bb67d39497853068998c9319e2379506d0d3a562c4a23aca6"
+    "bytes": 3433,
+    "sha256": "55a0cb433d9b74928e4cffbbe56547885d8f1aede086d0c0b447d020a59d805e"
   },
   {
     "path": "cavity-native-geometry-screen-001.json",
@@ -55,9 +55,9 @@
     "sha256": "5fa678b6e6c203b5e264585e65eab2b5f42be262ae5f8ebd4d39f1689301a261"
   },
   {
-    "path": "conditioning-shared-cavities-001/report.json",
-    "bytes": 15626374,
-    "sha256": "b6fa2f551ab6b0cb5040e0719b3ddf8a9e80fdccaef593bb99054fb453b5a996"
+    "path": "conditioning-shared-cavities-001/report.json.gz",
+    "bytes": 2577964,
+    "sha256": "bf17715cfac5792d56937bf00fb0770d762a9193659379b06314ab66ef1dfcd9"
   },
   {
     "path": "geometry-screened-cavities-native-016/build-manifest.json",
