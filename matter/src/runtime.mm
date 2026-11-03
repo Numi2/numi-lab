@@ -9560,6 +9560,13 @@ RuntimeDiagnostics Runtime::initialize(
         if (schurGraphOnlyRequested)
             std::fprintf(stderr,"matter_selector6_schur_graph_only=1 partitioned_12mode_apply=0 shared_nodal_inverse=1\n");
         for (const char* name : kernelNames) {
+            // These optional scheduler pipelines have no consumers when
+            // tiled observation is disabled; retain the legacy pipeline only.
+            if ((std::strcmp(name, "nm_scheduler_observe_fem_partials") == 0 ||
+                 std::strcmp(name, "nm_scheduler_observe_tiled") == 0) &&
+                (!std::getenv("NM_SCHEDULER_TILED_FEM_OBSERVE") ||
+                 std::strcmp(std::getenv("NM_SCHEDULER_TILED_FEM_OBSERVE"), "1") != 0))
+                continue;
             if (!candidate->femLeftRowEquilibrationRequested &&
                 (std::strcmp(name,
                     "nm_fgmres_build_left_row_equilibration_scale") == 0 ||

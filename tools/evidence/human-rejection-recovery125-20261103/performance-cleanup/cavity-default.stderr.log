@@ -1,0 +1,106 @@
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+[NumiMatter] vascular blood-mass tangent requested=1 effective=0 eligible_bindings=0 no_op_no_owner=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+[NumiMatter] vascular blood-mass tangent requested=1 effective=1 eligible_bindings=8 no_op_no_owner=0
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+pressure_jvp_fd_diagnostic=error:1.09972e-11 tolerance:2.50004e-09 magnitude:6.25011e-07 worst_index:21 axis:2 fd:6.25011e-07 operator_delta:6.25e-07
+blood_mass_volume_jvp=error:4.08602e-12 tolerance:2.40614e-09 magnitude:4.81228e-07
+blood_mass_velocity_jvp=error:2.05033e-14 tolerance:1.32481e-09 magnitude:2.64961e-07
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=4 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=5 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=6 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=7 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=8 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=9 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=10 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=11 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=12 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=13 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=14 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=15 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=16 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=17 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=18 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=19 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=20 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=21 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=22 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=23 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=24 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=25 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=26 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=27 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=28 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=29 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=30 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=31 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=2 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=3 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=4 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=5 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=6 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=7 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=8 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=9 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=10 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=11 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=12 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=13 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=14 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=15 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=16 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=17 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=18 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=19 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=20 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=21 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=22 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=23 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=24 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=25 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=26 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=27 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=28 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=29 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=30 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=31 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=32 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_mixed_field_smoother_dispatch_count=skipped step=33 count=6912 multiphysics_objects=0 field_boundaries=0
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0

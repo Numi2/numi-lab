@@ -7375,3 +7375,19 @@ target_link_libraries(numi-human-skin-fat-fixed-cavity-check PRIVATE z)
 if(BUILD_TESTING)
     add_test(NAME numi_human_skin_fat_fixed_cavity COMMAND numi-human-skin-fat-fixed-cavity-check)
 endif()
+
+# Keep correctness tools available as explicit targets without including them
+# in production "all" builds. BUILD_TESTING=ON retains the normal CTest build.
+if(NOT BUILD_TESTING)
+    get_property(_numi_check_targets DIRECTORY PROPERTY BUILDSYSTEM_TARGETS)
+    foreach(_numi_check_target IN LISTS _numi_check_targets)
+        get_target_property(_numi_check_type "${_numi_check_target}" TYPE)
+        if(_numi_check_type STREQUAL "EXECUTABLE" AND
+           _numi_check_target MATCHES "-check$")
+            set_target_properties("${_numi_check_target}" PROPERTIES EXCLUDE_FROM_ALL TRUE)
+        endif()
+    endforeach()
+    unset(_numi_check_targets)
+    unset(_numi_check_target)
+    unset(_numi_check_type)
+endif()

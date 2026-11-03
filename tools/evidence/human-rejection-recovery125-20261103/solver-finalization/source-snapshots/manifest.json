@@ -1,0 +1,185 @@
+{
+  "reason": "one retained snapshot per exact uncompressed archive; original gzip bytes remain in immutable Git history",
+  "files": [
+    {
+      "path": "active-final-combined-057/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/e101b1d2c3afd41f9d7af9ef6ae289aa2bdccaa9e4aeaa2ce8fb98b239a85433.tar.gz",
+      "uncompressed_tar_sha256": "e101b1d2c3afd41f9d7af9ef6ae289aa2bdccaa9e4aeaa2ce8fb98b239a85433",
+      "canonical_gzip_sha256": "f1870bafe14ee4ae392a4c32491516bfe643a64cd5b4edc4a4093c80b2027013",
+      "original_gzip_sha256": "f1870bafe14ee4ae392a4c32491516bfe643a64cd5b4edc4a4093c80b2027013",
+      "original_bytes": 1777243,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/active-final-combined-057/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "active-final-control-056/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/e101b1d2c3afd41f9d7af9ef6ae289aa2bdccaa9e4aeaa2ce8fb98b239a85433.tar.gz",
+      "uncompressed_tar_sha256": "e101b1d2c3afd41f9d7af9ef6ae289aa2bdccaa9e4aeaa2ce8fb98b239a85433",
+      "canonical_gzip_sha256": "f1870bafe14ee4ae392a4c32491516bfe643a64cd5b4edc4a4093c80b2027013",
+      "original_gzip_sha256": "32f19b09c102534ea114b34f0371ea7c11afe3d29da69bfc9c66747e0234ca7d",
+      "original_bytes": 1777243,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/active-final-control-056/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "active-linear-certificate-profile-045/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/22ae4018093dd5afd8e26a61c54a65a4073fededf3d10e5b0e01ed2a177f6111.tar.gz",
+      "uncompressed_tar_sha256": "22ae4018093dd5afd8e26a61c54a65a4073fededf3d10e5b0e01ed2a177f6111",
+      "canonical_gzip_sha256": "5404bf2c045df34e87050922031628293d44903000717ab6bb52e06f9b09510d",
+      "original_gzip_sha256": "5404bf2c045df34e87050922031628293d44903000717ab6bb52e06f9b09510d",
+      "original_bytes": 1763391,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/active-linear-certificate-profile-045/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "active-linear-certificate-profile-046/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/22ae4018093dd5afd8e26a61c54a65a4073fededf3d10e5b0e01ed2a177f6111.tar.gz",
+      "uncompressed_tar_sha256": "22ae4018093dd5afd8e26a61c54a65a4073fededf3d10e5b0e01ed2a177f6111",
+      "canonical_gzip_sha256": "5404bf2c045df34e87050922031628293d44903000717ab6bb52e06f9b09510d",
+      "original_gzip_sha256": "5404bf2c045df34e87050922031628293d44903000717ab6bb52e06f9b09510d",
+      "original_bytes": 1763391,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/active-linear-certificate-profile-046/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "active-linear-certificate-profile-047/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/22ae4018093dd5afd8e26a61c54a65a4073fededf3d10e5b0e01ed2a177f6111.tar.gz",
+      "uncompressed_tar_sha256": "22ae4018093dd5afd8e26a61c54a65a4073fededf3d10e5b0e01ed2a177f6111",
+      "canonical_gzip_sha256": "5404bf2c045df34e87050922031628293d44903000717ab6bb52e06f9b09510d",
+      "original_gzip_sha256": "5404bf2c045df34e87050922031628293d44903000717ab6bb52e06f9b09510d",
+      "original_bytes": 1763391,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/active-linear-certificate-profile-047/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "active-linear-ew-058/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/e101b1d2c3afd41f9d7af9ef6ae289aa2bdccaa9e4aeaa2ce8fb98b239a85433.tar.gz",
+      "uncompressed_tar_sha256": "e101b1d2c3afd41f9d7af9ef6ae289aa2bdccaa9e4aeaa2ce8fb98b239a85433",
+      "canonical_gzip_sha256": "f1870bafe14ee4ae392a4c32491516bfe643a64cd5b4edc4a4093c80b2027013",
+      "original_gzip_sha256": "09bb929dd2d6c554efd0169df578e6a2ca9d4c8ea0b34d926ea8e82c5b371f2e",
+      "original_bytes": 1777243,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/active-linear-ew-058/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "completed-linear-builders-063/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/1383efb939059d0fb364d2ca6fa73d8241cf87792571d29a094ef8b845694612.tar.gz",
+      "uncompressed_tar_sha256": "1383efb939059d0fb364d2ca6fa73d8241cf87792571d29a094ef8b845694612",
+      "canonical_gzip_sha256": "a173d71572fa582f8d8696c4906cc7629d523ca6be0359f82ba62f74ea006fa5",
+      "original_gzip_sha256": "a173d71572fa582f8d8696c4906cc7629d523ca6be0359f82ba62f74ea006fa5",
+      "original_bytes": 1776362,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/completed-linear-builders-063/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "final-combined-uninstrumented-061/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/3bcdca7524a37101dcfb5fbc8b752a7ceff5c7f4f4c9e60ee348ee3f39fed2e1.tar.gz",
+      "uncompressed_tar_sha256": "3bcdca7524a37101dcfb5fbc8b752a7ceff5c7f4f4c9e60ee348ee3f39fed2e1",
+      "canonical_gzip_sha256": "cefd1394e7fbc2bb7254ba05bb78903865ea961e457cb980dc6dd21a9137443e",
+      "original_gzip_sha256": "cefd1394e7fbc2bb7254ba05bb78903865ea961e457cb980dc6dd21a9137443e",
+      "original_bytes": 1775596,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/final-combined-uninstrumented-061/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "final-control-uninstrumented-059/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/3bcdca7524a37101dcfb5fbc8b752a7ceff5c7f4f4c9e60ee348ee3f39fed2e1.tar.gz",
+      "uncompressed_tar_sha256": "3bcdca7524a37101dcfb5fbc8b752a7ceff5c7f4f4c9e60ee348ee3f39fed2e1",
+      "canonical_gzip_sha256": "cefd1394e7fbc2bb7254ba05bb78903865ea961e457cb980dc6dd21a9137443e",
+      "original_gzip_sha256": "0ac0f1bcdf9efbd7efefa9f905029a6298992e92a1e2dcfaf0a445f8bc7ba72c",
+      "original_bytes": 1775596,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/final-control-uninstrumented-059/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "final-ew-midpoint-062/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/3bcdca7524a37101dcfb5fbc8b752a7ceff5c7f4f4c9e60ee348ee3f39fed2e1.tar.gz",
+      "uncompressed_tar_sha256": "3bcdca7524a37101dcfb5fbc8b752a7ceff5c7f4f4c9e60ee348ee3f39fed2e1",
+      "canonical_gzip_sha256": "cefd1394e7fbc2bb7254ba05bb78903865ea961e457cb980dc6dd21a9137443e",
+      "original_gzip_sha256": "53627ba1a19360e9a651ee4da33f144bbe29efd21f08eeb4e4e887a9c971e264",
+      "original_bytes": 1775596,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/final-ew-midpoint-062/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "final-ew-uninstrumented-060/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/3bcdca7524a37101dcfb5fbc8b752a7ceff5c7f4f4c9e60ee348ee3f39fed2e1.tar.gz",
+      "uncompressed_tar_sha256": "3bcdca7524a37101dcfb5fbc8b752a7ceff5c7f4f4c9e60ee348ee3f39fed2e1",
+      "canonical_gzip_sha256": "cefd1394e7fbc2bb7254ba05bb78903865ea961e457cb980dc6dd21a9137443e",
+      "original_gzip_sha256": "9c74935e57cf3a931330e160469b99931bc57eb7bb91adff45ae460bbd8a2998",
+      "original_bytes": 1775596,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/final-ew-uninstrumented-060/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "shared-contact-combined-050/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/e7af71fb3d3fa005c8f75b4480f1905b730436c94a6575bdda15ed13c5eeca50.tar.gz",
+      "uncompressed_tar_sha256": "e7af71fb3d3fa005c8f75b4480f1905b730436c94a6575bdda15ed13c5eeca50",
+      "canonical_gzip_sha256": "89bd6b2e9f61b7702748137afddb6bde4c6686e06e8a65c2f1182e576259197b",
+      "original_gzip_sha256": "89bd6b2e9f61b7702748137afddb6bde4c6686e06e8a65c2f1182e576259197b",
+      "original_bytes": 1768438,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/shared-contact-combined-050/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "shared-contact-combined-053/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/e7af71fb3d3fa005c8f75b4480f1905b730436c94a6575bdda15ed13c5eeca50.tar.gz",
+      "uncompressed_tar_sha256": "e7af71fb3d3fa005c8f75b4480f1905b730436c94a6575bdda15ed13c5eeca50",
+      "canonical_gzip_sha256": "89bd6b2e9f61b7702748137afddb6bde4c6686e06e8a65c2f1182e576259197b",
+      "original_gzip_sha256": "89bd6b2e9f61b7702748137afddb6bde4c6686e06e8a65c2f1182e576259197b",
+      "original_bytes": 1768438,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/shared-contact-combined-053/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "shared-contact-control-049/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/e7af71fb3d3fa005c8f75b4480f1905b730436c94a6575bdda15ed13c5eeca50.tar.gz",
+      "uncompressed_tar_sha256": "e7af71fb3d3fa005c8f75b4480f1905b730436c94a6575bdda15ed13c5eeca50",
+      "canonical_gzip_sha256": "89bd6b2e9f61b7702748137afddb6bde4c6686e06e8a65c2f1182e576259197b",
+      "original_gzip_sha256": "551bf45e09f5ddd944c372c016477a3544b7a00fb439aa80a1548f9ce1db4076",
+      "original_bytes": 1768438,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/shared-contact-control-049/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "shared-contact-stage-combined-052/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/e7af71fb3d3fa005c8f75b4480f1905b730436c94a6575bdda15ed13c5eeca50.tar.gz",
+      "uncompressed_tar_sha256": "e7af71fb3d3fa005c8f75b4480f1905b730436c94a6575bdda15ed13c5eeca50",
+      "canonical_gzip_sha256": "89bd6b2e9f61b7702748137afddb6bde4c6686e06e8a65c2f1182e576259197b",
+      "original_gzip_sha256": "43a3962adb36462e3b28c3a4387d60b43342dbaabddd3de6cd5899ae13eaea73",
+      "original_bytes": 1768438,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/shared-contact-stage-combined-052/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "shared-contact-stage-control-051/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/e7af71fb3d3fa005c8f75b4480f1905b730436c94a6575bdda15ed13c5eeca50.tar.gz",
+      "uncompressed_tar_sha256": "e7af71fb3d3fa005c8f75b4480f1905b730436c94a6575bdda15ed13c5eeca50",
+      "canonical_gzip_sha256": "89bd6b2e9f61b7702748137afddb6bde4c6686e06e8a65c2f1182e576259197b",
+      "original_gzip_sha256": "43a3962adb36462e3b28c3a4387d60b43342dbaabddd3de6cd5899ae13eaea73",
+      "original_bytes": 1768438,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/shared-contact-stage-control-051/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "split-contact-combined-055/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/552a87f36a82149abb8c9f2e6046d496a34169b08d0a3fcbf406bda847b988a6.tar.gz",
+      "uncompressed_tar_sha256": "552a87f36a82149abb8c9f2e6046d496a34169b08d0a3fcbf406bda847b988a6",
+      "canonical_gzip_sha256": "f7a4661e3c735de8f70667bd3fff9a53d5f538e64335a2b855d695ac60ad496d",
+      "original_gzip_sha256": "f7a4661e3c735de8f70667bd3fff9a53d5f538e64335a2b855d695ac60ad496d",
+      "original_bytes": 1768732,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/split-contact-combined-055/execution-source-snapshots.tar.gz"
+    },
+    {
+      "path": "split-contact-control-054/execution-source-snapshots.tar.gz",
+      "canonical_path": "source-snapshots/552a87f36a82149abb8c9f2e6046d496a34169b08d0a3fcbf406bda847b988a6.tar.gz",
+      "uncompressed_tar_sha256": "552a87f36a82149abb8c9f2e6046d496a34169b08d0a3fcbf406bda847b988a6",
+      "canonical_gzip_sha256": "f7a4661e3c735de8f70667bd3fff9a53d5f538e64335a2b855d695ac60ad496d",
+      "original_gzip_sha256": "f7a4661e3c735de8f70667bd3fff9a53d5f538e64335a2b855d695ac60ad496d",
+      "original_bytes": 1768732,
+      "original_recovery_git_revision": "fc8ca33230895b1aeb0c831964e0eaa5403206f9",
+      "original_recovery_git_path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/split-contact-control-054/execution-source-snapshots.tar.gz"
+    }
+  ]
+}

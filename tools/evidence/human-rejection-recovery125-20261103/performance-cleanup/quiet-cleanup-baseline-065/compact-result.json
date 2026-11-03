@@ -1,0 +1,36 @@
+{
+  "name": "quiet-cleanup-baseline-065",
+  "execution": {
+    "exit_code": 0,
+    "elapsed_s": 202.05900120735168,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/quiet-cleanup-baseline-065/install-motion.plan.json",
+    "plan_sha256": "657fd7442ec486d79e8d0b387d6973c2bbdfaa7fa1bb7d494d95ecc397e72127",
+    "stdout_sha256": "6c57934814bbe738707532928a0aefa6a5e54ab547732f9b9dd0d75145d3439d",
+    "stderr_sha256": "6211e8d2584657c52c5f38073a18fe3df75e9a6d1b9e233af44557cfad2c96f0",
+    "physical_admission": false,
+    "resource_stop_reason": null,
+    "source_import_pass": false,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "endpoint_bytes": 0,
+  "endpoint_sha256": null,
+  "endpoint_available": false,
+  "profiles": [
+    "resting_native_profile step=1 command_ms=6299.461292 gpu_ms=6281.561625 host_copy_ms=0.898875 full_state_readback=1",
+    "resting_native_profile step=2 command_ms=6383.870875 gpu_ms=6383.18483332 host_copy_ms=2.228125 full_state_readback=1",
+    "resting_native_profile step=3 command_ms=6332.98275 gpu_ms=6332.03462501 host_copy_ms=0.107834 full_state_readback=1",
+    "resting_native_profile step=4 command_ms=6383.889166 gpu_ms=6382.73887501 host_copy_ms=0.064292 full_state_readback=1"
+  ],
+  "completion": [
+    "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=27.534926041999999 real_time_factor=2.2698445920376627e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ],
+  "stages_root0_ms": {},
+  "selected_kernel_ms": {},
+  "traces": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/quiet-cleanup-baseline-065/install-motion/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+      "bytes": 4523
+    }
+  ]
+}

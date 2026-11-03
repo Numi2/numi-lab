@@ -87,3 +87,5 @@ Execution retains unrelated dirty work. Publication changes only four owned runt
 The next performance experiment must address measured active operators or stronger conditioning while preserving physical gates. Profile 047 identifies gathering, FEM element application, patch/coarse preconditioning and the vascular operator as active costs. Tested action caches added traffic and did not help.
 
 This prefix cannot establish long-horizon material/contact stability, supported rest, timestep qualification or anatomy-through-motion validity. Numerical parity does not establish physiological plausibility or clinical validation.
+
+Archive consolidation: source-snapshots/manifest.json records canonical gzip and exact uncompressed archive identities. Per-trial archive paths are relative links; original compressed bytes remain recoverable from fc8ca33230895b1aeb0c831964e0eaa5403206f9. Frozen remote run records are unchanged.
