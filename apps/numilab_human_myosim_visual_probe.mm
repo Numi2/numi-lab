@@ -27733,6 +27733,20 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     if(const char* ledgerPath=std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_MASS_LEDGER_CSV")) {
         require(enableWholeBodySkinFat&&ledgerPath[0]!='\0',
                 "skin/fat parent mass capture requires the complete compiled shell and a path");
+        // Repeated numerical trials need the same mass/ancestry validation,
+        // but not hundreds of MiB of decimal CSV copies of immutable inputs.
+        // This opt-in suppresses formatting only; all capture, closure,
+        // reference-volume and anatomical-label checks below still execute.
+        const char* compactSetting=std::getenv("NUMI_HUMAN_SKIN_FAT_COMPACT_MASS_CAPTURE");
+        require(compactSetting==nullptr||std::string_view(compactSetting)=="0"||
+                    std::string_view(compactSetting)=="1",
+                "compact skin/fat mass capture must be exactly 0 or 1");
+        const bool compactCapture=compactSetting&&std::string_view(compactSetting)=="1";
+        require(!compactCapture||
+                    (std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_WEIGHTS_CSV")==nullptr&&
+                     std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_LAYER_ROWS_CSV")==nullptr&&
+                     std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_DEEP_ATTACHMENTS_CSV")==nullptr),
+                "compact mass capture cannot suppress explicitly requested full-weight/layer/attachment exports");
         const auto& descriptor=compiled.world.objects.at(wholeBodySkinObjectIndex);
         std::map<std::uint32_t,metalrobo::NumiHumanTissueMassNode> byNode;
         for(const auto* prepared:{&preparedSkin,&preparedFat})
@@ -27761,10 +27775,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         require(captureCompiledSkinFatParentMassLedger(source,compiled.world,wholeBodySkinObjectIndex,
                     donorBodies,donorLocal,donorRows,parentMass,sourceMass,captureReport,captureError),
                 "exact cooked skin/fat parent mass capture rejected: "+captureError);
+        const auto& object=source.objects.at(wholeBodySkinObjectIndex);
+        const auto& referenceNodes=object.femReferenceNodes.empty()?object.femNodes:object.femReferenceNodes;
+        std::ofstream geometryTets;
+        if(!compactCapture) {
         std::ofstream ledger(ledgerPath,std::ios::out|std::ios::binary|std::ios::trunc);
         require(ledger.good(),"could not create skin/fat parent mass ledger");
         ledger<<"source_tet_row,material_index,mass_kg\n"<<std::setprecision(17);
-        const auto& object=source.objects.at(wholeBodySkinObjectIndex);
         for(std::size_t row=0;row<parentMass.size();++row)
             ledger<<row<<','<<(object.femMaterialIndices.empty()?object.materialIndex:object.femMaterialIndices[row])
                   <<','<<parentMass[row]<<'\n';
@@ -27778,10 +27795,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                          <<','<<row.donorLocalPosition[0]<<','<<row.donorLocalPosition[1]<<','<<row.donorLocalPosition[2]<<'\n';
         contributions.flush();require(contributions.good(),"skin/fat parent source-mass ledger write failed");
         std::ofstream geometryNodes(std::string(ledgerPath)+".nodes.csv",std::ios::out|std::ios::binary|std::ios::trunc);
-        std::ofstream geometryTets(std::string(ledgerPath)+".tets.csv",std::ios::out|std::ios::binary|std::ios::trunc);
+        geometryTets.open(std::string(ledgerPath)+".tets.csv",std::ios::out|std::ios::binary|std::ios::trunc);
         require(geometryNodes.good()&&geometryTets.good(),"could not create exact parent volume geometry CSVs");
         geometryNodes<<"parent_node_index,compiled_global_node,current_x_m,current_y_m,current_z_m,rest_x_m,rest_y_m,rest_z_m,compiled_lumped_mass_kg,node_frame_owner_body,donor_local_x_m,donor_local_y_m,donor_local_z_m,mass_bits\n"<<std::setprecision(17);
-        const auto& referenceNodes=object.femReferenceNodes.empty()?object.femNodes:object.femReferenceNodes;
         for(std::size_t row=0;row<object.femNodes.size();++row) {
             const auto global=descriptor.stateOffset+row;
             const auto& point=compiled.world.fem.nodes[global].positionAndMass;
@@ -27790,19 +27806,26 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 <<referenceNodes[row][0]<<','<<referenceNodes[row][1]<<','<<referenceNodes[row][2]<<','
                 <<point.w<<','<<donorBodies[row]<<','<<donorLocal[row][0]<<','<<donorLocal[row][1]<<','<<donorLocal[row][2]<<','<<bits<<'\n';
         }
-        geometryTets<<"parent_tet_row,material_index,donor_body,parent_node0,parent_node1,parent_node2,parent_node3,parent_reference_volume_m3,parent_mass_kg\n"<<std::setprecision(17);
+        geometryNodes.flush();require(geometryNodes.good(),"parent volume node CSV write failed");
+        }
+        if(!compactCapture)
+            geometryTets<<"parent_tet_row,material_index,donor_body,parent_node0,parent_node1,parent_node2,parent_node3,parent_reference_volume_m3,parent_mass_kg\n"<<std::setprecision(17);
         for(std::size_t row=0;row<object.tetrahedra.size();++row) {
             const auto& corners=object.tetrahedra[row].nodes;
-            std::map<std::uint32_t,unsigned> counts;for(const auto node:corners)++counts[donorBodies[node]];
-            std::uint32_t dominant=NM_INVALID_INDEX;unsigned largest=0;
-            for(const auto& [body,count]:counts)if(count>largest){dominant=body;largest=count;}
             const auto volume=std::abs(tetVolume(referenceNodes[corners[0]],referenceNodes[corners[1]],referenceNodes[corners[2]],referenceNodes[corners[3]]));
             require(volume>0&&std::isfinite(volume),"parent volume geometry CSV contains invalid reference tet");
-            geometryTets<<row<<','<<(object.femMaterialIndices.empty()?object.materialIndex:object.femMaterialIndices[row])
-                <<','<<dominant;for(const auto node:corners)geometryTets<<','<<node;
-            geometryTets<<','<<volume<<','<<parentMass[row]<<'\n';
+            if(!compactCapture) {
+                std::map<std::uint32_t,unsigned> counts;for(const auto node:corners)++counts[donorBodies[node]];
+                std::uint32_t dominant=NM_INVALID_INDEX;unsigned largest=0;
+                for(const auto& [body,count]:counts)if(count>largest){dominant=body;largest=count;}
+                geometryTets<<row<<','<<(object.femMaterialIndices.empty()?object.materialIndex:object.femMaterialIndices[row])
+                    <<','<<dominant;for(const auto node:corners)geometryTets<<','<<node;
+                geometryTets<<','<<volume<<','<<parentMass[row]<<'\n';
+            }
         }
-        geometryNodes.flush();geometryTets.flush();require(geometryNodes.good()&&geometryTets.good(),"parent volume geometry CSV write failed");
+        if(!compactCapture) {
+            geometryTets.flush();require(geometryTets.good(),"parent volume geometry CSV write failed");
+        }
         if(const char* weightsPath=std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_WEIGHTS_CSV")) {
             // Capture the existing paired parent's interpolation basis in exact
             // object-local node order, independently of cell mass donor labels.
@@ -28016,24 +28039,33 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         require(parentLabels.tetrahedronRegionLabels.size()==object.tetrahedra.size()&&
                     parentLabels.tetrahedronOriginalSourceFaceIndices.size()==object.tetrahedra.size(),
                 "native parent mass labels do not cover the exact compiled source cells");
-        std::ofstream labels(std::string(ledgerPath)+".labels.csv",
-            std::ios::out|std::ios::binary|std::ios::trunc);
-        require(labels.good(),"could not create native parent mass identity labels");
-        labels<<"parent_tet_row,material_index,geometric_donor_body,anatomical_region_id,stable_source_face_id\n";
+        std::ofstream labels;
+        if(!compactCapture) {
+            labels.open(std::string(ledgerPath)+".labels.csv",std::ios::out|std::ios::binary|std::ios::trunc);
+            require(labels.good(),"could not create native parent mass identity labels");
+            labels<<"parent_tet_row,material_index,geometric_donor_body,anatomical_region_id,stable_source_face_id\n";
+        }
         for(std::size_t row=0;row<object.tetrahedra.size();++row) {
-            const auto& corners=object.tetrahedra[row].nodes;
-            std::map<std::uint32_t,unsigned> counts;
-            for(const auto node:corners)++counts[donorBodies[node]];
-            std::uint32_t donor=NM_INVALID_INDEX;unsigned largest=0u;
-            for(const auto& [body,count]:counts)if(count>largest){donor=body;largest=count;}
             const auto regionId=parentLabels.tetrahedronRegionLabels[row];
             const auto sourceFace=parentLabels.tetrahedronOriginalSourceFaceIndices[row];
             require(regionId!=NM_INVALID_INDEX&&sourceFace!=NM_INVALID_INDEX,
                     "native parent mass identity labels contain an invalid source region or face");
-            labels<<row<<','<<(object.femMaterialIndices.empty()?object.materialIndex:object.femMaterialIndices[row])
-                <<','<<donor<<','<<regionId<<','<<sourceFace<<'\n';
+            if(!compactCapture) {
+                const auto& corners=object.tetrahedra[row].nodes;
+                std::map<std::uint32_t,unsigned> counts;
+                for(const auto node:corners)++counts[donorBodies[node]];
+                std::uint32_t donor=NM_INVALID_INDEX;unsigned largest=0u;
+                for(const auto& [body,count]:counts)if(count>largest){donor=body;largest=count;}
+                labels<<row<<','<<(object.femMaterialIndices.empty()?object.materialIndex:object.femMaterialIndices[row])
+                    <<','<<donor<<','<<regionId<<','<<sourceFace<<'\n';
+            }
         }
-        labels.flush();require(labels.good(),"native parent mass identity labels write failed");
+        if(!compactCapture) {
+            labels.flush();require(labels.good(),"native parent mass identity labels write failed");
+        }
+        std::cout<<"whole_body_compiled_skin_fat_capture_policy="
+            <<(compactCapture?"validated_summary":"full_csv")
+            <<" validation=unchanged source_geometry=unchanged\n";
         std::cout<<"whole_body_compiled_skin_fat_parent_labels=PASS rows="
             <<object.tetrahedra.size()
             <<" region_owner=dominant_original_registered_skin_binding_body_id"

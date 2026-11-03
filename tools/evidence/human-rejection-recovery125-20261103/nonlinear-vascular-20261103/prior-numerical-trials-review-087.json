@@ -1,0 +1,391 @@
+{
+  "scope": "retained recent full-Human numerical trials; old source revisions retained; no new timestep study authorized",
+  "trials": [
+    {
+      "trial": "dt125us",
+      "dt": "0.000125",
+      "requested": "1",
+      "accepted": 0,
+      "exit": 1,
+      "elapsed": 272.22700905799866,
+      "options": {},
+      "failure": [
+        "human_joint_failure completed_steps=0 matter_status=10 matter_failing_index=0 matter_object_index=4294967295 matter_diagnostics=[9.8069423984270543e-05,9.9999997473787516e-06,0.46055054664611816,5.1004080958705345e-09] failure_owner=passive_tissue_runtime",
+        "myosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 0 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=0 failing_index=4294967295\""
+      ],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/dt125us/build-manifest.json",
+      "runtime_source_sha256": "ae77770eac80699d1987f912b61b927fd4b55ebcac026d1ae308caf32c0fecc3",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "timestep62us-native-034",
+      "dt": "0.0000625",
+      "requested": "1",
+      "accepted": 1,
+      "exit": 0,
+      "elapsed": 212.3413529396057,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0"
+      },
+      "failure": [],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/timestep62us-native-034/build-manifest.json",
+      "runtime_source_sha256": "400405ca4b2b5ecc4ca0233dc296a647613a99d100d0a4a92113d9ba112a6ac2",
+      "accepted_count_evidence": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/timestep62us-native-034/install-motion/accepted-geometry/step-1.receipt.json plus exit0"
+      ]
+    },
+    {
+      "trial": "timestep62us-motion-079",
+      "dt": "0.0000625",
+      "requested": "4",
+      "accepted": 1,
+      "exit": 1,
+      "elapsed": 235.65918493270874,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0"
+      },
+      "failure": [
+        "human_joint_failure completed_steps=1 matter_status=10 matter_failing_index=0 matter_object_index=4294967295 matter_diagnostics=[1.8359251043875702e-05,9.9999997473787516e-06,0.46047091484069824,1.2404259841503062e-08] failure_owner=passive_tissue_runtime",
+        "myosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 1 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=1 failing_index=4294967295\""
+      ],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/timestep62us-motion-079/build-manifest.json",
+      "runtime_source_sha256": "15d1f4c42783a6d46d564a543ef5b160b0d51719185042639dabd9ce7be19223",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "vascular-timestep-085",
+      "dt": "0.0000625",
+      "requested": "4",
+      "accepted": 1,
+      "exit": 1,
+      "elapsed": 220.6377251148224,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0",
+        "NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR": "1"
+      },
+      "failure": [
+        "human_joint_failure completed_steps=1 matter_status=10 matter_failing_index=4294967295 matter_object_index=10 matter_diagnostics=[0.00023849672288633883,0.94312155246734619,0,0] failure_owner=passive_tissue_runtime",
+        "myosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 1 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=1 failing_index=10\""
+      ],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/vascular-timestep-085/build-manifest.json",
+      "runtime_source_sha256": "ef08e1cbaf79730a10f9b75673aa506ecc6556eb4a848192a8fa5066d00d1a03",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "thin-cell-native-027",
+      "dt": "0.000015625",
+      "requested": "4",
+      "accepted": 4,
+      "exit": 0,
+      "elapsed": 262.4615287780762,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "1"
+      },
+      "failure": [],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/thin-cell-native-027/build-manifest.json",
+      "runtime_source_sha256": "12aa95e491e10be89dcf4e1cfa91066ed1d51196eb905d81d58d4feee224eac3",
+      "accepted_count_evidence": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/thin-cell-native-027/install-motion/accepted-geometry/step-4.receipt.json plus exit0"
+      ]
+    },
+    {
+      "trial": "thin-cell-horizon-native-028",
+      "dt": "0.000015625",
+      "requested": "16",
+      "accepted": 0,
+      "exit": 1,
+      "elapsed": 5.016556978225708,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "1"
+      },
+      "failure": [
+        "myosim_articulated_visual=failed error=\"accepted geometry step is not an initial, submission-cadence, or true terminal accepted state: 8\""
+      ],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/thin-cell-horizon-native-028/build-manifest.json",
+      "runtime_source_sha256": "12aa95e491e10be89dcf4e1cfa91066ed1d51196eb905d81d58d4feee224eac3",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "thin-cell-horizon-native-029",
+      "dt": "0.000015625",
+      "requested": "16",
+      "accepted": 10,
+      "exit": 1,
+      "elapsed": 397.54424810409546,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "1"
+      },
+      "failure": [
+        "human_joint_failure completed_steps=10 matter_status=10 matter_failing_index=4294967295 matter_object_index=12 matter_diagnostics=[0.00025884734350256622,0.81423503160476685,0,0] failure_owner=passive_tissue_runtime",
+        "myosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 10 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=10 failing_index=12\""
+      ],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/thin-cell-horizon-native-029/build-manifest.json",
+      "runtime_source_sha256": "12aa95e491e10be89dcf4e1cfa91066ed1d51196eb905d81d58d4feee224eac3",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "shared-load-continuation-native-032",
+      "dt": "0.000015625",
+      "requested": "16",
+      "accepted": 0,
+      "exit": 1,
+      "elapsed": 5.0155439376831055,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0",
+        "NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR": "0"
+      },
+      "failure": [
+        "myosim_articulated_visual=failed error=\"vascular pressure load ramp requires an admitted supported/release initialization and eight full-pressure settlement steps\""
+      ],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-load-continuation-native-032/build-manifest.json",
+      "runtime_source_sha256": "9560bd6474d24f26f367b09c92ddffbc1e1863cb71bcc7f7b07189e6b084d810",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "shared-load-continuation-native-033",
+      "dt": "0.000015625",
+      "requested": "16",
+      "accepted": 12,
+      "exit": 1,
+      "elapsed": 397.49753499031067,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0",
+        "NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR": "0"
+      },
+      "failure": [
+        "human_joint_failure completed_steps=12 matter_status=10 matter_failing_index=0 matter_object_index=4294967295 matter_diagnostics=[1.3437722373055294e-05,9.9999997473787516e-06,0.46060559153556824,-8.8684037891084699e-09] failure_owner=passive_tissue_runtime",
+        "myosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 12 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=12 failing_index=4294967295\""
+      ],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-load-continuation-native-033/build-manifest.json",
+      "runtime_source_sha256": "9560bd6474d24f26f367b09c92ddffbc1e1863cb71bcc7f7b07189e6b084d810",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "conditioned-convergence-native-019",
+      "dt": "0.000015625",
+      "requested": "16",
+      "accepted": 0,
+      "exit": -15,
+      "elapsed": 177.12992811203003,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0"
+      },
+      "failure": [],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/conditioned-convergence-native-019/build-manifest.json",
+      "runtime_source_sha256": "97f4b5d247a90f4518229fc2ec407a31566e62934d35885b29ec902502eb4e12",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "conditioned-convergence-native-020",
+      "dt": "0.000015625",
+      "requested": "16",
+      "accepted": 5,
+      "exit": 1,
+      "elapsed": 332.5147080421448,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0"
+      },
+      "failure": [
+        "human_joint_failure completed_steps=5 matter_status=10 matter_failing_index=0 matter_object_index=4294967295 matter_diagnostics=[1.0075217687699478e-05,9.9999997473787516e-06,0.46048536896705627,1.1434278412991716e-08] failure_owner=passive_tissue_runtime",
+        "myosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 5 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=5 failing_index=4294967295\""
+      ],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/conditioned-convergence-native-020/build-manifest.json",
+      "runtime_source_sha256": "97f4b5d247a90f4518229fc2ec407a31566e62934d35885b29ec902502eb4e12",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "vascular-predictor-native-030",
+      "dt": "0.000015625",
+      "requested": "16",
+      "accepted": 12,
+      "exit": 1,
+      "elapsed": 447.5965929031372,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0",
+        "NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR": "1"
+      },
+      "failure": [
+        "human_joint_failure completed_steps=12 matter_status=10 matter_failing_index=4294967295 matter_object_index=19 matter_diagnostics=[0.00031838228460401297,0.2860846221446991,0,0] failure_owner=passive_tissue_runtime",
+        "myosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 12 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=12 failing_index=19\""
+      ],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/vascular-predictor-native-030/build-manifest.json",
+      "runtime_source_sha256": "12aa95e491e10be89dcf4e1cfa91066ed1d51196eb905d81d58d4feee224eac3",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "linear-convergence-078",
+      "dt": "0.000015625",
+      "requested": "16",
+      "accepted": 9,
+      "exit": 1,
+      "elapsed": 265.7558250427246,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0"
+      },
+      "failure": [
+        "human_joint_failure completed_steps=9 matter_status=10 matter_failing_index=0 matter_object_index=4294967295 matter_diagnostics=[1.3418173693935387e-05,9.9999997473787516e-06,0.46043041348457336,-4.5810373272558991e-09] failure_owner=passive_tissue_runtime",
+        "myosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 9 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=9 failing_index=4294967295\""
+      ],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/linear-convergence-078/build-manifest.json",
+      "runtime_source_sha256": "15d1f4c42783a6d46d564a543ef5b160b0d51719185042639dabd9ce7be19223",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "assembled-xyz-native-037",
+      "dt": "0.000015625",
+      "requested": "4",
+      "accepted": 0,
+      "exit": -15,
+      "elapsed": 182.24523282051086,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0",
+        "NM_FEM_ASSEMBLED_XYZ_OPERATOR": "1",
+        "NM_FEM_ASSEMBLED_XYZ_HUMAN_ONLY": "1",
+        "NM_FEM_ASSEMBLED_XYZ_SIMD_ROW": "1"
+      },
+      "failure": [],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/assembled-xyz-native-037/build-manifest.json",
+      "runtime_source_sha256": "400405ca4b2b5ecc4ca0233dc296a647613a99d100d0a4a92113d9ba112a6ac2",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "assembled-xyz-native-038",
+      "dt": "0.000015625",
+      "requested": "4",
+      "accepted": 4,
+      "exit": 0,
+      "elapsed": 237.30199337005615,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0",
+        "NM_FEM_ASSEMBLED_XYZ_OPERATOR": "1",
+        "NM_FEM_ASSEMBLED_XYZ_HUMAN_ONLY": "1",
+        "NM_FEM_ASSEMBLED_XYZ_SIMD_ROW": "1"
+      },
+      "failure": [],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/assembled-xyz-native-038/build-manifest.json",
+      "runtime_source_sha256": "400405ca4b2b5ecc4ca0233dc296a647613a99d100d0a4a92113d9ba112a6ac2",
+      "accepted_count_evidence": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/assembled-xyz-native-038/install-motion/accepted-geometry/step-4.receipt.json plus exit0"
+      ]
+    },
+    {
+      "trial": "psd-contact-native-036",
+      "dt": "0.000015625",
+      "requested": "16",
+      "accepted": 8,
+      "exit": 1,
+      "elapsed": 347.94459795951843,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "1",
+        "NM_FGMRES_GRAPH_FULL_PSD_CONTACT_BLOCKS": "1",
+        "NM_VASCULAR_BLOCK_PREDICTOR": "0"
+      },
+      "failure": [
+        "human_joint_failure completed_steps=8 matter_status=10 matter_failing_index=0 matter_object_index=4294967295 matter_diagnostics=[1.3302709703566507e-05,9.9999997473787516e-06,0.4604453444480896,-1.2233308588349701e-08] failure_owner=passive_tissue_runtime",
+        "myosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 8 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=8 failing_index=4294967295\""
+      ],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/psd-contact-native-036/build-manifest.json",
+      "runtime_source_sha256": "a580ce757ae429bf6006c0b0fe987cf7076549238d7a9fd7b6596ac054ccf5c5",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "nonlinear16-native-001",
+      "dt": "0.000015625",
+      "requested": "16",
+      "accepted": 8,
+      "exit": 1,
+      "elapsed": 382.56192803382874,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.01"
+      },
+      "failure": [
+        "human_joint_failure completed_steps=8 matter_status=10 matter_failing_index=1206888 matter_object_index=15 matter_diagnostics=[8.710253629473641e-10,9.9999997171806854e-10,1.4054260191187495e-06,0] failure_owner=passive_tissue_runtime",
+        "myosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 8 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=8 failing_index=15\""
+      ],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/nonlinear16-native-001/build-manifest.json",
+      "runtime_source_sha256": "043b5f2c0310a7d60dc68fd8d85b44e964fb584aa034004e0a0390cac97fdb01",
+      "accepted_count_evidence": [
+        "retained accepted-step progress / failure receipt"
+      ]
+    },
+    {
+      "trial": "active-linear-ew-058",
+      "dt": "0.000015625",
+      "requested": "4",
+      "accepted": 4,
+      "exit": 0,
+      "elapsed": 222.17553186416626,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.001",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0"
+      },
+      "failure": [],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/active-linear-ew-058/build-manifest.json",
+      "runtime_source_sha256": "468143078db8f07fba4a54fae714c91a1212de6f3d2fd52fcebc2289290eb80a",
+      "accepted_count_evidence": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/active-linear-ew-058/install-motion/accepted-geometry/step-4.receipt.json plus exit0"
+      ]
+    },
+    {
+      "trial": "final-ew-midpoint-062",
+      "dt": "0.000015625",
+      "requested": "4",
+      "accepted": 4,
+      "exit": 0,
+      "elapsed": 207.1249761581421,
+      "options": {
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.005",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0"
+      },
+      "failure": [],
+      "source_manifest": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-ew-midpoint-062/build-manifest.json",
+      "runtime_source_sha256": "176822e7d5e4162f5a2d6b3a01f393b564dcc00726a9cd25f5b4be578e8e69e1",
+      "accepted_count_evidence": [
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/final-ew-midpoint-062/install-motion/accepted-geometry/step-4.receipt.json plus exit0"
+      ]
+    }
+  ],
+  "conclusion": "Larger timesteps are retired as the optimization direction by user instruction; no further timestep trials. Larger linear/Newton budgets, local Schwarz toggles, PSD contact and hydraulic-only smoothing have not qualified sustained full-Human convergence. Reuse measured exact work elimination; next structural work belongs to full-physics sparse/local condensation and certified conservative mappings.",
+  "counts_authority": "accepted native terminal audit and progress records; preflight failures and terminated trials kept separate; exit0 alone is not convergence or motion qualification"
+}

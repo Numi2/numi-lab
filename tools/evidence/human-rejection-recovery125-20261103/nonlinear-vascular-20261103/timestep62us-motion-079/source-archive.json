@@ -1,0 +1,9 @@
+{
+  "base_recovery": "../../active-cavity-contact-20261103/execution-source-recovery.tar.gz",
+  "final_overlay": "../execution-source-final-086.tar.gz",
+  "final_overlay_sha256": "c80a3441f3e1309f9fb4c50370e42d203bc43e51e7efd1f07dbfb52d774ddf28",
+  "historical_patch": "source-from-final.patch",
+  "patch_sha256": "a3eb304d6e3f711fa6be8460aa60d1e9ad171039b9f6fa9927bc1cf675b08be4",
+  "restored_source_files": 28,
+  "restore_test": "all overlaid source files byte equal to the actual trial snapshot; source identities retained in build-manifest.json"
+}

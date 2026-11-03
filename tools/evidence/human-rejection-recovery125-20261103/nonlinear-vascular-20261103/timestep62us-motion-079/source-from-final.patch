@@ -1,0 +1,310 @@
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -27171,20 +27171,6 @@
+     if(const char* ledgerPath=std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_MASS_LEDGER_CSV")) {
+         require(enableWholeBodySkinFat&&ledgerPath[0]!='\0',
+                 "skin/fat parent mass capture requires the complete compiled shell and a path");
+-        // Repeated numerical trials need the same mass/ancestry validation,
+-        // but not hundreds of MiB of decimal CSV copies of immutable inputs.
+-        // This opt-in suppresses formatting only; all capture, closure,
+-        // reference-volume and anatomical-label checks below still execute.
+-        const char* compactSetting=std::getenv("NUMI_HUMAN_SKIN_FAT_COMPACT_MASS_CAPTURE");
+-        require(compactSetting==nullptr||std::string_view(compactSetting)=="0"||
+-                    std::string_view(compactSetting)=="1",
+-                "compact skin/fat mass capture must be exactly 0 or 1");
+-        const bool compactCapture=compactSetting&&std::string_view(compactSetting)=="1";
+-        require(!compactCapture||
+-                    (std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_WEIGHTS_CSV")==nullptr&&
+-                     std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_LAYER_ROWS_CSV")==nullptr&&
+-                     std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_DEEP_ATTACHMENTS_CSV")==nullptr),
+-                "compact mass capture cannot suppress explicitly requested full-weight/layer/attachment exports");
+         const auto& descriptor=compiled.world.objects.at(wholeBodySkinObjectIndex);
+         std::map<std::uint32_t,metalrobo::NumiHumanTissueMassNode> byNode;
+         for(const auto* prepared:{&preparedSkin,&preparedFat})
+@@ -27213,13 +27199,10 @@
+         require(captureCompiledSkinFatParentMassLedger(source,compiled.world,wholeBodySkinObjectIndex,
+                     donorBodies,donorLocal,donorRows,parentMass,sourceMass,captureReport,captureError),
+                 "exact cooked skin/fat parent mass capture rejected: "+captureError);
+-        const auto& object=source.objects.at(wholeBodySkinObjectIndex);
+-        const auto& referenceNodes=object.femReferenceNodes.empty()?object.femNodes:object.femReferenceNodes;
+-        std::ofstream geometryTets;
+-        if(!compactCapture) {
+         std::ofstream ledger(ledgerPath,std::ios::out|std::ios::binary|std::ios::trunc);
+         require(ledger.good(),"could not create skin/fat parent mass ledger");
+         ledger<<"source_tet_row,material_index,mass_kg\n"<<std::setprecision(17);
++        const auto& object=source.objects.at(wholeBodySkinObjectIndex);
+         for(std::size_t row=0;row<parentMass.size();++row)
+             ledger<<row<<','<<(object.femMaterialIndices.empty()?object.materialIndex:object.femMaterialIndices[row])
+                   <<','<<parentMass[row]<<'\n';
+@@ -27233,9 +27216,10 @@
+                          <<','<<row.donorLocalPosition[0]<<','<<row.donorLocalPosition[1]<<','<<row.donorLocalPosition[2]<<'\n';
+         contributions.flush();require(contributions.good(),"skin/fat parent source-mass ledger write failed");
+         std::ofstream geometryNodes(std::string(ledgerPath)+".nodes.csv",std::ios::out|std::ios::binary|std::ios::trunc);
+-        geometryTets.open(std::string(ledgerPath)+".tets.csv",std::ios::out|std::ios::binary|std::ios::trunc);
++        std::ofstream geometryTets(std::string(ledgerPath)+".tets.csv",std::ios::out|std::ios::binary|std::ios::trunc);
+         require(geometryNodes.good()&&geometryTets.good(),"could not create exact parent volume geometry CSVs");
+         geometryNodes<<"parent_node_index,compiled_global_node,current_x_m,current_y_m,current_z_m,rest_x_m,rest_y_m,rest_z_m,compiled_lumped_mass_kg,node_frame_owner_body,donor_local_x_m,donor_local_y_m,donor_local_z_m,mass_bits\n"<<std::setprecision(17);
++        const auto& referenceNodes=object.femReferenceNodes.empty()?object.femNodes:object.femReferenceNodes;
+         for(std::size_t row=0;row<object.femNodes.size();++row) {
+             const auto global=descriptor.stateOffset+row;
+             const auto& point=compiled.world.fem.nodes[global].positionAndMass;
+@@ -27244,26 +27228,19 @@
+                 <<referenceNodes[row][0]<<','<<referenceNodes[row][1]<<','<<referenceNodes[row][2]<<','
+                 <<point.w<<','<<donorBodies[row]<<','<<donorLocal[row][0]<<','<<donorLocal[row][1]<<','<<donorLocal[row][2]<<','<<bits<<'\n';
+         }
+-        geometryNodes.flush();require(geometryNodes.good(),"parent volume node CSV write failed");
+-        }
+-        if(!compactCapture)
+-            geometryTets<<"parent_tet_row,material_index,donor_body,parent_node0,parent_node1,parent_node2,parent_node3,parent_reference_volume_m3,parent_mass_kg\n"<<std::setprecision(17);
++        geometryTets<<"parent_tet_row,material_index,donor_body,parent_node0,parent_node1,parent_node2,parent_node3,parent_reference_volume_m3,parent_mass_kg\n"<<std::setprecision(17);
+         for(std::size_t row=0;row<object.tetrahedra.size();++row) {
+             const auto& corners=object.tetrahedra[row].nodes;
++            std::map<std::uint32_t,unsigned> counts;for(const auto node:corners)++counts[donorBodies[node]];
++            std::uint32_t dominant=NM_INVALID_INDEX;unsigned largest=0;
++            for(const auto& [body,count]:counts)if(count>largest){dominant=body;largest=count;}
+             const auto volume=std::abs(tetVolume(referenceNodes[corners[0]],referenceNodes[corners[1]],referenceNodes[corners[2]],referenceNodes[corners[3]]));
+             require(volume>0&&std::isfinite(volume),"parent volume geometry CSV contains invalid reference tet");
+-            if(!compactCapture) {
+-                std::map<std::uint32_t,unsigned> counts;for(const auto node:corners)++counts[donorBodies[node]];
+-                std::uint32_t dominant=NM_INVALID_INDEX;unsigned largest=0;
+-                for(const auto& [body,count]:counts)if(count>largest){dominant=body;largest=count;}
+-                geometryTets<<row<<','<<(object.femMaterialIndices.empty()?object.materialIndex:object.femMaterialIndices[row])
+-                    <<','<<dominant;for(const auto node:corners)geometryTets<<','<<node;
+-                geometryTets<<','<<volume<<','<<parentMass[row]<<'\n';
+-            }
++            geometryTets<<row<<','<<(object.femMaterialIndices.empty()?object.materialIndex:object.femMaterialIndices[row])
++                <<','<<dominant;for(const auto node:corners)geometryTets<<','<<node;
++            geometryTets<<','<<volume<<','<<parentMass[row]<<'\n';
+         }
+-        if(!compactCapture) {
+-            geometryTets.flush();require(geometryTets.good(),"parent volume geometry CSV write failed");
+-        }
++        geometryNodes.flush();geometryTets.flush();require(geometryNodes.good()&&geometryTets.good(),"parent volume geometry CSV write failed");
+         if(const char* weightsPath=std::getenv("NUMI_HUMAN_SKIN_FAT_PARENT_WEIGHTS_CSV")) {
+             // Capture the existing paired parent's interpolation basis in exact
+             // object-local node order, independently of cell mass donor labels.
+@@ -27477,33 +27454,24 @@
+         require(parentLabels.tetrahedronRegionLabels.size()==object.tetrahedra.size()&&
+                     parentLabels.tetrahedronOriginalSourceFaceIndices.size()==object.tetrahedra.size(),
+                 "native parent mass labels do not cover the exact compiled source cells");
+-        std::ofstream labels;
+-        if(!compactCapture) {
+-            labels.open(std::string(ledgerPath)+".labels.csv",std::ios::out|std::ios::binary|std::ios::trunc);
+-            require(labels.good(),"could not create native parent mass identity labels");
+-            labels<<"parent_tet_row,material_index,geometric_donor_body,anatomical_region_id,stable_source_face_id\n";
+-        }
++        std::ofstream labels(std::string(ledgerPath)+".labels.csv",
++            std::ios::out|std::ios::binary|std::ios::trunc);
++        require(labels.good(),"could not create native parent mass identity labels");
++        labels<<"parent_tet_row,material_index,geometric_donor_body,anatomical_region_id,stable_source_face_id\n";
+         for(std::size_t row=0;row<object.tetrahedra.size();++row) {
++            const auto& corners=object.tetrahedra[row].nodes;
++            std::map<std::uint32_t,unsigned> counts;
++            for(const auto node:corners)++counts[donorBodies[node]];
++            std::uint32_t donor=NM_INVALID_INDEX;unsigned largest=0u;
++            for(const auto& [body,count]:counts)if(count>largest){donor=body;largest=count;}
+             const auto regionId=parentLabels.tetrahedronRegionLabels[row];
+             const auto sourceFace=parentLabels.tetrahedronOriginalSourceFaceIndices[row];
+             require(regionId!=NM_INVALID_INDEX&&sourceFace!=NM_INVALID_INDEX,
+                     "native parent mass identity labels contain an invalid source region or face");
+-            if(!compactCapture) {
+-                const auto& corners=object.tetrahedra[row].nodes;
+-                std::map<std::uint32_t,unsigned> counts;
+-                for(const auto node:corners)++counts[donorBodies[node]];
+-                std::uint32_t donor=NM_INVALID_INDEX;unsigned largest=0u;
+-                for(const auto& [body,count]:counts)if(count>largest){donor=body;largest=count;}
+-                labels<<row<<','<<(object.femMaterialIndices.empty()?object.materialIndex:object.femMaterialIndices[row])
+-                    <<','<<donor<<','<<regionId<<','<<sourceFace<<'\n';
+-            }
++            labels<<row<<','<<(object.femMaterialIndices.empty()?object.materialIndex:object.femMaterialIndices[row])
++                <<','<<donor<<','<<regionId<<','<<sourceFace<<'\n';
+         }
+-        if(!compactCapture) {
+-            labels.flush();require(labels.good(),"native parent mass identity labels write failed");
+-        }
+-        std::cout<<"whole_body_compiled_skin_fat_capture_policy="
+-            <<(compactCapture?"validated_summary":"full_csv")
+-            <<" validation=unchanged source_geometry=unchanged\n";
++        labels.flush();require(labels.good(),"native parent mass identity labels write failed");
+         std::cout<<"whole_body_compiled_skin_fat_parent_labels=PASS rows="
+             <<object.tetrahedra.size()
+             <<" region_owner=dominant_original_registered_skin_binding_body_id"
+--- a/matter/src/metal/vascular.metalinc
++++ b/matter/src/metal/vascular.metalinc
+@@ -2187,12 +2187,10 @@
+     const uint matrixBase = environment * matrixCapacity;
+     const uint pivotBase = environment * maximumUnknowns;
+     if (lane == 0u) factorValid[environment] = 0u;
+-    if (unknownCount == 0u || unknownCount > maximumUnknowns ||
+-        graph.cavities.x > maximumUnknowns) return;
++    if (unknownCount == 0u || unknownCount > maximumUnknowns) return;
+ 
+     threadgroup atomic_uint failed;
+     threadgroup uint pivotRow;
+-    threadgroup float cavityVolumeColumn[maximumUnknowns];
+     if (lane == 0u)
+         atomic_store_explicit(&failed, 0u, memory_order_relaxed);
+     for (uint entry = lane; entry < unknownCount * matrixStride;
+@@ -2208,26 +2206,6 @@
+     // directionBase is not read by those columns. FEM motion is deliberately
+     // frozen here, while the ordinary full JVP keeps the wall cross-derivative.
+     const uint directionBase = stateBase;
+-    // With FEM geometry frozen, a cavity constraint has exactly one nonzero
+-    // vascular derivative: its volume coordinate. Evaluate that column through
+-    // the original arithmetic once per cavity, retaining geometry validity and
+-    // compensated-word policy, instead of traversing all faces for every column.
+-    for (uint cavity = lane; cavity < graph.cavities.x; cavity += 32u) {
+-        const uint row = graph.cavities.z + cavity;
+-        const uint column = cavities[cavity].identity.y;
+-        const float value = vascularEquation(graph, microstep.time.x, row,
+-            stateBase, directionBase, true, unknowns, compartments, connections,
+-            tissues, exchanges, connectionIncidence, connectionRanges,
+-            bloodExchangeIncidence, bloodExchangeRanges,
+-            tissueExchangeIncidence, tissueExchangeRanges, accepted,
+-            candidate, direction, elastance, workingSet, useWorkingSet != 0u,
+-            cavities, cavityFaces, compartmentCavity, femCandidate, femAccepted,
+-            nodeBase, 0.0f, column).y;
+-        cavityVolumeColumn[cavity] = value;
+-        if (!isfinite(value))
+-            atomic_store_explicit(&failed, 1u, memory_order_relaxed);
+-    }
+-    threadgroup_barrier(mem_flags::mem_threadgroup);
+     const uint entryCount = unknownCount * unknownCount;
+     for (uint entry = lane; entry < entryCount; entry += 32u) {
+         const uint row = entry / unknownCount;
+@@ -2239,10 +2217,6 @@
+                 workingSet, true);
+         if (constrainedFlow) {
+             value = row == column ? 1.0f : 0.0f;
+-        } else if (row >= graph.cavities.z) {
+-            const uint cavity = row - graph.cavities.z;
+-            value = column == cavities[cavity].identity.y
+-                ? cavityVolumeColumn[cavity] : 0.0f;
+         } else {
+             value = vascularEquation(graph, microstep.time.x, row, stateBase,
+                 directionBase, true, unknowns, compartments, connections,
+--- a/matter/tools/vascular_cavity_check.mm
++++ b/matter/tools/vascular_cavity_check.mm
+@@ -1976,21 +1976,18 @@
+     const auto pivotBuffer=[device newBufferWithLength:std::size_t(envs)*64*sizeof(std::uint32_t) options:MTLResourceStorageModeShared];
+     const auto validBuffer=[device newBufferWithLength:std::size_t(envs)*sizeof(std::uint32_t) options:MTLResourceStorageModeShared];
+     need(factorBuffer&&pivotBuffer&&validBuffer,"principal factor arena allocation failed");
+-    const auto factor = [&](id<MTLComputePipelineState> selected, id<MTLBuffer> graphInput,
+-            id<MTLBuffer> cavitiesInput, id<MTLBuffer> facesInput, id<MTLBuffer> nodesInput) {
+-        auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:selected];
+-        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];[encoder setBuffer:graphInput offset:0 atIndex:1];[encoder setBuffer:microBuffer offset:0 atIndex:2];
++    {auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:factorPipeline];
++        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];[encoder setBuffer:graphBuffer offset:0 atIndex:1];[encoder setBuffer:microBuffer offset:0 atIndex:2];
+         [encoder setBuffer:unknownBuffer offset:0 atIndex:3];[encoder setBuffer:compartmentBuffer offset:0 atIndex:4];[encoder setBuffer:connectionBuffer offset:0 atIndex:5];
+         [encoder setBuffer:tissueBuffer offset:0 atIndex:6];[encoder setBuffer:exchangeBuffer offset:0 atIndex:7];[encoder setBuffer:connIncidence offset:0 atIndex:8];
+         [encoder setBuffer:connRanges offset:0 atIndex:9];[encoder setBuffer:bloodIncidence offset:0 atIndex:10];[encoder setBuffer:bloodRanges offset:0 atIndex:11];
+         [encoder setBuffer:tissueIncidence offset:0 atIndex:12];[encoder setBuffer:tissueRanges offset:0 atIndex:13];[encoder setBuffer:acceptedBuffer offset:0 atIndex:14];
+         [encoder setBuffer:candidateBuffer offset:0 atIndex:15];[encoder setBuffer:zeroDirectionBuffer offset:0 atIndex:16];[encoder setBuffer:elastanceBuffer offset:0 atIndex:20];
+-        [encoder setBuffer:workingBuffer offset:0 atIndex:21];[encoder setBytes:&useWorkingSet length:sizeof(useWorkingSet) atIndex:22];[encoder setBuffer:cavitiesInput offset:0 atIndex:23];
+-        [encoder setBuffer:facesInput offset:0 atIndex:24];[encoder setBuffer:mappingBuffer offset:0 atIndex:25];[encoder setBuffer:nodesInput offset:0 atIndex:26];
++        [encoder setBuffer:workingBuffer offset:0 atIndex:21];[encoder setBytes:&useWorkingSet length:sizeof(useWorkingSet) atIndex:22];[encoder setBuffer:cavityBuffer offset:0 atIndex:23];
++        [encoder setBuffer:faceBuffer offset:0 atIndex:24];[encoder setBuffer:mappingBuffer offset:0 atIndex:25];[encoder setBuffer:femCandidateBuffer offset:0 atIndex:26];
+         [encoder setBuffer:femAcceptedBuffer offset:0 atIndex:27];[encoder setBuffer:factorBuffer offset:0 atIndex:28];[encoder setBuffer:pivotBuffer offset:0 atIndex:29];
+         [encoder setBuffer:validBuffer offset:0 atIndex:30];[encoder dispatchThreadgroups:MTLSizeMake(envs,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+-        [encoder endEncoding];completed(command);};
+-    factor(factorPipeline, graphBuffer, cavityBuffer, faceBuffer, femCandidateBuffer);
++        [encoder endEncoding];completed(command);}
+     const auto* valid=static_cast<const std::uint32_t*>(validBuffer.contents);need(valid[0]==1&&valid[1]==1,"production 46-row principal factor rejected a valid source-topology fixture");
+     const auto* factoredValues=static_cast<const float*>(factorBuffer.contents);
+     const auto factorSnapshot=std::vector<float>(factoredValues,factoredValues+std::size_t(envs)*64*64);
+@@ -2161,95 +2158,6 @@
+             }
+             ++cooperativeCases;
+         }
+-    }
+-    // Optional as-built old-library comparison for exact work-elimination
+-    // changes. This fixture setup is CPU-only; both factors execute production
+-    // Metal kernels with identical inputs, storage seeds and precision policy.
+-    if (const char* referencePath = std::getenv("NUMI_VASCULAR_FACTOR_REFERENCE_METALLIB")) {
+-        auto referenceLibrary = [device newLibraryWithURL:[NSURL fileURLWithPath:
+-            [NSString stringWithUTF8String:referencePath]] error:&error];
+-        need(referenceLibrary != nil, "factor reference metallib unavailable");
+-        auto referenceFactor = pipeline(device, referenceLibrary,
+-            @"numi_matter_metal::nm_vascular_factor_principal_block");
+-        unsigned exactCases = 0;
+-        for (unsigned mode = 0; mode < 7u; ++mode) {
+-            auto graph = v.layout;
+-            if (mode != 0u) graph.ranges.w |=
+-                NM_VASCULAR_LAYOUT_PERSISTENT_LOW_WORDS |
+-                NM_VASCULAR_LAYOUT_COMPENSATED_CAVITY_WORDS;
+-            auto cavities = v.cavities;
+-            auto faces = v.cavityFaces;
+-            if (mode >= 2u) {
+-                for (unsigned copy = 1; copy < 17u; ++copy)
+-                    faces.insert(faces.end(), v.cavityFaces.begin(), v.cavityFaces.end());
+-                cavities[0].faces.y = unsigned(faces.size());
+-                graph.cavities.y = unsigned(faces.size());
+-            }
+-            auto nodes = femState;
+-            if (mode >= 3u)
+-                for (unsigned i = 0; i < nodes.size(); ++i) {
+-                    auto& node = nodes[i];
+-                    node.referenceDisplacementAndMode.w = 1.f;
+-                    node.restAndFixed.x = node.positionAndMass.x + .375f;
+-                    node.restAndFixed.y = node.positionAndMass.y + .375f;
+-                    node.restAndFixed.z = node.positionAndMass.z + .375f;
+-                    const float low = float(int(i % 3u)-1)*1.e-9f;
+-                    node.referenceDisplacementAndMode.x = -.375f;
+-                    node.referenceDisplacementAndMode.y = -.375f;
+-                    node.referenceDisplacementAndMode.z = -.375f;
+-                    node.referenceDisplacementLow = {low,-low,low,0};
+-                }
+-            if (mode == 4u)
+-                for (auto& face : faces) std::swap(face.nodes.y, face.nodes.z);
+-            if (mode == 5u)
+-                nodes[faces[0].nodes.x].referenceDisplacementLow.x =
+-                    std::numeric_limits<float>::quiet_NaN();
+-            if (mode == 6u) graph.ranges.z = 65u; // bounded factor rejection
+-            auto graphInput = gpuBuffer(device, std::vector<NMVascularLayoutGPU>{graph});
+-            auto cavitiesInput = gpuBuffer(device, cavities);
+-            auto facesInput = gpuBuffer(device, faces);
+-            auto nodesInput = gpuBuffer(device, nodes);
+-            std::vector<float> oldFactors;
+-            std::vector<std::uint32_t> oldPivots,oldValidity;
+-            for (unsigned algorithm = 0; algorithm < 2u; ++algorithm) {
+-                std::memset(factorBuffer.contents, 0x31, factorBuffer.length);
+-                std::memset(pivotBuffer.contents, 0x32, pivotBuffer.length);
+-                std::memset(validBuffer.contents, 0x33, validBuffer.length);
+-                factor(algorithm == 0u ? referenceFactor : factorPipeline,
+-                    graphInput,cavitiesInput,facesInput,nodesInput);
+-                const auto* values = static_cast<const float*>(factorBuffer.contents);
+-                const auto* pivots = static_cast<const std::uint32_t*>(pivotBuffer.contents);
+-                const auto* validity = static_cast<const std::uint32_t*>(validBuffer.contents);
+-                if (algorithm == 0u) {
+-                    oldFactors.assign(values,values+factorBuffer.length/sizeof(float));
+-                    oldPivots.assign(pivots,pivots+pivotBuffer.length/sizeof(std::uint32_t));
+-                    oldValidity.assign(validity,validity+envs);
+-                } else {
+-                    need(std::memcmp(oldValidity.data(),validity,envs*sizeof(std::uint32_t))==0,
+-                        "cavity factor reuse changed valid/rejected environments");
+-                    if (mode < 4u) {
+-                        need(validity[0]==1u&&validity[1]==1u,
+-                            "cavity factor reuse rejected valid geometry");
+-                        need(std::memcmp(oldFactors.data(),values,factorBuffer.length)==0&&
+-                             std::memcmp(oldPivots.data(),pivots,pivotBuffer.length)==0,
+-                            "cavity factor reuse changed factor or pivot bits");
+-                    } else {
+-                        need(validity[0]==0u&&validity[1]==(mode==5u?1u:0u),
+-                            "cavity factor reuse changed invalid/isolated-valid environments");
+-                        if (mode==5u)
+-                            need(std::memcmp(oldFactors.data()+64u*64u,values+64u*64u,
+-                                     64u*64u*sizeof(float))==0&&
+-                                 std::memcmp(oldPivots.data()+64u,pivots+64u,
+-                                     64u*sizeof(std::uint32_t))==0,
+-                                "invalid first environment changed valid second factor");
+-                    }
+-                }
+-            }
+-            ++exactCases;
+-        }
+-        std::cout << "vascular_cavity_factor_reuse=pass cases=" << exactCases
+-            << " valid_factors_and_pivots=bitwise invalid_geometry_and_capacity=rejected"
+-            << " reference=as_built_prior_metallib biological_qualification=none\n";
+     }
+     std::cout << "vascular_cooperative_operator=pass cases="
+         << cooperativeCases

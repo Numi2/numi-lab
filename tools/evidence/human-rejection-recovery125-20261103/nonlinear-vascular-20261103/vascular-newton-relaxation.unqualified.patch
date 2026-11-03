@@ -1,0 +1,286 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -3233,6 +3233,7 @@
+     bool vascularBloodMassTangentNoOpNoOwner = false;
+     std::uint32_t vascularBloodMassTangentEligibleBindingCount = 0u;
+     bool vascularBlockPredictorEnabled = false;
++    bool vascularNewtonBlockRelaxationEnabled = false;
+     id<MTLBuffer> vascularPrincipalFactors = nil;
+     id<MTLBuffer> vascularPrincipalPivots = nil;
+     id<MTLBuffer> vascularPrincipalValid = nil;
+@@ -6000,6 +6001,17 @@
+             candidate->vascularBlockPredictorEnabled =
+                 std::strcmp(policy, "1") == 0;
+         }
++        if (const char* policy = std::getenv(
++                "NUMI_MATTER_VASCULAR_NEWTON_BLOCK_RELAXATION")) {
++            if (std::strcmp(policy, "0") != 0 &&
++                std::strcmp(policy, "1") != 0) {
++                diagnostics.message =
++                    "NUMI_MATTER_VASCULAR_NEWTON_BLOCK_RELAXATION must be exactly 0 or 1";
++                return diagnostics;
++            }
++            candidate->vascularNewtonBlockRelaxationEnabled =
++                std::strcmp(policy, "1") == 0;
++        }
+         if (candidate->vascularBlockPredictorEnabled &&
+             !candidate->vascularBlockPreconditionerEnabled) {
+             diagnostics.message =
+@@ -8197,6 +8209,10 @@
+         if (candidate->vascularBlockPredictorEnabled) {
+             candidate->executionFingerprint = mixFingerprint(
+                 candidate->executionFingerprint, 0x5650525052453031ull); // VPRPRE01
++        }
++        if (candidate->vascularNewtonBlockRelaxationEnabled) {
++            candidate->executionFingerprint = mixFingerprint(
++                candidate->executionFingerprint, 0x564e4252454c3031ull); // VNBREL01
+         }
+         candidate->acceptedStateProofProgramFingerprint =
+             candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity ==
+@@ -13062,6 +13078,19 @@
+             fullCertificate != nullptr && std::strcmp(fullCertificate, "1") == 0 &&
+             (world.vascular.layout.ranges.z != 0u ||
+              world.dispatch.rigidGeneralizedCapacity > 6u);
++        if (candidate->vascularNewtonBlockRelaxationEnabled &&
++            (!candidate->vascularBlockPredictorEnabled ||
++             world.dispatch.environmentCount != 1u ||
++             world.mixedSolver.executionBudgets.z != 6u ||
++             !candidate->femFullCoupledTrueResidualEnabled ||
++             candidate->femHumanHybridCoordinatesEnabled ||
++             candidate->dispatch.mpmActiveNodeCapacity != 0u ||
++             candidate->dispatch.cohesiveFaceCount != 0u)) {
++            diagnostics.message =
++                "vascular Newton block relaxation requires the existing block predictor, selector 6, "
++                "one full-coordinate FEM environment and full coupled true-residual certification";
++            return diagnostics;
++        }
+         if (candidate->fgmresInexactCoupledLinearCertificateEnabled &&
+             !candidate->femFullCoupledTrueResidualEnabled) {
+             diagnostics.message =
+@@ -31279,9 +31308,16 @@
+             }
+             bool baseCGLSBestOfSelectedNewtonForCommittedAudit = false;
+             std::uint32_t baseCGLSBestOfSelectedNewtonIteration = 0u;
+-            if (state.vascularBlockPredictorEnabled && vascularTotal != 0u) {
+-                // Establish the same valve working set as the ordinary solve,
+-                // then make at most four fixed-FEM hydraulic Newton updates.
++            const auto encodeVascularBlockRelaxation = [&](
++                    const bool respectCompletedNewton) -> bool {
++                if (!state.vascularBlockPredictorEnabled || vascularTotal == 0u)
++                    return true;
++                // Reuse the existing fixed-FEM principal-block Newton solve.
++                // Candidate blood state changes only inside this transaction;
++                // the following full body assembly recomputes all pressure and
++                // blood-mass forces. Final coupled certification is unchanged.
++                // Later boundaries preserve the GPU outer-convergence latch.
++                if (!respectCompletedNewton) {
+                 dispatchThreads("nm_vascular_begin_working_set",
+                     vascularTotal, [&] {
+                     setDispatch();
+@@ -31298,7 +31334,10 @@
+                     [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:10u];
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                }
+                 const auto preparePredictorScratch = [&](const std::uint32_t phase) {
++                    const std::uint32_t encodedPhase = phase |
++                        (respectCompletedNewton ? 0x80000000u : 0u);
+                     dispatchThreads("nm_vascular_predictor_prepare",
+                         std::max<NSUInteger>(
+                             std::max<NSUInteger>(
+@@ -31319,7 +31358,7 @@
+                                      offset:0u atIndex:8u];
+                         [encoder setBuffer:state.vascularPrincipalValid
+                                      offset:0u atIndex:9u];
+-                        [encoder setBytes:&phase length:sizeof(phase) atIndex:10u];
++                        [encoder setBytes:&encodedPhase length:sizeof(encodedPhase) atIndex:10u];
+                         [encoder setBuffer:state.femLineSearch offset:0u atIndex:11u];
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+@@ -31484,7 +31523,7 @@
+                     if (predictorIteration == 0u &&
+                         !encodeVascularTrace("predictor_begin")) {
+                         ownership->preDynamicsOpen = false;
+-                        return diagnostics;
++                        return false;
+                     }
+                     factorPredictorBlock();
+                     applyPredictorBlock();
+@@ -31515,11 +31554,13 @@
+                     state.femSolution, 0u, state.femResidual);
+                 if (!encodeVascularTrace("predictor_end")) {
+                     ownership->preDynamicsOpen = false;
+-                    return diagnostics;
++                    return false;
+                 }
+                 preparePredictorScratch(3u);
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+-            }
++                return true;
++            };
++            if (!encodeVascularBlockRelaxation(false)) return diagnostics;
+             if (state.femAcceptedSubspacePredictorEnabled) {
+                 dispatchThreads("nm_fgmres_accepted_subspace_reset",
+                     environments, [&] {
+@@ -34679,6 +34720,9 @@
+             };
+ 
+             micro.solverIteration = nonlinearIteration;
++            if (state.vascularNewtonBlockRelaxationEnabled &&
++                nonlinearIteration != 0u &&
++                !encodeVascularBlockRelaxation(true)) return diagnostics;
+             if (femNewtonTailDispatchEnabledForCurrentRoot) {
+                 if (femNewtonTailICBEnabledForCurrentRoot) {
+                     dispatchThreads("nm_fgmres_prepare_newton_tail_icb",
+--- a/matter/src/metal/vascular.metalinc
++++ b/matter/src/metal/vascular.metalinc
+@@ -2105,9 +2105,11 @@
+     device float* environmentLineSearch [[buffer(7)]],
+     device uint* workingSetChanged [[buffer(8)]],
+     device const uint* factorValid [[buffer(9)]],
+-    constant uint& phase [[buffer(10)]],
++    constant uint& encodedPhase [[buffer(10)]],
+     device float4* objectLineSearch [[buffer(11)]],
+     uint global [[thread_position_in_grid]]) {
++    const uint phase = encodedPhase & 0x7fffffffu;
++    const bool respectCompletedNewton = (encodedPhase & 0x80000000u) != 0u;
+     const uint objectTotal = dispatch.environmentCount * dispatch.objectCount;
+     if (layout.unknownCount == 0u || dispatch.environmentCount == 0u ||
+         (global >= layout.unknownCount && global >= dispatch.environmentCount &&
+@@ -2125,16 +2127,19 @@
+             const uint row = global - layout.vascularBase;
+             const uint environment = row / layout.vascularUnknownCount;
+             solution[global] = environment < dispatch.environmentCount &&
+-                factorValid[environment] != 0u
++                factorValid[environment] != 0u &&
++                !(respectCompletedNewton && states[environment].nonlinear.w > 0.5f)
+                 ? preconditioned[global] : float4(0.0f);
+         }
+     }
+     if (global < dispatch.environmentCount) {
+         if (phase == 0u) {
+-            states[global].diagnostics.z = 0.0f;
++            if (!(respectCompletedNewton && states[global].nonlinear.w > 0.5f))
++                states[global].diagnostics.z = 0.0f;
+             environmentLineSearch[global] = 1.0f;
+             workingSetChanged[global] = 0u;
+-        } else if (phase == 2u && factorValid[global] == 0u) {
++        } else if (phase == 2u && (factorValid[global] == 0u ||
++                   (respectCompletedNewton && states[global].nonlinear.w > 0.5f))) {
+             workingSetChanged[global] = 2u;
+         } else if (phase == 3u) {
+             environmentLineSearch[global] = 1.0f;
+--- a/matter/tools/vascular_cavity_check.mm
++++ b/matter/tools/vascular_cavity_check.mm
+@@ -2282,6 +2282,103 @@
+         "block predictor fixture lost its positive finite cavity blood volume");
+     return probe;
+ }
++// Exercise the production scratch gate without compiling an unrelated runtime.
++// A converged outer Newton state must survive local hydraulic smoothing; an
++// accepted inner linear solve alone must not suppress the next local sweep.
++void newtonBlockRelaxationGates() {
++    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
++    need(device != nil, "Metal device unavailable for Newton block gate");
++    NSError* error = nil;
++    id<MTLLibrary> library = [device newLibraryWithURL:
++        [NSURL fileURLWithPath:@NUMI_MATTER_METALLIB] error:&error];
++    need(library != nil, "Newton block gate metallib unavailable");
++    auto pipe = pipeline(device, library, @"numi_matter_metal::nm_vascular_predictor_prepare");
++    auto queue = [device newCommandQueue];
++    NMMatterDispatchGPU dispatch{};
++    dispatch.environmentCount = 3u;
++    dispatch.objectCount = 2u;
++    NMFGMRESLayoutGPU layout{};
++    layout.vascularBase = 12u;
++    layout.vascularUnknownCount = 2u;
++    layout.unknownCount = 18u;
++    std::vector<nm_float4> input(18u), zeros(18u), seeded(18u);
++    for (unsigned i = 0; i < input.size(); ++i) {
++        input[i] = {float(i + 1), 0, 0, 0};
++        seeded[i] = {float(100 + i), 0, 0, 0};
++    }
++    std::vector<NMFGMRESStateGPU> states(3u);
++    for (auto& state : states) {
++        state.diagnostics = {7, 8, 1, 9};
++        state.nonlinear = {10, 11, 12, 0};
++    }
++    states[1].nonlinear.w = 1.0f;
++    const auto initialStates = states;
++    auto rhs = gpuBuffer(device, input);
++    auto basis = gpuBuffer(device, seeded);
++    auto preconditioned = gpuBuffer(device, seeded);
++    auto solution = gpuBuffer(device, seeded);
++    auto gpuStates = gpuBuffer(device, states);
++    auto alpha = gpuBuffer(device, std::vector<float>(3u, 0.125f));
++    auto changed = gpuBuffer(device, std::vector<unsigned>(3u, 99u));
++    auto valid = gpuBuffer(device, std::vector<unsigned>{1u, 1u, 0u});
++    auto lines = gpuBuffer(device, std::vector<nm_float4>(6u, {0.25f, 2, 3, 4}));
++    auto encode = [&](unsigned phase) {
++        auto command = [queue commandBuffer];
++        auto encoder = [command computeCommandEncoder];
++        [encoder setComputePipelineState:pipe];
++        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
++        [encoder setBytes:&layout length:sizeof(layout) atIndex:1u];
++        id<MTLBuffer> buffers[] = {rhs, basis, preconditioned, solution,
++                                  gpuStates, alpha, changed, valid};
++        for (unsigned i = 0; i < 8u; ++i)
++            [encoder setBuffer:buffers[i] offset:0 atIndex:2u + i];
++        [encoder setBytes:&phase length:sizeof(phase) atIndex:10u];
++        [encoder setBuffer:lines offset:0 atIndex:11u];
++        [encoder dispatchThreads:MTLSizeMake(32, 1, 1)
++            threadsPerThreadgroup:MTLSizeMake(32, 1, 1)];
++        [encoder endEncoding];
++        [command commit]; [command waitUntilCompleted];
++        need(command.status == MTLCommandBufferStatusCompleted,
++             "Newton block gate GPU execution failed");
++    };
++    encode(0x80000000u);
++    auto* after = static_cast<NMFGMRESStateGPU*>(gpuStates.contents);
++    need(after[0].diagnostics.z == 0 && after[1].diagnostics.z == 1 &&
++         after[2].diagnostics.z == 0,
++         "outer gate confused inner and nonlinear convergence");
++    for (unsigned e = 0; e < 3u; ++e)
++        need(std::memcmp(&after[e].nonlinear, &initialStates[e].nonlinear,
++                         sizeof(nm_float4)) == 0, "outer Newton history changed");
++    need(std::memcmp(solution.contents, zeros.data(), zeros.size()*sizeof(nm_float4)) == 0,
++         "predictor scratch did not clear all correction domains");
++    std::memcpy(preconditioned.contents, seeded.data(), seeded.size()*sizeof(nm_float4));
++    encode(0x80000001u);
++    auto* correction = static_cast<nm_float4*>(solution.contents);
++    need(correction[12].x == seeded[12].x && correction[13].x == seeded[13].x,
++         "active local block direction was suppressed");
++    for (unsigned i = 14; i < 18; ++i)
++        need(correction[i].x == 0, "completed or invalid block correction leaked");
++    encode(0x80000002u);
++    auto* gates = static_cast<unsigned*>(changed.contents);
++    need(gates[0] == 0 && gates[1] == 2 && gates[2] == 2,
++         "completed/invalid local block was not deferred");
++    encode(0x80000003u);
++    auto* alphas = static_cast<float*>(alpha.contents);
++    auto* objectLines = static_cast<nm_float4*>(lines.contents);
++    for (unsigned e = 0; e < 3; ++e) need(alphas[e] == 1, "shared alpha not reset");
++    for (unsigned i = 0; i < 6; ++i)
++        need(objectLines[i].x == 1 && objectLines[i].y == 2 &&
++             objectLines[i].z == 3 && objectLines[i].w == 4,
++             "object alpha reset changed line-search diagnostics");
++    encode(0u);
++    need(after[1].diagnostics.z == 0,
++         "legacy initial predictor unexpectedly inherited an outer latch");
++    std::cout << "vascular_newton_block_relaxation_gates=pass "
++        "inner_vs_outer_latch=pass invalid_factor=pass all_domain_clear=pass "
++        "history=bitwise legacy_initial_predictor=unchanged\n";
++}
++
++
+ void blockPredictorOnly(){
+     // The caller policy is restored after each initialization. This tests the
+     // actual Runtime capture point without leaking the opt-in to other probes.
+@@ -2717,6 +2814,7 @@
+ int main(int argc,char** argv){@autoreleasepool{try{std::cout<<std::setprecision(17);
+ if(argc==3&&std::string(argv[1])=="--block-preconditioner-only"){blockPreconditioner(argv[2]);return 0;}
+ if(argc==2&&std::string(argv[1])=="--block-predictor-only"){blockPredictorOnly();return 0;}
++if(argc==2&&std::string(argv[1])=="--newton-block-relaxation-gates-only"){newtonBlockRelaxationGates();return 0;}
+ if(argc==2&&std::string(argv[1])=="--cavity-schur-block-only"){cavitySchurBlockPreconditioner();return 0;}
+ if(argc==2&&std::string(argv[1])=="--semismooth-upwind-only"){
+     semismoothUpwindWorkingSet(VascularFlowLaw::resistanceInertance);

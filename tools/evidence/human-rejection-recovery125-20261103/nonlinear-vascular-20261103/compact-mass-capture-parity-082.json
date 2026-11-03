@@ -1,0 +1,35 @@
+{
+  "control": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/vascular-newton-native-081",
+  "compact": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/compact-mass-native-082",
+  "checks": [
+    {
+      "path": "install-motion/resting-coupled.csv",
+      "bytes": 4575,
+      "sha256": "c6ca6e30161ddfcd578e919fef860c05e56326f0d0c24c87c31f4d2553e9858f",
+      "bitwise_equal": true
+    },
+    {
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "bytes": 321323008,
+      "sha256": "1650ced545f71ebffcd33dd6b1d70874579e5912d9014680446203b42c6cd3ec",
+      "bitwise_equal": true
+    },
+    {
+      "path": "install-motion/accepted-geometry/step-4.mrvpack",
+      "bytes": 321323008,
+      "sha256": "48b5c790a78bd9cb88066df1f13faf72949d3cf6a00fbf9938634e8515b16cdc",
+      "bitwise_equal": true
+    }
+  ],
+  "validation": [
+    "whole_body_compiled_skin_fat_parent_labels=PASS rows=1453640 region_owner=dominant_original_registered_skin_binding_body_id face_owner=registered_mechanical_face_original_source_identity mass_state_added=0 physical_steps=0",
+    "whole_body_compiled_skin_fat_parent_mass=PASS nodes=311768 tets=1453640 mass_kg=13.939678963460397 source_rows=429965 nodal_closure_error_kg=0 source_world_mutated=0 physical_steps=0"
+  ],
+  "routine_csv_files_omitted": 5,
+  "routine_csv_bytes_omitted": 324451350,
+  "whole_process_elapsed_s": [
+    215.6381058692932,
+    200.5886881351471
+  ],
+  "timing_limit": "one unmatched pair; no steady-state speedup claim; preparation includes other work; no supported motion qualification"
+}

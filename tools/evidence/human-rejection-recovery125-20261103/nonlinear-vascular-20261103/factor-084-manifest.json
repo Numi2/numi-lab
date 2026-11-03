@@ -1,0 +1,38 @@
+{
+  "reference.metallib": {
+    "bytes": 31108740,
+    "sha256": "978830c0d4f4c09621b78e6ca9cd99c2fd37aae0c66b3552b42bfc09daacd0fe"
+  },
+  "factor-parity-084-fixture-expectation-failure.log": {
+    "bytes": 82,
+    "sha256": "c16d6b89da0d65a5ea52f3fc40ccb5cf0f7e1142f40c02512eea3d57a957734a"
+  },
+  "vascular-gates-084.log": {
+    "bytes": 163,
+    "sha256": "5c88db7b39f09a3a37fb1c5dfceb91d476caf6de537600c15f47b848d75af5f4"
+  },
+  "solver-check-084.log": {
+    "bytes": 14022,
+    "sha256": "31f665bde360b6048189ead1fe51f98ccefdd4954bacec88acb3205538ed3633"
+  },
+  "predictor-regression-084.log": {
+    "bytes": 13528,
+    "sha256": "40066d379920ee93e147591a1195201eb1606574d4ad25e7faf10a9819500a55"
+  },
+  "source-preimage.tar.gz": {
+    "bytes": 31444,
+    "sha256": "751a6bfa125accfd29a4bbabd3ccaf83fcb218cde95ccd7a858a663cc5b5b8f9"
+  },
+  "factor-parity-084.log": {
+    "bytes": 734,
+    "sha256": "2619e93def0cd7b8db221cfd417d1149f4849b64df2a3287169a63eff065d68a"
+  },
+  "build-factor-reuse-084.log": {
+    "bytes": 229,
+    "sha256": "bf3cecab800d895b9fb4849a76ec8df210ea020bef929a07db97b6ad8a035db5"
+  },
+  "build-factor-reuse-084-syntax-failure.log": {
+    "bytes": 19347,
+    "sha256": "09138549be01e54c87cd2c5fa2ef1c4560860586eb0dd9a4ea8bcb3a4fb775cd"
+  }
+}

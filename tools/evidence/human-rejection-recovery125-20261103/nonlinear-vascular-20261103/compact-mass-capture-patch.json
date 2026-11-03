@@ -1,0 +1,8 @@
+{
+  "file": "apps/numilab_human_myosim_visual_probe.mm",
+  "preimage_block_sha256": "b3a57daf6dac7ac68236bed7940a1c7fc338efbd33f635c1bb0d16879610c8cc",
+  "postimage_block_sha256": "c9dd22f118f558e8ac559855e3a3dbeceeb8cfacd15561e9e25270d1dfd593ec",
+  "source_world_mutation": false,
+  "validation": "capture closure, finite positive reference volumes, parent anatomical labels unchanged",
+  "output_policy": "explicit opt-in; optional full weight/layer/attachment exports rejected if combined"
+}

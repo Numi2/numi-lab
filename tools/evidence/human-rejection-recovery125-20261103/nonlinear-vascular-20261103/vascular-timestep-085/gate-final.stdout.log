@@ -1,0 +1,1 @@
+vascular_newton_block_relaxation_gates=pass inner_vs_outer_latch=pass invalid_factor=pass all_domain_clear=pass history=bitwise legacy_initial_predictor=unchanged

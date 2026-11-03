@@ -2187,10 +2187,12 @@ kernel void nm_vascular_factor_principal_block(
     const uint matrixBase = environment * matrixCapacity;
     const uint pivotBase = environment * maximumUnknowns;
     if (lane == 0u) factorValid[environment] = 0u;
-    if (unknownCount == 0u || unknownCount > maximumUnknowns) return;
+    if (unknownCount == 0u || unknownCount > maximumUnknowns ||
+        graph.cavities.x > maximumUnknowns) return;
 
     threadgroup atomic_uint failed;
     threadgroup uint pivotRow;
+    threadgroup float cavityVolumeColumn[maximumUnknowns];
     if (lane == 0u)
         atomic_store_explicit(&failed, 0u, memory_order_relaxed);
     for (uint entry = lane; entry < unknownCount * matrixStride;
@@ -2206,6 +2208,26 @@ kernel void nm_vascular_factor_principal_block(
     // directionBase is not read by those columns. FEM motion is deliberately
     // frozen here, while the ordinary full JVP keeps the wall cross-derivative.
     const uint directionBase = stateBase;
+    // With FEM geometry frozen, a cavity constraint has exactly one nonzero
+    // vascular derivative: its volume coordinate. Evaluate that column through
+    // the original arithmetic once per cavity, retaining geometry validity and
+    // compensated-word policy, instead of traversing all faces for every column.
+    for (uint cavity = lane; cavity < graph.cavities.x; cavity += 32u) {
+        const uint row = graph.cavities.z + cavity;
+        const uint column = cavities[cavity].identity.y;
+        const float value = vascularEquation(graph, microstep.time.x, row,
+            stateBase, directionBase, true, unknowns, compartments, connections,
+            tissues, exchanges, connectionIncidence, connectionRanges,
+            bloodExchangeIncidence, bloodExchangeRanges,
+            tissueExchangeIncidence, tissueExchangeRanges, accepted,
+            candidate, direction, elastance, workingSet, useWorkingSet != 0u,
+            cavities, cavityFaces, compartmentCavity, femCandidate, femAccepted,
+            nodeBase, 0.0f, column).y;
+        cavityVolumeColumn[cavity] = value;
+        if (!isfinite(value))
+            atomic_store_explicit(&failed, 1u, memory_order_relaxed);
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
     const uint entryCount = unknownCount * unknownCount;
     for (uint entry = lane; entry < entryCount; entry += 32u) {
         const uint row = entry / unknownCount;
@@ -2217,6 +2239,10 @@ kernel void nm_vascular_factor_principal_block(
                 workingSet, true);
         if (constrainedFlow) {
             value = row == column ? 1.0f : 0.0f;
+        } else if (row >= graph.cavities.z) {
+            const uint cavity = row - graph.cavities.z;
+            value = column == cavities[cavity].identity.y
+                ? cavityVolumeColumn[cavity] : 0.0f;
         } else {
             value = vascularEquation(graph, microstep.time.x, row, stateBase,
                 directionBase, true, unknowns, compartments, connections,

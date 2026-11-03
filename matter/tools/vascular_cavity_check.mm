@@ -1976,18 +1976,21 @@ void blockPreconditioner(const std::filesystem::path& physiologyPath){
     const auto pivotBuffer=[device newBufferWithLength:std::size_t(envs)*64*sizeof(std::uint32_t) options:MTLResourceStorageModeShared];
     const auto validBuffer=[device newBufferWithLength:std::size_t(envs)*sizeof(std::uint32_t) options:MTLResourceStorageModeShared];
     need(factorBuffer&&pivotBuffer&&validBuffer,"principal factor arena allocation failed");
-    {auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:factorPipeline];
-        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];[encoder setBuffer:graphBuffer offset:0 atIndex:1];[encoder setBuffer:microBuffer offset:0 atIndex:2];
+    const auto factor = [&](id<MTLComputePipelineState> selected, id<MTLBuffer> graphInput,
+            id<MTLBuffer> cavitiesInput, id<MTLBuffer> facesInput, id<MTLBuffer> nodesInput) {
+        auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:selected];
+        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];[encoder setBuffer:graphInput offset:0 atIndex:1];[encoder setBuffer:microBuffer offset:0 atIndex:2];
         [encoder setBuffer:unknownBuffer offset:0 atIndex:3];[encoder setBuffer:compartmentBuffer offset:0 atIndex:4];[encoder setBuffer:connectionBuffer offset:0 atIndex:5];
         [encoder setBuffer:tissueBuffer offset:0 atIndex:6];[encoder setBuffer:exchangeBuffer offset:0 atIndex:7];[encoder setBuffer:connIncidence offset:0 atIndex:8];
         [encoder setBuffer:connRanges offset:0 atIndex:9];[encoder setBuffer:bloodIncidence offset:0 atIndex:10];[encoder setBuffer:bloodRanges offset:0 atIndex:11];
         [encoder setBuffer:tissueIncidence offset:0 atIndex:12];[encoder setBuffer:tissueRanges offset:0 atIndex:13];[encoder setBuffer:acceptedBuffer offset:0 atIndex:14];
         [encoder setBuffer:candidateBuffer offset:0 atIndex:15];[encoder setBuffer:zeroDirectionBuffer offset:0 atIndex:16];[encoder setBuffer:elastanceBuffer offset:0 atIndex:20];
-        [encoder setBuffer:workingBuffer offset:0 atIndex:21];[encoder setBytes:&useWorkingSet length:sizeof(useWorkingSet) atIndex:22];[encoder setBuffer:cavityBuffer offset:0 atIndex:23];
-        [encoder setBuffer:faceBuffer offset:0 atIndex:24];[encoder setBuffer:mappingBuffer offset:0 atIndex:25];[encoder setBuffer:femCandidateBuffer offset:0 atIndex:26];
+        [encoder setBuffer:workingBuffer offset:0 atIndex:21];[encoder setBytes:&useWorkingSet length:sizeof(useWorkingSet) atIndex:22];[encoder setBuffer:cavitiesInput offset:0 atIndex:23];
+        [encoder setBuffer:facesInput offset:0 atIndex:24];[encoder setBuffer:mappingBuffer offset:0 atIndex:25];[encoder setBuffer:nodesInput offset:0 atIndex:26];
         [encoder setBuffer:femAcceptedBuffer offset:0 atIndex:27];[encoder setBuffer:factorBuffer offset:0 atIndex:28];[encoder setBuffer:pivotBuffer offset:0 atIndex:29];
         [encoder setBuffer:validBuffer offset:0 atIndex:30];[encoder dispatchThreadgroups:MTLSizeMake(envs,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
-        [encoder endEncoding];completed(command);}
+        [encoder endEncoding];completed(command);};
+    factor(factorPipeline, graphBuffer, cavityBuffer, faceBuffer, femCandidateBuffer);
     const auto* valid=static_cast<const std::uint32_t*>(validBuffer.contents);need(valid[0]==1&&valid[1]==1,"production 46-row principal factor rejected a valid source-topology fixture");
     const auto* factoredValues=static_cast<const float*>(factorBuffer.contents);
     const auto factorSnapshot=std::vector<float>(factoredValues,factoredValues+std::size_t(envs)*64*64);
@@ -2158,6 +2161,95 @@ void blockPreconditioner(const std::filesystem::path& physiologyPath){
             }
             ++cooperativeCases;
         }
+    }
+    // Optional as-built old-library comparison for exact work-elimination
+    // changes. This fixture setup is CPU-only; both factors execute production
+    // Metal kernels with identical inputs, storage seeds and precision policy.
+    if (const char* referencePath = std::getenv("NUMI_VASCULAR_FACTOR_REFERENCE_METALLIB")) {
+        auto referenceLibrary = [device newLibraryWithURL:[NSURL fileURLWithPath:
+            [NSString stringWithUTF8String:referencePath]] error:&error];
+        need(referenceLibrary != nil, "factor reference metallib unavailable");
+        auto referenceFactor = pipeline(device, referenceLibrary,
+            @"numi_matter_metal::nm_vascular_factor_principal_block");
+        unsigned exactCases = 0;
+        for (unsigned mode = 0; mode < 7u; ++mode) {
+            auto graph = v.layout;
+            if (mode != 0u) graph.ranges.w |=
+                NM_VASCULAR_LAYOUT_PERSISTENT_LOW_WORDS |
+                NM_VASCULAR_LAYOUT_COMPENSATED_CAVITY_WORDS;
+            auto cavities = v.cavities;
+            auto faces = v.cavityFaces;
+            if (mode >= 2u) {
+                for (unsigned copy = 1; copy < 17u; ++copy)
+                    faces.insert(faces.end(), v.cavityFaces.begin(), v.cavityFaces.end());
+                cavities[0].faces.y = unsigned(faces.size());
+                graph.cavities.y = unsigned(faces.size());
+            }
+            auto nodes = femState;
+            if (mode >= 3u)
+                for (unsigned i = 0; i < nodes.size(); ++i) {
+                    auto& node = nodes[i];
+                    node.referenceDisplacementAndMode.w = 1.f;
+                    node.restAndFixed.x = node.positionAndMass.x + .375f;
+                    node.restAndFixed.y = node.positionAndMass.y + .375f;
+                    node.restAndFixed.z = node.positionAndMass.z + .375f;
+                    const float low = float(int(i % 3u)-1)*1.e-9f;
+                    node.referenceDisplacementAndMode.x = -.375f;
+                    node.referenceDisplacementAndMode.y = -.375f;
+                    node.referenceDisplacementAndMode.z = -.375f;
+                    node.referenceDisplacementLow = {low,-low,low,0};
+                }
+            if (mode == 4u)
+                for (auto& face : faces) std::swap(face.nodes.y, face.nodes.z);
+            if (mode == 5u)
+                nodes[faces[0].nodes.x].referenceDisplacementLow.x =
+                    std::numeric_limits<float>::quiet_NaN();
+            if (mode == 6u) graph.ranges.z = 65u; // bounded factor rejection
+            auto graphInput = gpuBuffer(device, std::vector<NMVascularLayoutGPU>{graph});
+            auto cavitiesInput = gpuBuffer(device, cavities);
+            auto facesInput = gpuBuffer(device, faces);
+            auto nodesInput = gpuBuffer(device, nodes);
+            std::vector<float> oldFactors;
+            std::vector<std::uint32_t> oldPivots,oldValidity;
+            for (unsigned algorithm = 0; algorithm < 2u; ++algorithm) {
+                std::memset(factorBuffer.contents, 0x31, factorBuffer.length);
+                std::memset(pivotBuffer.contents, 0x32, pivotBuffer.length);
+                std::memset(validBuffer.contents, 0x33, validBuffer.length);
+                factor(algorithm == 0u ? referenceFactor : factorPipeline,
+                    graphInput,cavitiesInput,facesInput,nodesInput);
+                const auto* values = static_cast<const float*>(factorBuffer.contents);
+                const auto* pivots = static_cast<const std::uint32_t*>(pivotBuffer.contents);
+                const auto* validity = static_cast<const std::uint32_t*>(validBuffer.contents);
+                if (algorithm == 0u) {
+                    oldFactors.assign(values,values+factorBuffer.length/sizeof(float));
+                    oldPivots.assign(pivots,pivots+pivotBuffer.length/sizeof(std::uint32_t));
+                    oldValidity.assign(validity,validity+envs);
+                } else {
+                    need(std::memcmp(oldValidity.data(),validity,envs*sizeof(std::uint32_t))==0,
+                        "cavity factor reuse changed valid/rejected environments");
+                    if (mode < 4u) {
+                        need(validity[0]==1u&&validity[1]==1u,
+                            "cavity factor reuse rejected valid geometry");
+                        need(std::memcmp(oldFactors.data(),values,factorBuffer.length)==0&&
+                             std::memcmp(oldPivots.data(),pivots,pivotBuffer.length)==0,
+                            "cavity factor reuse changed factor or pivot bits");
+                    } else {
+                        need(validity[0]==0u&&validity[1]==(mode==5u?1u:0u),
+                            "cavity factor reuse changed invalid/isolated-valid environments");
+                        if (mode==5u)
+                            need(std::memcmp(oldFactors.data()+64u*64u,values+64u*64u,
+                                     64u*64u*sizeof(float))==0&&
+                                 std::memcmp(oldPivots.data()+64u,pivots+64u,
+                                     64u*sizeof(std::uint32_t))==0,
+                                "invalid first environment changed valid second factor");
+                    }
+                }
+            }
+            ++exactCases;
+        }
+        std::cout << "vascular_cavity_factor_reuse=pass cases=" << exactCases
+            << " valid_factors_and_pivots=bitwise invalid_geometry_and_capacity=rejected"
+            << " reference=as_built_prior_metallib biological_qualification=none\n";
     }
     std::cout << "vascular_cooperative_operator=pass cases="
         << cooperativeCases

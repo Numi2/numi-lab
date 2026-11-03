@@ -1,0 +1,109 @@
+{
+  "trials": [
+    {
+      "trial": "accepted-motion-frontier-077",
+      "execution": {
+        "exit_code": 1,
+        "elapsed_s": 295.81934213638306,
+        "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/accepted-motion-frontier-077/install-motion.plan.json",
+        "plan_sha256": "e30d3e3fc8e8115103e6f071faf2edad2ed3a58e5a96d2c4f7c579870a40c748",
+        "stdout_sha256": "0d9cf647ccaaa48524f52068884a1acf31796a6f2b124f7cc14aa50d51dbaeef",
+        "stderr_sha256": "94d0c1ab5bd1929bde577a31092fc221e3af2e71ca7bc05a07fd67173049f39b",
+        "physical_admission": false,
+        "resource_stop_reason": null,
+        "source_import_pass": false,
+        "accepted_steps_are_separately_recorded_in_native_report": true
+      },
+      "native_summary": [
+        "whole_body_compiled_skin_fat_parent_mass=PASS nodes=311768 tets=1453640 mass_kg=13.939678963460397 source_rows=429965 nodal_closure_error_kg=0 source_world_mutated=0 physical_steps=0",
+        "resting_initialization=dynamic_release recruitment_activation_cap=0 recruited_muscles=416 active_muscles=0 maximum_activation=0 normalized_residual_rms=95.4933424424 maximum_acceleration_residual=575.5861459 floating_root_residual_evaluated=0 maximum_root_acceleration_residual=0 support_force_n=0 active_support_rows=0 balanced=false qualification=initialization_transient_not_static_equilibrium"
+      ],
+      "failure_tail": "ratio\":0.530480146,\"last_newton_converged\":0,\"final_nonpressure_nontransport_relative_residual\":0.000240079025,\"final_aggregate_transport_relative_residual\":0,\"aggregate_nonempty_cycle_ranges\":0,\"aggregate_selected_command_span_total\":0,\"status_code\":10,\"status_object\":4294967295,\"status_failing_index\":5,\"status_residual\":2.08859277,\"status_correction\":-4.66156429e-08}\nmatter_fgmres_microtick_work={\"root\":13,\"environment\":0,\"microtick\":0,\"used_columns\":256,\"cycles_with_work\":16,\"encoded_cycles\":16,\"budget_exhausted_solves\":0,\"active_newton_begins\":16,\"active_restart_begins\":0,\"has_outer_sample\":true,\"last_newton_iteration\":15,\"final_newton_latched\":false,\"last_newton_norm\":0.000268642907,\"last_newton_threshold\":9.99999975e-06,\"minimum_newton_norm\":0.000268642907,\"final_newton_norm\":0.000268642907,\"final_fgmres_residual_estimate\":1.41779981e-06,\"nonvascular_norm\":0.00026735125,\"vascular_norm\":2.63120892e-05,\"mechanical_threshold\":1.24999997e-05,\"vascular_threshold\":9.99999975e-06,\"status_code_at_microtick_end\":10,\"status_failing_index_at_microtick_end\":5}\nhuman_stand_reduced_response root_step=13 environment=0 requested=1 admitted=0 ready=0 used=0 base_requested=1 base_used=0 free_dofs=77 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0\nresting_common_failure segment_start=13 accepted_before_segment=13 stand_code=0 stand_completed_steps=0 stand_failing_index=0 matter_code=10 matter_environment=0 matter_object=4294967295 matter_failing_index=5 common_status=0 common_iterations=1 common_box=0 common_residual=1.5497207641601562e-06 respiratory_candidate_status=[13,0,0,0] respiratory_accepted_status=[13,0,0,0] chamber_targets_m3=[3.2256375561701134e-05,0.00013838226732332259,4.7729950892971829e-05,0.0001187789675896056] respiratory_candidate_control=[5.504070213646628e-05,3.4400440199533477e-05,12,6] candidate_common_coordinates=[-0.00013767345808446407,0.00020540191326290369,-0.000434436573414132,0.00026214975514449179,0.0001219078985741362,-0.00015676823386456817,0.0010471974965184927] accepted_common_coordinates=[-0.00013767345808446407,0.00020540191326290369,-0.000434436573414132,0.00026214975514449179,0.0001219078985741362,-0.00015676823386456817,0.0010471974965184927] matter_diagnostics=[1.3297947589308023e-05,9.9999997473787516e-06,2.0885927677154541,-4.6615642901315368e-08] terminal_world_code=0 terminal_world_environment=0 terminal_world_control_step=0 terminal_world_successful_substeps=0 terminal_world_aba_code=0 terminal_world_failing_substep=0 terminal_world_failing_index=0 terminal_world_flags=0 terminal_world_diagnostics=[0,0,0,0] box_match=1 excitation_buffer=[5.504070213646628e-05,3.4400440199533477e-05,12,6] brain_input_flags=1 brain_input_validity=3 brain_input_source_step_us=203 brain_input_target_step_us=219 brain_input_source_root=7120707723179127895 brain_input_target_root=14774150652923900001 brain_accepted_flags=1 brain_candidate_flags=1 brain_candidate_root=14774150652923900001 brain_output_flags=1 brain_output_target_root=14774150652923900001 brain_output_source_root=7120707723179127895 brain_excitation=[5.504070213646628e-05,3.4400440199533477e-05]\nresting_common_failure_receipt=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/accepted-motion-frontier-077/install-motion/diagnostics/common-field-failure.json\nhuman_joint_failure completed_steps=13 matter_status=10 matter_failing_index=5 matter_object_index=4294967295 matter_diagnostics=[1.3297947589308023e-05,9.9999997473787516e-06,2.0885927677154541,-4.6615642901315368e-08] failure_owner=passive_tissue_runtime\nmyosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 13 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=13 failing_index=4294967295\"\n"
+    },
+    {
+      "trial": "linear-convergence-078",
+      "execution": {
+        "exit_code": 1,
+        "elapsed_s": 265.7558250427246,
+        "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/linear-convergence-078/install-motion.plan.json",
+        "plan_sha256": "6472c82be832074143e9171a974f6677888987650333bebde70a743b3e0a9388",
+        "stdout_sha256": "49c767dd91533d99b5d4368380f0fa8c13171766feb9c74ae62233ef52867af6",
+        "stderr_sha256": "d662f27f0e2e303b77cb3dbd20cb8508d14cd3d33ec8942915a2b2f5ed9277ff",
+        "physical_admission": false,
+        "resource_stop_reason": null,
+        "source_import_pass": false,
+        "accepted_steps_are_separately_recorded_in_native_report": true
+      },
+      "native_summary": [
+        "whole_body_compiled_skin_fat_parent_mass=PASS nodes=311768 tets=1453640 mass_kg=13.939678963460397 source_rows=429965 nodal_closure_error_kg=0 source_world_mutated=0 physical_steps=0",
+        "resting_initialization=dynamic_release recruitment_activation_cap=0 recruited_muscles=416 active_muscles=0 maximum_activation=0 normalized_residual_rms=95.4933424424 maximum_acceleration_residual=575.5861459 floating_root_residual_evaluated=0 maximum_root_acceleration_residual=0 support_force_n=0 active_support_rows=0 balanced=false qualification=initialization_transient_not_static_equilibrium"
+      ],
+      "failure_tail": "rection_ratio\":2.30433917,\"last_newton_converged\":0,\"final_nonpressure_nontransport_relative_residual\":0.000514352228,\"final_aggregate_transport_relative_residual\":0,\"aggregate_nonempty_cycle_ranges\":0,\"aggregate_selected_command_span_total\":0,\"status_code\":10,\"status_object\":4294967295,\"status_failing_index\":0,\"status_residual\":0.460430413,\"status_correction\":-4.58103733e-09}\nmatter_fgmres_microtick_work={\"root\":9,\"environment\":0,\"microtick\":0,\"used_columns\":256,\"cycles_with_work\":16,\"encoded_cycles\":64,\"budget_exhausted_solves\":0,\"active_newton_begins\":16,\"active_restart_begins\":0,\"has_outer_sample\":true,\"last_newton_iteration\":15,\"final_newton_latched\":false,\"last_newton_norm\":0.000516716333,\"last_newton_threshold\":9.99999975e-06,\"minimum_newton_norm\":0.000516716333,\"final_newton_norm\":0.000516716333,\"final_fgmres_residual_estimate\":2.66207167e-06,\"nonvascular_norm\":0.000514354615,\"vascular_norm\":4.93468287e-05,\"mechanical_threshold\":1.24999997e-05,\"vascular_threshold\":9.99999975e-06,\"status_code_at_microtick_end\":10,\"status_failing_index_at_microtick_end\":0}\nhuman_stand_reduced_response root_step=9 environment=0 requested=1 admitted=0 ready=0 used=0 base_requested=1 base_used=0 free_dofs=77 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0\nresting_common_failure segment_start=9 accepted_before_segment=9 stand_code=0 stand_completed_steps=0 stand_failing_index=0 matter_code=10 matter_environment=0 matter_object=4294967295 matter_failing_index=0 common_status=0 common_iterations=1 common_box=0 common_residual=1.9073486328125e-06 respiratory_candidate_status=[9,0,0,0] respiratory_accepted_status=[9,0,0,0] chamber_targets_m3=[3.2258703868137673e-05,0.00013837496226187795,4.7732261009514332e-05,0.00011877166252816096] respiratory_candidate_control=[3.9207076042657718e-05,2.4504424800397828e-05,12,6] candidate_common_coordinates=[-0.00010734017996583134,0.00017333694268018007,-0.00041337069706059992,0.00022570890723727643,0.0001031299470923841,-0.00014206439664121717,0.0010309803765267134] accepted_common_coordinates=[-0.00010734017996583134,0.00017333694268018007,-0.00041337069706059992,0.00022570890723727643,0.0001031299470923841,-0.00014206439664121717,0.0010309803765267134] matter_diagnostics=[1.3418173693935387e-05,9.9999997473787516e-06,0.46043041348457336,-4.5810373272558991e-09] terminal_world_code=0 terminal_world_environment=0 terminal_world_control_step=0 terminal_world_successful_substeps=0 terminal_world_aba_code=0 terminal_world_failing_substep=0 terminal_world_failing_index=0 terminal_world_flags=0 terminal_world_diagnostics=[0,0,0,0] box_match=1 excitation_buffer=[3.9207076042657718e-05,2.4504424800397828e-05,12,6] brain_input_flags=1 brain_input_validity=3 brain_input_source_step_us=141 brain_input_target_step_us=156 brain_input_source_root=16569794284521186811 brain_input_target_root=4911802836751770005 brain_accepted_flags=1 brain_candidate_flags=1 brain_candidate_root=4911802836751770005 brain_output_flags=1 brain_output_target_root=4911802836751770005 brain_output_source_root=16569794284521186811 brain_excitation=[3.9207076042657718e-05,2.4504424800397828e-05]\nresting_common_failure_receipt=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/linear-convergence-078/install-motion/diagnostics/common-field-failure.json\nhuman_joint_failure completed_steps=9 matter_status=10 matter_failing_index=0 matter_object_index=4294967295 matter_diagnostics=[1.3418173693935387e-05,9.9999997473787516e-06,0.46043041348457336,-4.5810373272558991e-09] failure_owner=passive_tissue_runtime\nmyosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 9 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=9 failing_index=4294967295\"\n"
+    },
+    {
+      "trial": "timestep62us-motion-079",
+      "execution": {
+        "exit_code": 1,
+        "elapsed_s": 235.65918493270874,
+        "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/timestep62us-motion-079/install-motion.plan.json",
+        "plan_sha256": "973688852b680125c9c555791ac8e43fc1e582cb408454793eeb962a1c07c9d1",
+        "stdout_sha256": "1d34e1e5101c461ea16f93bf6bd475e9fc14016e569b6a9ea7630756417db308",
+        "stderr_sha256": "f046f95c3895a268d70d43455ec65bf371da0d34b5e401fcd912630265e99e24",
+        "physical_admission": false,
+        "resource_stop_reason": null,
+        "source_import_pass": false,
+        "accepted_steps_are_separately_recorded_in_native_report": true
+      },
+      "native_summary": [
+        "whole_body_compiled_skin_fat_parent_mass=PASS nodes=311768 tets=1453640 mass_kg=13.939678963460397 source_rows=429965 nodal_closure_error_kg=0 source_world_mutated=0 physical_steps=0",
+        "resting_initialization=dynamic_release recruitment_activation_cap=0 recruited_muscles=416 active_muscles=0 maximum_activation=0 normalized_residual_rms=95.4933424424 maximum_acceleration_residual=575.5861459 floating_root_residual_evaluated=0 maximum_root_acceleration_residual=0 support_force_n=0 active_support_rows=0 balanced=false qualification=initialization_transient_not_static_equilibrium"
+      ],
+      "failure_tail": "ewton_correction_ratio\":0.577908516,\"last_newton_converged\":0,\"final_nonpressure_nontransport_relative_residual\":0.000170744621,\"final_aggregate_transport_relative_residual\":0,\"aggregate_nonempty_cycle_ranges\":0,\"aggregate_selected_command_span_total\":0,\"status_code\":10,\"status_object\":4294967295,\"status_failing_index\":0,\"status_residual\":0.460470915,\"status_correction\":1.24042598e-08}\nmatter_fgmres_microtick_work={\"root\":1,\"environment\":0,\"microtick\":0,\"used_columns\":256,\"cycles_with_work\":16,\"encoded_cycles\":16,\"budget_exhausted_solves\":0,\"active_newton_begins\":16,\"active_restart_begins\":0,\"has_outer_sample\":true,\"last_newton_iteration\":15,\"final_newton_latched\":false,\"last_newton_norm\":0.000185962999,\"last_newton_threshold\":9.99999975e-06,\"minimum_newton_norm\":0.000185962999,\"final_newton_norm\":0.000185962999,\"final_fgmres_residual_estimate\":3.70507132e-06,\"nonvascular_norm\":0.000170745348,\"vascular_norm\":7.3676747e-05,\"mechanical_threshold\":1.24999997e-05,\"vascular_threshold\":9.99999975e-06,\"status_code_at_microtick_end\":10,\"status_failing_index_at_microtick_end\":0}\nhuman_stand_reduced_response root_step=1 environment=0 requested=1 admitted=0 ready=0 used=0 base_requested=1 base_used=0 free_dofs=77 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0\nresting_common_failure segment_start=1 accepted_before_segment=1 stand_code=0 stand_completed_steps=0 stand_failing_index=0 matter_code=10 matter_environment=0 matter_object=4294967295 matter_failing_index=0 common_status=0 common_iterations=1 common_box=0 common_residual=1.9073486328125e-06 respiratory_candidate_status=[1,0,0,0] respiratory_accepted_status=[1,0,0,0] chamber_targets_m3=[3.2261727028526366e-05,0.0001383655471727252,4.7735273255966604e-05,0.00011876224743900821] respiratory_candidate_control=[3.1415922421729192e-05,1.96349537873175e-05,12,6] candidate_common_coordinates=[-6.7942397436127067e-05,0.0001320153969572857,-0.00038588969619013369,0.00017874498735181987,7.8780401963740587e-05,-0.00012308925215620548,0.0010099451756104827] accepted_common_coordinates=[-6.7942397436127067e-05,0.0001320153969572857,-0.00038588969619013369,0.00017874498735181987,7.8780401963740587e-05,-0.00012308925215620548,0.0010099451756104827] matter_diagnostics=[1.8359251043875702e-05,9.9999997473787516e-06,0.46047091484069824,1.2404259841503062e-08] terminal_world_code=0 terminal_world_environment=0 terminal_world_control_step=0 terminal_world_successful_substeps=0 terminal_world_aba_code=0 terminal_world_failing_substep=0 terminal_world_failing_index=0 terminal_world_flags=0 terminal_world_diagnostics=[0,0,0,0] box_match=1 excitation_buffer=[3.1415922421729192e-05,1.96349537873175e-05,12,6] brain_input_flags=1 brain_input_validity=3 brain_input_source_step_us=63 brain_input_target_step_us=125 brain_input_source_root=1571774111074542495 brain_input_target_root=13225272146871084961 brain_accepted_flags=1 brain_candidate_flags=1 brain_candidate_root=13225272146871084961 brain_output_flags=1 brain_output_target_root=13225272146871084961 brain_output_source_root=1571774111074542495 brain_excitation=[3.1415922421729192e-05,1.96349537873175e-05]\nresting_common_failure_receipt=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/timestep62us-motion-079/install-motion/diagnostics/common-field-failure.json\nhuman_joint_failure completed_steps=1 matter_status=10 matter_failing_index=0 matter_object_index=4294967295 matter_diagnostics=[1.8359251043875702e-05,9.9999997473787516e-06,0.46047091484069824,1.2404259841503062e-08] failure_owner=passive_tissue_runtime\nmyosim_articulated_visual=failed error=\"persistent Human stand Metal horizon failed: segmented authoritative Human horizon failed after 1 accepted steps: GPU rejected the Numi Human stand horizon: code=9 completed_steps=1 failing_index=4294967295\"\n"
+    },
+    {
+      "trial": "vascular-newton-native-081",
+      "execution": {
+        "exit_code": 0,
+        "elapsed_s": 215.6381058692932,
+        "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/vascular-newton-native-081/install-motion.plan.json",
+        "plan_sha256": "2f0099d22ab6570495eedad3471f6161160d21e773dc40d3bbfc6264c28ba873",
+        "stdout_sha256": "3d798560c98a428dfd1dfc35feee1f5e34b31b3003be6b97b5a8ba26ee9f7573",
+        "stderr_sha256": "10feea31cc50670ea1d247478836265ca9e87ff254f80acaeab151cce5f65c1b",
+        "physical_admission": false,
+        "resource_stop_reason": null,
+        "source_import_pass": false,
+        "accepted_steps_are_separately_recorded_in_native_report": true
+      },
+      "native_summary": [
+        "whole_body_compiled_skin_fat_parent_mass=PASS nodes=311768 tets=1453640 mass_kg=13.939678963460397 source_rows=429965 nodal_closure_error_kg=0 source_world_mutated=0 physical_steps=0",
+        "resting_initialization=dynamic_release recruitment_activation_cap=0 recruited_muscles=416 active_muscles=0 maximum_activation=0 normalized_residual_rms=95.4933424424 maximum_acceleration_residual=575.5861459 floating_root_residual_evaluated=0 maximum_root_acceleration_residual=0 support_force_n=0 active_support_rows=0 balanced=false qualification=initialization_transient_not_static_equilibrium",
+        "resting_FEM_terminal_audit=passed expected_steps=4 initial_control=0 final_control=3 initial_substep=0 final_substep=0 accepted_steps=4 adapter_passes=4 expected_adapter_passes=4 min_J=0.845270848182 max_J=1.22359328013 max_displacement_m=0.000161206134427 max_anchor_reaction_N=23.7836419116 capture=terminal_only",
+        "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=28.026007958000001 real_time_factor=2.2300715486220408e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+      ],
+      "failure_tail": null
+    },
+    {
+      "trial": "compact-mass-native-082",
+      "execution": {
+        "exit_code": 0,
+        "elapsed_s": 200.5886881351471,
+        "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/compact-mass-native-082/install-motion.plan.json",
+        "plan_sha256": "967b5a27ad87e1f5805ac76ed300034518f76036772d22d0b6001bed8b45b02f",
+        "stdout_sha256": "e0c96bd5cab2312aa807c50dca4c0283fdfad917a8bbdf057f215efc7f66cb74",
+        "stderr_sha256": "150ee9fb5459129aa22f314101f203a7b30494e4590766cf55f55e4f36638c79",
+        "physical_admission": false,
+        "resource_stop_reason": null,
+        "source_import_pass": false,
+        "accepted_steps_are_separately_recorded_in_native_report": true
+      },
+      "native_summary": [
+        "whole_body_compiled_skin_fat_parent_mass=PASS nodes=311768 tets=1453640 mass_kg=13.939678963460397 source_rows=429965 nodal_closure_error_kg=0 source_world_mutated=0 physical_steps=0",
+        "resting_initialization=dynamic_release recruitment_activation_cap=0 recruited_muscles=416 active_muscles=0 maximum_activation=0 normalized_residual_rms=95.4933424424 maximum_acceleration_residual=575.5861459 floating_root_residual_evaluated=0 maximum_root_acceleration_residual=0 support_force_n=0 active_support_rows=0 balanced=false qualification=initialization_transient_not_static_equilibrium",
+        "resting_FEM_terminal_audit=passed expected_steps=4 initial_control=0 final_control=3 initial_substep=0 final_substep=0 accepted_steps=4 adapter_passes=4 expected_adapter_passes=4 min_J=0.845270848182 max_J=1.22359328013 max_displacement_m=0.000161206134427 max_anchor_reaction_N=23.7836419116 capture=terminal_only",
+        "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=27.898326334 real_time_factor=2.2402778654295567e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+      ],
+      "failure_tail": null
+    }
+  ],
+  "qualification": "release-prefix only, not supported rest or motion; 0.1x unmet"
+}
