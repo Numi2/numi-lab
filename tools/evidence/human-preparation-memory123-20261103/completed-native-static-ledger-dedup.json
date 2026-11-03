@@ -1,0 +1,713 @@
+{
+  "scope": "exact completed task-owned run outputs only; no source/assets/original mass proofs",
+  "available_before_bytes": 34584903680,
+  "available_after_bytes": 42810073088,
+  "starting_available_bytes": 12105162752,
+  "duplicates_replaced": 100,
+  "all_bytes_preserved": true,
+  "shared_frozen_outputs_readonly": true,
+  "native_jobs_active": false,
+  "elapsed_s": 7.713305234909058,
+  "files": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-002/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-004/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-006/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 49561600
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-006/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 134967296
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-006/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 91340800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-006/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 43597824
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-006/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34263040
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-006/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-007/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 49561600
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-007/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 134234112
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-007/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 91340800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-007/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 43597824
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-007/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34263040
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-007/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-008/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-009/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 49561600
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-009/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 134385664
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-009/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 91340800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-009/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 43597824
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-009/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34263040
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-009/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-010/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 49561600
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-010/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 134905856
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-010/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 91340800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-010/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 43597824
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-010/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34263040
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-010/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-011/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 49561600
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-011/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 134377472
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-011/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 91340800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-011/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 43597824
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-011/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34263040
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-011/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-012/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 49561600
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-012/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 134352896
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-012/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 91340800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-012/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 43597824
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-012/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34263040
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-012/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-013/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 50397184
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-013/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 134283264
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-013/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 83951616
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-013/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 44105728
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-013/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34668544
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-013/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-016/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 49561600
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-016/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 135180288
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-016/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 91340800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-016/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 43597824
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-016/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34263040
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-016/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-017/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 49561600
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-017/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 134840320
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-017/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 91340800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-017/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 43597824
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-017/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34263040
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-017/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-018/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 49561600
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-018/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 134557696
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-018/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 91340800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-018/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 43597824
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-018/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34263040
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-018/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-019/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 49561600
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-019/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 134737920
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-019/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 91340800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-019/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 43597824
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-019/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34263040
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-019/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-019/install-motion/common-field-map-f32.bin",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-004/install-motion/common-field-map-f32.bin",
+      "sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "bytes": 69593328,
+      "old_allocated_bytes": 69595136
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-019/install-motion/resting-human.mrvpack",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-004/install-motion/resting-human.mrvpack",
+      "sha256": "7ceda75fe9f6be66090630ccfd8436d124bd654c3bee6c49e5bc46e64f60d6d7",
+      "bytes": 321323008,
+      "old_allocated_bytes": 321323008
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-019/install-motion/accepted-geometry/step-0.mrvpack",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "3fc7545247f8d4e73ac302b6b2187137313b914ae7dae61a6e4d0740849fcfaa",
+      "bytes": 321323008,
+      "old_allocated_bytes": 321323008
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-020/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 49561600
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-020/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 134348800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-020/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 91340800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-020/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 43597824
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-020/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34263040
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-020/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-020/install-motion/common-field-map-f32.bin",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-004/install-motion/common-field-map-f32.bin",
+      "sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "bytes": 69593328,
+      "old_allocated_bytes": 69595136
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-020/install-motion/resting-human.mrvpack",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-004/install-motion/resting-human.mrvpack",
+      "sha256": "7ceda75fe9f6be66090630ccfd8436d124bd654c3bee6c49e5bc46e64f60d6d7",
+      "bytes": 321323008,
+      "old_allocated_bytes": 321323008
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-020/install-motion/accepted-geometry/step-0.mrvpack",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "3fc7545247f8d4e73ac302b6b2187137313b914ae7dae61a6e4d0740849fcfaa",
+      "bytes": 321323008,
+      "old_allocated_bytes": 321323008
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-021/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 49561600
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-021/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 134340608
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-021/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 91340800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-021/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 43597824
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-021/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34263040
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-021/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-021/install-motion/common-field-map-f32.bin",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-004/install-motion/common-field-map-f32.bin",
+      "sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "bytes": 69593328,
+      "old_allocated_bytes": 69595136
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-021/install-motion/resting-human.mrvpack",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-004/install-motion/resting-human.mrvpack",
+      "sha256": "7ceda75fe9f6be66090630ccfd8436d124bd654c3bee6c49e5bc46e64f60d6d7",
+      "bytes": 321323008,
+      "old_allocated_bytes": 321323008
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-021/install-motion/accepted-geometry/step-0.mrvpack",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "3fc7545247f8d4e73ac302b6b2187137313b914ae7dae61a6e4d0740849fcfaa",
+      "bytes": 321323008,
+      "old_allocated_bytes": 321323008
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-022/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "old_allocated_bytes": 49561600
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-022/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "old_allocated_bytes": 134328320
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-022/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "old_allocated_bytes": 91340800
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-022/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "old_allocated_bytes": 43597824
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-022/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "old_allocated_bytes": 34263040
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-022/install-motion/diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-001/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "old_allocated_bytes": 24182784
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-022/install-motion/common-field-map-f32.bin",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-004/install-motion/common-field-map-f32.bin",
+      "sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "bytes": 69593328,
+      "old_allocated_bytes": 69595136
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-022/install-motion/resting-human.mrvpack",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-004/install-motion/resting-human.mrvpack",
+      "sha256": "7ceda75fe9f6be66090630ccfd8436d124bd654c3bee6c49e5bc46e64f60d6d7",
+      "bytes": 321323008,
+      "old_allocated_bytes": 321323008
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-022/install-motion/accepted-geometry/step-0.mrvpack",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/native-005/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "3fc7545247f8d4e73ac302b6b2187137313b914ae7dae61a6e4d0740849fcfaa",
+      "bytes": 321323008,
+      "old_allocated_bytes": 321323008
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "epoch": 1793673256.658561,
+  "available_disk_bytes": 42809090048,
+  "initial_available_disk_bytes": 12105162752,
+  "swap_usage": "vm.swapusage: total = 2048.00M  used = 932.06M  free = 1115.94M  (encrypted)",
+  "memory_pressure": "The system has 17179869184 (1048576 pages with a page size of 16384).\nSystem-wide memory free percentage: 87%",
+  "decoder": "PID    RSS STAT COMM\n 5918   7360 Ss   /System/Library/Frameworks/VideoToolbox.framework/Versions/A/XPCServices/VTDecoderXPCService.xpc/Contents/MacOS/VTDecoderXPCService",
+  "aerial_clients": "",
+  "native_jobs_active": false,
+  "required_parent_inputs": [
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/eight-parent-carrier-registration-reemission-001/assets/parent-0.nhtissue",
+      "sha256": "773e9e71853d061532044f93f624579b9f78712ba9b46ec298db328d14ce953b",
+      "pass": true
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/deltoid75-78-existing-shared-parent-source-824/assets/deltoid75-78-shared-parent-source1.nhtissue",
+      "sha256": "ddaf670fdae63f067f4dcda6843be4c5ff95526539ed7f0d3409d131532d611e",
+      "pass": true
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/eight-parent-carrier-registration-reemission-001/assets/parent-2.nhtissue",
+      "sha256": "155771968e7b72f31b73ea2ab627a981bc5d2653e2add94a2ef9bb5f1ddfb035",
+      "pass": true
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/eight-parent-carrier-registration-reemission-001/assets/parent-3.nhtissue",
+      "sha256": "d7bfc9450e0cdcaab6620dced94186d160fa86905a3cc6544662a01443036661",
+      "pass": true
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/eight-parent-carrier-registration-reemission-001/assets/parent-4.nhtissue",
+      "sha256": "19ffde77ec237fb040fcaa17f61d20d310b2dc971e90f8564fa64a1c114bc79e",
+      "pass": true
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/eight-parent-carrier-registration-reemission-001/assets/parent-5.nhtissue",
+      "sha256": "09b05ef5df837fa018cf2e12158ab09ad2513d1af0c8ee4ad4e0db609df987fc",
+      "pass": true
+    },
+    {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/eight-parent-carrier-registration-reemission-001/assets/parent-6.nhtissue",
+      "sha256": "419f8478482adb43036fe0f6e4ad6162501e41f8872fa2e516369dee6c9a456d",
+      "pass": true
+    },
+    {
+      "path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/aortic7-connected-network036-deltoid868b-parent7-rest-registration-001/assets/parent-7.nhtissue",
+      "sha256": "50819725026ac710da1cd98e36489ac8d650b4a2b27fc5a5da812d25072e6120",
+      "pass": true
+    }
+  ],
+  "tested_lab_code_revision": "8b4df906e6540ce0ea3117fcfa0671d7f4762ab8",
+  "accepted_full_scene_steps": 0,
+  "target_0_1x_qualified": false
+}

@@ -255,3 +255,45 @@ The failed019segment took25.486149791s;020reproduces the same failure. Both
 accepted zero physical steps and therefore provide no achieved real-time factor.
 Trial021 is running with the new angular path and otherwise matched physical
 settings. The0.1x, accepted-motion and physiology requirements remain open.
+
+### Integrated confirmation and remaining zero-time CCD hits
+
+Native021 confirms contact1589443 now accepts its first trial at alpha0.001953125
+with no Armijo halving; the same contact previously failed at alpha2.98e-8.
+This confirms the angular fix inside the complete current Human operator.
+Six other lanes still reach zero-time CCD hits; no physical step is accepted.
+The authoritative rejected segment is25.984895458s; total process232.085s
+includes preparation and fresh pipeline compilation. Native022repeats identical
+physics/shader with a different sparse contact witness:25.951999959s failed
+segment,201.926s process, zero accepted physical time. Neither is a real-time
+factor, matched throughput improvement, supported rest or motion qualification.
+
+The earliest retained remaining witness is VT contact10916, active1579,
+source primitives195943/196274. Its initial gap is67.878nm, authored clearance
+1nm. Reference-local coordinates extend32.05mm; the outer numerical floor is
+61.128nm and the current CCD adds another30.564nm roundoff allowance. The
+91.692nm combined numerical threshold reports a zero-time hit. The correction
+is closing; the initial-nonclosing exception correctly does not apply.
+This identifies floor stacking as a concrete blocker at this witness, rather
+than a source triangle crossing. The other five zero witnesses still need
+individual classification. No tolerance was reduced or gate bypassed.
+
+A qualified conservative refinement of reference-mode CCD is required next,
+followed by accepted-state motion checks. The measured first globalization
+stage is7.953s in021and inactive encoded linear tails still consume about7.54s.
+Thus kernel-parity success alone does not meet the requested0.1x throughput.
+True sparse regional construction remains unimplemented behind the existing
+memory/region guards; initialization is still a release transient, not settled
+supported rest. Source anatomy and physical mass mappings remain unchanged.
+
+### Final disk and host receipt
+
+After022completed,100more byte-identical static diagnostic output files from
+completed task-owned001-022runs were atomically hard-linked after SHA checks.
+Every pathname and content hash is preserved; shared frozen outputs are
+read-only. Source assets, original mass proofs and active jobs were excluded.
+The operation's available-space change was34,584,903,680->42,810,073,088bytes;
+this is a filesystem snapshot, not a claim of uniquely freed APFS extents.
+All eight protected parent input hashes pass again. Final host state is in
+final-host-checkpoint.json; no native benchmark or aerial client remains active.
+The small stopped mediaanalysisd decoder is not the former large aerial leak.
