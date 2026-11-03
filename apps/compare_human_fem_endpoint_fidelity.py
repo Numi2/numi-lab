@@ -112,7 +112,7 @@ def parse_capture(path: Path) -> dict[str, Any]:
             complete = complete or _payload(line, END_MARKER) is not None
     require(begin_line is not None, f"{path}: missing endpoint capture begin record")
     header = _kv_words(begin_line[len(BEGIN_MARKER):])
-    require(header.get("version") == "1",
+    require(header.get("version") in ("1", "2"),
             f"{path}: unsupported existing endpoint capture version")
     require(header.get("source_region_label_source") ==
                 "registered_skin_fat_donor_body_id",
@@ -152,6 +152,19 @@ def parse_capture(path: Path) -> dict[str, Any]:
                        for axis in FORCE_COMPONENTS)
             current = tuple(rest[i] + hi[i] + lo[i] if mode == 1.0 else accepted[i]
                             for i in range(3))
+            if header["version"] == "2":
+                initial_rest = tuple(_number(fields, f"initial_rest_{axis}", context)
+                                     for axis in FORCE_COMPONENTS)
+                initial_mode = _number(fields, "initial_reference_mode", context)
+                require(initial_mode in (0.0, 1.0),
+                        f"{context} has unknown initial coordinate representation")
+                initial_hi = tuple(_number(fields, f"initial_reference_u_hi_{axis}", context)
+                                   for axis in FORCE_COMPONENTS)
+                initial_lo = tuple(_number(fields, f"initial_reference_u_lo_{axis}", context)
+                                   for axis in FORCE_COMPONENTS)
+                if initial_mode == 1.0:
+                    initial = tuple(initial_rest[i] + initial_hi[i] + initial_lo[i]
+                                    for i in range(3))
             region_id = (_integer(fields, "anatomical_region_id", context)
                          if "anatomical_region_id" in fields else None)
             region_source = fields.get("anatomical_region_source")
@@ -530,12 +543,25 @@ def _inverse(a: tuple[tuple[float, ...], ...]) -> tuple[tuple[float, ...], ...]:
     )
 
 
+def _global_node_lookup(nodes: dict[tuple[str, int], dict[str, Any]]) -> dict[tuple[str, int], tuple[str, int]]:
+    lookup = {}
+    for key, node in nodes.items():
+        identity = (key[0], node["global"])
+        require(identity not in lookup,
+                f"duplicate global source node {identity}")
+        lookup[identity] = key
+    return lookup
+
+
 def _green_strain(nodes: dict[tuple[str, int], dict[str, Any]],
-                  tet: dict[str, Any], position_field: str) -> tuple[tuple[float, ...], float, float]:
+                  tet: dict[str, Any], position_field: str,
+                  global_to_key: dict[tuple[str, int], tuple[str, int]] | None = None
+                  ) -> tuple[tuple[float, ...], float, float]:
     obj = tet["object"]
-    global_to_key = {n["global"]: key for key, n in nodes.items() if key[0] == obj}
+    if global_to_key is None:
+        global_to_key = _global_node_lookup(nodes)
     try:
-        vertex_keys = [global_to_key[index] for index in tet["nodes"]]
+        vertex_keys = [global_to_key[(obj, index)] for index in tet["nodes"]]
     except KeyError as error:
         raise ComparisonError(f"tetrahedron {(obj, tet['local'])} references missing node {error}") from error
     x = [nodes[key]["rest"] for key in vertex_keys]
@@ -568,10 +594,14 @@ def green_strain_metrics(full: dict[str, Any], reduced: dict[str, Any]) -> dict[
     reference_labeled = candidate_labeled = matched_labeled = 0
     unlabeled_by_object: dict[str, int] = {}
     all_tet_metrics: list[dict[str, Any]] = []
+    # Build each immutable identity map once, rather than scanning the full
+    # body for every tetrahedron (O(nodes + tets), not O(nodes * tets)).
+    full_node_lookup = _global_node_lookup(full["nodes"])
+    reduced_node_lookup = _global_node_lookup(reduced["nodes"])
     for key, ft in full["tets"].items():
         rt = reduced["tets"][key]
-        ef, volume, jf = _green_strain(full["nodes"], ft, "current")
-        er, reduced_volume, jr = _green_strain(reduced["nodes"], rt, "current")
+        ef, volume, jf = _green_strain(full["nodes"], ft, "current", full_node_lookup)
+        er, reduced_volume, jr = _green_strain(reduced["nodes"], rt, "current", reduced_node_lookup)
         require(volume == reduced_volume,
                 f"source rest volume changed for tetrahedron {key}")
         difference = _strain_norm(tuple(er[i] - ef[i] for i in range(9)))

@@ -116,6 +116,56 @@ class EndpointFidelityTests(unittest.TestCase):
             reduced.write_text(reduced_text)
             return module.compare(full, reduced)
 
+    def test_version2_initial_compensated_coordinates(self):
+        text = make_log(reference_mode=1).replace("version=1", "version=2")
+        lines = []
+        for line in text.splitlines():
+            if line.startswith("resting_FEM_node,"):
+                fields = module._kv_commas(line)
+                line += ",initial_reference_mode=1"
+                for axis in module.FORCE_COMPONENTS:
+                    line += f",initial_rest_{axis}={fields['rest_' + axis]}"
+                    line += f",initial_reference_u_hi_{axis}=0"
+                    line += f",initial_reference_u_lo_{axis}=0.0000000001"
+            lines.append(line)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "v2.log"
+            path.write_text("\n".join(lines) + "\n")
+            capture = module.parse_capture(path)
+        node = capture["nodes"][("Human/test-region", 0)]
+        self.assertEqual(node["initial"], (1e-10, 1e-10, 1e-10))
+
+    def test_version2_missing_initial_words_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "v2.log"
+            path.write_text(make_log().replace("version=1", "version=2"))
+            with self.assertRaisesRegex(module.ComparisonError, "initial_rest"):
+                module.parse_capture(path)
+
+    def test_strain_builds_node_indices_once_per_capture(self):
+        class CountedNodes(dict):
+            scans = 0
+
+            def items(self):
+                self.scans += 1
+                return super().items()
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "two-tets.log"
+            path.write_text(make_log(second_stretch=1.2))
+            full = module.parse_capture(path)
+            candidate = module.parse_capture(path)
+        full["nodes"] = CountedNodes(full["nodes"])
+        candidate["nodes"] = CountedNodes(candidate["nodes"])
+        self.assertEqual(module.green_strain_metrics(full, candidate)["gate"], "pass")
+        self.assertEqual(full["nodes"].scans, 1)
+        self.assertEqual(candidate["nodes"].scans, 1)
+
+    def test_duplicate_global_node_identity_rejected(self):
+        nodes = {("region", 0): {"global": 7}, ("region", 1): {"global": 7}}
+        with self.assertRaisesRegex(module.ComparisonError, "duplicate global source node"):
+            module._global_node_lookup(nodes)
+
     def test_capture_streams_without_whole_file_allocation(self):
         from unittest.mock import patch
         with tempfile.TemporaryDirectory() as temp:
