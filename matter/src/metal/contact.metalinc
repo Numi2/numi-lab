@@ -12868,37 +12868,38 @@ kernel void nm_contact_reference_plane_check(
         a,b,parameters[2u*index].xyz,parameters[2u*index+1u].x);
 }
 
-kernel void nm_contact_limit_deformable_line_search(
-    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device const NMContinuumObjectGPU* objects [[buffer(1)]],
-    device const NMIncidenceRangeGPU* femNodeRanges [[buffer(2)]],
-    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
-    device const NMDeformableContactGPU* contacts [[buffer(4)]],
-    device const uint* activeIndices [[buffer(5)]],
-    device const uint* activeCounts [[buffer(6)]],
-    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
-    device const float4* correction [[buffer(8)]],
-    device float4* lineSearch [[buffer(9)]],
-    device NMMatterStatusGPU* statuses [[buffer(10)]],
-    device const NMGridNodeStateGPU* gridNodes [[buffer(11)]],
-    device const uint* mpmNodeToActive [[buffer(12)]],
-    device const uint* mpmActiveCounts [[buffer(13)]],
-    constant NMMixedSolverGPU& solver [[buffer(14)]],
-    constant uint& traceSlotsPerEnvironment [[buffer(15)]],
-    device NMDeformableContactLimitTraceGPU* traceRecords [[buffer(16)]],
-    constant NMMicrostepGPU& microstep [[buffer(17)]],
-    device const NMAdaptiveStateGPU* adaptive [[buffer(18)]],
-    device const NMFEMNodeStateGPU* accepted [[buffer(19)]],
-    constant uint& fullResidualArmijoEnabled [[buffer(20)]],
-    device NMDeformableContactLimitTrialTraceGPU* trialTraceRecords [[buffer(21)]],
-    constant uint& trialTraceContactSlot [[buffer(22)]],
-    device uint4* minimumWitnessIdentity [[buffer(23)]],
-    device float4* minimumWitnessValues [[buffer(24)]],
-    constant uint& captureMinimumWitness [[buffer(25)]],
-    constant uint& collisionGapEnabled [[buffer(26)]],
-    uint lane [[thread_index_in_threadgroup]],
-    uint environment [[threadgroup_position_in_grid]]
-) {
+inline void nmContactLimitDeformableLineSearch(
+    constant NMMatterDispatchGPU& dispatch,
+    device const NMContinuumObjectGPU* objects,
+    device const NMIncidenceRangeGPU* femNodeRanges,
+    device const NMSchedulerStateGPU* schedulers,
+    device const NMDeformableContactGPU* contacts,
+    device const uint* activeIndices,
+    device const uint* activeCounts,
+    device const NMFEMNodeStateGPU* candidate,
+    device const float4* correction,
+    device float4* lineSearch,
+    device NMMatterStatusGPU* statuses,
+    device const NMGridNodeStateGPU* gridNodes,
+    device const uint* mpmNodeToActive,
+    device const uint* mpmActiveCounts,
+    constant NMMixedSolverGPU& solver,
+    constant uint& traceSlotsPerEnvironment,
+    device NMDeformableContactLimitTraceGPU* traceRecords,
+    constant NMMicrostepGPU& microstep,
+    device const NMAdaptiveStateGPU* adaptive,
+    device const NMFEMNodeStateGPU* accepted,
+    constant uint& fullResidualArmijoEnabled,
+    device NMDeformableContactLimitTrialTraceGPU* trialTraceRecords,
+    constant uint& trialTraceContactSlot,
+    device uint4* minimumWitnessIdentity,
+    device float4* minimumWitnessValues,
+    constant uint& captureMinimumWitness,
+    constant uint& collisionGapEnabled,
+    uint lane,
+    uint environment
+,
+    uint tile,uint tileCount,device float* partialBounds) {
     if (lane >= 32u || environment >= dispatch.environmentCount ||
         !environmentHealthy(statuses, environment)) return;
     const uint capacity = dispatch.deformableContactCapacity;
@@ -12913,8 +12914,8 @@ kernel void nm_contact_limit_deformable_line_search(
     float laneMinimumBefore = 1.0f;
     uint4 laneMinimumIdentity = uint4(
         NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX, 0u);
-    for (uint activeSlot = lane; activeSlot < activeCount;
-         activeSlot += 32u) {
+    for (uint activeSlot = tile*32u+lane; activeSlot < activeCount;
+         activeSlot += 32u*tileCount) {
         const uint slot = activeIndices[contactBase + activeSlot];
         if (slot >= capacity) continue;
         const NMDeformableContactGPU contact = contacts[contactBase + slot];
@@ -13741,12 +13742,113 @@ kernel void nm_contact_limit_deformable_line_search(
             float(laneMinimumIdentity.w));
     }
     bound = simd_min(bound);
+    if (tileCount>1u) {
+        if (lane==0u) partialBounds[environment*tileCount+tile]=bound;
+        return;
+    }
     const float alpha = min(existing, bound);
     for (uint objectIndex = lane; objectIndex < dispatch.objectCount;
          objectIndex += 32u) {
         float4 state = lineSearch[objectBase + objectIndex];
         state.x = alpha;
         lineSearch[objectBase + objectIndex] = state;
+    }
+}
+
+kernel void nm_contact_limit_deformable_line_search(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMIncidenceRangeGPU* femNodeRanges [[buffer(2)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
+    device const NMDeformableContactGPU* contacts [[buffer(4)]],
+    device const uint* activeIndices [[buffer(5)]],
+    device const uint* activeCounts [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const float4* correction [[buffer(8)]],
+    device float4* lineSearch [[buffer(9)]],
+    device NMMatterStatusGPU* statuses [[buffer(10)]],
+    device const NMGridNodeStateGPU* gridNodes [[buffer(11)]],
+    device const uint* mpmNodeToActive [[buffer(12)]],
+    device const uint* mpmActiveCounts [[buffer(13)]],
+    constant NMMixedSolverGPU& solver [[buffer(14)]],
+    constant uint& traceSlotsPerEnvironment [[buffer(15)]],
+    device NMDeformableContactLimitTraceGPU* traceRecords [[buffer(16)]],
+    constant NMMicrostepGPU& microstep [[buffer(17)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(18)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(19)]],
+    constant uint& fullResidualArmijoEnabled [[buffer(20)]],
+    device NMDeformableContactLimitTrialTraceGPU* trialTraceRecords [[buffer(21)]],
+    constant uint& trialTraceContactSlot [[buffer(22)]],
+    device uint4* minimumWitnessIdentity [[buffer(23)]],
+    device float4* minimumWitnessValues [[buffer(24)]],
+    constant uint& captureMinimumWitness [[buffer(25)]],
+    constant uint& collisionGapEnabled [[buffer(26)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    nmContactLimitDeformableLineSearch(dispatch,objects,femNodeRanges,schedulers,contacts,activeIndices,activeCounts,candidate,correction,lineSearch,statuses,gridNodes,mpmNodeToActive,mpmActiveCounts,solver,traceSlotsPerEnvironment,traceRecords,microstep,adaptive,accepted,fullResidualArmijoEnabled,trialTraceRecords,trialTraceContactSlot,minimumWitnessIdentity,minimumWitnessValues,captureMinimumWitness,collisionGapEnabled,lane,environment,0u,1u,nullptr);
+}
+
+kernel void nm_contact_limit_deformable_line_search_tiled(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMIncidenceRangeGPU* femNodeRanges [[buffer(2)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
+    device const NMDeformableContactGPU* contacts [[buffer(4)]],
+    device const uint* activeIndices [[buffer(5)]],
+    device const uint* activeCounts [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const float4* correction [[buffer(8)]],
+    device float4* lineSearch [[buffer(9)]],
+    device NMMatterStatusGPU* statuses [[buffer(10)]],
+    device const NMGridNodeStateGPU* gridNodes [[buffer(11)]],
+    device const uint* mpmNodeToActive [[buffer(12)]],
+    device const uint* mpmActiveCounts [[buffer(13)]],
+    constant NMMixedSolverGPU& solver [[buffer(14)]],
+    constant uint& traceSlotsPerEnvironment [[buffer(15)]],
+    device NMDeformableContactLimitTraceGPU* traceRecords [[buffer(16)]],
+    constant NMMicrostepGPU& microstep [[buffer(17)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(18)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(19)]],
+    constant uint& fullResidualArmijoEnabled [[buffer(20)]],
+    device NMDeformableContactLimitTrialTraceGPU* trialTraceRecords [[buffer(21)]],
+    constant uint& trialTraceContactSlot [[buffer(22)]],
+    device uint4* minimumWitnessIdentity [[buffer(23)]],
+    device float4* minimumWitnessValues [[buffer(24)]],
+    constant uint& captureMinimumWitness [[buffer(25)]],
+    constant uint& collisionGapEnabled [[buffer(26)]],
+    uint lane [[thread_index_in_threadgroup]],
+    constant uint& tileCount [[buffer(27)]],
+    device float* partialBounds [[buffer(28)]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint environment=group/tileCount;
+    const uint tile=group%tileCount;
+    nmContactLimitDeformableLineSearch(dispatch,objects,femNodeRanges,schedulers,contacts,activeIndices,activeCounts,candidate,correction,lineSearch,statuses,gridNodes,mpmNodeToActive,mpmActiveCounts,solver,traceSlotsPerEnvironment,traceRecords,microstep,adaptive,accepted,fullResidualArmijoEnabled,trialTraceRecords,trialTraceContactSlot,minimumWitnessIdentity,minimumWitnessValues,captureMinimumWitness,collisionGapEnabled,lane,environment,tile,tileCount,partialBounds);
+}
+
+// Only this reduction publishes the common alpha. Tiled work reads one fixed
+// incoming alpha; per-feature Armijo and CCD are unchanged inside each
+// partition, and final physical acceptance remains mandatory. Partitioning
+// can alter conservative alpha selection; it does not alter material forces.
+kernel void nm_contact_finish_deformable_line_search_tiled(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* partialBounds [[buffer(1)]],
+    device float4* lineSearch [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    constant uint& tileCount [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (lane>=32u || environment>=dispatch.environmentCount ||
+        !environmentHealthy(statuses,environment)) return;
+    float bound=1.0f;
+    for (uint tile=lane;tile<tileCount;tile+=32u)
+        bound=min(bound,partialBounds[environment*tileCount+tile]);
+    bound=simd_min(bound);
+    const uint objectBase=environment*dispatch.objectCount;
+    for (uint object=lane;object<dispatch.objectCount;object+=32u) {
+        float4 state=lineSearch[objectBase+object];
+        state.x=min(state.x,bound);lineSearch[objectBase+object]=state;
     }
 }
 

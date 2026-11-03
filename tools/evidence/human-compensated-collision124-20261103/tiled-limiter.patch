@@ -1,0 +1,391 @@
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -12868,37 +12868,38 @@
+         a,b,parameters[2u*index].xyz,parameters[2u*index+1u].x);
+ }
+ 
+-kernel void nm_contact_limit_deformable_line_search(
+-    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+-    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+-    device const NMIncidenceRangeGPU* femNodeRanges [[buffer(2)]],
+-    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
+-    device const NMDeformableContactGPU* contacts [[buffer(4)]],
+-    device const uint* activeIndices [[buffer(5)]],
+-    device const uint* activeCounts [[buffer(6)]],
+-    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+-    device const float4* correction [[buffer(8)]],
+-    device float4* lineSearch [[buffer(9)]],
+-    device NMMatterStatusGPU* statuses [[buffer(10)]],
+-    device const NMGridNodeStateGPU* gridNodes [[buffer(11)]],
+-    device const uint* mpmNodeToActive [[buffer(12)]],
+-    device const uint* mpmActiveCounts [[buffer(13)]],
+-    constant NMMixedSolverGPU& solver [[buffer(14)]],
+-    constant uint& traceSlotsPerEnvironment [[buffer(15)]],
+-    device NMDeformableContactLimitTraceGPU* traceRecords [[buffer(16)]],
+-    constant NMMicrostepGPU& microstep [[buffer(17)]],
+-    device const NMAdaptiveStateGPU* adaptive [[buffer(18)]],
+-    device const NMFEMNodeStateGPU* accepted [[buffer(19)]],
+-    constant uint& fullResidualArmijoEnabled [[buffer(20)]],
+-    device NMDeformableContactLimitTrialTraceGPU* trialTraceRecords [[buffer(21)]],
+-    constant uint& trialTraceContactSlot [[buffer(22)]],
+-    device uint4* minimumWitnessIdentity [[buffer(23)]],
+-    device float4* minimumWitnessValues [[buffer(24)]],
+-    constant uint& captureMinimumWitness [[buffer(25)]],
+-    constant uint& collisionGapEnabled [[buffer(26)]],
+-    uint lane [[thread_index_in_threadgroup]],
+-    uint environment [[threadgroup_position_in_grid]]
+-) {
++inline void nmContactLimitDeformableLineSearch(
++    constant NMMatterDispatchGPU& dispatch,
++    device const NMContinuumObjectGPU* objects,
++    device const NMIncidenceRangeGPU* femNodeRanges,
++    device const NMSchedulerStateGPU* schedulers,
++    device const NMDeformableContactGPU* contacts,
++    device const uint* activeIndices,
++    device const uint* activeCounts,
++    device const NMFEMNodeStateGPU* candidate,
++    device const float4* correction,
++    device float4* lineSearch,
++    device NMMatterStatusGPU* statuses,
++    device const NMGridNodeStateGPU* gridNodes,
++    device const uint* mpmNodeToActive,
++    device const uint* mpmActiveCounts,
++    constant NMMixedSolverGPU& solver,
++    constant uint& traceSlotsPerEnvironment,
++    device NMDeformableContactLimitTraceGPU* traceRecords,
++    constant NMMicrostepGPU& microstep,
++    device const NMAdaptiveStateGPU* adaptive,
++    device const NMFEMNodeStateGPU* accepted,
++    constant uint& fullResidualArmijoEnabled,
++    device NMDeformableContactLimitTrialTraceGPU* trialTraceRecords,
++    constant uint& trialTraceContactSlot,
++    device uint4* minimumWitnessIdentity,
++    device float4* minimumWitnessValues,
++    constant uint& captureMinimumWitness,
++    constant uint& collisionGapEnabled,
++    uint lane,
++    uint environment
++,
++    uint tile,uint tileCount,device float* partialBounds) {
+     if (lane >= 32u || environment >= dispatch.environmentCount ||
+         !environmentHealthy(statuses, environment)) return;
+     const uint capacity = dispatch.deformableContactCapacity;
+@@ -12913,8 +12914,8 @@
+     float laneMinimumBefore = 1.0f;
+     uint4 laneMinimumIdentity = uint4(
+         NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX, 0u);
+-    for (uint activeSlot = lane; activeSlot < activeCount;
+-         activeSlot += 32u) {
++    for (uint activeSlot = tile*32u+lane; activeSlot < activeCount;
++         activeSlot += 32u*tileCount) {
+         const uint slot = activeIndices[contactBase + activeSlot];
+         if (slot >= capacity) continue;
+         const NMDeformableContactGPU contact = contacts[contactBase + slot];
+@@ -13741,12 +13742,113 @@
+             float(laneMinimumIdentity.w));
+     }
+     bound = simd_min(bound);
++    if (tileCount>1u) {
++        if (lane==0u) partialBounds[environment*tileCount+tile]=bound;
++        return;
++    }
+     const float alpha = min(existing, bound);
+     for (uint objectIndex = lane; objectIndex < dispatch.objectCount;
+          objectIndex += 32u) {
+         float4 state = lineSearch[objectBase + objectIndex];
+         state.x = alpha;
+         lineSearch[objectBase + objectIndex] = state;
++    }
++}
++
++kernel void nm_contact_limit_deformable_line_search(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const NMContinuumObjectGPU* objects [[buffer(1)]],
++    device const NMIncidenceRangeGPU* femNodeRanges [[buffer(2)]],
++    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
++    device const NMDeformableContactGPU* contacts [[buffer(4)]],
++    device const uint* activeIndices [[buffer(5)]],
++    device const uint* activeCounts [[buffer(6)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
++    device const float4* correction [[buffer(8)]],
++    device float4* lineSearch [[buffer(9)]],
++    device NMMatterStatusGPU* statuses [[buffer(10)]],
++    device const NMGridNodeStateGPU* gridNodes [[buffer(11)]],
++    device const uint* mpmNodeToActive [[buffer(12)]],
++    device const uint* mpmActiveCounts [[buffer(13)]],
++    constant NMMixedSolverGPU& solver [[buffer(14)]],
++    constant uint& traceSlotsPerEnvironment [[buffer(15)]],
++    device NMDeformableContactLimitTraceGPU* traceRecords [[buffer(16)]],
++    constant NMMicrostepGPU& microstep [[buffer(17)]],
++    device const NMAdaptiveStateGPU* adaptive [[buffer(18)]],
++    device const NMFEMNodeStateGPU* accepted [[buffer(19)]],
++    constant uint& fullResidualArmijoEnabled [[buffer(20)]],
++    device NMDeformableContactLimitTrialTraceGPU* trialTraceRecords [[buffer(21)]],
++    constant uint& trialTraceContactSlot [[buffer(22)]],
++    device uint4* minimumWitnessIdentity [[buffer(23)]],
++    device float4* minimumWitnessValues [[buffer(24)]],
++    constant uint& captureMinimumWitness [[buffer(25)]],
++    constant uint& collisionGapEnabled [[buffer(26)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint environment [[threadgroup_position_in_grid]]
++) {
++    nmContactLimitDeformableLineSearch(dispatch,objects,femNodeRanges,schedulers,contacts,activeIndices,activeCounts,candidate,correction,lineSearch,statuses,gridNodes,mpmNodeToActive,mpmActiveCounts,solver,traceSlotsPerEnvironment,traceRecords,microstep,adaptive,accepted,fullResidualArmijoEnabled,trialTraceRecords,trialTraceContactSlot,minimumWitnessIdentity,minimumWitnessValues,captureMinimumWitness,collisionGapEnabled,lane,environment,0u,1u,nullptr);
++}
++
++kernel void nm_contact_limit_deformable_line_search_tiled(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const NMContinuumObjectGPU* objects [[buffer(1)]],
++    device const NMIncidenceRangeGPU* femNodeRanges [[buffer(2)]],
++    device const NMSchedulerStateGPU* schedulers [[buffer(3)]],
++    device const NMDeformableContactGPU* contacts [[buffer(4)]],
++    device const uint* activeIndices [[buffer(5)]],
++    device const uint* activeCounts [[buffer(6)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
++    device const float4* correction [[buffer(8)]],
++    device float4* lineSearch [[buffer(9)]],
++    device NMMatterStatusGPU* statuses [[buffer(10)]],
++    device const NMGridNodeStateGPU* gridNodes [[buffer(11)]],
++    device const uint* mpmNodeToActive [[buffer(12)]],
++    device const uint* mpmActiveCounts [[buffer(13)]],
++    constant NMMixedSolverGPU& solver [[buffer(14)]],
++    constant uint& traceSlotsPerEnvironment [[buffer(15)]],
++    device NMDeformableContactLimitTraceGPU* traceRecords [[buffer(16)]],
++    constant NMMicrostepGPU& microstep [[buffer(17)]],
++    device const NMAdaptiveStateGPU* adaptive [[buffer(18)]],
++    device const NMFEMNodeStateGPU* accepted [[buffer(19)]],
++    constant uint& fullResidualArmijoEnabled [[buffer(20)]],
++    device NMDeformableContactLimitTrialTraceGPU* trialTraceRecords [[buffer(21)]],
++    constant uint& trialTraceContactSlot [[buffer(22)]],
++    device uint4* minimumWitnessIdentity [[buffer(23)]],
++    device float4* minimumWitnessValues [[buffer(24)]],
++    constant uint& captureMinimumWitness [[buffer(25)]],
++    constant uint& collisionGapEnabled [[buffer(26)]],
++    uint lane [[thread_index_in_threadgroup]],
++    constant uint& tileCount [[buffer(27)]],
++    device float* partialBounds [[buffer(28)]],
++    uint group [[threadgroup_position_in_grid]]
++) {
++    const uint environment=group/tileCount;
++    const uint tile=group%tileCount;
++    nmContactLimitDeformableLineSearch(dispatch,objects,femNodeRanges,schedulers,contacts,activeIndices,activeCounts,candidate,correction,lineSearch,statuses,gridNodes,mpmNodeToActive,mpmActiveCounts,solver,traceSlotsPerEnvironment,traceRecords,microstep,adaptive,accepted,fullResidualArmijoEnabled,trialTraceRecords,trialTraceContactSlot,minimumWitnessIdentity,minimumWitnessValues,captureMinimumWitness,collisionGapEnabled,lane,environment,tile,tileCount,partialBounds);
++}
++
++// Only this reduction publishes the common alpha. Tiled work reads one fixed
++// incoming alpha; per-feature Armijo and CCD are unchanged inside each
++// partition, and final physical acceptance remains mandatory. Partitioning
++// can alter conservative alpha selection; it does not alter material forces.
++kernel void nm_contact_finish_deformable_line_search_tiled(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const float* partialBounds [[buffer(1)]],
++    device float4* lineSearch [[buffer(2)]],
++    device const NMMatterStatusGPU* statuses [[buffer(3)]],
++    constant uint& tileCount [[buffer(4)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint environment [[threadgroup_position_in_grid]]) {
++    if (lane>=32u || environment>=dispatch.environmentCount ||
++        !environmentHealthy(statuses,environment)) return;
++    float bound=1.0f;
++    for (uint tile=lane;tile<tileCount;tile+=32u)
++        bound=min(bound,partialBounds[environment*tileCount+tile]);
++    bound=simd_min(bound);
++    const uint objectBase=environment*dispatch.objectCount;
++    for (uint object=lane;object<dispatch.objectCount;object+=32u) {
++        float4 state=lineSearch[objectBase+object];
++        state.x=min(state.x,bound);lineSearch[objectBase+object]=state;
+     }
+ }
+ 
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -3227,6 +3227,8 @@
+     bool femFreshDirectionAlphaResetEnabled = false;
+     bool femDeformableCollisionGapEnabled = false;
+     bool femReferenceContactPlaneCCDEnabled = false;
++    bool femTiledDeformableLimitEnabled = false;
++    std::uint32_t femDeformableLimitTileCount = 128u;
+     bool femParallelBacktrackingRequested = false;
+     bool femParallelBacktrackingEnabled = false;
+     bool femBacktrackingConstitutiveValidityEnabled = false;
+@@ -3935,6 +3937,7 @@
+     id<MTLBuffer> femConstraintReactions = nil;
+     id<MTLBuffer> femConstraintContactForces = nil;
+     id<MTLBuffer> femLineSearch = nil;
++    id<MTLBuffer> femDeformableLimitTileBounds = nil;
+     id<MTLBuffer> femBacktrackingSkippedTetEvaluations = nil;
+     id<MTLBuffer> femParallelBacktrackingPartials = nil;
+     id<MTLBuffer> femParallelBacktrackingAccepted = nil;
+@@ -5049,8 +5052,15 @@
+             candidate->femReferenceContactPlaneCCDEnabled=std::strcmp(planeCCD,"1")==0;
+             if (candidate->femReferenceContactPlaneCCDEnabled && !candidate->femDeformableCollisionGapEnabled) {
+                 diagnostics.message="reference plane CCD requires authored deformable collision gap";
++                return diagnostics;
++            }
++        }
++        if (const char* tiledLimit=std::getenv("NM_FEM_TILED_DEFORMABLE_LIMIT")) {
++            if (std::strcmp(tiledLimit,"0")!=0 && std::strcmp(tiledLimit,"1")!=0) {
++                diagnostics.message="NM_FEM_TILED_DEFORMABLE_LIMIT must be exactly 0 or 1";
+                 return diagnostics;
+             }
++            candidate->femTiledDeformableLimitEnabled=std::strcmp(tiledLimit,"1")==0;
+         }
+         const char* freshDirectionAlphaReset = std::getenv(
+             "NM_FEM_FRESH_DIRECTION_ALPHA_RESET");
+@@ -7877,6 +7887,10 @@
+         if (candidate->femHumanPartitionedFEMTangentPairedProjectEnabled) {
+             candidate->executionFingerprint = mixFingerprint(
+                 candidate->executionFingerprint, 0x54414e5041495231ull); // TANPAIR1
++        }
++        if (candidate->femTiledDeformableLimitEnabled) {
++            candidate->executionFingerprint=mixFingerprint(
++                candidate->executionFingerprint,0x54494c454c494d31ull); // TILELIM1
+         }
+         if (candidate->femReferenceContactPlaneCCDEnabled) {
+             candidate->executionFingerprint=mixFingerprint(
+@@ -8686,6 +8700,8 @@
+             "nm_contact_publish_fem_constraint_contact_force",
+             "nm_contact_publish_primal_history",
+             "nm_contact_limit_deformable_line_search",
++            "nm_contact_limit_deformable_line_search_tiled",
++            "nm_contact_finish_deformable_line_search_tiled",
+             "nm_contact_limit_rigid_line_search",
+             "nm_contact_publish_deformable_history",
+             "nm_contact_reduce_rigid",
+@@ -13421,6 +13437,11 @@
+         candidate->femLineSearch = privateScratch<nm_float4>(
+             candidate->device, multiplied(world.dispatch.objectCount),
+             valid, candidate->residentBytes);
++        if (candidate->femTiledDeformableLimitEnabled) {
++            candidate->femDeformableLimitTileBounds=privateScratch<float>(
++                candidate->device,multiplied(candidate->femDeformableLimitTileCount),
++                valid,candidate->residentBytes);
++        }
+         if (candidate->femCompletedBacktrackingCollapseRequested) {
+             candidate->femBacktrackingSkippedTetEvaluations =
+                 privateScratch<std::uint32_t>(candidate->device,
+@@ -47523,9 +47544,17 @@
+             }
+             const std::uint32_t fullResidualContactFeasibilityOnly =
+                 femFullContactResidualArmijoEnabled ? 1u : 0u;
++            // Diagnostic mode retains exact historical lane ordering. Production
++            // distributes independent conservative bounds. Per-feature Armijo,
++            // fallback CCD and final physical acceptance remain unchanged. Like
++            // the existing32lanes, partitions reduce to one common alpha.
++            const bool tiledDeformableLimit=state.femTiledDeformableLimitEnabled &&
++                deformableLimitTraceRecords==nil &&
++                deformableLimitMinimumWitnessIdentity==nil;
+             dispatchGroups32(
+-                "nm_contact_limit_deformable_line_search",
+-                environments,
++                tiledDeformableLimit ? "nm_contact_limit_deformable_line_search_tiled" :
++                    "nm_contact_limit_deformable_line_search",
++                environments*(tiledDeformableLimit ? state.femDeformableLimitTileCount : 1u),
+                 [&] {
+                     setDispatch();
+                     [encoder setBuffer:state.objects offset:0u atIndex:1u];
+@@ -47590,7 +47619,23 @@
+                         (state.femReferenceContactPlaneCCDEnabled ? 2u : 0u);
+                     [encoder setBytes:&collisionGap length:sizeof(collisionGap)
+                               atIndex:26u];
++                    if (tiledDeformableLimit) {
++                        [encoder setBytes:&state.femDeformableLimitTileCount
++                            length:sizeof(state.femDeformableLimitTileCount) atIndex:27u];
++                        [encoder setBuffer:state.femDeformableLimitTileBounds offset:0u atIndex:28u];
++                    }
+                 });
++            if (tiledDeformableLimit) {
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                dispatchGroups32("nm_contact_finish_deformable_line_search_tiled",environments,[&] {
++                    setDispatch();
++                    [encoder setBuffer:state.femDeformableLimitTileBounds offset:0u atIndex:1u];
++                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:2u];
++                    [encoder setBuffer:state.statuses offset:0u atIndex:3u];
++                    [encoder setBytes:&state.femDeformableLimitTileCount
++                        length:sizeof(state.femDeformableLimitTileCount) atIndex:4u];
++                });
++            }
+             if (femDeformableContactCaptureSelected &&
+                 deformableLimitTraceRecords != nil &&
+                 deformableLimitTraceSlots != 0u) {
+--- a/matter/tools/fgmres_true_residual_native_check.mm
++++ b/matter/tools/fgmres_true_residual_native_check.mm
+@@ -13913,10 +13913,11 @@
+     const auto run = [&](const nm_float4 origin, const bool reference,
+                          const float gap, const float closing,
+                          const float clearance, const bool nonfinite = false,
+-                          const bool minimumTrace = false, const bool planeMode = false) {
++                          const bool minimumTrace = false, const bool planeMode = false,
++                         const bool tiled = false, const unsigned contactCount = 1u) {
+         NMMatterDispatchGPU d{};
+         d.environmentCount = 1u; d.objectCount = 1u; d.femNodeCount = 2u;
+-        d.deformableContactCapacity = 1u;
++        d.deformableContactCapacity = contactCount;
+         d.gravityAndTimestep.w = 1.0f;
+         d.numericalLimits.x = 1.0e-5f;
+         NMContinuumObjectGPU object{};
+@@ -13961,20 +13962,24 @@
+         auto trace = makeBuffer(device, std::vector<NMDeformableContactLimitTraceGPU>(minimumTrace ? 32u : 1u));
+         auto dummy = makeBuffer(device, std::vector<std::uint32_t>(512u));
+         auto zero = makeBuffer(device, std::vector<std::uint32_t>{0u});
+-        auto one = makeBuffer(device, std::vector<std::uint32_t>{1u});
+-        auto captureMode = makeBuffer(device, std::vector<std::uint32_t>{minimumTrace ? 2u : 1u});
++        auto captureMode = makeBuffer(device, std::vector<std::uint32_t>{tiled ? 0u : minimumTrace ? 2u : 1u});
+         auto collisionMode=makeBuffer(device,std::vector<std::uint32_t>{planeMode ? 3u : 1u});
+-        auto traceCount = makeBuffer(device, std::vector<std::uint32_t>{minimumTrace ? 32u : 1u});
++        auto traceCount = makeBuffer(device, std::vector<std::uint32_t>{tiled ? 0u : minimumTrace ? 32u : 1u});
+         auto invalid = makeBuffer(device, std::vector<std::uint32_t>{NM_INVALID_INDEX});
+         auto witnessIdentity = makeBuffer(device, std::vector<nm_uint4>(32u));
+         auto witnessValues = makeBuffer(device, std::vector<nm_float4>(32u));
+-        dispatch(device, queue, limiter, {
++        std::vector<std::uint32_t> indices(contactCount);
++        std::iota(indices.begin(),indices.end(),0u);
++        const unsigned tileCount=128u;
++        auto tileCountBuffer=makeBuffer(device,std::vector<std::uint32_t>{tileCount});
++        auto tileBounds=makeBuffer(device,std::vector<float>(tileCount+1u,-19.0f));
++        std::vector<std::pair<NSUInteger,id<MTLBuffer>>> bindings{
+             {0u, makeBuffer(device, std::vector<NMMatterDispatchGPU>{d})},
+             {1u, makeBuffer(device, std::vector<NMContinuumObjectGPU>{object})},
+             {2u, makeBuffer(device, ranges)},
+             {3u, makeBuffer(device, std::vector<NMSchedulerStateGPU>{scheduler})},
+-            {4u, makeBuffer(device, std::vector<NMDeformableContactGPU>{contact})},
+-            {5u, zero}, {6u, one}, {7u, state}, {8u, direction},
++            {4u, makeBuffer(device, std::vector<NMDeformableContactGPU>(contactCount,contact))},
++            {5u, makeBuffer(device,indices)}, {6u, makeBuffer(device,std::vector<std::uint32_t>{contactCount})}, {7u, state}, {8u, direction},
+             {9u, line}, {10u, status}, {11u, dummy}, {12u, dummy},
+             {13u, zero},
+             {14u, makeBuffer(device, std::vector<NMMixedSolverGPU>{solver})},
+@@ -13983,7 +13988,19 @@
+             {18u, makeBuffer(device, std::vector<NMAdaptiveStateGPU>{adaptive})},
+             {19u, state}, {20u, zero}, {21u, dummy}, {22u, invalid},
+             {23u, witnessIdentity}, {24u, witnessValues}, {25u, captureMode},
+-            {26u, collisionMode}}, 1u, 32u);
++            {26u, collisionMode}};
++        if (tiled) {
++            bindings.push_back({27u,tileCountBuffer});bindings.push_back({28u,tileBounds});
++            dispatch(device,queue,pipeline(device,library,
++                "numi_matter_metal::nm_contact_limit_deformable_line_search_tiled"),
++                bindings,tileCount,32u);
++            dispatch(device,queue,pipeline(device,library,
++                "numi_matter_metal::nm_contact_finish_deformable_line_search_tiled"),{
++                {0u,makeBuffer(device,std::vector<NMMatterDispatchGPU>{d})},
++                {1u,tileBounds},{2u,line},{3u,status},{4u,tileCountBuffer}},1u,32u);
++            require(readBuffer<float>(tileBounds,tileCount+1u)[tileCount]==-19.0f,
++                "tiled contact reduction wrote beyond tile capacity");
++        } else dispatch(device,queue,limiter,bindings,1u,32u);
+         const auto output = readBuffer<nm_float4>(line, 1u)[0];
+         require(output.y == 7.0f && output.z == 8.0f && output.w == 9.0f,
+             "contact frame fix changed unrelated line-search metadata");
+@@ -14036,6 +14053,14 @@
+     const auto oldLegacy=run(bodyOrigin,false,2.0e-6f,0.5e-6f,1.0e-9f);
+     require(planeLegacy.alpha==oldLegacy.alpha && planeLegacy.status.code==oldLegacy.status.code,
+         "plane flag changed nonreference safety behavior");
++    for (unsigned count:{1u,127u,128u,129u,257u}) {
++        for (float closing:{0.0f,0.5e-6f,4.0e-6f}) {
++            const auto serial=run(bodyOrigin,true,2.0e-6f,closing,1.0e-9f,false,false,true,false,count);
++            const auto tiled=run(bodyOrigin,true,2.0e-6f,closing,1.0e-9f,false,false,true,true,count);
++            require(serial.alpha==tiled.alpha && serial.status.code==tiled.status.code,
++                "tiled contact bound disagrees on repeated feature/capacity corpus");
++        }
++    }
+     const auto higherClearance = run(bodyOrigin,true,2.0e-6f,0.5e-6f,1.8e-6f);
+     require(higherClearance.alpha > 0.0f && higherClearance.alpha < 1.0f,
+         "reference arithmetic bypassed authored contact clearance");

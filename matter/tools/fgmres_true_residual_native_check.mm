@@ -13913,10 +13913,11 @@ void checkReferenceContactArithmeticFrame(
     const auto run = [&](const nm_float4 origin, const bool reference,
                          const float gap, const float closing,
                          const float clearance, const bool nonfinite = false,
-                          const bool minimumTrace = false, const bool planeMode = false) {
+                          const bool minimumTrace = false, const bool planeMode = false,
+                         const bool tiled = false, const unsigned contactCount = 1u) {
         NMMatterDispatchGPU d{};
         d.environmentCount = 1u; d.objectCount = 1u; d.femNodeCount = 2u;
-        d.deformableContactCapacity = 1u;
+        d.deformableContactCapacity = contactCount;
         d.gravityAndTimestep.w = 1.0f;
         d.numericalLimits.x = 1.0e-5f;
         NMContinuumObjectGPU object{};
@@ -13961,20 +13962,24 @@ void checkReferenceContactArithmeticFrame(
         auto trace = makeBuffer(device, std::vector<NMDeformableContactLimitTraceGPU>(minimumTrace ? 32u : 1u));
         auto dummy = makeBuffer(device, std::vector<std::uint32_t>(512u));
         auto zero = makeBuffer(device, std::vector<std::uint32_t>{0u});
-        auto one = makeBuffer(device, std::vector<std::uint32_t>{1u});
-        auto captureMode = makeBuffer(device, std::vector<std::uint32_t>{minimumTrace ? 2u : 1u});
+        auto captureMode = makeBuffer(device, std::vector<std::uint32_t>{tiled ? 0u : minimumTrace ? 2u : 1u});
         auto collisionMode=makeBuffer(device,std::vector<std::uint32_t>{planeMode ? 3u : 1u});
-        auto traceCount = makeBuffer(device, std::vector<std::uint32_t>{minimumTrace ? 32u : 1u});
+        auto traceCount = makeBuffer(device, std::vector<std::uint32_t>{tiled ? 0u : minimumTrace ? 32u : 1u});
         auto invalid = makeBuffer(device, std::vector<std::uint32_t>{NM_INVALID_INDEX});
         auto witnessIdentity = makeBuffer(device, std::vector<nm_uint4>(32u));
         auto witnessValues = makeBuffer(device, std::vector<nm_float4>(32u));
-        dispatch(device, queue, limiter, {
+        std::vector<std::uint32_t> indices(contactCount);
+        std::iota(indices.begin(),indices.end(),0u);
+        const unsigned tileCount=128u;
+        auto tileCountBuffer=makeBuffer(device,std::vector<std::uint32_t>{tileCount});
+        auto tileBounds=makeBuffer(device,std::vector<float>(tileCount+1u,-19.0f));
+        std::vector<std::pair<NSUInteger,id<MTLBuffer>>> bindings{
             {0u, makeBuffer(device, std::vector<NMMatterDispatchGPU>{d})},
             {1u, makeBuffer(device, std::vector<NMContinuumObjectGPU>{object})},
             {2u, makeBuffer(device, ranges)},
             {3u, makeBuffer(device, std::vector<NMSchedulerStateGPU>{scheduler})},
-            {4u, makeBuffer(device, std::vector<NMDeformableContactGPU>{contact})},
-            {5u, zero}, {6u, one}, {7u, state}, {8u, direction},
+            {4u, makeBuffer(device, std::vector<NMDeformableContactGPU>(contactCount,contact))},
+            {5u, makeBuffer(device,indices)}, {6u, makeBuffer(device,std::vector<std::uint32_t>{contactCount})}, {7u, state}, {8u, direction},
             {9u, line}, {10u, status}, {11u, dummy}, {12u, dummy},
             {13u, zero},
             {14u, makeBuffer(device, std::vector<NMMixedSolverGPU>{solver})},
@@ -13983,7 +13988,19 @@ void checkReferenceContactArithmeticFrame(
             {18u, makeBuffer(device, std::vector<NMAdaptiveStateGPU>{adaptive})},
             {19u, state}, {20u, zero}, {21u, dummy}, {22u, invalid},
             {23u, witnessIdentity}, {24u, witnessValues}, {25u, captureMode},
-            {26u, collisionMode}}, 1u, 32u);
+            {26u, collisionMode}};
+        if (tiled) {
+            bindings.push_back({27u,tileCountBuffer});bindings.push_back({28u,tileBounds});
+            dispatch(device,queue,pipeline(device,library,
+                "numi_matter_metal::nm_contact_limit_deformable_line_search_tiled"),
+                bindings,tileCount,32u);
+            dispatch(device,queue,pipeline(device,library,
+                "numi_matter_metal::nm_contact_finish_deformable_line_search_tiled"),{
+                {0u,makeBuffer(device,std::vector<NMMatterDispatchGPU>{d})},
+                {1u,tileBounds},{2u,line},{3u,status},{4u,tileCountBuffer}},1u,32u);
+            require(readBuffer<float>(tileBounds,tileCount+1u)[tileCount]==-19.0f,
+                "tiled contact reduction wrote beyond tile capacity");
+        } else dispatch(device,queue,limiter,bindings,1u,32u);
         const auto output = readBuffer<nm_float4>(line, 1u)[0];
         require(output.y == 7.0f && output.z == 8.0f && output.w == 9.0f,
             "contact frame fix changed unrelated line-search metadata");
@@ -14036,6 +14053,14 @@ void checkReferenceContactArithmeticFrame(
     const auto oldLegacy=run(bodyOrigin,false,2.0e-6f,0.5e-6f,1.0e-9f);
     require(planeLegacy.alpha==oldLegacy.alpha && planeLegacy.status.code==oldLegacy.status.code,
         "plane flag changed nonreference safety behavior");
+    for (unsigned count:{1u,127u,128u,129u,257u}) {
+        for (float closing:{0.0f,0.5e-6f,4.0e-6f}) {
+            const auto serial=run(bodyOrigin,true,2.0e-6f,closing,1.0e-9f,false,false,true,false,count);
+            const auto tiled=run(bodyOrigin,true,2.0e-6f,closing,1.0e-9f,false,false,true,true,count);
+            require(serial.alpha==tiled.alpha && serial.status.code==tiled.status.code,
+                "tiled contact bound disagrees on repeated feature/capacity corpus");
+        }
+    }
     const auto higherClearance = run(bodyOrigin,true,2.0e-6f,0.5e-6f,1.8e-6f);
     require(higherClearance.alpha > 0.0f && higherClearance.alpha < 1.0f,
         "reference arithmetic bypassed authored contact clearance");

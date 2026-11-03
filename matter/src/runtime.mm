@@ -3227,6 +3227,8 @@ struct Runtime::State {
     bool femFreshDirectionAlphaResetEnabled = false;
     bool femDeformableCollisionGapEnabled = false;
     bool femReferenceContactPlaneCCDEnabled = false;
+    bool femTiledDeformableLimitEnabled = false;
+    std::uint32_t femDeformableLimitTileCount = 128u;
     bool femParallelBacktrackingRequested = false;
     bool femParallelBacktrackingEnabled = false;
     bool femBacktrackingConstitutiveValidityEnabled = false;
@@ -3935,6 +3937,7 @@ struct Runtime::State {
     id<MTLBuffer> femConstraintReactions = nil;
     id<MTLBuffer> femConstraintContactForces = nil;
     id<MTLBuffer> femLineSearch = nil;
+    id<MTLBuffer> femDeformableLimitTileBounds = nil;
     id<MTLBuffer> femBacktrackingSkippedTetEvaluations = nil;
     id<MTLBuffer> femParallelBacktrackingPartials = nil;
     id<MTLBuffer> femParallelBacktrackingAccepted = nil;
@@ -5051,6 +5054,13 @@ RuntimeDiagnostics Runtime::initialize(
                 diagnostics.message="reference plane CCD requires authored deformable collision gap";
                 return diagnostics;
             }
+        }
+        if (const char* tiledLimit=std::getenv("NM_FEM_TILED_DEFORMABLE_LIMIT")) {
+            if (std::strcmp(tiledLimit,"0")!=0 && std::strcmp(tiledLimit,"1")!=0) {
+                diagnostics.message="NM_FEM_TILED_DEFORMABLE_LIMIT must be exactly 0 or 1";
+                return diagnostics;
+            }
+            candidate->femTiledDeformableLimitEnabled=std::strcmp(tiledLimit,"1")==0;
         }
         const char* freshDirectionAlphaReset = std::getenv(
             "NM_FEM_FRESH_DIRECTION_ALPHA_RESET");
@@ -7878,6 +7888,10 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x54414e5041495231ull); // TANPAIR1
         }
+        if (candidate->femTiledDeformableLimitEnabled) {
+            candidate->executionFingerprint=mixFingerprint(
+                candidate->executionFingerprint,0x54494c454c494d31ull); // TILELIM1
+        }
         if (candidate->femReferenceContactPlaneCCDEnabled) {
             candidate->executionFingerprint=mixFingerprint(
                 candidate->executionFingerprint,0x504c4e4343443031ull); // PLNCCD01
@@ -8686,6 +8700,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_publish_fem_constraint_contact_force",
             "nm_contact_publish_primal_history",
             "nm_contact_limit_deformable_line_search",
+            "nm_contact_limit_deformable_line_search_tiled",
+            "nm_contact_finish_deformable_line_search_tiled",
             "nm_contact_limit_rigid_line_search",
             "nm_contact_publish_deformable_history",
             "nm_contact_reduce_rigid",
@@ -13421,6 +13437,11 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femLineSearch = privateScratch<nm_float4>(
             candidate->device, multiplied(world.dispatch.objectCount),
             valid, candidate->residentBytes);
+        if (candidate->femTiledDeformableLimitEnabled) {
+            candidate->femDeformableLimitTileBounds=privateScratch<float>(
+                candidate->device,multiplied(candidate->femDeformableLimitTileCount),
+                valid,candidate->residentBytes);
+        }
         if (candidate->femCompletedBacktrackingCollapseRequested) {
             candidate->femBacktrackingSkippedTetEvaluations =
                 privateScratch<std::uint32_t>(candidate->device,
@@ -47523,9 +47544,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             const std::uint32_t fullResidualContactFeasibilityOnly =
                 femFullContactResidualArmijoEnabled ? 1u : 0u;
+            // Diagnostic mode retains exact historical lane ordering. Production
+            // distributes independent conservative bounds. Per-feature Armijo,
+            // fallback CCD and final physical acceptance remain unchanged. Like
+            // the existing32lanes, partitions reduce to one common alpha.
+            const bool tiledDeformableLimit=state.femTiledDeformableLimitEnabled &&
+                deformableLimitTraceRecords==nil &&
+                deformableLimitMinimumWitnessIdentity==nil;
             dispatchGroups32(
-                "nm_contact_limit_deformable_line_search",
-                environments,
+                tiledDeformableLimit ? "nm_contact_limit_deformable_line_search_tiled" :
+                    "nm_contact_limit_deformable_line_search",
+                environments*(tiledDeformableLimit ? state.femDeformableLimitTileCount : 1u),
                 [&] {
                     setDispatch();
                     [encoder setBuffer:state.objects offset:0u atIndex:1u];
@@ -47590,7 +47619,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         (state.femReferenceContactPlaneCCDEnabled ? 2u : 0u);
                     [encoder setBytes:&collisionGap length:sizeof(collisionGap)
                               atIndex:26u];
+                    if (tiledDeformableLimit) {
+                        [encoder setBytes:&state.femDeformableLimitTileCount
+                            length:sizeof(state.femDeformableLimitTileCount) atIndex:27u];
+                        [encoder setBuffer:state.femDeformableLimitTileBounds offset:0u atIndex:28u];
+                    }
                 });
+            if (tiledDeformableLimit) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32("nm_contact_finish_deformable_line_search_tiled",environments,[&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femDeformableLimitTileBounds offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:2u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                    [encoder setBytes:&state.femDeformableLimitTileCount
+                        length:sizeof(state.femDeformableLimitTileCount) atIndex:4u];
+                });
+            }
             if (femDeformableContactCaptureSelected &&
                 deformableLimitTraceRecords != nil &&
                 deformableLimitTraceSlots != 0u) {

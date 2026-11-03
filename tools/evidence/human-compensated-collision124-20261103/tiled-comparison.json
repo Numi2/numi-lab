@@ -1,0 +1,203 @@
+{
+  "tiled-control": {
+    "active_globalization_s": [
+      8.073562625,
+      8.306855708,
+      8.310279125
+    ],
+    "active_globalization_total_s": 24.690697458,
+    "all_gpu_stage_sum_s": 37.011459083,
+    "gpu_stages_s": {
+      "matter_pre": [
+        0.009381917
+      ],
+      "brain_advance": [
+        5.625e-06
+      ],
+      "respiratory_mechanics": [
+        0.002102541
+      ],
+      "matter_after_frame_begin": [
+        0.000795625
+      ],
+      "matter_newton_assembly": [
+        0.240406458,
+        0.239083208,
+        0.218289209,
+        0.041621,
+        0.041563084,
+        0.043820625,
+        0.041573,
+        0.041621917,
+        0.04164175,
+        0.041545292,
+        0.041594708,
+        0.041607209,
+        0.041597333,
+        0.041614542,
+        0.041601,
+        0.041626083
+      ],
+      "matter_newton_linear": [
+        0.924239792,
+        0.922328,
+        0.911313375,
+        0.509769625,
+        0.514365541,
+        0.510880875,
+        0.510514084,
+        0.504765958,
+        0.5107935,
+        0.502772125,
+        0.504384458,
+        0.505273333,
+        0.510880625,
+        0.510895166,
+        0.5073865,
+        0.506657709
+      ],
+      "matter_newton_globalization": [
+        8.073562625,
+        8.306855708,
+        8.310279125,
+        0.001033791,
+        0.001314709,
+        0.001034166,
+        0.001037208,
+        0.001034042,
+        0.001037208,
+        0.001034375,
+        0.001032125,
+        0.001037542,
+        0.001036375,
+        0.001035959,
+        0.001032708,
+        0.001034416
+      ],
+      "respiratory_gas_exchange": [
+        0.00092825
+      ],
+      "matter_after_candidate_ready": [
+        1.67025875
+      ],
+      "matter_after_microstep": [
+        0.007773417
+      ],
+      "matter_post": [
+        0.007751583
+      ],
+      "brain_resolve": [
+        1.125e-06
+      ],
+      "respiratory_resolve": [
+        1.084e-06
+      ]
+    },
+    "wall_process_s": 237.5892210006714,
+    "accepted_steps": 0,
+    "failure_receipt_sha256": "cb5bb4bdcd0766497ecb39c1ddabf13d62477ec8d026d1e0b9a9a58a0d9053bb",
+    "resource_stop_reason": null
+  },
+  "tiled-run": {
+    "active_globalization_s": [
+      4.457571708,
+      4.523258333,
+      4.5225565
+    ],
+    "active_globalization_total_s": 13.503386541000001,
+    "all_gpu_stage_sum_s": 25.837026874,
+    "gpu_stages_s": {
+      "matter_pre": [
+        0.00908825
+      ],
+      "brain_advance": [
+        9.1083e-05
+      ],
+      "respiratory_mechanics": [
+        0.006087791
+      ],
+      "matter_after_frame_begin": [
+        0.000773167
+      ],
+      "matter_newton_assembly": [
+        0.239005333,
+        0.239249792,
+        0.217181333,
+        0.041670875,
+        0.041544375,
+        0.043898541,
+        0.041617209,
+        0.041700917,
+        0.041648458,
+        0.041570291,
+        0.0415935,
+        0.041600917,
+        0.041633417,
+        0.0415805,
+        0.041623792,
+        0.041634417
+      ],
+      "matter_newton_linear": [
+        0.922237209,
+        0.929754625,
+        0.915776292,
+        0.510670708,
+        0.51026825,
+        0.501760084,
+        0.505233958,
+        0.514834791,
+        0.504952625,
+        0.505545917,
+        0.510233625,
+        0.505334083,
+        0.508004958,
+        0.511324375,
+        0.513453333,
+        0.5075475
+      ],
+      "matter_newton_globalization": [
+        4.457571708,
+        4.523258333,
+        4.5225565,
+        0.001038834,
+        0.0015635,
+        0.001039291,
+        0.0010415,
+        0.001040084,
+        0.001037417,
+        0.0010395,
+        0.001036375,
+        0.001038333,
+        0.0010415,
+        0.0010365,
+        0.001038417,
+        0.001036166
+      ],
+      "respiratory_gas_exchange": [
+        0.000928
+      ],
+      "matter_after_candidate_ready": [
+        1.67145725
+      ],
+      "matter_after_microstep": [
+        0.007760083
+      ],
+      "matter_post": [
+        0.007739
+      ],
+      "brain_resolve": [
+        1.25e-06
+      ],
+      "respiratory_resolve": [
+        1.042e-06
+      ]
+    },
+    "wall_process_s": 206.55317401885986,
+    "accepted_steps": 0,
+    "failure_receipt_sha256": "cb5bb4bdcd0766497ecb39c1ddabf13d62477ec8d026d1e0b9a9a58a0d9053bb",
+    "resource_stop_reason": null
+  },
+  "active_globalization_ratio": 1.828481868828404,
+  "same_failure_receipt_bytes": true,
+  "scope": "one matched same-binary pair, stage timings; zero accepted steps means no integrated throughput claim; startup differs and is not attributed to tiling"
+}
