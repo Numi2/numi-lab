@@ -1,0 +1,136 @@
+[
+  {
+    "trial": "reference-self-width",
+    "initial_rhs": 0.266064167,
+    "nonlinear_rhs_by_iteration": [
+      {
+        "iteration": 0,
+        "rhs": 0.266064167
+      },
+      {
+        "iteration": 1,
+        "rhs": 0.26561904
+      },
+      {
+        "iteration": 2,
+        "rhs": 0.26549843
+      },
+      {
+        "iteration": 3,
+        "rhs": 0.26546827
+      },
+      {
+        "iteration": 4,
+        "rhs": 0.265460759
+      },
+      {
+        "iteration": 5,
+        "rhs": 0.265460283
+      },
+      {
+        "iteration": 6,
+        "rhs": 0.265458405
+      },
+      {
+        "iteration": 7,
+        "rhs": 0.265457451
+      },
+      {
+        "iteration": 8,
+        "rhs": 0.26521641
+      },
+      {
+        "iteration": 9,
+        "rhs": 0.264735103
+      }
+    ],
+    "accepted_physical_steps": 0,
+    "execution": {
+      "exit_code": 1,
+      "elapsed_s": 247.7780191898346,
+      "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/reference-self-width/install-motion.plan.json",
+      "plan_sha256": "40317192f4f522b2b97a8fcb9e65f118256020b2f78374535f329a1697f1d0f2",
+      "stdout_sha256": "e6162e15df5a8a24f67ef638eecf2fa720b55e168f61c53cd197f135e74581e1",
+      "stderr_sha256": "bc1dcc0b30bc53b6c98990d2a4bbefc4b499d37a9802d89869ddf1054a238a5c",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    }
+  },
+  {
+    "trial": "reference-local-native-001",
+    "initial_rhs": 0.111071765,
+    "nonlinear_rhs_by_iteration": [
+      {
+        "iteration": 0,
+        "rhs": 0.111071765
+      },
+      {
+        "iteration": 1,
+        "rhs": 0.110546336
+      },
+      {
+        "iteration": 2,
+        "rhs": 0.110400066
+      },
+      {
+        "iteration": 3,
+        "rhs": 0.109797008
+      },
+      {
+        "iteration": 4,
+        "rhs": 0.109189548
+      },
+      {
+        "iteration": 5,
+        "rhs": 0.108574346
+      },
+      {
+        "iteration": 6,
+        "rhs": 0.107958004
+      },
+      {
+        "iteration": 7,
+        "rhs": 0.107334152
+      },
+      {
+        "iteration": 8,
+        "rhs": 0.10670577
+      },
+      {
+        "iteration": 9,
+        "rhs": 0.106074348
+      },
+      {
+        "iteration": 10,
+        "rhs": 0.105436385
+      },
+      {
+        "iteration": 11,
+        "rhs": 0.104797192
+      },
+      {
+        "iteration": 12,
+        "rhs": 0.104389802
+      },
+      {
+        "iteration": 13,
+        "rhs": 0.103984006
+      }
+    ],
+    "accepted_physical_steps": 0,
+    "execution": {
+      "exit_code": 1,
+      "elapsed_s": 242.96456599235535,
+      "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/reference-local-native-001/install-motion.plan.json",
+      "plan_sha256": "f3f455fcbfc29ab02b41aa66505b34ff2596e0a8c4727653db425b8a1bb9bfb9",
+      "stdout_sha256": "017946a0de7eedaf4e204762d96d059ec7456a443500ffaa8ae36d3e9ccd9c3d",
+      "stderr_sha256": "8b4e49286f058e770e379a878240807cbfe0c5623339f97dde9b3fa046fedd37",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    }
+  }
+]

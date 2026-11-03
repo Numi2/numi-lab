@@ -1,0 +1,1 @@
+FAIL native FGMRES true-residual kernel contract: world-space closest points lost the oblique Float32 reference gap

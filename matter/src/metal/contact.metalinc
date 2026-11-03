@@ -5830,35 +5830,14 @@ constant bool nmReferenceSelfContactWidthActive =
     is_function_constant_defined(nmReferenceSelfContactWidth)
         ? nmReferenceSelfContactWidth : false;
 
-inline float nmReferenceSelfContactBarrierWidth(
-    thread const float3* rest, float authored, float clearance,
-    thread float& certifiedGap
+inline float nmReferenceTriangleSeparatingGap(
+    thread const float3* rest, float3 direction, float authored
 ) {
-    certifiedGap=0.0f;
-    float best=INFINITY;float3 difference=float3(0.0f);
-    for (uint side=0u;side<2u;++side) {
-        const uint a=side*3u,b=(1u-side)*3u;
-        for (uint v=0u;v<3u;++v) {
-            float3 bary;
-            const float3 q=closestPointOnTriangle(rest[a+v],rest[b],
-                rest[b+1u],rest[b+2u],bary);
-            const float3 d=side==0u ? q-rest[a+v] : rest[a+v]-q;
-            const float d2=dot(d,d);
-            if (d2<best) {best=d2;difference=d;}
-        }
-    }
-    for (uint a=0u;a<3u;++a) for (uint b=0u;b<3u;++b) {
-        float u,v;float3 x,y;
-        closestPointsOnSegments(rest[a],rest[(a+1u)%3u],
-            rest[3u+b],rest[3u+(b+1u)%3u],u,v,x,y);
-        const float3 d=y-x;const float d2=dot(d,d);
-        if (d2<best) {best=d2;difference=d;}
-    }
-    if (!(best>0.0f) || !isfinite(best) || !all(isfinite(difference)))
-        return authored;
-    const float3 normal=difference/sqrt(best);
-    MRCompensatedScalar maximumA={-INFINITY,0.0f};
-    MRCompensatedScalar minimumB={INFINITY,0.0f};
+    const float norm2=dot(direction,direction);
+    if (!(norm2>0.0f) || !isfinite(norm2) || !all(isfinite(direction))) return 0.0f;
+    const float3 normal=direction/sqrt(norm2);
+    MRCompensatedScalar maximumA={-INFINITY,0.0f},minimumA={INFINITY,0.0f};
+    MRCompensatedScalar maximumB={-INFINITY,0.0f},minimumB={INFINITY,0.0f};
     float extent=0.0f;
     for (uint i=0u;i<6u;++i) {
         const auto relative=contactCompensatedVectorDifference(rest[i],rest[0]);
@@ -5868,14 +5847,61 @@ inline float nmReferenceSelfContactBarrierWidth(
         if (i<3u) {
             if (i==0u || contactCompensatedSign(contactCompensatedSubtract(projection,maximumA))>0)
                 maximumA=projection;
+            if (i==0u || contactCompensatedSign(contactCompensatedSubtract(projection,minimumA))<0)
+                minimumA=projection;
         } else {
+            if (i==3u || contactCompensatedSign(contactCompensatedSubtract(projection,maximumB))>0)
+                maximumB=projection;
             if (i==3u || contactCompensatedSign(contactCompensatedSubtract(projection,minimumB))<0)
                 minimumB=projection;
         }
     }
-    const auto gap=contactCompensatedSubtract(minimumB,maximumA);
+    const auto forward=contactCompensatedSubtract(minimumB,maximumA);
+    const auto reverse=contactCompensatedSubtract(minimumA,maximumB);
+    const float projectedGap=max(forward.high+forward.low,reverse.high+reverse.low);
     const float roundoff=128.0f*kEpsilon*kEpsilon*max(extent,authored);
-    certifiedGap=max(0.0f,(gap.high+gap.low)/(1.0f+8.0f*kEpsilon)-roundoff);
+    return max(0.0f,projectedGap/(1.0f+8.0f*kEpsilon)-roundoff);
+}
+
+inline float nmReferenceSelfContactBarrierWidth(
+    thread const float3* rest, float authored, float clearance,
+    thread float& certifiedGap
+) {
+    certifiedGap=0.0f;
+    // Source coordinates are exact Float32 inputs, but interpolating a closest
+    // point at a metre-scale origin can erase a nanometre-scale normal gap.
+    // Translate before closest-feature construction; certify the resulting
+    // direction against the original points with compensated projections below.
+    float3 local[6];
+    for (uint i=0u;i<6u;++i) local[i]=rest[i]-rest[0];
+    float best=INFINITY;float3 difference=float3(0.0f);
+    for (uint side=0u;side<2u;++side) {
+        const uint a=side*3u,b=(1u-side)*3u;
+        for (uint v=0u;v<3u;++v) {
+            float3 bary;
+            const float3 q=closestPointOnTriangle(local[a+v],local[b],
+                local[b+1u],local[b+2u],bary);
+            const float3 d=side==0u ? q-local[a+v] : local[a+v]-q;
+            const float d2=dot(d,d);
+            if (d2<best) {best=d2;difference=d;}
+        }
+    }
+    for (uint a=0u;a<3u;++a) for (uint b=0u;b<3u;++b) {
+        float u,v;float3 x,y;
+        closestPointsOnSegments(local[a],local[(a+1u)%3u],
+            local[3u+b],local[3u+(b+1u)%3u],u,v,x,y);
+        const float3 d=y-x;const float d2=dot(d,d);
+        if (d2<best) {best=d2;difference=d;}
+    }
+    // Closest-feature routines may legitimately fall back on thin triangles.
+    // Face normals supply independent axis proposals; an invalid/zero closest
+    // feature must never prevent a valid plane certificate from being tested.
+    if (best>0.0f && isfinite(best))
+        certifiedGap=nmReferenceTriangleSeparatingGap(rest,difference,authored);
+    certifiedGap=max(certifiedGap,nmReferenceTriangleSeparatingGap(rest,
+        cross(local[1]-local[0],local[2]-local[0]),authored));
+    certifiedGap=max(certifiedGap,nmReferenceTriangleSeparatingGap(rest,
+        cross(local[4]-local[3],local[5]-local[3]),authored));
     if (!isfinite(certifiedGap) || !(certifiedGap>2.0f*clearance))
         return authored;
     return min(authored,0.5f*certifiedGap);

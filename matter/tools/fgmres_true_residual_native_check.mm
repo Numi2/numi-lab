@@ -12818,7 +12818,7 @@ void checkLeftRowEquilibration(
             readBuffer<NMFGMRESStateGPU>(restartState,1u)[0].rowEquilibration.x == 100.0f,
         "physically completed scaled cycle was restarted");
 
-    std::cout << "left_row_scale_native=true equation=SA_Minv raw_physical_residual="
+    std::cout << "left_row_scale_native=true equations=SA_Minv_and_SA_Minv_Sinv raw_physical_residual="
               << maxPhysicalResidual << " arnoldi_reference=scaled raw_certificate=preserved result=PASS\n";
 }
 
@@ -14465,6 +14465,32 @@ void checkReferenceSelfContactWidth(
     for (unsigned i=count;i<count+canaries;++i)
         require(output[i].x==123.0f&&output[i].y==456.0f,"reference width output canary");
     require(adapted>15u&&unchanged>15u,"reference width covers both policies");
+    // Oblique parallel triangles: the exact Float32 source points have a
+    // positive 8.6 nm gap, although forming closest points in absolute world
+    // coordinates can round it to zero. Dyadic edges keep the Float64 oracle
+    // exact before its final square root.
+    const float ox=0.125f,oy=-1.75f,oz=0.25f,s=1.0f/4096.0f;
+    const float dx=std::nextafter(ox,1.0f)-ox;
+    const std::vector<nm_float4> oblique{
+        {ox,oy,oz,0},{ox+s,oy+s,oz,0},{ox+s,oy,oz+s,0},
+        {ox+s/8+dx,oy+s/8,oz,0},
+        {ox+5*s/8+dx,oy+5*s/8,oz,0},
+        {ox+5*s/8+dx,oy+s/8,oz+s/2,0}};
+    const double exactGap=double(dx)/std::sqrt(3.0);
+    auto obliqueInput=makeBuffer(device,oblique);
+    auto obliqueLimit=makeBuffer(device,std::vector<NativeFloat2>{{1e-5f,1e-10f}});
+    auto obliqueOutput=makeBuffer(device,std::vector<NativeFloat2>(2u,{123.0f,456.0f}));
+    dispatch(device,queue,pipe,{{0u,obliqueInput},{1u,obliqueLimit},
+        {2u,obliqueOutput},{3u,makeBuffer(device,std::vector<unsigned>{1u})}},1u,32u);
+    const auto obliqueResult=readBuffer<NativeFloat2>(obliqueOutput,2u);
+    std::cout<<"oblique_reference_gap native_width="<<obliqueResult[0].x
+        <<" certified_gap="<<obliqueResult[0].y<<" Float64_gap="<<exactGap<<"\n";
+    require(obliqueResult[0].x<1e-5f && obliqueResult[0].x>1e-10f &&
+            2.0*double(obliqueResult[0].x)<=exactGap &&
+            double(obliqueResult[0].y)<=exactGap,
+        "world-space closest points lost the oblique Float32 reference gap");
+    require(obliqueResult[1].x==123.0f&&obliqueResult[1].y==456.0f,
+        "oblique reference-width output canary");
     // Width is derived solely from immutable reference positions: current
     // positions are deliberately absent from this interface.
     std::cout<<"reference_self_contact_width cases="<<count<<" adapted="<<adapted
@@ -15553,6 +15579,7 @@ int main(int argc, const char* argv[]) {
             checkZeroStepGeometryReuse(device, queue, library);
             checkReferenceContactArithmeticFrame(device, queue, library);
             checkCompensatedContactEnergyContinuity(device,queue,library);
+            checkLeftRowEquilibration(device,queue,library);
             checkReferenceSelfContactWidth(device,queue,library);
             checkResolvedMollifierCurvature(device,queue,library);
             checkCompensatedBarrierEnergyWords(device,queue,library);

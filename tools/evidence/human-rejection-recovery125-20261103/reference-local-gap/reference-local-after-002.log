@@ -1,0 +1,2 @@
+oblique_reference_gap native_width=4.30159e-09 certified_gap=8.60318e-09 Float64_gap=8.60319e-09
+reference_self_contact_width cases=97 adapted=49 unchanged=48 exact_Float32_gap=true clearance_preserved=true canaries=4 PASS
