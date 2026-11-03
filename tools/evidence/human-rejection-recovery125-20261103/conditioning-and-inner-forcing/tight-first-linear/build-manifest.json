@@ -1,0 +1,59 @@
+{
+  "native_binary": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "sha256": "b8f89c4f09363f3cad49408fe165c671404e3895eb10a18c428243898f78f444",
+    "bytes": 10432832
+  },
+  "runtime_dependencies": {
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+      "sha256": "4fd7484eb9bfbb5854c9c1f5eb1d9c80f477d158d848d7d6eecc9e4cd39c6ccc",
+      "bytes": 10090512
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "sha256": "157d990253ba45fb2c460e7883bac3710303224f8e4c50bce83f3a237702a33e",
+      "bytes": 30071215
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib",
+      "sha256": "880f60be6eb17b6af781665c6016c6d050da069685fcf1e8e2cafda0fc2115c8",
+      "bytes": 560736
+    }
+  },
+  "source": {
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "dirty_patch": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tight-first-linear/execution-source.patch",
+      "sha256": "566e99dae734096cc783bec64409ce69aad3e6d7f5fc6c12096c0bbea8887257",
+      "bytes": 3412805
+    },
+    "sources": {
+      "matter/src/metal/contact.metalinc": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/contact.metalinc",
+        "sha256": "28f0f24ea849cca007a2b198eaf24c850d0c805743aa545ce01335a700039b46",
+        "bytes": 678796
+      },
+      "matter/src/metal/fem.metalinc": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc",
+        "sha256": "bfd33f2782623241f121278b4c67349ee886aa92b0a3b051619b2cf893002f03",
+        "bytes": 363667
+      },
+      "matter/src/metal/fgmres.metalinc": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc",
+        "sha256": "91cb742a47e888fc4489cb3726a2bc5e47e6b1da207f9e8ac46b46263b2e6ba2",
+        "bytes": 778059
+      },
+      "matter/src/metal/vascular.metalinc": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc",
+        "sha256": "e09d02fd026a0f14334fcb0a325ae3eb3e1b832d1124d60dd8d1fd6f5ef6914f",
+        "bytes": 189585
+      },
+      "matter/src/runtime.mm": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm",
+        "sha256": "ae77770eac80699d1987f912b61b927fd4b55ebcac026d1ae308caf32c0fecc3",
+        "bytes": 3402677
+      }
+    }
+  }
+}

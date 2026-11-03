@@ -4070,6 +4070,7 @@ struct Runtime::State {
     id<MTLBuffer> fgmresOrthogonalPartials = nil;
     id<MTLBuffer> fgmresMeasurementPartials = nil;
     bool fgmresInexactNewtonForcingEnabled = false;
+    float fgmresInexactNewtonMaximumEta = 0.25f;
     std::uint32_t fgmresInexactNewtonTightening = 0u;
     bool fgmresRelativeInnerForcingEnabled = false;
     bool fgmresInexactCoupledLinearCertificateEnabled = false;
@@ -6257,6 +6258,18 @@ RuntimeDiagnostics Runtime::initialize(
             domainMechanicalTighteningValue;
         candidate->fgmresInexactNewtonForcingEnabled =
             inexactNewtonForcing != nullptr;
+        if (const char* setting=std::getenv("NM_FGMRES_INEXACT_NEWTON_MAX_ETA")) {
+            float value=0.0f;
+            const auto parsed=std::from_chars(setting,setting+std::strlen(setting),value);
+            if (!candidate->fgmresInexactNewtonForcingEnabled ||
+                parsed.ec!=std::errc{} || parsed.ptr!=setting+std::strlen(setting) ||
+                !std::isfinite(value) || value<1e-6f || value>0.25f) {
+                diagnostics.message="inexact Newton maximum eta requires EW and a finite value from 1e-6 through 0.25";
+                return diagnostics;
+            }
+            candidate->fgmresInexactNewtonMaximumEta=value;
+        }
+
         candidate->fgmresInexactNewtonTightening = inexactTighteningValue;
         candidate->fgmresRelativeInnerForcingEnabled =
             relativeInnerForcingEnabled;
@@ -8982,6 +8995,25 @@ RuntimeDiagnostics Runtime::initialize(
                 "resolved mollifier curvature requires one FEM-only contact environment";
             return diagnostics;
         }
+        const char* referenceWidthSetting=std::getenv("NM_FEM_REFERENCE_SELF_CONTACT_WIDTH");
+        if (referenceWidthSetting!=nullptr &&
+            std::strcmp(referenceWidthSetting,"0")!=0 &&
+            std::strcmp(referenceWidthSetting,"1")!=0) {
+            diagnostics.message="reference self-contact width requires explicit 0 or 1";
+            return diagnostics;
+        }
+        const bool referenceWidthEnabled=referenceWidthSetting!=nullptr &&
+            std::strcmp(referenceWidthSetting,"1")==0;
+        if (referenceWidthEnabled &&
+            (world.dispatch.environmentCount!=1u || world.dispatch.gridNodeCount!=0u ||
+             world.dispatch.deformableContactCapacity==0u ||
+             world.dispatch.cohesiveFaceCount!=0u || world.dispatch.mutationCommandCount!=0u ||
+             std::any_of(world.objects.begin(),world.objects.end(),[](const auto& object) {
+                return (object.flags & NM_OBJECT_MUTABLE_TOPOLOGY)!=0u;
+             }))) {
+            diagnostics.message="reference self-contact width requires one immutable FEM contact scene";
+            return diagnostics;
+        }
         const auto kernel = [&](const char* name,
                                 const bool materialOffsetsSpecialized,
                                 const std::uint32_t tangentProgramOffset,
@@ -9009,6 +9041,10 @@ RuntimeDiagnostics Runtime::initialize(
                     }
                     specialize=true;
                     continue;
+                }
+                if (constant.index==38u) {
+                    [values setConstantValue:&referenceWidthEnabled type:MTLDataTypeBool atIndex:38u];
+                    specialize=true;continue;
                 }
                 if (constant.index == 37u) {
                     const bool enabled = resolvedMollifierCurvatureEnabled;
@@ -20610,6 +20646,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         offset:0u atIndex:25u];
                     [encoder setBuffer:state.fgmresInexactNewtonEta
                         offset:0u atIndex:26u];
+                    [encoder setBytes:&state.fgmresInexactNewtonMaximumEta
+                        length:sizeof(state.fgmresInexactNewtonMaximumEta) atIndex:27u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -29643,6 +29681,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                    offset:0u atIndex:20u];
                         [encoder setBuffer:state.deformableContactActiveOffsets
                                    offset:0u atIndex:21u];
+                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:22u];
                     }
                 )) {
                     diagnostics.message = "nm_contact_narrowphase_deformable indirect dispatch unavailable; padded fallback ineligible";
@@ -30407,6 +30446,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                offset:0u atIndex:20u];
                     [encoder setBuffer:state.femArmijoDeformableActiveOffsets
                                offset:0u atIndex:21u];
+                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:22u];
                 }
                 )) {
                     diagnostics.message = "nm_contact_narrowphase_deformable indirect dispatch unavailable; padded fallback ineligible";
@@ -47269,6 +47309,81 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(validateConstitutiveStress)
                               atIndex:23u];
                 });
+            }
+            // Diagnostic only: one object and one Newton iterate. Copy the
+            // already computed trial records, never re-evaluate CPU physics.
+            const char* backtrackingObjectSetting = std::getenv("NM_FEM_BACKTRACKING_TRACE_OBJECT");
+            const char* backtrackingRootSetting = std::getenv("NM_FEM_BACKTRACKING_TRACE_ROOT");
+            if (backtrackingObjectSetting != nullptr && backtrackingRootSetting != nullptr &&
+                micro.solverIteration == 0u && environments == 1u &&
+                request.controlStep == std::strtoul(backtrackingRootSetting,nullptr,10) &&
+                state.femParallelBacktrackingEnabled && state.femParallelBacktrackingPartials != nil) {
+                const std::uint32_t objectIndex = std::strtoul(backtrackingObjectSetting,nullptr,10);
+                if (objectIndex >= state.objectLayout.size()) {
+                    diagnostics.message = "backtracking trace object is outside object layout";
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+                const auto object = state.objectLayout[objectIndex];
+                const std::uint32_t trials = std::min<std::uint32_t>(
+                    state.mixedSolverValue.nonlinearIterations.w,NM_MIXED_LINE_SEARCH_MAX_STEPS);
+                const std::uint32_t maximumTiles = state.femParallelBacktrackingMaximumTiles;
+                const std::uint32_t tiles = object.elementCount/256u + (object.elementCount%256u != 0u);
+                const NSUInteger partialBytes = NSUInteger(trials)*maximumTiles*sizeof(nm_float4);
+                const NSUInteger partialOffset = NSUInteger(objectIndex)*
+                    NM_MIXED_LINE_SEARCH_MAX_STEPS*maximumTiles*sizeof(nm_float4);
+                if ((object.flags & NM_OBJECT_MIXED_FEM) == 0u && tiles <= maximumTiles &&
+                    partialBytes <= 4u*1024u*1024u &&
+                    partialOffset <= state.femParallelBacktrackingPartials.length &&
+                    partialBytes <= state.femParallelBacktrackingPartials.length-partialOffset) {
+                    id<MTLBuffer> snapshot = [state.device newBufferWithLength:
+                        partialBytes+sizeof(nm_float4) options:MTLResourceStorageModeShared];
+                    [encoder endEncoding]; encoder=nil;
+                    id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                    if (snapshot == nil || copy == nil) {
+                        if (copy != nil) [copy endEncoding];
+                        diagnostics.message="failed to allocate bounded FEM backtracking diagnostic";
+                        ownership->preDynamicsOpen=false; return diagnostics;
+                    }
+                    [copy copyFromBuffer:state.femParallelBacktrackingPartials sourceOffset:partialOffset
+                        toBuffer:snapshot destinationOffset:0u size:partialBytes];
+                    [copy copyFromBuffer:state.femLineSearch sourceOffset:objectIndex*sizeof(nm_float4)
+                        toBuffer:snapshot destinationOffset:partialBytes size:sizeof(nm_float4)];
+                    [copy endEncoding];
+                    const auto root=request.controlStep;
+                    [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                        if (completed.status != MTLCommandBufferStatusCompleted) return;
+                        const auto* records=static_cast<const nm_float4*>(snapshot.contents);
+                        const nm_float4 selected=records[partialBytes/sizeof(nm_float4)];
+                        std::ostringstream line;
+                        line<<"fem_backtracking_trials={\"root\":"<<root<<",\"iteration\":0,\"object\":"
+                            <<objectIndex<<",\"selected_alpha\":"<<selected.x<<",\"trials\":[";
+                        bool first=true;
+                        for (std::uint32_t trial=0u;selected.z>0.0f && trial<trials;++trial) {
+                            const float alpha=std::exp2(-float(trial));
+                            if (selected.x>0.0f && alpha<selected.x) break;
+                            std::uint32_t firstBad=0xffffffffu; nm_float4 witness{};
+                            float minimumJ=INFINITY;
+                            for (std::uint32_t tile=0u;tile<tiles;++tile) {
+                                const auto record=records[trial*maximumTiles+tile];
+                                if (record.w != 0.0f) {
+                                    std::uint32_t index;std::memcpy(&index,&record.x,sizeof(index));
+                                    if (index<firstBad) {firstBad=index;witness=record;}
+                                } else minimumJ=std::min(minimumJ,record.x);
+                            }
+                            if (!first) line<<",";first=false;
+                            line<<"{\"alpha\":"<<alpha<<",\"valid_tile_min_J\":";
+                            if (std::isfinite(minimumJ)) line<<minimumJ;else line<<"null";
+                            line<<",\"first_bad_tet\":"<<firstBad<<",\"trial_J\":"<<witness.y
+                                <<",\"current_J\":"<<witness.z<<",\"reason\":"<<witness.w<<"}";
+                        }
+                        line<<"]}\n";const auto text=line.str();
+                        std::fwrite(text.data(),1u,text.size(),stderr);
+                    }];
+                    encoder=[commandBuffer computeCommandEncoder];
+                    if (encoder==nil) {diagnostics.message="failed to resume after FEM backtracking diagnostic";
+                        ownership->preDynamicsOpen=false;return diagnostics;}
+                }
             }
             if (!encodeVascularTrace("after_fem_backtracking")) {
                 ownership->preDynamicsOpen = false;

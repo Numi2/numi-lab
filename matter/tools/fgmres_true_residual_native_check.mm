@@ -66,6 +66,14 @@ id<MTLComputePipelineState> pipeline(
     id<MTLFunction> function = [library newFunctionWithName:functionName];
     require(function != nil, std::string("missing Metal function: ") + name);
     NSError* error = nil;
+    for (MTLFunctionConstant* constant in function.functionConstantsDictionary.allValues) {
+        if (constant.index!=38u) continue;
+        MTLFunctionConstantValues* values=[MTLFunctionConstantValues new];
+        const bool disabled=false;
+        [values setConstantValue:&disabled type:MTLDataTypeBool atIndex:38u];
+        function=[library newFunctionWithName:functionName constantValues:values error:&error];
+        require(function!=nil,"cannot specialize default reference contact width");break;
+    }
     id<MTLComputePipelineState> result =
         [device newComputePipelineStateWithFunction:function error:&error];
     require(result != nil, error != nil
@@ -2882,12 +2890,13 @@ void checkInexactNewtonForcing(
     auto stateBuffer = makeBuffer(device,
         std::vector<NMFGMRESStateGPU>{state});
 
+    auto maximumEtaBuffer=makeBuffer(device,std::vector<float>{0.25f});
     const auto runPrepare = [&] {
         dispatch(device, queue, prepare, {
             {0u, dispatchBuffer}, {1u, solverBuffer},
             {14u, restartBuffer}, {15u, forcingBuffer},
             {16u, iterationBuffer}, {24u, partialBuffer},
-            {25u, historyBuffer}, {26u, etaBuffer},
+            {25u, historyBuffer}, {26u, etaBuffer}, {27u, maximumEtaBuffer},
             {30u, layoutBuffer}}, 1u, 32u);
     };
     const auto runCommit = [&] {
@@ -2947,6 +2956,18 @@ void checkInexactNewtonForcing(
     }
     static_cast<NMFGMRESLayoutGPU*>(layoutBuffer.contents)->reserved = 1u;
     runPrepare();
+
+    // The cap tightens fresh and accepted-history solves without modifying
+    // the existing default history/reset/restart tests below.
+    const auto savedHistory=readHistory();
+    *static_cast<float*>(maximumEtaBuffer.contents)=1.0e-4f;
+    runPrepare();
+    require(close(readEta(),1e-4f,1e-9f),"accepted-history forcing cap");
+    setIteration(0u);runPrepare();
+    require(close(readEta(),1e-4f,1e-9f),"fresh Newton forcing cap");
+    *static_cast<nm_float4*>(historyBuffer.contents)=savedHistory;
+    *static_cast<float*>(maximumEtaBuffer.contents)=0.25f;
+    setIteration(1u);runPrepare();
 
     // Restart tails must reuse the prepared scalar and must not restage history.
     const nm_float4 beforeRestart = readHistory();
@@ -14234,6 +14255,71 @@ void checkCompensatedContactEnergyContinuity(
     std::cout<<"compensated_mollifier Float64_value_and_gradient=true scales=3 degenerate_and_nonfinite=true result=PASS\n";
 }
 
+
+void checkReferenceSelfContactWidth(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    constexpr unsigned count=97u,canaries=4u;
+    std::vector<nm_float4> input;std::vector<NativeFloat2> limits;
+    std::vector<double> gaps;
+    for (unsigned i=0u;i<count;++i) {
+        const float side=i%3u==0u ? 0.001f : i%3u==1u ? 0.01f : 0.1f;
+        const float z=i%2u==0u ? 0.0f : 1.0f;
+        const float dz=i%7u==0u ? 0.0001f : i%7u==1u ? 0.000001f :
+            i%7u==2u ? 0.000004f : i%7u==3u ? 0.000009f :
+            i%7u==4u ? 0.00002f : i%7u==5u ? 0.0f : 0.000000001f;
+        const float x=i%4u==0u ? 2.0f : 0.0f;
+        input.insert(input.end(),{
+            {x,0,z,0},{x+side,0,z,0},{x,side,z,0},
+            {x+0.1f*side,0.1f*side,z+dz,0},
+            {x+0.9f*side,0.1f*side,z+dz,0},
+            {x+0.1f*side,0.9f*side,z+dz,0}});
+        limits.push_back({1e-5f,1e-9f});
+        gaps.push_back(double(z+dz)-double(z));
+    }
+    // Crossing triangles have no reference separating-plane certificate.
+    input[6u*(count-1u)+3u].z=-0.001f;
+    input[6u*(count-1u)+4u].z=0.001f;
+    input[6u*(count-1u)+5u].z=0.001f;
+    gaps.back()=-1.0;
+    std::vector<NativeFloat2> output(count+canaries,{123.0f,456.0f});
+    auto ib=makeBuffer(device,input),lb=makeBuffer(device,limits),ob=makeBuffer(device,output);
+    auto pipe=pipeline(device,library,"numi_matter_metal::nm_contact_check_reference_self_width");
+    auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];
+    [encoder setComputePipelineState:pipe];[encoder setBuffer:ib offset:0 atIndex:0];
+    [encoder setBuffer:lb offset:0 atIndex:1];[encoder setBuffer:ob offset:0 atIndex:2];
+    [encoder setBytes:&count length:sizeof(count) atIndex:3];
+    [encoder dispatchThreadgroups:MTLSizeMake(4,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+    [encoder endEncoding];[command commit];[command waitUntilCompleted];
+    require(command.status==MTLCommandBufferStatusCompleted,"reference width GPU command");
+    output=readBuffer<NativeFloat2>(ob,count+canaries);
+    unsigned adapted=0u,unchanged=0u;
+    for (unsigned i=0u;i<count;++i) {
+        const auto v=output[i];const float authored=limits[i].x,clearance=limits[i].y;
+        require(std::isfinite(v.x)&&std::isfinite(v.y)&&v.x>0&&v.x<=authored,
+            "finite bounded reference width");
+        if (v.x<authored) {
+            ++adapted;
+            require(v.x>clearance && 2.0*double(v.x)<=gaps[i],
+                "adapted activation safely below exact Float32 rest gap");
+            require(double(v.y)<=gaps[i],"separating plane is lower distance bound");
+            // A separating plane may conservatively underestimate the
+            // minimum distance; no near-equality is needed for this rule.
+            require(v.y>2.0f*clearance,"adapted reference plane is certified");
+        } else {
+            ++unchanged;
+            require(gaps[i]>=2.0*authored || v.y<=2.0f*clearance || gaps[i]<0.0,
+                "reference width retained only for distant or uncertified pair");
+        }
+    }
+    for (unsigned i=count;i<count+canaries;++i)
+        require(output[i].x==123.0f&&output[i].y==456.0f,"reference width output canary");
+    require(adapted>15u&&unchanged>15u,"reference width covers both policies");
+    // Width is derived solely from immutable reference positions: current
+    // positions are deliberately absent from this interface.
+    std::cout<<"reference_self_contact_width cases="<<count<<" adapted="<<adapted
+        <<" unchanged="<<unchanged<<" exact_Float32_gap=true clearance_preserved=true canaries=4 PASS\n";
+}
+
 void checkResolvedMollifierCurvature(
     id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     struct Pair { float x,y; };
@@ -14619,6 +14705,9 @@ int main(int argc, const char* argv[]) {
                 checkReferenceContactPlaneCertificate(device,queue,library);
                 std::cout<<"PASS reference contact plane "<<checks<<" checks\n";
                 return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--reference-self-contact-width-only") {
+                checkReferenceSelfContactWidth(device,queue,library);return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--resolved-mollifier-curvature-only") {
                 checkResolvedMollifierCurvature(device,queue,library);
@@ -15313,6 +15402,7 @@ int main(int argc, const char* argv[]) {
             checkZeroStepGeometryReuse(device, queue, library);
             checkReferenceContactArithmeticFrame(device, queue, library);
             checkCompensatedContactEnergyContinuity(device,queue,library);
+            checkReferenceSelfContactWidth(device,queue,library);
             checkResolvedMollifierCurvature(device,queue,library);
             checkCompensatedBarrierEnergyWords(device,queue,library);
             checkReferenceContactPlaneCertificate(device,queue,library);

@@ -1,0 +1,40 @@
+{
+  "scope": "conditioning audit, not a new physical quality policy or acceptance waiver",
+  "source_asset": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/candidate-current-typed-volume.npz",
+  "tet_count": 1495294,
+  "node_count": 311768,
+  "source_index_ownership": "one-to-one child tet order in apps/NumiHumanUnpairedSkinFatVolume.hpp:1348; compiler preserves source order in compiler_impl.cpp:2397-2535; GPU skin/fat element offset 3315",
+  "minimum_altitude_m": 1.5843401400235295e-09,
+  "height_quantiles_m": [
+    1.5843401400235295e-09,
+    1.2055085368816249e-08,
+    8.261493402433882e-08,
+    1.852428291829015e-06,
+    7.048816244174687e-05,
+    0.002361208956577976,
+    0.013503746507278829
+  ],
+  "edge_to_height_quantiles": [
+    1.224744871391589,
+    24.462875359928347,
+    710.5748277812089,
+    11305.171676855532,
+    35879.6086669924,
+    86115.32288692758
+  ],
+  "altitude_counts_below": {
+    "1e-09": 0,
+    "1e-08": 1107,
+    "1e-07": 17654,
+    "1e-06": 97761,
+    "1e-05": 348954
+  },
+  "edge_to_height_counts_above": {
+    "100": 412946,
+    "1000": 121356,
+    "10000": 17508,
+    "100000": 0
+  },
+  "boundary_coordinates_unchanged": true,
+  "mass_unchanged": true
+}

@@ -10536,6 +10536,7 @@ kernel void nm_fgmres_prepare_inexact_newton_forcing(
     device const float4* partials [[buffer(24)]],
     device float4* history [[buffer(25)]],
     device float* eta [[buffer(26)]],
+    constant float& maximumEta [[buffer(27)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
@@ -10581,7 +10582,10 @@ kernel void nm_fgmres_prepare_inexact_newton_forcing(
             selected *= exp2(-float(min(tightening, 4u)));
         }
     }
-    eta[environment] = selected;
+    // The explicit cap also applies at Newton zero and after invalidated
+    // history. It tightens only inner accuracy; physical certification is
+    // unchanged. A 0.25 cap preserves the existing production selection.
+    eta[environment] = min(selected,maximumEta);
 }
 
 // Commit EW history only for a real accepted Newton update. A rejected line

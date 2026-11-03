@@ -5820,6 +5820,81 @@ kernel void nm_contact_human_failure_vtccd_replay(
 // normal every endpoint-pair projection is affine in sweep time. Requiring all
 // four projections to stay beyond thickness proves the complete convex hulls
 // remain separated; the minimum closing time is a safe interval lower bound.
+
+// Experimental immutable-reference activation width. This changes numerical
+// barrier regularization, never the authored collision clearance or CCD.
+// A separating-plane lower bound avoids trusting an approximate closest
+// distance as a clearance certificate.
+constant bool nmReferenceSelfContactWidth [[function_constant(38)]];
+constant bool nmReferenceSelfContactWidthActive =
+    is_function_constant_defined(nmReferenceSelfContactWidth)
+        ? nmReferenceSelfContactWidth : false;
+
+inline float nmReferenceSelfContactBarrierWidth(
+    thread const float3* rest, float authored, float clearance,
+    thread float& certifiedGap
+) {
+    certifiedGap=0.0f;
+    float best=INFINITY;float3 difference=float3(0.0f);
+    for (uint side=0u;side<2u;++side) {
+        const uint a=side*3u,b=(1u-side)*3u;
+        for (uint v=0u;v<3u;++v) {
+            float3 bary;
+            const float3 q=closestPointOnTriangle(rest[a+v],rest[b],
+                rest[b+1u],rest[b+2u],bary);
+            const float3 d=side==0u ? q-rest[a+v] : rest[a+v]-q;
+            const float d2=dot(d,d);
+            if (d2<best) {best=d2;difference=d;}
+        }
+    }
+    for (uint a=0u;a<3u;++a) for (uint b=0u;b<3u;++b) {
+        float u,v;float3 x,y;
+        closestPointsOnSegments(rest[a],rest[(a+1u)%3u],
+            rest[3u+b],rest[3u+(b+1u)%3u],u,v,x,y);
+        const float3 d=y-x;const float d2=dot(d,d);
+        if (d2<best) {best=d2;difference=d;}
+    }
+    if (!(best>0.0f) || !isfinite(best) || !all(isfinite(difference)))
+        return authored;
+    const float3 normal=difference/sqrt(best);
+    MRCompensatedScalar maximumA={-INFINITY,0.0f};
+    MRCompensatedScalar minimumB={INFINITY,0.0f};
+    float extent=0.0f;
+    for (uint i=0u;i<6u;++i) {
+        const auto relative=contactCompensatedVectorDifference(rest[i],rest[0]);
+        const auto projection=mrCompensatedVectorDot(relative,
+            mrCompensatedVector(float4(normal,0.0f)));
+        extent=max(extent,length(rest[i]-rest[0]));
+        if (i<3u) {
+            if (i==0u || contactCompensatedSign(contactCompensatedSubtract(projection,maximumA))>0)
+                maximumA=projection;
+        } else {
+            if (i==3u || contactCompensatedSign(contactCompensatedSubtract(projection,minimumB))<0)
+                minimumB=projection;
+        }
+    }
+    const auto gap=contactCompensatedSubtract(minimumB,maximumA);
+    const float roundoff=128.0f*kEpsilon*kEpsilon*max(extent,authored);
+    certifiedGap=max(0.0f,(gap.high+gap.low)/(1.0f+8.0f*kEpsilon)-roundoff);
+    if (!isfinite(certifiedGap) || !(certifiedGap>2.0f*clearance))
+        return authored;
+    return min(authored,0.5f*certifiedGap);
+}
+
+kernel void nm_contact_check_reference_self_width(
+    device const float4* input [[buffer(0)]],
+    device const float2* limits [[buffer(1)]],
+    device float2* output [[buffer(2)]],
+    constant uint& count [[buffer(3)]],
+    uint index [[thread_position_in_grid]]
+) {
+    if (index>=count) return;
+    float3 rest[6];for (uint i=0u;i<6u;++i) rest[i]=input[6u*index+i].xyz;
+    float gap;
+    const float width=nmReferenceSelfContactBarrierWidth(
+        rest,limits[index].x,limits[index].y,gap);
+    output[index]=float2(width,gap);
+}
 inline float edgeEdgeSeparatingPlaneAdvance(
     const float3 p0, const float3 p1,
     const float3 q0, const float3 q1,
@@ -6988,6 +7063,7 @@ kernel void nm_contact_narrowphase_deformable(
     constant nm_uint4& vtccdAuditSelector [[buffer(19)]],
     device NMMortarComplementAuditGPU* mortarAudit [[buffer(20)]],
     device const uint* candidateOffsets [[buffer(21)]],
+    constant NMMixedSolverGPU& solver [[buffer(22)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
@@ -8043,11 +8119,26 @@ kernel void nm_contact_narrowphase_deformable(
         for (uint local = 0u; local < 4u; ++local)
             extendedMollifierGradient[local] = mollifierGradient[local];
     }
+    float barrierThickness=thickness;
+    if (nmReferenceSelfContactWidthActive && referenceModeContact &&
+        left.nodesAndObject.w==right.nodesAndObject.w &&
+        leftKind==NM_CONTINUUM_SURFACE_TRIANGLE &&
+        rightKind==NM_CONTINUUM_SURFACE_TRIANGLE && !bestUsesMortar) {
+        float3 rest[6];
+        for (uint i=0u;i<6u;++i) {
+            const uint node=i<3u ? left.nodesAndObject[i] : right.nodesAndObject[i-3u];
+            rest[i]=femNodes[environment*dispatch.femNodeCount+
+                node-dispatch.gridNodeCount].restAndFixed.xyz;
+        }
+        float referenceGap;
+        barrierThickness=nmReferenceSelfContactBarrierWidth(rest,thickness,
+            solver.contactAcceptance.x*dispatch.numericalLimits.x,referenceGap);
+    }
     const float4 baseBarrier = ipcBarrierResponse(
-        bestSeparation, thickness, inverseResponse, contactTimestep,
+        bestSeparation, barrierThickness, inverseResponse, contactTimestep,
         max(-dot(bestNormal, relativeVelocity), 0.0f), false, 0.0f, 0.0f);
     const float baseBarrierEnergy = ipcBarrierEnergy(
-        bestSeparation, thickness, baseBarrier.w, false, 0.0f);
+        bestSeparation, barrierThickness, baseBarrier.w, false, 0.0f);
     float4 barrier = baseBarrier;
     barrier.x *= featureMollifier;
     barrier.y *= featureMollifier;

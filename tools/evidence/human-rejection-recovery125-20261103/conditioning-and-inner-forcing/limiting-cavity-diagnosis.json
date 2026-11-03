@@ -1,0 +1,869 @@
+[
+  {
+    "row": 582,
+    "tet": [
+      115999,
+      115917,
+      115989,
+      115998
+    ],
+    "labels": [
+      15,
+      23,
+      23,
+      12105
+    ],
+    "trials": [
+      {
+        "kind": "2-3",
+        "rows": [
+          582,
+          45007
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "2-3",
+        "rows": [
+          582,
+          446290
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "2-3",
+        "rows": [
+          582,
+          891292
+        ],
+        "same_labels": [
+          false,
+          true,
+          true,
+          false
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "2-3",
+        "rows": [
+          582,
+          725201
+        ],
+        "same_labels": [
+          false,
+          true,
+          true,
+          false
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          582,
+          45007,
+          446290
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "variants": [
+          {
+            "exact": true,
+            "reason": "PASS",
+            "native_ok": true,
+            "min_q_before": 1.2771611053885375e-05,
+            "min_q_after": 0.0011604547872960224,
+            "new_q": [
+              0.03986210888365641,
+              0.0011604547872960224
+            ],
+            "new_tets": [
+              [
+                115808,
+                115989,
+                115998,
+                115917
+              ],
+              [
+                115808,
+                115998,
+                115989,
+                115999
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "4-4",
+        "rows": [
+          582,
+          323861,
+          446290,
+          725201
+        ],
+        "same_labels": [
+          false,
+          true,
+          true,
+          false
+        ],
+        "error": "both 4-4 diagonals conflict with existing incidence"
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          582,
+          725201,
+          891292
+        ],
+        "same_labels": [
+          false,
+          true,
+          true,
+          false
+        ],
+        "variants": [
+          {
+            "exact": true,
+            "reason": "PASS",
+            "native_ok": true,
+            "min_q_before": 1.2771611053885375e-05,
+            "min_q_after": 0.01812356925528757,
+            "new_q": [
+              0.03137505446443185,
+              0.01812356925528757
+            ],
+            "new_tets": [
+              [
+                115916,
+                115917,
+                115999,
+                115989
+              ],
+              [
+                115916,
+                115999,
+                115917,
+                115998
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "q": 1.2771611053885375e-05
+  },
+  {
+    "row": 3717,
+    "tet": [
+      143901,
+      143889,
+      143898,
+      143892
+    ],
+    "labels": [
+      15,
+      100,
+      100,
+      11825
+    ],
+    "trials": [
+      {
+        "kind": "2-3",
+        "rows": [
+          3717,
+          228261
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          false
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "2-3",
+        "rows": [
+          3717,
+          349734
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          false
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "2-3",
+        "rows": [
+          3717,
+          1029269
+        ],
+        "same_labels": [
+          false,
+          true,
+          true,
+          false
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "2-3",
+        "rows": [
+          3717,
+          1232097
+        ],
+        "same_labels": [
+          false,
+          true,
+          true,
+          false
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          3717,
+          228261,
+          349734
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          false
+        ],
+        "variants": [
+          {
+            "exact": true,
+            "reason": "PASS",
+            "native_ok": true,
+            "min_q_before": 1.3785121429863736e-05,
+            "min_q_after": 0.000416379194343561,
+            "new_q": [
+              0.000416379194343561,
+              0.000573636150609571
+            ],
+            "new_tets": [
+              [
+                143892,
+                36490,
+                143898,
+                143889
+              ],
+              [
+                143898,
+                36490,
+                143892,
+                143901
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          3717,
+          1029269,
+          1232097
+        ],
+        "same_labels": [
+          false,
+          true,
+          true,
+          false
+        ],
+        "variants": [
+          {
+            "exact": true,
+            "reason": "PASS",
+            "native_ok": true,
+            "min_q_before": 1.3785121429863736e-05,
+            "min_q_after": 0.04143361395817674,
+            "new_q": [
+              0.04143361395817674,
+              0.05638131891422458
+            ],
+            "new_tets": [
+              [
+                143901,
+                143889,
+                294322,
+                143892
+              ],
+              [
+                294322,
+                143889,
+                143901,
+                143898
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "q": 1.3785121429863736e-05
+  },
+  {
+    "row": 7014,
+    "tet": [
+      91245,
+      91239,
+      91261,
+      91166
+    ],
+    "labels": [
+      15,
+      71,
+      71,
+      2156
+    ],
+    "trials": [
+      {
+        "kind": "2-3",
+        "rows": [
+          7014,
+          111438
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "2-3",
+        "rows": [
+          7014,
+          70274
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "2-3",
+        "rows": [
+          7014,
+          1062016
+        ],
+        "same_labels": [
+          false,
+          false,
+          true,
+          false
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "2-3",
+        "rows": [
+          7014,
+          834622
+        ],
+        "same_labels": [
+          false,
+          false,
+          true,
+          false
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          7014,
+          70274,
+          111438
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "variants": [
+          {
+            "exact": true,
+            "reason": "PASS",
+            "native_ok": true,
+            "min_q_before": 2.5589368710270745e-05,
+            "min_q_after": 8.181766822655684e-05,
+            "new_q": [
+              0.0011731935147120556,
+              8.181766822655684e-05
+            ],
+            "new_tets": [
+              [
+                91166,
+                10568,
+                91261,
+                91239
+              ],
+              [
+                91261,
+                10568,
+                91166,
+                91245
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          7014,
+          834622,
+          1062016
+        ],
+        "same_labels": [
+          false,
+          false,
+          true,
+          false
+        ],
+        "variants": [
+          {
+            "exact": true,
+            "reason": "PASS",
+            "native_ok": true,
+            "min_q_before": 2.5589368710270745e-05,
+            "min_q_after": 0.00584138874025912,
+            "new_q": [
+              0.028015301804070258,
+              0.00584138874025912
+            ],
+            "new_tets": [
+              [
+                91239,
+                91240,
+                91245,
+                91166
+              ],
+              [
+                91239,
+                91245,
+                91240,
+                91261
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "q": 2.5589368710270745e-05
+  },
+  {
+    "row": 75256,
+    "tet": [
+      7826,
+      7853,
+      7852,
+      7813
+    ],
+    "labels": [
+      15,
+      62,
+      65,
+      2094
+    ],
+    "trials": [
+      {
+        "kind": "2-3",
+        "rows": [
+          75256,
+          83748
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "2-3",
+        "rows": [
+          75256,
+          83743
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          75256,
+          83748,
+          179771
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "edge link is not a simple ring"
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          75256,
+          83743,
+          451468
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "edge link is not a simple ring"
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          75256,
+          83743,
+          83748
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "variants": [
+          {
+            "exact": true,
+            "reason": "PASS",
+            "native_ok": true,
+            "min_q_before": 1.7767889008849607e-05,
+            "min_q_after": 0.0010699006085084924,
+            "new_q": [
+              0.0017943972579098821,
+              0.0010699006085084924
+            ],
+            "new_tets": [
+              [
+                7826,
+                7853,
+                83333,
+                7813
+              ],
+              [
+                7826,
+                83333,
+                7853,
+                7852
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "q": 1.7767889008849607e-05
+  },
+  {
+    "row": 393895,
+    "tet": [
+      49018,
+      48915,
+      49017,
+      48909
+    ],
+    "labels": [
+      15,
+      114,
+      114,
+      11682
+    ],
+    "trials": [
+      {
+        "kind": "2-3",
+        "rows": [
+          393895,
+          555192
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "2-3",
+        "rows": [
+          107822,
+          393895
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          107822,
+          393895,
+          555192
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "variants": [
+          {
+            "exact": true,
+            "reason": "PASS",
+            "native_ok": true,
+            "min_q_before": 1.9575636044197076e-05,
+            "min_q_after": 0.00029517805486408165,
+            "new_q": [
+              0.003279365197536322,
+              0.00029517805486408165
+            ],
+            "new_tets": [
+              [
+                49017,
+                48909,
+                161682,
+                48915
+              ],
+              [
+                161682,
+                48909,
+                49017,
+                49018
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "4-4",
+        "rows": [
+          107822,
+          393889,
+          393895,
+          492672
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "edge link is not a simple ring"
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          393895,
+          555191,
+          555192
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "edge link is not a simple ring"
+      }
+    ],
+    "q": 1.9575636044197076e-05
+  },
+  {
+    "row": 1049827,
+    "tet": [
+      290687,
+      290684,
+      290696,
+      290686
+    ],
+    "labels": [
+      16,
+      79,
+      79,
+      23854
+    ],
+    "trials": [
+      {
+        "kind": "2-3",
+        "rows": [
+          1049827,
+          1335613
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "2-3",
+        "rows": [
+          1049827,
+          1335612
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "new 2-3 edge already exists"
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          1049827,
+          1335612,
+          1335613
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "variants": [
+          {
+            "exact": true,
+            "reason": "PASS",
+            "native_ok": true,
+            "min_q_before": 1.1436075697880705e-05,
+            "min_q_after": 0.00036729703739286077,
+            "new_q": [
+              0.0008399002904579806,
+              0.00036729703739286077
+            ],
+            "new_tets": [
+              [
+                290696,
+                290686,
+                307247,
+                290684
+              ],
+              [
+                307247,
+                290686,
+                290696,
+                290687
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          1049827,
+          1335613,
+          1459581
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "edge link is not a simple ring"
+      },
+      {
+        "kind": "4-4",
+        "rows": [
+          766375,
+          1049827,
+          1335591,
+          1335612
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "edge link is not a simple ring"
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          1049827,
+          1335613,
+          1335614
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "edge link is not a simple ring"
+      },
+      {
+        "kind": "3-2",
+        "rows": [
+          1049827,
+          1335611,
+          1335612
+        ],
+        "same_labels": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "error": "edge link is not a simple ring"
+      }
+    ],
+    "q": 1.1436075697880705e-05
+  }
+]

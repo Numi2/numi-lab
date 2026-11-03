@@ -1,0 +1,121 @@
+{
+  "scope": "current typed source asset geometry, not a substitute for emitted GPU-state audit",
+  "asset": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/candidate-current-typed-volume.npz",
+  "native_object_offset": 3315,
+  "witness_cells": [
+    {
+      "native_tet": 3897,
+      "source_child_tet": 582,
+      "source_nodes": [
+        115999,
+        115917,
+        115989,
+        115998
+      ],
+      "centroid_m": [
+        -0.09959944523870945,
+        -0.1140950433909893,
+        0.13641861453652382
+      ],
+      "volume_m3": 1.3340429361613777e-17,
+      "minimum_altitude_m": 4.31105027668461e-09,
+      "maximum_edge_m": 0.00018437065190798934,
+      "edge_to_altitude": 42766.991817543494
+    },
+    {
+      "native_tet": 7032,
+      "source_child_tet": 3717,
+      "source_nodes": [
+        143901,
+        143889,
+        143898,
+        143892
+      ],
+      "centroid_m": [
+        0.2266804799437523,
+        -0.8871596157550812,
+        0.14730072766542435
+      ],
+      "volume_m3": 8.468331004183075e-18,
+      "minimum_altitude_m": 6.342870097768637e-09,
+      "maximum_edge_m": 0.0001544707160767855,
+      "edge_to_altitude": 24353.44153289957
+    },
+    {
+      "native_tet": 10329,
+      "source_child_tet": 7014,
+      "source_nodes": [
+        91245,
+        91239,
+        91261,
+        91166
+      ],
+      "centroid_m": [
+        -0.30391041189432144,
+        -1.0103980004787445,
+        0.10116698406636715
+      ],
+      "volume_m3": 1.7581232023077004e-17,
+      "minimum_altitude_m": 7.686038337535945e-09,
+      "maximum_edge_m": 0.0001603418885823409,
+      "edge_to_altitude": 20861.44793206231
+    },
+    {
+      "native_tet": 78571,
+      "source_child_tet": 75256,
+      "source_nodes": [
+        7826,
+        7853,
+        7852,
+        7813
+      ],
+      "centroid_m": [
+        -0.30852503329515457,
+        -0.9873223453760147,
+        0.11978560499846935
+      ],
+      "volume_m3": 1.0595874832708932e-18,
+      "minimum_altitude_m": 7.300857186548446e-09,
+      "maximum_edge_m": 7.099330789887815e-05,
+      "edge_to_altitude": 9723.968855284642
+    },
+    {
+      "native_tet": 397210,
+      "source_child_tet": 393895,
+      "source_nodes": [
+        49018,
+        48915,
+        49017,
+        48909
+      ],
+      "centroid_m": [
+        0.2595413774251938,
+        -0.9776849746704102,
+        0.11470051296055317
+      ],
+      "volume_m3": 1.9018812370690062e-17,
+      "minimum_altitude_m": 9.013042980538568e-09,
+      "maximum_edge_m": 0.0001799725433692549,
+      "edge_to_altitude": 19968.011220834185
+    },
+    {
+      "native_tet": 1053142,
+      "source_child_tet": 1049827,
+      "source_nodes": [
+        290687,
+        290684,
+        290696,
+        290686
+      ],
+      "centroid_m": [
+        0.12170667760074139,
+        -0.319806843996048,
+        0.12010168097913265
+      ],
+      "volume_m3": 4.175849213761175e-17,
+      "minimum_altitude_m": 7.796875088929878e-09,
+      "maximum_edge_m": 0.000279816301800513,
+      "edge_to_altitude": 35888.26274744358
+    }
+  ]
+}
