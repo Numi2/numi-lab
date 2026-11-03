@@ -8504,6 +8504,18 @@ kernel void nm_contact_compact_deformable_active_prefix(
 // Stable active-prefix compaction across GPU cores. One group counts each
 // 256-candidate tile; the tiny tile scan preserves exact slot order, and a
 // parallel scatter publishes the same list as nmCompactDeformablePrefix.
+// The single-environment compaction domain is generated from the current
+// GPU candidate count. No capacity-sized launch or CPU readback is needed.
+kernel void nm_contact_prepare_deformable_compaction_dispatch(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* candidateCounts [[buffer(1)]],
+    device NMIndirectDispatchGPU* work [[buffer(2)]],
+    uint global [[thread_position_in_grid]]) {
+    if(global!=0u || dispatch.environmentCount!=1u)return;
+    const uint count=min(candidateCounts[0],dispatch.deformableContactCapacity);
+    work[0]={count/256u+(count%256u!=0u),1u,1u,count};
+}
+
 kernel void nm_contact_count_deformable_compaction_tiles(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMDeformableContactGPU* contacts [[buffer(1)]],
@@ -8532,18 +8544,21 @@ kernel void nm_contact_scan_deformable_compaction_tiles(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device uint* tileOffsets [[buffer(1)]],
     device uint* activeCounts [[buffer(2)]],
+    device const uint* candidateCounts [[buffer(3)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]) {
     if(environment>=dispatch.environmentCount)return;
     const uint capacity=dispatch.deformableContactCapacity;
     const uint tiles=capacity/256u+(capacity%256u!=0u);
+    const uint count=min(candidateCounts[environment],capacity);
+    const uint activeTiles=count/256u+(count%256u!=0u);
     uint cursor=0u;
-    for(uint first=0u;first<tiles;first+=32u) {
+    for(uint first=0u;first<activeTiles;first+=32u) {
         const uint tile=first+lane;
-        const uint count=tile<tiles?tileOffsets[environment*tiles+tile]:0u;
+        const uint count=tile<activeTiles?tileOffsets[environment*tiles+tile]:0u;
         const uint prefix=simd_prefix_exclusive_sum(count);
         const uint total=simd_sum(count);
-        if(tile<tiles)tileOffsets[environment*tiles+tile]=cursor+prefix;
+        if(tile<activeTiles)tileOffsets[environment*tiles+tile]=cursor+prefix;
         cursor+=total;
     }
     if(lane==0u)activeCounts[environment]=cursor;

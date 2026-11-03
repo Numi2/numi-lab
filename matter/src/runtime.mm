@@ -8700,6 +8700,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_capture_deformable_failure",
             "nm_contact_compact_deformable",
             "nm_contact_compact_deformable_active_prefix",
+            "nm_contact_prepare_deformable_compaction_dispatch",
             "nm_contact_count_deformable_compaction_tiles",
             "nm_contact_scan_deformable_compaction_tiles",
             "nm_contact_scatter_deformable_compaction_tiles",
@@ -20131,7 +20132,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         };
         const auto compactDeformableContacts = [&](id<MTLBuffer> contacts,
                 id<MTLBuffer> indices,id<MTLBuffer> activeCounts,
-                id<MTLBuffer> candidateCounts) {
+                id<MTLBuffer> candidateCounts) -> bool {
             const auto environments=state.dispatch.environmentCount;
             const auto bindLegacy=[&] {
                 setDispatch();
@@ -20145,34 +20146,65 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 dispatchGroups32(state.deformableContactActivePrefixCompactionEnabled
                     ? "nm_contact_compact_deformable_active_prefix"
                     : "nm_contact_compact_deformable",environments,bindLegacy);
-                return;
+                return true;
+            }
+            const auto countPipeline=state.pipeline("nm_contact_count_deformable_compaction_tiles");
+            const auto scatterPipeline=state.pipeline("nm_contact_scatter_deformable_compaction_tiles");
+            if(countPipeline==nil || scatterPipeline==nil ||
+               countPipeline.maxTotalThreadsPerThreadgroup<256u ||
+               scatterPipeline.maxTotalThreadsPerThreadgroup<256u) {
+                diagnostics.message="contact compaction requires checked 256-thread tiles";
+                return false;
             }
             const NSUInteger tiles=state.dispatch.deformableContactCapacity/256u+
                 (state.dispatch.deformableContactCapacity%256u!=0u);
-            dispatchGroups256("nm_contact_count_deformable_compaction_tiles",
-                environments*tiles,[&] {
+            const bool activeDomain=environments==1u;
+            if(activeDomain) {
+                dispatchThreads("nm_contact_prepare_deformable_compaction_dispatch",1u,[&] {
+                    setDispatch();
+                    [encoder setBuffer:candidateCounts offset:0u atIndex:1u];
+                    [encoder setBuffer:state.deformableContactActiveDispatch offset:0u atIndex:2u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+            const auto bindCount=[&] {
                 setDispatch();
                 [encoder setBuffer:contacts offset:0u atIndex:1u];
                 [encoder setBuffer:candidateCounts offset:0u atIndex:2u];
                 [encoder setBuffer:state.deformableContactCompactionTiles offset:0u atIndex:3u];
-            });
+            };
+            if(activeDomain) {
+                if(!dispatchIndirect(
+                    "nm_contact_count_deformable_compaction_tiles",
+                    state.deformableContactActiveDispatch,256u,bindCount))
+                    return false;
+            } else dispatchGroups256("nm_contact_count_deformable_compaction_tiles",
+                environments*tiles,bindCount);
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             dispatchGroups32("nm_contact_scan_deformable_compaction_tiles",
                 environments,[&] {
                 setDispatch();
                 [encoder setBuffer:state.deformableContactCompactionTiles offset:0u atIndex:1u];
                 [encoder setBuffer:activeCounts offset:0u atIndex:2u];
+                [encoder setBuffer:candidateCounts offset:0u atIndex:3u];
             });
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-            dispatchGroups256("nm_contact_scatter_deformable_compaction_tiles",
-                environments*tiles,[&] {
+            const auto bindScatter=[&] {
                 setDispatch();
                 [encoder setBuffer:contacts offset:0u atIndex:1u];
                 [encoder setBuffer:candidateCounts offset:0u atIndex:2u];
                 [encoder setBuffer:state.deformableContactCompactionTiles offset:0u atIndex:3u];
                 [encoder setBuffer:indices offset:0u atIndex:4u];
-            });
+            };
+            if(activeDomain) {
+                if(!dispatchIndirect(
+                    "nm_contact_scatter_deformable_compaction_tiles",
+                    state.deformableContactActiveDispatch,256u,bindScatter))
+                    return false;
+            } else dispatchGroups256("nm_contact_scatter_deformable_compaction_tiles",
+                environments*tiles,bindScatter);
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            return true;
         };
         const auto buildDeformableNodeIncidence = [&](
             id<MTLBuffer> contacts,
@@ -29837,10 +29869,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
                 clearDeformableTail(state.deformableContacts,
                     state.deformableContactCandidateCounts);
-                compactDeformableContacts(state.deformableContacts,
+                if(!compactDeformableContacts(state.deformableContacts,
                     state.deformableContactActiveIndices,
                     state.deformableContactActiveCounts,
-                    state.deformableContactCandidateCounts);
+                    state.deformableContactCandidateCounts)) return false;
                 dispatchGroups32(
                     "nm_contact_scan_deformable_active_counts",
                     1u,
@@ -30705,10 +30737,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         "deformable_self_narrowphase")) return false;
                 clearDeformableTail(state.femArmijoDeformableContacts,
                     state.femArmijoDeformableCandidateCounts);
-                compactDeformableContacts(state.femArmijoDeformableContacts,
+                if(!compactDeformableContacts(state.femArmijoDeformableContacts,
                     state.femArmijoDeformableActiveIndices,
                     state.femArmijoDeformableActiveCounts,
-                    state.femArmijoDeformableCandidateCounts);
+                    state.femArmijoDeformableCandidateCounts)) return false;
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 buildDeformableNodeIncidence(
                     state.femArmijoDeformableContacts,

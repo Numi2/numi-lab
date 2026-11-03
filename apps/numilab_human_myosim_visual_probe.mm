@@ -21081,7 +21081,10 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     source.mixedSolver.newtonIterations=16u;
     source.mixedSolver.fgmresRestart=16u;
     source.mixedSolver.fgmresIterations=32u;
-    source.mixedSolver.lineSearchSteps=12u;
+    // Keep the authored validity bounds. Thin-layer directions can require
+    // more than twelve halvings; remaining parallel trials run only for
+    // objects whose earlier trials failed, up to the existing bounded limit.
+    source.mixedSolver.lineSearchSteps=NM_MIXED_LINE_SEARCH_MAX_STEPS;
     source.mixedSolver.cacheFEMAlgorithmicTangentWithDirectFallback=true;
     const char* tangentBlock = std::getenv("NUMI_HUMAN_RESTING_COUPLED_TANGENT_BLOCK");
     require(tangentBlock == nullptr || std::strcmp(tangentBlock, "0") == 0 ||

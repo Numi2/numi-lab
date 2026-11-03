@@ -1,0 +1,27 @@
+{
+  "matched_accepted_steps": 2,
+  "all_coupled_csv_fields_identical": true,
+  "all_endpoint_node_rows_identical": true,
+  "all_endpoint_tet_rows_identical": true,
+  "baseline_endpoint_node_rows": 318974,
+  "baseline_endpoint_tet_rows": 1521713,
+  "baseline_endpoint_node_rows_sha256": "7485b2f502cd096b137ee5b6aca145f0e0331122eb354461edbbeb5802e1f120",
+  "baseline_endpoint_tet_rows_sha256": "d677bca6ce68c76b054c973b3c329eab6e85b80fc7748b2a5dbe2399920f52e5",
+  "accepted_receipt_hashes": {
+    "accepted_body_state_sha256": {
+      "baseline": "87eee92ddf93b3a61e6b44e8a59568fb3dc083158aaffd77f7548b5b9b002853",
+      "candidate": "87eee92ddf93b3a61e6b44e8a59568fb3dc083158aaffd77f7548b5b9b002853",
+      "identical": true
+    },
+    "accepted_respiration_state_sha256": {
+      "baseline": "510460243a7ac9fecf73b84e9df04c472d4f3e70c1ad0994bfc43ecdb1e5beb6",
+      "candidate": "510460243a7ac9fecf73b84e9df04c472d4f3e70c1ad0994bfc43ecdb1e5beb6",
+      "identical": true
+    },
+    "captured_vertex_buffer_sha256": {
+      "baseline": "12287ead58d3d93e37f4873285c3c9e9c46257f986cbb6da16a56426c561fbb5",
+      "candidate": "12287ead58d3d93e37f4873285c3c9e9c46257f986cbb6da16a56426c561fbb5",
+      "identical": true
+    }
+  }
+}

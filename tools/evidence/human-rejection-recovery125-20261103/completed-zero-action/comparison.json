@@ -1,0 +1,112 @@
+{
+  "matched_steps": 2,
+  "all_coupled_csv_fields_identical": true,
+  "terminal_certificates_identical": true,
+  "trials": {
+    "tiled-compaction-barrier-native-001": {
+      "profiles": [
+        "resting_native_profile step=1 command_ms=20563.779917 gpu_ms=20562.2859583 host_copy_ms=0.256666 full_state_readback=1",
+        "resting_native_profile step=2 command_ms=21022.110209 gpu_ms=21021.5099583 host_copy_ms=0.137 full_state_readback=1",
+        "resting_native_profile step=3 command_ms=21830.978209 gpu_ms=21830.403875 host_copy_ms=0.052958 full_state_readback=1",
+        "resting_native_profile step=4 command_ms=20815.461791 gpu_ms=20814.8829167 host_copy_ms=0.048375 full_state_readback=1",
+        "resting_native_profile step=5 command_ms=20901.244417 gpu_ms=20900.622375 host_copy_ms=0.0525 full_state_readback=1",
+        "resting_native_profile step=6 command_ms=20908.234917 gpu_ms=20907.655125 host_copy_ms=0.054458 full_state_readback=1",
+        "resting_native_profile step=7 command_ms=20940.813 gpu_ms=20940.1612083 host_copy_ms=0.05225 full_state_readback=1",
+        "resting_native_profile step=8 command_ms=21181.05825 gpu_ms=21180.410625 host_copy_ms=0.054375 full_state_readback=1",
+        "resting_native_profile step=9 command_ms=22816.965833 gpu_ms=22816.314375 host_copy_ms=0.052542 full_state_readback=1"
+      ],
+      "certificates": [
+        {
+          "root": 0,
+          "status": [
+            {
+              "code": 0,
+              "object_index": 4294967295,
+              "failing_index": 4294967295,
+              "completed_microsteps_at_certificate": 0,
+              "fgmres_iterations_microstep_max": 8,
+              "diagnostics": [
+                null,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "minimum_J": 0.945040703
+        },
+        {
+          "root": 1,
+          "status": [
+            {
+              "code": 0,
+              "object_index": 4294967295,
+              "failing_index": 4294967295,
+              "completed_microsteps_at_certificate": 0,
+              "fgmres_iterations_microstep_max": 15,
+              "diagnostics": [
+                null,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "minimum_J": 0.893259645
+        }
+      ],
+      "zero_action_telemetry": []
+    },
+    "completed-zero-action-native-001": {
+      "profiles": [
+        "resting_native_profile step=1 command_ms=18862.550917 gpu_ms=18861.288 host_copy_ms=0.273292 full_state_readback=1",
+        "resting_native_profile step=2 command_ms=19567.102084 gpu_ms=19566.4849583 host_copy_ms=0.131625 full_state_readback=1",
+        "resting_integrated_body=completed simulated_s=3.1250001484295353e-05 wall_s=46.385686 real_time_factor=6.7369924170778359e-07 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+      ],
+      "certificates": [
+        {
+          "root": 0,
+          "status": [
+            {
+              "code": 0,
+              "object_index": 4294967295,
+              "failing_index": 4294967295,
+              "completed_microsteps_at_certificate": 0,
+              "fgmres_iterations_microstep_max": 8,
+              "diagnostics": [
+                null,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "minimum_J": 0.945040703
+        },
+        {
+          "root": 1,
+          "status": [
+            {
+              "code": 0,
+              "object_index": 4294967295,
+              "failing_index": 4294967295,
+              "completed_microsteps_at_certificate": 0,
+              "fgmres_iterations_microstep_max": 15,
+              "diagnostics": [
+                null,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "minimum_J": 0.893259645
+        }
+      ],
+      "zero_action_telemetry": [
+        "matter_completed_zero_operator_work={\"root\":0,\"prepare_checks_cumulative\":64,\"skipped_operator_actions_cumulative\":56,\"scope\":\"encode_request\"}",
+        "matter_completed_zero_operator_work={\"root\":1,\"prepare_checks_cumulative\":64,\"skipped_operator_actions_cumulative\":56,\"scope\":\"encode_request\"}"
+      ]
+    }
+  }
+}

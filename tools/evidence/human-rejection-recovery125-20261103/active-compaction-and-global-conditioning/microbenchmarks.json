@@ -1,0 +1,97 @@
+[
+  {
+    "candidates": 0,
+    "capacity": 4000000,
+    "pairs": 3,
+    "repeats_per_sample": 3,
+    "scope": "GPU_compaction_only_all_four_active_dispatch_passes_and_barriers",
+    "serial_ms": [
+      0.002819445702,
+      0.002819445702,
+      0.002805555899
+    ],
+    "tiled_ms": [
+      0.006388889839,
+      0.00641666702,
+      0.006638889317
+    ],
+    "serial_median_ms": 0.002819445702,
+    "tiled_median_ms": 0.00641666702
+  },
+  {
+    "candidates": 1,
+    "capacity": 4000000,
+    "pairs": 3,
+    "repeats_per_sample": 3,
+    "scope": "GPU_compaction_only_all_four_active_dispatch_passes_and_barriers",
+    "serial_ms": [
+      0.003222220888,
+      0.003124999542,
+      0.003236110691
+    ],
+    "tiled_ms": [
+      0.01272222289,
+      0.01284722384,
+      0.0128749986
+    ],
+    "serial_median_ms": 0.003222220888,
+    "tiled_median_ms": 0.01284722384
+  },
+  {
+    "candidates": 257,
+    "capacity": 4000000,
+    "pairs": 3,
+    "repeats_per_sample": 3,
+    "scope": "GPU_compaction_only_all_four_active_dispatch_passes_and_barriers",
+    "serial_ms": [
+      0.007694444018,
+      0.007680554215,
+      0.007666666837
+    ],
+    "tiled_ms": [
+      0.01404166687,
+      0.01426388917,
+      0.01425000179
+    ],
+    "serial_median_ms": 0.007680554215,
+    "tiled_median_ms": 0.01425000179
+  },
+  {
+    "candidates": 3631873,
+    "capacity": 4000000,
+    "pairs": 3,
+    "repeats_per_sample": 3,
+    "scope": "GPU_compaction_only_all_four_active_dispatch_passes_and_barriers",
+    "serial_ms": [
+      31.34302778,
+      31.36175,
+      31.209375
+    ],
+    "tiled_ms": [
+      3.848638888,
+      3.855930554,
+      3.857902777
+    ],
+    "serial_median_ms": 31.34302778,
+    "tiled_median_ms": 3.855930554
+  },
+  {
+    "candidates": 4000000,
+    "capacity": 4000000,
+    "pairs": 3,
+    "repeats_per_sample": 3,
+    "scope": "GPU_compaction_only_all_four_active_dispatch_passes_and_barriers",
+    "serial_ms": [
+      34.98752778,
+      34.87613889,
+      34.53929167
+    ],
+    "tiled_ms": [
+      4.368291666,
+      4.347833332,
+      4.243749999
+    ],
+    "serial_median_ms": 34.87613889,
+    "tiled_median_ms": 4.347833332
+  }
+]

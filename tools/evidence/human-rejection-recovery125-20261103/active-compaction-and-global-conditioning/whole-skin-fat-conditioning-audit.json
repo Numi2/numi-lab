@@ -1,0 +1,705 @@
+{
+  "source_nodes": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-zero-action-native-001/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+  "source_tets": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-zero-action-native-001/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+  "cells": 1495294,
+  "nodes": 311768,
+  "minimum_altitude_m": 1.584340140022157e-09,
+  "maximum_condition_2": 186933.5043075304,
+  "altitude_thresholds_m": [
+    1e-09,
+    1e-08,
+    1e-07,
+    1e-06,
+    1e-05
+  ],
+  "cells_below_altitude": [
+    0,
+    1107,
+    17654,
+    97761,
+    348954
+  ],
+  "condition_thresholds": [
+    100,
+    1000,
+    10000,
+    100000
+  ],
+  "cells_above_condition": [
+    478292,
+    153080,
+    28168,
+    204
+  ],
+  "screen_rule": "minimum altitude < 0.1 micrometre OR edge-matrix condition > 10000; diagnostic screen, not an anatomical validity threshold",
+  "screened_cells": 32500,
+  "regions": [
+    [
+      23,
+      15989
+    ],
+    [
+      59,
+      1128
+    ],
+    [
+      153,
+      1126
+    ],
+    [
+      139,
+      1031
+    ],
+    [
+      65,
+      703
+    ],
+    [
+      138,
+      676
+    ],
+    [
+      124,
+      651
+    ],
+    [
+      102,
+      589
+    ],
+    [
+      62,
+      586
+    ],
+    [
+      107,
+      584
+    ],
+    [
+      20,
+      556
+    ],
+    [
+      64,
+      512
+    ],
+    [
+      114,
+      483
+    ],
+    [
+      61,
+      478
+    ],
+    [
+      109,
+      435
+    ],
+    [
+      104,
+      392
+    ],
+    [
+      115,
+      336
+    ],
+    [
+      43,
+      295
+    ],
+    [
+      93,
+      294
+    ],
+    [
+      46,
+      267
+    ],
+    [
+      53,
+      258
+    ],
+    [
+      66,
+      250
+    ],
+    [
+      91,
+      242
+    ],
+    [
+      70,
+      222
+    ],
+    [
+      52,
+      217
+    ],
+    [
+      69,
+      212
+    ],
+    [
+      120,
+      204
+    ],
+    [
+      121,
+      199
+    ],
+    [
+      34,
+      189
+    ],
+    [
+      152,
+      171
+    ],
+    [
+      42,
+      170
+    ],
+    [
+      150,
+      166
+    ],
+    [
+      100,
+      160
+    ],
+    [
+      125,
+      152
+    ],
+    [
+      116,
+      151
+    ],
+    [
+      72,
+      147
+    ],
+    [
+      136,
+      147
+    ],
+    [
+      84,
+      145
+    ],
+    [
+      103,
+      144
+    ],
+    [
+      71,
+      142
+    ],
+    [
+      111,
+      136
+    ],
+    [
+      122,
+      126
+    ],
+    [
+      74,
+      119
+    ],
+    [
+      128,
+      113
+    ],
+    [
+      41,
+      112
+    ],
+    [
+      75,
+      110
+    ],
+    [
+      99,
+      94
+    ],
+    [
+      54,
+      91
+    ],
+    [
+      67,
+      90
+    ],
+    [
+      79,
+      89
+    ],
+    [
+      119,
+      78
+    ],
+    [
+      56,
+      67
+    ],
+    [
+      76,
+      63
+    ],
+    [
+      142,
+      62
+    ],
+    [
+      49,
+      57
+    ],
+    [
+      112,
+      52
+    ],
+    [
+      156,
+      45
+    ],
+    [
+      98,
+      45
+    ],
+    [
+      95,
+      33
+    ],
+    [
+      110,
+      30
+    ],
+    [
+      57,
+      22
+    ],
+    [
+      97,
+      13
+    ],
+    [
+      60,
+      10
+    ],
+    [
+      48,
+      10
+    ],
+    [
+      126,
+      9
+    ],
+    [
+      29,
+      9
+    ],
+    [
+      106,
+      7
+    ],
+    [
+      4,
+      5
+    ],
+    [
+      92,
+      3
+    ],
+    [
+      26,
+      1
+    ]
+  ],
+  "smallest_altitude_witnesses": [
+    {
+      "local_tet": 1479667,
+      "global_tet": 1482982,
+      "minimum_altitude_m": 1.584340140022157e-09,
+      "condition_2": 125135.18399791645,
+      "volume_m3": 2.383372042559225e-18,
+      "anatomical_region_id": 69,
+      "stable_source_face_id": 10186,
+      "material_index": 16,
+      "nodes": [
+        311190,
+        96385,
+        96358,
+        96372
+      ]
+    },
+    {
+      "local_tet": 7660,
+      "global_tet": 10975,
+      "minimum_altitude_m": 1.6625917029731629e-09,
+      "condition_2": 90147.18306158057,
+      "volume_m3": 2.2199674756355678e-18,
+      "anatomical_region_id": 65,
+      "stable_source_face_id": 4808,
+      "material_index": 15,
+      "nodes": [
+        78582,
+        78541,
+        78572,
+        78571
+      ]
+    },
+    {
+      "local_tet": 909549,
+      "global_tet": 912864,
+      "minimum_altitude_m": 1.6895791358872218e-09,
+      "condition_2": 132115.69736977297,
+      "volume_m3": 2.6463724854966374e-18,
+      "anatomical_region_id": 23,
+      "stable_source_face_id": 104442,
+      "material_index": 16,
+      "nodes": [
+        265872,
+        265909,
+        265882,
+        265907
+      ]
+    },
+    {
+      "local_tet": 7473,
+      "global_tet": 10788,
+      "minimum_altitude_m": 1.8984022284870347e-09,
+      "condition_2": 83166.8669047042,
+      "volume_m3": 1.9296469329620794e-18,
+      "anatomical_region_id": 65,
+      "stable_source_face_id": 4076,
+      "material_index": 15,
+      "nodes": [
+        79446,
+        79459,
+        79437,
+        79460
+      ]
+    },
+    {
+      "local_tet": 1374296,
+      "global_tet": 1377611,
+      "minimum_altitude_m": 1.9241917537421302e-09,
+      "condition_2": 23316.937634384,
+      "volume_m3": 1.2672147801054077e-18,
+      "anatomical_region_id": 23,
+      "stable_source_face_id": 96270,
+      "material_index": 16,
+      "nodes": [
+        308877,
+        308144,
+        240527,
+        240514
+      ]
+    },
+    {
+      "local_tet": 354694,
+      "global_tet": 358009,
+      "minimum_altitude_m": 1.928190491025416e-09,
+      "condition_2": 81541.23842227206,
+      "volume_m3": 1.5200270936273841e-18,
+      "anatomical_region_id": 107,
+      "stable_source_face_id": 108817,
+      "material_index": 15,
+      "nodes": [
+        47682,
+        47672,
+        47756,
+        47697
+      ]
+    },
+    {
+      "local_tet": 508508,
+      "global_tet": 511823,
+      "minimum_altitude_m": 1.9778595495444405e-09,
+      "condition_2": 104866.3380016444,
+      "volume_m3": 1.737202811999812e-18,
+      "anatomical_region_id": 139,
+      "stable_source_face_id": 27663,
+      "material_index": 15,
+      "nodes": [
+        119466,
+        119439,
+        119440,
+        119453
+      ]
+    },
+    {
+      "local_tet": 718127,
+      "global_tet": 721442,
+      "minimum_altitude_m": 2.008806606867083e-09,
+      "condition_2": 146451.41881660154,
+      "volume_m3": 6.012096343785188e-18,
+      "anatomical_region_id": 23,
+      "stable_source_face_id": 108399,
+      "material_index": 15,
+      "nodes": [
+        201365,
+        59349,
+        59350,
+        59348
+      ]
+    },
+    {
+      "local_tet": 1103735,
+      "global_tet": 1107050,
+      "minimum_altitude_m": 2.0735574153177827e-09,
+      "condition_2": 87444.27363572734,
+      "volume_m3": 6.425362533109845e-18,
+      "anatomical_region_id": 119,
+      "stable_source_face_id": 83813,
+      "material_index": 16,
+      "nodes": [
+        150605,
+        150657,
+        150596,
+        150624
+      ]
+    },
+    {
+      "local_tet": 375876,
+      "global_tet": 379191,
+      "minimum_altitude_m": 2.077471022721919e-09,
+      "condition_2": 108100.20861833543,
+      "volume_m3": 2.26630723645623e-18,
+      "anatomical_region_id": 99,
+      "stable_source_face_id": 89584,
+      "material_index": 15,
+      "nodes": [
+        150963,
+        150984,
+        150970,
+        150990
+      ]
+    },
+    {
+      "local_tet": 1126900,
+      "global_tet": 1130215,
+      "minimum_altitude_m": 2.0939303530995725e-09,
+      "condition_2": 81717.09780770974,
+      "volume_m3": 5.797737588982242e-18,
+      "anatomical_region_id": 102,
+      "stable_source_face_id": 90942,
+      "material_index": 16,
+      "nodes": [
+        153501,
+        153530,
+        153502,
+        153589
+      ]
+    },
+    {
+      "local_tet": 581737,
+      "global_tet": 585052,
+      "minimum_altitude_m": 2.3149587280840698e-09,
+      "condition_2": 99690.3961287018,
+      "volume_m3": 3.8971688118152436e-18,
+      "anatomical_region_id": 124,
+      "stable_source_face_id": 84775,
+      "material_index": 15,
+      "nodes": [
+        194990,
+        145855,
+        145834,
+        145851
+      ]
+    },
+    {
+      "local_tet": 1278839,
+      "global_tet": 1282154,
+      "minimum_altitude_m": 2.3698204224295657e-09,
+      "condition_2": 44844.7147348453,
+      "volume_m3": 2.5452845566081903e-18,
+      "anatomical_region_id": 23,
+      "stable_source_face_id": 100396,
+      "material_index": 16,
+      "nodes": [
+        252938,
+        253037,
+        253198,
+        252939
+      ]
+    },
+    {
+      "local_tet": 919860,
+      "global_tet": 923175,
+      "minimum_altitude_m": 2.404078932073948e-09,
+      "condition_2": 42746.627351438634,
+      "volume_m3": 1.261866781718224e-18,
+      "anatomical_region_id": 23,
+      "stable_source_face_id": 94790,
+      "material_index": 16,
+      "nodes": [
+        227152,
+        227138,
+        227134,
+        227187
+      ]
+    },
+    {
+      "local_tet": 202786,
+      "global_tet": 206101,
+      "minimum_altitude_m": 2.404622000988713e-09,
+      "condition_2": 77960.01624317848,
+      "volume_m3": 4.813247076249937e-18,
+      "anatomical_region_id": 139,
+      "stable_source_face_id": 18772,
+      "material_index": 15,
+      "nodes": [
+        113966,
+        113972,
+        113970,
+        113965
+      ]
+    },
+    {
+      "local_tet": 173653,
+      "global_tet": 176968,
+      "minimum_altitude_m": 2.4295618223857885e-09,
+      "condition_2": 65032.37468496045,
+      "volume_m3": 3.326426321135135e-18,
+      "anatomical_region_id": 23,
+      "stable_source_face_id": 97068,
+      "material_index": 15,
+      "nodes": [
+        122781,
+        122795,
+        122783,
+        122793
+      ]
+    },
+    {
+      "local_tet": 1011149,
+      "global_tet": 1014464,
+      "minimum_altitude_m": 2.4983404655143485e-09,
+      "condition_2": 74118.43848226928,
+      "volume_m3": 2.335117634347751e-18,
+      "anatomical_region_id": 62,
+      "stable_source_face_id": 6583,
+      "material_index": 16,
+      "nodes": [
+        84397,
+        84367,
+        84363,
+        84395
+      ]
+    },
+    {
+      "local_tet": 664140,
+      "global_tet": 667455,
+      "minimum_altitude_m": 2.5523990728800044e-09,
+      "condition_2": 89794.9324048612,
+      "volume_m3": 6.306001473633735e-18,
+      "anatomical_region_id": 64,
+      "stable_source_face_id": 5680,
+      "material_index": 15,
+      "nodes": [
+        198890,
+        9036,
+        9033,
+        8984
+      ]
+    },
+    {
+      "local_tet": 1178707,
+      "global_tet": 1182022,
+      "minimum_altitude_m": 2.5669944453375793e-09,
+      "condition_2": 84451.76660875141,
+      "volume_m3": 1.0039479893150498e-17,
+      "anatomical_region_id": 23,
+      "stable_source_face_id": 99266,
+      "material_index": 16,
+      "nodes": [
+        123015,
+        123032,
+        123019,
+        123016
+      ]
+    },
+    {
+      "local_tet": 41209,
+      "global_tet": 44524,
+      "minimum_altitude_m": 2.581966668657201e-09,
+      "condition_2": 96425.59573318367,
+      "volume_m3": 6.985609588166128e-18,
+      "anatomical_region_id": 23,
+      "stable_source_face_id": 100396,
+      "material_index": 15,
+      "nodes": [
+        126894,
+        126907,
+        126852,
+        126909
+      ]
+    },
+    {
+      "local_tet": 865761,
+      "global_tet": 869076,
+      "minimum_altitude_m": 2.606236821072833e-09,
+      "condition_2": 85020.32764033735,
+      "volume_m3": 9.946432517397061e-18,
+      "anatomical_region_id": 23,
+      "stable_source_face_id": 96292,
+      "material_index": 16,
+      "nodes": [
+        122198,
+        122208,
+        122203,
+        122168
+      ]
+    },
+    {
+      "local_tet": 445068,
+      "global_tet": 448383,
+      "minimum_altitude_m": 2.6241256587935403e-09,
+      "condition_2": 40459.772501483916,
+      "volume_m3": 1.2779333864830526e-18,
+      "anatomical_region_id": 124,
+      "stable_source_face_id": 108694,
+      "material_index": 15,
+      "nodes": [
+        40017,
+        40016,
+        40015,
+        40020
+      ]
+    },
+    {
+      "local_tet": 140254,
+      "global_tet": 143569,
+      "minimum_altitude_m": 2.6243177585496797e-09,
+      "condition_2": 99372.6644165396,
+      "volume_m3": 9.972119025891259e-18,
+      "anatomical_region_id": 23,
+      "stable_source_face_id": 96215,
+      "material_index": 15,
+      "nodes": [
+        121165,
+        121169,
+        121151,
+        121168
+      ]
+    },
+    {
+      "local_tet": 1305046,
+      "global_tet": 1308361,
+      "minimum_altitude_m": 2.6261125478436635e-09,
+      "condition_2": 46423.09422436204,
+      "volume_m3": 1.809001227523238e-18,
+      "anatomical_region_id": 23,
+      "stable_source_face_id": 97068,
+      "material_index": 16,
+      "nodes": [
+        305945,
+        241628,
+        241632,
+        241630
+      ]
+    }
+  ],
+  "elapsed_s": 2.2058518749981886
+}

@@ -14927,19 +14927,25 @@ void checkUnresolvedReferenceSweepProof(
 
 void checkTiledDeformableCompaction(
     id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    auto preparePS=pipeline(device,library,"numi_matter_metal::nm_contact_prepare_deformable_compaction_dispatch");
     auto countPS=pipeline(device,library,"numi_matter_metal::nm_contact_count_deformable_compaction_tiles");
     auto scanPS=pipeline(device,library,"numi_matter_metal::nm_contact_scan_deformable_compaction_tiles");
     auto scatterPS=pipeline(device,library,"numi_matter_metal::nm_contact_scatter_deformable_compaction_tiles");
     auto serialPS=pipeline(device,library,"numi_matter_metal::nm_contact_compact_deformable_active_prefix");
     constexpr unsigned guard=0xdeadbeefu;
     for(unsigned capacity:{1u,31u,32u,33u,255u,256u,257u,4097u,65539u}) {
-        constexpr unsigned envs=5u;const unsigned tiles=(capacity+255u)/256u;
+      for(unsigned scenario=0u;scenario<6u;++scenario) {
+        const unsigned envs=scenario==0u?5u:1u,tiles=(capacity+255u)/256u;
         NMMatterDispatchGPU d{};d.environmentCount=envs;d.deformableContactCapacity=capacity;
-        std::vector<unsigned> counts{0u,1u,capacity/2u,capacity,capacity+1u};
+        const std::vector<unsigned> cases{0u,1u,capacity/2u,capacity,capacity+1u};
+        std::vector<unsigned> counts=scenario==0u?cases:std::vector<unsigned>{cases[scenario-1u]};
         std::vector<NMDeformableContactGPU> contacts(envs*capacity);
         for(unsigned e=0u;e<envs;++e)for(unsigned i=0u;i<capacity;++i)
             if(e==0u || e==3u || i%7u==0u || i+1u==capacity)
                 contacts[e*capacity+i].identity.w=NM_CONTACT_VALID;
+        // Single-environment indirect cases include sparse holes and a valid last slot.
+        if(envs==1u)for(unsigned i=0u;i<capacity;++i)
+            contacts[i].identity.w=(i%7u==0u||i+1u==capacity)?NM_CONTACT_VALID:0u;
         auto db=makeBuffer(device,std::vector<NMMatterDispatchGPU>{d}),cb=makeBuffer(device,counts);
         auto contactBuffer=makeBuffer(device,contacts);
         auto offsets=makeBuffer(device,std::vector<unsigned>(envs*tiles+4u,guard));
@@ -14947,9 +14953,22 @@ void checkTiledDeformableCompaction(
         auto serial=makeBuffer(device,std::vector<unsigned>(envs*capacity+4u,guard));
         auto active=makeBuffer(device,std::vector<unsigned>(envs+4u,guard));
         auto serialActive=makeBuffer(device,std::vector<unsigned>(envs+4u,guard));
-        dispatch(device,queue,countPS,{{0u,db},{1u,contactBuffer},{2u,cb},{3u,offsets}},envs*tiles,256u);
-        dispatch(device,queue,scanPS,{{0u,db},{1u,offsets},{2u,active}},envs,32u);
-        dispatch(device,queue,scatterPS,{{0u,db},{1u,contactBuffer},{2u,cb},{3u,offsets},{4u,indices}},envs*tiles,256u);
+        auto work=makeBuffer(device,std::vector<NMIndirectDispatchGPU>(2u,{guard,guard,guard,guard}));
+        if(envs==1u) {
+            dispatch(device,queue,preparePS,{{0u,db},{1u,cb},{2u,work}},1u,32u);
+            const auto args=readBuffer<NMIndirectDispatchGPU>(work,2u);
+            const unsigned bounded=std::min(counts[0],capacity);
+            require(args[0].threadgroupsX==(bounded+255u)/256u&&
+                args[0].threadgroupsY==1u&&args[0].threadgroupsZ==1u&&
+                args[0].reserved==bounded,"compaction GPU active dispatch extent");
+            require(args[1].threadgroupsX==guard&&args[1].reserved==guard,
+                "compaction dispatch canary");
+            dispatchIndirect(device,queue,countPS,{{0u,db},{1u,contactBuffer},{2u,cb},{3u,offsets}},work,256u);
+        } else dispatch(device,queue,countPS,{{0u,db},{1u,contactBuffer},{2u,cb},{3u,offsets}},envs*tiles,256u);
+        dispatch(device,queue,scanPS,{{0u,db},{1u,offsets},{2u,active},{3u,cb}},envs,32u);
+        if(envs==1u)
+            dispatchIndirect(device,queue,scatterPS,{{0u,db},{1u,contactBuffer},{2u,cb},{3u,offsets},{4u,indices}},work,256u);
+        else dispatch(device,queue,scatterPS,{{0u,db},{1u,contactBuffer},{2u,cb},{3u,offsets},{4u,indices}},envs*tiles,256u);
         dispatch(device,queue,serialPS,{{0u,db},{1u,contactBuffer},{2u,serial},{3u,serialActive},{4u,cb}},envs,32u);
         const auto got=readBuffer<unsigned>(indices,envs*capacity+4u);
         const auto ref=readBuffer<unsigned>(serial,envs*capacity+4u);
@@ -14968,11 +14987,11 @@ void checkTiledDeformableCompaction(
         }
         const auto scratch=readBuffer<unsigned>(offsets,envs*tiles+4u);
         for(unsigned i=envs*tiles;i<scratch.size();++i)require(scratch[i]==guard,"compaction tile canary");
+      }
     }
     std::cout<<"tiled_deformable_compaction=true serial_parity=true deterministic=true"
-        " capacities=9 multi_environment=true empty=true poison_padding=true overflow_clamped=true canaries=true PASS\n";
+        " capacities=9 multi_environment=true GPU_active_dispatch=true empty=true poison_padding=true overflow_clamped=true canaries=true PASS\n";
 }
-
 
 void benchmarkTiledDeformableCompaction(
     id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
@@ -14990,6 +15009,8 @@ void benchmarkTiledDeformableCompaction(
     auto offsets=makeBuffer(device,std::vector<unsigned>(tiles));
     auto indices=makeBuffer(device,std::vector<unsigned>(capacity));
     auto active=makeBuffer(device,std::vector<unsigned>{0u});
+    auto work=makeBuffer(device,std::vector<NMIndirectDispatchGPU>(1u));
+    auto preparePS=pipeline(device,library,"numi_matter_metal::nm_contact_prepare_deformable_compaction_dispatch");
     auto countPS=pipeline(device,library,"numi_matter_metal::nm_contact_count_deformable_compaction_tiles");
     auto scanPS=pipeline(device,library,"numi_matter_metal::nm_contact_scan_deformable_compaction_tiles");
     auto scatterPS=pipeline(device,library,"numi_matter_metal::nm_contact_scatter_deformable_compaction_tiles");
@@ -15002,11 +15023,19 @@ void benchmarkTiledDeformableCompaction(
             [encoder dispatchThreadgroups:MTLSizeMake(groups,1u,1u) threadsPerThreadgroup:MTLSizeMake(width,1u,1u)];
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         };
+        auto indirect=[&](id<MTLComputePipelineState> ps,std::initializer_list<std::pair<unsigned,id<MTLBuffer>>> bindings) {
+            [encoder setComputePipelineState:ps];
+            for(const auto& [slot,buffer]:bindings)[encoder setBuffer:buffer offset:0u atIndex:slot];
+            [encoder dispatchThreadgroupsWithIndirectBuffer:work indirectBufferOffset:0u
+                threadsPerThreadgroup:MTLSizeMake(256u,1u,1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        };
         for(unsigned i=0u;i<repeats;++i) {
             if(tiled) {
-                bind(countPS,{{0u,db},{1u,contacts},{2u,counts},{3u,offsets}},tiles,256u);
-                bind(scanPS,{{0u,db},{1u,offsets},{2u,active}},1u,32u);
-                bind(scatterPS,{{0u,db},{1u,contacts},{2u,counts},{3u,offsets},{4u,indices}},tiles,256u);
+                bind(preparePS,{{0u,db},{1u,counts},{2u,work}},1u,32u);
+                indirect(countPS,{{0u,db},{1u,contacts},{2u,counts},{3u,offsets}});
+                bind(scanPS,{{0u,db},{1u,offsets},{2u,active},{3u,counts}},1u,32u);
+                indirect(scatterPS,{{0u,db},{1u,contacts},{2u,counts},{3u,offsets},{4u,indices}});
             } else bind(serialPS,{{0u,db},{1u,contacts},{2u,indices},{3u,active},{4u,counts}},1u,32u);
         }
         [encoder endEncoding];[command commit];[command waitUntilCompleted];
@@ -15014,7 +15043,7 @@ void benchmarkTiledDeformableCompaction(
         require(command.GPUStartTime>0&&command.GPUEndTime>=command.GPUStartTime,"compaction GPU timestamps unavailable");
         return 1000.0*(command.GPUEndTime-command.GPUStartTime)/repeats;
     };
-    for(unsigned candidates:{0u,3631873u,capacity}) {
+    for(unsigned candidates:{0u,1u,257u,3631873u,capacity}) {
         static_cast<unsigned*>(counts.contents)[0]=candidates;
         measure(false);measure(true);
         double oldValues[3],newValues[3];
@@ -15025,7 +15054,7 @@ void benchmarkTiledDeformableCompaction(
         }
         std::cout<<"deformable_compaction_benchmark={\"candidates\":"<<candidates
             <<",\"capacity\":"<<capacity<<",\"pairs\":3,\"repeats_per_sample\":"<<repeats
-            <<",\"scope\":\"GPU_compaction_only_all_three_tiled_passes_and_barriers\",\"serial_ms\":[";
+            <<",\"scope\":\"GPU_compaction_only_all_four_active_dispatch_passes_and_barriers\",\"serial_ms\":[";
         for(unsigned i=0u;i<3u;++i)std::cout<<(i?",":"")<<oldValues[i];
         std::cout<<"],\"tiled_ms\":[";
         for(unsigned i=0u;i<3u;++i)std::cout<<(i?",":"")<<newValues[i];

@@ -1,0 +1,11 @@
+{
+  "full_stdout": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/active-compaction-native-001/install-motion.stdout.log",
+    "sha256": "f76083316fa4f7e86288d3ba2eb4c95080c4816f8aeed475ba53089f6082639a",
+    "bytes": 839836715
+  },
+  "endpoint_node_rows": 318974,
+  "endpoint_node_rows_sha256": "7485b2f502cd096b137ee5b6aca145f0e0331122eb354461edbbeb5802e1f120",
+  "endpoint_tet_rows": 1521713,
+  "endpoint_tet_rows_sha256": "d677bca6ce68c76b054c973b3c329eab6e85b80fc7748b2a5dbe2399920f52e5"
+}
