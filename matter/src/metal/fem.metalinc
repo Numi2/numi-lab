@@ -5395,21 +5395,34 @@ kernel void nm_fem_parallel_backtracking_tiles(
         firstBad == simdFirstBad ? firstBadTrialJ : 0.0f);
     const float simdCurrentJ = simd_sum(
         firstBad == simdFirstBad ? firstBadCurrentJ : 0.0f);
-    if ((lane & 31u) == 0u) {
-        const uint simdgroup = lane / 32u;
-        const uint partialIndex =
-            ((((environment * dispatch.objectCount + objectIndex) *
-                NM_MIXED_LINE_SEARCH_MAX_STEPS + trial) *
-                maximumTiles + tile) * 8u + simdgroup);
-        // Valid SIMD groups store minimum J in x and zero reason in w.
-        // Invalid groups bit-cast the first bad global tet into x and store
-        // that tet's trial/current J plus reason in y/z/w.
-        const bool hasBad = simdFirstBad != 0xffffffffu;
-        partials[partialIndex] = hasBad
-            ? float4(as_type<float>(simdFirstBad), simdTrialJ, simdCurrentJ,
-                     float(simdReason))
-            : float4(simdMinimum, 0.0f, 0.0f, 0.0f);
+    // Eight SIMD groups share one deterministic tile record. No force or
+    // material value is summed here: only minimum J and the first bad tet
+    // are selected. This removes8x redundant global scratch/traffic.
+    threadgroup float4 tileRecords[8];
+    if ((lane & 31u)==0u) {
+        const bool hasBad=simdFirstBad!=0xffffffffu;
+        tileRecords[lane/32u]=hasBad
+            ? float4(as_type<float>(simdFirstBad),simdTrialJ,simdCurrentJ,float(simdReason))
+            : float4(simdMinimum,0.0f,0.0f,0.0f);
     }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane<32u) {
+        const float4 record=lane<8u ? tileRecords[lane] : float4(INFINITY,0.0f,0.0f,0.0f);
+        const uint bad=record.w!=0.0f ? as_type<uint>(record.x) : 0xffffffffu;
+        const uint first=simd_min(bad);
+        const float minJ=simd_min(record.w==0.0f ? record.x : INFINITY);
+        const float trialJ=simd_sum(bad==first ? record.y : 0.0f);
+        const float currentJ=simd_sum(bad==first ? record.z : 0.0f);
+        const float reason=simd_sum(bad==first ? record.w : 0.0f);
+        if (lane==0u) {
+            const uint index=((environment*dispatch.objectCount+objectIndex)*
+                NM_MIXED_LINE_SEARCH_MAX_STEPS+trial)*maximumTiles+tile;
+            partials[index]=first!=0xffffffffu
+                ? float4(as_type<float>(first),trialJ,currentJ,reason)
+                : float4(minJ,0.0f,0.0f,0.0f);
+        }
+    }
+
 }
 
 kernel void nm_fem_parallel_backtracking_finalize(
@@ -5456,13 +5469,11 @@ kernel void nm_fem_parallel_backtracking_finalize(
         float laneBadTrialJ = 0.0f;
         float laneBadCurrentJ = 0.0f;
         float laneBadReason = 0.0f;
-        const uint partialCount = tileCount * 8u;
+        const uint partialCount = tileCount;
         for (uint slot = lane; slot < partialCount; slot += 32u) {
-            const uint tile = slot / 8u;
-            const uint simdgroup = slot - tile * 8u;
+            const uint tile = slot;
             const uint partialIndex =
-                ((((group * NM_MIXED_LINE_SEARCH_MAX_STEPS + trial) *
-                    maximumTiles + tile) * 8u) + simdgroup);
+                (group*NM_MIXED_LINE_SEARCH_MAX_STEPS+trial)*maximumTiles+tile;
             const float4 partial = partials[partialIndex];
             if (partial.w != 0.0f) {
                 const uint partialFirstBad = as_type<uint>(partial.x);

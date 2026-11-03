@@ -1,0 +1,7 @@
+[0/2] Re-checking globbed directories...
+[1/7] Building OBJCXX object matter/CMakeFiles/numi-matter-vascular-check.dir/tools/vascular_check.mm.o
+[2/7] Building OBJCXX object matter/CMakeFiles/numi-matter-vascular-cavity-check.dir/tools/vascular_cavity_check.mm.o
+[3/7] Building OBJCXX object matter/CMakeFiles/numi-matter-fem-reference-check.dir/tools/fem_reference_check.mm.o
+[4/7] Linking CXX executable matter/numi-matter-vascular-check
+[5/7] Linking CXX executable matter/numi-matter-vascular-cavity-check
+[6/7] Linking CXX executable matter/numi-matter-fem-reference-check

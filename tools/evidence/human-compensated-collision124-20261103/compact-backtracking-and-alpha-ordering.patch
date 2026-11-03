@@ -1,0 +1,205 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -13469,7 +13469,7 @@
+                 std::uint64_t(world.dispatch.objectCount);
+             bool partialCountValid = partialCount != 0u;
+             const std::uint64_t factors[] = {
+-                NM_MIXED_LINE_SEARCH_MAX_STEPS, maximumTiles, 8u
++                NM_MIXED_LINE_SEARCH_MAX_STEPS, maximumTiles
+             };
+             for (const std::uint64_t factor : factors) {
+                 if (factor != 0u &&
+@@ -47283,6 +47283,8 @@
+                     [encoder setBuffer:state.femLineSearch
+                                  offset:0u atIndex:1u];
+                 });
++            // FEM geometry bounds must be visible to every contact tile.
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+             // The next limiter consumes the synchronized object alpha in this
+             // same encoder. Diagnostic capture may split encoders, but the
+             // uninstrumented path must establish this dependency explicitly.
+@@ -47636,6 +47638,10 @@
+                         length:sizeof(state.femDeformableLimitTileCount) atIndex:4u];
+                 });
+             }
++            // Common alpha is consumed by the rigid limiter even when all
++            // diagnostic encoders are disabled. Do not depend on a diagnostic
++            // encoder boundary to make either serial or tiled output visible.
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+             if (femDeformableContactCaptureSelected &&
+                 deformableLimitTraceRecords != nil &&
+                 deformableLimitTraceSlots != 0u) {
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -5395,21 +5395,34 @@
+         firstBad == simdFirstBad ? firstBadTrialJ : 0.0f);
+     const float simdCurrentJ = simd_sum(
+         firstBad == simdFirstBad ? firstBadCurrentJ : 0.0f);
+-    if ((lane & 31u) == 0u) {
+-        const uint simdgroup = lane / 32u;
+-        const uint partialIndex =
+-            ((((environment * dispatch.objectCount + objectIndex) *
+-                NM_MIXED_LINE_SEARCH_MAX_STEPS + trial) *
+-                maximumTiles + tile) * 8u + simdgroup);
+-        // Valid SIMD groups store minimum J in x and zero reason in w.
+-        // Invalid groups bit-cast the first bad global tet into x and store
+-        // that tet's trial/current J plus reason in y/z/w.
+-        const bool hasBad = simdFirstBad != 0xffffffffu;
+-        partials[partialIndex] = hasBad
+-            ? float4(as_type<float>(simdFirstBad), simdTrialJ, simdCurrentJ,
+-                     float(simdReason))
+-            : float4(simdMinimum, 0.0f, 0.0f, 0.0f);
+-    }
++    // Eight SIMD groups share one deterministic tile record. No force or
++    // material value is summed here: only minimum J and the first bad tet
++    // are selected. This removes8x redundant global scratch/traffic.
++    threadgroup float4 tileRecords[8];
++    if ((lane & 31u)==0u) {
++        const bool hasBad=simdFirstBad!=0xffffffffu;
++        tileRecords[lane/32u]=hasBad
++            ? float4(as_type<float>(simdFirstBad),simdTrialJ,simdCurrentJ,float(simdReason))
++            : float4(simdMinimum,0.0f,0.0f,0.0f);
++    }
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    if (lane<32u) {
++        const float4 record=lane<8u ? tileRecords[lane] : float4(INFINITY,0.0f,0.0f,0.0f);
++        const uint bad=record.w!=0.0f ? as_type<uint>(record.x) : 0xffffffffu;
++        const uint first=simd_min(bad);
++        const float minJ=simd_min(record.w==0.0f ? record.x : INFINITY);
++        const float trialJ=simd_sum(bad==first ? record.y : 0.0f);
++        const float currentJ=simd_sum(bad==first ? record.z : 0.0f);
++        const float reason=simd_sum(bad==first ? record.w : 0.0f);
++        if (lane==0u) {
++            const uint index=((environment*dispatch.objectCount+objectIndex)*
++                NM_MIXED_LINE_SEARCH_MAX_STEPS+trial)*maximumTiles+tile;
++            partials[index]=first!=0xffffffffu
++                ? float4(as_type<float>(first),trialJ,currentJ,reason)
++                : float4(minJ,0.0f,0.0f,0.0f);
++        }
++    }
++
+ }
+ 
+ kernel void nm_fem_parallel_backtracking_finalize(
+@@ -5456,13 +5469,11 @@
+         float laneBadTrialJ = 0.0f;
+         float laneBadCurrentJ = 0.0f;
+         float laneBadReason = 0.0f;
+-        const uint partialCount = tileCount * 8u;
++        const uint partialCount = tileCount;
+         for (uint slot = lane; slot < partialCount; slot += 32u) {
+-            const uint tile = slot / 8u;
+-            const uint simdgroup = slot - tile * 8u;
++            const uint tile = slot;
+             const uint partialIndex =
+-                ((((group * NM_MIXED_LINE_SEARCH_MAX_STEPS + trial) *
+-                    maximumTiles + tile) * 8u) + simdgroup);
++                (group*NM_MIXED_LINE_SEARCH_MAX_STEPS+trial)*maximumTiles+tile;
+             const float4 partial = partials[partialIndex];
+             if (partial.w != 0.0f) {
+                 const uint partialFirstBad = as_type<uint>(partial.x);
+--- a/matter/tools/fgmres_true_residual_native_check.mm
++++ b/matter/tools/fgmres_true_residual_native_check.mm
+@@ -13991,13 +13991,35 @@
+             {26u, collisionMode}};
+         if (tiled) {
+             bindings.push_back({27u,tileCountBuffer});bindings.push_back({28u,tileBounds});
+-            dispatch(device,queue,pipeline(device,library,
+-                "numi_matter_metal::nm_contact_limit_deformable_line_search_tiled"),
+-                bindings,tileCount,32u);
+-            dispatch(device,queue,pipeline(device,library,
+-                "numi_matter_metal::nm_contact_finish_deformable_line_search_tiled"),{
+-                {0u,makeBuffer(device,std::vector<NMMatterDispatchGPU>{d})},
+-                {1u,tileBounds},{2u,line},{3u,status},{4u,tileCountBuffer}},1u,32u);
++            auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];
++            require(command!=nil && encoder!=nil,"cannot allocate fused contact limiter encoder");
++            [encoder setComputePipelineState:pipeline(device,library,
++                "numi_matter_metal::nm_contact_limit_deformable_line_search_tiled")];
++            for (const auto& [index,buffer]:bindings)
++                [encoder setBuffer:buffer offset:0u atIndex:index];
++            [encoder dispatchThreadgroups:MTLSizeMake(tileCount,1u,1u)
++                threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            [encoder setComputePipelineState:pipeline(device,library,
++                "numi_matter_metal::nm_contact_finish_deformable_line_search_tiled")];
++            auto dispatchBuffer=makeBuffer(device,std::vector<NMMatterDispatchGPU>{d});
++            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
++            [encoder setBuffer:tileBounds offset:0u atIndex:1u];
++            [encoder setBuffer:line offset:0u atIndex:2u];
++            [encoder setBuffer:status offset:0u atIndex:3u];
++            [encoder setBuffer:tileCountBuffer offset:0u atIndex:4u];
++            [encoder dispatchThreadgroups:MTLSizeMake(1u,1u,1u)
++                threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            [encoder setComputePipelineState:pipeline(device,library,
++                "numi_matter_metal::nm_fem_synchronize_environment_line_search")];
++            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
++            [encoder setBuffer:line offset:0u atIndex:1u];
++            [encoder dispatchThreadgroups:MTLSizeMake(1u,1u,1u)
++                threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
++            [encoder endEncoding];[command commit];[command waitUntilCompleted];
++            require(command.status==MTLCommandBufferStatusCompleted,
++                "fused producer/reduction/alpha consumer failed");
+             require(readBuffer<float>(tileBounds,tileCount+1u)[tileCount]==-19.0f,
+                 "tiled contact reduction wrote beyond tile capacity");
+         } else dispatch(device,queue,limiter,bindings,1u,32u);
+--- a/matter/tools/fem_reference_check.mm
++++ b/matter/tools/fem_reference_check.mm
+@@ -200,9 +200,12 @@
+     const auto skippedTetTrialsBuffer=buffer(d.device,skippedTetTrials);
+     const std::uint32_t maximumTiles =
+         (elementCount + 255u) / 256u;
+-    const auto parallelPartialsBuffer=buffer(
+-        d.device,std::vector<nm_float4>(
+-            std::size_t(NM_MIXED_LINE_SEARCH_MAX_STEPS) * maximumTiles * 8u));
++    const std::size_t partialCount =
++        std::size_t(NM_MIXED_LINE_SEARCH_MAX_STEPS) * maximumTiles;
++    std::vector<nm_float4> compactPartials(partialCount + 4u);
++    for (std::size_t i = partialCount; i < compactPartials.size(); ++i)
++        compactPartials[i] = {777.0f, 778.0f, 779.0f, 780.0f};
++    const auto parallelPartialsBuffer=buffer(d.device, compactPartials);
+     const auto parallelAcceptedBuffer=buffer(
+         d.device,std::vector<std::uint32_t>(1u,0u));
+     const auto parallelIndirectBuffer=buffer(
+@@ -331,6 +334,12 @@
+     [encoder dispatchThreadgroups:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];
+     [encoder endEncoding];[command commit];[command waitUntilCompleted];
+     need(command.status==MTLCommandBufferStatusCompleted,"FEM backtracking command failed");
++    const auto* compactWords =
++        static_cast<const nm_float4*>(parallelPartialsBuffer.contents);
++    for (std::size_t i = partialCount; i < compactPartials.size(); ++i)
++        need(compactWords[i].x == 777.0f && compactWords[i].y == 778.0f &&
++            compactWords[i].z == 779.0f && compactWords[i].w == 780.0f,
++            "compact backtracking tile scratch overflow");
+     const auto result=*static_cast<const nm_float4*>(lineSearchBuffer.contents);
+     const auto matterStatus=*static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
+     const auto skipped=*static_cast<const std::uint32_t*>(skippedTetTrialsBuffer.contents);
+@@ -533,9 +542,12 @@
+     const auto acceptedMaterialStateBuffer =
+         buffer(d.device, std::vector<float>{0.0f});
+     const unsigned maximumTiles=(dispatch.tetrahedronCount+255u)/256u;
+-    const auto parallelPartialsBuffer=buffer(
+-        d.device,std::vector<nm_float4>(
+-            std::size_t(NM_MIXED_LINE_SEARCH_MAX_STEPS) * maximumTiles * 8u));
++    const std::size_t partialCount =
++        std::size_t(NM_MIXED_LINE_SEARCH_MAX_STEPS) * maximumTiles;
++    std::vector<nm_float4> compactPartials(partialCount + 4u);
++    for (std::size_t i = partialCount; i < compactPartials.size(); ++i)
++        compactPartials[i] = {777.0f, 778.0f, 779.0f, 780.0f};
++    const auto parallelPartialsBuffer=buffer(d.device, compactPartials);
+     const auto parallelAcceptedBuffer=buffer(
+         d.device,std::vector<std::uint32_t>(1u,0u));
+     const auto parallelIndirectBuffer=buffer(
+@@ -668,6 +680,12 @@
+     [command waitUntilCompleted];
+     need(command.status == MTLCommandBufferStatusCompleted,
+         "constitutive stress line-search command failed");
++    const auto* compactWords =
++        static_cast<const nm_float4*>(parallelPartialsBuffer.contents);
++    for (std::size_t i = partialCount; i < compactPartials.size(); ++i)
++        need(compactWords[i].x == 777.0f && compactWords[i].y == 778.0f &&
++            compactWords[i].z == 779.0f && compactWords[i].w == 780.0f,
++            "compact constitutive backtracking tile scratch overflow");
+     const auto result =
+         *static_cast<const nm_float4*>(lineSearchBuffer.contents);
+     const auto matterStatus =

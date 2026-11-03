@@ -1,0 +1,338 @@
+{
+  "tiled-control": {
+    "matter_pre": {
+      "total_s": 0.009381917,
+      "max_s": 0.009381917,
+      "count": 1,
+      "first3_s": [
+        0.009381917
+      ]
+    },
+    "brain_advance": {
+      "total_s": 5.625e-06,
+      "max_s": 5.625e-06,
+      "count": 1,
+      "first3_s": [
+        5.625e-06
+      ]
+    },
+    "respiratory_mechanics": {
+      "total_s": 0.0021025410000000003,
+      "max_s": 0.0021025410000000003,
+      "count": 1,
+      "first3_s": [
+        0.0021025410000000003
+      ]
+    },
+    "matter_after_frame_begin": {
+      "total_s": 0.000795625,
+      "max_s": 0.000795625,
+      "count": 1,
+      "first3_s": [
+        0.000795625
+      ]
+    },
+    "matter_newton_assembly": {
+      "total_s": 1.240806418,
+      "max_s": 0.24040645800000002,
+      "count": 16,
+      "first3_s": [
+        0.24040645800000002,
+        0.23908320800000002,
+        0.218289209
+      ]
+    },
+    "matter_newton_linear": {
+      "total_s": 9.367220666,
+      "max_s": 0.9242397920000001,
+      "count": 16,
+      "first3_s": [
+        0.9242397920000001,
+        0.922328,
+        0.9113133750000001
+      ]
+    },
+    "matter_newton_globalization": {
+      "total_s": 24.704432082000004,
+      "max_s": 8.310279125000001,
+      "count": 16,
+      "first3_s": [
+        8.073562625000001,
+        8.306855708,
+        8.310279125000001
+      ]
+    },
+    "respiratory_gas_exchange": {
+      "total_s": 0.00092825,
+      "max_s": 0.00092825,
+      "count": 1,
+      "first3_s": [
+        0.00092825
+      ]
+    },
+    "matter_after_candidate_ready": {
+      "total_s": 1.6702587500000001,
+      "max_s": 1.6702587500000001,
+      "count": 1,
+      "first3_s": [
+        1.6702587500000001
+      ]
+    },
+    "matter_after_microstep": {
+      "total_s": 0.007773417,
+      "max_s": 0.007773417,
+      "count": 1,
+      "first3_s": [
+        0.007773417
+      ]
+    },
+    "matter_post": {
+      "total_s": 0.007751583,
+      "max_s": 0.007751583,
+      "count": 1,
+      "first3_s": [
+        0.007751583
+      ]
+    },
+    "brain_resolve": {
+      "total_s": 1.125e-06,
+      "max_s": 1.125e-06,
+      "count": 1,
+      "first3_s": [
+        1.125e-06
+      ]
+    },
+    "respiratory_resolve": {
+      "total_s": 1.0840000000000001e-06,
+      "max_s": 1.0840000000000001e-06,
+      "count": 1,
+      "first3_s": [
+        1.0840000000000001e-06
+      ]
+    }
+  },
+  "tiled-run": {
+    "matter_pre": {
+      "total_s": 0.00908825,
+      "max_s": 0.00908825,
+      "count": 1,
+      "first3_s": [
+        0.00908825
+      ]
+    },
+    "brain_advance": {
+      "total_s": 9.108300000000001e-05,
+      "max_s": 9.108300000000001e-05,
+      "count": 1,
+      "first3_s": [
+        9.108300000000001e-05
+      ]
+    },
+    "respiratory_mechanics": {
+      "total_s": 0.006087791,
+      "max_s": 0.006087791,
+      "count": 1,
+      "first3_s": [
+        0.006087791
+      ]
+    },
+    "matter_after_frame_begin": {
+      "total_s": 0.0007731670000000001,
+      "max_s": 0.0007731670000000001,
+      "count": 1,
+      "first3_s": [
+        0.0007731670000000001
+      ]
+    },
+    "matter_newton_assembly": {
+      "total_s": 1.2387536670000001,
+      "max_s": 0.23924979200000002,
+      "count": 16,
+      "first3_s": [
+        0.23900533300000001,
+        0.23924979200000002,
+        0.217181333
+      ]
+    },
+    "matter_newton_linear": {
+      "total_s": 9.376932333000001,
+      "max_s": 0.9297546250000001,
+      "count": 16,
+      "first3_s": [
+        0.9222372090000001,
+        0.9297546250000001,
+        0.9157762920000001
+      ]
+    },
+    "matter_newton_globalization": {
+      "total_s": 13.517413958,
+      "max_s": 4.523258333,
+      "count": 16,
+      "first3_s": [
+        4.457571708000001,
+        4.523258333,
+        4.5225565
+      ]
+    },
+    "respiratory_gas_exchange": {
+      "total_s": 0.000928,
+      "max_s": 0.000928,
+      "count": 1,
+      "first3_s": [
+        0.000928
+      ]
+    },
+    "matter_after_candidate_ready": {
+      "total_s": 1.67145725,
+      "max_s": 1.67145725,
+      "count": 1,
+      "first3_s": [
+        1.67145725
+      ]
+    },
+    "matter_after_microstep": {
+      "total_s": 0.007760083,
+      "max_s": 0.007760083,
+      "count": 1,
+      "first3_s": [
+        0.007760083
+      ]
+    },
+    "matter_post": {
+      "total_s": 0.007739,
+      "max_s": 0.007739,
+      "count": 1,
+      "first3_s": [
+        0.007739
+      ]
+    },
+    "brain_resolve": {
+      "total_s": 1.25e-06,
+      "max_s": 1.25e-06,
+      "count": 1,
+      "first3_s": [
+        1.25e-06
+      ]
+    },
+    "respiratory_resolve": {
+      "total_s": 1.0420000000000001e-06,
+      "max_s": 1.0420000000000001e-06,
+      "count": 1,
+      "first3_s": [
+        1.0420000000000001e-06
+      ]
+    }
+  },
+  "parallel-backtracking-control": {
+    "matter_pre": {
+      "total_s": 0.009177083,
+      "max_s": 0.009177083,
+      "count": 1,
+      "first3_s": [
+        0.009177083
+      ]
+    },
+    "brain_advance": {
+      "total_s": 0.000101667,
+      "max_s": 0.000101667,
+      "count": 1,
+      "first3_s": [
+        0.000101667
+      ]
+    },
+    "respiratory_mechanics": {
+      "total_s": 0.005981375000000001,
+      "max_s": 0.005981375000000001,
+      "count": 1,
+      "first3_s": [
+        0.005981375000000001
+      ]
+    },
+    "matter_after_frame_begin": {
+      "total_s": 0.0007780420000000001,
+      "max_s": 0.0007780420000000001,
+      "count": 1,
+      "first3_s": [
+        0.0007780420000000001
+      ]
+    },
+    "matter_newton_assembly": {
+      "total_s": 1.196177083,
+      "max_s": 0.220011375,
+      "count": 16,
+      "first3_s": [
+        0.220011375,
+        0.218949584,
+        0.21829225000000002
+      ]
+    },
+    "matter_newton_linear": {
+      "total_s": 9.354156084000001,
+      "max_s": 0.9355791250000001,
+      "count": 16,
+      "first3_s": [
+        0.9355791250000001,
+        0.9170743330000001,
+        0.9214545000000001
+      ]
+    },
+    "matter_newton_globalization": {
+      "total_s": 0.623419708,
+      "max_s": 0.19898537500000002,
+      "count": 16,
+      "first3_s": [
+        0.196924958,
+        0.19810570800000002,
+        0.19898537500000002
+      ]
+    },
+    "respiratory_gas_exchange": {
+      "total_s": 0.0009262920000000001,
+      "max_s": 0.0009262920000000001,
+      "count": 1,
+      "first3_s": [
+        0.0009262920000000001
+      ]
+    },
+    "matter_after_candidate_ready": {
+      "total_s": 1.671229416,
+      "max_s": 1.671229416,
+      "count": 1,
+      "first3_s": [
+        1.671229416
+      ]
+    },
+    "matter_after_microstep": {
+      "total_s": 0.0078099580000000005,
+      "max_s": 0.0078099580000000005,
+      "count": 1,
+      "first3_s": [
+        0.0078099580000000005
+      ]
+    },
+    "matter_post": {
+      "total_s": 0.007767834,
+      "max_s": 0.007767834,
+      "count": 1,
+      "first3_s": [
+        0.007767834
+      ]
+    },
+    "brain_resolve": {
+      "total_s": 1.333e-06,
+      "max_s": 1.333e-06,
+      "count": 1,
+      "first3_s": [
+        1.333e-06
+      ]
+    },
+    "respiratory_resolve": {
+      "total_s": 1.0840000000000001e-06,
+      "max_s": 1.0840000000000001e-06,
+      "count": 1,
+      "first3_s": [
+        1.0840000000000001e-06
+      ]
+    }
+  }
+}

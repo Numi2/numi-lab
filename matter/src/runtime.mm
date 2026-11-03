@@ -13469,7 +13469,7 @@ RuntimeDiagnostics Runtime::initialize(
                 std::uint64_t(world.dispatch.objectCount);
             bool partialCountValid = partialCount != 0u;
             const std::uint64_t factors[] = {
-                NM_MIXED_LINE_SEARCH_MAX_STEPS, maximumTiles, 8u
+                NM_MIXED_LINE_SEARCH_MAX_STEPS, maximumTiles
             };
             for (const std::uint64_t factor : factors) {
                 if (factor != 0u &&
@@ -47283,6 +47283,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femLineSearch
                                  offset:0u atIndex:1u];
                 });
+            // FEM geometry bounds must be visible to every contact tile.
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             // The next limiter consumes the synchronized object alpha in this
             // same encoder. Diagnostic capture may split encoders, but the
             // uninstrumented path must establish this dependency explicitly.
@@ -47636,6 +47638,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         length:sizeof(state.femDeformableLimitTileCount) atIndex:4u];
                 });
             }
+            // Common alpha is consumed by the rigid limiter even when all
+            // diagnostic encoders are disabled. Do not depend on a diagnostic
+            // encoder boundary to make either serial or tiled output visible.
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             if (femDeformableContactCaptureSelected &&
                 deformableLimitTraceRecords != nil &&
                 deformableLimitTraceSlots != 0u) {

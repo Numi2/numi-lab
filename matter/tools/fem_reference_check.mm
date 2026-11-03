@@ -200,9 +200,12 @@ BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixed
     const auto skippedTetTrialsBuffer=buffer(d.device,skippedTetTrials);
     const std::uint32_t maximumTiles =
         (elementCount + 255u) / 256u;
-    const auto parallelPartialsBuffer=buffer(
-        d.device,std::vector<nm_float4>(
-            std::size_t(NM_MIXED_LINE_SEARCH_MAX_STEPS) * maximumTiles * 8u));
+    const std::size_t partialCount =
+        std::size_t(NM_MIXED_LINE_SEARCH_MAX_STEPS) * maximumTiles;
+    std::vector<nm_float4> compactPartials(partialCount + 4u);
+    for (std::size_t i = partialCount; i < compactPartials.size(); ++i)
+        compactPartials[i] = {777.0f, 778.0f, 779.0f, 780.0f};
+    const auto parallelPartialsBuffer=buffer(d.device, compactPartials);
     const auto parallelAcceptedBuffer=buffer(
         d.device,std::vector<std::uint32_t>(1u,0u));
     const auto parallelIndirectBuffer=buffer(
@@ -331,6 +334,12 @@ BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixed
     [encoder dispatchThreadgroups:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];
     [encoder endEncoding];[command commit];[command waitUntilCompleted];
     need(command.status==MTLCommandBufferStatusCompleted,"FEM backtracking command failed");
+    const auto* compactWords =
+        static_cast<const nm_float4*>(parallelPartialsBuffer.contents);
+    for (std::size_t i = partialCount; i < compactPartials.size(); ++i)
+        need(compactWords[i].x == 777.0f && compactWords[i].y == 778.0f &&
+            compactWords[i].z == 779.0f && compactWords[i].w == 780.0f,
+            "compact backtracking tile scratch overflow");
     const auto result=*static_cast<const nm_float4*>(lineSearchBuffer.contents);
     const auto matterStatus=*static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
     const auto skipped=*static_cast<const std::uint32_t*>(skippedTetTrialsBuffer.contents);
@@ -533,9 +542,12 @@ BacktrackingResult selectConstitutiveStressBacktracking(
     const auto acceptedMaterialStateBuffer =
         buffer(d.device, std::vector<float>{0.0f});
     const unsigned maximumTiles=(dispatch.tetrahedronCount+255u)/256u;
-    const auto parallelPartialsBuffer=buffer(
-        d.device,std::vector<nm_float4>(
-            std::size_t(NM_MIXED_LINE_SEARCH_MAX_STEPS) * maximumTiles * 8u));
+    const std::size_t partialCount =
+        std::size_t(NM_MIXED_LINE_SEARCH_MAX_STEPS) * maximumTiles;
+    std::vector<nm_float4> compactPartials(partialCount + 4u);
+    for (std::size_t i = partialCount; i < compactPartials.size(); ++i)
+        compactPartials[i] = {777.0f, 778.0f, 779.0f, 780.0f};
+    const auto parallelPartialsBuffer=buffer(d.device, compactPartials);
     const auto parallelAcceptedBuffer=buffer(
         d.device,std::vector<std::uint32_t>(1u,0u));
     const auto parallelIndirectBuffer=buffer(
@@ -668,6 +680,12 @@ BacktrackingResult selectConstitutiveStressBacktracking(
     [command waitUntilCompleted];
     need(command.status == MTLCommandBufferStatusCompleted,
         "constitutive stress line-search command failed");
+    const auto* compactWords =
+        static_cast<const nm_float4*>(parallelPartialsBuffer.contents);
+    for (std::size_t i = partialCount; i < compactPartials.size(); ++i)
+        need(compactWords[i].x == 777.0f && compactWords[i].y == 778.0f &&
+            compactWords[i].z == 779.0f && compactWords[i].w == 780.0f,
+            "compact constitutive backtracking tile scratch overflow");
     const auto result =
         *static_cast<const nm_float4*>(lineSearchBuffer.contents);
     const auto matterStatus =

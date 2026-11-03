@@ -13991,13 +13991,35 @@ void checkReferenceContactArithmeticFrame(
             {26u, collisionMode}};
         if (tiled) {
             bindings.push_back({27u,tileCountBuffer});bindings.push_back({28u,tileBounds});
-            dispatch(device,queue,pipeline(device,library,
-                "numi_matter_metal::nm_contact_limit_deformable_line_search_tiled"),
-                bindings,tileCount,32u);
-            dispatch(device,queue,pipeline(device,library,
-                "numi_matter_metal::nm_contact_finish_deformable_line_search_tiled"),{
-                {0u,makeBuffer(device,std::vector<NMMatterDispatchGPU>{d})},
-                {1u,tileBounds},{2u,line},{3u,status},{4u,tileCountBuffer}},1u,32u);
+            auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];
+            require(command!=nil && encoder!=nil,"cannot allocate fused contact limiter encoder");
+            [encoder setComputePipelineState:pipeline(device,library,
+                "numi_matter_metal::nm_contact_limit_deformable_line_search_tiled")];
+            for (const auto& [index,buffer]:bindings)
+                [encoder setBuffer:buffer offset:0u atIndex:index];
+            [encoder dispatchThreadgroups:MTLSizeMake(tileCount,1u,1u)
+                threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            [encoder setComputePipelineState:pipeline(device,library,
+                "numi_matter_metal::nm_contact_finish_deformable_line_search_tiled")];
+            auto dispatchBuffer=makeBuffer(device,std::vector<NMMatterDispatchGPU>{d});
+            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:tileBounds offset:0u atIndex:1u];
+            [encoder setBuffer:line offset:0u atIndex:2u];
+            [encoder setBuffer:status offset:0u atIndex:3u];
+            [encoder setBuffer:tileCountBuffer offset:0u atIndex:4u];
+            [encoder dispatchThreadgroups:MTLSizeMake(1u,1u,1u)
+                threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            [encoder setComputePipelineState:pipeline(device,library,
+                "numi_matter_metal::nm_fem_synchronize_environment_line_search")];
+            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:line offset:0u atIndex:1u];
+            [encoder dispatchThreadgroups:MTLSizeMake(1u,1u,1u)
+                threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+            [encoder endEncoding];[command commit];[command waitUntilCompleted];
+            require(command.status==MTLCommandBufferStatusCompleted,
+                "fused producer/reduction/alpha consumer failed");
             require(readBuffer<float>(tileBounds,tileCount+1u)[tileCount]==-19.0f,
                 "tiled contact reduction wrote beyond tile capacity");
         } else dispatch(device,queue,limiter,bindings,1u,32u);
