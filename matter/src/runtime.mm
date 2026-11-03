@@ -23982,6 +23982,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // callback writes <stem>.bin and <stem>.json with O_EXCL. This
             // path owns no production state and reserves no persistent arena.
             bool femCoupledCaptureRequested = false;
+            bool contactRHSWitnessCaptured=false;
+
             bool femCoupledCaptureConfigValid = true;
             bool femCoupledCaptureCaptured = false;
             bool femCoupledCaptureRHSReady = false;
@@ -30134,6 +30136,31 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:10u];
                     });
                 }
+                id<MTLBuffer> contactRHSWitness=nil;
+                const NSUInteger contactRHSBytes=femNodeTotal*sizeof(nm_float4);
+                const bool captureContactRHS=!contactRHSWitnessCaptured && !certify &&
+                    request.controlStep==0u && micro.solverIteration==0u && environments==1u &&
+                    std::getenv("NM_FEM_CONTACT_RHS_WITNESS")!=nullptr &&
+                    std::strcmp(std::getenv("NM_FEM_CONTACT_RHS_WITNESS"),"1")==0;
+                if(captureContactRHS) {
+                    if(contactRHSBytes==0u || contactRHSBytes>16u*1024u*1024u ||
+                       state.femResidual==nil || contactRHSBytes>state.femResidual.length) {
+                        diagnostics.message="contact RHS diagnostic exceeds bounded mechanical-node scope";
+                        return false;
+                    }
+                    contactRHSWitness=[state.device newBufferWithLength:2u*contactRHSBytes
+                        options:MTLResourceStorageModeShared];
+                    if(contactRHSWitness==nil) {
+                        diagnostics.message="failed to allocate bounded contact RHS diagnostic";return false;
+                    }
+                    [encoder endEncoding];encoder=nil;
+                    id<MTLBlitCommandEncoder> copy=[commandBuffer blitCommandEncoder];
+                    if(copy==nil) {diagnostics.message="failed to encode contact RHS diagnostic";return false;}
+                    [copy copyFromBuffer:state.femResidual sourceOffset:0u toBuffer:contactRHSWitness
+                        destinationOffset:0u size:contactRHSBytes];
+                    [copy endEncoding];encoder=[commandBuffer computeCommandEncoder];
+                    if(encoder==nil) {diagnostics.message="failed to resume contact RHS assembly";return false;}
+                }
                 dispatchThreads("nm_contact_accumulate_fem_residual", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.contactNodeIncidence offset:0u atIndex:1u];
@@ -30161,6 +30188,59 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                    offset:0u atIndex:4u];
                     [encoder setBuffer:state.femCandidate offset:0u atIndex:5u];
                 }, WorkDomain::femNodes);
+                if(contactRHSWitness!=nil) {
+                    [encoder endEncoding];encoder=nil;
+                    id<MTLBlitCommandEncoder> copy=[commandBuffer blitCommandEncoder];
+                    if(copy==nil) {diagnostics.message="failed to copy contact RHS diagnostic";return false;}
+                    [copy copyFromBuffer:state.femResidual sourceOffset:0u toBuffer:contactRHSWitness
+                        destinationOffset:contactRHSBytes size:contactRHSBytes];
+                    [copy endEncoding];
+                    const auto objects=state.objectLayout;
+                    const auto capturedNodeCount=femNodeTotal;
+                    [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                        if(completed.status!=MTLCommandBufferStatusCompleted)return;
+                        const auto* pre=static_cast<const nm_float4*>(contactRHSWitness.contents);
+                        const auto* post=pre+capturedNodeCount;
+                        const auto component=[](const nm_float4& v,unsigned a){return a==0u?v.x:(a==1u?v.y:v.z);};
+                        struct Row {double norm;std::uint32_t node;};
+                        std::vector<Row> rows;rows.reserve(capturedNodeCount);
+                        double pre2=0,post2=0,contact2=0;bool finite=true;
+                        for(std::uint32_t n=0;n<capturedNodeCount;++n) {
+                            double delta2=0;
+                            for(unsigned a=0;a<3u;++a) {
+                                const double p=component(pre[n],a),q=component(post[n],a),c=q-p;
+                                finite=finite&&std::isfinite(p)&&std::isfinite(q);
+                                pre2+=p*p;post2+=q*q;contact2+=c*c;delta2+=c*c;
+                            }
+                            rows.push_back({delta2,n});
+                        }
+                        const auto top=std::min<std::size_t>(24u,rows.size());
+                        std::partial_sort(rows.begin(),rows.begin()+top,rows.end(),
+                            [](const Row& a,const Row& b){return a.norm>b.norm||(a.norm==b.norm&&a.node<b.node);});
+                        std::ostringstream out;out<<std::setprecision(17)
+                            <<"fem_contact_rhs_witness={\"root\":0,\"iteration\":0,\"diagnostic_only\":true,"
+                            <<"\"node_count\":"<<capturedNodeCount<<",\"readback_bytes\":"<<2u*contactRHSBytes
+                            <<",\"finite\":"<<(finite?"true":"false")
+                            <<",\"pre_contact_xyz_l2\":"<<std::sqrt(pre2)
+                            <<",\"post_contact_xyz_l2\":"<<std::sqrt(post2)
+                            <<",\"contact_xyz_l2\":"<<std::sqrt(contact2)<<",\"top_contact_rows\":[";
+                        for(std::size_t k=0;k<top;++k) {
+                            if(k)out<<",";const auto n=rows[k].node;std::uint32_t owner=NM_INVALID_INDEX;
+                            for(std::uint32_t o=0;o<objects.size();++o)
+                                if(n>=objects[o].stateOffset&&n-objects[o].stateOffset<objects[o].stateCount)
+                                    {owner=o;break;}
+                            out<<"{\"node\":"<<n<<",\"object\":"<<owner<<",\"pre\":[";
+                            for(unsigned a=0;a<3u;++a){if(a)out<<",";out<<component(pre[n],a);}
+                            out<<"],\"post\":[";
+                            for(unsigned a=0;a<3u;++a){if(a)out<<",";out<<component(post[n],a);}
+                            out<<"]}";
+                        }
+                        out<<"]}\n";const auto text=out.str();std::fwrite(text.data(),1u,text.size(),stderr);
+                    }];
+                    contactRHSWitnessCaptured=true;
+                    encoder=[commandBuffer computeCommandEncoder];
+                    if(encoder==nil) {diagnostics.message="failed to resume after contact RHS diagnostic";return false;}
+                }
                 if (certify) {
                     // Publish contact as a separate support-reaction term.
                     // This is a read-only reduction of the exact primal
@@ -47428,19 +47508,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             const float alpha=std::exp2(-float(trial));
                             if (selected.x>0.0f && alpha<selected.x) break;
                             std::uint32_t firstBad=0xffffffffu; nm_float4 witness{};
+                            std::vector<std::uint32_t> tileWitnesses;
                             float minimumJ=INFINITY;
                             for (std::uint32_t tile=0u;tile<tiles;++tile) {
                                 const auto record=records[trial*maximumTiles+tile];
                                 if (record.w != 0.0f) {
                                     std::uint32_t index;std::memcpy(&index,&record.x,sizeof(index));
                                     if (index<firstBad) {firstBad=index;witness=record;}
+                                    tileWitnesses.push_back(index);
                                 } else minimumJ=std::min(minimumJ,record.x);
                             }
                             if (!first) line<<",";first=false;
                             line<<"{\"alpha\":"<<alpha<<",\"valid_tile_min_J\":";
                             if (std::isfinite(minimumJ)) line<<minimumJ;else line<<"null";
                             line<<",\"first_bad_tet\":"<<firstBad<<",\"trial_J\":"<<witness.y
-                                <<",\"current_J\":"<<witness.z<<",\"reason\":"<<witness.w<<"}";
+                                <<",\"current_J\":"<<witness.z<<",\"reason\":"<<witness.w
+                                <<",\"invalid_tiles\":"<<tileWitnesses.size()<<",\"tile_witness_tets\":[";
+                            for (std::size_t w=0;w<tileWitnesses.size();++w) {
+                                if(w)line<<",";line<<tileWitnesses[w];
+                            }
+                            line<<"],\"tile_witnesses_complete\":true}";
                         }
                         line<<"]}\n";const auto text=line.str();
                         std::fwrite(text.data(),1u,text.size(),stderr);

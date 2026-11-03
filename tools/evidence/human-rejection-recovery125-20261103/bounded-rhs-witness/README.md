@@ -1,0 +1,8 @@
+# Bounded production contact RHS attribution
+NM_FEM_CONTACT_RHS_WITNESS=1 snapshots the existing FEM mechanical residual immediately before and after the two production contact accumulation stages, for root zero / Newton zero / one environment. Combined readback is capped at 32 MiB. The completion callback reports norms and the 24 largest contact-delta rows. It does not compute forces, evolve state, or participate in acceptance. The existing tile diagnostic now retains one deterministic first failure per invalid tile, identifying simultaneous defects without another GPU geometry pass.
+
+The first full-scene diagnostic trial crashed in its completion callback: a node-count reference captured through an enclosing temporary C++ lambda outlived that lambda. The crash receipt is retained. The fix makes an explicit local value copy before creating the asynchronous block.
+
+The existing FEM reference checker adds --contact-rhs-only. Its one-environment fixture invokes the actual production callback, verifies the five-row witness, accepts its physical step, and compares all physical snapshot fields bitwise against a control with diagnostics disabled. The test passes. This coupon result does not qualify the Human scene.
+
+The prior full-Human experiment with the corrected row-scaling restart and tighter 0.01 maximum inner forcing attains initial linear residual 0.000173333232 from RHS 0.111071765, but still accepts ZERO physical steps and stalls nonlinearly at 0.1073194. Increasing linear accuracy did not resolve its geometry/globalization failure. The matched full-Human attribution replay is separately retained on Numi and remains a physical qualification gate.

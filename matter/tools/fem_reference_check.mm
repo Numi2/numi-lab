@@ -923,6 +923,32 @@ struct Run {
     }
 };
 bool physicalSame(const RuntimeStateSnapshot& a,const RuntimeStateSnapshot& b){return same(a.femNodes,b.femNodes)&&same(a.femFields,b.femFields)&&same(a.femMaterialState,b.femMaterialState)&&same(a.femTopologyTetrahedra,b.femTopologyTetrahedra)&&same(a.femTopologyNodes,b.femTopologyNodes)&&same(a.cohesiveFaces,b.cohesiveFaces)&&same(a.punctureChannels,b.punctureChannels)&&same(a.topologyStates,b.topologyStates)&&same(a.environmentParameters,b.environmentParameters)&&same(a.identification,b.identification);}
+void contactRHSWitnessCheck(Device& device,WorldSource authored) {
+    authored.environmentCount=1;
+    const auto execute=[&](bool capture) {
+        if(capture)setenv("NM_FEM_CONTACT_RHS_WITNESS","1",1);else unsetenv("NM_FEM_CONTACT_RHS_WITNESS");
+        Runtime runtime;RuntimeConfiguration c;c.metallib=NUMI_MATTER_METALLIB;
+        c.environmentCount=1;c.adaptiveTransfer=false;c.captureDiagnostics=true;
+        const auto initialized=runtime.initialize(cook(authored),c);need(initialized.encoded,initialized.message);
+        auto statuses=buffer(device.device,std::vector<MRMetalWorldStatusGPU>(1));
+        auto command=[device.queue commandBuffer];EncodeRequest request;
+        request.commandBuffer=(__bridge void*)command;request.environmentStatuses=(__bridge void*)statuses;
+        request.controlStep=0;request.physicsSubsteps=1;request.timestepSeconds=runtime.timestepSeconds();
+        request.runAdaptiveTransfer=false;request.phase=EncodePhase::preDynamics;
+        auto result=runtime.encode(request);need(result.encoded,result.message);
+        request.phase=EncodePhase::postCommit;result=runtime.encode(request);need(result.encoded,result.message);
+        [command commit];[command waitUntilCompleted];
+        need(command.status==MTLCommandBufferStatusCompleted,"contact RHS diagnostic command failed");
+        auto state=runtime.snapshot();need(state.available&&state.statuses[0].code==NM_STATUS_SUCCESS,
+            "contact RHS fixture did not accept its physical step");
+        return state;
+    };
+    const auto control=execute(false),captured=execute(true);
+    unsetenv("NM_FEM_CONTACT_RHS_WITNESS");
+    need(physicalSame(control,captured),"read-only RHS witness changed accepted physical state");
+    std::cout<<"contact_rhs_witness=PASS one_environment=true accepted_step_parity=bitwise callback_lifetime=exercised\n";
+}
+
 
 unsigned cpuCheckCount=0;
 void cpuChecks(const WorldSource& authored){
@@ -1289,11 +1315,12 @@ void integratedChecks(Device& device,const WorldSource& authored,unsigned steps,
 }
 } // namespace
 int main(int argc,char** argv){@autoreleasepool{try{
-    need((argc==2&&std::string(argv[1])=="--backtracking-only")||argc==3||(argc==4&&std::string(argv[3])=="--cpu-only"),"usage: fem-reference-check GUCCIONE.nmatter NEO.nmatter [--cpu-only] | --backtracking-only");
+    need((argc==2&&std::string(argv[1])=="--backtracking-only")||argc==3||(argc==4&&(std::string(argv[3])=="--cpu-only"||std::string(argv[3])=="--contact-rhs-only")),"usage: fem-reference-check GUCCIONE.nmatter NEO.nmatter [--cpu-only] | --backtracking-only");
     if(argc==2){Device device;backtrackingLaneReductionChecks(device);backtrackingConstitutiveValidityChecks(device);return 0;}
     auto a=parseMatterFile(argv[1]),b=parseMatterFile(argv[2]);need(a.succeeded()&&b.succeeded(),diagnostic(a.diagnostics)+diagnostic(b.diagnostics));
     set(a.material,"density",900);set(b.material,"density",1200); // synthetic fixture only
     const auto simple=source(a.material,b.material),combined=source(a.material,b.material,true);
+    if(argc==4&&std::string(argv[3])=="--contact-rhs-only"){Device device;contactRHSWitnessCheck(device,simple);return 0;}
     auto displacement=combined;displacement.objects[0].femReferenceDisplacementGradient=true;
     std::cout<<std::setprecision(17)<<"reference_abi="<<NM_MATTER_ABI_VERSION<<'\n';smallCellScaleChecks(combined);cpuChecks(simple);cpuChecks(combined);referenceDisplacementChecks(combined);thinSkewArithmeticChecks(combined);generalReferenceChecks(simple);generalReferenceChecks(combined);executableBoundaryChecks(simple);
     if(argc==4){std::cout<<"fem_reference_compiler_check=pass unloaded_reference_recovered=false anatomical_wall_qualified=false\n";return 0;}

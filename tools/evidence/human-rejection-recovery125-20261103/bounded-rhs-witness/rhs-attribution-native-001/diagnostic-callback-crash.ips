@@ -1,0 +1,214 @@
+{"app_name":"numi-human-native","timestamp":"2026-11-02 23:08:14.00 -0800","app_version":"","slice_uuid":"deb8a436-9a39-399c-be09-21d293c0c79b","build_version":"","platform":1,"share_with_app_devs":0,"is_first_party":1,"bug_type":"309","os_version":"macOS 27.0 (26A425)","roots_installed":0,"incident_id":"A2737F19-C0B3-4A38-8870-3D0B2C2713D7","name":"numi-human-native"}
+{
+  "uptime" : 27000,
+  "procRole" : "Unspecified",
+  "version" : 2,
+  "userID" : 501,
+  "deployVersion" : 210,
+  "modelCode" : "Mac18,5",
+  "coalitionID" : 8326,
+  "osVersion" : {
+    "train" : "macOS 27.0",
+    "build" : "26A425",
+    "releaseType" : "User"
+  },
+  "captureTime" : "2026-11-02 23:08:02.0976 -0800",
+  "codeSigningMonitor" : 2,
+  "incident" : "A2737F19-C0B3-4A38-8870-3D0B2C2713D7",
+  "pid" : 16063,
+  "translated" : false,
+  "cpuType" : "ARM-64",
+  "procLaunch" : "2026-11-02 23:04:07.4000 -0800",
+  "procStartAbsTime" : 649252094907,
+  "procExitAbsTime" : 654882926606,
+  "procName" : "numi-human-native",
+  "procPath" : "\/Users\/USER\/*\/numi-human-native",
+  "parentProc" : "Python",
+  "parentPid" : 16055,
+  "coalitionName" : "com.openssh.sshd.4C037D1A-1E5D-4D9C-B4CE-1BDCD9D87061",
+  "crashReporterKey" : "1E3041D6-00C2-DEF7-80F5-5D80B2D1EA2A",
+  "chargingStatus" : {"externalSourceConnected":true},
+  "developerMode" : 1,
+  "responsiblePid" : 16048,
+  "codeSigningID" : "numi-human-native",
+  "codeSigningTeamID" : "",
+  "codeSigningFlags" : 570556929,
+  "codeSigningValidationCategory" : 10,
+  "codeSigningTrustLevel" : 4294967295,
+  "codeSigningAuxiliaryInfo" : 0,
+  "instructionByteStream" : {"beforePC":"+qMAkQnkAG+7QwPR66cAbegPAP0I7XzTqQIIi+oTQPlIAQiLChEAkQ==","atPC":"AIVAvCEJQC0swCIeiwFmng3AIh6hOWwea\/lAkn8BE+vrp58arAFmng=="},
+  "bootSessionUUID" : "3BA2635E-7506-4552-8A6B-FE2258FDE6C1",
+  "sip" : "enabled",
+  "vmRegionInfo" : "0x17f6266900 is in 0x1000000000-0x7000000000;  bytes after start: 34194483456  bytes before end: 378122376959\n      REGION TYPE                    START - END         [ VSIZE] PRT\/MAX SHRMOD  REGION DETAIL\n      Guard                       fc0000000-1000000000   [  1.0G] ---\/--- SM=NUL  \n--->  Guard                      1000000000-7000000000   [384.0G] ---\/--- SM=NUL  \n      GAP OF 0x66e000000 BYTES\n      Malloc Small               766e000000-766e400000   [ 4096K] rw-\/rwx SM=PRV  ",
+  "exception" : {"codes":"0x0000000000000002, 0x00000017f6266900","rawCodes":[2,102913960192],"type":"EXC_BAD_ACCESS","signal":"SIGBUS","subtype":"KERN_PROTECTION_FAILURE at 0x00000017f6266900"},
+  "termination" : {"flags":0,"code":10,"namespace":"SIGNAL","indicator":"Bus error: 10","byProc":"exc handler","byPid":16063},
+  "vmregioninfo" : "0x17f6266900 is in 0x1000000000-0x7000000000;  bytes after start: 34194483456  bytes before end: 378122376959\n      REGION TYPE                    START - END         [ VSIZE] PRT\/MAX SHRMOD  REGION DETAIL\n      Guard                       fc0000000-1000000000   [  1.0G] ---\/--- SM=NUL  \n--->  Guard                      1000000000-7000000000   [384.0G] ---\/--- SM=NUL  \n      GAP OF 0x66e000000 BYTES\n      Malloc Small               766e000000-766e400000   [ 4096K] rw-\/rwx SM=PRV  ",
+  "extMods" : {"caller":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"system":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"targeted":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"warnings":0},
+  "faultingThread" : 9,
+  "threads" : [{"id":229716,"threadState":{"x":[{"value":260},{"value":0},{"value":0},{"value":0},{"value":0},{"value":160},{"value":0},{"value":0},{"value":6095898936},{"value":0},{"value":0},{"value":2},{"value":2},{"value":0},{"value":0},{"value":0},{"value":305},{"value":8220706200},{"value":0},{"value":538443390936},{"value":538443391000},{"value":8190754720,"symbolLocation":224,"symbol":"_main_thread"},{"value":0},{"value":0},{"value":0},{"value":256},{"value":1},{"value":128},{"value":536228647424}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6482726696},"cpsr":{"value":1610612736},"fp":{"value":6095899056},"sp":{"value":6095898912},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482457632},"far":{"value":0}},"queue":"com.apple.main-thread","frames":[{"imageOffset":17440,"symbol":"__psynch_cvwait","symbolLocation":8,"imageIndex":3},{"imageOffset":28456,"symbol":"_pthread_cond_wait","symbolLocation":980,"imageIndex":4},{"imageOffset":145516,"symbol":"-[_MTLCommandBuffer waitUntilCompleted]","symbolLocation":80,"imageIndex":5},{"imageOffset":5238632,"symbol":"metalrobo::MetalArticulatedOperatorSubmission::wait(metalrobo::MetalArticulatedOperatorResult&)","symbolLocation":848,"imageIndex":1},{"imageOffset":5509528,"symbol":"metalrobo::MetalArticulatedOperatorContext::run(metalrobo::EngineModel const&, metalrobo::MetalArticulatedOperatorInput const&, metalrobo::MetalArticulatedOperatorResult&)","symbolLocation":364,"imageIndex":1},{"imageOffset":4568604,"symbol":"(anonymous namespace)::integratePersistentMetalHumanState(metalrobo::EngineModel const&, (anonymous namespace)::LoadedMuscles const&, (anonymous namespace)::LoadedSupportContacts const&, (anonymous namespace)::LoadedJointEqualities const&, double, unsigned int, double, std::__1::span<unsigned int const, 18446744073709551615ul>, bool, bool, bool, bool, (anonymous namespace)::HumanTendonContinuumTransaction*, std::__1::optional<std::__1::pair<unsigned int, double>>, bool, metalrobo::MetalNumiHumanTendonLoadProgram const*, bool, bool, unsigned int, bool, std::__1::optional<std::__1::pair<double, double>>, bool, bool, MRNumiHumanTimedRootForceGPU, std::__1::optional<std::__1::__fs::filesystem::path>, std::__1::optional<std::__1::__fs::filesystem::path>, std::__1::optional<std::__1::__fs::filesystem::path>, unsigned int, std::__1::span<float const, 18446744073709551615ul>, metalrobo::MetalNumanXTransactionProgram const*, std::__1::function<void (unsigned int, std::__1::span<float const, 18446744073709551615ul>, std::__1::span<float const, 18446744073709551615ul>, MRCompensatedRootTranslationGPU const&, metalrobo::MetalArticulatedOperatorResult const&, (anonymous namespace)::MetalMujocoVisualQueries const&)> const*, metalrobo::MetalNumiHumanSupportGeometryProgram const*, bool, bool, unsigned int, std::__1::span<MRNumiHumanHipCapsuleTermGPU const, 18446744073709551615ul>, numiHumanAcceptedQAuditWindow::Window, std::__1::optional<double>, bool, std::__1::span<unsigned int const, 18446744073709551615ul>, metalrobo::MetalNumiHumanTendonLoadProgram const*, std::__1::span<unsigned int const, 18446744073709551615ul>, std::__1::span<unsigned int const, 18446744073709551615ul>, std::__1::span<MRNumiHumanJointEqualityGPU const, 18446744073709551615ul>, unsigned int, unsigned int, std::__1::span<unsigned int const, 18446744073709551615ul>, std::__1::span<unsigned int const, 18446744073709551615ul>, std::__1::span<unsigned int const, 18446744073709551615ul>, std::__1::span<unsigned int const, 18446744073709551615ul>, unsigned int, bool, unsigned int, unsigned int)::$_12::operator()(metalrobo::MetalArticulatedOperatorInput, metalrobo::MetalArticulatedOperatorResult&, std::__1::vector<(anonymous namespace)::HumanTendonContinuumTransaction::AcceptedStep, std::__1::allocator<(anonymous namespace)::HumanTendonContinuumTransaction::AcceptedStep>>*) const","symbolLocation":10064,"imageIndex":0},{"imageOffset":1347260,"symbol":"(anonymous namespace)::integratePersistentMetalHumanState(metalrobo::EngineModel const&, (anonymous namespace)::LoadedMuscles const&, (anonymous namespace)::LoadedSupportContacts const&, (anonymous namespace)::LoadedJointEqualities const&, double, unsigned int, double, std::__1::span<unsigned int const, 18446744073709551615ul>, bool, bool, bool, bool, (anonymous namespace)::HumanTendonContinuumTransaction*, std::__1::optional<std::__1::pair<unsigned int, double>>, bool, metalrobo::MetalNumiHumanTendonLoadProgram const*, bool, bool, unsigned int, bool, std::__1::optional<std::__1::pair<double, double>>, bool, bool, MRNumiHumanTimedRootForceGPU, std::__1::optional<std::__1::__fs::filesystem::path>, std::__1::optional<std::__1::__fs::filesystem::path>, std::__1::optional<std::__1::__fs::filesystem::path>, unsigned int, std::__1::span<float const, 18446744073709551615ul>, metalrobo::MetalNumanXTransactionProgram const*, std::__1::function<void (unsigned int, std::__1::span<float const, 18446744073709551615ul>, std::__1::span<float const, 18446744073709551615ul>, MRCompensatedRootTranslationGPU const&, metalrobo::MetalArticulatedOperatorResult const&, (anonymous namespace)::MetalMujocoVisualQueries const&)> const*, metalrobo::MetalNumiHumanSupportGeometryProgram const*, bool, bool, unsigned int, std::__1::span<MRNumiHumanHipCapsuleTermGPU const, 18446744073709551615ul>, numiHumanAcceptedQAuditWindow::Window, std::__1::optional<double>, bool, std::__1::span<unsigned int const, 18446744073709551615ul>, metalrobo::MetalNumiHumanTendonLoadProgram const*, std::__1::span<unsigned int const, 18446744073709551615ul>, std::__1::span<unsigned int const, 18446744073709551615ul>, std::__1::span<MRNumiHumanJointEqualityGPU const, 18446744073709551615ul>, unsigned int, unsigned int, std::__1::span<unsigned int const, 18446744073709551615ul>, std::__1::span<unsigned int const, 18446744073709551615ul>, std::__1::span<unsigned int const, 18446744073709551615ul>, std::__1::span<unsigned int const, 18446744073709551615ul>, unsigned int, bool, unsigned int, unsigned int)","symbolLocation":88248,"imageIndex":0},{"imageOffset":347080,"symbol":"main","symbolLocation":318128,"imageIndex":0},{"imageOffset":196952,"symbol":"start","symbolLocation":6688,"imageIndex":6}]},{"id":229773,"threadState":{"x":[{"value":0},{"value":8589934595},{"value":395136996627},{"value":56225416883459},{"value":12305081303040},{"value":56225416871936},{"value":4284},{"value":0},{"value":5395},{"value":6555340800,"symbolLocation":15704,"symbol":"IOAVGetVideoTimingTable::sCEATimingData"},{"value":6096629136},{"value":0},{"value":8192},{"value":0},{"value":0},{"value":0},{"value":18446744073709551569},{"value":8220708088},{"value":0},{"value":0},{"value":4284},{"value":56225416871936},{"value":12305081303040},{"value":56225416883459},{"value":8589934595},{"value":6096624640},{"value":395136996627},{"value":18446744073709550527},{"value":6096624648}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6482519248},"cpsr":{"value":2147483648},"fp":{"value":6096624608},"sp":{"value":6096624528},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482443284},"far":{"value":0}},"queue":"com.Metal.IOThreads","frames":[{"imageOffset":3092,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":3},{"imageOffset":79056,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":3},{"imageOffset":12428,"symbol":"io_connect_method","symbolLocation":512,"imageIndex":8},{"imageOffset":11812,"symbol":"IOConnectCallMethod","symbolLocation":176,"imageIndex":8},{"imageOffset":83364,"symbol":"IOGPUIOCommandQueuePerformIO","symbolLocation":92,"imageIndex":9},{"imageOffset":34416,"symbol":"__48-[IOGPUMetalIOCommandQueue launchIOGPUIOThreads]_block_invoke","symbolLocation":52,"imageIndex":9},{"imageOffset":6572,"symbol":"_dispatch_call_block_and_release","symbolLocation":32,"imageIndex":10},{"imageOffset":108224,"symbol":"_dispatch_client_callout","symbolLocation":16,"imageIndex":10},{"imageOffset":24176,"symbol":"_dispatch_continuation_pop","symbolLocation":576,"imageIndex":10},{"imageOffset":21808,"symbol":"_dispatch_async_redirect_invoke","symbolLocation":572,"imageIndex":10},{"imageOffset":77548,"symbol":"_dispatch_root_queue_drain","symbolLocation":340,"imageIndex":10},{"imageOffset":79488,"symbol":"_dispatch_worker_thread2","symbolLocation":180,"imageIndex":10},{"imageOffset":11900,"symbol":"_pthread_wqthread","symbolLocation":232,"imageIndex":4},{"imageOffset":7224,"symbol":"start_wqthread","symbolLocation":8,"imageIndex":4}]},{"id":229777,"threadState":{"x":[{"value":0},{"value":8589934595},{"value":395136996627},{"value":53940494281987},{"value":12305081303040},{"value":53940494270464},{"value":4284},{"value":0},{"value":5395},{"value":6555340800,"symbolLocation":15704,"symbol":"IOAVGetVideoTimingTable::sCEATimingData"},{"value":6097776016},{"value":0},{"value":8192},{"value":0},{"value":0},{"value":0},{"value":18446744073709551569},{"value":8220708088},{"value":0},{"value":0},{"value":4284},{"value":53940494270464},{"value":12305081303040},{"value":53940494281987},{"value":8589934595},{"value":6097771520},{"value":395136996627},{"value":18446744073709550527},{"value":6097771528}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6482519248},"cpsr":{"value":2147483648},"fp":{"value":6097771488},"sp":{"value":6097771408},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482443284},"far":{"value":0}},"queue":"com.Metal.IOThreads","frames":[{"imageOffset":3092,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":3},{"imageOffset":79056,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":3},{"imageOffset":12428,"symbol":"io_connect_method","symbolLocation":512,"imageIndex":8},{"imageOffset":11812,"symbol":"IOConnectCallMethod","symbolLocation":176,"imageIndex":8},{"imageOffset":83364,"symbol":"IOGPUIOCommandQueuePerformIO","symbolLocation":92,"imageIndex":9},{"imageOffset":34416,"symbol":"__48-[IOGPUMetalIOCommandQueue launchIOGPUIOThreads]_block_invoke","symbolLocation":52,"imageIndex":9},{"imageOffset":6572,"symbol":"_dispatch_call_block_and_release","symbolLocation":32,"imageIndex":10},{"imageOffset":108224,"symbol":"_dispatch_client_callout","symbolLocation":16,"imageIndex":10},{"imageOffset":24176,"symbol":"_dispatch_continuation_pop","symbolLocation":576,"imageIndex":10},{"imageOffset":21808,"symbol":"_dispatch_async_redirect_invoke","symbolLocation":572,"imageIndex":10},{"imageOffset":77548,"symbol":"_dispatch_root_queue_drain","symbolLocation":340,"imageIndex":10},{"imageOffset":79488,"symbol":"_dispatch_worker_thread2","symbolLocation":180,"imageIndex":10},{"imageOffset":11900,"symbol":"_pthread_wqthread","symbolLocation":232,"imageIndex":4},{"imageOffset":7224,"symbol":"start_wqthread","symbolLocation":8,"imageIndex":4}]},{"id":230884,"threadState":{"x":[{"value":0},{"value":8589934595},{"value":395136996627},{"value":70381629091075},{"value":12305081303040},{"value":70381629079552},{"value":4284},{"value":0},{"value":5395},{"value":6555340800,"symbolLocation":15704,"symbol":"IOAVGetVideoTimingTable::sCEATimingData"},{"value":6098349456},{"value":0},{"value":8192},{"value":0},{"value":0},{"value":0},{"value":18446744073709551569},{"value":8220708088},{"value":0},{"value":0},{"value":4284},{"value":70381629079552},{"value":12305081303040},{"value":70381629091075},{"value":8589934595},{"value":6098344960},{"value":395136996627},{"value":18446744073709550527},{"value":6098344968}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6482519248},"cpsr":{"value":2147483648},"fp":{"value":6098344928},"sp":{"value":6098344848},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482443284},"far":{"value":0}},"queue":"com.Metal.IOThreads","frames":[{"imageOffset":3092,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":3},{"imageOffset":79056,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":3},{"imageOffset":12428,"symbol":"io_connect_method","symbolLocation":512,"imageIndex":8},{"imageOffset":11812,"symbol":"IOConnectCallMethod","symbolLocation":176,"imageIndex":8},{"imageOffset":83364,"symbol":"IOGPUIOCommandQueuePerformIO","symbolLocation":92,"imageIndex":9},{"imageOffset":34416,"symbol":"__48-[IOGPUMetalIOCommandQueue launchIOGPUIOThreads]_block_invoke","symbolLocation":52,"imageIndex":9},{"imageOffset":6572,"symbol":"_dispatch_call_block_and_release","symbolLocation":32,"imageIndex":10},{"imageOffset":108224,"symbol":"_dispatch_client_callout","symbolLocation":16,"imageIndex":10},{"imageOffset":24176,"symbol":"_dispatch_continuation_pop","symbolLocation":576,"imageIndex":10},{"imageOffset":21808,"symbol":"_dispatch_async_redirect_invoke","symbolLocation":572,"imageIndex":10},{"imageOffset":77548,"symbol":"_dispatch_root_queue_drain","symbolLocation":340,"imageIndex":10},{"imageOffset":79488,"symbol":"_dispatch_worker_thread2","symbolLocation":180,"imageIndex":10},{"imageOffset":11900,"symbol":"_pthread_wqthread","symbolLocation":232,"imageIndex":4},{"imageOffset":7224,"symbol":"start_wqthread","symbolLocation":8,"imageIndex":4}]},{"id":230976,"threadState":{"x":[{"value":0},{"value":8589934595},{"value":395136996627},{"value":89073326763267},{"value":12305081303040},{"value":89073326751744},{"value":4284},{"value":0},{"value":5395},{"value":6555340800,"symbolLocation":15704,"symbol":"IOAVGetVideoTimingTable::sCEATimingData"},{"value":6097202576},{"value":0},{"value":8192},{"value":2303},{"value":18446744073709535232},{"value":0},{"value":18446744073709551569},{"value":8220708088},{"value":0},{"value":0},{"value":4284},{"value":89073326751744},{"value":12305081303040},{"value":89073326763267},{"value":8589934595},{"value":6097198080},{"value":395136996627},{"value":18446744073709550527},{"value":6097198088}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6482519248},"cpsr":{"value":2147483648},"fp":{"value":6097198048},"sp":{"value":6097197968},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482443284},"far":{"value":0}},"queue":"com.Metal.IOThreads","frames":[{"imageOffset":3092,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":3},{"imageOffset":79056,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":3},{"imageOffset":12428,"symbol":"io_connect_method","symbolLocation":512,"imageIndex":8},{"imageOffset":11812,"symbol":"IOConnectCallMethod","symbolLocation":176,"imageIndex":8},{"imageOffset":83364,"symbol":"IOGPUIOCommandQueuePerformIO","symbolLocation":92,"imageIndex":9},{"imageOffset":34416,"symbol":"__48-[IOGPUMetalIOCommandQueue launchIOGPUIOThreads]_block_invoke","symbolLocation":52,"imageIndex":9},{"imageOffset":6572,"symbol":"_dispatch_call_block_and_release","symbolLocation":32,"imageIndex":10},{"imageOffset":108224,"symbol":"_dispatch_client_callout","symbolLocation":16,"imageIndex":10},{"imageOffset":24176,"symbol":"_dispatch_continuation_pop","symbolLocation":576,"imageIndex":10},{"imageOffset":21808,"symbol":"_dispatch_async_redirect_invoke","symbolLocation":572,"imageIndex":10},{"imageOffset":77548,"symbol":"_dispatch_root_queue_drain","symbolLocation":340,"imageIndex":10},{"imageOffset":79488,"symbol":"_dispatch_worker_thread2","symbolLocation":180,"imageIndex":10},{"imageOffset":11900,"symbol":"_pthread_wqthread","symbolLocation":232,"imageIndex":4},{"imageOffset":7224,"symbol":"start_wqthread","symbolLocation":8,"imageIndex":4}]},{"id":230977,"threadState":{"x":[{"value":0},{"value":8589934595},{"value":395136996627},{"value":86874303507715},{"value":12305081303040},{"value":86874303496192},{"value":4284},{"value":0},{"value":5395},{"value":6555340800,"symbolLocation":15704,"symbol":"IOAVGetVideoTimingTable::sCEATimingData"},{"value":6098922896},{"value":0},{"value":8192},{"value":2303},{"value":18446744073709535232},{"value":0},{"value":18446744073709551569},{"value":8220708088},{"value":0},{"value":0},{"value":4284},{"value":86874303496192},{"value":12305081303040},{"value":86874303507715},{"value":8589934595},{"value":6098918400},{"value":395136996627},{"value":18446744073709550527},{"value":6098918408}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6482519248},"cpsr":{"value":2147483648},"fp":{"value":6098918368},"sp":{"value":6098918288},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482443284},"far":{"value":0}},"queue":"com.Metal.IOThreads","frames":[{"imageOffset":3092,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":3},{"imageOffset":79056,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":3},{"imageOffset":12428,"symbol":"io_connect_method","symbolLocation":512,"imageIndex":8},{"imageOffset":11812,"symbol":"IOConnectCallMethod","symbolLocation":176,"imageIndex":8},{"imageOffset":83364,"symbol":"IOGPUIOCommandQueuePerformIO","symbolLocation":92,"imageIndex":9},{"imageOffset":34416,"symbol":"__48-[IOGPUMetalIOCommandQueue launchIOGPUIOThreads]_block_invoke","symbolLocation":52,"imageIndex":9},{"imageOffset":6572,"symbol":"_dispatch_call_block_and_release","symbolLocation":32,"imageIndex":10},{"imageOffset":108224,"symbol":"_dispatch_client_callout","symbolLocation":16,"imageIndex":10},{"imageOffset":24176,"symbol":"_dispatch_continuation_pop","symbolLocation":576,"imageIndex":10},{"imageOffset":21808,"symbol":"_dispatch_async_redirect_invoke","symbolLocation":572,"imageIndex":10},{"imageOffset":77548,"symbol":"_dispatch_root_queue_drain","symbolLocation":340,"imageIndex":10},{"imageOffset":79488,"symbol":"_dispatch_worker_thread2","symbolLocation":180,"imageIndex":10},{"imageOffset":11900,"symbol":"_pthread_wqthread","symbolLocation":232,"imageIndex":4},{"imageOffset":7224,"symbol":"start_wqthread","symbolLocation":8,"imageIndex":4}]},{"id":230978,"threadState":{"x":[{"value":0},{"value":8589934595},{"value":395136996627},{"value":75879187229955},{"value":12305081303040},{"value":75879187218432},{"value":4284},{"value":0},{"value":5395},{"value":6555340800,"symbolLocation":15704,"symbol":"IOAVGetVideoTimingTable::sCEATimingData"},{"value":6099496336},{"value":0},{"value":8192},{"value":2303},{"value":18446744073709535232},{"value":0},{"value":18446744073709551569},{"value":8220708088},{"value":0},{"value":0},{"value":4284},{"value":75879187218432},{"value":12305081303040},{"value":75879187229955},{"value":8589934595},{"value":6099491840},{"value":395136996627},{"value":18446744073709550527},{"value":6099491848}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6482519248},"cpsr":{"value":2147483648},"fp":{"value":6099491808},"sp":{"value":6099491728},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482443284},"far":{"value":0}},"queue":"com.Metal.IOThreads","frames":[{"imageOffset":3092,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":3},{"imageOffset":79056,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":3},{"imageOffset":12428,"symbol":"io_connect_method","symbolLocation":512,"imageIndex":8},{"imageOffset":11812,"symbol":"IOConnectCallMethod","symbolLocation":176,"imageIndex":8},{"imageOffset":83364,"symbol":"IOGPUIOCommandQueuePerformIO","symbolLocation":92,"imageIndex":9},{"imageOffset":34416,"symbol":"__48-[IOGPUMetalIOCommandQueue launchIOGPUIOThreads]_block_invoke","symbolLocation":52,"imageIndex":9},{"imageOffset":6572,"symbol":"_dispatch_call_block_and_release","symbolLocation":32,"imageIndex":10},{"imageOffset":108224,"symbol":"_dispatch_client_callout","symbolLocation":16,"imageIndex":10},{"imageOffset":24176,"symbol":"_dispatch_continuation_pop","symbolLocation":576,"imageIndex":10},{"imageOffset":21808,"symbol":"_dispatch_async_redirect_invoke","symbolLocation":572,"imageIndex":10},{"imageOffset":77548,"symbol":"_dispatch_root_queue_drain","symbolLocation":340,"imageIndex":10},{"imageOffset":79488,"symbol":"_dispatch_worker_thread2","symbolLocation":180,"imageIndex":10},{"imageOffset":11900,"symbol":"_pthread_wqthread","symbolLocation":232,"imageIndex":4},{"imageOffset":7224,"symbol":"start_wqthread","symbolLocation":8,"imageIndex":4}]},{"id":230979,"threadState":{"x":[{"value":268451842},{"value":8589934595},{"value":395136996627},{"value":78078210485507},{"value":12305081303040},{"value":78078210473984},{"value":4284},{"value":0},{"value":5395},{"value":6555340800,"symbolLocation":15704,"symbol":"IOAVGetVideoTimingTable::sCEATimingData"},{"value":6100069776},{"value":0},{"value":8192},{"value":2303},{"value":18446744073709535232},{"value":0},{"value":18446744073709551569},{"value":8220708088},{"value":0},{"value":0},{"value":4284},{"value":78078210473984},{"value":12305081303040},{"value":78078210485507},{"value":8589934595},{"value":6100065280},{"value":395136996627},{"value":18446744073709550527},{"value":6100065288}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6482519248},"cpsr":{"value":2147483648},"fp":{"value":6100065248},"sp":{"value":6100065168},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482443284},"far":{"value":0}},"queue":"com.Metal.IOThreads","frames":[{"imageOffset":3092,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":3},{"imageOffset":79056,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":3},{"imageOffset":12428,"symbol":"io_connect_method","symbolLocation":512,"imageIndex":8},{"imageOffset":11812,"symbol":"IOConnectCallMethod","symbolLocation":176,"imageIndex":8},{"imageOffset":83364,"symbol":"IOGPUIOCommandQueuePerformIO","symbolLocation":92,"imageIndex":9},{"imageOffset":34416,"symbol":"__48-[IOGPUMetalIOCommandQueue launchIOGPUIOThreads]_block_invoke","symbolLocation":52,"imageIndex":9},{"imageOffset":6572,"symbol":"_dispatch_call_block_and_release","symbolLocation":32,"imageIndex":10},{"imageOffset":108224,"symbol":"_dispatch_client_callout","symbolLocation":16,"imageIndex":10},{"imageOffset":24176,"symbol":"_dispatch_continuation_pop","symbolLocation":576,"imageIndex":10},{"imageOffset":21808,"symbol":"_dispatch_async_redirect_invoke","symbolLocation":572,"imageIndex":10},{"imageOffset":77548,"symbol":"_dispatch_root_queue_drain","symbolLocation":340,"imageIndex":10},{"imageOffset":79488,"symbol":"_dispatch_worker_thread2","symbolLocation":180,"imageIndex":10},{"imageOffset":11900,"symbol":"_pthread_wqthread","symbolLocation":232,"imageIndex":4},{"imageOffset":7224,"symbol":"start_wqthread","symbolLocation":8,"imageIndex":4}]},{"id":230980,"threadState":{"x":[{"value":268451842},{"value":8589934595},{"value":395136996627},{"value":80277233741059},{"value":12305081303040},{"value":80277233729536},{"value":4284},{"value":0},{"value":5395},{"value":6555340800,"symbolLocation":15704,"symbol":"IOAVGetVideoTimingTable::sCEATimingData"},{"value":6100643216},{"value":0},{"value":8192},{"value":2303},{"value":18446744073709535232},{"value":0},{"value":18446744073709551569},{"value":8220708088},{"value":0},{"value":0},{"value":4284},{"value":80277233729536},{"value":12305081303040},{"value":80277233741059},{"value":8589934595},{"value":6100638720},{"value":395136996627},{"value":18446744073709550527},{"value":6100638728}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6482519248},"cpsr":{"value":2147483648},"fp":{"value":6100638688},"sp":{"value":6100638608},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482443284},"far":{"value":0}},"queue":"com.Metal.IOThreads","frames":[{"imageOffset":3092,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":3},{"imageOffset":79056,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":3},{"imageOffset":12428,"symbol":"io_connect_method","symbolLocation":512,"imageIndex":8},{"imageOffset":11812,"symbol":"IOConnectCallMethod","symbolLocation":176,"imageIndex":8},{"imageOffset":83364,"symbol":"IOGPUIOCommandQueuePerformIO","symbolLocation":92,"imageIndex":9},{"imageOffset":34416,"symbol":"__48-[IOGPUMetalIOCommandQueue launchIOGPUIOThreads]_block_invoke","symbolLocation":52,"imageIndex":9},{"imageOffset":6572,"symbol":"_dispatch_call_block_and_release","symbolLocation":32,"imageIndex":10},{"imageOffset":108224,"symbol":"_dispatch_client_callout","symbolLocation":16,"imageIndex":10},{"imageOffset":24176,"symbol":"_dispatch_continuation_pop","symbolLocation":576,"imageIndex":10},{"imageOffset":21808,"symbol":"_dispatch_async_redirect_invoke","symbolLocation":572,"imageIndex":10},{"imageOffset":77548,"symbol":"_dispatch_root_queue_drain","symbolLocation":340,"imageIndex":10},{"imageOffset":79488,"symbol":"_dispatch_worker_thread2","symbolLocation":180,"imageIndex":10},{"imageOffset":11900,"symbol":"_pthread_wqthread","symbolLocation":232,"imageIndex":4},{"imageOffset":7224,"symbol":"start_wqthread","symbolLocation":8,"imageIndex":4}]},{"triggered":true,"id":230981,"threadState":{"x":[{"value":549353160704},{"value":4386485488},{"value":524288},{"value":524287},{"value":6104285184},{"value":3},{"value":0},{"value":0},{"value":102913960192},{"value":5381193728},{"value":102913960196},{"value":6104377812},{"value":0},{"value":512},{"value":4724572608},{"value":4},{"value":18446744073709551601},{"value":8220708424},{"value":0},{"value":9218868437227405312},{"value":536774719952},{"value":5381193728},{"value":0},{"value":549353160704},{"value":6101213992},{"value":1},{"value":6101213672},{"value":6101213968},{"value":538443390848}],"flavor":"ARM_THREAD_STATE64","lr":{"value":4397912148},"cpsr":{"value":2147483648},"fp":{"value":6101214176},"sp":{"value":6101213632},"esr":{"value":2449473541,"description":"(Data Abort) byte read Translation fault"},"pc":{"value":4397912236,"matchesCrashFrame":1},"far":{"value":102913960192}},"queue":"com.Metal.CompletionQueueDispatch","frames":[{"imageOffset":2052268,"symbol":"invocation function for block in numi::matter::Runtime::encodeImpl(numi::matter::EncodeRequest const&, bool, float)::$_135::operator()(bool, id<MTLBuffer>, objc_object<MTLBuffer>) const","symbolLocation":232,"imageIndex":1},{"imageOffset":2052180,"symbol":"invocation function for block in numi::matter::Runtime::encodeImpl(numi::matter::EncodeRequest const&, bool, float)::$_135::operator()(bool, id<MTLBuffer>, objc_object<MTLBuffer>) const","symbolLocation":144,"imageIndex":1},{"imageOffset":130144,"symbol":"MTLDispatchListApply","symbolLocation":52,"imageIndex":5},{"imageOffset":131252,"symbol":"-[_MTLCommandBuffer didCompleteWithStartTime:endTime:error:]","symbolLocation":680,"imageIndex":5},{"imageOffset":13408,"symbol":"-[IOGPUMetalCommandBuffer didCompleteWithStartTime:endTime:error:]","symbolLocation":240,"imageIndex":9},{"imageOffset":130296,"symbol":"-[_MTLCommandQueue commandBufferDidComplete:startTime:completionTime:error:]","symbolLocation":108,"imageIndex":5},{"imageOffset":64564,"symbol":"IOGPUNotificationQueueDispatchAvailableCompletionNotifications","symbolLocation":136,"imageIndex":9},{"imageOffset":64836,"symbol":"__IOGPUNotificationQueueSetDispatchQueue_block_invoke","symbolLocation":64,"imageIndex":9},{"imageOffset":108296,"symbol":"_dispatch_client_callout4","symbolLocation":16,"imageIndex":10},{"imageOffset":118576,"symbol":"_dispatch_mach_msg_invoke","symbolLocation":460,"imageIndex":10},{"imageOffset":38852,"symbol":"_dispatch_lane_serial_drain","symbolLocation":312,"imageIndex":10},{"imageOffset":121804,"symbol":"_dispatch_mach_invoke","symbolLocation":468,"imageIndex":10},{"imageOffset":38852,"symbol":"_dispatch_lane_serial_drain","symbolLocation":312,"imageIndex":10},{"imageOffset":42048,"symbol":"_dispatch_lane_invoke","symbolLocation":444,"imageIndex":10},{"imageOffset":38852,"symbol":"_dispatch_lane_serial_drain","symbolLocation":312,"imageIndex":10},{"imageOffset":41992,"symbol":"_dispatch_lane_invoke","symbolLocation":388,"imageIndex":10},{"imageOffset":82776,"symbol":"_dispatch_root_queue_drain_deferred_wlh","symbolLocation":284,"imageIndex":10},{"imageOffset":81032,"symbol":"_dispatch_workloop_worker_thread","symbolLocation":720,"imageIndex":10},{"imageOffset":11960,"symbol":"_pthread_wqthread","symbolLocation":292,"imageIndex":4},{"imageOffset":7224,"symbol":"start_wqthread","symbolLocation":8,"imageIndex":4}]},{"id":230982,"frames":[],"threadState":{"x":[{"value":6101790720},{"value":19203},{"value":6101254144},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6101790720},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482705456},"far":{"value":0}}},{"id":231012,"name":"com.apple.NSEventThread","threadState":{"x":[{"value":268451845},{"value":21592279046},{"value":8589934592},{"value":144048908140544},{"value":0},{"value":144048908140544},{"value":2},{"value":4294967295},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":33539},{"value":0},{"value":18446744073709551569},{"value":8220708080},{"value":0},{"value":4294967295},{"value":2},{"value":144048908140544},{"value":0},{"value":144048908140544},{"value":21592279046},{"value":6102933656},{"value":8589934592},{"value":18446744073709550527},{"value":4412409862}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6482519248},"cpsr":{"value":0},"fp":{"value":6102933504},"sp":{"value":6102933424},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482443284},"far":{"value":0}},"frames":[{"imageOffset":3092,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":3},{"imageOffset":79056,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":3},{"imageOffset":38672,"symbol":"mach_msg_overwrite","symbolLocation":480,"imageIndex":3},{"imageOffset":4000,"symbol":"mach_msg","symbolLocation":24,"imageIndex":3},{"imageOffset":522832,"symbol":"__CFRunLoopServiceMachPort","symbolLocation":160,"imageIndex":11},{"imageOffset":516960,"symbol":"__CFRunLoopRun","symbolLocation":1172,"imageIndex":11},{"imageOffset":1398064,"symbol":"_CFRunLoopRunSpecificWithOptions","symbolLocation":536,"imageIndex":11},{"imageOffset":1402540,"symbol":"_NSEventThread","symbolLocation":184,"imageIndex":12},{"imageOffset":27224,"symbol":"_pthread_start","symbolLocation":116,"imageIndex":4},{"imageOffset":7236,"symbol":"thread_start","symbolLocation":8,"imageIndex":4}]},{"id":231033,"frames":[],"threadState":{"x":[{"value":6103511040},{"value":49859},{"value":6102974464},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6103511040},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482705456},"far":{"value":0}}},{"id":231034,"frames":[],"threadState":{"x":[{"value":6104084480},{"value":58895},{"value":6103547904},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6104084480},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482705456},"far":{"value":0}}}],
+  "usedImages" : [
+  {
+    "source" : "P",
+    "arch" : "arm64",
+    "base" : 4370808832,
+    "size" : 9322496,
+    "uuid" : "deb8a436-9a39-399c-be09-21d293c0c79b",
+    "path" : "\/Users\/USER\/*\/numi-human-native",
+    "name" : "numi-human-native"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64",
+    "base" : 4395859968,
+    "size" : 8339456,
+    "uuid" : "f0c9be89-87e4-326a-ad0c-4e1fefe43b32",
+    "path" : "\/Users\/USER\/*\/libmetalrobo.dylib",
+    "name" : "libmetalrobo.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e.x1",
+    "base" : 5302419456,
+    "size" : 49152,
+    "uuid" : "ebdf3e6c-eae3-3890-a857-1d567371fef3",
+    "path" : "\/usr\/lib\/libobjc-trampolines.dylib",
+    "name" : "libobjc-trampolines.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e.x1",
+    "base" : 6482440192,
+    "size" : 255084,
+    "uuid" : "215799fc-408f-314d-8085-f59ef059135e",
+    "path" : "\/usr\/lib\/system\/libsystem_kernel.dylib",
+    "name" : "libsystem_kernel.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e.x1",
+    "base" : 6482698240,
+    "size" : 50684,
+    "uuid" : "b70220c6-9bed-395b-a68d-74410436ae0f",
+    "path" : "\/usr\/lib\/system\/libsystem_pthread.dylib",
+    "name" : "libsystem_pthread.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e.x1",
+    "base" : 6695710720,
+    "CFBundleShortVersionString" : "382.5.3",
+    "CFBundleIdentifier" : "com.apple.Metal",
+    "size" : 2631176,
+    "uuid" : "91bc9ed7-d6b3-3f47-bee2-8ae7e8cea456",
+    "path" : "\/System\/Library\/Frameworks\/Metal.framework\/Versions\/A\/Metal",
+    "name" : "Metal",
+    "CFBundleVersion" : "382.5.3"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e.x1",
+    "base" : 6478548992,
+    "size" : 764908,
+    "uuid" : "8831382f-3800-372b-99c1-b23f876c0da9",
+    "path" : "\/usr\/lib\/dyld",
+    "name" : "dyld"
+  },
+  {
+    "size" : 0,
+    "source" : "A",
+    "base" : 0,
+    "uuid" : "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e.x1",
+    "base" : 6554443776,
+    "CFBundleShortVersionString" : "2.0.2",
+    "CFBundleIdentifier" : "com.apple.framework.IOKit",
+    "size" : 937384,
+    "uuid" : "acfd1957-2e1e-3d2c-9897-21331c9db7c2",
+    "path" : "\/System\/Library\/Frameworks\/IOKit.framework\/Versions\/A\/IOKit",
+    "name" : "IOKit"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e.x1",
+    "base" : 7143378944,
+    "CFBundleShortVersionString" : "162.11",
+    "CFBundleIdentifier" : "com.apple.IOGPU",
+    "size" : 241112,
+    "uuid" : "f24466b9-159d-392b-bcf5-6bb8d4246a64",
+    "path" : "\/System\/Library\/PrivateFrameworks\/IOGPU.framework\/Versions\/A\/IOGPU",
+    "name" : "IOGPU",
+    "CFBundleVersion" : "162.11"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e.x1",
+    "base" : 6480896000,
+    "size" : 281840,
+    "uuid" : "3efc0fcd-6b49-3299-b370-65ada0802100",
+    "path" : "\/usr\/lib\/system\/libdispatch.dylib",
+    "name" : "libdispatch.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e.x1",
+    "base" : 6482984960,
+    "CFBundleShortVersionString" : "6.9",
+    "CFBundleIdentifier" : "com.apple.CoreFoundation",
+    "size" : 4764952,
+    "uuid" : "bf8a4f8b-f836-34dd-8e84-d47b3f9209ee",
+    "path" : "\/System\/Library\/Frameworks\/CoreFoundation.framework\/Versions\/A\/CoreFoundation",
+    "name" : "CoreFoundation",
+    "CFBundleVersion" : "5027.0.69"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e.x1",
+    "base" : 6555881472,
+    "CFBundleShortVersionString" : "6.9",
+    "CFBundleIdentifier" : "com.apple.AppKit",
+    "size" : 22946708,
+    "uuid" : "8ebcd481-1508-3e2d-a388-e335093e2c03",
+    "path" : "\/System\/Library\/Frameworks\/AppKit.framework\/Versions\/C\/AppKit",
+    "name" : "AppKit",
+    "CFBundleVersion" : "2775.10.103.1"
+  }
+],
+  "sharedCache" : {
+  "base" : 6473826304,
+  "size" : 7480328192,
+  "uuid" : "9d873587-cdfa-3b79-84a2-34725a4b4704"
+},
+  "legacyInfo" : {
+  "threadTriggered" : {
+    "queue" : "com.Metal.CompletionQueueDispatch"
+  }
+},
+  "logWritingSignature" : "0138b6c12ac49fa654213593dbb568cfd64b0522",
+  "bug_type" : "309",
+  "roots_installed" : 0,
+  "trmStatus" : 8192,
+  "trialInfo" : {
+  "rollouts" : [
+    {
+      "rolloutId" : "63508950b3714d3622fc77f7",
+      "factorPackIds" : [
+        "6526e111d0c9ce2f459b54a8"
+      ],
+      "deploymentId" : 240000015
+    },
+    {
+      "rolloutId" : "64c025b28b7f0e739e4fbe58",
+      "factorPackIds" : [
+
+      ],
+      "deploymentId" : 240000044
+    }
+  ],
+  "experiments" : [
+
+  ]
+}
+}

@@ -1,0 +1,14 @@
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=2
+matter_all_native_float requested=0 eligible=0 enabled=0 materials=2 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=5376 element=1536 environment_count=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=2
+matter_all_native_float requested=0 eligible=0 enabled=0 materials=2 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=5376 element=1536 environment_count=1
+fem_contact_rhs_witness={"root":0,"iteration":0,"diagnostic_only":true,"node_count":5,"readback_bytes":160,"finite":true,"pre_contact_xyz_l2":8.888868103647955e-05,"post_contact_xyz_l2":8.888868103647955e-05,"contact_xyz_l2":0,"top_contact_rows":[{"node":0,"object":0,"pre":[0,0,0],"post":[0,0,0]},{"node":1,"object":0,"pre":[0,0,0],"post":[0,0,0]},{"node":2,"object":0,"pre":[0,0,0],"post":[0,0,0]},{"node":3,"object":0,"pre":[0,0,-6.2853789131622761e-05],"post":[0,0,-6.2853789131622761e-05]},{"node":4,"object":0,"pre":[0,0,6.2853789131622761e-05],"post":[0,0,6.2853789131622761e-05]}]}
+contact_rhs_witness=PASS one_environment=true accepted_step_parity=bitwise callback_lifetime=exercised
