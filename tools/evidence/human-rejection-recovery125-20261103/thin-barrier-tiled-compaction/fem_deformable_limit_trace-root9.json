@@ -1,0 +1,1790 @@
+{
+  "schema": 1,
+  "root": 9,
+  "microtick": 0,
+  "iteration": 4,
+  "stage": "after_deformable_limit",
+  "trace_slots_per_environment": 1,
+  "active_counts": [
+    657093
+  ],
+  "line_search_alpha": [
+    0
+  ],
+  "truncated": [
+    true
+  ],
+  "contacts": [
+    {
+      "environment": 0,
+      "active_slot": 163541,
+      "active_count": 657093,
+      "contact_slot": 1207017,
+      "identity": [
+        15,
+        15,
+        0,
+        1
+      ],
+      "source": [
+        49457,
+        49602,
+        1207017,
+        1
+      ],
+      "nodes": [
+        24350,
+        24353,
+        24345,
+        24409,
+        4294967295,
+        4294967295
+      ],
+      "weights": [
+        1,
+        -0.613772273,
+        -0.386207938,
+        -1.98149719e-05,
+        0,
+        0
+      ],
+      "feature_side_by_vertex": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "feature_barycentric": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "geometry_coordinate_frame": "reference_local",
+      "reference_origin_m": [
+        -0.169655576,
+        -0.736843169,
+        0.138290882
+      ],
+      "feature_start": [
+        [
+          9.71078329e-10,
+          4.69854688e-09,
+          -1.8514406e-08
+        ],
+        [
+          1.93817368e-06,
+          4.95204949e-06,
+          -6.47099614e-06
+        ],
+        [
+          -3.08357153e-06,
+          -8.04197134e-06,
+          1.01590795e-05
+        ],
+        [
+          0.000211242776,
+          0.00357669592,
+          0.00151671888
+        ]
+      ],
+      "feature_end": [
+        [
+          1.05383258e-09,
+          5.0555462e-09,
+          -2.06902637e-08
+        ],
+        [
+          1.9382544e-06,
+          4.95240056e-06,
+          -6.47317711e-06
+        ],
+        [
+          -3.08348444e-06,
+          -8.04160572e-06,
+          1.01569076e-05
+        ],
+        [
+          0.000211240651,
+          0.00357669638,
+          0.00151670212
+        ]
+      ],
+      "feature_endpoint_role": "ccd_projected",
+      "potential_feature_start_high": [
+        [
+          9.71078329e-10,
+          4.69854688e-09,
+          -1.8514406e-08
+        ],
+        [
+          1.93817368e-06,
+          4.95204949e-06,
+          -6.47099614e-06
+        ],
+        [
+          -3.08357153e-06,
+          -8.04197134e-06,
+          1.01590795e-05
+        ],
+        [
+          0.000211242776,
+          0.00357669592,
+          0.00151671888
+        ]
+      ],
+      "potential_feature_start_low": [
+        [
+          -2.13778195e-17,
+          -1.53418644e-16,
+          3.42746456e-16
+        ],
+        [
+          2.387907e-14,
+          6.36824916e-14,
+          -3.19575672e-14
+        ],
+        [
+          4.42022551e-14,
+          4.35576027e-13,
+          3.19509149e-13
+        ],
+        [
+          6.22538859e-13,
+          8.04203492e-12,
+          3.22227349e-11
+        ]
+      ],
+      "potential_feature_end_high": [
+        [
+          1.05383258e-09,
+          5.0555462e-09,
+          -2.06902637e-08
+        ],
+        [
+          1.9382544e-06,
+          4.95240056e-06,
+          -6.47317711e-06
+        ],
+        [
+          -3.08348444e-06,
+          -8.04160572e-06,
+          1.01569076e-05
+        ],
+        [
+          0.000211240651,
+          0.00357669638,
+          0.00151670212
+        ]
+      ],
+      "potential_feature_end_low": [
+        [
+          -2.01117402e-17,
+          -1.04487668e-16,
+          -6.27463426e-16
+        ],
+        [
+          7.3368659e-14,
+          1.53138746e-13,
+          -1.69451706e-13
+        ],
+        [
+          -5.62679074e-14,
+          -5.64787983e-14,
+          1.55554809e-13
+        ],
+        [
+          3.39781783e-12,
+          -9.23001467e-11,
+          1.11539484e-11
+        ]
+      ],
+      "collision_thickness_m": 6.82200696e-09,
+      "ccd_toi": 1,
+      "ccd_separation_m": null,
+      "lane_bound_before": 1,
+      "lane_bound_after": 0,
+      "requested_alpha": 0.00048828125,
+      "ccd_hit": false,
+      "ccd_certified": true,
+      "zero_bound_source": true,
+      "ccd_shortened_sweep_retries": 0,
+      "ccd_tested_fraction": 1,
+      "diagnostic_reason_code": 6,
+      "diagnostic_reason": "contact_barrier_armijo_failed",
+      "normal": [
+        -0.972812712,
+        0.136723489,
+        -0.186928168
+      ],
+      "initial_toi": 0,
+      "contact_point_and_separation": [
+        -0.169655576,
+        -0.736843169,
+        0.138290867,
+        1.96561167e-09
+      ],
+      "barrier_parameters": [
+        3.71765831e-19,
+        3.35893802e-13,
+        1.99999994e-09,
+        424009338000000.0
+      ],
+      "barrier": [
+        -4.85639173e-09,
+        5.81148424e-14,
+        2.73517871e-25,
+        1.96561167e-09
+      ],
+      "per_alpha_trace": {
+        "schema": 1,
+        "microtick": 0,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "selected_contact_slot": 1207017,
+        "contact_active_slot": 163541,
+        "solver_iteration": 4,
+        "is_failure": true,
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "trials": [
+          {
+            "index": 0,
+            "active_slot": 163541,
+            "contact_slot": 1207017,
+            "reason_code": 6,
+            "ccd_hit": false,
+            "ccd_certified": true,
+            "tested_full_fraction": true,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "barrier_evaluated": true,
+            "finite_barrier": true,
+            "accepted_by_feature_gate": false,
+            "geometry_coordinate_frame": "reference_local",
+            "reference_origin_m": [
+              -0.169655576,
+              -0.736843169,
+              0.138290882
+            ],
+            "base": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              1.96561167e-09
+            ],
+            "ccd": [
+              0.00048828125,
+              1,
+              null,
+              1
+            ],
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "energy": [
+              2.73517871e-25,
+              1.96561167e-09,
+              2.73517871e-25
+            ],
+            "weighted_direction_and_normal_dot": [
+              4.04121181e-14,
+              -4.56282419e-13,
+              -1.52784686e-13,
+              -7.31381847e-14
+            ],
+            "trial_feature_endpoints": [
+              [
+                9.71118741e-10,
+                4.69872097e-09,
+                -1.85154683e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204995e-06,
+                -6.47099705e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197043e-06,
+                1.01590786e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "feature_endpoint_role": "ccd_projected",
+            "potential_feature_endpoint_high": [
+              [
+                9.71118741e-10,
+                4.69872097e-09,
+                -1.85154683e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204995e-06,
+                -6.47099705e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197043e-06,
+                1.01590786e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "potential_feature_endpoint_low": [
+              [
+                -2.5816795e-17,
+                8.10687359e-17,
+                1.72165733e-16
+              ],
+              [
+                6.33159771e-14,
+                -2.19603781e-13,
+                -1.87452796e-13
+              ],
+              [
+                8.66749503e-14,
+                -2.95636372e-13,
+                1.68447707e-13
+              ],
+              [
+                -4.13489311e-13,
+                8.22041653e-12,
+                2.40270529e-11
+              ]
+            ]
+          },
+          {
+            "index": 1,
+            "active_slot": 163541,
+            "contact_slot": 1207017,
+            "reason_code": 6,
+            "ccd_hit": false,
+            "ccd_certified": true,
+            "tested_full_fraction": true,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "barrier_evaluated": true,
+            "finite_barrier": true,
+            "accepted_by_feature_gate": false,
+            "geometry_coordinate_frame": "reference_local",
+            "reference_origin_m": [
+              -0.169655576,
+              -0.736843169,
+              0.138290882
+            ],
+            "base": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              1.96561167e-09
+            ],
+            "ccd": [
+              0.000244140625,
+              1,
+              null,
+              1
+            ],
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "energy": [
+              2.73517871e-25,
+              1.96561167e-09,
+              2.73517871e-25
+            ],
+            "weighted_direction_and_normal_dot": [
+              2.0206059e-14,
+              -2.64212588e-13,
+              -2.5201938e-13,
+              -8.67125755e-15
+            ],
+            "trial_feature_endpoints": [
+              [
+                9.71098535e-10,
+                4.69863393e-09,
+                -1.85149371e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.4709966e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197043e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "feature_endpoint_role": "ccd_projected",
+            "potential_feature_endpoint_high": [
+              [
+                9.71098535e-10,
+                4.69863393e-09,
+                -1.85149371e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.4709966e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197043e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "potential_feature_endpoint_low": [
+              [
+                -2.40413974e-17,
+                -3.61749607e-17,
+                2.71666945e-16
+              ],
+              [
+                4.3597521e-14,
+                1.4941302e-13,
+                -1.09719383e-13
+              ],
+              [
+                6.5438601e-14,
+                -3.84777523e-13,
+                -2.10783146e-13
+              ],
+              [
+                1.04524808e-13,
+                8.13122226e-12,
+                2.8124782e-11
+              ]
+            ]
+          },
+          {
+            "index": 2,
+            "active_slot": 163541,
+            "contact_slot": 1207017,
+            "reason_code": 6,
+            "ccd_hit": false,
+            "ccd_certified": true,
+            "tested_full_fraction": true,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "barrier_evaluated": true,
+            "finite_barrier": true,
+            "accepted_by_feature_gate": false,
+            "geometry_coordinate_frame": "reference_local",
+            "reference_origin_m": [
+              -0.169655576,
+              -0.736843169,
+              0.138290882
+            ],
+            "base": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              1.96561167e-09
+            ],
+            "ccd": [
+              0.000122070312,
+              1,
+              null,
+              1
+            ],
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "energy": [
+              2.73517871e-25,
+              1.96561167e-09,
+              2.73517871e-25
+            ],
+            "weighted_direction_and_normal_dot": [
+              1.01030295e-14,
+              -3.07733331e-13,
+              1.44341462e-14,
+              -5.46008788e-14
+            ],
+            "trial_feature_endpoints": [
+              [
+                9.71088432e-10,
+                4.69859041e-09,
+                -1.85146707e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.4709966e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197043e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "feature_endpoint_role": "ccd_projected",
+            "potential_feature_endpoint_high": [
+              [
+                9.71088432e-10,
+                4.69859041e-09,
+                -1.85146707e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.4709966e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197043e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "potential_feature_endpoint_low": [
+              [
+                -2.226552e-17,
+                -9.65731578e-17,
+                -5.80971693e-16
+              ],
+              [
+                3.37387419e-14,
+                1.06549542e-13,
+                1.56535199e-13
+              ],
+              [
+                5.48204297e-14,
+                -4.2934631e-13,
+                5.43629913e-14
+              ],
+              [
+                3.63503417e-13,
+                8.08662946e-12,
+                3.01738738e-11
+              ]
+            ]
+          },
+          {
+            "index": 3,
+            "active_slot": 163541,
+            "contact_slot": 1207017,
+            "reason_code": 6,
+            "ccd_hit": false,
+            "ccd_certified": true,
+            "tested_full_fraction": true,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "barrier_evaluated": true,
+            "finite_barrier": true,
+            "accepted_by_feature_gate": false,
+            "geometry_coordinate_frame": "reference_local",
+            "reference_origin_m": [
+              -0.169655576,
+              -0.736843169,
+              0.138290882
+            ],
+            "base": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              1.96561167e-09
+            ],
+            "ccd": [
+              6.10351562e-05,
+              1,
+              null,
+              1
+            ],
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "energy": [
+              2.73517871e-25,
+              1.96561167e-09,
+              2.73517871e-25
+            ],
+            "weighted_direction_and_normal_dot": [
+              4.99600361e-15,
+              -3.29493702e-13,
+              -1.33226763e-13,
+              -2.50058712e-14
+            ],
+            "trial_feature_endpoints": [
+              [
+                9.71083325e-10,
+                4.69856865e-09,
+                -1.85145392e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197043e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "feature_endpoint_role": "ccd_projected",
+            "potential_feature_endpoint_high": [
+              [
+                9.71083325e-10,
+                4.69856865e-09,
+                -1.85145392e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197043e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "potential_feature_endpoint_low": [
+              [
+                3.36894815e-17,
+                -1.24995898e-16,
+                7.54854957e-16
+              ],
+              [
+                2.88084613e-14,
+                8.51160166e-14,
+                -1.65084865e-13
+              ],
+              [
+                4.95108952e-14,
+                -4.51632519e-13,
+                1.86950268e-13
+              ],
+              [
+                4.93049557e-13,
+                8.06433306e-12,
+                3.11981933e-11
+              ]
+            ]
+          },
+          {
+            "index": 4,
+            "active_slot": 163541,
+            "contact_slot": 1207017,
+            "reason_code": 6,
+            "ccd_hit": false,
+            "ccd_certified": true,
+            "tested_full_fraction": true,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "barrier_evaluated": true,
+            "finite_barrier": true,
+            "accepted_by_feature_gate": false,
+            "geometry_coordinate_frame": "reference_local",
+            "reference_origin_m": [
+              -0.169655576,
+              -0.736843169,
+              0.138290882
+            ],
+            "base": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              1.96561167e-09
+            ],
+            "ccd": [
+              3.05175781e-05,
+              1,
+              null,
+              1
+            ],
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "energy": [
+              2.73517871e-25,
+              1.96561167e-09,
+              2.73517871e-25
+            ],
+            "weighted_direction_and_normal_dot": [
+              2.55351296e-15,
+              1.0658141e-14,
+              -6.57252031e-14,
+              1.12590203e-14
+            ],
+            "trial_feature_endpoints": [
+              [
+                9.71080882e-10,
+                4.69855754e-09,
+                -1.85144717e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "feature_endpoint_role": "ccd_projected",
+            "potential_feature_endpoint_high": [
+              [
+                9.71080882e-10,
+                4.69855754e-09,
+                -1.85144717e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "potential_feature_endpoint_low": [
+              [
+                -4.97994129e-17,
+                8.46136879e-17,
+                -3.25166869e-16
+              ],
+              [
+                2.63437665e-14,
+                7.43974855e-14,
+                -9.85212142e-14
+              ],
+              [
+                4.6857019e-14,
+                4.46717343e-13,
+                2.53229702e-13
+              ],
+              [
+                5.57794208e-13,
+                8.05318399e-12,
+                3.17104641e-11
+              ]
+            ]
+          },
+          {
+            "index": 5,
+            "active_slot": 163541,
+            "contact_slot": 1207017,
+            "reason_code": 6,
+            "ccd_hit": false,
+            "ccd_certified": true,
+            "tested_full_fraction": true,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "barrier_evaluated": true,
+            "finite_barrier": true,
+            "accepted_by_feature_gate": false,
+            "geometry_coordinate_frame": "reference_local",
+            "reference_origin_m": [
+              -0.169655576,
+              -0.736843169,
+              0.138290882
+            ],
+            "base": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              1.96561167e-09
+            ],
+            "ccd": [
+              1.52587891e-05,
+              1,
+              null,
+              1
+            ],
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "energy": [
+              2.73517871e-25,
+              1.96561167e-09,
+              2.73517871e-25
+            ],
+            "weighted_direction_and_normal_dot": [
+              1.22124533e-15,
+              5.32907052e-15,
+              -3.19744231e-14,
+              5.51748622e-15
+            ],
+            "trial_feature_endpoints": [
+              [
+                9.7107955e-10,
+                4.69855221e-09,
+                -1.8514438e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "feature_endpoint_role": "ccd_projected",
+            "potential_feature_endpoint_high": [
+              [
+                9.7107955e-10,
+                4.69855221e-09,
+                -1.8514438e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "potential_feature_endpoint_low": [
+              [
+                2.03666243e-17,
+                -3.61788385e-17,
+                -8.793886e-16
+              ],
+              [
+                2.51118621e-14,
+                6.90399818e-14,
+                -6.52393924e-14
+              ],
+              [
+                4.55291898e-14,
+                4.41146658e-13,
+                2.86369425e-13
+              ],
+              [
+                5.90138127e-13,
+                8.04761379e-12,
+                3.19667105e-11
+              ]
+            ]
+          },
+          {
+            "index": 6,
+            "active_slot": 163541,
+            "contact_slot": 1207017,
+            "reason_code": 6,
+            "ccd_hit": false,
+            "ccd_certified": true,
+            "tested_full_fraction": true,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "barrier_evaluated": true,
+            "finite_barrier": true,
+            "accepted_by_feature_gate": false,
+            "geometry_coordinate_frame": "reference_local",
+            "reference_origin_m": [
+              -0.169655576,
+              -0.736843169,
+              0.138290882
+            ],
+            "base": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              1.96561167e-09
+            ],
+            "ccd": [
+              7.62939453e-06,
+              1,
+              null,
+              1
+            ],
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "energy": [
+              2.73517871e-25,
+              1.96561167e-09,
+              2.73517871e-25
+            ],
+            "weighted_direction_and_normal_dot": [
+              5.55111512e-16,
+              2.66453526e-15,
+              -1.59872116e-14,
+              2.81274527e-15
+            ],
+            "trial_feature_endpoints": [
+              [
+                9.71078884e-10,
+                4.69854955e-09,
+                -1.8514422e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "feature_endpoint_role": "ccd_projected",
+            "potential_feature_endpoint_high": [
+              [
+                9.71078884e-10,
+                4.69854955e-09,
+                -1.8514422e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "potential_feature_endpoint_low": [
+              [
+                5.50055553e-17,
+                -9.30223825e-17,
+                -2.68321112e-16
+              ],
+              [
+                2.44954661e-14,
+                6.63612435e-14,
+                -4.85842683e-14
+              ],
+              [
+                4.48657259e-14,
+                4.38361343e-13,
+                3.02939287e-13
+              ],
+              [
+                6.06338493e-13,
+                8.04482089e-12,
+                3.20947262e-11
+              ]
+            ]
+          },
+          {
+            "index": 7,
+            "active_slot": 163541,
+            "contact_slot": 1207017,
+            "reason_code": 6,
+            "ccd_hit": false,
+            "ccd_certified": true,
+            "tested_full_fraction": true,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "barrier_evaluated": true,
+            "finite_barrier": true,
+            "accepted_by_feature_gate": false,
+            "geometry_coordinate_frame": "reference_local",
+            "reference_origin_m": [
+              -0.169655576,
+              -0.736843169,
+              0.138290882
+            ],
+            "base": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              1.96561167e-09
+            ],
+            "ccd": [
+              3.81469727e-06,
+              1,
+              null,
+              1
+            ],
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "energy": [
+              2.73517871e-25,
+              1.96561167e-09,
+              2.73517871e-25
+            ],
+            "weighted_direction_and_normal_dot": [
+              3.33066907e-16,
+              1.33226763e-15,
+              -7.10542736e-15,
+              1.18634503e-15
+            ],
+            "trial_feature_endpoints": [
+              [
+                9.71078662e-10,
+                4.69854822e-09,
+                -1.85144131e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "feature_endpoint_role": "ccd_projected",
+            "potential_feature_endpoint_high": [
+              [
+                9.71078662e-10,
+                4.69854822e-09,
+                -1.85144131e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "potential_feature_endpoint_low": [
+              [
+                -3.91413759e-17,
+                -1.24996877e-16,
+                -8.50965774e-16
+              ],
+              [
+                2.41872681e-14,
+                6.50218743e-14,
+                -4.02851275e-14
+              ],
+              [
+                4.45344343e-14,
+                4.36968685e-13,
+                3.11210015e-13
+              ],
+              [
+                6.1446719e-13,
+                8.0434279e-12,
+                3.21586195e-11
+              ]
+            ]
+          },
+          {
+            "index": 8,
+            "active_slot": 163541,
+            "contact_slot": 1207017,
+            "reason_code": 6,
+            "ccd_hit": false,
+            "ccd_certified": true,
+            "tested_full_fraction": true,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "barrier_evaluated": true,
+            "finite_barrier": true,
+            "accepted_by_feature_gate": false,
+            "geometry_coordinate_frame": "reference_local",
+            "reference_origin_m": [
+              -0.169655576,
+              -0.736843169,
+              0.138290882
+            ],
+            "base": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              1.96561167e-09
+            ],
+            "ccd": [
+              1.90734863e-06,
+              1,
+              null,
+              1
+            ],
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "energy": [
+              2.73517871e-25,
+              1.96561167e-09,
+              2.73517871e-25
+            ],
+            "weighted_direction_and_normal_dot": [
+              1.11022302e-16,
+              4.4408921e-16,
+              -3.55271368e-15,
+              6.16815798e-16
+            ],
+            "trial_feature_endpoints": [
+              [
+                9.7107844e-10,
+                4.69854733e-09,
+                -1.85144096e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "feature_endpoint_role": "ccd_projected",
+            "potential_feature_endpoint_high": [
+              [
+                9.7107844e-10,
+                4.69854733e-09,
+                -1.85144096e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "potential_feature_endpoint_low": [
+              [
+                2.56956428e-17,
+                8.46131982e-17,
+                -2.54109646e-16
+              ],
+              [
+                2.40327252e-14,
+                6.43539651e-14,
+                -3.61071341e-14
+              ],
+              [
+                4.43683413e-14,
+                4.36272356e-13,
+                3.15359582e-13
+              ],
+              [
+                6.18503024e-13,
+                8.04273228e-12,
+                3.21906772e-11
+              ]
+            ]
+          },
+          {
+            "index": 9,
+            "active_slot": 163541,
+            "contact_slot": 1207017,
+            "reason_code": 6,
+            "ccd_hit": false,
+            "ccd_certified": true,
+            "tested_full_fraction": true,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "barrier_evaluated": true,
+            "finite_barrier": true,
+            "accepted_by_feature_gate": false,
+            "geometry_coordinate_frame": "reference_local",
+            "reference_origin_m": [
+              -0.169655576,
+              -0.736843169,
+              0.138290882
+            ],
+            "base": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              1.96561167e-09
+            ],
+            "ccd": [
+              9.53674316e-07,
+              1,
+              null,
+              1
+            ],
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "energy": [
+              2.73517871e-25,
+              1.96561167e-09,
+              2.73517871e-25
+            ],
+            "weighted_direction_and_normal_dot": [
+              1.11022302e-16,
+              0,
+              -1.77635684e-15,
+              2.24047229e-16
+            ],
+            "trial_feature_endpoints": [
+              [
+                9.7107844e-10,
+                4.69854688e-09,
+                -1.85144078e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "feature_endpoint_role": "ccd_projected",
+            "potential_feature_endpoint_high": [
+              [
+                9.7107844e-10,
+                4.69854688e-09,
+                -1.85144078e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "potential_feature_endpoint_low": [
+              [
+                -5.33522396e-17,
+                1.87641872e-16,
+                4.43184016e-17
+              ],
+              [
+                2.39563432e-14,
+                6.4016453e-14,
+                -3.40323506e-14
+              ],
+              [
+                4.4284851e-14,
+                4.35924165e-13,
+                3.17434365e-13
+              ],
+              [
+                6.20492535e-13,
+                8.0423836e-12,
+                3.22068171e-11
+              ]
+            ]
+          },
+          {
+            "index": 10,
+            "active_slot": 163541,
+            "contact_slot": 1207017,
+            "reason_code": 6,
+            "ccd_hit": false,
+            "ccd_certified": true,
+            "tested_full_fraction": true,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "barrier_evaluated": true,
+            "finite_barrier": true,
+            "accepted_by_feature_gate": false,
+            "geometry_coordinate_frame": "reference_local",
+            "reference_origin_m": [
+              -0.169655576,
+              -0.736843169,
+              0.138290882
+            ],
+            "base": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              1.96561167e-09
+            ],
+            "ccd": [
+              4.76837158e-07,
+              1,
+              null,
+              1
+            ],
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "energy": [
+              2.73517871e-25,
+              1.96561167e-09,
+              2.73517871e-25
+            ],
+            "weighted_direction_and_normal_dot": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "trial_feature_endpoints": [
+              [
+                9.71078329e-10,
+                4.69854688e-09,
+                -1.8514406e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "feature_endpoint_role": "ccd_projected",
+            "potential_feature_endpoint_high": [
+              [
+                9.71078329e-10,
+                4.69854688e-09,
+                -1.8514406e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "potential_feature_endpoint_low": [
+              [
+                1.77020307e-17,
+                1.7111614e-17,
+                -7.08856833e-16
+              ],
+              [
+                2.39172644e-14,
+                6.38494723e-14,
+                -3.30091687e-14
+              ],
+              [
+                4.42439969e-14,
+                4.35750096e-13,
+                3.18485933e-13
+              ],
+              [
+                6.21515697e-13,
+                8.0422136e-12,
+                3.2214776e-11
+              ]
+            ]
+          },
+          {
+            "index": 11,
+            "active_slot": 163541,
+            "contact_slot": 1207017,
+            "reason_code": 6,
+            "ccd_hit": false,
+            "ccd_certified": true,
+            "tested_full_fraction": true,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "barrier_evaluated": true,
+            "finite_barrier": true,
+            "accepted_by_feature_gate": false,
+            "geometry_coordinate_frame": "reference_local",
+            "reference_origin_m": [
+              -0.169655576,
+              -0.736843169,
+              0.138290882
+            ],
+            "base": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              1.96561167e-09
+            ],
+            "ccd": [
+              2.38418579e-07,
+              1,
+              null,
+              1
+            ],
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "energy": [
+              2.73517871e-25,
+              1.96561167e-09,
+              2.73517871e-25
+            ],
+            "weighted_direction_and_normal_dot": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "trial_feature_endpoints": [
+              [
+                9.71078329e-10,
+                4.69854688e-09,
+                -1.8514406e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "feature_endpoint_role": "ccd_projected",
+            "potential_feature_endpoint_high": [
+              [
+                9.71078329e-10,
+                4.69854688e-09,
+                -1.8514406e-08
+              ],
+              [
+                1.93817368e-06,
+                4.95204949e-06,
+                -6.47099614e-06
+              ],
+              [
+                -3.08357153e-06,
+                -8.04197134e-06,
+                1.01590795e-05
+              ],
+              [
+                0.000211242776,
+                0.00357669592,
+                0.00151671888
+              ]
+            ],
+            "potential_feature_endpoint_low": [
+              [
+                -1.83789461e-18,
+                -6.81535216e-17,
+                -1.68844345e-16
+              ],
+              [
+                2.38986128e-14,
+                6.37677641e-14,
+                -3.24691547e-14
+              ],
+              [
+                4.42226788e-14,
+                4.35664823e-13,
+                3.18997568e-13
+              ],
+              [
+                6.22027332e-13,
+                8.04211992e-12,
+                3.22186409e-11
+              ]
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "minimum_lane_bounds": [
+    {
+      "environment": 0,
+      "simd_lane": 4,
+      "active_slot": 163556,
+      "contact_slot": 1207080,
+      "object": 15,
+      "reason_code": 8,
+      "reason": "barrier_armijo_fraction",
+      "minimum_bound": 0.00048828125,
+      "bound_before_contact": 1,
+      "incoming_alpha": 0.00048828125
+    },
+    {
+      "environment": 0,
+      "simd_lane": 7,
+      "active_slot": 163559,
+      "contact_slot": 1207088,
+      "object": 15,
+      "reason_code": 7,
+      "reason": "barrier_armijo_failure",
+      "minimum_bound": 0,
+      "bound_before_contact": 1,
+      "incoming_alpha": 0.00048828125
+    },
+    {
+      "environment": 0,
+      "simd_lane": 17,
+      "active_slot": 163473,
+      "contact_slot": 1206847,
+      "object": 15,
+      "reason_code": 8,
+      "reason": "barrier_armijo_fraction",
+      "minimum_bound": 0.00048828125,
+      "bound_before_contact": 1,
+      "incoming_alpha": 0.00048828125
+    },
+    {
+      "environment": 0,
+      "simd_lane": 21,
+      "active_slot": 163541,
+      "contact_slot": 1207017,
+      "object": 15,
+      "reason_code": 7,
+      "reason": "barrier_armijo_failure",
+      "minimum_bound": 0,
+      "bound_before_contact": 1,
+      "incoming_alpha": 0.00048828125
+    },
+    {
+      "environment": 0,
+      "simd_lane": 27,
+      "active_slot": 163483,
+      "contact_slot": 1206870,
+      "object": 15,
+      "reason_code": 8,
+      "reason": "barrier_armijo_fraction",
+      "minimum_bound": 0.00048828125,
+      "bound_before_contact": 1,
+      "incoming_alpha": 0.00048828125
+    }
+  ],
+  "recorded_count": 1,
+  "trial_trace_capture_summary": {
+    "contact_slot": 1207017,
+    "payload_bytes": 11264,
+    "contact_records_attached": 1,
+    "trial_records_attached": 12
+  }
+}

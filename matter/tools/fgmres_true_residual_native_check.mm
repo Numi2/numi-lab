@@ -14924,6 +14924,229 @@ void checkUnresolvedReferenceSweepProof(
         " within_activation_retained=true nonfinite_rejected=true cases=30 canaries=4 PASS\n";
 }
 
+
+void checkTiledDeformableCompaction(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    auto countPS=pipeline(device,library,"numi_matter_metal::nm_contact_count_deformable_compaction_tiles");
+    auto scanPS=pipeline(device,library,"numi_matter_metal::nm_contact_scan_deformable_compaction_tiles");
+    auto scatterPS=pipeline(device,library,"numi_matter_metal::nm_contact_scatter_deformable_compaction_tiles");
+    auto serialPS=pipeline(device,library,"numi_matter_metal::nm_contact_compact_deformable_active_prefix");
+    constexpr unsigned guard=0xdeadbeefu;
+    for(unsigned capacity:{1u,31u,32u,33u,255u,256u,257u,4097u,65539u}) {
+        constexpr unsigned envs=5u;const unsigned tiles=(capacity+255u)/256u;
+        NMMatterDispatchGPU d{};d.environmentCount=envs;d.deformableContactCapacity=capacity;
+        std::vector<unsigned> counts{0u,1u,capacity/2u,capacity,capacity+1u};
+        std::vector<NMDeformableContactGPU> contacts(envs*capacity);
+        for(unsigned e=0u;e<envs;++e)for(unsigned i=0u;i<capacity;++i)
+            if(e==0u || e==3u || i%7u==0u || i+1u==capacity)
+                contacts[e*capacity+i].identity.w=NM_CONTACT_VALID;
+        auto db=makeBuffer(device,std::vector<NMMatterDispatchGPU>{d}),cb=makeBuffer(device,counts);
+        auto contactBuffer=makeBuffer(device,contacts);
+        auto offsets=makeBuffer(device,std::vector<unsigned>(envs*tiles+4u,guard));
+        auto indices=makeBuffer(device,std::vector<unsigned>(envs*capacity+4u,guard));
+        auto serial=makeBuffer(device,std::vector<unsigned>(envs*capacity+4u,guard));
+        auto active=makeBuffer(device,std::vector<unsigned>(envs+4u,guard));
+        auto serialActive=makeBuffer(device,std::vector<unsigned>(envs+4u,guard));
+        dispatch(device,queue,countPS,{{0u,db},{1u,contactBuffer},{2u,cb},{3u,offsets}},envs*tiles,256u);
+        dispatch(device,queue,scanPS,{{0u,db},{1u,offsets},{2u,active}},envs,32u);
+        dispatch(device,queue,scatterPS,{{0u,db},{1u,contactBuffer},{2u,cb},{3u,offsets},{4u,indices}},envs*tiles,256u);
+        dispatch(device,queue,serialPS,{{0u,db},{1u,contactBuffer},{2u,serial},{3u,serialActive},{4u,cb}},envs,32u);
+        const auto got=readBuffer<unsigned>(indices,envs*capacity+4u);
+        const auto ref=readBuffer<unsigned>(serial,envs*capacity+4u);
+        const auto sizes=readBuffer<unsigned>(active,envs+4u);
+        const auto refSizes=readBuffer<unsigned>(serialActive,envs+4u);
+        require(got==ref&&sizes==refSizes,"tiled compaction differs from serial active prefix");
+        for(unsigned e=0u;e<envs;++e) {
+            std::vector<unsigned> expected;
+            for(unsigned i=0u;i<std::min(counts[e],capacity);++i)
+                if(contacts[e*capacity+i].identity.w&NM_CONTACT_VALID)expected.push_back(i);
+            require(sizes[e]==expected.size(),"compaction active count mismatch");
+            for(unsigned i=0u;i<expected.size();++i)
+                require(got[e*capacity+i]==expected[i],"compaction lost deterministic slot order");
+            for(unsigned i=expected.size();i<capacity;++i)
+                require(got[e*capacity+i]==guard,"compaction modified inactive index tail");
+        }
+        const auto scratch=readBuffer<unsigned>(offsets,envs*tiles+4u);
+        for(unsigned i=envs*tiles;i<scratch.size();++i)require(scratch[i]==guard,"compaction tile canary");
+    }
+    std::cout<<"tiled_deformable_compaction=true serial_parity=true deterministic=true"
+        " capacities=9 multi_environment=true empty=true poison_padding=true overflow_clamped=true canaries=true PASS\n";
+}
+
+
+void benchmarkTiledDeformableCompaction(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    const char* flag=std::getenv("NM_CONTACT_COMPACTION_BENCHMARK");
+    if(flag==nullptr||std::string(flag)!="1")return;
+    constexpr unsigned capacity=4000000u,tiles=(capacity+255u)/256u,repeats=3u;
+    NMMatterDispatchGPU d{};d.environmentCount=1u;d.deformableContactCapacity=capacity;
+    auto db=makeBuffer(device,std::vector<NMMatterDispatchGPU>{d});
+    auto counts=makeBuffer(device,std::vector<unsigned>{0u});
+    auto contacts=[device newBufferWithLength:NSUInteger(capacity)*sizeof(NMDeformableContactGPU)
+        options:MTLResourceStorageModeShared];
+    require(contacts!=nil&&contacts.contents!=nullptr,"compaction benchmark allocation failed");
+    auto* records=static_cast<NMDeformableContactGPU*>(contacts.contents);
+    for(unsigned i=0u;i<capacity;++i)records[i].identity.w=i%6u==0u?NM_CONTACT_VALID:0u;
+    auto offsets=makeBuffer(device,std::vector<unsigned>(tiles));
+    auto indices=makeBuffer(device,std::vector<unsigned>(capacity));
+    auto active=makeBuffer(device,std::vector<unsigned>{0u});
+    auto countPS=pipeline(device,library,"numi_matter_metal::nm_contact_count_deformable_compaction_tiles");
+    auto scanPS=pipeline(device,library,"numi_matter_metal::nm_contact_scan_deformable_compaction_tiles");
+    auto scatterPS=pipeline(device,library,"numi_matter_metal::nm_contact_scatter_deformable_compaction_tiles");
+    auto serialPS=pipeline(device,library,"numi_matter_metal::nm_contact_compact_deformable_active_prefix");
+    auto measure=[&](bool tiled) {
+        auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];
+        auto bind=[&](id<MTLComputePipelineState> ps,std::initializer_list<std::pair<unsigned,id<MTLBuffer>>> bindings,unsigned groups,unsigned width) {
+            [encoder setComputePipelineState:ps];
+            for(const auto& [slot,buffer]:bindings)[encoder setBuffer:buffer offset:0u atIndex:slot];
+            [encoder dispatchThreadgroups:MTLSizeMake(groups,1u,1u) threadsPerThreadgroup:MTLSizeMake(width,1u,1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        };
+        for(unsigned i=0u;i<repeats;++i) {
+            if(tiled) {
+                bind(countPS,{{0u,db},{1u,contacts},{2u,counts},{3u,offsets}},tiles,256u);
+                bind(scanPS,{{0u,db},{1u,offsets},{2u,active}},1u,32u);
+                bind(scatterPS,{{0u,db},{1u,contacts},{2u,counts},{3u,offsets},{4u,indices}},tiles,256u);
+            } else bind(serialPS,{{0u,db},{1u,contacts},{2u,indices},{3u,active},{4u,counts}},1u,32u);
+        }
+        [encoder endEncoding];[command commit];[command waitUntilCompleted];
+        require(command.status==MTLCommandBufferStatusCompleted,"compaction benchmark GPU command failed");
+        require(command.GPUStartTime>0&&command.GPUEndTime>=command.GPUStartTime,"compaction GPU timestamps unavailable");
+        return 1000.0*(command.GPUEndTime-command.GPUStartTime)/repeats;
+    };
+    for(unsigned candidates:{0u,3631873u,capacity}) {
+        static_cast<unsigned*>(counts.contents)[0]=candidates;
+        measure(false);measure(true);
+        double oldValues[3],newValues[3];
+        for(unsigned pair=0u;pair<3u;++pair) {
+            if(pair%2u==0u){oldValues[pair]=measure(false);newValues[pair]=measure(true);}
+            else {newValues[pair]=measure(true);oldValues[pair]=measure(false);}
+            require(static_cast<unsigned*>(active.contents)[0]==(candidates+5u)/6u,"benchmark active count");
+        }
+        std::cout<<"deformable_compaction_benchmark={\"candidates\":"<<candidates
+            <<",\"capacity\":"<<capacity<<",\"pairs\":3,\"repeats_per_sample\":"<<repeats
+            <<",\"scope\":\"GPU_compaction_only_all_three_tiled_passes_and_barriers\",\"serial_ms\":[";
+        for(unsigned i=0u;i<3u;++i)std::cout<<(i?",":"")<<oldValues[i];
+        std::cout<<"],\"tiled_ms\":[";
+        for(unsigned i=0u;i<3u;++i)std::cout<<(i?",":"")<<newValues[i];
+        std::cout<<"]}\n";
+    }
+}
+
+void checkThinContactEnergy(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    // Root9/iteration4/contact1207017: normal gap ~1.97 nm, activation2 nm.
+    // Every endpoint is captured high/low Float32, not a scripted trajectory.
+    std::vector<MRCompensatedPositionGPU> positions{
+{{9.71078329e-10f,4.69854688e-09f,-1.8514406e-08f,0.0f},{-2.13778195e-17f,-1.53418644e-16f,3.42746456e-16f,0.0f}},
+{{1.93817368e-06f,4.95204949e-06f,-6.47099614e-06f,0.0f},{2.387907e-14f,6.36824916e-14f,-3.19575672e-14f,0.0f}},
+{{-3.08357153e-06f,-8.04197134e-06f,1.01590795e-05f,0.0f},{4.42022551e-14f,4.35576027e-13f,3.19509149e-13f,0.0f}},
+{{0.000211242776f,0.00357669592f,0.00151671888f,0.0f},{6.22538859e-13f,8.04203492e-12f,3.22227349e-11f,0.0f}},
+{{9.71118741e-10f,4.69872097e-09f,-1.85154683e-08f,0.0f},{-2.5816795e-17f,8.10687359e-17f,1.72165733e-16f,0.0f}},
+{{1.93817368e-06f,4.95204995e-06f,-6.47099705e-06f,0.0f},{6.33159771e-14f,-2.19603781e-13f,-1.87452796e-13f,0.0f}},
+{{-3.08357153e-06f,-8.04197043e-06f,1.01590786e-05f,0.0f},{8.66749503e-14f,-2.95636372e-13f,1.68447707e-13f,0.0f}},
+{{0.000211242776f,0.00357669592f,0.00151671888f,0.0f},{-4.13489311e-13f,8.22041653e-12f,2.40270529e-11f,0.0f}},
+{{9.71098535e-10f,4.69863393e-09f,-1.85149371e-08f,0.0f},{-2.40413974e-17f,-3.61749607e-17f,2.71666945e-16f,0.0f}},
+{{1.93817368e-06f,4.95204949e-06f,-6.4709966e-06f,0.0f},{4.3597521e-14f,1.4941302e-13f,-1.09719383e-13f,0.0f}},
+{{-3.08357153e-06f,-8.04197043e-06f,1.01590795e-05f,0.0f},{6.5438601e-14f,-3.84777523e-13f,-2.10783146e-13f,0.0f}},
+{{0.000211242776f,0.00357669592f,0.00151671888f,0.0f},{1.04524808e-13f,8.13122226e-12f,2.8124782e-11f,0.0f}},
+{{9.71088432e-10f,4.69859041e-09f,-1.85146707e-08f,0.0f},{-2.226552e-17f,-9.65731578e-17f,-5.80971693e-16f,0.0f}},
+{{1.93817368e-06f,4.95204949e-06f,-6.4709966e-06f,0.0f},{3.37387419e-14f,1.06549542e-13f,1.56535199e-13f,0.0f}},
+{{-3.08357153e-06f,-8.04197043e-06f,1.01590795e-05f,0.0f},{5.48204297e-14f,-4.2934631e-13f,5.43629913e-14f,0.0f}},
+{{0.000211242776f,0.00357669592f,0.00151671888f,0.0f},{3.63503417e-13f,8.08662946e-12f,3.01738738e-11f,0.0f}},
+{{9.71083325e-10f,4.69856865e-09f,-1.85145392e-08f,0.0f},{3.36894815e-17f,-1.24995898e-16f,7.54854957e-16f,0.0f}},
+{{1.93817368e-06f,4.95204949e-06f,-6.47099614e-06f,0.0f},{2.88084613e-14f,8.51160166e-14f,-1.65084865e-13f,0.0f}},
+{{-3.08357153e-06f,-8.04197043e-06f,1.01590795e-05f,0.0f},{4.95108952e-14f,-4.51632519e-13f,1.86950268e-13f,0.0f}},
+{{0.000211242776f,0.00357669592f,0.00151671888f,0.0f},{4.93049557e-13f,8.06433306e-12f,3.11981933e-11f,0.0f}},
+{{9.71080882e-10f,4.69855754e-09f,-1.85144717e-08f,0.0f},{-4.97994129e-17f,8.46136879e-17f,-3.25166869e-16f,0.0f}},
+{{1.93817368e-06f,4.95204949e-06f,-6.47099614e-06f,0.0f},{2.63437665e-14f,7.43974855e-14f,-9.85212142e-14f,0.0f}},
+{{-3.08357153e-06f,-8.04197134e-06f,1.01590795e-05f,0.0f},{4.6857019e-14f,4.46717343e-13f,2.53229702e-13f,0.0f}},
+{{0.000211242776f,0.00357669592f,0.00151671888f,0.0f},{5.57794208e-13f,8.05318399e-12f,3.17104641e-11f,0.0f}},
+{{9.7107955e-10f,4.69855221e-09f,-1.8514438e-08f,0.0f},{2.03666243e-17f,-3.61788385e-17f,-8.793886e-16f,0.0f}},
+{{1.93817368e-06f,4.95204949e-06f,-6.47099614e-06f,0.0f},{2.51118621e-14f,6.90399818e-14f,-6.52393924e-14f,0.0f}},
+{{-3.08357153e-06f,-8.04197134e-06f,1.01590795e-05f,0.0f},{4.55291898e-14f,4.41146658e-13f,2.86369425e-13f,0.0f}},
+{{0.000211242776f,0.00357669592f,0.00151671888f,0.0f},{5.90138127e-13f,8.04761379e-12f,3.19667105e-11f,0.0f}},
+{{9.71078884e-10f,4.69854955e-09f,-1.8514422e-08f,0.0f},{5.50055553e-17f,-9.30223825e-17f,-2.68321112e-16f,0.0f}},
+{{1.93817368e-06f,4.95204949e-06f,-6.47099614e-06f,0.0f},{2.44954661e-14f,6.63612435e-14f,-4.85842683e-14f,0.0f}},
+{{-3.08357153e-06f,-8.04197134e-06f,1.01590795e-05f,0.0f},{4.48657259e-14f,4.38361343e-13f,3.02939287e-13f,0.0f}},
+{{0.000211242776f,0.00357669592f,0.00151671888f,0.0f},{6.06338493e-13f,8.04482089e-12f,3.20947262e-11f,0.0f}},
+{{9.71078662e-10f,4.69854822e-09f,-1.85144131e-08f,0.0f},{-3.91413759e-17f,-1.24996877e-16f,-8.50965774e-16f,0.0f}},
+{{1.93817368e-06f,4.95204949e-06f,-6.47099614e-06f,0.0f},{2.41872681e-14f,6.50218743e-14f,-4.02851275e-14f,0.0f}},
+{{-3.08357153e-06f,-8.04197134e-06f,1.01590795e-05f,0.0f},{4.45344343e-14f,4.36968685e-13f,3.11210015e-13f,0.0f}},
+{{0.000211242776f,0.00357669592f,0.00151671888f,0.0f},{6.1446719e-13f,8.0434279e-12f,3.21586195e-11f,0.0f}},
+{{9.7107844e-10f,4.69854733e-09f,-1.85144096e-08f,0.0f},{2.56956428e-17f,8.46131982e-17f,-2.54109646e-16f,0.0f}},
+{{1.93817368e-06f,4.95204949e-06f,-6.47099614e-06f,0.0f},{2.40327252e-14f,6.43539651e-14f,-3.61071341e-14f,0.0f}},
+{{-3.08357153e-06f,-8.04197134e-06f,1.01590795e-05f,0.0f},{4.43683413e-14f,4.36272356e-13f,3.15359582e-13f,0.0f}},
+{{0.000211242776f,0.00357669592f,0.00151671888f,0.0f},{6.18503024e-13f,8.04273228e-12f,3.21906772e-11f,0.0f}},
+{{9.7107844e-10f,4.69854688e-09f,-1.85144078e-08f,0.0f},{-5.33522396e-17f,1.87641872e-16f,4.43184016e-17f,0.0f}},
+{{1.93817368e-06f,4.95204949e-06f,-6.47099614e-06f,0.0f},{2.39563432e-14f,6.4016453e-14f,-3.40323506e-14f,0.0f}},
+{{-3.08357153e-06f,-8.04197134e-06f,1.01590795e-05f,0.0f},{4.4284851e-14f,4.35924165e-13f,3.17434365e-13f,0.0f}},
+{{0.000211242776f,0.00357669592f,0.00151671888f,0.0f},{6.20492535e-13f,8.0423836e-12f,3.22068171e-11f,0.0f}},
+{{9.71078329e-10f,4.69854688e-09f,-1.8514406e-08f,0.0f},{1.77020307e-17f,1.7111614e-17f,-7.08856833e-16f,0.0f}},
+{{1.93817368e-06f,4.95204949e-06f,-6.47099614e-06f,0.0f},{2.39172644e-14f,6.38494723e-14f,-3.30091687e-14f,0.0f}},
+{{-3.08357153e-06f,-8.04197134e-06f,1.01590795e-05f,0.0f},{4.42439969e-14f,4.35750096e-13f,3.18485933e-13f,0.0f}},
+{{0.000211242776f,0.00357669592f,0.00151671888f,0.0f},{6.21515697e-13f,8.0422136e-12f,3.2214776e-11f,0.0f}},
+{{9.71078329e-10f,4.69854688e-09f,-1.8514406e-08f,0.0f},{-1.83789461e-18f,-6.81535216e-17f,-1.68844345e-16f,0.0f}},
+{{1.93817368e-06f,4.95204949e-06f,-6.47099614e-06f,0.0f},{2.38986128e-14f,6.37677641e-14f,-3.24691547e-14f,0.0f}},
+{{-3.08357153e-06f,-8.04197134e-06f,1.01590795e-05f,0.0f},{4.42226788e-14f,4.35664823e-13f,3.18997568e-13f,0.0f}},
+{{0.000211242776f,0.00357669592f,0.00151671888f,0.0f},{6.22027332e-13f,8.04211992e-12f,3.22186409e-11f,0.0f}}
+    };
+    const unsigned capturedCount=positions.size()/4u;
+    NMDeformableContactGPU vt{};vt.identity.z=NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
+    vt.barrier.z=1.99999994e-9f;vt.mollifier.w=424009338000000.0f;
+    std::vector<NMDeformableContactGPU> contacts(capturedCount,vt);
+    for(float h:{2e-9f,1e-7f,1e-5f,0.01f})for(double ratio:{0.9999,0.98,0.5,0.00001,0.0,1.0,1.1}) {
+        NMDeformableContactGPU pp{};pp.identity.z=NM_DEFORMABLE_CONTACT_POINT_POINT;
+        pp.barrier.z=h;pp.mollifier.w=4.24009338e14f;
+        const double distance=double(h)*ratio;const float high=float(distance);
+        positions.push_back({{high,0,0,0},{float(distance-double(high)),0,0,0}});
+        for(unsigned i=0u;i<3u;++i)positions.push_back({});
+        contacts.push_back(pp);
+    }
+    const unsigned count=contacts.size();
+    auto output=makeBuffer(device,std::vector<nm_float4>(count+4u,{-7,-7,-7,-7}));
+    dispatch(device,queue,pipeline(device,library,
+        "numi_matter_metal::nm_contact_check_compensated_barrier_words"),{
+        {0u,makeBuffer(device,contacts)},{1u,makeBuffer(device,positions)},
+        {2u,output},{3u,makeBuffer(device,std::vector<unsigned>{count})}},(count+31u)/32u,32u);
+    const auto got=readBuffer<nm_float4>(output,count+4u);
+    using V=std::array<double,3u>;
+    auto point=[&](unsigned i){const auto p=positions[i];return V{
+        double(p.high.x)+p.low.x,double(p.high.y)+p.low.y,double(p.high.z)+p.low.z};};
+    auto sub=[](V a,V b){return V{a[0]-b[0],a[1]-b[1],a[2]-b[2]};};
+    auto dot=[](V a,V b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];};
+    auto cross=[](V a,V b){return V{a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};};
+    std::vector<double> energy(count);
+    double maxRelative=0.0;
+    for(unsigned i=0u;i<count;++i) {
+        const double h=contacts[i].barrier.z,k=contacts[i].mollifier.w;
+        double gap=point(4u*i)[0];
+        if(i<capturedCount) {
+            const auto p=point(4u*i),a=point(4u*i+1u);
+            const auto n=cross(sub(point(4u*i+2u),a),sub(point(4u*i+3u),a));
+            gap=std::abs(dot(sub(p,a),n))/std::sqrt(dot(n,n));
+        }
+        const double floor=double(float(1e-4f*contacts[i].barrier.z));
+        const double d=std::max(gap,floor),s=d*d-h*h;
+        double expected=gap>=h?0.0:-k*s*s*std::log(d*d/(h*h));
+        if(gap<floor) {
+            const double derivative=-2*d*k*(2*s*std::log(d*d/(h*h))+s*s/(d*d));
+            expected+=derivative*(gap-floor);
+        }
+        energy[i]=double(got[i].x)+got[i].y;
+        const double relative=expected>0.0?std::abs(energy[i]/expected-1.0):std::abs(energy[i]);
+        maxRelative=std::max(maxRelative,relative);
+        if(got[i].w!=1.0f||!std::isfinite(relative)||relative>1e-8)std::cerr<<"thin_energy_case="<<i<<" got="<<std::setprecision(17)<<energy[i]<<" reference="<<expected<<" relative="<<relative<<"\n";
+        require(got[i].w==1.0f&&relative<=1e-8,"thin IPC barrier differs from Float64 law");
+    }
+    require(energy[1]<energy[0]-1e-4*0.00048828125*9.79580066e-28,
+        "captured root9 trial lost physically descending energy");
+    for(unsigned i=count;i<count+4u;++i)require(got[i].x==-7.0f&&got[i].y==-7.0f,"thin energy canary");
+    std::cout<<"thin_contact_energy=true captured_native_trials="<<capturedCount
+        <<" Float64_reference=true max_relative_error="<<maxRelative
+        <<" C1_floor=true activation=true widths=4 PASS\n";
+}
+
 void checkParallelNarrowphaseFailureSelection(
     id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     constexpr unsigned environments=5u,capacity=65539u;
@@ -15453,6 +15676,9 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if(argc==2&&std::string(argv[1])=="--thin-contact-energy-only") {
+                checkThinContactEnergy(device,queue,library);return 0;
+            }
             if (argc==2 && std::string(argv[1])=="--reference-plane-only") {
                 checkReferenceContactPlaneCertificate(device,queue,library);
                 std::cout<<"PASS reference contact plane "<<checks<<" checks\n";
@@ -16165,6 +16391,9 @@ int main(int argc, const char* argv[]) {
             checkCapturedRestMarginSweep(device,queue,library);
             checkUnresolvedReferenceSweepProof(device,queue,library);
             checkParallelNarrowphaseFailureSelection(device,queue,library);
+            checkTiledDeformableCompaction(device,queue,library);
+            benchmarkTiledDeformableCompaction(device,queue,library);
+            checkThinContactEnergy(device,queue,library);
             benchmarkNarrowphaseFailureSelection(device,queue,library);
             std::cout << "PASS native FGMRES true-residual kernel contract "
                       << checks

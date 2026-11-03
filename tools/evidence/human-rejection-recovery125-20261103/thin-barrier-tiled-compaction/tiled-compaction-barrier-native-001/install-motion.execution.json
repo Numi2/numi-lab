@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 397.5951590538025,
+  "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-compaction-barrier-native-001/install-motion.plan.json",
+  "plan_sha256": "9f23cff6b3cf6646b03db882926d181f5438b35e01ab85b8542510375edba2b8",
+  "stdout_sha256": "bafce8dc7d733377ae9b867dcd787a1de6bf373ef550aabacf495dac3f0d45c0",
+  "stderr_sha256": "a84deb25364861f473f4ac855e0dda4da948eff315e2c3693c93cedd36162849",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

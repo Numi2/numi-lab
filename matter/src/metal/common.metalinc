@@ -228,10 +228,14 @@ inline MRCompensatedScalar ipcFEMBarrierEnergyCompensated(
         squaredDistance, mrCompensatedNegate(squaredThickness));
     const auto logarithm = nmCompensatedLog(
         mrCompensatedDivide(squaredDistance, squaredThickness));
-    const auto offsetSquared = mrCompensatedMultiply(offset, offset);
+    // Apply stiffness before multiplying small gap powers. At nanometre
+    // activation widths offset*offset*log can become subnormal even when
+    // the final energy is normal, destroying trial-energy differences.
+    // This is the same IPC polynomial with well-scaled intermediates.
+    const auto scaledOffset=mrCompensatedMultiply({stiffness,0.0f},offset);
     const auto energyAtDistance = mrCompensatedNegate(
-        mrCompensatedMultiply({stiffness, 0.0f},
-            mrCompensatedMultiply(offsetSquared, logarithm)));
+        mrCompensatedMultiply(scaledOffset,
+            mrCompensatedMultiply(offset, logarithm)));
     if (!belowFloor)
         return energyAtDistance.high < 0.0f ||
             (energyAtDistance.high == 0.0f && energyAtDistance.low < 0.0f)
@@ -239,11 +243,11 @@ inline MRCompensatedScalar ipcFEMBarrierEnergyCompensated(
                 : energyAtDistance;
 
     const auto firstSquared = mrCompensatedNegate(
-        mrCompensatedMultiply({stiffness, 0.0f},
-            mrCompensatedAdd(
-                mrCompensatedMultiply({2.0f, 0.0f},
-                    mrCompensatedMultiply(offset, logarithm)),
-                mrCompensatedDivide(offsetSquared, squaredDistance))));
+        mrCompensatedAdd(
+            mrCompensatedMultiply({2.0f, 0.0f},
+                mrCompensatedMultiply(scaledOffset, logarithm)),
+            mrCompensatedMultiply(scaledOffset,
+                mrCompensatedDivide(offset, squaredDistance))));
     const auto energyDerivativeAtFloor = mrCompensatedMultiply(
         mrCompensatedMultiply({2.0f, 0.0f}, distance), firstSquared);
     const auto continuation = mrCompensatedAdd(

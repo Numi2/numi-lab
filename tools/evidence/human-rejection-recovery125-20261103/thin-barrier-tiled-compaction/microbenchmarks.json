@@ -1,0 +1,59 @@
+[
+  {
+    "candidates": 0,
+    "capacity": 4000000,
+    "pairs": 3,
+    "repeats_per_sample": 3,
+    "scope": "GPU_compaction_only_all_three_tiled_passes_and_barriers",
+    "serial_ms": [
+      0.00283333308,
+      0.002805555899,
+      0.002819443277
+    ],
+    "tiled_ms": [
+      1.049180556,
+      1.048569444,
+      0.6658472218
+    ],
+    "serial_median_ms": 0.002819443277,
+    "tiled_median_ms": 1.048569444
+  },
+  {
+    "candidates": 3631873,
+    "capacity": 4000000,
+    "pairs": 3,
+    "repeats_per_sample": 3,
+    "scope": "GPU_compaction_only_all_three_tiled_passes_and_barriers",
+    "serial_ms": [
+      31.41895833,
+      31.49469444,
+      31.43895833
+    ],
+    "tiled_ms": [
+      3.877583333,
+      3.891458332,
+      3.879097222
+    ],
+    "serial_median_ms": 31.43895833,
+    "tiled_median_ms": 3.879097222
+  },
+  {
+    "candidates": 4000000,
+    "capacity": 4000000,
+    "pairs": 3,
+    "repeats_per_sample": 3,
+    "scope": "GPU_compaction_only_all_three_tiled_passes_and_barriers",
+    "serial_ms": [
+      34.69788889,
+      34.60904167,
+      34.51275
+    ],
+    "tiled_ms": [
+      4.238208334,
+      4.243097222,
+      4.233833334
+    ],
+    "serial_median_ms": 34.60904167,
+    "tiled_median_ms": 4.238208334
+  }
+]

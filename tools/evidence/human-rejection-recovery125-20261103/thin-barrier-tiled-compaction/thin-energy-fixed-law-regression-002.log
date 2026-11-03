@@ -1,0 +1,2 @@
+thin_energy_case=17 got=nan reference=1.3853693665780658e-19 relative=nan
+FAIL native FGMRES true-residual kernel contract: thin IPC barrier differs from Float64 law

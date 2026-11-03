@@ -3664,6 +3664,7 @@ struct Runtime::State {
     id<MTLBuffer> deformableContactHistoriesCheckpoint = nil;
     id<MTLBuffer> deformableContactActiveIndices = nil;
     id<MTLBuffer> deformableContactActiveCounts = nil;
+    id<MTLBuffer> deformableContactCompactionTiles = nil;
     id<MTLBuffer> deformableContactNodeIncidence = nil;
     id<MTLBuffer> deformableContactNodeRanges = nil;
     // Shared workspace for the opt-in deterministic corner-sort incidence
@@ -8699,6 +8700,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_capture_deformable_failure",
             "nm_contact_compact_deformable",
             "nm_contact_compact_deformable_active_prefix",
+            "nm_contact_count_deformable_compaction_tiles",
+            "nm_contact_scan_deformable_compaction_tiles",
+            "nm_contact_scatter_deformable_compaction_tiles",
             "nm_contact_clear_deformable_tail",
             "nm_contact_scan_deformable_active_counts",
             "nm_contact_scatter_deformable_active_work",
@@ -12260,6 +12264,14 @@ RuntimeDiagnostics Runtime::initialize(
             privateScratch<std::uint32_t>(
                 candidate->device, environments,
                 valid, candidate->residentBytes);
+        if(candidate->deformableContactActivePrefixCompactionEnabled &&
+           world.dispatch.deformableContactCapacity>4096u) {
+            const std::size_t tiles=world.dispatch.deformableContactCapacity/256u+
+                (world.dispatch.deformableContactCapacity%256u!=0u);
+            candidate->deformableContactCompactionTiles=
+                privateScratch<std::uint32_t>(candidate->device,
+                    environments*tiles,valid,candidate->residentBytes);
+        }
         candidate->deformableContactNodeIncidence =
             privateScratch<std::uint32_t>(
                 candidate->device,
@@ -20114,6 +20126,51 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 setDispatch();
                 [encoder setBuffer:contacts offset:0u atIndex:1u];
                 [encoder setBuffer:counts offset:0u atIndex:2u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        };
+        const auto compactDeformableContacts = [&](id<MTLBuffer> contacts,
+                id<MTLBuffer> indices,id<MTLBuffer> activeCounts,
+                id<MTLBuffer> candidateCounts) {
+            const auto environments=state.dispatch.environmentCount;
+            const auto bindLegacy=[&] {
+                setDispatch();
+                [encoder setBuffer:contacts offset:0u atIndex:1u];
+                [encoder setBuffer:indices offset:0u atIndex:2u];
+                [encoder setBuffer:activeCounts offset:0u atIndex:3u];
+                [encoder setBuffer:candidateCounts offset:0u atIndex:4u];
+            };
+            if(!state.deformableContactActivePrefixCompactionEnabled ||
+               state.deformableContactCompactionTiles==nil) {
+                dispatchGroups32(state.deformableContactActivePrefixCompactionEnabled
+                    ? "nm_contact_compact_deformable_active_prefix"
+                    : "nm_contact_compact_deformable",environments,bindLegacy);
+                return;
+            }
+            const NSUInteger tiles=state.dispatch.deformableContactCapacity/256u+
+                (state.dispatch.deformableContactCapacity%256u!=0u);
+            dispatchGroups256("nm_contact_count_deformable_compaction_tiles",
+                environments*tiles,[&] {
+                setDispatch();
+                [encoder setBuffer:contacts offset:0u atIndex:1u];
+                [encoder setBuffer:candidateCounts offset:0u atIndex:2u];
+                [encoder setBuffer:state.deformableContactCompactionTiles offset:0u atIndex:3u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            dispatchGroups32("nm_contact_scan_deformable_compaction_tiles",
+                environments,[&] {
+                setDispatch();
+                [encoder setBuffer:state.deformableContactCompactionTiles offset:0u atIndex:1u];
+                [encoder setBuffer:activeCounts offset:0u atIndex:2u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            dispatchGroups256("nm_contact_scatter_deformable_compaction_tiles",
+                environments*tiles,[&] {
+                setDispatch();
+                [encoder setBuffer:contacts offset:0u atIndex:1u];
+                [encoder setBuffer:candidateCounts offset:0u atIndex:2u];
+                [encoder setBuffer:state.deformableContactCompactionTiles offset:0u atIndex:3u];
+                [encoder setBuffer:indices offset:0u atIndex:4u];
             });
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         };
@@ -29780,23 +29837,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
                 clearDeformableTail(state.deformableContacts,
                     state.deformableContactCandidateCounts);
-                dispatchGroups32(
-                    state.deformableContactActivePrefixCompactionEnabled
-                        ? "nm_contact_compact_deformable_active_prefix"
-                        : "nm_contact_compact_deformable",
-                    environments,
-                    [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.deformableContacts
-                                   offset:0u atIndex:1u];
-                        [encoder setBuffer:state.deformableContactActiveIndices
-                                   offset:0u atIndex:2u];
-                        [encoder setBuffer:state.deformableContactActiveCounts
-                                   offset:0u atIndex:3u];
-                        [encoder setBuffer:state.deformableContactCandidateCounts
-                                   offset:0u atIndex:4u];
-                    }
-                );
+                compactDeformableContacts(state.deformableContacts,
+                    state.deformableContactActiveIndices,
+                    state.deformableContactActiveCounts,
+                    state.deformableContactCandidateCounts);
                 dispatchGroups32(
                     "nm_contact_scan_deformable_active_counts",
                     1u,
@@ -30661,20 +30705,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         "deformable_self_narrowphase")) return false;
                 clearDeformableTail(state.femArmijoDeformableContacts,
                     state.femArmijoDeformableCandidateCounts);
-                dispatchGroups32(state.deformableContactActivePrefixCompactionEnabled
-                        ? "nm_contact_compact_deformable_active_prefix"
-                        : "nm_contact_compact_deformable",
-                    environments, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.femArmijoDeformableContacts
-                                 offset:0u atIndex:1u];
-                    [encoder setBuffer:state.femArmijoDeformableActiveIndices
-                                 offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femArmijoDeformableActiveCounts
-                                 offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femArmijoDeformableCandidateCounts
-                                 offset:0u atIndex:4u];
-                });
+                compactDeformableContacts(state.femArmijoDeformableContacts,
+                    state.femArmijoDeformableActiveIndices,
+                    state.femArmijoDeformableActiveCounts,
+                    state.femArmijoDeformableCandidateCounts);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 buildDeformableNodeIncidence(
                     state.femArmijoDeformableContacts,

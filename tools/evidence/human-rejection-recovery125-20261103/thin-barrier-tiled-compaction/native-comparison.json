@@ -1,0 +1,1506 @@
+{
+  "parallel-selector-native-001": {
+    "accepted_steps": 9,
+    "accepted_simulated_seconds": 0.000140625006679,
+    "root0_stage_ms": {
+      "matter_pre": [
+        9.177916
+      ],
+      "brain_advance": [
+        0.094625
+      ],
+      "respiratory_mechanics": [
+        6.116167
+      ],
+      "matter_after_frame_begin": [
+        0.782208
+      ],
+      "matter_newton_assembly": [
+        244.073709,
+        243.3175,
+        243.140041,
+        229.360875,
+        227.784958,
+        228.605708,
+        227.840875,
+        227.467125,
+        227.17475,
+        228.129583,
+        227.475834,
+        227.987667,
+        227.431625,
+        227.57,
+        229.373917,
+        227.932667
+      ],
+      "matter_newton_linear": [
+        805.774375,
+        933.464458,
+        597.677875,
+        485.557333,
+        488.258792,
+        480.044833,
+        487.535667,
+        497.586083,
+        486.188625,
+        479.038125,
+        483.678333,
+        490.451166,
+        489.922458,
+        479.297667,
+        480.044041,
+        466.791958
+      ],
+      "matter_newton_globalization": [
+        43.315583,
+        44.481834,
+        27.668292,
+        26.871792,
+        26.964292,
+        26.862167,
+        26.789083,
+        26.931084,
+        26.83,
+        26.632833,
+        26.869625,
+        26.814917,
+        27.036625,
+        27.031125,
+        26.744792,
+        26.961625
+      ],
+      "respiratory_gas_exchange": [
+        1.802792
+      ],
+      "matter_after_candidate_ready": [
+        1717.082209
+      ],
+      "matter_after_microstep": [
+        2.466125
+      ],
+      "matter_post": [
+        15.224
+      ],
+      "brain_resolve": [
+        0.001542
+      ],
+      "respiratory_resolve": [
+        0.690167
+      ]
+    },
+    "root0_non_nested_stage_sum_ms": 14544.222043,
+    "gpu_command_lines": [
+      "resting_render_profile step=0 vertices=3155759 triangles=5725951 geometry_export=1 encode_wall_ms=0.093458329502027482 command_wall_ms=57.427500003541354 gpu_ms=27.747000000090338 audit_export_wall_ms=921.50058333209017 total_render_wall_ms=979.02825000346638",
+      "resting_native_profile step=1 command_ms=21291.892958 gpu_ms=21280.34225 host_copy_ms=1.537125 full_state_readback=1",
+      "resting_native_profile step=2 command_ms=21647.548417 gpu_ms=21646.962375 host_copy_ms=0.139667 full_state_readback=1",
+      "resting_native_profile step=3 command_ms=22459.0545 gpu_ms=22458.4587917 host_copy_ms=0.111542 full_state_readback=1",
+      "resting_native_profile step=4 command_ms=21542.638916 gpu_ms=21542.04875 host_copy_ms=0.0555 full_state_readback=1",
+      "resting_native_profile step=5 command_ms=21620.432209 gpu_ms=21619.838625 host_copy_ms=0.055458 full_state_readback=1",
+      "resting_native_profile step=6 command_ms=21567.802209 gpu_ms=21567.2003333 host_copy_ms=0.053958 full_state_readback=1",
+      "resting_native_profile step=7 command_ms=21640.314125 gpu_ms=21639.712375 host_copy_ms=0.055666 full_state_readback=1",
+      "resting_native_profile step=8 command_ms=21850.603417 gpu_ms=21849.9994167 host_copy_ms=0.05375 full_state_readback=1",
+      "resting_native_profile step=9 command_ms=23142.518083 gpu_ms=23141.712875 host_copy_ms=0.141542 full_state_readback=1"
+    ],
+    "terminal_certificates": [
+      {
+        "root": 0,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 8,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.945040703
+      },
+      {
+        "root": 1,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 15,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.893259645
+      },
+      {
+        "root": 2,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 32,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.761443257
+      },
+      {
+        "root": 3,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.709858537
+      },
+      {
+        "root": 4,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.640435994
+      },
+      {
+        "root": 5,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.583631873
+      },
+      {
+        "root": 6,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.520411372
+      },
+      {
+        "root": 7,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.458236665
+      },
+      {
+        "root": 8,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 9,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.496498972
+      },
+      {
+        "root": 9,
+        "status": [
+          {
+            "code": 6,
+            "object_index": 15,
+            "failing_index": 1207017,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 10,
+            "diagnostics": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.49704054
+      }
+    ],
+    "accepted_step_profiles": [
+      {
+        "accepted_step": 1,
+        "command_ms": 21291.892958,
+        "gpu_ms": 21280.34225,
+        "host_copy_ms": 1.537125
+      },
+      {
+        "accepted_step": 2,
+        "command_ms": 21647.548417,
+        "gpu_ms": 21646.962375,
+        "host_copy_ms": 0.139667
+      },
+      {
+        "accepted_step": 3,
+        "command_ms": 22459.0545,
+        "gpu_ms": 22458.4587917,
+        "host_copy_ms": 0.111542
+      },
+      {
+        "accepted_step": 4,
+        "command_ms": 21542.638916,
+        "gpu_ms": 21542.04875,
+        "host_copy_ms": 0.0555
+      },
+      {
+        "accepted_step": 5,
+        "command_ms": 21620.432209,
+        "gpu_ms": 21619.838625,
+        "host_copy_ms": 0.055458
+      },
+      {
+        "accepted_step": 6,
+        "command_ms": 21567.802209,
+        "gpu_ms": 21567.2003333,
+        "host_copy_ms": 0.053958
+      },
+      {
+        "accepted_step": 7,
+        "command_ms": 21640.314125,
+        "gpu_ms": 21639.712375,
+        "host_copy_ms": 0.055666
+      },
+      {
+        "accepted_step": 8,
+        "command_ms": 21850.603417,
+        "gpu_ms": 21849.9994167,
+        "host_copy_ms": 0.05375
+      },
+      {
+        "accepted_step": 9,
+        "command_ms": 23142.518083,
+        "gpu_ms": 23141.712875,
+        "host_copy_ms": 0.141542
+      }
+    ]
+  },
+  "completed-work-trial-trace-001": {
+    "accepted_steps": 9,
+    "accepted_simulated_seconds": 0.000140625006679,
+    "root0_stage_ms": {
+      "matter_pre": [
+        9.323042
+      ],
+      "brain_advance": [
+        0.091375
+      ],
+      "respiratory_mechanics": [
+        1.424
+      ],
+      "matter_after_frame_begin": [
+        0.791375
+      ],
+      "matter_newton_assembly": [
+        245.362667,
+        244.769792,
+        243.483417,
+        228.547292,
+        217.343417,
+        217.129875,
+        217.597708,
+        216.8055,
+        216.891792,
+        217.596542,
+        217.792958,
+        217.212583,
+        216.913334,
+        216.841708,
+        216.75975,
+        216.806584
+      ],
+      "nm_fgmres_apply_coupled_tangent_block": [
+        0.21975,
+        0.001875,
+        0.001875,
+        0.001875,
+        0.001833,
+        0.001875,
+        0.001916,
+        0.001875,
+        0.001917
+      ],
+      "nm_vascular_precondition": [
+        0.002375,
+        0.002333,
+        0.002333,
+        0.002375,
+        0.002292,
+        0.002375,
+        0.002458,
+        0.002333
+      ],
+      "nm_fgmres_prepare_operator_icb_ranges": [
+        0.009541,
+        0.009833,
+        0.009542,
+        0.009791,
+        0.009917,
+        0.009709,
+        0.009917,
+        0.00975
+      ],
+      "nm_fgmres_precondition_patches": [
+        0.001834,
+        0.001791,
+        0.00175,
+        0.001791,
+        0.001833,
+        0.001917,
+        0.001917,
+        0.001958
+      ],
+      "nm_fgmres_cgs2_prepare_range": [
+        0.001417,
+        0.001291,
+        0.001417,
+        0.001375,
+        0.001333,
+        0.001291,
+        0.001333,
+        0.00125
+      ],
+      "nm_fgmres_apply_left_row_equilibration": [
+        0.129917,
+        0.197375,
+        0.130292,
+        0.129,
+        0.128959,
+        0.128959,
+        0.130375,
+        0.128,
+        0.129333
+      ],
+      "nm_fgmres_unscale_preconditioner_input": [
+        0.169583,
+        0.181625,
+        0.183958,
+        0.187,
+        0.184667,
+        0.185,
+        0.183208,
+        0.183041
+      ],
+      "nm_fgmres_true_residual_distributed_partial": [
+        0.080167
+      ],
+      "matter_newton_linear": [
+        796.715208,
+        926.713292,
+        608.41175,
+        481.59775,
+        470.259333,
+        470.780166,
+        473.703167,
+        474.207125,
+        478.1945,
+        464.539458,
+        475.300542,
+        479.786292,
+        477.853208,
+        482.804875,
+        475.089625,
+        481.965166
+      ],
+      "matter_newton_globalization": [
+        43.298333,
+        44.261791,
+        27.5565,
+        26.890916,
+        26.747459,
+        26.814167,
+        26.711917,
+        26.958208,
+        26.948708,
+        27.0,
+        26.987375,
+        26.720208,
+        26.844542,
+        27.056625,
+        26.979958,
+        27.154834
+      ],
+      "nm_fgmres_accumulate_fields": [
+        0.3765
+      ],
+      "nm_fgmres_precondition_coarse": [
+        0.001791,
+        0.001875,
+        0.001833,
+        0.001792,
+        0.001791,
+        0.001833,
+        0.001833,
+        0.001792
+      ],
+      "nm_fgmres_precondition_empty_fields": [
+        0.002042,
+        0.002208,
+        0.002292,
+        0.00225,
+        0.00225,
+        0.00225,
+        0.002041,
+        0.002125
+      ],
+      "nm_vascular_apply_principal_block": [
+        0.002083,
+        0.002,
+        0.001833,
+        0.001834,
+        0.001791,
+        0.001792,
+        0.001667,
+        0.001875
+      ],
+      "nm_fgmres_prepare_distributed_work_dispatch": [
+        0.00175,
+        0.001708
+      ],
+      "nm_fem_apply_operator_elements": [
+        11.646625
+      ],
+      "nm_contact_deformable_node_radix_scatter": [
+        1.335917
+      ],
+      "nm_contact_build_surface_bvh_level": [
+        0.001875,
+        0.002084
+      ],
+      "nm_contact_prepare_radix_tile_dispatch": [
+        0.001375
+      ],
+      "nm_contact_deformable_node_radix_prefix_chunk_offsets": [
+        0.02625
+      ],
+      "nm_contact_accumulate_deformable_fem_residual": [
+        6.523917
+      ],
+      "nm_fgmres_clear_true_auxiliary": [
+        0.001125
+      ],
+      "nm_fgmres_true_residual_distributed_finish": [
+        0.011458
+      ],
+      "nm_contact_surface_morton_bounds_reduce": [
+        0.012833
+      ],
+      "nm_contact_surface_morton_radix_scatter": [
+        0.042958
+      ],
+      "nm_contact_surface_morton_radix_prefix": [
+        2.219125
+      ],
+      "nm_fgmres_accumulate_vascular": [
+        0.001708
+      ],
+      "nm_vascular_cavity_operator": [
+        0.40275
+      ],
+      "nm_contact_scan_deformable_active_counts": [
+        0.001458
+      ],
+      "nm_contact_prepare_radix_prefix_dispatch": [
+        0.001792
+      ],
+      "nm_fgmres_telemetry_finalize": [
+        0.001625
+      ],
+      "nm_contact_emit_surface_morton_records_parallel": [
+        0.186125
+      ],
+      "nm_contact_surface_morton_radix_histogram": [
+        0.015125
+      ],
+      "nm_fgmres_telemetry_domains_finish": [
+        0.047166
+      ],
+      "nm_fgmres_clear_true_operator": [
+        0.044708
+      ],
+      "nm_contact_deformable_node_radix_histogram": [
+        1.08325
+      ],
+      "nm_contact_deformable_node_radix_prefix_blocks": [
+        0.801833
+      ],
+      "nm_fgmres_accumulate": [
+        0.002125
+      ],
+      "nm_contact_build_surface_primitives": [
+        0.784833
+      ],
+      "nm_mixed_apply_operator_elements": [
+        1.563875
+      ],
+      "nm_contact_limit_deformable_line_search_tiled": [
+        0.002917
+      ],
+      "nm_fem_integrate": [
+        0.642458
+      ],
+      "respiratory_gas_exchange": [
+        1.807083
+      ],
+      "matter_after_candidate_ready": [
+        1716.376625
+      ],
+      "matter_after_microstep": [
+        2.4685
+      ],
+      "matter_post": [
+        15.2515
+      ],
+      "brain_resolve": [
+        0.001417
+      ],
+      "respiratory_resolve": [
+        0.689875
+      ]
+    },
+    "root0_non_nested_stage_sum_ms": 14298.932709,
+    "gpu_command_lines": [
+      "resting_render_profile step=0 vertices=3155759 triangles=5725951 geometry_export=1 encode_wall_ms=0.36362499668030068 command_wall_ms=60.695166670484468 gpu_ms=29.588874996989034 audit_export_wall_ms=934.28979166492354 total_render_wall_ms=995.3577916676295",
+      "resting_native_profile step=1 command_ms=21051.916791 gpu_ms=21050.985 host_copy_ms=0.164959 full_state_readback=1",
+      "resting_native_profile step=2 command_ms=21443.256167 gpu_ms=21440.435125 host_copy_ms=0.2735 full_state_readback=1",
+      "resting_native_profile step=3 command_ms=22214.95675 gpu_ms=22214.3619583 host_copy_ms=0.211125 full_state_readback=1",
+      "resting_native_profile step=4 command_ms=21228.267542 gpu_ms=21227.685625 host_copy_ms=0.14875 full_state_readback=1",
+      "resting_native_profile step=5 command_ms=21364.127666 gpu_ms=21363.52425 host_copy_ms=0.133875 full_state_readback=1",
+      "resting_native_profile step=6 command_ms=21305.752417 gpu_ms=21305.1457083 host_copy_ms=0.11925 full_state_readback=1",
+      "resting_native_profile step=7 command_ms=21536.39475 gpu_ms=21535.667125 host_copy_ms=0.052417 full_state_readback=1",
+      "resting_native_profile step=8 command_ms=21594.552959 gpu_ms=21593.939875 host_copy_ms=0.130583 full_state_readback=1",
+      "resting_native_profile step=9 command_ms=23299.642834 gpu_ms=23298.9657083 host_copy_ms=0.131625 full_state_readback=1"
+    ],
+    "terminal_certificates": [
+      {
+        "root": 0,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 8,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.945040703
+      },
+      {
+        "root": 1,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 15,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.893259645
+      },
+      {
+        "root": 2,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 32,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.761443257
+      },
+      {
+        "root": 3,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.709858537
+      },
+      {
+        "root": 4,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.640435994
+      },
+      {
+        "root": 5,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.583631873
+      },
+      {
+        "root": 6,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.520411372
+      },
+      {
+        "root": 7,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.458236665
+      },
+      {
+        "root": 8,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 9,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.496498972
+      },
+      {
+        "root": 9,
+        "status": [
+          {
+            "code": 6,
+            "object_index": 15,
+            "failing_index": 1207017,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 10,
+            "diagnostics": [
+              2.73517871e-25,
+              -9.79580066e-28,
+              0.00048828125,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.49704054
+      }
+    ],
+    "accepted_step_profiles": [
+      {
+        "accepted_step": 1,
+        "command_ms": 21051.916791,
+        "gpu_ms": 21050.985,
+        "host_copy_ms": 0.164959
+      },
+      {
+        "accepted_step": 2,
+        "command_ms": 21443.256167,
+        "gpu_ms": 21440.435125,
+        "host_copy_ms": 0.2735
+      },
+      {
+        "accepted_step": 3,
+        "command_ms": 22214.95675,
+        "gpu_ms": 22214.3619583,
+        "host_copy_ms": 0.211125
+      },
+      {
+        "accepted_step": 4,
+        "command_ms": 21228.267542,
+        "gpu_ms": 21227.685625,
+        "host_copy_ms": 0.14875
+      },
+      {
+        "accepted_step": 5,
+        "command_ms": 21364.127666,
+        "gpu_ms": 21363.52425,
+        "host_copy_ms": 0.133875
+      },
+      {
+        "accepted_step": 6,
+        "command_ms": 21305.752417,
+        "gpu_ms": 21305.1457083,
+        "host_copy_ms": 0.11925
+      },
+      {
+        "accepted_step": 7,
+        "command_ms": 21536.39475,
+        "gpu_ms": 21535.667125,
+        "host_copy_ms": 0.052417
+      },
+      {
+        "accepted_step": 8,
+        "command_ms": 21594.552959,
+        "gpu_ms": 21593.939875,
+        "host_copy_ms": 0.130583
+      },
+      {
+        "accepted_step": 9,
+        "command_ms": 23299.642834,
+        "gpu_ms": 23298.9657083,
+        "host_copy_ms": 0.131625
+      }
+    ]
+  },
+  "tiled-compaction-barrier-native-001": {
+    "accepted_steps": 9,
+    "accepted_simulated_seconds": 0.000140625006679,
+    "root0_stage_ms": {
+      "matter_pre": [
+        9.179209
+      ],
+      "brain_advance": [
+        0.095208
+      ],
+      "respiratory_mechanics": [
+        5.0395
+      ],
+      "matter_after_frame_begin": [
+        0.777916
+      ],
+      "nm_contact_surface_morton_radix_prefix": [
+        2.16175,
+        2.263416,
+        2.249791,
+        2.257917,
+        2.200167,
+        2.212125,
+        2.218458,
+        2.175083,
+        2.161208,
+        2.263208,
+        2.246833,
+        2.271917,
+        2.200333,
+        2.215375,
+        2.414416,
+        2.178875,
+        2.162209,
+        2.262,
+        2.247458,
+        2.259084,
+        2.203,
+        2.21425,
+        2.222334,
+        2.176709,
+        2.407125,
+        2.262083,
+        2.247541,
+        2.260459,
+        2.210542,
+        2.220917,
+        2.22925,
+        2.178292,
+        2.152,
+        2.264625,
+        2.247375,
+        2.255958,
+        2.202209,
+        2.223334,
+        2.228542,
+        2.452583,
+        2.159666,
+        2.2635,
+        2.247166,
+        2.259,
+        2.201167,
+        2.213917,
+        2.222584,
+        2.177292,
+        2.1585,
+        2.264666,
+        2.245708,
+        2.260042,
+        2.209667,
+        2.220625,
+        2.220917,
+        2.175583,
+        2.159291,
+        2.431416,
+        2.258167,
+        2.26425,
+        2.200292,
+        2.212167,
+        2.219958,
+        2.175416,
+        2.158917,
+        2.261459,
+        2.245875,
+        2.261959,
+        2.197458,
+        2.222792,
+        2.222791,
+        2.177375,
+        2.159583,
+        2.264125,
+        2.412167,
+        2.26525,
+        2.204125,
+        2.211292,
+        2.22125,
+        2.1735,
+        2.160291,
+        2.262833,
+        2.259417,
+        2.261,
+        2.199834,
+        2.214083,
+        2.22075,
+        2.175459,
+        2.159625,
+        2.263625,
+        2.259708,
+        2.262042,
+        2.200166,
+        2.211542,
+        2.217875,
+        2.1755,
+        2.159542,
+        2.26225,
+        2.24425,
+        2.274167,
+        2.204833,
+        2.214041,
+        2.220041,
+        2.176833,
+        2.158291,
+        2.263333,
+        2.244916,
+        2.270459,
+        2.204083,
+        2.212458,
+        2.221417,
+        2.174209,
+        2.159958,
+        2.275583,
+        2.248584,
+        2.259208,
+        2.197084,
+        2.21225,
+        2.224375,
+        2.177042,
+        2.158542,
+        2.273916,
+        2.249208,
+        2.263291,
+        2.19975,
+        2.210375,
+        2.221459,
+        2.17175,
+        2.161375,
+        2.262167,
+        2.25875,
+        2.261584,
+        2.202334,
+        2.213709,
+        2.219125,
+        2.177208
+      ],
+      "nm_contact_scan_deformable_candidate_counts": [
+        2.511,
+        2.552042,
+        2.412875,
+        2.479458,
+        2.979625,
+        2.407833,
+        2.433291,
+        2.403375,
+        2.405459,
+        2.411083,
+        2.404541,
+        2.405,
+        2.409292,
+        2.40525,
+        2.966417,
+        2.404959,
+        2.406792
+      ],
+      "nm_contact_narrowphase_deformable": [
+        91.499583,
+        90.743834,
+        90.018083,
+        78.813834,
+        78.837416,
+        79.417666,
+        79.165458,
+        79.104917,
+        79.138333,
+        79.173042,
+        79.422834,
+        78.964542,
+        78.9955,
+        79.288125,
+        79.259083,
+        91.168042,
+        91.573875
+      ],
+      "nm_contact_clear_deformable_tail": [
+        1.923,
+        1.901625,
+        1.879792,
+        1.878125,
+        1.874667,
+        1.873667,
+        1.874209,
+        1.873917,
+        1.87225,
+        1.952125,
+        1.869125,
+        1.869333,
+        1.869875,
+        1.875875,
+        1.875417,
+        1.873292,
+        1.878292
+      ],
+      "nm_contact_count_deformable_compaction_tiles": [
+        2.141459,
+        2.170125,
+        2.112958,
+        2.11575,
+        2.115542,
+        2.114583,
+        2.115834,
+        2.116667,
+        2.114167,
+        2.116583,
+        2.113833,
+        2.117,
+        2.114459,
+        2.11825,
+        2.118167,
+        2.113833,
+        2.118292
+      ],
+      "nm_contact_scan_deformable_compaction_tiles": [
+        0.130458,
+        0.139208,
+        0.13575,
+        0.145417,
+        0.139209,
+        0.135375,
+        0.135625,
+        0.14125,
+        0.142708,
+        0.139667,
+        0.139292,
+        0.110667,
+        0.137959,
+        0.146041,
+        0.140792,
+        0.138833,
+        0.134334
+      ],
+      "nm_contact_scatter_deformable_compaction_tiles": [
+        2.075375,
+        2.0765,
+        2.063125,
+        2.060917,
+        2.0655,
+        2.075666,
+        2.065791,
+        2.063167,
+        2.066,
+        2.065625,
+        2.062875,
+        2.090584,
+        2.062584,
+        2.065958,
+        2.066125,
+        2.06225,
+        2.061334
+      ],
+      "matter_newton_assembly": [
+        217.419792,
+        217.675291,
+        215.81975,
+        189.965375,
+        191.580041,
+        190.129958,
+        190.244375,
+        189.560584,
+        190.353666,
+        190.027375,
+        191.137667,
+        189.648083,
+        189.596667,
+        189.5635,
+        190.631708,
+        201.660792
+      ],
+      "matter_newton_linear": [
+        800.866792,
+        933.429834,
+        595.950584,
+        470.751917,
+        476.616167,
+        469.105833,
+        471.708125,
+        482.312166,
+        475.014209,
+        465.366792,
+        480.639917,
+        487.407625,
+        472.356167,
+        481.585625,
+        469.663708,
+        486.835916
+      ],
+      "matter_newton_globalization": [
+        43.117125,
+        44.513916,
+        27.813458,
+        26.932625,
+        26.843542,
+        26.825917,
+        26.765833,
+        26.820084,
+        27.040458,
+        26.927791,
+        27.043708,
+        26.985875,
+        26.850791,
+        26.851209,
+        26.941542,
+        26.815917
+      ],
+      "respiratory_gas_exchange": [
+        1.801709
+      ],
+      "matter_after_candidate_ready": [
+        1706.040708
+      ],
+      "matter_after_microstep": [
+        2.475125
+      ],
+      "matter_post": [
+        15.247541
+      ],
+      "brain_resolve": [
+        0.001625
+      ],
+      "respiratory_resolve": [
+        0.700917
+      ]
+    },
+    "root0_non_nested_stage_sum_ms": 13861.07525,
+    "gpu_command_lines": [
+      "resting_render_profile step=0 vertices=3155759 triangles=5725951 geometry_export=1 encode_wall_ms=0.099833334388677031 command_wall_ms=85.192916667438112 gpu_ms=27.991833332634997 audit_export_wall_ms=931.93225000140956 total_render_wall_ms=1017.2317083342932",
+      "resting_native_profile step=1 command_ms=20563.779917 gpu_ms=20562.2859583 host_copy_ms=0.256666 full_state_readback=1",
+      "resting_native_profile step=2 command_ms=21022.110209 gpu_ms=21021.5099583 host_copy_ms=0.137 full_state_readback=1",
+      "resting_native_profile step=3 command_ms=21830.978209 gpu_ms=21830.403875 host_copy_ms=0.052958 full_state_readback=1",
+      "resting_native_profile step=4 command_ms=20815.461791 gpu_ms=20814.8829167 host_copy_ms=0.048375 full_state_readback=1",
+      "resting_native_profile step=5 command_ms=20901.244417 gpu_ms=20900.622375 host_copy_ms=0.0525 full_state_readback=1",
+      "resting_native_profile step=6 command_ms=20908.234917 gpu_ms=20907.655125 host_copy_ms=0.054458 full_state_readback=1",
+      "resting_native_profile step=7 command_ms=20940.813 gpu_ms=20940.1612083 host_copy_ms=0.05225 full_state_readback=1",
+      "resting_native_profile step=8 command_ms=21181.05825 gpu_ms=21180.410625 host_copy_ms=0.054375 full_state_readback=1",
+      "resting_native_profile step=9 command_ms=22816.965833 gpu_ms=22816.314375 host_copy_ms=0.052542 full_state_readback=1"
+    ],
+    "terminal_certificates": [
+      {
+        "root": 0,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 8,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.945040703
+      },
+      {
+        "root": 1,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 15,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.893259645
+      },
+      {
+        "root": 2,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 32,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.761443257
+      },
+      {
+        "root": 3,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.709858537
+      },
+      {
+        "root": 4,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.640435994
+      },
+      {
+        "root": 5,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.583631873
+      },
+      {
+        "root": 6,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.520411372
+      },
+      {
+        "root": 7,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 16,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.458236665
+      },
+      {
+        "root": 8,
+        "status": [
+          {
+            "code": 0,
+            "object_index": 4294967295,
+            "failing_index": 4294967295,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 9,
+            "diagnostics": [
+              null,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "minimum_J": 0.496498972
+      },
+      {
+        "root": 9,
+        "status": [
+          {
+            "code": 10,
+            "object_index": 15,
+            "failing_index": 5,
+            "completed_microsteps_at_certificate": 0,
+            "fgmres_iterations_microstep_max": 10,
+            "diagnostics": [
+              2.50003362,
+              2.49985671,
+              1456796,
+              4
+            ]
+          }
+        ],
+        "minimum_J": 0.497035176
+      }
+    ],
+    "accepted_step_profiles": [
+      {
+        "accepted_step": 1,
+        "command_ms": 20563.779917,
+        "gpu_ms": 20562.2859583,
+        "host_copy_ms": 0.256666
+      },
+      {
+        "accepted_step": 2,
+        "command_ms": 21022.110209,
+        "gpu_ms": 21021.5099583,
+        "host_copy_ms": 0.137
+      },
+      {
+        "accepted_step": 3,
+        "command_ms": 21830.978209,
+        "gpu_ms": 21830.403875,
+        "host_copy_ms": 0.052958
+      },
+      {
+        "accepted_step": 4,
+        "command_ms": 20815.461791,
+        "gpu_ms": 20814.8829167,
+        "host_copy_ms": 0.048375
+      },
+      {
+        "accepted_step": 5,
+        "command_ms": 20901.244417,
+        "gpu_ms": 20900.622375,
+        "host_copy_ms": 0.0525
+      },
+      {
+        "accepted_step": 6,
+        "command_ms": 20908.234917,
+        "gpu_ms": 20907.655125,
+        "host_copy_ms": 0.054458
+      },
+      {
+        "accepted_step": 7,
+        "command_ms": 20940.813,
+        "gpu_ms": 20940.1612083,
+        "host_copy_ms": 0.05225
+      },
+      {
+        "accepted_step": 8,
+        "command_ms": 21181.05825,
+        "gpu_ms": 21180.410625,
+        "host_copy_ms": 0.054375
+      },
+      {
+        "accepted_step": 9,
+        "command_ms": 22816.965833,
+        "gpu_ms": 22816.314375,
+        "host_copy_ms": 0.052542
+      }
+    ]
+  },
+  "coupled_prefix_comparison": {
+    "rows_compared": 9,
+    "identical": true,
+    "changed_fields": []
+  }
+}
