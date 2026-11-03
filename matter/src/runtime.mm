@@ -4068,6 +4068,7 @@ struct Runtime::State {
     bool fgmresInexactNewtonForcingEnabled = false;
     std::uint32_t fgmresInexactNewtonTightening = 0u;
     bool fgmresRelativeInnerForcingEnabled = false;
+    bool fgmresInexactCoupledLinearCertificateEnabled = false;
     id<MTLBuffer> fgmresInexactNewtonHistory = nil;
     id<MTLBuffer> fgmresInexactNewtonEta = nil;
     id<MTLBuffer> fgmresCGS2ExecutionRange = nil;
@@ -6207,6 +6208,26 @@ RuntimeDiagnostics Runtime::initialize(
                 "relative inner forcing requires NM_FGMRES_INEXACT_NEWTON_FORCING=1";
             return diagnostics;
         }
+        const char* inexactLinearCertificate =
+            std::getenv("NM_FGMRES_INEXACT_COUPLED_LINEAR_CERTIFICATE");
+        if (inexactLinearCertificate != nullptr &&
+            std::strcmp(inexactLinearCertificate, "0") != 0 &&
+            std::strcmp(inexactLinearCertificate, "1") != 0) {
+            diagnostics.message =
+                "inexact coupled linear certificate requires explicit value 0 or 1";
+            return diagnostics;
+        }
+        const bool inexactLinearCertificateEnabled =
+            inexactLinearCertificate != nullptr &&
+            std::strcmp(inexactLinearCertificate, "1") == 0;
+        if (inexactLinearCertificateEnabled &&
+            (!relativeInnerForcingEnabled || !domainNonlinearLatchEnabled)) {
+            diagnostics.message =
+                "inexact coupled linear certificate requires EW relative forcing and the independent nonlinear domain latch";
+            return diagnostics;
+        }
+        candidate->fgmresInexactCoupledLinearCertificateEnabled =
+            inexactLinearCertificateEnabled;
         candidate->femDistributedGlobalMeasurementsEnabled = distributedGlobals != nullptr;
         candidate->femDomainNonlinearLatchEnabled =
             domainNonlinearLatchEnabled;
@@ -12643,6 +12664,14 @@ RuntimeDiagnostics Runtime::initialize(
             fullCertificate != nullptr && std::strcmp(fullCertificate, "1") == 0 &&
             (world.vascular.layout.ranges.z != 0u ||
              world.dispatch.rigidGeneralizedCapacity > 6u);
+        if (candidate->fgmresInexactCoupledLinearCertificateEnabled &&
+            !candidate->femFullCoupledTrueResidualEnabled) {
+            diagnostics.message =
+                "inexact coupled linear certificate requires mandatory full coupled true-residual certification";
+            return diagnostics;
+        }
+        if (candidate->fgmresInexactCoupledLinearCertificateEnabled)
+            candidate->fgmresLayout.reserved |= (1u << 24u);
         if (candidate->femAcceptedZ0RecycleEnabled) {
             const detail::AcceptedZ0StaticSourceView source{
                 world.dispatch,

@@ -2164,7 +2164,8 @@ void checkDistributedBeginAndCorrection(
     id<MTLComputePipelineState> correctionPartial,
     id<MTLComputePipelineState> correctionFinish,
     id<MTLComputePipelineState> trueResidualPartial,
-    id<MTLComputePipelineState> trueResidualFinish) {
+    id<MTLComputePipelineState> trueResidualFinish,
+    const bool inexactCoupled = false) {
     constexpr std::uint32_t nodes=300u;
     id<MTLFunction> argumentLayout=[library newFunctionWithName:
         @"numi_matter_metal::nm_primal_contact_argument_layout"];
@@ -2460,7 +2461,7 @@ void checkDistributedBeginAndCorrection(
         domainLayout.vascularUnknownCount=1u;
         domainLayout.vascularBase=2u*nodes+supportCount;
         domainLayout.vascularResidualTolerance=1.0e-5f;
-        domainLayout.reserved=reserved;
+        domainLayout.reserved=reserved | (inexactCoupled ? (1u << 24u) : 0u);
         NMMixedSolverGPU domainSolver{};
         domainSolver.residualTolerances.x=1.0e-4f;
         domainSolver.regularization.x=1.0e-12f;
@@ -2550,7 +2551,8 @@ void checkDistributedBeginAndCorrection(
     schurDomainLayout.vascularBase = 2u * nodes;
     schurDomainLayout.vascularUnknownCount = 1u;
     schurDomainLayout.vascularResidualTolerance = 1.0e-5f;
-    schurDomainLayout.reserved = 1u | 2u | (1u << 22u);
+    schurDomainLayout.reserved = 1u | 2u | (1u << 22u) |
+        (inexactCoupled ? (1u << 24u) : 0u);
     NMMixedSolverGPU schurDomainSolver{};
     schurDomainSolver.residualTolerances.x = 1.0e-4f;
     schurDomainSolver.regularization.x = 1.0e-12f;
@@ -2702,6 +2704,89 @@ void checkDistributedBeginAndCorrection(
                 "legacy_controls=true result=PASS\n";
 }
 
+
+void checkInexactCoupledLinearCertificate(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    const auto partial = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_true_residual_distributed_partial");
+    const auto strict = pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_true_residual_distributed_finish");
+    const auto inexact = strict; // Same pipeline; only admitted layout metadata differs.
+    NMMatterDispatchGPU d{};
+    d.abiVersion = NM_MATTER_ABI_VERSION;
+    d.environmentCount = 1u; d.objectCount = 1u; d.femNodeCount = 1u;
+    NMFGMRESLayoutGPU l{};
+    l.unknownCount = 3u; l.supportBase = 2u; l.vascularBase = 2u;
+    l.vascularUnknownCount = 1u; l.vascularResidualTolerance = 1.0e-5f;
+    l.reserved = 1u | 2u | 8u;
+    NMMixedSolverGPU solver{};
+    solver.residualTolerances.x = 1.0e-6f;
+    solver.regularization.x = 1.0e-12f;
+    auto db = makeBuffer(device, std::vector<NMMatterDispatchGPU>{d});
+    auto lb = makeBuffer(device, std::vector<NMFGMRESLayoutGPU>{l});
+    auto sb = makeBuffer(device, std::vector<NMMixedSolverGPU>{solver});
+    auto rhs = makeBuffer(device, std::vector<nm_float4>(3u));
+    auto op = makeBuffer(device, std::vector<nm_float4>(3u));
+    auto residual = makeBuffer(device, std::vector<nm_float4>(3u));
+    auto state = makeBuffer(device, std::vector<NMFGMRESStateGPU>(1u));
+    auto metrics = makeBuffer(device, std::vector<nm_float4>(1u));
+    auto forcing = makeBuffer(device, std::vector<float>{0.1f});
+    auto status = makeBuffer(device, std::vector<NMMatterStatusGPU>(1u));
+    auto production = makeBuffer(device, std::vector<NMMatterStatusGPU>(1u));
+    auto replace = makeBuffer(device, std::vector<std::uint32_t>{3u});
+    auto propagate = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto parts = makeBuffer(device, std::vector<nm_float4>(1u));
+    const std::vector<std::pair<NSUInteger,id<MTLBuffer>>> bindings{
+        {0u,db},{30u,lb},{1u,sb},{2u,rhs},{3u,op},{4u,residual},
+        {5u,state},{6u,metrics},{7u,forcing},{8u,status},{9u,replace},
+        {10u,production},{11u,propagate},{24u,parts}};
+    auto run = [&](const bool enableInexact, const float trueNorm,
+                   const bool malformed = false) {
+        NMFGMRESStateGPU initial{};
+        initial.diagnostics = {1.0e-9f, 0.01f, 0.0f, 0.0f};
+        initial.nonlinear = {1.0f, 0.01f, 0.0f, 0.0f};
+        std::memcpy([state contents], &initial, sizeof(initial));
+        NMMatterStatusGPU healthy{};
+        std::memcpy([status contents], &healthy, sizeof(healthy));
+        std::memcpy([production contents], &healthy, sizeof(healthy));
+        NMFGMRESLayoutGPU layout = l;
+        if (enableInexact) layout.reserved |= (1u << 24u);
+        if (malformed) layout.unknownCount = 2u;
+        std::memcpy([lb contents], &layout, sizeof(layout));
+        std::vector<nm_float4> rows(3u);
+        rows[0].x = trueNorm;
+        rows[1] = {1.0e30f, -1.0e30f, 1.0e30f, -1.0e30f};
+        std::memcpy([rhs contents], rows.data(), rows.size()*sizeof(nm_float4));
+        dispatch(device, queue, partial, bindings, 1u, 256u);
+        dispatch(device, queue, enableInexact ? inexact : strict, bindings, 1u, 32u);
+        const auto result = readBuffer<NMFGMRESStateGPU>(state, 1u)[0];
+        require(std::memcmp(&result.nonlinear, &initial.nonlinear,
+                           sizeof(initial.nonlinear)) == 0,
+            "linear certification modified nonlinear physical acceptance state");
+        return result;
+    };
+    require(run(false, 5.0e-4f).diagnostics.z < 0.5f,
+        "default strict linear certificate changed");
+    const auto accepted = run(true, 5.0e-4f);
+    require(accepted.diagnostics.z > 0.5f &&
+            close(accepted.diagnostics.x, 5.0e-4f, 1.0e-8f),
+        "inexact certificate did not use the freshly recomputed relative norm");
+    require(run(true, 2.0e-3f).diagnostics.z < 0.5f,
+        "inexact certificate trusted the tiny Arnoldi estimate over true residual");
+    run(true, std::numeric_limits<float>::quiet_NaN());
+    require(readBuffer<NMMatterStatusGPU>(status, 1u)[0].code ==
+            NM_STATUS_NONFINITE_RESULT &&
+            readBuffer<NMMatterStatusGPU>(production, 1u)[0].code ==
+            NM_STATUS_NONFINITE_RESULT, "inexact certificate lost nonfinite rejection");
+    run(true, 5.0e-4f, true);
+    require(readBuffer<NMMatterStatusGPU>(status, 1u)[0].code ==
+            NM_STATUS_INVALID_DISPATCH &&
+            readBuffer<NMMatterStatusGPU>(production, 1u)[0].code ==
+            NM_STATUS_INVALID_DISPATCH, "inexact certificate lost layout rejection");
+    std::cout << "inexact_coupled_linear_true_certificate=true "
+                 "default_strict=true nonlinear_unchanged=true "
+                 "nonfinite_layout_rejection=true result=PASS\n";
+}
 
 void checkInexactNewtonForcing(
     id<MTLDevice> device, id<MTLCommandQueue> queue,
@@ -13797,6 +13882,27 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if (argc == 2 && std::string(argv[1]) ==
+                    "--inexact-coupled-certificate-only") {
+                checkInexactCoupledLinearCertificate(device, queue, library);
+                auto p = [&](const char* name) { return pipeline(device, library, name); };
+                auto q = [&](const char* name) { return pipelineWithRelativeInnerForcingDisabled(device, library, name); };
+                checkDistributedBeginAndCorrection(device, queue, library,
+                    q("numi_matter_metal::nm_fgmres_begin"),
+                    p("numi_matter_metal::nm_fgmres_begin_distributed_partial"),
+                    q("numi_matter_metal::nm_fgmres_begin_distributed_finish"),
+                    q("numi_matter_metal::nm_fgmres_begin_distributed_basis0"),
+                    p("numi_matter_metal::nm_fgmres_measure_correction"),
+                    p("numi_matter_metal::nm_fgmres_correction_distributed_partial"),
+                    p("numi_matter_metal::nm_fgmres_correction_distributed_finish"),
+                    p("numi_matter_metal::nm_fgmres_true_residual_distributed_partial"),
+                    q("numi_matter_metal::nm_fgmres_true_residual_distributed_finish"), true);
+                checkInexactNewtonForcing(device, queue,
+                    p("numi_matter_metal::nm_fgmres_prepare_inexact_newton_forcing"),
+                    p("numi_matter_metal::nm_fgmres_commit_inexact_newton_history"));
+                std::cout << "PASS inexact coupled certificate " << checks << " checks\n";
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) ==
                     "--fresh-direction-common-alpha-reset-only") {
                 checkFreshDirectionCommonAlphaReset(device, queue, library);

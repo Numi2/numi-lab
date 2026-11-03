@@ -93,3 +93,31 @@ The runtime currently still requires dense basis coefficients. Compiler sparse
 fields and export helpers alone do not make the full Human basis usable. Sparse
 construction **and runtime consumption** remain required; neither the384MiB
 coefficient guard nor the170-region bound was removed.
+
+### Inexact Newton linear-certificate experiment
+
+The strict1024-column diagnostic013 still rejected the step:64active restart
+cycles in one Newton solve, final valid true linear residual1.36105709e-5
+against1e-5, and59.553241708s for the authoritative failed segment. It accepted
+zero physical time. Raising iteration limits does not resolve this blocker.
+
+`NM_FGMRES_INEXACT_COUPLED_LINEAR_CERTIFICATE=1` is a separate default-off
+experiment. Admission requires existing EW forcing, relative inner stopping,
+distributed reductions, the independent nonlinear domain latch, and complete
+coupled true-residual certification. Internal layout bit24 changes the linear
+`||b-A*dx||` target to adaptive relative forcing. It does not change material,
+force, mass, contact, timestep, final mechanical/pressure/vascular/transport
+residual thresholds, or accepted-state rollback. Every restart completion still
+uses freshly recomputed full-operator residuals. Nonlinear acceptance remains
+independent; a permitted inexact linear correction is not an accepted step.
+
+The production GPU focused test passes1084checks, including the unchanged
+strict default, true-versus-Arnoldi residual disagreement, malformed/nonfinite
+rejection, separate mechanical/vascular nonlinear gates, mixed pressure,
+support admissibility, original RHS normalization and EW history handling.
+Run `numi-matter-fgmres-true-residual-native-check --inexact-coupled-certificate-only`.
+The first broader test exposed a function-constant pipeline dependency; its
+failed log is retained. The final implementation uses existing internal layout
+metadata and introduces no new function constant or public artifact/API.
+Full Human trial014 remains a separate qualification; coupon success is not
+physical convergence or throughput evidence. The0.1x target remains unmet.

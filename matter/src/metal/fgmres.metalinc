@@ -1,13 +1,15 @@
 namespace numi_matter_metal {
 
-// Optional inexact-Newton experiment: remove only the vascular aggregate
-// absolute clamp from the Arnoldi column-stop estimate. The default remains
-// the legacy strict target; begin, true-residual, nonlinear, and physical
-// certification paths continue to call fgmresResidualTarget directly.
+// Optional Arnoldi-only relative forcing. The default retains the strict
+// coupled linear certificate, independently of the provisional inner estimate.
 constant bool nmFGMRESRelativeInnerForcing [[function_constant(34)]];
 constant bool nmFGMRESRelativeInnerForcingActive =
     is_function_constant_defined(nmFGMRESRelativeInnerForcing)
         ? nmFGMRESRelativeInnerForcing : false;
+
+// Reserved layout bit 24 is set only by the explicitly admitted inexact
+// coupled linear-certificate path. Legacy pipelines need no new constants.
+constant uint kFGMRESInexactCoupledLinearCertificate = 1u << 24u;
 
 inline bool contactCompensatedVertexTriangleWitness(
     const MRCompensatedPositionGPU point,
@@ -119,19 +121,21 @@ inline bool fgmresTransportUnknownsActive(
     return (layout.reserved & kFGMRESLayoutSkipInactiveTransport) == 0u;
 }
 
-// Keep the inner linear residual below the same normalized absolute bound
-// used by the outer vascular equation certificate. The relative forcing term
-// remains authoritative for nonvascular systems and whenever it is stricter.
+// Legacy coupled solves clamp the linear target to the vascular absolute
+// tolerance. The opt-in inexact Newton path instead uses its adaptive relative
+// forcing; outer nonlinear domain tolerances remain independently enforced.
 inline float fgmresResidualTarget(
     const uint vascularUnknownCount,
     const float vascularResidualTolerance,
     const float forcing,
     const float forcingFloor,
-    const float initialNorm
+    const float initialNorm,
+    const uint layoutFlags
 ) {
     const float relativeTarget =
         clamp(forcing, forcingFloor, 0.5f) * initialNorm;
-    return vascularUnknownCount == 0u
+    return vascularUnknownCount == 0u ||
+           (layoutFlags & kFGMRESInexactCoupledLinearCertificate) != 0u
         ? relativeTarget
         : min(relativeTarget, vascularResidualTolerance);
 }
@@ -141,12 +145,13 @@ inline float fgmresInnerArnoldiTarget(
     const float vascularResidualTolerance,
     const float forcing,
     const float forcingFloor,
-    const float initialNorm
+    const float initialNorm,
+    const uint layoutFlags
 ) {
     if (nmFGMRESRelativeInnerForcingActive)
         return clamp(forcing, forcingFloor, 0.5f) * initialNorm;
     return fgmresResidualTarget(vascularUnknownCount,
-        vascularResidualTolerance, forcing, forcingFloor, initialNorm);
+        vascularResidualTolerance, forcing, forcingFloor, initialNorm, layoutFlags);
 }
 
 inline float fgmresInnerInitialNorm(
@@ -1777,7 +1782,7 @@ kernel void nm_fgmres_begin(
             layout.vascularResidualTolerance,
             forcing,
             solver.residualTolerances.x,
-            initialNorm);
+            initialNorm, layout.reserved);
         const bool converged = completed || nonlinearConverged ||
             norm <= target;
         leastSquares[fgmresVectorIndex(environment, 0u)] =
@@ -1817,7 +1822,7 @@ kernel void nm_fgmres_begin(
             layout.vascularResidualTolerance,
             forcing,
             solver.residualTolerances.x,
-            initialNorm)) return;
+            initialNorm, layout.reserved)) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
     const float inverseNorm = norm > 1.0e-30f ? 1.0f / norm : 0.0f;
     for (uint local = lane; local < dispatch.femNodeCount; local += 32u) {
@@ -9132,7 +9137,7 @@ kernel void nm_fgmres_measure_true_residual(
             layout.vascularResidualTolerance,
             forcing,
             solver.residualTolerances.x,
-            initialNorm);
+            initialNorm, layout.reserved);
         if (replaceResidual != 0u) {
             state.diagnostics.x = trueNorm;
             const float mechanicalNonlinearThreshold = max(
@@ -9567,7 +9572,7 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
                 layout.vascularResidualTolerance,
                 forcing,
                 solver.residualTolerances.x,
-                fgmresInnerInitialNorm(layout, state))
+                fgmresInnerInitialNorm(layout, state), layout.reserved)
             ? 1.0f : 0.0f;
         if (dispatch.environmentCount == 1u) {
             const bool nextColumnActive = state.diagnostics.z <= 0.5f;
@@ -10001,7 +10006,7 @@ kernel void nm_fgmres_cgs2_finish_column(
             layout.vascularResidualTolerance,
             forcing,
             solver.residualTolerances.x,
-            fgmresInnerInitialNorm(layout, state))
+            fgmresInnerInitialNorm(layout, state), layout.reserved)
         ? 1.0f : 0.0f;
     if (dispatch.environmentCount == 1u) {
         const bool nextColumnActive = state.diagnostics.z <= 0.5f;
@@ -10821,7 +10826,7 @@ kernel void nm_fgmres_begin_distributed_finish(
         const float target = fgmresResidualTarget(
             layout.vascularUnknownCount, layout.vascularResidualTolerance,
             forcing, solver.residualTolerances.x,
-            hasRowEquilibration ? innerInitialNorm : initialNorm);
+            hasRowEquilibration ? innerInitialNorm : initialNorm, layout.reserved);
         const bool converged = completed || nonlinearConverged || norm <= target;
         leastSquares[fgmresVectorIndex(environment, 0u)] =
             completed ? 0.0f : norm;
@@ -10899,7 +10904,7 @@ kernel void nm_fgmres_begin_distributed_basis0(
     const float target = fgmresResidualTarget(
         layout.vascularUnknownCount, layout.vascularResidualTolerance,
         forcing, solver.residualTolerances.x,
-        fgmresInnerInitialNorm(layout, states[environment]));
+        fgmresInnerInitialNorm(layout, states[environment]), layout.reserved);
     if (norm == 0.0f || norm <= target) return;
     const uint item = tile * kFGMRESMeasurementTileItems + lane;
     const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
@@ -11218,7 +11223,7 @@ kernel void nm_fgmres_true_residual_distributed_finish(
         const float initialNorm = state.diagnostics.y;
         const float target = fgmresResidualTarget(
             layout.vascularUnknownCount, layout.vascularResidualTolerance,
-            forcing, solver.residualTolerances.x, initialNorm);
+            forcing, solver.residualTolerances.x, initialNorm, layout.reserved);
         if (replaceResidual != 0u) {
             state.diagnostics.x = trueNorm;
             const float mechanicalNonlinearThreshold = max(
@@ -11885,7 +11890,7 @@ kernel void nm_fgmres_finalize_cycle(
         layout.vascularResidualTolerance,
         forcing,
         solver.residualTolerances.x,
-        fgmresInnerInitialNorm(layout, state));
+        fgmresInnerInitialNorm(layout, state), layout.reserved);
     const bool converged = state.diagnostics.z > 0.5f;
     // The inner solve may reach the authored outer equilibrium tolerance
     // before satisfying the next Eisenstat-Walker forcing term. Let the next
