@@ -1308,6 +1308,9 @@ void checkAggregateCycleICBRange(
         std::vector<NMMatterStatusGPU>{healthy});
     auto telemetryBuffer = makeBuffer(device,
         std::vector<NMFGMRESTelemetryGPU>{NMFGMRESTelemetryGPU{}});
+    auto tickTelemetryBuffer = makeBuffer(device,
+        std::vector<NMFGMRESTelemetryGPU>{NMFGMRESTelemetryGPU{}});
+    constexpr std::uint32_t microtick = 0u, microtickCount = 1u;
     constexpr std::uint32_t commandCount = 4u;
     auto commandCountBuffer = makeBuffer(device,
         std::vector<std::uint32_t>{commandCount});
@@ -1361,6 +1364,8 @@ void checkAggregateCycleICBRange(
             std::vector<nm_float4>(layout.unknownCount, sentinel).data(),
             layout.unknownCount * sizeof(nm_float4));
 
+        std::memset([tickTelemetryBuffer contents], 0,
+            sizeof(NMFGMRESTelemetryGPU));
         id<MTLCommandBuffer> cb = [queue commandBuffer];
         id<MTLComputeCommandEncoder> encoder =
             cb != nil ? [cb computeCommandEncoder] : nil;
@@ -1376,12 +1381,15 @@ void checkAggregateCycleICBRange(
         const std::uint32_t collectTelemetryWord = collectTelemetry ? 1u : 0u;
         [encoder setBytes:&collectTelemetryWord length:sizeof(collectTelemetryWord)
                   atIndex:6u];
+        [encoder setBuffer:tickTelemetryBuffer offset:0u atIndex:7u];
+        [encoder setBytes:&microtick length:sizeof(microtick) atIndex:8u];
+        [encoder setBytes:&microtickCount length:sizeof(microtickCount) atIndex:9u];
         [encoder dispatchThreadgroups:MTLSizeMake(1u,1u,1u)
             threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         for (id<MTLBuffer> buffer : {dispatchBuffer, layoutBuffer,
                 stateBuffer, statusBuffer, commandCountBuffer, executionRange,
-                telemetryBuffer, output})
+                telemetryBuffer, tickTelemetryBuffer, output})
             [encoder useResource:buffer
                 usage:MTLResourceUsageRead | MTLResourceUsageWrite];
         [encoder useResource:graph usage:MTLResourceUsageRead];
@@ -1409,6 +1417,11 @@ void checkAggregateCycleICBRange(
         require(telemetry.aggregateCycle.x == expectedNonemptyRanges &&
                 telemetry.aggregateCycle.y == expectedSelectedCommands,
             std::string("aggregate-cycle telemetry mismatch: ") + label);
+        const auto tickTelemetry =
+            readBuffer<NMFGMRESTelemetryGPU>(tickTelemetryBuffer, 1u)[0];
+        require(tickTelemetry.aggregateCycle.x == expectedNonemptyRanges &&
+                tickTelemetry.aggregateCycle.y == expectedSelectedCommands,
+            std::string("aggregate-cycle microtick telemetry mismatch: ") + label);
         const auto values = readBuffer<nm_float4>(output, layout.unknownCount);
         for (std::uint32_t i = 0u; i < layout.unknownCount; ++i) {
             const nm_float4 expected = expectedCommandCount == 0u
@@ -1465,6 +1478,9 @@ void checkTelemetryExhaustion(
     id<MTLBuffer> solverBuffer = makeBuffer(device, solverValues);
     id<MTLBuffer> telemetryBuffer = makeBuffer(device, telemetryValues);
     id<MTLBuffer> statusBuffer = makeBuffer(device, statusValues);
+    auto tickTelemetryBuffer = makeBuffer(device, telemetryValues);
+    auto microtickBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto microtickCountBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
     auto run = [&](const std::uint32_t iterationOffset,
                    const std::uint32_t totalBudget,
                    const std::uint32_t used,
@@ -1477,6 +1493,7 @@ void checkTelemetryExhaustion(
         auto* telemetryValue = static_cast<NMFGMRESTelemetryGPU*>(
             [telemetryBuffer contents]);
         telemetryValue[0] = NMFGMRESTelemetryGPU{};
+        std::memset([tickTelemetryBuffer contents], 0, sizeof(NMFGMRESTelemetryGPU));
         static_cast<NMMatterStatusGPU*>([statusBuffer contents])[0].code =
             statusCode;
         const std::vector<std::uint32_t> offsetValues{iterationOffset};
@@ -1486,10 +1503,16 @@ void checkTelemetryExhaustion(
         dispatch(device, queue, state, {
             {0u, dispatchBuffer}, {1u, fgmresBuffer},
             {2u, telemetryBuffer}, {3u, solverBuffer},
-            {4u, offsetBuffer}, {5u, budgetBuffer}, {6u, statusBuffer}},
+            {4u, offsetBuffer}, {5u, budgetBuffer}, {6u, statusBuffer},
+            {7u, tickTelemetryBuffer}, {8u, microtickBuffer},
+            {9u, microtickCountBuffer}},
             1u, 1u);
-        return static_cast<NMFGMRESTelemetryGPU*>(
+        const auto count = static_cast<NMFGMRESTelemetryGPU*>(
             [telemetryBuffer contents])[0].linear.w;
+        require(static_cast<NMFGMRESTelemetryGPU*>(
+            [tickTelemetryBuffer contents])[0].linear.w == count,
+            "budget exhaustion microtick count differs from total");
+        return count;
     };
     require(run(2u, 4u, 2u, 0.0f, 0u) == 1u,
         "terminal unconverged solve did not record total-budget exhaustion");
@@ -1650,6 +1673,9 @@ void checkTelemetryDomainPartitions(
             std::vector<nm_float4>(std::size_t(environments) * tiles,
                 nm_float4{-17.0f, -19.0f, -23.0f, -29.0f}));
         auto telemetryBuffer = makeBuffer(device, telemetry);
+        auto tickTelemetryBuffer = makeBuffer(device, telemetry);
+        auto microtickBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+        auto microtickCountBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
         auto stateBuffer = makeBuffer(device, states);
         auto solverBuffer = makeBuffer(device,
             std::vector<NMMixedSolverGPU>{solver});
@@ -1659,7 +1685,9 @@ void checkTelemetryDomainPartitions(
         const std::vector<std::pair<NSUInteger, id<MTLBuffer>>> finishBindings{
             {0u, dispatchBuffer}, {30u, layoutBuffer},
             {1u, partialBuffer}, {2u, telemetryBuffer},
-            {3u, stateBuffer}, {4u, solverBuffer}, {5u, statusBuffer}};
+            {3u, stateBuffer}, {4u, solverBuffer}, {5u, statusBuffer},
+            {6u, tickTelemetryBuffer}, {7u, microtickBuffer},
+            {8u, microtickCountBuffer}};
 
         dispatch(device, queue, partialPipeline, {
             {0u, dispatchBuffer}, {30u, layoutBuffer},
@@ -1670,8 +1698,14 @@ void checkTelemetryDomainPartitions(
 
         const auto actual = readBuffer<NMFGMRESTelemetryGPU>(
             telemetryBuffer, environments);
+        const auto tickActual = readBuffer<NMFGMRESTelemetryGPU>(
+            tickTelemetryBuffer, environments);
         for (std::uint32_t environment = 0u;
              environment < environments; ++environment) {
+            require(std::memcmp(&tickActual[environment].domains,
+                                &actual[environment].domains,
+                                sizeof(nm_float4)) == 0,
+                "per-tick domain telemetry differs from total");
             const float expectedNonvascular =
                 static_cast<float>(std::sqrt(expectedMechanical[environment]));
             const float expectedVascularNorm =
@@ -14263,9 +14297,15 @@ int main(int argc, const char* argv[]) {
             const std::uint32_t finalCycle = 1u;
             const float forcing = 0.1f;
             const std::uint32_t defer = 1u;
+            auto finalizeTickTelemetry = makeBuffer(device,
+                std::vector<NMFGMRESTelemetryGPU>(1u));
+            auto finalizeZero = makeBuffer(device, std::vector<std::uint32_t>{0u});
+            auto finalizeOne = makeBuffer(device, std::vector<std::uint32_t>{1u});
             dispatch(device, queue, telemetryFinalize, {
                 {0u, dispatchBuffer}, {1u, solverBuffer},
-                {2u, stateBuffer}, {3u, telemetryBuffer}}, 1u, 1u);
+                {2u, stateBuffer}, {3u, telemetryBuffer}, {4u, finalizeZero},
+                {5u, finalizeTickTelemetry}, {6u, finalizeZero},
+                {7u, finalizeOne}}, 1u, 1u);
             dispatch(device, queue, finalize, {
                 {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, solverBuffer},
                 {2u, hessenbergBuffer}, {3u, leastSquaresBuffer},

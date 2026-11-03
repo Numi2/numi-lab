@@ -121,3 +121,33 @@ failed log is retained. The final implementation uses existing internal layout
 metadata and introduces no new function constant or public artifact/API.
 Full Human trial014 remains a separate qualification; coupon success is not
 physical convergence or throughput evidence. The0.1x target remains unmet.
+
+### Complete solver regression and further archival cleanup
+
+The wider production GPU checker passes77,514checks. Its first run exposed
+stale telemetry fixtures: aggregate ICB range, exhaustion, domain totals and
+cycle-finalize fixtures omitted the current per-microtick buffer/indices.
+These bindings are repaired and per-tick/total parity is checked. No production
+physics or acceptance gate was changed to make this suite pass. Both failed
+suite logs and the isolated failing ICB log remain alongside the passing run.
+
+Historical cleanup now has24 independently downloaded, all-member-hash checked
+and restore-tested batches through026. The final versioned summary is uploaded
+to the existing private recovery release; a duplicate-name summary upload
+failed after the verified retirements, so the prior release summary is preserved
+and `summary-postbatch026.json` is the current consolidated receipt. The initial
+retirement script also met a read-only directory at022; that entire downloaded
+archive was reverified before completing its exact protected-path-checked
+retirement and publishing the recovery receipt.
+
+The post-cleanup snapshot has36,074,360,832bytes available, exceeding the
+12,105,162,752byte starting snapshot by23,969,198,080bytes. This net disk change
+includes OS swap changes; it is not all historical-file deletion. Retired old
+paths account for14,175,891,456allocated bytes across529distinct inodes;
+APFS extents may be shared. Earlier byte-identical transparent compression is
+recorded separately. Current source/asset hashes were excluded from retirement.
+152of153roster paths exist; the historical native-import-120/preparation.py
+pathname is absent and does not occur in any retirement manifest. Current
+execution inputs are independently pinned and validated by the native loader.
+The aerial decoder remains absent. Trial014 is the next bounded full Human
+convergence diagnostic; no accepted motion or0.1x performance is claimed yet.
