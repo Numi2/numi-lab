@@ -1,0 +1,73 @@
+
+void checkPolynomialSweepControls(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    auto kernel=pipeline(device,library,"numi_matter_metal::nm_contact_reference_rest_sweep_check");
+    std::vector<MRCompensatedPositionGPU> points;std::vector<nm_float4> parameters;
+    std::vector<bool> expected;std::mt19937 rng(20261103);
+    std::uniform_real_distribution<double> random(-1.0,1.0);
+    using V=std::array<double,3>;
+    for(unsigned kind=0;kind<3;++kind)for(double scale:{.001,1.0,1000.0})
+    for(unsigned sample=0;sample<48;++sample)for(unsigned control=0;control<4;++control) {
+        const double g0=control==3?.5e-9:1.1e-9;
+        const double g1=control==1?-1.2e-9:control==2?.5e-9:1.2e-9;
+        V a[4]{},b[4]{};const V shift={random(rng)*1e-5,random(rng)*1e-5,random(rng)*1e-5};
+        if(kind==0) {
+            a[1]={0,0,0};a[2]={1e-3,0,0};a[3]={0,1e-3,0};
+            for(unsigned v=1;v<4;++v)b[v]={a[v][0]+shift[0]+random(rng)*1e-5,
+                a[v][1]+shift[1]+random(rng)*1e-5,shift[2]+random(rng)*5e-8};
+            for(unsigned k=0;k<3;++k) {
+                a[0][k]=.2*a[1][k]+.3*a[2][k]+.5*a[3][k];
+                b[0][k]=.2*b[1][k]+.3*b[2][k]+.5*b[3][k];
+            }
+            a[0][2]+=g0;b[0][2]+=g1;
+        } else if(kind==1) {
+            a[0]={-.5e-3,0,g0};a[1]={.5e-3,0,g0};
+            a[2]={0,-.5e-3,0};a[3]={0,.5e-3,0};
+            const V u={.5e-3+random(rng)*1e-5,random(rng)*1e-5,random(rng)*5e-8};
+            const V v={random(rng)*1e-5,.5e-3+random(rng)*1e-5,random(rng)*5e-8};
+            for(unsigned k=0;k<3;++k) {
+                b[0][k]=shift[k]-u[k];b[1][k]=shift[k]+u[k];
+                b[2][k]=shift[k]-v[k];b[3][k]=shift[k]+v[k];
+            }
+            b[0][2]+=g1;b[1][2]+=g1;
+        } else {
+            a[0]={0,0,g0};a[1]={0,0,0};b[0]=shift;b[1]=shift;b[0][2]+=g1;
+        }
+        MRCompensatedPositionGPU aa[4]{},bb[4]{},rest[4]{};
+        const double origin=sample%2==0?0.0:.5;
+        for(unsigned v=0;v<4;++v)for(unsigned k=0;k<3;++k) {
+            const double x=scale*a[v][k]+origin,y=scale*b[v][k]+origin;
+            reinterpret_cast<float*>(&aa[v].high)[k]=float(x);
+            reinterpret_cast<float*>(&aa[v].low)[k]=float(x-double(float(x)));
+            reinterpret_cast<float*>(&bb[v].high)[k]=float(y);
+            reinterpret_cast<float*>(&bb[v].low)[k]=float(y-double(float(y)));
+        }
+        for(unsigned v=0;v<4;++v)rest[v]=aa[v];
+        for(unsigned v=0;v<(kind==1?2u:1u);++v) {
+            const double z=double(rest[v].high.z)+double(rest[v].low.z)+1e-7*scale;
+            rest[v].high.z=float(z);rest[v].low.z=float(z-double(rest[v].high.z));
+        }
+        for(auto p:rest)points.push_back(p);for(auto p:aa)points.push_back(p);for(auto p:bb)points.push_back(p);
+        parameters.push_back({0,0,1,float(kind)});parameters.push_back({float(1e-9*scale),0,0,0});
+        expected.push_back(control==0);
+    }
+    const std::uint32_t count=expected.size();
+    auto pb=makeBuffer(device,points);auto ab=makeBuffer(device,parameters);
+    auto out=makeBuffer(device,std::vector<NativeFloat2>(count+1,{91.25f,-73.5f}));
+    id<MTLCommandBuffer> cb=[queue commandBuffer];id<MTLComputeCommandEncoder> enc=[cb computeCommandEncoder];
+    [enc setComputePipelineState:kernel];[enc setBuffer:pb offset:0 atIndex:0];[enc setBuffer:ab offset:0 atIndex:1];
+    [enc setBuffer:out offset:0 atIndex:2];[enc setBytes:&count length:sizeof(count) atIndex:3];
+    [enc dispatchThreads:MTLSizeMake(count+1,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+    [enc endEncoding];[cb commit];[cb waitUntilCompleted];
+    require(cb.status==MTLCommandBufferStatusCompleted,"rotating sweep control GPU failed");
+    const auto results=readBuffer<NativeFloat2>(out,count+1);unsigned full=0;
+    for(unsigned i=0;i<count;++i) {
+        if((results[i].y==1.0f)!=expected[i])
+            std::cerr<<"rotating_sweep_failure case="<<i<<" margin="<<results[i].x<<" fraction="<<results[i].y<<'\n';
+        require(results[i].x==parameters[2*i+1].x,"rotating control immutable reference margin");
+        require((results[i].y==1.0f)==expected[i],"rotating sweep safe/crossing/within-clearance control");
+        full+=results[i].y==1.0f;
+    }
+    require(results[count].x==91.25f&&results[count].y==-73.5f,"rotating sweep output guard");
+    std::cout<<"polynomial_rotating_controls=true VT_EE_PP=true scale_1e6_span=true "
+        "translated=true safe_and_crossing_controls=true cases="<<count<<" full="<<full<<" PASS\n";
+}

@@ -1,0 +1,22 @@
+{
+  "purpose": "Same-clearance moving separating-plane proof removes fixed-plane truncation of an actual thin-contact sweep",
+  "prediction": "root6 limiter capturedin022 can now certify fullalpha; acceptance remains determined by complete coupled residual/contact/determinant transaction",
+  "control": "021same16Newton model andtimestep withoutpolynomialproof;022diagnosticonlyrepeat",
+  "changes": [
+    "fallback from positive fractional fixed-axis bound to cubic Bernstein interval proof with sameclearance",
+    "GPUwitnessregression"
+  ],
+  "not_changed": [
+    "force law",
+    "geometry",
+    "mass",
+    "timestep",
+    "residual/contact/determinant thresholds",
+    "rollback",
+    "Newton/FGMRES budgets"
+  ],
+  "requested_steps": 16,
+  "dt_seconds": 1.5625e-05,
+  "bounded_stopping_rule": "one run900wallseconds,12GiBdiskminimum,3GiBswapdelta",
+  "profiling": "whole-stage only; no selected-kernel timings; report exact acceptedstate separately fromspeed"
+}

@@ -4560,6 +4560,150 @@ void checkZeroStepGeometryReuse(
     std::cout << "zero-step contact geometry reuse marker and builder PASS\n";
 }
 
+
+
+void checkPolynomialSweepControls(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    auto kernel=pipeline(device,library,"numi_matter_metal::nm_contact_reference_rest_sweep_check");
+    std::vector<MRCompensatedPositionGPU> points;std::vector<nm_float4> parameters;
+    std::vector<bool> expected;std::mt19937 rng(20261103);
+    std::uniform_real_distribution<double> random(-1.0,1.0);
+    using V=std::array<double,3>;
+    for(unsigned kind=0;kind<3;++kind)for(double scale:{.001,1.0,1000.0})
+    for(unsigned sample=0;sample<48;++sample)for(unsigned control=0;control<4;++control) {
+        const double g0=control==3?.5e-9:1.1e-9;
+        const double g1=control==1?-1.2e-9:control==2?.5e-9:1.2e-9;
+        V a[4]{},b[4]{};const V shift={random(rng)*1e-5,random(rng)*1e-5,random(rng)*1e-5};
+        if(kind==0) {
+            a[1]={0,0,0};a[2]={1e-3,0,0};a[3]={0,1e-3,0};
+            for(unsigned v=1;v<4;++v)b[v]={a[v][0]+shift[0]+random(rng)*1e-5,
+                a[v][1]+shift[1]+random(rng)*1e-5,shift[2]+random(rng)*5e-8};
+            for(unsigned k=0;k<3;++k) {
+                a[0][k]=.2*a[1][k]+.3*a[2][k]+.5*a[3][k];
+                b[0][k]=.2*b[1][k]+.3*b[2][k]+.5*b[3][k];
+            }
+            a[0][2]+=g0;b[0][2]+=g1;
+        } else if(kind==1) {
+            a[0]={-.5e-3,0,g0};a[1]={.5e-3,0,g0};
+            a[2]={0,-.5e-3,0};a[3]={0,.5e-3,0};
+            const V u={.5e-3+random(rng)*1e-5,random(rng)*1e-5,random(rng)*5e-8};
+            const V v={random(rng)*1e-5,.5e-3+random(rng)*1e-5,random(rng)*5e-8};
+            for(unsigned k=0;k<3;++k) {
+                b[0][k]=shift[k]-u[k];b[1][k]=shift[k]+u[k];
+                b[2][k]=shift[k]-v[k];b[3][k]=shift[k]+v[k];
+            }
+            b[0][2]+=g1;b[1][2]+=g1;
+        } else {
+            a[0]={0,0,g0};a[1]={0,0,0};b[0]=shift;b[1]=shift;b[0][2]+=g1;
+        }
+        MRCompensatedPositionGPU aa[4]{},bb[4]{},rest[4]{};
+        const double origin=sample%2==0?0.0:.5;
+        for(unsigned v=0;v<4;++v)for(unsigned k=0;k<3;++k) {
+            const double x=scale*a[v][k]+origin,y=scale*b[v][k]+origin;
+            reinterpret_cast<float*>(&aa[v].high)[k]=float(x);
+            reinterpret_cast<float*>(&aa[v].low)[k]=float(x-double(float(x)));
+            reinterpret_cast<float*>(&bb[v].high)[k]=float(y);
+            reinterpret_cast<float*>(&bb[v].low)[k]=float(y-double(float(y)));
+        }
+        for(unsigned v=0;v<4;++v)rest[v]=aa[v];
+        for(unsigned v=0;v<(kind==1?2u:1u);++v) {
+            const double z=double(rest[v].high.z)+double(rest[v].low.z)+1e-7*scale;
+            rest[v].high.z=float(z);rest[v].low.z=float(z-double(rest[v].high.z));
+        }
+        for(auto p:rest)points.push_back(p);for(auto p:aa)points.push_back(p);for(auto p:bb)points.push_back(p);
+        parameters.push_back({0,0,1,float(kind)});parameters.push_back({float(1e-9*scale),0,0,0});
+        expected.push_back(control==0);
+    }
+    const std::uint32_t count=expected.size();
+    auto pb=makeBuffer(device,points);auto ab=makeBuffer(device,parameters);
+    auto out=makeBuffer(device,std::vector<NativeFloat2>(count+1,{91.25f,-73.5f}));
+    id<MTLCommandBuffer> cb=[queue commandBuffer];id<MTLComputeCommandEncoder> enc=[cb computeCommandEncoder];
+    [enc setComputePipelineState:kernel];[enc setBuffer:pb offset:0 atIndex:0];[enc setBuffer:ab offset:0 atIndex:1];
+    [enc setBuffer:out offset:0 atIndex:2];[enc setBytes:&count length:sizeof(count) atIndex:3];
+    [enc dispatchThreads:MTLSizeMake(count+1,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+    [enc endEncoding];[cb commit];[cb waitUntilCompleted];
+    require(cb.status==MTLCommandBufferStatusCompleted,"rotating sweep control GPU failed");
+    const auto results=readBuffer<NativeFloat2>(out,count+1);unsigned full=0;
+    for(unsigned i=0;i<count;++i) {
+        if((results[i].y==1.0f)!=expected[i])
+            std::cerr<<"rotating_sweep_failure case="<<i<<" margin="<<results[i].x<<" fraction="<<results[i].y<<'\n';
+        require(results[i].x==parameters[2*i+1].x,"rotating control immutable reference margin");
+        require((results[i].y==1.0f)==expected[i],"rotating sweep safe/crossing/within-clearance control");
+        full+=results[i].y==1.0f;
+    }
+    require(results[count].x==91.25f&&results[count].y==-73.5f,"rotating sweep output guard");
+    std::cout<<"polynomial_rotating_controls=true VT_EE_PP=true scale_1e6_span=true "
+        "translated=true safe_and_crossing_controls=true cases="<<count<<" full="<<full<<" PASS\n";
+}
+
+void checkPolynomialReferenceSweep(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    auto kernel=pipeline(device,library,"numi_matter_metal::nm_contact_reference_rest_sweep_check");
+    const float ah[4][3]={{-0x1.7129c60000000p-29f,-0x1.8ee89e0000000p-29f,-0x1.4346a60000000p-25f},{-0x1.67e9260000000p-18f,0x1.bbf4e00000000p-22f,-0x1.a6ba8a0000000p-16f},{0x1.57254c0000000p-11f,-0x1.0d14540000000p-11f,0x1.b6e7620000000p-10f},{0x1.08fa580000000p-12f,0x1.c989020000000p-15f,0x1.71c94a0000000p-10f}};
+    const float al[4][3]={{-0x1.3beb240000000p-57f,-0x1.5d0a6a0000000p-54f,-0x1.6792b20000000p-50f},{0x1.4726de0000000p-43f,0x1.c1bf6e0000000p-47f,0x1.c22aae0000000p-41f},{0x1.014e160000000p-36f,-0x1.006d320000000p-36f,0x1.97ad7a0000000p-35f},{0x1.81d29a0000000p-41f,-0x1.c759a20000000p-42f,0x1.b3ecd60000000p-35f}};
+    const float bh[4][3]={{-0x1.96f6660000000p-29f,-0x1.f7ef220000000p-29f,-0x1.7efb5c0000000p-25f},{-0x1.67f58a0000000p-18f,0x1.ba6a5e0000000p-22f,-0x1.a6ea920000000p-16f},{0x1.5725460000000p-11f,-0x1.0d14720000000p-11f,0x1.b6e68c0000000p-10f},{0x1.08fa260000000p-12f,0x1.c986920000000p-15f,0x1.71c8a00000000p-10f}};
+    const float bl[4][3]={{-0x1.28572a0000000p-54f,-0x1.b281460000000p-54f,0x1.e759c80000000p-50f},{-0x1.6fe2a60000000p-43f,0x1.2f6b720000000p-47f,-0x1.0b13d20000000p-45f},{-0x1.0458460000000p-37f,-0x1.9f425a0000000p-36f,0x1.e1b7260000000p-35f},{0x1.b5c4b60000000p-38f,-0x1.8146560000000p-40f,0x1.efab020000000p-37f}};
+    const nm_float4 normal={0x1.ae0a520000000p-1f,0x1.07d0da0000000p-1f,-0x1.5cf43c0000000p-3f,0.0f};
+
+    std::vector<MRCompensatedPositionGPU> points;
+    std::vector<nm_float4> parameters;
+    std::vector<bool> expectedFull;
+    for(unsigned mode=0;mode<7;++mode) {
+        MRCompensatedPositionGPU a[4]{},b[4]{},rest[4]{};
+        for(unsigned v=0;v<4;++v) {
+            for(unsigned k=0;k<3;++k) {
+                reinterpret_cast<float*>(&a[v].high)[k]=ah[v][k];
+                reinterpret_cast<float*>(&a[v].low)[k]=al[v][k];
+                reinterpret_cast<float*>(&b[v].high)[k]=bh[v][k];
+                reinterpret_cast<float*>(&b[v].low)[k]=bl[v][k];
+            }
+            rest[v]=a[v];
+        }
+        // The immutable reference in the counterexamples is well clear.
+        rest[0].high.x+=normal.x*1e-7f;
+        rest[0].high.y+=normal.y*1e-7f;
+        rest[0].high.z+=normal.z*1e-7f;
+        if(mode==1)for(unsigned v=0;v<4;++v)b[v]=a[v]; // static
+        if(mode==2)for(unsigned v=0;v<4;++v)std::swap(a[v],b[v]); // reversed
+        if(mode==3) { // true closing crossing
+            b[0].high.x-=normal.x*5e-9f;
+            b[0].high.y-=normal.y*5e-9f;
+            b[0].high.z-=normal.z*5e-9f;
+        }
+        if(mode==4)b[0].low.x=std::numeric_limits<float>::quiet_NaN();
+        // Do not promote an initially within-clearance feature to a full sweep.
+        const float clearance=mode==5?1.01e-9f:1e-9f;
+        if(mode==6) { // larger local coordinates, same exact compensated geometry
+            for(unsigned v=0;v<4;++v) for(auto* p:{&a[v],&b[v],&rest[v]}) {
+                const double x=double(p->high.x)+double(p->low.x)+.5;
+                p->high.x=float(x);p->low.x=float(x-double(p->high.x));
+            }
+        }
+        for(auto p:rest)points.push_back(p);
+        for(auto p:a)points.push_back(p);
+        for(auto p:b)points.push_back(p);
+        parameters.push_back(normal);parameters.push_back({clearance,0,0,0});
+        expectedFull.push_back(mode<3||mode==6);
+    }
+    const std::uint32_t count=expectedFull.size();
+    const nm_float4 guard={91.25f,-73.5f,22.75f,-11.125f};
+    auto pb=makeBuffer(device,points);auto ab=makeBuffer(device,parameters);
+    auto out=makeBuffer(device,std::vector<NativeFloat2>(count+1,{guard.x,guard.y}));
+    id<MTLCommandBuffer> cb=[queue commandBuffer];id<MTLComputeCommandEncoder> enc=[cb computeCommandEncoder];
+    [enc setComputePipelineState:kernel];[enc setBuffer:pb offset:0 atIndex:0];
+    [enc setBuffer:ab offset:0 atIndex:1];[enc setBuffer:out offset:0 atIndex:2];
+    [enc setBytes:&count length:sizeof(count) atIndex:3];
+    [enc dispatchThreads:MTLSizeMake(count+1,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+    [enc endEncoding];[cb commit];[cb waitUntilCompleted];
+    require(cb.status==MTLCommandBufferStatusCompleted,"polynomial sweep fixture command failed");
+    auto result=readBuffer<NativeFloat2>(out,count+1);
+    for(unsigned i=0;i<count;++i) {
+        std::cout<<"polynomial_sweep_case="<<i<<" margin="<<result[i].x<<" fraction="<<result[i].y<<'\n';
+        require((result[i].y==1.0f)==expectedFull[i],"polynomial sweep full-clearance certificate mismatch");
+    }
+    require(result[count].x==guard.x&&result[count].y==guard.y,"polynomial sweep output canary");
+    std::cout<<"polynomial_reference_sweep=true exact_compensated_native_witness=true "
+        "same_clearance=true crossing_within_clearance_nonfinite_not_full=true cases="<<count<<" PASS\n";
+}
+
 void checkReferenceSurfaceGeometry(
     id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     auto builder=pipeline(device,library,"numi_matter_metal::nm_contact_build_surface_primitives");
@@ -16381,7 +16525,9 @@ int main(int argc, const char* argv[]) {
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
             if(argc==2&&std::string(argv[1])=="--reference-surface-only") {
-                checkReferenceSurfaceGeometry(device,queue,library);return 0;
+                checkReferenceSurfaceGeometry(device,queue,library);
+                checkPolynomialReferenceSweep(device,queue,library);
+                checkPolynomialSweepControls(device,queue,library);return 0;
             }
             if(argc==2&&std::string(argv[1])=="--unresolved-reference-sweep-only") {
                 checkUnresolvedReferenceSweepProof(device,queue,library);return 0;
@@ -16516,6 +16662,8 @@ int main(int argc, const char* argv[]) {
             if (argc == 2 && std::string(argv[1]) == "--contact-zero-step-geometry-reuse-only") {
                 checkZeroStepGeometryReuse(device, queue, library);
             checkReferenceSurfaceGeometry(device,queue,library);
+                checkPolynomialReferenceSweep(device,queue,library);
+                checkPolynomialSweepControls(device,queue,library);
                 std::cout << "PASS zero-step contact geometry reuse " << checks << " checks" << std::endl;
                 return 0;
             }
@@ -17100,6 +17248,8 @@ int main(int argc, const char* argv[]) {
             checkFreshRhsPreconditionerBeginVerification(device, queue, library);
             checkZeroStepGeometryReuse(device, queue, library);
             checkReferenceSurfaceGeometry(device,queue,library);
+                checkPolynomialReferenceSweep(device,queue,library);
+                checkPolynomialSweepControls(device,queue,library);
             checkReferenceContactArithmeticFrame(device, queue, library);
             checkCompensatedContactEnergyContinuity(device,queue,library);
             checkLeftRowEquilibration(device,queue,library);

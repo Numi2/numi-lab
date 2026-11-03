@@ -1,0 +1,10 @@
+{
+  "purpose": "Exact limiter witness at new failingroot6 and sampled empty-field/finalize cost attribution",
+  "control": "021 identical sources/binary/physics; only diagnostic selections differ",
+  "prediction": "capture per-lane limiting contact atroot6/Newton10 without changing GPU line bounds",
+  "profiling": "co-prime7sampling; timings are individual samples, never scaled totals;021control",
+  "requested_steps": 16,
+  "dt_seconds": 1.5625e-05,
+  "bounded_stopping_rule": "one run;900wallseconds,12GiBfree,3GiBswapdelta",
+  "acceptance": "all physical and transactional gates unchanged; source frozen duringrun"
+}

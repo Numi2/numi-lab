@@ -1,0 +1,9 @@
+{
+  "scope": "4097sample Float64 diagnostic on exactly reconstructed Float32 high/low witness; not a continuous proof",
+  "distance_start_m": 1.0042784402305862e-09,
+  "distance_end_m": 1.0024399610101043e-09,
+  "minimum_sample_distance_m": 1.0024399610101043e-09,
+  "minimum_barycentric": 0.00236252192134819,
+  "reference_clearance_candidate_m": 9.999999717180685e-10,
+  "witness_lane_bound": 0.0142058497
+}

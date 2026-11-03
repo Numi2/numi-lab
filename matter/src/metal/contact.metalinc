@@ -13507,6 +13507,79 @@ inline bool nmReferenceContactPreciseFeatureAxis(
     return nmReferenceContactCompensatedPlaneFraction(kind,feature,feature,
         nmReferenceContactFeatureAxis(kind,feature),normal,clearance)==1.0f;
 }
+// A quadratic Bernstein axis is an arbitrary separating-plane candidate,
+// not an assertion that the computed cross product is exact. Project ORIGINAL
+// affine endpoints onto its stored high/low coefficients with outward intervals.
+// Their cubic Bernstein coefficients enclose every pairwise projection for the
+// entire sweep. Norm convexity bounds the axis length by its three control norms.
+// Strict lower bounds for all coefficients therefore certify the SAME clearance,
+// while allowing the separating plane to rotate with deforming thin features.
+inline bool nmReferenceContactPolynomialSweepSeparated(
+    uint kind,thread const MRCompensatedPositionGPU* start,
+    thread const MRCompensatedPositionGPU* finish,float3 normal,float clearance) {
+    if(!isfinite(clearance)||!(clearance>0.0f))return false;
+    uint firstCount=1u,secondBegin=1u,secondCount=1u;
+    MRCompensatedPositionGPU axis[3];
+    if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE ||
+       kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+        if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE)secondCount=3u;
+        else {firstCount=2u;secondBegin=2u;secondCount=2u;}
+        const uint a0=kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE?1u:0u;
+        const uint a1=kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE?2u:1u;
+        const uint b0=kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE?1u:2u;
+        const uint b1=3u;
+        const auto u0=mrCompensatedVectorAdd(start[a1],mrCompensatedVectorNegate(start[a0]));
+        const auto u1=mrCompensatedVectorAdd(finish[a1],mrCompensatedVectorNegate(finish[a0]));
+        const auto v0=mrCompensatedVectorAdd(start[b1],mrCompensatedVectorNegate(start[b0]));
+        const auto v1=mrCompensatedVectorAdd(finish[b1],mrCompensatedVectorNegate(finish[b0]));
+        axis[0]=mrCompensatedVectorCross(u0,v0);
+        axis[1]=mrCompensatedVectorScale(mrCompensatedVectorAdd(
+            mrCompensatedVectorCross(u0,v1),mrCompensatedVectorCross(u1,v0)),{0.5f,0.0f});
+        axis[2]=mrCompensatedVectorCross(u1,v1);
+    } else if(kind==NM_DEFORMABLE_CONTACT_POINT_POINT) {
+        axis[0]=mrCompensatedVectorAdd(start[0],mrCompensatedVectorNegate(start[1]));
+        axis[2]=mrCompensatedVectorAdd(finish[0],mrCompensatedVectorNegate(finish[1]));
+        axis[1]=mrCompensatedVectorScale(mrCompensatedVectorAdd(axis[0],axis[2]),{0.5f,0.0f});
+    } else return false;
+    const float alignment=dot(axis[0].high.xyz+axis[0].low.xyz,normal);
+    if(!isfinite(alignment)||alignment==0.0f)return false;
+    float normUpper=0.0f;
+    for(uint c=0u;c<3u;++c) {
+        if(alignment<0.0f){axis[c].high=-axis[c].high;axis[c].low=-axis[c].low;}
+        float squaredUpper=0.0f;
+        for(uint k=0u;k<3u;++k) {
+            if(!isfinite(axis[c].high[k])||!isfinite(axis[c].low[k]))return false;
+            const float magnitude=nmContactIntervalUp(abs(axis[c].high[k])+abs(axis[c].low[k]));
+            squaredUpper=nmContactIntervalUp(squaredUpper+nmContactIntervalUp(magnitude*magnitude));
+        }
+        normUpper=max(normUpper,nmContactIntervalUp(sqrt(squaredUpper)));
+    }
+    const float threshold=nmContactIntervalUp(clearance*normUpper);
+    if(!(normUpper>0.0f)||!isfinite(normUpper)||!isfinite(threshold))return false;
+    for(uint a=0u;a<firstCount;++a)for(uint b=secondBegin;b<secondBegin+secondCount;++b) {
+        NMContactInterval projection[3][2];
+        for(uint c=0u;c<3u;++c)for(uint e=0u;e<2u;++e) {
+            const auto pa=e==0u?start[a]:finish[a],pb=e==0u?start[b]:finish[b];
+            projection[c][e]=nmContactIntervalAdd(
+                nmContactProjectionIntervalRefined(pa,pb,axis[c].high.xyz),
+                nmContactProjectionIntervalRefined(pa,pb,axis[c].low.xyz));
+            if(!isfinite(projection[c][e].lower)||!isfinite(projection[c][e].upper))return false;
+        }
+        // Division by exact3 is rounded outward; stored1/3 coefficients would
+        // not enclose the exact cubic and are deliberately avoided.
+        const auto sum1=nmContactIntervalAdd(projection[0][1],
+            nmContactIntervalScale(projection[1][0],2.0f));
+        const auto sum2=nmContactIntervalAdd(projection[2][0],
+            nmContactIntervalScale(projection[1][1],2.0f));
+        const float lower[4]={projection[0][0].lower,
+            nmContactIntervalDown(sum1.lower/3.0f),
+            nmContactIntervalDown(sum2.lower/3.0f),projection[2][1].lower};
+        for(uint c=0u;c<4u;++c)
+            if(!isfinite(lower[c])||!(lower[c]>threshold))return false;
+    }
+    return true;
+}
+
 inline float nmReferenceContactSweepFraction(
     uint kind,thread const MRCompensatedPositionGPU* start,
     thread const MRCompensatedPositionGPU* finish,float3 normal,float clearance) {
@@ -13515,8 +13588,11 @@ inline float nmReferenceContactSweepFraction(
     fraction=max(fraction,nmReferenceContactCompensatedPlaneFraction(kind,start,finish,
         nmReferenceContactFeatureAxis(kind,start),normal,clearance));
     if(fraction==1.0f)return fraction;
-    return max(fraction,nmReferenceContactCompensatedPlaneFraction(kind,start,finish,
+    fraction=max(fraction,nmReferenceContactCompensatedPlaneFraction(kind,start,finish,
         nmReferenceContactFeatureAxis(kind,finish),normal,clearance));
+    if(fraction>0.0f && fraction<1.0f &&
+       nmReferenceContactPolynomialSweepSeparated(kind,start,finish,normal,clearance))return 1.0f;
+    return fraction;
 }
 
 // Project ORIGINAL endpoint expansions, then interpolate their outward

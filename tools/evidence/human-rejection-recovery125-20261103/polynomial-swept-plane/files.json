@@ -1,0 +1,182 @@
+{
+  "README.md": {
+    "sha256": "868ef1b704076cd7adb034fd50265e8c42b124aa832a080d1704ab959a71b6d2",
+    "bytes": 2246
+  },
+  "contact022-distance-diagnostic.json": {
+    "sha256": "8d360550b130784fc18c61e2e275d091b80857280b6a87c0602ea69c11f7a8f1",
+    "bytes": 410
+  },
+  "contact022-trace.json": {
+    "sha256": "b959fb4641cd0c1261ad4344521e6a06fdb3190ccb0bdd85c45fe2289f451ea9",
+    "bytes": 5053
+  },
+  "contact023-root6-trace.json": {
+    "sha256": "f16dc6cf276fd58e9b985058d017bff83dea92242d19e2137dfbc5f5f651ce2c",
+    "bytes": 5053
+  },
+  "empty-field-sampled-cost-022.json": {
+    "sha256": "c70f1cc84c6b321389963d840c9b59f843c9db60fb4e5eb597db2addc8e3d905",
+    "bytes": 1185
+  },
+  "limiting-contact-native-022/build-manifest.json": {
+    "sha256": "92f6b4fc5da40969666720243e7a9b4b7c0bcbafc986322f889b0c16be74edd5",
+    "bytes": 6970
+  },
+  "limiting-contact-native-022/common-field-failure.json": {
+    "sha256": "79d95e9ccc5a0e31ad08ec581398ab3de5e9147cf16c791e7eb78a5a542632b9",
+    "bytes": 4206
+  },
+  "limiting-contact-native-022/execution-source-snapshots.tar.gz": {
+    "sha256": "b50440041d838cb27a591a4612ff2712c84366137160fcc4cf6cfd6b9dda825e",
+    "bytes": 1621208
+  },
+  "limiting-contact-native-022/execution-source.patch.gz": {
+    "sha256": "e406885a8fbadc5572cdfcfcda8a2c084d6e8cb116cba19369395994369b13b5",
+    "bytes": 295271
+  },
+  "limiting-contact-native-022/install-motion.execution.json": {
+    "sha256": "aa49fcb36d65725cc31b30dbe48d6283c1e38557eec060524b9bd77760163f2f",
+    "bytes": 746
+  },
+  "limiting-contact-native-022/install-motion.plan.json": {
+    "sha256": "3263ed00c42b4d5f7471204f5e54d21f1d22d360298843e4bf31f90080f3dc8f",
+    "bytes": 96837
+  },
+  "limiting-contact-native-022/install-motion.stderr.log.gz": {
+    "sha256": "35058516ce1947396c117154aab37e607de0b7d35c0dfbeeaac25ca8b039eaa6",
+    "bytes": 18552
+  },
+  "limiting-contact-native-022/install-motion.stdout.log.gz": {
+    "sha256": "3276f218abc0f064dcc08310cf7e853a8a8614ea2473097373d848177946b414",
+    "bytes": 41990
+  },
+  "limiting-contact-native-022/predeclared-checks.json": {
+    "sha256": "5c8082a0752949fa68d2cb54c76321c6e506808163d47cba878de5475929a227",
+    "bytes": 623
+  },
+  "limiting-contact-native-022/resource-monitor.jsonl": {
+    "sha256": "34dd268cd8b9529adda37c952dfc6a29a05d6f632a28793062557fb954dd7a54",
+    "bytes": 7569
+  },
+  "limiting-contact-native-022/resting-coupled.csv": {
+    "sha256": "0fc9d9cbaa9c70ca6945b69aead4f855eb6a0ed4de2c5be6e15d5f02dde2b0ed",
+    "bytes": 5937
+  },
+  "limiting-contact-native-022/run_native_plan.py": {
+    "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f",
+    "bytes": 4730
+  },
+  "limiting-contact-native-022/runner.log": {
+    "sha256": "7d51cd807e123dce0d098c969361f4ea5c8c23f3a103bae4229b5c627b0dfea5",
+    "bytes": 9726
+  },
+  "polynomial-sweep-before-001.log": {
+    "sha256": "55cb47ddebbf55f40e8b1943d191ac605d6600f76a9a03a46a790a3bf4fd1312",
+    "bytes": 404
+  },
+  "polynomial-sweep-build-002.log.gz": {
+    "sha256": "90542f459a4107f8e84f93d94f52ef0f4c04a18018198cae12a6e14c93c934bb",
+    "bytes": 1301
+  },
+  "polynomial-sweep-checker-build-005.log.gz": {
+    "sha256": "a7f72bfcb8dbcda6fd29e555960a348cbc2acaad52331de9e578715e7bb796a3",
+    "bytes": 220
+  },
+  "polynomial-sweep-controls-003.log": {
+    "sha256": "705ffdb296884895ec359336cddd681316d45c610ef614c9429ca81260c4a031",
+    "bytes": 906
+  },
+  "polynomial-sweep-controls-004.log": {
+    "sha256": "f241f7338a2a992019f66ebc33ce4f48972ff66ada2614570c174e6884e006ae",
+    "bytes": 888
+  },
+  "polynomial-sweep-controls-build-004.log.gz": {
+    "sha256": "3bcf014a812a0c644d7ec7855b4047efe43365fa59b8e898cd806f616387e840",
+    "bytes": 60
+  },
+  "polynomial-sweep-controls-build.log.gz": {
+    "sha256": "5aed1ff872a70cd50f6dad3fedb02ac20906635a1934e3b0d40a1c51d4db60c4",
+    "bytes": 56
+  },
+  "polynomial-sweep-controls.fragment": {
+    "sha256": "fe3dad869f7267e07786f963d8f9ced6dc058ed24252f2055f8a542b72514312",
+    "bytes": 4524
+  },
+  "polynomial-sweep-fixture.fragment": {
+    "sha256": "abb06cd8ffaf0f3b6e075441800361a4ac1dbc7c58692cf176f6f7efa21bc32f",
+    "bytes": 4969
+  },
+  "polynomial-sweep-focused-002.log": {
+    "sha256": "76a3144d75df076e516c0783e8a5e2cd03043dc3e952608ca6215ab30689ec4a",
+    "bytes": 747
+  },
+  "polynomial-sweep-helper.fragment": {
+    "sha256": "a842e0759b7da6026bb4bbb4592cfe2bac5ae6c826cb53c8f9ddb93dfdf46a11",
+    "bytes": 4520
+  },
+  "polynomial-sweep-native-023/build-manifest.json": {
+    "sha256": "6e1fa38e426c934b1f71372da39e7af89ee021d5f0c1a3f2dc891471a4e1a8ab",
+    "bytes": 6970
+  },
+  "polynomial-sweep-native-023/common-field-failure.json": {
+    "sha256": "2127b7401772d07df7d0cde2814f65bfe133629ea598fc816f7954040ba36577",
+    "bytes": 4208
+  },
+  "polynomial-sweep-native-023/execution-source-snapshots.tar.gz": {
+    "sha256": "19dbc53cdb33989e17f3b1991ce91e3a393dfba6f001145f44f43426e9ae2ab9",
+    "bytes": 1623752
+  },
+  "polynomial-sweep-native-023/execution-source.patch.gz": {
+    "sha256": "d2c7b822fc729719a5c3ea76a62587a9c29d7716f37ad32f13a21835428e87a0",
+    "bytes": 297890
+  },
+  "polynomial-sweep-native-023/install-motion.execution.json": {
+    "sha256": "f2488b03d582853d9e9ce01db6db8460dd350b717668381a747a9026c12fc396",
+    "bytes": 746
+  },
+  "polynomial-sweep-native-023/install-motion.plan.json": {
+    "sha256": "1ba917fa5590adaf722c1ba47be15043389162c1db81acca01a3e1db0073ce87",
+    "bytes": 96542
+  },
+  "polynomial-sweep-native-023/install-motion.stderr.log.gz": {
+    "sha256": "c6d771c0c5ff2595a599e72480bc4133cd9239974c2e97196c6b03d9dbf3063e",
+    "bytes": 18007
+  },
+  "polynomial-sweep-native-023/install-motion.stdout.log.gz": {
+    "sha256": "93ffeacb3ebb8e2b93da4c09ae05ec20866fc648eb25ca2a1253d8cf115e17b3",
+    "bytes": 41997
+  },
+  "polynomial-sweep-native-023/predeclared-checks.json": {
+    "sha256": "f91b773f354731b34cada8f17eda563f487966041b26b5b5f5e285867e8ef00d",
+    "bytes": 971
+  },
+  "polynomial-sweep-native-023/resource-monitor.jsonl": {
+    "sha256": "5979de6fc6220c65150a863afa87f10c6d6b54b895f313f3eef82aff419bfaa9",
+    "bytes": 10133
+  },
+  "polynomial-sweep-native-023/resting-coupled.csv": {
+    "sha256": "7675a7b3a81297dbcf6608a168c1796063e7c592d8318315c76961ed20effac1",
+    "bytes": 5937
+  },
+  "polynomial-sweep-native-023/run_native_plan.py": {
+    "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f",
+    "bytes": 4730
+  },
+  "polynomial-sweep-native-023/runner.log": {
+    "sha256": "a05b3703510e8bae4db26f9d7370db953532e2ea2a7c0b7214e76fec7a3d41b8",
+    "bytes": 9726
+  },
+  "polynomial-sweep-regression-002.log": {
+    "sha256": "a7de5bee2b300ea4dc57610cb55ee680a9855994dfecd6ca57da0ffc62757d66",
+    "bytes": 12554
+  },
+  "polynomial-sweep-regression-005.log": {
+    "sha256": "6a08ad30b4c8a19459da0c35ea1d0e0ab75e8a05e3615754d3166d00e8eb569f",
+    "bytes": 12695
+  },
+  "polynomial-sweep-scoped.patch": {
+    "sha256": "35af6186bf4b9bb1a24ced67dd2a1c94e5cab54e15742eeca2609be45dacc96e",
+    "bytes": 17642
+  }
+}

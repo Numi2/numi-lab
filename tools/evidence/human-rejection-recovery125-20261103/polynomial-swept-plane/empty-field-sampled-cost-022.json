@@ -1,0 +1,42 @@
+{
+  "scope": "phase-sampled firstroot only; do not scale into totalcost",
+  "samples": {
+    "nm_mixed_apply_operator_elements": {
+      "samples": 12,
+      "median_ms": 0.0021460000000000003,
+      "min_ms": 0.002,
+      "max_ms": 1.824708
+    },
+    "nm_fgmres_import_field_residual": {
+      "samples": 3,
+      "median_ms": 0.056333,
+      "min_ms": 0.054375,
+      "max_ms": 0.063042
+    },
+    "nm_mixed_apply_operator_nodes": {
+      "samples": 12,
+      "median_ms": 0.001979,
+      "min_ms": 0.001875,
+      "max_ms": 0.075625
+    },
+    "nm_fem_finalize_algorithmic_tangent_columns": {
+      "samples": 2,
+      "median_ms": 0.0414795,
+      "min_ms": 0.026959,
+      "max_ms": 0.056
+    },
+    "nm_mixed_prepare_residual": {
+      "samples": 2,
+      "median_ms": 0.1096035,
+      "min_ms": 0.093916,
+      "max_ms": 0.125291
+    },
+    "nm_mixed_build_residual_diagonal": {
+      "samples": 2,
+      "median_ms": 0.092396,
+      "min_ms": 0.092208,
+      "max_ms": 0.092584
+    }
+  },
+  "decision": "field-chain costs are small relative to completed-tail assembly/linear stages; isolated empty-field candidate remains unapplied while contact convergence is prioritized"
+}

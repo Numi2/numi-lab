@@ -1,0 +1,10 @@
+reference_surface_geometry=true positive_subfloor_area=true compensated_world_collapse=true conservative_swept_AABB=true private_base=true degenerate_nonfinite_rejected=true authored_exclusion=true legacy_geometry=true cases=16 canaries=16 PASS
+polynomial_sweep_case=0 margin=1e-09 fraction=1
+polynomial_sweep_case=1 margin=1e-09 fraction=1
+polynomial_sweep_case=2 margin=1e-09 fraction=1
+polynomial_sweep_case=3 margin=1e-09 fraction=0.000647968
+polynomial_sweep_case=4 margin=1e-09 fraction=0
+polynomial_sweep_case=5 margin=1.01e-09 fraction=0
+polynomial_sweep_case=6 margin=1e-09 fraction=1
+polynomial_reference_sweep=true exact_compensated_native_witness=true same_clearance=true crossing_within_clearance_nonfinite_not_full=true cases=7 PASS
+polynomial_rotating_controls=true VT_EE_PP=true scale_1e6_span=true translated=true safe_and_crossing_controls=true cases=1728 full=432 PASS

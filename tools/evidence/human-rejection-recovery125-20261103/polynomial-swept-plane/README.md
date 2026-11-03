@@ -1,0 +1,11 @@
+# Polynomial swept-plane certificate: exact witness corrected, native convergence still failing
+
+The fixed-axis certificate shortened a captured VT sweep to 0.0142058497. A cubic Bernstein interval certificate with a quadratic moving separating axis now proves that exact Float32 high/low sweep clears the identical 1 nm margin for its entire duration. Failed proofs retain the prior conservative bound; zero-bound cases remain unchanged. Original coordinates, source geometry, force laws, physical timestep, solver budgets, and accept/reject checks are unchanged.
+
+GPU controls cover VT/EE/PP, 3 length scales, translations, safe sweeps, closing crossings, and initial/endpoint margin violations (1,728 cases; 432 certified full). The first expanded fixture failed because its rest offset was added to the high word only and rounded away. That failed log is retained; the corrected fixture uses high/low addition and independently checks the requested margin. The owning native checker passes 814,918 checks including the expanded controls. These are numerical contracts, not full scene qualification.
+
+Trials 022 and 023 both accepted 6 steps of 15.625 microseconds (93.75 microseconds total), then rejected root 6. Trial 023 still approaches a true clearance boundary at a later Newton direction and fails the vascular residual tolerance. No sustained-motion or performance improvement is claimed. Trial 022 selected timings are samples, not scaled whole-stage costs. Trial 023 includes cold initialization; do not compare its elapsed time as steady-state throughput.
+
+The ccd_tested_fraction diagnostic reflects only dyadic retries, not positive fractional plane bounds; use lane_bound_after for the captured plane witness. This diagnostic limitation is retained explicitly. The next bounded investigation is the dimensioned denominator floor in barrier stiffness, without changing collision margins or residual tolerances.
+
+Source/binary/configuration pins and compact accepted physiological traces are retained for both trials. The source archives include the pre-expanded-test checker used during execution; only test additions followed the trials. No clinical, anatomical completion, supported-rest, or 0.1x qualification is established.
