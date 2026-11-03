@@ -28549,6 +28549,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     capturedTrialTraceSelected &&
                     !capturedAcceptedSnapshotPath.empty() &&
                     !capturedAcceptedSnapshotSHA256.empty();
+                // Diagnostic filtering only; never used by any physical kernel.
+                float stalledBoundTraceThreshold=1.0e-6f;
+                if (const char* text=std::getenv("NM_FEM_DEFORMABLE_LIMIT_TRACE_BOUND")) {
+                    char* end=nullptr;
+                    const float value=std::strtof(text,&end);
+                    if(end==text || *end!='\0' || !std::isfinite(value) ||
+                       !(value>0.0f) || value>1.0f) {
+                        diagnostics.message="NM_FEM_DEFORMABLE_LIMIT_TRACE_BOUND must be finite in (0,1]";
+                        return false;
+                    }
+                    stalledBoundTraceThreshold=value;
+                }
                 const auto capturedDT = micro.time.x;
                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
                     if (completed.status != MTLCommandBufferStatusCompleted) return;
@@ -28577,7 +28589,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     // Diagnostic readback only: the GPU owns every physical
                     // bound. Report near-zero positive bounds too: they can stall a
                     // Newton solve without ever generating a zero CCD witness.
-                    constexpr float stalledBoundTraceThreshold=1.0e-6f;
                     if(capturedZeroBoundOnly && capturedObjectCount>0u &&
                        lineSearch[0].x>stalledBoundTraceThreshold)return;
                     std::ostringstream line;
@@ -47987,8 +47998,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 std::strcmp(automaticFailureSetting,"1")==0 && environments==1u &&
                 state.femTiledDeformableLimitEnabled && microtick==0u;
             const std::string automaticFailureRoot=std::to_string(request.controlStep);
-            const char* deformableTraceRoot = automaticFailureTrace
-                ? automaticFailureRoot.c_str() : std::getenv("NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT");
+            const char* deformableTraceRoot=std::getenv("NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT");
+            if (deformableTraceRoot==nullptr && automaticFailureTrace)
+                deformableTraceRoot=automaticFailureRoot.c_str();
             if (deformableTraceRoot != nullptr ||
                 femDeformableContactCaptureSelected) {
                 const char* traceRoot = femDeformableContactCaptureSelected

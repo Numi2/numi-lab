@@ -1589,6 +1589,19 @@ kernel void nm_contact_mark_armijo_surface_cache(
         memory_order_relaxed);
 }
 
+// Enclose the represented reference-mode point, not only its rounded world
+// projection. AABB construction is conservative geometry, never a force floor.
+inline void nmContactEncloseExpansion(MRCompensatedPositionGPU value,
+    thread float3& minimumPoint,thread float3& maximumPoint) {
+    const float3 projected=femContactPositionRelativeProjection(value);
+    constexpr float minimumNormal=1.1754943508222875e-38f;
+    const float3 lower=select(nextafter(projected,float3(-INFINITY)),
+        float3(-minimumNormal),abs(projected)<minimumNormal);
+    const float3 upper=select(nextafter(projected,float3(INFINITY)),
+        float3(minimumNormal),abs(projected)<minimumNormal);
+    minimumPoint=min(minimumPoint,lower);maximumPoint=max(maximumPoint,upper);
+}
+
 kernel void nm_contact_build_surface_primitives(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -1737,6 +1750,9 @@ kernel void nm_contact_build_surface_primitives(
     float3 minimumPoint = float3(INFINITY);
     float3 maximumPoint = float3(-INFINITY);
     float3 position[3];
+    MRCompensatedPositionGPU localPosition[3];
+    const float3 referenceOrigin=femNodes[nodeBase+currentNodes.x].restAndFixed.xyz;
+    bool referenceGeometry=true;
     float maximumTravel = 0.0f;
     for (uint corner = 0u; corner < 3u; ++corner) {
         const NMFEMNodeStateGPU node =
@@ -1744,21 +1760,54 @@ kernel void nm_contact_build_surface_primitives(
         position[corner] = node.positionAndMass.xyz;
         const float3 previous = position[corner] -
             dt * node.velocityAndInverseMass.xyz;
-        minimumPoint = min(minimumPoint, min(previous, position[corner]));
-        maximumPoint = max(maximumPoint, max(previous, position[corner]));
-        if (includePrivateBase != 0u) {
-            const float3 basePosition = privateBaseNodes[
-                nodeBase + currentNodes[corner]].positionAndMass.xyz;
-            if (!finite3(basePosition)) return;
-            minimumPoint = min(minimumPoint, basePosition);
-            maximumPoint = max(maximumPoint, basePosition);
+        const bool referenceNode=node.referenceDisplacementAndMode.w==1.0f;
+        referenceGeometry=referenceGeometry&&referenceNode;
+        localPosition[corner]=mrCompensatedVector(float4(0.0f));
+        if(referenceNode) {
+            localPosition[corner]=femContactPositionRelativeExpansion(node,referenceOrigin);
+            const auto world=femContactPositionRelativeExpansion(node,float3(0.0f));
+            const auto sweptStart=mrCompensatedVectorAdd(world,
+                mrCompensatedVectorScale(mrCompensatedVector(
+                    float4(node.velocityAndInverseMass.xyz,0.0f)),{-dt,0.0f}));
+            if(!all(isfinite(world.high.xyz))||!all(isfinite(world.low.xyz))||
+               !all(isfinite(sweptStart.high.xyz))||!all(isfinite(sweptStart.low.xyz)))return;
+            nmContactEncloseExpansion(world,minimumPoint,maximumPoint);
+            nmContactEncloseExpansion(sweptStart,minimumPoint,maximumPoint);
+        } else {
+            minimumPoint = min(minimumPoint, min(previous, position[corner]));
+            maximumPoint = max(maximumPoint, max(previous, position[corner]));
         }
-        maximumTravel = max(
-            maximumTravel, length(position[corner] - previous));
+        if (includePrivateBase != 0u) {
+            const auto baseNode=privateBaseNodes[nodeBase+currentNodes[corner]];
+            const float3 basePosition=baseNode.positionAndMass.xyz;
+            if (!finite3(basePosition)) return;
+            if(baseNode.referenceDisplacementAndMode.w==1.0f) {
+                const auto base=femContactPositionRelativeExpansion(baseNode,float3(0.0f));
+                if(!all(isfinite(base.high.xyz))||!all(isfinite(base.low.xyz)))return;
+                nmContactEncloseExpansion(base,minimumPoint,maximumPoint);
+            } else {
+                minimumPoint = min(minimumPoint, basePosition);
+                maximumPoint = max(maximumPoint, basePosition);
+            }
+        }
+        maximumTravel = max(maximumTravel,referenceNode
+            ? length(dt*node.velocityAndInverseMass.xyz)
+            : length(position[corner]-previous));
     }
-    const float area = 0.5f * length(cross(
-        position[1] - position[0], position[2] - position[0]));
-    if (!(area > kGeometryFloor) || !isfinite(area)) return;
+    float area=0.5f*length(cross(position[1]-position[0],position[2]-position[0]));
+    if(referenceGeometry) {
+        const auto ab=mrCompensatedVectorAdd(localPosition[1],mrCompensatedVectorNegate(localPosition[0]));
+        const auto ac=mrCompensatedVectorAdd(localPosition[2],mrCompensatedVectorNegate(localPosition[0]));
+        const auto normal=mrCompensatedVectorCross(ab,ac);
+        const auto squared=mrCompensatedVectorDot(normal,normal);
+        if(!isfinite(squared.high)||!isfinite(squared.low)||
+           mrCompensatedCompare(squared,{0.0f,0.0f})<=0)return;
+        const auto magnitude=mrCompensatedSqrt(squared);
+        area=0.5f*(magnitude.high+magnitude.low);
+    }
+    // A positive reference face is not absent just because its area is below
+    // a unit-dependent 1e-12 floor or its rounded world vertices are collinear.
+    if (!(area > (referenceGeometry?0.0f:kGeometryFloor)) || !isfinite(area)) return;
     NMContinuumSurfacePrimitiveGPU primitive{};
     primitive.nodesAndObject = {
         dispatch.gridNodeCount + currentNodes.x,
@@ -1770,9 +1819,12 @@ kernel void nm_contact_build_surface_primitives(
         4u * tetrahedronIndex + opposite, NM_CONTINUUM_SURFACE_TRIANGLE,
         tetrahedron.identity.z, NM_TOPOLOGY_ACTIVE
     };
-    primitive.boundsMinimum = float4(minimumPoint - thickness, area);
-    primitive.boundsMaximum = float4(
-        maximumPoint + thickness, maximumTravel);
+    primitive.boundsMinimum = float4(referenceGeometry
+        ? nextafter(minimumPoint-thickness,float3(-INFINITY))
+        : minimumPoint-thickness,area);
+    primitive.boundsMaximum = float4(referenceGeometry
+        ? nextafter(maximumPoint+thickness,float3(INFINITY))
+        : maximumPoint+thickness,maximumTravel);
     primitives[global] = primitive;
 }
 inline uint surfaceMortonSpread(uint value) {

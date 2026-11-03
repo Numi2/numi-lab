@@ -1,0 +1,21 @@
+{
+  "purpose": "Reference-mode positive-face and conservative swept-bound fix with bounded limiting-contact witness",
+  "prediction": "The actual builder now retains positive reference-mode faces and encloses compensated sweep endpoints; no relaxation of collision, residual, determinant or rollback rules.",
+  "changes": [
+    "compensated area and outward AABB in reference-mode primitive construction",
+    "bounded diagnostic threshold/root selector"
+  ],
+  "control": "018 retained16Newton;020 negative24Newton with same5acceptedsteps",
+  "no_claim": "Do not assume more accepted steps or speedup. If stalled retain exact limiting contact at root5/Newton10.",
+  "requested_steps": 16,
+  "dt_seconds": 1.5625e-05,
+  "bounded_stopping_rule": "one run;900wallseconds,12GiBdiskminimum,3GiBswapgrowth",
+  "required_checks": [
+    "existing physical transaction gates",
+    "source pins unchanged",
+    "positive determinants",
+    "contact capacity",
+    "mass provenance",
+    "rejected-state rollback"
+  ]
+}

@@ -1,0 +1,2 @@
+reference_surface_case origin=0 mode=0 area=0
+FAIL native FGMRES true-residual kernel contract: reference surface lost positive face or accepted invalid geometry

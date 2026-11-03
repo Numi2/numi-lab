@@ -1,0 +1,1 @@
+reference_surface_geometry=true positive_subfloor_area=true compensated_world_collapse=true conservative_swept_AABB=true private_base=true degenerate_nonfinite_rejected=true authored_exclusion=true legacy_geometry=true cases=16 canaries=16 PASS

@@ -4560,6 +4560,100 @@ void checkZeroStepGeometryReuse(
     std::cout << "zero-step contact geometry reuse marker and builder PASS\n";
 }
 
+void checkReferenceSurfaceGeometry(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    auto builder=pipeline(device,library,"numi_matter_metal::nm_contact_build_surface_primitives");
+    NMMatterDispatchGPU d{};d.environmentCount=1;d.objectCount=1;
+    d.femNodeCount=4;d.tetrahedronCount=1;d.surfaceFaceCount=1;
+    d.flags=NM_MATTER_STATIC_FEM_SURFACE_MAP;
+    d.gravityAndTimestep.w=.000125f;d.numericalLimits.x=1e-5f;
+    NMContinuumObjectGPU object{};object.representation=NM_REPRESENTATION_FEM;
+    NMTetrahedronGPU tet{};tet.nodes={0,1,2,3};tet.identity={0,0,1,NM_TOPOLOGY_ACTIVE};
+    NMFEMSurfaceFaceGPU face{};face.adjacency={0,NM_INVALID_INDEX,0,NM_TOPOLOGY_ACTIVE};
+    face.sides={3,NM_INVALID_INDEX,0,0};
+    auto dummy=makeBuffer(device,std::vector<std::uint8_t>(512,0));
+    auto db=makeBuffer(device,std::vector<NMMatterDispatchGPU>{d});
+    auto micro=makeBuffer(device,std::vector<NMMicrostepGPU>(1));
+    auto ob=makeBuffer(device,std::vector<NMContinuumObjectGPU>{object});
+    auto tb=makeBuffer(device,std::vector<NMTetrahedronGPU>{tet});
+    auto scheduler=makeBuffer(device,std::vector<NMSchedulerStateGPU>(1));
+    auto flags=makeBuffer(device,std::vector<unsigned>{0});
+    const auto coordinate=[](const NMFEMNodeStateGPU& n,unsigned j,bool projected=false) {
+        const auto* r=reinterpret_cast<const float*>(&n.restAndFixed);
+        const auto* h=reinterpret_cast<const float*>(&n.referenceDisplacementAndMode);
+        const auto* l=reinterpret_cast<const float*>(&n.referenceDisplacementLow);
+        const auto* x=reinterpret_cast<const float*>(&n.positionAndMass);
+        return projected?double(x[j]):double(r[j])+double(h[j])+double(l[j]);
+    };
+    for(double origin:{0.0,1.0})for(unsigned mode=0;mode<8;++mode) {
+        const double height=(mode==1||mode==4)?1e-3:mode==3?0.0:1e-9;
+        const double offsets[4][3]={{0,0,0},{.001,0,0},{.0003,height,0},{0,0,.01}};
+        std::vector<NMFEMNodeStateGPU> nodes(4);
+        for(unsigned i=0;i<4;++i) {
+            auto& n=nodes[i];n.positionAndMass.w=1;
+            n.velocityAndInverseMass={.003f,-.004f,.002f,1};
+            n.referenceDisplacementAndMode.w=mode==4?0.0f:1.0f;
+            auto* r=reinterpret_cast<float*>(&n.restAndFixed);
+            auto* h=reinterpret_cast<float*>(&n.referenceDisplacementAndMode);
+            auto* l=reinterpret_cast<float*>(&n.referenceDisplacementLow);
+            auto* x=reinterpret_cast<float*>(&n.positionAndMass);
+            for(unsigned j=0;j<3;++j) {
+                const double value=origin+offsets[i][j];
+                r[j]=float(value);h[j]=float(value-double(r[j]));
+                l[j]=float(value-double(r[j])-double(h[j]));x[j]=float(value);
+            }
+        }
+        if(mode==2)nodes[2].referenceDisplacementLow.y=std::numeric_limits<float>::quiet_NaN();
+        if(mode==7)nodes[2].referenceDisplacementAndMode.w=0;
+        auto base=nodes;
+        for(auto& n:base){n.referenceDisplacementAndMode.x-=.01f;n.positionAndMass.x=float(coordinate(n,0));}
+        face.sides.w=mode==5?NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT:0;
+        std::vector<NMContinuumSurfacePrimitiveGPU> values(2);values[1].identity.x=0xdeadbeefu;
+        auto result=makeBuffer(device,values);auto nb=makeBuffer(device,nodes);
+        dispatch(device,queue,builder,{{0,db},{1,micro},{2,ob},{3,tb},{4,nb},{5,scheduler},
+            {6,dummy},{7,dummy},{8,dummy},{9,dummy},{10,dummy},{11,dummy},{12,result},
+            {13,makeBuffer(device,std::vector<NMFEMSurfaceFaceGPU>{face})},{14,makeBuffer(device,base)},
+            {15,makeBuffer(device,std::vector<unsigned>{mode==6?1u:0u})},
+            {16,flags},{17,flags},{18,flags}},1,32);
+        auto got=readBuffer<NMContinuumSurfacePrimitiveGPU>(result,2);
+        const bool active=(got[0].identity.w&NM_TOPOLOGY_ACTIVE)!=0;
+        const bool expected=mode==0||mode==1||mode==4||mode==6;
+        if(active!=expected)std::cerr<<"reference_surface_case origin="<<origin<<" mode="<<mode<<" area="<<got[0].boundsMinimum.w<<"\n";
+        require(active==expected,"reference surface lost positive face or accepted invalid geometry");
+        require(got[1].identity.x==0xdeadbeefu,"reference surface output canary");
+        if(mode==5)require((got[0].identity.w&NM_FEM_SURFACE_DISABLE_DEFORMABLE_CONTACT)!=0,
+            "reference geometry changed authored exclusion");
+        if(!active)continue;
+        double ab[3],ac[3],area2=0;
+        for(unsigned j=0;j<3;++j) {
+            ab[j]=coordinate(nodes[1],j,mode==4)-coordinate(nodes[0],j,mode==4);
+            ac[j]=coordinate(nodes[2],j,mode==4)-coordinate(nodes[0],j,mode==4);
+        }
+        for(unsigned j=0;j<3;++j) {
+            const double v=ab[(j+1)%3]*ac[(j+2)%3]-ab[(j+2)%3]*ac[(j+1)%3];area2+=v*v;
+        }
+        const double area=.5*std::sqrt(area2);
+        require(std::abs(double(got[0].boundsMinimum.w)-area)<=4e-6*area,
+            "reference area differs from represented Float64 geometry");
+        if(mode==4)continue; // Legacy nonreference arithmetic is unchanged.
+        const auto* minimum=reinterpret_cast<const float*>(&got[0].boundsMinimum);
+        const auto* maximum=reinterpret_cast<const float*>(&got[0].boundsMaximum);
+        for(unsigned i=0;i<3;++i)for(unsigned j=0;j<3;++j) {
+            const auto* velocity=reinterpret_cast<const float*>(&nodes[i].velocityAndInverseMass);
+            const double x=coordinate(nodes[i],j),previous=x-double(d.gravityAndTimestep.w)*velocity[j];
+            require(double(minimum[j])<=std::min(previous,x)-double(d.numericalLimits.x)&&
+                    double(maximum[j])>=std::max(previous,x)+double(d.numericalLimits.x),
+                "surface AABB omits represented swept endpoint/full thickness");
+            if(mode==6)require(double(minimum[j])<=coordinate(base[i],j)-double(d.numericalLimits.x)&&
+                double(maximum[j])>=coordinate(base[i],j)+double(d.numericalLimits.x),
+                "surface AABB omits exact private base");
+        }
+    }
+    std::cout<<"reference_surface_geometry=true positive_subfloor_area=true compensated_world_collapse=true "
+        "conservative_swept_AABB=true private_base=true degenerate_nonfinite_rejected=true "
+        "authored_exclusion=true legacy_geometry=true cases=16 canaries=16 PASS\n";
+}
+
 void checkGraphPSDContactBlock(
     id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
     MTLFunctionConstantValues* constants = [MTLFunctionConstantValues new];
@@ -16286,6 +16380,9 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if(argc==2&&std::string(argv[1])=="--reference-surface-only") {
+                checkReferenceSurfaceGeometry(device,queue,library);return 0;
+            }
             if(argc==2&&std::string(argv[1])=="--unresolved-reference-sweep-only") {
                 checkUnresolvedReferenceSweepProof(device,queue,library);return 0;
             }
@@ -16418,6 +16515,7 @@ int main(int argc, const char* argv[]) {
             }
             if (argc == 2 && std::string(argv[1]) == "--contact-zero-step-geometry-reuse-only") {
                 checkZeroStepGeometryReuse(device, queue, library);
+            checkReferenceSurfaceGeometry(device,queue,library);
                 std::cout << "PASS zero-step contact geometry reuse " << checks << " checks" << std::endl;
                 return 0;
             }
@@ -17001,6 +17099,7 @@ int main(int argc, const char* argv[]) {
                 hybridPhysicalPreserve, hybridPhysicalPartial, hybridPhysicalFinish);
             checkFreshRhsPreconditionerBeginVerification(device, queue, library);
             checkZeroStepGeometryReuse(device, queue, library);
+            checkReferenceSurfaceGeometry(device,queue,library);
             checkReferenceContactArithmeticFrame(device, queue, library);
             checkCompensatedContactEnergyContinuity(device,queue,library);
             checkLeftRowEquilibration(device,queue,library);
