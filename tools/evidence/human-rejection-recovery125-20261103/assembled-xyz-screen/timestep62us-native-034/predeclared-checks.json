@@ -1,0 +1,14 @@
+{
+  "scope": "Timestep screen: one62.5us step from the same full-load released checkpoint versus four15.625us steps at the same62.5us endpoint. Same equations,16 Krylov budget, contact limits, residual and rollback gates. No load ramps and no change of source geometry.",
+  "prediction": "A larger timestep may reduce cost per simulated second if the physical nonlinear solve and endpoint engineering gates pass; no guaranteed acceptance or speedup.",
+  "control": "completed-preconditioner-native-031",
+  "candidate": "timestep62us-native-034",
+  "gates": [
+    "one accepted step",
+    "existing1% integrated measured-force/physiology and5% regional strain gates at matched physical time; coverage limits reported",
+    "no new penetration or invalid tissue state",
+    "physical and accepted controller histories commit or reject together"
+  ],
+  "stop": "one accepted step or first rejection or retained900s/12GiBresource guard",
+  "qualification": "A short single pair cannot qualify sustained throughput, long-run timestep convergence, physiological plausibility or0.1x.16 remains diagnostic Krylov budget."
+}

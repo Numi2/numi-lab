@@ -1,0 +1,18 @@
+fem_element_block_direct_basis_parity={"schema":1,"max_ulp":0,"max_abs":0,"witness":[0,0,0,0,0,0,0],"block":0,"direct":0}
+hybrid_q_fine_roundoff_control=true forcing=1e-8 single_cycle_only=true certified=false relative_residual=5.75705e-08 result=CONTROL
+hybrid_q_fine_full_FGMRES=true gpu_lift=true gpu_sparse_restrict=true gpu_q_solve=true gpu_fine_precondition=true gpu_q_block_solve=true host_element_gather=true columns=3 relative_residual=5.75705e-08 relative_solution_error=6.76081e-08 result=PASS
+hybrid_restart_diagnostic cycles=2 total_columns=2 certified=1 relative_residual=8.15801e-07 relative_error=1.08912e-06 initial_rhs_norm=1.95127 forcing=1e-6
+hybrid_q_fine_production_restarts=true restart=1 cycles=2 total_columns=2 relative_residual=8.15801e-07 relative_solution_error=1.08912e-06 forcing=1e-6 certified=true roundoff_control_forcing=1e-8 distributed_begin=true full_true_residual=true result=PASS
+hybrid_q_fine_dense_oracle=true dofs=12 q_to_fine=0.0105347 fine_to_q=0.0103835 oracle_error=1.11022e-16 production_CGS2=true next_norm=1 q_fine_dot=-4.69576e-08 result=PASS
+small_dt_graph_matrix_parity dt=3.125e-05 sample=0 mode=0 scale=3.30972e-10 max_error=0 relative_error=0 tolerance=0.0001 worst_index=0
+small_dt_graph_matrix_parity dt=3.125e-05 sample=0 mode=1 scale=3.30972e-10 max_error=0 relative_error=0 tolerance=0.0001 worst_index=0
+small_dt_graph_matrix_parity dt=3.125e-05 sample=0 mode=2 scale=3.30972e-10 max_error=0 relative_error=0 tolerance=0.0001 worst_index=0
+small_dt_graph_matrix_parity dt=3.125e-05 sample=1 mode=0 scale=3.30099e-10 max_error=0 relative_error=0 tolerance=0.0001 worst_index=0
+small_dt_graph_matrix_parity dt=3.125e-05 sample=1 mode=1 scale=3.30099e-10 max_error=0 relative_error=0 tolerance=0.0001 worst_index=0
+small_dt_graph_matrix_parity dt=3.125e-05 sample=1 mode=2 scale=3.30099e-10 max_error=0 relative_error=0 tolerance=0.0001 worst_index=0
+small_dt_graph_matrix_parity dt=3.125e-05 sample=2 mode=0 scale=3.29188e-10 max_error=0 relative_error=0 tolerance=0.0001 worst_index=0
+small_dt_graph_matrix_parity dt=3.125e-05 sample=2 mode=1 scale=3.29188e-10 max_error=0 relative_error=0 tolerance=0.0001 worst_index=0
+small_dt_graph_matrix_parity dt=3.125e-05 sample=2 mode=2 scale=3.29188e-10 max_error=0 relative_error=0 tolerance=0.0001 worst_index=0
+graph_generated_tet_block_parity=true modes=0,1,2,3 geometry_samples=3 two_env_dt=true rotated_tets=true result=PASS
+assembled_xyz_operator=true edge_assembly=true simd_row_apply=true current_bytecode_tangent=true two_env_dt=true fixed_rows=true shared_edge_csr=true cache_lifecycle=true translation_null=true cancellation_bound=true force_closure=true nonfinite_witness=true invalid_cache_fallback=true empty_domain=true result=PASS
+PASS assembled xyz operator 3415 checks

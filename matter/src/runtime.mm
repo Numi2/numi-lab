@@ -6053,8 +6053,35 @@ RuntimeDiagnostics Runtime::initialize(
                 "NM_FEM_ASSEMBLED_XYZ_OPERATOR must be exactly 0 or 1";
             return diagnostics;
         }
-        candidate->femAssembledXYZOperatorRequested =
+        const bool assembledXYZRequested =
             assembledXYZ != nullptr && std::strcmp(assembledXYZ, "1") == 0;
+        const char* assembledHumanScope = std::getenv(
+            "NM_FEM_ASSEMBLED_XYZ_HUMAN_ONLY");
+        if (assembledHumanScope != nullptr &&
+            std::strcmp(assembledHumanScope, "0") != 0 &&
+            std::strcmp(assembledHumanScope, "1") != 0) {
+            diagnostics.message = "Human assembled-xyz scope must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool assembledHumanOnly = assembledHumanScope != nullptr &&
+            std::strcmp(assembledHumanScope, "1") == 0;
+        if (assembledHumanOnly && !assembledXYZRequested) {
+            diagnostics.message =
+                "Human assembled-xyz scope requires the explicit assembled operator request";
+            return diagnostics;
+        }
+        // Integrated Human launch also creates sidecar runtimes with different
+        // cache contracts. Scope by the actual coupled FEM/vascular owner;
+        // every original cache/topology/layout check still applies to it.
+        candidate->femAssembledXYZOperatorRequested = assembledXYZRequested &&
+            (!assembledHumanOnly || hasCoupledFEMVascularOwner);
+        if (assembledHumanOnly) {
+            std::fprintf(stderr,
+                "matter_assembled_xyz_scope={\"human_only\":true,\"fem_nodes\":%u,\"coupled_fem_vascular\":%s,\"effective_request\":%s}\n",
+                world.dispatch.femNodeCount,
+                hasCoupledFEMVascularOwner ? "true" : "false",
+                candidate->femAssembledXYZOperatorRequested ? "true" : "false");
+        }
         if (candidate->femAssembledXYZOperatorRequested) {
             const std::uint32_t cacheMode =
                 numi::matter::detail::femPrimaryOperatorCacheMode(
@@ -6088,7 +6115,8 @@ RuntimeDiagnostics Runtime::initialize(
         }
         candidate->femAssembledXYZSIMDRowEnabled =
             assembledSIMDRow != nullptr &&
-            std::strcmp(assembledSIMDRow, "1") == 0;
+            std::strcmp(assembledSIMDRow, "1") == 0 &&
+            (!assembledHumanOnly || hasCoupledFEMVascularOwner);
         if (candidate->femAssembledXYZSIMDRowEnabled &&
             !candidate->femAssembledXYZOperatorEnabled) {
             diagnostics.message =

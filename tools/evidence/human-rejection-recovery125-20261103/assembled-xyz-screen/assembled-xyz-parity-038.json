@@ -1,0 +1,26 @@
+{
+  "control": "equilibrated-prefix-native-035",
+  "candidate": "assembled-xyz-native-038",
+  "captures": [
+    {
+      "bytes": 833232924,
+      "sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+      "complete": true
+    },
+    {
+      "bytes": 833232729,
+      "sha256": "11d48a95378edc3f39078271b787c9d49405808102c6f1f77b11b938ebbb6bca",
+      "complete": true
+    }
+  ],
+  "endpoint_byte_identity": false,
+  "physiology_sha256": [
+    "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+    "752f0d5ef8a85ce57a5e4afb07a48752384a9da7d6ac9c6e8d0e90be0d3d713e"
+  ],
+  "physiology_byte_identity": false,
+  "control_GPU_mean_s": 13.545727927075,
+  "candidate_GPU_mean_s": 13.497774614575,
+  "claims": "One exploratory pair. If endpoint differs, existing numerical engineering comparison must pass before selecting. No supported-rest or0.1x qualification.",
+  "GPU_time_reduction_fraction": 0.0035401059845703298
+}

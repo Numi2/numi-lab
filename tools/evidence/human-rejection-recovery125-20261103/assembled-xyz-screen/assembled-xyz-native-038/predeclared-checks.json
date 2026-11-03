@@ -1,0 +1,31 @@
+{
+  "purpose": "exploratory exact-operator representation and memory screen",
+  "control": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/equilibrated-prefix-native-035/install-motion.execution.json",
+    "sha256": "be4af8e766040fc68caf297d835d2bf14462d05bf826ccdf7111381414bcb83b",
+    "bytes": 749
+  },
+  "question": "Can the existing assembled elastic CSR operator lower repeated Krylov element-gather cost in the full Human?",
+  "prediction": "Four accepted15.625us steps with mandatory direct true-residual certification; time and extra working memory measured without forecast",
+  "change": "Elastic xyz product representation only; direct raw true-residual certification; contact/pressure/vascular/rigid/muscle coupling retained",
+  "validity": [
+    "3415assembled-operator native checks PASS",
+    "scoped operator admits only actual coupled FEM/vascular owner",
+    "immutable topology and cache1/2 restrictions unchanged",
+    "no resource guard stop"
+  ],
+  "parity_gate": "Attempt complete endpoint byte parity first. If different, no equivalent-algorithm or speedup promotion before existing1%force/physiology and5%strain gates pass.",
+  "bounded_stop": "4steps, first rejection,900s or existing12GiB/3GiBswap-growth guard",
+  "limits": "Diagnostic Krylov16; not default64qualification, resting equilibrium, sustained motion or>=0.1x",
+  "retained_failed_resource_trial": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/assembled-xyz-native-037/install-motion.execution.json",
+    "sha256": "84e8341c3ce6861bcc5092887f58633a2da598c96889700f1d7c9e5ff04239c6",
+    "bytes": 760
+  },
+  "verified_space_consolidation": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/verified-identical-output-links-20261103-038.json",
+    "sha256": "65d48fa02b6a8656bed0442ebddd7c5f04d9c5b33d4e8be950f4d192f44c61c6",
+    "bytes": 131771
+  },
+  "retry_reason": "Only resource state changed:11.51GiB byte-identical output consolidation; same source, binaries, physical state, gates and requested horizon."
+}

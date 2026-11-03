@@ -1,0 +1,107 @@
+registered_ligament_source_geometry=admitted rows=34 retained_source_bone_meshes=185 source_bone_records=185 bone_payload_sha256=43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0 path_guard=all_current_pose_registered_meshes endpoint_projection=bounded_current_registered_surface
+human_preparation_memory phase=before_fractional_p1_support available=1 resident_bytes=3078012928 footprint_bytes=2119617512 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=after_fractional_p1_merge_release available=1 resident_bytes=3428106240 footprint_bytes=2469858568 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=after_fractional_carrier_load available=1 resident_bytes=3437051904 footprint_bytes=2478787848 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=after_fractional_mass_mapping available=1 resident_bytes=6928105472 footprint_bytes=5264447944 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=registered_skin_fat_import_complete available=1 resident_bytes=9241870336 footprint_bytes=5653471224 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=registered_skin_fat_import_scratch_released available=1 resident_bytes=6620381184 footprint_bytes=2972490064 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=passive_tissue_compile_begin available=1 resident_bytes=6620594176 footprint_bytes=2972653904 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=passive_tissue_compile_complete available=1 resident_bytes=7530676224 footprint_bytes=3883097048 metal_allocated_bytes=0 recommended_working_set_bytes=0
+passive_fem_clock_selection maximum_rate_exponent=0 physical_frame_s=1.5625e-05 blood_enabled=0 contact_connected_clock_lock=disabled
+human_material_expression_cache=enabled materials=20 equations=unchanged
+human_preparation_memory phase=shared_tissue_authoring_released available=1 resident_bytes=8071970816 footprint_bytes=6824600528 metal_allocated_bytes=0 recommended_working_set_bytes=0
+matter_runtime_initialize_begin
+matter_left_row_equilibration_scope={"human_only":true,"registered_attachments":0,"rigid_rows":0,"coupled_fem_vascular":true,"effective_request":true}
+matter_assembled_xyz_scope={"human_only":true,"fem_nodes":318974,"coupled_fem_vascular":true,"effective_request":true}
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_private_contact_failure_capture=1 failure_only=1
+matter_stateless_material_specialization requested=1 eligible=1 material_count=20
+matter_all_native_float requested=1 eligible=1 enabled=1 materials=20 diagnostic_vm=0
+matter_fem_clearance_aligned_barrier=1 boundary=immutable_source_clearance
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_pipeline_archive=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar async=1
+matter_fem_backtracking_constitutive_validity=enabled stateless=1 mixed=0 learned=0
+matter_parallel_constitutive_backtracking=1 validity_preserved=1
+matter_allocation_phase phase=before_immutable_uploads resident_bytes=48 device_allocated_bytes=55377920 recommended_working_set_bytes=12713115648
+[NumiMatter] vascular principal block enabled: 46 unknowns, 16644 scratch bytes/environment; physical operator unchanged
+matter_stateless_tangent_bundle mode=1 eligible_materials=5 total_materials=20
+matter_fem_assembled_xyz_csr_degree rows=318974 nnz=4289350 mean=13.447 p50=12 p90=21 p99=39 max=746
+matter_allocation_phase phase=after_immutable_uploads resident_bytes=1432895560 device_allocated_bytes=1879195648 recommended_working_set_bytes=12713115648
+matter_allocation_phase phase=after_physical_state_uploads resident_bytes=2091682312 device_allocated_bytes=3196895232 recommended_working_set_bytes=12713115648
+matter_upload_memory staging_peak_bytes=33554432 batches=45 device_allocated_bytes=3715940352 recommended_working_set_bytes=12713115648 complete=1
+contact_node_incidence_builder={"schema":1,"mode":"active_corner_radix","hierarchical_prefix":true,"environments":1,"capacity":4207296,"logical_corners_per_environment":25243776,"padded_corners_per_environment":33554432,"sort_workspace_bytes":402653184}
+[NumiMatter] empty-field FGMRES precondition skip enabled: layout_bit0=1 mixed_fields=0 mpm_capacity=0 hybrid=0
+matter_coupled_row_equilibration=1 preconditioner=M^-1*S^-1 physical_certificate=unscaled
+matter_allocation_phase phase=after_operator_contact_scratch resident_bytes=5625521720 device_allocated_bytes=6975176704 recommended_working_set_bytes=12713115648
+matter_allocation_phase phase=after_krylov_basis resident_bytes=5962383952 device_allocated_bytes=7312048128 recommended_working_set_bytes=12713115648
+matter_allocation_phase phase=before_proof_scratch resident_bytes=6465937988 device_allocated_bytes=7815774208 recommended_working_set_bytes=12713115648
+matter_upload_memory staging_peak_bytes=0 batches=1 device_allocated_bytes=7818952704 recommended_working_set_bytes=12713115648 complete=1
+matter_runtime_initialize_complete
+respiration_runtime_initialize_begin
+resting_gas_transport_subcycling=1 respiratory_mechanics_subcycling=1 parallel_respiratory_muscles=1 parallel_respiratory_gas=0 maximum_internal_mechanics_dt_s=0.002 maximum_substeps=32 donor_fraction_bound=0.1 external_blood=operator_split_orifice_ballistic_packets source_anatomy_id=9 donor_compartment_id=7 area_fraction=0.25 discharge_coefficient=0.6 density_kg_m3=1050.6 cut_step=4294967295 bleeding_enabled=0 blood_mpm_enabled=0 blood_mpm_object=4294967295 free_surface_solver=existing_mpm_high_shear_newtonian_reduced_scope
+respiration_runtime_initialize_complete
+human_preparation_memory phase=shared_runtime_initialized available=1 resident_bytes=5768691712 footprint_bytes=8865244592 metal_allocated_bytes=6525501440 recommended_working_set_bytes=12713115648
+2026-11-03 09:13:47.921 numi-human-native[38425:516160] Human native framebuffer output: window and recording
+human_stand_reduced_response root_step=1 environment=0 requested=1 admitted=0 ready=0 used=0 base_requested=1 base_used=0 free_dofs=128 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_stand_reduced_response root_step=1 environment=0 requested=1 admitted=0 ready=0 used=0 base_requested=1 base_used=0 free_dofs=128 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_node_work_layout tiles=1246 nodes=318974 active_anchors=270 sparse=1
+human_contact_row_cache requested=1 admitted=1 rows=15453677 bytes=247258832
+human_contact_aabb_exclusion enabled=1
+human_contact_audit_layout parallel=1 rows=15453677 solver_rows=15453677 tiles=60366
+human_immutable_contact_storage=shared_upload_owner cpu_staging_released_bytes=1611153856 samples=15453677 sample_rows_unchanged=1 device_allocated_bytes=10897948672 recommended_working_set_bytes=12713115648
+matter_gpu_stage_timing_requested root=0 enabled=1 sampled_root=0
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":637994,"fem_nodes":318974,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+mpm_newton_rhs_rows_trace_skipped={"schema":1,"root":0,"reason":"requires_one_explicit_mpm_object"}
+matter_fgmres_operator_icb=1 preconditioner_prefix=1 prefix_commands=12 tail_commands=5 row_equilibrated_prefix=1 mpm_empty=1 env=1
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=2304 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_empty_field_preconditioner_dispatch_count=skipped step=0 count=768
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=48 element=32 environment_count=1
+matter_gpu_stage_timing_requested root=0 enabled=1 sampled_root=0
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_validate_fem_body_contact_samples_cached_aabb","sequence":1,"wall_elapsed_s":5.05808429,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"matter_pre","boundary":"matter_newton_assembly","sequence":1,"wall_elapsed_s":5.05775254,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_reduce_fem_body_contact_sample_validation","sequence":2,"wall_elapsed_s":5.05839271,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_validate_node_load_tiles","sequence":3,"wall_elapsed_s":5.05839921,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_finish_node_load_validation","sequence":4,"wall_elapsed_s":5.05840896,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_prepare_provisional_status","sequence":5,"wall_elapsed_s":5.05841363,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_assemble_tendon_fem_loads","sequence":6,"wall_elapsed_s":5.05841796,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_assemble_fem_body_contact_loads_grouped_cached","sequence":7,"wall_elapsed_s":5.05842675,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_fem_body_contact_wrench_partial_cached","sequence":8,"wall_elapsed_s":5.05842975,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_fem_body_contact_wrench_finish","sequence":9,"wall_elapsed_s":5.05843208,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_audit_fem_body_contact_partial_cached","sequence":10,"wall_elapsed_s":5.05843429,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_audit_fem_body_contact_finish","sequence":11,"wall_elapsed_s":5.05843633,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_audit_passive_ligaments","sequence":12,"wall_elapsed_s":5.05843912,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_node_force_audit_tiles","sequence":13,"wall_elapsed_s":5.05844196,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_finish_node_force_audit","sequence":14,"wall_elapsed_s":5.05844375,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
+gpu_progress={"root":0,"phase":"human_adapter","boundary":"numi_matter_metal::nm_numi_human_assemble_fem_kinematic_targets","sequence":15,"wall_elapsed_s":5.05844625,"scope":"gpu_signal_cpu_arrival_not_kernel_duration"}
