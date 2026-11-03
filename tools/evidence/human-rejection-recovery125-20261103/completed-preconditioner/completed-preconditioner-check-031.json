@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/numi-matter-fem-material-frame-check",
+    "/Users/numi/Work/skin-fat-native-integration-209/matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter"
+  ],
+  "environment": {
+    "NM_FEM_MATERIAL_TAIL_ICB_CHECK_ONLY": "1"
+  },
+  "returncode": 0,
+  "elapsed_seconds": 89.96784900000057
+}

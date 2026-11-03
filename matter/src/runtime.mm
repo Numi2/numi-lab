@@ -36793,7 +36793,27 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         NSUInteger(rangeIndex) * sizeof(NMIndirectDispatchGPU),
                         bind))
                     return;
-                dispatchThreads(name, count, bind, workDomain);
+                // Selector 6 stores its persistent nodal inverse separately
+                // from femPreconditioned, which the tail RHS restore clears.
+                // Once the existing complete-Newton latch freezes the candidate,
+                // retain those inverse blocks on intermediate tails. The final
+                // iteration and diagnostic captures still refresh every row.
+                // Other selectors reuse femPreconditioned as their diagonal and
+                // must rebuild it after that clear.
+                const bool retainCompletedCoupledNodeBlocks =
+                    femNewtonTailDispatchEnabledForCurrentRoot &&
+                    state.mixedSolverValue.executionBudgets.z == 6u &&
+                    nonlinearIteration + 1u < nonlinearIterationBudget &&
+                    !state.forceCompletedTangentCacheRebuild &&
+                    !state.femOperatorFDRichCaptureEnabled &&
+                    !femRegionalRAPCaptureOnly &&
+                    !femCoupledCaptureRequested &&
+                    !state.femHumanGlobalCoarseRapCaptureEnabled &&
+                    workDomain == WorkDomain::femNodes &&
+                    rangeIndex == 1u;
+                dispatchThreads(name, count, bind,
+                    retainCompletedCoupledNodeBlocks
+                        ? WorkDomain::newtonAssemblyFemNodes : workDomain);
             };
             const auto dispatchFreshPreconditionerGrid = [&] (
                 const char* name, const NSUInteger groupsX,

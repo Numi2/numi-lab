@@ -1,0 +1,13 @@
+{
+  "scope": "Four-step unbalanced full-Human release; not settled rest, anatomical qualification or0.1x",
+  "control": "budget16-native-026",
+  "candidate": "completed-preconditioner-native-031",
+  "gates": [
+    "4 accepted steps with unchanged residual, determinant and contact limits",
+    "compare complete endpoint using existing1% force and5% strain checks; report coverage exclusions",
+    "physiology CSV and per-step source/accepted-time agreement",
+    "compare GPU stage and elapsed-inclusive time separately; one pair exploratory"
+  ],
+  "stop": "first native rejection, resource guard or4 accepted steps",
+  "prediction": "Persistent nodal blocks can be retained after the existing complete-Newton latch. Measured endpoint and physiological channels should agree within existing gates. Whole-stage timing may improve; no numerical speedup forecast."
+}

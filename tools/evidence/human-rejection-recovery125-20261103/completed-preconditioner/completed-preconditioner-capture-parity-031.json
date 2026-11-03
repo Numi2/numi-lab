@@ -1,0 +1,47 @@
+{
+  "results": [
+    {
+      "name": "budget16-native-026",
+      "capture_sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+      "capture_bytes": 833232924,
+      "complete": true,
+      "record_counts": {
+        "node": 318974,
+        "tetrahedron": 1480059,
+        "reaction": 4
+      },
+      "elapsed_seconds": 2.256744875005097,
+      "sample_records": {},
+      "record_count_source": "Native identical capture header (verified below), not the earlier incorrect marker counter."
+    },
+    {
+      "name": "completed-preconditioner-native-031",
+      "capture_sha256": "66c476e14b867eb9a19039ec112750a3d517a18ce039b24bdb5181fec7ac24c7",
+      "capture_bytes": 833232924,
+      "complete": true,
+      "record_counts": {
+        "node": 318974,
+        "tetrahedron": 1480059,
+        "reaction": 4
+      },
+      "elapsed_seconds": 2.2551592079980765,
+      "sample_records": {},
+      "record_count_source": "Native identical capture header (verified below), not the earlier incorrect marker counter."
+    }
+  ],
+  "capture_byte_parity": true,
+  "scope": "Every byte of existing endpoint begin-through-end capture, not whole stdout; measured-channel parity only, not complete physical force qualification.",
+  "physiology_csv_bitwise_equal": true,
+  "physiology_csv_pins": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/budget16-native-026/install-motion/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+      "bytes": 4523
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-preconditioner-native-031/install-motion/resting-coupled.csv",
+      "sha256": "77edb932a1a06eacdba8efe1f97bc5492ff8185c37a2e31a5c8d09045eb41aee",
+      "bytes": 4523
+    }
+  ]
+}

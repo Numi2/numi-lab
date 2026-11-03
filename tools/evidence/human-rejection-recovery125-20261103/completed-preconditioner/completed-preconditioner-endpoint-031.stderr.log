@@ -1,0 +1,24 @@
+{
+  "endpoint_fidelity": {
+    "gate": "unavailable",
+    "reason": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/budget16-native-026/install-motion.stdout.log: unsupported existing endpoint capture version"
+  }
+}
+        0.46 real         0.39 user         0.05 sys
+            25739264  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                2370  page reclaims
+                 182  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                  60  voluntary context switches
+                 100  involuntary context switches
+          8428657038  instructions retired
+          2124707265  cycles elapsed
+            15598072  peak memory footprint

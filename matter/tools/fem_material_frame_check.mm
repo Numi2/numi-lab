@@ -1277,7 +1277,8 @@ struct Run {
 // Exercise the production runtime's complete cached-Newton path, including
 // accepted motion, a late external rejection, rollback and replay.
 void checkCooperativeTailRuntime(Device& device, MaterialProgram material,
-                                 const unsigned bundleMode) {
+                                 const unsigned bundleMode,
+                                  const bool coupledNodeBlocks = false) {
     struct Policy {
         std::vector<std::pair<std::string,std::pair<bool,std::string>>> saved;
         void set(const char* name,const char* value) {
@@ -1313,9 +1314,14 @@ void checkCooperativeTailRuntime(Device& device, MaterialProgram material,
     }
     authored.mixedSolver.cacheFEMAlgorithmicTangent=true;
     authored.mixedSolver.newtonIterations=8u;
+    if (coupledNodeBlocks)
+        authored.mixedSolver.femPreconditioner =
+            FEMPreconditionerMode::coupledFEMTangentBlockJacobi;
     const auto make=[&](const bool cached) {
         Policy policy;
-        policy.set("NM_FEM_NEWTON_TAIL_DISPATCH","1");
+        // Compare full completed-tail rebuilds with the production GPU latch.
+        policy.set("NM_FEM_NEWTON_TAIL_DISPATCH",
+                   !coupledNodeBlocks || cached ? "1" : "0");
         policy.set("NM_FEM_NEWTON_TAIL_ICB",cached ? "1" : "0");
         policy.set("NM_FEM_STATELESS_TANGENT_BUNDLE",bundleMode==2u ? "2" : "1");
         policy.set("NM_FEM_NATIVE_TANGENT_BUNDLE","0");
@@ -1345,6 +1351,7 @@ void checkCooperativeTailRuntime(Device& device, MaterialProgram material,
          cached->state().statuses[0].fgmresIterations==0u,
          "stationary fixture did not exercise zero-column completed tails");
     std::cout<<"newton_tail_runtime=PASS bundle_mode="<<bundleMode
+        <<" coupled_node_blocks="<<coupledNodeBlocks
         <<" accepted_state_bitwise=true "
         "certificates_bitwise=true late_rejection_rollback=true replay=true static_completed_tail=true "
         "scope=synthetic_one_environment_not_Human_qualification\n";
@@ -1737,6 +1744,8 @@ int main(int argc,char** argv){@autoreleasepool{try{
         Device device(false,false,true);
         checkCooperativeTailRuntime(device,parsed.material,1u);
         checkCooperativeTailRuntime(device,parsed.material,2u);
+        checkCooperativeTailRuntime(device,parsed.material,1u,true);
+        checkCooperativeTailRuntime(device,parsed.material,2u,true);
         return 0;
     }
     if(bundleCheckOnly!=nullptr && std::strcmp(bundleCheckOnly,"1")==0){

@@ -1,0 +1,15 @@
+{
+  "control": "budget16-native-026",
+  "candidate": "completed-preconditioner-native-031",
+  "paired_runs": 1,
+  "accepted_steps_each": 4,
+  "control_GPU_mean_seconds": 17.3341900625,
+  "candidate_GPU_mean_seconds": 13.562547677074999,
+  "GPU_time_reduction_fraction": 0.2175839985500332,
+  "throughput_ratio": 1.2780924701780234,
+  "candidate_GPU_only_RTF": 1.1520696827787893e-06,
+  "control_elapsed_seconds": 257.404218,
+  "candidate_elapsed_seconds": 233.19474482536316,
+  "candidate_elapsed_inclusive_RTF": 2.6801633135774793e-07,
+  "scope": "Single exploratory four-step full-Human release pair, not sustained motion, settled rest or integrated viewer0.1x qualification. Krylov16 is a diagnostic budget, not the64-budget default."
+}
