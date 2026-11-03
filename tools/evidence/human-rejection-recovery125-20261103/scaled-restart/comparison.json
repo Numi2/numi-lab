@@ -1,0 +1,16 @@
+[
+  {
+    "trial": "coupled-row-native-001",
+    "accepted_physical_steps": 0,
+    "first_newton_initial_true_l2": 0.248174369,
+    "first_newton_final_true_l2": 0.248174369,
+    "last_nonlinear_rhs_l2": 0.710376143
+  },
+  {
+    "trial": "scaled-restart-native-001",
+    "accepted_physical_steps": 0,
+    "first_newton_initial_true_l2": 0.248174369,
+    "first_newton_final_true_l2": 0.0485925488,
+    "last_nonlinear_rhs_l2": 0.710521877
+  }
+]

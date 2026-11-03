@@ -4233,6 +4233,7 @@ struct Runtime::State {
     bool femFullCoupledTrueResidualEnabled = false;
     bool femLeftRowEquilibrationRequested = false;
     bool femLeftRowEquilibrationEnabled = false;
+    bool femCoupledRowEquilibrationEnabled = false;
     id<MTLBuffer> femLeftRowEquilibrationScale = nil;
     id<MTLBuffer> femLeftRowEquilibrationResidual = nil;
     id<MTLBuffer> femHumanHybridOperatorDirection = nil;
@@ -5087,6 +5088,29 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femLeftRowEquilibrationRequested =
                 std::strcmp(leftRowEquilibration, "1") == 0;
         }
+        const char* coupledRowEquilibration = std::getenv(
+            "NM_FGMRES_LEFT_ROW_EQUILIBRATION_COUPLED_FEM");
+        if (coupledRowEquilibration != nullptr &&
+            std::strcmp(coupledRowEquilibration, "0") != 0 &&
+            std::strcmp(coupledRowEquilibration, "1") != 0) {
+            diagnostics.message =
+                "coupled FEM row equilibration must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool coupledRowRequested = coupledRowEquilibration != nullptr &&
+            std::strcmp(coupledRowEquilibration, "1") == 0;
+        if (coupledRowRequested && !candidate->femLeftRowEquilibrationRequested) {
+            diagnostics.message =
+                "coupled FEM row equilibration requires the explicit row-equilibration request";
+            return diagnostics;
+        }
+        const bool hasCoupledFEMVascularOwner =
+            world.dispatch.femNodeCount != 0u &&
+            world.dispatch.tetrahedronCount != 0u &&
+            world.vascular.layout.ranges.z != 0u &&
+            !world.vascular.unknowns.empty();
+        candidate->femCoupledRowEquilibrationEnabled =
+            coupledRowRequested && hasCoupledFEMVascularOwner;
         // An integrated Human invocation also creates respiratory and cardiac
         // runtimes. Scope this experiment by the registered borrowed Human
         // attachment owner, without weakening admission on the targeted world.
@@ -5109,12 +5133,14 @@ RuntimeDiagnostics Runtime::initialize(
                 world.dispatch.femHumanAttachmentCount != 0u &&
                 world.dispatch.rigidGeneralizedCapacity != 0u;
             candidate->femLeftRowEquilibrationRequested =
-                hasBorrowedHumanAttachmentOwner;
+                hasBorrowedHumanAttachmentOwner ||
+                candidate->femCoupledRowEquilibrationEnabled;
             std::fprintf(stderr,
-                "matter_left_row_equilibration_scope={\"human_only\":true,\"registered_attachments\":%u,\"rigid_rows\":%u,\"effective_request\":%s}\n",
+                "matter_left_row_equilibration_scope={\"human_only\":true,\"registered_attachments\":%u,\"rigid_rows\":%u,\"coupled_fem_vascular\":%s,\"effective_request\":%s}\n",
                 world.dispatch.femHumanAttachmentCount,
                 world.dispatch.rigidGeneralizedCapacity,
-                hasBorrowedHumanAttachmentOwner ? "true" : "false");
+                candidate->femCoupledRowEquilibrationEnabled ? "true" : "false",
+                candidate->femLeftRowEquilibrationRequested ? "true" : "false");
         }
         const char* acceptedCorrectionRecycle = std::getenv(
             "NM_FEM_REGIONAL_ACCEPTED_CORRECTION_RECYCLE");
@@ -8355,6 +8381,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_begin",
             "nm_fgmres_build_left_row_equilibration_scale",
             "nm_fgmres_apply_left_row_equilibration",
+            "nm_fgmres_unscale_preconditioner_input",
             "nm_fgmres_begin_distributed_partial",
             "nm_fgmres_prepare_distributed_work_dispatch",
             "nm_fgmres_prepare_inexact_newton_forcing",
@@ -9356,7 +9383,9 @@ RuntimeDiagnostics Runtime::initialize(
                 (std::strcmp(name,
                     "nm_fgmres_build_left_row_equilibration_scale") == 0 ||
                  std::strcmp(name,
-                    "nm_fgmres_apply_left_row_equilibration") == 0))
+                    "nm_fgmres_apply_left_row_equilibration") == 0 ||
+                 std::strcmp(name,
+                    "nm_fgmres_unscale_preconditioner_input") == 0))
                 continue;
             if (!candidate->femAssembledXYZOperatorEnabled &&
                 !candidate->femHuman6GraphTetBlockReuseEnabled &&
@@ -12889,7 +12918,12 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->enableVascularDense45 ||
                 candidate->femAcceptedSubspacePredictorRequested ||
                 candidate->femAcceptedZ0RecycleEnabled ||
-                candidate->fgmresInexactNewtonForcingEnabled ||
+                (candidate->femCoupledRowEquilibrationEnabled &&
+                 candidate->femHumanGlobalCoarseEnabled) ||
+                (candidate->fgmresInexactNewtonForcingEnabled &&
+                 !(candidate->femCoupledRowEquilibrationEnabled &&
+                   candidate->fgmresRelativeInnerForcingEnabled &&
+                   candidate->fgmresInexactCoupledLinearCertificateEnabled)) ||
                 std::getenv("NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR") != nullptr ||
                 std::getenv("NM_FEM_BASE_CGLS_ITERATIONS") != nullptr ||
                 std::getenv("NM_FEM_OPERATOR_FD_SELECTOR") != nullptr;
@@ -12908,6 +12942,12 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
             candidate->femLeftRowEquilibrationEnabled = true;
+            if (candidate->femCoupledRowEquilibrationEnabled) {
+                candidate->executionFingerprint = mixFingerprint(
+                    candidate->executionFingerprint, 0x43524f5753433031ull); // CROWSC01
+                std::fprintf(stderr,
+                    "matter_coupled_row_equilibration=1 preconditioner=M^-1*S^-1 physical_certificate=unscaled\n");
+            }
             // Retain original ||b|| for the physical latch/certificate and
             // mark a separately stored S*b norm for Arnoldi forcing.
             candidate->fgmresLayout.reserved |= (1u << 22u) | (1u << 23u);
@@ -39585,6 +39625,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return value != nullptr && std::strcmp(value, "1") == 0;
             }();
             const bool femPrefixPreconditionerICBForCurrentSolve =
+                !state.femCoupledRowEquilibrationEnabled &&
                 state.fgmresPrefixPreconditionerICBEnabled &&
                 state.fgmresOperatorICBEnabled &&
                 state.fgmresSkipEmptyFieldPreconditionerEnabled &&
@@ -39598,6 +39639,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 !state.femHumanGlobalCoarseEnabled &&
                 !state.femHumanPartitionedPreconditionerEnabled;
             const bool femSelector6BasePreconditionerICBForCurrentSolve =
+                !state.femCoupledRowEquilibrationEnabled &&
                 state.fgmresPrefixPreconditionerICBEnabled &&
                 state.fgmresOperatorICBEnabled &&
                 state.fgmresSkipEmptyFieldPreconditionerEnabled &&
@@ -39616,6 +39658,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 !state.vascularBlockPredictorEnabled &&
                 !useAcceptedZ0ForCurrentRoot;
             const bool femSelector6PartitionedPreconditionerICBForCurrentSolve =
+                !state.femCoupledRowEquilibrationEnabled &&
                 state.fgmresPrefixPreconditionerICBEnabled &&
                 state.fgmresOperatorICBEnabled &&
                 state.fgmresSkipEmptyFieldPreconditionerEnabled &&
@@ -39956,6 +39999,28 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const NSUInteger columnOffset = vectorBytes * column;
                 id<MTLBuffer> preconditionerInputBasis = state.fgmresBasis;
                 NSUInteger preconditionerInputOffset = columnOffset;
+                if (state.femCoupledRowEquilibrationEnabled) {
+                    // Arnoldi lives in S-scaled residual coordinates. Apply
+                    // the original physical preconditioner to S^-1*v, giving
+                    // S*A*M^-1*S^-1 rather than scaling its input twice.
+                    // The begin RHS scratch is dead after Arnoldi begin.
+                    dispatchThreads("nm_fgmres_unscale_preconditioner_input",
+                        state.fgmresLayout.unknownCount, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.fgmresLayout
+                                   length:sizeof(state.fgmresLayout) atIndex:30u];
+                        [encoder setBuffer:state.femLeftRowEquilibrationScale
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:2u];
+                        [encoder setBuffer:state.femLeftRowEquilibrationResidual
+                                     offset:0u atIndex:3u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    preconditionerInputBasis =
+                        state.femLeftRowEquilibrationResidual;
+                    preconditionerInputOffset = 0u;
+                }
                 if (state.femHumanHybridGlobalCoarseMultiplicativeEnabled) {
                     const std::uint32_t globalModes = state.femHumanGlobalCoarseModeCount;
                     const std::uint32_t coordinateCount =

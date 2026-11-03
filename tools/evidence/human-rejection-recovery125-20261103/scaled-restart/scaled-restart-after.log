@@ -1,0 +1,2 @@
+left_row_scale_native=true equation=SA_Minv raw_physical_residual=3.70179e-15 arnoldi_reference=scaled raw_certificate=preserved result=PASS
+PASS left row equilibration 257 checks

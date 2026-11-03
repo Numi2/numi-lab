@@ -1,0 +1,114 @@
+[
+  {
+    "newton": 0,
+    "rhs_l2": 0.710712075,
+    "first_true_l2": 0.248174369,
+    "last_true_l2": 0.248174369,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 1,
+    "rhs_l2": 0.710699916,
+    "first_true_l2": 0.0467715524,
+    "last_true_l2": 0.0467715524,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 2,
+    "rhs_l2": 0.710679054,
+    "first_true_l2": 0.0478783771,
+    "last_true_l2": 0.0478783771,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 3,
+    "rhs_l2": 0.710657835,
+    "first_true_l2": 0.0490152128,
+    "last_true_l2": 0.0490152128,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 4,
+    "rhs_l2": 0.710647464,
+    "first_true_l2": 0.0496075638,
+    "last_true_l2": 0.0496075638,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 5,
+    "rhs_l2": 0.710636973,
+    "first_true_l2": 0.021505801,
+    "last_true_l2": 0.021505801,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 6,
+    "rhs_l2": 0.710615933,
+    "first_true_l2": 0.0238418765,
+    "last_true_l2": 0.0238418765,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 7,
+    "rhs_l2": 0.710594952,
+    "first_true_l2": 0.0257734582,
+    "last_true_l2": 0.0257734582,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 8,
+    "rhs_l2": 0.710584641,
+    "first_true_l2": 0.0281660408,
+    "last_true_l2": 0.0281660408,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 9,
+    "rhs_l2": 0.710501492,
+    "first_true_l2": 0.0269901454,
+    "last_true_l2": 0.00834589079,
+    "distinct_true_residuals": 2
+  },
+  {
+    "newton": 10,
+    "rhs_l2": 0.710459709,
+    "first_true_l2": 0.0194767695,
+    "last_true_l2": 0.0194767695,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 11,
+    "rhs_l2": 0.710449159,
+    "first_true_l2": 0.0186175946,
+    "last_true_l2": 0.0186175946,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 12,
+    "rhs_l2": 0.710438728,
+    "first_true_l2": 0.0179838128,
+    "last_true_l2": 0.0179838128,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 13,
+    "rhs_l2": 0.710418105,
+    "first_true_l2": 0.0174483303,
+    "last_true_l2": 0.0174483303,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 14,
+    "rhs_l2": 0.710397184,
+    "first_true_l2": 0.0177394729,
+    "last_true_l2": 0.0177394729,
+    "distinct_true_residuals": 1
+  },
+  {
+    "newton": 15,
+    "rhs_l2": 0.710376143,
+    "first_true_l2": 0.018471837,
+    "last_true_l2": 0.018471837,
+    "distinct_true_residuals": 1
+  }
+]

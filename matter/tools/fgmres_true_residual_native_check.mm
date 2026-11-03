@@ -12443,6 +12443,60 @@ void checkLeftRowEquilibration(
         require(std::memcmp(&scaled[row], &source[row], sizeof(nm_float4)) == 0,
             "row scaling modified an identity tail row");
 
+    auto unscale = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_unscale_preconditioner_input");
+    const nm_float4 canary{31.0f, 37.0f, 41.0f, 43.0f};
+    auto restoredBuffer = makeBuffer(device,
+        std::vector<nm_float4>(source.size() + 1u, canary));
+    dispatch(device, queue, unscale,
+        {{0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, scaleBuffer},
+         {2u, scaledBuffer}, {3u, restoredBuffer}}, source.size() + 1u, 32u);
+    const auto restored = readBuffer<nm_float4>(restoredBuffer, source.size() + 1u);
+    for (std::size_t row = 0u; row < source.size(); ++row) {
+        const float* expected = &source[row].x;
+        const float* actual = &restored[row].x;
+        for (std::size_t c = 0u; c < 4u; ++c)
+            require(std::abs(actual[c] - expected[c]) <=
+                    2.0e-6f * std::max(1.0f, std::abs(expected[c])),
+                "inverse row scaling did not restore physical coordinates");
+    }
+    require(std::memcmp(&restored.back(), &canary, sizeof(canary)) == 0,
+        "inverse row scaling wrote outside the active vector");
+
+    // The original block inverse is already a right preconditioner. For a
+    // diagonal A and exact M^-1, S*A*M^-1*S^-1 must be identity even across
+    // sixteen decades of row scale; S*A*M^-1 alone would instead equal S.
+    const std::vector<float> extremeScales{1.0e-8f, 1.0f, 1.0e8f};
+    auto extremeScaleBuffer = makeBuffer(device, extremeScales);
+    auto physicalInput = makeBuffer(device,
+        std::vector<nm_float4>(source.size(), canary));
+    auto preconditioned = makeBuffer(device,
+        std::vector<nm_float4>(source.size(), canary));
+    dispatch(device, queue, unscale,
+        {{0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, extremeScaleBuffer},
+         {2u, sourceBuffer}, {3u, physicalInput}}, source.size(), 32u);
+    // For this oracle M^-1=S. Execute the existing GPU scale application as
+    // that diagonal preconditioner, then A=S^-1 and finally the outer S.
+    dispatch(device, queue, applyScale,
+        {{0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, extremeScaleBuffer},
+         {2u, physicalInput}, {3u, preconditioned}}, source.size(), 32u);
+    auto operatorValue = makeBuffer(device,
+        std::vector<nm_float4>(source.size(), canary));
+    dispatch(device, queue, unscale,
+        {{0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, extremeScaleBuffer},
+         {2u, preconditioned}, {3u, operatorValue}}, source.size(), 32u);
+    dispatch(device, queue, applyScale,
+        {{0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, extremeScaleBuffer},
+         {2u, operatorValue}, {3u, operatorValue}}, source.size(), 32u);
+    const auto identity = readBuffer<nm_float4>(operatorValue, source.size());
+    for (std::size_t row = 0u; row < source.size(); ++row)
+        for (std::size_t c = 0u; c < 4u; ++c) {
+            const float expected = (&source[row].x)[c];
+            require(std::abs((&identity[row].x)[c] - expected) <=
+                    3.0e-6f * std::max(1.0f, std::abs(expected)),
+                "conjugated diagonal preconditioner lost identity");
+        }
+
     // Dense nonsymmetric oracle for mode 1: solve S*A*M^-1 u=S*b,
     // then recover the physical correction x=M^-1*u.
     constexpr std::size_t n = 12u; // nine mechanical coordinates + three tails
@@ -12534,6 +12588,24 @@ void checkLeftRowEquilibration(
             residual += a[i * n + j] * x1[j];
         maxPhysicalResidual = std::max(maxPhysicalResidual,
                                        std::abs(residual));
+    }
+    // Noncommuting nonsymmetric M^-1: use M^-1*S^-1, not S^-1*M^-1.
+    auto mode2 = mode1;
+    for (std::size_t i = 0; i < n; ++i)
+        for (std::size_t j = 0; j < n; ++j)
+            mode2[i * n + j] /= rowS[j];
+    const auto u2 = solve(mode2, scaledRHS);
+    std::vector<double> x2(n, 0.0);
+    for (std::size_t i = 0; i < n; ++i)
+        for (std::size_t j = 0; j < n; ++j)
+            x2[i] += minv[i * n + j] * (u2[j] / rowS[j]);
+    for (std::size_t i = 0; i < n; ++i) {
+        maxSolutionDifference = std::max(maxSolutionDifference,
+                                         std::abs(x2[i] - xExpected[i]));
+        double residual = -b[i];
+        for (std::size_t j = 0; j < n; ++j)
+            residual += a[i * n + j] * x2[j];
+        maxPhysicalResidual = std::max(maxPhysicalResidual, std::abs(residual));
     }
     require(maxSolutionDifference < 2.0e-10,
         "equilibrated coordinate variants did not recover the same physical solution");
@@ -12666,6 +12738,85 @@ void checkLeftRowEquilibration(
             std::abs(rawCertificateMetrics.x - 0.05f) < 1.0e-7f &&
             targetStateAfter.diagnostics.y == 1.0f,
         "physical true-residual certificate used the scaled Arnoldi reference");
+
+    // A failed physical certificate must reactivate Arnoldi even when ||S*r||
+    // is already below the previous cycle's scaled target. This reproduces the
+    // zero-work restarts captured in the full Human trial.
+    id<MTLFunction> argumentLayout = [library newFunctionWithName:
+        @"numi_matter_metal::nm_primal_contact_argument_layout"];
+    id<MTLArgumentEncoder> contactEncoder =
+        [argumentLayout newArgumentEncoderWithBufferIndex:0u];
+    require(contactEncoder != nil, "row restart contact layout missing");
+    auto zeroPointer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    id<MTLBuffer> contactArguments = [device newBufferWithLength:
+        contactEncoder.encodedLength options:MTLResourceStorageModeShared];
+    [contactEncoder setArgumentBuffer:contactArguments offset:0u];
+    for (NSUInteger i = 0u; i < 20u; ++i)
+        [contactEncoder setBuffer:zeroPointer offset:0u atIndex:i];
+    targetDispatch.objectCount = 1u;
+    targetDispatch.tetrahedronCount = 1u;
+    targetLayout.reserved = 1u | (1u << 22u) | (1u << 23u);
+    targetStateAfter.diagnostics = {0.25f, 1.0f, 0.0f, 0.0f};
+    targetStateAfter.nonlinear = {1.0f, 1.0f, 0.0f, 0.0f};
+    targetStateAfter.rowEquilibration = {100.0f, 0.0f, 0.0f, 0.0f};
+    auto restartState = makeBuffer(device, std::vector{targetStateAfter});
+    auto restartPartials = makeBuffer(device,
+        std::vector<nm_float4>{{0.005f * 0.005f, 0.0f, 1.0f, 0.25f * 0.25f}});
+    auto restartResidual = makeBuffer(device,
+        std::vector<nm_float4>{{0.005f,0.0f,0.0f,0.0f},{}});
+    auto restartBasis = makeBuffer(device,
+        std::vector<nm_float4>(2u, canary));
+    auto nodeDispatch = makeBuffer(device, std::vector<NMIndirectDispatchGPU>(1u));
+    auto elementDispatch = makeBuffer(device, std::vector<NMIndirectDispatchGPU>(1u));
+    auto restartFinish = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_begin_distributed_finish");
+    auto restartBasis0 = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_begin_distributed_basis0");
+    const std::vector<std::pair<NSUInteger,id<MTLBuffer>>> restartBindings{
+        {0u,makeBuffer(device,std::vector{targetDispatch})},
+        {30u,makeBuffer(device,std::vector{targetLayout})},
+        {1u,targetSolverBuffer},
+        {2u,makeBuffer(device,std::vector<NMContinuumObjectGPU>(1u))},
+        {3u,restartResidual},{4u,restartBasis},
+        {5u,targetHessenbergBuffer},{6u,targetRotationsBuffer},
+        {7u,targetLeastSquaresBuffer},{8u,restartState},
+        {9u,targetStatusBuffer},
+        {10u,makeBuffer(device,std::vector<NMMicrostepGPU>(1u))},
+        {11u,makeBuffer(device,std::vector<NMSchedulerStateGPU>(1u))},
+        {12u,makeBuffer(device,std::vector<NMAdaptiveStateGPU>(1u))},
+        {13u,contactArguments},
+        {14u,makeBuffer(device,std::vector<std::uint32_t>{1u})},
+        {15u,makeBuffer(device,std::vector<float>{targetForcing})},
+        {16u,makeBuffer(device,std::vector<std::uint32_t>{1u})},
+        {17u,makeBuffer(device,std::vector<NMFEMNodeStateGPU>(1u))},
+        {18u,makeBuffer(device,std::vector<float>(1u))},
+        {19u,makeBuffer(device,std::vector<nm_float4>(1u))},
+        {20u,makeBuffer(device,std::vector<NMHumanSupportDispatchGPU>(1u))},
+        {21u,makeBuffer(device,std::vector<NMHumanSupportContactGPU>(1u))},
+        {22u,nodeDispatch},{23u,elementDispatch},{24u,restartPartials},
+        {25u,makeBuffer(device,std::vector<NativeFloat2>(1u))},
+        {27u,makeBuffer(device,std::vector<std::uint32_t>{1u})}};
+    dispatch(device,queue,restartFinish,restartBindings,1u,32u);
+    auto restarted = readBuffer<NMFGMRESStateGPU>(restartState,1u)[0];
+    require(restarted.diagnostics.z == 0.0f &&
+            restarted.diagnostics.y == 1.0f &&
+            std::abs(restarted.rowEquilibration.x - 0.005f) < 1.0e-7f,
+        "failed raw certificate was suppressed by the old scaled restart target");
+    require(readBuffer<NMIndirectDispatchGPU>(nodeDispatch,1u)[0].threadgroupsX == 1u &&
+            readBuffer<NMIndirectDispatchGPU>(elementDispatch,1u)[0].threadgroupsX == 1u,
+        "failed physical certificate did not reactivate solver dispatch");
+    dispatch(device,queue,restartBasis0,restartBindings,1u,256u);
+    require(std::abs(readBuffer<nm_float4>(restartBasis,2u)[0].x-1.0f)<1.0e-6f,
+        "reactivated scaled restart did not normalize basis zero");
+    // A physically certified completed cycle must still stay zero-work.
+    restarted.diagnostics.z = 1.0f;
+    restarted.rowEquilibration.x = 100.0f;
+    std::memcpy(restartState.contents,&restarted,sizeof(restarted));
+    dispatch(device,queue,restartFinish,restartBindings,1u,32u);
+    require(readBuffer<NMIndirectDispatchGPU>(nodeDispatch,1u)[0].threadgroupsX == 0u &&
+            readBuffer<NMIndirectDispatchGPU>(elementDispatch,1u)[0].threadgroupsX == 0u &&
+            readBuffer<NMFGMRESStateGPU>(restartState,1u)[0].rowEquilibration.x == 100.0f,
+        "physically completed scaled cycle was restarted");
 
     std::cout << "left_row_scale_native=true equation=SA_Minv raw_physical_residual="
               << maxPhysicalResidual << " arnoldi_reference=scaled raw_certificate=preserved result=PASS\n";

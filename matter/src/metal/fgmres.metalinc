@@ -8402,6 +8402,24 @@ kernel void nm_fgmres_apply_left_row_equilibration(
     destination[global] = value;
 }
 
+// Coordinate conversion for the coupled left-scaled Krylov experiment.
+// Row scales are strictly positive bounded values from the checked builder.
+// Pressure, inactive transport storage and every coupled tail stay identity.
+kernel void nm_fgmres_unscale_preconditioner_input(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float* rowScale [[buffer(1)]],
+    device const float4* source [[buffer(2)]],
+    device float4* destination [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= layout.unknownCount) return;
+    float4 value = source[global];
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global < totalNodes) value.xyz /= rowScale[global];
+    destination[global] = value;
+}
+
 kernel void nm_fgmres_smooth_fields(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
@@ -10781,8 +10799,14 @@ kernel void nm_fgmres_begin_distributed_finish(
     const float initialNorm = restartCycle == 0u
         ? (hasOriginalOuterNorm ? originalOuterNorm : norm)
         : previousDiagnostics.y;
+    // A failed unscaled certificate clears diagnostics.z. The next restart
+    // must then solve the remaining scaled residual, even when it is below the
+    // previous Arnoldi target. Tighten that internal reference monotonically;
+    // diagnostics.y and the physical certificate retain the original raw RHS.
     const float innerInitialNorm = restartCycle == 0u
-        ? norm : states[environment].rowEquilibration.x;
+        ? norm : (hasRowEquilibration && !completed
+            ? min(norm, states[environment].rowEquilibration.x)
+            : states[environment].rowEquilibration.x);
     const float physicalNorm = (layout.reserved & 4u) != 0u
         ? sqrt(max(mechanicalNorm2 + vascularNorm2, 0.0f))
         : (hasOriginalOuterNorm ? originalOuterNorm : norm);
@@ -10845,8 +10869,9 @@ kernel void nm_fgmres_begin_distributed_finish(
                 (nonlinearIteration == 0u && restartCycle == 0u
                     ? INFINITY : previousNonlinear.z),
             completedNonlinearLatch ? 1.0f : 0.0f);
-        if (hasRowEquilibration && restartCycle == 0u)
-            states[environment].rowEquilibration = float4(norm, 0.0f, 0.0f, 0.0f);
+        if (hasRowEquilibration && (restartCycle == 0u || !completed))
+            states[environment].rowEquilibration =
+                float4(innerInitialNorm, 0.0f, 0.0f, 0.0f);
         if (dispatch.environmentCount == 1u) {
             const bool columnActive = active && !converged;
             nodeActiveDispatch[0] = {
