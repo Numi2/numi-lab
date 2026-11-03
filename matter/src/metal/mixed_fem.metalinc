@@ -576,6 +576,136 @@ kernel void nm_mixed_apply_kkt_solution(
     candidate[global] = next;
 }
 
+// The final contact certificate must use the arithmetic that constructed its
+// feature distance. A static separating-plane proof retains the same authored
+// clearance without adding a world-origin-sized Float32 floor to compensated
+// local distances. Failure to prove separation keeps the conservative legacy gate.
+inline bool nmReferenceContactStaticClearance(
+    uint kind,thread const MRCompensatedPositionGPU* feature,float3 axis,float clearance);
+inline bool nmReferenceInitialContactNonclosing(
+    uint kind,thread const MRCompensatedPositionGPU* initial,
+    thread const MRCompensatedPositionGPU* candidate,float4 weights,float3 normal,
+    float clearance);
+inline bool nmMixedReferenceContactFeatures(
+    constant NMMatterDispatchGPU& dispatch,
+    thread const NMDeformableContactGPU& contact,
+    device const NMFEMNodeStateGPU* nodes,
+    uint environment,thread MRCompensatedPositionGPU* feature) {
+    const uint kind=contact.identity.z;
+    if(kind!=NM_DEFORMABLE_CONTACT_POINT_POINT&&
+       kind!=NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE&&
+       kind!=NM_DEFORMABLE_CONTACT_EDGE_EDGE)return false;
+    const bool mapped=(contact.identity.w&NM_CONTACT_MAPPED_FEATURE)!=0u;
+    const uint required=mapped?6u:
+        (kind==NM_DEFORMABLE_CONTACT_POINT_POINT?2u:4u);
+    MRCompensatedPositionGPU position[6];
+    float3 origin=float3(0.0f);bool hasOrigin=false;
+    for(uint i=0u;i<6u;++i) {
+        position[i]=mrCompensatedVector(float4(0.0f));
+        const uint unified=deformableContactNode(contact,i);
+        if(unified==NM_INVALID_INDEX){if(i<required)return false;continue;}
+        if(unified<dispatch.gridNodeCount ||
+           unified-dispatch.gridNodeCount>=dispatch.femNodeCount)return false;
+        const auto node=nodes[environment*dispatch.femNodeCount+
+            unified-dispatch.gridNodeCount];
+        if(node.referenceDisplacementAndMode.w!=1.0f)return false;
+        if(!hasOrigin){origin=node.restAndFixed.xyz;hasOrigin=true;}
+        position[i]=femContactPositionRelativeExpansion(node,origin);
+    }
+    if(!hasOrigin)return false;
+    for(uint i=0u;i<4u;++i) {
+        if(mapped) {
+            const uint side=contact.featureSideByVertex[i];
+            const float3 bary=float3(contact.featureBarycentricX[i],
+                contact.featureBarycentricY[i],contact.featureBarycentricZ[i]);
+            if(side>1u||!all(isfinite(bary))||any(bary<0.0f)||
+               abs(bary.x+bary.y+bary.z-1.0f)>64.0f*kEpsilon)return false;
+            const uint base=3u*side;
+            feature[i]=femContactBarycentricPoint(bary,
+                position[base],position[base+1u],position[base+2u]);
+        } else feature[i]=position[i];
+    }
+    return true;
+}
+inline bool nmMixedReferenceContactClearance(
+    constant NMMatterDispatchGPU& dispatch,
+    thread const NMDeformableContactGPU& contact,
+    device const NMFEMNodeStateGPU* nodes,uint environment,float clearance) {
+    MRCompensatedPositionGPU feature[4];
+    return nmMixedReferenceContactFeatures(dispatch,contact,nodes,environment,feature)&&
+        nmReferenceContactStaticClearance(contact.identity.z,feature,
+            contact.normalAndTOI.xyz,clearance);
+}
+inline bool nmMixedReferenceInitialContactNonclosing(
+    constant NMMatterDispatchGPU& dispatch,
+    thread const NMDeformableContactGPU& contact,
+    device const NMFEMNodeStateGPU* accepted,
+    device const NMFEMNodeStateGPU* candidate,uint environment,float clearance) {
+    MRCompensatedPositionGPU a[4],b[4];
+    return nmMixedReferenceContactFeatures(dispatch,contact,accepted,environment,a)&&
+        nmMixedReferenceContactFeatures(dispatch,contact,candidate,environment,b)&&
+        nmReferenceInitialContactNonclosing(contact.identity.z,a,b,contact.weights,
+            contact.normalAndTOI.xyz,clearance);
+}
+// Bounded terminal-only diagnostic: one selected failed contact per environment.
+kernel void nm_mixed_capture_contact_certificate_witness(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device const NMDeformableContactGPU* contacts [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(3)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(4)]],
+    device float4* output [[buffer(5)]],
+    uint environment [[thread_position_in_grid]]) {
+    if(environment>=dispatch.environmentCount)return;
+    const uint base=40u*environment;
+    for(uint i=0u;i<40u;++i)output[base+i]=float4(0.0f);
+    const auto status=statuses[environment];
+    if(status.code!=NM_STATUS_NONLINEAR_SOLVER_FAILURE||
+       status.failingIndex>=dispatch.deformableContactCapacity)return;
+    const auto c=contacts[environment*dispatch.deformableContactCapacity+status.failingIndex];
+    if((c.identity.w&NM_CONTACT_VALID)==0u)return;
+    output[base]=as_type<float4>(uint4(1u,status.failingIndex,c.identity.z,c.identity.w));
+    output[base+1u]=as_type<float4>(c.source);
+    output[base+2u]=as_type<float4>(c.nodes);
+    output[base+3u]=as_type<float4>(c.extraNodes);
+    output[base+4u]=c.normalAndTOI;output[base+5u]=c.pointAndSeparation;
+    output[base+6u]=c.barrier;output[base+7u]=c.weights;
+    output[base+8u]=c.extraWeights;
+    output[base+9u]=as_type<float4>(c.featureSideByVertex);
+    output[base+10u]=c.featureBarycentricX;
+    output[base+11u]=c.featureBarycentricY;
+    output[base+12u]=c.featureBarycentricZ;
+    float3 origin=float3(0.0f);
+    if(c.nodes.x>=dispatch.gridNodeCount&&
+       c.nodes.x-dispatch.gridNodeCount<dispatch.femNodeCount)
+        origin=accepted[environment*dispatch.femNodeCount+
+            c.nodes.x-dispatch.gridNodeCount].restAndFixed.xyz;
+    output[base+13u]=float4(origin,0.0f);
+    for(uint i=0u;i<6u;++i) {
+        const uint unified=deformableContactNode(c,i);
+        if(unified==NM_INVALID_INDEX||unified<dispatch.gridNodeCount||
+           unified-dispatch.gridNodeCount>=dispatch.femNodeCount)continue;
+        const uint node=environment*dispatch.femNodeCount+unified-dispatch.gridNodeCount;
+        const auto a=femContactPositionRelativeExpansion(candidate[node],origin);
+        const auto b=femContactPositionRelativeExpansion(accepted[node],origin);
+        output[base+14u+i]=a.high;output[base+20u+i]=a.low;
+        output[base+26u+i]=b.high;output[base+32u+i]=b.low;
+    }
+}
+
+kernel void nm_mixed_check_reference_contact_clearance(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMDeformableContactGPU* contacts [[buffer(1)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(2)]],
+    device uint* output [[buffer(3)]],
+    constant uint& count [[buffer(4)]],
+    constant float& clearance [[buffer(5)]],
+    uint index [[thread_position_in_grid]]) {
+    if(index>=count)return;
+    const auto c=contacts[index];
+    output[index]=nmMixedReferenceContactClearance(dispatch,c,nodes,0u,clearance)?1u:0u;
+}
+
 kernel void nm_mixed_certify(
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
@@ -600,6 +730,7 @@ kernel void nm_mixed_certify(
     constant NMPrimalContactArguments& contact [[buffer(19)]],
     device const float* rigidCandidate [[buffer(20)]],
     device NMFGMRESTelemetryGPU* fgmresTelemetry [[buffer(21)]],
+    device const uint* deformableActiveIndices [[buffer(22)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -733,7 +864,10 @@ kernel void nm_mixed_certify(
     float minimumSeparation = INFINITY;
     float maximumTangentialImpulse = 0.0f;
     float contactEnergy = 0.0f;
-    float contactCoordinateScale = dispatch.numericalLimits.x;
+    bool contactClearancesValid = true;
+    uint firstInvalidContact=NM_INVALID_INDEX;
+    float firstInvalidSeparation=INFINITY;
+    float4 firstInvalidContactValues=float4(0.0f);
     // Fixed-plane velocity KKT witnesses have no positional gap. Keep their
     // finite dual/reaction check separate from geometric IPC separation; the
     // independent grid-velocity and particle-sweep certificates own KKT feasibility.
@@ -775,9 +909,12 @@ kernel void nm_mixed_certify(
             minimumSeparation = min(
                 minimumSeparation, sample.pointAndSeparation.w);
         }
-        contactCoordinateScale = max(
-            contactCoordinateScale,
-            maximumAbsoluteCoordinate(sample.pointAndSeparation.xyz));
+        if(!fixedPlaneKKT) {
+            const float floor=max(solver.contactAcceptance.x*dispatch.numericalLimits.x,
+                16.0f*kEpsilon*max(maximumAbsoluteCoordinate(sample.pointAndSeparation.xyz),1.0e-12f));
+            contactClearancesValid=contactClearancesValid&&
+                isfinite(sample.pointAndSeparation.w)&&sample.pointAndSeparation.w>floor;
+        }
         maximumTangentialImpulse = max(
             maximumTangentialImpulse,
             abs(sample.angularImpulseAndTangent.w));
@@ -793,7 +930,10 @@ kernel void nm_mixed_certify(
     }
     const uint deformableCapacity = dispatch.deformableContactCapacity;
     const uint deformableBase = environment * deformableCapacity;
-    for (uint slot = lane; slot < deformableCapacity; slot += 32u) {
+    const uint deformableCount=min(contact.deformableActiveCounts[environment],deformableCapacity);
+    for (uint activeSlot=lane;activeSlot<deformableCount;activeSlot+=32u) {
+        const uint slot=deformableActiveIndices[deformableBase+activeSlot];
+        if(slot>=deformableCapacity){contactClearancesValid=false;continue;}
         const NMDeformableContactGPU deformable =
             contact.deformableContacts[deformableBase + slot];
         if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
@@ -804,10 +944,24 @@ kernel void nm_mixed_certify(
             maximumBarrierImpulse, max(deformable.barrier.x, 0.0f));
         minimumSeparation = min(
             minimumSeparation, deformable.pointAndSeparation.w);
-        contactCoordinateScale = max(
-            contactCoordinateScale,
-            maximumAbsoluteCoordinate(
-                deformable.pointAndSeparation.xyz));
+        const float separation=deformable.pointAndSeparation.w;
+        const float clearance=solver.contactAcceptance.x*dispatch.numericalLimits.x;
+        const float legacyFloor=max(clearance,16.0f*kEpsilon*
+            max(maximumAbsoluteCoordinate(deformable.pointAndSeparation.xyz),1.0e-12f));
+        const bool separated=isfinite(separation)&&
+            (separation>legacyFloor || nmMixedReferenceContactClearance(
+                dispatch,deformable,candidateNodes,environment,clearance) ||
+             nmMixedReferenceInitialContactNonclosing(dispatch,deformable,
+                acceptedNodes,candidateNodes,environment,clearance));
+        const float failureScore=isfinite(separation)?separation:-INFINITY;
+        if(!separated&&(failureScore<firstInvalidSeparation||
+           (failureScore==firstInvalidSeparation&&slot<firstInvalidContact))) {
+            firstInvalidSeparation=failureScore;
+            firstInvalidContact=slot;
+            firstInvalidContactValues=float4(separation,clearance,legacyFloor,
+                float(deformable.identity.z));
+        }
+        contactClearancesValid=contactClearancesValid&&separated;
         maximumTangentialImpulse = max(
             maximumTangentialImpulse,
             length(deformable.impulseAndFriction.yz));
@@ -822,7 +976,14 @@ kernel void nm_mixed_certify(
     minimumSeparation = simd_min(minimumSeparation);
     maximumTangentialImpulse = simd_max(maximumTangentialImpulse);
     contactEnergy = simd_sum(contactEnergy);
-    contactCoordinateScale = simd_max(contactCoordinateScale);
+    contactClearancesValid = simd_all(contactClearancesValid);
+    const float invalidSeparation=simd_min(firstInvalidSeparation);
+    const uint invalidContact=simd_min(firstInvalidSeparation==invalidSeparation?
+        firstInvalidContact:NM_INVALID_INDEX);
+    const uint invalidContactLane=simd_min(
+        firstInvalidContact==invalidContact?lane:NM_INVALID_INDEX);
+    const float4 invalidContactValues=simd_broadcast(
+        firstInvalidContactValues,invalidContactLane);
     geometricContactCount = simd_sum(geometricContactCount);
     fixedPlaneKKTCount = simd_sum(fixedPlaneKKTCount);
     fixedPlaneKKTValuesFinite = simd_all(fixedPlaneKKTValuesFinite);
@@ -940,26 +1101,22 @@ kernel void nm_mixed_certify(
         // already satisfies the KKT, incompressibility, pressure, and
         // transport residual gates.
         const bool correctionFinite = isfinite(relativeCorrection);
-        const float collisionThickness = max(
-            solver.contactAcceptance.x * dispatch.numericalLimits.x,
-            16.0f * kEpsilon *
-                max(contactCoordinateScale, 1.0e-12f));
         const bool contactValid =
             isfinite(maximumBarrierImpulse) &&
             isfinite(minimumSeparation) &&
             isfinite(maximumTangentialImpulse) &&
             isfinite(contactEnergy) &&
-            (geometricContactCount == 0u ||
-             (isfinite(minimumSeparation) &&
-              minimumSeparation > collisionThickness)) &&
+            contactClearancesValid &&
             (fixedPlaneKKTCount == 0u || fixedPlaneKKTValuesFinite);
         const bool transportValid = all(isfinite(transport)) &&
             all(transport <= float4(solver.residualTolerances.w));
         if (!isfinite(minimumJ) || minimumJ < dispatch.numericalLimits.z ||
             !residualValid || !correctionFinite || !contactValid ||
             !transportValid) {
+            const bool contactWitness=!contactValid&&invalidContact!=NM_INVALID_INDEX;
             recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
-                objectIndex, NM_INVALID_INDEX,
+                objectIndex, contactWitness?invalidContact:NM_INVALID_INDEX,
+                contactWitness?invalidContactValues:
                 residualValid && correctionFinite && contactValid
                     ? transport
                     : float4(relativeResidual, relativeCorrection,

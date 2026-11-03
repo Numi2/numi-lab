@@ -1,0 +1,162 @@
+{
+  "close-gap-native-001": {
+    "root0_sum_gpu_stage_s": 50.288139582,
+    "root0_stage_s": {
+      "matter_pre": 0.009217542,
+      "brain_advance": 0.000101833,
+      "respiratory_mechanics": 0.006050958,
+      "matter_after_frame_begin": 0.000774875,
+      "matter_newton_assembly": 3.565562453,
+      "matter_newton_linear": 15.321531879,
+      "matter_newton_globalization": 29.717954084,
+      "respiratory_gas_exchange": 0.000927125,
+      "matter_after_candidate_ready": 1.650417208,
+      "matter_after_microstep": 0.007874917,
+      "matter_post": 0.007724292,
+      "brain_resolve": 1.25e-06,
+      "respiratory_resolve": 1.166e-06
+    },
+    "accepted_trace_rows": 0,
+    "execution": {
+      "exit_code": 1,
+      "elapsed_s": 247.2867467403412,
+      "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/close-gap-native-001/install-motion.plan.json",
+      "plan_sha256": "3b430f1a60c56942a0fa64ad68f1ecaa7118415645682fc00c5d7e809cebcccc",
+      "stdout_sha256": "59338a450fecf260486864c682611eceb35d80256feb24b2919a4a051be01a4b",
+      "stderr_sha256": "c2a2ca070dfdaff402c303174dc9f938336efd4788d428129ba1721bef4fea9e",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    }
+  },
+  "contact-certificate-native-001": {
+    "root0_sum_gpu_stage_s": 24.856848042,
+    "root0_stage_s": {
+      "matter_pre": 0.009138083,
+      "brain_advance": 9.3833e-05,
+      "respiratory_mechanics": 0.005102625,
+      "matter_after_frame_begin": 0.000794084,
+      "matter_newton_assembly": 3.609858122,
+      "matter_newton_linear": 15.31651625,
+      "matter_newton_globalization": 4.264129669,
+      "respiratory_gas_exchange": 0.000927042,
+      "matter_after_candidate_ready": 1.634681459,
+      "matter_after_microstep": 0.007865791,
+      "matter_post": 0.007738792,
+      "brain_resolve": 1.209e-06,
+      "respiratory_resolve": 1.083e-06
+    },
+    "accepted_trace_rows": 0,
+    "execution": {
+      "exit_code": 1,
+      "elapsed_s": 207.2207531929016,
+      "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-certificate-native-001/install-motion.plan.json",
+      "plan_sha256": "bbd53fe5d6e59e4d587efbab329f2598f4d05139c7907f562fea56d1760d9d04",
+      "stdout_sha256": "f41df15d5c50ce54ecfdf2050e42e762a65933231abae257fd5cb1b52655b2a6",
+      "stderr_sha256": "fc608df6a551e92313282cfd3d44cdd6c8cc37753111b6d4f81dca6a3dd1495d",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    }
+  },
+  "contact-witness-native-001": {
+    "root0_sum_gpu_stage_s": 21.078091876000002,
+    "root0_stage_s": {
+      "matter_pre": 0.009185708,
+      "brain_advance": 9.8709e-05,
+      "respiratory_mechanics": 0.004901666,
+      "matter_after_frame_begin": 0.000785084,
+      "matter_newton_assembly": 3.6158659589999997,
+      "matter_newton_linear": 15.306425042,
+      "matter_newton_globalization": 0.473503957,
+      "respiratory_gas_exchange": 0.000927292,
+      "matter_after_candidate_ready": 1.650843792,
+      "matter_after_microstep": 0.007791917,
+      "matter_post": 0.007760292,
+      "brain_resolve": 1.083e-06,
+      "respiratory_resolve": 1.375e-06
+    },
+    "accepted_trace_rows": 0,
+    "execution": {
+      "exit_code": 1,
+      "elapsed_s": 202.0894250869751,
+      "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-witness-native-001/install-motion.plan.json",
+      "plan_sha256": "22f1e8593b0a04e4411154a51d78723fb6a9857f89dbe99eb3620e895d94c491",
+      "stdout_sha256": "450e5bd0f4af9288e85fd28978220ebd5cb18c5a846b426ac7ec9eab7a889963",
+      "stderr_sha256": "6c3f3ee5d7bc427d49c1307ffc5a7d43043da2fed010b2657c8b1e4c3a384ed2",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    }
+  },
+  "nonclosing-native-002": {
+    "root0_sum_gpu_stage_s": 7.3089179159999995,
+    "root0_stage_s": {
+      "matter_pre": 0.009152,
+      "brain_advance": 9.4125e-05,
+      "respiratory_mechanics": 0.005992167,
+      "matter_after_frame_begin": 0.00079375,
+      "matter_newton_assembly": 0.9220681239999999,
+      "matter_newton_linear": 4.483231834,
+      "matter_newton_globalization": 0.150549917,
+      "respiratory_gas_exchange": 0.001802458,
+      "matter_after_candidate_ready": 1.716866375,
+      "matter_after_microstep": 0.002479583,
+      "matter_post": 0.015190166,
+      "brain_resolve": 1.584e-06,
+      "respiratory_resolve": 0.000695833
+    },
+    "accepted_trace_rows": 1,
+    "execution": {
+      "exit_code": 1,
+      "elapsed_s": 207.03959202766418,
+      "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/nonclosing-native-002/install-motion.plan.json",
+      "plan_sha256": "c5c03067c72c40ec2b58d130b04e46aa28f78325ec553015c9f0a60bfbee4b3e",
+      "stdout_sha256": "de6c97c03f39a69372b2d53af59f144ad93d4d8b9e6292131803b8f7a7750618",
+      "stderr_sha256": "4f1b90c5f84250d431c47072c80f1caa69d1c2d1f7cb6937942e0476e281d475",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    }
+  },
+  "precise-axis-native-001": {
+    "root0_sum_gpu_stage_s": 5.78454025,
+    "root0_stage_s": {
+      "matter_pre": 0.009443792,
+      "brain_advance": 5.917e-06,
+      "respiratory_mechanics": 0.002083958,
+      "matter_after_frame_begin": 0.000797417,
+      "matter_newton_assembly": 1.021550749,
+      "matter_newton_linear": 2.8571895,
+      "matter_newton_globalization": 0.150717334,
+      "respiratory_gas_exchange": 0.001802291,
+      "matter_after_candidate_ready": 1.722550625,
+      "matter_after_microstep": 0.002467583,
+      "matter_post": 0.015230584,
+      "brain_resolve": 1.458e-06,
+      "respiratory_resolve": 0.000699042
+    },
+    "accepted_trace_rows": 2,
+    "execution": {
+      "exit_code": 1,
+      "elapsed_s": 212.0929069519043,
+      "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/precise-axis-native-001/install-motion.plan.json",
+      "plan_sha256": "3cb0fc7e3757b00760f236152cf6ad9721ab15b93598303fd1c0991d21ae1855",
+      "stdout_sha256": "a67d44b5f1f3b4c264948d47985a00f0516062f74439ca22d1183c48ded8ec4e",
+      "stderr_sha256": "13d520e5ffb3f2d9540b46c4ed931a40dad4103d14d7171d157789f99a655ba9",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    }
+  },
+  "first_accepted_coupled_row_comparison": {
+    "bitwise_text_equal": true,
+    "row_sha256": "aedff82e572c221726d78d2ab543ee617f685ff8645b1cedb0a977e3807f9178",
+    "scope": "all reported first accepted coupled trace columns; no full FEM endpoint comparison claimed"
+  }
+}

@@ -14086,7 +14086,8 @@ void checkReferenceContactArithmeticFrame(
                          const float gap, const float closing,
                          const float clearance, const bool nonfinite = false,
                           const bool minimumTrace = false, const bool planeMode = false,
-                         const bool tiled = false, const unsigned contactCount = 1u) {
+                         const bool tiled = false, const unsigned contactCount = 1u,
+                          const bool completed = false) {
         NMMatterDispatchGPU d{};
         d.environmentCount = 1u; d.objectCount = 1u; d.femNodeCount = 2u;
         d.deformableContactCapacity = contactCount;
@@ -14099,6 +14100,8 @@ void checkReferenceContactArithmeticFrame(
         NMAdaptiveStateGPU adaptive{};
         adaptive.activeRepresentation = NM_REPRESENTATION_FEM;
         NMMicrostepGPU micro{}; micro.time.x = 1.0f;
+        micro.solverIteration=completed?1u:0u;
+        NMFGMRESStateGPU nonlinearState{};nonlinearState.nonlinear.w=completed?1.0f:0.0f;
         NMMixedSolverGPU solver{};
         solver.nonlinearIterations.w = 16u;
         solver.contactAcceptance.x = clearance / d.numericalLimits.x;
@@ -14160,7 +14163,8 @@ void checkReferenceContactArithmeticFrame(
             {18u, makeBuffer(device, std::vector<NMAdaptiveStateGPU>{adaptive})},
             {19u, state}, {20u, zero}, {21u, dummy}, {22u, invalid},
             {23u, witnessIdentity}, {24u, witnessValues}, {25u, captureMode},
-            {26u, collisionMode}};
+            {26u, collisionMode},
+            {29u, makeBuffer(device,std::vector<NMFGMRESStateGPU>{nonlinearState})}};
         if (tiled) {
             bindings.push_back({27u,tileCountBuffer});bindings.push_back({28u,tileBounds});
             auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];
@@ -14192,8 +14196,11 @@ void checkReferenceContactArithmeticFrame(
             [encoder endEncoding];[command commit];[command waitUntilCompleted];
             require(command.status==MTLCommandBufferStatusCompleted,
                 "fused producer/reduction/alpha consumer failed");
-            require(readBuffer<float>(tileBounds,tileCount+1u)[tileCount]==-19.0f,
+            const auto bounds=readBuffer<float>(tileBounds,tileCount+1u);
+            require(bounds[tileCount]==-19.0f,
                 "tiled contact reduction wrote beyond tile capacity");
+            if(completed)for(unsigned t=0u;t<tileCount;++t)
+                require(bounds[t]==1.0f,"completed contact tile retained stale bound");
         } else dispatch(device,queue,limiter,bindings,1u,32u);
         const auto output = readBuffer<nm_float4>(line, 1u)[0];
         require(output.y == 7.0f && output.z == 8.0f && output.w == 9.0f,
@@ -14207,6 +14214,12 @@ void checkReferenceContactArithmeticFrame(
     const nm_float4 nearOrigin{0.0f, 0.0f, 0.0f, 0.0f};
     const nm_float4 bodyOrigin{-0.125671074f, -1.68022704f, 0.0939362198f, 0.0f};
     const nm_float4 distantOrigin{256.0f, -1024.0f, 512.0f, 0.0f};
+    for(bool tiled:{false,true}) {
+        const auto completed=run(bodyOrigin,true,2e-6f,0.0f,1e-9f,
+            true,false,false,tiled,1u,true);
+        require(completed.alpha==1.0f&&completed.status.code==0u,
+            "completed Newton contact limiter scanned invalid unused direction");
+    }
     const auto base = run(nearOrigin,true,2.0e-6f,0.5e-6f,1.0e-9f);
     const auto body = run(bodyOrigin,true,2.0e-6f,0.5e-6f,1.0e-9f);
     const auto distant = run(distantOrigin,true,2.0e-6f,0.5e-6f,1.0e-9f);
@@ -14527,6 +14540,214 @@ void checkReferenceSelfContactWidth(
     // positions are deliberately absent from this interface.
     std::cout<<"reference_self_contact_width cases="<<count<<" adapted="<<adapted
         <<" unchanged="<<unchanged<<" exact_Float32_gap=true clearance_preserved=true canaries=4 PASS\n";
+}
+
+void checkFinalReferenceContactClearance(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    std::vector<NMFEMNodeStateGPU> nodes;
+    std::vector<NMDeformableContactGPU> contacts;
+    std::vector<unsigned> expected;
+    for(float origin:{0.0f,1.0f,128.0f})for(float gap:{1e-6f,1e-8f,5e-10f,0.0f,-1e-6f}) {
+        const unsigned base=nodes.size();
+        for(unsigned i=0;i<2u;++i) {
+            NMFEMNodeStateGPU n{};
+            n.restAndFixed={origin,origin,i==0u?gap:0.0f,0.0f};
+            n.positionAndMass=n.restAndFixed;n.positionAndMass.w=1.0f;
+            n.referenceDisplacementAndMode.w=1.0f;nodes.push_back(n);
+        }
+        NMDeformableContactGPU c{};
+        c.nodes={base,base+1u,NM_INVALID_INDEX,NM_INVALID_INDEX};
+        c.extraNodes={NM_INVALID_INDEX,NM_INVALID_INDEX,0u,0u};
+        c.identity={0,0,NM_DEFORMABLE_CONTACT_POINT_POINT,NM_CONTACT_VALID};
+        c.normalAndTOI={0,0,1,0};contacts.push_back(c);expected.push_back(gap>1e-9f?1u:0u);
+    }
+    {
+        const unsigned base=nodes.size();
+        { NMFEMNodeStateGPU n{};n.restAndFixed={1,1,0,0};
+        n.referenceDisplacementAndMode={4.0165218373466871e-10f,5.2222053070760666e-11f,-1.0921926696383366e-09f,1.0f};
+        n.referenceDisplacementLow={-6.0135865096482601e-18f,-1.6829221172962863e-18f,-1.5461051204910354e-17f,0.0f};nodes.push_back(n); }
+        { NMFEMNodeStateGPU n{};n.restAndFixed={1,1,0,0};
+        n.referenceDisplacementAndMode={2.1815469153807499e-05f,-0.00032371300039812922f,-0.00017340638441964984f,1.0f};
+        n.referenceDisplacementLow={-4.7432191637927779e-13f,4.0822020243302948e-12f,-5.8510710382667086e-13f,0.0f};nodes.push_back(n); }
+        { NMFEMNodeStateGPU n{};n.restAndFixed={1,1,0,0};
+        n.referenceDisplacementAndMode={3.5018223570659757e-05f,0.0023981332778930664f,-0.00029880704823881388f,1.0f};
+        n.referenceDisplacementLow={-2.4650640144570357e-13f,1.0708408465509578e-10f,1.4403141006258391e-11f,0.0f};nodes.push_back(n); }
+        { NMFEMNodeStateGPU n{};n.restAndFixed={1,1,0,0};
+        n.referenceDisplacementAndMode={2.7719636364054168e-06f,-0.00013905760715715587f,-1.7286332877120003e-05f,1.0f};
+        n.referenceDisplacementLow={-8.8460278869790382e-14f,-6.5057937335966098e-12f,-6.6875286775305853e-13f,0.0f};nodes.push_back(n); }
+        NMDeformableContactGPU c{};c.nodes={base,base+1u,base+2u,base+3u};
+        c.extraNodes={NM_INVALID_INDEX,NM_INVALID_INDEX,0,0};
+        c.identity={0,0,NM_DEFORMABLE_CONTACT_EDGE_EDGE,NM_CONTACT_VALID};
+        c.normalAndTOI={-0.99241423606872559f,-0.00076351239113137126f,-0.12293742597103119f,0.0f};
+        contacts.push_back(c);expected.push_back(1u);
+    }
+    auto nonreference=contacts.front();nonreference.nodes.x=nodes.size();
+    auto n=nodes.front();n.referenceDisplacementAndMode.w=0.0f;nodes.push_back(n);
+    contacts.push_back(nonreference);expected.push_back(0u);
+    auto invalid=contacts.front();invalid.nodes.x=NM_INVALID_INDEX-1u;
+    contacts.push_back(invalid);expected.push_back(0u);
+    auto missing=contacts.front();missing.nodes.y=NM_INVALID_INDEX;
+    contacts.push_back(missing);expected.push_back(0u);
+    NMMatterDispatchGPU d{};d.environmentCount=1;d.femNodeCount=nodes.size();
+    const unsigned count=contacts.size();
+    auto out=makeBuffer(device,std::vector<unsigned>(count+4u,0xdeadbeefu));
+    dispatch(device,queue,pipeline(device,library,
+        "numi_matter_metal::nm_mixed_check_reference_contact_clearance"),{
+        {0u,makeBuffer(device,std::vector<NMMatterDispatchGPU>{d})},
+        {1u,makeBuffer(device,contacts)},{2u,makeBuffer(device,nodes)},{3u,out},
+        {4u,makeBuffer(device,std::vector<unsigned>{count})},
+        {5u,makeBuffer(device,std::vector<float>{1e-9f})}},1u,32u);
+    const auto actual=readBuffer<unsigned>(out,count+4u);
+    for(unsigned i=0;i<count;++i) {
+        if(actual[i]!=expected[i])std::cerr<<"final_clearance_case="<<i<<" got="<<actual[i]<<" expected="<<expected[i]<<"\n";
+        require(actual[i]==expected[i],"final reference contact plane/clearance certificate");
+    }
+    for(unsigned i=count;i<count+4u;++i)
+        require(actual[i]==0xdeadbeefu,"final contact clearance canary");
+    std::cout<<"final_contact_reference_clearance cases="<<count
+        <<" world_translation_invariant=true hard_clearance=unchanged"
+        <<" nonreference_rejected=true invalid_rejected=true canaries=4 PASS\n";
+}
+
+void checkFinalContactActivePrefix(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    const auto certify=pipeline(device,library,"numi_matter_metal::nm_mixed_certify");
+    auto layoutFunction=[library newFunctionWithName:
+        @"numi_matter_metal::nm_primal_contact_argument_layout"];
+    auto arguments=[layoutFunction newArgumentEncoderWithBufferIndex:0u];
+    require(arguments!=nil,"contact certificate argument encoder unavailable");
+    for(unsigned mode=0u;mode<9u;++mode) {
+        NMMatterDispatchGPU d{};d.environmentCount=1u;d.objectCount=1u;
+        d.femNodeCount=2u;d.deformableContactCapacity=8u;
+        d.numericalLimits.x=1e-5f;d.numericalLimits.z=0.05f;
+        NMMixedSolverGPU solver{};solver.residualTolerances={1e-5f,1e-5f,1e-5f,1e-5f};
+        solver.contactAcceptance.x=1e-4f;
+        NMFGMRESLayoutGPU layout{};NMFGMRESStateGPU state{};state.diagnostics.y=1.0f;
+        NMContinuumObjectGPU object{};object.representation=NM_REPRESENTATION_FEM;
+        object.flags=NM_OBJECT_ACTIVE;object.stateCount=2u;
+        const float gap=mode==5u?7e-10f:mode==8u?-5e-10f:
+            (mode==1u||mode>=4u)?5e-10f:1e-8f;
+        const float initialGap=mode==6u?7e-10f:mode==7u?0.0f:
+            mode>=4u?5e-10f:1e-8f;
+        std::vector<NMFEMNodeStateGPU> nodes(2u);
+        for(unsigned i=0u;i<2u;++i) {
+            nodes[i].restAndFixed={1.0f,1.0f,0.0f,0.0f};
+            nodes[i].positionAndMass={1.0f,1.0f,0.0f,1.0f};
+            nodes[i].referenceDisplacementAndMode={0.0f,0.0f,i==0u?gap:0.0f,1.0f};
+        }
+        auto initialNodes=nodes;initialNodes[0].referenceDisplacementAndMode.z=initialGap;
+        std::vector<NMDeformableContactGPU> contacts(8u);
+        for(unsigned slot:{1u,5u,6u}) {
+            auto& c=contacts[slot];c.nodes={0u,1u,NM_INVALID_INDEX,NM_INVALID_INDEX};
+            c.extraNodes={NM_INVALID_INDEX,NM_INVALID_INDEX,0u,0u};
+            c.identity={0u,0u,NM_DEFORMABLE_CONTACT_POINT_POINT,NM_CONTACT_VALID};
+            c.normalAndTOI={0,0,1,0};c.pointAndSeparation={1,1,0,std::abs(gap)};
+        }
+        contacts[6].pointAndSeparation.w=std::numeric_limits<float>::quiet_NaN();
+        auto zero=makeBuffer(device,std::vector<unsigned>(64u,0u));
+        auto count=makeBuffer(device,std::vector<unsigned>{mode==3u?0u:2u});
+        auto contactBuffer=makeBuffer(device,contacts);
+        id<MTLBuffer> args=[device newBufferWithLength:arguments.encodedLength
+            options:MTLResourceStorageModeShared];
+        [arguments setArgumentBuffer:args offset:0u];
+        for(NSUInteger i=0u;i<20u;++i)[arguments setBuffer:zero offset:0u atIndex:i];
+        [arguments setBuffer:contactBuffer offset:0u atIndex:7u];
+        [arguments setBuffer:count offset:0u atIndex:14u];
+        auto nodeBuffer=makeBuffer(device,nodes);
+        auto fields=makeBuffer(device,std::vector<NMFEMFieldStateGPU>(2u));
+        auto residual=makeBuffer(device,std::vector<nm_float4>(4u));
+        std::vector<NMSolverCertificateGPU> certificates(2u);
+        std::memset(&certificates[1],0xa5,sizeof(certificates[1]));
+        std::vector<NMMatterStatusGPU> statuses(2u);
+        std::memset(&statuses[1],0xa5,sizeof(statuses[1]));
+        auto output=makeBuffer(device,certificates);auto status=makeBuffer(device,statuses);
+        auto dummy=makeBuffer(device,std::vector<unsigned>(1024u,0u));
+        std::vector<std::pair<NSUInteger,id<MTLBuffer>>> bindings{
+            {0u,makeBuffer(device,std::vector<NMMatterDispatchGPU>{d})},
+            {1u,makeBuffer(device,std::vector<NMMixedSolverGPU>{solver})},
+            {2u,makeBuffer(device,std::vector<NMContinuumObjectGPU>{object})},
+            {3u,makeBuffer(device,initialNodes)},{4u,nodeBuffer},{5u,fields},{6u,fields},{7u,dummy},
+            {8u,output},{9u,status},{10u,residual},
+            {11u,makeBuffer(device,std::vector<NMFGMRESStateGPU>{state})},
+            {12u,residual},{13u,dummy},{14u,residual},{15u,dummy},{16u,zero},{17u,zero},
+            {18u,dummy},{19u,args},{20u,dummy},{21u,dummy},
+            {22u,makeBuffer(device,std::vector<unsigned>{mode==2u?9u:5u,1u})},
+            {30u,makeBuffer(device,std::vector<NMFGMRESLayoutGPU>{layout})}};
+        auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];
+        [encoder setComputePipelineState:certify];
+        for(const auto& [index,buffer]:bindings)[encoder setBuffer:buffer offset:0u atIndex:index];
+        for(auto buffer:{zero,count,contactBuffer})[encoder useResource:buffer usage:MTLResourceUsageRead];
+        [encoder dispatchThreadgroups:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder endEncoding];[command commit];[command waitUntilCompleted];
+        require(command.status==MTLCommandBufferStatusCompleted,"contact certificate GPU command failed");
+        const auto got=readBuffer<NMMatterStatusGPU>(status,2u);
+        const auto cert=readBuffer<NMSolverCertificateGPU>(output,2u);
+        require(got[0].code==(mode==1u||mode==2u||mode>=6u?NM_STATUS_NONLINEAR_SOLVER_FAILURE:0u),
+            "final certificate active prefix/clearance result");
+        if(mode==1u||mode>=6u)require(got[0].failingIndex==1u&&got[0].diagnostics.x==std::abs(gap),
+            "contact certificate lost deterministic minimum-slot witness");
+        require(std::memcmp(&got[1],&statuses[1],sizeof(got[1]))==0,
+            "contact certificate status canary");
+        require(std::memcmp(&cert[1],&certificates[1],sizeof(cert[1]))==0,
+            "contact certificate output canary");
+        require(cert[0].nonlinear.x==0.0f&&cert[0].validity.x==1.0f,
+            "contact certificate changed residual or element acceptance");
+    }
+    std::cout<<"final_contact_active_prefix=true sparse_order=true poisoned_padding_ignored=true"
+        " empty=true invalid_index_rejected=true hard_clearance_preserved=true"
+        " deterministic_witness=true canaries=2 cases=9 initially_close_nonclosing=true new_closure_rejected=true PASS\n";
+}
+
+void checkCapturedInitialNonclosing(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    using P=MRCompensatedPositionGPU;
+    std::array<P,8u> captured{{
+        {{0.0f,0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{3.7997961044311523e-06f,9.7751617431640625e-06f,-1.2621283531188965e-05f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-1.2218952178955078e-06f,-3.2186508178710938e-06f,4.0084123611450195e-06f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{0.00021311640739440918f,0.0035815238952636719f,0.0015106499195098877f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
+        {{-2.2871492894038781e-11f,-1.0465869707335096e-12f,-1.9258372674357815e-10f,0.0f},{4.4021911135097404e-19f,-7.2094864991619798e-21f,5.063619206967861e-18f,0.0f}},
+        {{3.7997926938260207e-06f,9.775191756489221e-06f,-1.2621538189705461e-05f,0.0f},{-5.5050571983990618e-14f,3.5804039312352376e-13f,6.5613631877996931e-14f,0.0f}},
+        {{-1.2218974916322622e-06f,-3.2186353564611636e-06f,4.0082009036268573e-06f,0.0f},{-5.3067437461506647e-14f,-5.9793214487752905e-14f,-1.6145956370939435e-13f,0.0f}},
+        {{0.00021311633463483304f,0.0035815238952636719f,0.0015106475912034512f,0.0f},{5.6023844417774082e-12f,-2.4333978842355775e-12f,-2.8557789813477008e-11f,0.0f}},
+    }};
+    std::array<P,8u> second{{
+        {{-2.2871492894038781e-11f,-1.0465869707335096e-12f,-1.9258372674357815e-10f,0.0f},{4.4021911135097404e-19f,-7.2094864991619798e-21f,5.063619206967861e-18f,0.0f}},
+        {{3.7997926938260207e-06f,9.775191756489221e-06f,-1.2621538189705461e-05f,0.0f},{-5.5050571983990618e-14f,3.5804039312352376e-13f,6.5613631877996931e-14f,0.0f}},
+        {{-1.2218974916322622e-06f,-3.2186353564611636e-06f,4.0082009036268573e-06f,0.0f},{-5.3067437461506647e-14f,-5.9793214487752905e-14f,-1.6145956370939435e-13f,0.0f}},
+        {{0.00021311633463483304f,0.0035815238952636719f,0.0015106475912034512f,0.0f},{5.6023844417774082e-12f,-2.4333978842355775e-12f,-2.8557789813477008e-11f,0.0f}},
+        {{-7.3418500445843193e-11f,5.6609373438876176e-11f,-7.543831115341959e-10f,0.0f},{-2.765546649558499e-18f,-1.2247352988721651e-18f,-4.7450289396818373e-18f,0.0f}},
+        {{3.7997829167579766e-06f,9.7753127192845568e-06f,-1.2622187568922527e-05f,0.0f},{1.110596464510942e-13f,1.5639408984437914e-13f,5.8193148921598797e-14f,0.0f}},
+        {{-1.2219078371344949e-06f,-3.2185275813390035e-06f,4.0075833567243535e-06f,0.0f},{-1.4375323102570371e-14f,-3.5281473516378739e-14f,-1.1328567614153282e-13f,0.0f}},
+        {{0.00021311610180418938f,0.0035815238952636719f,0.0015106429345905781f,0.0f},{5.7589918077416424e-12f,-1.9477365900688604e-11f,2.365153385641694e-11f,0.0f}},
+    }};
+    std::vector<P> positions;std::vector<nm_float4> parameters,weights;
+    for(unsigned fixture=0u;fixture<2u;++fixture)for(unsigned mode=0u;mode<5u;++mode) {
+        auto p=fixture==0u?captured:second;
+        if(mode==1u)for(unsigned i=0u;i<4u;++i)std::swap(p[i],p[4u+i]);
+        if(mode==2u)for(unsigned i=0u;i<4u;++i)p[4u+i]=p[i];
+        if(mode==3u)p[0]=p[1];
+        if(mode==4u)p[5].low.x=std::numeric_limits<float>::quiet_NaN();
+        positions.insert(positions.end(),p.begin(),p.end());
+        parameters.push_back(fixture==0u?nm_float4{-0.97281241416931152f,0.13672953844070435f,-0.1869255006313324f,0.0f}:nm_float4{-0.97281241416931152f,0.13672922551631927f,-0.18692535161972046f,0.0f});
+        parameters.push_back({1e-9f,0,0,0});weights.push_back(fixture==0u?nm_float4{1.0f,-0.24267815053462982f,-0.75730365514755249f,-1.819395947677549e-05f}:nm_float4{1.0f,-0.24267403781414032f,-0.75730776786804199f,-1.8193230062024668e-05f});
+    }
+    const unsigned count=10u;
+    auto output=makeBuffer(device,std::vector<unsigned>(count+4u,0xdeadbeefu));
+    dispatch(device,queue,pipeline(device,library,
+        "numi_matter_metal::nm_contact_reference_initial_nonclosing_check"),{
+        {0u,makeBuffer(device,positions)},{1u,makeBuffer(device,parameters)},
+        {2u,makeBuffer(device,weights)},{3u,output},
+        {4u,makeBuffer(device,std::vector<unsigned>{count})}},1u,32u);
+    const auto got=readBuffer<unsigned>(output,count+4u);
+    const unsigned expected[]{1u,0u,1u,0u,0u};
+    for(unsigned i=0u;i<count;++i) {
+        if(got[i]!=expected[i%5u])std::cerr<<"initial_nonclosing_case="<<i<<" got="<<got[i]<<"\n";
+        require(got[i]==expected[i%5u],"captured strict initial nonclosing certificate");
+    }
+    for(unsigned i=count;i<count+4u;++i)require(got[i]==0xdeadbeefu,"initial nonclosing canary");
+    std::cout<<"captured_initial_nonclosing=true opening=true stationary=true closure_rejected=true"
+        " initial_intersection_rejected=true nonfinite_rejected=true fixtures=2 cases=10 canaries=4 PASS\n";
 }
 
 void checkResolvedMollifierCurvature(
@@ -15616,6 +15837,9 @@ int main(int argc, const char* argv[]) {
             checkResolvedMollifierCurvature(device,queue,library);
             checkCompensatedBarrierEnergyWords(device,queue,library);
             checkReferenceContactPlaneCertificate(device,queue,library);
+            checkFinalReferenceContactClearance(device,queue,library);
+            checkFinalContactActivePrefix(device,queue,library);
+            checkCapturedInitialNonclosing(device,queue,library);
             std::cout << "PASS native FGMRES true-residual kernel contract "
                       << checks
                       << " checks; correction_accumulated=true; unit_action=true; "

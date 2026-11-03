@@ -8255,6 +8255,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mixed_build_residual_diagonal",
             "nm_mixed_apply_kkt_solution",
             "nm_mixed_certify",
+            "nm_mixed_capture_contact_certificate_witness",
             "nm_mixed_commit",
             "nm_mixed_rollback",
             "nm_learned_stage_weights",
@@ -27815,15 +27816,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
             };
             const auto encodeFEMNewtonCertificateTrace = [&]() -> bool {
                 std::uint32_t root = 0u;
-                if (!selectedFEMNewtonTraceRoot(root) || microtick != 0u)
+                const char* terminalTrace=std::getenv("NM_FEM_TERMINAL_CERTIFICATE_TRACE");
+                const bool boundedTerminalOnly=terminalTrace&&std::strcmp(terminalTrace,"1")==0;
+                if(boundedTerminalOnly)root=request.controlStep;
+                if ((!boundedTerminalOnly&&!selectedFEMNewtonTraceRoot(root)) || microtick != 0u)
                     return true;
                 if (environments == 0u) {
                     emitFEMNewtonTraceSkip(root, "zero_environments_at_certificate");
                     return true;
                 }
-                if (const char* reason = diagnosticNewtonTraceScopeFailure()) {
-                    emitFEMNewtonTraceSkip(root, reason);
-                    return true;
+                if(!boundedTerminalOnly) {
+                    if (const char* reason = diagnosticNewtonTraceScopeFailure()) {
+                        emitFEMNewtonTraceSkip(root, reason);
+                        return true;
+                    }
                 }
                 const NSUInteger certificateBytes =
                     objectTotal * sizeof(NMSolverCertificateGPU);
@@ -27831,7 +27837,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     environments * sizeof(NMMatterStatusGPU);
                 const NSUInteger fgmresBytes =
                     environments * sizeof(NMFGMRESStateGPU);
-                const NSUInteger bytes = certificateBytes + statusBytes + fgmresBytes;
+                const NSUInteger witnessBytes=environments*40u*sizeof(nm_float4);
+                const NSUInteger witnessOffset=certificateBytes+statusBytes+fgmresBytes;
+                const NSUInteger bytes = witnessOffset+witnessBytes;
                 constexpr NSUInteger maximumSnapshotBytes = 16u * 1024u;
                 if (bytes > maximumSnapshotBytes) {
                     if (!femNewtonTraceNoticeLogged) {
@@ -27854,6 +27862,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                     return true;
                 }
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_mixed_capture_contact_certificate_witness",environments,[&] {
+                    setDispatch();
+                    [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                    [encoder setBuffer:state.deformableContacts offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:4u];
+                    [encoder setBuffer:snapshot offset:witnessOffset atIndex:5u];
+                });
                 [encoder endEncoding];
                 encoder = nil;
                 id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
@@ -27948,6 +27965,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         capturedAppendTraceFloat(line, fgmres[environment].nonlinear.y); line << ',';
                         capturedAppendTraceFloat(line, fgmres[environment].nonlinear.z); line << ',';
                         capturedAppendTraceFloat(line, fgmres[environment].nonlinear.w); line << "]}";
+                    }
+                    line << "],\"contact_failure_witness_words_hex\":[";
+                    constexpr char hex[]="0123456789abcdef";
+                    for(std::uint32_t env=0u;env<capturedEnvironments;++env) {
+                        if(env!=0u)line<<',';
+                        line<<'\"';
+                        for(NSUInteger i=0u;i<40u*sizeof(nm_float4);++i) {
+                            const auto b=data[witnessOffset+env*40u*sizeof(nm_float4)+i];
+                            line<<hex[b>>4u]<<hex[b&15u];
+                        }
+                        line<<'\"';
                     }
                     line << "]}\n";
                     const auto text = line.str();
@@ -47913,6 +47941,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         (state.femReferenceContactPlaneCCDEnabled ? 2u : 0u);
                     [encoder setBytes:&collisionGap length:sizeof(collisionGap)
                               atIndex:26u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:29u];
                     if (tiledDeformableLimit) {
                         [encoder setBytes:&state.femDeformableLimitTileCount
                             length:sizeof(state.femDeformableLimitTileCount) atIndex:27u];
@@ -49842,6 +49871,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 // This private scratch is always allocated; when counters are
                 // disabled it is neither initialized nor presented/read back.
                 [encoder setBuffer:state.fgmresTelemetry offset:0u atIndex:21u];
+                [encoder setBuffer:state.deformableContactActiveIndices offset:0u atIndex:22u];
             });
             if (!encodeFEMNewtonCertificateTrace()) {
                 ownership->preDynamicsOpen = false;

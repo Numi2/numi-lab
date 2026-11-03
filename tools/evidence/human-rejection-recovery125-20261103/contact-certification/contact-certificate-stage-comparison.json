@@ -1,0 +1,222 @@
+{
+  "close-gap-native-001": {
+    "matter_pre": {
+      "count": 1,
+      "sum_s": 0.009217542,
+      "active_first_two_s": [
+        0.009217542
+      ],
+      "tail_mean_s": null
+    },
+    "brain_advance": {
+      "count": 1,
+      "sum_s": 0.000101833,
+      "active_first_two_s": [
+        0.000101833
+      ],
+      "tail_mean_s": null
+    },
+    "respiratory_mechanics": {
+      "count": 1,
+      "sum_s": 0.006050958,
+      "active_first_two_s": [
+        0.006050958
+      ],
+      "tail_mean_s": null
+    },
+    "matter_after_frame_begin": {
+      "count": 1,
+      "sum_s": 0.000774875,
+      "active_first_two_s": [
+        0.000774875
+      ],
+      "tail_mean_s": null
+    },
+    "matter_newton_assembly": {
+      "count": 16,
+      "sum_s": 3.565562453,
+      "active_first_two_s": [
+        0.235796166,
+        0.232773333
+      ],
+      "tail_mean_s": 0.22016081061538462
+    },
+    "matter_newton_linear": {
+      "count": 16,
+      "sum_s": 15.321531879,
+      "active_first_two_s": [
+        1.235876042,
+        1.355826792
+      ],
+      "tail_mean_s": 0.9009939617692309
+    },
+    "matter_newton_globalization": {
+      "count": 16,
+      "sum_s": 29.717954084,
+      "active_first_two_s": [
+        1.724060125,
+        1.871508917
+      ],
+      "tail_mean_s": 1.867082137846154
+    },
+    "respiratory_gas_exchange": {
+      "count": 1,
+      "sum_s": 0.000927125,
+      "active_first_two_s": [
+        0.000927125
+      ],
+      "tail_mean_s": null
+    },
+    "matter_after_candidate_ready": {
+      "count": 1,
+      "sum_s": 1.650417208,
+      "active_first_two_s": [
+        1.650417208
+      ],
+      "tail_mean_s": null
+    },
+    "matter_after_microstep": {
+      "count": 1,
+      "sum_s": 0.007874917,
+      "active_first_two_s": [
+        0.007874917
+      ],
+      "tail_mean_s": null
+    },
+    "matter_post": {
+      "count": 1,
+      "sum_s": 0.007724292,
+      "active_first_two_s": [
+        0.007724292
+      ],
+      "tail_mean_s": null
+    },
+    "brain_resolve": {
+      "count": 1,
+      "sum_s": 1.25e-06,
+      "active_first_two_s": [
+        1.25e-06
+      ],
+      "tail_mean_s": null
+    },
+    "respiratory_resolve": {
+      "count": 1,
+      "sum_s": 1.166e-06,
+      "active_first_two_s": [
+        1.166e-06
+      ],
+      "tail_mean_s": null
+    },
+    "sum_of_stage_gpu_s": 50.288139582
+  },
+  "contact-certificate-native-001": {
+    "matter_pre": {
+      "count": 1,
+      "sum_s": 0.009138083,
+      "active_first_two_s": [
+        0.009138083
+      ],
+      "tail_mean_s": null
+    },
+    "brain_advance": {
+      "count": 1,
+      "sum_s": 9.3833e-05,
+      "active_first_two_s": [
+        9.3833e-05
+      ],
+      "tail_mean_s": null
+    },
+    "respiratory_mechanics": {
+      "count": 1,
+      "sum_s": 0.005102625,
+      "active_first_two_s": [
+        0.005102625
+      ],
+      "tail_mean_s": null
+    },
+    "matter_after_frame_begin": {
+      "count": 1,
+      "sum_s": 0.000794084,
+      "active_first_two_s": [
+        0.000794084
+      ],
+      "tail_mean_s": null
+    },
+    "matter_newton_assembly": {
+      "count": 16,
+      "sum_s": 3.609858122,
+      "active_first_two_s": [
+        0.256919833,
+        0.255387625
+      ],
+      "tail_mean_s": 0.22033507353846152
+    },
+    "matter_newton_linear": {
+      "count": 16,
+      "sum_s": 15.31651625,
+      "active_first_two_s": [
+        1.233113083,
+        1.346370583
+      ],
+      "tail_mean_s": 0.9017703237692308
+    },
+    "matter_newton_globalization": {
+      "count": 16,
+      "sum_s": 4.264129669,
+      "active_first_two_s": [
+        1.716242792,
+        1.870658834
+      ],
+      "tail_mean_s": 0.04830940715384616
+    },
+    "respiratory_gas_exchange": {
+      "count": 1,
+      "sum_s": 0.000927042,
+      "active_first_two_s": [
+        0.000927042
+      ],
+      "tail_mean_s": null
+    },
+    "matter_after_candidate_ready": {
+      "count": 1,
+      "sum_s": 1.634681459,
+      "active_first_two_s": [
+        1.634681459
+      ],
+      "tail_mean_s": null
+    },
+    "matter_after_microstep": {
+      "count": 1,
+      "sum_s": 0.007865791,
+      "active_first_two_s": [
+        0.007865791
+      ],
+      "tail_mean_s": null
+    },
+    "matter_post": {
+      "count": 1,
+      "sum_s": 0.007738792,
+      "active_first_two_s": [
+        0.007738792
+      ],
+      "tail_mean_s": null
+    },
+    "brain_resolve": {
+      "count": 1,
+      "sum_s": 1.209e-06,
+      "active_first_two_s": [
+        1.209e-06
+      ],
+      "tail_mean_s": null
+    },
+    "respiratory_resolve": {
+      "count": 1,
+      "sum_s": 1.083e-06,
+      "active_first_two_s": [
+        1.083e-06
+      ],
+      "tail_mean_s": null
+    },
+    "sum_of_stage_gpu_s": 24.856848042
+  }
+}

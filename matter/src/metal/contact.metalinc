@@ -13023,6 +13023,58 @@ inline NMContactInterval nmContactProjectionInterval(
     }
     return sum;
 }
+// Error-free Float32 expansion for the rare projection interval that
+// straddles its clearance threshold. Grow-expansion sums exact TwoProduct
+// terms; uncertain underflow/overflow returns an unbounded interval. This
+// removes cancellation width without treating rounding as physical clearance.
+inline bool nmContactExpansionAppend(
+    thread float* expansion,thread uint& count,float term) {
+    constexpr float minimumNormal=1.1754943508222875e-38f;
+    if(!isfinite(term)||(term!=0.0f&&abs(term)<minimumNormal))return false;
+    float q=term;uint output=0u;
+    for(uint i=0u;i<count;++i) {
+        const float e=expansion[i],x=q+e,bv=x-q,av=x-bv;
+        const float br=e-bv,ar=q-av,low=ar+br;
+        if(!isfinite(x)||!isfinite(low)||
+           (x==0.0f&&q!=-e)||(bv==0.0f&&x!=q)||(av==0.0f&&x!=bv)||
+           (br==0.0f&&e!=bv)||(ar==0.0f&&q!=av)||
+           (low==0.0f&&ar!=-br)||
+           (x!=0.0f&&abs(x)<minimumNormal)||
+           (bv!=0.0f&&abs(bv)<minimumNormal)||(av!=0.0f&&abs(av)<minimumNormal)||
+           (br!=0.0f&&abs(br)<minimumNormal)||(ar!=0.0f&&abs(ar)<minimumNormal)||
+           (low!=0.0f&&abs(low)<minimumNormal))return false;
+        if(low!=0.0f)expansion[output++]=low;
+        q=x;
+    }
+    if(q!=0.0f||output==0u)expansion[output++]=q;
+    count=output;return true;
+}
+inline NMContactInterval nmContactProjectionIntervalRefined(
+    MRCompensatedPositionGPU a,MRCompensatedPositionGPU b,float3 axis) {
+    constexpr float minimumNormal=1.1754943508222875e-38f;
+    float expansion[24];uint count=0u;
+    NMContactInterval smallProducts{0.0f,0.0f};
+    for(uint j=0u;j<3u;++j)for(uint k=0u;k<4u;++k) {
+        const float v=k==0u?a.high[j]:k==1u?-b.high[j]:k==2u?a.low[j]:-b.low[j];
+        if(v==0.0f||axis[j]==0.0f)continue;
+        const float high=v*axis[j],low=fma(v,axis[j],-high);
+        // A 24x24-bit product has at most 48 significant bits. Above
+        // 2^-78 even its least nonzero residual bit is normal on Float32.
+        if(!isfinite(high)||!isfinite(low))return {-INFINITY,INFINITY};
+        if(abs(high)<0x1p-78f||(low!=0.0f&&abs(low)<minimumNormal)) {
+            smallProducts=nmContactIntervalAdd(smallProducts,
+                nmContactIntervalScale({v,v},axis[j]));
+            continue;
+        }
+        if(!nmContactExpansionAppend(expansion,count,high)||
+           !nmContactExpansionAppend(expansion,count,low))
+            return {-INFINITY,INFINITY};
+    }
+    NMContactInterval result{0.0f,0.0f};
+    for(uint i=0u;i<count;++i)
+        result=nmContactIntervalAdd(result,{expansion[i],expansion[i]});
+    return nmContactIntervalAdd(result,smallProducts);
+}
 // A fixed plane separates two convex features throughout a linear sweep if
 // every pairwise projected difference stays above clearance*|axis|. Bounds at
 // both endpoints enclose their affine interpolation. A shorter certified
@@ -13051,8 +13103,12 @@ inline float nmReferenceContactPlaneFraction(
             !all(isfinite(start[b].high.xyz)) || !all(isfinite(start[b].low.xyz)) ||
             !all(isfinite(finish[a].high.xyz)) || !all(isfinite(finish[a].low.xyz)) ||
             !all(isfinite(finish[b].high.xyz)) || !all(isfinite(finish[b].low.xyz))) return 0.0f;
-        const auto lo=nmContactProjectionInterval(start[a],start[b],axis);
-        const auto hi=nmContactProjectionInterval(finish[a],finish[b],axis);
+        auto lo=nmContactProjectionInterval(start[a],start[b],axis);
+        auto hi=nmContactProjectionInterval(finish[a],finish[b],axis);
+        if(lo.lower<=threshold&&lo.upper>threshold)
+            lo=nmContactProjectionIntervalRefined(start[a],start[b],axis);
+        if(hi.lower<=threshold&&hi.upper>threshold)
+            hi=nmContactProjectionIntervalRefined(finish[a],finish[b],axis);
         if (!isfinite(lo.lower) || !isfinite(lo.upper) ||
             !isfinite(hi.lower) || !isfinite(hi.upper) || !(lo.lower>threshold)) return 0.0f;
         if (!(hi.lower>threshold)) {
@@ -13066,6 +13122,147 @@ inline float nmReferenceContactPlaneFraction(
         }
     }
     return fraction;
+}
+
+inline bool nmReferenceContactCompensatedStaticAxis(
+    uint kind,thread const MRCompensatedPositionGPU* feature,
+    MRCompensatedPositionGPU axis,float3 referenceNormal,float clearance) {
+    const float alignment=dot(axis.high.xyz+axis.low.xyz,referenceNormal);
+    if(!isfinite(alignment)||alignment==0.0f)return false;
+    if(alignment<0.0f){axis.high=-axis.high;axis.low=-axis.low;}
+    float normSquaredUpper=0.0f;
+    for(uint i=0u;i<3u;++i) {
+        const float bound=nmContactIntervalUp(abs(axis.high[i])+abs(axis.low[i]));
+        normSquaredUpper=nmContactIntervalUp(normSquaredUpper+nmContactIntervalUp(bound*bound));
+    }
+    const float normUpper=nmContactIntervalUp(sqrt(normSquaredUpper));
+    const float threshold=nmContactIntervalUp(clearance*normUpper);
+    if(!isfinite(normUpper)||!(normUpper>0.0f)||!isfinite(threshold))return false;
+    uint firstCount=1u,secondBegin=1u,secondCount=1u;
+    if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE)secondCount=3u;
+    else if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE){firstCount=2u;secondBegin=2u;secondCount=2u;}
+    else if(kind!=NM_DEFORMABLE_CONTACT_POINT_POINT)return false;
+    for(uint a=0u;a<firstCount;++a)for(uint b=secondBegin;b<secondBegin+secondCount;++b) {
+        const auto projection=nmContactIntervalAdd(
+            nmContactProjectionIntervalRefined(feature[a],feature[b],axis.high.xyz),
+            nmContactProjectionInterval(feature[a],feature[b],axis.low.xyz));
+        if(!isfinite(projection.lower)||!(projection.lower>threshold))return false;
+    }
+    return true;
+}
+inline bool nmReferenceContactPreciseFeatureAxis(
+    uint kind,thread const MRCompensatedPositionGPU* feature,float3 normal,float clearance) {
+    MRCompensatedPositionGPU axis;
+    if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE)
+        axis=mrCompensatedVectorCross(
+            mrCompensatedVectorAdd(feature[2],mrCompensatedVectorNegate(feature[1])),
+            mrCompensatedVectorAdd(feature[3],mrCompensatedVectorNegate(feature[1])));
+    else if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE)
+        axis=mrCompensatedVectorCross(
+            mrCompensatedVectorAdd(feature[1],mrCompensatedVectorNegate(feature[0])),
+            mrCompensatedVectorAdd(feature[3],mrCompensatedVectorNegate(feature[2])));
+    else if(kind==NM_DEFORMABLE_CONTACT_POINT_POINT)
+        axis=mrCompensatedVectorAdd(feature[0],mrCompensatedVectorNegate(feature[1]));
+    else return false;
+    return nmReferenceContactCompensatedStaticAxis(kind,feature,axis,normal,clearance);
+}
+
+// Candidate axes need not be exact: every success is certified against the
+// full compensated features, including a norm bound for unchanged clearance.
+inline bool nmReferenceContactStaticAxis(
+    uint kind,thread const MRCompensatedPositionGPU* feature,float3 axis,
+    float clearance,float3 referenceNormal) {
+    const float alignment=dot(axis,referenceNormal);
+    if(!isfinite(alignment)||alignment==0.0f)return false;
+    if(alignment<0.0f)axis=-axis;
+    return nmReferenceContactPlaneFraction(kind,feature,feature,axis,clearance)==1.0f;
+}
+inline bool nmReferenceContactStaticClearance(
+    uint kind,thread const MRCompensatedPositionGPU* feature,float3 normal,float clearance) {
+    if(nmReferenceContactStaticAxis(kind,feature,normal,clearance,normal))return true;
+    float3 p[4];
+    for(uint i=0u;i<4u;++i)p[i]=feature[i].high.xyz+feature[i].low.xyz;
+    if(kind==NM_DEFORMABLE_CONTACT_POINT_POINT)
+        return nmReferenceContactStaticAxis(kind,feature,p[0]-p[1],clearance,normal)||
+            nmReferenceContactPreciseFeatureAxis(kind,feature,normal,clearance);
+    if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+        const float3 a=p[1]-p[0],b=p[3]-p[2];
+        if(nmReferenceContactStaticAxis(kind,feature,cross(a,b),clearance,normal))return true;
+        for(uint i=0u;i<2u;++i)for(uint j=2u;j<4u;++j) {
+            const float3 delta=p[i]-p[j];
+            if(nmReferenceContactStaticAxis(kind,feature,delta,clearance,normal)||
+               nmReferenceContactStaticAxis(kind,feature,cross(a,cross(delta,a)),clearance,normal)||
+               nmReferenceContactStaticAxis(kind,feature,cross(b,cross(delta,b)),clearance,normal))return true;
+        }
+    } else if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+        if(nmReferenceContactStaticAxis(kind,feature,
+            cross(p[2]-p[1],p[3]-p[1]),clearance,normal))return true;
+        for(uint i=1u;i<4u;++i) {
+            const float3 edge=p[1u+i%3u]-p[i],delta=p[0]-p[i];
+            if(nmReferenceContactStaticAxis(kind,feature,delta,clearance,normal)||
+               nmReferenceContactStaticAxis(kind,feature,cross(edge,cross(delta,edge)),clearance,normal))return true;
+        }
+    }
+    return nmReferenceContactPreciseFeatureAxis(kind,feature,normal,clearance);
+}
+
+// Preserve the existing initial-touch rule without relaxing ordinary clearance.
+// An initial convex-feature witness gives an upper bound on the initial distance;
+// a strict separating-plane lower bound at the candidate must exceed that upper
+// bound. Thus an initially sub-clearance contact cannot close or cross. Exact
+// unchanged features are handled separately to avoid interval-width false failures.
+inline bool nmReferenceInitialContactNonclosing(
+    uint kind,thread const MRCompensatedPositionGPU* initial,
+    thread const MRCompensatedPositionGPU* candidate,float4 weights,float3 normal,
+    float clearance) {
+    if(!isfinite(clearance)||!(clearance>0.0f)||!all(isfinite(weights)))return false;
+    if(!nmReferenceContactStaticClearance(kind,initial,normal,0.0f))return false;
+    const uint count=kind==NM_DEFORMABLE_CONTACT_POINT_POINT?2u:4u;
+    bool unchanged=true;
+    for(uint i=0u;i<count;++i)unchanged=unchanged&&
+        all(initial[i].high==candidate[i].high)&&all(initial[i].low==candidate[i].low);
+    float upperSquared=0.0f;
+    for(uint j=0u;j<3u;++j) {
+        float3 axis=float3(0.0f);axis[j]=1.0f;
+        NMContactInterval delta;
+        if(kind==NM_DEFORMABLE_CONTACT_POINT_POINT)
+            delta=nmContactProjectionInterval(initial[0],initial[1],axis);
+        else if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+            const float u=clamp(-weights.z,0.0f,1.0f);
+            const float v=clamp(-weights.w,0.0f,max(0.0f,nmContactIntervalDown(1.0f-u)));
+            delta=nmContactProjectionInterval(initial[0],initial[1],axis);
+            delta=nmContactIntervalAdd(delta,nmContactIntervalScale(
+                nmContactProjectionInterval(initial[2],initial[1],axis),-u));
+            delta=nmContactIntervalAdd(delta,nmContactIntervalScale(
+                nmContactProjectionInterval(initial[3],initial[1],axis),-v));
+        } else if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+            const float u=clamp(weights.y,0.0f,1.0f),v=clamp(-weights.w,0.0f,1.0f);
+            delta=nmContactProjectionInterval(initial[0],initial[2],axis);
+            delta=nmContactIntervalAdd(delta,nmContactIntervalScale(
+                nmContactProjectionInterval(initial[1],initial[0],axis),u));
+            delta=nmContactIntervalAdd(delta,nmContactIntervalScale(
+                nmContactProjectionInterval(initial[3],initial[2],axis),-v));
+        } else return false;
+        const float m=max(abs(delta.lower),abs(delta.upper));
+        upperSquared=nmContactIntervalUp(upperSquared+nmContactIntervalUp(m*m));
+    }
+    const float initialUpper=nmContactIntervalUp(sqrt(upperSquared));
+    if(!isfinite(initialUpper)||!(initialUpper>0.0f)||initialUpper>clearance)return false;
+    return unchanged||nmReferenceContactStaticClearance(
+        kind,candidate,normal,initialUpper);
+}
+
+kernel void nm_contact_reference_initial_nonclosing_check(
+    device const MRCompensatedPositionGPU* positions [[buffer(0)]],
+    device const float4* parameters [[buffer(1)]],
+    device const float4* weights [[buffer(2)]],device uint* results [[buffer(3)]],
+    constant uint& count [[buffer(4)]],uint index [[thread_position_in_grid]]) {
+    if(index>=count)return;
+    MRCompensatedPositionGPU a[4],b[4];
+    for(uint i=0u;i<4u;++i){a[i]=positions[8u*index+i];b[i]=positions[8u*index+4u+i];}
+    const float4 axis=parameters[2u*index];
+    results[index]=nmReferenceInitialContactNonclosing(uint(axis.w),a,b,
+        weights[index],axis.xyz,parameters[2u*index+1u].x)?1u:0u;
 }
 
 // Native verification uses the production certificate with exact emitted
@@ -13112,9 +13309,15 @@ inline void nmContactLimitDeformableLineSearch(
     uint lane,
     uint environment
 ,
-    uint tile,uint tileCount,device float* partialBounds) {
+    uint tile,uint tileCount,device float* partialBounds,
+    device const NMFGMRESStateGPU* fgmresStates) {
     if (lane >= 32u || environment >= dispatch.environmentCount ||
         !environmentHealthy(statuses, environment)) return;
+    if(microstep.solverIteration>0u&&fgmresStates[environment].nonlinear.w>0.5f) {
+        if(partialBounds!=nullptr&&lane==0u)
+            partialBounds[environment*tileCount+tile]=1.0f;
+        return;
+    }
     const uint capacity = dispatch.deformableContactCapacity;
     const uint contactBase = environment * capacity;
     const uint nodeBase = environment * dispatch.femNodeCount;
@@ -14009,10 +14212,11 @@ kernel void nm_contact_limit_deformable_line_search(
     device float4* minimumWitnessValues [[buffer(24)]],
     constant uint& captureMinimumWitness [[buffer(25)]],
     constant uint& collisionGapEnabled [[buffer(26)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(29)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
-    nmContactLimitDeformableLineSearch(dispatch,objects,femNodeRanges,schedulers,contacts,activeIndices,activeCounts,candidate,correction,lineSearch,statuses,gridNodes,mpmNodeToActive,mpmActiveCounts,solver,traceSlotsPerEnvironment,traceRecords,microstep,adaptive,accepted,fullResidualArmijoEnabled,trialTraceRecords,trialTraceContactSlot,minimumWitnessIdentity,minimumWitnessValues,captureMinimumWitness,collisionGapEnabled,lane,environment,0u,1u,nullptr);
+    nmContactLimitDeformableLineSearch(dispatch,objects,femNodeRanges,schedulers,contacts,activeIndices,activeCounts,candidate,correction,lineSearch,statuses,gridNodes,mpmNodeToActive,mpmActiveCounts,solver,traceSlotsPerEnvironment,traceRecords,microstep,adaptive,accepted,fullResidualArmijoEnabled,trialTraceRecords,trialTraceContactSlot,minimumWitnessIdentity,minimumWitnessValues,captureMinimumWitness,collisionGapEnabled,lane,environment,0u,1u,nullptr,fgmresStates);
 }
 
 kernel void nm_contact_limit_deformable_line_search_tiled(
@@ -14043,6 +14247,7 @@ kernel void nm_contact_limit_deformable_line_search_tiled(
     device float4* minimumWitnessValues [[buffer(24)]],
     constant uint& captureMinimumWitness [[buffer(25)]],
     constant uint& collisionGapEnabled [[buffer(26)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(29)]],
     uint lane [[thread_index_in_threadgroup]],
     constant uint& tileCount [[buffer(27)]],
     device float* partialBounds [[buffer(28)]],
@@ -14050,7 +14255,7 @@ kernel void nm_contact_limit_deformable_line_search_tiled(
 ) {
     const uint environment=group/tileCount;
     const uint tile=group%tileCount;
-    nmContactLimitDeformableLineSearch(dispatch,objects,femNodeRanges,schedulers,contacts,activeIndices,activeCounts,candidate,correction,lineSearch,statuses,gridNodes,mpmNodeToActive,mpmActiveCounts,solver,traceSlotsPerEnvironment,traceRecords,microstep,adaptive,accepted,fullResidualArmijoEnabled,trialTraceRecords,trialTraceContactSlot,minimumWitnessIdentity,minimumWitnessValues,captureMinimumWitness,collisionGapEnabled,lane,environment,tile,tileCount,partialBounds);
+    nmContactLimitDeformableLineSearch(dispatch,objects,femNodeRanges,schedulers,contacts,activeIndices,activeCounts,candidate,correction,lineSearch,statuses,gridNodes,mpmNodeToActive,mpmActiveCounts,solver,traceSlotsPerEnvironment,traceRecords,microstep,adaptive,accepted,fullResidualArmijoEnabled,trialTraceRecords,trialTraceContactSlot,minimumWitnessIdentity,minimumWitnessValues,captureMinimumWitness,collisionGapEnabled,lane,environment,tile,tileCount,partialBounds,fgmresStates);
 }
 
 // Only this reduction publishes the common alpha. Tiled work reads one fixed

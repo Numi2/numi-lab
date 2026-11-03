@@ -1,0 +1,49 @@
+{
+  "trial": "nonclosing-native-002",
+  "completed_physical_steps_before_failure": 1,
+  "coupled_trace_rows": 1,
+  "last_trace_time_s": "1.56250007421e-05",
+  "last_trace_step": "1",
+  "source_brain_input": {
+    "source_time_us": 16,
+    "target_time_us": 31,
+    "source_root": 12830823886564576009,
+    "target_root": 1173667724037574455,
+    "validity_mask": 3,
+    "flags": 1,
+    "pa_o2_mmhg": 99.9997329711914,
+    "pa_co2_mmhg": 39.99998474121094
+  },
+  "candidate_brain": {
+    "timestamp_us": 31,
+    "accepted_root": 1173667724037574455,
+    "flags": 1
+  },
+  "brain_accepted_metadata": [
+    1,
+    16,
+    0,
+    0
+  ],
+  "brain_candidate_metadata": [
+    1,
+    31,
+    0,
+    0
+  ],
+  "candidate_and_accepted_respiration_status": {
+    "candidate": [
+      1,
+      0,
+      0,
+      0
+    ],
+    "accepted": [
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  "scope": "Observed rejection after one accepted step; not a replacement for the existing exhaustive rollback tests."
+}
