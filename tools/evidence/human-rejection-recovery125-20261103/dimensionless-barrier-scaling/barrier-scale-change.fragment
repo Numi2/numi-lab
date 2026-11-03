@@ -1,0 +1,13 @@
+    // Cancel width^2 before evaluating the coefficient. A fixed dimensioned
+    // denominator floor made narrow contact bands artificially weak even when
+    // the true coefficient was finite and representable. Successive divisions
+    // also avoid underflowing the product inverseResponse*dt^2*width^2.
+    const float inertialScale=((10.0f/inverseResponse)/dt)/dt;
+    const float remaining=max(width-distance,1.0e-3f*width);
+    const float impactScale=((max(closing,0.0f)/inverseResponse)/dt)/remaining;
+    const float scale=max(inertialScale,impactScale);
+    const float k=(scale/width)/width;
+    if(!isfinite(k)||!(k>0.0f))return float4(NAN);
+    // Dimensionless derivatives of the identical IPC polynomial avoid d^4
+    // underflow for nanometre gaps. Do not reduce precision or clamp curvature.
+    const float u=distance/width,r2=u*u,v=r2-1.0f,l=log(r2);

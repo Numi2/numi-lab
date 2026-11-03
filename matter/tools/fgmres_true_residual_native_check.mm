@@ -16433,6 +16433,21 @@ void checkFEMAlignedBarrier(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MT
         input.push_back({offset+fraction*(width-offset),width,offset,0.0f});
         parameters.push_back({7.4e10f,1.5625e-5f,0.0f,0.0f});
     }
+    // Independent coefficient checks include cases where the old dimensional
+    // 1e-20 denominator floor silently weakened the intended inertial barrier.
+    // Also exercise the closing-speed branch; Float64 reference does not read
+    // the GPU-reported coefficient.
+    for(float width:{2.0e-9f,2.0e-5f,0.02f})
+        for(float inverseResponse:{1.0e2f,1.0e5f,7.4e10f})
+            for(float dt:{1.5625e-5f,1.25e-4f,2.0e-3f})
+                for(float impactRatio:{0.0f,0.5f,2.0f}) {
+                    const float offset=0.5f*width,w=width-offset;
+                    const float separation=offset+0.4f*w;
+                    const float remaining=width-separation;
+                    input.push_back({separation,width,offset,0.0f});
+                    parameters.push_back({inverseResponse,dt,
+                        impactRatio*10.0f*remaining/dt,0.0f});
+                }
     const unsigned validCount=unsigned(input.size());
     for(unsigned mode=0;mode<4;++mode) {
         input.push_back({mode==0?1.0e-9f:mode==1?0.5e-9f:1.5e-9f,2.0e-9f,
@@ -16458,7 +16473,13 @@ void checkFEMAlignedBarrier(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MT
                 "aligned barrier must deactivate at unchanged world activation");continue;
         }
         require(std::isfinite(meta[i].y)&&meta[i].y>0,"aligned stiffness finite");
-        const double k=meta[i].y,d=std::max(gap,1.0e-4*w),s=d*d-w*w;
+        const double d=std::max(gap,1.0e-4*w),s=d*d-w*w;
+        const double expectedScale=std::max(10.0/(double(p.x)*dt*dt),
+            std::max(double(p.z),0.0)/(double(p.x)*dt*std::max(w-d,1.0e-3*w)));
+        const double expectedK=expectedScale/(w*w);
+        require(close(meta[i].y,expectedK,5.0e-6),
+            "aligned stiffness violates independent inertial/impact scaling");
+        const double k=meta[i].y;
         const double l=std::log((d*d)/(w*w));
         const double first=-k*(2*s*l+s*s/(d*d));
         const double second=-k*(2*l+4*s/(d*d)-s*s/(d*d*d*d));
@@ -16503,7 +16524,7 @@ void checkFEMAlignedBarrier(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MT
     require(reported[count]==-7.0f,"certificate energy output canary");
     require(got[count].x==-7&&meta[count].w==-7,"aligned barrier output canary");
     std::cout<<"fem_clearance_aligned_barrier=true Float64_energy_force_curvature=true "
-        "nanometre_underflow_avoided=true invalid_domain_rejected=true cases="<<count<<" PASS\n";
+        "nanometre_underflow_avoided=true independent_inertial_impact_scaling=true invalid_domain_rejected=true cases="<<count<<" PASS\n";
 }
 
 

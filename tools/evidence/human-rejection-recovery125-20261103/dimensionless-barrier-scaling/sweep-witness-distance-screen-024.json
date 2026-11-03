@@ -1,0 +1,22 @@
+{
+  "contact022-trace.json": {
+    "diagnostic_only_not_CCD_proof": true,
+    "start_distance": 1.0042784402291678e-09,
+    "end_distance": 1.0024399610093793e-09,
+    "min_distance": 1.0024399610093793e-09,
+    "min_barycentric": 0.0023625219213481907,
+    "clearance": 9.99999972e-10,
+    "first_sample_at_or_below_clearance": null,
+    "bound": 0.0142058497
+  },
+  "contact023-root6-trace.json": {
+    "diagnostic_only_not_CCD_proof": true,
+    "start_distance": 1.0052656369003586e-09,
+    "end_distance": 9.87601575800265e-10,
+    "min_distance": 9.87601575800265e-10,
+    "min_barycentric": 0.0023633168168096606,
+    "clearance": 9.99999972e-10,
+    "first_sample_at_or_below_clearance": 0.29833984375,
+    "bound": 0.00558266789
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "accepted_steps": 9,
+  "accepted_duration_s": 0.00014062500000000002,
+  "mean_accepted_gpu_step_s": 18.693567620366668,
+  "accepted_gpu_step_s": [
+    18.700165000000002,
+    18.8620615,
+    18.043198125,
+    17.8441305,
+    17.9309019167,
+    23.0745432083,
+    17.4767243333,
+    18.261280624999998,
+    18.049103374999998
+  ],
+  "accepted_GPU_only_RTF": 8.358490105963799e-07,
+  "accepted_duration_over_entire_trial_wall_RTF_not_sustained": 2.90995714778467e-07,
+  "elapsed_s_including_preparation_and_rejected_attempt": 483.25453901290894,
+  "qualified_0_1x": false,
+  "sustained_qualification": false,
+  "prior_polynomial_trial_accepted_steps": 6,
+  "physical_admission": false
+}

@@ -1,0 +1,1 @@
+81 coefficient cases across width, inverse response, timestep, impact ratio; independent Float64 stiffness reference. Existing energy/force/Hessian and certificate tests retained.

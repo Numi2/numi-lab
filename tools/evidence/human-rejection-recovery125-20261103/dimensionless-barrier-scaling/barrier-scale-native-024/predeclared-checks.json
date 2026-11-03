@@ -1,0 +1,16 @@
+{
+  "change": "Remove fixed dimensional stiffness floor only in positive-offset FEM aligned barrier; keep zero-offset legacy and MPM unchanged",
+  "unit_contract": "815671 checks pass including independently computed coefficients and forces",
+  "native_gate": "All physical contact/geometry/residual/accepted state gates unchanged; 16 requested matched steps,16 Newton budget",
+  "target": "Compare accepted progress and measured GPU stages; no forecast of gain",
+  "witness_caveat": {
+    "source": "compiled parent mass ledger; runtime mass parity not separately certified",
+    "inverse_response_from_ledger": 74398265051.45224,
+    "denominator": 1.816363776610433e-17,
+    "legacy_floor": 1e-20,
+    "legacy_floor_active_for_this_witness": false,
+    "coefficient_without_floor": 5.505505080409211e+17,
+    "observed_scaled_coefficient": 5.50550417e+17,
+    "conclusion": "The fixed denominator floor is a confirmed general numerical defect, but does not explain this limiting contact if runtime masses match the ledger. No convergence or performance improvement forecast."
+  }
+}

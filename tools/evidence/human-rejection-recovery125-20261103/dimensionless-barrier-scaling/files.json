@@ -1,0 +1,98 @@
+{
+  "README.md": {
+    "sha256": "fafd0fcca8d25112224fc7eb9da8323f56e9a74162ceb5cf9eaea7814a6d4c49",
+    "bytes": 1731
+  },
+  "barrier-scale-before-001.log": {
+    "sha256": "690e54bcae1edee8fa7bbf536e7b00153ec95b185d6187bfc5674a34750e8ef4",
+    "bytes": 113
+  },
+  "barrier-scale-build-002.log.gz": {
+    "sha256": "f23fb31584adbe8c042d9f36c029d7d28af59121637dc61eb92f4790c7bcec3b",
+    "bytes": 1298
+  },
+  "barrier-scale-change.fragment": {
+    "sha256": "089759083965f2e3728c703988f27a5ea7f407656f5df052e661e1cf550c7533",
+    "bytes": 873
+  },
+  "barrier-scale-focused-002.log": {
+    "sha256": "81d7dae726a55cf07dcb2066299f518b8c3d3688b5fe859951bfde26552d2748",
+    "bytes": 189
+  },
+  "barrier-scale-native-024/build-manifest.json": {
+    "sha256": "ed74f2d6a14e267a37303b95731a597fb8ec2813335cf1a31c9d1c95f3d89bc6",
+    "bytes": 6967
+  },
+  "barrier-scale-native-024/common-field-failure.json": {
+    "sha256": "4e3d4c77aa81b5bdb0ee16e1cfc8c3e8e4397056bcb0a6270a55519023233713",
+    "bytes": 4220
+  },
+  "barrier-scale-native-024/execution-source-snapshots.tar.gz": {
+    "sha256": "849d65df8225611e822f6a9df72641a8a423f2e08c5c574c442f1923d38a7e30",
+    "bytes": 1625354
+  },
+  "barrier-scale-native-024/execution-source.patch.gz": {
+    "sha256": "a2b87fa53048e6aff34c29c6f4bad5f66d40bfb52d72826b6ddab368501d7d4f",
+    "bytes": 299406
+  },
+  "barrier-scale-native-024/install-motion.execution.json": {
+    "sha256": "f2202452b1aa5a3a8d5ad9c66439b7186b816300fec13cc61f4a5945e8153be2",
+    "bytes": 744
+  },
+  "barrier-scale-native-024/install-motion.plan.json": {
+    "sha256": "4fe56b34b1dd40ee2a81c602f77bf9dd119d9fa602b3fbbe48f96cd4bdf7ad80",
+    "bytes": 96518
+  },
+  "barrier-scale-native-024/install-motion.stderr.log.gz": {
+    "sha256": "3eea36749466c26c1b9d3a5ad219b40bef7a0ade77ec42fab4e93607e13387ae",
+    "bytes": 17209
+  },
+  "barrier-scale-native-024/install-motion.stdout.log.gz": {
+    "sha256": "61b03b85e5b560cf3a8a40948a27d82b5da836ce87211bea36cc11569f8e9be8",
+    "bytes": 42462
+  },
+  "barrier-scale-native-024/predeclared-checks.json": {
+    "sha256": "9b032084ea5f75a9042db138dea450acbfab29f35686b3d158613189ab12265e",
+    "bytes": 1085
+  },
+  "barrier-scale-native-024/resource-monitor.jsonl": {
+    "sha256": "b4a09df8785181be0263a3d7513e23162062beceaf1a4ed6908d9f52a6815e2c",
+    "bytes": 11138
+  },
+  "barrier-scale-native-024/resting-coupled.csv": {
+    "sha256": "925843c300b7029f413d4654321dc43d928e9a84df38b3139382bff1d4f797f4",
+    "bytes": 8113
+  },
+  "barrier-scale-native-024/run_native_plan.py": {
+    "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f",
+    "bytes": 4730
+  },
+  "barrier-scale-native-024/runner.log": {
+    "sha256": "d971c69f89c9405caf5a895b0cb8584aabc322789ade90d5a972811709409ead",
+    "bytes": 9724
+  },
+  "barrier-scale-regression-002.log": {
+    "sha256": "96e9a9c135ce7eb99907504acd21be3c75d60d0b1621f736a2170f5760aa43e9",
+    "bytes": 12737
+  },
+  "barrier-scale-scoped.patch": {
+    "sha256": "5dea2e393e55384a434409ebdc7c266e1f652088e1290770b9fd92cdae00cdfd",
+    "bytes": 4345
+  },
+  "barrier-scale-test-change.txt": {
+    "sha256": "5ebc9b454bcbd93e27dba6140753425b5391a76b35646a2fca2ae762c2e9f88a",
+    "bytes": 180
+  },
+  "barrier-scale-witness-accounting.json": {
+    "sha256": "f45d0088fa1cdb32674b4ae12d213060b464e15bfd81e7ab6d59982ecb50dfd6",
+    "bytes": 581
+  },
+  "measurements.json": {
+    "sha256": "4c2ea9a7daedd965beb8e8357532c5234eee9fe89d52e6580b00aa0e42a079dc",
+    "bytes": 689
+  },
+  "sweep-witness-distance-screen-024.json": {
+    "sha256": "e08dc47421f6dfb80f0b359e5c14593cbce3d1ce790cf55b2ee702ec1408fabc",
+    "bytes": 743
+  }
+}
