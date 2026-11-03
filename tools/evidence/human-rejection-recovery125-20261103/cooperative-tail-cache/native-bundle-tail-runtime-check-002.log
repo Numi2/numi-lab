@@ -1,0 +1,3 @@
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+fem material frame check failed: all-native float specialization requires stateless/native specialization, every material eligible, and exact source hash

@@ -1,0 +1,176 @@
+{
+  "entries": [
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-auto-native-009/install-motion/common-field-map-f32.bin",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/common-field-map-f32.bin",
+      "sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "bytes": 69593328,
+      "reclaimed_allocated_bytes": 69595136
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-auto-native-009/install-motion/resting-human.mrvpack",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/resting-human.mrvpack",
+      "sha256": "7ceda75fe9f6be66090630ccfd8436d124bd654c3bee6c49e5bc46e64f60d6d7",
+      "bytes": 321323008,
+      "reclaimed_allocated_bytes": 321323008
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-auto-native-009/install-motion/accepted-geometry/step-0.mrvpack",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "83f9f596348a0ebe2c2b2b8392439c8b14b56ec44d2751f95a3d575c85f96288",
+      "bytes": 321323008,
+      "reclaimed_allocated_bytes": 321323008
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-auto-native-009/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "reclaimed_allocated_bytes": 134668288
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-auto-native-009/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "reclaimed_allocated_bytes": 91340800
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-auto-native-009/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "reclaimed_allocated_bytes": 43597824
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-auto-native-009/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "reclaimed_allocated_bytes": 34263040
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-auto-native-009/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "reclaimed_allocated_bytes": 49561600
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-tight-native-010/install-motion/common-field-map-f32.bin",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/common-field-map-f32.bin",
+      "sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "bytes": 69593328,
+      "reclaimed_allocated_bytes": 69595136
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-tight-native-010/install-motion/resting-human.mrvpack",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/resting-human.mrvpack",
+      "sha256": "7ceda75fe9f6be66090630ccfd8436d124bd654c3bee6c49e5bc46e64f60d6d7",
+      "bytes": 321323008,
+      "reclaimed_allocated_bytes": 321323008
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-tight-native-010/install-motion/accepted-geometry/step-0.mrvpack",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "83f9f596348a0ebe2c2b2b8392439c8b14b56ec44d2751f95a3d575c85f96288",
+      "bytes": 321323008,
+      "reclaimed_allocated_bytes": 321323008
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-tight-native-010/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "reclaimed_allocated_bytes": 134729728
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-tight-native-010/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "reclaimed_allocated_bytes": 91340800
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-tight-native-010/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "reclaimed_allocated_bytes": 43597824
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-tight-native-010/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "reclaimed_allocated_bytes": 34263040
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/clearance-aligned-tight-native-010/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "reclaimed_allocated_bytes": 49561600
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/vascular-domain-native-011/install-motion/common-field-map-f32.bin",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/common-field-map-f32.bin",
+      "sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "bytes": 69593328,
+      "reclaimed_allocated_bytes": 69595136
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/vascular-domain-native-011/install-motion/resting-human.mrvpack",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/resting-human.mrvpack",
+      "sha256": "7ceda75fe9f6be66090630ccfd8436d124bd654c3bee6c49e5bc46e64f60d6d7",
+      "bytes": 321323008,
+      "reclaimed_allocated_bytes": 321323008
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/vascular-domain-native-011/install-motion/accepted-geometry/step-0.mrvpack",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "83f9f596348a0ebe2c2b2b8392439c8b14b56ec44d2751f95a3d575c85f96288",
+      "bytes": 321323008,
+      "reclaimed_allocated_bytes": 321323008
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/vascular-domain-native-011/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.tets.csv",
+      "sha256": "b97bde31bd91478b3a9c1a2347de9844c9c5680d269aab33e21e04dae7c88cbf",
+      "bytes": 128482633,
+      "reclaimed_allocated_bytes": 135036928
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/vascular-domain-native-011/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+      "sha256": "7fad9beb9af339972a0ed17273c12b467ec29ba4f0a4c2190ddceab63224be9f",
+      "bytes": 74565690,
+      "reclaimed_allocated_bytes": 91340800
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/vascular-domain-native-011/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.source.csv",
+      "sha256": "ac5158f50a2906da14bfc9343d5d123f228b10744d3673d9a342e3316dc4ded5",
+      "bytes": 43597755,
+      "reclaimed_allocated_bytes": 43597824
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/vascular-domain-native-011/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.labels.csv",
+      "sha256": "53c301ddc406e3104f1a05ec8e919c3b8fb1cb5307079df077e3031852139253",
+      "bytes": 34261916,
+      "reclaimed_allocated_bytes": 34263040
+    },
+    {
+      "target": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/vascular-domain-native-011/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "retained": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/tiled-contact-minimum-native-005/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+      "sha256": "bb1dca0fed4bc02d1bff9d42d70d4ecb27e6950fbfd80478bbef70e83ebf1e40",
+      "bytes": 49559578,
+      "reclaimed_allocated_bytes": 49561600
+    }
+  ],
+  "reclaimed_allocated_bytes": 3197448192,
+  "free_before": 15101853696,
+  "free_after": 18299408384,
+  "policy": "Only SHA256-identical completed derived outputs hardlinked. Sources, unique evidence, contents and all paths preserved. Never overwrite these completed outputs in place."
+}

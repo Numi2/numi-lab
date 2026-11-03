@@ -68,7 +68,8 @@ struct Device {
     std::uint32_t functionConstant30PipelineCount=0u;
     std::uint32_t functionConstant32PipelineCount=0u;
     Device(const bool specializeStatelessMaterials=false,
-           const bool nativeDiagnosticCheckOnly=false){device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal unavailable");
+           const bool nativeDiagnosticCheckOnly=false,
+           const bool runtimeOnly=false){device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal unavailable");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
         queue=[device newCommandQueue];NSError* error=nil;
         const char* sourcePath=std::getenv("NUMI_MATTER_TEST_SOURCE");
@@ -90,6 +91,7 @@ struct Device {
                 error:&error];
         }
         need(library!=nil,"production Matter Metal program unavailable");
+        if(runtimeOnly)return;
         if(nativeDiagnosticCheckOnly){
             cacheFinalizeDiagnosticPipeline=make(
                 @"numi_matter_metal::nm_fem_finalize_algorithmic_tangent_columns",
@@ -1246,13 +1248,13 @@ struct Run {
         const auto path=std::filesystem::temp_directory_path()/(std::string("numi-frame-")+[[NSUUID UUID] UUIDString].UTF8String+".nmatterpack");
         CompileResult package;package.world=world;std::string error;need(writePackage(package,path,&error),error);CompiledWorld loaded;
         const bool ok=readPackage(path,loaded,nullptr,&error);std::error_code remove;std::filesystem::remove(path,remove);need(ok&&!remove&&loaded.fingerprint==world.fingerprint,"frame package roundtrip: "+error);world=std::move(loaded);
-        RuntimeConfiguration c;c.metallib=NUMI_MATTER_METALLIB;c.environmentCount=2;c.adaptiveTransfer=false;c.captureEvents=false;c.captureDiagnostics=true;
-        const auto initialized=[&](){ScopedSharedFactorEnvironment policy(sharedFactorEnabled);return runtime.initialize(world,c);}();need(initialized.encoded,initialized.message);statuses=buffer(device.device,std::vector<MRMetalWorldStatusGPU>(2));}
+        RuntimeConfiguration c;c.metallib=NUMI_MATTER_METALLIB;c.environmentCount=s.environmentCount;c.adaptiveTransfer=false;c.captureEvents=false;c.captureDiagnostics=true;
+        const auto initialized=[&](){ScopedSharedFactorEnvironment policy(sharedFactorEnabled);return runtime.initialize(world,c);}();need(initialized.encoded,initialized.message);statuses=buffer(device.device,std::vector<MRMetalWorldStatusGPU>(s.environmentCount));}
     RuntimeStateSnapshot state(){auto s=runtime.snapshot();need(s.available,s.message);return s;}
     void restore(const RuntimeStateSnapshot& s){const auto r=runtime.restore(s);need(r.encoded,r.message);}
     void step(unsigned index,int reject=-1,int reset=-1,
               const std::vector<nm_float4>& femTargets={}){
-        auto* incoming=static_cast<MRMetalWorldStatusGPU*>(statuses.contents);for(unsigned e=0;e<2;++e){incoming[e]={};incoming[e].environment=e;}
+        auto* incoming=static_cast<MRMetalWorldStatusGPU*>(statuses.contents);for(unsigned e=0;e<world.dispatch.environmentCount;++e){incoming[e]={};incoming[e].environment=e;}
         auto command=[device.queue commandBuffer];EncodeRequest request;request.commandBuffer=(__bridge void*)command;request.environmentStatuses=(__bridge void*)statuses;
         request.controlStep=index;request.physicsSubsteps=1;request.timestepSeconds=runtime.timestepSeconds();request.runAdaptiveTransfer=false;
         id<MTLBuffer> resets=nil,failure=nil,targets=nil;
@@ -1264,14 +1266,89 @@ struct Run {
             request.femKinematicTargets=(__bridge void*)targets;
             request.femKinematicTargetCount=static_cast<std::uint32_t>(femTargets.size());
         }
-        if(reset>=0){std::vector<unsigned> mask((index+1)*2);mask[index*2+unsigned(reset)]=1;resets=buffer(device.device,mask);request.resetMasks=(__bridge void*)resets;request.resetMaskStepStride=2;}
+        if(reset>=0){std::vector<unsigned> mask((index+1)*world.dispatch.environmentCount);mask[index*world.dispatch.environmentCount+unsigned(reset)]=1;resets=buffer(device.device,mask);request.resetMasks=(__bridge void*)resets;request.resetMaskStepStride=world.dispatch.environmentCount;}
         request.phase=EncodePhase::preDynamics;auto result=runtime.encode(request);need(result.encoded,result.message);
         if(reject>=0){MRMetalWorldStatusGPU bad{};bad.environment=unsigned(reject);bad.code=MR_STEP_DID_NOT_CONVERGE;failure=buffer(device.device,std::vector<MRMetalWorldStatusGPU>{bad});auto blit=[command blitCommandEncoder];[blit copyFromBuffer:failure sourceOffset:0 toBuffer:statuses destinationOffset:unsigned(reject)*sizeof(bad) size:sizeof(bad)];[blit endEncoding];}
         request.phase=EncodePhase::postCommit;result=runtime.encode(request);need(result.encoded,result.message);[command commit];[command waitUntilCompleted];need(command.status==MTLCommandBufferStatusCompleted,"integrated frame command failed");
-        const auto after=state();for(unsigned e=0;e<2;++e)if(int(e)!=reject)need(after.statuses[e].code==NM_STATUS_SUCCESS,"integrated frame step="+std::to_string(index)+" env="+std::to_string(e)+" status="+std::to_string(after.statuses[e].code)+" residual="+number(after.statuses[e].diagnostics.z));
+        const auto after=state();for(unsigned e=0;e<world.dispatch.environmentCount;++e)if(int(e)!=reject)need(after.statuses[e].code==NM_STATUS_SUCCESS,"integrated frame step="+std::to_string(index)+" env="+std::to_string(e)+" status="+std::to_string(after.statuses[e].code)+" residual="+number(after.statuses[e].diagnostics.z));
         if(reject>=0)need(after.statuses[unsigned(reject)].code!=NM_STATUS_SUCCESS,"injected frame rejection lost");(void)resets;(void)failure;(void)targets;
     }
 };
+// Exercise the production runtime's complete cached-Newton path, including
+// accepted motion, a late external rejection, rollback and replay.
+void checkCooperativeTailRuntime(Device& device, MaterialProgram material,
+                                 const unsigned bundleMode) {
+    struct Policy {
+        std::vector<std::pair<std::string,std::pair<bool,std::string>>> saved;
+        void set(const char* name,const char* value) {
+            const char* old=std::getenv(name);
+            saved.push_back({name,{old!=nullptr,old ? old : ""}});
+            need(setenv(name,value,1)==0,"cannot set native-tail test policy");
+        }
+        ~Policy() {
+            for(auto i=saved.rbegin();i!=saved.rend();++i)
+                if(i->second.first)setenv(i->first.c_str(),i->second.second.c_str(),1);
+                else unsetenv(i->first.c_str());
+        }
+    };
+    material.cacheExpressions=true;
+    auto authored=source(material,true,false);
+    authored.environmentCount=1u;
+    // Ten disjoint conforming tetrahedra span a full eight-tet group plus
+    // a partial group, so incorrect ICB grid dimensions cannot pass silently.
+    const auto original=authored.objects.front();
+    for(unsigned copy=1u;copy<5u;++copy) {
+        auto& object=authored.objects.front();
+        const auto base=static_cast<std::uint32_t>(object.femNodes.size());
+        for(auto node:original.femNodes) {
+            node[0]+=0.03*copy;object.femNodes.push_back(node);
+        }
+        for(auto tet:original.tetrahedra) {
+            for(auto& node:tet.nodes)node+=base;
+            object.tetrahedra.push_back(tet);
+        }
+        for(auto node:original.femFixedNodes)object.femFixedNodes.push_back(node+base);
+        object.femMaterialFrameRotations.insert(object.femMaterialFrameRotations.end(),
+            original.femMaterialFrameRotations.begin(),original.femMaterialFrameRotations.end());
+    }
+    authored.mixedSolver.cacheFEMAlgorithmicTangent=true;
+    authored.mixedSolver.newtonIterations=8u;
+    const auto make=[&](const bool cached) {
+        Policy policy;
+        policy.set("NM_FEM_NEWTON_TAIL_DISPATCH","1");
+        policy.set("NM_FEM_NEWTON_TAIL_ICB",cached ? "1" : "0");
+        policy.set("NM_FEM_STATELESS_TANGENT_BUNDLE",bundleMode==2u ? "2" : "1");
+        policy.set("NM_FEM_NATIVE_TANGENT_BUNDLE","0");
+        policy.set("NM_FEM_STATELESS_MATERIAL_SPECIALIZATION","1");
+        policy.set("NM_FEM_ALL_NATIVE_FLOAT_SPECIALIZATION","0");
+        return std::make_unique<Run>(device,authored);
+    };
+    auto direct=make(false),cached=make(true);
+    const auto compare=[&](const char* stage) {
+        const auto a=direct->state(),b=cached->state();
+        need(same(a.femNodes,b.femNodes)&&same(a.femMaterialState,b.femMaterialState)&&
+             same(a.femFields,b.femFields)&&same(a.solverCertificates,b.solverCertificates),
+             std::string("cooperative tail ICB changed accepted state/certificates at ")+stage);
+    };
+    direct->step(0u);cached->step(0u);compare("first accepted");
+    const auto accepted=direct->state(),cachedAccepted=cached->state();
+    direct->step(1u,0);cached->step(1u,0);compare("late rejection");
+    need(same(accepted.femNodes,direct->state().femNodes)&&
+         same(accepted.femMaterialState,direct->state().femMaterialState),
+         "native-tail late rejection advanced physical history");
+    direct->restore(accepted);cached->restore(cachedAccepted);
+    direct->step(1u);cached->step(1u);compare("replay accepted");
+    authored.objects.front().femInitialVelocity={0.0,0.0,0.0};
+    direct=make(false);cached=make(true);
+    direct->step(0u);cached->step(0u);compare("completed static Newton tails");
+    need(direct->state().statuses[0].fgmresIterations==0u &&
+         cached->state().statuses[0].fgmresIterations==0u,
+         "stationary fixture did not exercise zero-column completed tails");
+    std::cout<<"newton_tail_runtime=PASS bundle_mode="<<bundleMode
+        <<" accepted_state_bitwise=true "
+        "certificates_bitwise=true late_rejection_rollback=true replay=true static_completed_tail=true "
+        "scope=synthetic_one_environment_not_Human_qualification\n";
+}
 void checkAcceptedPlasticCacheActions(Device& device,
                                      MaterialProgram paperMaterial,
                                      const bool accurateMode){
@@ -1649,9 +1726,19 @@ int main(int argc,char** argv){@autoreleasepool{try{
             "function_constant31=undefined"<<std::endl;
         return 0;
     }
+    const char* tailICBCheck=std::getenv("NM_FEM_MATERIAL_TAIL_ICB_CHECK_ONLY");
+    need(tailICBCheck==nullptr || std::strcmp(tailICBCheck,"0")==0 ||
+         std::strcmp(tailICBCheck,"1")==0,
+         "NM_FEM_MATERIAL_TAIL_ICB_CHECK_ONLY must be 0 or 1");
     auto parsed=parseMatterFile(argv[1]);
     need(parsed.succeeded(),diagnostic(parsed.diagnostics));
     set(parsed.material,"density",1000); // synthetic only
+    if(tailICBCheck!=nullptr&&std::strcmp(tailICBCheck,"1")==0) {
+        Device device(false,false,true);
+        checkCooperativeTailRuntime(device,parsed.material,1u);
+        checkCooperativeTailRuntime(device,parsed.material,2u);
+        return 0;
+    }
     if(bundleCheckOnly!=nullptr && std::strcmp(bundleCheckOnly,"1")==0){
         Device bundleDevice(specializeStatelessMaterials);
         std::cout<<std::setprecision(17)<<"frame_device="

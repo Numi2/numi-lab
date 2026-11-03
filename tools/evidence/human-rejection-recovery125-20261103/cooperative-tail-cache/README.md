@@ -1,0 +1,15 @@
+# Complete the cooperative tangent cache command graph
+
+The opt-in Newton-tail command graph now supports cooperative tangent bundle mode 2 as well as the existing column modes. It records the existing cooperative builder with its exact eight-tetrahedron/96-thread work domain and existing arguments, resource ownership and barriers. The GPU convergence latch suppresses both cache preparation and construction. The host no longer launches a duplicate direct cooperative build when the cached graph executed it. Existing projection-reuse, material-subset, forced-rebuild and mixed-graph admission restrictions remain intact; exact native-material source hashes are still mandatory.
+
+Important scope correction: retained Human trials 009-011 used bundle mode 1, which already had tangent ICB support. The new work enables a mode-2 comparison; it is not a claimed fix to missing command caching in those mode-1 runs.
+
+The focused native runtime fixture tests column mode 1 and cooperative mode 2 against uncached execution, using ten conforming synthetic tetrahedra (one full eight-tet group plus a partial group). Accepted physical state and certificates are bitwise equal during motion, after a late external rejection, and after rollback/replay. A stationary zero-column case exercises completed Newton tails. The coupon uses the cooperative bytecode evaluator; the compiled native-expression source is pinned to the full Human material table and is deliberately not admitted for this different coupon. No hash restriction was bypassed. The existing native FGMRES kernel suite passes 810,131 checks.
+
+Retained setup failures: check 001 stopped while compiling unrelated generic instrument PSOs, so the focused checker now initializes only the device/library plus required production runtime pipelines. Checks 002-003 correctly rejected an incompatible native-expression source hash. Check 004 passed the initial two-tet fixture; check 005 passes both modes and the expanded ten-tet fixture. These are software integration tests, not anatomical qualification.
+
+The automatic diagnostic also reports min-producing contacts with positive bounds no greater than 1e-6, rather than only exactly zero bounds. This is read-only completion logging; it changes no GPU bound or physical decision. Bounded root-8 tracing is used for the next trial.
+
+Trial 011 is a negative convergence result for the separate vascular linear check: it accepted the same eight steps and rejected the same vascular row 5 as trial 010. Their compact coupled CSVs are byte-identical (SHA-256 ec13de094dfdca8baa1fc7e388edf363b405aaf631f0aca69f88f8dea3ca65da). This does not establish whole-mesh equivalence or solve the stall. Performance, supported rest, motion and 0.1x remain unqualified.
+
+A further 2.978 GiB was recovered by hardlinking only SHA-256-identical completed derived outputs, after checking file stability and device/inode ownership. The manifest preserves all identities; no sources or unique evidence were removed. Completed linked outputs must never be overwritten in place.

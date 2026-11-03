@@ -1,0 +1,5 @@
+{
+  "reason": "Stopped while preparing unrelated generic fixture PSOs; change focused checker to initialize only the device/library and production runtime PSOs it actually uses.",
+  "process": "28664 01:10 build-native/matter/numi-matter-fem-material-frame-check matter/materials/rodero2021_ventricular_guccione_passive.nmatter",
+  "outcome": "inconclusive_no_physical_trial_result"
+}

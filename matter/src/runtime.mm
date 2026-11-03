@@ -8997,7 +8997,7 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femNewtonTailICBRequested &&
             (world.mixedSolver.executionBudgets.w == 1u ||
              world.mixedSolver.executionBudgets.w == 2u) &&
-            candidate->femTangentBundleMode <= 1u &&
+            candidate->femTangentBundleMode <= 2u &&
             !candidate->femMaterialPipelinesEnabled &&
             !candidate->femCacheProjectionReuseEnabled &&
             !candidate->forceCompletedTangentCacheRebuild &&
@@ -9647,7 +9647,9 @@ RuntimeDiagnostics Runtime::initialize(
                 (std::strcmp(name,
                     "nm_fem_prepare_algorithmic_tangent_columns") == 0 ||
                  std::strcmp(name,
-                    "nm_fem_build_algorithmic_tangent_cache_columns") == 0);
+                    candidate->femTangentBundleMode == 2u
+                        ? "nm_fem_build_algorithmic_tangent_cache_bundle_cooperative"
+                        : "nm_fem_build_algorithmic_tangent_cache_columns") == 0);
             const bool newtonTailICBPipeline =
                 (candidate->femNewtonTailICBRequested &&
                  (std::strcmp(name, "nm_fem_internal_forces") == 0 ||
@@ -18560,19 +18562,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 state.femNewtonTailICBCacheEnabled
                     ? state.pipeline("nm_fem_prepare_algorithmic_tangent_columns")
                     : nil;
+            // Preserve the exact builder and its work domain in the ICB.
+            // A cooperative group covers eight tets with 96 threads.
+            const bool cooperativeCache = state.femTangentBundleMode == 2u;
+            const char* tangentCacheKernel = cooperativeCache
+                ? "nm_fem_build_algorithmic_tangent_cache_bundle_cooperative"
+                : "nm_fem_build_algorithmic_tangent_cache_columns";
+            const NSUInteger cacheThreads = cooperativeCache ? 96u : 256u;
             id<MTLComputePipelineState> tangentCachePipeline =
                 state.femNewtonTailICBCacheEnabled
-                    ? state.pipeline("nm_fem_build_algorithmic_tangent_cache_columns")
-                    : nil;
+                    ? state.pipeline(tangentCacheKernel) : nil;
             if (forcePipeline == nil || residualPipeline == nil ||
                 forcePipeline.maxTotalThreadsPerThreadgroup < 256u ||
                 residualPipeline.maxTotalThreadsPerThreadgroup < 256u ||
                 (state.femNewtonTailICBCacheEnabled &&
                  (tangentPreparePipeline == nil || tangentCachePipeline == nil ||
                   tangentPreparePipeline.maxTotalThreadsPerThreadgroup < 256u ||
-                  tangentCachePipeline.maxTotalThreadsPerThreadgroup < 256u))) {
+                  tangentCachePipeline.maxTotalThreadsPerThreadgroup < cacheThreads))) {
                 diagnostics.message =
-                    "Newton-tail ICB pipelines are unavailable or do not support 256-thread groups";
+                    "Newton-tail ICB pipelines do not support their force, residual or cache work domains";
                 return diagnostics;
             }
             struct NewtonTailICBConstants {
@@ -18703,7 +18711,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [prepareCacheCommand setBarrier];
 
                 id<MTLIndirectComputeCommand> buildCacheCommand =
-                    makeCommand("nm_fem_build_algorithmic_tangent_cache_columns");
+                    makeCommand(tangentCacheKernel);
                 bindCommandBuffer(buildCacheCommand, 2u, state.objects);
                 bindCommandBuffer(buildCacheCommand, 3u, state.materials);
                 bindCommandBuffer(buildCacheCommand, 4u, state.scalarPrograms);
@@ -18742,12 +18750,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     femNewtonTailICBConstants,
                     offsetof(NewtonTailICBConstants,
                              graphOnlyMixedCache));
+                const NSUInteger cacheTetrahedra =
+                    static_cast<NSUInteger>(state.dispatch.environmentCount) *
+                    state.dispatch.tetrahedronCount;
                 const NSUInteger buildGroups = std::max<NSUInteger>(1u,
-                    (static_cast<NSUInteger>(state.dispatch.environmentCount) *
-                     state.dispatch.tetrahedronCount * 9u + 255u) / 256u);
+                    cooperativeCache ? (cacheTetrahedra + 7u) / 8u
+                                     : (cacheTetrahedra * 9u + 255u) / 256u);
                 [buildCacheCommand concurrentDispatchThreadgroups:MTLSizeMake(
                     buildGroups, 1u, 1u)
-                    threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+                    threadsPerThreadgroup:MTLSizeMake(cacheThreads, 1u, 1u)];
                 [buildCacheCommand setBarrier];
             }
             id<MTLIndirectCommandBuffer> retainedNewtonTailICB = femNewtonTailICB;
@@ -28535,8 +28546,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 bytes + capturedMinimumWitnessValuesOffset)
                             : nullptr;
                     // Diagnostic readback only: the GPU owns every physical
-                    // bound. Healthy steps produce no expanded contact output.
-                    if(capturedZeroBoundOnly && capturedObjectCount>0u && lineSearch[0].x>0.0f)return;
+                    // bound. Report near-zero positive bounds too: they can stall a
+                    // Newton solve without ever generating a zero CCD witness.
+                    constexpr float stalledBoundTraceThreshold=1.0e-6f;
+                    if(capturedZeroBoundOnly && capturedObjectCount>0u &&
+                       lineSearch[0].x>stalledBoundTraceThreshold)return;
                     std::ostringstream line;
                     line << "fem_deformable_limit_trace={\"schema\":1,\"root\":"
                          << root << ",\"microtick\":" << tick
@@ -28581,7 +28595,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 static_cast<std::size_t>(environment) *
                                     capturedTraceSlots + activeSlot];
                             if (record.lineSearch.w != 1.0f ||
-                                (capturedZeroBoundOnly && record.lineSearch.y!=0.0f)) continue;
+                                (capturedZeroBoundOnly &&
+                                 record.lineSearch.y>stalledBoundTraceThreshold)) continue;
                             if (!firstRecord) line << ',';
                             firstRecord = false;
                             ++recorded;
@@ -36406,7 +36421,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         tetrahedronTotal, bindTangentCache, tangentPrepareDomain);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
-                if(state.femTangentBundleMode==2u) {
+                if(state.femTangentBundleMode==2u &&
+                   !femNewtonTailICBCacheEnabledForCurrentRoot) {
                     const char* cooperativeKernel =
                         "nm_fem_build_algorithmic_tangent_cache_bundle_cooperative";
                     if (state.femMaterialPipelinesEnabled) {
