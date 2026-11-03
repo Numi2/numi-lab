@@ -1,0 +1,307 @@
+{
+  "budget16-native-026": {
+    "native_exit": 0,
+    "elapsed_s_including_initialization_and_failed_attempt": 257.4042179584503,
+    "resource_stop_reason": null,
+    "accepted_steps": 4,
+    "accepted_time_s": 6.25000029686e-05,
+    "accepted_GPU_seconds": [
+      16.87541575,
+      17.5555775,
+      17.459745625,
+      17.446021375
+    ],
+    "accepted_GPU_mean_seconds": 17.3341900625,
+    "GPU_only_RTF": 9.01397754591512e-07,
+    "elapsed_inclusive_RTF": 2.4280876395773994e-07,
+    "last_terminal_certificate": {
+      "root": 3,
+      "status": [
+        {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            8.14787654e-06,
+            8.14787654e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00026195735,
+            8.14787654e-06,
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    "profiles": [
+      {
+        "step": "1",
+        "command_ms": "16881.852083",
+        "gpu_ms": "16875.41575",
+        "host_copy_ms": "0.4835",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "2",
+        "command_ms": "17556.178084",
+        "gpu_ms": "17555.5775",
+        "host_copy_ms": "0.1235",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "3",
+        "command_ms": "17460.81425",
+        "gpu_ms": "17459.745625",
+        "host_copy_ms": "0.104167",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "4",
+        "command_ms": "17447.091541",
+        "gpu_ms": "17446.021375",
+        "host_copy_ms": "0.063209",
+        "full_state_readback": "1"
+      }
+    ],
+    "claims": "Screen only; unbalanced release transient; no resting/motion/performance qualification; endpoint field comparison still required."
+  },
+  "thin-cell-native-027": {
+    "native_exit": 0,
+    "elapsed_s_including_initialization_and_failed_attempt": 262.4615287780762,
+    "resource_stop_reason": null,
+    "accepted_steps": 4,
+    "accepted_time_s": 6.25000029686e-05,
+    "accepted_GPU_seconds": [
+      18.783043499999998,
+      18.228268749999998,
+      19.3087171667,
+      18.333992583300002
+    ],
+    "accepted_GPU_mean_seconds": 18.6635055,
+    "GPU_only_RTF": 8.371953489659271e-07,
+    "elapsed_inclusive_RTF": 2.3813013774238414e-07,
+    "last_terminal_certificate": {
+      "root": 3,
+      "status": [
+        {
+          "code": 0,
+          "object_index": 4294967295,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            3.49519109e-06,
+            3.49519109e-06,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00026183555,
+            3.49519109e-06,
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    "profiles": [
+      {
+        "step": "1",
+        "command_ms": "18785.708",
+        "gpu_ms": "18783.0435",
+        "host_copy_ms": "0.185125",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "2",
+        "command_ms": "18228.917834",
+        "gpu_ms": "18228.26875",
+        "host_copy_ms": "0.130375",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "3",
+        "command_ms": "19309.476458",
+        "gpu_ms": "19308.7171667",
+        "host_copy_ms": "0.111042",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "4",
+        "command_ms": "18334.682209",
+        "gpu_ms": "18333.9925833",
+        "host_copy_ms": "0.051833",
+        "full_state_readback": "1"
+      }
+    ],
+    "claims": "Screen only; unbalanced release transient; no resting/motion/performance qualification; endpoint field comparison still required."
+  },
+  "thin-cell-horizon-native-028": {
+    "native_exit": 1,
+    "elapsed_s_including_initialization_and_failed_attempt": 5.016556978225708,
+    "resource_stop_reason": null,
+    "accepted_steps": 0,
+    "accepted_time_s": 0,
+    "accepted_GPU_seconds": [],
+    "accepted_GPU_mean_seconds": null,
+    "GPU_only_RTF": null,
+    "elapsed_inclusive_RTF": 0.0,
+    "last_terminal_certificate": null,
+    "profiles": [],
+    "claims": "Screen only; unbalanced release transient; no resting/motion/performance qualification; endpoint field comparison still required."
+  },
+  "thin-cell-horizon-native-029": {
+    "native_exit": 1,
+    "elapsed_s_including_initialization_and_failed_attempt": 397.54424810409546,
+    "resource_stop_reason": null,
+    "accepted_steps": 10,
+    "accepted_time_s": 0.000156250007421,
+    "accepted_GPU_seconds": [
+      19.16746975,
+      18.264338,
+      19.394468375,
+      18.26900525,
+      18.4122707083,
+      20.681613041699997,
+      18.5557169167,
+      18.3668355,
+      19.5307174167,
+      18.294135750000002
+    ],
+    "accepted_GPU_mean_seconds": 18.89365707084,
+    "GPU_only_RTF": 8.269971208546618e-07,
+    "elapsed_inclusive_RTF": 3.930380095930517e-07,
+    "last_terminal_certificate": {
+      "root": 10,
+      "status": [
+        {
+          "code": 10,
+          "object_index": 12,
+          "failing_index": 4294967295,
+          "completed_microsteps_at_certificate": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0.000258847344,
+            0.814235032,
+            0,
+            0
+          ]
+        }
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.24256405e-06,
+            0.000532700797,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.000595220074,
+            0.000532700797,
+            2.03715324,
+            0
+          ]
+        }
+      ]
+    },
+    "profiles": [
+      {
+        "step": "1",
+        "command_ms": "19173.443708",
+        "gpu_ms": "19167.46975",
+        "host_copy_ms": "0.580458",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "2",
+        "command_ms": "18264.946167",
+        "gpu_ms": "18264.338",
+        "host_copy_ms": "0.114",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "3",
+        "command_ms": "19395.0805",
+        "gpu_ms": "19394.468375",
+        "host_copy_ms": "0.07425",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "4",
+        "command_ms": "18269.615125",
+        "gpu_ms": "18269.00525",
+        "host_copy_ms": "0.053292",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "5",
+        "command_ms": "18412.899458",
+        "gpu_ms": "18412.2707083",
+        "host_copy_ms": "0.052375",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "6",
+        "command_ms": "20682.340042",
+        "gpu_ms": "20681.6130417",
+        "host_copy_ms": "0.050708",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "7",
+        "command_ms": "18556.406041",
+        "gpu_ms": "18555.7169167",
+        "host_copy_ms": "0.053667",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "8",
+        "command_ms": "18367.534542",
+        "gpu_ms": "18366.8355",
+        "host_copy_ms": "0.052208",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "9",
+        "command_ms": "19531.467416",
+        "gpu_ms": "19530.7174167",
+        "host_copy_ms": "0.053459",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "10",
+        "command_ms": "18294.8485",
+        "gpu_ms": "18294.13575",
+        "host_copy_ms": "0.054334",
+        "full_state_readback": "1"
+      }
+    ],
+    "claims": "Screen only; unbalanced release transient; no resting/motion/performance qualification; endpoint field comparison still required."
+  }
+}

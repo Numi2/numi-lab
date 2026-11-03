@@ -1,0 +1,70 @@
+{
+  "source": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/polynomial-prefix-native-025/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv.nodes.csv",
+  "nodes": [
+    {
+      "parent_node_index": "59536",
+      "compiled_global_node": "61202",
+      "current_x_m": "0.041102249175310135",
+      "current_y_m": "-0.067987747490406036",
+      "current_z_m": "0.078004918992519379",
+      "rest_x_m": "0.041102249175310135",
+      "rest_y_m": "-0.067987747490406036",
+      "rest_z_m": "0.078004918992519379",
+      "compiled_lumped_mass_kg": "1.3441334850705644e-11",
+      "node_frame_owner_body": "23",
+      "donor_local_x_m": "-0.065892840989771259",
+      "donor_local_y_m": "-0.030706475688316897",
+      "donor_local_z_m": "-0.055557147017204898",
+      "mass_bits": "762082916"
+    },
+    {
+      "parent_node_index": "59538",
+      "compiled_global_node": "61204",
+      "current_x_m": "0.041096888482570648",
+      "current_y_m": "-0.067987330257892609",
+      "current_z_m": "0.077979765832424164",
+      "rest_x_m": "0.041096888482570648",
+      "rest_y_m": "-0.067987330257892609",
+      "rest_z_m": "0.077979765832424164",
+      "compiled_lumped_mass_kg": "1.0829213579199859e-06",
+      "node_frame_owner_body": "23",
+      "donor_local_x_m": "-0.065887356831616839",
+      "donor_local_y_m": "-0.030688320190038532",
+      "donor_local_z_m": "-0.055574522127275219",
+      "mass_bits": "898717925"
+    },
+    {
+      "parent_node_index": "59547",
+      "compiled_global_node": "61213",
+      "current_x_m": "0.041354954242706299",
+      "current_y_m": "-0.067933201789855957",
+      "current_z_m": "0.079415582120418549",
+      "rest_x_m": "0.041354954242706299",
+      "rest_y_m": "-0.067933201789855957",
+      "rest_z_m": "0.079415582120418549",
+      "compiled_lumped_mass_kg": "2.1989997094351565e-06",
+      "node_frame_owner_body": "23",
+      "donor_local_x_m": "-0.066152317072223424",
+      "donor_local_y_m": "-0.031777770859615688",
+      "donor_local_z_m": "-0.054639648078894314",
+      "mass_bits": "907252359"
+    },
+    {
+      "parent_node_index": "59659",
+      "compiled_global_node": "61325",
+      "current_x_m": "0.041756749153137207",
+      "current_y_m": "-0.068500973284244537",
+      "current_z_m": "0.079679250717163086",
+      "rest_x_m": "0.041756749153137207",
+      "rest_y_m": "-0.068500973284244537",
+      "rest_z_m": "0.079679250717163086",
+      "compiled_lumped_mass_kg": "2.2801812065154081e-06",
+      "node_frame_owner_body": "23",
+      "donor_local_x_m": "-0.066556514209312925",
+      "donor_local_y_m": "-0.0315844092330081",
+      "donor_local_z_m": "-0.0540458799440987",
+      "mass_bits": "907609399"
+    }
+  ],
+  "interpretation": "Compiled rest positions and donor frame ownership only. No tissue-interface exclusion or physical plausibility claim."
+}

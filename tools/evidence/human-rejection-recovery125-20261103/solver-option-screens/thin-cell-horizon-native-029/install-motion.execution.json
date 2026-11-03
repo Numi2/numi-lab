@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 397.54424810409546,
+  "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/thin-cell-horizon-native-029/install-motion.plan.json",
+  "plan_sha256": "b8df027d1ac1bdb4027db94975094d4134dcb57914e394fd8203ab7a0991eabe",
+  "stdout_sha256": "5121a6be103f9086dc7814388585e14fe71867ef729b64ff7d6a7724881e7a7f",
+  "stderr_sha256": "1ff5cf09beca9f27286afd141b8204804154ea2252f99b43e0050c1d1ed13df6",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

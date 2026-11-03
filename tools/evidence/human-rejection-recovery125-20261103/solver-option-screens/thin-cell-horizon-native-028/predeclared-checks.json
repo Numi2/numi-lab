@@ -1,0 +1,10 @@
+{
+  "reference": "polynomial-prefix-native-025:12accepted thenroot12vascular residual failure",
+  "candidate": "Existing thin-cell Schwarz,11743cells32010nodes8627localpatches33.35MB, no equation/model/source/mass/timestep/threshold changes",
+  "short_screen": "All4stepsaccepted;slightlyslower. Test convergence beyondpreviousfailure; do not select forperformance",
+  "requested_steps": 16,
+  "dt_s": 1.5625e-05,
+  "mandatory": "Existing complete physical/residual/contact/geometry/acceptedstatechecks; no extra Newton/Krylovbudget,no hiddenassistance",
+  "evidence": "Four bounded accepted geometry captures at0,8,12,16;novisualverification;root12convergence trace",
+  "resource": ">=12GiBfree,onesubstantialGPUjob,sourceandbinaryfrozen;previouscompletedstaticoutputsbyteidenticallyhardlinked"
+}

@@ -1,0 +1,8 @@
+{
+  "independent_variable": "Enable existing admitted immutable thin-cell additive Schwarz on actual full-coordinate FEM/vascular owner",
+  "reference": "polynomial-prefix-native-025 first4steps,64 linear budget16Newton. No geometry/model/force/mass/timestep changes.",
+  "why_retest": "Previous thin-cell trials predates completed boundary/sweep/potential fixes and stopped after2steps; current baseline passes12. No predicted gain.",
+  "mandatory": "Existing selector6 and full true-residual certificate; no admission bypass, no coarse-coordinate approximation, no tolerance/clearance change",
+  "gates": "4accepted steps, existing1% numerical state comparison, same exact source pins; otherwise retainfailurewitness and do not adopt",
+  "performance": "WholeGPUstages compared; single short screennot sustained qualification; leave best fullscene config selected ifslower"
+}

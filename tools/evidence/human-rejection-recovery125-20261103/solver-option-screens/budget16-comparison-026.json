@@ -1,0 +1,245 @@
+{
+  "reference": [
+    18.494261583300002,
+    18.868115000000003,
+    17.9952610833,
+    17.8922745833
+  ],
+  "candidate": [
+    16.87541575,
+    17.5555775,
+    17.459745625,
+    17.446021375
+  ],
+  "mean_step_ratio": 1.0564369028173624,
+  "relative_GPU_time_reduction": 0.053421934302799845,
+  "accepted_steps": 4,
+  "CSV_values_byte_identical": false,
+  "differences": [
+    {
+      "step": 1,
+      "field": "blood_continuity_residual_accum_ml",
+      "reference": 1.11022302463e-10,
+      "candidate": 0.0,
+      "absolute": 1.11022302463e-10,
+      "relative": 1.0
+    },
+    {
+      "step": 1,
+      "field": "blood_physical_delta_accum_ml",
+      "reference": 1.11022302463e-10,
+      "candidate": 0.0,
+      "absolute": 1.11022302463e-10,
+      "relative": 1.0
+    },
+    {
+      "step": 1,
+      "field": "blood_endpoint_minus_physical_ml",
+      "reference": -1.11022302463e-10,
+      "candidate": 0.0,
+      "absolute": 1.11022302463e-10,
+      "relative": 1.0
+    },
+    {
+      "step": 1,
+      "field": "pre_projection_equality_residual_generalized_s",
+      "reference": 1.57973356618e-11,
+      "candidate": 2.81432099847e-11,
+      "absolute": 1.2345874322899999e-11,
+      "relative": 0.43868038967878253
+    },
+    {
+      "step": 1,
+      "field": "post_projection_equality_residual_generalized_s",
+      "reference": 1.57973356618e-11,
+      "candidate": 2.81432099847e-11,
+      "absolute": 1.2345874322899999e-11,
+      "relative": 0.43868038967878253
+    },
+    {
+      "step": 1,
+      "field": "equality_position_projection_max_generalized",
+      "reference": 2.22044604925e-16,
+      "candidate": 8.881784197e-16,
+      "absolute": 6.6613381477500005e-16,
+      "relative": 0.7500000000000001
+    },
+    {
+      "step": 2,
+      "field": "blood_continuity_residual_accum_ml",
+      "reference": -1.11022302463e-10,
+      "candidate": 4.4408920985e-10,
+      "absolute": 5.55111512313e-10,
+      "relative": 1.250000000001126
+    },
+    {
+      "step": 2,
+      "field": "blood_physical_delta_accum_ml",
+      "reference": -1.11022302463e-10,
+      "candidate": 4.4408920985e-10,
+      "absolute": 5.55111512313e-10,
+      "relative": 1.250000000001126
+    },
+    {
+      "step": 2,
+      "field": "blood_endpoint_minus_physical_ml",
+      "reference": 1.11022302463e-10,
+      "candidate": -4.4408920985e-10,
+      "absolute": 5.55111512313e-10,
+      "relative": 1.250000000001126
+    },
+    {
+      "step": 2,
+      "field": "gas_max_donor_fraction",
+      "reference": 5.61965280212e-05,
+      "candidate": 5.61965316592e-05,
+      "absolute": 3.6379999964679215e-12,
+      "relative": 6.473709122353534e-08
+    },
+    {
+      "step": 2,
+      "field": "pre_projection_equality_residual_generalized_s",
+      "reference": 3.09068326487e-11,
+      "candidate": 9.09503999891e-11,
+      "absolute": 6.00435673404e-11,
+      "relative": 0.6601792553699154
+    },
+    {
+      "step": 2,
+      "field": "post_projection_equality_residual_generalized_s",
+      "reference": 3.09068326487e-11,
+      "candidate": 3.16749959595e-11,
+      "absolute": 7.681633107999969e-13,
+      "relative": 0.024251409906482044
+    },
+    {
+      "step": 2,
+      "field": "equality_position_projection_max_generalized",
+      "reference": 8.881784197e-16,
+      "candidate": 7.1054273576e-15,
+      "absolute": 6.2172489379e-15,
+      "relative": 0.875
+    },
+    {
+      "step": 3,
+      "field": "blood_continuity_residual_accum_ml",
+      "reference": -4.4408920985e-10,
+      "candidate": 2.22044604925e-10,
+      "absolute": 6.66133814775e-10,
+      "relative": 1.5
+    },
+    {
+      "step": 3,
+      "field": "blood_physical_delta_accum_ml",
+      "reference": -4.4408920985e-10,
+      "candidate": 2.22044604925e-10,
+      "absolute": 6.66133814775e-10,
+      "relative": 1.5
+    },
+    {
+      "step": 3,
+      "field": "blood_endpoint_minus_physical_ml",
+      "reference": 0.000465661731397,
+      "candidate": 0.000465661065263,
+      "absolute": 6.661340000110351e-10,
+      "relative": 1.4305105081592423e-06
+    },
+    {
+      "step": 3,
+      "field": "gas_max_donor_fraction",
+      "reference": 5.61759297852e-05,
+      "candidate": 5.61759334232e-05,
+      "absolute": 3.6379999964679215e-12,
+      "relative": 6.476082861073511e-08
+    },
+    {
+      "step": 3,
+      "field": "pre_projection_equality_residual_generalized_s",
+      "reference": 1.19208798424e-05,
+      "candidate": 1.19208780234e-05,
+      "absolute": 1.8189999999280266e-12,
+      "relative": 1.525894081624945e-07
+    },
+    {
+      "step": 3,
+      "field": "post_projection_equality_residual_generalized_s",
+      "reference": 3.75769415584e-11,
+      "candidate": 2.28612684339e-11,
+      "absolute": 1.4715673124500003e-11,
+      "relative": 0.39161444530097583
+    },
+    {
+      "step": 3,
+      "field": "equality_velocity_projection_max_generalized_s",
+      "reference": 4.91127138957e-11,
+      "candidate": 5.82076609135e-11,
+      "absolute": 9.094947017800006e-12,
+      "relative": 0.15625000000112751
+    },
+    {
+      "step": 4,
+      "field": "blood_continuity_residual_accum_ml",
+      "reference": 0.0,
+      "candidate": -1.11022302463e-10,
+      "absolute": 1.11022302463e-10,
+      "relative": 1.0
+    },
+    {
+      "step": 4,
+      "field": "blood_physical_delta_accum_ml",
+      "reference": 0.0,
+      "candidate": -1.11022302463e-10,
+      "absolute": 1.11022302463e-10,
+      "relative": 1.0
+    },
+    {
+      "step": 4,
+      "field": "blood_endpoint_minus_physical_ml",
+      "reference": -0.000465661287308,
+      "candidate": -0.000465661176285,
+      "absolute": 1.1102299998398332e-10,
+      "relative": 2.384200770173749e-07
+    },
+    {
+      "step": 4,
+      "field": "gas_max_donor_fraction",
+      "reference": 5.61552624276e-05,
+      "candidate": 5.61552697036e-05,
+      "absolute": 7.275999999712107e-12,
+      "relative": 1.2956931803758495e-07
+    },
+    {
+      "step": 4,
+      "field": "pre_projection_equality_residual_generalized_s",
+      "reference": 1.07627906587e-10,
+      "candidate": 8.90216511618e-11,
+      "absolute": 1.8606255425199997e-11,
+      "relative": 0.17287575328021276
+    },
+    {
+      "step": 4,
+      "field": "post_projection_equality_residual_generalized_s",
+      "reference": 2.86139167915e-11,
+      "candidate": 4.86231055419e-11,
+      "absolute": 2.0009188750400002e-11,
+      "relative": 0.4115160586186228
+    },
+    {
+      "step": 4,
+      "field": "equality_position_projection_max_generalized",
+      "reference": 7.1054273576e-15,
+      "candidate": 3.5527136788e-15,
+      "absolute": 3.5527136788e-15,
+      "relative": 0.5
+    },
+    {
+      "step": 4,
+      "field": "equality_velocity_projection_max_generalized_s",
+      "reference": 9.09494701773e-11,
+      "candidate": 8.73114913702e-11,
+      "absolute": 3.637978807099998e-12,
+      "relative": 0.04000000000008794
+    }
+  ],
+  "scope": "single matched4step screen; no sustained qualification, no default budget reduction"
+}

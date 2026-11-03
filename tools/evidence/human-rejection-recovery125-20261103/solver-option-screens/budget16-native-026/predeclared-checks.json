@@ -1,0 +1,8 @@
+{
+  "hypothesis": "Current root9 trace shows max16 iterations per linear solve;64 budget may encode three unused restart cycles in this changed fine scene. Earlier older-model16-budget test did not improve; no promised gain.",
+  "reference": "polynomial-prefix-native-025 first4 accepted steps; same source, geometry, mass, loads, dt, tolerance, contact and rollback",
+  "independent_variable": "FGMRES budget64 ->16; same restart16 and Newton16",
+  "gates": "All4 accepted; <=1% numerical CSV endpoint/trace differences, exact source pins. Archive warm only affects initialization, which is reported separately.",
+  "measurement": "Whole accepted GPU step time; entire wrapper elapsed separately. Single short screen, not sustained, not0.1x qualification",
+  "limitations": "Lower budget must be retested beyond4steps before becoming default"
+}
