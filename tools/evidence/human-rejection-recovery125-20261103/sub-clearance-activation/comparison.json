@@ -1,0 +1,21 @@
+{
+  "baseline": "barrier-release-native-003",
+  "candidate": "close-gap-native-001",
+  "initial_contact_rhs_l2": {
+    "baseline": 0.0003516102754,
+    "candidate": 1.7062745097e-14
+  },
+  "precontact_rhs_l2": 7.8734251656e-05,
+  "active_newton_solves": 2,
+  "active_fgmres_columns": 13,
+  "final_mechanical_norm": 7.68753853e-06,
+  "mechanical_tolerance": 1.24999997e-05,
+  "final_vascular_norm": 3.9421991e-07,
+  "vascular_tolerance": 1e-05,
+  "accepted_steps": 0,
+  "final_status": 10,
+  "object": 15,
+  "scope": "Unbalanced release initialization; not supported rest or performance qualification.",
+  "regression": "Old shader fails captured positive conservative-plane lower-bound fixture; new shader passes 81670 GPU checks.",
+  "safety": "Unchanged 1 nm hard collision clearance, endpoint certification, CCD, material laws and acceptance gates. The reference plane certificate is a lower bound, not the measured closest distance."
+}

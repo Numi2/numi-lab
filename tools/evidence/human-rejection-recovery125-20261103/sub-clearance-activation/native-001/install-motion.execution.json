@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 247.2867467403412,
+  "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/close-gap-native-001/install-motion.plan.json",
+  "plan_sha256": "3b430f1a60c56942a0fa64ad68f1ecaa7118415645682fc00c5d7e809cebcccc",
+  "stdout_sha256": "59338a450fecf260486864c682611eceb35d80256feb24b2919a4a051be01a4b",
+  "stderr_sha256": "c2a2ca070dfdaff402c303174dc9f938336efd4788d428129ba1721bef4fea9e",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

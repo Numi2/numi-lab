@@ -5917,9 +5917,16 @@ inline float nmReferenceSelfContactBarrierWidth(
                     cross(edgeA,local[3u+(b+1u)%3u]-local[3u+b]),authored));
         }
     }
-    if (!isfinite(certifiedGap) || !(certifiedGap>2.0f*clearance))
+    if (!isfinite(certifiedGap) || !(certifiedGap>0.0f) ||
+        !isfinite(clearance) || !(clearance>0.0f))
         return authored;
-    return min(authored,0.5f*certifiedGap);
+    // A positive conservative gap bound can be below the collision clearance.
+    // Do not inflate that tiny contact to the global activation band. Keep a
+    // barrier width strictly above clearance; the independent hard-clearance,
+    // nonclosing-initial-contact and endpoint certificates remain mandatory.
+    const float minimumActivation=2.0f*clearance;
+    if(!isfinite(minimumActivation))return authored;
+    return min(authored,max(minimumActivation,0.5f*certifiedGap));
 }
 
 kernel void nm_contact_check_reference_self_width(

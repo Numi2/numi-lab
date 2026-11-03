@@ -14450,15 +14450,16 @@ void checkReferenceSelfContactWidth(
             "finite bounded reference width");
         if (v.x<authored) {
             ++adapted;
-            require(v.x>clearance && 2.0*double(v.x)<=gaps[i],
-                "adapted activation safely below exact Float32 rest gap");
+            require(v.x>clearance &&
+                    (v.x==2.0f*clearance || 2.0*double(v.x)<=gaps[i]),
+                "adapted activation preserves clearance and reference scale");
             require(double(v.y)<=gaps[i],"separating plane is lower distance bound");
             // A separating plane may conservatively underestimate the
             // minimum distance; no near-equality is needed for this rule.
-            require(v.y>2.0f*clearance,"adapted reference plane is certified");
+            require(v.y>0.0f,"adapted reference plane is certified");
         } else {
             ++unchanged;
-            require(gaps[i]>=2.0*authored || v.y<=2.0f*clearance || gaps[i]<0.0,
+            require(gaps[i]>=2.0*authored || v.y<=0.0f || gaps[i]<0.0,
                 "reference width retained only for distant or uncertified pair");
         }
     }
@@ -14491,6 +14492,37 @@ void checkReferenceSelfContactWidth(
         "world-space closest points lost the oblique Float32 reference gap");
     require(obliqueResult[1].x==123.0f&&obliqueResult[1].y==456.0f,
         "oblique reference-width output canary");
+    // Captured Float32 Human faces with positive sub-clearance rest gaps.
+    // Keep the existing collision clearance; avoid a 10um activation fallback.
+    const std::vector<nm_float4> closeReference{
+        {0x1.2bc61e0000000p-5f,-0x1.1bbfd00000000p-3f,0x1.9aea1c0000000p-4f,0},
+        {0x1.307aec0000000p-5f,-0x1.17104a0000000p-3f,0x1.9635c20000000p-4f,0},
+        {0x1.34214c0000000p-5f,-0x1.17261e0000000p-3f,0x1.a517f80000000p-4f,0},
+        {0x1.2c6c720000000p-5f,-0x1.1b27be0000000p-3f,0x1.92ebbc0000000p-4f,0},
+        {0x1.31c54e0000000p-5f,-0x1.195b620000000p-3f,0x1.a6bff40000000p-4f,0},
+        {0x1.3421500000000p-5f,-0x1.17261c0000000p-3f,0x1.a518020000000p-4f,0},
+        {0x1.3c29860000000p-5f,-0x1.9bf32e0000000p-4f,0x1.7b52f60000000p-3f,0},
+        {0x1.3cad8c0000000p-5f,-0x1.9ac2760000000p-4f,0x1.7adaba0000000p-3f,0},
+        {0x1.3cb9b80000000p-5f,-0x1.9a739a0000000p-4f,0x1.7b89640000000p-3f,0},
+        {0x1.3c2af60000000p-5f,-0x1.9be09e0000000p-4f,0x1.7b89720000000p-3f,0},
+        {0x1.3cb4ee0000000p-5f,-0x1.9ab16c0000000p-4f,0x1.7ad4020000000p-3f,0},
+        {0x1.49b3f00000000p-5f,-0x1.e1e16e0000000p-4f,0x1.75d0e00000000p-3f,0},
+    };
+    auto closeInput=makeBuffer(device,closeReference);
+    auto closeLimits=makeBuffer(device,std::vector<NativeFloat2>(2u,{1e-5f,1e-9f}));
+    auto closeOutput=makeBuffer(device,std::vector<NativeFloat2>(3u,{123.0f,456.0f}));
+    dispatch(device,queue,pipe,{{0u,closeInput},{1u,closeLimits},{2u,closeOutput},
+        {3u,makeBuffer(device,std::vector<unsigned>{2u})}},1u,32u);
+    const auto closeResults=readBuffer<NativeFloat2>(closeOutput,3u);
+    for(unsigned i=0;i<2u;++i) {
+        std::cout<<"close_reference_gap case="<<i<<" width="<<closeResults[i].x
+            <<" certified_gap="<<closeResults[i].y<<" clearance="<<1e-9f<<"\n";
+        require(closeResults[i].y>0.0f&&closeResults[i].y<2e-9f&&
+            closeResults[i].x>=2e-9f&&closeResults[i].x<=2.000001e-9f,
+            "positive sub-clearance source gap inflated its activation width");
+    }
+    require(closeResults[2].x==123.0f&&closeResults[2].y==456.0f,
+        "close reference width output canary");
     // Width is derived solely from immutable reference positions: current
     // positions are deliberately absent from this interface.
     std::cout<<"reference_self_contact_width cases="<<count<<" adapted="<<adapted

@@ -1,0 +1,69 @@
+indirect_mass_action_args active={1,1,1} completed={0,1,1} consumer=noop PASS
+source_mass_status_merge=true environments=6 first_failure_preserved=true PASS
+human_implicit_spring_reaction=true ticks=2 dofs=3 equal_opposite=true virtual_work=true failure_gated=true PASS
+hybrid_block_GS=true SPD_exact=true nonsymmetric_transpose_approximation=true selected_rows_preserved=true result=PASS
+partitioned_tangent_paired12=true bitwise=true two_env=true two_region=true partial_tail=true empty_tile=true invalid_action=true result=PASS
+empty_field_preconditioner=true poisoned_field=true pressure_w_preserved=true converged_rows_preserved=true accumulation_tail_parity=true result=PASS
+certified_empty_restart=true cases=7 support_rows=2 vascular_rows=4 final_cycle_forces_action=true result=PASS
+accepted_z0_owner_gate=true zero_fallback=true contact_invalidation=true dt_invalidation=true current_A_applied=true result=PASS
+regional_schur_Aii_extraction=exact descriptor_shapes=distinct bounds=guarded result=PASS\ngraph_patch_parallel_triangular_solve_dofs=192 pipeline=numi_matter_metal::nm_fgmres_graph_solve_patches static_scratch_bytes=18480 threads_per_group=256 partial_pivot=true refined=true trials=2 result=PASS
+graph_patch_parallel_triangular_solve_dofs=48 pipeline=numi_matter_metal::nm_fgmres_graph_solve_patches_capacity48 static_scratch_bytes=1200 threads_per_group=256 partial_pivot=true refined=true trials=2 result=PASS
+graph_patch_parallel_triangular_solve_dofs=96 pipeline=numi_matter_metal::nm_fgmres_graph_solve_patches_capacity96 static_scratch_bytes=2352 threads_per_group=256 partial_pivot=true refined=true trials=2 result=PASS
+graph_patch_parallel_triangular_solve_dofs=192 pipeline=numi_matter_metal::nm_fgmres_graph_solve_patches_capacity192 static_scratch_bytes=4656 threads_per_group=256 partial_pivot=true refined=true trials=2 result=PASS
+graph_patch_parallel_triangular_solve_dofs=384 pipeline=numi_matter_metal::nm_fgmres_graph_solve_patches_capacity384 static_scratch_bytes=9264 threads_per_group=256 partial_pivot=true refined=true trials=2 result=PASS
+graph_patch_parallel_triangular_solve_dofs=48 pipeline=numi_matter_metal::nm_fgmres_graph_solve_patches_capacity48_threads32 static_scratch_bytes=1200 threads_per_group=32 partial_pivot=true refined=true trials=2 result=PASS
+graph_patch_parallel_triangular_solve_dofs=96 pipeline=numi_matter_metal::nm_fgmres_graph_solve_patches_capacity96_threads32 static_scratch_bytes=2352 threads_per_group=32 partial_pivot=true refined=true trials=2 result=PASS
+schur_restart_recondensation=nonzero_local_residual prior_interface_solution=true physical_rhs_preserved=true result=PASS
+regional_schur_Aii_pivot=passed gamma_rhs=passed schur_action=passed recovery=passed equilibrated_ill_scaled=passed result=PASS
+regional_schur_due_rows=active_and_inactive_pass condensed_rhs=passed recovery=passed result=PASS
+schur_active_contact_cores=true zero_force=true all_six_corners=true active_list_only=true factor_solve_transform=true result=PASS
+operator_icb_gpu_ranges=true selected=5/9 converged_unhealthy_multienv=0/0 certification_state_unchanged=true result=PASS
+aggregate_cycle_icb_range=true active=full completed=empty selected_telemetry=verified telemetry_disabled=zero nonfinite_unhealthy_multienv=full consumer=verified result=PASS
+selector6_prefix_icb=true commands=6 columns=2 iteration_refresh=true converged_range=empty direct_parity=bitwise result=PASS
+selector6_vascular_prefix_icb=true cavity_diagonal_dependency=true principal_factor_dependency=true timestep_and_column_refresh=true completed_range=empty direct_parity=bitwise result=PASS
+fgmres_budget_exhaustion=true total_budget=true terminal_only=true converged_or_unhealthy_excluded=true result=PASS
+telemetry_domain_case vascular_rows=4 environments=2 fem_nodes=300 tiles_per_environment=2 inactive_transport_sentinels=true rigid_scalar_mask=true result=PASS
+telemetry_domain_case vascular_rows=0 environments=2 fem_nodes=300 tiles_per_environment=2 inactive_transport_sentinels=true rigid_scalar_mask=true result=PASS
+schur_original_rhs_norm=true condensed_arnoldi_norm=true full_residual_target=true result=PASS
+schur_domain_latch_uses_full_rhs=true condensed_arnoldi_norm_preserved=true result=PASS
+domain_nonlinear_latch=true separate_mechanical_vascular=true legacy_full_norm=true pressure_and_support_gates=true nonfinite_rejected=true result=PASS
+distributed_begin=true inactive_transport_mask=true distributed_correction=true mixed_pressure_field=true legacy_controls=true result=PASS
+inexact_newton_forcing=true full_rhs=true accepted_history=true restart_preserved=true reject_status_reset=true NaN_fallback=true support_gate=true no_op_preserved=true result=PASS
+distributed_CGS2=true environments=2 cancellation=true post_update_norm=true zero_breakdown=true result=PASS
+inactive_transport_tile_omission=true physical_offsets_preserved=true poison_excluded=true pressure_lane_retained=true result=PASS
+cgs2_ICB_range=true copied_segments=3 active_commands=9 direct_flat_parity=true converged_commands=0 active_transport_row_retained=true zero_range_state_unchanged=true result=PASS
+vascular_arnoldi_absolute_target=true estimates=5e-5,5e-6 result=PASS
+true_residual_measurement_nodes=4096 unknown_rows=8192 constrained_mechanical_rows=16 constrained_field_rows=16 distributed_vs_legacy=true invalid_rigid_tail_rejected=true measurement_only=true full_FEM_operator_qualified=false result=PASS
+true_residual_measurement_nodes=8192 unknown_rows=16384 constrained_mechanical_rows=32 constrained_field_rows=32 distributed_vs_legacy=true invalid_rigid_tail_rejected=true measurement_only=true full_FEM_operator_qualified=false result=PASS
+hybrid_tail_true_residual=true rigid=9 q=2 support=2 vascular=3 inactive_field_padding=2 prelatched=true replacement=true result=PASS\nordinary_tail_true_residual=true rigid=9 q=0 support=2 vascular=3 inactive_field_padding=4 prelatched=true replacement=true result=PASS\nhybrid_full_physical_linear_residual=true projected_q_l2=1.06066 full_physical_l2=1.76777 acceptance_gate_changed=false result=PASS
+fresh_rhs_preconditioner_begin_verify=true cases=match,mismatch,nonfinite_actual,no_skips,unhealthy result=PASS
+zero-step contact geometry reuse marker and builder PASS
+reference_contact_arithmetic_frame=true production_limiter=true translation_invariant=true authored_clearance_preserved=true crossing_limited=true nonfinite_rejected=true legacy_unchanged=true result=PASS
+compensated_contact_energy trial=0 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=1 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=2 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=3 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=4 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=5 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=6 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=7 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=8 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=9 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=10 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=11 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=12 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_mollifier Float64_value_and_gradient=true scales=3 degenerate_and_nonfinite=true result=PASS
+left_row_scale_native=true equations=SA_Minv_and_SA_Minv_Sinv raw_physical_residual=3.701788875e-15 arnoldi_reference=scaled raw_certificate=preserved result=PASS
+oblique_reference_gap native_width=4.301590195e-09 certified_gap=8.60318039e-09 Float64_gap=8.603189427e-09
+close_reference_gap case=0 width=1.999999943e-09 certified_gap=4.02855839e-11 clearance=9.999999717e-10
+close_reference_gap case=1 width=1.999999943e-09 certified_gap=4.281948962e-10 clearance=9.999999717e-10
+reference_self_contact_width cases=97 adapted=56 unchanged=41 exact_Float32_gap=true clearance_preserved=true canaries=4 PASS
+resolved_mollifier_curvature cases=52 Float64=true PSD=true residual_equations=unchanged canaries=4 result=PASS
+paired_contact_energy native_trials=22 Float64_max_relative=3.47610829e-13 sign_checks=17 canaries=4 result=PASS
+captured_plane_case=0 fraction=0.02211580426
+captured_plane_case=1 fraction=1
+captured_plane_case=2 fraction=0.3064568639
+captured_plane_case=3 fraction=0.008761361241
+captured_plane_case=4 fraction=1
+reference_plane_certificate=true exact_Float32_inputs=true Float64_clearance=true captured_zero_hit_refined=true invalid_rejected=true cases=172 certified=79 result=PASS
+PASS native FGMRES true-residual kernel contract 81670 checks; correction_accumulated=true; unit_action=true; full_FEM_operator_qualification=false
