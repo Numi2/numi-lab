@@ -1,0 +1,94 @@
+{
+  "README.md": {
+    "sha256": "efbcf515273b3f8f27882742519894c3f7c69d24ddf0012e45cdb45b6b522fe1",
+    "bytes": 2349
+  },
+  "existing-hybrid-bounded-trial-proposal.json": {
+    "sha256": "52b371f075f099de3a31bb1934a33e223680988c517ad1d01ba19bacdc979725",
+    "bytes": 2503
+  },
+  "measurements.json": {
+    "sha256": "5ab8b3cbca8e9dfcff31093abacde607d3ce01e794ed16437e49c95e65ae3a3a",
+    "bytes": 4136
+  },
+  "polynomial-prefix-before-001.log": {
+    "sha256": "e218fbd4a265190baf0b5b34176130423a90ae0a4a6864565863342c11cc81b4",
+    "bytes": 916
+  },
+  "polynomial-prefix-build-002.log.gz": {
+    "sha256": "3ace8be9b53f25e2382d2ee410434eda4c63d8add902524f4236e1d5af7af50a",
+    "bytes": 1302
+  },
+  "polynomial-prefix-candidate.fragment": {
+    "sha256": "7253570237eb3843d474e5349b187ab7a8092ce7c781a6c820f1c5ff5739282e",
+    "bytes": 6333
+  },
+  "polynomial-prefix-fixture.fragment": {
+    "sha256": "ba85ae32c7a28814db14f4b11f89dadce9de5be9c619e36da38df461e95b344e",
+    "bytes": 5242
+  },
+  "polynomial-prefix-focused-002.log": {
+    "sha256": "6c1ae34135349b014b1d05fe4753be2d6dff8f70b60295e8adb51654e0c8169a",
+    "bytes": 1411
+  },
+  "polynomial-prefix-native-025/build-manifest.json": {
+    "sha256": "14512cdf8ee7d5d215b48f9b97e2658dc4d7ef2ec16f0ecd179be4d2b1f94a31",
+    "bytes": 6971
+  },
+  "polynomial-prefix-native-025/common-field-failure.json": {
+    "sha256": "3e88cad9dd6b1177721417f9ccc3829953a28966a33528e01097c63160bd2062",
+    "bytes": 4223
+  },
+  "polynomial-prefix-native-025/execution-source-snapshots.tar.gz": {
+    "sha256": "06cceed3583c180d95936240b7afa934d81a3eb055fe96fe58a4b3c4218cb78a",
+    "bytes": 1626428
+  },
+  "polynomial-prefix-native-025/execution-source.patch.gz": {
+    "sha256": "113fff9fe76c731e70539a5f7df9a89355915eca88e99541832ff970577846fa",
+    "bytes": 300472
+  },
+  "polynomial-prefix-native-025/install-motion.execution.json": {
+    "sha256": "0e3dd07fffc7906bdd3293d4bcd1a0f0d8372b6c138579188cc66700c9009ac7",
+    "bytes": 747
+  },
+  "polynomial-prefix-native-025/install-motion.plan.json": {
+    "sha256": "7869cc9ef12f4fbcb7b3529a745ead167aa3aa0bfc8bd1042d55500c753f41c5",
+    "bytes": 96822
+  },
+  "polynomial-prefix-native-025/install-motion.stderr.log.gz": {
+    "sha256": "3fd059bc7fc82c00573bd0fa40f1263e27e0adcbafcd70d82c0afb1fe195d79c",
+    "bytes": 21698
+  },
+  "polynomial-prefix-native-025/install-motion.stdout.log.gz": {
+    "sha256": "76d64e8e1d2f72aac4ee0de39527c225a954a69d233430e74dabbf8a72cf3aa2",
+    "bytes": 42946
+  },
+  "polynomial-prefix-native-025/predeclared-checks.json": {
+    "sha256": "40ea8380f260296b71f33a6b7d7afae9e79f41c2a968896f06686c0e3d71bd8e",
+    "bytes": 898
+  },
+  "polynomial-prefix-native-025/resource-monitor.jsonl": {
+    "sha256": "5ba89e63cefa347904aeb8465c50820b9e0e32f914d15f11a4e31ae451950856",
+    "bytes": 13601
+  },
+  "polynomial-prefix-native-025/resting-coupled.csv": {
+    "sha256": "c6592331c99db96431af4446c48194d48f2d38d7dfbc7831e161ce3b2dc38b89",
+    "bytes": 10250
+  },
+  "polynomial-prefix-native-025/run_native_plan.py": {
+    "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f",
+    "bytes": 4730
+  },
+  "polynomial-prefix-native-025/runner.log": {
+    "sha256": "25504760184ed0e95e9c5797a30c01529303eb93dc1b4f4342f5d9f7a4fafa09",
+    "bytes": 9727
+  },
+  "polynomial-prefix-regression-002.log": {
+    "sha256": "cdfb0223362ff0b1712b8801f5905bb7d5974fb878eec41368dc6f2953bf17b3",
+    "bytes": 13260
+  },
+  "polynomial-prefix-scoped.patch": {
+    "sha256": "7f53235ca41802ec1bd4a57be05d3166ffa326fc08a78b26bb9cd6c9bac2a5e3",
+    "bytes": 13164
+  }
+}

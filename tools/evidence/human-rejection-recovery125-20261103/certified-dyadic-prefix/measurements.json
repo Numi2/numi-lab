@@ -1,0 +1,238 @@
+{
+  "accepted_steps": 12,
+  "accepted_duration_s": 0.0001875,
+  "mean_accepted_gpu_step_s": 19.907360701375,
+  "accepted_gpu_step_s": [
+    18.494261583300002,
+    18.868115000000003,
+    17.9952610833,
+    17.8922745833,
+    17.856985124999998,
+    19.0734867083,
+    17.996666,
+    22.977053875000003,
+    18.9513320833,
+    21.78640775,
+    18.179203875,
+    28.817280750000002
+  ],
+  "accepted_GPU_only_RTF": 7.848855624000816e-07,
+  "accepted_duration_over_entire_trial_wall_RTF_not_sustained": 3.188363929875785e-07,
+  "elapsed_s_including_preparation_and_rejected_attempt": 588.0759038925171,
+  "qualified_0_1x": false,
+  "sustained_qualification": false,
+  "prior_barrier_trial_accepted_steps": 9,
+  "captured_certified_prefix_before": 0.00558266789,
+  "captured_certified_prefix_after": 0.25,
+  "physical_admission": false,
+  "root9_nonlinear_trace": [
+    {
+      "iteration": 0,
+      "alpha": [
+        0.5
+      ],
+      "nonlinear": [
+        0.000558910309,
+        0.000558910309,
+        2.49148607,
+        0
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 1,
+      "alpha": [
+        0.155162364
+      ],
+      "nonlinear": [
+        0.000558910309,
+        0.000280440028,
+        1.00009406,
+        0
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 2,
+      "alpha": [
+        0.0781150386
+      ],
+      "nonlinear": [
+        0.000558910309,
+        0.000237017768,
+        0.73146677,
+        0
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 3,
+      "alpha": [
+        0.626986384
+      ],
+      "nonlinear": [
+        0.000558910309,
+        0.000218587287,
+        0.637860119,
+        0
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 4,
+      "alpha": [
+        0.0625
+      ],
+      "nonlinear": [
+        0.000558910309,
+        8.22168731e-05,
+        0.170022324,
+        0
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 5,
+      "alpha": [
+        1
+      ],
+      "nonlinear": [
+        0.000558910309,
+        7.71090708e-05,
+        0.157724991,
+        0
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 6,
+      "alpha": [
+        1
+      ],
+      "nonlinear": [
+        0.000558910309,
+        9.30288843e-06,
+        0,
+        1
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 7,
+      "alpha": [
+        1
+      ],
+      "nonlinear": [
+        0.000558910309,
+        9.30288843e-06,
+        0,
+        1
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 8,
+      "alpha": [
+        1
+      ],
+      "nonlinear": [
+        0.000558910309,
+        9.30288843e-06,
+        0,
+        1
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 9,
+      "alpha": [
+        1
+      ],
+      "nonlinear": [
+        0.000558910309,
+        9.30288843e-06,
+        0,
+        1
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 10,
+      "alpha": [
+        1
+      ],
+      "nonlinear": [
+        0.000558910309,
+        9.30288843e-06,
+        0,
+        1
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 11,
+      "alpha": [
+        1
+      ],
+      "nonlinear": [
+        0.000558910309,
+        9.30288843e-06,
+        0,
+        1
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 12,
+      "alpha": [
+        1
+      ],
+      "nonlinear": [
+        0.000558910309,
+        9.30288843e-06,
+        0,
+        1
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 13,
+      "alpha": [
+        1
+      ],
+      "nonlinear": [
+        0.000558910309,
+        9.30288843e-06,
+        0,
+        1
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 14,
+      "alpha": [
+        1
+      ],
+      "nonlinear": [
+        0.000558910309,
+        9.30288843e-06,
+        0,
+        1
+      ],
+      "linear_max_used": 16
+    },
+    {
+      "iteration": 15,
+      "alpha": [
+        1
+      ],
+      "nonlinear": [
+        0.000558910309,
+        9.30288843e-06,
+        0,
+        1
+      ],
+      "linear_max_used": 16
+    }
+  ]
+}

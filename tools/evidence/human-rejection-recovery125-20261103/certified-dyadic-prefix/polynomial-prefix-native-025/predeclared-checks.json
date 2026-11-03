@@ -1,0 +1,8 @@
+{
+  "change": "Certify up to four dyadic prefixes on a positive restricted reference sweep; original-endpoint outward interval proof, unchanged clearance and fallback",
+  "unit_contract": "816990 checks pass. Captured native witness prefix .00558266789 -> .25; unsafe full sweep remains rejected;1728 rotating controls including analytic positive-prefix bounds pass",
+  "native_gate": "16 matched requested steps at15.625us;16 Newton budget; unchanged physical/contact/geometry/residual/accepted-state checks",
+  "diagnostics": "Newton/backtracking trace root9 matches prior first failing root",
+  "cache": "Existing optional Metal pipeline archive enabled at new empty path; initialization separately reported; never count caching as steady-state physics gain",
+  "forecast": "No predicted throughput or accepted horizon. One substantial GPU run; sources and binaries frozen through completion"
+}

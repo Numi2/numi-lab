@@ -1,0 +1,197 @@
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -13519,10 +13519,20 @@
+ // entire sweep. Norm convexity bounds the axis length by its three control norms.
+ // Strict lower bounds for all coefficients therefore certify the SAME clearance,
+ // while allowing the separating plane to rotate with deforming thin features.
+-inline bool nmReferenceContactPolynomialSweepSeparated(
++inline bool nmReferenceContactPolynomialPrefixSeparated(
+     uint kind,thread const MRCompensatedPositionGPU* start,
+-    thread const MRCompensatedPositionGPU* finish,float3 normal,float clearance) {
+-    if(!isfinite(clearance)||!(clearance>0.0f))return false;
++    thread const MRCompensatedPositionGPU* finish,float3 normal,float clearance,float endFraction) {
++    if(!isfinite(clearance)||!(clearance>0.0f)||!(endFraction>0.0f)||
++       !(endFraction<=1.0f))return false;
++    // Approximate interpolation chooses an arbitrary axis only. The proof
++    // below projects the ORIGINAL endpoints and bounds their exact affine
++    // interpolation, so no represented position is silently rounded away.
++    MRCompensatedPositionGPU chosenFinish[4];
++    const uint featureCount=kind==NM_DEFORMABLE_CONTACT_POINT_POINT?2u:4u;
++    for(uint i=0u;i<featureCount;++i)
++        chosenFinish[i]=endFraction==1.0f?finish[i]:mrCompensatedVectorAdd(
++            mrCompensatedVectorScale(start[i],{1.0f-endFraction,0.0f}),
++            mrCompensatedVectorScale(finish[i],{endFraction,0.0f}));
+     uint firstCount=1u,secondBegin=1u,secondCount=1u;
+     MRCompensatedPositionGPU axis[3];
+     if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE ||
+@@ -13534,16 +13544,16 @@
+         const uint b0=kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE?1u:2u;
+         const uint b1=3u;
+         const auto u0=mrCompensatedVectorAdd(start[a1],mrCompensatedVectorNegate(start[a0]));
+-        const auto u1=mrCompensatedVectorAdd(finish[a1],mrCompensatedVectorNegate(finish[a0]));
++        const auto u1=mrCompensatedVectorAdd(chosenFinish[a1],mrCompensatedVectorNegate(chosenFinish[a0]));
+         const auto v0=mrCompensatedVectorAdd(start[b1],mrCompensatedVectorNegate(start[b0]));
+-        const auto v1=mrCompensatedVectorAdd(finish[b1],mrCompensatedVectorNegate(finish[b0]));
++        const auto v1=mrCompensatedVectorAdd(chosenFinish[b1],mrCompensatedVectorNegate(chosenFinish[b0]));
+         axis[0]=mrCompensatedVectorCross(u0,v0);
+         axis[1]=mrCompensatedVectorScale(mrCompensatedVectorAdd(
+             mrCompensatedVectorCross(u0,v1),mrCompensatedVectorCross(u1,v0)),{0.5f,0.0f});
+         axis[2]=mrCompensatedVectorCross(u1,v1);
+     } else if(kind==NM_DEFORMABLE_CONTACT_POINT_POINT) {
+         axis[0]=mrCompensatedVectorAdd(start[0],mrCompensatedVectorNegate(start[1]));
+-        axis[2]=mrCompensatedVectorAdd(finish[0],mrCompensatedVectorNegate(finish[1]));
++        axis[2]=mrCompensatedVectorAdd(chosenFinish[0],mrCompensatedVectorNegate(chosenFinish[1]));
+         axis[1]=mrCompensatedVectorScale(mrCompensatedVectorAdd(axis[0],axis[2]),{0.5f,0.0f});
+     } else return false;
+     const float alignment=dot(axis[0].high.xyz+axis[0].low.xyz,normal);
+@@ -13570,6 +13580,10 @@
+                 nmContactProjectionIntervalRefined(pa,pb,axis[c].low.xyz));
+             if(!isfinite(projection[c][e].lower)||!isfinite(projection[c][e].upper))return false;
+         }
++        if(endFraction<1.0f)for(uint c=0u;c<3u;++c)
++            projection[c][1]=nmContactIntervalAdd(
++                nmContactIntervalScale(projection[c][0],1.0f-endFraction),
++                nmContactIntervalScale(projection[c][1],endFraction));
+         // Division by exact3 is rounded outward; stored1/3 coefficients would
+         // not enclose the exact cubic and are deliberately avoided.
+         const auto sum1=nmContactIntervalAdd(projection[0][1],
+@@ -13595,8 +13609,18 @@
+     if(fraction==1.0f)return fraction;
+     fraction=max(fraction,nmReferenceContactCompensatedPlaneFraction(kind,start,finish,
+         nmReferenceContactFeatureAxis(kind,finish),normal,clearance));
+-    if(fraction>0.0f && fraction<1.0f &&
+-       nmReferenceContactPolynomialSweepSeparated(kind,start,finish,normal,clearance))return 1.0f;
++    if(fraction>0.0f && fraction<1.0f) {
++        if(nmReferenceContactPolynomialPrefixSeparated(kind,start,finish,normal,clearance,1.0f))
++            return 1.0f;
++        // A real closing sweep must not force a needlessly tiny global step
++        // merely because no fixed plane tracks its rotating feature. Each
++        // returned dyadic prefix is certified over its ENTIRE time interval.
++        // Four bounded attempts; unchanged fallback if none proves separation.
++        float prefix=0.5f;
++        for(uint attempt=0u;attempt<4u&&prefix>fraction;++attempt,prefix*=0.5f)
++            if(nmReferenceContactPolynomialPrefixSeparated(kind,start,finish,normal,clearance,prefix))
++                return prefix;
++    }
+     return fraction;
+ }
+ 
+--- a/matter/tools/fgmres_true_residual_native_check.mm
++++ b/matter/tools/fgmres_true_residual_native_check.mm
+@@ -4628,12 +4628,92 @@
+             std::cerr<<"rotating_sweep_failure case="<<i<<" margin="<<results[i].x<<" fraction="<<results[i].y<<'\n';
+         require(results[i].x==parameters[2*i+1].x,"rotating control immutable reference margin");
+         require((results[i].y==1.0f)==expected[i],"rotating sweep safe/crossing/within-clearance control");
++        if(i%4u==1u)require(results[i].y<0.05f,
++            "closing crossing certified past known clearance time");
++        if(i%4u==2u)require(results[i].y<0.175f,
++            "within-margin endpoint certified past known clearance time");
++        if(i%4u==3u)require(results[i].y==0.0f,
++            "initially within-margin control accepted a positive prefix");
+         full+=results[i].y==1.0f;
+     }
+     require(results[count].x==91.25f&&results[count].y==-73.5f,"rotating sweep output guard");
+     std::cout<<"polynomial_rotating_controls=true VT_EE_PP=true scale_1e6_span=true "
+         "translated=true safe_and_crossing_controls=true cases="<<count<<" full="<<full<<" PASS\n";
+ }
++
++void checkPolynomialPrefixSweep(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
++    auto kernel=pipeline(device,library,"numi_matter_metal::nm_contact_reference_rest_sweep_check");
++    const float ah[4][3]={{-0x1.5efe300000000p-29f,-0x1.8061180000000p-29f,-0x1.4403640000000p-25f},{-0x1.67e8b80000000p-18f,0x1.bbfd560000000p-22f,-0x1.a6be240000000p-16f},{0x1.5725480000000p-11f,-0x1.0d14580000000p-11f,0x1.b6e75c0000000p-10f},{0x1.08fa580000000p-12f,0x1.c988fe0000000p-15f,0x1.71c93a0000000p-10f}};
++    const float al[4][3]={{0x1.661bea0000000p-54f,0x1.d4bd560000000p-54f,0x1.3f301e0000000p-50f},{0x1.5012f20000000p-45f,0x1.7c6ece0000000p-48f,-0x1.14417a0000000p-41f},{0x1.1e98f20000000p-36f,0x1.e1f2b20000000p-36f,-0x1.9a6d760000000p-35f},{0x1.2f55ae0000000p-39f,0x1.cf561e0000000p-40f,-0x1.7593160000000p-36f}};
++    const float bh[4][3]={{-0x1.9bb7bc0000000p-29f,-0x1.19b45a0000000p-28f,-0x1.95b5e20000000p-25f},{-0x1.67f4d80000000p-18f,0x1.ba87f40000000p-22f,-0x1.a6edb80000000p-16f},{0x1.5725400000000p-11f,-0x1.0d14740000000p-11f,0x1.b6e68a0000000p-10f},{0x1.08fa280000000p-12f,0x1.c986a60000000p-15f,0x1.71c88e0000000p-10f}};
++    const float bl[4][3]={{-0x1.8fbca00000000p-57f,-0x1.c460cc0000000p-55f,-0x1.9908760000000p-50f},{0x1.39d8d60000000p-43f,0x1.482e0e0000000p-47f,-0x1.15d4fa0000000p-41f},{-0x1.e429060000000p-38f,-0x1.16277a0000000p-36f,-0x1.e44cfa0000000p-35f},{-0x1.a033a60000000p-37f,-0x1.1c91fa0000000p-40f,0x1.f473da0000000p-35f}};
++    const nm_float4 normal={0x1.ae0a560000000p-1f,0x1.07d0ce0000000p-1f,-0x1.5cf43c0000000p-3f,0.0f};
++
++    std::vector<MRCompensatedPositionGPU> points;
++    std::vector<nm_float4> parameters;
++    std::vector<bool> expectedFull;
++    for(unsigned mode=0;mode<7;++mode) {
++        MRCompensatedPositionGPU a[4]{},b[4]{},rest[4]{};
++        for(unsigned v=0;v<4;++v) {
++            for(unsigned k=0;k<3;++k) {
++                reinterpret_cast<float*>(&a[v].high)[k]=ah[v][k];
++                reinterpret_cast<float*>(&a[v].low)[k]=al[v][k];
++                reinterpret_cast<float*>(&b[v].high)[k]=bh[v][k];
++                reinterpret_cast<float*>(&b[v].low)[k]=bl[v][k];
++            }
++            rest[v]=a[v];
++        }
++        // The immutable reference in the counterexamples is well clear.
++        rest[0].high.x+=normal.x*1e-7f;
++        rest[0].high.y+=normal.y*1e-7f;
++        rest[0].high.z+=normal.z*1e-7f;
++        if(mode==1)for(unsigned v=0;v<4;++v)b[v]=a[v]; // static
++        if(mode==2)for(unsigned v=0;v<4;++v)std::swap(a[v],b[v]); // reversed
++        if(mode==3) { // true closing crossing
++            b[0].high.x-=normal.x*5e-9f;
++            b[0].high.y-=normal.y*5e-9f;
++            b[0].high.z-=normal.z*5e-9f;
++        }
++        if(mode==4)b[0].low.x=std::numeric_limits<float>::quiet_NaN();
++        // Do not promote an initially within-clearance feature to a full sweep.
++        const float clearance=mode==5?1.01e-9f:1e-9f;
++        if(mode==6) { // larger local coordinates, same exact compensated geometry
++            for(unsigned v=0;v<4;++v) for(auto* p:{&a[v],&b[v],&rest[v]}) {
++                const double x=double(p->high.x)+double(p->low.x)+.5;
++                p->high.x=float(x);p->low.x=float(x-double(p->high.x));
++            }
++        }
++        for(auto p:rest)points.push_back(p);
++        for(auto p:a)points.push_back(p);
++        for(auto p:b)points.push_back(p);
++        parameters.push_back(normal);parameters.push_back({clearance,0,0,0});
++        expectedFull.push_back(mode==1);
++    }
++    const std::uint32_t count=expectedFull.size();
++    const nm_float4 guard={91.25f,-73.5f,22.75f,-11.125f};
++    auto pb=makeBuffer(device,points);auto ab=makeBuffer(device,parameters);
++    auto out=makeBuffer(device,std::vector<NativeFloat2>(count+1,{guard.x,guard.y}));
++    id<MTLCommandBuffer> cb=[queue commandBuffer];id<MTLComputeCommandEncoder> enc=[cb computeCommandEncoder];
++    [enc setComputePipelineState:kernel];[enc setBuffer:pb offset:0 atIndex:0];
++    [enc setBuffer:ab offset:0 atIndex:1];[enc setBuffer:out offset:0 atIndex:2];
++    [enc setBytes:&count length:sizeof(count) atIndex:3];
++    [enc dispatchThreads:MTLSizeMake(count+1,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
++    [enc endEncoding];[cb commit];[cb waitUntilCompleted];
++    require(cb.status==MTLCommandBufferStatusCompleted,"polynomial sweep fixture command failed");
++    auto result=readBuffer<NativeFloat2>(out,count+1);
++    for(unsigned i=0;i<count;++i) {
++        std::cout<<"polynomial_prefix_case="<<i<<" margin="<<result[i].x<<" fraction="<<result[i].y<<'\n';
++        require((result[i].y==1.0f)==expectedFull[i],"polynomial prefix full-clearance control mismatch");
++        if(i==0u||i==6u)require(result[i].y>=0.125f&&result[i].y<=0.25f,
++            "captured rotating closing sweep lost certified useful prefix");
++        if(i==2u||i==4u||i==5u)require(result[i].y==0.0f,
++            "invalid or initially within-clearance prefix accepted");
++    }
++    require(result[count].x==guard.x&&result[count].y==guard.y,"polynomial sweep output canary");
++    std::cout<<"polynomial_prefix_sweep=true second_exact_compensated_native_witness=true "
++        "same_clearance=true useful_prefix=true actual_full_crossing_not_full=true cases="<<count<<" PASS\n";
++}
++
+ 
+ void checkPolynomialReferenceSweep(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+     auto kernel=pipeline(device,library,"numi_matter_metal::nm_contact_reference_rest_sweep_check");
+@@ -16548,6 +16628,7 @@
+             if(argc==2&&std::string(argv[1])=="--reference-surface-only") {
+                 checkReferenceSurfaceGeometry(device,queue,library);
+                 checkPolynomialReferenceSweep(device,queue,library);
++                checkPolynomialPrefixSweep(device,queue,library);
+                 checkPolynomialSweepControls(device,queue,library);return 0;
+             }
+             if(argc==2&&std::string(argv[1])=="--unresolved-reference-sweep-only") {
+@@ -16684,6 +16765,7 @@
+                 checkZeroStepGeometryReuse(device, queue, library);
+             checkReferenceSurfaceGeometry(device,queue,library);
+                 checkPolynomialReferenceSweep(device,queue,library);
++                checkPolynomialPrefixSweep(device,queue,library);
+                 checkPolynomialSweepControls(device,queue,library);
+                 std::cout << "PASS zero-step contact geometry reuse " << checks << " checks" << std::endl;
+                 return 0;
+@@ -17270,6 +17352,7 @@
+             checkZeroStepGeometryReuse(device, queue, library);
+             checkReferenceSurfaceGeometry(device,queue,library);
+                 checkPolynomialReferenceSweep(device,queue,library);
++                checkPolynomialPrefixSweep(device,queue,library);
+                 checkPolynomialSweepControls(device,queue,library);
+             checkReferenceContactArithmeticFrame(device, queue, library);
+             checkCompensatedContactEnergyContinuity(device,queue,library);

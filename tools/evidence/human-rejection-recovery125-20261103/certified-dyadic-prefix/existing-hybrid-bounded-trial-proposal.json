@@ -1,0 +1,32 @@
+{
+  "scope": "Bounded experiment using EXISTING admitted Human hybrid Bq/B^T operator; not an accepted model or a bypass of admission",
+  "environment_changes": {
+    "NUMI_MATTER_HUMAN_PARTITIONED_PRECONDITIONER": "1",
+    "NUMI_MATTER_HUMAN_PARTITIONED_FEM_TANGENT": "1",
+    "NM_FEM_HUMAN_HYBRID_COORDINATES": "1",
+    "NM_FEM_HUMAN_HYBRID_EMBED_CONTACT_BOUNDARY": "1",
+    "NUMI_HUMAN_PARTITIONED_MASS_WHITEN": "1",
+    "NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS": "1",
+    "NM_FEM_HYBRID_RESIDUAL_WITNESS": "1",
+    "NM_FEM_TRUE_RESIDUAL_ROOT": "0",
+    "NM_FEM_NEWTON_TRACE_ROOT": "0",
+    "NM_FEM_BACKTRACKING_TRACE_ROOT": "0"
+  },
+  "argv_remove": [
+    "--vascular-dense45"
+  ],
+  "initial_timestep_s": 1.5625e-05,
+  "requested_steps": 4,
+  "reference": "polynomial-prefix-native-025; same source, assets, law, mass, loads, physical timestep and acceptance thresholds",
+  "mandatory_admission": "Existing selector-6, source/basis provenance, mass projection, sparse support, sensitive anchors, fourfold coordinate-reduction target, no active mixed fields/MPM/cohesive rows; no restriction bypass",
+  "gates": "Finite positive cells and contact certificate, full-domain nonlinear residual, transaction rollback, engineering comparison <=1% integrated forces/physiology and <=5% strain energy/regional deformation, unchanged penetration limits",
+  "failure_policy": "Retain exact admission or residual witness. Refine through existing validated witness path only; no acceptance tolerance weakening. Never promote throughput if physical gates fail.",
+  "resource": "Only one GPU job; >=12GiB disk, monitor swap; sources/binaries frozen during trial; use sparse basis to avoid dense whole-body storage",
+  "status": "NOT_RUN: current full coupled linear-certificate path explicitly excludes hybrid coordinates. Preserve that restriction; do not disable certification simply to admit the experiment.",
+  "source_findings": [
+    "runtime.mm: femFullCoupledTrueResidualEnabled requires !femHumanHybridCoordinatesEnabled",
+    "Current NM_FGMRES_INEXACT_COUPLED_LINEAR_CERTIFICATE requires that mandatory full coupled certificate",
+    "A reduced model needs separately implemented and validated projected certification plus explicit engineering comparisons before it is an accepted alternative"
+  ],
+  "next_safe_existing_owner_experiment": "Re-evaluate thin-cell Schwarz alone after the contact fixes, keeping full coordinates, dense vascular owner and mandatory complete true-residual certification"
+}

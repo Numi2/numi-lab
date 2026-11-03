@@ -1,0 +1,11 @@
+# Certified dyadic prefixes for rotating reference contacts
+
+Extend the existing Bernstein separation certificate to prefixes of the original affine sweep. Approximate interpolated positions choose arbitrary axes only; all proof projections use original high/low endpoints with outward interval interpolation. Try the full sweep, then at most four exact dyadic prefixes (1/2,1/4,1/8,1/16). Return only a certified prefix larger than the prior positive conservative bound; preserve the previous fallback and all zero-bound behavior.
+
+The second exact native VT witness has a real closing crossing: the entire sweep must remain disallowed. Its new proven prefix is 0.25 instead of 0.00558266789 (44.8x larger local admissible fraction). This is not a runtime speedup claim. The first exact witness still certifies full motion. GPU tests retain crossing, within-margin, nonfinite, translation, VT/EE/PP and output-canary controls, and now constrain positive prefixes against known closing times. Old shader fails the useful-prefix witness; new shader and the full suite pass 816,990 checks.
+
+Complete native trial 025 accepts 12 steps (187.5 microseconds), versus nine previously, then rejects root 12 with vascular row5 residual 1.5754154e-5 above unchanged 1e-5. Root9, previously failing, converges to 9.30288843e-6 by Newton iteration6. The source geometry, contact law, mass, timestep, Newton/linear budgets, all acceptance checks and rollback remain unchanged.
+
+The existing optional device pipeline archive is enabled for this run and affects initialization only. Its initial cold creation is not a steady-state physics gain. The source logs confirm the requested dense45 option is ineligible in this full material world: the actual solve is staged FGMRES with the vascular principal-block preconditioner. The trace records a maximum16 linear iterations; the next bounded performance screen compares the current64 budget with16. The existing reduced-coordinate path excludes the current full coupled linear certificate; it was NOT admitted by disabling that protection.
+
+This remains an unbalanced release-transient check, not supported-rest, visible motion, breathing-cycle, sustained throughput, or0.1x qualification. Exact source/binary/configuration pins, negative failure, accepted physiology, stage logs and resource history are retained.

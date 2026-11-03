@@ -13519,10 +13519,20 @@ inline bool nmReferenceContactPreciseFeatureAxis(
 // entire sweep. Norm convexity bounds the axis length by its three control norms.
 // Strict lower bounds for all coefficients therefore certify the SAME clearance,
 // while allowing the separating plane to rotate with deforming thin features.
-inline bool nmReferenceContactPolynomialSweepSeparated(
+inline bool nmReferenceContactPolynomialPrefixSeparated(
     uint kind,thread const MRCompensatedPositionGPU* start,
-    thread const MRCompensatedPositionGPU* finish,float3 normal,float clearance) {
-    if(!isfinite(clearance)||!(clearance>0.0f))return false;
+    thread const MRCompensatedPositionGPU* finish,float3 normal,float clearance,float endFraction) {
+    if(!isfinite(clearance)||!(clearance>0.0f)||!(endFraction>0.0f)||
+       !(endFraction<=1.0f))return false;
+    // Approximate interpolation chooses an arbitrary axis only. The proof
+    // below projects the ORIGINAL endpoints and bounds their exact affine
+    // interpolation, so no represented position is silently rounded away.
+    MRCompensatedPositionGPU chosenFinish[4];
+    const uint featureCount=kind==NM_DEFORMABLE_CONTACT_POINT_POINT?2u:4u;
+    for(uint i=0u;i<featureCount;++i)
+        chosenFinish[i]=endFraction==1.0f?finish[i]:mrCompensatedVectorAdd(
+            mrCompensatedVectorScale(start[i],{1.0f-endFraction,0.0f}),
+            mrCompensatedVectorScale(finish[i],{endFraction,0.0f}));
     uint firstCount=1u,secondBegin=1u,secondCount=1u;
     MRCompensatedPositionGPU axis[3];
     if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE ||
@@ -13534,16 +13544,16 @@ inline bool nmReferenceContactPolynomialSweepSeparated(
         const uint b0=kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE?1u:2u;
         const uint b1=3u;
         const auto u0=mrCompensatedVectorAdd(start[a1],mrCompensatedVectorNegate(start[a0]));
-        const auto u1=mrCompensatedVectorAdd(finish[a1],mrCompensatedVectorNegate(finish[a0]));
+        const auto u1=mrCompensatedVectorAdd(chosenFinish[a1],mrCompensatedVectorNegate(chosenFinish[a0]));
         const auto v0=mrCompensatedVectorAdd(start[b1],mrCompensatedVectorNegate(start[b0]));
-        const auto v1=mrCompensatedVectorAdd(finish[b1],mrCompensatedVectorNegate(finish[b0]));
+        const auto v1=mrCompensatedVectorAdd(chosenFinish[b1],mrCompensatedVectorNegate(chosenFinish[b0]));
         axis[0]=mrCompensatedVectorCross(u0,v0);
         axis[1]=mrCompensatedVectorScale(mrCompensatedVectorAdd(
             mrCompensatedVectorCross(u0,v1),mrCompensatedVectorCross(u1,v0)),{0.5f,0.0f});
         axis[2]=mrCompensatedVectorCross(u1,v1);
     } else if(kind==NM_DEFORMABLE_CONTACT_POINT_POINT) {
         axis[0]=mrCompensatedVectorAdd(start[0],mrCompensatedVectorNegate(start[1]));
-        axis[2]=mrCompensatedVectorAdd(finish[0],mrCompensatedVectorNegate(finish[1]));
+        axis[2]=mrCompensatedVectorAdd(chosenFinish[0],mrCompensatedVectorNegate(chosenFinish[1]));
         axis[1]=mrCompensatedVectorScale(mrCompensatedVectorAdd(axis[0],axis[2]),{0.5f,0.0f});
     } else return false;
     const float alignment=dot(axis[0].high.xyz+axis[0].low.xyz,normal);
@@ -13570,6 +13580,10 @@ inline bool nmReferenceContactPolynomialSweepSeparated(
                 nmContactProjectionIntervalRefined(pa,pb,axis[c].low.xyz));
             if(!isfinite(projection[c][e].lower)||!isfinite(projection[c][e].upper))return false;
         }
+        if(endFraction<1.0f)for(uint c=0u;c<3u;++c)
+            projection[c][1]=nmContactIntervalAdd(
+                nmContactIntervalScale(projection[c][0],1.0f-endFraction),
+                nmContactIntervalScale(projection[c][1],endFraction));
         // Division by exact3 is rounded outward; stored1/3 coefficients would
         // not enclose the exact cubic and are deliberately avoided.
         const auto sum1=nmContactIntervalAdd(projection[0][1],
@@ -13595,8 +13609,18 @@ inline float nmReferenceContactSweepFraction(
     if(fraction==1.0f)return fraction;
     fraction=max(fraction,nmReferenceContactCompensatedPlaneFraction(kind,start,finish,
         nmReferenceContactFeatureAxis(kind,finish),normal,clearance));
-    if(fraction>0.0f && fraction<1.0f &&
-       nmReferenceContactPolynomialSweepSeparated(kind,start,finish,normal,clearance))return 1.0f;
+    if(fraction>0.0f && fraction<1.0f) {
+        if(nmReferenceContactPolynomialPrefixSeparated(kind,start,finish,normal,clearance,1.0f))
+            return 1.0f;
+        // A real closing sweep must not force a needlessly tiny global step
+        // merely because no fixed plane tracks its rotating feature. Each
+        // returned dyadic prefix is certified over its ENTIRE time interval.
+        // Four bounded attempts; unchanged fallback if none proves separation.
+        float prefix=0.5f;
+        for(uint attempt=0u;attempt<4u&&prefix>fraction;++attempt,prefix*=0.5f)
+            if(nmReferenceContactPolynomialPrefixSeparated(kind,start,finish,normal,clearance,prefix))
+                return prefix;
+    }
     return fraction;
 }
 

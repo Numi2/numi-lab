@@ -1,0 +1,105 @@
+inline bool nmReferenceContactPolynomialPrefixSeparated(
+    uint kind,thread const MRCompensatedPositionGPU* start,
+    thread const MRCompensatedPositionGPU* finish,float3 normal,float clearance,float endFraction) {
+    if(!isfinite(clearance)||!(clearance>0.0f)||!(endFraction>0.0f)||
+       !(endFraction<=1.0f))return false;
+    // Approximate interpolation chooses an arbitrary axis only. The proof
+    // below projects the ORIGINAL endpoints and bounds their exact affine
+    // interpolation, so no represented position is silently rounded away.
+    MRCompensatedPositionGPU chosenFinish[4];
+    const uint featureCount=kind==NM_DEFORMABLE_CONTACT_POINT_POINT?2u:4u;
+    for(uint i=0u;i<featureCount;++i)
+        chosenFinish[i]=endFraction==1.0f?finish[i]:mrCompensatedVectorAdd(
+            mrCompensatedVectorScale(start[i],{1.0f-endFraction,0.0f}),
+            mrCompensatedVectorScale(finish[i],{endFraction,0.0f}));
+    uint firstCount=1u,secondBegin=1u,secondCount=1u;
+    MRCompensatedPositionGPU axis[3];
+    if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE ||
+       kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+        if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE)secondCount=3u;
+        else {firstCount=2u;secondBegin=2u;secondCount=2u;}
+        const uint a0=kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE?1u:0u;
+        const uint a1=kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE?2u:1u;
+        const uint b0=kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE?1u:2u;
+        const uint b1=3u;
+        const auto u0=mrCompensatedVectorAdd(start[a1],mrCompensatedVectorNegate(start[a0]));
+        const auto u1=mrCompensatedVectorAdd(chosenFinish[a1],mrCompensatedVectorNegate(chosenFinish[a0]));
+        const auto v0=mrCompensatedVectorAdd(start[b1],mrCompensatedVectorNegate(start[b0]));
+        const auto v1=mrCompensatedVectorAdd(chosenFinish[b1],mrCompensatedVectorNegate(chosenFinish[b0]));
+        axis[0]=mrCompensatedVectorCross(u0,v0);
+        axis[1]=mrCompensatedVectorScale(mrCompensatedVectorAdd(
+            mrCompensatedVectorCross(u0,v1),mrCompensatedVectorCross(u1,v0)),{0.5f,0.0f});
+        axis[2]=mrCompensatedVectorCross(u1,v1);
+    } else if(kind==NM_DEFORMABLE_CONTACT_POINT_POINT) {
+        axis[0]=mrCompensatedVectorAdd(start[0],mrCompensatedVectorNegate(start[1]));
+        axis[2]=mrCompensatedVectorAdd(chosenFinish[0],mrCompensatedVectorNegate(chosenFinish[1]));
+        axis[1]=mrCompensatedVectorScale(mrCompensatedVectorAdd(axis[0],axis[2]),{0.5f,0.0f});
+    } else return false;
+    const float alignment=dot(axis[0].high.xyz+axis[0].low.xyz,normal);
+    if(!isfinite(alignment)||alignment==0.0f)return false;
+    float normUpper=0.0f;
+    for(uint c=0u;c<3u;++c) {
+        if(alignment<0.0f){axis[c].high=-axis[c].high;axis[c].low=-axis[c].low;}
+        float squaredUpper=0.0f;
+        for(uint k=0u;k<3u;++k) {
+            if(!isfinite(axis[c].high[k])||!isfinite(axis[c].low[k]))return false;
+            const float magnitude=nmContactIntervalUp(abs(axis[c].high[k])+abs(axis[c].low[k]));
+            squaredUpper=nmContactIntervalUp(squaredUpper+nmContactIntervalUp(magnitude*magnitude));
+        }
+        normUpper=max(normUpper,nmContactIntervalUp(sqrt(squaredUpper)));
+    }
+    const float threshold=nmContactIntervalUp(clearance*normUpper);
+    if(!(normUpper>0.0f)||!isfinite(normUpper)||!isfinite(threshold))return false;
+    for(uint a=0u;a<firstCount;++a)for(uint b=secondBegin;b<secondBegin+secondCount;++b) {
+        NMContactInterval projection[3][2];
+        for(uint c=0u;c<3u;++c)for(uint e=0u;e<2u;++e) {
+            const auto pa=e==0u?start[a]:finish[a],pb=e==0u?start[b]:finish[b];
+            projection[c][e]=nmContactIntervalAdd(
+                nmContactProjectionIntervalRefined(pa,pb,axis[c].high.xyz),
+                nmContactProjectionIntervalRefined(pa,pb,axis[c].low.xyz));
+            if(!isfinite(projection[c][e].lower)||!isfinite(projection[c][e].upper))return false;
+        }
+        if(endFraction<1.0f)for(uint c=0u;c<3u;++c)
+            projection[c][1]=nmContactIntervalAdd(
+                nmContactIntervalScale(projection[c][0],1.0f-endFraction),
+                nmContactIntervalScale(projection[c][1],endFraction));
+        // Division by exact3 is rounded outward; stored1/3 coefficients would
+        // not enclose the exact cubic and are deliberately avoided.
+        const auto sum1=nmContactIntervalAdd(projection[0][1],
+            nmContactIntervalScale(projection[1][0],2.0f));
+        const auto sum2=nmContactIntervalAdd(projection[2][0],
+            nmContactIntervalScale(projection[1][1],2.0f));
+        const float lower[4]={projection[0][0].lower,
+            nmContactIntervalDown(sum1.lower/3.0f),
+            nmContactIntervalDown(sum2.lower/3.0f),projection[2][1].lower};
+        for(uint c=0u;c<4u;++c)
+            if(!isfinite(lower[c])||!(lower[c]>threshold))return false;
+    }
+    return true;
+}
+
+inline float nmReferenceContactSweepFraction(
+    uint kind,thread const MRCompensatedPositionGPU* start,
+    thread const MRCompensatedPositionGPU* finish,float3 normal,float clearance) {
+    float fraction=nmReferenceContactPlaneFraction(kind,start,finish,normal,clearance);
+    if(fraction==1.0f)return fraction;
+    fraction=max(fraction,nmReferenceContactCompensatedPlaneFraction(kind,start,finish,
+        nmReferenceContactFeatureAxis(kind,start),normal,clearance));
+    if(fraction==1.0f)return fraction;
+    fraction=max(fraction,nmReferenceContactCompensatedPlaneFraction(kind,start,finish,
+        nmReferenceContactFeatureAxis(kind,finish),normal,clearance));
+    if(fraction>0.0f && fraction<1.0f) {
+        if(nmReferenceContactPolynomialPrefixSeparated(kind,start,finish,normal,clearance,1.0f))
+            return 1.0f;
+        // A real closing sweep must not force a needlessly tiny global step
+        // merely because no fixed plane tracks its rotating feature. Each
+        // returned dyadic prefix is certified over its ENTIRE time interval.
+        // Four bounded attempts; unchanged fallback if none proves separation.
+        float prefix=0.5f;
+        for(uint attempt=0u;attempt<4u&&prefix>fraction;++attempt,prefix*=0.5f)
+            if(nmReferenceContactPolynomialPrefixSeparated(kind,start,finish,normal,clearance,prefix))
+                return prefix;
+    }
+    return fraction;
+}
+
