@@ -11350,6 +11350,7 @@ kernel void nm_fgmres_true_residual_distributed_partial(
     const uint fieldBase = totalNodes + nodeBase;
     float sumContribution = 0.0f;
     float maximumAbsolute = 0.0f;
+    float maximumVascularResidual = 0.0f;
     bool finiteResidual = true;
     if (item < itemCount) {
         if ((layout.reserved & 12u) != 0u) {
@@ -11362,6 +11363,11 @@ kernel void nm_fgmres_true_residual_distributed_partial(
                     fgmresOrthogonalLoad(dispatch, layout, environment, item,
                         operatorValue);
                 finiteResidual = all(isfinite(value));
+                const uint vascularBase = layout.vascularBase +
+                    environment * layout.vascularUnknownCount;
+                if (row >= vascularBase &&
+                    row - vascularBase < layout.vascularUnknownCount)
+                    maximumVascularResidual = abs(value.x);
                 sumContribution = dot(value, value);
                 maximumAbsolute = max(max(max(abs(value.x), abs(value.y)),
                     max(abs(value.z), abs(value.w))), 0.0f);
@@ -11393,11 +11399,20 @@ kernel void nm_fgmres_true_residual_distributed_partial(
     threadgroup float sumGroups[kFGMRESMeasurementSIMDGroups + 1u];
     threadgroup float maxGroups[kFGMRESMeasurementSIMDGroups + 1u];
     threadgroup uint validGroups[kFGMRESMeasurementSIMDGroups + 1u];
-    const float4 tileValue = fgmresMeasurementReduceTile(
+    float4 tileValue = fgmresMeasurementReduceTile(
         sumContribution, maximumAbsolute, finiteResidual,
         sumGroups, maxGroups, validGroups, lane, simdLane, simdGroup);
-    if (lane == 0u)
+    // Reuse the spare partial lane for an independently scaled vascular
+    // defect. A relative whole-body norm must not hide these scalar rows.
+    threadgroup float vascularMaxGroups[kFGMRESMeasurementSIMDGroups];
+    const float vascularSIMDMaximum = simd_max(maximumVascularResidual);
+    if (simdLane == 0u) vascularMaxGroups[simdGroup] = vascularSIMDMaximum;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        for (uint i = 0u; i < kFGMRESMeasurementSIMDGroups; ++i)
+            tileValue.w = max(tileValue.w, vascularMaxGroups[i]);
         partials[environment * tilesPerEnvironment + tile] = tileValue;
+    }
 }
 
 kernel void nm_fgmres_true_residual_distributed_finish(
@@ -11449,15 +11464,18 @@ kernel void nm_fgmres_true_residual_distributed_finish(
     float localNorm2 = 0.0f;
     float normCorrection = 0.0f;
     float localMaximumAbsolute = 0.0f;
+    float localMaximumVascularResidual = 0.0f;
     bool localFinite = true;
     for (uint tile = lane; tile < tiles; tile += 32u) {
         const float4 value = partials[environment * tiles + tile];
         fgmresCompensatedAdd(localNorm2, normCorrection, value.x);
         localMaximumAbsolute = max(localMaximumAbsolute, value.y);
+        localMaximumVascularResidual = max(localMaximumVascularResidual, value.w);
         localFinite = localFinite && value.z > 0.5f;
     }
     const float norm2 = simd_sum(localNorm2);
     const float maximumAbsolute = simd_max(localMaximumAbsolute);
+    const float maximumVascularResidual = simd_max(localMaximumVascularResidual);
     const bool validMetrics = simd_all(localFinite) && isfinite(norm2) &&
         norm2 >= 0.0f && isfinite(maximumAbsolute) && isfinite(forcing) &&
         isfinite(states[environment].diagnostics.x) &&
@@ -11498,8 +11516,21 @@ kernel void nm_fgmres_true_residual_distributed_finish(
                       layout.vascularResidualTolerance);
             const bool strictActiveRHS = (replaceResidual & 2u) != 0u &&
                 initialNorm > nonlinearThreshold;
-            state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target ||
-                (!strictActiveRHS && trueNorm <= nonlinearThreshold)
+            // The opt-in inexact certificate relaxes only mechanical inner
+            // accuracy. Reserve 1/4 of the unchanged vascular outer tolerance
+            // for the freshly evaluated linear defect, leaving nonlinear
+            // truncation headroom. This changes no physical acceptance gate.
+            const bool domainCertificate =
+                (layout.reserved & kFGMRESInexactCoupledLinearCertificate) != 0u &&
+                layout.vascularUnknownCount != 0u;
+            const bool vascularLinearPass = !domainCertificate ||
+                (isfinite(maximumVascularResidual) &&
+                 isfinite(layout.vascularResidualTolerance) &&
+                 layout.vascularResidualTolerance > 0.0f &&
+                 maximumVascularResidual <= 0.25f * layout.vascularResidualTolerance);
+            state.diagnostics.z = vascularLinearPass &&
+                (trueNorm == 0.0f || trueNorm <= target ||
+                 (!strictActiveRHS && trueNorm <= nonlinearThreshold))
                     ? 1.0f : 0.0f;
         }
         metrics[environment] = float4(

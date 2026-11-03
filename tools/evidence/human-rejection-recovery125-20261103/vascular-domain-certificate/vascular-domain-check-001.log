@@ -1,0 +1,7 @@
+inexact_coupled_linear_true_certificate=true default_strict=true nonlinear_unchanged=true vascular_domain_target=true nonfinite_layout_rejection=true result=PASS
+schur_original_rhs_norm=true condensed_arnoldi_norm=true full_residual_target=true result=PASS
+schur_domain_latch_uses_full_rhs=true condensed_arnoldi_norm_preserved=true result=PASS
+domain_nonlinear_latch=true separate_mechanical_vascular=true legacy_full_norm=true pressure_and_support_gates=true nonfinite_rejected=true result=PASS
+distributed_begin=true inactive_transport_mask=true distributed_correction=true mixed_pressure_field=true legacy_controls=true result=PASS
+inexact_newton_forcing=true full_rhs=true accepted_history=true restart_preserved=true reject_status_reset=true NaN_fallback=true support_gate=true no_op_preserved=true result=PASS
+PASS inexact coupled certificate 1259 checks

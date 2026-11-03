@@ -2789,7 +2789,7 @@ void checkInexactCoupledLinearCertificate(
         {5u,state},{6u,metrics},{7u,forcing},{8u,status},{9u,replace},
         {10u,production},{11u,propagate},{24u,parts}};
     auto run = [&](const bool enableInexact, const float trueNorm,
-                   const bool malformed = false) {
+                   const bool malformed = false, const float vascularDefect = 0.0f) {
         NMFGMRESStateGPU initial{};
         initial.diagnostics = {1.0e-9f, 0.01f, 0.0f, 0.0f};
         initial.nonlinear = {1.0f, 0.01f, 0.0f, 0.0f};
@@ -2803,6 +2803,7 @@ void checkInexactCoupledLinearCertificate(
         std::memcpy([lb contents], &layout, sizeof(layout));
         std::vector<nm_float4> rows(3u);
         rows[0].x = trueNorm;
+        rows[2].x = vascularDefect;
         rows[1] = {1.0e30f, -1.0e30f, 1.0e30f, -1.0e30f};
         std::memcpy([rhs contents], rows.data(), rows.size()*sizeof(nm_float4));
         dispatch(device, queue, partial, bindings, 1u, 256u);
@@ -2821,6 +2822,17 @@ void checkInexactCoupledLinearCertificate(
         "inexact certificate did not use the freshly recomputed relative norm");
     require(run(true, 2.0e-3f).diagnostics.z < 0.5f,
         "inexact certificate trusted the tiny Arnoldi estimate over true residual");
+    require(run(true, 5.0e-4f, false, 2.0e-6f).diagnostics.z > 0.5f,
+        "inexact certificate rejected an accurate vascular defect");
+    require(run(true, 5.0e-4f, false, 4.0e-6f).diagnostics.z < 0.5f,
+        "relative body norm hid the vascular linear defect");
+    require(run(true, 0.0f, false, 4.0e-6f).diagnostics.z < 0.5f,
+        "outer-tolerance shortcut bypassed the vascular linear target");
+    require(run(true, 0.0f, false, 2.5e-6f).diagnostics.z > 0.5f,
+        "vascular linear target changed its inclusive boundary");
+    run(true, 0.0f, false, std::numeric_limits<float>::quiet_NaN());
+    require(readBuffer<NMMatterStatusGPU>(status, 1u)[0].code ==
+            NM_STATUS_NONFINITE_RESULT, "nonfinite vascular defect was hidden");
     run(true, std::numeric_limits<float>::quiet_NaN());
     require(readBuffer<NMMatterStatusGPU>(status, 1u)[0].code ==
             NM_STATUS_NONFINITE_RESULT &&
@@ -2831,8 +2843,51 @@ void checkInexactCoupledLinearCertificate(
             NM_STATUS_INVALID_DISPATCH &&
             readBuffer<NMMatterStatusGPU>(production, 1u)[0].code ==
             NM_STATUS_INVALID_DISPATCH, "inexact certificate lost layout rejection");
+    // A vascular row may live on a different tile from the much larger
+    // mechanical residual. Poison the excluded field and padding; neither
+    // may contribute to either certificate.
+    for (unsigned vascularCount : {0u, 1u, 254u, 255u, 256u, 257u, 511u}) {
+        NMFGMRESLayoutGPU tiledLayout = l;
+        tiledLayout.reserved |= (1u << 24u);
+        tiledLayout.vascularUnknownCount = vascularCount;
+        tiledLayout.unknownCount = 2u + vascularCount;
+        const unsigned tiles = std::max(1u, (1u + vascularCount + 255u) / 256u);
+        auto tiledLB = makeBuffer(device, std::vector<NMFGMRESLayoutGPU>{tiledLayout});
+        std::vector<nm_float4> tiledRHS(3u + vascularCount);
+        tiledRHS[0].x = 5.0e-4f;
+        tiledRHS[1] = {1.0e30f, -1.0e30f, 1.0e30f, -1.0e30f};
+        tiledRHS[2u + vascularCount] = tiledRHS[1];
+        if (vascularCount != 0u) tiledRHS[1u + vascularCount].x = 4.0e-6f;
+        auto tiledRHSB = makeBuffer(device, tiledRHS);
+        auto tiledOP = makeBuffer(device, std::vector<nm_float4>(tiledRHS.size()));
+        const nm_float4 canary{-7.0f, -8.0f, -9.0f, -10.0f};
+        auto tiledParts = makeBuffer(device, std::vector<nm_float4>(tiles + 1u, canary));
+        auto tiledBindings = bindings;
+        for (auto& binding : tiledBindings) {
+            if (binding.first == 30u) binding.second = tiledLB;
+            if (binding.first == 2u) binding.second = tiledRHSB;
+            if (binding.first == 3u) binding.second = tiledOP;
+            if (binding.first == 24u) binding.second = tiledParts;
+        }
+        NMFGMRESStateGPU initial{};
+        initial.diagnostics = {1.0e-9f, 0.01f, 0.0f, 0.0f};
+        initial.nonlinear = {1.0f, 0.01f, 0.0f, 0.0f};
+        NMMatterStatusGPU healthy{};
+        std::memcpy([state contents], &initial, sizeof(initial));
+        std::memcpy([status contents], &healthy, sizeof(healthy));
+        std::memcpy([production contents], &healthy, sizeof(healthy));
+        dispatch(device, queue, partial, tiledBindings, tiles, 256u);
+        dispatch(device, queue, inexact, tiledBindings, 1u, 32u);
+        require(readBuffer<NMMatterStatusGPU>(status, 1u)[0].code == NM_STATUS_SUCCESS,
+            "domain certificate read excluded fields or padding");
+        const auto output = readBuffer<nm_float4>(tiledParts, tiles + 1u);
+        require(std::memcmp(&output[tiles], &canary, sizeof(canary)) == 0,
+            "domain partial output canary");
+        require((readBuffer<NMFGMRESStateGPU>(state, 1u)[0].diagnostics.z > 0.5f) ==
+                (vascularCount == 0u), "vascular domain lost a tile boundary row");
+    }
     std::cout << "inexact_coupled_linear_true_certificate=true "
-                 "default_strict=true nonlinear_unchanged=true "
+                 "default_strict=true nonlinear_unchanged=true vascular_domain_target=true "
                  "nonfinite_layout_rejection=true result=PASS\n";
 }
 
