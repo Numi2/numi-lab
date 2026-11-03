@@ -10,6 +10,16 @@
 
 int main() {
     using namespace metalrobo::human::coarse_tissue;
+    assert(admitsReleasedFEMLoadContinuation(true,false,true,0u,16u,8u));
+    assert(!admitsReleasedFEMLoadContinuation(true,false,true,0u,16u,16u));
+    assert(!admitsReleasedFEMLoadContinuation(false,false,true,0u,16u,8u));
+    assert(!admitsReleasedFEMLoadContinuation(true,true,true,0u,16u,8u));
+    assert(!admitsReleasedFEMLoadContinuation(true,false,false,0u,16u,8u));
+    assert(!admitsReleasedFEMLoadContinuation(true,false,true,8u,16u,8u));
+    assert(!admitsReleasedFEMLoadContinuation(true,false,true,0u,14u,8u));
+    assert(!admitsReleasedFEMLoadContinuation(true,false,true,0u,16u,1u));
+    assert(!admitsReleasedFEMLoadContinuation(true,false,true,0u,UINT32_MAX,UINT32_MAX));
+    assert(admitsReleasedFEMLoadContinuation(true,false,true,0u,UINT32_MAX,UINT32_MAX-7u));
     const std::vector<float> seed{
         0.25f,0.1f,-0.2f,0.3f,0.0f,0.0f,0.0f,1.0f,0.75f};
     const std::vector<FEMOuterPointF32> sourceOuter{

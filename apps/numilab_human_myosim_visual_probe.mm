@@ -6668,8 +6668,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "strict supported initialization requires the full-gravity resting owner, frozen source pose, and per-contact skin callback");
     require(restingVascularPressureRampSteps == 0u ||
                 (restingVascularPressureRampSteps >= 2u &&
-                 supportedPreludeSteps >= restingVascularPressureRampSteps + 7u),
-            "vascular pressure ramp requires a supported prelude followed by eight full-pressure steps");
+                 (std::uint64_t(supportedPreludeSteps) >=
+                      std::uint64_t(restingVascularPressureRampSteps) + 7u ||
+                  metalrobo::human::coarse_tissue::admitsReleasedFEMLoadContinuation(
+                      restingReleaseInitialization, restingSupportedInitialization,
+                      femSkinSupportRequested(), supportedPreludeSteps, stepCount,
+                      restingVascularPressureRampSteps))),
+            "vascular pressure ramp requires a supported prelude or an explicit released FEM continuation with eight full-pressure steps");
     require(supportedPreludeSteps == 0u ||
                 (supportedPreludeSteps >= 8u &&
                  supportedPreludeSteps <= 4096u &&
@@ -6743,8 +6748,16 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const char* ropeSiteSetting=std::getenv("NUMI_HUMAN_ROPE_SITE");
     const bool ropeModeRequested=ropeAnchorSetting!=nullptr||ropeSiteSetting!=nullptr;
     const bool useFEMSkinSupport = femSkinSupportRequested();
-    require(restingGravityRampSteps == 0u || !useFEMSkinSupport,
-            "articulated gravity ramp requires the retained native rigid-support contact rows");
+    // FEM-bed gravity uses the same accepted-step scale as articulation
+    // through the existing RestingCoupling tendon/FEM pass. It supplies no
+    // rigid proxy reaction seed. Rejected attempts retry the same ramp scale.
+    require(restingGravityRampSteps == 0u || !useFEMSkinSupport ||
+                (continuumTransaction != nullptr &&
+                 continuumTransaction->restingSharedPassiveOwner &&
+                 continuumTransaction->restingCouplingOwnsScheduling &&
+                 restingReleaseInitialization &&
+                 !restingSupportedInitialization),
+            "FEM gravity ramp requires the shared accepted-state resting owner and an explicitly released initialization");
     require(!useFEMSkinSupport ||
                 (useWeightedSkinSupport && continuumTransaction != nullptr &&
                  continuumTransaction->restingSharedPassiveOwner &&
@@ -7799,7 +7812,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                   << " full_pressure_step=" << restingVascularPressureRampSteps
                   << " initial_scale=0 full_scale=1"
                   << " scope=vascular_pressure_to_fem_traction_and_tangent"
-                  << " circulation_and_blood_mass=unscaled" << std::endl;
+                  << " circulation_and_blood_mass=unscaled"
+                  << " initialization="
+                  << (useFEMSkinSupport && supportedPreludeSteps == 0u
+                      ? "released_load_continuation_not_settled_rest"
+                      : "retained_supported_prelude") << std::endl;
     }
     if (restingGravityRampSteps != 0u) {
         gravityScaleRamp.firstAcceptedStep = 1u;
@@ -7811,6 +7828,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                   << " full_gravity_step=" << restingGravityRampSteps
                   << " initial_scale=0 full_scale=1"
                   << " matter_gravity=shared_accepted_step_ramp"
+                  << " support_owner="
+                  << (useFEMSkinSupport ? "Matter_FEM_contact" : "articulated_contact")
+                  << " qualification=load_continuation_not_settled_rest"
                   << std::endl;
     }
     std::cout << "human_stand_solver_path="
@@ -37792,8 +37812,13 @@ int main(int argc, char** argv) {
             require(!restingVascularPressureRampSteps.has_value() ||
                         (restingScene.has_value() && persistentMetalStand &&
                          (restingSupportedInitialization || restingReleaseInitialization) &&
-                         restingSupportedPreludeSteps >=
-                             std::uint64_t(*restingVascularPressureRampSteps) + 7u &&
+                         (restingSupportedPreludeSteps >=
+                              std::uint64_t(*restingVascularPressureRampSteps) + 7u ||
+                          (muscleStepCount.has_value() &&
+                           metalrobo::human::coarse_tissue::admitsReleasedFEMLoadContinuation(
+                               restingReleaseInitialization, restingSupportedInitialization,
+                               femSkinSupportRequested(), restingSupportedPreludeSteps,
+                               *muscleStepCount, *restingVascularPressureRampSteps))) &&
                          muscleStepCount.has_value() &&
                          std::uint64_t(*restingVascularPressureRampSteps) <=
                              std::uint64_t(*muscleStepCount) + restingSupportedPreludeSteps),

@@ -16,6 +16,19 @@ namespace metalrobo::human::coarse_tissue {
 
 using FEMOuterPointF32=std::array<float,3>;
 
+// Released FEM-bed initialization may ramp loads without claiming the rigid
+// support prelude's equilibrium certificate. Keep eight full-load accepted
+// steps in its declared horizon, and never admit this as strict supported rest.
+// Physical owner, pose and no-assistance checks remain mandatory at the caller.
+[[nodiscard]] constexpr bool admitsReleasedFEMLoadContinuation(
+        bool released, bool strictSupported, bool femBedSupport,
+        std::uint32_t preludeSteps, std::uint32_t horizonSteps,
+        std::uint32_t fullLoadStep) noexcept {
+    return released && !strictSupported && femBedSupport &&
+        preludeSteps == 0u && fullLoadStep >= 2u &&
+        std::uint64_t(horizonSteps) >= std::uint64_t(fullLoadStep) + 7u;
+}
+
 struct FEMOuterGroundAlignment {
     std::vector<float> q;
     std::uint32_t outerNodeCount=0u;

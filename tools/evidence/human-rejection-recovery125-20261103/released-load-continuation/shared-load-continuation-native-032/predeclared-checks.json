@@ -1,0 +1,16 @@
+{
+  "scope": "Existing full Human initialization with explicit accepted-step load continuation; zero hidden assistance and no rigid proxy support seed. Not settled rest.",
+  "control": "dyadic-prefix-native-025 unchanged full-load release; comparison of rejection horizons only, not field-equivalence",
+  "candidate": "shared-load-continuation-native-032",
+  "prediction": "Gradual application of shared gravitational and vascular-wall loads may reduce release transients. No guaranteed accepted horizon or speedup.",
+  "required": [
+    "FEM contact remains sole support owner",
+    "both gravity consumers use identical accepted-step schedule from0 to1",
+    "blood mass and circulation remain unscaled",
+    "rejected attempts do not advance schedule or common history",
+    "unchanged contact, determinant, physical residual and rollback gates",
+    "16 accepted steps to reach full loads; any shorter run fails this candidate goal"
+  ],
+  "stop": "16 accepted steps, first rejection or existing900s/12GiBresource guard",
+  "limitations": "Even16accepted15.625ussteps total only0.25ms. This cannot qualify equilibration, physiological plausibility, motion or0.1x."
+}

@@ -1,0 +1,15 @@
+{
+  "scope": "Released FEM-bed load continuation: shared gravity and vascular-wall load reach1 at accepted step8, retaining9 declared full-load steps through16. No equilibrium or supported-prelude claim. Same full64 Krylov budget and acceptance gates.",
+  "control": "dyadic-prefix-native-025 and negative startup032",
+  "prediction": "Ramping may reduce the unbalanced release; no guaranteed horizon or speedup.",
+  "required": [
+    "16 accepted steps and no new rejection",
+    "full loads from accepted step8 through16",
+    "FEM contact sole support owner; zero proxy reactions or hidden forces",
+    "unscaled blood mass and circulation",
+    "mandatory original residual/determinant/contact certification and common rollback",
+    "report timed accepted dynamics separately from startup and failed attempts"
+  ],
+  "stop": "16 accepted steps, first rejection or900seconds/12GiBresource guard",
+  "qualification": "16 steps total0.25ms, not settled rest, sustained Human motion or0.1x."
+}

@@ -1,0 +1,117 @@
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -6667,8 +6667,13 @@
+             "strict supported initialization requires the full-gravity resting owner, frozen source pose, and per-contact skin callback");
+     require(restingVascularPressureRampSteps == 0u ||
+                 (restingVascularPressureRampSteps >= 2u &&
+-                 supportedPreludeSteps >= restingVascularPressureRampSteps + 7u),
+-            "vascular pressure ramp requires a supported prelude followed by eight full-pressure steps");
++                 (std::uint64_t(supportedPreludeSteps) >=
++                      std::uint64_t(restingVascularPressureRampSteps) + 7u ||
++                  metalrobo::human::coarse_tissue::admitsReleasedFEMLoadContinuation(
++                      restingReleaseInitialization, restingSupportedInitialization,
++                      femSkinSupportRequested(), supportedPreludeSteps, stepCount,
++                      restingVascularPressureRampSteps))),
++            "vascular pressure ramp requires a supported prelude or an explicit released FEM continuation with eight full-pressure steps");
+     require(supportedPreludeSteps == 0u ||
+                 (supportedPreludeSteps >= 8u &&
+                  supportedPreludeSteps <= 4096u &&
+@@ -6742,8 +6747,16 @@
+     const char* ropeSiteSetting=std::getenv("NUMI_HUMAN_ROPE_SITE");
+     const bool ropeModeRequested=ropeAnchorSetting!=nullptr||ropeSiteSetting!=nullptr;
+     const bool useFEMSkinSupport = femSkinSupportRequested();
+-    require(restingGravityRampSteps == 0u || !useFEMSkinSupport,
+-            "articulated gravity ramp requires the retained native rigid-support contact rows");
++    // FEM-bed gravity uses the same accepted-step scale as articulation
++    // through the existing RestingCoupling tendon/FEM pass. It supplies no
++    // rigid proxy reaction seed. Rejected attempts retry the same ramp scale.
++    require(restingGravityRampSteps == 0u || !useFEMSkinSupport ||
++                (continuumTransaction != nullptr &&
++                 continuumTransaction->restingSharedPassiveOwner &&
++                 continuumTransaction->restingCouplingOwnsScheduling &&
++                 restingReleaseInitialization &&
++                 !restingSupportedInitialization),
++            "FEM gravity ramp requires the shared accepted-state resting owner and an explicitly released initialization");
+     require(!useFEMSkinSupport ||
+                 (useWeightedSkinSupport && continuumTransaction != nullptr &&
+                  continuumTransaction->restingSharedPassiveOwner &&
+@@ -7798,7 +7811,11 @@
+                   << " full_pressure_step=" << restingVascularPressureRampSteps
+                   << " initial_scale=0 full_scale=1"
+                   << " scope=vascular_pressure_to_fem_traction_and_tangent"
+-                  << " circulation_and_blood_mass=unscaled" << std::endl;
++                  << " circulation_and_blood_mass=unscaled"
++                  << " initialization="
++                  << (useFEMSkinSupport && supportedPreludeSteps == 0u
++                      ? "released_load_continuation_not_settled_rest"
++                      : "retained_supported_prelude") << std::endl;
+     }
+     if (restingGravityRampSteps != 0u) {
+         gravityScaleRamp.firstAcceptedStep = 1u;
+@@ -7810,6 +7827,9 @@
+                   << " full_gravity_step=" << restingGravityRampSteps
+                   << " initial_scale=0 full_scale=1"
+                   << " matter_gravity=shared_accepted_step_ramp"
++                  << " support_owner="
++                  << (useFEMSkinSupport ? "Matter_FEM_contact" : "articulated_contact")
++                  << " qualification=load_continuation_not_settled_rest"
+                   << std::endl;
+     }
+     std::cout << "human_stand_solver_path="
+@@ -37230,8 +37250,13 @@
+             require(!restingVascularPressureRampSteps.has_value() ||
+                         (restingScene.has_value() && persistentMetalStand &&
+                          (restingSupportedInitialization || restingReleaseInitialization) &&
+-                         restingSupportedPreludeSteps >=
+-                             std::uint64_t(*restingVascularPressureRampSteps) + 7u &&
++                         (restingSupportedPreludeSteps >=
++                              std::uint64_t(*restingVascularPressureRampSteps) + 7u ||
++                          (muscleStepCount.has_value() &&
++                           metalrobo::human::coarse_tissue::admitsReleasedFEMLoadContinuation(
++                               restingReleaseInitialization, restingSupportedInitialization,
++                               femSkinSupportRequested(), restingSupportedPreludeSteps,
++                               *muscleStepCount, *restingVascularPressureRampSteps))) &&
+                          muscleStepCount.has_value() &&
+                          std::uint64_t(*restingVascularPressureRampSteps) <=
+                              std::uint64_t(*muscleStepCount) + restingSupportedPreludeSteps),
+--- a/apps/NumiHumanFEMOuterGroundAlignment.hpp
++++ b/apps/NumiHumanFEMOuterGroundAlignment.hpp
+@@ -15,6 +15,19 @@
+ namespace metalrobo::human::coarse_tissue {
+ 
+ using FEMOuterPointF32=std::array<float,3>;
++
++// Released FEM-bed initialization may ramp loads without claiming the rigid
++// support prelude's equilibrium certificate. Keep eight full-load accepted
++// steps in its declared horizon, and never admit this as strict supported rest.
++// Physical owner, pose and no-assistance checks remain mandatory at the caller.
++[[nodiscard]] constexpr bool admitsReleasedFEMLoadContinuation(
++        bool released, bool strictSupported, bool femBedSupport,
++        std::uint32_t preludeSteps, std::uint32_t horizonSteps,
++        std::uint32_t fullLoadStep) noexcept {
++    return released && !strictSupported && femBedSupport &&
++        preludeSteps == 0u && fullLoadStep >= 2u &&
++        std::uint64_t(horizonSteps) >= std::uint64_t(fullLoadStep) + 7u;
++}
+ 
+ struct FEMOuterGroundAlignment {
+     std::vector<float> q;
+--- a/apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp
++++ b/apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp
+@@ -10,6 +10,16 @@
+ 
+ int main() {
+     using namespace metalrobo::human::coarse_tissue;
++    assert(admitsReleasedFEMLoadContinuation(true,false,true,0u,16u,8u));
++    assert(!admitsReleasedFEMLoadContinuation(true,false,true,0u,16u,16u));
++    assert(!admitsReleasedFEMLoadContinuation(false,false,true,0u,16u,8u));
++    assert(!admitsReleasedFEMLoadContinuation(true,true,true,0u,16u,8u));
++    assert(!admitsReleasedFEMLoadContinuation(true,false,false,0u,16u,8u));
++    assert(!admitsReleasedFEMLoadContinuation(true,false,true,8u,16u,8u));
++    assert(!admitsReleasedFEMLoadContinuation(true,false,true,0u,14u,8u));
++    assert(!admitsReleasedFEMLoadContinuation(true,false,true,0u,16u,1u));
++    assert(!admitsReleasedFEMLoadContinuation(true,false,true,0u,UINT32_MAX,UINT32_MAX));
++    assert(admitsReleasedFEMLoadContinuation(true,false,true,0u,UINT32_MAX,UINT32_MAX-7u));
+     const std::vector<float> seed{
+         0.25f,0.1f,-0.2f,0.3f,0.0f,0.0f,0.0f,1.0f,0.75f};
+     const std::vector<FEMOuterPointF32> sourceOuter{
