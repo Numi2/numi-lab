@@ -195,6 +195,12 @@ inline float ipcBarrierEnergy(
         0.5f * radialCurvature * displacement * displacement, 0.0f);
 }
 
+inline float nmFEMClearanceAlignedEnergy(float separation,float thickness,float k,float offset) {
+    if(offset==0.0f)return ipcBarrierEnergy(separation,thickness,k,false,0.0f);
+    if(!isfinite(offset)||offset<0.0f||!(thickness>offset)||!(separation>offset))return NAN;
+    return ipcBarrierEnergy(separation-offset,thickness-offset,k,false,0.0f);
+}
+
 // Two-word FEM IPC energy. With zero numerical offset this is the exact
 // legacy unshifted law; the optional immutable-source offset translates gap
 // and activation width together. The same C1 continuation is retained.

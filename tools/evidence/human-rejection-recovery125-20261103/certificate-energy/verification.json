@@ -1,0 +1,40 @@
+{
+  "device": "Mac18,5",
+  "tested_execution_head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "binaries": [
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/numi-matter-fgmres-true-residual-native-check",
+      "sha256": "254226662644ca8b580fda6c6337b6b20eaf603c05dfce722a1f917463b80290",
+      "bytes": 1331312
+    },
+    {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "sha256": "098c3d54e01927e517f428237afdaa440f301c461cc857f0746d93a2fa7f2d4e",
+      "bytes": 30342454
+    }
+  ],
+  "sources": {
+    "matter/src/metal/common.metalinc": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/common.metalinc",
+      "sha256": "dcac3f3e7f4d966e3bbf51a32303d458ce55f29280c78a988d9c21613cede231",
+      "bytes": 162452
+    },
+    "matter/src/metal/contact.metalinc": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/contact.metalinc",
+      "sha256": "74b835ef60abca946d9078c73ed505206bb62244fabb3407ebc0553fe7b8042f",
+      "bytes": 741429
+    },
+    "matter/src/metal/mixed_fem.metalinc": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/mixed_fem.metalinc",
+      "sha256": "dcfdbf58744e9d6fe8d1d722057d258acd31b24dd4fd651f390118bca25dcb21",
+      "bytes": 61768
+    },
+    "matter/tools/fgmres_true_residual_native_check.mm": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/tools/fgmres_true_residual_native_check.mm",
+      "sha256": "e20591fd92bff22c753c40c755cf2efada7f794e02849173283b6e9a85e83484",
+      "bytes": 937893
+    }
+  },
+  "test_result": "PASS 810131 checks",
+  "integrated_motion_qualified": false
+}

@@ -61,7 +61,7 @@ std::vector<T> readBuffer(id<MTLBuffer> buffer, std::size_t count) {
 }
 
 id<MTLComputePipelineState> pipeline(
-    id<MTLDevice> device, id<MTLLibrary> library, const char* name, bool referenceContactWidth=false) {
+    id<MTLDevice> device, id<MTLLibrary> library, const char* name, bool referenceContactWidth=false, bool alignedBarrier=false) {
     NSString* functionName = [NSString stringWithUTF8String:name];
     id<MTLFunction> function = [library newFunctionWithName:functionName];
     require(function != nil, std::string("missing Metal function: ") + name);
@@ -70,7 +70,7 @@ id<MTLComputePipelineState> pipeline(
     bool specializeContact=false;
     for (MTLFunctionConstant* constant in function.functionConstantsDictionary.allValues) {
         if (constant.index!=38u && constant.index!=39u) continue;
-        const bool enabled=constant.index==38u ? referenceContactWidth : false;
+        const bool enabled=constant.index==38u ? referenceContactWidth : alignedBarrier;
         [contactConstants setConstantValue:&enabled type:MTLDataTypeBool atIndex:constant.index];
         specializeContact=true;
     }
@@ -15988,6 +15988,25 @@ void checkFEMAlignedBarrier(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MT
     }
     for(unsigned i=validCount;i<count;++i)
         require(!std::isfinite(got[i].x)&&!std::isfinite(got[i].z),"invalid shifted domain accepted");
+    std::vector<NMDeformableContactGPU> contacts(count);
+    for(unsigned i=0;i<count;++i) {
+        contacts[i].pointAndSeparation.w=input[i].x;
+        contacts[i].barrier.z=input[i].y;contacts[i].barrier.w=meta[i].y*0.25f;
+        contacts[i].barrierHessianRow2.w=input[i].z;
+    }
+    auto certificateEnergy=makeBuffer(device,std::vector<float>(count+1,-7.0f));
+    dispatch(device,queue,pipeline(device,library,
+        "numi_matter_metal::nm_mixed_contact_energy_check",false,true),{
+        {0u,makeBuffer(device,contacts)},{1u,certificateEnergy},
+        {2u,makeBuffer(device,std::vector<unsigned>{count})}},(count+31)/32,32u);
+    const auto reported=readBuffer<float>(certificateEnergy,count+1);
+    for(unsigned i=0;i<count;++i) {
+        if(i>=validCount)require(!std::isfinite(reported[i]),"certificate accepted invalid shifted contact");
+        else if(got[i].x==0.0f)require(reported[i]==0.0f,"certificate activation differs from potential");
+        else require(close(reported[i],(double(got[i].x)+got[i].y)*0.25,8.0e-4),
+            "certificate contact energy differs from assembled potential");
+    }
+    require(reported[count]==-7.0f,"certificate energy output canary");
     require(got[count].x==-7&&meta[count].w==-7,"aligned barrier output canary");
     std::cout<<"fem_clearance_aligned_barrier=true Float64_energy_force_curvature=true "
         "nanometre_underflow_avoided=true invalid_domain_rejected=true cases="<<count<<" PASS\n";

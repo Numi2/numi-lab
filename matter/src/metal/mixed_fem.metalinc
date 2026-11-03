@@ -726,6 +726,19 @@ kernel void nm_mixed_check_reference_contact_clearance(
     output[index]=nmMixedReferenceContactClearance(dispatch,c,nodes,0u,clearance)?1u:0u;
 }
 
+// The reported contact energy must use the same numerical domain as the
+// assembled force and Armijo potential. No physical state is changed here.
+inline float nmMixedDeformableContactEnergy(const NMDeformableContactGPU c) {
+    return nmFEMClearanceAlignedEnergy(c.pointAndSeparation.w,c.barrier.z,c.barrier.w,
+        nmFEMClearanceAlignedBarrierActive ? c.barrierHessianRow2.w : 0.0f);
+}
+kernel void nm_mixed_contact_energy_check(
+    device const NMDeformableContactGPU* contacts [[buffer(0)]],
+    device float* energy [[buffer(1)]],
+    constant uint& count [[buffer(2)]],uint i [[thread_position_in_grid]]) {
+    if(i<count)energy[i]=nmMixedDeformableContactEnergy(contacts[i]);
+}
+
 kernel void nm_mixed_certify(
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
@@ -987,12 +1000,7 @@ kernel void nm_mixed_certify(
         maximumTangentialImpulse = max(
             maximumTangentialImpulse,
             length(deformable.impulseAndFriction.yz));
-        contactEnergy += ipcBarrierEnergy(
-            deformable.pointAndSeparation.w,
-            deformable.barrier.z,
-            deformable.barrier.w,
-            false,
-            0.0f);
+        contactEnergy += nmMixedDeformableContactEnergy(deformable);
     }
     maximumBarrierImpulse = simd_max(maximumBarrierImpulse);
     minimumSeparation = simd_min(minimumSeparation);

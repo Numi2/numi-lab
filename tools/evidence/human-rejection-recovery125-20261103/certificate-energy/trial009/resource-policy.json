@@ -1,0 +1,7 @@
+{
+  "baseline_swap_used_mib": 2553.94,
+  "maximum_additional_swap_mib": 3072,
+  "minimum_available_disk_bytes": 12884901888,
+  "maximum_wall_s": 900,
+  "reason": "post-restart after older-storage cleanup: permit up to3GiB paging of inactive CPU preparation data; retain device working-set guard and at least12GiB disk; physical acceptance unchanged"
+}
