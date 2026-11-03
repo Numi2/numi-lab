@@ -1,0 +1,2 @@
+unresolved_reference_proof_case=34 got=0
+FAIL native FGMRES true-residual kernel contract: complete activation-band sweep proof mismatch

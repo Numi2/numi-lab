@@ -13467,6 +13467,91 @@ inline float nmReferenceContactSweepFraction(
         nmReferenceContactFeatureAxis(kind,finish),normal,clearance));
 }
 
+// Project ORIGINAL endpoint expansions, then interpolate their outward
+// intervals. Interpolated positions are used only to choose an arbitrary axis,
+// never as proof inputs. This avoids losing the low words at subdivision cuts.
+inline bool nmReferenceContactIntervalPlaneSeparated(
+    uint kind,thread const MRCompensatedPositionGPU* start,
+    thread const MRCompensatedPositionGPU* finish,
+    MRCompensatedPositionGPU axis,float thickness,float lo,float hi) {
+    uint firstCount=1u,secondBegin=1u,secondCount=1u;
+    if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE)secondCount=3u;
+    else if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE){firstCount=2u;secondBegin=2u;secondCount=2u;}
+    else if(kind!=NM_DEFORMABLE_CONTACT_POINT_POINT)return false;
+    float normSquaredUpper=0.0f;
+    for(uint j=0u;j<3u;++j) {
+        if(!isfinite(axis.high[j])||!isfinite(axis.low[j]))return false;
+        const float bound=nmContactIntervalUp(abs(axis.high[j])+abs(axis.low[j]));
+        normSquaredUpper=nmContactIntervalUp(normSquaredUpper+nmContactIntervalUp(bound*bound));
+    }
+    const float normUpper=nmContactIntervalUp(sqrt(normSquaredUpper));
+    const float threshold=nmContactIntervalUp(thickness*normUpper);
+    if(!(normUpper>0.0f)||!isfinite(normUpper)||!isfinite(threshold))return false;
+    for(uint a=0u;a<firstCount;++a)for(uint b=secondBegin;b<secondBegin+secondCount;++b) {
+        const auto p=nmContactIntervalAdd(
+            nmContactProjectionIntervalRefined(start[a],start[b],axis.high.xyz),
+            nmContactProjectionInterval(start[a],start[b],axis.low.xyz));
+        const auto q=nmContactIntervalAdd(
+            nmContactProjectionIntervalRefined(finish[a],finish[b],axis.high.xyz),
+            nmContactProjectionInterval(finish[a],finish[b],axis.low.xyz));
+        if(!isfinite(p.lower)||!isfinite(p.upper)||!isfinite(q.lower)||!isfinite(q.upper))
+            return false;
+        for(uint endpoint=0u;endpoint<2u;++endpoint) {
+            // lo/hi are exactly represented dyadic fractions; so is 1-t.
+            const float t=endpoint==0u?lo:hi;
+            const auto value=nmContactIntervalAdd(nmContactIntervalScale(p,1.0f-t),
+                                                  nmContactIntervalScale(q,t));
+            if(!isfinite(value.lower)||!(value.lower>threshold))return false;
+        }
+    }
+    return true;
+}
+
+// Only legacy-uncertified sweeps reach this bounded refinement. Every accepted
+// leaf proves full activation-thickness separation over its whole time interval.
+// A crossing, nonfinite input or exhausted depth stays uncertified. No sampled
+// distance is used to accept a miss; the final residual/contact gates are intact.
+inline bool nmReferenceContactSubdividedSweepSeparated(
+    uint kind,thread const MRCompensatedPositionGPU* start,
+    thread const MRCompensatedPositionGPU* finish,float thickness) {
+    constexpr uint maximumDepth=4u;
+    float2 intervals[maximumDepth+1u];
+    uint depths[maximumDepth+1u];
+    intervals[0]=float2(0.0f,1.0f);depths[0]=0u;
+    uint size=1u;
+    for(uint visit=0u;size>0u&&visit<31u;++visit) {
+        --size;const float2 interval=intervals[size];const uint depth=depths[size];
+        const float t=0.5f*(interval.x+interval.y);
+        MRCompensatedPositionGPU midpoint[4];
+        const uint count=kind==NM_DEFORMABLE_CONTACT_POINT_POINT?2u:4u;
+        for(uint i=0u;i<count;++i)
+            midpoint[i]=mrCompensatedVectorAdd(
+                mrCompensatedVectorScale(start[i],{1.0f-t,0.0f}),
+                mrCompensatedVectorScale(finish[i],{t,0.0f}));
+        MRCompensatedPositionGPU axis=mrCompensatedVector(float4(0.0f));
+        if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
+            float3 barycentric,point;float distance;
+            if(!contactCompensatedVertexTriangleWitness(midpoint[0],midpoint[1],
+                    midpoint[2],midpoint[3],barycentric,point,axis,distance))return false;
+        } else if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+            float u,v;float3 a,b;
+            closestPointsOnSegments(midpoint[0].high.xyz+midpoint[0].low.xyz,
+                midpoint[1].high.xyz+midpoint[1].low.xyz,
+                midpoint[2].high.xyz+midpoint[2].low.xyz,
+                midpoint[3].high.xyz+midpoint[3].low.xyz,u,v,a,b);
+            axis=mrCompensatedVector(float4(a-b,0.0f));
+        } else if(kind==NM_DEFORMABLE_CONTACT_POINT_POINT)
+            axis=mrCompensatedVectorAdd(midpoint[0],mrCompensatedVectorNegate(midpoint[1]));
+        else return false;
+        if(nmReferenceContactIntervalPlaneSeparated(kind,start,finish,axis,thickness,
+                interval.x,interval.y))continue;
+        if(depth>=maximumDepth||size+2u>maximumDepth+1u)return false;
+        intervals[size]=float2(t,interval.y);depths[size++]=depth+1u;
+        intervals[size]=float2(interval.x,t);depths[size++]=depth+1u;
+    }
+    return size==0u;
+}
+
 inline bool nmReferenceUnresolvedSweepSeparated(
     uint kind,thread const MRCompensatedPositionGPU* start,
     thread const MRCompensatedPositionGPU* finish,float thickness) {
@@ -13490,7 +13575,7 @@ inline bool nmReferenceUnresolvedSweepSeparated(
         if(nmReferenceContactSweepFraction(kind,start,finish,direction,thickness)==1.0f)
             return true;
     }
-    return false;
+    return nmReferenceContactSubdividedSweepSeparated(kind,start,finish,thickness);
 }
 
 // Candidate axes need not be exact: every success is certified against the

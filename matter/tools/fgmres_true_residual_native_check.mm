@@ -15369,6 +15369,43 @@ void checkUnresolvedReferenceSweepProof(
         parameters.push_back({float(thickness),float(kind),0,0});
         expected.push_back(mode==0u?1u:0u);
     }
+    // Rounded endpoint arguments from native trial 017, not a claim that
+    // these contain its compensated low words. The legacy full-sweep plane
+    // cannot certify this near-activation moving edge; subdivision must.
+    constexpr double captured[8][3]={
+        {-6.96422364e-10,1.11065178e-10,-1.3521257e-08},
+        {0.000131787107,-0.000118393422,9.68289896e-05},
+        {-0.000118035896,8.08840268e-05,-9.62090126e-05},
+        {-5.14621388e-05,3.24250686e-05,-4.30275213e-05},
+        {-1.70392334e-09,3.25454746e-10,-2.16112035e-08},
+        {0.000131786073,-0.000118393407,9.68206441e-05},
+        {-0.000118036602,8.08843834e-05,-9.62110134e-05},
+        {-5.14627427e-05,3.2425145e-05,-4.30303407e-05}};
+    for(double scale:{0.001,1.0,1000.0})for(double origin:{0.0,1.0})
+      for(unsigned mode=0u;mode<4u;++mode) {
+        std::array<P,8> p{};
+        for(unsigned endpoint=0u;endpoint<2u;++endpoint)for(unsigned i=0u;i<4u;++i) {
+            const unsigned source=(mode==1u?1u-endpoint:endpoint)*4u+i;
+            // Quarter-turn plus reflection exercises orientation independence.
+            double x=-double(float(captured[source][1]))*scale;
+            double y= double(float(captured[source][0]))*scale;
+            double z=-double(float(captured[source][2]))*scale;
+            if(mode==2u&&i==0u&&endpoint==1u) {
+                // Put the endpoint point at the triangle centroid: never clear.
+                x=y=z=0.0;
+                for(unsigned j=1u;j<4u;++j) {
+                    x-=double(float(captured[4u+j][1]))*scale/3.0;
+                    y+=double(float(captured[4u+j][0]))*scale/3.0;
+                    z-=double(float(captured[4u+j][2]))*scale/3.0;
+                }
+            }
+            p[4u*endpoint+i]=point(origin+x,origin+y,origin+z);
+        }
+        if(mode==3u)p[5u].low.x=std::numeric_limits<float>::infinity();
+        positions.insert(positions.end(),p.begin(),p.end());
+        parameters.push_back({float(double(float(1e-5))*scale),0,0,0});
+        expected.push_back(mode<2u?1u:0u);
+      }
     const unsigned count=unsigned(expected.size());
     auto output=makeBuffer(device,std::vector<unsigned>(count+4u,0xdeadbeefu));
     dispatch(device,queue,pipeline(device,library,
@@ -15383,7 +15420,7 @@ void checkUnresolvedReferenceSweepProof(
     for(unsigned i=count;i<count+4u;++i)require(got[i]==0xdeadbeefu,"unresolved sweep canary");
     std::cout<<"unresolved_reference_sweep=true full_activation_thickness=true"
         " compensated_translation=true VT_EE_PP=true crossing_rejected=true"
-        " within_activation_retained=true nonfinite_rejected=true cases=30 canaries=4 PASS\n";
+        " within_activation_retained=true nonfinite_rejected=true bounded_subdivision=true cases="<<count<<" canaries=4 PASS\n";
 }
 
 
@@ -16249,6 +16286,9 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if(argc==2&&std::string(argv[1])=="--unresolved-reference-sweep-only") {
+                checkUnresolvedReferenceSweepProof(device,queue,library);return 0;
+            }
             if(argc==2&&std::string(argv[1])=="--tiled-mixed-certificate-only") {
                 checkFinalContactActivePrefix(device,queue,library);
                 checkTiledMixedCertificateDomains(device,queue,library);

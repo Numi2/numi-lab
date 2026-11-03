@@ -1,0 +1,168 @@
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -13467,6 +13467,91 @@
+         nmReferenceContactFeatureAxis(kind,finish),normal,clearance));
+ }
+ 
++// Project ORIGINAL endpoint expansions, then interpolate their outward
++// intervals. Interpolated positions are used only to choose an arbitrary axis,
++// never as proof inputs. This avoids losing the low words at subdivision cuts.
++inline bool nmReferenceContactIntervalPlaneSeparated(
++    uint kind,thread const MRCompensatedPositionGPU* start,
++    thread const MRCompensatedPositionGPU* finish,
++    MRCompensatedPositionGPU axis,float thickness,float lo,float hi) {
++    uint firstCount=1u,secondBegin=1u,secondCount=1u;
++    if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE)secondCount=3u;
++    else if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE){firstCount=2u;secondBegin=2u;secondCount=2u;}
++    else if(kind!=NM_DEFORMABLE_CONTACT_POINT_POINT)return false;
++    float normSquaredUpper=0.0f;
++    for(uint j=0u;j<3u;++j) {
++        if(!isfinite(axis.high[j])||!isfinite(axis.low[j]))return false;
++        const float bound=nmContactIntervalUp(abs(axis.high[j])+abs(axis.low[j]));
++        normSquaredUpper=nmContactIntervalUp(normSquaredUpper+nmContactIntervalUp(bound*bound));
++    }
++    const float normUpper=nmContactIntervalUp(sqrt(normSquaredUpper));
++    const float threshold=nmContactIntervalUp(thickness*normUpper);
++    if(!(normUpper>0.0f)||!isfinite(normUpper)||!isfinite(threshold))return false;
++    for(uint a=0u;a<firstCount;++a)for(uint b=secondBegin;b<secondBegin+secondCount;++b) {
++        const auto p=nmContactIntervalAdd(
++            nmContactProjectionIntervalRefined(start[a],start[b],axis.high.xyz),
++            nmContactProjectionInterval(start[a],start[b],axis.low.xyz));
++        const auto q=nmContactIntervalAdd(
++            nmContactProjectionIntervalRefined(finish[a],finish[b],axis.high.xyz),
++            nmContactProjectionInterval(finish[a],finish[b],axis.low.xyz));
++        if(!isfinite(p.lower)||!isfinite(p.upper)||!isfinite(q.lower)||!isfinite(q.upper))
++            return false;
++        for(uint endpoint=0u;endpoint<2u;++endpoint) {
++            // lo/hi are exactly represented dyadic fractions; so is 1-t.
++            const float t=endpoint==0u?lo:hi;
++            const auto value=nmContactIntervalAdd(nmContactIntervalScale(p,1.0f-t),
++                                                  nmContactIntervalScale(q,t));
++            if(!isfinite(value.lower)||!(value.lower>threshold))return false;
++        }
++    }
++    return true;
++}
++
++// Only legacy-uncertified sweeps reach this bounded refinement. Every accepted
++// leaf proves full activation-thickness separation over its whole time interval.
++// A crossing, nonfinite input or exhausted depth stays uncertified. No sampled
++// distance is used to accept a miss; the final residual/contact gates are intact.
++inline bool nmReferenceContactSubdividedSweepSeparated(
++    uint kind,thread const MRCompensatedPositionGPU* start,
++    thread const MRCompensatedPositionGPU* finish,float thickness) {
++    constexpr uint maximumDepth=4u;
++    float2 intervals[maximumDepth+1u];
++    uint depths[maximumDepth+1u];
++    intervals[0]=float2(0.0f,1.0f);depths[0]=0u;
++    uint size=1u;
++    for(uint visit=0u;size>0u&&visit<31u;++visit) {
++        --size;const float2 interval=intervals[size];const uint depth=depths[size];
++        const float t=0.5f*(interval.x+interval.y);
++        MRCompensatedPositionGPU midpoint[4];
++        const uint count=kind==NM_DEFORMABLE_CONTACT_POINT_POINT?2u:4u;
++        for(uint i=0u;i<count;++i)
++            midpoint[i]=mrCompensatedVectorAdd(
++                mrCompensatedVectorScale(start[i],{1.0f-t,0.0f}),
++                mrCompensatedVectorScale(finish[i],{t,0.0f}));
++        MRCompensatedPositionGPU axis=mrCompensatedVector(float4(0.0f));
++        if(kind==NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE) {
++            float3 barycentric,point;float distance;
++            if(!contactCompensatedVertexTriangleWitness(midpoint[0],midpoint[1],
++                    midpoint[2],midpoint[3],barycentric,point,axis,distance))return false;
++        } else if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
++            float u,v;float3 a,b;
++            closestPointsOnSegments(midpoint[0].high.xyz+midpoint[0].low.xyz,
++                midpoint[1].high.xyz+midpoint[1].low.xyz,
++                midpoint[2].high.xyz+midpoint[2].low.xyz,
++                midpoint[3].high.xyz+midpoint[3].low.xyz,u,v,a,b);
++            axis=mrCompensatedVector(float4(a-b,0.0f));
++        } else if(kind==NM_DEFORMABLE_CONTACT_POINT_POINT)
++            axis=mrCompensatedVectorAdd(midpoint[0],mrCompensatedVectorNegate(midpoint[1]));
++        else return false;
++        if(nmReferenceContactIntervalPlaneSeparated(kind,start,finish,axis,thickness,
++                interval.x,interval.y))continue;
++        if(depth>=maximumDepth||size+2u>maximumDepth+1u)return false;
++        intervals[size]=float2(t,interval.y);depths[size++]=depth+1u;
++        intervals[size]=float2(interval.x,t);depths[size++]=depth+1u;
++    }
++    return size==0u;
++}
++
+ inline bool nmReferenceUnresolvedSweepSeparated(
+     uint kind,thread const MRCompensatedPositionGPU* start,
+     thread const MRCompensatedPositionGPU* finish,float thickness) {
+@@ -13490,7 +13575,7 @@
+         if(nmReferenceContactSweepFraction(kind,start,finish,direction,thickness)==1.0f)
+             return true;
+     }
+-    return false;
++    return nmReferenceContactSubdividedSweepSeparated(kind,start,finish,thickness);
+ }
+ 
+ // Candidate axes need not be exact: every success is certified against the
+--- a/matter/tools/fgmres_true_residual_native_check.mm
++++ b/matter/tools/fgmres_true_residual_native_check.mm
+@@ -15369,6 +15369,43 @@
+         parameters.push_back({float(thickness),float(kind),0,0});
+         expected.push_back(mode==0u?1u:0u);
+     }
++    // Rounded endpoint arguments from native trial 017, not a claim that
++    // these contain its compensated low words. The legacy full-sweep plane
++    // cannot certify this near-activation moving edge; subdivision must.
++    constexpr double captured[8][3]={
++        {-6.96422364e-10,1.11065178e-10,-1.3521257e-08},
++        {0.000131787107,-0.000118393422,9.68289896e-05},
++        {-0.000118035896,8.08840268e-05,-9.62090126e-05},
++        {-5.14621388e-05,3.24250686e-05,-4.30275213e-05},
++        {-1.70392334e-09,3.25454746e-10,-2.16112035e-08},
++        {0.000131786073,-0.000118393407,9.68206441e-05},
++        {-0.000118036602,8.08843834e-05,-9.62110134e-05},
++        {-5.14627427e-05,3.2425145e-05,-4.30303407e-05}};
++    for(double scale:{0.001,1.0,1000.0})for(double origin:{0.0,1.0})
++      for(unsigned mode=0u;mode<4u;++mode) {
++        std::array<P,8> p{};
++        for(unsigned endpoint=0u;endpoint<2u;++endpoint)for(unsigned i=0u;i<4u;++i) {
++            const unsigned source=(mode==1u?1u-endpoint:endpoint)*4u+i;
++            // Quarter-turn plus reflection exercises orientation independence.
++            double x=-double(float(captured[source][1]))*scale;
++            double y= double(float(captured[source][0]))*scale;
++            double z=-double(float(captured[source][2]))*scale;
++            if(mode==2u&&i==0u&&endpoint==1u) {
++                // Put the endpoint point at the triangle centroid: never clear.
++                x=y=z=0.0;
++                for(unsigned j=1u;j<4u;++j) {
++                    x-=double(float(captured[4u+j][1]))*scale/3.0;
++                    y+=double(float(captured[4u+j][0]))*scale/3.0;
++                    z-=double(float(captured[4u+j][2]))*scale/3.0;
++                }
++            }
++            p[4u*endpoint+i]=point(origin+x,origin+y,origin+z);
++        }
++        if(mode==3u)p[5u].low.x=std::numeric_limits<float>::infinity();
++        positions.insert(positions.end(),p.begin(),p.end());
++        parameters.push_back({float(double(float(1e-5))*scale),0,0,0});
++        expected.push_back(mode<2u?1u:0u);
++      }
+     const unsigned count=unsigned(expected.size());
+     auto output=makeBuffer(device,std::vector<unsigned>(count+4u,0xdeadbeefu));
+     dispatch(device,queue,pipeline(device,library,
+@@ -15383,7 +15420,7 @@
+     for(unsigned i=count;i<count+4u;++i)require(got[i]==0xdeadbeefu,"unresolved sweep canary");
+     std::cout<<"unresolved_reference_sweep=true full_activation_thickness=true"
+         " compensated_translation=true VT_EE_PP=true crossing_rejected=true"
+-        " within_activation_retained=true nonfinite_rejected=true cases=30 canaries=4 PASS\n";
++        " within_activation_retained=true nonfinite_rejected=true bounded_subdivision=true cases="<<count<<" canaries=4 PASS\n";
+ }
+ 
+ 
+@@ -16249,6 +16286,9 @@
+                 ? std::string("cannot load Matter metallib: ") +
+                     [[error localizedDescription] UTF8String]
+                 : "cannot load Matter metallib");
++            if(argc==2&&std::string(argv[1])=="--unresolved-reference-sweep-only") {
++                checkUnresolvedReferenceSweepProof(device,queue,library);return 0;
++            }
+             if(argc==2&&std::string(argv[1])=="--tiled-mixed-certificate-only") {
+                 checkFinalContactActivePrefix(device,queue,library);
+                 checkTiledMixedCertificateDomains(device,queue,library);

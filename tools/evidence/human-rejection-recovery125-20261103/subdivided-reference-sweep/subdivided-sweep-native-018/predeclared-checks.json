@@ -1,0 +1,27 @@
+{
+  "purpose": "integrated regression after 017 uncertified VTCCD; exploratory native horizon, not qualification",
+  "prediction": "prior root3 candidate [299158,299707] either receives a full-thickness proof or remains rejected; no acceptance gate changed",
+  "inputs_unchanged_from": "mass-screened-cavities-native-017",
+  "requested_steps": 16,
+  "dt_seconds": 1.5625e-05,
+  "checks": [
+    "native cavity geometry/mass import",
+    "accepted steps exceed 3",
+    "contact and material determinant checks unchanged",
+    "terminal typed failure retained",
+    "accepted-only physiology time"
+  ],
+  "bounded_stopping_rule": "one native run, existing 900 second wall/12GiB disk/3GiB swap-delta guard",
+  "unit_evidence": {
+    "focused": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/subdivided-sweep-focused-002.log",
+      "sha256": "2ba282f0e54efc4463e21d825932307ac1f7fa0b1af01de64a5b23787180eaa8",
+      "bytes": 235
+    },
+    "full": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/subdivided-sweep-regression-002.log",
+      "sha256": "a838e41b7988873a97dbb56e5fb1e33656466ec2441ea5a69059a92afb577be9",
+      "bytes": 11807
+    }
+  }
+}

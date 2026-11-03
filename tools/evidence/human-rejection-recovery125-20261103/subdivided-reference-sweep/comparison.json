@@ -1,0 +1,53 @@
+{
+  "mass-screened-cavities-native-017": {
+    "profiles": [
+      {
+        "accepted_step": 1,
+        "gpu_s": 18.193118875
+      },
+      {
+        "accepted_step": 2,
+        "gpu_s": 20.17370725
+      },
+      {
+        "accepted_step": 3,
+        "gpu_s": 17.400966666699997
+      }
+    ],
+    "accepted_count": 3,
+    "accepted_gpu_seconds": 55.767792791699996
+  },
+  "subdivided-sweep-native-018": {
+    "profiles": [
+      {
+        "accepted_step": 1,
+        "gpu_s": 18.442679875000003
+      },
+      {
+        "accepted_step": 2,
+        "gpu_s": 20.153362249999997
+      },
+      {
+        "accepted_step": 3,
+        "gpu_s": 17.410905875
+      },
+      {
+        "accepted_step": 4,
+        "gpu_s": 17.321306125
+      },
+      {
+        "accepted_step": 5,
+        "gpu_s": 18.236578833299998
+      }
+    ],
+    "accepted_count": 5,
+    "accepted_gpu_seconds": 91.5648329583
+  },
+  "first_three_csv_rows_byte_identical": true,
+  "limitations": [
+    "single instrumented runs",
+    "startup/cold effects present",
+    "compact trace parity is not full FEM parity",
+    "no sustained/end-to-end throughput claim"
+  ]
+}
