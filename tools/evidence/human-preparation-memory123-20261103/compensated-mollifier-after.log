@@ -1,0 +1,14 @@
+compensated_contact_energy trial=0 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=1 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=2 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=3 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=4 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=5 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=6 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=7 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=8 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=9 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=10 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=11 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+compensated_contact_energy trial=12 energy=7.030497014e-22 separation=6.859424047e-06 mollifier=0.3326250017 relative=0
+PASS compensated contact continuity 32 checks

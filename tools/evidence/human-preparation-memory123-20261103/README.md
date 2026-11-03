@@ -226,3 +226,32 @@ outside its newly created run root. The retained manifest records each alias
 and hash. Available disk after this operation was39,378,882,560bytes, a net
 27,273,719,808bytes above the original starting snapshot; OS paging still
 changes current availability during execution.
+
+### Compensated contact-angle consistency
+
+Full-scene019/020 gets past the earlier false initial contacts but still accepts
+zero physical time. It rejects at skin/fat VT contact1589443, active slot265372,
+with a finite, certified collision-free trial. A sparse020 trace shows trial
+energy remains about1.5e-5 relatively above base even as alpha tends to zero.
+The high/low position expansions converge correctly: this is not an actual
+finite jump of the skin. Rounding nearly parallel feature edges before their
+angular mollifier changes the projected edge representation at a halfway case.
+
+A captured production-helper GPU regression fails on the old angular path.
+The new overload keeps compensated edges through the cross product, squared
+norms and analytic angle derivative. Assembly and trial energy share this
+calculation for reference-mode contact; the existing Float32 nonreference
+path and the dimensionless C1 mollifier equation are retained. No clearance,
+physical acceptance threshold, force row or anatomical geometry is removed.
+
+The focused checker passes140checks: captured base/trial continuity, angular
+values and gradients against Float64 analytic equations, three length scales,
+parallel/antiparallel neighborhoods, zero edges and nonfinite rejection. The
+complete production kernel checker passes78,032checks. Earlier pre-assertion
+fixture logs are retained as diagnostics; the v2 logs are the full equation
+checks. This qualifies the numerical helper, not whole-Human dynamics.
+
+The failed019segment took25.486149791s;020reproduces the same failure. Both
+accepted zero physical steps and therefore provide no achieved real-time factor.
+Trial021 is running with the new angular path and otherwise matched physical
+settings. The0.1x, accepted-motion and physiology requirements remain open.

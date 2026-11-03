@@ -1,0 +1,444 @@
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -697,6 +697,65 @@
+             0.0f, position.high.z, position.low.z));
+ }
+ 
++// Preserve the compensated edges through the nearly parallel cross product.
++// Rounding each edge first can change the mollifier even when the exact trial
++// displacement tends to zero. The value and gradients below differentiate the
++// same dimensionless sin^2 angle as the legacy path; no barrier is softened.
++inline float ipcFeatureMollifierDifferential(
++    const MRCompensatedPositionGPU first,
++    const MRCompensatedPositionGPU second,
++    thread float3& firstGradient,
++    thread float3& secondGradient
++) {
++    firstGradient = float3(0.0f);
++    secondGradient = float3(0.0f);
++    if (!all(isfinite(first.high.xyz)) || !all(isfinite(first.low.xyz)) ||
++        !all(isfinite(second.high.xyz)) || !all(isfinite(second.low.xyz))) {
++        firstGradient = secondGradient = float3(NAN);
++        return NAN;
++    }
++    const float3 fp=contactCompensatedPositionProjection(first);
++    const float3 sp=contactCompensatedPositionProjection(second);
++    const float fs=max(max(abs(fp.x),abs(fp.y)),abs(fp.z));
++    const float ss=max(max(abs(sp.x),abs(sp.y)),abs(sp.z));
++    if (!(fs>0.0f) || !(ss>0.0f)) return 0.0f;
++    const auto a=mrCompensatedVectorScale(first,{1.0f/fs,0.0f});
++    const auto b=mrCompensatedVectorScale(second,{1.0f/ss,0.0f});
++    const auto aa=mrCompensatedVectorDot(a,a);
++    const auto bb=mrCompensatedVectorDot(b,b);
++    const auto c=mrCompensatedVectorCross(a,b);
++    const auto denominator=mrCompensatedMultiply(aa,bb);
++    const auto sine=mrCompensatedDivide(mrCompensatedVectorDot(c,c),denominator);
++    const float sinSquared=max(sine.high+sine.low,0.0f);
++    constexpr float relativeThreshold=1.0e-3f;
++    const float ratio=clamp(sinSquared/relativeThreshold,0.0f,1.0f);
++    const float value=ratio*(2.0f-ratio);
++    if (!isfinite(value)) {
++        firstGradient=secondGradient=float3(NAN);
++        return NAN;
++    }
++    if (!(ratio>0.0f && ratio<1.0f)) return value;
++    const auto inverseDenominator=mrCompensatedDivide({2.0f,0.0f},denominator);
++    const auto firstRadial=mrCompensatedVectorScale(a,
++        mrCompensatedDivide(mrCompensatedMultiply({2.0f,0.0f},sine),aa));
++    const auto secondRadial=mrCompensatedVectorScale(b,
++        mrCompensatedDivide(mrCompensatedMultiply({2.0f,0.0f},sine),bb));
++    const auto ga=mrCompensatedVectorAdd(mrCompensatedVectorScale(
++        mrCompensatedVectorCross(b,c),inverseDenominator),
++        mrCompensatedVectorNegate(firstRadial));
++    const auto gb=mrCompensatedVectorAdd(mrCompensatedVectorScale(
++        mrCompensatedVectorCross(c,a),inverseDenominator),
++        mrCompensatedVectorNegate(secondRadial));
++    const float derivative=2.0f*(1.0f-ratio)/relativeThreshold;
++    firstGradient=(derivative/fs)*contactCompensatedPositionProjection(ga);
++    secondGradient=(derivative/ss)*contactCompensatedPositionProjection(gb);
++    if (!all(isfinite(firstGradient)) || !all(isfinite(secondGradient))) {
++        firstGradient=secondGradient=float3(NAN);
++        return NAN;
++    }
++    return value;
++}
++
+ // Keep the closest-point parameters produced by the established segment
+ // solver, but form the relative witness before rounding either world-space
+ // point. Subtracting the two separately rounded points loses the small gap
+@@ -1036,12 +1095,10 @@
+             energy = INFINITY;
+             return false;
+         }
+-        const float3 ab = contactCompensatedPositionProjection(
+-            mrCompensatedVectorAdd(position[2],
+-                mrCompensatedVectorNegate(position[1])));
+-        const float3 ac = contactCompensatedPositionProjection(
+-            mrCompensatedVectorAdd(position[3],
+-                mrCompensatedVectorNegate(position[1])));
++        const auto ab = mrCompensatedVectorAdd(position[2],
++            mrCompensatedVectorNegate(position[1]));
++        const auto ac = mrCompensatedVectorAdd(position[3],
++            mrCompensatedVectorNegate(position[1]));
+         float3 firstGradient, secondGradient;
+         featureMollifier = ipcFeatureMollifierDifferential(
+             ab, ac, firstGradient, secondGradient);
+@@ -1055,12 +1112,10 @@
+             energy = INFINITY;
+             return false;
+         }
+-        const float3 firstEdge = contactCompensatedPositionProjection(
+-            mrCompensatedVectorAdd(position[1],
+-                mrCompensatedVectorNegate(position[0])));
+-        const float3 secondEdge = contactCompensatedPositionProjection(
+-            mrCompensatedVectorAdd(position[3],
+-                mrCompensatedVectorNegate(position[2])));
++        const auto firstEdge = mrCompensatedVectorAdd(position[1],
++            mrCompensatedVectorNegate(position[0]));
++        const auto secondEdge = mrCompensatedVectorAdd(position[3],
++            mrCompensatedVectorNegate(position[2]));
+         float3 firstGradient, secondGradient;
+         featureMollifier = ipcFeatureMollifierDifferential(
+             firstEdge, secondEdge, firstGradient, secondGradient);
+@@ -1140,6 +1195,29 @@
+ // Derivative of the current IPC potential along the Newton path, before
+ // endpoint rounding. The actual rounded endpoints still own CCD and energy
+ // acceptance. A rounded alpha=1 chord is not this path's derivative.
++// Focused native verification of the same compensated barrier and feature
++// derivatives used by assembly and line search. No simulation state is written.
++kernel void nm_contact_check_compensated_barrier(
++    device const NMDeformableContactGPU* contacts [[buffer(0)]],
++    device const MRCompensatedPositionGPU* positions [[buffer(1)]],
++    device float4* results [[buffer(2)]],
++    device float4* gradients [[buffer(3)]],
++    constant uint& count [[buffer(4)]],
++    uint index [[thread_position_in_grid]]) {
++    if (index >= count) return;
++    MRCompensatedPositionGPU p[4];
++    for (uint i=0u;i<4u;++i) p[i]=positions[4u*index+i];
++    float energy, separation;
++    const bool valid = deformableBarrierEnergyAt(contacts[index], p, energy, separation);
++    const auto a=mrCompensatedVectorAdd(p[2],mrCompensatedVectorNegate(p[1]));
++    const auto b=mrCompensatedVectorAdd(p[3],mrCompensatedVectorNegate(p[1]));
++    float3 ga,gb;
++    const float m=ipcFeatureMollifierDifferential(a,b,ga,gb);
++    results[index]=float4(energy,separation,m,valid?1.0f:0.0f);
++    gradients[2u*index]=float4(ga,0.0f);
++    gradients[2u*index+1u]=float4(gb,0.0f);
++}
++
+ inline float contactBarrierDirectionalDerivative(
+     const NMDeformableContactGPU contact,
+     const float3 displacement[6],
+@@ -7766,36 +7844,46 @@
+             float3(0.0f), float3(0.0f)};
+         if (bestKind == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+             float3 firstGradient, secondGradient;
+-            const float3 firstEdge = referenceModeContact
+-                ? contactCompensatedPositionProjection(
+-                    mrCompensatedVectorAdd(featurePotentialPosition[1],
+-                        mrCompensatedVectorNegate(featurePotentialPosition[0])))
+-                : featurePosition[1] - featurePosition[0];
+-            const float3 secondEdge = referenceModeContact
+-                ? contactCompensatedPositionProjection(
+-                    mrCompensatedVectorAdd(featurePotentialPosition[3],
+-                        mrCompensatedVectorNegate(featurePotentialPosition[2])))
+-                : featurePosition[3] - featurePosition[2];
+-            featureMollifier = ipcFeatureMollifierDifferential(
+-                firstEdge, secondEdge, firstGradient, secondGradient);
++            const auto firstEdge = referenceModeContact
++                ? mrCompensatedVectorAdd(featurePotentialPosition[1],
++                    mrCompensatedVectorNegate(featurePotentialPosition[0]))
++                : contactCompensatedVectorDifference(featurePosition[1],
++                    featurePosition[0]);
++            const auto secondEdge = referenceModeContact
++                ? mrCompensatedVectorAdd(featurePotentialPosition[3],
++                    mrCompensatedVectorNegate(featurePotentialPosition[2]))
++                : contactCompensatedVectorDifference(featurePosition[3],
++                    featurePosition[2]);
++            featureMollifier = referenceModeContact
++                ? ipcFeatureMollifierDifferential(
++                    firstEdge, secondEdge, firstGradient, secondGradient)
++                : ipcFeatureMollifierDifferential(
++                    contactCompensatedPositionProjection(firstEdge),
++                    contactCompensatedPositionProjection(secondEdge),
++                    firstGradient, secondGradient);
+             featureGradient[0] = -firstGradient;
+             featureGradient[1] = firstGradient;
+             featureGradient[2] = -secondGradient;
+             featureGradient[3] = secondGradient;
+         } else {
+             float3 firstGradient, secondGradient;
+-            const float3 firstEdge = referenceModeContact
+-                ? contactCompensatedPositionProjection(
+-                    mrCompensatedVectorAdd(featurePotentialPosition[2],
+-                        mrCompensatedVectorNegate(featurePotentialPosition[1])))
+-                : featurePosition[2] - featurePosition[1];
+-            const float3 secondEdge = referenceModeContact
+-                ? contactCompensatedPositionProjection(
+-                    mrCompensatedVectorAdd(featurePotentialPosition[3],
+-                        mrCompensatedVectorNegate(featurePotentialPosition[1])))
+-                : featurePosition[3] - featurePosition[1];
+-            featureMollifier = ipcFeatureMollifierDifferential(
+-                firstEdge, secondEdge, firstGradient, secondGradient);
++            const auto firstEdge = referenceModeContact
++                ? mrCompensatedVectorAdd(featurePotentialPosition[2],
++                    mrCompensatedVectorNegate(featurePotentialPosition[1]))
++                : contactCompensatedVectorDifference(featurePosition[2],
++                    featurePosition[1]);
++            const auto secondEdge = referenceModeContact
++                ? mrCompensatedVectorAdd(featurePotentialPosition[3],
++                    mrCompensatedVectorNegate(featurePotentialPosition[1]))
++                : contactCompensatedVectorDifference(featurePosition[3],
++                    featurePosition[1]);
++            featureMollifier = referenceModeContact
++                ? ipcFeatureMollifierDifferential(
++                    firstEdge, secondEdge, firstGradient, secondGradient)
++                : ipcFeatureMollifierDifferential(
++                    contactCompensatedPositionProjection(firstEdge),
++                    contactCompensatedPositionProjection(secondEdge),
++                    firstGradient, secondGradient);
+             featureGradient[1] = -firstGradient - secondGradient;
+             featureGradient[2] = firstGradient;
+             featureGradient[3] = secondGradient;
+@@ -7836,35 +7924,45 @@
+         float3 firstGradient;
+         float3 secondGradient;
+         if (bestKind == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+-            const float3 firstEdge = referenceModeContact
+-                ? contactCompensatedPositionProjection(
+-                    mrCompensatedVectorAdd(featurePotentialPosition[1],
+-                        mrCompensatedVectorNegate(featurePotentialPosition[0])))
+-                : featurePosition[1] - featurePosition[0];
+-            const float3 secondEdge = referenceModeContact
+-                ? contactCompensatedPositionProjection(
+-                    mrCompensatedVectorAdd(featurePotentialPosition[3],
+-                        mrCompensatedVectorNegate(featurePotentialPosition[2])))
+-                : featurePosition[3] - featurePosition[2];
+-            featureMollifier = ipcFeatureMollifierDifferential(
+-                firstEdge, secondEdge, firstGradient, secondGradient);
++            const auto firstEdge = referenceModeContact
++                ? mrCompensatedVectorAdd(featurePotentialPosition[1],
++                    mrCompensatedVectorNegate(featurePotentialPosition[0]))
++                : contactCompensatedVectorDifference(featurePosition[1],
++                    featurePosition[0]);
++            const auto secondEdge = referenceModeContact
++                ? mrCompensatedVectorAdd(featurePotentialPosition[3],
++                    mrCompensatedVectorNegate(featurePotentialPosition[2]))
++                : contactCompensatedVectorDifference(featurePosition[3],
++                    featurePosition[2]);
++            featureMollifier = referenceModeContact
++                ? ipcFeatureMollifierDifferential(
++                    firstEdge, secondEdge, firstGradient, secondGradient)
++                : ipcFeatureMollifierDifferential(
++                    contactCompensatedPositionProjection(firstEdge),
++                    contactCompensatedPositionProjection(secondEdge),
++                    firstGradient, secondGradient);
+             mollifierGradient[0] = -firstGradient;
+             mollifierGradient[1] = firstGradient;
+             mollifierGradient[2] = -secondGradient;
+             mollifierGradient[3] = secondGradient;
+         } else {
+-            const float3 firstEdge = referenceModeContact
+-                ? contactCompensatedPositionProjection(
+-                    mrCompensatedVectorAdd(featurePotentialPosition[2],
+-                        mrCompensatedVectorNegate(featurePotentialPosition[1])))
+-                : featurePosition[2] - featurePosition[1];
+-            const float3 secondEdge = referenceModeContact
+-                ? contactCompensatedPositionProjection(
+-                    mrCompensatedVectorAdd(featurePotentialPosition[3],
+-                        mrCompensatedVectorNegate(featurePotentialPosition[1])))
+-                : featurePosition[3] - featurePosition[1];
+-            featureMollifier = ipcFeatureMollifierDifferential(
+-                firstEdge, secondEdge, firstGradient, secondGradient);
++            const auto firstEdge = referenceModeContact
++                ? mrCompensatedVectorAdd(featurePotentialPosition[2],
++                    mrCompensatedVectorNegate(featurePotentialPosition[1]))
++                : contactCompensatedVectorDifference(featurePosition[2],
++                    featurePosition[1]);
++            const auto secondEdge = referenceModeContact
++                ? mrCompensatedVectorAdd(featurePotentialPosition[3],
++                    mrCompensatedVectorNegate(featurePotentialPosition[1]))
++                : contactCompensatedVectorDifference(featurePosition[3],
++                    featurePosition[1]);
++            featureMollifier = referenceModeContact
++                ? ipcFeatureMollifierDifferential(
++                    firstEdge, secondEdge, firstGradient, secondGradient)
++                : ipcFeatureMollifierDifferential(
++                    contactCompensatedPositionProjection(firstEdge),
++                    contactCompensatedPositionProjection(secondEdge),
++                    firstGradient, secondGradient);
+             mollifierGradient[1] = -firstGradient - secondGradient;
+             mollifierGradient[2] = firstGradient;
+             mollifierGradient[3] = secondGradient;
+--- a/matter/tools/fgmres_true_residual_native_check.mm
++++ b/matter/tools/fgmres_true_residual_native_check.mm
+@@ -9,6 +9,7 @@
+ #include "numi/matter/accepted_z0_recycle_admission.hpp"
+ #include "numi/matter/numi_human_shared.h"
+ #include "metalrobo/engine_types.h"
++#include "metalrobo/compensated_translation_gpu.h"
+ #include "numi/matter/matter.hpp"
+ 
+ #include <cmath>
+@@ -14027,6 +14028,140 @@
+         "crossing_limited=true nonfinite_rejected=true legacy_unchanged=true result=PASS\n";
+ }
+ 
++void checkCompensatedContactEnergyContinuity(
++    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
++    // Exact Float32 expansion witnesses from full Human native-020. The final
++    // trial moves by less than 3e-17 m; energy must approach the base value.
++    std::vector<MRCompensatedPositionGPU> positions{
++        {{0.0f,0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
++        {{-0.000309646246f,0.000138826668f,-0.00017144531f,0.0f},{-1.45519152e-11f,0.0f,0.0f,0.0f}},
++        {{-1.5629339e-06f,-2.96533108e-06f,6.66826963e-06f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
++        {{-1.72902946e-06f,-5.12599945e-06f,1.25057995e-05f,0.0f},{0.0f,0.0f,0.0f,0.0f}},
++        {{2.27311032e-14f,-6.12099008e-14f,-5.67060877e-14f,0.0f},{-4.24661117e-22f,-3.59439057e-22f,7.48947421e-22f,0.0f}},
++        {{-0.000309646275f,0.000138826668f,-0.00017144531f,0.0f},{1.45203649e-11f,8.35945032e-15f,-5.53225636e-15f,0.0f}},
++        {{-1.5629339e-06f,-2.96533108e-06f,6.66826963e-06f,0.0f},{5.26346739e-15f,-1.12274228e-15f,-8.45114164e-15f,0.0f}},
++        {{-1.72902946e-06f,-5.12599945e-06f,1.25057995e-05f,0.0f},{-5.67161166e-14f,-3.14891444e-14f,2.98570203e-14f,0.0f}},
++        {{1.13655516e-14f,-3.06049504e-14f,-2.83530439e-14f,0.0f},{-2.12330559e-22f,-1.79719528e-22f,3.74473711e-22f,0.0f}},
++        {{-0.000309646275f,0.000138826668f,-0.00017144531f,0.0f},{1.45361405e-11f,4.17972516e-15f,-2.76612818e-15f,0.0f}},
++        {{-1.5629339e-06f,-2.96533108e-06f,6.66826963e-06f,0.0f},{2.6317337e-15f,-5.61371139e-16f,-4.22557082e-15f,0.0f}},
++        {{-1.72902946e-06f,-5.12599945e-06f,1.25057995e-05f,0.0f},{-2.83580583e-14f,-1.57445722e-14f,1.49285102e-14f,0.0f}},
++        {{5.68277581e-15f,-1.53024752e-14f,-1.41765219e-14f,0.0f},{-1.06165279e-22f,-8.98597642e-23f,1.87236855e-22f,0.0f}},
++        {{-0.000309646275f,0.000138826668f,-0.00017144531f,0.0f},{1.45440283e-11f,2.08986258e-15f,-1.38306409e-15f,0.0f}},
++        {{-1.5629339e-06f,-2.96533108e-06f,6.66826963e-06f,0.0f},{1.31586685e-15f,-2.80685569e-16f,-2.11278541e-15f,0.0f}},
++        {{-1.72902946e-06f,-5.12599945e-06f,1.25057995e-05f,0.0f},{-1.41790291e-14f,-7.8722861e-15f,7.46425508e-15f,0.0f}},
++        {{2.8413879e-15f,-7.6512376e-15f,-7.08826096e-15f,0.0f},{-5.30826396e-23f,-4.49298821e-23f,9.36184276e-23f,0.0f}},
++        {{-0.000309646275f,0.000138826668f,-0.00017144531f,0.0f},{1.45479713e-11f,1.04493129e-15f,-6.91532045e-16f,0.0f}},
++        {{-1.5629339e-06f,-2.96533108e-06f,6.66826963e-06f,0.0f},{6.57933424e-16f,-1.40342785e-16f,-1.0563927e-15f,0.0f}},
++        {{-1.72902946e-06f,-5.12599945e-06f,1.25057995e-05f,0.0f},{-7.08951457e-15f,-3.93614305e-15f,3.73212754e-15f,0.0f}},
++        {{1.42069395e-15f,-3.8256188e-15f,-3.54413048e-15f,0.0f},{-2.65413198e-23f,-2.2464941e-23f,4.68092138e-23f,0.0f}},
++        {{-0.000309646275f,0.000138826668f,-0.00017144531f,0.0f},{1.45499437e-11f,5.22465645e-16f,-3.45766022e-16f,0.0f}},
++        {{-1.5629339e-06f,-2.96533108e-06f,6.66826963e-06f,0.0f},{3.28966712e-16f,-7.01713923e-17f,-5.28196352e-16f,0.0f}},
++        {{-1.72902946e-06f,-5.12599945e-06f,1.25057995e-05f,0.0f},{-3.54475729e-15f,-1.96807152e-15f,1.86606377e-15f,0.0f}},
++        {{7.10346976e-16f,-1.9128094e-15f,-1.77206524e-15f,0.0f},{-1.32706599e-23f,-1.12324705e-23f,2.34046069e-23f,0.0f}},
++        {{-0.000309646275f,0.000138826668f,-0.00017144531f,0.0f},{1.4550929e-11f,2.61232822e-16f,-1.72883011e-16f,0.0f}},
++        {{-1.5629339e-06f,-2.96533108e-06f,6.66826963e-06f,0.0f},{1.64483356e-16f,-3.50856962e-17f,-2.64098176e-16f,0.0f}},
++        {{-1.72902946e-06f,-5.12599945e-06f,1.25057995e-05f,0.0f},{-1.77237864e-15f,-9.84035762e-16f,9.33031885e-16f,0.0f}},
++        {{3.55173488e-16f,-9.564047e-16f,-8.86032621e-16f,0.0f},{-6.63532995e-24f,-5.61623526e-24f,1.17023035e-23f,0.0f}},
++        {{-0.000309646275f,0.000138826668f,-0.00017144531f,0.0f},{1.45514217e-11f,1.30616411e-16f,-8.64415056e-17f,0.0f}},
++        {{-1.5629339e-06f,-2.96533108e-06f,6.66826963e-06f,0.0f},{8.2241678e-17f,-1.75428481e-17f,-1.32049088e-16f,0.0f}},
++        {{-1.72902946e-06f,-5.12599945e-06f,1.25057995e-05f,0.0f},{-8.86189322e-16f,-4.92017881e-16f,4.66515942e-16f,0.0f}},
++        {{1.77586744e-16f,-4.7820235e-16f,-4.4301631e-16f,0.0f},{-3.31766498e-24f,-2.80811763e-24f,5.85115173e-24f,0.0f}},
++        {{-0.000309646275f,0.000138826668f,-0.00017144531f,0.0f},{1.4551668e-11f,6.53082056e-17f,-4.32207528e-17f,0.0f}},
++        {{-1.5629339e-06f,-2.96533108e-06f,6.66826963e-06f,0.0f},{4.1120839e-17f,-8.77142404e-18f,-6.6024544e-17f,0.0f}},
++        {{-1.72902946e-06f,-5.12599945e-06f,1.25057995e-05f,0.0f},{-4.43094661e-16f,-2.4600894e-16f,2.33257971e-16f,0.0f}},
++        {{8.8793372e-17f,-2.39101175e-16f,-2.21508155e-16f,0.0f},{-1.65883249e-24f,-1.40405882e-24f,2.92557586e-24f,0.0f}},
++        {{-0.000309646275f,0.000138826668f,-0.00017144531f,0.0f},{1.45517912e-11f,3.26541028e-17f,-2.16103764e-17f,0.0f}},
++        {{-1.5629339e-06f,-2.96533108e-06f,6.66826963e-06f,0.0f},{2.05604195e-17f,-4.38571202e-18f,-3.3012272e-17f,0.0f}},
++        {{-1.72902946e-06f,-5.12599945e-06f,1.25057995e-05f,0.0f},{-2.2154733e-16f,-1.2300447e-16f,1.16628986e-16f,0.0f}},
++        {{4.4396686e-17f,-1.19550588e-16f,-1.10754078e-16f,0.0f},{-8.29416244e-25f,-7.02029408e-25f,1.46278793e-24f,0.0f}},
++        {{-0.000309646275f,0.000138826668f,-0.00017144531f,0.0f},{1.45518536e-11f,1.63270514e-17f,-1.08051882e-17f,0.0f}},
++        {{-1.5629339e-06f,-2.96533108e-06f,6.66826963e-06f,0.0f},{1.02802098e-17f,-2.19285601e-18f,-1.6506136e-17f,0.0f}},
++        {{-1.72902946e-06f,-5.12599945e-06f,1.25057995e-05f,0.0f},{-1.10773665e-16f,-6.15022351e-17f,5.83144928e-17f,0.0f}},
++        {{2.2198343e-17f,-5.97752938e-17f,-5.53770388e-17f,0.0f},{-4.14708122e-25f,-3.51014704e-25f,7.31393966e-25f,0.0f}},
++        {{-0.000309646275f,0.000138826668f,-0.00017144531f,0.0f},{1.45518849e-11f,8.1635257e-18f,-5.4025941e-18f,0.0f}},
++        {{-1.5629339e-06f,-2.96533108e-06f,6.66826963e-06f,0.0f},{5.14010488e-18f,-1.09642801e-18f,-8.253068e-18f,0.0f}},
++        {{-1.72902946e-06f,-5.12599945e-06f,1.25057995e-05f,0.0f},{-5.53868326e-17f,-3.07511176e-17f,2.91572464e-17f,0.0f}},
++        {{1.10991715e-17f,-2.98876469e-17f,-2.76885194e-17f,0.0f},{-2.07354061e-25f,-1.75507352e-25f,3.65696983e-25f,0.0f}},
++        {{-0.000309646275f,0.000138826668f,-0.00017144531f,0.0f},{1.45519005e-11f,4.08176285e-18f,-2.70129705e-18f,0.0f}},
++        {{-1.5629339e-06f,-2.96533108e-06f,6.66826963e-06f,0.0f},{2.57005244e-18f,-5.48214003e-19f,-4.126534e-18f,0.0f}},
++        {{-1.72902946e-06f,-5.12599945e-06f,1.25057995e-05f,0.0f},{-2.76934163e-17f,-1.53755588e-17f,1.45786232e-17f,0.0f}},
++    };
++    const std::uint32_t captured=positions.size()/4u;
++    for (const float scale : {1.0e-6f,1.0f,1.0e6f}) {
++        for (const float angle : {0.0f,1.0e-5f,0.01f,0.03f,0.0317f,0.3f,3.13159265f}) {
++            positions.push_back({{0.0f,0.0f,1.0e-6f,0.0f},{}});
++            positions.push_back({{}, {}});
++            positions.push_back({{scale,0.0f,0.0f,0.0f},{}});
++            positions.push_back({{scale*std::cos(angle),scale*std::sin(angle),0.0f,0.0f},{}});
++        }
++    }
++    // Degenerate and invalid inputs retain their zero/NaN policies.
++    positions.insert(positions.end(),4u,MRCompensatedPositionGPU{});
++    const std::uint32_t invalidFixture=positions.size()/4u;
++    const std::vector<MRCompensatedPositionGPU> invalidCopy(positions.begin(),positions.begin()+4u);
++    positions.insert(positions.end(),invalidCopy.begin(),invalidCopy.end());
++    positions[4u*invalidFixture+2u].low.x=std::numeric_limits<float>::quiet_NaN();
++    const std::uint32_t count=positions.size()/4u;
++    NMDeformableContactGPU contact{};
++    contact.identity.z=NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
++    contact.barrier.z=1.0e-5f;
++    contact.mollifier.w=1.0f;
++    const auto output=makeBuffer(device,std::vector<nm_float4>(count));
++    const auto gradient=makeBuffer(device,std::vector<nm_float4>(count*2u));
++    dispatch(device,queue,pipeline(device,library,
++        "numi_matter_metal::nm_contact_check_compensated_barrier"),{
++        {0u,makeBuffer(device,std::vector<NMDeformableContactGPU>(count,contact))},
++        {1u,makeBuffer(device,positions)},{2u,output},{3u,gradient},
++        {4u,makeBuffer(device,std::vector<std::uint32_t>{count})}},(count+31u)/32u,32u);
++    const auto values=readBuffer<nm_float4>(output,count);
++    for (std::uint32_t i=0u;i<captured;++i) {
++        std::cout.precision(10);
++        std::cout<<"compensated_contact_energy trial="<<i<<" energy="<<values[i].x
++            <<" separation="<<values[i].y<<" mollifier="<<values[i].z
++            <<" relative="<<(values[i].x/values[0].x-1.0f)<<"\n";
++        require(values[i].w==1.0f && std::isfinite(values[i].x),
++            "compensated barrier rejected finite captured contact");
++    }
++    require(std::abs(values[captured-1u].x/values.front().x-1.0f)<=1.0e-6f,
++        "contact energy does not approach base under vanishing compensated trial");
++    const auto gradients=readBuffer<nm_float4>(gradient,2u*count);
++    using V=std::array<double,3u>;
++    const auto sub=[](const V& a,const V& b) {return V{a[0]-b[0],a[1]-b[1],a[2]-b[2]};};
++    const auto cross=[](const V& a,const V& b) {return V{
++        a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};};
++    const auto dot=[](const V& a,const V& b) {return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];};
++    const auto point=[&](std::uint32_t i) {const auto p=positions[i];return V{
++        double(p.high.x)+p.low.x,double(p.high.y)+p.low.y,double(p.high.z)+p.low.z};};
++    for (std::uint32_t i=0u;i<invalidFixture;++i) {
++        const V a=sub(point(4u*i+2u),point(4u*i+1u));
++        const V b=sub(point(4u*i+3u),point(4u*i+1u));
++        const V c=cross(a,b);const double aa=dot(a,a),bb=dot(b,b);
++        const double sine=aa>0.0 && bb>0.0 ? dot(c,c)/(aa*bb):0.0;
++        const double ratio=std::clamp(sine/1.0e-3,0.0,1.0);
++        const double expected=ratio*(2.0-ratio);
++        require(std::abs(values[i].z-expected)<=3.0e-6*std::max(expected,1.0e-20),
++            "compensated angular mollifier differs from Float64 equation");
++        V ga{},gb{};
++        if (ratio>0.0 && ratio<1.0) {
++            const V bc=cross(b,c),ca=cross(c,a);
++            const double d=2.0*(1.0-ratio)/1.0e-3;
++            for (unsigned j=0u;j<3u;++j) {
++                ga[j]=d*(2.0*bc[j]/(aa*bb)-2.0*sine*a[j]/aa);
++                gb[j]=d*(2.0*ca[j]/(aa*bb)-2.0*sine*b[j]/bb);
++            }
++        }
++        for (unsigned j=0u;j<2u;++j) {
++            const auto actual=gradients[2u*i+j];const V av{actual.x,actual.y,actual.z};
++            const auto expectedGradient=j==0u?ga:gb;const auto delta=sub(av,expectedGradient);
++            require(std::sqrt(dot(delta,delta))<=5.0e-6*std::max(1.0e-20,std::sqrt(dot(expectedGradient,expectedGradient))),
++                "compensated angular gradient differs from Float64 analytic derivative");
++        }
++    }
++    require(std::isnan(values[invalidFixture].z),"nonfinite compensated edge was admitted");
++    require(std::isnan(gradients[2u*invalidFixture].x),"nonfinite edge lost invalid derivative");
++    std::cout<<"compensated_mollifier Float64_value_and_gradient=true scales=3 degenerate_and_nonfinite=true result=PASS\n";
++}
++
+ int main(int argc, const char* argv[]) {
+     @autoreleasepool {
+         try {
+@@ -14044,6 +14179,11 @@
+                 ? std::string("cannot load Matter metallib: ") +
+                     [[error localizedDescription] UTF8String]
+                 : "cannot load Matter metallib");
++            if (argc == 2 && std::string(argv[1]) == "--compensated-contact-continuity-only") {
++                checkCompensatedContactEnergyContinuity(device,queue,library);
++                std::cout << "PASS compensated contact continuity " << checks << " checks\n";
++                return 0;
++            }
+             if (argc == 2 && std::string(argv[1]) ==
+                     "--reference-contact-frame-only") {
+                 checkReferenceContactArithmeticFrame(device, queue, library);
+@@ -14723,6 +14863,7 @@
+             checkFreshRhsPreconditionerBeginVerification(device, queue, library);
+             checkZeroStepGeometryReuse(device, queue, library);
+             checkReferenceContactArithmeticFrame(device, queue, library);
++            checkCompensatedContactEnergyContinuity(device,queue,library);
+             std::cout << "PASS native FGMRES true-residual kernel contract "
+                       << checks
+                       << " checks; correction_accumulated=true; unit_action=true; "
