@@ -6711,8 +6711,15 @@ RuntimeDiagnostics Runtime::initialize(
                 "NM_FGMRES_GRAPH_FULL_PSD_CONTACT_BLOCKS must be exactly 0 or 1";
             return diagnostics;
         }
+        // In the integrated thin-cell invocation the option belongs to
+        // the same coupled FEM/vascular runtime as the graph itself. Sidecar
+        // respiratory/Cardiac runtimes must not acquire this preconditioner.
+        // Standalone explicit graph requests retain strict admission.
+        const bool integratedThinCellScope = thinCellSetting != nullptr &&
+            std::strcmp(thinCellSetting, "1") == 0;
         const bool graphPSDContactRequested = graphPSDContactSetting != nullptr &&
-            std::strcmp(graphPSDContactSetting, "1") == 0;
+            std::strcmp(graphPSDContactSetting, "1") == 0 &&
+            (!integratedThinCellScope || hasCoupledFEMVascularOwner);
         if (graphPSDContactRequested &&
             (!human6GraphRequested ||
              world.mixedSolver.executionBudgets.z != 6u)) {

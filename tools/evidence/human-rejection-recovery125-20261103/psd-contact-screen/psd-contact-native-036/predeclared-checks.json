@@ -1,0 +1,24 @@
+{
+  "purpose": "exploratory integrated conditioning/convergence screen",
+  "question": "Can existing full PSD contact graph blocks improve the current thin-cell coupled solve without changing the physical residual?",
+  "control": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/thin-cell-horizon-native-029/install-motion.execution.json",
+    "sha256": "06e1809d56666f59fda9abdd90d945c3050929d9b8abbd40400882a591c4ab23",
+    "bytes": 748
+  },
+  "best_unchanged_load_horizon": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/polynomial-prefix-native-025/install-motion.execution.json",
+    "sha256": "0e3dd07fffc7906bdd3293d4bcd1a0f0d8372b6c138579188cc66700c9009ac7",
+    "bytes": 747
+  },
+  "change": "Existing full PSD contact blocks in preconditioner only, scoped to same Human FEM/vascular owner; no equation or acceptance change",
+  "prediction": "Pass prior10-step thin-cell horizon and approach/exceed12-step baseline; refuted by rejection at or before10",
+  "bounded_stop": "16 requested15.625us steps; stop on first physical rejection or existing resource guard",
+  "validity": [
+    "native full solver regression817037checks PASS",
+    "actual full PSD graph owner receipt",
+    "unchanged anatomy/mass",
+    "raw residual/determinant/contact and common rollback mandatory"
+  ],
+  "limits": "Not matched three-pair performance qualification; no resting/equilibrium or>=0.1x inference"
+}
