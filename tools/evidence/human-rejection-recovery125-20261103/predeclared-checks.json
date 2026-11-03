@@ -1,0 +1,6 @@
+{
+  "objective": "Accepted complete native Human physical steps without changed physical gates",
+  "first_diagnostic": "Capture minimum contact bounds for every encoded Newton iteration from matched high/low vascular initial state; classify collision, local energy, FEM and downstream vascular restriction",
+  "limits": "One substantial GPU run; existing12GiB/3GiB swap/600s guards; stop changing iteration budgets while shared alpha stalls",
+  "verification": "Captured current-state energy/JVP and rounded-trial replay before physical configuration promotion; existing GPU suites and accepted/rejected transaction checks"
+}

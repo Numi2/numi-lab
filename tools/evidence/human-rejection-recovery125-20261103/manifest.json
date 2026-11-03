@@ -1,0 +1,34 @@
+{
+  "minimum-witnesses.json": {
+    "sha256": "fa37ea95d5eca5eac2fdbd15ef75251a2e3f769a62aae0c9e8e9a90fe7d683cd",
+    "bytes": 65254
+  },
+  "predeclared-checks.json": {
+    "sha256": "df18a83c72b8d58afe3a7bac4b54b4d2189600efc2b6f19649733b8bcaec3c76",
+    "bytes": 626
+  },
+  "paired-energy-source.patch": {
+    "sha256": "cca2b99462ac2726725a6fa902304b5208f9f07bbd8ca04d893ecda675874418",
+    "bytes": 22901
+  },
+  "paired-focused.log": {
+    "sha256": "169efbd529195abd0bc04345c08bf848ad7904d0cd7923d5afb290798b3771ba",
+    "bytes": 110
+  },
+  "README.md": {
+    "sha256": "6a332b3c2a8c400163a994d9e4834565499b2fea86b2217fea213bdb974dbd9b",
+    "bytes": 1266
+  },
+  "probe-command.json": {
+    "sha256": "d131cd450b05226ffced06e39c296cf14da24c05817c78c85caf6b89de3f0566",
+    "bytes": 1030
+  },
+  "minima-summary.json": {
+    "sha256": "249fb71c552d9e2ed3d445272b13ef11786e0883232190f739d391acc6ede893",
+    "bytes": 5315
+  },
+  "paired-full.log": {
+    "sha256": "c91e6b00705c693253d2179611b69041a636528bc077a54564ee7d7679a9ac43",
+    "bytes": 8755
+  }
+}

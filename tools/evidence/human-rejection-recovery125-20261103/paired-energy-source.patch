@@ -1,0 +1,338 @@
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -705,8 +705,10 @@
+     const MRCompensatedPositionGPU first,
+     const MRCompensatedPositionGPU second,
+     thread float3& firstGradient,
+-    thread float3& secondGradient
+-) {
++    thread float3& secondGradient,
++    thread MRCompensatedScalar* valueWords = nullptr
++) {
++    if (valueWords != nullptr) *valueWords = {NAN, 0.0f};
+     firstGradient = float3(0.0f);
+     secondGradient = float3(0.0f);
+     if (!all(isfinite(first.high.xyz)) || !all(isfinite(first.low.xyz)) ||
+@@ -718,7 +720,10 @@
+     const float3 sp=contactCompensatedPositionProjection(second);
+     const float fs=max(max(abs(fp.x),abs(fp.y)),abs(fp.z));
+     const float ss=max(max(abs(sp.x),abs(sp.y)),abs(sp.z));
+-    if (!(fs>0.0f) || !(ss>0.0f)) return 0.0f;
++    if (!(fs>0.0f) || !(ss>0.0f)) {
++        if (valueWords != nullptr) *valueWords = {0.0f, 0.0f};
++        return 0.0f;
++    }
+     const auto a=mrCompensatedVectorScale(first,{1.0f/fs,0.0f});
+     const auto b=mrCompensatedVectorScale(second,{1.0f/ss,0.0f});
+     const auto aa=mrCompensatedVectorDot(a,a);
+@@ -730,6 +735,17 @@
+     constexpr float relativeThreshold=1.0e-3f;
+     const float ratio=clamp(sinSquared/relativeThreshold,0.0f,1.0f);
+     const float value=ratio*(2.0f-ratio);
++    if (valueWords != nullptr) {
++        // Keep angular cancellation through the final energy comparison.
++        // The scalar law is unchanged; rounding m to one word first can turn
++        // a tiny descending trial into a one-ULP energy increase.
++        const auto r = mrCompensatedDivide(sine, {relativeThreshold, 0.0f});
++        if (contactCompensatedSign(r) <= 0) *valueWords = {0.0f, 0.0f};
++        else if (contactCompensatedSign(contactCompensatedSubtract(
++                     r, {1.0f, 0.0f})) >= 0) *valueWords = {1.0f, 0.0f};
++        else *valueWords = mrCompensatedMultiply(r,
++            contactCompensatedSubtract({2.0f, 0.0f}, r));
++    }
+     if (!isfinite(value)) {
+         firstGradient=secondGradient=float3(NAN);
+         return NAN;
+@@ -1079,9 +1095,12 @@
+     const NMDeformableContactGPU contact,
+     thread const MRCompensatedPositionGPU* position,
+     thread float& energy,
+-    thread float& separation
+-) {
++    thread float& separation,
++    thread MRCompensatedScalar* energyWords = nullptr
++) {
++    if (energyWords != nullptr) *energyWords = {NAN, 0.0f};
+     float featureMollifier = 1.0f;
++    MRCompensatedScalar featureMollifierWords = {1.0f, 0.0f};
+     MRCompensatedPositionGPU relative;
+     if (contact.identity.z == NM_DEFORMABLE_CONTACT_POINT_POINT) {
+         relative = mrCompensatedVectorAdd(position[0],
+@@ -1101,7 +1120,8 @@
+             mrCompensatedVectorNegate(position[1]));
+         float3 firstGradient, secondGradient;
+         featureMollifier = ipcFeatureMollifierDifferential(
+-            ab, ac, firstGradient, secondGradient);
++            ab, ac, firstGradient, secondGradient,
++            energyWords != nullptr ? &featureMollifierWords : nullptr);
+     } else if (contact.identity.z == NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+         float firstParameter, secondParameter;
+         float3 firstPoint, secondPoint;
+@@ -1118,7 +1138,8 @@
+             mrCompensatedVectorNegate(position[2]));
+         float3 firstGradient, secondGradient;
+         featureMollifier = ipcFeatureMollifierDifferential(
+-            firstEdge, secondEdge, firstGradient, secondGradient);
++            firstEdge, secondEdge, firstGradient, secondGradient,
++            energyWords != nullptr ? &featureMollifierWords : nullptr);
+     } else {
+         energy = INFINITY;
+         separation = -INFINITY;
+@@ -1138,7 +1159,9 @@
+         ipcFEMBarrierEnergyCompensated(
+             distance, contact.barrier.z, contact.mollifier.w);
+     const MRCompensatedScalar mollifiedEnergy = mrCompensatedMultiply(
+-        barrierEnergy, {featureMollifier, 0.0f});
++        barrierEnergy, energyWords != nullptr
++            ? featureMollifierWords : MRCompensatedScalar{featureMollifier, 0.0f});
++    if (energyWords != nullptr) *energyWords = mollifiedEnergy;
+     energy = mollifiedEnergy.high + mollifiedEnergy.low;
+     return isfinite(distance.high) && isfinite(distance.low) &&
+         isfinite(separation) && isfinite(energy);
+@@ -1216,6 +1239,23 @@
+     results[index]=float4(energy,separation,m,valid?1.0f:0.0f);
+     gradients[2u*index]=float4(ga,0.0f);
+     gradients[2u*index+1u]=float4(gb,0.0f);
++}
++
++kernel void nm_contact_check_compensated_barrier_words(
++    device const NMDeformableContactGPU* contacts [[buffer(0)]],
++    device const MRCompensatedPositionGPU* positions [[buffer(1)]],
++    device float4* results [[buffer(2)]],
++    constant uint& count [[buffer(3)]],
++    uint index [[thread_position_in_grid]]
++) {
++    if (index >= count) return;
++    MRCompensatedPositionGPU p[4];
++    for (uint i = 0u; i < 4u; ++i) p[i] = positions[4u * index + i];
++    float energy, separation;
++    MRCompensatedScalar words;
++    const bool valid = deformableBarrierEnergyAt(
++        contacts[index], p, energy, separation, &words);
++    results[index] = float4(words.high, words.low, separation, valid ? 1.0f : 0.0f);
+ }
+ 
+ inline float contactBarrierDirectionalDerivative(
+@@ -13386,9 +13426,10 @@
+ 
+         float currentEnergy;
+         float currentSeparation;
++        MRCompensatedScalar currentEnergyWords = {NAN, 0.0f};
+         const bool currentEnergyValid = referenceModeContact
+             ? deformableBarrierEnergyAt(contact, featurePotentialPosition,
+-                currentEnergy, currentSeparation)
++                currentEnergy, currentSeparation, &currentEnergyWords)
+             : deformableBarrierEnergyAt(contact, featurePosition,
+                 currentEnergy, currentSeparation);
+         if (!currentEnergyValid) {
+@@ -13660,15 +13701,27 @@
+                     }
+                     float trialEnergy;
+                     float trialSeparation;
++                    MRCompensatedScalar trialEnergyWords = {NAN, 0.0f};
+                     const bool finiteTrial = referenceModeContact
+                         ? deformableBarrierEnergyAt(contact,
+-                            trialPotentialPosition, trialEnergy, trialSeparation)
++                            trialPotentialPosition, trialEnergy, trialSeparation,
++                            &trialEnergyWords)
+                         : deformableBarrierEnergyAt(contact,
+                             trialPosition, trialEnergy, trialSeparation);
+                     const float armijoRight = currentEnergy +
+                         1.0e-4f * alpha * directionalDerivative;
++                    const auto armijoRightWords = mrCompensatedAdd(
++                        currentEnergyWords, mrCompensatedMultiply(
++                            mrCompensatedProduct(alpha, directionalDerivative),
++                            {1.0e-4f, 0.0f}));
++                    const bool energyDescending = referenceModeContact
++                        ? (isfinite(armijoRightWords.high) &&
++                           isfinite(armijoRightWords.low) &&
++                           contactCompensatedSign(contactCompensatedSubtract(
++                               trialEnergyWords, armijoRightWords)) <= 0)
++                        : trialEnergy <= armijoRight;
+                     const bool trialArmijoAccepted = finiteTrial &&
+-                        (femFeasibilityOnly || trialEnergy <= armijoRight);
++                        (femFeasibilityOnly || energyDescending);
+                     if (captureThisTrial) {
+                         trialTraceRecords[trialTraceIndex].guards.y =
+                             trialInitialTouchNonclosing ? 1u : 0u;
+--- a/matter/tools/fgmres_true_residual_native_check.mm
++++ b/matter/tools/fgmres_true_residual_native_check.mm
+@@ -14234,6 +14234,159 @@
+     std::cout<<"compensated_mollifier Float64_value_and_gradient=true scales=3 degenerate_and_nonfinite=true result=PASS\n";
+ }
+ 
++void checkCompensatedBarrierEnergyWords(
++    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
++    // Native Human contact3390947, Newton8..12: legacy scalar energies
++    // differ by one ULP under collision-free, vanishing physical trials.
++    const std::vector<MRCompensatedPositionGPU> positions{
++{{2.77868756e-10f,-4.68947547e-10f,1.96981372e-11f,0.0f},{-6.56391308e-18f,6.14789748e-18f,1.72332948e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528392e-12f,0.0f},{2.42374772e-15f,-5.94145027e-14f,-1.15439827e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06707199e-12f,-1.98725533e-11f,1.34930565e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12742149e-12f,1.69466507e-11f,4.15355554e-12f,0.0f}},
++{{2.77868922e-10f,-4.6894777e-10f,1.96981476e-11f,0.0f},{-2.56710209e-18f,-2.76028946e-17f,4.22133634e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528696e-12f,0.0f},{2.16795224e-15f,-5.92155516e-14f,-1.88298361e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06673111e-12f,-1.98726677e-11f,1.34929576e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.127137e-12f,1.69467652e-11f,4.15364141e-12f,0.0f}},
++{{2.77868839e-10f,-4.68947658e-10f,1.96981424e-11f,0.0f},{-4.56550759e-18f,-2.4938354e-17f,2.97233291e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528565e-12f,0.0f},{2.31006108e-15f,-5.93292437e-14f,-1.57073275e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06690155e-12f,-1.98726122e-11f,1.34930149e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12725062e-12f,1.69467097e-11f,4.15359804e-12f,0.0f}},
++{{2.77868839e-10f,-4.68947658e-10f,1.96981424e-11f,0.0f},{-4.56550759e-18f,-2.4938354e-17f,2.97233291e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528565e-12f,0.0f},{2.31006108e-15f,-5.93292437e-14f,-1.57073275e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06690155e-12f,-1.98726122e-11f,1.34930149e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12725062e-12f,1.69467097e-11f,4.15359804e-12f,0.0f}},
++{{2.77869006e-10f,-4.68947936e-10f,1.96981528e-11f,0.0f},{-5.68696597e-19f,-3.17799483e-18f,5.47033978e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528912e-12f,0.0f},{2.0542656e-15f,-5.91302926e-14f,2.03749061e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06656068e-12f,-1.98727233e-11f,1.34929143e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12696699e-12f,1.69468242e-11f,4.15368391e-12f,0.0f}},
++{{2.77868922e-10f,-4.68947825e-10f,1.96981476e-11f,0.0f},{-2.56710209e-18f,-5.13454167e-19f,4.22133634e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528739e-12f,0.0f},{2.19637401e-15f,-5.92439712e-14f,-1.98706723e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06673111e-12f,-1.98726677e-11f,1.34929715e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12708062e-12f,1.69467652e-11f,4.15364141e-12f,0.0f}},
++{{2.77868867e-10f,-4.68947714e-10f,1.96981459e-11f,0.0f},{-3.89937242e-18f,-2.62706243e-17f,3.80500187e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528652e-12f,0.0f},{2.25321754e-15f,-5.92723909e-14f,-1.77889999e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06678793e-12f,-1.987264e-11f,1.34929854e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12719424e-12f,1.69467374e-11f,4.15362666e-12f,0.0f}},
++{{2.77868867e-10f,-4.68947714e-10f,1.96981459e-11f,0.0f},{-3.89937242e-18f,-2.62706243e-17f,3.80500187e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528652e-12f,0.0f},{2.25321754e-15f,-5.92723909e-14f,-1.77889999e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06678793e-12f,-1.987264e-11f,1.34929854e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12719424e-12f,1.69467374e-11f,4.15362666e-12f,0.0f}},
++{{2.7786895e-10f,-4.68947881e-10f,1.96981511e-11f,0.0f},{-1.90096693e-18f,-1.8457245e-18f,5.0540053e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528869e-12f,0.0f},{2.13953047e-15f,-5.91871319e-14f,2.14157422e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06661749e-12f,-1.98726955e-11f,1.34929437e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12702337e-12f,1.69467929e-11f,4.15366916e-12f,0.0f}},
++{{2.77868895e-10f,-4.6894777e-10f,1.96981494e-11f,0.0f},{-3.23323726e-18f,-2.76028946e-17f,4.63767082e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528739e-12f,0.0f},{2.19637401e-15f,-5.92155516e-14f,-1.98706723e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.0666743e-12f,-1.98726677e-11f,1.34929576e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.127137e-12f,1.69467652e-11f,4.15365528e-12f,0.0f}},
++{{2.77868895e-10f,-4.6894777e-10f,1.96981476e-11f,0.0f},{-3.23323726e-18f,8.18816162e-19f,4.22133634e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528696e-12f,0.0f},{2.22479578e-15f,-5.92439712e-14f,-1.88298361e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06673111e-12f,-1.98726539e-11f,1.34929715e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.127137e-12f,1.69467513e-11f,4.15364141e-12f,0.0f}},
++{{2.77868867e-10f,-4.6894777e-10f,1.96981459e-11f,0.0f},{-3.89937242e-18f,8.18816162e-19f,3.80500187e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528652e-12f,0.0f},{2.22479578e-15f,-5.92723909e-14f,-1.77889999e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06678793e-12f,-1.987264e-11f,1.34929854e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12719424e-12f,1.69467374e-11f,4.15362666e-12f,0.0f}},
++{{2.77868867e-10f,-4.6894777e-10f,1.96981459e-11f,0.0f},{-3.89937242e-18f,8.18816162e-19f,3.80500187e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528652e-12f,0.0f},{2.22479578e-15f,-5.92723909e-14f,-1.77889999e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06678793e-12f,-1.987264e-11f,1.34929854e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12719424e-12f,1.69467374e-11f,4.15362666e-12f,0.0f}},
++{{2.7786895e-10f,-4.68947936e-10f,1.96981511e-11f,0.0f},{-1.90096693e-18f,2.5243716e-17f,5.0540053e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528869e-12f,0.0f},{2.11110913e-15f,-5.91871319e-14f,2.14157422e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06661749e-12f,-1.98726955e-11f,1.34929437e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12702337e-12f,1.69467929e-11f,4.15366916e-12f,0.0f}},
++{{2.77868895e-10f,-4.68947825e-10f,1.96981494e-11f,0.0f},{-3.23323726e-18f,-5.13454167e-19f,4.63767082e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528739e-12f,0.0f},{2.16795224e-15f,-5.92155516e-14f,-1.98706723e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.0666743e-12f,-1.98726677e-11f,1.34929576e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.127137e-12f,1.69467652e-11f,4.15365528e-12f,0.0f}},
++{{2.77868895e-10f,-4.6894777e-10f,1.96981476e-11f,0.0f},{-3.23323726e-18f,-2.76028946e-17f,4.22133634e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528696e-12f,0.0f},{2.19637401e-15f,-5.92439712e-14f,-1.88298361e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06673111e-12f,-1.98726539e-11f,1.34929715e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.127137e-12f,1.69467513e-11f,4.15364141e-12f,0.0f}},
++{{2.77868867e-10f,-4.6894777e-10f,1.96981459e-11f,0.0f},{-3.89937242e-18f,-2.76028946e-17f,3.80500187e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528652e-12f,0.0f},{2.19637401e-15f,-5.92723909e-14f,-1.77889999e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06678793e-12f,-1.987264e-11f,1.34929854e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12719424e-12f,1.69467374e-11f,4.15362666e-12f,0.0f}},
++{{2.77868867e-10f,-4.6894777e-10f,1.96981459e-11f,0.0f},{-3.89937242e-18f,-2.76028946e-17f,3.80500187e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528652e-12f,0.0f},{2.19637401e-15f,-5.92723909e-14f,-1.77889999e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06678793e-12f,-1.987264e-11f,1.34929854e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12719424e-12f,1.69467374e-11f,4.15362666e-12f,0.0f}},
++{{2.7786895e-10f,-4.68947936e-10f,1.96981511e-11f,0.0f},{-1.90096693e-18f,-3.17799483e-18f,5.0540053e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528869e-12f,0.0f},{2.08268736e-15f,-5.91871319e-14f,2.14157422e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06661749e-12f,-1.98726955e-11f,1.34929437e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12702337e-12f,1.69467929e-11f,4.15366916e-12f,0.0f}},
++{{2.77868895e-10f,-4.68947881e-10f,1.96981494e-11f,0.0f},{-3.23323726e-18f,2.65759863e-17f,4.63767082e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528739e-12f,0.0f},{2.13953047e-15f,-5.92155516e-14f,-1.98706723e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.0666743e-12f,-1.98726677e-11f,1.34929576e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.127137e-12f,1.69467652e-11f,4.15365528e-12f,0.0f}},
++{{2.77868895e-10f,-4.68947825e-10f,1.96981476e-11f,0.0f},{-3.23323726e-18f,-5.13454167e-19f,4.22133634e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528696e-12f,0.0f},{2.16795224e-15f,-5.92439712e-14f,-1.88298361e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06673111e-12f,-1.98726539e-11f,1.34929715e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.127137e-12f,1.69467513e-11f,4.15364141e-12f,0.0f}},
++{{2.77868867e-10f,-4.68947825e-10f,1.96981459e-11f,0.0f},{-3.89937242e-18f,-5.13454167e-19f,3.80500187e-19f,0.0f}},
++{{-4.00139379e-06f,3.99383316e-06f,-5.42528652e-12f,0.0f},{2.16795224e-15f,-5.92723909e-14f,-1.77889999e-19f,0.0f}},
++{{0.000199314803f,0.000956609671f,0.000423580233f,0.0f},{-3.06678793e-12f,-1.987264e-11f,1.34929854e-11f,0.0f}},
++{{0.000195312707f,0.00095661002f,0.000423580554f,0.0f},{5.12719424e-12f,1.69467374e-11f,4.15362666e-12f,0.0f}}
++    };
++    const unsigned count = positions.size() / 4u;
++    NMDeformableContactGPU contact{};
++    contact.identity.z = NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
++    contact.barrier.z = 1.0e-5f;
++    contact.mollifier.w = 1.0f;
++    const auto output = makeBuffer(device, std::vector<nm_float4>(
++        count + 4u, {-7.0f,-7.0f,-7.0f,-7.0f}));
++    dispatch(device, queue, pipeline(device, library,
++        "numi_matter_metal::nm_contact_check_compensated_barrier_words"), {
++        {0u,makeBuffer(device,std::vector<NMDeformableContactGPU>(count,contact))},
++        {1u,makeBuffer(device,positions)}, {2u,output},
++        {3u,makeBuffer(device,std::vector<unsigned>{count})}},
++        (count+31u)/32u,32u);
++    const auto values=readBuffer<nm_float4>(output,count+4u);
++    using V=std::array<double,3u>;
++    const auto sub=[](V a,V b){return V{a[0]-b[0],a[1]-b[1],a[2]-b[2]};};
++    const auto dot=[](V a,V b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];};
++    const auto cross=[](V a,V b){return V{a[1]*b[2]-a[2]*b[1],
++        a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};};
++    const auto point=[&](unsigned i){auto p=positions[i];return V{
++        double(p.high.x)+p.low.x,double(p.high.y)+p.low.y,
++        double(p.high.z)+p.low.z};};
++    double maxRelative=0.0;
++    std::vector<double> expected(count),actual(count);
++    for(unsigned i=0u;i<count;++i){
++        const auto p=point(4u*i),a=point(4u*i+1u);
++        const auto ab=sub(point(4u*i+2u),a),ac=sub(point(4u*i+3u),a);
++        const auto ap=sub(p,a),c=cross(ab,ac);
++        require(dot(ab,ap)<=0.0 && dot(ac,ap)<=0.0,
++            "paired energy reference fixture left its vertex Voronoi region");
++        const double r=std::clamp(dot(c,c)/(dot(ab,ab)*dot(ac,ac))/
++            double(1.0e-3f),0.0,1.0);
++        const double d2=dot(ap,ap),h2=double(contact.barrier.z)*contact.barrier.z;
++        expected[i]=r*(2.0-r)*(-(d2-h2)*(d2-h2)*std::log(d2/h2));
++        actual[i]=double(values[i].x)+values[i].y;
++        require(values[i].w==1.0f,"paired energy rejected a finite native trial");
++        maxRelative=std::max(maxRelative,std::abs(actual[i]/expected[i]-1.0));
++        require(std::abs(actual[i]/expected[i]-1.0)<=1.0e-9,
++            "paired native contact energy differs from Float64 constitutive law");
++    }
++    for(unsigned i=count;i<count+4u;++i)
++        require(values[i].x==-7.0f && values[i].y==-7.0f,
++            "paired energy checker exceeded its active span");
++    // Comparing small differences is the behavior the scalar output cannot
++    // certify. Use pairs from the same current/actual-rounded-trial family.
++    unsigned signChecks=0u;
++    for(unsigned i=1u;i<count;++i){
++        const double referenceDelta=expected[i]-expected[i-1u];
++        if(std::abs(referenceDelta)>1.0e-12*expected[i]){
++            require((actual[i]>actual[i-1u])==(referenceDelta>0.0),
++                "paired energy lost a resolved native trial difference");
++            ++signChecks;
++        }
++    }
++    std::cout<<"paired_contact_energy native_trials="<<count
++        <<" Float64_max_relative="<<maxRelative<<" sign_checks="<<signChecks
++        <<" canaries=4 result=PASS\n";
++}
++
+ void checkReferenceContactPlaneCertificate(
+     id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+     using P=MRCompensatedPositionGPU;
+@@ -14409,6 +14562,10 @@
+             if (argc==2 && std::string(argv[1])=="--reference-plane-only") {
+                 checkReferenceContactPlaneCertificate(device,queue,library);
+                 std::cout<<"PASS reference contact plane "<<checks<<" checks\n";
++                return 0;
++            }
++            if (argc == 2 && std::string(argv[1]) == "--paired-contact-energy-only") {
++                checkCompensatedBarrierEnergyWords(device,queue,library);
+                 return 0;
+             }
+             if (argc == 2 && std::string(argv[1]) == "--compensated-contact-continuity-only") {
+@@ -15096,6 +15253,7 @@
+             checkZeroStepGeometryReuse(device, queue, library);
+             checkReferenceContactArithmeticFrame(device, queue, library);
+             checkCompensatedContactEnergyContinuity(device,queue,library);
++            checkCompensatedBarrierEnergyWords(device,queue,library);
+             checkReferenceContactPlaneCertificate(device,queue,library);
+             std::cout << "PASS native FGMRES true-residual kernel contract "
+                       << checks
