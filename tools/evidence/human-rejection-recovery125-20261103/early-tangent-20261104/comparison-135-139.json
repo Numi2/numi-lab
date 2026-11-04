@@ -1,0 +1,93 @@
+{
+  "baseline": "connected-mass-native-135",
+  "candidate": "early-tangent-native-139",
+  "accepted_steps": 24,
+  "step_s": 1.5625e-05,
+  "accepted_simulated_s": 0.000375,
+  "baseline_accepted_gpu_ms": 175180.48349999,
+  "candidate_accepted_gpu_ms": 170877.01116667,
+  "accepted_prefix_gpu_duration_reduction_percent": 2.4565934785310883,
+  "candidate_gpu_only_real_time_factor": 2.1945608566048273e-06,
+  "timing_status": "single exploratory matched prefix; no repeated-pair sustained or integrated performance claim",
+  "all_11_csvs_bitwise_equal": true,
+  "csv_comparison": [
+    {
+      "path": "diagnostics/registered-skin-native.csv",
+      "baseline_sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "candidate_sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bitwise_equal": true
+    },
+    {
+      "path": "resting-body-motion-partition.csv",
+      "baseline_sha256": "b7daf28f36d498732ea2dde6c306240a76cf5a98ff56368f83334179829af215",
+      "candidate_sha256": "b7daf28f36d498732ea2dde6c306240a76cf5a98ff56368f83334179829af215",
+      "bitwise_equal": true
+    },
+    {
+      "path": "resting-com-momentum-diagnostic.csv",
+      "baseline_sha256": "294c8981725c5c3c38830d239b0f8a8f078ae27a8d1ec9f3c9cf1679170c3bf5",
+      "candidate_sha256": "294c8981725c5c3c38830d239b0f8a8f078ae27a8d1ec9f3c9cf1679170c3bf5",
+      "bitwise_equal": true
+    },
+    {
+      "path": "resting-com-q-index-map.csv",
+      "baseline_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "candidate_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bitwise_equal": true
+    },
+    {
+      "path": "resting-com-q-integration.csv",
+      "baseline_sha256": "bee466c2d2162845aeca1d95559362e63fa5b61726259bcec09459577b047f47",
+      "candidate_sha256": "bee466c2d2162845aeca1d95559362e63fa5b61726259bcec09459577b047f47",
+      "bitwise_equal": true
+    },
+    {
+      "path": "resting-com-q-support-slip.csv",
+      "baseline_sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "candidate_sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bitwise_equal": true
+    },
+    {
+      "path": "resting-com-support-impulses.csv",
+      "baseline_sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "candidate_sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bitwise_equal": true
+    },
+    {
+      "path": "resting-coupled.csv",
+      "baseline_sha256": "289b6817d0728e8a88c298f811d567d9a6157f7c04ab694233c8c152d440d56a",
+      "candidate_sha256": "289b6817d0728e8a88c298f811d567d9a6157f7c04ab694233c8c152d440d56a",
+      "bitwise_equal": true
+    },
+    {
+      "path": "resting-support-point-motion.csv",
+      "baseline_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "candidate_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bitwise_equal": true
+    },
+    {
+      "path": "resting-support-selected-skin-witness.csv",
+      "baseline_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "candidate_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bitwise_equal": true
+    },
+    {
+      "path": "resting-surface-audit.csv",
+      "baseline_sha256": "cc8b64414c6762b8269a7bcde7484556c67b4753005fa2f127b921c24f060062",
+      "candidate_sha256": "cc8b64414c6762b8269a7bcde7484556c67b4753005fa2f127b921c24f060062",
+      "bitwise_equal": true
+    }
+  ],
+  "next_rejection": {
+    "root": 24,
+    "code": 10,
+    "cause_boundary": "deformable contact step limiter sets skin alpha 0 at Newton11; support limiter records nonlinear failure",
+    "constitutive_geometry_passes": true,
+    "next_diagnostic": "production tiled minimum witness without obsolete explicit contact selector"
+  },
+  "sustained_motion_qualified": false,
+  "resting_equilibrium_qualified": false,
+  "minimum_0_1x_met": false,
+  "optional_mass_dump": "omitted; all source/nodal mass preparation and validation still ran; reference retained in native135",
+  "resource_stop_native138": "disk_below_12GiB before first physical step; retained without numerical/performance claim"
+}

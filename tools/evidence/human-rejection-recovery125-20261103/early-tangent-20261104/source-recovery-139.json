@@ -1,0 +1,27 @@
+{
+  "archives": [
+    {
+      "name": "tools/evidence/human-rejection-recovery125-20261103/sparse-regional-20261104/execution-source-final-097.tar.gz",
+      "sha256": "9dcf2e9d092617674f38cdb36774bfc0ce714386b3cf44bdbb09d27b9f1e9997"
+    },
+    {
+      "name": "tools/evidence/human-rejection-recovery125-20261103/sparse-regional-20261104/execution-source-overlay-102.tar.gz",
+      "sha256": "09d129293a64befb80b26f17280d3a99182c072ed02fe8fb929370d480810cce"
+    },
+    {
+      "name": "tools/evidence/human-rejection-recovery125-20261103/sparse-regional-20261104/execution-source-overlay-110.tar.gz",
+      "sha256": "5e19ce01dced3b20740ee0acdb5249decbc9acb20927c9831423b9c82b3a7991"
+    },
+    {
+      "name": "tools/evidence/human-rejection-recovery125-20261103/connected-cavity-20261104/execution-source-overlay-130.tar.gz",
+      "sha256": "e7d8e041ddb95f698e0b5e12bba5d3d54c124e37259d8832f6067d2e2273a008"
+    },
+    {
+      "name": "tools/evidence/human-rejection-recovery125-20261103/early-tangent-20261104/execution-source-overlay-136.tar.gz",
+      "sha256": "ce8eee055345129f25bbf88ec6c5175a59518dc8f22b74a4697a873dd9baf0ef"
+    }
+  ],
+  "source_files": 39,
+  "mismatches": [],
+  "status": "PASS_EXACT_SOURCE_RECOVERY"
+}

@@ -3585,6 +3585,18 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
          !graphOnlyMixedObject))
         return;
 
+    const NMMaterialGPU material = materials[tetrahedron.identity.x];
+    // These compiler-certified maps have one whole-tangent owner. Suppress the
+    // other eight lanes before gathering nodes or reconstructing compensated F.
+    // They formerly performed that direction-free work and then returned below.
+    uint tangentBundleOutputBase = NM_INVALID_INDEX;
+    const bool sharedStatelessMap = usesStatelessTangentBundle(
+        material, programs, tangentBundleOutputBase);
+    const bool sharedStatefulMap = usesShared15StateTangentFactorization(material);
+    if (column != 0u && (sharedStatelessMap || sharedStatefulMap)) return;
+    // Learned ICNN tangents are assembled by the direct FGMRES path as a
+    // separate term; leave these entries invalid for mode-2 fallback.
+    if (material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
     const float3x3 deformation = tetrahedronDeformation(
         tetrahedron, candidate, nodeBase
@@ -3592,10 +3604,6 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
     const float3x3 deformationRate = tetrahedronVelocityGradient(
         tetrahedron, candidate, nodeBase
     );
-    const NMMaterialGPU material = materials[tetrahedron.identity.x];
-    // Learned ICNN tangents are assembled by the direct FGMRES path as a
-    // separate term; leave these entries invalid for mode-2 fallback.
-    if (material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) return;
     float deformationLow[9];
     const float3x3 preciseLocalF = femMaterialDeformationWords(
         object, tetrahedron, material, candidate, nodeBase,
@@ -3614,10 +3622,7 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
     // The legacy serial builder above remains the bundle parity reference.
     // One basis-column lane owns the complete stateless map so its direction-
     // free compiler prelude is evaluated exactly once.
-    uint tangentBundleOutputBase = NM_INVALID_INDEX;
-    if (usesStatelessTangentBundle(material, programs,
-                                   tangentBundleOutputBase)) {
-        if (column != 0u) return;
+    if (sharedStatelessMap) {
         // In the compiler-proven native world, construct the map directly in
         // the existing device cache. Keep only one nine-value column live;
         // the complete-entry mask is published after every column succeeds.
@@ -3694,8 +3699,7 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
     // A proven 15-state material can share A=R_z and B=P_z across all nine
     // columns. One column-zero lane owns the whole batch; other basis lanes
     // return, and the usual finalize kernel publishes only a complete mask.
-    if (usesShared15StateTangentFactorization(material)) {
-        if (column != 0u) return;
+    if (sharedStatefulMap) {
         // A failed validity certificate leaves this cache entry unpublished;
         // the established direct operator/final certificate owns rejection.
         const float determinantValue = determinant(deformation);

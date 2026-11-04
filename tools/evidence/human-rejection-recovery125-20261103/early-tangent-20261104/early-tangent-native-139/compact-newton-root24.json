@@ -1,0 +1,4930 @@
+{
+  "0": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 0,
+      "stage": "before_contact_limits",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.88645479e-05,
+            0.00138246617,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00138246617,
+            1.49268878,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.760074437,
+        32,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 0,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.88645479e-05,
+            0.00138246617,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00138246617,
+            1.49268878,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.125,
+        0.760074437,
+        32,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 0,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.88645479e-05,
+            0.00138246617,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00138246617,
+            1.49268878,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.125,
+        0.760074437,
+        32,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 0,
+      "stage": "after_support_limit",
+      "alpha": [
+        0.125
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.88645479e-05,
+            0.00138246617,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00138246617,
+            1.49268878,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.125,
+        0.760074437,
+        32,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 0,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        0.125
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.88645479e-05,
+            0.00138246617,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00138246617,
+            1.49268878,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.125,
+        0.760074437,
+        32,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 0,
+      "stage": "final_line_search",
+      "alpha": [
+        0.125
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.88645479e-05,
+            0.00138246617,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00138246617,
+            1.49268878,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.125,
+        0.760074437,
+        32,
+        0
+      ]
+    }
+  ],
+  "1": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 1,
+      "stage": "before_contact_limits",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.50102803e-05,
+            0.00120985205,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00120985205,
+            1.30586398,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.762312353,
+        32,
+        1
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 1,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.50102803e-05,
+            0.00120985205,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00120985205,
+            1.30586398,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0225949381,
+        0.762312353,
+        32,
+        1
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 1,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.50102803e-05,
+            0.00120985205,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00120985205,
+            1.30586398,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0225949381,
+        0.762312353,
+        32,
+        1
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 1,
+      "stage": "after_support_limit",
+      "alpha": [
+        0.0225949381
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.50102803e-05,
+            0.00120985205,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00120985205,
+            1.30586398,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0225949381,
+        0.762312353,
+        32,
+        1
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 1,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        0.0225949381
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.50102803e-05,
+            0.00120985205,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00120985205,
+            1.30586398,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0225949381,
+        0.762312353,
+        32,
+        1
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 1,
+      "stage": "final_line_search",
+      "alpha": [
+        0.0225949381
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.50102803e-05,
+            0.00120985205,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00120985205,
+            1.30586398,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0225949381,
+        0.762312353,
+        32,
+        1
+      ]
+    }
+  ],
+  "2": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 2,
+      "stage": "before_contact_limits",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.44070907e-05,
+            0.00118253764,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00118253764,
+            1.2762512,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.762491584,
+        32,
+        2
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 2,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.44070907e-05,
+            0.00118253764,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00118253764,
+            1.2762512,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.762491584,
+        32,
+        2
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 2,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.44070907e-05,
+            0.00118253764,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00118253764,
+            1.2762512,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.762491584,
+        32,
+        2
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 2,
+      "stage": "after_support_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.44070907e-05,
+            0.00118253764,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00118253764,
+            1.2762512,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.762491584,
+        32,
+        2
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 2,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.44070907e-05,
+            0.00118253764,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00118253764,
+            1.2762512,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.762491584,
+        32,
+        2
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 2,
+      "stage": "final_line_search",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            2.44070907e-05,
+            0.00118253764,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0.00118253764,
+            1.2762512,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.762491584,
+        32,
+        2
+      ]
+    }
+  ],
+  "3": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 3,
+      "stage": "before_contact_limits",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            5.67509687e-06,
+            2.52053705e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.52053705e-05,
+            0.0459069274,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.758832514,
+        32,
+        3
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 3,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            5.67509687e-06,
+            2.52053705e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.52053705e-05,
+            0.0459069274,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0673718974,
+        0.758832514,
+        32,
+        3
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 3,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            5.67509687e-06,
+            2.52053705e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.52053705e-05,
+            0.0459069274,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0673718974,
+        0.758832514,
+        32,
+        3
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 3,
+      "stage": "after_support_limit",
+      "alpha": [
+        0.0673718974
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            5.67509687e-06,
+            2.52053705e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.52053705e-05,
+            0.0459069274,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0673718974,
+        0.758832514,
+        32,
+        3
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 3,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        0.0673718974
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            5.67509687e-06,
+            2.52053705e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.52053705e-05,
+            0.0459069274,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0673718974,
+        0.758832514,
+        32,
+        3
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 3,
+      "stage": "final_line_search",
+      "alpha": [
+        0.0673718974
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            5.67509687e-06,
+            2.52053705e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.52053705e-05,
+            0.0459069274,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0673718974,
+        0.758832514,
+        32,
+        3
+      ]
+    }
+  ],
+  "4": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 4,
+      "stage": "before_contact_limits",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            5.3572453e-06,
+            2.3798817e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.3798817e-05,
+            0.0440829881,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.759528697,
+        32,
+        4
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 4,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            5.3572453e-06,
+            2.3798817e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.3798817e-05,
+            0.0440829881,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0180594157,
+        0.759528697,
+        32,
+        4
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 4,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            5.3572453e-06,
+            2.3798817e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.3798817e-05,
+            0.0440829881,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0180594157,
+        0.759528697,
+        32,
+        4
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 4,
+      "stage": "after_support_limit",
+      "alpha": [
+        0.0180594157
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            5.3572453e-06,
+            2.3798817e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.3798817e-05,
+            0.0440829881,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0180594157,
+        0.759528697,
+        32,
+        4
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 4,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        0.0180594157
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            5.3572453e-06,
+            2.3798817e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.3798817e-05,
+            0.0440829881,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0180594157,
+        0.759528697,
+        32,
+        4
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 4,
+      "stage": "final_line_search",
+      "alpha": [
+        0.0180594157
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            5.3572453e-06,
+            2.3798817e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.3798817e-05,
+            0.0440829881,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0180594157,
+        0.759528697,
+        32,
+        4
+      ]
+    }
+  ],
+  "5": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 5,
+      "stage": "before_contact_limits",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.65627272e-06,
+            2.35852567e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.35852567e-05,
+            0.0415734686,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.75857985,
+        32,
+        5
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 5,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.65627272e-06,
+            2.35852567e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.35852567e-05,
+            0.0415734686,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.496616006,
+        0.75857985,
+        32,
+        5
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 5,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.65627272e-06,
+            2.35852567e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.35852567e-05,
+            0.0415734686,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.496616006,
+        0.75857985,
+        32,
+        5
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 5,
+      "stage": "after_support_limit",
+      "alpha": [
+        0.496616006
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.65627272e-06,
+            2.35852567e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.35852567e-05,
+            0.0415734686,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.496616006,
+        0.75857985,
+        32,
+        5
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 5,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        0.496616006
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.65627272e-06,
+            2.35852567e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.35852567e-05,
+            0.0415734686,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.496616006,
+        0.75857985,
+        32,
+        5
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 5,
+      "stage": "final_line_search",
+      "alpha": [
+        0.496616006
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.65627272e-06,
+            2.35852567e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            2.35852567e-05,
+            0.0415734686,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.496616006,
+        0.75857985,
+        32,
+        5
+      ]
+    }
+  ],
+  "6": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 6,
+      "stage": "before_contact_limits",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            3.32892773e-06,
+            1.44663918e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.44663918e-05,
+            0.0252156723,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.756329715,
+        32,
+        6
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 6,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            3.32892773e-06,
+            1.44663918e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.44663918e-05,
+            0.0252156723,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0515055396,
+        0.756329715,
+        32,
+        6
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 6,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            3.32892773e-06,
+            1.44663918e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.44663918e-05,
+            0.0252156723,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0515055396,
+        0.756329715,
+        32,
+        6
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 6,
+      "stage": "after_support_limit",
+      "alpha": [
+        0.0515055396
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            3.32892773e-06,
+            1.44663918e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.44663918e-05,
+            0.0252156723,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0515055396,
+        0.756329715,
+        32,
+        6
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 6,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        0.0515055396
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            3.32892773e-06,
+            1.44663918e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.44663918e-05,
+            0.0252156723,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0515055396,
+        0.756329715,
+        32,
+        6
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 6,
+      "stage": "final_line_search",
+      "alpha": [
+        0.0515055396
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            3.32892773e-06,
+            1.44663918e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.44663918e-05,
+            0.0252156723,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0515055396,
+        0.756329715,
+        32,
+        6
+      ]
+    }
+  ],
+  "7": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 7,
+      "stage": "before_contact_limits",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.13542148e-06,
+            1.37077295e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.37077295e-05,
+            0.0254550558,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.756259441,
+        32,
+        7
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 7,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.13542148e-06,
+            1.37077295e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.37077295e-05,
+            0.0254550558,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0189956408,
+        0.756259441,
+        32,
+        7
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 7,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.13542148e-06,
+            1.37077295e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.37077295e-05,
+            0.0254550558,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0189956408,
+        0.756259441,
+        32,
+        7
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 7,
+      "stage": "after_support_limit",
+      "alpha": [
+        0.0189956408
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.13542148e-06,
+            1.37077295e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.37077295e-05,
+            0.0254550558,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0189956408,
+        0.756259441,
+        32,
+        7
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 7,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        0.0189956408
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.13542148e-06,
+            1.37077295e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.37077295e-05,
+            0.0254550558,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0189956408,
+        0.756259441,
+        32,
+        7
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 7,
+      "stage": "final_line_search",
+      "alpha": [
+        0.0189956408
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.13542148e-06,
+            1.37077295e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.37077295e-05,
+            0.0254550558,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.0189956408,
+        0.756259441,
+        32,
+        7
+      ]
+    }
+  ],
+  "8": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 8,
+      "stage": "before_contact_limits",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.28979638e-06,
+            1.3499025e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.3499025e-05,
+            0.0250753034,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.756320119,
+        32,
+        8
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 8,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.28979638e-06,
+            1.3499025e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.3499025e-05,
+            0.0250753034,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.000710436143,
+        0.756320119,
+        32,
+        8
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 8,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.28979638e-06,
+            1.3499025e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.3499025e-05,
+            0.0250753034,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.000710436143,
+        0.756320119,
+        32,
+        8
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 8,
+      "stage": "after_support_limit",
+      "alpha": [
+        0.000710436143
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.28979638e-06,
+            1.3499025e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.3499025e-05,
+            0.0250753034,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.000710436143,
+        0.756320119,
+        32,
+        8
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 8,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        0.000710436143
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.28979638e-06,
+            1.3499025e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.3499025e-05,
+            0.0250753034,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.000710436143,
+        0.756320119,
+        32,
+        8
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 8,
+      "stage": "final_line_search",
+      "alpha": [
+        0.000710436143
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.28979638e-06,
+            1.3499025e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.3499025e-05,
+            0.0250753034,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0.000710436143,
+        0.756320119,
+        32,
+        8
+      ]
+    }
+  ],
+  "9": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 9,
+      "stage": "before_contact_limits",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29418515e-06,
+            1.34912998e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34912998e-05,
+            0.0250620227,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.756304264,
+        32,
+        9
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 9,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29418515e-06,
+            1.34912998e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34912998e-05,
+            0.0250620227,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        7.4861855e-05,
+        0.756304264,
+        32,
+        9
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 9,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29418515e-06,
+            1.34912998e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34912998e-05,
+            0.0250620227,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        7.4861855e-05,
+        0.756304264,
+        32,
+        9
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 9,
+      "stage": "after_support_limit",
+      "alpha": [
+        7.4861855e-05
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29418515e-06,
+            1.34912998e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34912998e-05,
+            0.0250620227,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        7.4861855e-05,
+        0.756304264,
+        32,
+        9
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 9,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        7.4861855e-05
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29418515e-06,
+            1.34912998e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34912998e-05,
+            0.0250620227,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        7.4861855e-05,
+        0.756304264,
+        32,
+        9
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 9,
+      "stage": "final_line_search",
+      "alpha": [
+        7.4861855e-05
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29418515e-06,
+            1.34912998e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34912998e-05,
+            0.0250620227,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        7.4861855e-05,
+        0.756304264,
+        32,
+        9
+      ]
+    }
+  ],
+  "10": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 10,
+      "stage": "before_contact_limits",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29476404e-06,
+            1.34904858e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34904858e-05,
+            0.0250591524,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.756303847,
+        32,
+        10
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 10,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29476404e-06,
+            1.34904858e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34904858e-05,
+            0.0250591524,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        5.24078723e-06,
+        0.756303847,
+        32,
+        10
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 10,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29476404e-06,
+            1.34904858e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34904858e-05,
+            0.0250591524,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        5.24078723e-06,
+        0.756303847,
+        32,
+        10
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 10,
+      "stage": "after_support_limit",
+      "alpha": [
+        5.24078723e-06
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29476404e-06,
+            1.34904858e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34904858e-05,
+            0.0250591524,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        5.24078723e-06,
+        0.756303847,
+        32,
+        10
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 10,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        5.24078723e-06
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29476404e-06,
+            1.34904858e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34904858e-05,
+            0.0250591524,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        5.24078723e-06,
+        0.756303847,
+        32,
+        10
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 10,
+      "stage": "final_line_search",
+      "alpha": [
+        5.24078723e-06
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29476404e-06,
+            1.34904858e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34904858e-05,
+            0.0250591524,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        5.24078723e-06,
+        0.756303847,
+        32,
+        10
+      ]
+    }
+  ],
+  "11": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 11,
+      "stage": "before_contact_limits",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29487e-06,
+            1.34904321e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34904321e-05,
+            0.025062969,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        0.756307244,
+        32,
+        11
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 11,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29487e-06,
+            1.34904321e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34904321e-05,
+            0.025062969,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        0.756307244,
+        32,
+        11
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 11,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        1
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29487e-06,
+            1.34904321e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34904321e-05,
+            0.025062969,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 0,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            null,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        0.756307244,
+        32,
+        11
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 11,
+      "stage": "after_support_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29487e-06,
+            1.34904321e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34904321e-05,
+            0.025062969,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        0.756307244,
+        32,
+        11
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 11,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29487e-06,
+            1.34904321e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34904321e-05,
+            0.025062969,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        0.756307244,
+        32,
+        11
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 11,
+      "stage": "final_line_search",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            4.29487e-06,
+            1.34904321e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00138246617,
+            1.34904321e-05,
+            0.025062969,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        0.756307244,
+        32,
+        11
+      ]
+    }
+  ],
+  "12": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 12,
+      "stage": "before_contact_limits",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 12,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 12,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 12,
+      "stage": "after_support_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 12,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 12,
+      "stage": "final_line_search",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        null,
+        0,
+        0
+      ]
+    }
+  ],
+  "13": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 13,
+      "stage": "before_contact_limits",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 13,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 13,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 13,
+      "stage": "after_support_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 13,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 13,
+      "stage": "final_line_search",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        null,
+        0,
+        0
+      ]
+    }
+  ],
+  "14": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 14,
+      "stage": "before_contact_limits",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 14,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 14,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 14,
+      "stage": "after_support_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 14,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 14,
+      "stage": "final_line_search",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        null,
+        0,
+        0
+      ]
+    }
+  ],
+  "15": [
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 15,
+      "stage": "before_contact_limits",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 15,
+      "stage": "after_deformable_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 15,
+      "stage": "after_rigid_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        1,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 15,
+      "stage": "after_support_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 15,
+      "stage": "after_vascular_limit",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        null,
+        0,
+        0
+      ]
+    },
+    {
+      "schema": 1,
+      "root": 24,
+      "environment_count": 1,
+      "object_count": 22,
+      "solver_scope": "fem",
+      "mpm_rigid_proxy_count": 1,
+      "mpm_contact_pair_count": 76193,
+      "microtick": 0,
+      "iteration": 15,
+      "stage": "final_line_search",
+      "alpha": [
+        0
+      ],
+      "fgmres": [
+        {
+          "diagnostics": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "nonlinear": [
+            0.00138246617,
+            0,
+            0,
+            1
+          ],
+          "cycle_accepted": true
+        }
+      ],
+      "status": [
+        {
+          "code": 10,
+          "completed_microsteps": 0,
+          "fgmres_iterations_microstep_max": 16,
+          "diagnostics": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "skin_line": [
+        0,
+        null,
+        0,
+        0
+      ]
+    }
+  ]
+}

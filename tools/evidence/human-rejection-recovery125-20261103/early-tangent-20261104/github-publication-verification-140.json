@@ -1,0 +1,20 @@
+[
+  {
+    "repository": "Numi2/numilab-human",
+    "revision": "534c08d94",
+    "path": "tools/evidence/connected-skin-fat-cavity-conditioning-20261104/fixed-boundary-volume-proposal.npz",
+    "git_blob": "a3bae6b02090aa4f5587264665f98713b9dae7e6",
+    "sha256": "4be98e7d5710360407a561d10efaa02b86702efdaf1b4312c4b035d6d9a19cb8",
+    "downloaded_bytes": 3470661,
+    "independently_downloaded_and_verified": true
+  },
+  {
+    "repository": "Numi2/numi-lab",
+    "revision": "9ced64691",
+    "path": "tools/evidence/human-rejection-recovery125-20261103/connected-cavity-20261104/execution-source-overlay-130.tar.gz",
+    "git_blob": "768bbee39a259808bd44a213e4664e0a16453b3b",
+    "sha256": "e7d8e041ddb95f698e0b5e12bba5d3d54c124e37259d8832f6067d2e2273a008",
+    "downloaded_bytes": 494765,
+    "independently_downloaded_and_verified": true
+  }
+]
