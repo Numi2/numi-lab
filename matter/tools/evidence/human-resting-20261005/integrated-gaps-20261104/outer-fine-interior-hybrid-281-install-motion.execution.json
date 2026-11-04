@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 190.53101587295532,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/outer-fine-interior-hybrid-281/install-motion.plan.json",
+  "plan_sha256": "b9cfc70fecd1ad614bffa00612da3b3fef5d8f4d2168675bb78b12e18379cd47",
+  "stdout_sha256": "758ed1fbf9424ecd4ad17a52568b45badddac7d38823189122b5a9f8b1df5928",
+  "stderr_sha256": "02425beaa675d0c72eecc1131d7575010ea173aac99a884b05246c7605148e45",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

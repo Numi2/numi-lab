@@ -271,3 +271,43 @@ requires the assembled-operator option. Corrected trial 275 was stopped
 by the unchanged 12 GiB disk guard during initialization; it has no valid
 performance or acceptance result. The pretrial target was raised to 16 GiB to accommodate initial output and swap growth. After trial 276 proved a 1.35 GB GPU storage reduction, the packed-contact interior trial uses a 14 GiB pretrial threshold while retaining the unchanged 12 GiB disk and 3 GiB swap-growth stop guards. Both trials remain retained. The 147-member recovery archive was independently
 downloaded, fully restored and hash/metadata checked before local retirement.
+
+## Registered outer fine-coordinate preparation
+
+The modest interior-reduction experiment first stopped before physics:
+the outer-fine selector assumed the legacy contiguous three-layer shell.
+The current explicit unpaired volume includes genuine interior nodes,
+which correctly carry INVALID O/I/D layer labels. It can also contain
+all-new nodes with verified parent mappings and zero retained-original
+node count. Neither case is an invalid anatomical layer.
+
+Build 48 selects the exact existing O inventory and checks all three
+registered role maps for complete counts, matching labels, bounds and
+unique membership. Original and parent-mapped interiors remain distinct
+from boundaries; no layer or parent is invented. Legacy invalid labels,
+missing new-node parents and corrupted role maps remain failures. The
+existing full geometry, source-domain, mass and ancestry verification
+still runs before this policy. No physical material, mass, attachment,
+geometry or runtime equation changes.
+
+The complete registered skin/fat reduction-label suite passes, including
+13 malformed-policy cases and both retained-original and all-new mapped
+interiors. Preparation trials 277 and 278 remain retained as failed
+evidence. The source correction passes initialization on the actual registered
+volume. Trials 279 and 280 stop on inherited full-coordinate-only options
+(the inexact linear certificate and isolated dense45 vascular solver).
+Trial 281 initializes 248,202 free coordinates versus 956,112 (3.85x),
+including 246,246 fine-complement coordinates and 1,956 q coordinates,
+then refuses an incompatible legacy diagnostic certification option
+before encoding a physical step. The hybrid solver requires its own
+mandatory full-operator certificate, independent of that option.
+These are retained preparation/configuration failures, not accepted
+physics or performance results. The unsupported options are removed in
+trial 282. Force, regional strain, contact and final physical acceptance
+remain unqualified.
+
+The exact older 272 endpoint and initial 275 viewer payloads are now
+retained in human-contact-storage-276.tar.zst on the cold-evidence
+release. Independent download and restoration verified all 40 members,
+content hashes, modes and nanosecond modification times before local
+retirement. Current full endpoint 276 remains local.

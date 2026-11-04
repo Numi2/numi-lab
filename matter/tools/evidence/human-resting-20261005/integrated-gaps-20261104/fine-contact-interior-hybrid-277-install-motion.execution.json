@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 155.44769382476807,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/fine-contact-interior-hybrid-277/install-motion.plan.json",
+  "plan_sha256": "39b732dd43729b47d78ce27821e6c3fab3cad2677d6ff54508369ee70849ba5a",
+  "stdout_sha256": "c30cdc950ceec79a7114a4c5b531e3a06b49734194bb437ea30da055381b019a",
+  "stderr_sha256": "51ce59570d39ed7e989216275a12136c68869ba7e696d20c7fe8b635422757ba",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

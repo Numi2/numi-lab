@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 170.4651699066162,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/registered-mapped-interior-hybrid-279/install-motion.plan.json",
+  "plan_sha256": "d06f061b5bbc852040675055aaacabda82656a3c0281eb640e43cba87c9ebf88",
+  "stdout_sha256": "2424cb837512216365aa32fc8a092f3119a02e2e490dbcac8e6536b980446080",
+  "stderr_sha256": "35b03cadcead188e774bcfbd516ee0d5003ffa621c3b201946cfcfbc9f1335ff",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

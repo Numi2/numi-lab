@@ -1708,7 +1708,63 @@ void runTypedSourceDomainMetadataChecks() {
     std::cout<<"typed_source_domain_metadata=PASS corruptions_rejected=13 source_role_namespaces=3\n";
 }
 
+void runRegisteredOuterFinePolicyChecks() {
+    RegisteredSkinFatReductionSourceLabels labels;
+    labels.explicitUnpairedVolumeTopology = true;
+    labels.registeredVertexCount = 2u;
+    labels.registeredLayerVertexCounts = {2u, 2u, 2u};
+    labels.registeredLayerVolumeNodeRows = {
+        std::vector<std::uint32_t>{4u, 0u},
+        std::vector<std::uint32_t>{1u, 5u},
+        std::vector<std::uint32_t>{2u, 6u}};
+    labels.sourceNodeLayerIndices =
+        {0u, 1u, 2u, NM_INVALID_INDEX, 0u, 1u, 2u,
+         NM_INVALID_INDEX, NM_INVALID_INDEX};
+    labels.remeshedOriginalNodeCount = 8u;
+    labels.sourceNodeParentTetrahedronIndices.assign(9u, NM_INVALID_INDEX);
+    labels.sourceNodeParentTetrahedronIndices[8u] = 7u;
+    std::string error;
+    std::vector<std::uint32_t> rows;
+    assert(collectRegisteredSkinOuterFineRows(labels, 9u, rows, error));
+    assert((rows == std::vector<std::uint32_t>{0u, 4u}));
+    const auto reject = [&](RegisteredSkinFatReductionSourceLabels bad) {
+        rows = {99u};
+        assert(!collectRegisteredSkinOuterFineRows(bad, 9u, rows, error));
+        assert(rows.empty() && !error.empty());
+    };
+    auto allMapped = labels;
+    allMapped.remeshedOriginalNodeCount = 0u;
+    allMapped.sourceNodeParentTetrahedronIndices.assign(9u, 7u);
+    assert(collectRegisteredSkinOuterFineRows(allMapped, 9u, rows, error));
+    assert((rows == std::vector<std::uint32_t>{0u, 4u}));
+    auto missingMappedParent = allMapped;
+    missingMappedParent.sourceNodeParentTetrahedronIndices[3u] = NM_INVALID_INDEX;
+    reject(missingMappedParent);
+    auto bad = labels; bad.registeredLayerVolumeNodeRows[1u][0u] = 0u; reject(bad);
+    bad = labels; bad.registeredLayerVolumeNodeRows[0u].pop_back(); reject(bad);
+    bad = labels; bad.sourceNodeLayerIndices[3u] = 0u; reject(bad);
+    bad = labels; bad.sourceNodeLayerIndices[0u] = NM_INVALID_INDEX; reject(bad);
+    bad = labels; bad.registeredLayerVolumeNodeRows[2u][0u] = 99u; reject(bad);
+    bad = labels; bad.sourceNodeParentTetrahedronIndices[8u] = NM_INVALID_INDEX; reject(bad);
+    bad = labels; bad.sourceNodeParentTetrahedronIndices.clear(); reject(bad);
+    bad = labels; bad.sourceNodeLayerIndices[3u] = 3u; reject(bad);
+    bad = labels; bad.remeshedOriginalNodeCount = 10u; reject(bad);
+    bad = labels; bad.registeredVertexCount = 3u; reject(bad);
+    bad = labels; bad.explicitUnpairedVolumeTopology = false; reject(bad);
+
+    RegisteredSkinFatReductionSourceLabels legacy;
+    legacy.registeredVertexCount = 2u;
+    legacy.sourceNodeLayerIndices = {0u, 0u, 1u, 1u, 2u, 2u};
+    assert(collectRegisteredSkinOuterFineRows(legacy, 6u, rows, error));
+    assert((rows == std::vector<std::uint32_t>{0u, 1u}));
+    legacy.sourceNodeLayerIndices[2u] = NM_INVALID_INDEX;
+    assert(!collectRegisteredSkinOuterFineRows(legacy, 6u, rows, error));
+    std::cout << "registered_outer_fine_policy=PASS retained_original_interiors=2"
+              << " mapped_new_volume_interiors=3 corruptions_rejected=13\n";
+}
+
 int main() {
+    runRegisteredOuterFinePolicyChecks();
     runTypedSourceDomainMetadataChecks();
     runHumanOpticOnlySelectorChecks();
     static_assert(numi::matter::kHumanPartitionedBasisMaximumRegionCount == 170u);

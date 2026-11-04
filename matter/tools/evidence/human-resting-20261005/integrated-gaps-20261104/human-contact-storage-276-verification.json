@@ -1,0 +1,23 @@
+{
+  "status": "PASS_INDEPENDENT_DOWNLOAD_ALL_MEMBERS_AND_RESTORE",
+  "archive_sha256": "3c07d7ea7e39f01082fd22ef1c964eed5a529d204db9918ef35248fce29b857a",
+  "manifest_sha256": "2e6a6cbab641aa0d4edc962c29b8d9fcd4fb44a673d58c815e5567c491e9cd9d",
+  "members": 40,
+  "restore": {
+    "status": "PASS",
+    "restored_paths": 40,
+    "canonical_members": 40,
+    "destination": "/Users/numi/Work/human-integrated-gaps-20261104/contact-storage-276-recovery/verified-restore",
+    "manifest_sha256": "2e6a6cbab641aa0d4edc962c29b8d9fcd4fb44a673d58c815e5567c491e9cd9d",
+    "archive_sha256": "3c07d7ea7e39f01082fd22ef1c964eed5a529d204db9918ef35248fce29b857a",
+    "all_content_modes_mtimes_verified": true
+  },
+  "retired_paths": [
+    "/Users/numi/Work/human-integrated-gaps-20261104/assembled-direct-fidelity-275/install-motion/accepted-geometry/step-0.mrvpack",
+    "/Users/numi/Work/human-integrated-gaps-20261104/assembled-direct-fidelity-275/install-motion/resting-human.mrvpack",
+    "/Users/numi/Work/human-integrated-gaps-20261104/compact-tangent-ordinary-272/install-motion.stdout.log"
+  ],
+  "free_before_retirement": 12948164608,
+  "free_after_retirement": 17561649152,
+  "local_archive_retired_after_independent_restore": "/Users/numi/Work/human-integrated-gaps-20261104/contact-storage-276-recovery/human-contact-storage-276.tar.zst"
+}

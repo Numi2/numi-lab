@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 185.34623169898987,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/admitted-interior-hybrid-280/install-motion.plan.json",
+  "plan_sha256": "6673fd199d7c6d312947715bce23c691abf264ceffc1c01694d5b9116c87c708",
+  "stdout_sha256": "9cddfdca89e538a14e5f33a565f5ae283864c59866c5b3ee617ac10206857451",
+  "stderr_sha256": "d0bfd29da62c84ac2c32984a2b95511b904532067f0382efb5cca3d75b722710",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

@@ -1406,6 +1406,75 @@ struct RegisteredOpticNerveReductionObject {
     return true;
 }
 
+// Select the exact registered outer rows without assigning an invented layer
+// to genuine volume interiors. The unpaired source has an explicit O/I/D row
+// inventory; retained original interiors and verified remesh children are
+// distinct from boundary rows. Full geometry/ancestry checks precede this
+// policy at its caller.
+[[nodiscard]] inline bool collectRegisteredSkinOuterFineRows(
+    const RegisteredSkinFatReductionSourceLabels& labels,
+    const std::size_t sourceNodeCount,
+    std::vector<std::uint32_t>& rows,
+    std::string& error
+) {
+    rows.clear();
+    const auto fail = [&](const char* message) {
+        error = message;
+        return false;
+    };
+    if (sourceNodeCount > std::numeric_limits<std::uint32_t>::max() ||
+        labels.sourceNodeLayerIndices.size() != sourceNodeCount ||
+        labels.registeredVertexCount == 0u ||
+        labels.remeshedOriginalNodeCount > sourceNodeCount)
+        return fail("outer fine policy lacks exact source-node ancestry");
+    std::vector<std::uint8_t> registeredRoles;
+    if (labels.explicitUnpairedVolumeTopology) {
+        registeredRoles.assign(sourceNodeCount, 3u);
+        if (labels.registeredLayerVertexCounts[0] != labels.registeredVertexCount)
+            return fail("outer fine policy registered source count differs");
+        for (std::uint32_t role = 0u; role < 3u; ++role) {
+            const auto& roleRows = labels.registeredLayerVolumeNodeRows[role];
+            if (roleRows.size() != labels.registeredLayerVertexCounts[role])
+                return fail("outer fine policy has an incomplete registered role inventory");
+            for (const auto local : roleRows) {
+                if (local >= sourceNodeCount || registeredRoles[local] != 3u ||
+                    labels.sourceNodeLayerIndices[local] != role)
+                    return fail("outer fine policy has overlapping or mismatched registered roles");
+                registeredRoles[local] = static_cast<std::uint8_t>(role);
+            }
+        }
+    }
+    std::vector<std::uint32_t> selected;
+    selected.reserve(labels.registeredVertexCount);
+    for (std::size_t local = 0u; local < sourceNodeCount; ++local) {
+        const auto layer = labels.sourceNodeLayerIndices[local];
+        const bool mappedVolumeInterior =
+            (labels.remeshedOriginalNodeCount != 0u ||
+             labels.explicitUnpairedVolumeTopology) &&
+            local >= labels.remeshedOriginalNodeCount &&
+            layer == NM_INVALID_INDEX &&
+            labels.sourceNodeParentTetrahedronIndices.size() == sourceNodeCount &&
+            labels.sourceNodeParentTetrahedronIndices[local] != NM_INVALID_INDEX;
+        const bool retainedUnpairedInterior =
+            labels.explicitUnpairedVolumeTopology &&
+            local < labels.remeshedOriginalNodeCount &&
+            layer == NM_INVALID_INDEX;
+        if (layer > 2u && !mappedVolumeInterior && !retainedUnpairedInterior)
+            return fail("outer fine policy source node has an invalid layer identity");
+        if (labels.explicitUnpairedVolumeTopology &&
+            ((layer <= 2u && registeredRoles[local] != layer) ||
+             (layer == NM_INVALID_INDEX && registeredRoles[local] != 3u)))
+            return fail("outer fine policy source layer is absent from its registered role inventory");
+        if (layer == 0u)
+            selected.push_back(static_cast<std::uint32_t>(local));
+    }
+    if (selected.size() != labels.registeredVertexCount)
+        return fail("outer fine policy does not cover exactly one registered surface layer");
+    rows = std::move(selected);
+    error.clear();
+    return true;
+}
+
 // Build the basis and, when requested, install a fresh runtime payload bound
 // to this exact compiled world's physics fingerprint. This single function is
 // shared by preparation diagnostics and the final RestingRun handoff.
@@ -1459,31 +1528,17 @@ buildAndInstallRegisteredSkinFatPreconditioner(
     options.explicitRegionLabelWorldPhysicsFingerprint = world.physicsFingerprint;
     std::vector<std::uint32_t> layerZeroFineRows;
     if (keepLayerZeroFine) {
-        if (labels.sourceNodeLayerIndices.size() != sourceShell.femNodes.size() ||
-            labels.registeredVertexCount == 0u)
-            return fail("layer-zero fine policy lacks exact source-node layer ancestry");
+        std::vector<std::uint32_t> localRows;
+        if (!collectRegisteredSkinOuterFineRows(
+                labels, sourceShell.femNodes.size(), localRows, error))
+            return fail(error);
         const auto& object = world.objects[objectIndex];
-        layerZeroFineRows.reserve(labels.registeredVertexCount);
-        for (std::size_t local = 0u;
-             local < labels.sourceNodeLayerIndices.size(); ++local) {
-            if (labels.sourceNodeLayerIndices[local] > 2u &&
-                !(labels.remeshedOriginalNodeCount != 0u &&
-                  local >= labels.remeshedOriginalNodeCount &&
-                  labels.sourceNodeLayerIndices[local] == NM_INVALID_INDEX &&
-                  labels.sourceNodeParentTetrahedronIndices.size() == sourceShell.femNodes.size() &&
-                  labels.sourceNodeParentTetrahedronIndices[local] != NM_INVALID_INDEX))
-                return fail("skin/fat source node has an invalid layer identity");
-            if (labels.sourceNodeLayerIndices[local] == 0u) {
-                if (local > std::numeric_limits<std::uint32_t>::max() ||
-                    object.stateOffset > std::numeric_limits<std::uint32_t>::max() -
-                        static_cast<std::uint32_t>(local))
-                    return fail("layer-zero fine source row exceeds the compiled FEM index range");
-                layerZeroFineRows.push_back(object.stateOffset +
-                    static_cast<std::uint32_t>(local));
-            }
+        layerZeroFineRows.reserve(localRows.size());
+        for (const auto local : localRows) {
+            if (object.stateOffset > std::numeric_limits<std::uint32_t>::max() - local)
+                return fail("outer fine source row exceeds the compiled FEM index range");
+            layerZeroFineRows.push_back(object.stateOffset + local);
         }
-        if (layerZeroFineRows.size() != labels.registeredVertexCount)
-            return fail("layer-zero fine policy does not cover exactly one registered surface layer");
     }
     std::vector<std::uint32_t> fineRows = layerZeroFineRows;
     std::set<std::uint32_t> selectedResidualRows;
