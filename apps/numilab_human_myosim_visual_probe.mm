@@ -40309,6 +40309,13 @@ int main(int argc, char** argv) {
                         const auto& p=*static_cast<const NMHumanRespirationState*>(coupled.physiology.respiration->accepted.contents);
                         require(p.status.x==step&&!p.status.w,"body/respiratory accepted clocks differ");
                         const auto& b=result.standStatuses.front();
+                        if (const char* memory=std::getenv("NUMI_HUMAN_PREPARATION_MEMORY");
+                            memory!=nullptr && std::strcmp(memory,"1")==0) {
+                            char phase[64];
+                            std::snprintf(phase,sizeof(phase),"accepted_step_%u",step);
+                            emitHumanPreparationMemory(phase,coupled.physiology.device);
+                        }
+
                         if (!restingHipCapsuleTerms.empty()) {
                             const auto& articulation=rigid.model.articulations.front();
                             require(result.standQ.size()==articulation.nq,

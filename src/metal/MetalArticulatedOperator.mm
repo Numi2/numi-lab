@@ -13786,6 +13786,11 @@ MetalArticulatedOperatorContext::submit(
             std::uint32_t traceForceOffset = 0u, traceDofCount = 0u, traceQCount = 0u;
             for (std::uint32_t horizonStep = 0u;
                  horizonStep < horizonStepCount; ++horizonStep) {
+            // Long horizons must not retain autoreleased command/encoder
+            // temporaries until the entire run finishes. Metal submissions,
+            // pending results and runtime state keep their existing strong owners.
+            @autoreleasepool {
+
             const std::uint32_t authoritativeStep =
                 input.stand.stepIndexOffset + horizonStep;
             diagnosticStepIndex = authoritativeStep;
@@ -17365,6 +17370,7 @@ MetalArticulatedOperatorContext::submit(
                 }
 
             }
+                } // Drain per-step autoreleased temporaries; strong owners retain live resources.
             }
 
             if (input.stand.numanXHumanMatterProgram.valid()) {

@@ -11865,6 +11865,149 @@ void checkCachedNodeSIMD(id<MTLDevice> device,id<MTLCommandQueue> queue,
 }
 
 
+// Explicit kernel microbenchmark, separate from physical qualification. A
+// structured anisotropic tetrahedral mesh supplies realistic overlapping node
+// stars; both kernels see identical coefficients, incidence and buffers.
+void benchmarkCachedNodeBuilders(id<MTLDevice> device,id<MTLCommandQueue> queue,
+                                id<MTLLibrary> library) {
+    constexpr std::uint32_t side=27u,N=side*side*side;
+    std::vector<NMTetrahedronGPU> tets;
+    std::vector<std::vector<std::uint32_t>> stars(N);
+    const std::uint32_t permutations[6][3]={
+        {0,1,2},{0,2,1},{1,0,2},{1,2,0},{2,0,1},{2,1,0}};
+    const std::uint32_t steps[3]={1u,side,side*side};
+    const double spacing[3]={0.003,0.004,0.0002};
+    for(std::uint32_t z=0;z+1u<side;++z)
+    for(std::uint32_t y=0;y+1u<side;++y)
+    for(std::uint32_t x=0;x+1u<side;++x)
+    for(const auto& perm:permutations) {
+        const std::uint32_t a=x+side*(y+side*z);
+        std::uint32_t ids[4]={a,a+steps[perm[0]],
+            a+steps[perm[0]]+steps[perm[1]],a+1u+side+side*side};
+        double m[9]{};
+        auto matrix=[&] {
+            for(unsigned col=0;col<3;++col) {
+                const auto v=ids[col+1u];
+                m[col]=double(int(v%side)-int(x))*spacing[0];
+                m[3+col]=double(int((v/side)%side)-int(y))*spacing[1];
+                m[6+col]=double(int(v/(side*side))-int(z))*spacing[2];
+            }
+        };
+        auto determinant=[&] {
+            return m[0]*(m[4]*m[8]-m[5]*m[7])-
+                m[1]*(m[3]*m[8]-m[5]*m[6])+
+                m[2]*(m[3]*m[7]-m[4]*m[6]);
+        };
+        matrix();
+        if(determinant()<0.0){std::swap(ids[1],ids[2]);matrix();}
+        const double det=determinant();
+        require(det>0.0,"benchmark tetrahedron positive volume");
+        NMTetrahedronGPU t{};t.nodes={ids[0],ids[1],ids[2],ids[3]};
+        t.identity={0u,0u,0u,NM_OBJECT_ACTIVE};
+        t.inverseRestRow0={float((m[4]*m[8]-m[5]*m[7])/det),
+            float((m[2]*m[7]-m[1]*m[8])/det),
+            float((m[1]*m[5]-m[2]*m[4])/det),float(det/6.0)};
+        t.inverseRestRow1={float((m[5]*m[6]-m[3]*m[8])/det),
+            float((m[0]*m[8]-m[2]*m[6])/det),
+            float((m[2]*m[3]-m[0]*m[5])/det),0.0f};
+        t.inverseRestRow2={float((m[3]*m[7]-m[4]*m[6])/det),
+            float((m[1]*m[6]-m[0]*m[7])/det),
+            float((m[0]*m[4]-m[1]*m[3])/det),0.0f};
+        t.materialFrameRotation={0.23f,-0.37f,0.11f,0.83f};
+        for(auto id:ids)stars[id].push_back(std::uint32_t(tets.size()));
+        tets.push_back(t);
+    }
+    const std::uint32_t T=std::uint32_t(tets.size());
+    std::vector<NMFEMNodeStateGPU> nodes(N);
+    std::vector<NMIncidenceRangeGPU> ranges(N),contactRanges(N);
+    std::vector<std::uint32_t> incidence;
+    for(std::uint32_t n=0;n<N;++n) {
+        nodes[n].positionAndMass.w=0.001f+float(n%31u)*0.00001f;
+        ranges[n].first=std::uint32_t(incidence.size());
+        ranges[n].count=std::uint32_t(stars[n].size());ranges[n].objectIndex=0u;
+        incidence.insert(incidence.end(),stars[n].begin(),stars[n].end());
+    }
+    std::vector<float> cache(T*81u);
+    for(std::uint32_t i=0;i<cache.size();++i)
+        cache[i]=(i%81u/9u==i%9u?20000.0f:0.0f)+
+            float(int((i*7u)%31u)-15)*0.13f;
+    NMMatterDispatchGPU d{};d.abiVersion=NM_MATTER_ABI_VERSION;
+    d.environmentCount=1;d.objectCount=1;d.femNodeCount=N;
+    d.tetrahedronCount=T;d.gravityAndTimestep.w=0.000015625f;
+    NMMixedSolverGPU solver{};solver.executionBudgets.z=6u;
+    NMContinuumObjectGPU object{};object.representation=NM_REPRESENTATION_FEM;
+    object.flags=NM_OBJECT_ACTIVE|NM_OBJECT_FEM_MATERIAL_FRAME;
+    NMSchedulerStateGPU scheduler{};scheduler.numerical.w=1.0f;
+    NMAdaptiveStateGPU adaptive{};adaptive.activeRepresentation=NM_REPRESENTATION_FEM;
+    NMMicrostepGPU micro{};NMFGMRESStateGPU state{};
+    NMMatterStatusGPU healthy{};healthy.code=NM_STATUS_SUCCESS;
+    auto dummy=makeBuffer(device,std::vector<std::uint32_t>(1024u,0u));
+    auto zero=makeBuffer(device,std::vector<std::uint32_t>{0u});
+    auto one=makeBuffer(device,std::vector<std::uint32_t>{1u});
+    auto cr=makeBuffer(device,contactRanges);
+    auto layout=[library newFunctionWithName:
+        @"numi_matter_metal::nm_primal_contact_argument_layout"];
+    auto ae=[layout newArgumentEncoderWithBufferIndex:0u];
+    auto args=[device newBufferWithLength:ae.encodedLength
+        options:MTLResourceStorageModeShared];
+    [ae setArgumentBuffer:args offset:0u];
+    for(NSUInteger i=0;i<20u;++i)[ae setBuffer:dummy offset:0u atIndex:i];
+    [ae setBuffer:cr offset:0u atIndex:3u];
+    auto output=makeBuffer(device,std::vector<nm_float4>(N*3u));
+    auto status=makeBuffer(device,std::vector{healthy});
+    std::vector<std::pair<NSUInteger,id<MTLBuffer>>> bindings{
+        {0,makeBuffer(device,std::vector{d})},
+        {1,makeBuffer(device,std::vector{solver})},
+        {2,makeBuffer(device,std::vector{object})},{3,makeBuffer(device,nodes)},
+        {4,makeBuffer(device,tets)},{5,makeBuffer(device,incidence)},
+        {6,makeBuffer(device,ranges)},{7,makeBuffer(device,std::vector{scheduler})},
+        {8,dummy},{9,dummy},{10,dummy},{11,dummy},{12,dummy},{13,dummy},
+        {14,args},{15,status},{16,output},{17,makeBuffer(device,cache)},
+        {18,makeBuffer(device,std::vector<std::uint32_t>(T,1u))},
+        {19,makeBuffer(device,std::vector<std::uint32_t>{2u})},{20,one},{21,zero},
+        {22,makeBuffer(device,std::vector{adaptive})},
+        {23,makeBuffer(device,std::vector{micro})},{24,zero},
+        {25,makeBuffer(device,std::vector{state})},{26,zero}};
+    id<MTLComputePipelineState> pipelines[2]={
+        pipeline(device,library,"numi_matter_metal::nm_fgmres_build_tangent_fem_block_preconditioner_cached"),
+        pipeline(device,library,"numi_matter_metal::nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd")};
+    const char* names[2]={"scalar","incidence_simd"};
+    std::vector<nm_float4> expected;
+    for(unsigned round=0;round<4;++round)
+    for(unsigned order=0;order<2;++order) {
+        const unsigned variant=round==0?order:(order+round-1u)%2u;
+        std::memcpy(status.contents,&healthy,sizeof(healthy));
+        id<MTLCommandBuffer> cb=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> enc=[cb computeCommandEncoder];
+        [enc setComputePipelineState:pipelines[variant]];
+        for(const auto& [index,buffer]:bindings) {
+            [enc setBuffer:buffer offset:0u atIndex:index];
+            [enc useResource:buffer usage:MTLResourceUsageRead|MTLResourceUsageWrite];
+        }
+        [enc useResource:cr usage:MTLResourceUsageRead];
+        [enc useResource:dummy usage:MTLResourceUsageRead];
+        const NSUInteger groups=variant==0?(N+255u)/256u:(N+7u)/8u;
+        [enc dispatchThreadgroups:MTLSizeMake(groups,1,1)
+            threadsPerThreadgroup:MTLSizeMake(256,1,1)];
+        [enc endEncoding];[cb commit];[cb waitUntilCompleted];
+        require(cb.status==MTLCommandBufferStatusCompleted,"benchmark GPU completion");
+        auto actual=readBuffer<nm_float4>(output,N*3u);
+        if(expected.empty())expected=actual;
+        require(std::memcmp(expected.data(),actual.data(),
+            actual.size()*sizeof(nm_float4))==0,"benchmark exact block parity");
+        require(readBuffer<NMMatterStatusGPU>(status,1)[0].code==NM_STATUS_SUCCESS,
+            "benchmark healthy output");
+        std::cout<<"cached_node_benchmark variant="<<names[variant]
+            <<" round="<<round<<" warmup="<<(round==0)
+            <<" nodes="<<N<<" tets="<<T<<" gpu_ms="
+            <<1000.0*(cb.GPUEndTime-cb.GPUStartTime)
+            <<" static_threadgroup_bytes="<<pipelines[variant].staticThreadgroupMemoryLength
+            <<" max_threads="<<pipelines[variant].maxTotalThreadsPerThreadgroup
+            <<" bitwise=true\n";
+    }
+}
+
+
 void checkOrderedGatherSIMD(id<MTLDevice> device,id<MTLCommandQueue> queue,
                             id<MTLLibrary> library) {
     auto reference=pipeline(device,library,"numi_matter_metal::nm_fgmres_gather_nodes");
@@ -18359,6 +18502,11 @@ int main(int argc, const char* argv[]) {
             checkCoarseParityDiagnostic(device,queue,library);
                 checkBundledRegionalProjection(device,queue,library);
                 std::cout<<"PASS parallel base preconditioner "<<checks<<" checks\n";return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--cached-node-benchmark-only") {
+                benchmarkCachedNodeBuilders(device,queue,library);
+                std::cout << "PASS cached node benchmark " << checks << " checks\n";
+                return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--cached-node-simd-only") {
                 checkCachedThreeDirections(device,queue,library);
