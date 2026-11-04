@@ -1,0 +1,197 @@
+registered_ligament_source_geometry=admitted rows=34 retained_source_bone_meshes=185 source_bone_records=185 bone_payload_sha256=43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0 path_guard=all_current_pose_registered_meshes endpoint_projection=bounded_current_registered_surface
+human_preparation_memory phase=before_fractional_p1_support available=1 resident_bytes=3030253568 footprint_bytes=2119945144 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=after_fractional_p1_merge_release available=1 resident_bytes=3362209792 footprint_bytes=2452032704 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=after_fractional_carrier_load available=1 resident_bytes=3363979264 footprint_bytes=2453785792 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=after_fractional_mass_mapping available=1 resident_bytes=6210666496 footprint_bytes=4888369320 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=registered_skin_fat_import_complete available=1 resident_bytes=9159884800 footprint_bytes=6448226152 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=registered_skin_fat_import_scratch_released available=1 resident_bytes=6574555136 footprint_bytes=3853801616 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=passive_tissue_compile_begin available=1 resident_bytes=6574735360 footprint_bytes=3853916304 metal_allocated_bytes=0 recommended_working_set_bytes=0
+human_preparation_memory phase=passive_tissue_compile_complete available=1 resident_bytes=7249084416 footprint_bytes=3219528280 metal_allocated_bytes=0 recommended_working_set_bytes=0
+passive_fem_clock_selection maximum_rate_exponent=0 physical_frame_s=1.5625e-05 blood_enabled=0 contact_connected_clock_lock=disabled
+human_material_expression_cache=enabled materials=20 equations=unchanged
+human_preparation_memory phase=shared_tissue_authoring_released available=1 resident_bytes=7150665728 footprint_bytes=6403367576 metal_allocated_bytes=0 recommended_working_set_bytes=0
+matter_runtime_initialize_begin
+matter_left_row_equilibration_scope={"human_only":true,"registered_attachments":0,"rigid_rows":0,"coupled_fem_vascular":true,"effective_request":true}
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_private_contact_failure_capture=1 failure_only=1
+matter_stateless_material_specialization requested=1 eligible=1 material_count=20
+matter_all_native_float requested=1 eligible=1 enabled=1 materials=20 diagnostic_vm=0
+matter_fem_clearance_aligned_barrier=1 boundary=immutable_source_clearance
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_pipeline_archive=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar async=1
+matter_fem_backtracking_constitutive_validity=enabled stateless=1 mixed=0 learned=0
+matter_parallel_constitutive_backtracking=1 validity_preserved=1
+matter_allocation_phase phase=before_immutable_uploads resident_bytes=48 device_allocated_bytes=57180160 recommended_working_set_bytes=12713115648
+[NumiMatter] vascular principal block enabled: 46 unknowns, 16644 scratch bytes/environment; physical operator unchanged
+matter_stateless_tangent_bundle mode=1 eligible_materials=5 total_materials=20
+matter_allocation_phase phase=after_immutable_uploads resident_bytes=240276328 device_allocated_bytes=502579200 recommended_working_set_bytes=12713115648
+matter_allocation_phase phase=after_physical_state_uploads resident_bytes=898858920 device_allocated_bytes=1819820032 recommended_working_set_bytes=12713115648
+matter_upload_memory staging_peak_bytes=33554432 batches=39 device_allocated_bytes=2338865152 recommended_working_set_bytes=12713115648 complete=1
+contact_node_incidence_builder={"schema":1,"mode":"active_corner_radix","hierarchical_prefix":true,"environments":1,"capacity":4207296,"logical_corners_per_environment":25243776,"padded_corners_per_environment":33554432,"sort_workspace_bytes":402653184}
+[NumiMatter] empty-field FGMRES precondition skip enabled: layout_bit0=1 mixed_fields=0 mpm_capacity=0 hybrid=0
+matter_coupled_row_equilibration=1 preconditioner=M^-1*S^-1 physical_certificate=unscaled
+fgmres_fresh_rhs_preconditioner_preflight=1 private_begin_state=1 diagnostic_mode=0 skip_domain_mode=0 skip_producer_mask=0 verify_begin=1 clear_skipped_caches=0
+matter_allocation_phase phase=after_operator_contact_scratch resident_bytes=4432601576 device_allocated_bytes=5598003200 recommended_working_set_bytes=12713115648
+matter_parallel_base_preconditioner=1 components=7 tiles=1259 tile_width=256 patch_scratch=element_operator coarse_metadata_bytes=20512 coarse_scratch_bytes=22528 projection_mode_capacity=12
+matter_upload_memory staging_peak_bytes=20544 batches=1 device_allocated_bytes=5935071232 recommended_working_set_bytes=12713115648 complete=1
+matter_allocation_phase phase=after_krylov_basis resident_bytes=4769506848 device_allocated_bytes=5935071232 recommended_working_set_bytes=12713115648
+human_regional_work_tiles nodes=1670 padded_nodes=21842 tets=9999 padded_tets=104646 metadata_bytes=186704
+human_partitioned_tangent_storage fused=1 action_rows=30472956 retained_action_bytes=128 omitted_action_bytes=3900538240
+human_partitioned_coefficients encoding=sparse stored_values=4895304 dense_capacity=616525332 dense_mirror=0
+matter_upload_memory staging_peak_bytes=33554432 batches=7 device_allocated_bytes=6848741376 recommended_working_set_bytes=12713115648 complete=1
+matter_allocation_phase phase=before_proof_scratch resident_bytes=5523203936 device_allocated_bytes=6848741376 recommended_working_set_bytes=12713115648
+matter_upload_memory staging_peak_bytes=0 batches=1 device_allocated_bytes=6851919872 recommended_working_set_bytes=12713115648 complete=1
+matter_runtime_initialize_complete
+respiration_runtime_initialize_begin
+resting_gas_transport_subcycling=1 respiratory_mechanics_subcycling=1 parallel_respiratory_muscles=1 parallel_respiratory_gas=0 maximum_internal_mechanics_dt_s=0.002 maximum_substeps=32 donor_fraction_bound=0.1 external_blood=operator_split_orifice_ballistic_packets source_anatomy_id=9 donor_compartment_id=7 area_fraction=0.25 discharge_coefficient=0.6 density_kg_m3=1050.6 cut_step=4294967295 bleeding_enabled=0 blood_mpm_enabled=0 blood_mpm_object=4294967295 free_surface_solver=existing_mpm_high_shear_newtonian_reduced_scope
+respiration_runtime_initialize_complete
+human_preparation_memory phase=shared_runtime_initialized available=1 resident_bytes=6256689152 footprint_bytes=8124425336 metal_allocated_bytes=5584519168 recommended_working_set_bytes=12713115648
+2026-11-04 01:34:32.158 numi-human-native[73643:968712] Human native framebuffer output: window and recording
+human_stand_reduced_response root_step=1 environment=0 requested=1 admitted=0 ready=0 used=0 base_requested=1 base_used=0 free_dofs=128 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_stand_reduced_response root_step=1 environment=0 requested=1 admitted=0 ready=0 used=0 base_requested=1 base_used=0 free_dofs=128 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_node_work_layout tiles=1246 nodes=318974 active_anchors=270 sparse=1
+human_contact_row_cache requested=1 admitted=1 rows=15453677 bytes=247258832
+human_contact_aabb_exclusion enabled=1
+human_contact_audit_layout parallel=1 rows=15453677 solver_rows=15453677 tiles=60366
+human_contact_exact_motion_cache=1 nodes=318974 bodies=157 bytes=6385132
+human_contact_compact_queries=1 rows=15453677 index_bytes=61814708
+human_immutable_contact_storage=shared_upload_owner cpu_staging_released_bytes=1611153856 samples=15453677 sample_rows_unchanged=1 device_allocated_bytes=10025795584 recommended_working_set_bytes=12713115648
+matter_gpu_stage_timing_requested root=0 enabled=1 sampled_root=0
+contact_completed_geometry_cache=1 root=0 final_certificate=full friction_history=fresh
+newton_tail_dispatch_root={"schema":1,"root":0,"enabled":true,"unknowns":637994,"fem_nodes":318974,"icb_graph_commands":4,"icb_tangent_cache_commands":2}
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+matter_fgmres_operator_icb=1 preconditioner_prefix=1 prefix_commands=20 tail_commands=5 row_equilibrated_prefix=1 mpm_empty=1 env=1
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+fgmres_completed_cycle_work=1 control_step=0
+fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296
+matter_gpu_kernel_dispatch_count=nm_vascular_limit_line_search step=0 count=16 sample_every=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=2304 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_empty_field_preconditioner_dispatch_count=skipped step=0 count=768
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=48 element=32 environment_count=1
+matter_gpu_stage_timing_requested root=0 enabled=1 sampled_root=0
+matter_gpu_stage=matter_pre step=0 elapsed_ns=10626583
+matter_gpu_stage=brain_advance step=0 elapsed_ns=7583
+matter_gpu_stage=respiratory_mechanics step=0 elapsed_ns=2283417
+matter_gpu_stage=matter_after_frame_begin step=0 elapsed_ns=776209
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=321041292
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=844485583
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5235917
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=37753125
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=209139833
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=841664459
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5251959
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=39045291
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=209050667
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=66248667
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5040833
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=24579375
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=23705583
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=6597167
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5118625
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=23987250
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=23827666
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=6597750
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5039209
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=23869875
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=23770375
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=6632292
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5040958
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=23751292
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=23756333
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=6629458
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5040417
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=23757584
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=23750208
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=6609583
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5039416
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=23826792
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=23785250
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=6604542
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5102334
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=23888333
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=23929250
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=6656958
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5039708
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=23768167
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=23864792
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=6599916
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5040667
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=23796042
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=23892208
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=6609292
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5057417
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=25360292
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=23910666
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=6650375
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5040750
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=23868792
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=23855542
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=6641041
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5039166
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=23766875
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=23970792
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=6632042
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5040709
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=23848875
+matter_gpu_stage=matter_newton_assembly step=0 elapsed_ns=23936708
+matter_gpu_stage=matter_newton_linear step=0 elapsed_ns=186086500
+matter_gpu_stage=nm_vascular_limit_line_search step=0 elapsed_ns=5138625
+matter_gpu_stage=matter_newton_globalization step=0 elapsed_ns=14672750
+matter_gpu_stage=matter_final_certificate step=0 elapsed_ns=233726542
+matter_gpu_stage=respiratory_gas_exchange step=0 elapsed_ns=1802292
+matter_gpu_stage=matter_after_candidate_ready step=0 elapsed_ns=13189000
+matter_gpu_stage=matter_after_microstep step=0 elapsed_ns=2348041
+matter_gpu_stage=matter_post step=0 elapsed_ns=14956750
+matter_gpu_stage=brain_resolve step=0 elapsed_ns=1333
+matter_gpu_stage=respiratory_resolve step=0 elapsed_ns=702875
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":0,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.09527366e-06,"arnoldi_estimate":0.00376971392,"true_max_abs":3.10394171e-07,"rhs_l2":8.52041339e-05,"diagnostics":[1.09527366e-06,8.52041339e-05,1,16],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":1,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":6.72902786e-07,"arnoldi_estimate":0.00110891077,"true_max_abs":1.86792533e-07,"rhs_l2":7.22500909e-06,"diagnostics":[6.72902786e-07,7.22500909e-06,1,16],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":2,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965787396,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":3,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965787396,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":4,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965787396,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":5,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965787396,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":6,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965787396,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":7,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965787396,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":8,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965787396,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":9,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965787396,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":10,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965787396,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":11,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965787396,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":12,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965787396,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":13,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965787396,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":14,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965787396,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_true_residual_cycle={"schema":2,"root":0,"control_step":0,"newton_iteration":15,"restart_cycle":0,"final_cycle":true,"restart_replacement":true,"cohesive_face_count":0,"operator_scope":"full_coupled_direct_operator","semantics":{"true_l2":"norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows","arnoldi_estimate":"projected least-squares estimate captured before replacement","rhs_l2":"initial assembled FGMRES right-hand-side norm","convergence":"unchanged forcing threshold applied to freshly recomputed residual"},"environments":[{"true_l2":1.22466454e-05,"arnoldi_estimate":0.0965958014,"true_max_abs":6.04131583e-06,"rhs_l2":1.22466454e-05,"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"solver_status_code":0,"operator_status_code":0}]}
+fem_newton_terminal_certificate={"schema":1,"root":0,"environment_count":1,"object_count":22,"microtick":0,"last_iteration":15,"capture_order":"immediately_after_nm_mixed_certify_before_candidate_masks_or_commit","status_authority":"raw NMMatterStatusGPU.code at this capture; certificate validity.w is not acceptance authority","objects":[{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999979973,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999943614,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999874592,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999663234,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999418736,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999855876,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.99953258,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999483466,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999994278,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999993861,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999999821,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999999821,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.99999994,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.99999994,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.994991243,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[2.63608246e-10,7.14651005e-10,0,1.27252513e-14],"transport":[0,0,0,0],"validity":[0.987058222,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999842763,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999760985,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.999285877,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,6.82788186e-06,0,0],"transport":[0,0,0,0],"validity":[0.999851167,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.998693585,0,0,1]},{"nonlinear":[1.22466372e-05,0,0,0],"contact":[0,0,0,0],"transport":[0,0,0,0],"validity":[0.998597324,0,0,1]}],"status":[{"code":0,"object_index":4294967295,"failing_index":4294967295,"completed_microsteps_at_certificate":0,"fgmres_iterations_microstep_max":16,"diagnostics":[null,0,0,0]}],"fgmres":[{"diagnostics":[1.22466454e-05,1.22466454e-05,0,0],"nonlinear":[8.52041339e-05,1.22466454e-05,0,1]}],"contact_failure_witness_words_hex":["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"]}
+matter_completed_zero_operator_work={"root":0,"prepare_checks_cumulative":16,"skipped_operator_actions_cumulative":14,"scope":"encode_request"}
+matter_contact_work={"root":0,"environment":0,"last_workspace_active_contacts":659430,"last_workspace_candidates":3637617,"last_workspace_surface_primitives":371882,"geometry_reuse_hits_last_microstep":14}
+matter_solver_domain_norms={"root":0,"environment":0,"nonvascular_norm":1.22466363e-05,"vascular_norm":1.56088102e-08,"mechanical_threshold":1.24999997e-05,"vascular_threshold":9.99999975e-06}
+matter_fgmres_active_work={"root":0,"environment":0,"used_columns_sum":32,"cycles_with_work":2,"encoded_cycles":16,"budget_exhausted_solves":0,"active_newton_begins":2,"active_restart_begins":0,"has_outer_sample":true,"last_newton_iteration":15,"last_newton_latched":true,"last_newton_norm":1.22466454e-05,"last_newton_threshold":9.99999975e-06,"minimum_newton_norm":7.22500909e-06,"last_fgmres_residual_norm":1.22466454e-05,"last_fgmres_initial_norm":1.22466454e-05,"last_fgmres_cycle_accepted":0,"last_fgmres_columns":0,"last_newton_current_norm":1.22466454e-05,"last_newton_correction_ratio":0,"last_newton_converged":1,"final_nonpressure_nontransport_relative_residual":1.22466372e-05,"final_aggregate_transport_relative_residual":0,"aggregate_nonempty_cycle_ranges":0,"aggregate_selected_command_span_total":0,"status_code":0,"status_object":4294967295,"status_failing_index":4294967295,"status_residual":0,"status_correction":0}
+matter_fgmres_microtick_work={"root":0,"environment":0,"microtick":0,"used_columns":32,"cycles_with_work":2,"encoded_cycles":16,"budget_exhausted_solves":0,"active_newton_begins":2,"active_restart_begins":0,"has_outer_sample":true,"last_newton_iteration":15,"final_newton_latched":true,"last_newton_norm":1.22466454e-05,"last_newton_threshold":9.99999975e-06,"minimum_newton_norm":7.22500909e-06,"final_newton_norm":1.22466454e-05,"final_fgmres_residual_estimate":1.22466454e-05,"nonvascular_norm":1.22466363e-05,"vascular_norm":1.56088102e-08,"mechanical_threshold":1.24999997e-05,"vascular_threshold":9.99999975e-06,"status_code_at_microtick_end":0,"status_failing_index_at_microtick_end":4294967295}
+human_stand_reduced_response root_step=1 environment=0 requested=1 admitted=0 ready=0 used=0 base_requested=1 base_used=0 free_dofs=77 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0

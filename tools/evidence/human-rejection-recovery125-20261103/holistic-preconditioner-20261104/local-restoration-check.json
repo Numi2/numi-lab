@@ -1,0 +1,10 @@
+{
+  "source_revision": "0526640f89f4bedf257a1533e98770e254739007",
+  "trials": 14,
+  "executed_source_pins_verified": 546,
+  "unique_resolved_sources": 59,
+  "archive_members_verified": 19,
+  "json_artifacts_parsed": true,
+  "source_whitespace_check": "PASS at source publication",
+  "evidence_whitespace_policy": "Preserve exact captured compiler logs, including diagnostic trailing spaces. Check all other staged text with only blank-at-EOF disabled."
+}

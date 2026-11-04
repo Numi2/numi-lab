@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "preparation_free_GiB": 14.386070251464844,
+  "preparation_minimum_GiB": 14.2,
+  "hard_runtime_minimum_GiB": 12,
+  "maximum_swap_growth_GiB": 3,
+  "rationale": "193 completed with identical physical state and captures. This opt-in preconditioner trial adds bounded metadata, omits the800MB endpoint dump, and retains the hard resource guards. The12GiB hard runtime floor and3GiB swap-growth watchdog are unchanged. No physical/accuracy/admission check is relaxed."
+}

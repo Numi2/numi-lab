@@ -1,0 +1,83 @@
+[0/2] Re-checking globbed directories...
+[1/6] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:10456:21: warning: format specifies type 'size_t' (aka 'unsigned long') but the argument has type 'nm_u32' (aka 'unsigned int') [-Wformat]
+ 10452 |                     "matter_graph_due_row_identity={\"schema\":1,\"enabled\":true,\"patches\":%zu,\"active_tets\":%zu,\"objects\":%zu}\n",
+       |                                                                                                                                   ~~~
+       |                                                                                                                                   %u
+ 10453 |                     graphSchwarz.layout.patches.size(),
+ 10454 |                     static_cast<std::size_t>(std::count(
+ 10455 |                         activeTets.begin(), activeTets.end(), 1u)),
+ 10456 |                     world.dispatch.objectCount);
+       |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20208:72: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20208 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20209 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20208:72: note: place parentheses around the '&&' expression to silence this warning
+ 20208 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                                                                        ^
+       |                             (
+ 20209 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                                                                     )
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20210:67: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20209 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                                                                      ~~
+ 20210 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20211 |                     workDomain == WorkDomain::femNodes) &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20210:67: note: place parentheses around the '&&' expression to silence this warning
+ 20210 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                                                                   ^
+       |                     (
+ 20211 |                     workDomain == WorkDomain::femNodes) &&
+       |                                                       
+       |                                                       )
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20215:72: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20215 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20216 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20215:72: note: place parentheses around the '&&' expression to silence this warning
+ 20215 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                                                                        ^
+       |                             (
+ 20216 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                                                                       )
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20217:67: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20216 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                                                                        ~~
+ 20217 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20218 |                     workDomain == WorkDomain::tetrahedra) &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20217:67: note: place parentheses around the '&&' expression to silence this warning
+ 20217 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                                                                   ^
+       |                     (
+ 20218 |                     workDomain == WorkDomain::tetrahedra) &&
+       |                                                         
+       |                                                         )
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:23785:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 23785 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:28540:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 28540 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:39251:60: warning: values of type 'NSUInteger' should not be used as format arguments; add an explicit cast to 'unsigned long' instead [-Wformat]
+ 39249 |                     "fgmres_terminal_cache_capture_not_due={\"schema\":1,\"physics_substep\":%u,\"physics_substeps\":%u,\"microtick\":%u,\"microtick_count\":%u,\"environment_count\":%u,\"preflight_enabled\":%s,\"preconditioner_enabled\":%s,\"preconditioner_apply_enabled\":%s,\"fresh_rhs_may_skip\":%s,\"selector\":%u}\n",
+       |                                                                                                                                                                                       ~~
+       |                                                                                                                                                                                       %lu
+ 39250 |                     request.physicsSubstep, request.physicsSubsteps,
+ 39251 |                     micro.microtick, micro.microtickCount, environments,
+       |                                                            ^~~~~~~~~~~~
+       |                                                            static_cast<unsigned long>( )
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:44631:35: warning: unused variable 'oldTailConstants' [-Wunused-variable]
+ 44631 |                     id<MTLBuffer> oldTailConstants =
+       |                                   ^~~~~~~~~~~~~~~~
+9 warnings generated.
+[2/6] Linking CXX shared library lib/libmetalrobo.dylib
+[3/6] Linking CXX static library matter/libnumi_matter_runtime.a
+[4/6] Linking OBJCXX executable bin/numi-human-native
+[5/6] Linking CXX executable matter/numi-matter-fem-selector6-signed-gravity-native-check

@@ -1,0 +1,25 @@
+{
+  "baseline": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-three-rhs-native-190",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-integrated-parity-native-212",
+  "captured_record_counts": {
+    "node": 313434,
+    "tet": 475448
+  },
+  "differing_captured_records": 0,
+  "first_difference": null,
+  "captured_records_sha256": "a4c62d2d49a154daf8547f5e318705f9d899fc563e7569ed00efba9e9f787e24",
+  "complete": false,
+  "execution": {
+    "exit_code": -15,
+    "elapsed_s": 195.95989203453064,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-integrated-parity-native-212/install-motion.plan.json",
+    "plan_sha256": "b92772948e1b963a5ff9f1b3f359d4aadadba80cc7a2aaf7eaf6f675d175a6b1",
+    "stdout_sha256": "59181b612a337d608ea2c970df9658204ae6910760f41bb6c4ad646ab1a812a2",
+    "stderr_sha256": "b54478c925ff4fb7b0f70708669a7c2000e98ee40a435c1abacc95bb9b50f290",
+    "physical_admission": false,
+    "resource_stop_reason": "disk_below_12GiB",
+    "source_import_pass": false,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "qualification": "Resource-stopped partial endpoint, never full acceptance. In-context coarse comparison completed with status0 before output; the incomplete captured force/strain prefix is checked against190. Full output comparison must not be claimed."
+}

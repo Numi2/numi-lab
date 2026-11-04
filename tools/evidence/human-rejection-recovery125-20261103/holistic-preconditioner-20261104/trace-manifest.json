@@ -1,0 +1,1407 @@
+{
+  "archive_sha256": "e3f531ad1fb292f5705ee8aad39924f5fc25372ac6310220e0a9c2e5112a3d44",
+  "entries": [
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-control-prefix-193/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b",
+      "bytes": 2454129,
+      "archive_member": "holistic-control-prefix-193/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e",
+      "bytes": 47720,
+      "archive_member": "holistic-control-prefix-193/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-control-prefix-193/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a",
+      "bytes": 658109,
+      "archive_member": "holistic-control-prefix-193/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "archive_member": "holistic-control-prefix-193/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "archive_member": "holistic-control-prefix-193/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148",
+      "bytes": 24690,
+      "archive_member": "holistic-control-prefix-193/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-control-prefix-193/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-control-prefix-193/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "8317708df3c614dce9edf181bdad5f86bbd89d9600fe3b3c86fd9610086e2606",
+      "bytes": 2272,
+      "archive_member": "holistic-control-prefix-193/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-control-prefix-193/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/accepted-geometry/step-32.mrvpack",
+      "sha256": "6262d7d73c950cd6edd9021bb6c5b54f17be3af49e14b05a412a793352ae9400",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-control-prefix-193/install-motion/accepted-geometry/step-32.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-control-prefix-193",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-control-prefix-193/install-motion/resting-human.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-preconditioner-native-195/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "0dc4110f5d7d67946703fbf802551a0732a7fbb352e823e9e06cf43b94a5b379",
+      "bytes": 77425,
+      "archive_member": "holistic-preconditioner-native-195/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "a7342bd10f47481b1c733a2898f514e302d3fce784106c39044dd971c5bd5c05",
+      "bytes": 4187,
+      "archive_member": "holistic-preconditioner-native-195/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-preconditioner-native-195/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "e871182dc24436f88d1ac59fc3c4afbed4ca0287a9526969b2c1b674be749f90",
+      "bytes": 20154,
+      "archive_member": "holistic-preconditioner-native-195/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "archive_member": "holistic-preconditioner-native-195/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "archive_member": "holistic-preconditioner-native-195/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "72baff153361c84ff28750f082851e6034a41fed0259c12426d5038cd67741b6",
+      "bytes": 2397,
+      "archive_member": "holistic-preconditioner-native-195/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-preconditioner-native-195/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-preconditioner-native-195/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "1b2cf9a042dc4faa9ce4c37f2b4ebadc6a6b1c1db6622bf37fbdf69998515e91",
+      "bytes": 2270,
+      "archive_member": "holistic-preconditioner-native-195/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-preconditioner-native-195/install-motion/resting-human.mrvpack.gz",
+      "compressed_sha256": "16ebd16d14355260e03e70fe7e153e0afbfd62cf573bfe2d7b31ae335b9e5179",
+      "note": "Lossless restore verified; decompress gzip archive before native replay."
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/accepted-geometry/step-1.mrvpack",
+      "sha256": "9ac032cf638f6ce1c5f742d222fc354b6d889ed64e27096afa8c2f1b4affc64e",
+      "bytes": 321323008,
+      "retained_compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-preconditioner-native-195/install-motion/accepted-geometry/step-1.mrvpack.gz",
+      "compressed_sha256": "7564d742579322666de9d41e48bc13d15b7ca609229af81dd774814382d6b42e",
+      "note": "Lossless restore verified; decompress gzip archive before native replay."
+    },
+    {
+      "trial": "holistic-preconditioner-native-195",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-preconditioner-native-195/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-exact-preconditioner-native-197/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "0dc4110f5d7d67946703fbf802551a0732a7fbb352e823e9e06cf43b94a5b379",
+      "bytes": 77425,
+      "archive_member": "holistic-exact-preconditioner-native-197/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "a7342bd10f47481b1c733a2898f514e302d3fce784106c39044dd971c5bd5c05",
+      "bytes": 4187,
+      "archive_member": "holistic-exact-preconditioner-native-197/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-exact-preconditioner-native-197/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "e871182dc24436f88d1ac59fc3c4afbed4ca0287a9526969b2c1b674be749f90",
+      "bytes": 20154,
+      "archive_member": "holistic-exact-preconditioner-native-197/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "archive_member": "holistic-exact-preconditioner-native-197/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "archive_member": "holistic-exact-preconditioner-native-197/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "72baff153361c84ff28750f082851e6034a41fed0259c12426d5038cd67741b6",
+      "bytes": 2397,
+      "archive_member": "holistic-exact-preconditioner-native-197/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-exact-preconditioner-native-197/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-exact-preconditioner-native-197/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "1b2cf9a042dc4faa9ce4c37f2b4ebadc6a6b1c1db6622bf37fbdf69998515e91",
+      "bytes": 2270,
+      "archive_member": "holistic-exact-preconditioner-native-197/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-exact-preconditioner-native-197/install-motion/resting-human.mrvpack.gz",
+      "compressed_sha256": "16ebd16d14355260e03e70fe7e153e0afbfd62cf573bfe2d7b31ae335b9e5179",
+      "note": "Lossless restore verified; decompress gzip archive before native replay."
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/accepted-geometry/step-1.mrvpack",
+      "sha256": "9ac032cf638f6ce1c5f742d222fc354b6d889ed64e27096afa8c2f1b4affc64e",
+      "bytes": 321323008,
+      "retained_compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-exact-preconditioner-native-197/install-motion/accepted-geometry/step-1.mrvpack.gz",
+      "compressed_sha256": "7564d742579322666de9d41e48bc13d15b7ca609229af81dd774814382d6b42e",
+      "note": "Lossless restore verified; decompress gzip archive before native replay."
+    },
+    {
+      "trial": "holistic-exact-preconditioner-native-197",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-exact-preconditioner-native-197/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-reference-native-199/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "7c21bfc714718038488eda8d6b113da5e04dd9c8e7d257e265dd4bd92834ce3c",
+      "bytes": 77592,
+      "archive_member": "holistic-reference-native-199/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "e682034c6d1d773459351cf5c6dabd77348e02d4d159648fe8578cce37e27979",
+      "bytes": 4189,
+      "archive_member": "holistic-reference-native-199/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-reference-native-199/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "5b5ed1810a69bbebfdd77e7f0e878e6f439b7c14b0f31d1ab87fc6519b3da082",
+      "bytes": 20158,
+      "archive_member": "holistic-reference-native-199/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "archive_member": "holistic-reference-native-199/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "archive_member": "holistic-reference-native-199/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "0adf272f8ad074e5d0661f92c3ef94b5988016f07b867a551b3f8c14ba934067",
+      "bytes": 2447,
+      "archive_member": "holistic-reference-native-199/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-reference-native-199/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-reference-native-199/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "afc5349c9dea5189a529ea988eab79556f68c8e14fc0190652da4b77aa8e8891",
+      "bytes": 2268,
+      "archive_member": "holistic-reference-native-199/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-reference-native-199/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/accepted-geometry/step-1.mrvpack",
+      "sha256": "78637f5ec7f4c3e6ad76a25c4cd01cb0205394bd067b2be204f373a72d9e2ad4",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-reference-native-199/install-motion/accepted-geometry/step-1.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-reference-native-199",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-reference-native-199/install-motion/resting-human.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-projection-native-201/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "7c21bfc714718038488eda8d6b113da5e04dd9c8e7d257e265dd4bd92834ce3c",
+      "bytes": 77592,
+      "archive_member": "holistic-projection-native-201/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "e682034c6d1d773459351cf5c6dabd77348e02d4d159648fe8578cce37e27979",
+      "bytes": 4189,
+      "archive_member": "holistic-projection-native-201/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-projection-native-201/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "5b5ed1810a69bbebfdd77e7f0e878e6f439b7c14b0f31d1ab87fc6519b3da082",
+      "bytes": 20158,
+      "archive_member": "holistic-projection-native-201/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "archive_member": "holistic-projection-native-201/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "archive_member": "holistic-projection-native-201/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "0adf272f8ad074e5d0661f92c3ef94b5988016f07b867a551b3f8c14ba934067",
+      "bytes": 2447,
+      "archive_member": "holistic-projection-native-201/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-projection-native-201/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-projection-native-201/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "afc5349c9dea5189a529ea988eab79556f68c8e14fc0190652da4b77aa8e8891",
+      "bytes": 2268,
+      "archive_member": "holistic-projection-native-201/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-projection-native-201/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/accepted-geometry/step-1.mrvpack",
+      "sha256": "78637f5ec7f4c3e6ad76a25c4cd01cb0205394bd067b2be204f373a72d9e2ad4",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-projection-native-201/install-motion/accepted-geometry/step-1.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-projection-native-201",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-projection-native-201/install-motion/resting-human.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-patch-native-203/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "7c21bfc714718038488eda8d6b113da5e04dd9c8e7d257e265dd4bd92834ce3c",
+      "bytes": 77592,
+      "archive_member": "holistic-patch-native-203/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "e682034c6d1d773459351cf5c6dabd77348e02d4d159648fe8578cce37e27979",
+      "bytes": 4189,
+      "archive_member": "holistic-patch-native-203/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-patch-native-203/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "5b5ed1810a69bbebfdd77e7f0e878e6f439b7c14b0f31d1ab87fc6519b3da082",
+      "bytes": 20158,
+      "archive_member": "holistic-patch-native-203/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "archive_member": "holistic-patch-native-203/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "archive_member": "holistic-patch-native-203/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "0adf272f8ad074e5d0661f92c3ef94b5988016f07b867a551b3f8c14ba934067",
+      "bytes": 2447,
+      "archive_member": "holistic-patch-native-203/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-patch-native-203/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-patch-native-203/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "afc5349c9dea5189a529ea988eab79556f68c8e14fc0190652da4b77aa8e8891",
+      "bytes": 2268,
+      "archive_member": "holistic-patch-native-203/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-patch-native-203/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/accepted-geometry/step-1.mrvpack",
+      "sha256": "78637f5ec7f4c3e6ad76a25c4cd01cb0205394bd067b2be204f373a72d9e2ad4",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-patch-native-203/install-motion/accepted-geometry/step-1.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-patch-native-203",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-patch-native-203/install-motion/resting-human.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-rebuild-native-205/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "0dc4110f5d7d67946703fbf802551a0732a7fbb352e823e9e06cf43b94a5b379",
+      "bytes": 77425,
+      "archive_member": "holistic-coarse-rebuild-native-205/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "a7342bd10f47481b1c733a2898f514e302d3fce784106c39044dd971c5bd5c05",
+      "bytes": 4187,
+      "archive_member": "holistic-coarse-rebuild-native-205/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-coarse-rebuild-native-205/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "e871182dc24436f88d1ac59fc3c4afbed4ca0287a9526969b2c1b674be749f90",
+      "bytes": 20154,
+      "archive_member": "holistic-coarse-rebuild-native-205/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "archive_member": "holistic-coarse-rebuild-native-205/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "archive_member": "holistic-coarse-rebuild-native-205/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "72baff153361c84ff28750f082851e6034a41fed0259c12426d5038cd67741b6",
+      "bytes": 2397,
+      "archive_member": "holistic-coarse-rebuild-native-205/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-coarse-rebuild-native-205/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-coarse-rebuild-native-205/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "1b2cf9a042dc4faa9ce4c37f2b4ebadc6a6b1c1db6622bf37fbdf69998515e91",
+      "bytes": 2270,
+      "archive_member": "holistic-coarse-rebuild-native-205/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-rebuild-native-205/install-motion/resting-human.mrvpack.gz",
+      "compressed_sha256": "16ebd16d14355260e03e70fe7e153e0afbfd62cf573bfe2d7b31ae335b9e5179",
+      "note": "Lossless restore verified; decompress gzip archive before native replay."
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/accepted-geometry/step-1.mrvpack",
+      "sha256": "9ac032cf638f6ce1c5f742d222fc354b6d889ed64e27096afa8c2f1b4affc64e",
+      "bytes": 321323008,
+      "retained_compressed_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-rebuild-native-205/install-motion/accepted-geometry/step-1.mrvpack.gz",
+      "compressed_sha256": "7564d742579322666de9d41e48bc13d15b7ca609229af81dd774814382d6b42e",
+      "note": "Lossless restore verified; decompress gzip archive before native replay."
+    },
+    {
+      "trial": "holistic-coarse-rebuild-native-205",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-rebuild-native-205/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-coarse-parity-native-208",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-parity-native-208/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-coarse-parity-native-208",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "09d1859aa941dc35fe206a945697d99e6111c0792acf015df2286faeb5cb132f",
+      "bytes": 517,
+      "archive_member": "holistic-coarse-parity-native-208/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-coarse-parity-native-208",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "b7f6981d9e5eb6f7cf0ad9f3543d371e6d3e561c36fafa4ecb5e03cdcc7729bc",
+      "bytes": 3023,
+      "archive_member": "holistic-coarse-parity-native-208/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-coarse-parity-native-208",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-coarse-parity-native-208/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-coarse-parity-native-208",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "7b940e51542627f724fd3fd4980123538d029435337d0c6c6900cdbb25fa91a5",
+      "bytes": 2386,
+      "archive_member": "holistic-coarse-parity-native-208/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-coarse-parity-native-208",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "archive_member": "holistic-coarse-parity-native-208/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-coarse-parity-native-208",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "archive_member": "holistic-coarse-parity-native-208/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-coarse-parity-native-208",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+      "bytes": 1769,
+      "archive_member": "holistic-coarse-parity-native-208/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-coarse-parity-native-208",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-coarse-parity-native-208/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-coarse-parity-native-208",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-coarse-parity-native-208/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-coarse-parity-native-208",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "cc8b64414c6762b8269a7bcde7484556c67b4753005fa2f127b921c24f060062",
+      "bytes": 1322,
+      "archive_member": "holistic-coarse-parity-native-208/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-coarse-parity-native-208",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-parity-native-208/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-coarse-parity-native-208",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-parity-native-208/install-motion/resting-human.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-lane-parity-native-210",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-lane-parity-native-210/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-lane-parity-native-210",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "09d1859aa941dc35fe206a945697d99e6111c0792acf015df2286faeb5cb132f",
+      "bytes": 517,
+      "archive_member": "holistic-lane-parity-native-210/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-lane-parity-native-210",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "b7f6981d9e5eb6f7cf0ad9f3543d371e6d3e561c36fafa4ecb5e03cdcc7729bc",
+      "bytes": 3023,
+      "archive_member": "holistic-lane-parity-native-210/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-lane-parity-native-210",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-lane-parity-native-210/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-lane-parity-native-210",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "7b940e51542627f724fd3fd4980123538d029435337d0c6c6900cdbb25fa91a5",
+      "bytes": 2386,
+      "archive_member": "holistic-lane-parity-native-210/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-lane-parity-native-210",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "archive_member": "holistic-lane-parity-native-210/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-lane-parity-native-210",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "archive_member": "holistic-lane-parity-native-210/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-lane-parity-native-210",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+      "bytes": 1769,
+      "archive_member": "holistic-lane-parity-native-210/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-lane-parity-native-210",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-lane-parity-native-210/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-lane-parity-native-210",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-lane-parity-native-210/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-lane-parity-native-210",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "cc8b64414c6762b8269a7bcde7484556c67b4753005fa2f127b921c24f060062",
+      "bytes": 1322,
+      "archive_member": "holistic-lane-parity-native-210/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-lane-parity-native-210",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-lane-parity-native-210/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-lane-parity-native-210",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-lane-parity-native-210/install-motion/resting-human.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-integrated-parity-native-212/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "7c21bfc714718038488eda8d6b113da5e04dd9c8e7d257e265dd4bd92834ce3c",
+      "bytes": 77592,
+      "archive_member": "holistic-integrated-parity-native-212/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "e682034c6d1d773459351cf5c6dabd77348e02d4d159648fe8578cce37e27979",
+      "bytes": 4189,
+      "archive_member": "holistic-integrated-parity-native-212/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-integrated-parity-native-212/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "5b5ed1810a69bbebfdd77e7f0e878e6f439b7c14b0f31d1ab87fc6519b3da082",
+      "bytes": 20158,
+      "archive_member": "holistic-integrated-parity-native-212/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "archive_member": "holistic-integrated-parity-native-212/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "archive_member": "holistic-integrated-parity-native-212/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "0adf272f8ad074e5d0661f92c3ef94b5988016f07b867a551b3f8c14ba934067",
+      "bytes": 2447,
+      "archive_member": "holistic-integrated-parity-native-212/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-integrated-parity-native-212/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-integrated-parity-native-212/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "7aed14c8bddac63668dd159ea8d837f0c95a9aa521a6f2a5b20a96d37469a20d",
+      "bytes": 1795,
+      "archive_member": "holistic-integrated-parity-native-212/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-integrated-parity-native-212/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/accepted-geometry/step-1.mrvpack",
+      "sha256": "78637f5ec7f4c3e6ad76a25c4cd01cb0205394bd067b2be204f373a72d9e2ad4",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-integrated-parity-native-212/install-motion/accepted-geometry/step-1.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-integrated-parity-native-212",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-integrated-parity-native-212/install-motion/resting-human.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-combined-prefix-213/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b",
+      "bytes": 2454129,
+      "archive_member": "holistic-combined-prefix-213/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e",
+      "bytes": 47720,
+      "archive_member": "holistic-combined-prefix-213/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-combined-prefix-213/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a",
+      "bytes": 658109,
+      "archive_member": "holistic-combined-prefix-213/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "archive_member": "holistic-combined-prefix-213/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "archive_member": "holistic-combined-prefix-213/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148",
+      "bytes": 24690,
+      "archive_member": "holistic-combined-prefix-213/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-combined-prefix-213/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-combined-prefix-213/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "8317708df3c614dce9edf181bdad5f86bbd89d9600fe3b3c86fd9610086e2606",
+      "bytes": 2272,
+      "archive_member": "holistic-combined-prefix-213/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-combined-prefix-213/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/accepted-geometry/step-32.mrvpack",
+      "sha256": "6262d7d73c950cd6edd9021bb6c5b54f17be3af49e14b05a412a793352ae9400",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-combined-prefix-213/install-motion/accepted-geometry/step-32.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-combined-prefix-213",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-combined-prefix-213/install-motion/resting-human.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-coarse-projection-prefix-214",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-projection-prefix-214/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-coarse-projection-prefix-214",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "4472de9f428d098840748ace89c78ac861b40297ddfd5cb010dd65d415fb559b",
+      "bytes": 2071397,
+      "archive_member": "holistic-coarse-projection-prefix-214/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-coarse-projection-prefix-214",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "b4d784a17ee0313a69b8ce557677131bea83f2193c66739b60faeca4c7b2312f",
+      "bytes": 40727,
+      "archive_member": "holistic-coarse-projection-prefix-214/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-coarse-projection-prefix-214",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-coarse-projection-prefix-214/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-coarse-projection-prefix-214",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "e1cd231ff2d38af2f1a62828ceecc2ba7cc24aa29694c5b3ebf7beacbf295a63",
+      "bytes": 555643,
+      "archive_member": "holistic-coarse-projection-prefix-214/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-coarse-projection-prefix-214",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "archive_member": "holistic-coarse-projection-prefix-214/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-coarse-projection-prefix-214",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "archive_member": "holistic-coarse-projection-prefix-214/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-coarse-projection-prefix-214",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "57d3ed6f370be6292ae2d22d914e1d50dce5eb2c20f8c960bf803ce730ad4504",
+      "bytes": 21096,
+      "archive_member": "holistic-coarse-projection-prefix-214/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-coarse-projection-prefix-214",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-coarse-projection-prefix-214/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-coarse-projection-prefix-214",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-coarse-projection-prefix-214/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-coarse-projection-prefix-214",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "cc8b64414c6762b8269a7bcde7484556c67b4753005fa2f127b921c24f060062",
+      "bytes": 1322,
+      "archive_member": "holistic-coarse-projection-prefix-214/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-coarse-projection-prefix-214",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-projection-prefix-214/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-coarse-projection-prefix-214",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-projection-prefix-214/install-motion/resting-human.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-215",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-packed-patch-prefix-215/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-215",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "09d1859aa941dc35fe206a945697d99e6111c0792acf015df2286faeb5cb132f",
+      "bytes": 517,
+      "archive_member": "holistic-packed-patch-prefix-215/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-215",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "archive_member": "holistic-packed-patch-prefix-215/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-215",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-packed-patch-prefix-215/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-215",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "archive_member": "holistic-packed-patch-prefix-215/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-215",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "archive_member": "holistic-packed-patch-prefix-215/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-215",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "archive_member": "holistic-packed-patch-prefix-215/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-215",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "archive_member": "holistic-packed-patch-prefix-215/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-215",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-packed-patch-prefix-215/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-215",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-packed-patch-prefix-215/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-215",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "cc8b64414c6762b8269a7bcde7484556c67b4753005fa2f127b921c24f060062",
+      "bytes": 1322,
+      "archive_member": "holistic-packed-patch-prefix-215/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-215",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-packed-patch-prefix-215/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-215",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-packed-patch-prefix-215/install-motion/resting-human.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-packed-patch-prefix-216/install-motion/diagnostics/registered-skin-native.csv",
+      "note": "Large registered-source diagnostic is hash-pinned; omitted from routine Git evidence."
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/resting-body-motion-partition.csv",
+      "sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b",
+      "bytes": 2454129,
+      "archive_member": "holistic-packed-patch-prefix-216/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e",
+      "bytes": 47720,
+      "archive_member": "holistic-packed-patch-prefix-216/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "archive_member": "holistic-packed-patch-prefix-216/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/resting-com-q-integration.csv",
+      "sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a",
+      "bytes": 658109,
+      "archive_member": "holistic-packed-patch-prefix-216/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "archive_member": "holistic-packed-patch-prefix-216/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "archive_member": "holistic-packed-patch-prefix-216/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/resting-coupled.csv",
+      "sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148",
+      "bytes": 24690,
+      "archive_member": "holistic-packed-patch-prefix-216/install-motion/resting-coupled.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "archive_member": "holistic-packed-patch-prefix-216/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "archive_member": "holistic-packed-patch-prefix-216/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/resting-surface-audit.csv",
+      "sha256": "8317708df3c614dce9edf181bdad5f86bbd89d9600fe3b3c86fd9610086e2606",
+      "bytes": 2272,
+      "archive_member": "holistic-packed-patch-prefix-216/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-packed-patch-prefix-216/install-motion/accepted-geometry/step-0.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/accepted-geometry/step-32.mrvpack",
+      "sha256": "6262d7d73c950cd6edd9021bb6c5b54f17be3af49e14b05a412a793352ae9400",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-packed-patch-prefix-216/install-motion/accepted-geometry/step-32.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    },
+    {
+      "trial": "holistic-packed-patch-prefix-216",
+      "path": "install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "retained_local_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-packed-patch-prefix-216/install-motion/resting-human.mrvpack",
+      "note": "Native capture retained locally; exact comparison hashes are published."
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "baseline": "holistic-control-prefix-193",
+  "candidate": "holistic-coarse-projection-prefix-214",
+  "candidate_profile_rows": [
+    {
+      "step": 1.0,
+      "command_ms": 4650.365,
+      "gpu_ms": 4645.262625,
+      "host_copy_ms": 0.538625
+    },
+    {
+      "step": 2.0,
+      "command_ms": 4605.734792,
+      "gpu_ms": 4605.08537499,
+      "host_copy_ms": 2.571917
+    },
+    {
+      "step": 3.0,
+      "command_ms": 4646.384375,
+      "gpu_ms": 4645.17675001,
+      "host_copy_ms": 0.094
+    },
+    {
+      "step": 4.0,
+      "command_ms": 4602.061792,
+      "gpu_ms": 4601.09425,
+      "host_copy_ms": 0.05125
+    },
+    {
+      "step": 5.0,
+      "command_ms": 4617.647958,
+      "gpu_ms": 4617.07362499,
+      "host_copy_ms": 0.056875
+    },
+    {
+      "step": 6.0,
+      "command_ms": 4655.468042,
+      "gpu_ms": 4654.7045,
+      "host_copy_ms": 0.056583
+    },
+    {
+      "step": 7.0,
+      "command_ms": 4644.213125,
+      "gpu_ms": 4642.97270833,
+      "host_copy_ms": 0.057334
+    },
+    {
+      "step": 8.0,
+      "command_ms": 4664.462542,
+      "gpu_ms": 4663.30650001,
+      "host_copy_ms": 0.051666
+    },
+    {
+      "step": 9.0,
+      "command_ms": 4691.90025,
+      "gpu_ms": 4691.05879166,
+      "host_copy_ms": 0.056625
+    },
+    {
+      "step": 10.0,
+      "command_ms": 4650.01175,
+      "gpu_ms": 4648.95450001,
+      "host_copy_ms": 0.053375
+    },
+    {
+      "step": 11.0,
+      "command_ms": 4627.163667,
+      "gpu_ms": 4625.96725,
+      "host_copy_ms": 0.055
+    },
+    {
+      "step": 12.0,
+      "command_ms": 4662.138541,
+      "gpu_ms": 4660.62887499,
+      "host_copy_ms": 0.054834
+    },
+    {
+      "step": 13.0,
+      "command_ms": 6520.277625,
+      "gpu_ms": 6519.51966666,
+      "host_copy_ms": 0.056208
+    },
+    {
+      "step": 14.0,
+      "command_ms": 4627.134708,
+      "gpu_ms": 4625.98099999,
+      "host_copy_ms": 0.051959
+    },
+    {
+      "step": 15.0,
+      "command_ms": 4618.983209,
+      "gpu_ms": 4618.13262499,
+      "host_copy_ms": 0.053666
+    },
+    {
+      "step": 16.0,
+      "command_ms": 5607.677417,
+      "gpu_ms": 5606.86475001,
+      "host_copy_ms": 0.056458
+    },
+    {
+      "step": 17.0,
+      "command_ms": 4655.002083,
+      "gpu_ms": 4654.12204167,
+      "host_copy_ms": 0.054792
+    },
+    {
+      "step": 18.0,
+      "command_ms": 4675.064958,
+      "gpu_ms": 4673.713375,
+      "host_copy_ms": 0.056
+    },
+    {
+      "step": 19.0,
+      "command_ms": 4779.359125,
+      "gpu_ms": 4778.691,
+      "host_copy_ms": 0.050666
+    },
+    {
+      "step": 20.0,
+      "command_ms": 4820.497625,
+      "gpu_ms": 4819.84337499,
+      "host_copy_ms": 0.047083
+    },
+    {
+      "step": 21.0,
+      "command_ms": 4771.31375,
+      "gpu_ms": 4770.70566667,
+      "host_copy_ms": 0.050583
+    },
+    {
+      "step": 22.0,
+      "command_ms": 4737.334833,
+      "gpu_ms": 4736.281875,
+      "host_copy_ms": 0.050292
+    },
+    {
+      "step": 23.0,
+      "command_ms": 5757.341667,
+      "gpu_ms": 5756.66,
+      "host_copy_ms": 0.054333
+    },
+    {
+      "step": 24.0,
+      "command_ms": 8703.484625,
+      "gpu_ms": 8698.32970834,
+      "host_copy_ms": 0.510875
+    },
+    {
+      "step": 25.0,
+      "command_ms": 14564.754625,
+      "gpu_ms": 14564.023125,
+      "host_copy_ms": 0.213875
+    },
+    {
+      "step": 26.0,
+      "command_ms": 16572.4235,
+      "gpu_ms": 16571.8275833,
+      "host_copy_ms": 0.16275
+    },
+    {
+      "step": 27.0,
+      "command_ms": 16027.7625,
+      "gpu_ms": 16021.8163333,
+      "host_copy_ms": 0.352166
+    }
+  ],
+  "execution": {
+    "exit_code": -15,
+    "elapsed_s": 366.12282276153564,
+    "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-projection-prefix-214/install-motion.plan.json",
+    "plan_sha256": "37a998888df99ae0a443d341877ff3914d251226df7cbe3797534716caf65578",
+    "stdout_sha256": "5aceecfc222b3c286ae22fb157f20cdc34c32af6036f5740197d7677247e976b",
+    "stderr_sha256": "f94a3f5f53264e79eaf6a57abdfb7b086e451684c7be4d21d5fe016f4cbfcbc3",
+    "physical_admission": false,
+    "resource_stop_reason": "disk_below_12GiB",
+    "source_import_pass": false,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "complete": false,
+  "promoted": false,
+  "scope": "27 completed rows; interrupted in root27 by12GiB resource guard. No full-prefix endpoint, physiological fidelity or completed-throughput claim. No numerical rejection is inferred from this resource stop."
+}

@@ -1,0 +1,7 @@
+{
+  "preparation_free_GiB": 14.496288299560547,
+  "preparation_minimum_GiB": 14.45,
+  "hard_runtime_minimum_GiB": 12,
+  "maximum_swap_growth_GiB": 3,
+  "rationale": "The14.5GiB preparation heuristic missed by2MiB. Retain the12GiB hard runtime guard and3GiB swap-growth watchdog; the completed197 has the same full-coordinate source geometry, endpoint/capture sizes and working set. Added coarse storage is22KiB and the diagnostic reuses existing operator scratch. No physical, timestep, accuracy or runtime-resource gate is relaxed."
+}

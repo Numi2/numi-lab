@@ -1,0 +1,60 @@
+{
+  "before_available_bytes": 16473567232,
+  "compression": {
+    "original_bytes": 334443,
+    "gzip_bytes": 52819,
+    "original_and_restored_sha256": "5aceecfc222b3c286ae22fb157f20cdc34c32af6036f5740197d7677247e976b"
+  },
+  "clones": [
+    {
+      "path": "accepted-geometry/step-0.mrvpack",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-three-rhs-native-190/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "independent_inode": true
+    },
+    {
+      "path": "common-field-map-f32.bin",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-three-rhs-native-190/install-motion/common-field-map-f32.bin",
+      "sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da",
+      "bytes": 69593328,
+      "independent_inode": true
+    },
+    {
+      "path": "diagnostics/registered-skin-native.csv",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-three-rhs-native-190/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "independent_inode": true
+    },
+    {
+      "path": "diagnostics/tissue-mass-reference.txt",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-three-rhs-native-190/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "independent_inode": true
+    },
+    {
+      "path": "resting-human.mrvpack",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-three-rhs-native-190/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "independent_inode": true
+    },
+    {
+      "path": "skin-source-influences.bin",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-three-rhs-native-190/install-motion/skin-source-influences.bin",
+      "sha256": "e5fb943bdd45d59a884c79efc102240065a2318bb47edfb86da2c49652eb5ddd",
+      "bytes": 3657264,
+      "independent_inode": true
+    },
+    {
+      "path": "skin-source-vertex-map.bin",
+      "canonical": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-three-rhs-native-190/install-motion/skin-source-vertex-map.bin",
+      "sha256": "dcc3191cd7d1ea4323fed005c4298f8fdcd8608ae7eeebb530c2b0fca335920a",
+      "bytes": 3657264,
+      "independent_inode": true
+    }
+  ],
+  "after_available_bytes": 17217572864
+}

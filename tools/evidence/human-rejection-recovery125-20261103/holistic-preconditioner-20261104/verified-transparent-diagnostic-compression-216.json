@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-control-prefix-193/install-motion/diagnostics/tissue-mass-reference.txt",
+  "original_bytes": 840655370,
+  "original_allocated_bytes": 840658944,
+  "hardlink_count": 213,
+  "original_sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+  "before_available_bytes": 16079982592,
+  "method": "ditto --hfsCompression --noclone; transparent APFS compression, preserve all exact bytes, paths, hardlinks, modes and mtime.",
+  "compressed_allocated_bytes": 840658944,
+  "compressed_flags": 0,
+  "applied": false,
+  "after_available_bytes": 16079953920
+}

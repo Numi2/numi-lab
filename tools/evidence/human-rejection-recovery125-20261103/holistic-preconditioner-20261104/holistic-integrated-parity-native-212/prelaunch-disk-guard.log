@@ -1,0 +1,7 @@
+prepared /Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-integrated-parity-native-212
+RUN holistic-integrated-parity-native-212
+Traceback (most recent call last):
+  File "/tmp/run-human-holistic-integrated-parity-native-212.py", line 54, in <module>
+    assert shutil.disk_usage(p).free>=14.5*1024**3, 'Need14.5GiB before resource-guarded retry'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Need14.5GiB before resource-guarded retry

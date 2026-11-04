@@ -1,0 +1,7 @@
+prepared /Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-rebuild-native-205
+RUN holistic-coarse-rebuild-native-205
+Traceback (most recent call last):
+  File "/tmp/run-human-holistic-coarse-rebuild-native-205.py", line 52, in <module>
+    assert shutil.disk_usage(p).free>=14.5*1024**3, 'Need14.5GiB before resource-guarded retry'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Need14.5GiB before resource-guarded retry

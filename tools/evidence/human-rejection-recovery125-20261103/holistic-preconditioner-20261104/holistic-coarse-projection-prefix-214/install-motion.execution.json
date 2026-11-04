@@ -1,0 +1,12 @@
+{
+  "exit_code": -15,
+  "elapsed_s": 366.12282276153564,
+  "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-projection-prefix-214/install-motion.plan.json",
+  "plan_sha256": "37a998888df99ae0a443d341877ff3914d251226df7cbe3797534716caf65578",
+  "stdout_sha256": "5aceecfc222b3c286ae22fb157f20cdc34c32af6036f5740197d7677247e976b",
+  "stderr_sha256": "f94a3f5f53264e79eaf6a57abdfb7b086e451684c7be4d21d5fe016f4cbfcbc3",
+  "physical_admission": false,
+  "resource_stop_reason": "disk_below_12GiB",
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

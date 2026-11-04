@@ -1,0 +1,32 @@
+{
+  "repository": "/Users/numi/numi-lab-native-replay-publish-20261017",
+  "before_available_bytes": 16075198464,
+  "before_object_count": 89030,
+  "before_object_set_sha256": "e0c6ecb3742e2dd6ad51b27655ea63daafb0fbc1abab6845d8526ddfddc0926d",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "multi-pack-index",
+        "write"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "multi-pack-index",
+        "expire"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "method": "MIDX expiry removes only packs with no objects referenced by the consolidated multi-pack index; verify identical complete local object ID set before/after. No ref, branch, worktree, source or object pruning.",
+  "after_object_count": 89030,
+  "after_object_set_sha256": "e0c6ecb3742e2dd6ad51b27655ea63daafb0fbc1abab6845d8526ddfddc0926d",
+  "after_available_bytes": 16075132928
+}

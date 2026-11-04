@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-packed-patch-prefix-216/run_native_plan.py", line 14, in <module>
+    reuse=plan["reused_immutable_preparation_dump"];assert reuse["producer_disabled"] and "NUMI_HUMAN_TISSUE_MASS_REFERENCE_DUMP" not in stage["environment"]
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

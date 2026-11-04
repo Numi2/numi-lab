@@ -1,0 +1,36 @@
+{
+  "revision": "0526640f89f4bedf257a1533e98770e254739007",
+  "author": "numi2",
+  "committer": "numi2",
+  "files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "bytes": 3554289,
+      "sha256": "708678d672c31c119bf8c18d920462ce94e65085d09a7e823902cf728bc78abc",
+      "github_blob_sha": "e7c7b2bd83c75ce19a80c3051589b63904821ce9",
+      "independently_read_from_GitHub": true
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "bytes": 845367,
+      "sha256": "8e81d95164514e6640ebacd70b787c6fce37fbea946d503ccfd7de2c004995ff",
+      "github_blob_sha": "a8df32197efe0a40f152f27029ed323de2d3f23f",
+      "independently_read_from_GitHub": true
+    },
+    {
+      "path": "matter/src/metal/partitioned_reduction_projection.metalinc",
+      "bytes": 64986,
+      "sha256": "2879706df66438ece04f5d3c27ca19d929b0ae1d73fc591f373673b04a4355f5",
+      "github_blob_sha": "079a8bb260183efd5158db799f329641c9886b50",
+      "independently_read_from_GitHub": true
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "bytes": 1073704,
+      "sha256": "4710ef3a57165ddef0dddc6b99ceb8aa22cbef1dfe2f502f2e8990935160b49f",
+      "github_blob_sha": "9ef275a5c0e461fcb6bcee4bc7181a82d7acfe62",
+      "independently_read_from_GitHub": true
+    }
+  ],
+  "all_source_bytes_verified": true
+}

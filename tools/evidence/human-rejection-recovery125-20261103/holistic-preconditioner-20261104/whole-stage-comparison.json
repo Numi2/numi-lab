@@ -1,0 +1,110 @@
+{
+  "source_revision": "0526640f89f4bedf257a1533e98770e254739007",
+  "stages": {
+    "holistic-control-prefix-193": {
+      "milliseconds_by_label": {
+        "matter_pre": 10.815167,
+        "brain_advance": 0.007166,
+        "respiratory_mechanics": 1.429,
+        "matter_after_frame_begin": 0.787958,
+        "matter_newton_assembly": 1018.699373,
+        "matter_newton_linear": 1870.890125,
+        "matter_newton_globalization": 410.514793,
+        "matter_final_certificate": 234.528208,
+        "respiratory_gas_exchange": 1.801375,
+        "matter_after_candidate_ready": 13.180875,
+        "matter_after_microstep": 2.350583,
+        "matter_post": 15.234375,
+        "brain_resolve": 0.001417,
+        "respiratory_resolve": 0.703458
+      },
+      "intervals_by_label": {
+        "matter_pre": 1,
+        "brain_advance": 1,
+        "respiratory_mechanics": 1,
+        "matter_after_frame_begin": 1,
+        "matter_newton_assembly": 16,
+        "matter_newton_linear": 16,
+        "matter_newton_globalization": 16,
+        "matter_final_certificate": 1,
+        "respiratory_gas_exchange": 1,
+        "matter_after_candidate_ready": 1,
+        "matter_after_microstep": 1,
+        "matter_post": 1,
+        "brain_resolve": 1,
+        "respiratory_resolve": 1
+      },
+      "scope": "root0 only; labels may represent nested ownership. Do not add all labels or extrapolate to the whole prefix."
+    },
+    "holistic-combined-prefix-213": {
+      "milliseconds_by_label": {
+        "matter_pre": 10.763125,
+        "brain_advance": 0.007916,
+        "respiratory_mechanics": 2.268667,
+        "matter_after_frame_begin": 0.778417,
+        "matter_newton_assembly": 1018.447083,
+        "matter_newton_linear": 1881.66325,
+        "matter_newton_globalization": 410.644042,
+        "matter_final_certificate": 233.799625,
+        "respiratory_gas_exchange": 1.76125,
+        "matter_after_candidate_ready": 13.174125,
+        "matter_after_microstep": 2.35825,
+        "matter_post": 14.3275,
+        "brain_resolve": 0.001458,
+        "respiratory_resolve": 0.667583
+      },
+      "intervals_by_label": {
+        "matter_pre": 1,
+        "brain_advance": 1,
+        "respiratory_mechanics": 1,
+        "matter_after_frame_begin": 1,
+        "matter_newton_assembly": 16,
+        "matter_newton_linear": 16,
+        "matter_newton_globalization": 16,
+        "matter_final_certificate": 1,
+        "respiratory_gas_exchange": 1,
+        "matter_after_candidate_ready": 1,
+        "matter_after_microstep": 1,
+        "matter_post": 1,
+        "brain_resolve": 1,
+        "respiratory_resolve": 1
+      },
+      "scope": "root0 only; labels may represent nested ownership. Do not add all labels or extrapolate to the whole prefix."
+    },
+    "holistic-packed-patch-prefix-216": {
+      "milliseconds_by_label": {
+        "matter_pre": 11.984209,
+        "brain_advance": 0.008041,
+        "respiratory_mechanics": 2.322875,
+        "matter_after_frame_begin": 0.814583,
+        "matter_newton_assembly": 2445.297751,
+        "matter_newton_linear": 1814.593708,
+        "matter_newton_globalization": 410.010332,
+        "matter_final_certificate": 232.614375,
+        "respiratory_gas_exchange": 1.761541,
+        "matter_after_candidate_ready": 13.20375,
+        "matter_after_microstep": 2.362875,
+        "matter_post": 15.064458,
+        "brain_resolve": 0.001459,
+        "respiratory_resolve": 0.699708
+      },
+      "intervals_by_label": {
+        "matter_pre": 1,
+        "brain_advance": 1,
+        "respiratory_mechanics": 1,
+        "matter_after_frame_begin": 1,
+        "matter_newton_assembly": 16,
+        "matter_newton_linear": 16,
+        "matter_newton_globalization": 16,
+        "matter_final_certificate": 1,
+        "respiratory_gas_exchange": 1,
+        "matter_after_candidate_ready": 1,
+        "matter_after_microstep": 1,
+        "matter_post": 1,
+        "brain_resolve": 1,
+        "respiratory_resolve": 1
+      },
+      "scope": "root0 only; labels may represent nested ownership. Do not add all labels or extrapolate to the whole prefix."
+    }
+  }
+}

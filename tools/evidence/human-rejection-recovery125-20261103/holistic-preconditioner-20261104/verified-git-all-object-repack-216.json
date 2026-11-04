@@ -1,0 +1,23 @@
+{
+  "repository": "/Users/numi/numi-lab-native-replay-publish-20261017",
+  "before_available_bytes": 16075182080,
+  "preserved_object_set_sha256": "e0c6ecb3742e2dd6ad51b27655ea63daafb0fbc1abab6845d8526ddfddc0926d",
+  "preserved_object_count": 89030,
+  "policy": "Repack all existing packed objects, including unreachable objects. No prune, reflog expiry, branch/source deletion or worktree cleanup. Verify identical all-object ID set and Git connectivity afterward.",
+  "argv": [
+    "git",
+    "-c",
+    "pack.threads=2",
+    "repack",
+    "-a",
+    "-d",
+    "--keep-unreachable",
+    "--window=10",
+    "--depth=50"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 44.72297787666321,
+  "object_set_verified": true,
+  "connectivity_exit_code": 0,
+  "after_available_bytes": 17273499648
+}

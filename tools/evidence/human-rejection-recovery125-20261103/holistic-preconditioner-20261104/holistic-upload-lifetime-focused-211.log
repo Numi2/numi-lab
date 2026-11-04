@@ -1,0 +1,5 @@
+parallel_patch_reuse=PASS cases=20 dynamic_range=true bitwise=true empty=true completed=true duplicates=true inactive=true canaries=true multi_environment=true
+parallel_coarse_preconditioner=PASS bitwise=true lane_preserved=true diagonal_reuse=true cases=16 dynamic_range=true sizes=0,1,255,257,513,200001 completed=true multi_environment=true canaries=true max_reference_scaled_error=1.23408e-07 max_legacy_scaled_error=0
+coarse_parity_diagnostic=PASS exact_copy=true one_ulp_detected=true completed=true canary=true
+bundled_regional_projection=PASS cases=16 non_dyadic=true dense=true compact=true bitwise=true cancellation=true signed_zero=true invalid_rows=true invalid_modes=true multi_environment=true canary=true
+PASS parallel base preconditioner 1724457 checks
