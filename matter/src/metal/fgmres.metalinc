@@ -2081,6 +2081,204 @@ kernel void nm_fgmres_precondition_patches(
         inverse > float4(0.0f));
 }
 
+
+// Each incident node previously reconstructed the same four-node lumped patch.
+// Produce that patch once into the existing element-operator scratch. The
+// following ordered CSR gather consumes it before the real operator overwrites
+// the scratch; completed columns never read an unproduced entry. Pack float4
+// results contiguously in the front of that buffer: using node0 of the 64-byte
+// element structure wastes three quarters of every output/cache line here.
+kernel void nm_fgmres_precondition_patch_elements(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(1)]],
+    device const float4* basis [[buffer(2)]],
+    device const float4* inverseDiagonal [[buffer(3)]],
+    device float4* scratch [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (dispatch.tetrahedronCount == 0u ||
+        global >= dispatch.environmentCount * dispatch.tetrahedronCount) return;
+    const uint environment = global / dispatch.tetrahedronCount;
+    if (states[environment].diagnostics.z > 0.5f) return;
+    const NMTetrahedronGPU tetrahedron = tetrahedra[global];
+    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) return;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    float4 residualSum = float4(0.0f), diagonalSum = float4(0.0f);
+    for (uint local = 0u; local < 4u; ++local) {
+        const uint node = tetrahedron.nodes[local];
+        if (node >= dispatch.femNodeCount) continue;
+        const uint index = nodeBase + node;
+        const float4 inverse = inverseDiagonal[index];
+        const bool4 active = inverse > float4(0.0f);
+        residualSum += select(float4(0.0f), basis[index], active);
+        diagonalSum += select(float4(0.0f),
+            1.0f / max(inverse, float4(1.0e-30f)), active);
+    }
+    scratch[global] = residualSum /
+        max(diagonalSum, float4(1.0e-30f));
+}
+
+kernel void nm_fgmres_precondition_patch_gather(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(1)]],
+    device const uint* nodeIncidence [[buffer(2)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
+    device const float4* scratch [[buffer(4)]],
+    device const float4* inverseDiagonal [[buffer(5)]],
+    device float4* preconditioned [[buffer(6)]],
+    device const NMFGMRESStateGPU* states [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (dispatch.femNodeCount == 0u ||
+        global >= dispatch.environmentCount * dispatch.femNodeCount) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (states[environment].diagnostics.z > 0.5f) return;
+    const NMIncidenceRangeGPU range = nodeRanges[global];
+    if (range.objectIndex == NM_INVALID_INDEX) return;
+    const uint elementBase = environment * dispatch.tetrahedronCount;
+    float4 correctionSum = float4(0.0f);
+    uint patchCount = 0u;
+    for (uint incidence = 0u; incidence < range.count; ++incidence) {
+        const uint tet = nodeIncidence[range.first + incidence];
+        if (tet >= dispatch.tetrahedronCount ||
+            (tetrahedra[elementBase + tet].identity.w & NM_OBJECT_ACTIVE) == 0u)
+            continue;
+        correctionSum += scratch[elementBase + tet];
+        ++patchCount;
+    }
+    if (patchCount == 0u) return;
+    const float4 inverse = inverseDiagonal[global];
+    const float4 patch = correctionSum / float(patchCount);
+    preconditioned[global] = select(float4(0.0f),
+        mix(preconditioned[global], patch, 0.35f),
+        inverse > float4(0.0f));
+}
+
+// In-context diagnostic: the FEM operator output is dead until the operator
+// below the prefix. Copy the initial correction there, evaluate the legacy
+// coarse pass, and compare every bit before the production operator overwrites
+// it. This path is source-selected, bounded, and never a replacement physics.
+kernel void nm_fgmres_coarse_parity_diagnostic(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* current [[buffer(1)]],
+    device float4* reference [[buffer(2)]],
+    device const NMFGMRESStateGPU* states [[buffer(3)]],
+    device NMMatterStatusGPU* statuses [[buffer(4)]],
+    constant uint& phase [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (dispatch.femNodeCount==0u ||
+        global>=dispatch.environmentCount*dispatch.femNodeCount) return;
+    const uint environment=global/dispatch.femNodeCount;
+    if (states[environment].diagnostics.z>0.5f) return;
+    if (phase==0u) { reference[global]=current[global];return; }
+    const float4 expected=reference[global],actual=current[global];
+    const uint4 a=as_type<uint4>(actual),b=as_type<uint4>(expected);
+    for(uint c=0u;c<4u;++c) if(a[c]!=b[c]) {
+        recordFailure(statuses[environment],NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX,global,float4(float(c),expected[c],actual[c],0.0f));
+        return;
+    }
+}
+
+// Preserve the original per-lane compensated accumulation and SIMD reduction
+// exactly. The tiled sum's native trial failed the regional force comparison;
+// only the whole-object write is distributed here. Metadata below contains
+// exact authored object tiles and a total-tile sentinel, not physical state.
+kernel void nm_fgmres_precondition_coarse_reduce(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const float4* basis [[buffer(2)]],
+    device const float4* inverseDiagonal [[buffer(3)]],
+    device float4* preconditioned [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    device float4* cachedDiagonal [[buffer(6)]],
+    constant uint& column [[buffer(7)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || dispatch.objectCount == 0u) return;
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+    if (environment >= dispatch.environmentCount ||
+        states[environment].diagnostics.z > 0.5f) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM) return;
+    const uint base = environment * dispatch.femNodeCount +
+        object.stateOffset;
+    float4 residualSum = float4(0.0f);
+    float4 residualCorrection = float4(0.0f);
+    float4 diagonalSum = float4(0.0f);
+    float4 diagonalCorrection = float4(0.0f);
+    for (uint local = lane; local < object.stateCount; local += 32u) {
+        const uint node = base + local;
+        const float4 inverse = inverseDiagonal[node];
+        const bool3 freeVelocity = inverse.xyz > float3(0.0f);
+        const float4 residual = basis[node];
+        const float4 selectedResidual = float4(
+            select(float3(0.0f), residual.xyz, freeVelocity),
+            inverse.w > 0.0f ? residual.w : 0.0f);
+        const float4 diagonal = column==0u ? float4(
+            select(float3(0.0f), 1.0f / max(inverse.xyz, float3(1.0e-30f)),
+                   freeVelocity),
+            inverse.w > 0.0f ? 1.0f / inverse.w : 0.0f) : float4(0.0f);
+        const float4 adjustedResidual = selectedResidual - residualCorrection;
+        const float4 nextResidual = residualSum + adjustedResidual;
+        residualCorrection =
+            (nextResidual - residualSum) - adjustedResidual;
+        residualSum = nextResidual;
+        if (column==0u) {
+            const float4 adjustedDiagonal = diagonal - diagonalCorrection;
+            const float4 nextDiagonal = diagonalSum + adjustedDiagonal;
+            diagonalCorrection =
+                (nextDiagonal - diagonalSum) - adjustedDiagonal;
+            diagonalSum = nextDiagonal;
+        }
+    }
+    residualSum = float4(
+        simd_sum(residualSum.x), simd_sum(residualSum.y),
+        simd_sum(residualSum.z), simd_sum(residualSum.w));
+    if (column==0u) {
+        diagonalSum = float4(
+            simd_sum(diagonalSum.x), simd_sum(diagonalSum.y),
+            simd_sum(diagonalSum.z), simd_sum(diagonalSum.w));
+        cachedDiagonal[group*32u+lane]=diagonalSum;
+    } else {
+        diagonalSum=cachedDiagonal[group*32u+lane];
+    }
+    const float4 coarse = residualSum /
+        max(diagonalSum, float4(1.0e-30f));
+    // The legacy pass consumes each lane's SIMD result for local node
+    // lane+32*k. Preserve that lane assignment through device storage.
+    preconditioned[group*32u+lane]=coarse;
+}
+
+kernel void nm_fgmres_precondition_coarse_apply(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint4* tiles [[buffer(1)]],
+    device const float4* coarse [[buffer(2)]],
+    device const float4* inverseDiagonal [[buffer(3)]],
+    device float4* preconditioned [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    device const uint4* ranges [[buffer(6)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint tileCount=ranges[dispatch.objectCount].x;
+    if (tileCount==0u) return;
+    const uint environment=group/tileCount;
+    if (environment>=dispatch.environmentCount ||
+        states[environment].diagnostics.z>0.5f) return;
+    const uint4 tile=tiles[group-environment*tileCount];
+    if (lane>=tile.z) return;
+    const uint global=environment*dispatch.femNodeCount+tile.y+lane;
+    const float4 inverse=inverseDiagonal[global];
+    preconditioned[global]=select(float4(0.0f),
+        mix(preconditioned[global],coarse[(environment*dispatch.objectCount+tile.x)*32u+(lane&31u)],0.2f),
+        inverse>float4(0.0f));
+}
+
 // Object-scale Galerkin correction over the four low-frequency modes carried
 // by the packed mechanics block (three translations plus mean pressure).
 // The fine level is the node-star diagonal assembled above; this bounded

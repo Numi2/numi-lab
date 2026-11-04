@@ -783,6 +783,72 @@ kernel void nm_partitioned_reduction_reduce_sparse_mode_tiles_impl<true>(
 );
 
 
+
+// Share one fine-vector/mass/row load across the twelve regional modes.
+// Each mode retains the original 256-lane binary reduction tree and partial
+// layout. This changes data reuse, not B, B^T, precision, or reduction order.
+kernel void nm_partitioned_reduction_reduce_sparse_mode_tiles12_packed(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const nm_float4* fineValues [[buffer(1)]],
+    device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* basisLookup [[buffer(29)]],
+    device const uint* globalNodeIndices [[buffer(3)]],
+    device const float* basisMass [[buffer(4)]],
+    device float* partials [[buffer(5)]],
+    device const uint* blockModeIndices [[buffer(6)]],
+    device const NMPartitionedReductionSparseRangeGPU* regionSupportRanges [[buffer(7)]],
+    device const uint* regionSupportRows [[buffer(8)]],
+    device const nm_uint4* packedTiles [[buffer(28)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    if (dispatch.blockModeCount!=12u || group.y!=0u ||
+        group.z>=dispatch.environmentCount) return;
+    const uint2 work=packedTiles[group.x].xy;
+    const uint region=work.x, sparseTile=work.y, environment=group.z;
+    if (region>=dispatch.regionCount || sparseTile>=dispatch.reserved) return;
+    const NMPartitionedReductionSparseRangeGPU support=regionSupportRanges[region];
+    const uint sparseIndex=sparseTile*kPartitionedReductionTileWidth+lane;
+    uint row=dispatch.basisNodeCount;
+    uint globalNode=dispatch.globalNodeCount;
+    float3 fine=float3(0.0f);
+    float mass=1.0f;
+    if (sparseIndex<support.count) {
+        row=regionSupportRows[support.first+sparseIndex];
+        if (row<dispatch.basisNodeCount) {
+            globalNode=globalNodeIndices[row];
+            if (globalNode<dispatch.globalNodeCount) {
+                fine=fineValues[ulong(environment)*dispatch.globalNodeCount+globalNode].xyz;
+                mass=basisMass==nullptr?1.0f:basisMass[row];
+            }
+        }
+    }
+    threadgroup float reduction[12u*NM_PARTITIONED_REDUCTION_TILE_WIDTH];
+    for (uint mode=0u;mode<12u;++mode) {
+        const uint globalMode=blockModeIndices[region*12u+mode];
+        float contribution=0.0f;
+        if (row<dispatch.basisNodeCount && globalNode<dispatch.globalNodeCount &&
+            globalMode<dispatch.modeCount)
+            contribution=mass*dot(nmPartitionedKnownRegionalCoefficient(
+                basisValues,basisLookup,globalMode,row,dispatch.basisNodeCount,sparseIndex).xyz,fine);
+        reduction[mode*kPartitionedReductionTileWidth+lane]=contribution;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride=kPartitionedReductionTileWidth/2u;stride>0u;stride>>=1u) {
+        if (lane<stride)
+            for (uint mode=0u;mode<12u;++mode) {
+                const uint index=mode*kPartitionedReductionTileWidth+lane;
+                reduction[index]+=reduction[index+stride];
+            }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane<12u) {
+        const ulong partial=(((ulong(environment)*dispatch.regionCount+region)*12u+
+            lane)*dispatch.reserved)+sparseTile;
+        partials[partial]=reduction[lane*kPartitionedReductionTileWidth];
+    }
+}
+
 kernel void nm_partitioned_reduction_reduce_sparse_mode_partials(
     constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
     device const float* partials [[buffer(1)]],

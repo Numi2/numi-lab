@@ -1724,6 +1724,11 @@ public:
         bool& valid,
         std::size_t& residentBytes
     ) {
+        if (finished_ || blit_==nil) {
+            error_="cannot append to a finalized Matter upload batch";
+            valid=false;
+            return nil;
+        }
         (void)checkedBytes(values.size(), sizeof(T), valid);
         const NSUInteger totalBytes = checkedBytes(values.size() * repeat, sizeof(T), valid);
         if (!valid || !error_.empty()) {
@@ -1793,7 +1798,12 @@ public:
     }
 
     [[nodiscard]] bool finish(std::string& error) {
+        if (finished_) {
+            error="Matter upload batch was already finalized";
+            return false;
+        }
         const bool ok = drain(false);
+        finished_=true;
         error = error_;
         if (const char* telemetry = std::getenv("NUMI_HUMAN_PREPARATION_MEMORY");
             telemetry != nullptr && std::strcmp(telemetry, "1") == 0) {
@@ -1836,6 +1846,7 @@ private:
     NSUInteger stagingLimit_ = 32u * 1024u * 1024u;
     NSUInteger pendingBytes_ = 0u, peakStagingBytes_ = 0u;
     std::size_t completedBatches_ = 0u;
+    bool finished_ = false;
     std::string error_;
     id<MTLCommandBuffer> commandBuffer_ = nil;
     id<MTLBlitCommandEncoder> blit_ = nil;
@@ -4146,6 +4157,14 @@ struct Runtime::State {
     bool femGatherSIMDEnabled = false;
     id<MTLBuffer> femGatherSIMDDispatch = nil;
     bool femCachedNodeSIMDEnabled = false;
+    bool fgmresCoarseParityDiagnostic = false;
+    bool fgmresParallelBasePreconditionerEnabled = false;
+    std::uint32_t fgmresParallelBasePreconditionerMask = 7u;
+    std::uint32_t fgmresCoarseTileCount = 0u;
+    id<MTLBuffer> fgmresCoarseTiles = nil;
+    id<MTLBuffer> fgmresCoarseRanges = nil;
+    id<MTLBuffer> fgmresCoarseValues = nil;
+    id<MTLBuffer> fgmresCoarseDiagonal = nil;
     id<MTLBuffer> femCachedNodeSIMDDispatch = nil;
     id<MTLBuffer> femAlgorithmicTangentCache = nil;
     id<MTLBuffer> femAlgorithmicTangentCacheValid = nil;
@@ -5913,6 +5932,28 @@ RuntimeDiagnostics Runtime::initialize(
         }
         candidate->femGatherSIMDEnabled =
             gatherSIMD != nullptr && std::strcmp(gatherSIMD,"1") == 0;
+        if (const char* value = std::getenv("NM_FGMRES_PARALLEL_BASE_PRECONDITIONER")) {
+            if (std::strcmp(value,"0") != 0 && std::strcmp(value,"1") != 0) {
+                diagnostics.message =
+                    "NM_FGMRES_PARALLEL_BASE_PRECONDITIONER must be exactly 0 or 1";
+                return diagnostics;
+            }
+            candidate->fgmresParallelBasePreconditionerEnabled = std::strcmp(value,"1")==0;
+        }
+        if (const char* value=std::getenv("NM_FGMRES_PARALLEL_BASE_PRECONDITIONER_MASK")) {
+            if (value[0]<'0' || value[0]>'7' || value[1]!='\0') {
+                diagnostics.message="NM_FGMRES_PARALLEL_BASE_PRECONDITIONER_MASK must be0..7";
+                return diagnostics;
+            }
+            candidate->fgmresParallelBasePreconditionerMask=std::uint32_t(value[0]-'0');
+        }
+        if (const char* value=std::getenv("NM_FGMRES_COARSE_PARITY_DIAGNOSTIC")) {
+            if (std::strcmp(value,"0")!=0 && std::strcmp(value,"1")!=0) {
+                diagnostics.message="NM_FGMRES_COARSE_PARITY_DIAGNOSTIC must be0 or1";
+                return diagnostics;
+            }
+            candidate->fgmresCoarseParityDiagnostic=std::strcmp(value,"1")==0;
+        }
         const char* cachedNodeSIMD = std::getenv("NM_FEM_CACHED_NODE_SIMD");
         if (cachedNodeSIMD != nullptr && std::strcmp(cachedNodeSIMD,"0") != 0 &&
             std::strcmp(cachedNodeSIMD,"1") != 0) {
@@ -8699,6 +8740,12 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_partitioned_reduction_fem_tangent_add_partials",
             "nm_partitioned_reduction_hybrid_gs_correct_q_rhs",
             "nm_partitioned_reduction_hybrid_gs_add_fine_correction",
+            "nm_fgmres_coarse_parity_diagnostic",
+            "nm_fgmres_precondition_patch_elements",
+            "nm_fgmres_precondition_patch_gather",
+            "nm_fgmres_precondition_coarse_reduce",
+            "nm_fgmres_precondition_coarse_apply",
+            "nm_partitioned_reduction_reduce_sparse_mode_tiles12_packed",
             "nm_fgmres_precondition_patches",
             "nm_fgmres_precondition_coarse",
             "nm_fgmres_regional_load_mode",
@@ -9453,6 +9500,12 @@ RuntimeDiagnostics Runtime::initialize(
                 || std::strcmp(name, "nm_fgmres_precondition") == 0
                 || std::strcmp(name, "nm_fgmres_precondition_empty_fields") == 0
                 || std::strcmp(name, "nm_fgmres_apply_coupled_tangent_block") == 0
+                || std::strcmp(name, "nm_fgmres_coarse_parity_diagnostic") == 0
+                || std::strcmp(name, "nm_fgmres_precondition_patch_elements") == 0
+                || std::strcmp(name, "nm_fgmres_precondition_patch_gather") == 0
+                || std::strcmp(name, "nm_fgmres_precondition_coarse_reduce") == 0
+                || std::strcmp(name, "nm_fgmres_precondition_coarse_apply") == 0
+                || std::strcmp(name, "nm_partitioned_reduction_reduce_sparse_mode_tiles12_packed") == 0
                 || std::strcmp(name, "nm_fgmres_precondition_patches") == 0
                 || std::strcmp(name, "nm_fgmres_precondition_coarse") == 0
                 || std::strcmp(name, "nm_fem_human_attachment_map_direction") == 0
@@ -9641,7 +9694,41 @@ RuntimeDiagnostics Runtime::initialize(
             std::fprintf(stderr,"matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero\n");
         if (schurGraphOnlyRequested)
             std::fprintf(stderr,"matter_selector6_schur_graph_only=1 partitioned_12mode_apply=0 shared_nodal_inverse=1\n");
+
+        const bool immutableBasePreconditionerSpans =
+            world.dispatch.mutationCommandCount==0u &&
+            world.fem.mutationCommands.empty() &&
+            std::none_of(world.objects.begin(),world.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    return (object.flags & (NM_OBJECT_MUTABLE_TOPOLOGY|NM_OBJECT_ADAPTIVE))!=0u;
+                });
+        const bool parallelBasePreconditionerEligible =
+            immutableBasePreconditionerSpans && candidate->emptyMpmKrylovDomain &&
+            !candidate->femHumanHybridCoordinatesEnabled &&
+            world.dispatch.environmentCount==1u &&
+            (world.mixedSolver.executionBudgets.z==0u ||
+             world.mixedSolver.executionBudgets.z==6u);
+        if (candidate->fgmresParallelBasePreconditionerEnabled &&
+            !parallelBasePreconditionerEligible) {
+            diagnostics.message =
+                "parallel base preconditioner requires immutable full-coordinate selector0/6 FEM and one environment with empty MPM";
+            return diagnostics;
+        }
+        if (candidate->fgmresCoarseParityDiagnostic &&
+            (!candidate->fgmresParallelBasePreconditionerEnabled ||
+             (candidate->fgmresParallelBasePreconditionerMask&2u)==0u)) {
+            diagnostics.message="coarse parity diagnostic requires the parallel coarse path";
+            return diagnostics;
+        }
         for (const char* name : kernelNames) {
+            if (!candidate->fgmresCoarseParityDiagnostic &&
+                std::strcmp(name,"nm_fgmres_coarse_parity_diagnostic")==0) continue;
+            if (!candidate->fgmresParallelBasePreconditionerEnabled &&
+                (std::strcmp(name,"nm_fgmres_precondition_patch_elements")==0 ||
+                 std::strcmp(name,"nm_fgmres_precondition_patch_gather")==0 ||
+                 std::strcmp(name,"nm_fgmres_precondition_coarse_reduce")==0 ||
+                 std::strcmp(name,"nm_fgmres_precondition_coarse_apply")==0 ||
+                 std::strcmp(name,"nm_partitioned_reduction_reduce_sparse_mode_tiles12_packed")==0)) continue;
             if (!candidate->contactCompletedIncidenceReuseEnabled &&
                 std::strcmp(name, "nm_contact_prepare_completed_incidence_dispatch") == 0)
                 continue;
@@ -12376,6 +12463,10 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
 
+        // Scratch cache flags and solver work tables are authored after the
+        // immutable/state upload batch closes. Keep their own bounded batch
+        // alive through the last metadata producer, then finish before use.
+        UploadPlan runtimeMetadataUploads(candidate->device,candidate->queue);
         const auto multiplied = [&](const std::size_t perEnvironment) {
             return environments * perEnvironment;
         };
@@ -12517,10 +12608,10 @@ RuntimeDiagnostics Runtime::initialize(
             }
         }
         const std::array<std::uint32_t, 1u> zeroGeometryReuseWord{0u};
-        candidate->contactGeometryReuseFlags = uploads.repeated(
+        candidate->contactGeometryReuseFlags = runtimeMetadataUploads.repeated(
             std::span<const std::uint32_t>(zeroGeometryReuseWord),
             environments, valid, candidate->residentBytes);
-        candidate->contactGeometryReuseHits = uploads.repeated(
+        candidate->contactGeometryReuseHits = runtimeMetadataUploads.repeated(
             std::span<const std::uint32_t>(zeroGeometryReuseWord),
             environments, valid, candidate->residentBytes);
         if (!valid || candidate->contactGeometryReuseFlags == nil ||
@@ -12531,7 +12622,7 @@ RuntimeDiagnostics Runtime::initialize(
         }
         if (candidate->femSurfaceMortonOrderCacheEnabled) {
             const std::array<std::uint32_t, 1> initialSurfaceCacheFlag{0u};
-            candidate->femSurfaceMortonOrderCacheFlags = uploads.repeated(
+            candidate->femSurfaceMortonOrderCacheFlags = runtimeMetadataUploads.repeated(
                 std::span<const std::uint32_t>(initialSurfaceCacheFlag),
                 environments, valid, candidate->residentBytes);
             if (!valid ||
@@ -14900,6 +14991,75 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fgmresStates = privateScratch<NMFGMRESStateGPU>(
             candidate->device, fgmresSystemTotal,
             valid, candidate->residentBytes);
+
+        if (candidate->fgmresParallelBasePreconditionerEnabled) {
+            std::vector<nm_uint4> tiles;
+            std::vector<nm_uint4> ranges(world.objects.size()+1u);
+            for (std::size_t i=0u;i<world.objects.size();++i) {
+                const auto& object=world.objects[i];
+                ranges[i].x=static_cast<std::uint32_t>(tiles.size());
+                if (object.representation!=NM_REPRESENTATION_FEM) continue;
+                if (object.stateOffset>world.dispatch.femNodeCount ||
+                    object.stateCount>world.dispatch.femNodeCount-object.stateOffset) {
+                    diagnostics.message="parallel coarse preconditioner object span is invalid";
+                    return diagnostics;
+                }
+                for (std::uint32_t local=0u;local<object.stateCount;) {
+                    const auto count=std::min(256u,object.stateCount-local);
+                    tiles.push_back({static_cast<std::uint32_t>(i),
+                        object.stateOffset+local,count,0u});
+                    local+=count;
+                }
+                ranges[i].y=static_cast<std::uint32_t>(tiles.size())-ranges[i].x;
+            }
+            if (std::uint64_t(tiles.size())*environments>
+                    std::numeric_limits<std::uint32_t>::max()) {
+                diagnostics.message="parallel coarse preconditioner tile count exceeds GPU addressing";
+                return diagnostics;
+            }
+            candidate->fgmresCoarseTileCount=static_cast<std::uint32_t>(tiles.size());
+            ranges.back().x=candidate->fgmresCoarseTileCount;
+            candidate->fgmresCoarseTiles=runtimeMetadataUploads.one(
+                std::span<const nm_uint4>(tiles),valid,candidate->residentBytes);
+            candidate->fgmresCoarseRanges=runtimeMetadataUploads.one(
+                std::span<const nm_uint4>(ranges),valid,candidate->residentBytes);
+            candidate->fgmresCoarseValues=privateScratch<nm_float4>(
+                candidate->device,world.objects.size()*environments*32u,
+                valid,candidate->residentBytes);
+            candidate->fgmresCoarseDiagonal=privateScratch<nm_float4>(
+                candidate->device,world.objects.size()*environments*32u,
+                valid,candidate->residentBytes);
+            for (const char* name : {
+                            "nm_partitioned_reduction_reduce_sparse_mode_tiles12_packed"}) {
+                // A non-partitioned world never dispatches this projection.
+                if (!candidate->femHumanPartitionedPreconditionerEnabled) continue;
+                auto pipeline=candidate->pipeline(name);
+                if (pipeline==nil || pipeline.threadExecutionWidth!=32u ||
+                    pipeline.maxTotalThreadsPerThreadgroup<256u ||
+                    pipeline.staticThreadgroupMemoryLength>
+                        candidate->device.maxThreadgroupMemoryLength) {
+                    diagnostics.message="parallel base preconditioner threadgroup capacity is unavailable";
+                    return diagnostics;
+                }
+            }
+            std::fprintf(stderr,
+                "matter_parallel_base_preconditioner=1 components=%u tiles=%u tile_width=256 patch_scratch=element_operator coarse_metadata_bytes=%lu coarse_scratch_bytes=%lu projection_mode_capacity=12\n",
+                candidate->fgmresParallelBasePreconditionerMask,
+                candidate->fgmresCoarseTileCount,
+                static_cast<unsigned long>(candidate->fgmresCoarseTiles.length+
+                    candidate->fgmresCoarseRanges.length),
+                static_cast<unsigned long>(candidate->fgmresCoarseValues.length+
+                    candidate->fgmresCoarseDiagonal.length));
+        }
+
+        std::string runtimeMetadataUploadError;
+        if (!valid || !runtimeMetadataUploads.finish(runtimeMetadataUploadError)) {
+            diagnostics.message=valid
+                ? "failed to upload runtime metadata: "+runtimeMetadataUploadError
+                : "runtime metadata buffer size or allocation overflow";
+            return diagnostics;
+        }
+
         traceAllocationPhase("after_krylov_basis");
         const std::uint32_t completedZeroActionTileCount =
             std::max(1u, candidate->fgmresLayout.unknownCount / 256u +
@@ -21384,8 +21544,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const NSUInteger localModes = state.femHumanPartitionedBlockModeCount;
             const NSUInteger regionEnvironments = environments * regions;
             dispatchGroups256Grid(
-                "nm_partitioned_reduction_reduce_sparse_mode_tiles_packed",
-                state.femHumanPartitionedPackedNodeTileCount, localModes, environments, [&] {
+                state.fgmresParallelBasePreconditionerEnabled && (state.fgmresParallelBasePreconditionerMask&4u)!=0u && localModes==12u
+                    ? "nm_partitioned_reduction_reduce_sparse_mode_tiles12_packed"
+                    : "nm_partitioned_reduction_reduce_sparse_mode_tiles_packed",
+                state.femHumanPartitionedPackedNodeTileCount,
+                state.fgmresParallelBasePreconditionerEnabled && (state.fgmresParallelBasePreconditionerMask&4u)!=0u && localModes==12u ? 1u : localModes,
+                environments, [&] {
                 [encoder setBytes:&state.femHumanPartitionedBlockDispatch
                            length:sizeof(state.femHumanPartitionedBlockDispatch) atIndex:0u];
                 [encoder setBuffer:fineVector offset:0u atIndex:1u];
@@ -40584,6 +40748,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         std::uint32_t graphJacobiCountersEnabled;
                         std::uint32_t clearSourceMassStatuses;
                         MRArticulatedSourceMassOperationDispatchGPU sourceMassDispatch;
+                        std::uint32_t coarseColumn;
                     };
             static_assert(std::is_trivially_copyable_v<OperatorICBConstants>);
             for (std::uint32_t restartCycle = 0u;
@@ -41005,6 +41170,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femHumanPartitionedRegionSupportRanges,
                         state.femHumanPartitionedRegionSupportRows,
                         state.femHumanPartitionedPackedNodeTiles,
+                        state.fgmresCoarseTiles, state.fgmresCoarseRanges,
+                        state.fgmresCoarseValues, state.fgmresCoarseDiagonal,
                         state.femHumanPartitionedPackedTetTiles,
                         state.femHumanPartitionedNodeModeRanges,
                         state.femHumanPartitionedNodeModeSlots,
@@ -41257,7 +41424,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:4u];
                     }, WorkDomain::femNodes);
                 }
-                if (!femPreconditionerGroupICBForCurrentSolve)
+
+                if (!femPreconditionerGroupICBForCurrentSolve) {
+                if (state.fgmresParallelBasePreconditionerEnabled &&
+                    (state.fgmresParallelBasePreconditionerMask&1u)!=0u) {
+                    dispatchThreads("nm_fgmres_precondition_patch_elements",tetrahedronTotal,[&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:1u];
+                        [encoder setBuffer:preconditionerInputBasis offset:preconditionerInputOffset atIndex:2u];
+                        [encoder setBuffer:state.femPreconditioned offset:0u atIndex:3u];
+                        [encoder setBuffer:state.elementOperator offset:0u atIndex:4u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                    },WorkDomain::tetrahedra);
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads("nm_fgmres_precondition_patch_gather",femNodeTotal,[&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femNodeRanges offset:0u atIndex:3u];
+                        [encoder setBuffer:state.elementOperator offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femPreconditioned offset:0u atIndex:5u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:6u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:7u];
+                    },WorkDomain::femNodes);
+                } else {
                 dispatchThreads("nm_fgmres_precondition_patches", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.femTetrahedraCandidate
@@ -41275,7 +41465,66 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates
                                  offset:0u atIndex:7u];
                 }, WorkDomain::femNodes);
-                if (!femPreconditionerGroupICBForCurrentSolve)
+                }
+                if (state.fgmresParallelBasePreconditionerEnabled &&
+                    (state.fgmresParallelBasePreconditionerMask&2u)!=0u) {
+                    if (state.fgmresCoarseParityDiagnostic) {
+                        const std::uint32_t phase=0u;
+                        dispatchThreads("nm_fgmres_coarse_parity_diagnostic",femNodeTotal,[&] {
+                            setDispatch();
+                            [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:1u];
+                            [encoder setBuffer:state.femOperatorValue offset:0u atIndex:2u];
+                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
+                            [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                            [encoder setBytes:&phase length:sizeof(phase) atIndex:5u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchGroups32("nm_fgmres_precondition_coarse",objectTotal,[&] {
+                            setDispatch();
+                            [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                            [encoder setBuffer:preconditionerInputBasis offset:preconditionerInputOffset atIndex:2u];
+                            [encoder setBuffer:state.femPreconditioned offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femOperatorValue offset:0u atIndex:4u];
+                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
+                    dispatchGroups32("nm_fgmres_precondition_coarse_reduce",objectTotal,[&] {
+                        setDispatch();
+                        [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                        [encoder setBuffer:preconditionerInputBasis offset:preconditionerInputOffset atIndex:2u];
+                        [encoder setBuffer:state.femPreconditioned offset:0u atIndex:3u];
+                        [encoder setBuffer:state.fgmresCoarseValues offset:0u atIndex:4u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                        [encoder setBuffer:state.fgmresCoarseDiagonal offset:0u atIndex:6u];
+                        // Column zero rebuilds every Newton/restart linearization.
+                        const std::uint32_t coarseColumn=column;
+                        [encoder setBytes:&coarseColumn length:sizeof(coarseColumn) atIndex:7u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchGroups256("nm_fgmres_precondition_coarse_apply",
+                        environments*state.fgmresCoarseTileCount,[&] {
+                        setDispatch();
+                        [encoder setBuffer:state.fgmresCoarseTiles offset:0u atIndex:1u];
+                        [encoder setBuffer:state.fgmresCoarseValues offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femPreconditioned offset:0u atIndex:3u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:4u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                        [encoder setBuffer:state.fgmresCoarseRanges offset:0u atIndex:6u];
+                    });
+                    if (state.fgmresCoarseParityDiagnostic) {
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        const std::uint32_t phase=1u;
+                        dispatchThreads("nm_fgmres_coarse_parity_diagnostic",femNodeTotal,[&] {
+                            setDispatch();
+                            [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:1u];
+                            [encoder setBuffer:state.femOperatorValue offset:0u atIndex:2u];
+                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
+                            [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                            [encoder setBytes:&phase length:sizeof(phase) atIndex:5u];
+                        });
+                    }
+                } else {
                 dispatchGroups32("nm_fgmres_precondition_coarse", objectTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.objects offset:0u atIndex:1u];
@@ -41288,6 +41537,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates
                                  offset:0u atIndex:5u];
                 });
+                }
+                }
                 if (!skipEmptyFieldPreconditioner)
                     dispatchThreads("nm_fgmres_field_smoother_initialize", femNodeTotal, [&] {
                     setDispatch();
@@ -42411,10 +42662,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     } else {
                     dispatchGroups256Grid(
                         sparsePartitionedSupport
-                            ? "nm_partitioned_reduction_reduce_sparse_mode_tiles_packed"
+                            ? (state.fgmresParallelBasePreconditionerEnabled && (state.fgmresParallelBasePreconditionerMask&4u)!=0u && blockModeCount==12u
+                                ? "nm_partitioned_reduction_reduce_sparse_mode_tiles12_packed"
+                                : "nm_partitioned_reduction_reduce_sparse_mode_tiles_packed")
                             : "nm_partitioned_reduction_reduce_tiles",
                         sparsePartitionedSupport ? state.femHumanPartitionedPackedNodeTileCount : reductionTileCount,
-                        sparsePartitionedSupport ? blockModeCount : modeCount,
+                        sparsePartitionedSupport
+                            ? (state.fgmresParallelBasePreconditionerEnabled && (state.fgmresParallelBasePreconditionerMask&4u)!=0u && blockModeCount==12u
+                                ? 1u : blockModeCount) : modeCount,
                         environmentCount, [&] {
                         if (sparsePartitionedSupport) {
                             [encoder setBytes:
@@ -43125,7 +43380,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.graphRefinementMode(),
                         0u, operatorICBGraphJacobiCountersEnabled,
                         recordCoupledMassActionInOperatorICB ? 1u : 0u,
-                        ownerMassICBRecord.dispatch
+                        ownerMassICBRecord.dispatch, column
                     };
                     static_assert(sizeof(OperatorICBConstants) % sizeof(std::uint32_t) == 0u);
                     if (state.fgmresAggregateCycleICBEnabled && restartCycle == 0u) {
@@ -43327,6 +43582,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         mixShape(shapeSignature, ownerMassICBRecord.groupCountY);
                         mixShape(shapeSignature, ownerMassICBRecord.groupCountZ);
                     }
+                    mixShape(shapeSignature,state.fgmresParallelBasePreconditionerEnabled ? 1u : 0u);
+                    mixShape(shapeSignature,state.fgmresParallelBasePreconditionerMask);
+                    mixShape(shapeSignature,state.fgmresCoarseParityDiagnostic ? 1u : 0u);
+                    mixShape(shapeSignature,state.fgmresCoarseTileCount);
                     if (shapeSignature == 0u) shapeSignature = 1u;
                     id<MTLBuffer> scalars =
                         state.fgmresOperatorICBPrefixConstants[cacheIndex];
@@ -43354,7 +43613,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             ? 1u + (state.vascularBlockPreconditionerEnabled ? 1u : 0u)
                             : 0u;
                     const NSUInteger prefixCapacity =
-                        basePrefixCapacity + vascularPrefixCommands;
+                        basePrefixCapacity + vascularPrefixCommands +
+                            (state.fgmresParallelBasePreconditionerEnabled
+                                ? (((state.fgmresParallelBasePreconditionerMask&1u)!=0u ? 1u : 0u)+
+                                   ((state.fgmresParallelBasePreconditionerMask&2u)!=0u ? 1u : 0u))
+                                : 0u) +
+                            (state.fgmresCoarseParityDiagnostic ? 3u : 0u);
                     const NSUInteger tailCapacity =
                         recordCoupledMassActionInOperatorICB ? 15u : 11u;
                     id<MTLIndirectCommandBuffer> prefixGraph = [state.device
@@ -43511,6 +43775,28 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 femNodeTotal);
                         }
 
+
+                        if (state.fgmresParallelBasePreconditionerEnabled &&
+                            (state.fgmresParallelBasePreconditionerMask&1u)!=0u) {
+                            preCmd=makeCommand(prefixGraph,prefixOrdinal,"nm_fgmres_precondition_patch_elements");
+                            if (preCmd==nil) { diagnostics.message="parallel patch element ICB unavailable";return diagnostics; }
+                            bind(preCmd,1u,state.femTetrahedraCandidate);
+                            bind(preCmd,2u,preconditionerInputBasis,preconditionerInputOffset);
+                            bind(preCmd,3u,state.femPreconditioned);
+                            bind(preCmd,4u,state.elementOperator);
+                            bind(preCmd,5u,state.fgmresStates);
+                            finish(preCmd,"nm_fgmres_precondition_patch_elements",tetrahedronTotal);
+                            preCmd=makeCommand(prefixGraph,prefixOrdinal,"nm_fgmres_precondition_patch_gather");
+                            if (preCmd==nil) { diagnostics.message="parallel patch gather ICB unavailable";return diagnostics; }
+                            bind(preCmd,1u,state.femTetrahedraCandidate);
+                            bind(preCmd,2u,state.femNodeIncidence);
+                            bind(preCmd,3u,state.femNodeRanges);
+                            bind(preCmd,4u,state.elementOperator);
+                            bind(preCmd,5u,state.femPreconditioned);
+                            bind(preCmd,6u,state.fgmresPreconditionedBasis,columnOffset);
+                            bind(preCmd,7u,state.fgmresStates);
+                            finish(preCmd,"nm_fgmres_precondition_patch_gather",femNodeTotal);
+                        } else {
                         preCmd = makeCommand(prefixGraph, prefixOrdinal,
                             "nm_fgmres_precondition_patches");
                         if (preCmd == nil) {
@@ -43530,6 +43816,64 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         finish(preCmd, "nm_fgmres_precondition_patches",
                             femNodeTotal);
 
+                        }
+                        if (state.fgmresParallelBasePreconditionerEnabled &&
+                            (state.fgmresParallelBasePreconditionerMask&2u)!=0u) {
+                            if (state.fgmresCoarseParityDiagnostic) {
+                                preCmd=makeCommand(prefixGraph,prefixOrdinal,"nm_fgmres_coarse_parity_diagnostic");
+                                if (preCmd==nil) {diagnostics.message="coarse parity copy ICB unavailable";return diagnostics;}
+                                bind(preCmd,1u,state.fgmresPreconditionedBasis,columnOffset);
+                                bind(preCmd,2u,state.femOperatorValue);
+                                bind(preCmd,3u,state.fgmresStates);
+                                bind(preCmd,4u,state.statuses);
+                                scalar(preCmd,5u,offsetof(OperatorICBConstants,allowConverged));
+                                finish(preCmd,"nm_fgmres_coarse_parity_diagnostic",femNodeTotal);
+                                preCmd=makeCommand(prefixGraph,prefixOrdinal,"nm_fgmres_precondition_coarse");
+                                if (preCmd==nil) {diagnostics.message="coarse parity reference ICB unavailable";return diagnostics;}
+                                bind(preCmd,1u,state.objects);
+                                bind(preCmd,2u,preconditionerInputBasis,preconditionerInputOffset);
+                                bind(preCmd,3u,state.femPreconditioned);
+                                bind(preCmd,4u,state.femOperatorValue);
+                                bind(preCmd,5u,state.fgmresStates);
+                                if(!finishGroups32(preCmd,"nm_fgmres_precondition_coarse",objectTotal)) {
+                                    diagnostics.message="coarse parity reference shape unavailable";return diagnostics;
+                                }
+                            }
+                            preCmd=makeCommand(prefixGraph,prefixOrdinal,"nm_fgmres_precondition_coarse_reduce");
+                            if (preCmd==nil) { diagnostics.message="parallel coarse reduction ICB unavailable";return diagnostics; }
+                            bind(preCmd,1u,state.objects);
+                            bind(preCmd,2u,preconditionerInputBasis,preconditionerInputOffset);
+                            bind(preCmd,3u,state.femPreconditioned);
+                            bind(preCmd,4u,state.fgmresCoarseValues);
+                            bind(preCmd,5u,state.fgmresStates);
+                            bind(preCmd,6u,state.fgmresCoarseDiagonal);
+                            scalar(preCmd,7u,offsetof(OperatorICBConstants,coarseColumn));
+                            if (!finishGroups32(preCmd,"nm_fgmres_precondition_coarse_reduce",objectTotal)) {
+                                diagnostics.message="parallel coarse reduction ICB shape unavailable";return diagnostics;
+                            }
+                            preCmd=makeCommand(prefixGraph,prefixOrdinal,"nm_fgmres_precondition_coarse_apply");
+                            if (preCmd==nil) { diagnostics.message="parallel coarse apply ICB unavailable";return diagnostics; }
+                            bind(preCmd,1u,state.fgmresCoarseTiles);
+                            bind(preCmd,2u,state.fgmresCoarseValues);
+                            bind(preCmd,3u,state.femPreconditioned);
+                            bind(preCmd,4u,state.fgmresPreconditionedBasis,columnOffset);
+                            bind(preCmd,5u,state.fgmresStates);
+                            bind(preCmd,6u,state.fgmresCoarseRanges);
+                            if (!finishGrid256(preCmd,"nm_fgmres_precondition_coarse_apply",
+                                    environments*state.fgmresCoarseTileCount,1u,1u)) {
+                                diagnostics.message="parallel coarse apply ICB shape unavailable";return diagnostics;
+                            }
+                            if (state.fgmresCoarseParityDiagnostic) {
+                                preCmd=makeCommand(prefixGraph,prefixOrdinal,"nm_fgmres_coarse_parity_diagnostic");
+                                if (preCmd==nil) {diagnostics.message="coarse parity compare ICB unavailable";return diagnostics;}
+                                bind(preCmd,1u,state.fgmresPreconditionedBasis,columnOffset);
+                                bind(preCmd,2u,state.femOperatorValue);
+                                bind(preCmd,3u,state.fgmresStates);
+                                bind(preCmd,4u,state.statuses);
+                                scalar(preCmd,5u,offsetof(OperatorICBConstants,useWorkingSet));
+                                finish(preCmd,"nm_fgmres_coarse_parity_diagnostic",femNodeTotal);
+                            }
+                        } else {
                         preCmd = makeCommand(prefixGraph, prefixOrdinal,
                             "nm_fgmres_precondition_coarse");
                         if (preCmd == nil) {
@@ -43551,6 +43895,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             return diagnostics;
                         }
 
+                        }
                         if (femHumanAttachmentTotal != 0u) {
                             preCmd = makeCommand(prefixGraph, prefixOrdinal,
                                 "nm_fem_human_attachment_map_direction");
@@ -43573,8 +43918,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         }
                     }
                     if (femSelector6PartitionedPreconditionerICBForCurrentSolve) {
-                        auto preCmd = makeCommand(prefixGraph, prefixOrdinal,
-                            "nm_partitioned_reduction_reduce_sparse_mode_tiles_packed");
+                        const bool bundleModes=state.fgmresParallelBasePreconditionerEnabled &&
+                            (state.fgmresParallelBasePreconditionerMask&4u)!=0u &&
+                            state.femHumanPartitionedBlockModeCount==12u;
+                        const char* projectionKernel=bundleModes
+                            ? "nm_partitioned_reduction_reduce_sparse_mode_tiles12_packed"
+                            : "nm_partitioned_reduction_reduce_sparse_mode_tiles_packed";
+                        auto preCmd = makeCommand(prefixGraph, prefixOrdinal,projectionKernel);
                         if (preCmd == nil) {
                             diagnostics.message =
                                 "selector-6 sparse regional reduction ICB pipeline is unavailable";
@@ -43591,9 +43941,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         bind(preCmd, 8u, state.femHumanPartitionedRegionSupportRows);
                         bind(preCmd, 28u, state.femHumanPartitionedPackedNodeTiles);
                         if (!finishGrid256(preCmd,
-                                "nm_partitioned_reduction_reduce_sparse_mode_tiles_packed",
+                                projectionKernel,
                                 state.femHumanPartitionedPackedNodeTileCount,
-                                constants.partitionedBlockModeCount,
+                                bundleModes ? 1u : constants.partitionedBlockModeCount,
                                 environments)) {
                             diagnostics.message =
                                 "selector-6 sparse regional reduction ICB dispatch is unavailable";
@@ -44390,6 +44740,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femHumanPartitionedRegionSupportRanges,
                         state.femHumanPartitionedRegionSupportRows,
                         state.femHumanPartitionedPackedNodeTiles,
+                        state.fgmresCoarseTiles, state.fgmresCoarseRanges,
+                        state.fgmresCoarseValues, state.fgmresCoarseDiagonal,
                         state.femHumanPartitionedPackedTetTiles,
                         state.femHumanPartitionedNodeModeRanges,
                         state.femHumanPartitionedNodeModeSlots,
@@ -45488,6 +45840,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femHumanPartitionedRegionSupportRanges,
                         state.femHumanPartitionedRegionSupportRows,
                         state.femHumanPartitionedPackedNodeTiles,
+                        state.fgmresCoarseTiles, state.fgmresCoarseRanges,
+                        state.fgmresCoarseValues, state.fgmresCoarseDiagonal,
                         state.femHumanPartitionedPackedTetTiles,
                         state.femHumanPartitionedNodeModeRanges,
                         state.femHumanPartitionedNodeModeSlots,

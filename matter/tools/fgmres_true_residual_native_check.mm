@@ -11340,6 +11340,368 @@ void checkCachedThreeDirections(id<MTLDevice> device,id<MTLCommandQueue> queue,
           "nonfinite=true overflow=true bitwise_finite=true extra_buffers=0\n";
 }
 
+
+void checkParallelPatchReuse(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    auto old=pipeline(device,library,"numi_matter_metal::nm_fgmres_precondition_patches");
+    auto elements=pipeline(device,library,"numi_matter_metal::nm_fgmres_precondition_patch_elements");
+    auto gather=pipeline(device,library,"numi_matter_metal::nm_fgmres_precondition_patch_gather");
+    const nm_float4 canary{91.25f,-72.5f,63.75f,-54.0f};
+    for (unsigned test=0u;test<20u;++test) {
+        constexpr unsigned N=67u,E=2u;
+        const unsigned T=test==0u?0u:97u;
+        NMMatterDispatchGPU d{};d.environmentCount=E;d.femNodeCount=N;d.tetrahedronCount=T;
+        std::vector<NMTetrahedronGPU> tets(std::max(1u,E*T));
+        std::vector<nm_float4> basis(E*N),inverse(E*N),initial(E*N+1u,canary);
+        for(unsigned n=0u;n<E*N;++n) {
+            float* b=reinterpret_cast<float*>(&basis[n]);
+            float* v=reinterpret_cast<float*>(&inverse[n]);
+            for(unsigned c=0u;c<4u;++c) {
+                b[c]=float(int((n*17u+c*3u)%71u)-35)*0.013f;
+                v[c]=(n+c)%9u==0u?0.0f:0.1f+float((n*11u+c)%13u);
+                if(test==2u && (n+c)%7u==0u)v[c]=-1.0f;
+                if(test==3u)b[c]=(n%3u==0u?1.0e6f:(n%3u==1u?-1.0e6f:1.0f));
+                if(test==4u)b[c]=(n+c)%2u?-0.0f:0.0f;
+                if(test>=12u) {
+                    const unsigned seed=(n*2654435761u+c*2246822519u+test*3266489917u);
+                    b[c]=std::ldexp(float(int(seed%2001u)-1000)/1000.0f,
+                        int((seed>>8u)%111u)-55);
+                    v[c]=std::ldexp(0.5f+float((seed>>16u)%1024u)/1024.0f,
+                        int((seed>>5u)%131u)-65);
+                    reinterpret_cast<float*>(&initial[n])[c]=std::ldexp(
+                        float(int((seed>>12u)%2001u)-1000)/1000.0f,
+                        int((seed>>10u)%61u)-30);
+                }
+            }
+        }
+        std::vector<NMIncidenceRangeGPU> ranges(E*N);
+        std::vector<std::uint32_t> incidence;
+        for(unsigned e=0u;e<E;++e) {
+            for(unsigned t=0u;t<T;++t) {
+                auto& tet=tets[e*T+t];
+                tet.nodes={t%N,(t*3u+1u)%N,(t*7u+2u)%N,(t*11u+3u)%N};
+                tet.identity.w=test==1u&&t%3u==0u?0u:NM_OBJECT_ACTIVE;
+                if(test==5u&&t==0u)tet.nodes.w=N+1u;
+            }
+            for(unsigned n=0u;n<N;++n) {
+                auto& range=ranges[e*N+n];range.first=incidence.size();range.objectIndex=0u;
+                if(test==6u&&n%5u==0u)range.objectIndex=NM_INVALID_INDEX;
+                for(unsigned t=0u;t<T;++t) {
+                    const auto& v=tets[e*T+t].nodes;
+                    if(v.x==n||v.y==n||v.z==n||v.w==n)incidence.push_back(t);
+                }
+                if(test==7u)incidence.push_back(T+1u);
+                if(test==8u&&T>0u)incidence.push_back(0u); // duplicate record: keep order/count
+                range.count=incidence.size()-range.first;
+            }
+        }
+        if(incidence.empty())incidence.push_back(0u);
+        if(test==9u)inverse.assign(E*N,nm_float4{0.0f,0.0f,0.0f,0.0f});
+        std::vector<NMFGMRESStateGPU> st(E);
+        if(test==10u)st[1].diagnostics.z=1.0f;
+        if(test==11u)for(auto& v:st)v.diagnostics.z=1.0f;
+        auto db=makeBuffer(device,std::vector{d}),tb=makeBuffer(device,tets);
+        auto bb=makeBuffer(device,basis),ib=makeBuffer(device,inverse);
+        auto rb=makeBuffer(device,ranges),nb=makeBuffer(device,incidence);
+        auto sb=makeBuffer(device,st),out=makeBuffer(device,initial);
+        const unsigned scratchCapacity=std::max(1u,E*T)*4u+1u;
+        auto scratch=makeBuffer(device,std::vector<nm_float4>(
+            scratchCapacity,canary));
+        dispatch(device,queue,old,{{0u,db},{1u,tb},{2u,nb},{3u,rb},
+            {4u,bb},{5u,ib},{6u,out},{7u,sb}},(E*N+255u)/256u,256u);
+        auto expected=readBuffer<nm_float4>(out,E*N+1u);
+        std::memcpy(out.contents,initial.data(),initial.size()*sizeof(nm_float4));
+        dispatch(device,queue,elements,{{0u,db},{1u,tb},{2u,bb},{3u,ib},
+            {4u,scratch},{5u,sb}},std::max(1u,(E*T+255u)/256u),256u);
+        dispatch(device,queue,gather,{{0u,db},{1u,tb},{2u,nb},{3u,rb},
+            {4u,scratch},{5u,ib},{6u,out},{7u,sb}},(E*N+255u)/256u,256u);
+        auto actual=readBuffer<nm_float4>(out,E*N+1u);
+        if(std::memcmp(actual.data(),expected.data(),actual.size()*sizeof(nm_float4))!=0) {
+            for(unsigned i=0;i<(E*N+1u)*4u;++i)
+                if(reinterpret_cast<const std::uint32_t*>(actual.data())[i]!=
+                   reinterpret_cast<const std::uint32_t*>(expected.data())[i]) {
+                    std::fprintf(stderr,"patch_parity_witness test=%u scalar=%u expected=%a actual=%a\n",
+                        test,i,reinterpret_cast<const float*>(expected.data())[i],
+                        reinterpret_cast<const float*>(actual.data())[i]);break;
+                }
+        }
+        require(std::memcmp(actual.data(),expected.data(),actual.size()*sizeof(nm_float4))==0,
+            "patch reuse preserves exact ordered CSR result");
+        auto sv=readBuffer<nm_float4>(scratch,scratchCapacity);
+        for(unsigned t=E*T;t<scratchCapacity;++t)
+            require(std::memcmp(&sv[t],&canary,sizeof(canary))==0,
+                "packed patch reuse leaves all trailing operator scratch untouched");
+        for(unsigned t=0u;t<E*T;++t)
+            if(st[t/T].diagnostics.z>0.5f ||
+               (tets[t].identity.w&NM_OBJECT_ACTIVE)==0u)
+                require(std::memcmp(&sv[t],&canary,sizeof(canary))==0,
+                    "packed patch reuse leaves inactive/completed entries untouched");
+    }
+    std::cout<<"parallel_patch_reuse=PASS packed_float4=true cases=20 dynamic_range=true bitwise=true empty=true completed=true duplicates=true inactive=true canaries=true multi_environment=true\n";
+}
+
+void checkParallelCoarsePreconditioner(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    auto old=pipeline(device,library,"numi_matter_metal::nm_fgmres_precondition_coarse");
+    auto reduce=pipeline(device,library,"numi_matter_metal::nm_fgmres_precondition_coarse_reduce");
+    auto apply=pipeline(device,library,"numi_matter_metal::nm_fgmres_precondition_coarse_apply");
+    const nm_float4 canary{91.25f,-72.5f,63.75f,-54.0f};
+    double maxScaledError=0.0,maxReferenceError=0.0;
+    for(unsigned test=0u;test<16u;++test) {
+        constexpr unsigned E=2u,O=6u;
+        std::array<unsigned,O> sizes{0u,1u,255u,257u,513u,0u};
+        if(test==7u)sizes.fill(0u);
+        if(test==8u)sizes={0u,1u,255u,257u,200001u,0u};
+        unsigned N=0u;
+        std::vector<NMContinuumObjectGPU> objects(O);
+        std::vector<nm_uint4> tiles,ranges(O+1u);
+        for(unsigned o=0u;o<O;++o) {
+            auto& ob=objects[o];ob.representation=o==5u?NM_REPRESENTATION_MPM:NM_REPRESENTATION_FEM;
+            ob.stateOffset=N;ob.stateCount=sizes[o];ranges[o].x=tiles.size();
+            for(unsigned n=0u;n<sizes[o];n+=256u)
+                tiles.push_back({o,N+n,std::min(256u,sizes[o]-n),0u});
+            ranges[o].y=tiles.size()-ranges[o].x;N+=sizes[o];
+        }
+        ranges.back().x=tiles.size();
+        NMMatterDispatchGPU d{};d.environmentCount=E;d.objectCount=O;d.femNodeCount=N;
+        std::vector<nm_float4> basis(std::max(1u,E*N)),inv(std::max(1u,E*N));
+        std::vector<nm_float4> initial(E*N+1u,canary);
+        for(unsigned n=0u;n<E*N;++n)for(unsigned c=0u;c<4u;++c) {
+            reinterpret_cast<float*>(&basis[n])[c]=
+                float(int((n*71u+c*13u)%101u)-50)*0.031f;
+            reinterpret_cast<float*>(&inv[n])[c]=(n+c)%11u==0u?0.0f:
+                (0.03f+float((n*17u+c*3u)%23u));
+            if(test==1u)reinterpret_cast<float*>(&basis[n])[c]=1.0f;
+            if(test==2u)reinterpret_cast<float*>(&basis[n])[c]=(n%4u<2u?1.0e6f:-1.0e6f);
+            if(test==3u)reinterpret_cast<float*>(&basis[n])[c]=(n+c)%2u?-0.0f:0.0f;
+            if(test==4u)reinterpret_cast<float*>(&inv[n])[c]=0.0f;
+            if(test>=9u) {
+                const unsigned seed=(n*2654435761u+c*2246822519u+test*3266489917u);
+                reinterpret_cast<float*>(&basis[n])[c]=std::ldexp(
+                    float(int(seed%2001u)-1000)/1000.0f,int((seed>>8u)%111u)-55);
+                reinterpret_cast<float*>(&inv[n])[c]=std::ldexp(
+                    0.5f+float((seed>>16u)%1024u)/1024.0f,int((seed>>5u)%131u)-65);
+                reinterpret_cast<float*>(&initial[n])[c]=std::ldexp(
+                    float(int((seed>>12u)%2001u)-1000)/1000.0f,
+                    int((seed>>10u)%61u)-30);
+            }
+        }
+        std::vector<NMFGMRESStateGPU> st(E);
+        if(test==5u)st[1].diagnostics.z=1.0f;
+        if(test==6u)for(auto& state:st)state.diagnostics.z=1.0f;
+        auto db=makeBuffer(device,std::vector{d}),ob=makeBuffer(device,objects);
+        auto bb=makeBuffer(device,basis),ib=makeBuffer(device,inv);
+        auto sb=makeBuffer(device,st),out=makeBuffer(device,initial);
+        auto rb=makeBuffer(device,ranges);
+        if(tiles.empty())tiles.push_back({});
+        auto tb=makeBuffer(device,tiles);
+        auto cv=makeBuffer(device,std::vector<nm_float4>(E*O*32u+1u,canary));
+        auto diagonal=makeBuffer(device,std::vector<nm_float4>(E*O*32u+1u,canary));
+        auto column=makeBuffer(device,std::vector<std::uint32_t>{0u});
+        dispatch(device,queue,old,{{0u,db},{1u,ob},{2u,bb},{3u,ib},{4u,out},{5u,sb}},E*O,32u);
+        auto expected=readBuffer<nm_float4>(out,E*N+1u);
+        std::memcpy(out.contents,initial.data(),initial.size()*sizeof(nm_float4));
+        const auto groups=std::max(1u,E*ranges.back().x);
+        dispatch(device,queue,reduce,{{0u,db},{1u,ob},{2u,bb},{3u,ib},{4u,cv},{5u,sb},{6u,diagonal},{7u,column}},E*O,32u);
+        dispatch(device,queue,apply,{{0u,db},{1u,tb},{2u,cv},{3u,ib},{4u,out},{5u,sb},{6u,rb}},groups,256u);
+        auto actual=readBuffer<nm_float4>(out,E*N+1u);
+        require(std::memcmp(&actual.back(),&canary,sizeof(canary))==0,"coarse output capacity");
+        if(std::memcmp(actual.data(),expected.data(),actual.size()*sizeof(nm_float4))!=0) {
+            for(unsigned i=0;i<(E*N+1u)*4u;++i)
+                if(reinterpret_cast<const std::uint32_t*>(actual.data())[i]!=
+                   reinterpret_cast<const std::uint32_t*>(expected.data())[i]) {
+                    std::fprintf(stderr,"coarse_parity_witness test=%u scalar=%u expected=%a actual=%a\n",
+                        test,i,reinterpret_cast<const float*>(expected.data())[i],
+                        reinterpret_cast<const float*>(actual.data())[i]);break;
+                }
+        }
+        require(std::memcmp(actual.data(),expected.data(),actual.size()*sizeof(nm_float4))==0,
+            "coarse measurement and parallel application preserve every bit");
+
+        const auto originalBasis=basis;
+        // A changed RHS with the same linearization must use the fresh RHS
+        // and the exact cached diagonal; column zero always rebuilds it.
+        for(auto& v:basis) {v.x*=2.0f;v.y+=0.125f;v.z-=0.25f;}
+        std::memcpy(bb.contents,basis.data(),basis.size()*sizeof(nm_float4));
+        std::memcpy(out.contents,initial.data(),initial.size()*sizeof(nm_float4));
+        dispatch(device,queue,old,{{0u,db},{1u,ob},{2u,bb},{3u,ib},{4u,out},{5u,sb}},E*O,32u);
+        auto cachedExpected=readBuffer<nm_float4>(out,E*N+1u);
+        std::memcpy(out.contents,initial.data(),initial.size()*sizeof(nm_float4));
+        *static_cast<std::uint32_t*>(column.contents)=7u;
+        dispatch(device,queue,reduce,{{0u,db},{1u,ob},{2u,bb},{3u,ib},{4u,cv},
+            {5u,sb},{6u,diagonal},{7u,column}},E*O,32u);
+        dispatch(device,queue,apply,{{0u,db},{1u,tb},{2u,cv},{3u,ib},{4u,out},{5u,sb},{6u,rb}},groups,256u);
+        auto cachedActual=readBuffer<nm_float4>(out,E*N+1u);
+        require(std::memcmp(cachedActual.data(),cachedExpected.data(),cachedActual.size()*sizeof(nm_float4))==0,
+            "coarse cached diagonal with changed RHS preserves every bit");
+        basis=originalBasis;
+        auto values=readBuffer<nm_float4>(cv,E*O*32u+1u);
+        require(std::memcmp(&values.back(),&canary,sizeof(canary))==0,"coarse value capacity");
+        for(unsigned e=0u;e<E;++e)for(unsigned o=0u;o<O;++o)for(unsigned c=0u;c<4u;++c) {
+            double sum=0.0,den=0.0,absolute=0.0;
+            for(unsigned n=0u;n<sizes[o];++n) {
+                const auto index=e*N+objects[o].stateOffset+n;
+                const float v=reinterpret_cast<const float*>(&inv[index])[c];
+                if(v>0.0f) {
+                    const float b=reinterpret_cast<const float*>(&basis[index])[c];
+                    sum+=double(b);absolute+=std::abs(double(b));
+                    den+=double(1.0f/std::max(v,1.0e-30f));
+                }
+            }
+            const double coarse=sum/std::max(den,1.0e-30);
+            for(unsigned n=0u;n<sizes[o];++n) {
+                const auto index=e*N+objects[o].stateOffset+n;
+                const float a=reinterpret_cast<const float*>(&actual[index])[c];
+                const float b=reinterpret_cast<const float*>(&expected[index])[c];
+                if(st[e].diagnostics.z>0.5f) {
+                    require(a==b,"completed coarse environment remains untouched");continue;
+                }
+                const float v=reinterpret_cast<const float*>(&inv[index])[c];
+                const double reference=v>0.0f?
+                    double(reinterpret_cast<const float*>(&initial[index])[c])*0.8+coarse*0.2:0.0;
+                const double scale=std::max(1.0,std::abs(reference));
+                const double bound=64.0*std::numeric_limits<float>::epsilon()*
+                    std::max(scale,0.2*absolute/std::max(den,1.0e-30));
+                require(std::isfinite(a) && std::abs(double(a)-reference)<=bound,
+                    "ordered coarse result satisfies double reference error bound");
+                maxReferenceError=std::max(maxReferenceError,std::abs(double(a)-reference)/scale);
+                maxScaledError=std::max(maxScaledError,std::abs(double(a)-b)/scale);
+            }
+        }
+    }
+    std::cout<<"parallel_coarse_preconditioner=PASS bitwise=true lane_preserved=true diagonal_reuse=true cases=16 dynamic_range=true sizes=0,1,255,257,513,200001 completed=true multi_environment=true canaries=true max_reference_scaled_error="
+        <<maxReferenceError<<" max_legacy_scaled_error="<<maxScaledError<<"\n";
+}
+
+void checkCoarseParityDiagnostic(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    auto kernel=pipeline(device,library,"numi_matter_metal::nm_fgmres_coarse_parity_diagnostic");
+    constexpr unsigned E=2u,N=17u;
+    NMMatterDispatchGPU d{};d.environmentCount=E;d.femNodeCount=N;
+    const nm_float4 canary{91.25f,-72.5f,63.75f,-54.0f};
+    std::vector<nm_float4> current(E*N+1u),reference(E*N+1u,canary);
+    for(unsigned n=0;n<E*N;++n)current[n]={float(n)*0.013f,-0.0f,0.0f,-float(n)};
+    std::vector<NMFGMRESStateGPU> states(E);states[1].diagnostics.z=1.0f;
+    auto db=makeBuffer(device,std::vector{d}),cb=makeBuffer(device,current);
+    auto rb=makeBuffer(device,reference),sb=makeBuffer(device,states);
+    auto statuses=makeBuffer(device,std::vector<NMMatterStatusGPU>(E));
+    auto phase=makeBuffer(device,std::vector<std::uint32_t>{0u});
+    auto bindings=std::vector<std::pair<NSUInteger,id<MTLBuffer>>>{
+        {0u,db},{1u,cb},{2u,rb},{3u,sb},{4u,statuses},{5u,phase}};
+    dispatch(device,queue,kernel,bindings,1u,256u);
+    auto copied=readBuffer<nm_float4>(rb,E*N+1u);
+    require(std::memcmp(copied.data(),current.data(),N*sizeof(nm_float4))==0,
+        "coarse parity copy preserves every active bit");
+    require(std::memcmp(copied.data()+N,reference.data()+N,(N+1u)*sizeof(nm_float4))==0,
+        "coarse parity copy preserves completed environment and canary");
+    *static_cast<std::uint32_t*>(phase.contents)=1u;
+    dispatch(device,queue,kernel,bindings,1u,256u);
+    auto good=readBuffer<NMMatterStatusGPU>(statuses,E);
+    require(good[0].code==0u && good[1].code==0u,"coarse parity exact result is admitted");
+    current[4u].x=std::nextafter(current[4u].x,1.0f);
+    std::memcpy(cb.contents,current.data(),current.size()*sizeof(nm_float4));
+    dispatch(device,queue,kernel,bindings,1u,256u);
+    auto bad=readBuffer<NMMatterStatusGPU>(statuses,E);
+    require(bad[0].code==NM_STATUS_INVALID_DISPATCH && bad[0].failingIndex==4u &&
+        bad[1].code==0u,"coarse parity one-ULP witness is reported without touching completed environment");
+    std::cout<<"coarse_parity_diagnostic=PASS exact_copy=true one_ulp_detected=true completed=true canary=true\n";
+}
+
+void checkBundledRegionalProjection(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    auto legacy=pipeline(device,library,"numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_tiles_packed");
+    auto bundled=pipeline(device,library,"numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_tiles12_packed");
+    require(bundled.maxTotalThreadsPerThreadgroup>=256u &&
+        bundled.staticThreadgroupMemoryLength<=device.maxThreadgroupMemoryLength,"bundled projection capacity");
+    constexpr unsigned E=2u,G=4u,M=48u,N=771u,T=3u;
+    std::array<unsigned,G> sizes{0u,1u,257u,513u};
+    for(unsigned test=0u;test<16u;++test) {
+        std::vector<NMPartitionedReductionSparseRangeGPU> ranges(G);
+        std::vector<std::uint32_t> rows,indices(N),modes(M),lookup(4u+M,0u);
+        std::vector<nm_uint4> tiles;
+        for(unsigned g=0u;g<G;++g) {
+            ranges[g].first=rows.size();ranges[g].count=sizes[g];
+            for(unsigned n=0u;n<sizes[g];++n)rows.push_back(rows.size());
+            for(unsigned t=0u;t<std::max(1u,(sizes[g]+255u)/256u);++t)tiles.push_back({g,t,0u,0u});
+        }
+        for(unsigned n=0u;n<N;++n)indices[n]=n+2u;
+        for(unsigned m=0u;m<M;++m)modes[m]=m;
+        if(test==4u)modes.back()=NM_INVALID_INDEX;
+        if(test==5u)rows[8u]=N+1u;
+        if(test==6u)indices[9u]=N+8u;
+        std::vector<nm_float4> fine(E*(N+3u)),dense(M*N);
+        std::vector<float> mass(N);
+        for(unsigned n=0u;n<fine.size();++n) {
+            fine[n]={float(int(n%13u)-6)*0.125f,float(int(n%17u)-8)*0.25f,
+                float(int(n%19u)-9)*0.0625f,0.0f};
+            if(test==2u)fine[n]={n%3u==0u?1.0e8f:(n%3u==1u?-1.0e8f:1.0f),-0.0f,0.0f,0.0f};
+            if(test==3u)fine[n]={-0.0f,0.0f,-0.0f,0.0f};
+            if(test>=8u) {
+                const unsigned seed=n*2654435761u+test*3266489917u;
+                fine[n]={float(int(seed%2001u)-1000)*0.000101f,
+                    float(int((seed>>8u)%2001u)-1000)*0.003027f,
+                    float(int((seed>>16u)%2001u)-1000)*0.000023f,0.0f};
+            }
+        }
+        for(unsigned n=0u;n<N;++n)mass[n]=0.2f+float(n%11u)*0.1f;
+        for(unsigned m=0u;m<M;++m)for(unsigned n=0u;n<N;++n)
+            dense[m*N+n]={float(int((m*13u+n*7u)%17u)-8)*0.03125f,
+                float(int((m*11u+n*3u)%23u)-11)*0.015625f,
+                float(int((m*7u+n*11u)%29u)-14)*0.0625f,0.0f};
+        if(test>=8u)for(unsigned m=0u;m<M;++m)for(unsigned n=0u;n<N;++n) {
+            const unsigned seed=m*2246822519u+n*2654435761u+test*3266489917u;
+            dense[m*N+n]={float(int(seed%2001u)-1000)*0.0000131f,
+                float(int((seed>>8u)%2001u)-1000)*0.0000703f,
+                float(int((seed>>16u)%2001u)-1000)*0.0000197f,0.0f};
+        }
+        std::vector<nm_float4> compact;
+        if(test%2u==1u) {
+            lookup[0]=1u;
+            for(unsigned m=0u;m<M;++m) {
+                lookup[4u+m]=compact.size();
+                const auto range=ranges[m/12u];
+                for(unsigned n=0u;n<range.count;++n)
+                    compact.push_back(dense[m*N+range.first+n]);
+            }
+        }
+        NMPartitionedReductionBlockDispatchGPU d{};
+        d.globalNodeCount=N+3u;d.basisNodeCount=N;d.modeCount=M;d.environmentCount=E;
+        d.regionCount=G;d.blockModeCount=12u;d.reserved=T;d.tileCount=T;
+        auto db=makeBuffer(device,std::vector{d}),fb=makeBuffer(device,fine);
+        auto vb=makeBuffer(device,test%2u?compact:dense);
+        auto lb=makeBuffer(device,lookup),ib=makeBuffer(device,indices),mb=makeBuffer(device,mass);
+        auto rb=makeBuffer(device,ranges),rowb=makeBuffer(device,rows);
+        auto modeb=makeBuffer(device,modes),tb=makeBuffer(device,tiles);
+        std::vector<float> initial(E*G*12u*T+1u,-91.25f);
+        auto out=makeBuffer(device,initial);
+        auto bindings=std::vector<std::pair<NSUInteger,id<MTLBuffer>>>{
+            {0u,db},{1u,fb},{2u,vb},{3u,ib},{4u,mb},{5u,out},
+            {6u,modeb},{7u,rb},{8u,rowb},{28u,tb},{29u,lb}};
+        auto cb=[queue commandBuffer];auto en=[cb computeCommandEncoder];
+        for(auto [index,buffer]:bindings)[en setBuffer:buffer offset:0u atIndex:index];
+        [en setComputePipelineState:legacy];
+        [en dispatchThreadgroups:MTLSizeMake(tiles.size(),12u,E) threadsPerThreadgroup:MTLSizeMake(256u,1u,1u)];
+        [en endEncoding];[cb commit];[cb waitUntilCompleted];
+        require(cb.status==MTLCommandBufferStatusCompleted,"legacy bundled projection command");
+        auto expected=readBuffer<float>(out,initial.size());
+        std::memcpy(out.contents,initial.data(),initial.size()*sizeof(float));
+        cb=[queue commandBuffer];en=[cb computeCommandEncoder];
+        for(auto [index,buffer]:bindings)[en setBuffer:buffer offset:0u atIndex:index];
+        [en setComputePipelineState:bundled];
+        [en dispatchThreadgroups:MTLSizeMake(tiles.size(),1u,E) threadsPerThreadgroup:MTLSizeMake(256u,1u,1u)];
+        [en endEncoding];[cb commit];[cb waitUntilCompleted];
+        require(cb.status==MTLCommandBufferStatusCompleted,"bundled projection command");
+        auto actual=readBuffer<float>(out,initial.size());
+        if (std::memcmp(actual.data(),expected.data(),actual.size()*sizeof(float))!=0)
+            for (std::size_t i=0u;i<actual.size();++i)
+                if (std::memcmp(&actual[i],&expected[i],sizeof(float))!=0) {
+                    std::cerr<<"projection_mismatch test="<<test<<" partial="<<i
+                        <<" expected="<<std::hexfloat<<expected[i]<<" actual="<<actual[i]
+                        <<std::defaultfloat<<"\n";
+                    break;
+                }
+        require(std::memcmp(actual.data(),expected.data(),actual.size()*sizeof(float))==0,
+            "bundled twelve-mode projection preserves every partial bit");
+    }
+    std::cout<<"bundled_regional_projection=PASS cases=16 non_dyadic=true dense=true compact=true bitwise=true cancellation=true signed_zero=true invalid_rows=true invalid_modes=true multi_environment=true canary=true\n";
+}
+
 void checkCachedNodeSIMD(id<MTLDevice> device,id<MTLCommandQueue> queue,
                          id<MTLLibrary> library) {
     auto reference=pipeline(device,library,
@@ -17991,6 +18353,13 @@ int main(int argc, const char* argv[]) {
                 checkOrderedGatherSIMD(device,queue,library);
                 std::cout<<"checks="<<checks<<" result=PASS\n";return 0;
             }
+            if (argc == 2 && std::string(argv[1]) == "--parallel-base-preconditioner-only") {
+                checkParallelPatchReuse(device,queue,library);
+                checkParallelCoarsePreconditioner(device,queue,library);
+            checkCoarseParityDiagnostic(device,queue,library);
+                checkBundledRegionalProjection(device,queue,library);
+                std::cout<<"PASS parallel base preconditioner "<<checks<<" checks\n";return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--cached-node-simd-only") {
                 checkCachedThreeDirections(device,queue,library);
                 checkCachedNodeSIMD(device,queue,library);
@@ -18568,6 +18937,10 @@ int main(int argc, const char* argv[]) {
             checkCompletedContactGeometry(device,queue,library);
             checkCompletedZeroOperatorAction(device, queue, library);
             checkCachedThreeDirections(device,queue,library);
+            checkParallelPatchReuse(device,queue,library);
+            checkParallelCoarsePreconditioner(device,queue,library);
+            checkCoarseParityDiagnostic(device,queue,library);
+            checkBundledRegionalProjection(device,queue,library);
             checkCachedNodeSIMD(device,queue,library);
             checkOrderedGatherSIMD(device,queue,library);
             checkTiledSchedulerObserve(device,queue,library);
