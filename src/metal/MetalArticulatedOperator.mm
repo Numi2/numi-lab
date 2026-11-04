@@ -3404,9 +3404,20 @@ bool buildRequirements(
         requirements.standEntries[kStandLimitEqualityResponseBuffer].allocationBytes = 0u;
     if (sparseGraphElements == 0u)
         requirements.standEntries[kStandSparseGraphBuffer].allocationBytes = 0u;
-    if (!contactWarmStartArena)
+    if (!contactWarmStartArena) {
         requirements.standEntries[
             kStandContactWarmStartBuffer].allocationBytes = 0u;
+        // Reconciliation binds the vector arena as its unused history fallback.
+        // Metal validates the pointee extent even when strides.w disables every
+        // access. Keep the optional history arena lazy, but give that fallback
+        // one complete slot (small fixtures otherwise provide only 132 bytes).
+        if (layout.standStatusElements != 0u) {
+            auto& fallback = requirements.standEntries[kStandVectorBuffer];
+            fallback.allocationBytes = std::max<std::uint64_t>(
+                fallback.allocationBytes,
+                sizeof(MRNumiHumanStandContactWarmStartSlotGPU));
+        }
+    }
 
     // Read-only paired geometry borrows only the root/body/point slots from the
     // private arena. Keep all physical Stand/checkpoint slots lazy, and preserve
