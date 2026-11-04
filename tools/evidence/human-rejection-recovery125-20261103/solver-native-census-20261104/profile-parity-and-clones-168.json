@@ -1,0 +1,185 @@
+[
+  {
+    "trial": "full-kernel-census-165",
+    "all_11_traces_and_3_captures_equal": true,
+    "files": [
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/resting-support-selected-skin-witness.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-support-selected-skin-witness.csv",
+        "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/resting-com-momentum-diagnostic.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-com-momentum-diagnostic.csv",
+        "sha256": "e682034c6d1d773459351cf5c6dabd77348e02d4d159648fe8578cce37e27979",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/resting-support-point-motion.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-support-point-motion.csv",
+        "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/resting-com-q-support-slip.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-com-q-support-slip.csv",
+        "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/resting-surface-audit.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-surface-audit.csv",
+        "sha256": "afc5349c9dea5189a529ea988eab79556f68c8e14fc0190652da4b77aa8e8891",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/resting-com-q-index-map.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-com-q-index-map.csv",
+        "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/resting-body-motion-partition.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-body-motion-partition.csv",
+        "sha256": "7c21bfc714718038488eda8d6b113da5e04dd9c8e7d257e265dd4bd92834ce3c",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/resting-coupled.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-coupled.csv",
+        "sha256": "0adf272f8ad074e5d0661f92c3ef94b5988016f07b867a551b3f8c14ba934067",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/resting-com-q-integration.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-com-q-integration.csv",
+        "sha256": "5b5ed1810a69bbebfdd77e7f0e878e6f439b7c14b0f31d1ab87fc6519b3da082",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/resting-com-support-impulses.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-com-support-impulses.csv",
+        "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/diagnostics/registered-skin-native.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/diagnostics/registered-skin-native.csv",
+        "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/resting-human.mrvpack",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-human.mrvpack",
+        "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/accepted-geometry/step-1.mrvpack",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/accepted-geometry/step-1.mrvpack",
+        "sha256": "78637f5ec7f4c3e6ad76a25c4cd01cb0205394bd067b2be204f373a72d9e2ad4",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165/install-motion/accepted-geometry/step-0.mrvpack",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/accepted-geometry/step-0.mrvpack",
+        "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+        "bitwise_equal": true
+      }
+    ]
+  },
+  {
+    "trial": "explicit-linear-census-167",
+    "all_11_traces_and_3_captures_equal": true,
+    "files": [
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/resting-support-selected-skin-witness.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-support-selected-skin-witness.csv",
+        "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/resting-com-momentum-diagnostic.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-com-momentum-diagnostic.csv",
+        "sha256": "e682034c6d1d773459351cf5c6dabd77348e02d4d159648fe8578cce37e27979",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/resting-support-point-motion.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-support-point-motion.csv",
+        "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/resting-com-q-support-slip.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-com-q-support-slip.csv",
+        "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/resting-surface-audit.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-surface-audit.csv",
+        "sha256": "afc5349c9dea5189a529ea988eab79556f68c8e14fc0190652da4b77aa8e8891",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/resting-com-q-index-map.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-com-q-index-map.csv",
+        "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/resting-body-motion-partition.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-body-motion-partition.csv",
+        "sha256": "7c21bfc714718038488eda8d6b113da5e04dd9c8e7d257e265dd4bd92834ce3c",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/resting-coupled.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-coupled.csv",
+        "sha256": "0adf272f8ad074e5d0661f92c3ef94b5988016f07b867a551b3f8c14ba934067",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/resting-com-q-integration.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-com-q-integration.csv",
+        "sha256": "5b5ed1810a69bbebfdd77e7f0e878e6f439b7c14b0f31d1ab87fc6519b3da082",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/resting-com-support-impulses.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-com-support-impulses.csv",
+        "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/diagnostics/registered-skin-native.csv",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/diagnostics/registered-skin-native.csv",
+        "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+        "bitwise_equal": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/resting-human.mrvpack",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/resting-human.mrvpack",
+        "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+        "bitwise_equal": true,
+        "independent_COW_replaced": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/accepted-geometry/step-1.mrvpack",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/accepted-geometry/step-1.mrvpack",
+        "sha256": "78637f5ec7f4c3e6ad76a25c4cd01cb0205394bd067b2be204f373a72d9e2ad4",
+        "bitwise_equal": true,
+        "independent_COW_replaced": true
+      },
+      {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/explicit-linear-census-167/install-motion/accepted-geometry/step-0.mrvpack",
+        "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion/accepted-geometry/step-0.mrvpack",
+        "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+        "bitwise_equal": true,
+        "independent_COW_replaced": true
+      }
+    ]
+  }
+]

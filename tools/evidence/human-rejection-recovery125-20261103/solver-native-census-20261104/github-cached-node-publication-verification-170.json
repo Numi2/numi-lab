@@ -1,0 +1,29 @@
+{
+  "commit": "a4255f9611c4bbf3450279c1c16c55f363d3f7b5",
+  "repository": "Numi2/numi-lab",
+  "author": {
+    "name": "numi2",
+    "email": "33553832+Numi2@users.noreply.github.com",
+    "date": "2026-11-04T05:24:58Z"
+  },
+  "files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "blob": "b3057dadb2cdbfbf5a5c3666124c5c08f5b6718c",
+      "sha256": "c20224888cd0aa386c9722ddd8def876928909c6f17f5685296148cddb6d4c0d",
+      "independently_restored_from_github": true
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "blob": "c9a231e93d76c401e2cc5385b5462539970295e6",
+      "sha256": "83ba8107b4e967db9fe456e1efadc770dc67548310794c2f1fd98846a703ebd5",
+      "independently_restored_from_github": true
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "blob": "71ffb38d4f30e29fb4401ce38cf9f45eaa242e1a",
+      "sha256": "935ba982271aa9a432b20ba6eea669fdfff68bce96a91f63d82909ada7974717",
+      "independently_restored_from_github": true
+    }
+  ]
+}

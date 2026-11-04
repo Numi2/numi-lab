@@ -1,0 +1,169 @@
+[
+  {
+    "trial": "full-fidelity-native-159",
+    "source_pins": 39,
+    "overrides": [
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "member": "full-fidelity-native-159/matter/src/metal/fgmres.metalinc",
+        "sha256": "15fcb4c8c6bc878d4775933fc091181c4545472dfea83f58a802a3a2ea070308"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "member": "full-fidelity-native-159/matter/src/runtime.mm",
+        "sha256": "a183bb1b5a4705b50227a5d55e4e0b9255e83268ccba0a784fe8278055633f41"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "member": "full-fidelity-native-159/matter/tools/fgmres_true_residual_native_check.mm",
+        "sha256": "b0cd7df57f966240b1afc1b4f2cd2fcae5bb3b6c6c8a72ca411aeaf40d616789"
+      }
+    ],
+    "all_pins_restored_and_verified": true
+  },
+  {
+    "trial": "strict-hybrid-native-160",
+    "source_pins": 39,
+    "overrides": [
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "member": "strict-hybrid-native-160/matter/src/metal/fgmres.metalinc",
+        "sha256": "15fcb4c8c6bc878d4775933fc091181c4545472dfea83f58a802a3a2ea070308"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "member": "strict-hybrid-native-160/matter/src/runtime.mm",
+        "sha256": "a183bb1b5a4705b50227a5d55e4e0b9255e83268ccba0a784fe8278055633f41"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "member": "strict-hybrid-native-160/matter/tools/fgmres_true_residual_native_check.mm",
+        "sha256": "b0cd7df57f966240b1afc1b4f2cd2fcae5bb3b6c6c8a72ca411aeaf40d616789"
+      }
+    ],
+    "all_pins_restored_and_verified": true
+  },
+  {
+    "trial": "strict-hybrid-zero-action-164",
+    "source_pins": 39,
+    "overrides": [
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "member": "strict-hybrid-zero-action-164/matter/src/metal/fgmres.metalinc",
+        "sha256": "5eaf671c045fa47a1df7b634de0d4159cef5d57f771da1d94038d544fc753e2a"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "member": "strict-hybrid-zero-action-164/matter/src/runtime.mm",
+        "sha256": "4202bafad92b102ae2d6e5e277950d30328898ed2aeec8a9b685f84afb414511"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "member": "strict-hybrid-zero-action-164/matter/tools/fgmres_true_residual_native_check.mm",
+        "sha256": "0684af56ba60f99212b4b8ffa94ec26996b71ff89a629968ec674d0d0a8ae29d"
+      }
+    ],
+    "all_pins_restored_and_verified": true
+  },
+  {
+    "trial": "full-kernel-census-165",
+    "source_pins": 39,
+    "overrides": [
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "member": "full-kernel-census-165/matter/src/metal/fgmres.metalinc",
+        "sha256": "5eaf671c045fa47a1df7b634de0d4159cef5d57f771da1d94038d544fc753e2a"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "member": "full-kernel-census-165/matter/src/runtime.mm",
+        "sha256": "4202bafad92b102ae2d6e5e277950d30328898ed2aeec8a9b685f84afb414511"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "member": "full-kernel-census-165/matter/tools/fgmres_true_residual_native_check.mm",
+        "sha256": "0684af56ba60f99212b4b8ffa94ec26996b71ff89a629968ec674d0d0a8ae29d"
+      }
+    ],
+    "all_pins_restored_and_verified": true
+  },
+  {
+    "trial": "explicit-linear-census-166",
+    "source_pins": 39,
+    "overrides": [
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "member": "explicit-linear-census-166/matter/src/metal/fgmres.metalinc",
+        "sha256": "5eaf671c045fa47a1df7b634de0d4159cef5d57f771da1d94038d544fc753e2a"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "member": "explicit-linear-census-166/matter/src/runtime.mm",
+        "sha256": "4202bafad92b102ae2d6e5e277950d30328898ed2aeec8a9b685f84afb414511"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "member": "explicit-linear-census-166/matter/tools/fgmres_true_residual_native_check.mm",
+        "sha256": "0684af56ba60f99212b4b8ffa94ec26996b71ff89a629968ec674d0d0a8ae29d"
+      }
+    ],
+    "all_pins_restored_and_verified": true
+  },
+  {
+    "trial": "explicit-linear-census-167",
+    "source_pins": 39,
+    "overrides": [
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "member": "explicit-linear-census-167/matter/src/metal/fgmres.metalinc",
+        "sha256": "5eaf671c045fa47a1df7b634de0d4159cef5d57f771da1d94038d544fc753e2a"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "member": "explicit-linear-census-167/matter/src/runtime.mm",
+        "sha256": "4202bafad92b102ae2d6e5e277950d30328898ed2aeec8a9b685f84afb414511"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "member": "explicit-linear-census-167/matter/tools/fgmres_true_residual_native_check.mm",
+        "sha256": "0684af56ba60f99212b4b8ffa94ec26996b71ff89a629968ec674d0d0a8ae29d"
+      }
+    ],
+    "all_pins_restored_and_verified": true
+  },
+  {
+    "trial": "cached-node-simd-native-169",
+    "source_pins": 39,
+    "overrides": [
+      {
+        "path": "matter/src/runtime.mm",
+        "member": "cached-node-simd-native-169/matter/src/runtime.mm",
+        "sha256": "24049bcca99a68e03e42151eb2db9a3f6bd094be2d6369ce6adfde7203a69878"
+      }
+    ],
+    "all_pins_restored_and_verified": true
+  },
+  {
+    "trial": "cached-node-simd-native-170",
+    "source_pins": 39,
+    "overrides": [],
+    "all_pins_restored_and_verified": true
+  },
+  {
+    "trial": "no-support-repeat-native-171",
+    "source_pins": 39,
+    "overrides": [
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "member": "no-support-repeat-native-171/matter/src/metal/fgmres.metalinc",
+        "sha256": "83ba8107b4e967db9fe456e1efadc770dc67548310794c2f1fd98846a703ebd5"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "member": "no-support-repeat-native-171/matter/src/runtime.mm",
+        "sha256": "03cde2f7443ecc47dfcdae9d12f39bc3cc51b69b87109eda53eb7423149340cf"
+      }
+    ],
+    "all_pins_restored_and_verified": true
+  }
+]

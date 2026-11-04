@@ -1,0 +1,18 @@
+[
+  {
+    "archive": "compact-native-traces.tar.gz",
+    "bytes_before": 23675009,
+    "bytes_after": 5951807,
+    "members": 44,
+    "content_duplicates_encoded_as_standard_tar_hard_links": 28,
+    "every_restored_file_hash_verified": true
+  },
+  {
+    "archive": "execution-source-overrides.tar.gz",
+    "bytes_before": 5712440,
+    "bytes_after": 2606291,
+    "members": 21,
+    "content_duplicates_encoded_as_standard_tar_hard_links": 12,
+    "every_restored_file_hash_verified": true
+  }
+]

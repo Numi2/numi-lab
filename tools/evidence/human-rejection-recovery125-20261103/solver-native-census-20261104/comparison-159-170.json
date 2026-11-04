@@ -1,0 +1,115 @@
+{
+  "baseline": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/cached-node-simd-native-170",
+  "endpoint_reference": {
+    "sha256": "6c4873f33c8c2abe470df494ccc038296c38bda31d5f3b8bbad46ad8266316e0",
+    "lines": 1798455,
+    "profiles": [
+      "resting_native_profile step=1 command_ms=6396.646625 gpu_ms=6382.44733334 host_copy_ms=1.308041 full_state_readback=1"
+    ],
+    "gpu_ms": [
+      6382.44733334
+    ]
+  },
+  "endpoint_candidate": {
+    "sha256": "6c4873f33c8c2abe470df494ccc038296c38bda31d5f3b8bbad46ad8266316e0",
+    "lines": 1798455,
+    "profiles": [
+      "resting_native_profile step=1 command_ms=5715.108042 gpu_ms=5709.21099999 host_copy_ms=0.898458 full_state_readback=1"
+    ],
+    "gpu_ms": [
+      5709.21099999
+    ]
+  },
+  "full_fine_endpoint_records_equal": true,
+  "CSV": [
+    {
+      "path": "diagnostics/registered-skin-native.csv",
+      "equal": true,
+      "source_sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "candidate_sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e"
+    },
+    {
+      "path": "resting-body-motion-partition.csv",
+      "equal": true,
+      "source_sha256": "7c21bfc714718038488eda8d6b113da5e04dd9c8e7d257e265dd4bd92834ce3c",
+      "candidate_sha256": "7c21bfc714718038488eda8d6b113da5e04dd9c8e7d257e265dd4bd92834ce3c"
+    },
+    {
+      "path": "resting-com-momentum-diagnostic.csv",
+      "equal": true,
+      "source_sha256": "e682034c6d1d773459351cf5c6dabd77348e02d4d159648fe8578cce37e27979",
+      "candidate_sha256": "e682034c6d1d773459351cf5c6dabd77348e02d4d159648fe8578cce37e27979"
+    },
+    {
+      "path": "resting-com-q-index-map.csv",
+      "equal": true,
+      "source_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "candidate_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab"
+    },
+    {
+      "path": "resting-com-q-integration.csv",
+      "equal": true,
+      "source_sha256": "5b5ed1810a69bbebfdd77e7f0e878e6f439b7c14b0f31d1ab87fc6519b3da082",
+      "candidate_sha256": "5b5ed1810a69bbebfdd77e7f0e878e6f439b7c14b0f31d1ab87fc6519b3da082"
+    },
+    {
+      "path": "resting-com-q-support-slip.csv",
+      "equal": true,
+      "source_sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "candidate_sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd"
+    },
+    {
+      "path": "resting-com-support-impulses.csv",
+      "equal": true,
+      "source_sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "candidate_sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2"
+    },
+    {
+      "path": "resting-coupled.csv",
+      "equal": true,
+      "source_sha256": "0adf272f8ad074e5d0661f92c3ef94b5988016f07b867a551b3f8c14ba934067",
+      "candidate_sha256": "0adf272f8ad074e5d0661f92c3ef94b5988016f07b867a551b3f8c14ba934067"
+    },
+    {
+      "path": "resting-support-point-motion.csv",
+      "equal": true,
+      "source_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "candidate_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8"
+    },
+    {
+      "path": "resting-support-selected-skin-witness.csv",
+      "equal": true,
+      "source_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "candidate_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d"
+    },
+    {
+      "path": "resting-surface-audit.csv",
+      "equal": true,
+      "source_sha256": "afc5349c9dea5189a529ea988eab79556f68c8e14fc0190652da4b77aa8e8891",
+      "candidate_sha256": "afc5349c9dea5189a529ea988eab79556f68c8e14fc0190652da4b77aa8e8891"
+    }
+  ],
+  "MRV": [
+    {
+      "path": "accepted-geometry/step-0.mrvpack",
+      "equal": true,
+      "source_sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "candidate_sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212"
+    },
+    {
+      "path": "accepted-geometry/step-1.mrvpack",
+      "equal": true,
+      "source_sha256": "78637f5ec7f4c3e6ad76a25c4cd01cb0205394bd067b2be204f373a72d9e2ad4",
+      "candidate_sha256": "78637f5ec7f4c3e6ad76a25c4cd01cb0205394bd067b2be204f373a72d9e2ad4"
+    },
+    {
+      "path": "resting-human.mrvpack",
+      "equal": true,
+      "source_sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "candidate_sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875"
+    }
+  ],
+  "equivalent_algorithm_parity": true,
+  "qualification": "One-step full-coordinate scheduling/kernel parity; not supported rest, breathing motion, sustained throughput or0.1x."
+}

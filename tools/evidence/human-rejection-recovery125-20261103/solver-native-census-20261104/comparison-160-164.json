@@ -1,0 +1,322 @@
+{
+  "baseline": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/strict-hybrid-native-160",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/strict-hybrid-zero-action-164",
+  "full_fine_endpoint_records_equal": true,
+  "endpoint_reference": {
+    "sha256": "d950d73f5da6bcfc0e842b6dd5c24a636ca36b48519bdb7cda5ea7b27ed76c71",
+    "lines": 1798455,
+    "summary": [
+      "resting_accepted_body_motion_observer=enabled cadence_steps=1 body_rows=articulated_kinematics_mass_partition support_velocity=pre_step_point_J_times_stand_previous_velocity accepted_root_time_basis=step_times_float32_dt selector_observer=selected_dynamic_skin_region_witness observer_only=1",
+      "resting_native_profile step=1 command_ms=9750.696667 gpu_ms=9730.09704167 host_copy_ms=1.114 full_state_readback=1"
+    ]
+  },
+  "endpoint_candidate": {
+    "sha256": "d950d73f5da6bcfc0e842b6dd5c24a636ca36b48519bdb7cda5ea7b27ed76c71",
+    "lines": 1798455,
+    "summary": [
+      "resting_accepted_body_motion_observer=enabled cadence_steps=1 body_rows=articulated_kinematics_mass_partition support_velocity=pre_step_point_J_times_stand_previous_velocity accepted_root_time_basis=step_times_float32_dt selector_observer=selected_dynamic_skin_region_witness observer_only=1",
+      "resting_native_profile step=1 command_ms=9083.697958 gpu_ms=9077.12099999 host_copy_ms=0.576208 full_state_readback=1"
+    ]
+  },
+  "CSV": [
+    {
+      "path": "diagnostics/registered-skin-native.csv",
+      "equal": true,
+      "source_sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "candidate_sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e"
+    },
+    {
+      "path": "resting-body-motion-partition.csv",
+      "equal": true,
+      "source_sha256": "5f478f2b698c082f6d0d71e459360f6fed69c3902782f239f4833cb537cb28f6",
+      "candidate_sha256": "5f478f2b698c082f6d0d71e459360f6fed69c3902782f239f4833cb537cb28f6"
+    },
+    {
+      "path": "resting-com-momentum-diagnostic.csv",
+      "equal": true,
+      "source_sha256": "e130a75f18df102135f26badc9d053185839e8ca5f60136a0e2a6434a6fff228",
+      "candidate_sha256": "e130a75f18df102135f26badc9d053185839e8ca5f60136a0e2a6434a6fff228"
+    },
+    {
+      "path": "resting-com-q-index-map.csv",
+      "equal": true,
+      "source_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "candidate_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab"
+    },
+    {
+      "path": "resting-com-q-integration.csv",
+      "equal": true,
+      "source_sha256": "b5c98a00e3817dbe388a2d2049b8eac3bba6ac5921f30241ad585950ac621403",
+      "candidate_sha256": "b5c98a00e3817dbe388a2d2049b8eac3bba6ac5921f30241ad585950ac621403"
+    },
+    {
+      "path": "resting-com-q-support-slip.csv",
+      "equal": true,
+      "source_sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "candidate_sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd"
+    },
+    {
+      "path": "resting-com-support-impulses.csv",
+      "equal": true,
+      "source_sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "candidate_sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2"
+    },
+    {
+      "path": "resting-coupled.csv",
+      "equal": true,
+      "source_sha256": "21a1c694b23198c9b9d826e0e942a34ab0e571055e79d63ee8fdf14db190631a",
+      "candidate_sha256": "21a1c694b23198c9b9d826e0e942a34ab0e571055e79d63ee8fdf14db190631a"
+    },
+    {
+      "path": "resting-support-point-motion.csv",
+      "equal": true,
+      "source_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "candidate_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8"
+    },
+    {
+      "path": "resting-support-selected-skin-witness.csv",
+      "equal": true,
+      "source_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "candidate_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d"
+    },
+    {
+      "path": "resting-surface-audit.csv",
+      "equal": true,
+      "source_sha256": "6d82312849fdaf22f5096b030e1697d7da828dcc62234bfed992a773da6be29d",
+      "candidate_sha256": "6d82312849fdaf22f5096b030e1697d7da828dcc62234bfed992a773da6be29d"
+    }
+  ],
+  "MRV": [
+    {
+      "path": "accepted-geometry/step-0.mrvpack",
+      "equal": true,
+      "source_sha256": "e0a540b9098efdd37cabc50c86ba2b009c46c1c75ecca52f8ef7df40c5764b5d",
+      "candidate_sha256": "e0a540b9098efdd37cabc50c86ba2b009c46c1c75ecca52f8ef7df40c5764b5d"
+    },
+    {
+      "path": "accepted-geometry/step-1.mrvpack",
+      "equal": true,
+      "source_sha256": "d43f3f05f6f9c784ab2d89b049988f582f1125c7b92417c9fe8194a8c7760ea2",
+      "candidate_sha256": "d43f3f05f6f9c784ab2d89b049988f582f1125c7b92417c9fe8194a8c7760ea2"
+    },
+    {
+      "path": "resting-human.mrvpack",
+      "equal": true,
+      "source_sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "candidate_sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875"
+    }
+  ],
+  "baseline_stages_ns": {
+    "matter_pre": [
+      11767542
+    ],
+    "brain_advance": [
+      9500
+    ],
+    "respiratory_mechanics": [
+      4796959
+    ],
+    "matter_after_frame_begin": [
+      854291
+    ],
+    "matter_newton_assembly": [
+      513254875,
+      214553500,
+      213995083,
+      25390916,
+      24915959,
+      24700125,
+      24685458,
+      25165666,
+      24470834,
+      23984209,
+      24159125,
+      24518000,
+      24018042,
+      24947375,
+      24196791,
+      23972875
+    ],
+    "matter_newton_linear": [
+      1241304917,
+      1251589708,
+      611598834,
+      239257250,
+      238970958,
+      239011708,
+      239228708,
+      238847584,
+      237587333,
+      237576041,
+      237672084,
+      238320958,
+      237716333,
+      237650458,
+      238019917,
+      556880375
+    ],
+    "matter_newton_globalization": [
+      47150000,
+      48778750,
+      32480875,
+      31374375,
+      31627625,
+      31538334,
+      31558834,
+      31611041,
+      31004208,
+      31293375,
+      31426458,
+      31111375,
+      31297584,
+      31286792,
+      31213417,
+      39277166
+    ],
+    "matter_final_certificate": [
+      210783208
+    ],
+    "respiratory_gas_exchange": [
+      1761750
+    ],
+    "matter_after_candidate_ready": [
+      13234834
+    ],
+    "matter_after_microstep": [
+      2394916
+    ],
+    "matter_post": [
+      14376833
+    ],
+    "brain_resolve": [
+      1250
+    ],
+    "respiratory_resolve": [
+      671042
+    ]
+  },
+  "baseline_work": [
+    "matter_fgmres_microtick_work={\"root\":0,\"environment\":0,\"microtick\":0,\"used_columns\":32,\"cycles_with_work\":2,\"encoded_cycles\":16,\"budget_exhausted_solves\":0,\"active_newton_begins\":2,\"active_restart_begins\":0,\"has_outer_sample\":true,\"last_newton_iteration\":15,\"final_newton_latched\":true,\"last_newton_norm\":7.47658214e-06,\"last_newton_threshold\":9.99999975e-06,\"minimum_newton_norm\":7.47658214e-06,\"final_newton_norm\":7.47658214e-06,\"final_fgmres_residual_estimate\":7.47658214e-06,\"nonvascular_norm\":7.47655758e-06,\"vascular_norm\":0,\"mechanical_threshold\":1.24999997e-05,\"vascular_threshold\":9.99999975e-06,\"status_code_at_microtick_end\":0,\"status_failing_index_at_microtick_end\":4294967295}"
+  ],
+  "candidate_stages_ns": {
+    "matter_pre": [
+      10618750
+    ],
+    "brain_advance": [
+      7250
+    ],
+    "respiratory_mechanics": [
+      4390042
+    ],
+    "matter_after_frame_begin": [
+      775833
+    ],
+    "matter_newton_assembly": [
+      235885875,
+      234345417,
+      233993375,
+      23903167,
+      23848166,
+      23892750,
+      23916750,
+      24015333,
+      23815167,
+      23961834,
+      23917291,
+      23993875,
+      23992834,
+      23886709,
+      23943875,
+      23989875
+    ],
+    "matter_newton_linear": [
+      1230145250,
+      1238553041,
+      577548000,
+      213092833,
+      213598959,
+      213074584,
+      213245458,
+      213130292,
+      213057208,
+      213245708,
+      213184834,
+      213090708,
+      213136041,
+      213182541,
+      213068917,
+      523376666
+    ],
+    "matter_newton_globalization": [
+      46699583,
+      47912459,
+      31991458,
+      31196667,
+      31303916,
+      31167875,
+      31418042,
+      31277791,
+      31156375,
+      30936292,
+      31191375,
+      31067083,
+      31024000,
+      34757167,
+      31048500,
+      16846167
+    ],
+    "matter_final_certificate": [
+      234567584
+    ],
+    "respiratory_gas_exchange": [
+      1801500
+    ],
+    "matter_after_candidate_ready": [
+      13165125
+    ],
+    "matter_after_microstep": [
+      2355042
+    ],
+    "matter_post": [
+      15241666
+    ],
+    "brain_resolve": [
+      1291
+    ],
+    "respiratory_resolve": [
+      703375
+    ]
+  },
+  "candidate_work": [
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "fgmres_completed_zero_operator_action=1 control_step=0 fem_nodes=318974 vascular_unknowns=46 deformable_contact_capacity=4207296",
+    "matter_completed_zero_operator_work={\"root\":0,\"prepare_checks_cumulative\":16,\"skipped_operator_actions_cumulative\":14,\"scope\":\"encode_request\"}",
+    "matter_fgmres_microtick_work={\"root\":0,\"environment\":0,\"microtick\":0,\"used_columns\":32,\"cycles_with_work\":2,\"encoded_cycles\":16,\"budget_exhausted_solves\":0,\"active_newton_begins\":2,\"active_restart_begins\":0,\"has_outer_sample\":true,\"last_newton_iteration\":15,\"final_newton_latched\":true,\"last_newton_norm\":7.47658214e-06,\"last_newton_threshold\":9.99999975e-06,\"minimum_newton_norm\":7.47658214e-06,\"final_newton_norm\":7.47658214e-06,\"final_fgmres_residual_estimate\":7.47658214e-06,\"nonvascular_norm\":7.47655758e-06,\"vascular_norm\":0,\"mechanical_threshold\":1.24999997e-05,\"vascular_threshold\":9.99999975e-06,\"status_code_at_microtick_end\":0,\"status_failing_index_at_microtick_end\":4294967295}"
+  ],
+  "qualification": "Equivalent-algorithm scheduling parity only. Hybrid model failed engineering fidelity against full159 and is not adopted.",
+  "baseline_profile": {
+    "accepted_steps": 1,
+    "command_ms": 9750.696667,
+    "GPU_ms": 9730.09704167
+  },
+  "candidate_profile": {
+    "accepted_steps": 1,
+    "command_ms": 9083.697958,
+    "GPU_ms": 9077.12099999
+  },
+  "single_instrumented_root_GPU_throughput_ratio": 1.071936469909426
+}

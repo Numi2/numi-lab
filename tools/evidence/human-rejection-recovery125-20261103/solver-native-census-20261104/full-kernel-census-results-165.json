@@ -1,0 +1,1038 @@
+{
+  "run": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-kernel-census-165",
+  "spans": 146,
+  "rows": [
+    {
+      "kernel": "matter_newton_linear",
+      "spans": 7,
+      "sum_ms": 3038.390582,
+      "max_ms": 1225.683208,
+      "min_ms": 15.875458
+    },
+    {
+      "kernel": "nm_fgmres_build_tangent_fem_block_preconditioner_cached",
+      "spans": 8,
+      "sum_ms": 888.924792,
+      "max_ms": 309.494458,
+      "min_ms": 0.001875
+    },
+    {
+      "kernel": "matter_newton_assembly",
+      "spans": 8,
+      "sum_ms": 668.779917,
+      "max_ms": 225.665375,
+      "min_ms": 16.127333
+    },
+    {
+      "kernel": "nm_partitioned_reduction_fem_tangent_fused_tiles12_packed",
+      "spans": 3,
+      "sum_ms": 416.708042,
+      "max_ms": 139.325625,
+      "min_ms": 138.669583
+    },
+    {
+      "kernel": "nm_contact_narrowphase_deformable_completed",
+      "spans": 8,
+      "sum_ms": 307.538126,
+      "max_ms": 110.722958,
+      "min_ms": 5.457458
+    },
+    {
+      "kernel": "matter_newton_globalization",
+      "spans": 7,
+      "sum_ms": 206.172251,
+      "max_ms": 43.722708,
+      "min_ms": 16.014459
+    },
+    {
+      "kernel": "nm_fem_parallel_backtracking_tiles",
+      "spans": 7,
+      "sum_ms": 101.973918,
+      "max_ms": 14.720125,
+      "min_ms": 14.436167
+    },
+    {
+      "kernel": "nm_vascular_limit_line_search",
+      "spans": 14,
+      "sum_ms": 76.519915,
+      "max_ms": 6.054291,
+      "min_ms": 4.971625
+    },
+    {
+      "kernel": "nm_contact_scatter_deformable_candidates",
+      "spans": 8,
+      "sum_ms": 62.797794,
+      "max_ms": 21.060375,
+      "min_ms": 0.006625
+    },
+    {
+      "kernel": "nm_contact_count_deformable_candidates",
+      "spans": 8,
+      "sum_ms": 62.172168,
+      "max_ms": 20.815667,
+      "min_ms": 0.007084
+    },
+    {
+      "kernel": "nm_contact_surface_morton_radix_prefix",
+      "spans": 64,
+      "sum_ms": 53.344124,
+      "max_ms": 2.450542,
+      "min_ms": 0.001458
+    },
+    {
+      "kernel": "nm_contact_accumulate_deformable_fem_residual",
+      "spans": 8,
+      "sum_ms": 52.580792,
+      "max_ms": 6.692542,
+      "min_ms": 6.502917
+    },
+    {
+      "kernel": "nm_contact_deformable_node_radix_scatter",
+      "spans": 40,
+      "sum_ms": 35.657833,
+      "max_ms": 3.939917,
+      "min_ms": 0.001958
+    },
+    {
+      "kernel": "nm_contact_limit_deformable_line_search_tiled",
+      "spans": 7,
+      "sum_ms": 31.7115,
+      "max_ms": 16.563416,
+      "min_ms": 0.002875
+    },
+    {
+      "kernel": "nm_fgmres_unscale_preconditioner_input",
+      "spans": 114,
+      "sum_ms": 31.063163,
+      "max_ms": 6.069917,
+      "min_ms": 0.137458
+    },
+    {
+      "kernel": "nm_contact_deformable_node_radix_histogram",
+      "spans": 40,
+      "sum_ms": 30.733711,
+      "max_ms": 3.6375,
+      "min_ms": 0.001959
+    },
+    {
+      "kernel": "nm_fgmres_gather_nodes",
+      "spans": 7,
+      "sum_ms": 29.351001,
+      "max_ms": 14.678708,
+      "min_ms": 0.001959
+    },
+    {
+      "kernel": "nm_contact_mark_zero_step_geometry_reuse",
+      "spans": 7,
+      "sum_ms": 20.930126,
+      "max_ms": 4.122625,
+      "min_ms": 0.188042
+    },
+    {
+      "kernel": "nm_fgmres_build_preconditioner",
+      "spans": 8,
+      "sum_ms": 19.915209,
+      "max_ms": 9.994042,
+      "min_ms": 0.002
+    },
+    {
+      "kernel": "nm_partitioned_reduction_reduce_sparse_block_tiles_packed",
+      "spans": 3,
+      "sum_ms": 17.358709,
+      "max_ms": 5.933917,
+      "min_ms": 5.55525
+    },
+    {
+      "kernel": "nm_contact_count_deformable_compaction_tiles",
+      "spans": 8,
+      "sum_ms": 16.7655,
+      "max_ms": 2.111375,
+      "min_ms": 2.081125
+    },
+    {
+      "kernel": "nm_fgmres_apply_left_row_equilibration",
+      "spans": 122,
+      "sum_ms": 16.451822,
+      "max_ms": 0.88,
+      "min_ms": 0.102666
+    },
+    {
+      "kernel": "nm_mixed_apply_operator_elements",
+      "spans": 15,
+      "sum_ms": 16.306625,
+      "max_ms": 1.830334,
+      "min_ms": 0.001875
+    },
+    {
+      "kernel": "nm_contact_scatter_deformable_compaction_tiles",
+      "spans": 8,
+      "sum_ms": 16.306501,
+      "max_ms": 2.065167,
+      "min_ms": 2.029125
+    },
+    {
+      "kernel": "nm_vascular_residual",
+      "spans": 8,
+      "sum_ms": 14.963916,
+      "max_ms": 1.901458,
+      "min_ms": 1.863666
+    },
+    {
+      "kernel": "nm_fem_apply_operator_elements",
+      "spans": 7,
+      "sum_ms": 14.844081,
+      "max_ms": 7.443958,
+      "min_ms": 0.001916
+    },
+    {
+      "kernel": "nm_contact_clear_deformable_tail",
+      "spans": 8,
+      "sum_ms": 14.445501,
+      "max_ms": 1.918417,
+      "min_ms": 1.741958
+    },
+    {
+      "kernel": "nm_contact_deformable_node_radix_prefix_blocks",
+      "spans": 40,
+      "sum_ms": 12.104124,
+      "max_ms": 0.854416,
+      "min_ms": 0.001959
+    },
+    {
+      "kernel": "nm_contact_publish_deformable_history",
+      "spans": 7,
+      "sum_ms": 9.046041,
+      "max_ms": 1.309459,
+      "min_ms": 1.258917
+    },
+    {
+      "kernel": "nm_contact_scan_deformable_candidate_counts",
+      "spans": 8,
+      "sum_ms": 7.979002,
+      "max_ms": 3.151084,
+      "min_ms": 0.001583
+    },
+    {
+      "kernel": "nm_fgmres_prepare_operator_icb_ranges",
+      "spans": 114,
+      "sum_ms": 7.410246,
+      "max_ms": 1.647042,
+      "min_ms": 0.0095
+    },
+    {
+      "kernel": "nm_contact_compact_active",
+      "spans": 8,
+      "sum_ms": 6.376459,
+      "max_ms": 0.856292,
+      "min_ms": 0.734625
+    },
+    {
+      "kernel": "nm_topology_checkpoint",
+      "spans": 1,
+      "sum_ms": 6.11975,
+      "max_ms": 6.11975,
+      "min_ms": 6.11975
+    },
+    {
+      "kernel": "nm_contact_checkpoint_deformable_contact_histories",
+      "spans": 1,
+      "sum_ms": 5.806916,
+      "max_ms": 5.806916,
+      "min_ms": 5.806916
+    },
+    {
+      "kernel": "respiratory_mechanics",
+      "spans": 1,
+      "sum_ms": 5.221417,
+      "max_ms": 5.221417,
+      "min_ms": 5.221417
+    },
+    {
+      "kernel": "nm_vascular_factor_principal_block",
+      "spans": 2,
+      "sum_ms": 4.466708,
+      "max_ms": 2.298542,
+      "min_ms": 2.168166
+    },
+    {
+      "kernel": "nm_fgmres_retain_newton_tail_node_rhs",
+      "spans": 8,
+      "sum_ms": 4.147249,
+      "max_ms": 1.124833,
+      "min_ms": 0.270458
+    },
+    {
+      "kernel": "nm_contact_emit_deformable_node_corners",
+      "spans": 8,
+      "sum_ms": 3.969831,
+      "max_ms": 1.366708,
+      "min_ms": 0.004041
+    },
+    {
+      "kernel": "nm_contact_build_surface_primitives",
+      "spans": 8,
+      "sum_ms": 3.944166,
+      "max_ms": 1.138125,
+      "min_ms": 0.101292
+    },
+    {
+      "kernel": "nm_contact_accumulate_fem_residual",
+      "spans": 8,
+      "sum_ms": 3.353293,
+      "max_ms": 0.428292,
+      "min_ms": 0.41275
+    },
+    {
+      "kernel": "nm_partitioned_reduction_region_sparse_validity_tiles",
+      "spans": 3,
+      "sum_ms": 3.064125,
+      "max_ms": 1.599208,
+      "min_ms": 0.730417
+    },
+    {
+      "kernel": "nm_vascular_cavity_operator",
+      "spans": 7,
+      "sum_ms": 2.563708,
+      "max_ms": 1.830791,
+      "min_ms": 0.00175
+    },
+    {
+      "kernel": "nm_contact_count_deformable_node_incidence_radix",
+      "spans": 8,
+      "sum_ms": 2.529251,
+      "max_ms": 0.852459,
+      "min_ms": 0.003083
+    },
+    {
+      "kernel": "nm_fem_apply_solution",
+      "spans": 7,
+      "sum_ms": 2.522459,
+      "max_ms": 0.892917,
+      "min_ms": 0.002
+    },
+    {
+      "kernel": "nm_fgmres_correction_distributed_partial",
+      "spans": 7,
+      "sum_ms": 2.403292,
+      "max_ms": 0.376958,
+      "min_ms": 0.334125
+    },
+    {
+      "kernel": "nm_fgmres_begin_distributed_partial",
+      "spans": 8,
+      "sum_ms": 2.357874,
+      "max_ms": 0.726333,
+      "min_ms": 0.2295
+    },
+    {
+      "kernel": "nm_partitioned_reduction_fem_tangent_add_partials",
+      "spans": 8,
+      "sum_ms": 1.979752,
+      "max_ms": 0.604209,
+      "min_ms": 0.027042
+    },
+    {
+      "kernel": "nm_fgmres_accumulate",
+      "spans": 7,
+      "sum_ms": 1.843084,
+      "max_ms": 0.686416,
+      "min_ms": 0.090542
+    },
+    {
+      "kernel": "nm_fgmres_accumulate_fields",
+      "spans": 7,
+      "sum_ms": 1.658748,
+      "max_ms": 0.757958,
+      "min_ms": 0.04225
+    },
+    {
+      "kernel": "nm_mixed_apply_kkt_solution",
+      "spans": 7,
+      "sum_ms": 1.625083,
+      "max_ms": 0.261458,
+      "min_ms": 0.219791
+    },
+    {
+      "kernel": "nm_fgmres_telemetry_domains_partial",
+      "spans": 8,
+      "sum_ms": 1.59121,
+      "max_ms": 0.55975,
+      "min_ms": 0.04975
+    },
+    {
+      "kernel": "nm_fgmres_build_left_row_equilibration_scale",
+      "spans": 8,
+      "sum_ms": 1.43,
+      "max_ms": 0.286333,
+      "min_ms": 0.13625
+    },
+    {
+      "kernel": "nm_contact_surface_morton_radix_scatter",
+      "spans": 64,
+      "sum_ms": 1.423876,
+      "max_ms": 0.054417,
+      "min_ms": 0.00675
+    },
+    {
+      "kernel": "nm_contact_evaluate",
+      "spans": 8,
+      "sum_ms": 1.282917,
+      "max_ms": 0.170375,
+      "min_ms": 0.156875
+    },
+    {
+      "kernel": "nm_contact_build_surface_bvh_level",
+      "spans": 152,
+      "sum_ms": 1.204584,
+      "max_ms": 0.209125,
+      "min_ms": 0.00125
+    },
+    {
+      "kernel": "nm_contact_surface_morton_tile_bounds",
+      "spans": 8,
+      "sum_ms": 1.17671,
+      "max_ms": 0.169542,
+      "min_ms": 0.090917
+    },
+    {
+      "kernel": "nm_contact_build_surface_bvh_leaves",
+      "spans": 8,
+      "sum_ms": 1.077334,
+      "max_ms": 0.405167,
+      "min_ms": 0.009708
+    },
+    {
+      "kernel": "nm_partitioned_reduction_invert_node_blocks",
+      "spans": 8,
+      "sum_ms": 1.013624,
+      "max_ms": 0.317125,
+      "min_ms": 0.021041
+    },
+    {
+      "kernel": "nm_fgmres_preserve_true_rhs",
+      "spans": 8,
+      "sum_ms": 1.011626,
+      "max_ms": 0.135208,
+      "min_ms": 0.122542
+    },
+    {
+      "kernel": "nm_contact_scan_deformable_compaction_tiles",
+      "spans": 8,
+      "sum_ms": 0.960208,
+      "max_ms": 0.12675,
+      "min_ms": 0.108208
+    },
+    {
+      "kernel": "nm_fem_checkpoint",
+      "spans": 1,
+      "sum_ms": 0.949541,
+      "max_ms": 0.949541,
+      "min_ms": 0.949541
+    },
+    {
+      "kernel": "nm_contact_scatter_deformable_active_work",
+      "spans": 8,
+      "sum_ms": 0.90725,
+      "max_ms": 0.171625,
+      "min_ms": 0.094583
+    },
+    {
+      "kernel": "nm_partitioned_reduction_reduce_sparse_block_partials",
+      "spans": 3,
+      "sum_ms": 0.889208,
+      "max_ms": 0.296417,
+      "min_ms": 0.296375
+    },
+    {
+      "kernel": "nm_mixed_build_residual_diagonal",
+      "spans": 8,
+      "sum_ms": 0.812957,
+      "max_ms": 0.131208,
+      "min_ms": 0.094958
+    },
+    {
+      "kernel": "nm_mixed_prepare_residual",
+      "spans": 8,
+      "sum_ms": 0.800876,
+      "max_ms": 0.195167,
+      "min_ms": 0.079042
+    },
+    {
+      "kernel": "nm_contact_surface_morton_radix_histogram",
+      "spans": 64,
+      "sum_ms": 0.776377,
+      "max_ms": 0.024042,
+      "min_ms": 0.006709
+    },
+    {
+      "kernel": "nm_mixed_apply_operator_nodes",
+      "spans": 15,
+      "sum_ms": 0.767877,
+      "max_ms": 0.080709,
+      "min_ms": 0.001791
+    },
+    {
+      "kernel": "nm_fgmres_clear_true_operator",
+      "spans": 7,
+      "sum_ms": 0.729208,
+      "max_ms": 0.181708,
+      "min_ms": 0.033292
+    },
+    {
+      "kernel": "nm_fgmres_cgs2_prepare_range",
+      "spans": 114,
+      "sum_ms": 0.700498,
+      "max_ms": 0.017042,
+      "min_ms": 0.00125
+    },
+    {
+      "kernel": "nm_fgmres_true_residual_distributed_replace",
+      "spans": 7,
+      "sum_ms": 0.610291,
+      "max_ms": 0.090291,
+      "min_ms": 0.083583
+    },
+    {
+      "kernel": "nm_vascular_cavity_forces",
+      "spans": 8,
+      "sum_ms": 0.600623,
+      "max_ms": 0.199958,
+      "min_ms": 0.001875
+    },
+    {
+      "kernel": "nm_fgmres_true_residual_distributed_partial",
+      "spans": 7,
+      "sum_ms": 0.591086,
+      "max_ms": 0.093459,
+      "min_ms": 0.078959
+    },
+    {
+      "kernel": "nm_fem_prepare_candidate",
+      "spans": 1,
+      "sum_ms": 0.569292,
+      "max_ms": 0.569292,
+      "min_ms": 0.569292
+    },
+    {
+      "kernel": "nm_contact_emit_surface_morton_records_parallel",
+      "spans": 8,
+      "sum_ms": 0.56175,
+      "max_ms": 0.189209,
+      "min_ms": 0.006833
+    },
+    {
+      "kernel": "nm_vascular_operator_cooperative",
+      "spans": 7,
+      "sum_ms": 0.559708,
+      "max_ms": 0.273583,
+      "min_ms": 0.0025
+    },
+    {
+      "kernel": "nm_fgmres_import_field_residual",
+      "spans": 8,
+      "sum_ms": 0.527709,
+      "max_ms": 0.067167,
+      "min_ms": 0.064667
+    },
+    {
+      "kernel": "nm_fgmres_prepare_distributed_work_dispatch",
+      "spans": 47,
+      "sum_ms": 0.517086,
+      "max_ms": 0.091917,
+      "min_ms": 0.001542
+    },
+    {
+      "kernel": "nm_contact_deformable_node_radix_prefix_chunk_offsets",
+      "spans": 40,
+      "sum_ms": 0.499788,
+      "max_ms": 0.032625,
+      "min_ms": 0.001916
+    },
+    {
+      "kernel": "nm_fgmres_begin_distributed_basis0",
+      "spans": 2,
+      "sum_ms": 0.431333,
+      "max_ms": 0.319541,
+      "min_ms": 0.111792
+    },
+    {
+      "kernel": "nm_human_support_limit_line_search",
+      "spans": 14,
+      "sum_ms": 0.352583,
+      "max_ms": 0.0685,
+      "min_ms": 0.00225
+    },
+    {
+      "kernel": "nm_fgmres_build_tangent_fem_block_preconditioner",
+      "spans": 8,
+      "sum_ms": 0.341042,
+      "max_ms": 0.113125,
+      "min_ms": 0.001709
+    },
+    {
+      "kernel": "nm_contact_publish_primal_history",
+      "spans": 7,
+      "sum_ms": 0.338499,
+      "max_ms": 0.049458,
+      "min_ms": 0.047125
+    },
+    {
+      "kernel": "nm_partitioned_reduction_factor_region_blocks",
+      "spans": 8,
+      "sum_ms": 0.328874,
+      "max_ms": 0.067375,
+      "min_ms": 0.006583
+    },
+    {
+      "kernel": "nm_fgmres_scan_completed_zero_operator_tiles",
+      "spans": 7,
+      "sum_ms": 0.325166,
+      "max_ms": 0.065041,
+      "min_ms": 0.010875
+    },
+    {
+      "kernel": "nm_vascular_begin_working_set",
+      "spans": 8,
+      "sum_ms": 0.291499,
+      "max_ms": 0.132833,
+      "min_ms": 0.006291
+    },
+    {
+      "kernel": "nm_fem_parallel_backtracking_finalize",
+      "spans": 14,
+      "sum_ms": 0.28,
+      "max_ms": 0.03875,
+      "min_ms": 0.001541
+    },
+    {
+      "kernel": "nm_contact_prepare_radix_tile_dispatch",
+      "spans": 56,
+      "sum_ms": 0.25992,
+      "max_ms": 0.041584,
+      "min_ms": 0.001292
+    },
+    {
+      "kernel": "nm_mixed_checkpoint",
+      "spans": 1,
+      "sum_ms": 0.2585,
+      "max_ms": 0.2585,
+      "min_ms": 0.2585
+    },
+    {
+      "kernel": "nm_fem_finalize_algorithmic_tangent_columns",
+      "spans": 8,
+      "sum_ms": 0.231332,
+      "max_ms": 0.073875,
+      "min_ms": 0.002
+    },
+    {
+      "kernel": "nm_fgmres_begin_distributed_finish",
+      "spans": 8,
+      "sum_ms": 0.224582,
+      "max_ms": 0.113292,
+      "min_ms": 0.014625
+    },
+    {
+      "kernel": "nm_fem_parallel_backtracking_initialize",
+      "spans": 7,
+      "sum_ms": 0.221834,
+      "max_ms": 0.035875,
+      "min_ms": 0.02925
+    },
+    {
+      "kernel": "nm_fem_reset_fresh_direction_common_alpha",
+      "spans": 7,
+      "sum_ms": 0.205584,
+      "max_ms": 0.038625,
+      "min_ms": 0.021833
+    },
+    {
+      "kernel": "nm_fgmres_prepare_inexact_newton_forcing",
+      "spans": 8,
+      "sum_ms": 0.1965,
+      "max_ms": 0.117833,
+      "min_ms": 0.010166
+    },
+    {
+      "kernel": "brain_advance",
+      "spans": 1,
+      "sum_ms": 0.159542,
+      "max_ms": 0.159542,
+      "min_ms": 0.159542
+    },
+    {
+      "kernel": "nm_mixed_prepare_microstep",
+      "spans": 1,
+      "sum_ms": 0.15875,
+      "max_ms": 0.15875,
+      "min_ms": 0.15875
+    },
+    {
+      "kernel": "nm_fgmres_telemetry_domains_finish",
+      "spans": 8,
+      "sum_ms": 0.147417,
+      "max_ms": 0.080792,
+      "min_ms": 0.008917
+    },
+    {
+      "kernel": "nm_contact_scan_deformable_node_incidence_add_tile_offsets",
+      "spans": 8,
+      "sum_ms": 0.123209,
+      "max_ms": 0.036833,
+      "min_ms": 0.003083
+    },
+    {
+      "kernel": "nm_contact_scan_deformable_node_incidence_tiles",
+      "spans": 8,
+      "sum_ms": 0.107167,
+      "max_ms": 0.032375,
+      "min_ms": 0.001958
+    },
+    {
+      "kernel": "nm_contact_deformable_node_radix_prefix",
+      "spans": 40,
+      "sum_ms": 0.100874,
+      "max_ms": 0.003625,
+      "min_ms": 0.001917
+    },
+    {
+      "kernel": "nm_fgmres_telemetry_begin",
+      "spans": 8,
+      "sum_ms": 0.100001,
+      "max_ms": 0.085208,
+      "min_ms": 0.00175
+    },
+    {
+      "kernel": "nm_contact_prepare_radix_prefix_dispatch",
+      "spans": 40,
+      "sum_ms": 0.091914,
+      "max_ms": 0.003042,
+      "min_ms": 0.001792
+    },
+    {
+      "kernel": "nm_fgmres_accumulate_vascular",
+      "spans": 7,
+      "sum_ms": 0.077583,
+      "max_ms": 0.045542,
+      "min_ms": 0.004916
+    },
+    {
+      "kernel": "nm_fgmres_true_residual_distributed_finish",
+      "spans": 7,
+      "sum_ms": 0.077461,
+      "max_ms": 0.011209,
+      "min_ms": 0.010917
+    },
+    {
+      "kernel": "nm_project_primal_free_rigid_candidate",
+      "spans": 8,
+      "sum_ms": 0.076584,
+      "max_ms": 0.062959,
+      "min_ms": 0.001834
+    },
+    {
+      "kernel": "nm_fgmres_correction_distributed_finish",
+      "spans": 7,
+      "sum_ms": 0.075332,
+      "max_ms": 0.015875,
+      "min_ms": 0.007125
+    },
+    {
+      "kernel": "nm_fem_apply_kinematic_targets",
+      "spans": 1,
+      "sum_ms": 0.059625,
+      "max_ms": 0.059625,
+      "min_ms": 0.059625
+    },
+    {
+      "kernel": "nm_fgmres_prepare_newton_tail_icb",
+      "spans": 8,
+      "sum_ms": 0.057833,
+      "max_ms": 0.043708,
+      "min_ms": 0.001958
+    },
+    {
+      "kernel": "nm_vascular_checkpoint",
+      "spans": 1,
+      "sum_ms": 0.05325,
+      "max_ms": 0.05325,
+      "min_ms": 0.05325
+    },
+    {
+      "kernel": "nm_contact_clear_samples",
+      "spans": 1,
+      "sum_ms": 0.053208,
+      "max_ms": 0.053208,
+      "min_ms": 0.053208
+    },
+    {
+      "kernel": "nm_contact_surface_morton_bounds_reduce",
+      "spans": 8,
+      "sum_ms": 0.052916,
+      "max_ms": 0.01475,
+      "min_ms": 0.002
+    },
+    {
+      "kernel": "nm_vascular_prepare_candidate",
+      "spans": 1,
+      "sum_ms": 0.050708,
+      "max_ms": 0.050708,
+      "min_ms": 0.050708
+    },
+    {
+      "kernel": "nm_vascular_cavity_schur_preconditioner_coupled_fem_block",
+      "spans": 2,
+      "sum_ms": 0.046999,
+      "max_ms": 0.023833,
+      "min_ms": 0.023166
+    },
+    {
+      "kernel": "nm_vascular_resolve_working_set_decision",
+      "spans": 7,
+      "sum_ms": 0.044915,
+      "max_ms": 0.006791,
+      "min_ms": 0.005375
+    },
+    {
+      "kernel": "nm_contact_scan_deformable_node_incidence_tile_offsets",
+      "spans": 8,
+      "sum_ms": 0.043042,
+      "max_ms": 0.011,
+      "min_ms": 0.001916
+    },
+    {
+      "kernel": "nm_fgmres_commit_inexact_newton_history",
+      "spans": 7,
+      "sum_ms": 0.039459,
+      "max_ms": 0.014625,
+      "min_ms": 0.001959
+    },
+    {
+      "kernel": "nm_contact_limit_rigid_line_search",
+      "spans": 7,
+      "sum_ms": 0.038957,
+      "max_ms": 0.006583,
+      "min_ms": 0.00225
+    },
+    {
+      "kernel": "nm_contact_checkpoint_histories",
+      "spans": 1,
+      "sum_ms": 0.031,
+      "max_ms": 0.031,
+      "min_ms": 0.031
+    },
+    {
+      "kernel": "nm_contact_scan_deformable_active_counts",
+      "spans": 16,
+      "sum_ms": 0.026418,
+      "max_ms": 0.001917,
+      "min_ms": 0.001333
+    },
+    {
+      "kernel": "nm_fgmres_finalize_cycle",
+      "spans": 7,
+      "sum_ms": 0.026251,
+      "max_ms": 0.008709,
+      "min_ms": 0.00175
+    },
+    {
+      "kernel": "nm_contact_surface_morton_scan_tile_counts",
+      "spans": 8,
+      "sum_ms": 0.02621,
+      "max_ms": 0.003959,
+      "min_ms": 0.002875
+    },
+    {
+      "kernel": "nm_partitioned_reduction_region_sparse_validity_partials",
+      "spans": 3,
+      "sum_ms": 0.026083,
+      "max_ms": 0.01825,
+      "min_ms": 0.003916
+    },
+    {
+      "kernel": "nm_fgmres_clear_true_auxiliary",
+      "spans": 7,
+      "sum_ms": 0.025917,
+      "max_ms": 0.018708,
+      "min_ms": 0.001083
+    },
+    {
+      "kernel": "nm_fgmres_reduce_completed_zero_operator_tiles",
+      "spans": 7,
+      "sum_ms": 0.025208,
+      "max_ms": 0.003875,
+      "min_ms": 0.003458
+    },
+    {
+      "kernel": "nm_vascular_apply_solution",
+      "spans": 7,
+      "sum_ms": 0.021624,
+      "max_ms": 0.003125,
+      "min_ms": 0.003083
+    },
+    {
+      "kernel": "nm_contact_capture_deformable_failure",
+      "spans": 8,
+      "sum_ms": 0.020125,
+      "max_ms": 0.003084,
+      "min_ms": 0.002125
+    },
+    {
+      "kernel": "nm_prepare_status",
+      "spans": 1,
+      "sum_ms": 0.019125,
+      "max_ms": 0.019125,
+      "min_ms": 0.019125
+    },
+    {
+      "kernel": "nm_fem_select_backtracking",
+      "spans": 7,
+      "sum_ms": 0.018332,
+      "max_ms": 0.002666,
+      "min_ms": 0.002583
+    },
+    {
+      "kernel": "nm_human_support_validate_final_line_search",
+      "spans": 7,
+      "sum_ms": 0.017209,
+      "max_ms": 0.0025,
+      "min_ms": 0.002375
+    },
+    {
+      "kernel": "nm_fem_synchronize_environment_line_search",
+      "spans": 14,
+      "sum_ms": 0.016999,
+      "max_ms": 0.001333,
+      "min_ms": 0.001125
+    },
+    {
+      "kernel": "nm_contact_finish_deformable_line_search_tiled",
+      "spans": 7,
+      "sum_ms": 0.016335,
+      "max_ms": 0.003083,
+      "min_ms": 0.002042
+    },
+    {
+      "kernel": "nm_fgmres_prepare_fresh_preconditioner_ranges",
+      "spans": 7,
+      "sum_ms": 0.016249,
+      "max_ms": 0.002416,
+      "min_ms": 0.00225
+    },
+    {
+      "kernel": "nm_contact_prepare_deformable_compaction_dispatch",
+      "spans": 8,
+      "sum_ms": 0.015875,
+      "max_ms": 0.002292,
+      "min_ms": 0.001583
+    },
+    {
+      "kernel": "nm_contact_surface_morton_scan_add_block_offsets",
+      "spans": 8,
+      "sum_ms": 0.014542,
+      "max_ms": 0.002,
+      "min_ms": 0.001667
+    },
+    {
+      "kernel": "nm_human_support_resolve_working_set_decision",
+      "spans": 7,
+      "sum_ms": 0.014332,
+      "max_ms": 0.002125,
+      "min_ms": 0.002
+    },
+    {
+      "kernel": "nm_fgmres_prepare_completed_zero_operator_action",
+      "spans": 7,
+      "sum_ms": 0.013917,
+      "max_ms": 0.002125,
+      "min_ms": 0.001875
+    },
+    {
+      "kernel": "nm_fem_parallel_backtracking_prepare_remaining",
+      "spans": 7,
+      "sum_ms": 0.013041,
+      "max_ms": 0.001917,
+      "min_ms": 0.001833
+    },
+    {
+      "kernel": "nm_contact_surface_morton_scan_block_offsets",
+      "spans": 8,
+      "sum_ms": 0.012708,
+      "max_ms": 0.002,
+      "min_ms": 0.001333
+    },
+    {
+      "kernel": "nm_fgmres_telemetry_finalize",
+      "spans": 7,
+      "sum_ms": 0.010876,
+      "max_ms": 0.001625,
+      "min_ms": 0.0015
+    },
+    {
+      "kernel": "nm_fgmres_telemetry_exhaustion",
+      "spans": 7,
+      "sum_ms": 0.010709,
+      "max_ms": 0.001583,
+      "min_ms": 0.001458
+    },
+    {
+      "kernel": "nm_vascular_prepare_elastance",
+      "spans": 1,
+      "sum_ms": 0.0065,
+      "max_ms": 0.0065,
+      "min_ms": 0.0065
+    },
+    {
+      "kernel": "nm_project_rigid_states",
+      "spans": 1,
+      "sum_ms": 0.00325,
+      "max_ms": 0.00325,
+      "min_ms": 0.00325
+    },
+    {
+      "kernel": "nm_vascular_prepare_clock",
+      "spans": 1,
+      "sum_ms": 0.003167,
+      "max_ms": 0.003167,
+      "min_ms": 0.003167
+    },
+    {
+      "kernel": "nm_prepare_scheduler",
+      "spans": 1,
+      "sum_ms": 0.002333,
+      "max_ms": 0.002333,
+      "min_ms": 0.002333
+    },
+    {
+      "kernel": "nm_checkpoint_scheduler",
+      "spans": 1,
+      "sum_ms": 0.001916,
+      "max_ms": 0.001916,
+      "min_ms": 0.001916
+    },
+    {
+      "kernel": "nm_prepare_reactions",
+      "spans": 1,
+      "sum_ms": 0.001208,
+      "max_ms": 0.001208,
+      "min_ms": 0.001208
+    },
+    {
+      "kernel": "nm_contact_reset_zero_step_geometry_reuse",
+      "spans": 1,
+      "sum_ms": 0.000958,
+      "max_ms": 0.000958,
+      "min_ms": 0.000958
+    }
+  ],
+  "native_profile": [
+    "resting_native_profile step=1 command_ms=6316.155875 gpu_ms=6303.52320832 host_copy_ms=0.568917 full_state_readback=1"
+  ],
+  "qualification": "Instrumented scheduling; spans exclude subcommands hidden inside ICBs. No scaled estimates. Compare against159.",
+  "counter_coverage": {
+    "capacity": 4096,
+    "dropped_samples": 2418,
+    "complete": false,
+    "ranking_limit": "partial direct-dispatch samples; ICB subcommands not individually timed; zero/unavailable records excluded"
+  }
+}
