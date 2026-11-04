@@ -1,0 +1,1 @@
+skin_fat_cavity_geometry={"diagnostic_only":true,"source_sha256":"5d31c141b66628801a711c2e745f744f745611882a269e173eddfcd0e99d3372","proposal_sha256":"d759c41ae52f27d78d6b4015dc04f6eaae805628245b2ef57765a3f56da6669a","cavities":41888,"failures":[{"cavity":41833,"reason":"cavity boundary is not a closed sphere"}],"failure_count":1,"mass_qualified":false,"native_steps":0}

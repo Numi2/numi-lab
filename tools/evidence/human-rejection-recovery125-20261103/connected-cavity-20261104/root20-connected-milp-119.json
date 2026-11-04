@@ -1,0 +1,108 @@
+{
+  "seed": 1170724,
+  "construction_min_q": 0.001,
+  "attempts": [
+    {
+      "depth": 1,
+      "old_cells": 3,
+      "vertices": 6,
+      "candidate_count": 13,
+      "missing_boundary_faces": 0,
+      "construction_min_q": 0.001,
+      "solve": {
+        "milp_status": 2,
+        "milp_message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)",
+        "generated_candidate_tetrahedra": 15,
+        "native_quality_rejected_candidates": 2,
+        "native_quality_admissible_candidates": 13,
+        "candidate_tetrahedra": 13,
+        "constraint_faces": 20,
+        "material_index": 16,
+        "native_quality_owner_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/fixed_boundary_volume_flip_198_root.py",
+        "native_quality_owner_sha256": "650794951cbcf338de9cde691a8f43377b9d023ccea78b876e87c847880243e0",
+        "native_quality_filter": "fixed_boundary_volume_flip_198.measurements + passes; applied before MILP",
+        "milp_wall_s": 0.002210958002251573,
+        "physical_admission": false,
+        "runtime": 0,
+        "status": "NO_FEASIBLE_CONNECTIVITY_WITHIN_BOUND"
+      }
+    },
+    {
+      "depth": 2,
+      "old_cells": 7,
+      "vertices": 8,
+      "candidate_count": 65,
+      "missing_boundary_faces": 0,
+      "construction_min_q": 0.001,
+      "solve": {
+        "milp_status": 0,
+        "milp_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "generated_candidate_tetrahedra": 70,
+        "native_quality_rejected_candidates": 5,
+        "native_quality_admissible_candidates": 65,
+        "candidate_tetrahedra": 65,
+        "constraint_faces": 56,
+        "material_index": 16,
+        "native_quality_owner_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/fixed_boundary_volume_flip_198_root.py",
+        "native_quality_owner_sha256": "650794951cbcf338de9cde691a8f43377b9d023ccea78b876e87c847880243e0",
+        "native_quality_filter": "fixed_boundary_volume_flip_198.measurements + passes; applied before MILP",
+        "milp_wall_s": 0.0006686250126222149,
+        "physical_admission": false,
+        "runtime": 0,
+        "status": "PASS_EXACT_ORIENTED_CAVITY_TETRAHEDRALIZATION",
+        "output_tetrahedra": 5,
+        "exact_volume_conserved": true,
+        "exact_boundary_preserved": true,
+        "exact_internal_face_crossings": 0,
+        "exact_owner_sha256": "f0c1d81bffb185565b174f293b67da01926db1dfa6f6b80cb5629828ccf08b6d"
+      }
+    }
+  ],
+  "candidate": {
+    "depth": 2,
+    "old_rows": [
+      850886,
+      1074805,
+      1170724,
+      1384121,
+      1384122,
+      1384123,
+      1384124
+    ],
+    "new_cells": [
+      [
+        127694,
+        127695,
+        127696,
+        127713
+      ],
+      [
+        127694,
+        127696,
+        127712,
+        127713
+      ],
+      [
+        127696,
+        127694,
+        127712,
+        309261
+      ],
+      [
+        127694,
+        127711,
+        127712,
+        309261
+      ],
+      [
+        127696,
+        127712,
+        127713,
+        127714
+      ]
+    ],
+    "old_min_q": 1.2930957851940884e-05,
+    "new_min_q": 0.01590621360279775
+  },
+  "elapsed_s": 0.024378000001888722
+}

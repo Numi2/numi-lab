@@ -1,0 +1,159 @@
+{
+  "native_global_tet": 1078892,
+  "skin_object_element_offset": 3315,
+  "source_row": 1170724,
+  "nodes": [
+    127694,
+    127713,
+    127695,
+    127712
+  ],
+  "source_labels": [
+    16,
+    23,
+    23
+  ],
+  "quality": 1.2930957851940884e-05,
+  "neighbors": [
+    {
+      "row": 342362,
+      "same_labels": false,
+      "already_retired": false,
+      "quality": 6.812013102595315e-05,
+      "new_edge": [
+        127712,
+        128466
+      ],
+      "new_edge_already_exists": true,
+      "exact": false,
+      "reason": "oriented_boundary",
+      "new_min_q": 6.81091434036662e-05,
+      "new_cells": [
+        [
+          127712,
+          128466,
+          127694,
+          127695
+        ],
+        [
+          127712,
+          128466,
+          127695,
+          127713
+        ],
+        [
+          128466,
+          127712,
+          127713,
+          127694
+        ]
+      ],
+      "native_quality": true
+    },
+    {
+      "row": 460543,
+      "same_labels": false,
+      "already_retired": false,
+      "quality": 6.810914340366665e-05,
+      "new_edge": [
+        127695,
+        128466
+      ],
+      "new_edge_already_exists": true,
+      "exact": false,
+      "reason": "oriented_boundary",
+      "new_min_q": 6.811552764861719e-05,
+      "new_cells": [
+        [
+          128466,
+          127695,
+          127694,
+          127712
+        ],
+        [
+          128466,
+          127695,
+          127712,
+          127713
+        ],
+        [
+          127695,
+          128466,
+          127713,
+          127694
+        ]
+      ],
+      "native_quality": true
+    },
+    {
+      "row": 850886,
+      "same_labels": true,
+      "already_retired": false,
+      "quality": 0.021533562701680484,
+      "new_edge": [
+        127694,
+        127696
+      ],
+      "new_edge_already_exists": true,
+      "exact": false,
+      "reason": "oriented_boundary",
+      "new_min_q": 0.01590621360279775,
+      "new_cells": [
+        [
+          127696,
+          127694,
+          127695,
+          127712
+        ],
+        [
+          127694,
+          127696,
+          127712,
+          127713
+        ],
+        [
+          127694,
+          127696,
+          127713,
+          127695
+        ]
+      ],
+      "native_quality": true
+    },
+    {
+      "row": 1384122,
+      "same_labels": true,
+      "already_retired": false,
+      "quality": 0.05100645126177078,
+      "new_edge": [
+        127713,
+        309261
+      ],
+      "new_edge_already_exists": false,
+      "exact": false,
+      "reason": "oriented_boundary",
+      "new_min_q": 0.03302820683287521,
+      "new_cells": [
+        [
+          309261,
+          127713,
+          127694,
+          127695
+        ],
+        [
+          127713,
+          309261,
+          127695,
+          127712
+        ],
+        [
+          309261,
+          127713,
+          127712,
+          127694
+        ]
+      ],
+      "native_quality": true
+    }
+  ]
+}

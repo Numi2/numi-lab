@@ -26839,6 +26839,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     <<" cavities="<<cavityReport.cavities
                     <<" input_cells="<<cavityReport.inputCells<<" output_cells="<<cavityReport.outputCells
                     <<" affected_nodes="<<cavityReport.affectedNodes
+                    <<" restricted_transport_cavities="<<cavityReport.restrictedTransportCavities
+                    <<" maximum_transport_distance_used_m="<<cavityReport.maximumTransportDistanceUsedM
                     <<" minimum_patch_quality_before="<<cavityReport.minimumQualityBefore
                     <<" minimum_patch_quality_after="<<cavityReport.minimumQualityAfter
                     <<" maximum_nodal_mass_change_kg="<<cavityReport.maximumNodalMassChangeKg

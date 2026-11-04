@@ -1,0 +1,79 @@
+{
+  "seed": 1170724,
+  "attempts": [
+    {
+      "depth": 1,
+      "old_cells": 3,
+      "boundary_faces": 8,
+      "interior_nodes": [],
+      "passing_apices": [],
+      "rejections": {
+        "quality_or_orientation": 4,
+        "too_little_improvement": 2
+      }
+    },
+    {
+      "depth": 2,
+      "old_cells": 7,
+      "boundary_faces": 12,
+      "interior_nodes": [],
+      "passing_apices": [],
+      "rejections": {
+        "too_little_improvement": 2,
+        "quality_or_orientation": 6
+      }
+    },
+    {
+      "depth": 3,
+      "old_cells": 14,
+      "boundary_faces": 18,
+      "interior_nodes": [],
+      "passing_apices": [],
+      "rejections": {
+        "quality_or_orientation": 10,
+        "too_little_improvement": 1
+      }
+    },
+    {
+      "depth": 4,
+      "old_cells": 22,
+      "boundary_faces": 28,
+      "interior_nodes": [],
+      "passing_apices": [],
+      "rejections": {
+        "quality_or_orientation": 16
+      }
+    },
+    {
+      "depth": 5,
+      "old_cells": 36,
+      "boundary_faces": 44,
+      "interior_nodes": [],
+      "passing_apices": [],
+      "rejections": {
+        "quality_or_orientation": 23
+      }
+    },
+    {
+      "depth": 6,
+      "old_cells": 57,
+      "boundary_faces": 56,
+      "interior_nodes": [],
+      "passing_apices": [],
+      "rejections": {
+        "quality_or_orientation": 30
+      }
+    },
+    {
+      "depth": 7,
+      "old_cells": 80,
+      "boundary_faces": 66,
+      "interior_nodes": [],
+      "passing_apices": [],
+      "rejections": {
+        "quality_or_orientation": 34
+      }
+    }
+  ],
+  "candidate": null
+}

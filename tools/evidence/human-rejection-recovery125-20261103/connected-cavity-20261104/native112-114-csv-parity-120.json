@@ -1,0 +1,57 @@
+{
+  "install-motion/diagnostics/registered-skin-native.csv": {
+    "bytes_112": 24147731,
+    "bytes_114": 24147731,
+    "bitwise_equal": true
+  },
+  "install-motion/resting-body-motion-partition.csv": {
+    "bytes_112": 1534816,
+    "bytes_114": 1534816,
+    "bitwise_equal": true
+  },
+  "install-motion/resting-com-momentum-diagnostic.csv": {
+    "bytes_112": 30901,
+    "bytes_114": 30901,
+    "bitwise_equal": true
+  },
+  "install-motion/resting-com-q-index-map.csv": {
+    "bytes_112": 6908,
+    "bytes_114": 6908,
+    "bitwise_equal": true
+  },
+  "install-motion/resting-com-q-integration.csv": {
+    "bytes_112": 412064,
+    "bytes_114": 412064,
+    "bitwise_equal": true
+  },
+  "install-motion/resting-com-q-support-slip.csv": {
+    "bytes_112": 715,
+    "bytes_114": 715,
+    "bitwise_equal": true
+  },
+  "install-motion/resting-com-support-impulses.csv": {
+    "bytes_112": 331,
+    "bytes_114": 331,
+    "bitwise_equal": true
+  },
+  "install-motion/resting-coupled.csv": {
+    "bytes_112": 15979,
+    "bytes_114": 15979,
+    "bitwise_equal": true
+  },
+  "install-motion/resting-support-point-motion.csv": {
+    "bytes_112": 371,
+    "bytes_114": 371,
+    "bitwise_equal": true
+  },
+  "install-motion/resting-support-selected-skin-witness.csv": {
+    "bytes_112": 4684,
+    "bytes_114": 4684,
+    "bitwise_equal": true
+  },
+  "install-motion/resting-surface-audit.csv": {
+    "bytes_112": 1322,
+    "bytes_114": 1322,
+    "bitwise_equal": true
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "status": "PARTIAL_INITIALIZATION_PREFIX_NOT_MOTION_QUALIFICATION",
+  "accepted_steps": 24,
+  "requested_steps": 32,
+  "physical_step_s": 1.5625e-05,
+  "accepted_simulation_s": 0.000375,
+  "previous_112_accepted_steps": 20,
+  "process_elapsed_s": 386.2833089828491,
+  "accepted_gpu_span_s": 175.18048349999,
+  "accepted_gpu_only_real_time_factor": 2.140649417719077e-06,
+  "horizon_wall_including_rejected_attempt_s": 198.860596292,
+  "failure_root": 24,
+  "failure_status": 10,
+  "failure_owner": "active coupled solver; no geometry witness in terminal certificate",
+  "fixed_geometry_mass_admission": "registered_volume_fixed_cavities=PASS cavities=41859 input_cells=1495294 output_cells=1453060 affected_nodes=127195 restricted_transport_cavities=11 maximum_transport_distance_used_m=0.18744221736106359 minimum_patch_quality_before=1.0000092038199018e-05 minimum_patch_quality_after=1.0249096395191928e-05 maximum_nodal_mass_change_kg=0.0028186855141347431 nodal_mass_l1_change_kg=0.19342496319305619 maximum_source_mass_change_kg=3.4638958368304884e-14 maximum_source_first_moment_change_kg_m=2.6506574712925612e-15 lumped_first_moment_change_kg_m=2.6743555412910013e-06,-9.9192273941397891e-06,-4.8517439768297127e-06 proposal_sha256=4be98e7d5710360407a561d10efaa02b86702efdaf1b4312c4b035d6d9a19cb8 composition_sha256=9fd78e249e3101b78ab9b37fa1ddc86f7fc56d31c9bf5c12e4822be231c8de7a points_fixed=1 boundary_exact=1 volume_exact=1 mass_conservative=1 source_bundle=immutable_provenance physical_steps=0 motion_qualification=pending",
+  "source_recovery": "39/39 exact reconstructed source files",
+  "restrictions": [
+    "no final physical tolerance or timestep changes",
+    "no material, force, contact-clearance changes",
+    "no supported-rest or physiological qualification",
+    "0.1x not reached"
+  ],
+  "profiles": [
+    {
+      "step": 1,
+      "gpu_ms": 6762.47325
+    },
+    {
+      "step": 2,
+      "gpu_ms": 6726.63637499
+    },
+    {
+      "step": 3,
+      "gpu_ms": 6751.51062501
+    },
+    {
+      "step": 4,
+      "gpu_ms": 6704.19175
+    },
+    {
+      "step": 5,
+      "gpu_ms": 6747.04533334
+    },
+    {
+      "step": 6,
+      "gpu_ms": 6756.72670834
+    },
+    {
+      "step": 7,
+      "gpu_ms": 6753.98808334
+    },
+    {
+      "step": 8,
+      "gpu_ms": 6793.99354167
+    },
+    {
+      "step": 9,
+      "gpu_ms": 6740.12329166
+    },
+    {
+      "step": 10,
+      "gpu_ms": 6743.53170833
+    },
+    {
+      "step": 11,
+      "gpu_ms": 6727.64670833
+    },
+    {
+      "step": 12,
+      "gpu_ms": 6825.248875
+    },
+    {
+      "step": 13,
+      "gpu_ms": 9809.76325
+    },
+    {
+      "step": 14,
+      "gpu_ms": 6758.50337501
+    },
+    {
+      "step": 15,
+      "gpu_ms": 6755.74408333
+    },
+    {
+      "step": 16,
+      "gpu_ms": 8307.710625
+    },
+    {
+      "step": 17,
+      "gpu_ms": 6816.89225
+    },
+    {
+      "step": 18,
+      "gpu_ms": 6806.77345833
+    },
+    {
+      "step": 19,
+      "gpu_ms": 6805.48337499
+    },
+    {
+      "step": 20,
+      "gpu_ms": 6850.63358332
+    },
+    {
+      "step": 21,
+      "gpu_ms": 6879.97937501
+    },
+    {
+      "step": 22,
+      "gpu_ms": 6878.98066666
+    },
+    {
+      "step": 23,
+      "gpu_ms": 8451.02983333
+    },
+    {
+      "step": 24,
+      "gpu_ms": 13025.873375
+    }
+  ]
+}

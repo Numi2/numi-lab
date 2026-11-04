@@ -1,0 +1,20 @@
+{
+  "reclaimed_allocated_bytes": 642646016,
+  "method": "verified identical content hardlinks; no path or bytes removed",
+  "files": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/root20-globalization-native-114/install-motion/resting-human.mrvpack",
+      "content_donor": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-latch-native-112/install-motion/resting-human.mrvpack",
+      "sha256": "16f5984f1bc359246c925903770c1ced5acf3c2361eea7c5385e2ea0109da99e",
+      "bytes": 321323008,
+      "all_bytes_preserved": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/root20-globalization-native-114/install-motion/accepted-geometry/step-0.mrvpack",
+      "content_donor": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-latch-native-112/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "1650ced545f71ebffcd33dd6b1d70874579e5912d9014680446203b42c6cd3ec",
+      "bytes": 321323008,
+      "all_bytes_preserved": true
+    }
+  ]
+}
