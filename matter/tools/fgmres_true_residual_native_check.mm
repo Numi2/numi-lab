@@ -11210,6 +11210,161 @@ void checkCertifiedEmptyRestartReuse(
 }
 
 
+
+void checkCachedNodeSIMD(id<MTLDevice> device,id<MTLCommandQueue> queue,
+                         id<MTLLibrary> library) {
+    auto reference=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_build_tangent_fem_block_preconditioner_cached");
+    auto parallel=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd");
+    auto prepare=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_prepare_cached_node_simd_dispatch");
+    require(parallel.threadExecutionWidth==32u &&
+            parallel.maxTotalThreadsPerThreadgroup>=256u,"cached-node SIMD capacity");
+    constexpr std::uint32_t N=13u,T=65u;
+    auto dummy=makeBuffer(device,std::vector<std::uint32_t>(1024u,0u));
+    auto zero=makeBuffer(device,std::vector<std::uint32_t>{0u});
+    auto one=makeBuffer(device,std::vector<std::uint32_t>{1u});
+    auto layout=[library newFunctionWithName:
+        @"numi_matter_metal::nm_primal_contact_argument_layout"];
+    auto ae=[layout newArgumentEncoderWithBufferIndex:0u];
+    id<MTLBuffer> args=[device newBufferWithLength:ae.encodedLength
+        options:MTLResourceStorageModeShared];
+    [ae setArgumentBuffer:args offset:0u];
+    for(NSUInteger i=0u;i<20u;++i) [ae setBuffer:dummy offset:0u atIndex:i];
+    NMContactPairGPU pair{};pair.objectIndex=0u;
+    NMContactSampleGPU sample{};sample.identity.w=NM_CONTACT_VALID;
+    sample.barrierHessianRow0={3.0f,0.0f,0.0f,0.0f};
+    sample.barrierHessianRow1={0.0f,5.0f,0.0f,0.0f};
+    sample.barrierHessianRow2={0.0f,0.0f,7.0f,0.0f};
+    auto pairBuffer=makeBuffer(device,std::vector{pair});
+    auto sampleBuffer=makeBuffer(device,std::vector{sample});
+    std::vector<NMIncidenceRangeGPU> contactRanges(N);
+    for(auto& v:contactRanges){v.first=0u;v.count=1u;v.objectIndex=0u;}
+    auto cr=makeBuffer(device,contactRanges);
+    [ae setBuffer:pairBuffer offset:0u atIndex:0u];
+    [ae setBuffer:sampleBuffer offset:0u atIndex:1u];
+    [ae setBuffer:zero offset:0u atIndex:2u];
+    [ae setBuffer:cr offset:0u atIndex:3u];
+    [ae setBuffer:zero offset:0u atIndex:15u];
+    [ae setBuffer:one offset:0u atIndex:16u];
+    float maximumError=0.0f;bool bitwise=true;
+    for(std::uint32_t test=0u;test<12u;++test) {
+        NMMatterDispatchGPU d{};d.abiVersion=NM_MATTER_ABI_VERSION;
+        d.environmentCount=1u;d.objectCount=1u;d.femNodeCount=N;
+        d.tetrahedronCount=T;d.contactPairCount=1u;
+        d.gravityAndTimestep.w=0.003f;
+        NMMixedSolverGPU solver{};solver.executionBudgets.z=6u;
+        NMContinuumObjectGPU object{};object.representation=NM_REPRESENTATION_FEM;
+        object.flags=test==4u?0u:NM_OBJECT_ACTIVE;
+        NMSchedulerStateGPU scheduler{};scheduler.numerical.w=test==3u?0.0f:1.0f;
+        NMAdaptiveStateGPU adaptive{};adaptive.activeRepresentation=NM_REPRESENTATION_FEM;
+        NMMicrostepGPU micro{};
+        std::vector<NMFEMNodeStateGPU> nodes(N);
+        for(std::uint32_t i=0u;i<N;++i) {
+            nodes[i].positionAndMass.w=1.0f+float(i)*0.1f;
+            nodes[i].velocityAndInverseMass.w=1.0f/nodes[i].positionAndMass.w;
+        }
+        if(test==5u)nodes[0].restAndFixed.w=1.0f;
+        if(test==6u)nodes[0].positionAndMass.w=0.0f;
+        std::vector<NMTetrahedronGPU> tets(T);
+        std::vector<float> cache(T*81u);
+        std::vector<std::uint32_t> valid(T,1u),incidence;
+        std::vector<NMIncidenceRangeGPU> ranges(N);
+        for(std::uint32_t i=0u;i<T;++i) {
+            auto& t=tets[i];t.nodes={0u,1u,2u,3u};
+            t.identity={0u,0u,0u,NM_OBJECT_ACTIVE};
+            if(test==8u && i%3u==0u)t.identity.w=0u;
+            t.inverseRestRow0={1.1f,0.02f,-0.03f,0.2f};
+            t.inverseRestRow1={-0.04f,0.9f,0.01f,0.0f};
+            t.inverseRestRow2={0.05f,-0.07f,1.2f,0.0f};
+            for(std::uint32_t j=0u;j<81u;++j)
+                cache[i*81u+j]=(j/9u==j%9u?20.0f:0.0f)+
+                    float(int((i*17u+j*7u)%31u)-15)*0.013f;
+        }
+        const std::uint32_t counts[4]={65u,33u,31u,1u};
+        for(std::uint32_t n=0u;n<N;++n) {
+            auto& r=ranges[n];r.first=incidence.size();r.objectIndex=0u;
+            r.count=n<4u?counts[n]:0u;
+            if(test==9u && n==4u)r.count=1u; // nonmember incidence
+            if(test==10u && n==0u)r.objectIndex=NM_INVALID_INDEX;
+            for(std::uint32_t j=0u;j<r.count;++j)
+                incidence.push_back(test==11u && j==32u?T+1u:j);
+        }
+        if(test==1u)valid[0]=0u;
+        if(test==2u)valid[40]=0u;
+        if(test==7u) {cache[0]=NAN;for(std::uint32_t n=1u;n<N;++n)ranges[n].objectIndex=NM_INVALID_INDEX;}
+        auto db=makeBuffer(device,std::vector{d});
+        auto sb=makeBuffer(device,std::vector{solver});
+        auto ob=makeBuffer(device,std::vector{object});
+        auto nb=makeBuffer(device,nodes);auto tb=makeBuffer(device,tets);
+        auto ib=makeBuffer(device,incidence);auto rb=makeBuffer(device,ranges);
+        auto sch=makeBuffer(device,std::vector{scheduler});
+        auto ad=makeBuffer(device,std::vector{adaptive});
+        auto mb=makeBuffer(device,std::vector{micro});
+        auto cb=makeBuffer(device,cache);auto vb=makeBuffer(device,valid);
+        NMFGMRESStateGPU state{};state.nonlinear.w=0.0f;
+        auto states=makeBuffer(device,std::vector{state});
+        NMMatterStatusGPU healthy{};healthy.code=NM_STATUS_SUCCESS;
+        auto status=makeBuffer(device,std::vector{healthy});
+        const nm_float4 canary{91.25f,-72.5f,63.75f,-54.0f};
+        auto output=makeBuffer(device,std::vector<nm_float4>(N*3u+1u,canary));
+        std::vector<std::pair<NSUInteger,id<MTLBuffer>>> b{
+            {0u,db},{1u,sb},{2u,ob},{3u,nb},{4u,tb},{5u,ib},{6u,rb},
+            {7u,sch},{8u,dummy},{9u,dummy},{10u,dummy},{11u,dummy},
+            {12u,dummy},{13u,dummy},{14u,args},{15u,status},{16u,output},
+            {17u,cb},{18u,vb},
+            {19u,makeBuffer(device,std::vector<std::uint32_t>{2u})},
+            {20u,one},{21u,zero},{22u,ad},{23u,mb},{24u,zero},
+            {25u,states},{26u,zero}};
+        dispatch(device,queue,reference,b,1u,256u);
+        auto expected=readBuffer<nm_float4>(output,N*3u+1u);
+        auto expectedStatus=readBuffer<NMMatterStatusGPU>(status,1u)[0];
+        std::fill_n(static_cast<nm_float4*>(output.contents),N*3u+1u,canary);
+        std::memcpy(status.contents,&healthy,sizeof(healthy));
+        dispatch(device,queue,parallel,b,(N+7u)/8u,256u);
+        auto actual=readBuffer<nm_float4>(output,N*3u+1u);
+        auto actualStatus=readBuffer<NMMatterStatusGPU>(status,1u)[0];
+        require(std::memcmp(&actual.back(),&canary,sizeof(canary))==0,
+            "cached-node SIMD output canary");
+        require(actualStatus.code==expectedStatus.code,
+            "cached-node SIMD failure propagation");
+        for(std::uint32_t row=0u;row<N*3u;++row) {
+            const float* a=reinterpret_cast<const float*>(&actual[row]);
+            const float* e=reinterpret_cast<const float*>(&expected[row]);
+            for(std::uint32_t c=0u;c<4u;++c) {
+                const float error=std::abs(a[c]-e[c])/std::max(1.0f,std::abs(e[c]));
+                maximumError=std::max(maximumError,error);
+                require(std::isfinite(a[c]) && error<=1.0e-6f,
+                    "cached-node SIMD ordered incidence parity");
+            }
+        }
+        bitwise=bitwise && std::memcmp(actual.data(),expected.data(),
+            actual.size()*sizeof(nm_float4))==0;
+    }
+    std::cout<<"cached_node_simd=PASS cases=12 valence=0,1,31,33,65 "
+        "contact=true nonsymmetric=true cache_miss=true nonfinite=true fixed=true "
+        "partial_group=true canary=true bitwise="<<bitwise
+        <<" max_relative_error="<<maximumError<<"\n";
+    // The indirect range never treats malformed/active state as completed.
+    NMMatterDispatchGPU shape{};shape.environmentCount=1u;shape.femNodeCount=N;
+    auto db=makeBuffer(device,std::vector{shape});
+    auto out=makeBuffer(device,std::vector<NMIndirectDispatchGPU>(1u));
+    for(std::uint32_t test=0u;test<5u;++test) {
+        NMFGMRESStateGPU st{};st.nonlinear.w=test==0u?0.0f:1.0f;
+        if(test==2u)st.nonlinear.w=INFINITY;
+        NMMatterStatusGPU status{};status.code=test==3u?NM_STATUS_NONFINITE_RESULT:NM_STATUS_SUCCESS;
+        auto retain=makeBuffer(device,std::vector<std::uint32_t>{test==4u?0u:1u});
+        dispatch(device,queue,prepare,{{0u,db},
+            {1u,makeBuffer(device,std::vector{st})},
+            {2u,makeBuffer(device,std::vector{status})},{3u,retain},{4u,out}},1u,1u);
+        auto value=readBuffer<NMIndirectDispatchGPU>(out,1u)[0];
+        require(value.threadgroupsX==(test==1u?0u:(N+7u)/8u) &&
+            value.threadgroupsY==1u && value.threadgroupsZ==1u,
+            "cached-node SIMD indirect completion range");
+    }
+}
+
 void checkCompletedZeroOperatorAction(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
@@ -17539,6 +17694,11 @@ int main(int argc, const char* argv[]) {
                 std::cout << "PASS certified empty restart " << checks << " checks" << std::endl;
                 return 0;
             }
+            if (argc == 2 && std::string(argv[1]) == "--cached-node-simd-only") {
+                checkCachedNodeSIMD(device,queue,library);
+                std::cout << "PASS cached node SIMD " << checks << " checks\n";
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--completed-zero-action-only") {
                 checkCompletedZeroOperatorAction(device, queue, library);
                 std::cout << "PASS completed zero operator action " << checks << " checks" << std::endl;
@@ -18109,6 +18269,7 @@ int main(int argc, const char* argv[]) {
             checkHumanExactContactMotionCache(device,queue,library);
             checkCompletedContactGeometry(device,queue,library);
             checkCompletedZeroOperatorAction(device, queue, library);
+            checkCachedNodeSIMD(device,queue,library);
             checkTiledSchedulerObserve(device,queue,library);
             checkZeroStepGeometryReuse(device, queue, library);
             checkReferenceSurfaceGeometry(device,queue,library);

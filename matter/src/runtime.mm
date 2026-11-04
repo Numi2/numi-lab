@@ -4143,6 +4143,8 @@ struct Runtime::State {
     // It is rebuilt at each Newton linearization and may feed FGMRES,
     // conditioning-only tangent preconditioners, and regional AP. Direct
     // residual and Armijo paths never read it.
+    bool femCachedNodeSIMDEnabled = false;
+    id<MTLBuffer> femCachedNodeSIMDDispatch = nil;
     id<MTLBuffer> femAlgorithmicTangentCache = nil;
     id<MTLBuffer> femAlgorithmicTangentCacheValid = nil;
     bool femAssembledXYZOperatorRequested = false;
@@ -5901,6 +5903,14 @@ RuntimeDiagnostics Runtime::initialize(
                     NM_VASCULAR_LAYOUT_COMPENSATED_CAVITY_WORDS;
             }
         }
+        const char* cachedNodeSIMD = std::getenv("NM_FEM_CACHED_NODE_SIMD");
+        if (cachedNodeSIMD != nullptr && std::strcmp(cachedNodeSIMD,"0") != 0 &&
+            std::strcmp(cachedNodeSIMD,"1") != 0) {
+            diagnostics.message = "NM_FEM_CACHED_NODE_SIMD must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->femCachedNodeSIMDEnabled =
+            cachedNodeSIMD != nullptr && std::strcmp(cachedNodeSIMD,"1") == 0;
         if (const char* policy =
                 std::getenv("NM_VASCULAR_COOPERATIVE_CAVITY_OPERATOR")) {
             if (std::strcmp(policy, "0") != 0 &&
@@ -8656,6 +8666,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_build_tangent_fem_preconditioner",
             "nm_fgmres_build_tangent_fem_block_preconditioner",
             "nm_fgmres_build_tangent_fem_block_preconditioner_cached",
+            "nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd",
+            "nm_fgmres_prepare_cached_node_simd_dispatch",
             "nm_fgmres_precondition",
             "nm_fgmres_precondition_empty_fields",
             "nm_fgmres_apply_coupled_tangent_block",
@@ -9765,6 +9777,10 @@ RuntimeDiagnostics Runtime::initialize(
             if(world.mixedSolver.executionBudgets.z!=1u &&
                world.mixedSolver.executionBudgets.z!=2u &&
                std::strcmp(name,"nm_fgmres_build_tangent_fem_preconditioner")==0) continue;
+            if (!candidate->femCachedNodeSIMDEnabled &&
+                (std::strcmp(name,"nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd")==0 ||
+                 std::strcmp(name,"nm_fgmres_prepare_cached_node_simd_dispatch")==0))
+                continue;
             // The block builder is also consumed by the optional CGLS right scale.
             // Keep that diagnostic route admitted independently of the main selector.
             if (world.mixedSolver.executionBudgets.z != 3u &&
@@ -9845,6 +9861,13 @@ RuntimeDiagnostics Runtime::initialize(
                 (pipeline.threadExecutionWidth!=32u ||
                  pipeline.maxTotalThreadsPerThreadgroup<256u)) {
                 diagnostics.message=std::string("parallel body work requires SIMD32 and 256 threads: ")+name;
+                return diagnostics;
+            }
+            if (std::strcmp(name,
+                    "nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd")==0 &&
+                (pipeline.threadExecutionWidth != 32u ||
+                 pipeline.maxTotalThreadsPerThreadgroup < 256u)) {
+                diagnostics.message = "cached-node SIMD requires SIMD32 and256 threads";
                 return diagnostics;
             }
             if (tracePipeline) std::fprintf(stderr, "matter_pipeline_compile_end=%s\n", name);
@@ -13196,6 +13219,27 @@ RuntimeDiagnostics Runtime::initialize(
                 "same-Newton restart augmentation requires finite inactive FEM field-state backing, no Human rows, and no vascular unknowns";
             return diagnostics;
         }
+        if (candidate->femCachedNodeSIMDEnabled &&
+            (world.dispatch.environmentCount != 1u || world.dispatch.femNodeCount == 0u ||
+             world.dispatch.femNodeCount > std::numeric_limits<std::uint32_t>::max()/32u ||
+             world.mixedSolver.executionBudgets.z != 6u ||
+             world.mixedSolver.executionBudgets.w != 2u ||
+             candidate->femHumanHybridCoordinatesEnabled ||
+             candidate->femHuman6SchurCondensedFGMRESEnabled ||
+             candidate->fgmresFreshRhsPreconditionerPreflightRequested ||
+             std::getenv("NM_FEM_BASE_CGLS_RIGHT_SCALE") != nullptr ||
+             world.dispatch.mpmActiveNodeCapacity != 0u)) {
+            diagnostics.message = "cached-node SIMD requires full-coordinate selector6, "
+                "cache mode2, one nonempty FEM environment without MPM, Schur, "
+                "hybrid, CGLS or fresh-RHS preflight";
+            return diagnostics;
+        }
+        if (candidate->femCachedNodeSIMDEnabled &&
+            (candidate->pipeline("nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd") == nil ||
+             candidate->pipeline("nm_fgmres_prepare_cached_node_simd_dispatch") == nil)) {
+            diagnostics.message = "cached-node SIMD pipeline preparation failed";
+            return diagnostics;
+        }
         const char* dense45Reason = vascularDense45Ineligibility(world);
         if (dense45Reason == nullptr &&
             candidate->humanSupportDispatch.contactCount != 0u)
@@ -14995,6 +15039,10 @@ RuntimeDiagnostics Runtime::initialize(
                     "algorithmic tangent cache exceeds one Metal buffer limit";
                 return diagnostics;
             }
+            if (candidate->femCachedNodeSIMDEnabled)
+                candidate->femCachedNodeSIMDDispatch =
+                    privateScratch<NMIndirectDispatchGPU>(candidate->device,1u,
+                        valid,candidate->residentBytes);
             candidate->femAlgorithmicTangentCache =
                 privateScratch<float>(candidate->device,
                     static_cast<std::size_t>(totalTetrahedra *
@@ -37233,6 +37281,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     !state.femHumanGlobalCoarseRapCaptureEnabled &&
                     workDomain == WorkDomain::femNodes &&
                     rangeIndex == 1u;
+                if (state.femCachedNodeSIMDEnabled &&
+                    std::strcmp(name,
+                        "nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd")==0) {
+                    const std::uint32_t retain =
+                        retainCompletedCoupledNodeBlocks && nonlinearIteration > 0u ? 1u : 0u;
+                    dispatchThreads("nm_fgmres_prepare_cached_node_simd_dispatch",1u,[&] {
+                        setDispatch();
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                        [encoder setBytes:&retain length:sizeof(retain) atIndex:3u];
+                        [encoder setBuffer:state.femCachedNodeSIMDDispatch offset:0u atIndex:4u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    if (!dispatchIndirect(name,state.femCachedNodeSIMDDispatch,256u,bind))
+                        dispatchThreads(name,count*32u,bind,WorkDomain::generic);
+                    return;
+                }
                 dispatchThreads(name, count, bind,
                     retainCompletedCoupledNodeBlocks
                         ? WorkDomain::newtonAssemblyFemNodes : workDomain);
@@ -37635,12 +37700,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&micro length:sizeof(micro) atIndex:23u];
                         [encoder setBytes:&onlyFallbackRows
                             length:sizeof(onlyFallbackRows) atIndex:24u];
+                        if (state.femCachedNodeSIMDEnabled) {
+                            const std::uint32_t retain =
+                                femNewtonTailDispatchEnabledForCurrentRoot &&
+                                nonlinearIteration > 0u &&
+                                nonlinearIteration+1u < nonlinearIterationBudget &&
+                                !state.forceCompletedTangentCacheRebuild &&
+                                !state.femOperatorFDRichCaptureEnabled &&
+                                !femRegionalRAPCaptureOnly && !femCoupledCaptureRequested &&
+                                !state.femHumanGlobalCoarseRapCaptureEnabled ? 1u : 0u;
+                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:25u];
+                            [encoder setBytes:&retain length:sizeof(retain) atIndex:26u];
+                        }
                     }, WorkDomain::femNodes);
                 };
                 if (splitCachedCoupledBlock) {
-                    dispatchBlockPass(
-                        "nm_fgmres_build_tangent_fem_block_preconditioner_cached",
-                        0u);
+                    dispatchBlockPass(state.femCachedNodeSIMDEnabled
+                        ? "nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd"
+                        : "nm_fgmres_build_tangent_fem_block_preconditioner_cached",0u);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchBlockPass(
                         "nm_fgmres_build_tangent_fem_block_preconditioner",

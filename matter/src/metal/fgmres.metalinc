@@ -7544,6 +7544,234 @@ kernel void nm_fgmres_build_tangent_fem_block_preconditioner_cached(
     (void)acceptedMaterialState;
 }
 
+kernel void nm_fgmres_prepare_cached_node_simd_dispatch(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFGMRESStateGPU* states [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    constant uint& retainCompleted [[buffer(3)]],
+    device NMIndirectDispatchGPU* output [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global != 0u || dispatch.environmentCount != 1u) return;
+    const bool skip = retainCompleted != 0u &&
+        environmentHealthy(statuses,0u) &&
+        isfinite(states[0].nonlinear.w) && states[0].nonlinear.w > 0.5f;
+    output[0] = {skip ? 0u : (dispatch.femNodeCount + 7u) / 8u,1u,1u,0u};
+}
+
+kernel void nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const uint* nodeIncidence [[buffer(5)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(6)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(7)]],
+    device const NMMaterialGPU* materials [[buffer(8)]],
+    device const NMScalarProgramGPU* programs [[buffer(9)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(10)]],
+    device const float* environmentParameters [[buffer(11)]],
+    device const float* acceptedMaterialState [[buffer(12)]],
+    device float4* inverseDiagonal [[buffer(13)]],
+    constant NMPrimalContactArguments& contact [[buffer(14)]],
+    device NMMatterStatusGPU* statuses [[buffer(15)]],
+    device float4* inverseBlockRows [[buffer(16)]],
+    device const float* tangentCache [[buffer(17)]],
+    device const uint* tangentCacheValid [[buffer(18)]],
+    constant uint& useTangentCache [[buffer(19)]],
+    device const uint* selectedEnvironments [[buffer(20)]],
+    constant uint& onlySelectedEnvironments [[buffer(21)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(22)]],
+    constant NMMicrostepGPU& microstep [[buffer(23)]],
+    constant uint& onlyFallbackRows [[buffer(24)]],
+    device const NMFGMRESStateGPU* states [[buffer(25)]],
+    constant uint& retainCompleted [[buffer(26)]],
+    uint globalThread [[thread_position_in_grid]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simdGroup [[simdgroup_index_in_threadgroup]]
+) {
+    const uint global = globalThread / 32u;
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u ||
+        solver.executionBudgets.z != 6u || useTangentCache != 2u ||
+        onlyFallbackRows != 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint packedBase = global * 3u;
+    if (retainCompleted != 0u && isfinite(states[environment].nonlinear.w) &&
+        states[environment].nonlinear.w > 0.5f) return;
+    if (lane == 0u) {
+        inverseBlockRows[packedBase] = float4(0.0f);
+        inverseBlockRows[packedBase + 1u] = float4(0.0f);
+        inverseBlockRows[packedBase + 2u] = float4(0.0f);
+    }
+    if (onlySelectedEnvironments != 0u &&
+        (environment >= dispatch.environmentCount ||
+         selectedEnvironments[environment] != 1u)) return;
+
+    const NMIncidenceRangeGPU range = nodeRanges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount) return;
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        (object.flags & (NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
+                         NM_OBJECT_ADAPTIVE | NM_OBJECT_MUTABLE_TOPOLOGY |
+                         NM_OBJECT_IDENTIFIABLE)) != 0u) return;
+
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint localNode = global - nodeBase;
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + range.objectIndex];
+    const float dt = objectTimestep(dispatch, scheduler);
+    float blockRows[9] = {0.0f, 0.0f, 0.0f,
+                          0.0f, 0.0f, 0.0f,
+                          0.0f, 0.0f, 0.0f};
+    // Eight independent SIMD groups share one 256-thread group. Each
+    // handles one node; incident tetrahedra are evaluated concurrently.
+    // Only lane0 folds them, in the exact original CSR order. No float atomics,
+    // changed reduction tree, new model state, or persistent force cache.
+    threadgroup float4 forces[8u * 32u * 3u];
+    threadgroup float4 failures[8u * 32u];
+    threadgroup uint kinds[8u * 32u];
+    threadgroup uint stop[8u];
+    const uint sharedLane = simdGroup * 32u + lane;
+    if (lane == 0u) stop[simdGroup] = 0u;
+    simdgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint tile = 0u; tile < range.count; tile += 32u) {
+        const uint local = tile + lane;
+        uint resultKind = 0u;
+        float4 failure = float4(0.0f);
+        do {
+            if (local >= range.count) break;
+
+        const uint tetrahedronIndex = nodeIncidence[range.first + local];
+        if (tetrahedronIndex >= dispatch.tetrahedronCount) break;
+        const uint globalTet = environment * dispatch.tetrahedronCount +
+            tetrahedronIndex;
+        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+            dispatch, tetrahedra, environment, tetrahedronIndex);
+        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+            tetrahedron.identity.y != range.objectIndex ||
+            !objectDue(object, scheduler,
+                adaptive[environment * dispatch.objectCount + range.objectIndex],
+                microstep)) break;
+        if (tangentCacheValid[globalTet] != 1u) {
+            resultKind = 2u;
+            break;
+        }
+
+        const float3x3 inverseRest = matrixFromRows(
+            tetrahedron.inverseRestRow0, tetrahedron.inverseRestRow1,
+            tetrahedron.inverseRestRow2);
+        uint localSlot = 0u;
+        bool foundLocalSlot = false;
+        for (uint slot = 0u; slot < 4u; ++slot) {
+            if (tetrahedron.nodes[slot] == localNode) {
+                localSlot = slot;
+                foundLocalSlot = true;
+                break;
+            }
+        }
+        if (!foundLocalSlot) break;
+        resultKind = 1u;
+        for (uint axisIndex = 0u; axisIndex < 3u; ++axisIndex) {
+            const float3 axis = axisIndex == 0u
+                ? float3(1.0f, 0.0f, 0.0f)
+                : (axisIndex == 1u ? float3(0.0f, 1.0f, 0.0f)
+                                   : float3(0.0f, 0.0f, 1.0f));
+            const float3 p0 = localSlot == 0u ? axis : float3(0.0f);
+            const float3 p1 = localSlot == 1u ? axis : float3(0.0f);
+            const float3 p2 = localSlot == 2u ? axis : float3(0.0f);
+            const float3 p3 = localSlot == 3u ? axis : float3(0.0f);
+            const float3x3 deformationDirection =
+                float3x3(p1 - p0, p2 - p0, p3 - p0) * inverseRest;
+            const float3x3 localDirection =
+                femMaterialInput(object, tetrahedron, deformationDirection);
+            bool valid = true;
+            float3x3 tangent = fgmresApplyCachedTangent(
+                tangentCache, globalTet, localDirection, valid);
+            const bool finiteTangent = all(isfinite(tangent[0])) &&
+                all(isfinite(tangent[1])) && all(isfinite(tangent[2]));
+            if (!valid || !finiteTangent) {
+                failure = float4(maximumAbs(deformationDirection), dt,
+                                 float(axisIndex), 0.0f);
+                resultKind = 3u;
+                break;
+            }
+            tangent = femMaterialOutput(object, tetrahedron, tangent);
+            const NMFEMElementVectorGPU forceDirection =
+                tetrahedronForce(tetrahedron, tangent);
+            const float3 nodeForceDirection = elementNodeVector(
+                forceDirection, tetrahedron, localNode).xyz;
+            if (!all(isfinite(nodeForceDirection))) {
+                failure = float4(maximumAbsoluteCoordinate(nodeForceDirection),
+                                 dt, float(axisIndex), 1.0f);
+                resultKind = 3u;
+                break;
+            }
+            forces[(sharedLane * 3u) + axisIndex] =
+                float4(nodeForceDirection, 0.0f);
+        }
+
+        } while (false);
+        kinds[sharedLane] = resultKind;
+        failures[sharedLane] = failure;
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane == 0u) {
+            for (uint entry = 0u; entry < min(32u, range.count - tile); ++entry) {
+                const uint index = simdGroup * 32u + entry;
+                const uint kind = kinds[index];
+                if (kind == 2u) {
+                    inverseBlockRows[packedBase] = float4(0.0f,0.0f,0.0f,2.0f);
+                    stop[simdGroup] = 1u;
+                    break;
+                }
+                if (kind == 3u) {
+                    const uint tet = nodeIncidence[range.first + tile + entry];
+                    recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                        range.objectIndex, tet, failures[index]);
+                    stop[simdGroup] = 1u;
+                    break;
+                }
+                if (kind == 1u) {
+                    for (uint axis = 0u; axis < 3u; ++axis) {
+                        const float3 value = forces[index * 3u + axis].xyz;
+                        blockRows[axis] -= dt * dt * value.x;
+                        blockRows[3u + axis] -= dt * dt * value.y;
+                        blockRows[6u + axis] -= dt * dt * value.z;
+                    }
+                }
+            }
+        }
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+        if (stop[simdGroup] != 0u) return;
+    }
+    if (lane != 0u) return;
+
+    const float3 contactDiagonal = fgmresContactDiagonal(
+        dispatch, contact, environment,
+        dispatch.gridNodeCount + localNode, range.objectIndex);
+    const float mass = max(candidate[global].positionAndMass.w, 0.0f);
+    if (candidate[global].restAndFixed.w > 0.5f) return;
+    blockRows[0] += mass + contactDiagonal.x;
+    blockRows[4] += mass + contactDiagonal.y;
+    blockRows[8] += mass + contactDiagonal.z;
+    float inverseRows[9];
+    if (!fgmresInvertNodalBlock(blockRows, inverseRows)) return;
+    inverseBlockRows[packedBase] = float4(
+        inverseRows[0], inverseRows[1], inverseRows[2], 1.0f);
+    inverseBlockRows[packedBase + 1u] = float4(
+        inverseRows[3], inverseRows[4], inverseRows[5], 0.0f);
+    inverseBlockRows[packedBase + 2u] = float4(
+        inverseRows[6], inverseRows[7], inverseRows[8], 0.0f);
+    (void)inverseDiagonal;
+    (void)materials;
+    (void)programs;
+    (void)instructions;
+    (void)environmentParameters;
+    (void)acceptedMaterialState;
+}
+
 kernel void nm_fgmres_build_tangent_fem_block_preconditioner(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
