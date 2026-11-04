@@ -1,0 +1,8 @@
+{
+  "canonical_archive": "../execution-source-final-097.tar.gz",
+  "canonical_sha256": "9dcf2e9d092617674f38cdb36774bfc0ce714386b3cf44bdbb09d27b9f1e9997",
+  "overlay_archive": "../execution-source-overlay-102.tar.gz",
+  "overlay_sha256": "09d129293a64befb80b26f17280d3a99182c072ed02fe8fb929370d480810cce",
+  "restored_source_files": 39,
+  "restoration": "every file restored in memory and independently SHA256-checked against this trial manifest"
+}

@@ -1,0 +1,147 @@
+{
+  "scope": "four accepted roots only; unchanged fine model and timestep",
+  "csv_parity": [
+    {
+      "name": "resting-support-selected-skin-witness.csv",
+      "bitwise_equal": true
+    },
+    {
+      "name": "resting-com-momentum-diagnostic.csv",
+      "bitwise_equal": true
+    },
+    {
+      "name": "resting-support-point-motion.csv",
+      "bitwise_equal": true
+    },
+    {
+      "name": "resting-com-q-support-slip.csv",
+      "bitwise_equal": true
+    },
+    {
+      "name": "resting-surface-audit.csv",
+      "bitwise_equal": true
+    },
+    {
+      "name": "resting-com-q-index-map.csv",
+      "bitwise_equal": true
+    },
+    {
+      "name": "resting-body-motion-partition.csv",
+      "bitwise_equal": true
+    },
+    {
+      "name": "resting-coupled.csv",
+      "bitwise_equal": true
+    },
+    {
+      "name": "resting-com-q-integration.csv",
+      "bitwise_equal": true
+    },
+    {
+      "name": "resting-com-support-impulses.csv",
+      "bitwise_equal": true
+    }
+  ],
+  "geometry_and_state_hash_parity": [
+    {
+      "step": 0,
+      "fields": {
+        "pack_file_sha256": true,
+        "captured_vertex_buffer_sha256": true,
+        "accepted_body_state_sha256": true,
+        "accepted_respiration_state_sha256": true,
+        "accepted_root_fingerprint": true,
+        "accepted_transaction_fingerprint": true
+      },
+      "hash": "1650ced545f71ebffcd33dd6b1d70874579e5912d9014680446203b42c6cd3ec"
+    },
+    {
+      "step": 4,
+      "fields": {
+        "pack_file_sha256": true,
+        "captured_vertex_buffer_sha256": true,
+        "accepted_body_state_sha256": true,
+        "accepted_respiration_state_sha256": true,
+        "accepted_root_fingerprint": true,
+        "accepted_transaction_fingerprint": true
+      },
+      "hash": "612487273a6c879d26977d936b9fe9d3f7ad7b54333600f9f8a6b06f592caa6d"
+    }
+  ],
+  "reference": {
+    "profile": [
+      {
+        "step": "1",
+        "command_ms": "10011.473917",
+        "gpu_ms": "10003.853375",
+        "host_copy_ms": "0.797708",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "2",
+        "command_ms": "10023.042625",
+        "gpu_ms": "10022.249125",
+        "host_copy_ms": "2.330166",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "3",
+        "command_ms": "10029.345625",
+        "gpu_ms": "10028.7115",
+        "host_copy_ms": "0.1115",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "4",
+        "command_ms": "10036.869292",
+        "gpu_ms": "10035.917875",
+        "host_copy_ms": "0.073833",
+        "full_state_readback": "1"
+      }
+    ],
+    "mean_gpu_ms": 10022.68296875,
+    "wall_s": 42.1821355,
+    "rtf": 1.481669958804971e-06
+  },
+  "candidate": {
+    "profile": [
+      {
+        "step": "1",
+        "command_ms": "8969.145458",
+        "gpu_ms": "8966.12304167",
+        "host_copy_ms": "0.65875",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "2",
+        "command_ms": "6722.488875",
+        "gpu_ms": "6721.65104166",
+        "host_copy_ms": "2.426458",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "3",
+        "command_ms": "9057.838792",
+        "gpu_ms": "9057.06174999",
+        "host_copy_ms": "0.134625",
+        "full_state_readback": "1"
+      },
+      {
+        "step": "4",
+        "command_ms": "6687.206666",
+        "gpu_ms": "6686.05987499",
+        "host_copy_ms": "0.060084",
+        "full_state_readback": "1"
+      }
+    ],
+    "mean_gpu_ms": 7857.7239270775,
+    "wall_s": 33.491570584,
+    "rtf": 1.8661412970118805e-06
+  },
+  "icb_lines": [
+    "matter_fgmres_operator_icb=1 preconditioner_prefix=1 prefix_commands=15 tail_commands=5 row_equilibrated_prefix=1 mpm_empty=1 env=1",
+    "matter_fgmres_operator_icb=1 preconditioner_prefix=1 prefix_commands=15 tail_commands=5 row_equilibrated_prefix=1 mpm_empty=1 env=1",
+    "matter_fgmres_operator_icb=1 preconditioner_prefix=1 prefix_commands=15 tail_commands=5 row_equilibrated_prefix=1 mpm_empty=1 env=1",
+    "matter_fgmres_operator_icb=1 preconditioner_prefix=1 prefix_commands=15 tail_commands=5 row_equilibrated_prefix=1 mpm_empty=1 env=1"
+  ]
+}

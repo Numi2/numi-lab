@@ -24,7 +24,7 @@ All native measurements ran on SSH Numi: Apple M6 Mac18,5, 16 GiB, macOS 27.0 (2
 | --- | --- | ---: | ---: |
 | Existing production 086 | 4 accepted | 5.823 | 25.397 |
 | Streamed sparse 093 | 4 accepted | 17.530 | 72.144 |
-| Reusable prefix 095 | 4 accepted, bitwise geometry/physiology versus 093 | 17.532 | 72.618 |
+| Prefix requested 095 (see admission correction below) | 4 accepted, bitwise geometry/physiology versus 093 | 17.532 | 72.618 |
 | Direct coefficient addressing 097 | 4 accepted, bitwise geometry/physiology versus 095 | 10.023 | 42.182 |
 
 The 095/097 pair measures a 42.83% GPU-duration reduction within the experimental sparse path. This is one exploratory pair, not three matched pairs or a sustained-throughput qualification. It remains slower than production. The 097 accepted-loop rate is 0.00000148167x; production 086 measured 0.00000246089x. No 0.1x result is claimed.
@@ -33,8 +33,24 @@ Changing preconditioners changes solver rounding. The sparse path has not establ
 
 ## Failed preparation and preservation
 
-089 failed the discarded preparatory basis's region budget. Its replacement defers that basis while retaining final source admission. 090 was deliberately stopped before stepping to repair missing indirect-command resource residency. 091 exposed the regional-only prefix admission gap; the supported graph extension has dedicated active/completed/failure fixtures and native 095 coverage. Failed trial receipts and source recovery remain retained.
+089 failed the discarded preparatory basis's region budget. Its replacement defers that basis while retaining final source admission. 090 was deliberately stopped before stepping to repair missing indirect-command resource residency. 091 exposed the regional-only prefix admission gap; the supported graph extension has dedicated active/completed/failure fixtures. A later source inspection found that row equilibration kept native 095 on its direct path; native reusable-prefix execution was not established by that trial. Failed trial receipts and source recovery remain retained.
 
 Each trial includes exact source/configuration pins and losslessly compressed original stdout/stderr with original hashes. One final source archive plus per-trial patches restores all 39 pinned source files; every restored file was independently checked against its trial manifest. Full native geometry remains on SSH Numi, with hashes and verified deduplication recorded in compact comparisons. No captured geometry or old sources were silently replaced.
 
 The current fine source still contains severe sliver conditioning. Four accepted roots do not establish supported equilibrium, breathing or heartbeat duration, sustained anatomy/contact quality, native presentation, clinical validity, or completion. The subsequent 16-root convergence extension is reported separately, including any rejection. Larger timesteps and earlier unsuccessful solver variations are not repeated here.
+
+## Sixteen-root convergence extension 099
+
+The unchanged 097 binary subsequently accepted all 16 requested roots (0.25 milliseconds) with every final status zero. It used 39 active Newton solves and 624 active Krylov columns. The earlier production frontier rejected root 13; this candidate accepts that root and completes the 16-root trial. First-four-row physiology and surface audit fields match 097 exactly. This removes that observed prefix rejection without changing tolerances or increasing iteration budgets. It does not establish later continuation.
+
+The accepted loop took 172.115 seconds, 0.00000145252x; initialization is separate. The preconditioner has useful convergence behavior but still fails the performance objective. Full native geometry/source hashes, command and compact active-work records accompany the trace. The 10-second, 60-second and 330-second supported qualification, complete force/strain-energy comparison and native presentation remain open.
+
+## Follow-up under validation: completed regional builders and row equilibration
+
+Whole-stage profile 101 recorded 16 regional builder calls for two active Newton solves. The sparse block tiles and fused tangent tiles accounted for 5.748 seconds of selected GPU spans. The complete step was 10.017 GPU seconds, versus 10.004 seconds for the uninstrumented first root of 097 (one pair, 0.13% perturbation). These measurements identify work actually executed; no scaled phase sampling is used.
+
+The 102 source follow-up uses the existing healthy full-nonlinear completion latch to zero only intermediate regional scratch-builder dispatches. First and final passes and diagnostic captures stay full. It also extends the regional prefix to the already-supported physical-input unscale used with row equilibration, retaining resource residency and per-command barriers. Native 104 accepted all four roots. All ten emitted CSV files and both captured geometry/state endpoints match 097 bitwise. The log confirms the row-equilibrated preconditioner prefix actually executed (15 prefix commands). The accepted loop decreased from 42.182 to 33.492 seconds (20.6%); mean GPU duration decreased from 10.023 to 7.858 seconds/root (21.6%). This is one exploratory pair and remains slower than production 086. The new rate is 0.00000186614x, not the 0.1x objective. The native FGMRES suite passes 916,759 assertions and the build passes.
+
+Trial 103 was resource-stopped by the unchanged 12-GiB disk guard after 190.811 seconds, before an accepted physical step; it has no valid performance result. Its material census shows zero stateful tetrahedra and zero eligible shared-15-state material work. That proposed optimization is dormant for this Human. The retry follows verified content-preserving output deduplication, whose ledger records 3,855,876,096 allocated bytes recovered without deleting evidence.
+
+Trial 100 was a preparation-only failure: its one-root count conflicted with the retained four-root accepted-Q audit bound. Trial 101 corrects that bound. Their exact logs/configurations remain beside the successful profile. The subsequent 32-root extension is still running and is not covered by the four-root acceptance claim.

@@ -1,0 +1,10 @@
+{
+  "install-motion.stdout.log": {
+    "uncompressed_sha256": "d7a6280e82a41d85d16c1779f61351b8cb860a8d9bcfa468f7606e2449ed0f90",
+    "uncompressed_bytes": 374029
+  },
+  "install-motion.stderr.log": {
+    "uncompressed_sha256": "2741f4cf587f8af3d85f6e115ba528bcfb95addb0021ae0b94471173cbc85a4a",
+    "uncompressed_bytes": 332336
+  }
+}

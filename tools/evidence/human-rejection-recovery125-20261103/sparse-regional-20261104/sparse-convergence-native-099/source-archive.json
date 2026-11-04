@@ -1,0 +1,7 @@
+{
+  "canonical_archive": "../execution-source-final-097.tar.gz",
+  "canonical_sha256": "9dcf2e9d092617674f38cdb36774bfc0ce714386b3cf44bdbb09d27b9f1e9997",
+  "historical_overlay": "../direct-coefficient-native-097/source-from-final.patch.gz",
+  "restored_source_files": 39,
+  "restoration": "source file set and every hash identical to verified 097 recovery"
+}

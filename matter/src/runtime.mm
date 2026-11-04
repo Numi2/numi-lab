@@ -4362,6 +4362,7 @@ struct Runtime::State {
     // preconditioner. Dense buffers remain allocated as the reference path.
     bool femHumanPartitionedSparseSupportEnabled = false;
     id<MTLBuffer> femHumanPartitionedCoefficientLookup = nil;
+    id<MTLBuffer> femHumanPartitionedCompletedBuilderRanges = nil;
     std::uint32_t femHumanPartitionedSparseTileCount = 0u;
     // Optional exact cached-FEM off-diagonal contribution to selector-6's
     // regional block; default off and never changes the fine operator.
@@ -15373,6 +15374,13 @@ RuntimeDiagnostics Runtime::initialize(
                 !fitsOneBuffer(blockVectors, sizeof(float))) {
                 diagnostics.message =
                     "Human partitioned coarse-preconditioner data exceeds a single Metal buffer limit";
+                return diagnostics;
+            }
+            candidate->femHumanPartitionedCompletedBuilderRanges =
+                privateScratch<NMIndirectDispatchGPU>(candidate->device, 11u,
+                    valid, candidate->residentBytes);
+            if (candidate->femHumanPartitionedCompletedBuilderRanges == nil) {
+                diagnostics.message = "failed to allocate regional completed-builder ranges";
                 return diagnostics;
             }
             UploadPlan humanPartitionedUploads(candidate->device, candidate->queue);
@@ -37034,6 +37042,66 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // Newton iteration. The final pass refreshes the exact accepted
             // factors/inverses for downstream consumers. Any diagnostic
             // capture also retains the ordinary full-refresh path.
+            const auto preconditionerBuilderShapes = [&] {
+                const auto preconditionerGroups256 =
+                    [](const NSUInteger items) -> std::uint32_t {
+                    return static_cast<std::uint32_t>(
+                        std::max<NSUInteger>(1u, (items + 255u) / 256u));
+                };
+                const NSUInteger tangentRegionEnvironmentCount =
+                    environments *
+                    state.femHumanPartitionedFEMTangentDispatch.regionCount;
+                const NSUInteger tangentPairCount =
+                    state.femHumanPartitionedFEMTangentDispatch.blockModeCount *
+                    state.femHumanPartitionedFEMTangentDispatch.blockModeCount;
+                const NSUInteger partitionedRows =
+                    state.femHumanPartitionedBasisNodeCount;
+                const NSUInteger partitionedRegions =
+                    state.femHumanPartitionedBlockDispatch.regionCount;
+                const NSUInteger partitionedRegionEnvironments =
+                    environments * partitionedRegions;
+                const NSUInteger partitionedPairCount =
+                    state.femHumanPartitionedBlockModeCount *
+                    state.femHumanPartitionedBlockModeCount;
+                const NSUInteger partitionedDenseTiles =
+                    state.femHumanPartitionedBlockDispatch.tileCount;
+                const NSUInteger partitionedReductionTiles =
+                    state.femHumanPartitionedSparseSupportEnabled
+                        ? state.femHumanPartitionedSparseTileCount
+                        : partitionedDenseTiles;
+                // Each cache producer gets its exact checked shape. The fresh
+                // nonlinear-completion proof zeroes all ranges together.
+                const std::array<NMIndirectDispatchGPU, 11> fullRanges{{
+                    {preconditionerGroups256(femNodeTotal), 1u, 1u, 0u},
+                    {preconditionerGroups256(femNodeTotal), 1u, 1u, 0u},
+                    {state.femHumanPartitionedFEMTangentDispatch.tileCount,
+                     state.femHumanPartitionedFEMTangentDispatch.blockModeCount,
+                     static_cast<std::uint32_t>(tangentRegionEnvironmentCount), 0u},
+                    {state.femHumanPartitionedFEMTangentDispatch.tileCount,
+                     static_cast<std::uint32_t>(
+                         state.femHumanPartitionedFEMTangentPairedProjectEnabled &&
+                         state.femHumanPartitionedFEMTangentDispatch.blockModeCount == 12u
+                             ? 12u : tangentPairCount),
+                     static_cast<std::uint32_t>(tangentRegionEnvironmentCount), 0u},
+                    {preconditionerGroups256(
+                        tangentRegionEnvironmentCount * tangentPairCount),
+                     1u, 1u, 0u},
+                    {preconditionerGroups256(environments *
+                        partitionedRegions), 1u, 1u, 0u},
+                    {preconditionerGroups256(environments * partitionedRows),
+                     1u, 1u, 0u},
+                    {static_cast<std::uint32_t>(partitionedReductionTiles),
+                     static_cast<std::uint32_t>(partitionedPairCount),
+                     static_cast<std::uint32_t>(partitionedRegionEnvironments), 0u},
+                    {1u, static_cast<std::uint32_t>(partitionedPairCount),
+                     static_cast<std::uint32_t>(partitionedRegionEnvironments), 0u},
+                    {static_cast<std::uint32_t>(partitionedReductionTiles),
+                     static_cast<std::uint32_t>(partitionedRegionEnvironments), 1u, 0u},
+                    {1u, static_cast<std::uint32_t>(partitionedRegionEnvironments),
+                     1u, 0u},
+                }};
+                return fullRanges;
+            };
             const bool freshRhsPreconditionerMaySkip =
                 state.fgmresFreshRhsPreconditionerPreflightEnabled &&
                 state.dispatch.environmentCount == 1u &&
@@ -37041,6 +37109,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 !state.femOperatorFDRichCaptureEnabled &&
                 !femRegionalRAPCaptureOnly &&
                 !femCoupledCaptureRequested &&
+                !state.femHumanGlobalCoarseRapCaptureEnabled;
+            // Reuse derived regional factors only after the existing full
+            // nonlinear completion latch freezes this candidate. Never inherit
+            // a previous root's latch, skip the final refresh, or skip diagnostics.
+            const bool completedRegionalBuildersMaySkip =
+                completedLinearBuildersRequested &&
+                !freshRhsPreconditionerMaySkip &&
+                femNewtonTailDispatchEnabledForCurrentRoot &&
+                state.dispatch.environmentCount == 1u &&
+                nonlinearIteration > 0u &&
+                nonlinearIteration + 1u < nonlinearIterationBudget &&
+                state.femHumanPartitionedPreconditionerEnabled &&
+                state.femHumanPartitionedPreconditionerApplyEnabled &&
+                !state.femHumanHybridCoordinatesEnabled &&
+                !state.forceCompletedTangentCacheRebuild &&
+                !state.femOperatorFDRichCaptureEnabled &&
+                !femRegionalRAPCaptureOnly && !femCoupledCaptureRequested &&
                 !state.femHumanGlobalCoarseRapCaptureEnabled;
             const auto dispatchFreshPreconditionerThreads = [&](
                 const char* name, const NSUInteger count,
@@ -37052,6 +37137,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         name, state.fgmresFreshRhsPreconditionerRanges, 256u,
                         NSUInteger(rangeIndex) * sizeof(NMIndirectDispatchGPU),
                         bind))
+                    return;
+                if (completedRegionalBuildersMaySkip && rangeIndex >= 2u &&
+                    dispatchIndirectAtOffset(name,
+                        state.femHumanPartitionedCompletedBuilderRanges, 256u,
+                        NSUInteger(rangeIndex) * sizeof(NMIndirectDispatchGPU), bind))
                     return;
                 // Selector 6 stores its persistent nodal inverse separately
                 // from femPreconditioned, which the tail RHS restore clears.
@@ -37085,6 +37175,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         name, state.fgmresFreshRhsPreconditionerRanges, 256u,
                         NSUInteger(rangeIndex) * sizeof(NMIndirectDispatchGPU),
                         bind))
+                    return;
+                if (completedRegionalBuildersMaySkip &&
+                    dispatchIndirectAtOffset(name,
+                        state.femHumanPartitionedCompletedBuilderRanges, 256u,
+                        NSUInteger(rangeIndex) * sizeof(NMIndirectDispatchGPU), bind))
                     return;
                 dispatchGroups256Grid(name, groupsX, groupsY, groupsZ, bind);
             };
@@ -37238,63 +37333,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(state.fgmresLayout) atIndex:30u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                const auto preconditionerGroups256 =
-                    [](const NSUInteger items) -> std::uint32_t {
-                    return static_cast<std::uint32_t>(
-                        std::max<NSUInteger>(1u, (items + 255u) / 256u));
-                };
-                const NSUInteger tangentRegionEnvironmentCount =
-                    environments *
-                    state.femHumanPartitionedFEMTangentDispatch.regionCount;
-                const NSUInteger tangentPairCount =
-                    state.femHumanPartitionedFEMTangentDispatch.blockModeCount *
-                    state.femHumanPartitionedFEMTangentDispatch.blockModeCount;
-                const NSUInteger partitionedRows =
-                    state.femHumanPartitionedBasisNodeCount;
-                const NSUInteger partitionedRegions =
-                    state.femHumanPartitionedBlockDispatch.regionCount;
-                const NSUInteger partitionedRegionEnvironments =
-                    environments * partitionedRegions;
-                const NSUInteger partitionedPairCount =
-                    state.femHumanPartitionedBlockModeCount *
-                    state.femHumanPartitionedBlockModeCount;
-                const NSUInteger partitionedDenseTiles =
-                    state.femHumanPartitionedBlockDispatch.tileCount;
-                const NSUInteger partitionedReductionTiles =
-                    state.femHumanPartitionedSparseSupportEnabled
-                        ? state.femHumanPartitionedSparseTileCount
-                        : partitionedDenseTiles;
-                // Each cache producer gets its exact checked shape. The fresh
-                // nonlinear-completion proof zeroes all ranges together.
-                const std::array<NMIndirectDispatchGPU, 11> fullRanges{{
-                    {preconditionerGroups256(femNodeTotal), 1u, 1u, 0u},
-                    {preconditionerGroups256(femNodeTotal), 1u, 1u, 0u},
-                    {state.femHumanPartitionedFEMTangentDispatch.tileCount,
-                     state.femHumanPartitionedFEMTangentDispatch.blockModeCount,
-                     static_cast<std::uint32_t>(tangentRegionEnvironmentCount), 0u},
-                    {state.femHumanPartitionedFEMTangentDispatch.tileCount,
-                     static_cast<std::uint32_t>(
-                         state.femHumanPartitionedFEMTangentPairedProjectEnabled &&
-                         state.femHumanPartitionedFEMTangentDispatch.blockModeCount == 12u
-                             ? 12u : tangentPairCount),
-                     static_cast<std::uint32_t>(tangentRegionEnvironmentCount), 0u},
-                    {preconditionerGroups256(
-                        tangentRegionEnvironmentCount * tangentPairCount),
-                     1u, 1u, 0u},
-                    {preconditionerGroups256(environments *
-                        partitionedRegions), 1u, 1u, 0u},
-                    {preconditionerGroups256(environments * partitionedRows),
-                     1u, 1u, 0u},
-                    {static_cast<std::uint32_t>(partitionedReductionTiles),
-                     static_cast<std::uint32_t>(partitionedPairCount),
-                     static_cast<std::uint32_t>(partitionedRegionEnvironments), 0u},
-                    {1u, static_cast<std::uint32_t>(partitionedPairCount),
-                     static_cast<std::uint32_t>(partitionedRegionEnvironments), 0u},
-                    {static_cast<std::uint32_t>(partitionedReductionTiles),
-                     static_cast<std::uint32_t>(partitionedRegionEnvironments), 1u, 0u},
-                    {1u, static_cast<std::uint32_t>(partitionedRegionEnvironments),
-                     1u, 0u},
-                }};
+                const auto fullRanges = preconditionerBuilderShapes();
                 dispatchThreads(
                     "nm_fgmres_prepare_fresh_preconditioner_ranges",
                     fullRanges.size(), [&] {
@@ -37319,6 +37358,27 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:
                         &state.fgmresFreshRhsPreconditionerSkipProducerMask
                                length:sizeof(state.fgmresFreshRhsPreconditionerSkipProducerMask)
+                              atIndex:7u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+            if (!freshRhsPreconditionerMaySkip && completedRegionalBuildersMaySkip) {
+                const auto fullRanges = preconditionerBuilderShapes();
+                dispatchThreads("nm_fgmres_prepare_fresh_preconditioner_ranges",
+                    fullRanges.size(), [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                    [encoder setBytes:fullRanges.data() length:sizeof(fullRanges) atIndex:3u];
+                    [encoder setBuffer:state.femHumanPartitionedCompletedBuilderRanges
+                                 offset:0u atIndex:4u];
+                    const std::uint32_t forceFull = 0u, allDomains = 0u;
+                    // Nodal producers retain their established ownership;
+                    // only the independent regional scratch producers are selected.
+                    const std::uint32_t regionalProducers = 0x7fcu;
+                    [encoder setBytes:&forceFull length:sizeof(forceFull) atIndex:5u];
+                    [encoder setBytes:&allDomains length:sizeof(allDomains) atIndex:6u];
+                    [encoder setBytes:&regionalProducers length:sizeof(regionalProducers)
                               atIndex:7u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -40362,7 +40422,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 !state.vascularBlockPredictorEnabled &&
                 !useAcceptedZ0ForCurrentRoot;
             const bool femSelector6PartitionedPreconditionerICBForCurrentSolve =
-                !state.femCoupledRowEquilibrationEnabled &&
+                (!state.femCoupledRowEquilibrationEnabled ||
+                 (state.femLeftRowEquilibrationScale != nil &&
+                  state.femLeftRowEquilibrationResidual != nil)) &&
                 state.fgmresPrefixPreconditionerICBEnabled &&
                 state.fgmresOperatorICBEnabled &&
                 state.fgmresSkipEmptyFieldPreconditionerEnabled &&
@@ -43222,7 +43284,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             return diagnostics;
                         }
                         scalar(preCmd, 0u, offsetof(OperatorICBConstants, partitionedDispatch));
-                        bind(preCmd, 1u, state.fgmresBasis, columnOffset);
+                        bind(preCmd, 1u, preconditionerInputBasis, preconditionerInputOffset);
                         bind(preCmd, 2u, state.femHumanPartitionedBasis);
                         bind(preCmd, 3u, state.femHumanPartitionedGlobalNodeIndices);
                         bind(preCmd, 4u, state.femHumanPartitionedUnitMass);
@@ -43315,7 +43377,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         }
                         bind(graphCmd, 1u, state.femRegionalGraphPatches);
                         bind(graphCmd, 2u, state.femRegionalGraphPatchNodes);
-                        bind(graphCmd, 3u, state.fgmresBasis, columnOffset);
+                        bind(graphCmd, 3u, preconditionerInputBasis, preconditionerInputOffset);
                         bind(graphCmd, 4u, state.femHumanPartitionedBasis);
                         bind(graphCmd, 5u, state.femHumanPartitionedBasis);
                         bind(graphCmd, 6u, state.femHumanPartitionedProjectedRHS);

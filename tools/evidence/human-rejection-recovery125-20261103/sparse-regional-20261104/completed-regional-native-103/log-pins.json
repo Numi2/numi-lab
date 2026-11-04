@@ -1,0 +1,17 @@
+{
+  "install-motion.stdout.log": {
+    "sha256": "3abf842615433d2e28f6ff5458a46ba4c36d38a840ae95f00b5f83bd8f8c5546",
+    "bytes": 302761,
+    "gzip_sha256": "5677024b545b8b6d8fe959b9b499aea62c6872296c981e18b00d5d0bebffe373"
+  },
+  "install-motion.stderr.log": {
+    "sha256": "2bf3c23461a44479409ed9c20a4981cbb7b9cdb7f8d0037606005135cd4f7508",
+    "bytes": 21904,
+    "gzip_sha256": "746f30b682e1cad99f07d2d57de05d6993497c5a7a8f3ce1fe6e4ec05ee88cc6"
+  },
+  "resource-monitor.jsonl": {
+    "sha256": "96ae78257878d679598bcc06fcfc19f76607d697e48d0389731b246a8ec5e849",
+    "bytes": 4541,
+    "gzip_sha256": "9e1191fa172b09f66c975285817b7096e92b7527d082bd65e9fbd4475c790a87"
+  }
+}
