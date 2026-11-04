@@ -12,6 +12,7 @@
 #include "metalrobo/engine_types.h"
 #include "metalrobo/compensated_translation_gpu.h"
 #include "numi/matter/matter.hpp"
+#include "../src/tangent_owner_worklist.hpp"
 
 #include <cmath>
 #include <algorithm>
@@ -42,6 +43,43 @@ unsigned checks = 0u;
 void require(bool condition, const std::string& message) {
     ++checks;
     if (!condition) throw std::runtime_error(message);
+}
+
+void checkTangentOwnerWorklist() {
+    using namespace numi::matter::detail;
+    for (const std::vector<std::uint8_t>& mask :
+         {std::vector<std::uint8_t>{}, {0u}, {1u}, {1u, 0u, 1u, 0u},
+          {0u, 0u, 0u}, {1u, 1u, 1u}}) {
+        TangentOwnerWorklist layout;
+        require(buildTangentOwnerWorklist(mask, 2u, layout),
+            "valid tangent owner domain rejected");
+        std::set<std::pair<std::uint32_t, std::uint32_t>> observed;
+        for (std::uint32_t task = 0u; task < layout.tasksPerEnvironment; ++task) {
+            std::uint32_t column = 0u, row = task;
+            if (task >= layout.wholeOwnerCount) {
+                require(layout.columnOwnerCount != 0u, "empty fallback divided");
+                const auto tail = task - layout.wholeOwnerCount;
+                row = layout.wholeOwnerCount + tail % layout.columnOwnerCount;
+                column = tail / layout.columnOwnerCount;
+            }
+            require(row < layout.tetrahedra.size(), "owner task row out of range");
+            require(observed.emplace(layout.tetrahedra[row], column).second,
+                "duplicate tangent owner task");
+        }
+        std::set<std::pair<std::uint32_t, std::uint32_t>> expected;
+        for (std::uint32_t tet = 0u; tet < mask.size(); ++tet)
+            for (std::uint32_t column = 0u; column < (mask[tet] ? 1u : 9u); ++column)
+                expected.emplace(tet, column);
+        require(expected == observed, "owner tasks omit or invent physical columns");
+    }
+    TangentOwnerWorklist invalid;
+    require(!buildTangentOwnerWorklist(std::vector<std::uint8_t>{2u}, 1u, invalid),
+        "invalid owner mask accepted");
+    require(!buildTangentOwnerWorklist(std::vector<std::uint8_t>{1u}, 0u, invalid),
+        "zero-environment domain accepted");
+    require(!buildTangentOwnerWorklist(std::vector<std::uint8_t>{0u},
+                std::numeric_limits<std::uint32_t>::max(), invalid),
+        "overflowed tangent task dispatch accepted");
 }
 
 template <typename T>
@@ -19446,6 +19484,7 @@ int main(int argc, const char* argv[]) {
 
             require(argc==1||(argc==2&&std::string(argv[1])=="--refined-coupon"),"usage: true-residual check [--refined-coupon]");
             if(argc==2){checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,20682u);checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,32768u);}
+            checkTangentOwnerWorklist();
             checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,4096u);
             checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,8192u);
             checkHybridTailTrueResidualDistributed(device, queue, trueResidualPartial, trueResidualFinish, trueResidualReplace);

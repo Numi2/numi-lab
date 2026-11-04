@@ -1,0 +1,21 @@
+{
+  "status": "PASS_INDEPENDENT_DOWNLOAD_ALL_MEMBERS_AND_RESTORE",
+  "archive_sha256": "aa62e4ec57dad7fd304c86c810e1ca784de199af5d17cb620a653d9e9e131d43",
+  "manifest_sha256": "8336d3f82825a8adfa3b33eb2078c2888bec16f5b369fd2abde9c3826e88b3cc",
+  "members": 103,
+  "restore": {
+    "status": "PASS",
+    "restored_paths": 103,
+    "canonical_members": 103,
+    "destination": "/Users/numi/Work/human-integrated-gaps-20261104/tissue-qualification-269-recovery/verified-restore",
+    "manifest_sha256": "8336d3f82825a8adfa3b33eb2078c2888bec16f5b369fd2abde9c3826e88b3cc",
+    "archive_sha256": "aa62e4ec57dad7fd304c86c810e1ca784de199af5d17cb620a653d9e9e131d43",
+    "all_content_modes_mtimes_verified": true
+  },
+  "retired_paths": [
+    "/Users/numi/Work/human-integrated-gaps-20261104/thin-regional-cooperative-269/install-motion.stdout.log"
+  ],
+  "free_before_retirement": 13846900736,
+  "free_after_retirement": 16484302848,
+  "local_archive_retained": "/Users/numi/Work/human-integrated-gaps-20261104/tissue-qualification-269-recovery/human-tissue-qualification-269-272.tar.zst"
+}

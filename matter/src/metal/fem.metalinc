@@ -3532,6 +3532,8 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
     device const uint* selectedTetrahedronIndices [[buffer(18)]],
     constant uint& selectedTetrahedronBase [[buffer(19)]],
     constant uint& graphOnlyMixedCache [[buffer(20)]],
+    constant uint4& ownerTaskDomain [[buffer(21)]],
+    device const uint* ownerTaskTetrahedra [[buffer(22)]],
     uint columnGlobal [[thread_position_in_grid]]
 ) {
     const uint sourceTetrahedronCount = selectedTetrahedronCount == 0u
@@ -3542,13 +3544,35 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
         columnGlobal >= selectedTotal * 9u) return;
     // Worklist entries remain in the source tetrahedron index space. Candidate,
     // state, cache, and validity arenas retain their full global layout.
-    const uint selectedGlobal = columnGlobal % selectedTotal;
-    const uint column = columnGlobal / selectedTotal;
-    const uint environment = selectedGlobal / sourceTetrahedronCount;
-    const uint selectedLocal = selectedGlobal % sourceTetrahedronCount;
-    const uint tetrahedronIndex = selectedTetrahedronCount == 0u
-        ? selectedLocal
-        : selectedTetrahedronIndices[selectedTetrahedronBase + selectedLocal];
+    uint column = 0u;
+    uint environment = 0u;
+    uint tetrahedronIndex = NM_INVALID_INDEX;
+    if (nmCompactTangentOwnersActive) {
+        // Certified whole-map materials have one task; the fallback keeps
+        // every original column. Cache rows and constitutive arithmetic agree.
+        const uint tasks = ownerTaskDomain.z;
+        if (tasks == 0u || columnGlobal >= dispatch.environmentCount * tasks)
+            return;
+        environment = columnGlobal / tasks;
+        const uint localTask = columnGlobal % tasks;
+        uint sourceRow = localTask;
+        if (localTask >= ownerTaskDomain.x) {
+            const uint columnOwners = ownerTaskDomain.y;
+            if (columnOwners == 0u) return;
+            const uint fallbackTask = localTask - ownerTaskDomain.x;
+            column = fallbackTask / columnOwners;
+            sourceRow = ownerTaskDomain.x + fallbackTask % columnOwners;
+        }
+        tetrahedronIndex = ownerTaskTetrahedra[sourceRow];
+    } else {
+        const uint selectedGlobal = columnGlobal % selectedTotal;
+        column = columnGlobal / selectedTotal;
+        environment = selectedGlobal / sourceTetrahedronCount;
+        const uint selectedLocal = selectedGlobal % sourceTetrahedronCount;
+        tetrahedronIndex = selectedTetrahedronCount == 0u
+            ? selectedLocal
+            : selectedTetrahedronIndices[selectedTetrahedronBase + selectedLocal];
+    }
     if (tetrahedronIndex >= dispatch.tetrahedronCount) return;
     const uint global = environment * dispatch.tetrahedronCount +
         tetrahedronIndex;

@@ -31,6 +31,7 @@
 #include "regional_graph_schwarz.hpp"
 #include "regional_schur_condensation.hpp"
 #include "fem_reference_geometry.hpp"
+#include "tangent_owner_worklist.hpp"
 #include "coupled_capture_manifest_context.hpp"
 #include "numi/matter/accepted_state_apply_gpu.h"
 #include "accepted_state_proof_gpu.hpp"
@@ -4187,6 +4188,9 @@ struct Runtime::State {
     bool forceCompletedTangentCacheRebuild = false;
     bool femCacheProjectionReuseEnabled = false;
     std::uint32_t femTangentBundleMode = 0u;
+    bool femTangentOwnerTasksEnabled = false;
+    nm_uint4 femTangentOwnerTaskDomain{};
+    id<MTLBuffer> femTangentOwnerTaskTetrahedra = nil;
     bool femMaterialPipelinesEnabled = false;
     struct FEMMaterialPipelineVariant {
         std::uint32_t tangentProgramOffset = NM_INVALID_INDEX;
@@ -9270,6 +9274,68 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
         }
+        const char* tangentOwnerTasksSetting =
+            std::getenv("NM_FEM_TANGENT_OWNER_TASKS");
+        if (tangentOwnerTasksSetting != nullptr &&
+            std::strcmp(tangentOwnerTasksSetting, "0") != 0 &&
+            std::strcmp(tangentOwnerTasksSetting, "1") != 0) {
+            diagnostics.message = "NM_FEM_TANGENT_OWNER_TASKS must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->femTangentOwnerTasksEnabled = hasCoupledFEMVascularOwner &&
+            tangentOwnerTasksSetting != nullptr &&
+            std::strcmp(tangentOwnerTasksSetting, "1") == 0;
+        detail::TangentOwnerWorklist tangentOwnerWorklist;
+        if (candidate->femTangentOwnerTasksEnabled) {
+            const bool immutable = world.dispatch.mutationCommandCount == 0u &&
+                world.fem.mutationCommands.empty() &&
+                std::none_of(world.objects.begin(), world.objects.end(),
+                    [](const NMContinuumObjectGPU& object) {
+                        return (object.flags &
+                            (NM_OBJECT_MUTABLE_TOPOLOGY | NM_OBJECT_ADAPTIVE)) != 0u;
+                    });
+            if (!immutable || !allNativeEnabled || !allNativeEligible ||
+                candidate->femTangentBundleMode != 1u ||
+                world.dispatch.environmentCount != 1u ||
+                world.mixedSolver.executionBudgets.w == 0u ||
+                world.fem.tetrahedra.size() != world.dispatch.tetrahedronCount ||
+                candidate->femCacheProjectionReuseEnabled ||
+                materialPipelinesRequested) {
+                diagnostics.message = "compact tangent owners require immutable one-environment all-native mode-1 cached FEM with no projection reuse or material worklist";
+                return diagnostics;
+            }
+            std::vector<std::uint8_t> wholeOwners(world.dispatch.tetrahedronCount);
+            for (std::uint32_t index = 0u; index < world.dispatch.tetrahedronCount; ++index) {
+                const auto& tet = world.fem.tetrahedra[index];
+                if (tet.identity.x >= world.materials.size()) {
+                    diagnostics.message = "compact tangent owners found an invalid material identity";
+                    return diagnostics;
+                }
+                wholeOwners[index] =
+                    nmNativeStatelessTangentBundleMaterialEligible(
+                        world, world.materials[tet.identity.x]) ? 1u : 0u;
+            }
+            if (!detail::buildTangentOwnerWorklist(wholeOwners,
+                    world.dispatch.environmentCount, tangentOwnerWorklist) ||
+                tangentOwnerWorklist.tetrahedra.empty() ||
+                tangentOwnerWorklist.wholeOwnerCount == 0u) {
+                diagnostics.message = "compact tangent owner worklist is empty or exceeds checked dispatch limits";
+                return diagnostics;
+            }
+            candidate->femTangentOwnerTaskDomain = {
+                tangentOwnerWorklist.wholeOwnerCount,
+                tangentOwnerWorklist.columnOwnerCount,
+                tangentOwnerWorklist.tasksPerEnvironment, 0u};
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x54414e474f574e31ull); // TANGOWN1
+            std::fprintf(stderr,
+                "matter_tangent_owner_tasks whole_owners=%u column_owners=%u "
+                "tasks=%u legacy_tasks=%llu physical_rows_removed=0\n",
+                tangentOwnerWorklist.wholeOwnerCount,
+                tangentOwnerWorklist.columnOwnerCount,
+                tangentOwnerWorklist.tasksPerEnvironment,
+                static_cast<unsigned long long>(world.dispatch.tetrahedronCount) * 9u);
+        }
         candidate->femMaterialPipelinesEnabled = materialPipelinesRequested;
         candidate->femNewtonTailICBCacheEnabled =
             candidate->femNewtonTailICBRequested &&
@@ -9465,6 +9531,11 @@ RuntimeDiagnostics Runtime::initialize(
                     }
                     specialize=true;
                     continue;
+                }
+                if (constant.index == 41u) {
+                    const bool enabled = candidate->femTangentOwnerTasksEnabled;
+                    [values setConstantValue:&enabled type:MTLDataTypeBool atIndex:41u];
+                    specialize = true; continue;
                 }
                 if (constant.index==39u) {
                     [values setConstantValue:&alignedBarrierEnabled type:MTLDataTypeBool atIndex:39u];
@@ -11487,6 +11558,15 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->instructions = uploads.one(
             std::span<const NMExpressionInstructionGPU>(world.instructions),
             valid, candidate->residentBytes);
+        if (candidate->femTangentOwnerTasksEnabled) {
+            candidate->femTangentOwnerTaskTetrahedra = uploads.one(
+                std::span<const std::uint32_t>(tangentOwnerWorklist.tetrahedra),
+                valid, candidate->residentBytes);
+            if (!valid || candidate->femTangentOwnerTaskTetrahedra == nil) {
+                diagnostics.message = "failed to upload compact tangent owner worklist";
+                return diagnostics;
+            }
+        }
         candidate->scalarPrograms = uploads.one(
             std::span<const NMScalarProgramGPU>(world.scalarPrograms),
             valid, candidate->residentBytes);
@@ -19096,6 +19176,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "immutable FEM element storage rejects topology mutation commands";
             return diagnostics;
         }
+        if (state.femTangentOwnerTasksEnabled &&
+            (request.mutationCommandCount != 0u || request.runIdentification ||
+             state.hasMutableFEMTopology)) {
+            diagnostics.message = "compact tangent owners reject topology or material-identification mutation";
+            return diagnostics;
+        }
         if (state.femMaterialPipelinesEnabled &&
             (request.mutationCommandCount != 0u ||
              state.dispatch.mutationCommandCount != 0u ||
@@ -19253,11 +19339,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 std::uint32_t fullSourceTetrahedronSelection;
                 std::uint32_t selectedTetrahedronBase;
                 std::uint32_t graphOnlyMixedCache;
+                nm_uint4 tangentOwnerTaskDomain;
             };
             static_assert(std::is_trivially_copyable_v<NewtonTailICBConstants>);
             const NewtonTailICBConstants constants{
                 state.fgmresLayout, 0u, hasFEMMechanicalForces,
-                0u, 0u, 0u, 0u};
+                0u, 0u, 0u, 0u, state.femTangentOwnerTaskDomain};
             femNewtonTailICBConstants = [state.device
                 newBufferWithBytes:&constants length:sizeof(constants)
                 options:MTLResourceStorageModeShared];
@@ -19412,12 +19499,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     femNewtonTailICBConstants,
                     offsetof(NewtonTailICBConstants,
                              graphOnlyMixedCache));
+                bindCommandBuffer(buildCacheCommand, 21u,
+                    femNewtonTailICBConstants,
+                    offsetof(NewtonTailICBConstants, tangentOwnerTaskDomain));
+                bindCommandBuffer(buildCacheCommand, 22u,
+                    state.femTangentOwnerTaskTetrahedra != nil
+                        ? state.femTangentOwnerTaskTetrahedra : state.dummy);
                 const NSUInteger cacheTetrahedra =
                     static_cast<NSUInteger>(state.dispatch.environmentCount) *
                     state.dispatch.tetrahedronCount;
                 const NSUInteger buildGroups = std::max<NSUInteger>(1u,
                     cooperativeCache ? (cacheTetrahedra + 7u) / 8u
-                                     : (cacheTetrahedra * 9u + 255u) / 256u);
+                                     : ((state.femTangentOwnerTasksEnabled
+                                             ? state.femTangentOwnerTaskDomain.z
+                                             : cacheTetrahedra * 9u) + 255u) / 256u);
                 [buildCacheCommand setBarrier];
                 [buildCacheCommand concurrentDispatchThreadgroups:MTLSizeMake(
                     buildGroups, 1u, 1u)
@@ -20883,6 +20978,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     femMechanicalForces, state.femConstraintReactions,
                     state.fgmresStates, state.femAlgorithmicTangentCache,
                     state.femAlgorithmicTangentCacheValid,
+                    state.femTangentOwnerTaskTetrahedra,
                     state.femNewtonTailNodeDispatch,
                     state.femNewtonTailTetrahedronDispatch,
                     state.femNewtonTailICBPreparedMicrostep,
@@ -37338,6 +37434,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&graphOnlyMixedCache
                                    length:sizeof(graphOnlyMixedCache)
                                   atIndex:20u];
+                        [encoder setBytes:&state.femTangentOwnerTaskDomain
+                                   length:sizeof(state.femTangentOwnerTaskDomain)
+                                  atIndex:21u];
+                        [encoder setBuffer:state.femTangentOwnerTaskTetrahedra != nil
+                                         ? state.femTangentOwnerTaskTetrahedra : state.dummy
+                                     offset:0u atIndex:22u];
                     }
                 };
                 if (femNewtonTailICBCacheEnabledForCurrentRoot) {
@@ -37401,7 +37503,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             : WorkDomain::generic;
                     dispatchThreads(tangentCacheBuilder,
                         state.femCacheProjectionReuseEnabled
-                            ? tetrahedronTotal : tetrahedronTotal * 9u,
+                            ? tetrahedronTotal
+                            : (state.femTangentOwnerTasksEnabled
+                                ? state.femTangentOwnerTaskDomain.z
+                                : tetrahedronTotal * 9u),
                         bindTangentCacheBuild, tangentCacheBuildDomain);
                 }
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];

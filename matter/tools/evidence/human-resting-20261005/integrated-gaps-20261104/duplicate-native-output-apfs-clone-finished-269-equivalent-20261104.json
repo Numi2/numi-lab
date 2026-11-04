@@ -1,0 +1,19 @@
+{
+  "method": "verified byte-identical APFS clones; every pathname, content, mode and mtime retained",
+  "free_before": 13964226560,
+  "operations": [
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-regional-cooperative-269/install-motion/accepted-geometry/step-32.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/thin-regional-clean-267/install-motion/accepted-geometry/step-32.mrvpack",
+      "sha256": "0f1f9d179c2789c20efbaf5df311f27272bebf484ce50afbf624eac86415df64",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793825622674590731
+    }
+  ],
+  "all_paths_preserved": true,
+  "free_after": 14285778944,
+  "recovered_bytes": 321552384,
+  "all_outputs_independently_rehashed": true,
+  "status": "completed"
+}

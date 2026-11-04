@@ -15,6 +15,10 @@ namespace numi_matter_metal {
 // Optional host-proven specialization: every material in the uploaded arena
 // has generic projection, no state, and no dissipation/implicit-state flags.
 // Undefined on legacy pipelines, where the original dynamic dispatch remains.
+constant bool nmCompactTangentOwners [[function_constant(41)]];
+constant bool nmCompactTangentOwnersActive =
+    is_function_constant_defined(nmCompactTangentOwners)
+        ? nmCompactTangentOwners : false;
 constant bool nmAllMaterialsStateless [[function_constant(30)]];
 constant bool nmAllMaterialsStatelessActive =
     is_function_constant_defined(nmAllMaterialsStateless)

@@ -128,12 +128,39 @@ rest or qualified native presentation throughput.
 
 The clean reference reproduced all ten compact traces of 238 byte for
 byte; correcting barrier encoding did not change that reference trajectory.
-The composite has different accepted approximations. Its full endpoint
-force and regional strain comparison remains pending, so its setting
-stays explicitly opt-in and experimental. Trial 269 additionally compares
-the already admitted cooperative tangent builder and enables the existing
-terminal fidelity export. A smaller solve count does not by itself pass
-the force/strain or complete-Human qualification gates.
+The composite has different accepted approximations and remains opt-in.
+Full-field comparison 269 versus 270 failed: skin/fat regional
+volume-weighted strain error was 124.29%, and its free internal-force L1
+difference was 2.81938 N against a 2.60512 N reference magnitude (108.22%).
+The aggregate anchor history differed by only 0.739%; this did not reveal
+the local tissue failure. Trial 269 combined the composite preconditioner
+and cooperative tangent mode 2, so this result does not isolate the
+preconditioner. Direct mode-1 composite trial 273 is the isolation test.
+Ten compact traces and the endpoint render payload of 267/269 match,
+but those outputs do not establish full FEM force/strain equivalence.
+
+Compact tangent owner tasks are separately implemented behind
+NM_FEM_TANGENT_OWNER_TASKS=1 (default off). Compiler-certified whole-map
+materials dispatch one owner per tetrahedron; every fallback retains its
+nine columns. Actual tasks fall from 13,315,311 to 1,505,999: 1,476,164
+whole-map tetrahedra and 3,315 fallbacks. Five eligible material families
+cover 99.78% of tetrahedra. State, cache layout, precision policy, and all
+physical/certification rows are unchanged. The extra immutable worklist
+uses 5,917,916 bytes. Admission rejects mutable topology/material ownership,
+unsupported bundles and incompatible worklists.
+
+Trials 271 (cached Newton ICB) and 272 (ordinary dispatch) each accept all
+32 roots with the reference work counts 144/2,304/62. All ten CSV traces
+and all 318,974 node plus 1,479,479 tetrahedron endpoint records match
+reference 270 byte for byte. The endpoint-record SHA-256 is
+cc6eb0edd0b5ed60a24fc911f11e6965bde10a237151f59bb48e6e872f17d23b.
+Their body times are 233.425754 s and 233.315623 s, versus 234.752598 s
+for 270. Summed root GPU durations improve by about 0.7% in one pair:
+this is not an established speedup or a solution to the active-solve cost.
+The full build-45 FGMRES suite passes 2,666,153 checks, including complete
+worklist coverage, empty/all-whole/all-fallback layouts, overflow, and
+ordinary/ICB paths. These are the same 0.5 ms release horizon, not
+three consecutive horizons or sustained physiological qualification.
 
 Remaining: supported equilibrium initialization, efficient valid local
 and interface solves, conditioning of retained thin cells, compact
@@ -194,3 +221,11 @@ also retains the bounded solver input and exact diagnostic source for
 the regional-buffer failure and correction. The independent download restored and verified all 54 archived members,
 including their hashes, modes and nanosecond modification times. Original
 current evidence is retained.
+
+The failed 269 endpoint and 269-272 compact/source/configuration evidence
+are retained in human-tissue-qualification-269-272.tar.zst on the same
+GitHub release. An independent download restored and verified all 103
+members, hashes, modes and exact modification times before the older
+failed 269 plain stdout was retired. Source inputs and the current
+270/271/272 endpoints remain local. See the manifest and verification
+receipt; no failed evidence was discarded.
