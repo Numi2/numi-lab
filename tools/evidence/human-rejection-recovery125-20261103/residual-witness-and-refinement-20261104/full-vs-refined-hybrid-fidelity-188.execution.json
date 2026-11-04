@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "python3",
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/compare_human_fem_endpoint_fidelity.py",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/full-fidelity-native-159/install-motion.stdout.log.gz",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/rank-safe-refined-hybrid-native-187/install-motion.stdout.log.gz"
+  ],
+  "exit_code": 2,
+  "wall_s": 61.49147825001273
+}

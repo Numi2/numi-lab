@@ -1,0 +1,63 @@
+{
+  "baseline": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/strict-hybrid-zero-action-164",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/bounded-sparse-witness-native-183",
+  "files": [
+    {
+      "path": "diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e"
+    },
+    {
+      "path": "resting-body-motion-partition.csv",
+      "sha256": "5f478f2b698c082f6d0d71e459360f6fed69c3902782f239f4833cb537cb28f6"
+    },
+    {
+      "path": "resting-com-momentum-diagnostic.csv",
+      "sha256": "e130a75f18df102135f26badc9d053185839e8ca5f60136a0e2a6434a6fff228"
+    },
+    {
+      "path": "resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab"
+    },
+    {
+      "path": "resting-com-q-integration.csv",
+      "sha256": "b5c98a00e3817dbe388a2d2049b8eac3bba6ac5921f30241ad585950ac621403"
+    },
+    {
+      "path": "resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd"
+    },
+    {
+      "path": "resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2"
+    },
+    {
+      "path": "resting-coupled.csv",
+      "sha256": "21a1c694b23198c9b9d826e0e942a34ab0e571055e79d63ee8fdf14db190631a"
+    },
+    {
+      "path": "resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8"
+    },
+    {
+      "path": "resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d"
+    },
+    {
+      "path": "resting-surface-audit.csv",
+      "sha256": "6d82312849fdaf22f5096b030e1697d7da828dcc62234bfed992a773da6be29d"
+    },
+    {
+      "path": "accepted-geometry/step-0.mrvpack",
+      "sha256": "e0a540b9098efdd37cabc50c86ba2b009c46c1c75ecca52f8ef7df40c5764b5d"
+    },
+    {
+      "path": "accepted-geometry/step-1.mrvpack",
+      "sha256": "d43f3f05f6f9c784ab2d89b049988f582f1125c7b92417c9fe8194a8c7760ea2"
+    },
+    {
+      "path": "resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875"
+    }
+  ],
+  "all_11_traces_and_3_captures_equal": true
+}

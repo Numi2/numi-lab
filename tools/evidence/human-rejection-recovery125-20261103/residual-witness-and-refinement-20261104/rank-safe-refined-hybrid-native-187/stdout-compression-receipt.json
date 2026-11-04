@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "source": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/rank-safe-refined-hybrid-native-187/install-motion.stdout.log",
+  "original_bytes": 822194986,
+  "original_sha256": "178cc2846b3a78dbe3967698babb64efc6037c93a75d8c5ac71da627f7221257",
+  "gzip": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/rank-safe-refined-hybrid-native-187/install-motion.stdout.log.gz",
+  "gzip_bytes": 125334465,
+  "gzip_sha256": "fe36a2ed40fd1f5e65501a7d2cdcd0311628beba7df42bcaa153a8030629f8ca",
+  "restored_bytes": 822194986,
+  "restored_sha256": "178cc2846b3a78dbe3967698babb64efc6037c93a75d8c5ac71da627f7221257",
+  "restoration_verified": true,
+  "removed_original_after_verification": true
+}

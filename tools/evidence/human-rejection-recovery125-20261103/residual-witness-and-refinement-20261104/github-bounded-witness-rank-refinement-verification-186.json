@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "verified_utc": "2026-11-04T07:04:23.225450+00:00",
+  "files": [
+    {
+      "revision": "5749250684f00caf3a8811daf10631e34cf0335f",
+      "path": "matter/src/runtime.mm",
+      "github_blob": "0d91c5015371c21dd69e70b9262471ad4472c178",
+      "bytes": 3529760,
+      "sha256": "11f5746fdfbcb4e836e4f88efb25835cb75965a6e357535e92e4a09305dd04b1",
+      "independent_download_equal": true
+    },
+    {
+      "revision": "3a72d7b50b041c15b3a85350be7e5481d90b0dc7",
+      "path": "apps/compare_human_fem_endpoint_fidelity.py",
+      "github_blob": "2d81a2f9b9b8f70eae103a4d91169e10cc2b16ba",
+      "bytes": 48564,
+      "sha256": "e6c1479a9f28f758f6151accc2ba19c83814d34a105b8297c15085076c0c29c7",
+      "independent_download_equal": true
+    },
+    {
+      "revision": "3a72d7b50b041c15b3a85350be7e5481d90b0dc7",
+      "path": "apps/test_compare_human_fem_endpoint_fidelity.py",
+      "github_blob": "fb988ab5a7b46fb9aa0e6d3228fe27ca0d43fd29",
+      "bytes": 21479,
+      "sha256": "694ea2dd138e211276c67d0f274f3d5a0b444aeb3636f5b889a2d546cfd9d602",
+      "independent_download_equal": true
+    },
+    {
+      "revision": "f9c633a94a56ae449d8fcaa60778b203cbe0a69e",
+      "path": "matter/include/numi/matter/partitioned_reduction_basis.hpp",
+      "github_blob": "bc3ec8f8ceaaf700d8940dd0718b08deb7b3ed3d",
+      "bytes": 28897,
+      "sha256": "e57024d744fa35daa9dca3a7bb22dd8d2c0918f5f24fb0883c25bd6463ccd142",
+      "independent_download_equal": true
+    },
+    {
+      "revision": "f9c633a94a56ae449d8fcaa60778b203cbe0a69e",
+      "path": "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp",
+      "github_blob": "d25ba4b7eaae5397137fc60a6a85c685495e25c8",
+      "bytes": 53181,
+      "sha256": "7b792e62ee544972d1a486a2835e080103a40cfae47cd7c36cd4966862b8711e",
+      "independent_download_equal": true
+    },
+    {
+      "revision": "f9c633a94a56ae449d8fcaa60778b203cbe0a69e",
+      "path": "matter/tools/compiled_world_partitioned_reduction_check.cpp",
+      "github_blob": "40eb13e43bb2cf5cb97b2b2b42bde5c58c943121",
+      "bytes": 35950,
+      "sha256": "ed42debb423f890deeea84d1ea808ca27f6d6b3eb9be0364ec7e59c4608f8207",
+      "independent_download_equal": true
+    }
+  ]
+}

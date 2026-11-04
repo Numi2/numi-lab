@@ -1,0 +1,178 @@
+[
+  {
+    "trial": "bounded-sparse-witness-native-183",
+    "path": "install-motion/diagnostics/registered-skin-native.csv",
+    "bytes": 24147731,
+    "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+    "in_compact_archive": false,
+    "static_source_identity_retained_in_prior_trace_archive": true
+  },
+  {
+    "trial": "bounded-sparse-witness-native-183",
+    "path": "install-motion/resting-body-motion-partition.csv",
+    "bytes": 77559,
+    "sha256": "5f478f2b698c082f6d0d71e459360f6fed69c3902782f239f4833cb537cb28f6",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "bounded-sparse-witness-native-183",
+    "path": "install-motion/resting-com-momentum-diagnostic.csv",
+    "bytes": 4190,
+    "sha256": "e130a75f18df102135f26badc9d053185839e8ca5f60136a0e2a6434a6fff228",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "bounded-sparse-witness-native-183",
+    "path": "install-motion/resting-com-q-index-map.csv",
+    "bytes": 6908,
+    "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "bounded-sparse-witness-native-183",
+    "path": "install-motion/resting-com-q-integration.csv",
+    "bytes": 20155,
+    "sha256": "b5c98a00e3817dbe388a2d2049b8eac3bba6ac5921f30241ad585950ac621403",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "bounded-sparse-witness-native-183",
+    "path": "install-motion/resting-com-q-support-slip.csv",
+    "bytes": 715,
+    "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "bounded-sparse-witness-native-183",
+    "path": "install-motion/resting-com-support-impulses.csv",
+    "bytes": 331,
+    "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "bounded-sparse-witness-native-183",
+    "path": "install-motion/resting-coupled.csv",
+    "bytes": 2438,
+    "sha256": "21a1c694b23198c9b9d826e0e942a34ab0e571055e79d63ee8fdf14db190631a",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "bounded-sparse-witness-native-183",
+    "path": "install-motion/resting-support-point-motion.csv",
+    "bytes": 371,
+    "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "bounded-sparse-witness-native-183",
+    "path": "install-motion/resting-support-selected-skin-witness.csv",
+    "bytes": 4684,
+    "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "bounded-sparse-witness-native-183",
+    "path": "install-motion/resting-surface-audit.csv",
+    "bytes": 2270,
+    "sha256": "6d82312849fdaf22f5096b030e1697d7da828dcc62234bfed992a773da6be29d",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "rank-safe-refined-hybrid-native-187",
+    "path": "install-motion/diagnostics/registered-skin-native.csv",
+    "bytes": 24147731,
+    "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+    "in_compact_archive": false,
+    "static_source_identity_retained_in_prior_trace_archive": true
+  },
+  {
+    "trial": "rank-safe-refined-hybrid-native-187",
+    "path": "install-motion/resting-body-motion-partition.csv",
+    "bytes": 77582,
+    "sha256": "eddfa4462e17a7899ee5b6c5370535b6c8f133ff054f01d5f91f5913f71892de",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "rank-safe-refined-hybrid-native-187",
+    "path": "install-motion/resting-com-momentum-diagnostic.csv",
+    "bytes": 4184,
+    "sha256": "023ae6906a7c52b9fb16d5dd2737c3ce771fd2d7f783de056e3e611422d970ac",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "rank-safe-refined-hybrid-native-187",
+    "path": "install-motion/resting-com-q-index-map.csv",
+    "bytes": 6908,
+    "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "rank-safe-refined-hybrid-native-187",
+    "path": "install-motion/resting-com-q-integration.csv",
+    "bytes": 20153,
+    "sha256": "4221192d99ff9359d8b899b23a70fe63dda0d53afae51e33e364a2d9e028849f",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "rank-safe-refined-hybrid-native-187",
+    "path": "install-motion/resting-com-q-support-slip.csv",
+    "bytes": 715,
+    "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "rank-safe-refined-hybrid-native-187",
+    "path": "install-motion/resting-com-support-impulses.csv",
+    "bytes": 331,
+    "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "rank-safe-refined-hybrid-native-187",
+    "path": "install-motion/resting-coupled.csv",
+    "bytes": 2440,
+    "sha256": "5f71e6fcd2c55145dd99da7576b2bd7e082a8f190a57be0811c430f97c0362ed",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "rank-safe-refined-hybrid-native-187",
+    "path": "install-motion/resting-support-point-motion.csv",
+    "bytes": 371,
+    "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "rank-safe-refined-hybrid-native-187",
+    "path": "install-motion/resting-support-selected-skin-witness.csv",
+    "bytes": 4684,
+    "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "rank-safe-refined-hybrid-native-187",
+    "path": "install-motion/resting-surface-audit.csv",
+    "bytes": 2270,
+    "sha256": "40a445ac6559e12e207478e3ed1f852caf375a45784ebfcd7c896ab8ba56bf29",
+    "in_compact_archive": true,
+    "static_source_identity_retained_in_prior_trace_archive": false
+  }
+]

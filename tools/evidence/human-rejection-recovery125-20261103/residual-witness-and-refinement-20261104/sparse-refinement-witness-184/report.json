@@ -1,0 +1,22 @@
+{
+  "source_trial": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/bounded-sparse-witness-native-183",
+  "newton_iteration": 0,
+  "selection": "One current-source final linear residual; not transplanted from previous basis. Subsequent model engineering gates remain mandatory.",
+  "records_available": 16,
+  "source_physics_fingerprint": "7d951012041f15c2",
+  "basis_layout_fingerprint_fnv1a64": "b6a6664e1eafa320",
+  "regions": 163,
+  "candidate_rows": 652,
+  "coordinate_components": {
+    "available": false,
+    "reason": "bounded_witness_only_capture",
+    "mandatory_gpu_certificate_retained": true
+  },
+  "physical_linear_residual": {
+    "l2": 1.899366e-07,
+    "rhs_l2": 8.52041339e-05,
+    "operator_l2": 8.52147496e-05,
+    "finite": true
+  },
+  "unchanged_physical_trace_and_capture_parity": true
+}

@@ -1,0 +1,2 @@
+streamed_sparse_affine=PASS coefficient_bits=true mass_bits=true whitening_bits=true B_and_BT=true dense_capacity=absent
+compiled world partitioned reduction: compiled ancestry, fine anchors, affine reproduction, B^T M B, B^T f, virtual work, and fail-closed source labels passed
