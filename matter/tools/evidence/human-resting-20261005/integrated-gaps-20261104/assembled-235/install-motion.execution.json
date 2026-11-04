@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 356.00065207481384,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/assembled-235/install-motion.plan.json",
+  "plan_sha256": "f74a3f397c068cea3c268497ae6fec47311d7c3ce1c52774623b8a8ac325787c",
+  "stdout_sha256": "a48e1e9c4b54c0a840b2b5c24cddb223b9cb38af67e69b7c9408cd3622f47783",
+  "stderr_sha256": "bbb42141678e0b8b6b7a5e5d2bf39ad32cd18acabc1f3bdd4f05e4de0576b819",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

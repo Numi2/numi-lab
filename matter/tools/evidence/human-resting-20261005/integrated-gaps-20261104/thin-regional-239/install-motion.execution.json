@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 195.60028314590454,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-regional-239/install-motion.plan.json",
+  "plan_sha256": "b425d8fa0599c30f2ec3b23695333a5ea478c0407629ba69fa0bb916600727c1",
+  "stdout_sha256": "8815f105dae0ef3f6da520583f72ac5f2ac6a83b82e84ac504abb6b4e5eb2aa3",
+  "stderr_sha256": "462ad25242928cd28f82007fd217fed647417d0ab1e4b7fc3f5ec76f8dabc898",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

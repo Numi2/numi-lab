@@ -1,0 +1,67 @@
+{
+  "status": "BUILT_ON_SSH_NUMI",
+  "compiler": "/Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/bin/metal",
+  "command": "Metal toolchain PATH; build native and existing checkers; full true-residual and incidence checks",
+  "binary": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "sha256": "6f25cc739d382b24b0e01db1b1d701ee04f08b0b231ada358a29173f550f983f",
+    "bytes": 10556192
+  },
+  "dependencies": {
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+      "sha256": "ef14a664575e57c79f35e173df02e34d9a899eb80a951cfaf68f2d7522a01d78",
+      "bytes": 10497872
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "sha256": "4ba82e9e88d319f14fa0e859bc6eda7f8aaf2a957a4fe5f76b7cf13052a19d3f",
+      "bytes": 31449881
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib",
+      "sha256": "880f60be6eb17b6af781665c6016c6d050da069685fcf1e8e2cafda0fc2115c8",
+      "bytes": 560736
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar",
+      "sha256": "69feb14770437078c102b6edb29cb6a4f14b80de6915c57d4cd6f22c35ef69b0",
+      "bytes": 542849088
+    }
+  },
+  "build_log": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/build-07.log",
+    "sha256": "eada845a02a12629bd83497cfc31bad6174e8c7664088e99910f08eaf3bea76c",
+    "bytes": 22528
+  },
+  "contact_native_test": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/contact-check-08.log",
+    "sha256": "490727018940df6d764eeec7fabc6f4e17a2d0dfb5fe300d842ad7dae2e6b115",
+    "bytes": 177
+  },
+  "material_native_test": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/material-check-04.log",
+    "sha256": "1cdfb0fef17d0035c7a1dd912963696208e12d5d5b2a183fd104f6153e4d433f",
+    "bytes": 55610
+  },
+  "assembled_native_test": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/assembled-check-06.log",
+    "sha256": "1d267544835d2c13a4019f0ee87a1fd26b2c4d807f90a94bf0d3ef04b7fcd8b9",
+    "bytes": 2792
+  },
+  "test_rebuild_log": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/build-test-08.log",
+    "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78",
+    "bytes": 265
+  },
+  "reference_plane_test": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/reference-plane-check-08.log",
+    "sha256": "b48dd449a5b7bef6dcb6b4740e6b3196d6a7d12038b5e43487c6ed560c0b369c",
+    "bytes": 553
+  },
+  "true_residual_test": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/true-residual-check-08.log",
+    "sha256": "91ecac6ebe1b7e805eee2ff31c9d5212aa8e9bec9963e305cd189eb4b1114b6c",
+    "bytes": 16738
+  }
+}

@@ -5629,6 +5629,8 @@ void checkAssembledXYZOperator(
         "numi_matter_metal::nm_fgmres_assemble_xyz_block_csr");
     auto assembleCSREdges = pipeline(device, library,
         "numi_matter_metal::nm_fgmres_assemble_xyz_block_csr_edges");
+    auto assembleCSRDirect = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_assemble_xyz_block_csr_direct");
     auto applyCSR = pipeline(device, library,
         "numi_matter_metal::nm_fgmres_apply_xyz_block_csr");
     auto applyCSRSimdRow = pipeline(device, library,
@@ -5974,6 +5976,37 @@ void checkAssembledXYZOperator(
             static_cast<std::uint32_t>(edgeContributions.size())});
     auto edgeCSRValuesBuffer = makeBuffer(device,
         std::vector<float>(environments * nnz * 9u, -117.0f));
+    auto directCSRValuesBuffer = makeBuffer(device,
+        std::vector<float>(environments * nnz * 9u, -73.0f));
+    auto assembleDirect = [&](id<MTLBuffer> contributions,
+                              id<MTLBuffer> output,
+                              id<MTLBuffer> status) {
+        const std::uint32_t total = environments * nnz;
+        dispatch(device, queue, assembleCSRDirect, {
+            {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectsBuffer},
+            {3u, tetrahedraBuffer}, {4u, tangentCacheBuffer},
+            {5u, cacheValidBuffer}, {6u, edgeRangesBuffer},
+            {7u, contributions}, {8u, output}, {9u, status},
+            {10u, schedulerBuffer}, {11u, adaptiveBuffer},
+            {12u, solverStateBuffer}, {13u, cacheModeBuffer},
+            {14u, forceRebuildBuffer}, {15u, nnzBuffer},
+            {16u, edgeContributionCountBuffer}}, (total+63u)/64u, 64u);
+    };
+    auto checkDirectCSR = [&] {
+        const auto actual = readBuffer<float>(directCSRValuesBuffer,
+            environments*nnz*9u);
+        const auto expected = readBuffer<float>(csrValuesBuffer,
+            environments*nnz*9u);
+        double scale=0.0, error=0.0;
+        for (std::size_t i=0u;i<actual.size();++i) {
+            require(std::isfinite(actual[i])&&std::isfinite(expected[i]),
+                "direct CSR produced nonfinite values");
+            scale=std::max(scale,std::abs(double(expected[i])));
+            error=std::max(error,std::abs(double(actual[i])-expected[i]));
+        }
+        require(error<=32.0*std::numeric_limits<float>::epsilon()*scale,
+            "direct CSR differs from ordered materialized-cache assembly");
+    };
     auto assembleEdges = [&] {
         const std::uint32_t total = environments * nnz;
         dispatch(device, queue, assembleCSREdges, {
@@ -6006,6 +6039,8 @@ void checkAssembledXYZOperator(
         edgeCSRValuesBuffer, environments * nnz * 9u);
     require(edgeAssembledReference == referenceCSRValues,
         "edge contribution assembler changed ordered CSR accumulation");
+    assembleDirect(edgeContributionsBuffer,directCSRValuesBuffer,statusBuffer);
+    checkDirectCSR();
     require(edgeRanges[0].count > 0u,
         "edge malformed-record fixture needs a nonempty contribution range");
     auto malformedEdgeContributions = edgeContributions;
@@ -6040,6 +6075,21 @@ void checkAssembledXYZOperator(
     for (std::size_t i = 0u; i < 9u; ++i)
         require(malformedEdgeValues[i] == -131.0f,
             "malformed edge contribution partially wrote its CSR edge");
+    auto directMalformedStatus=makeBuffer(device,statuses);
+    auto directMalformedValues=makeBuffer(device,malformedEdgeSentinel);
+    assembleDirect(malformedEdgeContributionsBuffer,directMalformedValues,
+                   directMalformedStatus);
+    for (const auto& status : readBuffer<NMMatterStatusGPU>(
+             directMalformedStatus,environments))
+        require(status.code==NM_STATUS_INVALID_DISPATCH &&
+                status.failingIndex==edgeNode[0],
+            "direct CSR did not reject malformed contribution metadata");
+    const auto directMalformed=readBuffer<float>(
+        directMalformedValues,environments*nnz*9u);
+    for (std::uint32_t e=0u;e<environments;++e)
+        for (std::uint32_t c=0u;c<9u;++c)
+            require(directMalformed[e*nnz*9u+c]==-131.0f,
+                "direct malformed edge partially overwrote output");
     require(std::any_of(referenceElementBlocks.begin(),
                         referenceElementBlocks.end(),
                         [](float value) { return value != 0.0f; }) &&
@@ -6048,6 +6098,8 @@ void checkAssembledXYZOperator(
                         [](float value) { return value != 0.0f; }),
         "cache-lifecycle fixture requires nonzero initial block and CSR data");
     auto assembleCurrentCache = [&] {
+        std::memcpy([directCSRValuesBuffer contents],[csrValuesBuffer contents],
+            environments*nnz*9u*sizeof(float));
         dispatch(device, queue, assembleTet, {
             {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectsBuffer},
             {3u, tetrahedraBuffer}, {4u, tangentCacheBuffer},
@@ -6065,6 +6117,8 @@ void checkAssembledXYZOperator(
             {10u, solverStateBuffer}, {11u, forceRebuildBuffer},
             {12u, microBuffer}}, 1u, 256u);
         assembleEdges();
+        assembleDirect(edgeContributionsBuffer,directCSRValuesBuffer,statusBuffer);
+        checkDirectCSR();
     };
 
     // A stale previous-convergence diagnostic must not suppress the new

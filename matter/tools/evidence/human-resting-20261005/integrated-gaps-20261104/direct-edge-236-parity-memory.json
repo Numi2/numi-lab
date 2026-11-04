@@ -1,0 +1,73 @@
+{
+  "reference": "assembled-235",
+  "candidate": "direct-edge-236",
+  "scope": "both reject at root25 with exactly identical raw failure diagnostics; no physical admission",
+  "all_compact_csvs_identical": true,
+  "files": [
+    {
+      "name": "resting-support-selected-skin-witness.csv",
+      "equal": true,
+      "reference_bytes": 4684,
+      "candidate_bytes": 4684
+    },
+    {
+      "name": "resting-com-momentum-diagnostic.csv",
+      "equal": true,
+      "reference_bytes": 37915,
+      "candidate_bytes": 37915
+    },
+    {
+      "name": "resting-support-point-motion.csv",
+      "equal": true,
+      "reference_bytes": 371,
+      "candidate_bytes": 371
+    },
+    {
+      "name": "resting-com-q-support-slip.csv",
+      "equal": true,
+      "reference_bytes": 715,
+      "candidate_bytes": 715
+    },
+    {
+      "name": "resting-surface-audit.csv",
+      "equal": true,
+      "reference_bytes": 1322,
+      "candidate_bytes": 1322
+    },
+    {
+      "name": "resting-com-q-index-map.csv",
+      "equal": true,
+      "reference_bytes": 6908,
+      "candidate_bytes": 6908
+    },
+    {
+      "name": "resting-body-motion-partition.csv",
+      "equal": true,
+      "reference_bytes": 1918455,
+      "candidate_bytes": 1918455
+    },
+    {
+      "name": "resting-coupled.csv",
+      "equal": true,
+      "reference_bytes": 19664,
+      "candidate_bytes": 19664
+    },
+    {
+      "name": "resting-com-q-integration.csv",
+      "equal": true,
+      "reference_bytes": 514641,
+      "candidate_bytes": 514641
+    },
+    {
+      "name": "resting-com-support-impulses.csv",
+      "equal": true,
+      "reference_bytes": 331,
+      "candidate_bytes": 331
+    }
+  ],
+  "intermediate_bytes_removed": 852179904,
+  "device_allocation_after_krylov_bytes": {
+    "materialized": 7312818176,
+    "direct": 6460637184
+  }
+}

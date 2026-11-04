@@ -3628,6 +3628,8 @@ struct Runtime::State {
     bool hasPrescribedTranslation = false;
     bool hasAdaptive = false;
     bool hasMutableFEMTopology = false;
+    bool shareImmutableFEMTetrahedra = true;
+    bool immutableFEMTetrahedraShared = false;
     // Initialization-time proof that the authored objects are all
     // nonadaptive, contact-disabled MPM/FEM continua. Deferred owner
     // finalization uses only the corresponding accepted-state rollback arenas;
@@ -4027,6 +4029,7 @@ struct Runtime::State {
     id<MTLBuffer> femArmijoCohesiveFaceForces = nil;
     id<MTLBuffer> femArmijoMetrics = nil;
     bool mixedCertificateTiledEnabled = false;
+    bool mixedCertificateOwnerIncidenceEnabled = false;
     id<MTLBuffer> mixedCertificatePartials = nil;
     bool femDistributedGlobalMeasurementsEnabled = false;
     bool femDomainNonlinearLatchEnabled = false;
@@ -4171,6 +4174,7 @@ struct Runtime::State {
     bool femAssembledXYZOperatorRequested = false;
     bool femAssembledXYZOperatorEnabled = false;
     bool femAssembledXYZSIMDRowEnabled = false;
+    bool femAssembledXYZDirectEdgeEnabled = false;
     bool femAssembledXYZValuesReady = false;
     std::uint32_t femAssembledXYZBlockNNZ = 0u;
     std::uint32_t femAssembledXYZContributionCount = 0u;
@@ -5124,6 +5128,13 @@ RuntimeDiagnostics Runtime::initialize(
         }
         auto candidate = std::make_unique<State>();
         candidate->dispatch = world.dispatch;
+        if (const char* sharing = std::getenv("NM_FEM_SHARE_IMMUTABLE_TETRAHEDRA")) {
+            if (std::strcmp(sharing, "0") != 0 && std::strcmp(sharing, "1") != 0) {
+                diagnostics.message = "NM_FEM_SHARE_IMMUTABLE_TETRAHEDRA must be exactly 0 or 1";
+                return diagnostics;
+            }
+            candidate->shareImmutableFEMTetrahedra = std::strcmp(sharing, "1") == 0;
+        }
         if (const char* collisionGap = std::getenv(
                 "NM_FEM_DEFORMABLE_COLLISION_GAP")) {
             if (std::strcmp(collisionGap, "0") != 0 &&
@@ -6229,6 +6240,20 @@ RuntimeDiagnostics Runtime::initialize(
                 "SIMD-row FEM apply requires NM_FEM_ASSEMBLED_XYZ_OPERATOR=1";
             return diagnostics;
         }
+        const char* directXYZ = std::getenv("NM_FEM_ASSEMBLED_XYZ_DIRECT_EDGE");
+        if (directXYZ != nullptr && std::strcmp(directXYZ,"0") != 0 &&
+            std::strcmp(directXYZ,"1") != 0) {
+            diagnostics.message = "NM_FEM_ASSEMBLED_XYZ_DIRECT_EDGE must be 0 or 1";
+            return diagnostics;
+        }
+        candidate->femAssembledXYZDirectEdgeEnabled =
+            directXYZ != nullptr && std::strcmp(directXYZ,"1") == 0 &&
+            (!assembledHumanOnly || hasCoupledFEMVascularOwner);
+        if (candidate->femAssembledXYZDirectEdgeEnabled &&
+            !candidate->femAssembledXYZOperatorEnabled) {
+            diagnostics.message = "direct edge assembly requires the assembled XYZ operator";
+            return diagnostics;
+        }
         if (candidate->fgmresOperatorICBRequested &&
             world.dispatch.environmentCount != 1u) {
             diagnostics.message =
@@ -6481,6 +6506,18 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
         }
+        if (const char* setting = std::getenv("NM_MIXED_CERTIFICATE_OWNER_INCIDENCE")) {
+            if (std::strcmp(setting, "0") != 0 && std::strcmp(setting, "1") != 0) {
+                diagnostics.message = "NM_MIXED_CERTIFICATE_OWNER_INCIDENCE requires 0 or 1";
+                return diagnostics;
+            }
+            candidate->mixedCertificateOwnerIncidenceEnabled = std::strcmp(setting, "1") == 0;
+            if (candidate->mixedCertificateOwnerIncidenceEnabled &&
+                !candidate->mixedCertificateTiledEnabled) {
+                diagnostics.message = "owner-incidence certification requires the FEM tiled certificate";
+                return diagnostics;
+            }
+        }
         candidate->femDistributedGlobalMeasurementsEnabled = distributedGlobals != nullptr;
         candidate->femDomainNonlinearLatchEnabled =
             domainNonlinearLatchEnabled;
@@ -6633,6 +6670,18 @@ RuntimeDiagnostics Runtime::initialize(
                 return object.representation == NM_REPRESENTATION_FEM &&
                     (object.flags & NM_OBJECT_MUTABLE_TOPOLOGY) != 0u;
             });
+        // Element records contain immutable reference geometry/material IDs,
+        // not physical history. Share only when restore already pins their
+        // complete bytes and no mutation, puncture or cohesive owner can write
+        // them. Mechanical nodes, pressure and material histories stay separate.
+        candidate->immutableFEMTetrahedraShared =
+            candidate->shareImmutableFEMTetrahedra &&
+            !candidate->hasMutableFEMTopology &&
+            world.dispatch.mutationCommandCount == 0u &&
+            world.fem.mutationCommands.empty() &&
+            world.fem.punctureChannels.empty() &&
+            world.fem.cohesiveFaces.empty() &&
+            !candidate->femImmutableElementLayout.empty();
         candidate->capacityLayout = world.fem.capacities;
         const std::uint64_t incidenceStride64 = std::max<std::uint64_t>(
             1u,
@@ -8205,6 +8254,9 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x5a30414343505432ull); // Z0ACPT2
         }
+        if (candidate->immutableFEMTetrahedraShared)
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x5348544554524131ull); // SHTETRA1
         if (candidate->contactCompletedIncidenceReuseEnabled)
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x4354494e43494431ull); // CTINCID1
@@ -8513,6 +8565,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_topology_rollback",
             "nm_mixed_checkpoint",
             "nm_mixed_prepare_microstep",
+            "nm_mixed_publish_empty_residual",
             "nm_mixed_prepare_residual",
             "nm_mixed_apply_operator_elements",
             "nm_mixed_apply_operator_nodes",
@@ -8922,6 +8975,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_assemble_tet_xyz_blocks",
             "nm_fgmres_assemble_xyz_block_csr",
             "nm_fgmres_assemble_xyz_block_csr_edges",
+            "nm_fgmres_assemble_xyz_block_csr_direct",
             "nm_fgmres_apply_xyz_block_csr",
             "nm_fgmres_apply_xyz_block_csr_simdrow",
             "nm_fgmres_orthogonalize_and_finish_column",
@@ -8929,6 +8983,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_cgs2_reduce_row",
             "nm_fgmres_cgs2_update",
             "nm_fgmres_cgs2_measure_norm",
+            "nm_fgmres_trace_column",
             "nm_fgmres_cgs2_finish_column",
             "nm_fgmres_cgs2_normalize",
             "nm_fgmres_prepare_operator_icb_ranges",
@@ -9749,6 +9804,14 @@ RuntimeDiagnostics Runtime::initialize(
                     "nm_fgmres_apply_left_row_equilibration") == 0 ||
                  std::strcmp(name,
                     "nm_fgmres_unscale_preconditioner_input") == 0))
+                continue;
+            if (!candidate->femAssembledXYZDirectEdgeEnabled &&
+                std::strcmp(name,"nm_fgmres_assemble_xyz_block_csr_direct") == 0)
+                continue;
+            if (candidate->femAssembledXYZDirectEdgeEnabled &&
+                (std::strcmp(name,"nm_fgmres_assemble_tet_xyz_blocks") == 0 ||
+                 std::strcmp(name,"nm_fgmres_assemble_xyz_block_csr_edges") == 0 ||
+                 std::strcmp(name,"nm_fgmres_assemble_xyz_block_csr") == 0))
                 continue;
             if (!candidate->femAssembledXYZOperatorEnabled &&
                 !candidate->femHuman6GraphTetBlockReuseEnabled &&
@@ -11554,6 +11617,12 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femNodeRanges = uploads.one(
             std::span<const NMIncidenceRangeGPU>(environmentFEMRanges),
             valid, candidate->residentBytes);
+        if (candidate->femAssembledXYZDirectEdgeEnabled &&
+            candidate->femHuman6GraphTetBlockReuseEnabled) {
+            diagnostics.message =
+                "direct edge assembly cannot supply the requested materialized graph blocks";
+            return diagnostics;
+        }
         if (candidate->femAssembledXYZOperatorEnabled) {
             const std::size_t nodeCount = world.dispatch.femNodeCount;
             const std::size_t environments = world.dispatch.environmentCount;
@@ -11847,7 +11916,8 @@ RuntimeDiagnostics Runtime::initialize(
                 edgeRangeBytes > candidate->device.maxBufferLength ||
                 edgeContributionBytes > candidate->device.maxBufferLength ||
                 valuesBytes > candidate->device.maxBufferLength ||
-                elementBytes > candidate->device.maxBufferLength) {
+                (!candidate->femAssembledXYZDirectEdgeEnabled &&
+                 elementBytes > candidate->device.maxBufferLength)) {
                 diagnostics.message =
                     "assembled FEM xyz buffers exceed one Metal buffer limit";
                 return diagnostics;
@@ -11874,10 +11944,11 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femAssembledXYZCSRColumns = uploads.one(
                 std::span<const std::uint32_t>(baseColumns),
                 valid, candidate->residentBytes);
-            candidate->femAssembledTetXYZBlocks = privateScratch<float>(
-                candidate->device,
-                tetrahedronColumns * std::size_t{144u},
-                valid, candidate->residentBytes);
+            if (!candidate->femAssembledXYZDirectEdgeEnabled)
+                candidate->femAssembledTetXYZBlocks = privateScratch<float>(
+                    candidate->device,
+                    tetrahedronColumns * std::size_t{144u},
+                    valid, candidate->residentBytes);
             candidate->femAssembledXYZCSRValues = privateScratch<float>(
                 candidate->device,
                 environments * nnz * std::size_t{9u},
@@ -11887,7 +11958,8 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->femAssembledXYZEdgeContributions == nil ||
                 candidate->femAssembledXYZCSRRows == nil ||
                 candidate->femAssembledXYZCSRColumns == nil ||
-                candidate->femAssembledTetXYZBlocks == nil ||
+                (!candidate->femAssembledXYZDirectEdgeEnabled &&
+                 candidate->femAssembledTetXYZBlocks == nil) ||
                 candidate->femAssembledXYZCSRValues == nil) {
                 diagnostics.message =
                     "assembled FEM xyz CSR upload or scratch allocation failed";
@@ -12158,15 +12230,25 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femCheckpoint = uploads.repeated(
             std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
             environments, valid, candidate->residentBytes);
-        candidate->femTetrahedraAccepted = uploads.repeated(
-            std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
-            environments, valid, candidate->residentBytes);
-        candidate->femTetrahedraCandidate = uploads.repeated(
-            std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
-            environments, valid, candidate->residentBytes);
-        candidate->femTetrahedraCheckpoint = uploads.repeated(
-            std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
-            environments, valid, candidate->residentBytes);
+        if (candidate->immutableFEMTetrahedraShared) {
+            candidate->femTetrahedraAccepted = environments == 1u
+                ? candidate->femTetrahedra
+                : uploads.repeated(
+                    std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
+                    environments, valid, candidate->residentBytes);
+            candidate->femTetrahedraCandidate = candidate->femTetrahedraAccepted;
+            candidate->femTetrahedraCheckpoint = candidate->femTetrahedraAccepted;
+        } else {
+            candidate->femTetrahedraAccepted = uploads.repeated(
+                std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
+                environments, valid, candidate->residentBytes);
+            candidate->femTetrahedraCandidate = uploads.repeated(
+                std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
+                environments, valid, candidate->residentBytes);
+            candidate->femTetrahedraCheckpoint = uploads.repeated(
+                std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
+                environments, valid, candidate->residentBytes);
+        }
         candidate->femTopologyNodesAccepted = uploads.repeated(
             std::span<const NMFEMTopologyNodeGPU>(world.fem.topologyNodes),
             environments, valid, candidate->residentBytes);
@@ -18939,6 +19021,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
         if (request.learnedWeightUpdate == nullptr &&
             request.learnedWeightCount != 0u) {
             diagnostics.message = "learned weight count has no borrowed buffer";
+            return diagnostics;
+        }
+        if (state.immutableFEMTetrahedraShared &&
+            request.mutationCommandCount != 0u) {
+            diagnostics.message =
+                "immutable FEM element storage rejects topology mutation commands";
             return diagnostics;
         }
         if (state.femMaterialPipelinesEnabled &&
@@ -28264,6 +28352,62 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setLabel:@"Numi Matter true FGMRES residual trace continuation"];
                 return true;
             };
+            // One bounded GPU-written arena, no per-column readback or encoder
+            // split. Existing selected-root Newton/alpha trace supplies the
+            // subsequent physical nonlinear progress and contact truncation.
+            id<MTLBuffer> fgmresColumnTrace = nil;
+            std::uint32_t fgmresColumnTraceRoot = 0u;
+            constexpr std::uint32_t columnTraceNewtonCapacity = 64u;
+            constexpr std::uint32_t columnTraceRestartCapacity = 8u;
+            constexpr std::uint32_t columnTraceCapacity =
+                columnTraceNewtonCapacity * columnTraceRestartCapacity *
+                NM_MIXED_FGMRES_RESTART;
+            if (const char* setting = std::getenv("NM_FGMRES_COLUMN_TRACE");
+                setting != nullptr && std::strcmp(setting, "1") == 0 &&
+                selectedFEMNewtonTraceRoot(fgmresColumnTraceRoot) &&
+                environments == 1u && !state.fgmresAggregateCycleICBEnabled &&
+                !state.fgmresFlatColumnICBEnabled) {
+                fgmresColumnTrace = [state.device newBufferWithLength:
+                    columnTraceCapacity * sizeof(NMFGMRESStateGPU)
+                    options:MTLResourceStorageModeShared];
+                if (fgmresColumnTrace == nil) {
+                    diagnostics.message = "failed to allocate bounded FGMRES column trace";
+                    return diagnostics;
+                }
+                std::memset(fgmresColumnTrace.contents, 0,
+                    columnTraceCapacity * sizeof(NMFGMRESStateGPU));
+                const auto root = fgmresColumnTraceRoot;
+                const auto records = fgmresColumnTrace;
+                const auto traceTick = microtick;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) return;
+                    const auto* samples =
+                        static_cast<const NMFGMRESStateGPU*>(records.contents);
+                    for (std::uint32_t slot = 0u; slot < columnTraceCapacity; ++slot) {
+                        const auto& sample = samples[slot];
+                        if (!(sample.diagnostics.w > 0.0f)) continue;
+                        const std::uint32_t cycle = slot / NM_MIXED_FGMRES_RESTART;
+                        std::ostringstream line;
+                        line << "fem_krylov_column={\"schema\":1,\"root\":" << root
+                             << ",\"microtick\":" << traceTick
+                             << ",\"newton\":" << cycle / columnTraceRestartCapacity
+                             << ",\"restart\":" << cycle % columnTraceRestartCapacity
+                             << ",\"column\":" << slot % NM_MIXED_FGMRES_RESTART
+                             << ",\"arnoldi_residual_estimate\":";
+                        appendTraceFloat(line,sample.diagnostics.x);
+                        line << ",\"initial_physical_norm\":";
+                        appendTraceFloat(line,sample.diagnostics.y);
+                        line << ",\"row_scaled_reference_norm\":";
+                        appendTraceFloat(line,sample.rowEquilibration.x);
+                        line << ",\"nonlinear_physical_norm\":";
+                        appendTraceFloat(line,sample.nonlinear.y);
+                        line << ",\"cycle_accepted\":"
+                             << (sample.diagnostics.z > 0.5f ? "true" : "false")
+                             << ",\"observational_only\":true}";
+                        std::fprintf(stderr,"%s\n",line.str().c_str());
+                    }
+                }];
+            }
             const auto encodeFEMNewtonTrace = [&](const char* stage) -> bool {
                 std::uint32_t root = 0u;
                 if (!selectedFEMNewtonTraceRoot(root)) return true;
@@ -28391,7 +28535,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                          << iteration << ",\"stage\":\"" << stage << "\","
                          << "\"semantics\":{\"alpha\":\"environment line-search scalar at this capture boundary\","
                          << "\"object_line_search\":\"per-object [selected_alpha,min_J,candidate_count,solver_iteration]\","
-                         << "\"fgmres_diagnostics\":\"x=final_restart_Arnoldi_estimate,y=Newton_initial_full_residual_norm,z=cycle_accepted,w=columns_in_final_restart\","
+                         << "\"fgmres_diagnostics\":\"x=latest_linear_residual_metric_physical_after_true_residual_replacement_Arnoldi_before_it,y=Newton_initial_full_residual_norm,z=cycle_accepted,w=columns_in_final_restart\","
                          << "\"fgmres_nonlinear\":\"x=first_Newton_residual_norm,y=this_Newton_reassembled_residual_norm,z=previous_correction_ratio,w=nonlinear_converged\","
                          << "\"status_fgmres_iterations\":\"maximum_totalUsed_seen_so_far_in_this_microstep_not_per_Newton\"},\"alpha\":[";
                     for (std::uint32_t environment = 0u;
@@ -35393,58 +35537,73 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // candidate. These kernels no longer iterate or publish a field
             // solution; they provide the field residual and block diagonal to
             // the single generalized KKT solve below.
-            dispatchThreads("nm_mixed_prepare_residual", femNodeTotal, [&] {
-                setDispatch();
-                [encoder setBuffer:state.objects offset:0u atIndex:1u];
-                [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
-                [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:3u];
-                [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:4u];
-                [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:5u];
-            });
-            const std::uint32_t mixedResidualAllowConverged = 0u;
-            dispatchThreads("nm_mixed_apply_operator_elements", tetrahedronTotal, [&] {
-                setDispatch();
-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                [encoder setBuffer:state.mixedMaterials offset:0u atIndex:3u];
-                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
-                [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:5u];
-                [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
-                [encoder setBuffer:state.elementOperator offset:0u atIndex:7u];
-                [encoder setBuffer:state.femDirection offset:0u atIndex:8u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:9u];
-                [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
-                [encoder setBytes:&mixedResidualAllowConverged
-                           length:sizeof(mixedResidualAllowConverged) atIndex:11u];
-            });
-            dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
-                setDispatch();
-                [encoder setBuffer:state.objects offset:0u atIndex:8u];
-                [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
-                [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
-                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
-                [encoder setBuffer:state.elementOperator offset:0u atIndex:4u];
-                [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:5u];
-                [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
-                [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:7u];
-            });
-            dispatchThreads("nm_mixed_build_residual_diagonal", femNodeTotal, [&] {
-                setDispatch();
-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                [encoder setBuffer:state.mixedMaterials offset:0u atIndex:3u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
-                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:5u];
-                [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:6u];
-                [encoder setBuffer:state.femNodeRanges offset:0u atIndex:7u];
-                [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:8u];
-                [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:9u];
-                [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:10u];
-                [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:11u];
-                [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:12u];
-                [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:13u];
-                [encoder setBuffer:state.mixedFieldInverseDiagonal offset:0u atIndex:14u];
-            });
+            if (!state.mixedFieldSmoothingEnabled) {
+                // No authored transport equations or field boundaries. Publish
+                // the same scratch values in one node pass; do not zero/gather
+                // the mechanical elementOperator over every tetrahedron.
+                dispatchThreads("nm_mixed_publish_empty_residual", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:1u];
+                    [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:2u];
+                    [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:3u];
+                    [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:4u];
+                    [encoder setBuffer:state.mixedFieldInverseDiagonal offset:0u atIndex:5u];
+                    [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:6u];
+                }, WorkDomain::femNodes);
+            } else {
+                dispatchThreads("nm_mixed_prepare_residual", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                    [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:5u];
+                });
+                const std::uint32_t mixedResidualAllowConverged = 0u;
+                dispatchThreads("nm_mixed_apply_operator_elements", tetrahedronTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.mixedMaterials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:5u];
+                    [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
+                    [encoder setBuffer:state.elementOperator offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femDirection offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:9u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
+                    [encoder setBytes:&mixedResidualAllowConverged
+                               length:sizeof(mixedResidualAllowConverged) atIndex:11u];
+                });
+                dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.elementOperator offset:0u atIndex:4u];
+                    [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:5u];
+                    [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
+                    [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:7u];
+                });
+                dispatchThreads("nm_mixed_build_residual_diagonal", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.mixedMaterials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:7u];
+                    [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:9u];
+                    [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:10u];
+                    [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:11u];
+                    [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:12u];
+                    [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:13u];
+                    [encoder setBuffer:state.mixedFieldInverseDiagonal offset:0u atIndex:14u];
+                });
+            }
             // Mechanical pressure is a KKT unknown. Its normalized Schur
             // diagonal is applied only by nm_fgmres_precondition; there is no
             // standalone pressure correction or independently failing solve.
@@ -37201,6 +37360,36 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
                 if (state.femAssembledXYZOperatorEnabled) {
+                    if (state.femAssembledXYZDirectEdgeEnabled) {
+                        const std::uint32_t mode =
+                            numi::matter::detail::femPrimaryOperatorCacheMode(
+                                state.mixedSolverValue.executionBudgets.w);
+                        const std::uint32_t nnz = state.femAssembledXYZBlockNNZ;
+                        const std::uint32_t contributions =
+                            state.femAssembledXYZContributionCount;
+                        dispatchThreads("nm_fgmres_assemble_xyz_block_csr_direct",
+                            std::size_t(environments)*nnz, [&] {
+                            setDispatch();
+                            [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
+                            [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femAlgorithmicTangentCache offset:0u atIndex:4u];
+                            [encoder setBuffer:state.femAlgorithmicTangentCacheValid offset:0u atIndex:5u];
+                            [encoder setBuffer:state.femAssembledXYZEdgeContributionRanges offset:0u atIndex:6u];
+                            [encoder setBuffer:state.femAssembledXYZEdgeContributions offset:0u atIndex:7u];
+                            [encoder setBuffer:state.femAssembledXYZCSRValues offset:0u atIndex:8u];
+                            [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+                            [encoder setBuffer:state.schedulers offset:0u atIndex:10u];
+                            [encoder setBuffer:state.adaptive offset:0u atIndex:11u];
+                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:12u];
+                            [encoder setBytes:&mode length:sizeof(mode) atIndex:13u];
+                            [encoder setBytes:&forceCompletedCacheRebuild
+                                       length:sizeof(forceCompletedCacheRebuild) atIndex:14u];
+                            [encoder setBytes:&nnz length:sizeof(nnz) atIndex:15u];
+                            [encoder setBytes:&contributions length:sizeof(contributions) atIndex:16u];
+                        }, WorkDomain::generic);
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    } else {
                     const std::uint32_t useTangentCache =
                         numi::matter::detail::femPrimaryOperatorCacheMode(
                             state.mixedSolverValue.executionBudgets.w);
@@ -37262,6 +37451,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                    length:sizeof(operatorMicro) atIndex:10u];
                     }, WorkDomain::generic);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
                     state.femAssembledXYZValuesReady = true;
                 }
                 if (state.femHuman6GraphTetBlockReuseEnabled &&
@@ -45531,6 +45721,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                   atIndex:13u];
                     });
                 }
+                if (fgmresColumnTrace != nil &&
+                    nonlinearIteration < columnTraceNewtonCapacity &&
+                    restartCycle < columnTraceRestartCapacity) {
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    const std::array<std::uint32_t, 2> traceSlotAndColumn = {
+                        ((nonlinearIteration * columnTraceRestartCapacity +
+                          restartCycle) * NM_MIXED_FGMRES_RESTART + column) *
+                            static_cast<std::uint32_t>(environments),
+                        column};
+                    dispatchThreads("nm_fgmres_trace_column", environments, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
+                        [encoder setBytes:&traceSlotAndColumn
+                            length:sizeof(traceSlotAndColumn) atIndex:2u];
+                        [encoder setBuffer:fgmresColumnTrace offset:0u atIndex:3u];
+                    });
+                }
                 if (fgmresColumnDispatch)
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -50869,58 +51076,73 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
-            dispatchThreads("nm_mixed_prepare_residual", femNodeTotal, [&] {
-                setDispatch();
-                [encoder setBuffer:state.objects offset:0u atIndex:1u];
-                [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
-                [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:3u];
-                [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:4u];
-                [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:5u];
-            }, WorkDomain::femNodes);
-            const std::uint32_t mixedPostStepAllowConverged = 0u;
-            dispatchThreads("nm_mixed_apply_operator_elements", tetrahedronTotal, [&] {
-                setDispatch();
-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                [encoder setBuffer:state.mixedMaterials offset:0u atIndex:3u];
-                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
-                [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:5u];
-                [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
-                [encoder setBuffer:state.elementOperator offset:0u atIndex:7u];
-                [encoder setBuffer:state.femDirection offset:0u atIndex:8u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:9u];
-                [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
-                [encoder setBytes:&mixedPostStepAllowConverged
-                           length:sizeof(mixedPostStepAllowConverged) atIndex:11u];
-            }, WorkDomain::tetrahedra);
-            dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
-                setDispatch();
-                [encoder setBuffer:state.objects offset:0u atIndex:8u];
-                [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
-                [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
-                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
-                [encoder setBuffer:state.elementOperator offset:0u atIndex:4u];
-                [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:5u];
-                [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
-                [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:7u];
-            }, WorkDomain::femNodes);
-            dispatchThreads("nm_mixed_build_residual_diagonal", femNodeTotal, [&] {
-                setDispatch();
-                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                [encoder setBuffer:state.mixedMaterials offset:0u atIndex:3u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
-                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:5u];
-                [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:6u];
-                [encoder setBuffer:state.femNodeRanges offset:0u atIndex:7u];
-                [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:8u];
-                [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:9u];
-                [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:10u];
-                [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:11u];
-                [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:12u];
-                [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:13u];
-                [encoder setBuffer:state.mixedFieldInverseDiagonal offset:0u atIndex:14u];
-            }, WorkDomain::femNodes);
+            if (!state.mixedFieldSmoothingEnabled) {
+                // No authored transport equations or field boundaries. Publish
+                // the same scratch values in one node pass; do not zero/gather
+                // the mechanical elementOperator over every tetrahedron.
+                dispatchThreads("nm_mixed_publish_empty_residual", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:1u];
+                    [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:2u];
+                    [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:3u];
+                    [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:4u];
+                    [encoder setBuffer:state.mixedFieldInverseDiagonal offset:0u atIndex:5u];
+                    [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:6u];
+                }, WorkDomain::femNodes);
+            } else {
+                dispatchThreads("nm_mixed_prepare_residual", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                    [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:5u];
+                }, WorkDomain::femNodes);
+                const std::uint32_t mixedPostStepAllowConverged = 0u;
+                dispatchThreads("nm_mixed_apply_operator_elements", tetrahedronTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.mixedMaterials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:5u];
+                    [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
+                    [encoder setBuffer:state.elementOperator offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femDirection offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:9u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
+                    [encoder setBytes:&mixedPostStepAllowConverged
+                               length:sizeof(mixedPostStepAllowConverged) atIndex:11u];
+                }, WorkDomain::tetrahedra);
+                dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.elementOperator offset:0u atIndex:4u];
+                    [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:5u];
+                    [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
+                    [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:7u];
+                }, WorkDomain::femNodes);
+                dispatchThreads("nm_mixed_build_residual_diagonal", femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.mixedMaterials offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femNodeRanges offset:0u atIndex:7u];
+                    [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:9u];
+                    [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:10u];
+                    [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:11u];
+                    [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:12u];
+                    [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:13u];
+                    [encoder setBuffer:state.mixedFieldInverseDiagonal offset:0u atIndex:14u];
+                }, WorkDomain::femNodes);
+            }
             dispatchThreads("nm_fem_internal_forces", tetrahedronTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -51403,8 +51625,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 // disabled it is neither initialized nor presented/read back.
                 [encoder setBuffer:state.fgmresTelemetry offset:0u atIndex:21u];
                 [encoder setBuffer:state.deformableContactActiveIndices offset:0u atIndex:22u];
-                if (state.mixedCertificateTiledEnabled)
+                if (state.mixedCertificateTiledEnabled) {
                     [encoder setBuffer:state.mixedCertificatePartials offset:0u atIndex:23u];
+                    const std::uint32_t ownerIncidence =
+                        state.mixedCertificateOwnerIncidenceEnabled ? 1u : 0u;
+                    [encoder setBytes:&ownerIncidence length:sizeof(ownerIncidence) atIndex:24u];
+                }
             });
             if (state.mixedCertificateTiledEnabled) {
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -57944,8 +58170,9 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                                 id<MTLBuffer> candidate,
                                 id<MTLBuffer> checkpoint) {
             copy(source, accepted);
-            copy(source, candidate);
-            copy(source, checkpoint);
+            if (candidate != accepted) copy(source, candidate);
+            if (checkpoint != accepted && checkpoint != candidate)
+                copy(source, checkpoint);
         };
         mirror(particles, state.particleAccepted,
             state.particleCandidate, state.particleCheckpoint);

@@ -151,6 +151,162 @@ void executeCompactionParity(id<MTLDevice> device, id<MTLLibrary> library) {
     }
 }
 
+void executeColumnTrace(id<MTLDevice> device, id<MTLLibrary> library) {
+    NMMatterDispatchGPU dispatch{};dispatch.environmentCount=2u;
+    std::vector<NMFGMRESStateGPU> states(2u);
+    states[0].diagnostics={0.125f,2.0f,0.0f,5.0f};
+    states[0].nonlinear={3.0f,2.0f,0.5f,0.0f};
+    states[0].rowEquilibration={4.0f,0.0f,0.0f,0.0f};
+    states[1]=states[0];states[1].nonlinear.w=1.0f;
+    auto db=inputBuffer(device,std::vector<NMMatterDispatchGPU>{dispatch});
+    auto sb=inputBuffer(device,states);
+    auto out=zeroBuffer<NMFGMRESStateGPU>(device,8u);
+    auto pipeline=makePipeline(device,library,"nm_fgmres_trace_column");
+    auto queue=[device newCommandQueue];
+    for (uint32_t column:{4u,3u}) {
+        std::array<uint32_t,2> slotAndColumn{3u,column};
+        auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];
+        [encoder setComputePipelineState:pipeline];
+        [encoder setBuffer:db offset:0 atIndex:0];
+        [encoder setBuffer:sb offset:0 atIndex:1];
+        [encoder setBytes:slotAndColumn.data() length:sizeof(slotAndColumn) atIndex:2];
+        [encoder setBuffer:out offset:0 atIndex:3];
+        [encoder dispatchThreads:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder endEncoding];[command commit];[command waitUntilCompleted];
+        require(command.status==MTLCommandBufferStatusCompleted,"column trace GPU completion");
+        const auto* values=static_cast<const NMFGMRESStateGPU*>(out.contents);
+        for (uint32_t i=0;i<8u;++i) {
+            const NMFGMRESStateGPU expected=i==3u?states[0]:NMFGMRESStateGPU{};
+            require(std::memcmp(values+i,&expected,sizeof(expected))==0,
+                    "column trace exact state, bounds, stale-column and completed-tail suppression");
+        }
+    }
+}
+
+void executeEmptyTransportPublication(id<MTLDevice> device, id<MTLLibrary> library) {
+    NMMatterDispatchGPU dispatch{};
+    dispatch.environmentCount=2u;
+    dispatch.femNodeCount=4u;
+    std::vector<NMFEMFieldStateGPU> fields(8u);
+    for (uint32_t i=0;i<8u;++i) {
+        fields[i].primary={100.0f+float(i),10.0f+float(i),20.0f+float(i),30.0f+float(i)};
+        fields[i].secondary={40.0f+float(i),50.0f+float(i),60.0f+float(i),70.0f+float(i)};
+    }
+    auto db=inputBuffer(device,std::vector<NMMatterDispatchGPU>{dispatch});
+    auto fb=inputBuffer(device,fields);
+    const nm_float4 sentinel={-991.0f,-992.0f,-993.0f,-994.0f};
+    std::array<id<MTLBuffer>,5> output;
+    for (auto& b:output) b=zeroBuffer<nm_float4>(device,9u,sentinel);
+    auto pipeline=makePipeline(device,library,"nm_mixed_publish_empty_residual");
+    auto queue=[device newCommandQueue];auto command=[queue commandBuffer];
+    auto encoder=[command computeCommandEncoder];
+    [encoder setComputePipelineState:pipeline];
+    [encoder setBuffer:db offset:0 atIndex:0];
+    [encoder setBuffer:fb offset:0 atIndex:1];
+    for (uint32_t i=0;i<5u;++i) [encoder setBuffer:output[i] offset:0 atIndex:i+2u];
+    [encoder dispatchThreads:MTLSizeMake(9,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+    [encoder endEncoding];[command commit];[command waitUntilCompleted];
+    require(command.status==MTLCommandBufferStatusCompleted,"empty transport GPU completion");
+    require(std::memcmp(fb.contents,fields.data(),fields.size()*sizeof(fields[0]))==0,
+            "empty transport preserves mechanical pressure and accepted field history");
+    for (uint32_t i=0;i<5u;++i) {
+        const auto* values=static_cast<const nm_float4*>(output[i].contents);
+        for (uint32_t n=0;n<8u;++n) {
+            const nm_float4 expected=i==0u ? nm_float4{fields[n].primary.y,
+                fields[n].primary.z,fields[n].primary.w,fields[n].secondary.x} : nm_float4{};
+            require(std::memcmp(values+n,&expected,sizeof(expected))==0,
+                    "empty transport exact solution packing and zero scratch");
+        }
+        require(std::memcmp(values+8u,&sentinel,sizeof(sentinel))==0,
+                "empty transport respects environment/node dispatch domain");
+    }
+}
+
+void executeOwnerEnumeration(id<MTLDevice> device, id<MTLLibrary> library) {
+    NMMatterDispatchGPU dispatch{};
+    dispatch.environmentCount = 2u;
+    dispatch.objectCount = 3u;
+    dispatch.gridNodeCount = 2u;
+    dispatch.femNodeCount = 9u;
+    dispatch.deformableContactCapacity = 5u;
+    std::vector<NMContinuumObjectGPU> objects(3u);
+    for (uint32_t i=0; i<3u; ++i) {
+        objects[i].stateOffset = 3u*i;
+        objects[i].stateCount = 3u;
+        objects[i].representation = NM_REPRESENTATION_FEM;
+    }
+    std::vector<NMDeformableContactGPU> contacts(10u);
+    constexpr uint32_t invalid = NM_INVALID_INDEX;
+    const std::array<std::array<uint32_t,6>,5> nodes{{
+        {{2,2,3,5,6,invalid}}, // duplicate support, owners 0/1
+        {{2,3,4,2,invalid,invalid}}, // self-contact owner 0
+        {{8,8,9,10,invalid,invalid}}, // self-contact owner 2
+        {{5,6,7,9,10,8}}, // owners 1/2 with extra corners
+        {{2,5,8,invalid,invalid,invalid}} // invalid contact omitted
+    }};
+    const std::array<std::array<uint32_t,2>,5> owners{{
+        {{0,1}},{{0,0}},{{2,2}},{{1,2}},{{0,2}}
+    }};
+    std::vector<NMIncidenceRangeGPU> ranges(22u);
+    std::vector<uint32_t> incidence;
+    for (uint32_t env=0;env<2u;++env) {
+        for (uint32_t slot=0;slot<5u;++slot) {
+            auto& c=contacts[env*5u+slot];
+            c.identity={owners[slot][0],owners[slot][1],0u,
+                        slot==4u?0u:NM_CONTACT_VALID};
+            c.nodes={nodes[slot][0],nodes[slot][1],nodes[slot][2],nodes[slot][3]};
+            c.extraNodes={nodes[slot][4],nodes[slot][5],invalid,invalid};
+        }
+        for (uint32_t node=0;node<11u;++node) {
+            auto& range=ranges[env*11u+node];
+            range.first=static_cast<uint32_t>(incidence.size());
+            for (uint32_t slot=0;slot<5u;++slot)
+                for (uint32_t corner=0;corner<6u;++corner)
+                    if (nodes[slot][corner]==node)
+                        incidence.push_back(slot*8u+corner);
+            range.count=static_cast<uint32_t>(incidence.size())-range.first;
+        }
+    }
+    auto db=inputBuffer(device,std::vector<NMMatterDispatchGPU>{dispatch});
+    auto ob=inputBuffer(device,objects), cb=inputBuffer(device,contacts);
+    auto rb=inputBuffer(device,ranges), ib=inputBuffer(device,incidence);
+    auto out=zeroBuffer<nm_uint4>(device,6u);
+    auto pipeline=makePipeline(device,library,"nm_mixed_owner_contact_enumeration_check");
+    auto queue=[device newCommandQueue];
+    for (uint32_t malformed=0;malformed<2u;++malformed) {
+        if (malformed) {
+            auto* words=static_cast<uint32_t*>(ib.contents);
+            // Last environment only: the first owner-0 support record.
+            words[ranges[13].first]=7u; // invalid corner encoding
+        }
+        auto command=[queue commandBuffer];
+        auto encoder=[command computeCommandEncoder];
+        [encoder setComputePipelineState:pipeline];
+        [encoder setBuffer:db offset:0 atIndex:0];
+        [encoder setBuffer:ob offset:0 atIndex:1];
+        [encoder setBuffer:cb offset:0 atIndex:2];
+        [encoder setBuffer:rb offset:0 atIndex:3];
+        [encoder setBuffer:ib offset:0 atIndex:4];
+        [encoder setBuffer:out offset:0 atIndex:5];
+        [encoder dispatchThreads:MTLSizeMake(6,1,1)
+           threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder endEncoding];[command commit];[command waitUntilCompleted];
+        require(command.status==MTLCommandBufferStatusCompleted,"owner enumeration completion");
+        const auto* values=static_cast<const nm_uint4*>(out.contents);
+        for (uint32_t env=0;env<2u;++env) {
+            for (uint32_t owner=0;owner<3u;++owner) {
+                const uint32_t expectedSum=owner==0u?1u:(owner==1u?3u:5u);
+                const uint32_t expectedValid=malformed&&env==1u&&owner==0u?0u:1u;
+                if (expectedValid != 0u) {
+                    require(values[env*3u+owner].x==2u,"owner count including self-contact");
+                    require(values[env*3u+owner].y==expectedSum,"owner slot sum without corner duplicates");
+                }
+                require(values[env*3u+owner].w==expectedValid,"malformed incidence fails certificate");
+            }
+        }
+    }
+}
+
 void executeCase(id<MTLDevice> device,
                  const std::vector<Environment>& environments,
                  id<MTLComputePipelineState> emit,
@@ -1878,6 +2034,9 @@ int main() {
             executeSurfaceMortonOrderCacheCase(device, library);
             ++checks;
 
+            executeColumnTrace(device, library);
+            executeEmptyTransportPublication(device, library);
+            executeOwnerEnumeration(device, library);
             executeCompactionParity(device, library);
             executeCase(device, explicitCase(), emit, bitonic, countSorted,
                         countLegacy, scan, scatter, scatterLegacy,

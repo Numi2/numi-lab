@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 195.37290716171265,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/capacity-trace-233/install-motion.plan.json",
+  "plan_sha256": "3f4f69c9a2ad3feef2fc8d72b52d4725273c220fc2bdd67b629aec777d7ae165",
+  "stdout_sha256": "b3e9ddb3e17715b63eafcf871ec65929214f254ccffc50a57a36af20c5f02a9f",
+  "stderr_sha256": "d769de7838971dba61c1fe1bc51da4a950ea3ce62bbf5c113a6ee2f5193d645d",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

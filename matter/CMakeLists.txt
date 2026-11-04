@@ -1018,8 +1018,10 @@ if(APPLE)
     add_executable(numi-matter-fem-static-surface-map-native-check tools/fem_static_surface_map_native_check.mm)
     add_dependencies(numi-matter-fem-static-surface-map-native-check numi_matter_shaders)
     target_link_libraries(numi-matter-fem-static-surface-map-native-check PRIVATE
-        numi_matter_compiler "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     target_compile_definitions(numi-matter-fem-static-surface-map-native-check PRIVATE NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    target_include_directories(numi-matter-fem-static-surface-map-native-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/../include")
     target_compile_options(numi-matter-fem-static-surface-map-native-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
     if(BUILD_TESTING)
         add_test(NAME matter.compiler.fem_static_surface_map_native_fixture COMMAND numi-matter-fem-static-surface-map-native-check --cpu-only)

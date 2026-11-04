@@ -1,0 +1,12 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 416.169251203537,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion.plan.json",
+  "plan_sha256": "aa3e79c62c4957012488f92cfb77c5c65a9e9e5aec3ba6eacf5c494b8a669c03",
+  "stdout_sha256": "5cfaae8bde846ac396140c00a2ebe829c74c2f2a09d00e2d60d3c6a348cd7b5b",
+  "stderr_sha256": "0e4785578a27ab60ad0b430e9f5ac4f6f8460c06726e9d1a3b9d6ad8a8f949bf",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

@@ -1,0 +1,9 @@
+reference_composed_bound=true supported_proof_only=true legacy_fallback=true captured_root28=true cases=173 PASS
+captured_plane_case=0 fraction=0.0221158
+captured_plane_case=1 fraction=1
+captured_plane_case=2 fraction=0.306457
+captured_plane_case=3 fraction=0.00876136
+captured_plane_case=4 fraction=1
+captured_plane_case=5 fraction=0.661463
+reference_plane_certificate=true exact_Float32_inputs=true Float64_clearance=true captured_zero_hit_refined=true invalid_rejected=true cases=173 certified=80 result=PASS
+PASS reference contact plane 1293 checks

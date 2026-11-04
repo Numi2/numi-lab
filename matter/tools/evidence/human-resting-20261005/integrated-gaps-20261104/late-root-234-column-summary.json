@@ -1,0 +1,166 @@
+{
+  "root": 28,
+  "scope": "one initialization-transient root; scaled Arnoldi and physical norms have different units/scaling",
+  "solves": [
+    {
+      "newton": 0,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 6.83152056,
+      "scaled_final_arnoldi_estimate": 0.0606193468,
+      "scaled_ratio": 0.008873477912800133,
+      "initial_physical_norm": 0.00159967993,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 1,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 6.73831129,
+      "scaled_final_arnoldi_estimate": 0.0601119623,
+      "scaled_ratio": 0.008920923910002383,
+      "initial_physical_norm": 0.00157786743,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 2,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 6.72129679,
+      "scaled_final_arnoldi_estimate": 0.06001864,
+      "scaled_ratio": 0.008929622046938356,
+      "initial_physical_norm": 0.00157387101,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 3,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 6.71925259,
+      "scaled_final_arnoldi_estimate": 0.0600072518,
+      "scaled_ratio": 0.008930643847100858,
+      "initial_physical_norm": 0.00157338881,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 4,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 6.71778679,
+      "scaled_final_arnoldi_estimate": 0.0599991307,
+      "scaled_ratio": 0.00893138359039823,
+      "initial_physical_norm": 0.00157304655,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 5,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 6.67815781,
+      "scaled_final_arnoldi_estimate": 0.0597820953,
+      "scaled_ratio": 0.008951884187354955,
+      "initial_physical_norm": 0.00156377722,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 6,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 0.0665244609,
+      "scaled_final_arnoldi_estimate": 0.0188601762,
+      "scaled_ratio": 0.28350738878366466,
+      "initial_physical_norm": 3.07404443e-05,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 7,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 0.0655186027,
+      "scaled_final_arnoldi_estimate": 0.0186160002,
+      "scaled_ratio": 0.28413304668965417,
+      "initial_physical_norm": 3.01252858e-05,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 8,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 0.0652857721,
+      "scaled_final_arnoldi_estimate": 0.0185674559,
+      "scaled_ratio": 0.28440279256496687,
+      "initial_physical_norm": 3.00042011e-05,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 9,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 0.0626408234,
+      "scaled_final_arnoldi_estimate": 0.0180494804,
+      "scaled_ratio": 0.2881424512053908,
+      "initial_physical_norm": 2.86983795e-05,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 10,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 0.06240483,
+      "scaled_final_arnoldi_estimate": 0.0180009436,
+      "scaled_ratio": 0.2884543327816132,
+      "initial_physical_norm": 2.85773094e-05,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 11,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 0.0623903163,
+      "scaled_final_arnoldi_estimate": 0.0179977324,
+      "scaled_ratio": 0.2884699656507432,
+      "initial_physical_norm": 2.85691185e-05,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 12,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 0.0623802878,
+      "scaled_final_arnoldi_estimate": 0.0179945249,
+      "scaled_ratio": 0.28846492272836227,
+      "initial_physical_norm": 2.85609258e-05,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 13,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 0.0623596944,
+      "scaled_final_arnoldi_estimate": 0.0179911144,
+      "scaled_ratio": 0.28850549338163534,
+      "initial_physical_norm": 2.85527476e-05,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 14,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 0.0623493306,
+      "scaled_final_arnoldi_estimate": 0.0179880727,
+      "scaled_ratio": 0.2885046643949053,
+      "initial_physical_norm": 2.85445276e-05,
+      "cycle_accepted_at_column": false
+    },
+    {
+      "newton": 15,
+      "restart": 0,
+      "columns": 16,
+      "scaled_initial_norm": 0.0623281449,
+      "scaled_final_arnoldi_estimate": 0.0179845467,
+      "scaled_ratio": 0.2885461572593668,
+      "initial_physical_norm": 2.85363567e-05,
+      "cycle_accepted_at_column": false
+    }
+  ]
+}

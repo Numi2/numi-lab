@@ -245,6 +245,26 @@ inline float4 mixedElementNodeValue(
     return float4(0.0f);
 }
 
+// Exact empty-domain publication. Mechanical pressure is stored separately
+// in the mechanical KKT rows; circulation and cavity state are not touched.
+kernel void nm_mixed_publish_empty_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMFieldStateGPU* fields [[buffer(1)]],
+    device float4* solution [[buffer(2)]],
+    device float4* residual [[buffer(3)]],
+    device float4* preconditioned [[buffer(4)]],
+    device float4* inverseDiagonal [[buffer(5)]],
+    device float4* operatorValue [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * dispatch.femNodeCount) return;
+    solution[global] = mixedFieldVector(fields[global]);
+    residual[global] = float4(0.0f);
+    preconditioned[global] = float4(0.0f);
+    inverseDiagonal[global] = float4(0.0f);
+    operatorValue[global] = float4(0.0f);
+}
+
 kernel void nm_mixed_prepare_residual(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumObjectGPU* objects [[buffer(1)]],
@@ -1203,6 +1223,95 @@ kernel void nm_mixed_certify(
         minimumJ, volumeNorm2, activeElements);
 }
 
+// Enumerate a contact once for this FEM owner, using the incidence that the
+// freshly assembled physical contact residual already requires. All six
+// corners (including zero-weight and duplicate corners) participate in the
+// incidence. Selecting the first corner in the owner's node range prevents
+// counting either a self-contact or a repeated support vertex twice.
+// Contact generation binds owner identities to their support node ranges;
+// malformed incidence is a certificate failure, never silently discarded.
+inline uint nmMixedNextOwnerContact(
+    constant NMMatterDispatchGPU& dispatch,
+    device const NMDeformableContactGPU* contacts,
+    device const NMIncidenceRangeGPU* ranges,
+    device const uint* incidence,
+    const uint environment,
+    const uint objectIndex,
+    const uint stateOffset,
+    const uint stateCount,
+    const uint stride,
+    thread uint& localNode,
+    thread uint& cursor,
+    thread bool& valid
+) {
+    const uint unifiedCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const uint ownerBegin = dispatch.gridNodeCount + stateOffset;
+    const uint ownerEnd = ownerBegin + stateCount;
+    const uint capacity = dispatch.deformableContactCapacity;
+    while (localNode < stateCount) {
+        const uint node = ownerBegin + localNode;
+        const NMIncidenceRangeGPU range =
+            ranges[environment * unifiedCount + node];
+        while (cursor < range.count) {
+            const uint encoded = incidence[range.first + cursor++];
+            const uint slot = encoded >> 3u;
+            const uint corner = encoded & 7u;
+            if (slot >= capacity || corner >= 6u) {
+                valid = false;
+                continue;
+            }
+            const NMDeformableContactGPU c =
+                contacts[environment * capacity + slot];
+            if ((c.identity.w & NM_CONTACT_VALID) == 0u) continue;
+            if (deformableContactNode(c, corner) != node) {
+                valid = false;
+                continue;
+            }
+            if (c.identity.x != objectIndex && c.identity.y != objectIndex)
+                continue;
+            bool firstCorner = true;
+            for (uint previous = 0u; previous < corner; ++previous) {
+                const uint previousNode = deformableContactNode(c, previous);
+                if (previousNode >= ownerBegin && previousNode < ownerEnd) {
+                    firstCorner = false;
+                    break;
+                }
+            }
+            if (firstCorner) return slot;
+        }
+        localNode += stride;
+        cursor = 0u;
+    }
+    return NM_INVALID_INDEX;
+}
+
+// Internal native regression endpoint: exercises the production enumerator
+// with duplicate corners, self-contact, multiple owners and malformed records.
+kernel void nm_mixed_owner_contact_enumeration_check(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMDeformableContactGPU* contacts [[buffer(2)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(3)]],
+    device const uint* incidence [[buffer(4)]],
+    device uint4* result [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * dispatch.objectCount) return;
+    const uint env = global / dispatch.objectCount;
+    const uint owner = global % dispatch.objectCount;
+    const NMContinuumObjectGPU object = objects[owner];
+    uint node = 0u, cursor = 0u, count = 0u, sum = 0u, bits = 0u;
+    bool valid = true;
+    while (true) {
+        const uint slot = nmMixedNextOwnerContact(dispatch, contacts, ranges,
+            incidence, env, owner, object.stateOffset, object.stateCount,
+            1u, node, cursor, valid);
+        if (slot == NM_INVALID_INDEX) break;
+        ++count; sum += slot; bits ^= slot;
+    }
+    result[global] = uint4(count, sum, bits, valid ? 1u : 0u);
+}
+
 kernel void nm_mixed_certify_partials(
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
@@ -1229,6 +1338,7 @@ kernel void nm_mixed_certify_partials(
     device NMFGMRESTelemetryGPU* fgmresTelemetry [[buffer(21)]],
     device const uint* deformableActiveIndices [[buffer(22)]],
     device NMMixedCertificatePartialGPU* partials [[buffer(23)]],
+    constant uint& ownerIncidenceEnabled [[buffer(24)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -1435,8 +1545,22 @@ kernel void nm_mixed_certify_partials(
     const uint deformableCapacity = dispatch.deformableContactCapacity;
     const uint deformableBase = environment * deformableCapacity;
     const uint deformableCount=min(contact.deformableActiveCounts[environment],deformableCapacity);
-    for (uint activeSlot=first;activeSlot<deformableCount;activeSlot+=stride) {
-        const uint slot=deformableActiveIndices[deformableBase+activeSlot];
+    uint ownerNode = first, ownerCursor = 0u, activeSlot = first;
+    const bool useOwnerIncidence = ownerIncidenceEnabled != 0u &&
+        object.representation == NM_REPRESENTATION_FEM;
+    for (;;) {
+        uint slot;
+        if (useOwnerIncidence) {
+            slot = nmMixedNextOwnerContact(dispatch, contact.deformableContacts,
+                contact.deformableNodeRanges, contact.deformableNodeIncidence,
+                environment, objectIndex, object.stateOffset, object.stateCount,
+                stride, ownerNode, ownerCursor, contactClearancesValid);
+            if (slot == NM_INVALID_INDEX) break;
+        } else {
+            if (activeSlot >= deformableCount) break;
+            slot = deformableActiveIndices[deformableBase + activeSlot];
+            activeSlot += stride;
+        }
         if(slot>=deformableCapacity){contactClearancesValid=false;continue;}
         const NMDeformableContactGPU deformable =
             contact.deformableContacts[deformableBase + slot];

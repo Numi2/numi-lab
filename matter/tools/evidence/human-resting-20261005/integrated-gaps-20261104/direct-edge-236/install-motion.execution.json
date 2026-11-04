@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 381.07044506073,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/direct-edge-236/install-motion.plan.json",
+  "plan_sha256": "e2d78cd66865028eca47fcec9432209b772a2b6ef3e49035eaeb8a608804f0ec",
+  "stdout_sha256": "fe22c3272e403576a0ae048c9db6e79502a2f2481ad1d23e84eb4eede95ab54b",
+  "stderr_sha256": "68c1446f2d667ee3aa63cc9146f4e358b6327fd842a528ecd97869ec24d5219a",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "restored": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/flow.csv",
+      "size": 217260627,
+      "bytes": 217260627,
+      "allocated": 113655808,
+      "inode": 6619065,
+      "device": 16777232,
+      "links": 1,
+      "mode": 420,
+      "mtime_ns": 1793630481998229678,
+      "sha256": "ab1b7b75d211ce2bdd94668914b59de2f8a3c908416a100a4455e7ca5419dfeb",
+      "retire": true,
+      "scope": "superseded preparation product; not a current scene input",
+      "relative": "Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/flow.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/carrier-trace.csv",
+      "size": 232719876,
+      "bytes": 232719876,
+      "allocated": 117702656,
+      "inode": 6619032,
+      "device": 16777232,
+      "links": 1,
+      "mode": 420,
+      "mtime_ns": 1793630485456204784,
+      "sha256": "5b6478186601fb45c692ffc6307f14ba7ea029046e14727f4e4ccf7fdfc69c4e",
+      "retire": true,
+      "scope": "superseded preparation product; not a current scene input",
+      "relative": "Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/carrier-trace.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/semantic-groups.csv",
+      "size": 103124899,
+      "bytes": 103124899,
+      "allocated": 40128512,
+      "inode": 6619179,
+      "device": 16777232,
+      "links": 1,
+      "mode": 420,
+      "mtime_ns": 1793630483150292072,
+      "sha256": "7f902d72dcbbe12877146624ceb987f7fe202047340bbb1d69e5b6d58133eec4",
+      "retire": true,
+      "scope": "superseded preparation product; not a current scene input",
+      "relative": "Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/semantic-groups.csv"
+    }
+  ],
+  "archive_sha256": "82d02ff35d90aa757331e2f4024b58120a488096d471fcd4fe50ce7d58ee9baf",
+  "all_required_source_carrier_packet_members_restored": true
+}

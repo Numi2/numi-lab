@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 476.293221950531,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/proof-owned-gap-237/install-motion.plan.json",
+  "plan_sha256": "25a2461e5aa1b2f2167da058db0490e0c2ca1c0d770428fed74bd2976a988132",
+  "stdout_sha256": "02c43035b3710cb5bac3aeb9b3d88fa7e098ea8f555cd2ccb29d8256d6e8d755",
+  "stderr_sha256": "4da387a8063ae3990e393a9e072cd8a17e978e257d65e7712b1e8c9faf0cb14c",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

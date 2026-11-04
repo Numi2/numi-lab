@@ -1,0 +1,12 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 416.144180059433,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/late-trace-234/install-motion.plan.json",
+  "plan_sha256": "07e59008120f909ba5ed65e20f04ba5323b0a9636b0836e221fd6a4ce6c581e3",
+  "stdout_sha256": "7ff4599b9d8c142e12c6ee90a1577675f1904859f0eb3c92a0c66f6a53ee24ef",
+  "stderr_sha256": "b8cfced626ec1fb964858d33b5609bfb7421b742b950c88fe957580eba54599b",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

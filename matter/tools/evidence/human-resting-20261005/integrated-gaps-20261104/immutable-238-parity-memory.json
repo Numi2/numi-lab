@@ -1,0 +1,97 @@
+{
+  "reference": "late-trace-234",
+  "candidate": "immutable-238",
+  "scope": "32-root release prefix, not sustained supported rest",
+  "files": [
+    {
+      "name": "resting-body-motion-partition.csv",
+      "equal": true,
+      "rows_reference": 5025,
+      "rows_candidate": 5025,
+      "example_differences": []
+    },
+    {
+      "name": "resting-com-momentum-diagnostic.csv",
+      "equal": true,
+      "rows_reference": 33,
+      "rows_candidate": 33,
+      "example_differences": []
+    },
+    {
+      "name": "resting-com-q-index-map.csv",
+      "equal": true,
+      "rows_reference": 133,
+      "rows_candidate": 133,
+      "example_differences": []
+    },
+    {
+      "name": "resting-com-q-integration.csv",
+      "equal": true,
+      "rows_reference": 33,
+      "rows_candidate": 33,
+      "example_differences": []
+    },
+    {
+      "name": "resting-com-q-support-slip.csv",
+      "equal": true,
+      "rows_reference": 1,
+      "rows_candidate": 1,
+      "example_differences": []
+    },
+    {
+      "name": "resting-com-support-impulses.csv",
+      "equal": true,
+      "rows_reference": 1,
+      "rows_candidate": 1,
+      "example_differences": []
+    },
+    {
+      "name": "resting-coupled.csv",
+      "equal": true,
+      "rows_reference": 33,
+      "rows_candidate": 33,
+      "example_differences": []
+    },
+    {
+      "name": "resting-support-point-motion.csv",
+      "equal": true,
+      "rows_reference": 1,
+      "rows_candidate": 1,
+      "example_differences": []
+    },
+    {
+      "name": "resting-support-selected-skin-witness.csv",
+      "equal": true,
+      "rows_reference": 33,
+      "rows_candidate": 33,
+      "example_differences": []
+    },
+    {
+      "name": "resting-surface-audit.csv",
+      "equal": true,
+      "rows_reference": 4,
+      "rows_candidate": 4,
+      "example_differences": []
+    }
+  ],
+  "late-trace-234": {
+    "final_lines": [
+      "resting_integrated_throughput accepted_start_step=1 accepted_end_step=32 simulated_s=0.000484375023007 wall_s=223.401536166 real_time_factor=2.16818125479e-06 includes=physics_physiology_controller_audits_trace_viewer_movie_frames_cadence_geometry_export excludes=terminal_query_fk_terminal_frame_render_terminal_geometry_export_load_compile_initial_parity_first_accepted_observer_movie_finalization",
+      "human_execution_stage=native_horizon_end wall_elapsed_ms=228875.003833 stage_step=32",
+      "resting_integrated_body=completed simulated_s=0.00050000002374872565 wall_s=229.075407625 real_time_factor=2.1826874780344535e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+    ],
+    "allocation_after_krylov": [
+      "matter_allocation_phase phase=after_krylov_basis resident_bytes=4769506848 device_allocated_bytes=5935087616 recommended_working_set_bytes=12713115648"
+    ]
+  },
+  "immutable-238": {
+    "final_lines": [
+      "resting_integrated_throughput accepted_start_step=1 accepted_end_step=32 simulated_s=0.000484375023007 wall_s=223.364427125 real_time_factor=2.16854146939e-06 includes=physics_physiology_controller_audits_trace_viewer_movie_frames_cadence_geometry_export excludes=terminal_query_fk_terminal_frame_render_terminal_geometry_export_load_compile_initial_parity_first_accepted_observer_movie_finalization",
+      "human_execution_stage=native_horizon_end wall_elapsed_ms=228784.356334 stage_step=32",
+      "resting_integrated_body=completed simulated_s=0.00050000002374872565 wall_s=228.965443333 real_time_factor=2.1837357483746647e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+    ],
+    "allocation_after_krylov": [
+      "matter_allocation_phase phase=after_krylov_basis resident_bytes=4343416896 device_allocated_bytes=5082890240 recommended_working_set_bytes=12713115648"
+    ]
+  }
+}

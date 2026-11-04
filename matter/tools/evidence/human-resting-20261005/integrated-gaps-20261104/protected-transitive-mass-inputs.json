@@ -1,0 +1,30 @@
+{
+  "status": "ALL_FOUR_PACKET_MEMBERS_PRESENT_AND_PROTECTED",
+  "inputs": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/flow.csv",
+      "sha256": "ab1b7b75d211ce2bdd94668914b59de2f8a3c908416a100a4455e7ca5419dfeb",
+      "bytes": 217260627,
+      "role": "native recorded source-carrier packet transitive input"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/carrier-trace.csv",
+      "sha256": "5b6478186601fb45c692ffc6307f14ba7ea029046e14727f4e4ccf7fdfc69c4e",
+      "bytes": 232719876,
+      "role": "native recorded source-carrier packet transitive input"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/semantic-groups.csv",
+      "sha256": "7f902d72dcbbe12877146624ceb987f7fe202047340bbb1d69e5b6d58133eec4",
+      "bytes": 103124899,
+      "role": "native recorded source-carrier packet transitive input"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/source-donors.csv",
+      "sha256": "0d254e800cd420a26435107dfb67882485ced7cd372750e92980e39bc9b19bdb",
+      "bytes": 10682,
+      "role": "native recorded source-carrier packet donor accounting"
+    }
+  ],
+  "restoration_receipt": "/Users/numi/Work/human-integrated-gaps-20261104/mass-flow-recovery/receipt.json"
+}

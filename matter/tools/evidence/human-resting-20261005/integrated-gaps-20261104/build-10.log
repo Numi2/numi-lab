@@ -1,0 +1,12 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- Configuring done (0.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/Work/skin-fat-native-integration-209/build-native
+[0/4] Re-checking globbed directories...
+[1/9] Linking CXX static library matter/libnumi_matter_runtime.a
+[2/9] Linking CXX executable matter/numi-matter-fgmres-true-residual-native-check
+[3/9] Linking CXX executable matter/numi-matter-fem-static-surface-map-native-check
+[4/9] Linking CXX executable matter/numi-matter-fem-material-frame-check
+[5/9] Linking CXX shared library lib/libmetalrobo.dylib
+[6/9] Linking OBJCXX executable bin/numi-human-native

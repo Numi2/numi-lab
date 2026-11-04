@@ -1,0 +1,102 @@
+{
+  "trial": "237",
+  "native_exit_code": 1,
+  "accepted_steps": 31,
+  "failure_owner": "passive_tissue_runtime",
+  "matter_status": 6,
+  "failing_object": 15,
+  "failing_contact": 1645436,
+  "disposition": "not_promoted; production proof-composition change removed; exact failed source patch retained",
+  "comparisons": {
+    "resting-body-motion-partition.csv": {
+      "reference_rows": 5025,
+      "trial_rows": 4868,
+      "prefix_equal": false,
+      "numeric_differences": 88323,
+      "max_absolute_difference_untyped": 6.755234982572245e-07,
+      "maximum_relative_difference_untyped": 0.09004259301229943,
+      "note": "screen only; mixed-unit maxima are not physical acceptance gates"
+    },
+    "resting-com-momentum-diagnostic.csv": {
+      "reference_rows": 33,
+      "trial_rows": 32,
+      "prefix_equal": false,
+      "numeric_differences": 1526,
+      "max_absolute_difference_untyped": 1.7882933094035233e+19,
+      "maximum_relative_difference_untyped": 89406.96716308594,
+      "note": "screen only; mixed-unit maxima are not physical acceptance gates"
+    },
+    "resting-com-q-index-map.csv": {
+      "reference_rows": 133,
+      "trial_rows": 133,
+      "prefix_equal": true,
+      "numeric_differences": 0,
+      "max_absolute_difference_untyped": 0,
+      "maximum_relative_difference_untyped": 0,
+      "note": "screen only; mixed-unit maxima are not physical acceptance gates"
+    },
+    "resting-com-q-integration.csv": {
+      "reference_rows": 33,
+      "trial_rows": 32,
+      "prefix_equal": false,
+      "numeric_differences": 863,
+      "max_absolute_difference_untyped": 1.7882933094035233e+19,
+      "maximum_relative_difference_untyped": 997.0113358467529,
+      "note": "screen only; mixed-unit maxima are not physical acceptance gates"
+    },
+    "resting-com-q-support-slip.csv": {
+      "reference_rows": 1,
+      "trial_rows": 1,
+      "prefix_equal": true,
+      "numeric_differences": 0,
+      "max_absolute_difference_untyped": 0,
+      "maximum_relative_difference_untyped": 0,
+      "note": "screen only; mixed-unit maxima are not physical acceptance gates"
+    },
+    "resting-com-support-impulses.csv": {
+      "reference_rows": 1,
+      "trial_rows": 1,
+      "prefix_equal": true,
+      "numeric_differences": 0,
+      "max_absolute_difference_untyped": 0,
+      "maximum_relative_difference_untyped": 0,
+      "note": "screen only; mixed-unit maxima are not physical acceptance gates"
+    },
+    "resting-coupled.csv": {
+      "reference_rows": 33,
+      "trial_rows": 32,
+      "prefix_equal": false,
+      "numeric_differences": 250,
+      "max_absolute_difference_untyped": 0.0004656742769169379,
+      "maximum_relative_difference_untyped": 119834.54285718777,
+      "note": "screen only; mixed-unit maxima are not physical acceptance gates"
+    },
+    "resting-support-point-motion.csv": {
+      "reference_rows": 1,
+      "trial_rows": 1,
+      "prefix_equal": true,
+      "numeric_differences": 0,
+      "max_absolute_difference_untyped": 0,
+      "maximum_relative_difference_untyped": 0,
+      "note": "screen only; mixed-unit maxima are not physical acceptance gates"
+    },
+    "resting-support-selected-skin-witness.csv": {
+      "reference_rows": 33,
+      "trial_rows": 33,
+      "prefix_equal": true,
+      "numeric_differences": 0,
+      "max_absolute_difference_untyped": 0,
+      "maximum_relative_difference_untyped": 0,
+      "note": "screen only; mixed-unit maxima are not physical acceptance gates"
+    },
+    "resting-surface-audit.csv": {
+      "reference_rows": 4,
+      "trial_rows": 2,
+      "prefix_equal": true,
+      "numeric_differences": 0,
+      "max_absolute_difference_untyped": 0,
+      "maximum_relative_difference_untyped": 0,
+      "note": "screen only; mixed-unit maxima are not physical acceptance gates"
+    }
+  }
+}

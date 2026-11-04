@@ -1,0 +1,57 @@
+{
+  "reference": "combined-232",
+  "candidate": "late-trace-234",
+  "files": [
+    {
+      "name": "resting-body-motion-partition.csv",
+      "bytes": 2454129,
+      "equal": true
+    },
+    {
+      "name": "resting-com-momentum-diagnostic.csv",
+      "bytes": 47720,
+      "equal": true
+    },
+    {
+      "name": "resting-com-q-index-map.csv",
+      "bytes": 6908,
+      "equal": true
+    },
+    {
+      "name": "resting-com-q-integration.csv",
+      "bytes": 658109,
+      "equal": true
+    },
+    {
+      "name": "resting-com-q-support-slip.csv",
+      "bytes": 715,
+      "equal": true
+    },
+    {
+      "name": "resting-com-support-impulses.csv",
+      "bytes": 331,
+      "equal": true
+    },
+    {
+      "name": "resting-coupled.csv",
+      "bytes": 24690,
+      "equal": true
+    },
+    {
+      "name": "resting-support-point-motion.csv",
+      "bytes": 371,
+      "equal": true
+    },
+    {
+      "name": "resting-support-selected-skin-witness.csv",
+      "bytes": 4684,
+      "equal": true
+    },
+    {
+      "name": "resting-surface-audit.csv",
+      "bytes": 2272,
+      "equal": true
+    }
+  ],
+  "all_equal": true
+}

@@ -1,0 +1,47 @@
+{
+  "status": "BUILT_ON_SSH_NUMI",
+  "compiler": "/Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/bin/metal",
+  "command": "PATH=/Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/bin:$PATH cmake --build build-native --target numi-human-native numi-matter-cardboard-contact-node-incidence-sort-native-check numi-matter-fem-material-frame-check -j3",
+  "binary": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "sha256": "6f25cc739d382b24b0e01db1b1d701ee04f08b0b231ada358a29173f550f983f",
+    "bytes": 10556192
+  },
+  "dependencies": {
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+      "sha256": "4b0eea52d3ff7e9508210acf3d762f778c82227c34d8a69597d77b832dc2eaf7",
+      "bytes": 10497472
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "sha256": "9f7a90893d3f17fe49d196051b79d0a9106768ee00c292b3ea28496795e0775e",
+      "bytes": 31407719
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib",
+      "sha256": "880f60be6eb17b6af781665c6016c6d050da069685fcf1e8e2cafda0fc2115c8",
+      "bytes": 560736
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar",
+      "sha256": "69a9d6aa014063ba9054dd37f6fe34b6352b03b216e0dead14dfe1398ce26f40",
+      "bytes": 521490080
+    }
+  },
+  "build_log": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/build-04.log",
+    "sha256": "e435de070b3e09644356c7c4ffd3de7560306ab9735b405466aa91523c3a5bd0",
+    "bytes": 22377
+  },
+  "contact_native_test": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/contact-check-04.log",
+    "sha256": "8a05633122bb13819f0875af7683cefc0c7d1e1e3af55a657d79019f28583068",
+    "bytes": 177
+  },
+  "material_native_test": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/material-check-04.log",
+    "sha256": "1cdfb0fef17d0035c7a1dd912963696208e12d5d5b2a183fd104f6153e4d433f",
+    "bytes": 55610
+  }
+}

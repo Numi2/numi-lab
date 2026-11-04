@@ -1,0 +1,146 @@
+{
+  "combined-232": {
+    "execution": {
+      "exit_code": 0,
+      "elapsed_s": 430.8996329307556,
+      "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/combined-232/install-motion.plan.json",
+      "plan_sha256": "e3b10b919e24a736e86faf8c2dbfa2480d50818fc3903231a0420204ab417581",
+      "stdout_sha256": "4b8ec02911a7150150316c4d319566c4735891e65fe41b717b63bd2b4a800ac7",
+      "stderr_sha256": "d12e1e4e006dac0b3a06bdccf3cbc0b677006e7ee31db5a5806bfbe83cfd0fae",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    },
+    "accepted_steps": 32,
+    "work": {
+      "records": 32,
+      "active_solves": 144,
+      "used_columns": 2304,
+      "budget_exhausted_solves": 62
+    },
+    "completed_body": {
+      "simulated_s": 0.0005000000237487257,
+      "wall_s": 230.453690667,
+      "real_time_factor": 2.169633397068106e-06
+    }
+  },
+  "late-trace-234": {
+    "execution": {
+      "exit_code": 0,
+      "elapsed_s": 416.144180059433,
+      "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/late-trace-234/install-motion.plan.json",
+      "plan_sha256": "07e59008120f909ba5ed65e20f04ba5323b0a9636b0836e221fd6a4ce6c581e3",
+      "stdout_sha256": "7ff4599b9d8c142e12c6ee90a1577675f1904859f0eb3c92a0c66f6a53ee24ef",
+      "stderr_sha256": "b8cfced626ec1fb964858d33b5609bfb7421b742b950c88fe957580eba54599b",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    },
+    "accepted_steps": 32,
+    "work": {
+      "records": 32,
+      "active_solves": 144,
+      "used_columns": 2304,
+      "budget_exhausted_solves": 62
+    },
+    "completed_body": {
+      "simulated_s": 0.0005000000237487257,
+      "wall_s": 229.075407625,
+      "real_time_factor": 2.1826874780344535e-06
+    }
+  },
+  "assembled-235": {
+    "execution": {
+      "exit_code": 1,
+      "elapsed_s": 356.00065207481384,
+      "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/assembled-235/install-motion.plan.json",
+      "plan_sha256": "f74a3f397c068cea3c268497ae6fec47311d7c3ce1c52774623b8a8ac325787c",
+      "stdout_sha256": "a48e1e9c4b54c0a840b2b5c24cddb223b9cb38af67e69b7c9408cd3622f47783",
+      "stderr_sha256": "bbb42141678e0b8b6b7a5e5d2bf39ad32cd18acabc1f3bdd4f05e4de0576b819",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    },
+    "accepted_steps": 25,
+    "work": {
+      "records": 26,
+      "active_solves": 85,
+      "used_columns": 1360,
+      "budget_exhausted_solves": 32
+    },
+    "completed_body": null
+  },
+  "direct-edge-236": {
+    "execution": {
+      "exit_code": 1,
+      "elapsed_s": 381.07044506073,
+      "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/direct-edge-236/install-motion.plan.json",
+      "plan_sha256": "e2d78cd66865028eca47fcec9432209b772a2b6ef3e49035eaeb8a608804f0ec",
+      "stdout_sha256": "fe22c3272e403576a0ae048c9db6e79502a2f2481ad1d23e84eb4eede95ab54b",
+      "stderr_sha256": "68c1446f2d667ee3aa63cc9146f4e358b6327fd842a528ecd97869ec24d5219a",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    },
+    "accepted_steps": 25,
+    "work": {
+      "records": 26,
+      "active_solves": 85,
+      "used_columns": 1360,
+      "budget_exhausted_solves": 32
+    },
+    "completed_body": null
+  },
+  "proof-owned-gap-237": {
+    "execution": {
+      "exit_code": 1,
+      "elapsed_s": 476.293221950531,
+      "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/proof-owned-gap-237/install-motion.plan.json",
+      "plan_sha256": "25a2461e5aa1b2f2167da058db0490e0c2ca1c0d770428fed74bd2976a988132",
+      "stdout_sha256": "02c43035b3710cb5bac3aeb9b3d88fa7e098ea8f555cd2ccb29d8256d6e8d755",
+      "stderr_sha256": "4da387a8063ae3990e393a9e072cd8a17e978e257d65e7712b1e8c9faf0cb14c",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    },
+    "accepted_steps": 31,
+    "work": {
+      "records": 32,
+      "active_solves": 172,
+      "used_columns": 2752,
+      "budget_exhausted_solves": 79
+    },
+    "completed_body": null
+  },
+  "immutable-238": {
+    "execution": {
+      "exit_code": 0,
+      "elapsed_s": 416.169251203537,
+      "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion.plan.json",
+      "plan_sha256": "aa3e79c62c4957012488f92cfb77c5c65a9e9e5aec3ba6eacf5c494b8a669c03",
+      "stdout_sha256": "5cfaae8bde846ac396140c00a2ebe829c74c2f2a09d00e2d60d3c6a348cd7b5b",
+      "stderr_sha256": "0e4785578a27ab60ad0b430e9f5ac4f6f8460c06726e9d1a3b9d6ad8a8f949bf",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    },
+    "accepted_steps": 32,
+    "work": {
+      "records": 32,
+      "active_solves": 144,
+      "used_columns": 2304,
+      "budget_exhausted_solves": 62
+    },
+    "completed_body": {
+      "simulated_s": 0.0005000000237487257,
+      "wall_s": 228.965443333,
+      "real_time_factor": 2.1837357483746647e-06
+    }
+  }
+}

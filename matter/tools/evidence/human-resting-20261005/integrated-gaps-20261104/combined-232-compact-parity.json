@@ -1,0 +1,42 @@
+{
+  "reference": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229",
+  "candidate": "/Users/numi/Work/human-integrated-gaps-20261104/combined-232",
+  "compact_csv": {
+    "resting-com-momentum-diagnostic.csv": {
+      "identical": true,
+      "bytes": 47720
+    },
+    "resting-support-point-motion.csv": {
+      "identical": true,
+      "bytes": 371
+    },
+    "resting-com-q-support-slip.csv": {
+      "identical": true,
+      "bytes": 715
+    },
+    "resting-body-motion-partition.csv": {
+      "identical": true,
+      "bytes": 2454129
+    },
+    "resting-coupled.csv": {
+      "identical": true,
+      "bytes": 24690
+    },
+    "resting-com-q-integration.csv": {
+      "identical": true,
+      "bytes": 658109
+    },
+    "resting-com-support-impulses.csv": {
+      "identical": true,
+      "bytes": 331
+    },
+    "resting-surface-audit.csv": {
+      "identical": true,
+      "bytes": 2272
+    },
+    "resting-support-selected-skin-witness.csv": {
+      "identical": true,
+      "bytes": 4684
+    }
+  }
+}

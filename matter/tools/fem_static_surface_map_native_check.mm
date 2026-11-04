@@ -2,12 +2,14 @@
 #import <Metal/Metal.h>
 
 #include "numi/matter/matter.hpp"
+#include "metalrobo/engine_types.h"
 
 #include <algorithm>
 #include <array>
 #include <bit>
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <iostream>
@@ -423,6 +425,85 @@ void compareEquivalent(const CompiledWorld& legacy,
     }
 }
 
+void checkImmutableElementStorage(const MaterialProgram& material,
+                                  unsigned environments) {
+    auto source = fixture(material);
+    source.environmentCount = environments;
+    source.compactImmutableFEMSurfaces = true;
+    const auto world = compile(source);
+    RuntimeConfiguration config;
+    config.metallib = NUMI_MATTER_METALLIB;
+    config.environmentCount = environments;
+    config.captureEvents = false;
+    config.adaptiveTransfer = false;
+    const char* previous = std::getenv("NM_FEM_SHARE_IMMUTABLE_TETRAHEDRA");
+    const bool hadPrevious = previous != nullptr;
+    const std::string saved = previous ? previous : "";
+    Runtime reference, shared;
+    setenv("NM_FEM_SHARE_IMMUTABLE_TETRAHEDRA", "0", 1);
+    const auto before = reference.initialize(world, config);
+    setenv("NM_FEM_SHARE_IMMUTABLE_TETRAHEDRA", "1", 1);
+    const auto after = shared.initialize(world, config);
+    if (hadPrevious) setenv("NM_FEM_SHARE_IMMUTABLE_TETRAHEDRA", saved.c_str(), 1);
+    else unsetenv("NM_FEM_SHARE_IMMUTABLE_TETRAHEDRA");
+    require(before.encoded && after.encoded, "immutable element runtime initialization: " +
+        before.message + "; " + after.message);
+    const auto original = reference.snapshot();
+    const auto aliased = shared.snapshot();
+    require(original.available && aliased.available, "immutable storage snapshot unavailable");
+    const auto equal = [](const auto& a, const auto& b) {
+        return a.size() == b.size() && (a.empty() ||
+            std::memcmp(a.data(), b.data(), a.size() * sizeof(a[0])) == 0);
+    };
+    require(equal(original.femTopologyTetrahedra, aliased.femTopologyTetrahedra) &&
+            equal(original.femNodes, aliased.femNodes) &&
+            equal(original.femFields, aliased.femFields) &&
+            equal(original.femMaterialState, aliased.femMaterialState),
+        "immutable storage initialization changed physical state");
+    const std::size_t copiesSaved = environments == 1u ? 3u : 2u * environments;
+    const std::size_t minimumSaved =
+        copiesSaved * world.fem.tetrahedra.size() * sizeof(NMTetrahedronGPU);
+    require(before.residentBytes >= after.residentBytes + minimumSaved,
+        "immutable element storage did not remove duplicate allocations");
+    // Restore must preserve the one physical state while rejecting any attempt
+    // to mutate connectivity or reference/material data before device submission.
+    require(shared.restore(aliased).encoded, "valid immutable snapshot restore failed");
+    auto tampered = aliased;
+    tampered.femTopologyTetrahedra.back().nodes.x ^= 1u;
+    require(!shared.restore(tampered).encoded, "immutable connectivity tamper admitted");
+    tampered = aliased;
+    tampered.femTopologyTetrahedra.back().inverseRestRow0.w *= 1.01f;
+    require(!shared.restore(tampered).encoded, "immutable reference volume tamper admitted");
+    const auto restored = shared.snapshot();
+    require(restored.available &&
+            equal(aliased.femTopologyTetrahedra, restored.femTopologyTetrahedra) &&
+            equal(aliased.femNodes, restored.femNodes),
+        "failed restore changed shared immutable state");
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    id<MTLCommandQueue> queue = [device newCommandQueue];
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    std::vector<NMMutationCommandGPU> commands(1u);
+    id<MTLBuffer> mutationBuffer = sharedBuffer(device, commands);
+    EncodeRequest request;
+    request.commandBuffer = (__bridge void*)command;
+    id<MTLBuffer> environmentStatus = sharedBuffer(device,
+        std::vector<MRMetalWorldStatusGPU>(environments));
+    request.environmentStatuses = (__bridge void*)environmentStatus;
+    request.mutationCommands = (__bridge void*)mutationBuffer;
+    request.mutationCommandCount = 1u;
+    request.mutationCommandStride = sizeof(NMMutationCommandGPU);
+    request.timestepSeconds = shared.timestepSeconds();
+    const auto rejected = shared.encode(request);
+    require(!rejected.encoded &&
+            rejected.message.find("immutable FEM element storage") != std::string::npos,
+        "shared immutable topology did not reject borrowed mutation before encoding: " +
+        rejected.message);
+    shared.cancel((__bridge void*)command);
+    std::cout << "immutable_element_storage environments=" << environments
+              << " resident_bytes_saved=" << before.residentBytes-after.residentBytes
+              << " snapshot=bitwise tamper=denied\n";
+}
+
 void comparePhysicalInputs(const CompiledWorld& legacy,
                            const CompiledWorld& compact) {
     require(legacy.dispatch.objectCount >= 2u && compact.dispatch.objectCount >= 2u,
@@ -518,6 +599,8 @@ int main(const int argc, char** argv) {
         const auto legacyActive = dispatchBuilder(device, pipeline, legacy);
         const auto compactActive = dispatchBuilder(device, pipeline, compact);
         compareEquivalent(legacy, compact, legacyActive, compactActive);
+        checkImmutableElementStorage(parsed.material, 1u);
+        checkImmutableElementStorage(parsed.material, 2u);
         std::cout << "PASS native immutable FEM surface map equivalence "
                   << checks << " checks; environments=" << kEnvironments
                   << "; active_surface_faces=" << compactActive.size()

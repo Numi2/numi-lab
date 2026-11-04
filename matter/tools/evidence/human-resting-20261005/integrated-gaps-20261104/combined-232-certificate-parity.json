@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "roots": 32,
+  "objects_per_root": 22,
+  "changed_scalars": 12,
+  "maximum_relative_difference": 1.1193553320421091e-07,
+  "maximum_witness": [
+    31,
+    15,
+    "contact",
+    3,
+    3.0374623e-11,
+    3.03746264e-11
+  ]
+}
