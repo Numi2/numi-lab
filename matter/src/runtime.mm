@@ -9790,8 +9790,11 @@ RuntimeDiagnostics Runtime::initialize(
             if(world.mixedSolver.executionBudgets.z!=1u &&
                world.mixedSolver.executionBudgets.z!=2u &&
                std::strcmp(name,"nm_fgmres_build_tangent_fem_preconditioner")==0) continue;
-            if (!candidate->femGatherSIMDEnabled &&
-                (std::strcmp(name,"nm_fgmres_gather_nodes_simd")==0 ||
+            if ((!candidate->femGatherSIMDEnabled &&
+                 std::strcmp(name,"nm_fgmres_gather_nodes_simd")==0) ||
+                (!(candidate->femGatherSIMDEnabled ||
+                   (candidate->femCachedNodeSIMDEnabled &&
+                    candidate->fgmresFreshRhsPreconditionerPreflightRequested)) &&
                  std::strcmp(name,"nm_fgmres_prepare_simd_gather_dispatch")==0))
                 continue;
             if (!candidate->femCachedNodeSIMDEnabled &&
@@ -13259,17 +13262,18 @@ RuntimeDiagnostics Runtime::initialize(
              world.mixedSolver.executionBudgets.w != 2u ||
              candidate->femHumanHybridCoordinatesEnabled ||
              candidate->femHuman6SchurCondensedFGMRESEnabled ||
-             candidate->fgmresFreshRhsPreconditionerPreflightRequested ||
              std::getenv("NM_FEM_BASE_CGLS_RIGHT_SCALE") != nullptr ||
              world.dispatch.mpmActiveNodeCapacity != 0u)) {
             diagnostics.message = "cached-node SIMD requires full-coordinate selector6, "
                 "cache mode2, one nonempty FEM environment without MPM, Schur, "
-                "hybrid, CGLS or fresh-RHS preflight";
+                "hybrid or CGLS";
             return diagnostics;
         }
         if (candidate->femCachedNodeSIMDEnabled &&
             (candidate->pipeline("nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd") == nil ||
-             candidate->pipeline("nm_fgmres_prepare_cached_node_simd_dispatch") == nil)) {
+             candidate->pipeline("nm_fgmres_prepare_cached_node_simd_dispatch") == nil ||
+             (candidate->fgmresFreshRhsPreconditionerPreflightRequested &&
+              candidate->pipeline("nm_fgmres_prepare_simd_gather_dispatch") == nil))) {
             diagnostics.message = "cached-node SIMD pipeline preparation failed";
             return diagnostics;
         }
@@ -13338,25 +13342,33 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->fgmresLayout.reserved |= (1u << 22u) | (1u << 23u);
         }
         if (candidate->fgmresFreshRhsPreconditionerPreflightRequested) {
+            // Preflight writes only private begin state and evaluates the
+            // CURRENT raw assembled RHS. The no-work proof requires BOTH the
+            // physical nonlinear latch and linear completion, so scaled Arnoldi
+            // targets and EW eta cannot by themselves authorize cache skipping.
+            // The real begin recomputes its scaled norm and EW history normally.
+            const auto physicalNormBits = (1u<<22u)|(1u<<23u);
+            const bool rowScalingHasRawPhysicalNorm =
+                !candidate->femLeftRowEquilibrationEnabled ||
+                (candidate->fgmresLayout.reserved & physicalNormBits)==physicalNormBits;
             const bool unsupportedBeginLayout =
                 candidate->femHumanHybridCoordinatesEnabled ||
                 candidate->femHuman6SchurCondensedFGMRESEnabled ||
-                candidate->femLeftRowEquilibrationEnabled ||
+                !rowScalingHasRawPhysicalNorm ||
                 candidate->femAcceptedSubspacePredictorEnabled ||
-                candidate->fgmresInexactNewtonForcingEnabled ||
-                candidate->enableVascularDense45 ||
-                (candidate->fgmresLayout.reserved &
-                    ((1u << 22u) | (1u << 23u))) != 0u;
+                candidate->enableVascularDense45;
             if (candidate->dispatch.environmentCount != 1u ||
                 !candidate->femDistributedGlobalMeasurementsEnabled ||
                 unsupportedBeginLayout) {
                 diagnostics.message =
-                    "fresh-RHS preconditioner preflight requires one-environment distributed begin with direct full coordinates, no row scaling, predictor, EW forcing, Schur, or dense45";
+                    "fresh-RHS preconditioner preflight requires single-environment distributed full coordinates, original physical norm bookkeeping when scaled, and no predictor, Schur or dense45";
                 return diagnostics;
             }
             candidate->fgmresFreshRhsPreconditionerPreflightEnabled = true;
             candidate->fgmresFreshRhsPreconditionerVerifyEnabled =
-                candidate->fgmresFreshRhsPreconditionerVerifyRequested;
+                candidate->fgmresFreshRhsPreconditionerVerifyRequested ||
+                candidate->femLeftRowEquilibrationEnabled ||
+                candidate->fgmresInexactNewtonForcingEnabled;
             candidate->fgmresFreshRhsPreconditionerClearSkippedCachesEnabled =
                 candidate->fgmresFreshRhsPreconditionerClearSkippedCachesRequested;
             candidate->executionFingerprint = mixFingerprint(
@@ -37305,6 +37317,27 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const char* name, const NSUInteger count,
                 const std::uint32_t rangeIndex, const auto& bind,
                 const WorkDomain workDomain = WorkDomain::generic) {
+                // The scalar builder domain has one thread per node;
+                // the cooperative cached builder has one SIMD per node.
+                // Convert the GPU-selected producer range before dispatching,
+                // preserving both empty and partial domains.
+                if (state.femCachedNodeSIMDEnabled &&
+                    std::strcmp(name,
+                        "nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd")==0 &&
+                    freshRhsPreconditionerMaySkip &&
+                    state.fgmresFreshRhsPreconditionerDiagnosticMode != 1u) {
+                    dispatchThreads("nm_fgmres_prepare_simd_gather_dispatch",1u,[&] {
+                        setDispatch();
+                        [encoder setBuffer:state.fgmresFreshRhsPreconditionerRanges
+                            offset:NSUInteger(rangeIndex)*sizeof(NMIndirectDispatchGPU) atIndex:1u];
+                        [encoder setBuffer:state.femCachedNodeSIMDDispatch offset:0u atIndex:2u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    if (dispatchIndirect(name,state.femCachedNodeSIMDDispatch,256u,bind))
+                        return;
+                    diagnostics.message = "fresh-RHS SIMD builder range unavailable";
+                    return;
+                }
                 if (freshRhsPreconditionerMaySkip &&
                     state.fgmresFreshRhsPreconditionerDiagnosticMode != 1u &&
                     dispatchIndirectAtOffset(

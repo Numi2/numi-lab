@@ -2403,6 +2403,82 @@ void checkDistributedBeginAndCorrection(
             close(preservedPhysicalResidual[nodes].x, 1.0e20f),
         "begin reduction modified the original nonlinear RHS buffer");
 
+    // The physical no-work proof is independent of the Arnoldi row scale
+    // and linear forcing target. A tiny scaled norm must never replace the
+    // raw mechanical/vascular nonlinear gates.
+    {
+        const auto savedLayout=*static_cast<NMFGMRESLayoutGPU*>(layoutBuffer.contents);
+        auto proofLayout=savedLayout;
+        proofLayout.unknownCount=2u*nodes+1u;
+        proofLayout.supportBase=2u*nodes;proofLayout.vascularBase=2u*nodes;
+        proofLayout.vascularUnknownCount=1u;
+        proofLayout.vascularResidualTolerance=1.0e-5f;
+        proofLayout.reserved=1u|2u|(4u<<16u)|(1u<<22u)|(1u<<23u);
+        std::memcpy(layoutBuffer.contents,&proofLayout,sizeof(proofLayout));
+        for(std::uint32_t test=0u;test<18u;++test) {
+            const float scales[3]={1.0e-8f,1.0f,1.0e8f};
+            const float targets[3]={0.25f,1.0e-4f,1.0e-12f};
+            const std::uint32_t family=test/3u;
+            const bool expected=family==0u;
+            std::vector<nm_float4> raw(2u*nodes+1u,nm_float4{});
+            for(std::uint32_t n=0u;n<nodes;++n)
+                raw[n]={family==1u?2.0e-8f:2.0e-9f,0.0f,0.0f,0.0f};
+            raw[2u*nodes]={family==2u?2.0e-5f:3.0e-6f,0.0f,0.0f,0.0f};
+            if(family==3u)raw[0].x=INFINITY;
+            // Inactive backing rows must be excluded in both measurements.
+            raw[nodes]={1.0e20f,-1.0e20f,1.0e20f,-1.0e20f};
+            auto scaled=raw;
+            for(std::uint32_t n=0u;n<nodes;++n) {
+                scaled[n].x*=scales[test%3u];
+                scaled[n].y*=scales[test%3u];scaled[n].z*=scales[test%3u];
+            }
+            NMFGMRESStateGPU start{};start.nonlinear={1.0f,1.0f,0.0f,0.0f};
+            if(family==4u)start.nonlinear.z=INFINITY;
+            NMMatterStatusGPU status=healthy;
+            if(family==5u)status.code=NM_STATUS_CONTACT_FAILURE;
+            auto rawBuffer=makeBuffer(device,raw);
+            auto scaledBuffer=makeBuffer(device,scaled);
+            auto privateState=makeBuffer(device,std::vector{start});
+            auto realState=makeBuffer(device,std::vector{start});
+            auto faultBuffer=makeBuffer(device,std::vector{status});
+            auto runProof=[&](id<MTLBuffer> rhs,id<MTLBuffer> result,float eta) {
+                auto bindings=beginBindings;
+                for(auto& v:bindings) {
+                    if(v.first==3u)v.second=rhs;
+                    if(v.first==8u)v.second=result;
+                    if(v.first==9u)v.second=faultBuffer;
+                    if(v.first==15u)v.second=makeBuffer(device,std::vector{eta});
+                    if(v.first==16u)v.second=makeBuffer(device,std::vector<std::uint32_t>{2u});
+                }
+                bindings.emplace_back(24u,beginPartials);
+                bindings.emplace_back(25u,unusedDomainPartials);
+                bindings.emplace_back(26u,rawBuffer);
+                dispatch(device,queue,beginPartial,bindings,beginTiles,256u);
+                bindings.pop_back();
+                bindings.emplace_back(27u,disabledCompletedWork);
+                dispatch(device,queue,beginFinish,bindings,1u,32u);
+            };
+            runProof(rawBuffer,privateState,0.25f);
+            runProof(scaledBuffer,realState,targets[test%3u]);
+            const auto pre=readBuffer<NMFGMRESStateGPU>(privateState,1u)[0];
+            const auto actual=readBuffer<NMFGMRESStateGPU>(realState,1u)[0];
+            const bool privateNoWork=status.code==NM_STATUS_SUCCESS&&pre.nonlinear.w>0.5f&&pre.diagnostics.z>0.5f;
+            const bool actualNoWork=status.code==NM_STATUS_SUCCESS&&actual.nonlinear.w>0.5f&&actual.diagnostics.z>0.5f;
+            require(privateNoWork==expected && actualNoWork==expected,
+                "raw physical preflight must match scaled begin test="+std::to_string(test));
+            require((!std::isfinite(pre.nonlinear.y)&&!std::isfinite(actual.nonlinear.y))||
+                    pre.nonlinear.y==actual.nonlinear.y,
+                "preflight changed raw physical nonlinear norm");
+            const auto retained=readBuffer<nm_float4>(rawBuffer,raw.size());
+            require(std::memcmp(retained.data(),raw.data(),raw.size()*sizeof(nm_float4))==0,
+                "preflight modified current physical RHS");
+        }
+        std::memcpy(layoutBuffer.contents,&savedLayout,sizeof(savedLayout));
+        std::cout<<"scaled_fresh_rhs_preflight cases=18 scales=1e-8,1,1e8 "
+            "forcing=0.25,1e-4,1e-12 raw_domains=mechanical,vascular "
+            "nonfinite_and_bad_status_rejected=true PASS\n";
+    }
+
     // Schur Arnoldi uses the condensed RHS, but its stopping target must use
     // the original full-space b norm. The chosen true residual lies between
     // the two possible targets, so this checks the actual acceptance decision.
