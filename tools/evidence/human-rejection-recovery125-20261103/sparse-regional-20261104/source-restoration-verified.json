@@ -1,0 +1,36 @@
+{
+  "canonical_archive": "execution-source-final-097.tar.gz",
+  "trials": [
+    {
+      "trial": "direct-coefficient-native-097",
+      "patch_bytes": 0,
+      "sources": 39
+    },
+    {
+      "trial": "streamed-fem-icb-native-095",
+      "patch_bytes": 13041,
+      "sources": 39
+    },
+    {
+      "trial": "streamed-fem-native-093",
+      "patch_bytes": 22458,
+      "sources": 39
+    },
+    {
+      "trial": "streamed-sparse-native-089",
+      "patch_bytes": 59176,
+      "sources": 39
+    },
+    {
+      "trial": "streamed-sparse-native-090",
+      "patch_bytes": 57827,
+      "sources": 39
+    },
+    {
+      "trial": "streamed-sparse-native-091",
+      "patch_bytes": 51523,
+      "sources": 39
+    }
+  ],
+  "no_redundant_full_archives": true
+}

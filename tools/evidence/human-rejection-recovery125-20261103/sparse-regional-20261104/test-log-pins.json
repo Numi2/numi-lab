@@ -1,0 +1,22 @@
+{
+  "build-final.log": {
+    "uncompressed_bytes": 25008,
+    "uncompressed_sha256": "ffbdb8f3c542e287f1500a8db964ce42692e9ecf1ab5dc35e5eddb3790184433",
+    "gzip": "build-final.log.gz"
+  },
+  "fgmres-final.log": {
+    "uncompressed_bytes": 14245,
+    "uncompressed_sha256": "902aef433364a37a76d355a6d691fcff40c52c94930b6f98a547a5d1b934b487",
+    "gzip": "fgmres-final.log.gz"
+  },
+  "compiler-final.log": {
+    "uncompressed_bytes": 280,
+    "uncompressed_sha256": "12081f868e49a50343ce53f37690680fafe47491bd5e0c89adad5eb8d4e3e275",
+    "gzip": "compiler-final.log.gz"
+  },
+  "projection-gpu-final.log": {
+    "uncompressed_bytes": 3626,
+    "uncompressed_sha256": "41bc29598adec08bdb9761c07968757bd72b086e211482642c78533e9aa51b09",
+    "gzip": "projection-gpu-final.log.gz"
+  }
+}

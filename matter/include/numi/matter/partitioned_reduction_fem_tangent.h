@@ -2,6 +2,9 @@
 
 #include "numi/matter/shared.h"
 #include "numi/matter/partitioned_reduction_projection.h"
+#ifndef __METAL_VERSION__
+#include "numi/matter/partitioned_reduction_sparse_support.hpp"
+#endif
 
 #define NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH 256u
 
@@ -46,6 +49,79 @@ struct PartitionedReductionFEMTangentSupport {
 // Exact union of tetrahedra touched by each regional twelve-mode block.
 // Selected source-object tets must map all four corners into the exact global
 // row map; dormant and unrelated-object capacity slots are omitted.
+// Build all regional tet lists in one source traversal. Map node ancestry
+// once, then gather the exact region union at each tet from compact support.
+[[nodiscard]] inline PartitionedReductionFEMTangentSupport
+buildPartitionedReductionFEMTangentSupport(
+    const PartitionedReductionSparseSupport& support,
+    std::span<const std::uint32_t> globalNodes,
+    std::uint32_t basisNodeCount, std::uint32_t regionCount,
+    std::span<const NMTetrahedronGPU> tetrahedra, std::uint32_t objectIndex
+) {
+    PartitionedReductionFEMTangentSupport out;
+    const auto reject=[&](const char* message) {
+        PartitionedReductionFEMTangentSupport failed;failed.error=message;return failed;
+    };
+    if (!support.valid()||globalNodes.size()!=basisNodeCount||!basisNodeCount||
+        support.regionSupportRanges.size()!=regionCount||!regionCount||tetrahedra.empty()||
+        tetrahedra.size()>std::numeric_limits<std::uint32_t>::max())
+        return reject("sparse FEM tangent support dimensions mismatch");
+    for (std::uint32_t row=1;row<basisNodeCount;++row)
+        if (globalNodes[row-1u]>=globalNodes[row]) return reject("FEM tangent source rows are not ordered unique");
+    // Use only the represented global range, never unrelated world capacity.
+    const auto globalFirst=globalNodes.front();
+    const std::uint64_t span=std::uint64_t(globalNodes.back())-globalFirst+1u;
+    if (span>std::numeric_limits<std::uint32_t>::max())
+        return reject("FEM tangent source row span exceeds uint32");
+    std::vector<std::uint32_t> localRows(span,NM_INVALID_INDEX);
+    for (std::uint32_t row=0;row<basisNodeCount;++row) localRows[globalNodes[row]-globalFirst]=row;
+    std::vector<std::vector<std::uint32_t>> rowRegions(basisNodeCount),regionTets(regionCount);
+    for (std::uint32_t region=0;region<regionCount;++region) {
+        const auto range=support.regionSupportRanges[region];
+        if (std::uint64_t(range.first)+range.count>support.regionSupportRows.size())
+            return reject("FEM tangent sparse support range is invalid");
+        for (auto i=range.first;i<range.first+range.count;++i) {
+            const auto row=support.regionSupportRows[i];
+            if (row>=basisNodeCount) return reject("FEM tangent sparse support row is invalid");
+            rowRegions[row].push_back(region);
+        }
+    }
+    out.tetrahedronBasisNodeRows.assign(tetrahedra.size()*4u,NM_INVALID_INDEX);
+    std::vector<std::uint32_t> touched;
+    for (std::uint32_t index=0;index<tetrahedra.size();++index) {
+        const auto& tet=tetrahedra[index];
+        if ((tet.identity.w&NM_OBJECT_ACTIVE)==0u||
+            (objectIndex!=NM_INVALID_INDEX&&tet.identity.y!=objectIndex)) continue;
+        const std::uint32_t nodes[4]={tet.nodes.x,tet.nodes.y,tet.nodes.z,tet.nodes.w};
+        std::uint32_t mapped[4],count=0u;
+        for (std::uint32_t k=0;k<4u;++k) {
+            const auto node=nodes[k];
+            mapped[k]=node>=globalFirst&&std::uint64_t(node)-globalFirst<span
+                ?localRows[node-globalFirst]:NM_INVALID_INDEX;
+            if (mapped[k]!=NM_INVALID_INDEX) ++count;
+        }
+        if (!count) continue;
+        if (count!=4u) return reject("selected-source tet is only partially represented in the exact basis row map");
+        touched.clear();
+        for (std::uint32_t k=0;k<4u;++k) {
+            out.tetrahedronBasisNodeRows[std::size_t(index)*4u+k]=mapped[k];
+            touched.insert(touched.end(),rowRegions[mapped[k]].begin(),rowRegions[mapped[k]].end());
+        }
+        std::sort(touched.begin(),touched.end());touched.erase(std::unique(touched.begin(),touched.end()),touched.end());
+        for (auto region:touched) regionTets[region].push_back(index);
+    }
+    for (const auto& tets:regionTets) {
+        if (tets.empty()||out.regionTetrahedronIndices.size()+tets.size()>std::numeric_limits<std::uint32_t>::max())
+            return reject("FEM tangent sparse regional tet range is empty or oversized");
+        out.regionTetrahedronRanges.push_back({std::uint32_t(out.regionTetrahedronIndices.size()),std::uint32_t(tets.size())});
+        out.regionTetrahedronIndices.insert(out.regionTetrahedronIndices.end(),tets.begin(),tets.end());
+        out.maximumRegionTetrahedronCount=std::max(out.maximumRegionTetrahedronCount,std::uint32_t(tets.size()));
+    }
+    out.tileCount=(out.maximumRegionTetrahedronCount+NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH-1u)/
+        NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH;
+    return out;
+}
+
 [[nodiscard]] inline PartitionedReductionFEMTangentSupport
 buildPartitionedReductionFEMTangentSupport(
     std::span<const nm_float4> basisValues,

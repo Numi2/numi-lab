@@ -41,6 +41,7 @@ struct CompiledWorldPartitionedReductionOptions {
     // Optional bound for dense host-side coefficient rows before allocation.
     // Zero preserves generic callers; the Human consumer sets its checked cap.
     std::uint64_t maximumDenseCoefficientBytes = 0u;
+    bool sparseCoefficientEncoding = false;
     // Only residual-refinement candidates may opt into the conservative
     // fallback that moves a rank-deficient source region to the exact fine
     // complement and removes that region's affine block.
@@ -468,7 +469,7 @@ namespace compiled_reduction_detail {
     }
 
     basis.modes.clear();
-    basis.values.clear();
+    basis.clearCoefficients();
     basis.projectedMass.clear();
     const std::size_t nodeCount = basis.nodeCount;
     const std::size_t regionCount = basis.regions.size();
@@ -489,7 +490,7 @@ namespace compiled_reduction_detail {
         basis.error = "compiled affine basis misses the requested minimum coordinate reduction after sensitive-anchor preservation";
         return false;
     }
-    if (maximumDenseCoefficientBytes != 0u &&
+    if (!basis.sparseCoefficientEncoding && maximumDenseCoefficientBytes != 0u &&
         (nodeCount == 0u || requestedModes > maximumDenseCoefficientBytes /
              sizeof(nm_float4) / nodeCount)) {
         basis.error = "compiled affine dense coefficient rows exceed the caller's checked byte budget";
@@ -499,11 +500,7 @@ namespace compiled_reduction_detail {
     const auto append = [&](const PartitionedReductionMode mode,
                             const std::vector<std::array<double, 3>>& field) {
         basis.modes.push_back(mode);
-        for (const auto& value : field) {
-            basis.values.push_back({static_cast<float>(value[0]),
-                                    static_cast<float>(value[1]),
-                                    static_cast<float>(value[2]), 0.0f});
-        }
+        basis.appendCoefficientMode(field);
     };
     for (std::size_t region = 0u; region < regionCount; ++region) {
         const PartitionedReductionRegion& metadata = basis.regions[region];
@@ -551,32 +548,13 @@ namespace compiled_reduction_detail {
         return false;
     }
 
-    basis.projectedMass.assign(
-        static_cast<std::size_t>(basis.modeCount) * basis.modeCount, 0.0);
-    std::vector<std::uint32_t> activeModes;
-    for (std::size_t node = 0u; node < nodeCount; ++node) {
-        activeModes.clear();
-        for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode) {
-            const auto& value = basis.values[
-                static_cast<std::size_t>(mode) * nodeCount + node];
-            if (value.x != 0.0f || value.y != 0.0f || value.z != 0.0f)
-                activeModes.push_back(mode);
-        }
-        for (const std::uint32_t row : activeModes) {
-            const auto& a = basis.values[
-                static_cast<std::size_t>(row) * nodeCount + node];
-            for (const std::uint32_t column : activeModes) {
-                const auto& b = basis.values[
-                    static_cast<std::size_t>(column) * nodeCount + node];
-                basis.projectedMass[static_cast<std::size_t>(row) *
-                                    basis.modeCount + column] +=
-                    masses[node] *
-                    (static_cast<double>(a.x) * b.x +
-                     static_cast<double>(a.y) * b.y +
-                     static_cast<double>(a.z) * b.z);
-            }
-        }
+    if (basis.sparseCoefficientEncoding && maximumDenseCoefficientBytes != 0u &&
+        basis.sparseValues.size() > maximumDenseCoefficientBytes /
+            (sizeof(nm_float4)+sizeof(std::uint32_t))) {
+        basis.error="compiled sparse coefficient storage exceeds the checked byte budget";
+        return false;
     }
+    basis.projectedMass=partitionedProjectedMass(basis,masses);
     if (!partitioned_reduction_detail::choleskyPositiveDefinite(
             basis.projectedMass, basis.modeCount)) {
         // Identify the first anatomical block that makes the deterministic
@@ -819,6 +797,7 @@ buildCompiledWorldPartitionedReductionBasis(
     // Reuse the existing helper's validated source partition construction.
     // The future runtime preconditioner still has its own smaller ABI limit.
     baseOptions.maximumModeCount = kPartitionedReductionMaximumConstructionModeCount;
+    baseOptions.sparseCoefficientEncoding = options.sparseCoefficientEncoding;
     baseOptions.maximumDenseCoefficientBytes =
         options.maximumDenseCoefficientBytes;
     std::vector<std::uint8_t> basisFixedMask = fixedMask;

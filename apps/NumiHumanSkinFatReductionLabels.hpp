@@ -1441,7 +1441,12 @@ buildAndInstallRegisteredSkinFatPreconditioner(
     if (minimumCoordinateReductionFactor < 2u ||
         minimumCoordinateReductionFactor > 64u)
         return fail("skin/fat requested reduction target is outside the checked range");
+    bool sparseCoefficientEncoding=false;
+    if (!parseHumanSparseCoefficientPreconditionerSetting(
+            std::getenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS"),sparseCoefficientEncoding,error))
+        return fail(error);
     numi::matter::CompiledWorldPartitionedReductionOptions options;
+    options.sparseCoefficientEncoding=sparseCoefficientEncoding;
     options.minimumCoordinateReductionFactor = minimumCoordinateReductionFactor;
     options.promoteRankDeficientRegionsToFine =
         promoteRankDeficientRegions || !residualFineGlobalFEMNodes.empty();
@@ -1552,6 +1557,24 @@ buildAndInstallRegisteredSkinFatPreconditioner(
     payload.minimumCoordinateReductionFactor = minimumCoordinateReductionFactor;
     payload.sourceWorldPhysicsFingerprint = world.physicsFingerprint;
     payload.globalFEMNodeIndices = candidate.globalFEMNodeIndices;
+    if (sparseCoefficientEncoding) {
+        std::vector<std::uint32_t> selectedModes;
+        for (const auto& region:candidate.basis.regions) {
+            payload.regionLabels.push_back(region.sourceLabel);
+            for (std::uint32_t mode=0;mode<candidate.basis.modeCount;++mode)
+                if (candidate.basis.modes[mode].regionLabel==region.sourceLabel &&
+                    candidate.basis.modes[mode].kind!=numi::matter::PartitionedReductionModeKind::anchorTranslation)
+                    selectedModes.push_back(mode);
+        }
+        payload.blockModeIndices.resize(payload.modeCount);
+        for (std::uint32_t mode=0;mode<payload.modeCount;++mode) payload.blockModeIndices[mode]=mode;
+        if (selectedModes.size()!=payload.modeCount||
+            !numi::matter::packSparseHumanPartitionedBasis(candidate.basis,selectedModes,payload,error))
+            return fail("direct sparse skin/fat packing failed: "+error);
+        payload.enabled=true;
+        world.humanPartitionedPreconditioner=std::move(payload);
+        error.clear();return candidate;
+    }
     const std::uint64_t payloadValues =
         static_cast<std::uint64_t>(payload.modeCount) * payload.basisNodeCount;
     if (payloadValues >
@@ -1751,6 +1774,11 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         failed.basis.error = error;
         return failed;
     }
+    if (sparseCoefficientEncoding && witnessTracePath!=nullptr) {
+        Candidate failed;failed.objectIndex=skinObjectIndex;
+        error="sparse preconditioner storage cannot consume a dense-layout residual refinement trace";
+        failed.error=failed.basis.error=error;return failed;
+    }
     if (installPayload && allowTraceRefinement && witnessTracePath != nullptr &&
         !requestedHybridResidualReductionFactor(
             buildReductionFactor, refinementReductionFactor, error)) {
@@ -1855,6 +1883,7 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
             return failed;
         }
         numi::matter::CompiledWorldPartitionedReductionOptions options;
+        options.sparseCoefficientEncoding=sparseCoefficientEncoding;
         options.minimumCoordinateReductionFactor = buildReductionFactor;
         options.maximumModeCount = numi::matter::kHumanPartitionedBasisMaximumModeCount;
         options.maximumDenseCoefficientBytes =
@@ -2116,10 +2145,10 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
     const std::uint32_t modeCount = regionCount * blockModes;
     const std::uint64_t maxBasisBytes =
         numi::matter::kHumanPartitionedBasisCoefficientByteBudget;
-    if (!numi::matter::humanPartitionedBasisCoefficientExtentWithinBudget(
+    if (!sparseCoefficientEncoding && (!numi::matter::humanPartitionedBasisCoefficientExtentWithinBudget(
             modeCount, rowCount) ||
         static_cast<std::uint64_t>(modeCount) >
-            maxBasisBytes / sizeof(nm_float4) / rowCount) {
+            maxBasisBytes / sizeof(nm_float4) / rowCount)) {
         error = "combined Human basis exceeds its checked 384 MiB coefficient budget";
         Candidate failed;
         failed.objectIndex = skinObjectIndex;
@@ -2151,7 +2180,9 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
     combined.basis.modeCount = modeCount;
     combined.basis.minimumCoordinateReductionFactor = buildReductionFactor;
     combined.basis.regions.reserve(regionCount);
-    combined.basis.values.assign(std::size_t(modeCount) * rowCount, nm_float4{});
+    combined.basis.sparseCoefficientEncoding=sparseCoefficientEncoding;
+    if (sparseCoefficientEncoding) combined.basis.modeValueOffsets.push_back(0u);
+    else combined.basis.values.assign(std::size_t(modeCount) * rowCount, nm_float4{});
     combined.basis.projectedMass.assign(std::size_t(modeCount) * modeCount, 0.0);
     struct ModeRef { std::size_t piece; std::uint32_t mode; };
     std::vector<ModeRef> modes;
@@ -2189,14 +2220,29 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
     for (std::uint32_t mode = 0u; mode < modeCount; ++mode) {
         const auto ref = modes[mode];
         const auto& piece = pieces[ref.piece].candidate;
-        const std::size_t sourceOffset =
-            std::size_t(ref.mode) * piece.basis.nodeCount;
-        const std::size_t destOffset = std::size_t(mode) * rowCount;
-        for (std::uint32_t local = 0u; local < piece.basis.nodeCount; ++local) {
-            const auto global = piece.globalFEMNodeIndices[local];
-            const auto dest = combinedRow.at(global);
-            combined.basis.values[destOffset + dest] =
-                piece.basis.values[sourceOffset + local];
+        if (sparseCoefficientEncoding) {
+            if (!piece.basis.sparseCoefficientEncoding||!piece.basis.coefficientStorageValid()) {
+                combined.error=combined.basis.error="streamed combined source has invalid coefficient storage";
+                error=combined.error;return combined;
+            }
+            for (auto i=piece.basis.modeValueOffsets[ref.mode];
+                 i<piece.basis.modeValueOffsets[ref.mode+1u];++i) {
+                const auto local=piece.basis.coefficientNodeIndices[i];
+                combined.basis.coefficientNodeIndices.push_back(
+                    combinedRow.at(piece.globalFEMNodeIndices[local]));
+                combined.basis.sparseValues.push_back(piece.basis.sparseValues[i]);
+            }
+            if (combined.basis.sparseValues.size()>maxBasisBytes/(sizeof(nm_float4)+sizeof(std::uint32_t))) {
+                combined.error=combined.basis.error="streamed combined basis exceeds checked coefficient budget";
+                error=combined.error;return combined;
+            }
+            combined.basis.modeValueOffsets.push_back(std::uint32_t(combined.basis.sparseValues.size()));
+        } else {
+            const std::size_t sourceOffset=std::size_t(ref.mode)*piece.basis.nodeCount;
+            const std::size_t destOffset=std::size_t(mode)*rowCount;
+            for (std::uint32_t local=0;local<piece.basis.nodeCount;++local)
+                combined.basis.values[destOffset+combinedRow.at(piece.globalFEMNodeIndices[local])]=
+                    piece.basis.values[sourceOffset+local];
         }
         // Different source objects have disjoint node rows, so exact
         // cross-source projected-mass blocks are zero. Copy the source-piece
@@ -2306,56 +2352,24 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         payload.blockModeIndices[mode] = mode;
     const std::uint64_t payloadBytes =
         static_cast<std::uint64_t>(modeCount) * rowCount * sizeof(nm_float4);
-    if (payloadBytes > numi::matter::kHumanPartitionedBasisCoefficientByteBudget) {
+    if (!sparseCoefficientEncoding && payloadBytes > numi::matter::kHumanPartitionedBasisCoefficientByteBudget) {
         error = "combined Human basis exceeds its checked 384 MiB coefficient budget";
         combined.error = error;
         combined.basis.error = error;
         return combined;
     }
-    payload.basisValues = combined.basis.values;
-    const auto support = numi::matter::buildPartitionedReductionSparseSupport(
-        std::span<const nm_float4>(payload.basisValues), rowCount, modeCount,
-        std::span<const std::uint32_t>(payload.blockModeIndices),
-        regionCount, blockModes);
-    if (!support.valid()) {
-        error = "combined bilateral optic sparse support is invalid: " + support.error;
-        combined.error = error;
-        combined.basis.error = error;
-        return combined;
-    }
     if (sparseCoefficientEncoding) {
-        const auto sparse =
-            numi::matter::buildPartitionedReductionSparseCoefficients(
-                std::span<const nm_float4>(payload.basisValues), rowCount,
-                modeCount,
-                std::span<const std::uint32_t>(payload.blockModeIndices),
-                regionCount, blockModes, support);
-        if (!sparse.valid()) {
-            error = "Human sparse basis encoding failed: " + sparse.error;
-            combined.error = error;
-            combined.basis.error = error;
-            return combined;
+        if (!numi::matter::packSparseHumanPartitionedBasis(
+                combined.basis,payload.blockModeIndices,payload,error)) {
+            combined.error=combined.basis.error=error;return combined;
         }
-        payload.sparseCoefficientEncoding = true;
-        payload.sparseRegionSupportOffsets.assign(
-            static_cast<std::size_t>(regionCount) + 1u, 0u);
-        for (std::uint32_t region = 0u; region < regionCount; ++region) {
-            const auto range = support.regionSupportRanges[region];
-            if (range.first != payload.sparseRegionSupportOffsets[region] ||
-                static_cast<std::uint64_t>(range.first) + range.count >
-                    std::numeric_limits<std::uint32_t>::max()) {
-                error = "Human sparse region support ranges are not contiguous and checked";
-                combined.error = error;
-                combined.basis.error = error;
-                return combined;
-            }
-            payload.sparseRegionSupportOffsets[region + 1u] =
-                range.first + range.count;
+    } else {
+        payload.basisValues=combined.basis.values;
+        const auto support=numi::matter::buildPartitionedReductionSparseSupport(payload);
+        if (!support.valid()) {
+            error="combined bilateral optic support is invalid: "+support.error;
+            combined.error=combined.basis.error=error;return combined;
         }
-        payload.sparseRegionSupportRows = support.regionSupportRows;
-        payload.sparseModeValueOffsets = sparse.modeValueOffsets;
-        payload.sparseBasisValues = sparse.values;
-        payload.sparseNodeModeValueIndices = sparse.nodeModeValueIndices;
     }
     payload.enabled = true;
     if (installPayload && allowTraceRefinement && witnessTracePath != nullptr) {

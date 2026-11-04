@@ -13,6 +13,49 @@ constant uint kPartitionedReductionTileWidth =
 // Copy the complete fine arena before replacing the selected object's
 // displacement rows. This preserves complement objects and every float4.w
 // coordinate (including mixed-FEM pressure) exactly.
+// Exact coefficient addressing for dense compatibility and compact Human
+// regional storage. Metadata is immutable; absent support is exactly zero.
+inline nm_float4 nmPartitionedBasisCoefficient(
+    device const nm_float4* values, device const uint* lookup,
+    const ulong denseIndex, const uint nodeCount
+) {
+    if (lookup[0]==0u) return values[denseIndex];
+    const uint mode=uint(denseIndex/nodeCount),row=uint(denseIndex%nodeCount);
+    const uint region=mode/lookup[2];
+    const uint ranges=4u+lookup[1]+1u;
+    const uint first=lookup[ranges+region],end=lookup[ranges+region+1u];
+    uint lo=first,hi=end;
+    while (lo<hi) {
+        const uint mid=lo+(hi-lo)/2u;
+        if (lookup[lookup[3]+mid]<row) lo=mid+1u; else hi=mid;
+    }
+    return lo<end&&lookup[lookup[3]+lo]==row
+        ?values[lookup[4u+mode]+lo-first]:nm_float4(0.0f);
+}
+
+// Sparse tile worklists already identify the exact row ordinal in each
+// canonical regional coefficient block. Preserve dense compatibility.
+inline nm_float4 nmPartitionedKnownRegionalCoefficient(
+    device const nm_float4* values,device const uint* lookup,
+    const uint mode,const uint row,const uint nodeCount,const uint ordinal
+) {
+    if(lookup[0]==0u) return values[ulong(mode)*nodeCount+row];
+    return ordinal==NM_INVALID_INDEX ? nm_float4(0.f) : values[lookup[4u+mode]+ordinal];
+}
+inline uint nmPartitionedRegionalRowOrdinal(
+    device const uint* lookup,const uint region,const uint row
+) {
+    if(lookup[0]==0u) return NM_INVALID_INDEX;
+    const uint ranges=4u+lookup[1]+1u;
+    const uint first=lookup[ranges+region],end=lookup[ranges+region+1u];
+    uint lo=first,hi=end;
+    while(lo<hi) {
+        const uint mid=lo+(hi-lo)/2u;
+        if(lookup[lookup[3]+mid]<row) lo=mid+1u;else hi=mid;
+    }
+    return lo<end&&lookup[lookup[3]+lo]==row?lo-first:NM_INVALID_INDEX;
+}
+
 kernel void nm_partitioned_reduction_copy_global_nodes(
     constant NMPartitionedReductionProjectionDispatchGPU& dispatch [[buffer(0)]],
     device const nm_float4* source [[buffer(1)]],
@@ -37,6 +80,7 @@ kernel void nm_partitioned_reduction_prolongate(
     device nm_float4* destination [[buffer(2)]],
     device const uint* globalNodeIndices [[buffer(3)]],
     device const nm_float4* basisValues [[buffer(4)]],
+    device const uint* basisLookup [[buffer(29)]],
     device const float* reducedCoordinates [[buffer(5)]],
     uint gid [[thread_position_in_grid]]
 ) {
@@ -53,7 +97,7 @@ kernel void nm_partitioned_reduction_prolongate(
             ulong(mode) * dispatch.basisNodeCount + row;
         const ulong coordinateOffset =
             ulong(environment) * dispatch.modeCount + mode;
-        displacement += basisValues[basisOffset].xyz *
+        displacement += nmPartitionedBasisCoefficient(basisValues,basisLookup,basisOffset,dispatch.basisNodeCount).xyz *
             reducedCoordinates[coordinateOffset];
     }
     const ulong globalOffset =
@@ -72,6 +116,7 @@ kernel void nm_partitioned_reduction_reduce_tiles(
     constant NMPartitionedReductionProjectionDispatchGPU& dispatch [[buffer(0)]],
     device const nm_float4* fineValues [[buffer(1)]],
     device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* basisLookup [[buffer(29)]],
     device const uint* globalNodeIndices [[buffer(3)]],
     device const float* basisMass [[buffer(4)]],
     device float* partials [[buffer(5)]],
@@ -93,7 +138,7 @@ kernel void nm_partitioned_reduction_reduce_tiles(
                 ulong(environment) * dispatch.globalNodeCount + globalNode;
             const ulong basisOffset =
                 ulong(mode) * dispatch.basisNodeCount + row;
-            const nm_float4 basis = basisValues[basisOffset];
+            const nm_float4 basis = nmPartitionedBasisCoefficient(basisValues,basisLookup,basisOffset,dispatch.basisNodeCount);
             const nm_float4 value = fineValues[globalOffset];
             const float mass = basisMass == nullptr ? 1.0f : basisMass[row];
             contribution = mass * dot(basis.xyz, value.xyz);
@@ -226,6 +271,7 @@ kernel void nm_partitioned_reduction_reduce_block_tiles(
     constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
     device const nm_float4* selectedBlockRows [[buffer(1)]],
     device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* basisLookup [[buffer(29)]],
     device const uint* blockModeIndices [[buffer(3)]],
     device float* partials [[buffer(4)]],
     uint3 group [[threadgroup_position_in_grid]],
@@ -255,8 +301,8 @@ kernel void nm_partitioned_reduction_reduce_block_tiles(
             ulong(rowMode) * dispatch.basisNodeCount + row;
         const ulong columnBasisOffset =
             ulong(columnMode) * dispatch.basisNodeCount + row;
-        const float3 bRow = basisValues[rowBasisOffset].xyz;
-        const float3 bColumn = basisValues[columnBasisOffset].xyz;
+        const float3 bRow = nmPartitionedBasisCoefficient(basisValues,basisLookup,rowBasisOffset,dispatch.basisNodeCount).xyz;
+        const float3 bColumn = nmPartitionedBasisCoefficient(basisValues,basisLookup,columnBasisOffset,dispatch.basisNodeCount).xyz;
         const ulong blockBase =
             (ulong(environment) * dispatch.basisNodeCount + row) * 3u;
         const float3 dColumn = float3(
@@ -327,6 +373,7 @@ kernel void nm_partitioned_reduction_reduce_block_partials(
 kernel void nm_partitioned_reduction_region_validity_tiles(
     constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
     device const nm_float4* basisValues [[buffer(1)]],
+    device const uint* basisLookup [[buffer(29)]],
     device const uint* blockModeIndices [[buffer(2)]],
     device const uint* rowValid [[buffer(3)]],
     device uint* partialValidity [[buffer(4)]],
@@ -353,7 +400,7 @@ kernel void nm_partitioned_reduction_region_validity_tiles(
                 continue;
             }
             const float3 coefficient =
-                basisValues[ulong(mode) * dispatch.basisNodeCount + row].xyz;
+                nmPartitionedBasisCoefficient(basisValues,basisLookup,ulong(mode) * dispatch.basisNodeCount + row,dispatch.basisNodeCount).xyz;
             supported = supported || any(coefficient != float3(0.0f));
         }
         const ulong selectedNode = ulong(environment) * dispatch.basisNodeCount + row;
@@ -582,6 +629,7 @@ kernel void nm_partitioned_reduction_add_region_correction(
     constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
     device const uint* globalNodeIndices [[buffer(1)]],
     device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* basisLookup [[buffer(29)]],
     device const uint* blockModeIndices [[buffer(3)]],
     device const float* reducedCoefficients [[buffer(4)]],
     device const uint* solveValid [[buffer(5)]],
@@ -605,8 +653,7 @@ kernel void nm_partitioned_reduction_add_region_correction(
             const uint globalMode = blockModeIndices[
                 region * dispatch.blockModeCount + localMode];
             if (globalMode >= dispatch.modeCount) continue;
-            const nm_float4 basis = basisValues[
-                ulong(globalMode) * dispatch.basisNodeCount + row];
+            const nm_float4 basis = nmPartitionedBasisCoefficient(basisValues,basisLookup,ulong(globalMode) * dispatch.basisNodeCount + row,dispatch.basisNodeCount);
             correction += basis.xyz * reducedCoefficients[
                 coefficientBase + localMode];
         }
@@ -636,6 +683,7 @@ kernel void nm_partitioned_reduction_reduce_sparse_mode_tiles(
     constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
     device const nm_float4* fineValues [[buffer(1)]],
     device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* basisLookup [[buffer(29)]],
     device const uint* globalNodeIndices [[buffer(3)]],
     device const float* basisMass [[buffer(4)]],
     device float* partials [[buffer(5)]],
@@ -669,11 +717,9 @@ kernel void nm_partitioned_reduction_reduce_sparse_mode_tiles(
             if (globalNode < dispatch.globalNodeCount) {
                 const ulong fineIndex =
                     ulong(environment) * dispatch.globalNodeCount + globalNode;
-                const ulong basisIndex =
-                    ulong(globalMode) * dispatch.basisNodeCount + row;
                 const float mass = basisMass == nullptr ? 1.0f : basisMass[row];
                 contribution = mass * dot(
-                    basisValues[basisIndex].xyz, fineValues[fineIndex].xyz);
+                    nmPartitionedKnownRegionalCoefficient(basisValues,basisLookup,globalMode,row,dispatch.basisNodeCount,sparseIndex).xyz, fineValues[fineIndex].xyz);
             }
         }
     }
@@ -737,6 +783,7 @@ kernel void nm_partitioned_reduction_reduce_sparse_block_tiles(
     constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
     device const nm_float4* selectedBlockRows [[buffer(1)]],
     device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* basisLookup [[buffer(29)]],
     device const uint* blockModeIndices [[buffer(3)]],
     device float* partials [[buffer(4)]],
     device const NMPartitionedReductionSparseRangeGPU* regionSupportRanges [[buffer(5)]],
@@ -768,10 +815,8 @@ kernel void nm_partitioned_reduction_reduce_sparse_block_tiles(
             region * dispatch.blockModeCount + localColumnMode];
         if (row < dispatch.basisNodeCount && rowMode < dispatch.modeCount &&
             columnMode < dispatch.modeCount) {
-            const float3 bRow = basisValues[
-                ulong(rowMode) * dispatch.basisNodeCount + row].xyz;
-            const float3 bColumn = basisValues[
-                ulong(columnMode) * dispatch.basisNodeCount + row].xyz;
+            const float3 bRow = nmPartitionedKnownRegionalCoefficient(basisValues,basisLookup,rowMode,row,dispatch.basisNodeCount,sparseIndex).xyz;
+            const float3 bColumn = nmPartitionedKnownRegionalCoefficient(basisValues,basisLookup,columnMode,row,dispatch.basisNodeCount,sparseIndex).xyz;
             const ulong blockBase =
                 (ulong(environment) * dispatch.basisNodeCount + row) * 3u;
             const float3 dColumn = float3(
@@ -919,6 +964,7 @@ kernel void nm_partitioned_reduction_add_sparse_region_correction(
     constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
     device const uint* globalNodeIndices [[buffer(1)]],
     device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* basisLookup [[buffer(29)]],
     device const uint* blockModeIndices [[buffer(3)]],
     device const float* reducedCoefficients [[buffer(4)]],
     device const uint* solveValid [[buffer(5)]],
@@ -934,6 +980,9 @@ kernel void nm_partitioned_reduction_add_sparse_region_correction(
     const uint globalNode = globalNodeIndices[row];
     if (globalNode >= dispatch.globalNodeCount) return;
 
+    // Version-2 immutable lookup appends one packed value index per work slot.
+    const uint coefficientMapBase=basisLookup[0]==2u
+        ?basisLookup[3]+basisLookup[basisLookup[3]-1u]:0u;
     float3 correction = float3(0.0f);
     const NMPartitionedReductionSparseRangeGPU support = nodeModeRanges[row];
     for (uint index = 0u; index < support.count; ++index) {
@@ -946,8 +995,9 @@ kernel void nm_partitioned_reduction_add_sparse_region_correction(
         const uint globalMode = blockModeIndices[
             region * dispatch.blockModeCount + localMode];
         if (globalMode >= dispatch.modeCount) continue;
-        const nm_float4 basis = basisValues[
-            ulong(globalMode) * dispatch.basisNodeCount + row];
+        const nm_float4 basis = basisLookup[0]==2u
+            ?basisValues[basisLookup[coefficientMapBase+support.first+index]]
+            :nmPartitionedBasisCoefficient(basisValues,basisLookup,ulong(globalMode)*dispatch.basisNodeCount+row,dispatch.basisNodeCount);
         const float coefficient = reducedCoefficients[
             blockIndex * dispatch.blockModeCount + localMode];
         correction += basis.xyz * coefficient;
@@ -982,6 +1032,7 @@ kernel void nm_partitioned_reduction_hybrid_lift(
     constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
     device const uint* globalNodeIndices [[buffer(1)]],
     device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* basisLookup [[buffer(29)]],
     device const uint* blockModeIndices [[buffer(3)]],
     device const NMPartitionedReductionSparseRangeGPU* nodeModeRanges [[buffer(4)]],
     device const uint* nodeModeSlots [[buffer(5)]],
@@ -1012,8 +1063,7 @@ kernel void nm_partitioned_reduction_hybrid_lift(
         const uint mode = blockModeIndices[
             region * dispatch.blockModeCount + localMode];
         if (mode >= dispatch.modeCount) continue;
-        const float3 b = basisValues[
-            ulong(mode) * dispatch.basisNodeCount + row].xyz;
+        const float3 b = nmPartitionedBasisCoefficient(basisValues,basisLookup,ulong(mode) * dispatch.basisNodeCount + row,dispatch.basisNodeCount).xyz;
         value += b * source[fieldBase + mode].x;
     }
     const ulong output = ulong(environment) * dispatch.globalNodeCount + globalNode;

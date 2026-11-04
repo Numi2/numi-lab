@@ -1,0 +1,4 @@
+{
+  "reason": "Stopped before GPU physical trial after finding missing coefficient-lookup residency declaration in three reusable command paths. Corrected before 091; mandatory physics gates unchanged.",
+  "physics_qualification": false
+}

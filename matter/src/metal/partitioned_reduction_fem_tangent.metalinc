@@ -72,6 +72,105 @@ nmHumanRegionalInvalidTangentAction() {
 // full would double count FEM diagonals; subtracting each element's same-node
 // action leaves B^T (A_FEM - diag(A_FEM)) B as a bounded conditioning update.
 // The fine operator and all true residual/certification paths are unchanged.
+// Shared exact action for stored and streaming regional tangent construction.
+inline NMPartitionedReductionFEMTangentActionGPU nmHumanRegionalElementModeAction(
+    constant NMMatterDispatchGPU& dispatch,
+    constant NMPartitionedReductionFEMTangentDispatchGPU& tangent,
+    device const uint* regionTetIndices,
+    device const uint* tetrahedronBasisRows,
+    device const NMTetrahedronGPU* tetrahedra,
+    device const NMContinuumObjectGPU* objects,
+    device const NMSchedulerStateGPU* schedulers,
+    device const NMAdaptiveStateGPU* adaptive,
+    constant NMMicrostepGPU& microstep,
+    device const float* tangentCache,
+    device const uint* tangentCacheValid,
+    device const nm_float4* basisValues,
+    device const uint* basisLookup,
+    device const uint* blockModeIndices,
+    uint environment, uint region, uint flatSupportIndex, uint localMode
+) {
+    const uint tetIndex = regionTetIndices[flatSupportIndex];
+    if (tetIndex >= dispatch.tetrahedronCount) {
+        return nmHumanRegionalInvalidTangentAction();
+    }
+    const uint mode = blockModeIndices[
+        region * tangent.blockModeCount + localMode];
+    if (mode >= tangent.modeCount) {
+        return nmHumanRegionalInvalidTangentAction();
+    }
+
+    const ulong globalTet = ulong(environment) * dispatch.tetrahedronCount +
+        tetIndex;
+    const NMTetrahedronGPU tet = tetrahedra[globalTet];
+    const uint objectIndex = tet.identity.y;
+    if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+        objectIndex >= dispatch.objectCount ||
+        (tangent.objectIndex != NM_INVALID_INDEX &&
+         objectIndex != tangent.objectIndex)) {
+        return {};
+    }
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler = schedulers[objectGlobal];
+    if (!objectDue(object, scheduler, adaptive[objectGlobal], microstep)) {
+        return {};
+    }
+    if (tangentCacheValid[globalTet] != 1u) {
+        return nmHumanRegionalInvalidTangentAction();
+    }
+
+    const uint row0 = tetrahedronBasisRows[tetIndex * 4u];
+    const uint row1 = tetrahedronBasisRows[tetIndex * 4u + 1u];
+    const uint row2 = tetrahedronBasisRows[tetIndex * 4u + 2u];
+    const uint row3 = tetrahedronBasisRows[tetIndex * 4u + 3u];
+    if (row0 >= tangent.basisNodeCount ||
+        row1 >= tangent.basisNodeCount ||
+        row2 >= tangent.basisNodeCount ||
+        row3 >= tangent.basisNodeCount) {
+        return nmHumanRegionalInvalidTangentAction();
+    }
+    const ulong modeBase = ulong(mode) * tangent.basisNodeCount;
+    const float3 u0 = nmPartitionedBasisCoefficient(basisValues,basisLookup,modeBase + row0,tangent.basisNodeCount).xyz;
+    const float3 u1 = nmPartitionedBasisCoefficient(basisValues,basisLookup,modeBase + row1,tangent.basisNodeCount).xyz;
+    const float3 u2 = nmPartitionedBasisCoefficient(basisValues,basisLookup,modeBase + row2,tangent.basisNodeCount).xyz;
+    const float3 u3 = nmPartitionedBasisCoefficient(basisValues,basisLookup,modeBase + row3,tangent.basisNodeCount).xyz;
+    const float3x3 inverseRest = matrixFromRows(
+        tet.inverseRestRow0, tet.inverseRestRow1, tet.inverseRestRow2);
+    const float dt = objectTimestep(dispatch, scheduler);
+
+    NMPartitionedReductionFEMTangentActionGPU result;
+    const float3x3 fullDp = float3x3(u1 - u0, u2 - u0, u3 - u0);
+    if (!nmHumanRegionalCachedFEMAction(
+            object, tet, tangentCache, globalTet, fullDp * inverseRest, dt,
+            result.full)) {
+        return nmHumanRegionalInvalidTangentAction();
+    }
+
+    // The same-node blocks are subtracted because they are already present in
+    // the inverse-local-block recovery assembled into B^T D B.
+    const float3 zero = float3(0.0f);
+    const float3x3 nodeOnlyDp[4] = {
+        float3x3(-u0, -u0, -u0),
+        float3x3(u1, zero, zero),
+        float3x3(zero, u2, zero),
+        float3x3(zero, zero, u3)};
+    for (uint node = 0u; node < 4u; ++node) {
+        NMFEMElementVectorGPU selfAction;
+        if (!nmHumanRegionalCachedFEMAction(
+                object, tet, tangentCache, globalTet,
+                nodeOnlyDp[node] * inverseRest, dt, selfAction)) {
+            return nmHumanRegionalInvalidTangentAction();
+        }
+        result.selfDiagonal[node] = selfAction.node0;
+        if (node == 1u) result.selfDiagonal[node] = selfAction.node1;
+        else if (node == 2u) result.selfDiagonal[node] = selfAction.node2;
+        else if (node == 3u) result.selfDiagonal[node] = selfAction.node3;
+        result.selfDiagonal[node].w = 0.0f;
+    }
+    return result;
+}
+
 kernel void nm_partitioned_reduction_fem_tangent_tiles(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMPartitionedReductionFEMTangentDispatchGPU& tangent [[buffer(30)]],
@@ -86,6 +185,7 @@ kernel void nm_partitioned_reduction_fem_tangent_tiles(
     device const float* tangentCache [[buffer(9)]],
     device const uint* tangentCacheValid [[buffer(10)]],
     device const nm_float4* basisValues [[buffer(11)]],
+    device const uint* basisLookup [[buffer(29)]],
     device const uint* blockModeIndices [[buffer(12)]],
     device NMPartitionedReductionFEMTangentActionGPU* elementModeActions
         [[buffer(13)]],
@@ -111,94 +211,11 @@ kernel void nm_partitioned_reduction_fem_tangent_tiles(
     const ulong outputBase = ((ulong(environment) *
         tangent.supportTetrahedronCount + flatSupportIndex) *
         tangent.blockModeCount + localMode);
-    const uint tetIndex = regionTetIndices[flatSupportIndex];
-    if (tetIndex >= dispatch.tetrahedronCount) {
-        elementModeActions[outputBase] = nmHumanRegionalInvalidTangentAction();
-        return;
-    }
-    const uint mode = blockModeIndices[
-        region * tangent.blockModeCount + localMode];
-    if (mode >= tangent.modeCount) {
-        elementModeActions[outputBase] = nmHumanRegionalInvalidTangentAction();
-        return;
-    }
-
-    const ulong globalTet = ulong(environment) * dispatch.tetrahedronCount +
-        tetIndex;
-    const NMTetrahedronGPU tet = tetrahedra[globalTet];
-    const uint objectIndex = tet.identity.y;
-    if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u ||
-        objectIndex >= dispatch.objectCount ||
-        (tangent.objectIndex != NM_INVALID_INDEX &&
-         objectIndex != tangent.objectIndex)) {
-        elementModeActions[outputBase] = {};
-        return;
-    }
-    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
-    const NMContinuumObjectGPU object = objects[objectIndex];
-    const NMSchedulerStateGPU scheduler = schedulers[objectGlobal];
-    if (!objectDue(object, scheduler, adaptive[objectGlobal], microstep)) {
-        elementModeActions[outputBase] = {};
-        return;
-    }
-    if (tangentCacheValid[globalTet] != 1u) {
-        elementModeActions[outputBase] = nmHumanRegionalInvalidTangentAction();
-        return;
-    }
-
-    const uint row0 = tetrahedronBasisRows[tetIndex * 4u];
-    const uint row1 = tetrahedronBasisRows[tetIndex * 4u + 1u];
-    const uint row2 = tetrahedronBasisRows[tetIndex * 4u + 2u];
-    const uint row3 = tetrahedronBasisRows[tetIndex * 4u + 3u];
-    if (row0 >= tangent.basisNodeCount ||
-        row1 >= tangent.basisNodeCount ||
-        row2 >= tangent.basisNodeCount ||
-        row3 >= tangent.basisNodeCount) {
-        elementModeActions[outputBase] = nmHumanRegionalInvalidTangentAction();
-        return;
-    }
-    const ulong modeBase = ulong(mode) * tangent.basisNodeCount;
-    const float3 u0 = basisValues[modeBase + row0].xyz;
-    const float3 u1 = basisValues[modeBase + row1].xyz;
-    const float3 u2 = basisValues[modeBase + row2].xyz;
-    const float3 u3 = basisValues[modeBase + row3].xyz;
-    const float3x3 inverseRest = matrixFromRows(
-        tet.inverseRestRow0, tet.inverseRestRow1, tet.inverseRestRow2);
-    const float dt = objectTimestep(dispatch, scheduler);
-
-    NMPartitionedReductionFEMTangentActionGPU result;
-    const float3x3 fullDp = float3x3(u1 - u0, u2 - u0, u3 - u0);
-    if (!nmHumanRegionalCachedFEMAction(
-            object, tet, tangentCache, globalTet, fullDp * inverseRest, dt,
-            result.full)) {
-        elementModeActions[outputBase] = nmHumanRegionalInvalidTangentAction();
-        return;
-    }
-
-    // The same-node blocks are subtracted because they are already present in
-    // the inverse-local-block recovery assembled into B^T D B.
-    const float3 zero = float3(0.0f);
-    const float3x3 nodeOnlyDp[4] = {
-        float3x3(-u0, -u0, -u0),
-        float3x3(u1, zero, zero),
-        float3x3(zero, u2, zero),
-        float3x3(zero, zero, u3)};
-    for (uint node = 0u; node < 4u; ++node) {
-        NMFEMElementVectorGPU selfAction;
-        if (!nmHumanRegionalCachedFEMAction(
-                object, tet, tangentCache, globalTet,
-                nodeOnlyDp[node] * inverseRest, dt, selfAction)) {
-            elementModeActions[outputBase] =
-                nmHumanRegionalInvalidTangentAction();
-            return;
-        }
-        result.selfDiagonal[node] = selfAction.node0;
-        if (node == 1u) result.selfDiagonal[node] = selfAction.node1;
-        else if (node == 2u) result.selfDiagonal[node] = selfAction.node2;
-        else if (node == 3u) result.selfDiagonal[node] = selfAction.node3;
-        result.selfDiagonal[node].w = 0.0f;
-    }
-    elementModeActions[outputBase] = result;
+    elementModeActions[outputBase] = nmHumanRegionalElementModeAction(
+        dispatch,tangent,regionTetIndices,tetrahedronBasisRows,tetrahedra,
+        objects,schedulers,adaptive,microstep,tangentCache,tangentCacheValid,
+        basisValues,basisLookup,blockModeIndices,
+        environment,region,flatSupportIndex,localMode);
 }
 
 kernel void nm_partitioned_reduction_fem_tangent_project_tiles(
@@ -208,6 +225,7 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles(
     device const uint* regionTetIndices [[buffer(2)]],
     device const uint* tetrahedronBasisRows [[buffer(3)]],
     device const nm_float4* basisValues [[buffer(4)]],
+    device const uint* basisLookup [[buffer(29)]],
     device const uint* blockModeIndices [[buffer(5)]],
     device const NMPartitionedReductionFEMTangentActionGPU* elementModeActions
         [[buffer(6)]],
@@ -266,13 +284,13 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles(
                 const NMPartitionedReductionFEMTangentActionGPU action =
                     elementModeActions[actionBase];
                 contribution =
-                    dot(basisValues[basisBase + row0].xyz,
+                    dot(nmPartitionedBasisCoefficient(basisValues,basisLookup,basisBase + row0,tangent.basisNodeCount).xyz,
                         action.full.node0.xyz - action.selfDiagonal[0].xyz) +
-                    dot(basisValues[basisBase + row1].xyz,
+                    dot(nmPartitionedBasisCoefficient(basisValues,basisLookup,basisBase + row1,tangent.basisNodeCount).xyz,
                         action.full.node1.xyz - action.selfDiagonal[1].xyz) +
-                    dot(basisValues[basisBase + row2].xyz,
+                    dot(nmPartitionedBasisCoefficient(basisValues,basisLookup,basisBase + row2,tangent.basisNodeCount).xyz,
                         action.full.node2.xyz - action.selfDiagonal[2].xyz) +
-                    dot(basisValues[basisBase + row3].xyz,
+                    dot(nmPartitionedBasisCoefficient(basisValues,basisLookup,basisBase + row3,tangent.basisNodeCount).xyz,
                         action.full.node3.xyz - action.selfDiagonal[3].xyz);
             } else {
                 contribution = as_type<float>(0x7fc00000u);
@@ -306,6 +324,7 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles_paired12(
     device const uint* regionTetIndices [[buffer(2)]],
     device const uint* tetrahedronBasisRows [[buffer(3)]],
     device const nm_float4* basisValues [[buffer(4)]],
+    device const uint* basisLookup [[buffer(29)]],
     device const uint* blockModeIndices [[buffer(5)]],
     device const NMPartitionedReductionFEMTangentActionGPU* elementModeActions
         [[buffer(6)]],
@@ -356,6 +375,15 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles_paired12(
     const bool validRows = !supported || (validTet &&
         row0 < tangent.basisNodeCount && row1 < tangent.basisNodeCount &&
         row2 < tangent.basisNodeCount && row3 < tangent.basisNodeCount);
+    const uint supportRow0 = supported&&validRows
+        ?nmPartitionedRegionalRowOrdinal(basisLookup,region,row0):NM_INVALID_INDEX;
+    const uint supportRow1 = supported&&validRows
+        ?nmPartitionedRegionalRowOrdinal(basisLookup,region,row1):NM_INVALID_INDEX;
+    const uint supportRow2 = supported&&validRows
+        ?nmPartitionedRegionalRowOrdinal(basisLookup,region,row2):NM_INVALID_INDEX;
+    const uint supportRow3 = supported&&validRows
+        ?nmPartitionedRegionalRowOrdinal(basisLookup,region,row3):NM_INVALID_INDEX;
+
     const ulong actionBase = supported && validTet
         ? ((ulong(environment) * tangent.supportTetrahedronCount +
             flatSupportIndex) * tangent.blockModeCount + rightLocalMode)
@@ -371,16 +399,147 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles_paired12(
                 const uint leftMode = blockModeIndices[
                     region * tangent.blockModeCount + leftLocalMode];
                 if (leftMode < tangent.modeCount) {
-                    const ulong basisBase = ulong(leftMode) *
-                        tangent.basisNodeCount;
                     contribution =
-                        dot(basisValues[basisBase + row0].xyz,
+                        dot(nmPartitionedKnownRegionalCoefficient(basisValues,basisLookup,leftMode,row0,tangent.basisNodeCount,supportRow0).xyz,
                             action.full.node0.xyz - action.selfDiagonal[0].xyz) +
-                        dot(basisValues[basisBase + row1].xyz,
+                        dot(nmPartitionedKnownRegionalCoefficient(basisValues,basisLookup,leftMode,row1,tangent.basisNodeCount,supportRow1).xyz,
                             action.full.node1.xyz - action.selfDiagonal[1].xyz) +
-                        dot(basisValues[basisBase + row2].xyz,
+                        dot(nmPartitionedKnownRegionalCoefficient(basisValues,basisLookup,leftMode,row2,tangent.basisNodeCount,supportRow2).xyz,
                             action.full.node2.xyz - action.selfDiagonal[2].xyz) +
-                        dot(basisValues[basisBase + row3].xyz,
+                        dot(nmPartitionedKnownRegionalCoefficient(basisValues,basisLookup,leftMode,row3,tangent.basisNodeCount,supportRow3).xyz,
+                            action.full.node3.xyz - action.selfDiagonal[3].xyz);
+                } else {
+                    contribution = as_type<float>(0x7fc00000u);
+                }
+            }
+        }
+        reductions[leftLocalMode *
+            NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH + lane] =
+                contribution;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride) {
+            for (uint leftLocalMode = 0u; leftLocalMode < 12u; ++leftLocalMode) {
+                const uint base = leftLocalMode *
+                    NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH;
+                reductions[base + lane] += reductions[base + lane + stride];
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const ulong pairCount = 144u;
+        for (uint leftLocalMode = 0u; leftLocalMode < 12u; ++leftLocalMode) {
+            const uint localPair = leftLocalMode * 12u + rightLocalMode;
+            const ulong output = (((ulong(environment) * tangent.regionCount +
+                region) * pairCount + localPair) * tangent.tileCount) + tile;
+            partials[output] = reductions[leftLocalMode *
+                NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH];
+        }
+    }
+}
+
+// Opt-in streamed exact projection; the binary reduction tree is unchanged.
+kernel void nm_partitioned_reduction_fem_tangent_fused_tiles12(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMPartitionedReductionFEMTangentDispatchGPU& tangent [[buffer(30)]],
+    device const NMPartitionedReductionSparseRangeGPU* regionTetRanges [[buffer(1)]],
+    device const uint* regionTetIndices [[buffer(2)]],
+    device const uint* tetrahedronBasisRows [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const NMContinuumObjectGPU* objects [[buffer(5)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(6)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(7)]],
+    constant NMMicrostepGPU& microstep [[buffer(8)]],
+    device const float* tangentCache [[buffer(9)]],
+    device const uint* tangentCacheValid [[buffer(10)]],
+    device const nm_float4* basisValues [[buffer(11)]],
+    device const uint* basisLookup [[buffer(29)]],
+    device const uint* blockModeIndices [[buffer(12)]],
+    device float* partials [[buffer(13)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint tile = group.x;
+    const uint rightLocalMode = group.y;
+    const uint regionEnvironment = group.z;
+    if (tangent.regionCount == 0u || tangent.blockModeCount != 12u ||
+        dispatch.tetrahedronCount != tangent.tetrahedronCount) return;
+    const uint region = regionEnvironment % tangent.regionCount;
+    const uint environment = regionEnvironment / tangent.regionCount;
+    if (tile >= tangent.tileCount || rightLocalMode >= 12u ||
+        region >= tangent.regionCount ||
+        environment >= dispatch.environmentCount)
+        return;
+    const NMPartitionedReductionSparseRangeGPU range =
+        regionTetRanges[region];
+    // The immutable support map proves all twelve padded reductions are +0.
+    // Write every output word without loading actions or running barriers.
+    if (tile * kHumanRegionalTangentTile >= range.count) {
+        if (lane == 0u) {
+            for (uint leftLocalMode = 0u; leftLocalMode < 12u; ++leftLocalMode) {
+                const ulong localPair = leftLocalMode * 12u + rightLocalMode;
+                const ulong output = (((ulong(environment) * tangent.regionCount +
+                    region) * 144u + localPair) * tangent.tileCount) + tile;
+                partials[output] = 0.0f;
+            }
+        }
+        return;
+    }
+    const uint supportOffset = tile * kHumanRegionalTangentTile + lane;
+    threadgroup float reductions[12u *
+        NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH];
+    const bool supported = supportOffset < range.count;
+    const uint flatSupportIndex = supported
+        ? range.first + supportOffset : 0u;
+    const uint tetIndex = supported ? regionTetIndices[flatSupportIndex] : 0u;
+    const bool validTet = !supported || tetIndex < dispatch.tetrahedronCount;
+    uint row0 = 0u, row1 = 0u, row2 = 0u, row3 = 0u;
+    if (supported && validTet) {
+        row0 = tetrahedronBasisRows[tetIndex * 4u];
+        row1 = tetrahedronBasisRows[tetIndex * 4u + 1u];
+        row2 = tetrahedronBasisRows[tetIndex * 4u + 2u];
+        row3 = tetrahedronBasisRows[tetIndex * 4u + 3u];
+    }
+    const bool validRows = !supported || (validTet &&
+        row0 < tangent.basisNodeCount && row1 < tangent.basisNodeCount &&
+        row2 < tangent.basisNodeCount && row3 < tangent.basisNodeCount);
+    const uint supportRow0 = supported&&validRows
+        ?nmPartitionedRegionalRowOrdinal(basisLookup,region,row0):NM_INVALID_INDEX;
+    const uint supportRow1 = supported&&validRows
+        ?nmPartitionedRegionalRowOrdinal(basisLookup,region,row1):NM_INVALID_INDEX;
+    const uint supportRow2 = supported&&validRows
+        ?nmPartitionedRegionalRowOrdinal(basisLookup,region,row2):NM_INVALID_INDEX;
+    const uint supportRow3 = supported&&validRows
+        ?nmPartitionedRegionalRowOrdinal(basisLookup,region,row3):NM_INVALID_INDEX;
+
+    // The element action stays private and feeds all twelve test modes.
+    // No support_tets * 12 * 128-byte global action arena is allocated.
+    const NMPartitionedReductionFEMTangentActionGPU action = supported && validRows
+        ? nmHumanRegionalElementModeAction(
+        dispatch,tangent,regionTetIndices,tetrahedronBasisRows,tetrahedra,
+        objects,schedulers,adaptive,microstep,tangentCache,tangentCacheValid,
+        basisValues,basisLookup,blockModeIndices,
+        environment,region,flatSupportIndex,rightLocalMode) : NMPartitionedReductionFEMTangentActionGPU{};
+    for (uint leftLocalMode = 0u; leftLocalMode < 12u; ++leftLocalMode) {
+        float contribution = 0.0f;
+        if (supported) {
+            if (!validRows) {
+                contribution = as_type<float>(0x7fc00000u);
+            } else {
+                const uint leftMode = blockModeIndices[
+                    region * tangent.blockModeCount + leftLocalMode];
+                if (leftMode < tangent.modeCount) {
+                    contribution =
+                        dot(nmPartitionedKnownRegionalCoefficient(basisValues,basisLookup,leftMode,row0,tangent.basisNodeCount,supportRow0).xyz,
+                            action.full.node0.xyz - action.selfDiagonal[0].xyz) +
+                        dot(nmPartitionedKnownRegionalCoefficient(basisValues,basisLookup,leftMode,row1,tangent.basisNodeCount,supportRow1).xyz,
+                            action.full.node1.xyz - action.selfDiagonal[1].xyz) +
+                        dot(nmPartitionedKnownRegionalCoefficient(basisValues,basisLookup,leftMode,row2,tangent.basisNodeCount,supportRow2).xyz,
+                            action.full.node2.xyz - action.selfDiagonal[2].xyz) +
+                        dot(nmPartitionedKnownRegionalCoefficient(basisValues,basisLookup,leftMode,row3,tangent.basisNodeCount,supportRow3).xyz,
                             action.full.node3.xyz - action.selfDiagonal[3].xyz);
                 } else {
                     contribution = as_type<float>(0x7fc00000u);

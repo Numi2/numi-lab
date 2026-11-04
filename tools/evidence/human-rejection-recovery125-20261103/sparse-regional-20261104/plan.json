@@ -1,0 +1,13 @@
+{
+  "mechanism": "Construct and consume exact sparse regional basis without a dense whole-body coefficient allocation; preserve full-coordinate operator and coupled residual certification",
+  "fixed": "source geometry, materials, mass, timestep 15.625us, physical gates, accepted-state transaction",
+  "tests": [
+    "dense/sparse coefficient and B/Bt/mass parity",
+    "whitening and source ancestry parity",
+    "native Metal projection/tangent parity",
+    "original fine-scene matched prefix then continuation"
+  ],
+  "admission": "preconditioner-only first; no reduced-coordinate or full-certificate bypass",
+  "stop": "First typed failure retained; no timestep experiments; one GPU job; >=12GiB disk and <=3GiB additional swap",
+  "prediction": "Bounded construction memory independent of dense mode*node extent; numerical parity of exact sparse coefficients. No end-to-end speedup assumed."
+}

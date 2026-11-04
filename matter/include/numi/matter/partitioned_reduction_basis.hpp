@@ -98,6 +98,7 @@ struct PartitionedReductionBasisOptions {
     // Optional caller-owned ceiling for the dense nm_float4 coefficient rows.
     // Zero keeps the generic builder's existing unbounded behavior.
     std::uint64_t maximumDenseCoefficientBytes = 0u;
+    bool sparseCoefficientEncoding = false;
 };
 
 struct PartitionedReductionBasis {
@@ -110,6 +111,58 @@ struct PartitionedReductionBasis {
     // intentionally stored in that existing dense-per-mode compatibility
     // layout. The source mesh and source node numbering are never modified.
     std::vector<nm_float4> values;
+    // Internal compiler storage; the exported solver payload retains its
+    // existing sparse regional encoding. Omitted entries are exactly zero.
+    bool sparseCoefficientEncoding = false;
+    std::vector<std::uint32_t> modeValueOffsets;
+    std::vector<std::uint32_t> coefficientNodeIndices;
+    std::vector<nm_float4> sparseValues;
+
+    [[nodiscard]] nm_float4 coefficient(std::uint32_t mode, std::uint32_t node) const noexcept {
+        if (!sparseCoefficientEncoding)
+            return values[static_cast<std::size_t>(mode) * nodeCount + node];
+        const auto begin = coefficientNodeIndices.begin() + modeValueOffsets[mode];
+        const auto end = coefficientNodeIndices.begin() + modeValueOffsets[mode + 1u];
+        const auto found = std::lower_bound(begin, end, node);
+        return found != end && *found == node
+            ? sparseValues[static_cast<std::size_t>(found - coefficientNodeIndices.begin())]
+            : nm_float4{};
+    }
+    [[nodiscard]] bool coefficientStorageValid() const noexcept {
+        if (!sparseCoefficientEncoding)
+            return values.size() == static_cast<std::size_t>(modeCount) * nodeCount;
+        if (!values.empty() || modeValueOffsets.size() != static_cast<std::size_t>(modeCount) + 1u ||
+            modeValueOffsets.front() != 0u || modeValueOffsets.back() != sparseValues.size() ||
+            coefficientNodeIndices.size() != sparseValues.size()) return false;
+        for (std::uint32_t mode=0; mode<modeCount; ++mode) {
+            const auto first=modeValueOffsets[mode], end=modeValueOffsets[mode+1u];
+            if (first>end || end>sparseValues.size()) return false;
+            for (auto i=first; i<end; ++i)
+                if (coefficientNodeIndices[i]>=nodeCount ||
+                    (i>first && coefficientNodeIndices[i-1u]>=coefficientNodeIndices[i]))
+                    return false;
+        }
+        return true;
+    }
+    void clearCoefficients() {
+        values.clear(); modeValueOffsets.clear();
+        coefficientNodeIndices.clear(); sparseValues.clear();
+    }
+    void appendCoefficientMode(const std::vector<std::array<double,3>>& field) {
+        if (sparseCoefficientEncoding) {
+            if (modeValueOffsets.empty()) modeValueOffsets.push_back(0u);
+            for (std::uint32_t node=0; node<field.size(); ++node) {
+                const auto& v=field[node];
+                const nm_float4 value{float(v[0]),float(v[1]),float(v[2]),0.0f};
+                if (value.x!=0.0f || value.y!=0.0f || value.z!=0.0f) {
+                    coefficientNodeIndices.push_back(node); sparseValues.push_back(value);
+                }
+            }
+            modeValueOffsets.push_back(static_cast<std::uint32_t>(sparseValues.size()));
+        } else {
+            for (const auto& v:field) values.push_back({float(v[0]),float(v[1]),float(v[2]),0.0f});
+        }
+    }
     std::vector<PartitionedReductionMode> modes;
     std::vector<PartitionedReductionRegion> regions;
     std::vector<std::uint32_t> anchorNodes;
@@ -131,6 +184,47 @@ struct PartitionedReductionBasis {
 
     [[nodiscard]] bool valid() const noexcept { return error.empty(); }
 };
+
+// Form the exact Float32-exported Gram matrix in ascending source-node
+// order. Sparse construction visits actual entries, never mode*node capacity.
+[[nodiscard]] inline std::vector<double> partitionedProjectedMass(
+    const PartitionedReductionBasis& basis, const std::span<const double> mass
+) {
+    std::vector<double> gram(static_cast<std::size_t>(basis.modeCount)*basis.modeCount,0.0);
+    std::vector<std::uint32_t> offsets(basis.nodeCount+1u,0u), modes, entries;
+    if (basis.sparseCoefficientEncoding) {
+        for (auto node:basis.coefficientNodeIndices) ++offsets[node+1u];
+        for (std::uint32_t node=0;node<basis.nodeCount;++node) offsets[node+1u]+=offsets[node];
+        modes.resize(basis.sparseValues.size()); entries.resize(modes.size());
+        auto cursor=offsets;
+        for (std::uint32_t mode=0;mode<basis.modeCount;++mode)
+            for (auto i=basis.modeValueOffsets[mode];i<basis.modeValueOffsets[mode+1u];++i) {
+                auto dst=cursor[basis.coefficientNodeIndices[i]]++;
+                modes[dst]=mode;entries[dst]=i;
+            }
+    }
+    std::vector<std::uint32_t> active;
+    for (std::uint32_t node=0;node<basis.nodeCount;++node) {
+        active.clear();
+        if (!basis.sparseCoefficientEncoding)
+            for (std::uint32_t mode=0;mode<basis.modeCount;++mode) {
+                const auto v=basis.coefficient(mode,node);
+                if (v.x!=0.0f||v.y!=0.0f||v.z!=0.0f) active.push_back(mode);
+            }
+        const auto count=basis.sparseCoefficientEncoding?offsets[node+1u]-offsets[node]:active.size();
+        for (std::size_t i=0;i<count;++i) {
+            const auto row=basis.sparseCoefficientEncoding?modes[offsets[node]+i]:active[i];
+            const auto a=basis.sparseCoefficientEncoding?basis.sparseValues[entries[offsets[node]+i]]:basis.coefficient(row,node);
+            for (std::size_t j=0;j<count;++j) {
+                const auto column=basis.sparseCoefficientEncoding?modes[offsets[node]+j]:active[j];
+                const auto b=basis.sparseCoefficientEncoding?basis.sparseValues[entries[offsets[node]+j]]:basis.coefficient(column,node);
+                gram[static_cast<std::size_t>(row)*basis.modeCount+column]+=mass[node]*
+                    (double(a.x)*b.x+double(a.y)*b.y+double(a.z)*b.z);
+            }
+        }
+    }
+    return gram;
+}
 
 namespace partitioned_reduction_detail {
 
@@ -215,7 +309,7 @@ namespace partitioned_reduction_detail {
     const std::size_t tetCount = input.tetrahedra.size();
     const auto fail = [&](const char* message) {
         result.error = message;
-        result.values.clear();
+        result.clearCoefficients();
         result.modes.clear();
         result.regions.clear();
         result.projectedMass.clear();
@@ -233,6 +327,7 @@ namespace partitioned_reduction_detail {
     if (nodeCount > std::numeric_limits<std::uint32_t>::max())
         return fail("partitioned basis source node count exceeds its index range");
 
+    result.sparseCoefficientEncoding = options.sparseCoefficientEncoding;
     result.nodeCount = static_cast<std::uint32_t>(nodeCount);
     result.minimumCoordinateReductionFactor =
         options.minimumCoordinateReductionFactor;
@@ -282,7 +377,7 @@ namespace partitioned_reduction_detail {
         static_cast<std::uint64_t>(regionCount) * 6u + freeAnchorCount * 3u;
     if (baseModeCount == 0u || baseModeCount > options.maximumModeCount)
         return fail("partitioned basis exceeds the authored mode limit after anchor preservation");
-    if (options.maximumDenseCoefficientBytes != 0u &&
+    if (!options.sparseCoefficientEncoding && options.maximumDenseCoefficientBytes != 0u &&
         baseModeCount > options.maximumDenseCoefficientBytes /
              sizeof(nm_float4) / nodeCount)
         return fail("partitioned basis dense coefficient rows exceed the caller's checked byte budget");
@@ -371,12 +466,7 @@ namespace partitioned_reduction_detail {
     const auto appendMode = [&](const PartitionedReductionMode& descriptor,
                                 const std::vector<std::array<double, 3>>& field) {
         result.modes.push_back(descriptor);
-        for (std::size_t node = 0u; node < nodeCount; ++node) {
-            const auto& value = field[node];
-            result.values.push_back({static_cast<float>(value[0]),
-                                     static_cast<float>(value[1]),
-                                     static_cast<float>(value[2]), 0.0f});
-        }
+        result.appendCoefficientMode(field);
     };
     for (std::size_t region = 0u; region < regionCount; ++region) {
         for (std::uint32_t component = 0u; component < 3u; ++component) {
@@ -429,35 +519,11 @@ namespace partitioned_reduction_detail {
         return fail("partitioned basis does not meet the requested minimum coordinate reduction factor");
     }
 
-    result.projectedMass.assign(
-        static_cast<std::size_t>(result.modeCount) * result.modeCount, 0.0);
-    // Every node supports only the handful of regions incident to its
-    // tetrahedra. Accumulate exact dense Gram entries from those active modes
-    // instead of scanning all mode pairs over all source nodes.
-    std::vector<std::uint32_t> activeModes;
-    for (std::size_t node = 0u; node < nodeCount; ++node) {
-        activeModes.clear();
-        for (std::uint32_t mode = 0u; mode < result.modeCount; ++mode) {
-            const auto& value = result.values[
-                static_cast<std::size_t>(mode) * nodeCount + node];
-            if (value.x != 0.0f || value.y != 0.0f || value.z != 0.0f)
-                activeModes.push_back(mode);
-        }
-        for (const std::uint32_t row : activeModes) {
-            const auto& a = result.values[
-                static_cast<std::size_t>(row) * nodeCount + node];
-            for (const std::uint32_t column : activeModes) {
-                const auto& b = result.values[
-                    static_cast<std::size_t>(column) * nodeCount + node];
-                result.projectedMass[static_cast<std::size_t>(row) *
-                                     result.modeCount + column] +=
-                    input.lumpedMass[node] *
-                    (static_cast<double>(a.x) * b.x +
-                     static_cast<double>(a.y) * b.y +
-                     static_cast<double>(a.z) * b.z);
-            }
-        }
-    }
+    if (result.sparseCoefficientEncoding && options.maximumDenseCoefficientBytes != 0u &&
+        result.sparseValues.size() > options.maximumDenseCoefficientBytes /
+            (sizeof(nm_float4)+sizeof(std::uint32_t)))
+        return fail("partitioned sparse coefficient storage exceeds the checked byte budget");
+    result.projectedMass = partitionedProjectedMass(result,input.lumpedMass);
     if (!choleskyPositiveDefinite(result.projectedMass, result.modeCount))
         return fail("partitioned basis modes are linearly dependent under the supplied nodal mass");
     return result;
@@ -472,13 +538,11 @@ namespace partitioned_reduction_detail {
 ) noexcept {
     if (!basis.valid() || nodalForce.size() != basis.nodeCount ||
         reducedForce.size() != basis.modeCount ||
-        basis.values.size() != static_cast<std::size_t>(basis.modeCount) *
-            basis.nodeCount) return false;
+        !basis.coefficientStorageValid()) return false;
     std::fill(reducedForce.begin(), reducedForce.end(), 0.0);
     for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode) {
-        const std::size_t offset = static_cast<std::size_t>(mode) * basis.nodeCount;
         for (std::uint32_t node = 0u; node < basis.nodeCount; ++node) {
-            const auto& b = basis.values[offset + node];
+            const auto b = basis.coefficient(mode,node);
             reducedForce[mode] += static_cast<double>(b.x) * nodalForce[node][0] +
                 static_cast<double>(b.y) * nodalForce[node][1] +
                 static_cast<double>(b.z) * nodalForce[node][2];
@@ -496,14 +560,12 @@ namespace partitioned_reduction_detail {
 ) noexcept {
     if (!basis.valid() || reducedCoordinates.size() != basis.modeCount ||
         nodalDisplacement.size() != basis.nodeCount ||
-        basis.values.size() != static_cast<std::size_t>(basis.modeCount) *
-            basis.nodeCount) return false;
+        !basis.coefficientStorageValid()) return false;
     std::fill(nodalDisplacement.begin(), nodalDisplacement.end(),
               std::array<double, 3>{});
     for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode) {
-        const std::size_t offset = static_cast<std::size_t>(mode) * basis.nodeCount;
         for (std::uint32_t node = 0u; node < basis.nodeCount; ++node) {
-            const auto& b = basis.values[offset + node];
+            const auto b = basis.coefficient(mode,node);
             for (std::size_t axis = 0u; axis < 3u; ++axis)
                 nodalDisplacement[node][axis] += reducedCoordinates[mode] *
                     (axis == 0u ? b.x : axis == 1u ? b.y : b.z);

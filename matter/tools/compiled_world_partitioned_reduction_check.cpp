@@ -1,4 +1,6 @@
 #include "numi/matter/compiled_world_partitioned_reduction.hpp"
+#include "numi/matter/partitioned_reduction_mass_whitening.hpp"
+#include "numi/matter/partitioned_reduction_fem_tangent.h"
 
 #include <algorithm>
 #include <array>
@@ -208,6 +210,89 @@ void runValidCase() {
         world, 1u, options);
     require(output.valid(), output.error.empty() ? output.basis.error :
         output.error);
+    {
+    auto sparseOptions=options;
+    sparseOptions.sparseCoefficientEncoding=true;
+    auto sparse=buildCompiledWorldPartitionedReductionBasis(world,1u,sparseOptions);
+    require(sparse.valid() && sparse.basis.coefficientStorageValid(),
+            "streamed sparse affine construction failed: "+sparse.error);
+    require(sparse.basis.values.empty() &&
+            sparse.basis.sparseValues.size()<output.basis.values.size(),
+            "streamed affine construction materialized dense capacity");
+    require(sparse.globalFEMNodeIndices==output.globalFEMNodeIndices &&
+            sparse.anchorReasonMasks==output.anchorReasonMasks &&
+            sparse.basis.projectedMass==output.basis.projectedMass,
+            "streamed sparse affine ancestry or exact projected mass differs");
+    for (std::uint32_t mode=0;mode<output.basis.modeCount;++mode)
+        for (std::uint32_t node=0;node<output.basis.nodeCount;++node) {
+            const auto a=output.basis.coefficient(mode,node),b=sparse.basis.coefficient(mode,node);
+            require(a.x==b.x&&a.y==b.y&&a.z==b.z&&a.w==b.w,
+                    "streamed affine Float32 coefficients differ");
+        }
+    std::vector<double> sparseMass;
+    for (auto global:output.globalFEMNodeIndices)
+        sparseMass.push_back(world.fem.nodes[global].positionAndMass.w);
+    auto denseWhiten=output.basis;
+    const auto dw=massWhitenPartitionedReductionBasis(denseWhiten,sparseMass);
+    const auto sw=massWhitenPartitionedReductionBasis(sparse.basis,sparseMass);
+    require(dw.valid()&&sw.valid(),"streamed mass whitening failed");
+    require(sparse.basis.projectedMass==denseWhiten.projectedMass,
+            "streamed mass whitening changed exact projected mass");
+    for (std::uint32_t mode=0;mode<denseWhiten.modeCount;++mode)
+        for (std::uint32_t node=0;node<denseWhiten.nodeCount;++node) {
+            const auto a=denseWhiten.coefficient(mode,node),b=sparse.basis.coefficient(mode,node);
+            require(a.x==b.x&&a.y==b.y&&a.z==b.z,"streamed whitened coefficient differs");
+        }
+    std::vector<double> q(denseWhiten.modeCount), df(q.size()),sf(q.size());
+    std::vector<std::array<double,3>> f(denseWhiten.nodeCount),dx(f.size()),sx(f.size());
+    for (std::size_t i=0;i<q.size();++i) q[i]=std::sin(double(i)+.3);
+    for (std::size_t i=0;i<f.size();++i) f[i]={std::sin(double(i)),std::cos(double(i)),double(i)*.01};
+    require(projectPartitionedNodalForce(denseWhiten,f,df)&&projectPartitionedNodalForce(sparse.basis,f,sf)&&df==sf,
+            "streamed B^T force differs");
+    require(combinePartitionedPreconditionerModes(denseWhiten,q,dx)&&combinePartitionedPreconditionerModes(sparse.basis,q,sx)&&dx==sx,
+            "streamed Bq differs");
+    std::vector<std::uint32_t> selected;
+    for (std::uint32_t mode=0;mode<denseWhiten.modeCount;++mode)
+        if (denseWhiten.modes[mode].kind!=PartitionedReductionModeKind::anchorTranslation)
+            selected.push_back(mode);
+    const auto denseSupport=buildPartitionedReductionSparseSupport(denseWhiten,selected,2u,12u);
+    const auto compactSupport=buildPartitionedReductionSparseSupport(sparse.basis,selected,2u,12u);
+    require(denseSupport.valid()&&compactSupport.valid()&&
+            denseSupport.regionSupportRows==compactSupport.regionSupportRows&&
+            denseSupport.nodeModeSlots==compactSupport.nodeModeSlots,
+            "streamed sparse worklist identity differs");
+    const auto oldTets=buildPartitionedReductionFEMTangentSupport(
+        denseWhiten.values,output.globalFEMNodeIndices,denseWhiten.nodeCount,denseWhiten.modeCount,
+        selected,2u,12u,world.fem.tetrahedra,1u);
+    const auto newTets=buildPartitionedReductionFEMTangentSupport(
+        compactSupport,output.globalFEMNodeIndices,sparse.basis.nodeCount,2u,world.fem.tetrahedra,1u);
+    require(oldTets.valid()&&newTets.valid()&&oldTets.regionTetrahedronIndices==newTets.regionTetrahedronIndices&&
+            oldTets.tetrahedronBasisNodeRows==newTets.tetrahedronBasisNodeRows&&oldTets.tileCount==newTets.tileCount,
+            "single-pass sparse tetrahedron incidence differs");
+    for (std::size_t i=0;i<oldTets.regionTetrahedronRanges.size();++i)
+        require(oldTets.regionTetrahedronRanges[i].first==newTets.regionTetrahedronRanges[i].first&&
+                oldTets.regionTetrahedronRanges[i].count==newTets.regionTetrahedronRanges[i].count,
+                "single-pass sparse tet regional range differs");
+    detail::HumanPartitionedPreconditionerSource payload;
+    payload.basisNodeCount=sparse.basis.nodeCount;payload.regionCount=2u;
+    payload.blockModeCount=12u;payload.modeCount=24u;
+    for (std::uint32_t m=0;m<24u;++m) payload.blockModeIndices.push_back(m);
+    std::string error;
+    require(packSparseHumanPartitionedBasis(sparse.basis,selected,payload,error),error);
+    auto malformed=payload;
+    malformed.sparseModeValueOffsets.back()++;
+    require(!buildPartitionedReductionSparseSupport(malformed).valid(),"compact source accepted corrupt offsets");
+    malformed=payload;malformed.sparseRegionSupportRows.front()=payload.basisNodeCount;
+    require(!buildPartitionedReductionSparseSupport(malformed).valid(),"compact source accepted missing node ancestry");
+    malformed=payload;malformed.sparseBasisValues.front().w=1.f;
+    require(!buildPartitionedReductionSparseSupport(malformed).valid(),"compact source accepted packed coefficients");
+    malformed=payload;malformed.sparseNodeModeValueIndices.front()++;
+    require(!buildPartitionedReductionSparseSupport(malformed).valid(),"compact source accepted wrong coefficient identities");
+    auto missing=compactSupport;missing.regionSupportRows.front()=sparse.basis.nodeCount;
+    require(!buildPartitionedReductionFEMTangentSupport(missing,output.globalFEMNodeIndices,
+            sparse.basis.nodeCount,2u,world.fem.tetrahedra,1u).valid(),"sparse tet map accepted missing source row");
+    std::cout<<"streamed_sparse_affine=PASS coefficient_bits=true mass_bits=true whitening_bits=true B_and_BT=true dense_capacity=absent\n";
+    }
     const PartitionedReductionBasis& basis = output.basis;
     require(output.objectIndex == 1u && basis.nodeCount == sourceNodeCount,
             "selected compiled FEM object or active source node count changed");

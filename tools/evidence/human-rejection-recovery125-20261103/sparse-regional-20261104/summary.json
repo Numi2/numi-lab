@@ -1,0 +1,13 @@
+{
+  "scope": "Exact sparse full-coordinate preconditioner; no mechanical model reduction or final certificate change",
+  "native_qualifications": "Prefixes only, full supported rest and 0.1x remain unqualified",
+  "source_recovery": "Each source archive below is the exact named trial input snapshot; verify members against build-manifest.json; unrelated dirty owner work not promoted",
+  "trials": [
+    "streamed-sparse-native-089",
+    "streamed-sparse-native-090",
+    "streamed-sparse-native-091",
+    "streamed-fem-native-093",
+    "streamed-fem-icb-native-095",
+    "direct-coefficient-native-097"
+  ]
+}

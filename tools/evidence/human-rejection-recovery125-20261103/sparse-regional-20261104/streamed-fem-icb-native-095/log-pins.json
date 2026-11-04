@@ -1,0 +1,12 @@
+{
+  "install-motion.stdout.log": {
+    "uncompressed_bytes": 359969,
+    "uncompressed_sha256": "e521562485e437128f744ecc9fe370665c05fcea00182c0d1b91ed4b242ea665",
+    "lossless_gzip": "install-motion.stdout.log.gz"
+  },
+  "install-motion.stderr.log": {
+    "uncompressed_bytes": 206382,
+    "uncompressed_sha256": "e6400fe44c1bfdd83db094570bbb8aef45d6a4cb9ca080297241c4e88a785e6f",
+    "lossless_gzip": "install-motion.stderr.log.gz"
+  }
+}

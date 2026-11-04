@@ -174,6 +174,8 @@ void dispatch(
     require(command != nil && encoder != nil,
         "cannot allocate Metal command encoder");
     [encoder setComputePipelineState:state];
+    const std::uint32_t denseCoefficientLookup[4]={0u,0u,0u,0u};
+    [encoder setBytes:denseCoefficientLookup length:sizeof(denseCoefficientLookup) atIndex:29u];
     for (const auto& [index, buffer] : bindings)
         [encoder setBuffer:buffer offset:0u atIndex:index];
     [encoder dispatchThreadgroups:MTLSizeMake(groups, 1u, 1u)
@@ -202,6 +204,8 @@ void dispatchGrid3D(
     require(command != nil && encoder != nil,
         "cannot allocate 3D Metal command encoder");
     [encoder setComputePipelineState:state];
+    const std::uint32_t denseCoefficientLookup[4]={0u,0u,0u,0u};
+    [encoder setBytes:denseCoefficientLookup length:sizeof(denseCoefficientLookup) atIndex:29u];
     for (const auto& [index, buffer] : bindings)
         [encoder setBuffer:buffer offset:0u atIndex:index];
     [encoder dispatchThreadgroups:MTLSizeMake(groupsX, groupsY, groupsZ)
@@ -396,9 +400,10 @@ static_assert(std::is_trivially_copyable_v<Selector6ICBConstants>);
 void checkSelector6PrefixICB(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
-    id<MTLLibrary> library
+    id<MTLLibrary> library,
+    const bool includeGraph = true
 ) {
-    constexpr std::uint32_t commandCount = 6u;
+    const std::uint32_t commandCount = includeGraph?6u:4u;
     NMMatterDispatchGPU matter{};
     matter.abiVersion = NM_MATTER_ABI_VERSION;
     matter.environmentCount = 1u;
@@ -525,6 +530,9 @@ void checkSelector6PrefixICB(
     auto candidate = makeBuffer(device,
         std::vector<NMFEMNodeStateGPU>{NMFEMNodeStateGPU{}});
     auto dummy = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto coefficientLookup=makeBuffer(device,includeGraph
+        ?std::vector<std::uint32_t>{0u,0u,0u,0u}
+        :std::vector<std::uint32_t>{1u,1u,1u,8u,0u,1u,0u,1u,0u});
     auto graphJacobiCounters = makeBuffer(device, std::vector<std::uint32_t>(9u));
     auto prepareRange = pipeline(device, library,
         "numi_matter_metal::nm_fgmres_prepare_operator_icb_ranges");
@@ -571,6 +579,7 @@ void checkSelector6PrefixICB(
             id<MTLIndirectComputeCommand> cmd =
                 [runs[runIndex].graph indirectComputeCommandAtIndex:ordinal++];
             [cmd setComputePipelineState:p];
+            [cmd setKernelBuffer:coefficientLookup offset:0u atIndex:29u];
             [cmd setKernelBuffer:destinationConstantsBuffer
                 offset:offsetof(Selector6ICBConstants, dispatch) atIndex:0u];
             [cmd setKernelBuffer:destinationConstantsBuffer
@@ -620,6 +629,7 @@ void checkSelector6PrefixICB(
         bind(cmd,7u,nodeModeRanges); bind(cmd,8u,nodeModeSlots);
         dispatch(cmd,1u,1u,1u,256u);
 
+        if(includeGraph) {
         cmd = beginCommand(solvePatchesICB);
         bind(cmd,1u,graphPatches); bind(cmd,2u,graphPatchNodes);
         bind(cmd,3u,runs[runIndex].input); bind(cmd,4u,regionalBasis);
@@ -653,6 +663,7 @@ void checkSelector6PrefixICB(
         bind(cmd,12u,candidate);
         bindScalar(cmd,13u,offsetof(Selector6ICBConstants,graphModeStride));
         dispatch(cmd,1u,1u,1u,256u);
+        }
         require(ordinal == commandCount,
             "selector-6 prefix ICB did not record exactly six commands");
     }
@@ -674,7 +685,7 @@ void checkSelector6PrefixICB(
         dispatchGrid3D(device, queue, reduceTiles,
             {{0u,blockBuffer},{1u,runs[runIndex].input},{2u,regionalBasis},
              {3u,globalNodeIndices},{4u,mass},{5u,partials},{6u,basisModes},
-             {7u,regionSupportRanges},{8u,regionSupportRows}},1u,1u,1u,256u);
+             {7u,regionSupportRanges},{8u,regionSupportRows},{29u,coefficientLookup}},1u,1u,1u,256u);
         dispatchGrid3D(device, queue, reducePartials,
             {{0u,blockBuffer},{1u,partials},{2u,reduced},{3u,basisModes}},
             1u,1u,1u,256u);
@@ -686,7 +697,8 @@ void checkSelector6PrefixICB(
             {{0u,blockBuffer},{1u,globalNodeIndices},{2u,regionalBasis},
              {3u,basisModes},{4u,coefficients},{5u,solveValid},
              {6u,runs[runIndex].output},{7u,nodeModeRanges},
-             {8u,nodeModeSlots}},1u,256u);
+             {8u,nodeModeSlots},{29u,coefficientLookup}},1u,256u);
+        if(includeGraph) {
         direct1D(solvePatches,
             {{0u,matterBuffer},{1u,graphPatches},{2u,graphPatchNodes},
              {3u,runs[runIndex].input},{4u,regionalBasis},{5u,regionalAP},
@@ -711,6 +723,7 @@ void checkSelector6PrefixICB(
              {11u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
              {12u,candidate},{13u,makeBuffer(device,std::vector<std::uint32_t>{0u})}},
             1u,256u);
+        }
     };
     const auto snapshot = [&](id<MTLBuffer> buffer) {
         std::vector<std::uint8_t> bytes([buffer length]);
@@ -744,7 +757,7 @@ void checkSelector6PrefixICB(
             regionValid,factorValid,coefficients,solveValid,regionalBasis,
             regionalAP,graphPatches,graphPatchNodes,graphFactors,graphOriginal,
             graphPivots,graphFactorValid,graphCorrections,nodePatchOffsets,
-            nodePatchValues,nodeCoverage,candidate,dummy,graphJacobiCounters})
+            nodePatchValues,nodeCoverage,candidate,dummy,graphJacobiCounters,coefficientLookup})
             [encoder useResource:resource
                 usage:MTLResourceUsageRead | MTLResourceUsageWrite];
         [encoder useResource:runs[runIndex].graph usage:MTLResourceUsageRead];
@@ -849,6 +862,8 @@ void checkSelector6PrefixICB(
     std::cout << "selector6_prefix_icb=true commands=6 columns=2 "
                  "iteration_refresh=true converged_range=empty direct_parity=bitwise "
                  "result=PASS\n";
+    if(!includeGraph) std::cout<<"selector6_regional_only_compact_icb=PASS active_and_completed_parity=true graph_commands=absent\\n";
+
 }
 
 
@@ -14590,6 +14605,8 @@ void dispatchIndirect(
     require(command != nil && encoder != nil,
         "cannot allocate indirect Metal command encoder");
     [encoder setComputePipelineState:state];
+    const std::uint32_t denseCoefficientLookup[4]={0u,0u,0u,0u};
+    [encoder setBytes:denseCoefficientLookup length:sizeof(denseCoefficientLookup) atIndex:29u];
     for (const auto& [index, buffer] : bindings)
         [encoder setBuffer:buffer offset:0u atIndex:index];
     [encoder dispatchThreadgroupsWithIndirectBuffer:arguments
@@ -17319,6 +17336,7 @@ int main(int argc, const char* argv[]) {
             }
             if (argc == 2 && std::string(argv[1]) == "--selector6-prefix-icb-only") {
                 checkSelector6PrefixICB(device, queue, library);
+                checkSelector6PrefixICB(device, queue, library, false);
                 std::cout << "PASS selector-6 prefix ICB " << checks << " checks" << std::endl;
                 return 0;
             }
@@ -17477,6 +17495,7 @@ int main(int argc, const char* argv[]) {
             checkOperatorICBRanges(device, queue, operatorICBRanges);
             checkAggregateCycleICBRange(device, queue, library);
             checkSelector6PrefixICB(device, queue, library);
+                checkSelector6PrefixICB(device, queue, library, false);
             checkSelector6VascularPrefixICB(device, queue, library);
 
             auto finalize = pipeline(device, library,

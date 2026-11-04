@@ -1,0 +1,93 @@
+{
+  "reference": "095",
+  "candidate": "097",
+  "qualification": "four initialization roots only",
+  "links": [
+    {
+      "path": "install-motion/common-field-map-f32.bin",
+      "bytes": 69593328,
+      "sha256": "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da"
+    },
+    {
+      "path": "install-motion/resting-ocular-sclera-window.json",
+      "bytes": 1210039,
+      "sha256": "6f39551c29b3d95aae60a6a4bc7883255c26c6b985cc4fd3ebce8c4a96e8aadb"
+    },
+    {
+      "path": "install-motion/skin-source-influences.bin",
+      "bytes": 3657264,
+      "sha256": "e5fb943bdd45d59a884c79efc102240065a2318bb47edfb86da2c49652eb5ddd"
+    },
+    {
+      "path": "install-motion/resting-human.mrvpack",
+      "bytes": 321323008,
+      "sha256": "16f5984f1bc359246c925903770c1ced5acf3c2361eea7c5385e2ea0109da99e"
+    },
+    {
+      "path": "install-motion/skin-source-vertex-map.bin",
+      "bytes": 3657264,
+      "sha256": "dcc3191cd7d1ea4323fed005c4298f8fdcd8608ae7eeebb530c2b0fca335920a"
+    },
+    {
+      "path": "install-motion/accepted-geometry/step-0.mrvpack",
+      "bytes": 321323008,
+      "sha256": "1650ced545f71ebffcd33dd6b1d70874579e5912d9014680446203b42c6cd3ec"
+    },
+    {
+      "path": "install-motion/accepted-geometry/step-4.mrvpack",
+      "bytes": 321323008,
+      "sha256": "612487273a6c879d26977d936b9fe9d3f7ad7b54333600f9f8a6b06f592caa6d"
+    },
+    {
+      "path": "install-motion/diagnostics/registered-skin-native.csv",
+      "bytes": 24147731,
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e"
+    }
+  ],
+  "csv_parity": {
+    "resting-coupled.csv": {
+      "bitwise": true,
+      "sha256": "fa9c5670a030ec08e9f88c3ae187f01607a10e83ce3a562b9a4a9a6654739058"
+    },
+    "resting-surface-audit.csv": {
+      "bitwise": true,
+      "sha256": "2ea8d30f7fd564881ffb8e21c3553395041452979ce0656c65d2b445a216a735"
+    },
+    "resting-com-q-integration.csv": {
+      "bitwise": true,
+      "sha256": "ab90fa992ce621b7aa5dbbaecc511f1580c3a6620409444a490539f8161f1b4d"
+    }
+  },
+  "streamed-fem-icb-native-095": {
+    "gpu_ms_per_root": [
+      17570.33275,
+      17530.651125,
+      17509.0305,
+      17518.53525
+    ],
+    "gpu_mean_ms": 17532.13740625,
+    "body_loop": "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=72.618135874999993 real_time_factor=8.6066658439393203e-07 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  },
+  "direct-coefficient-native-097": {
+    "gpu_ms_per_root": [
+      10003.853375,
+      10022.249125,
+      10028.7115,
+      10035.917875
+    ],
+    "gpu_mean_ms": 10022.68296875,
+    "body_loop": "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=42.182135500000001 real_time_factor=1.481669958804971e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  },
+  "final-production-native-086": {
+    "gpu_ms_per_root": [
+      5787.495875,
+      5838.96654166,
+      5829.839125,
+      5837.23158333
+    ],
+    "gpu_mean_ms": 5823.3832812475,
+    "body_loop": "resting_integrated_body=completed simulated_s=6.2500002968590707e-05 wall_s=25.397287333000001 real_time_factor=2.460892856355617e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  },
+  "matched_single_pair_gpu_reduction_fraction": 0.4283250959933139,
+  "reclaimed_bytes": 1066234650
+}

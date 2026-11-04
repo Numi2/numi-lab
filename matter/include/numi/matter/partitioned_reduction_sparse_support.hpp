@@ -1,6 +1,7 @@
 #pragma once
 
 #include "numi/matter/partitioned_reduction_basis.hpp"
+#include "numi/matter/matter.hpp"
 #include "numi/matter/partitioned_reduction_projection.h"
 
 #include <algorithm>
@@ -256,6 +257,61 @@ buildPartitionedReductionSparseSupport(
         result.error = "sparse support basis is invalid: " + basis.error;
         return result;
     }
+    if (basis.sparseCoefficientEncoding) {
+        PartitionedReductionSparseSupport out;
+        const auto reject=[&](const char* message) {
+            PartitionedReductionSparseSupport failed;failed.error=message;return failed;
+        };
+        if (!basis.coefficientStorageValid() || regionCount==0u || blockModeCount==0u ||
+            blockModeCount>32u || blockModeIndices.size()!=std::size_t(regionCount)*blockModeCount ||
+            blockModeIndices.size()>basis.modeCount)
+            return reject("streamed sparse support dimensions are invalid");
+        std::vector<std::uint8_t> seen(basis.modeCount,0u);
+        out.regionSupportRanges.resize(regionCount);
+        out.nodeModeRanges.resize(basis.nodeCount);
+        std::vector<std::uint32_t> counts(basis.nodeCount,0u);
+        for (std::uint32_t region=0;region<regionCount;++region) {
+            std::vector<std::uint32_t> rows;
+            for (std::uint32_t local=0;local<blockModeCount;++local) {
+                const auto mode=blockModeIndices[region*blockModeCount+local];
+                if (mode>=basis.modeCount || seen[mode]++)
+                    return reject("streamed sparse regional mode map is invalid");
+                for (auto i=basis.modeValueOffsets[mode];i<basis.modeValueOffsets[mode+1u];++i) {
+                    const auto v=basis.sparseValues[i];
+                    if (!std::isfinite(v.x)||!std::isfinite(v.y)||!std::isfinite(v.z)||v.w!=0.f)
+                        return reject("streamed sparse coefficient is invalid");
+                    if (v.x==0.f&&v.y==0.f&&v.z==0.f) continue;
+                    rows.push_back(basis.coefficientNodeIndices[i]);
+                    ++counts[basis.coefficientNodeIndices[i]];
+                }
+            }
+            std::sort(rows.begin(),rows.end());rows.erase(std::unique(rows.begin(),rows.end()),rows.end());
+            if (out.regionSupportRows.size()+rows.size()>std::numeric_limits<std::uint32_t>::max())
+                return reject("streamed sparse support exceeds uint32 offsets");
+            out.regionSupportRanges[region]={std::uint32_t(out.regionSupportRows.size()),std::uint32_t(rows.size())};
+            out.regionSupportRows.insert(out.regionSupportRows.end(),rows.begin(),rows.end());
+            out.sparseTileCount=std::max(out.sparseTileCount,std::uint32_t((rows.size()+255u)/256u));
+        }
+        std::uint64_t total=0u;
+        for (std::uint32_t row=0;row<basis.nodeCount;++row) {
+            if (total+counts[row]>std::numeric_limits<std::uint32_t>::max())
+                return reject("streamed sparse node modes exceed uint32 offsets");
+            out.nodeModeRanges[row]={std::uint32_t(total),counts[row]};
+            total+=counts[row];out.maximumNodeModeCount=std::max(out.maximumNodeModeCount,counts[row]);
+        }
+        out.nodeModeSlots.resize(total);std::fill(counts.begin(),counts.end(),0u);
+        for (std::uint32_t packed=0;packed<blockModeIndices.size();++packed) {
+            const auto mode=blockModeIndices[packed];
+            for (auto i=basis.modeValueOffsets[mode];i<basis.modeValueOffsets[mode+1u];++i) {
+                const auto v=basis.sparseValues[i];
+                if (v.x==0.f&&v.y==0.f&&v.z==0.f) continue;
+                const auto row=basis.coefficientNodeIndices[i];
+                out.nodeModeSlots[out.nodeModeRanges[row].first+counts[row]++]=packed;
+            }
+        }
+        if (!out.sparseTileCount) return reject("streamed sparse support has no active rows");
+        return out;
+    }
     return buildPartitionedReductionSparseSupport(
         std::span<const nm_float4>(basis.values), basis.nodeCount,
         basis.modeCount, blockModeIndices, regionCount, blockModeCount);
@@ -379,6 +435,144 @@ buildPartitionedReductionSparseCoefficients(
     if (out.nodeModeValueIndices.size() != support.nodeModeSlots.size())
         return fail("sparse node-mode coefficient map has the wrong extent");
     return out;
+}
+
+[[nodiscard]] inline nm_float4 humanPartitionedCoefficient(
+    const detail::HumanPartitionedPreconditionerSource& source,
+    const std::uint32_t mode, const std::uint32_t row
+) noexcept {
+    if (!source.sparseCoefficientEncoding)
+        return source.basisValues[std::size_t(mode)*source.basisNodeCount+row];
+    const auto region=mode/source.blockModeCount;
+    const auto first=source.sparseRegionSupportOffsets[region];
+    const auto end=source.sparseRegionSupportOffsets[region+1u];
+    const auto begin=source.sparseRegionSupportRows.begin()+first;
+    const auto finish=source.sparseRegionSupportRows.begin()+end;
+    const auto found=std::lower_bound(begin,finish,row);
+    return found!=finish&&*found==row
+        ?source.sparseBasisValues[source.sparseModeValueOffsets[mode]+std::size_t(found-begin)]
+        :nm_float4{};
+}
+
+// Validate the compact source and rebuild exact worklists directly from it.
+// In particular, never allocate or scan a mode*node dense mirror.
+[[nodiscard]] inline PartitionedReductionSparseSupport
+buildPartitionedReductionSparseSupport(
+    const detail::HumanPartitionedPreconditionerSource& source
+) {
+    if (!source.sparseCoefficientEncoding)
+        return buildPartitionedReductionSparseSupport(source.basisValues,source.basisNodeCount,
+            source.modeCount,source.blockModeIndices,source.regionCount,source.blockModeCount);
+    PartitionedReductionSparseSupport out;
+    const auto reject=[&](const char* message) {
+        PartitionedReductionSparseSupport failed;failed.error=message;return failed;
+    };
+    if (!source.basisValues.empty()||!source.regionCount||!source.basisNodeCount||
+        !source.blockModeCount||source.modeCount!=std::uint64_t(source.regionCount)*source.blockModeCount||
+        source.blockModeIndices.size()!=source.modeCount||
+        source.sparseRegionSupportOffsets.size()!=std::size_t(source.regionCount)+1u||
+        source.sparseModeValueOffsets.size()!=std::size_t(source.modeCount)+1u||
+        source.sparseRegionSupportOffsets.front()!=0u||source.sparseModeValueOffsets.front()!=0u||
+        source.sparseRegionSupportOffsets.back()!=source.sparseRegionSupportRows.size()||
+        source.sparseModeValueOffsets.back()!=source.sparseBasisValues.size()||
+        source.sparseBasisValues.size()>kHumanPartitionedBasisCoefficientByteBudget/sizeof(nm_float4))
+        return reject("compact Human source dimensions or byte budget are invalid");
+    PartitionedReductionBasis compact;
+    compact.sparseCoefficientEncoding=true;compact.nodeCount=source.basisNodeCount;
+    compact.modeCount=source.modeCount;compact.modeValueOffsets.push_back(0u);
+    out.regionSupportRanges.resize(source.regionCount);
+    for (std::uint32_t region=0;region<source.regionCount;++region) {
+        const auto first=source.sparseRegionSupportOffsets[region],end=source.sparseRegionSupportOffsets[region+1u];
+        if (first>=end||end>source.sparseRegionSupportRows.size())
+            return reject("compact Human region range is empty or invalid");
+        for (auto i=first;i<end;++i)
+            if (source.sparseRegionSupportRows[i]>=source.basisNodeCount||
+                (i>first&&source.sparseRegionSupportRows[i-1u]>=source.sparseRegionSupportRows[i]))
+                return reject("compact Human region rows are not ordered unique source rows");
+        for (std::uint32_t local=0;local<source.blockModeCount;++local) {
+            const auto mode=region*source.blockModeCount+local;
+            const auto a=source.sparseModeValueOffsets[mode],b=source.sparseModeValueOffsets[mode+1u];
+            if (source.blockModeIndices[mode]!=mode||a>b||b>source.sparseBasisValues.size()||b-a!=end-first)
+                return reject("compact Human coefficient modes do not match exact regional support");
+            for (auto i=a;i<b;++i) {
+                const auto v=source.sparseBasisValues[i];
+                if (!std::isfinite(v.x)||!std::isfinite(v.y)||!std::isfinite(v.z)||v.w!=0.f)
+                    return reject("compact Human coefficient is nonfinite or packed");
+                if (v.x==0.f&&v.y==0.f&&v.z==0.f) continue;
+                compact.sparseValues.push_back(v);
+                compact.coefficientNodeIndices.push_back(source.sparseRegionSupportRows[first+i-a]);
+            }
+            compact.modeValueOffsets.push_back(std::uint32_t(compact.sparseValues.size()));
+        }
+    }
+    out=buildPartitionedReductionSparseSupport(compact,source.blockModeIndices,source.regionCount,source.blockModeCount);
+    if (!out.valid()) return out;
+    if (out.regionSupportRows!=source.sparseRegionSupportRows)
+        return reject("compact Human payload contains rows without any exact nonzero coefficient");
+    if (source.sparseNodeModeValueIndices.size()!=out.nodeModeSlots.size())
+        return reject("compact Human node coefficient index extent differs");
+    for (std::uint32_t row=0;row<source.basisNodeCount;++row) {
+        const auto range=out.nodeModeRanges[row];
+        for (auto i=range.first;i<range.first+range.count;++i) {
+            const auto mode=out.nodeModeSlots[i],region=mode/source.blockModeCount;
+            const auto first=source.sparseRegionSupportOffsets[region],end=source.sparseRegionSupportOffsets[region+1u];
+            const auto begin=source.sparseRegionSupportRows.begin()+first;
+            const auto found=std::lower_bound(begin,source.sparseRegionSupportRows.begin()+end,row);
+            const auto expected=source.sparseModeValueOffsets[mode]+std::uint32_t(found-begin);
+            if (source.sparseNodeModeValueIndices[i]!=expected)
+                return reject("compact Human node coefficient index identity differs");
+        }
+    }
+    return out;
+}
+
+// Pack directly into the existing Human sparse payload, retaining source
+// mode selection and exact Float32 coefficients without a dense compatibility copy.
+[[nodiscard]] inline bool packSparseHumanPartitionedBasis(
+    const PartitionedReductionBasis& basis,
+    const std::span<const std::uint32_t> selectedModes,
+    detail::HumanPartitionedPreconditionerSource& payload,
+    std::string& error
+) {
+    const auto support=buildPartitionedReductionSparseSupport(
+        basis,selectedModes,payload.regionCount,payload.blockModeCount);
+    if (!support.valid()) {error=support.error;return false;}
+    payload.basisValues.clear();payload.sparseCoefficientEncoding=true;
+    payload.sparseRegionSupportOffsets.assign(payload.regionCount+1u,0u);
+    payload.sparseRegionSupportRows=support.regionSupportRows;
+    payload.sparseModeValueOffsets.assign(payload.modeCount+1u,0u);
+    payload.sparseBasisValues.clear();payload.sparseNodeModeValueIndices.clear();
+    for (std::uint32_t region=0;region<payload.regionCount;++region) {
+        const auto range=support.regionSupportRanges[region];
+        payload.sparseRegionSupportOffsets[region+1u]=range.first+range.count;
+        for (std::uint32_t local=0;local<payload.blockModeCount;++local) {
+            const auto mode=region*payload.blockModeCount+local;
+            for (std::uint32_t i=0;i<range.count;++i)
+                payload.sparseBasisValues.push_back(
+                    basis.coefficient(selectedModes[mode],support.regionSupportRows[range.first+i]));
+            if (payload.sparseBasisValues.size()>kHumanPartitionedBasisCoefficientByteBudget/sizeof(nm_float4)) {
+                error="streamed Human coefficient payload exceeds checked byte budget";return false;
+            }
+            payload.sparseModeValueOffsets[mode+1u]=std::uint32_t(payload.sparseBasisValues.size());
+        }
+    }
+    for (std::uint32_t row=0;row<payload.basisNodeCount;++row) {
+        const auto range=support.nodeModeRanges[row];
+        for (auto i=range.first;i<range.first+range.count;++i) {
+            const auto mode=support.nodeModeSlots[i],region=mode/payload.blockModeCount;
+            const auto first=payload.sparseRegionSupportOffsets[region],end=payload.sparseRegionSupportOffsets[region+1u];
+            const auto begin=payload.sparseRegionSupportRows.begin()+first;
+            const auto found=std::lower_bound(begin,payload.sparseRegionSupportRows.begin()+end,row);
+            if (found==payload.sparseRegionSupportRows.begin()+end||*found!=row) {
+                error="streamed Human node mode lacks exact regional support";return false;
+            }
+            payload.sparseNodeModeValueIndices.push_back(
+                payload.sparseModeValueOffsets[mode]+std::uint32_t(found-begin));
+        }
+    }
+    const auto check=buildPartitionedReductionSparseSupport(payload);
+    if (!check.valid()) {error=check.error;return false;}
+    error.clear();return true;
 }
 
 } // namespace numi::matter

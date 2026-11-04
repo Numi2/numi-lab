@@ -11,6 +11,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -178,6 +179,7 @@ struct DeviceKernels {
     id<MTLComputePipelineState> regionSparseValidityPartials = nil;
     id<MTLComputePipelineState> addSparseRegionCorrection = nil;
     id<MTLComputePipelineState> femTangentFDCheck = nil;
+    id<MTLComputePipelineState> femTangentActions = nil, femTangentProject = nil, femTangentFused = nil;
     id<MTLComputePipelineState> hybridCopy = nil;
     id<MTLComputePipelineState> hybridLift = nil;
     id<MTLComputePipelineState> hybridZeroSelected = nil;
@@ -186,6 +188,8 @@ struct DeviceKernels {
     id<MTLComputePipelineState> hybridGatherQRHS = nil;
     id<MTLComputePipelineState> hybridPackPreconditionedQ = nil;
     id<MTLComputePipelineState> hybridPackUniquePreconditionedQ = nil;
+
+    id<MTLBuffer> coefficientLookupOverride = nil;
 
     DeviceKernels() {
         device = MTLCreateSystemDefaultDevice();
@@ -211,8 +215,12 @@ struct DeviceKernels {
                 throw std::runtime_error(std::string("projection kernel missing: ") +
                                          qualifiedUTF8);
             error = nil;
+            MTLComputePipelineDescriptor* descriptor=[MTLComputePipelineDescriptor new];
+            descriptor.computeFunction=function;
+            descriptor.supportIndirectCommandBuffers=YES;
             id<MTLComputePipelineState> result =
-                [device newComputePipelineStateWithFunction:function error:&error];
+                [device newComputePipelineStateWithDescriptor:descriptor
+                    options:MTLPipelineOptionNone reflection:nil error:&error];
             if (result == nil) {
                 const char* description = error.localizedDescription != nil
                     ? [error.localizedDescription UTF8String] : nullptr;
@@ -245,6 +253,9 @@ struct DeviceKernels {
         regionSparseValidityPartials = pipeline(@"nm_partitioned_reduction_region_sparse_validity_partials");
         addSparseRegionCorrection = pipeline(@"nm_partitioned_reduction_add_sparse_region_correction");
         femTangentFDCheck = pipeline(@"nm_partitioned_reduction_fem_tangent_fd_check");
+        femTangentActions=pipeline(@"nm_partitioned_reduction_fem_tangent_tiles");
+        femTangentProject=pipeline(@"nm_partitioned_reduction_fem_tangent_project_tiles");
+        femTangentFused=pipeline(@"nm_partitioned_reduction_fem_tangent_fused_tiles12");
         hybridCopy = pipeline(@"nm_partitioned_reduction_hybrid_copy");
         hybridLift = pipeline(@"nm_partitioned_reduction_hybrid_lift");
         hybridZeroSelected = pipeline(@"nm_partitioned_reduction_hybrid_zero_selected");
@@ -263,6 +274,10 @@ struct DeviceKernels {
                      const std::vector<id<MTLBuffer>>& buffers) {
         id<MTLCommandBuffer> command = [queue commandBuffer];
         id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+        const std::uint32_t denseLookup[4]={0u,0u,0u,0u};
+        if (coefficientLookupOverride)
+            [encoder setBuffer:coefficientLookupOverride offset:0u atIndex:29u];
+        else [encoder setBytes:denseLookup length:sizeof(denseLookup) atIndex:29u];
         [encoder setComputePipelineState:pipeline];
         for (NSUInteger index = 0u; index < buffers.size(); ++index)
             [encoder setBuffer:buffers[index] offset:0 atIndex:index];
@@ -280,6 +295,10 @@ struct DeviceKernels {
                         const std::vector<id<MTLBuffer>>& buffers) {
         id<MTLCommandBuffer> command = [queue commandBuffer];
         id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+        const std::uint32_t denseLookup[4]={0u,0u,0u,0u};
+        if (coefficientLookupOverride)
+            [encoder setBuffer:coefficientLookupOverride offset:0u atIndex:29u];
+        else [encoder setBytes:denseLookup length:sizeof(denseLookup) atIndex:29u];
         [encoder setComputePipelineState:pipeline];
         for (NSUInteger index = 0u; index < buffers.size(); ++index)
             [encoder setBuffer:buffers[index] offset:0 atIndex:index];
@@ -292,12 +311,43 @@ struct DeviceKernels {
              "projection tiled block dispatch failed");
     }
 
+    void dispatchCompactICB(const id<MTLComputePipelineState> pipeline,
+                            const MTLSize grid,
+                            const std::vector<id<MTLBuffer>>& buffers) {
+        need(coefficientLookupOverride!=nil,"compact ICB requires coefficient lookup");
+        MTLIndirectCommandBufferDescriptor* descriptor=[MTLIndirectCommandBufferDescriptor new];
+        descriptor.commandTypes=MTLIndirectCommandTypeConcurrentDispatch;
+        descriptor.inheritBuffers=NO;descriptor.inheritPipelineState=NO;
+        descriptor.maxKernelBufferBindCount=31u;
+        auto graph=[device newIndirectCommandBufferWithDescriptor:descriptor
+            maxCommandCount:1u options:MTLResourceStorageModeShared];
+        need(graph!=nil,"compact ICB allocation failed");
+        auto indirect=[graph indirectComputeCommandAtIndex:0u];
+        [indirect setComputePipelineState:pipeline];
+        [indirect setKernelBuffer:coefficientLookupOverride offset:0u atIndex:29u];
+        for(NSUInteger index=0u;index<buffers.size();++index)
+            if(buffers[index]) [indirect setKernelBuffer:buffers[index] offset:0u atIndex:index];
+        [indirect concurrentDispatchThreadgroups:grid
+            threadsPerThreadgroup:MTLSizeMake(256u,1u,1u)];
+        auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];
+        [encoder useResource:coefficientLookupOverride usage:MTLResourceUsageRead];
+        for(auto buffer:buffers) if(buffer)
+            [encoder useResource:buffer usage:MTLResourceUsageRead|MTLResourceUsageWrite];
+        [encoder executeCommandsInBuffer:graph withRange:NSMakeRange(0u,1u)];
+        [encoder endEncoding];[command commit];[command waitUntilCompleted];
+        need(command.status==MTLCommandBufferStatusCompleted,"compact ICB execution failed");
+    }
+
     void dispatchReduction(const std::vector<id<MTLBuffer>>& buffers,
                            const std::uint32_t tileCount,
                            const std::uint32_t modeCount,
                            const std::uint32_t environmentCount) {
         id<MTLCommandBuffer> command = [queue commandBuffer];
         id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+        const std::uint32_t denseLookup[4]={0u,0u,0u,0u};
+        if (coefficientLookupOverride)
+            [encoder setBuffer:coefficientLookupOverride offset:0u atIndex:29u];
+        else [encoder setBytes:denseLookup length:sizeof(denseLookup) atIndex:29u];
         const MTLSize groupWidth = MTLSizeMake(256u, 1u, 1u);
         [encoder setComputePipelineState:reduceTiles];
         for (NSUInteger index = 0u; index < buffers.size(); ++index)
@@ -526,6 +576,97 @@ void verifyProjectedFEMTangent(DeviceKernels& kernels) {
                  close(actual[index],expected,4.0e-8,1.2e-3),
                  "projected FEM tangent differs from finite-difference reference");
         }
+    {
+        // Exercise a full tile, a partial tile, a padded tile, two regions,
+        // two environments, nonidentity geometry and the material-frame map.
+        constexpr std::uint32_t E=2u,T=258u,R=2u,M=24u,W=12u,tiles=2u;
+        NMMatterDispatchGPU shape{};shape.environmentCount=E;shape.objectCount=1u;
+        shape.tetrahedronCount=T;shape.gravityAndTimestep.w=float(dt);
+        NMPartitionedReductionFEMTangentDispatchGPU td{104u,4u,M,T,E,R,W,tiles,0u,T,0u,0u};
+        auto activeObject=object;activeObject.flags|=NM_OBJECT_ACTIVE;
+        activeObject.representation=NM_REPRESENTATION_FEM;
+        NMSchedulerStateGPU scheduler{};scheduler.numerical.w=1.f;
+        NMAdaptiveStateGPU adaptive{};adaptive.activeRepresentation=NM_REPRESENTATION_FEM;
+        NMMicrostepGPU micro{};micro.microtickCount=1u;
+        std::vector<NMTetrahedronGPU> tets(E*T,tet);
+        std::vector<float> caches(E*T*81u);
+        for(std::size_t i=0u;i<E*T;++i)
+            std::copy(tangentF.begin(),tangentF.end(),caches.begin()+i*81u);
+        std::vector<std::uint32_t> valid(E*T,1u),indices(T),basisRows(T*4u),modes(M);
+        std::vector<nm_float4> allBasis(M*4u);
+        for(std::uint32_t i=0;i<T;++i) {
+            indices[i]=i;
+            for(std::uint32_t k=0;k<4u;++k) basisRows[i*4u+k]=rows[k];
+        }
+        for(std::uint32_t m=0;m<M;++m) {
+            modes[m]=m;
+            for(std::uint32_t r=0;r<4u;++r)
+                allBasis[m*4u+r]={float(.13*std::sin(.4*(m+1)*(r+1))),
+                    float(.17*std::cos(.3*(m+1)+(r+1))),
+                    float(.11*std::sin(.2*(m+1)-.6*(r+1))),0.f};
+        }
+        auto shapeB=makeBuffer(kernels.device,std::vector<NMMatterDispatchGPU>{shape});
+        auto tdB=makeBuffer(kernels.device,std::vector<NMPartitionedReductionFEMTangentDispatchGPU>{td});
+        auto rangesB=makeBuffer(kernels.device,std::vector<NMPartitionedReductionSparseRangeGPU>{{0u,257u},{257u,1u}});
+        auto indicesB=makeBuffer(kernels.device,indices);
+        auto rowsB=makeBuffer(kernels.device,basisRows);
+        auto tetsB=makeBuffer(kernels.device,tets);
+        auto objectsB=makeBuffer(kernels.device,std::vector<NMContinuumObjectGPU>{activeObject});
+        auto schedB=makeBuffer(kernels.device,std::vector<NMSchedulerStateGPU>(E,scheduler));
+        auto adaptiveB=makeBuffer(kernels.device,std::vector<NMAdaptiveStateGPU>(E,adaptive));
+        auto microB=makeBuffer(kernels.device,std::vector<NMMicrostepGPU>{micro});
+        auto cachesB=makeBuffer(kernels.device,caches);
+        auto validB=makeBuffer(kernels.device,valid);
+        auto basisB=makeBuffer(kernels.device,allBasis);
+        auto modesB=makeBuffer(kernels.device,modes);
+        auto actionsB=makeBuffer(kernels.device,std::vector<NMPartitionedReductionFEMTangentActionGPU>(E*T*W));
+        auto referenceB=makeBuffer(kernels.device,std::vector<float>(E*R*W*W*tiles,-17.f));
+        auto streamedB=makeBuffer(kernels.device,std::vector<float>(E*R*W*W*tiles,-19.f));
+        auto lookupB=makeBuffer(kernels.device,std::vector<std::uint32_t>{0u,0u,0u,0u});
+        std::vector<id<MTLBuffer>> actionBuffers(31u,nil);
+        const std::vector<id<MTLBuffer>> leading{shapeB,rangesB,indicesB,rowsB,tetsB,
+            objectsB,schedB,adaptiveB,microB,cachesB,validB,basisB,modesB,actionsB};
+        std::copy(leading.begin(),leading.end(),actionBuffers.begin());
+        actionBuffers[29]=lookupB;actionBuffers[30]=tdB;
+        std::vector<id<MTLBuffer>> projectBuffers(31u,nil);
+        const std::vector<id<MTLBuffer>> projection{shapeB,rangesB,indicesB,rowsB,
+            basisB,modesB,actionsB,referenceB};
+        std::copy(projection.begin(),projection.end(),projectBuffers.begin());
+        projectBuffers[29]=lookupB;projectBuffers[30]=tdB;
+        auto fusedBuffers=actionBuffers;fusedBuffers[13]=streamedB;
+        for(std::uint32_t testCase=0;testCase<8u;++testCase) {
+            const auto scenario=testCase%4u;
+            if(scenario==0u) {
+                std::fill(valid.begin(),valid.end(),1u);
+                std::fill(tets.begin(),tets.end(),tet);
+                scheduler.numerical.w=1.f;
+            }
+            if(testCase==4u) {
+                std::vector<std::uint32_t> compactLookup{1u,M,W,4u+M+1u+R+1u};
+                for(std::uint32_t m=0;m<=M;++m) compactLookup.push_back(m*4u);
+                compactLookup.insert(compactLookup.end(),{0u,4u,8u,0u,1u,2u,3u,0u,1u,2u,3u});
+                lookupB=makeBuffer(kernels.device,compactLookup);
+                actionBuffers[29]=lookupB;projectBuffers[29]=lookupB;fusedBuffers[29]=lookupB;
+            }
+            if(scenario==1u) valid[3u]=0u; // exact invalid-cache propagation
+            if(scenario==2u) {valid[3u]=1u;tets[T+257u].identity.w=0u;}
+            if(scenario==3u) scheduler.numerical.w=0.f; // not-due object
+            std::memcpy(validB.contents,valid.data(),valid.size()*sizeof(std::uint32_t));
+            std::memcpy(tetsB.contents,tets.data(),tets.size()*sizeof(NMTetrahedronGPU));
+            std::vector<NMSchedulerStateGPU> schedulers(E,scheduler);
+            std::memcpy(schedB.contents,schedulers.data(),schedulers.size()*sizeof(NMSchedulerStateGPU));
+            kernels.dispatchGroups(kernels.femTangentActions,MTLSizeMake(tiles,W,E*R),actionBuffers);
+            kernels.dispatchGroups(kernels.femTangentProject,MTLSizeMake(tiles,W*W,E*R),projectBuffers);
+            kernels.dispatchGroups(kernels.femTangentFused,MTLSizeMake(tiles,W,E*R),fusedBuffers);
+            const auto* reference=static_cast<const float*>(referenceB.contents);
+            const auto* streamed=static_cast<const float*>(streamedB.contents);
+            for(std::size_t i=0;i<E*R*W*W*tiles;++i)
+                need((std::isnan(reference[i])&&std::isnan(streamed[i])) ||
+                     std::memcmp(&reference[i],&streamed[i],sizeof(float))==0,
+                     "streamed regional FEM tangent changes result bits or invalid classification");
+        }
+        std::cout<<"streamed_regional_fem_tangent=PASS bitwise=true scenarios=8 encodings=dense,sparse environments=2 partial_and_empty_tiles=true invalid_cache_preserved=true\n";
+    }
     std::cout << "projected_fem_tangent_fd=pass global_node_offset=83"
               << " anisotropic_material=1 rotated_frame=1 nonidentity_rest=1"
               << " offdiagonal_only=1\n";
@@ -1168,6 +1309,55 @@ void verify() {
              close(sparseValue.z, denseValue.z, 7.0e-6, 1.5e-3) &&
              sparseValue.w == denseValue.w,
              "sparse additive correction differs from dense GPU result or changes w");
+    }
+
+    {
+        detail::HumanPartitionedPreconditionerSource compact;
+        compact.basisNodeCount=basis.nodeCount;compact.regionCount=regionCount;
+        compact.blockModeCount=blockModeCount;compact.modeCount=regionCount*blockModeCount;
+        for (std::uint32_t m=0;m<compact.modeCount;++m) compact.blockModeIndices.push_back(m);
+        std::string error;
+        need(packSparseHumanPartitionedBasis(basis,blockModeIndices,compact,error),error);
+        std::vector<std::uint32_t> lookup{2u,compact.modeCount,blockModeCount,
+            4u+compact.modeCount+1u+regionCount+1u};
+        lookup.insert(lookup.end(),compact.sparseModeValueOffsets.begin(),compact.sparseModeValueOffsets.end());
+        lookup.insert(lookup.end(),compact.sparseRegionSupportOffsets.begin(),compact.sparseRegionSupportOffsets.end());
+        lookup.insert(lookup.end(),compact.sparseRegionSupportRows.begin(),compact.sparseRegionSupportRows.end());
+        lookup.insert(lookup.end(),compact.sparseNodeModeValueIndices.begin(),compact.sparseNodeModeValueIndices.end());
+        auto compactBasis=makeBuffer(kernels.device,compact.sparseBasisValues);
+        auto compactModePartials=makeBuffer(kernels.device,sparseModePartials);
+        auto compactBlockPartials=makeBuffer(kernels.device,sparseBlockPartials);
+        auto compactCorrection=makeBuffer(kernels.device,sparsePreconditioned);
+        kernels.coefficientLookupOverride=makeBuffer(kernels.device,lookup);
+        kernels.dispatchGroups(kernels.reduceSparseModeTiles,
+            MTLSizeMake(sparseSupport.sparseTileCount,blockModeCount,regionCount*environmentCount),
+            {sparseBlockDispatchBuffer,sourceBuffer,compactBasis,indexBuffer,nil,
+             compactModePartials,blockModeBuffer,regionSupportRangeBuffer,regionSupportRowsBuffer});
+        need(std::memcmp(compactModePartials.contents,sparseModePartialBuffer.contents,
+                         sparseModePartialBuffer.length)==0,"compact Metal B^T partials differ in bits");
+        kernels.dispatchGroups(kernels.reduceSparseBlockTiles,
+            MTLSizeMake(sparseSupport.sparseTileCount,blockPairCount,regionCount*environmentCount),
+            {sparseBlockDispatchBuffer,selectedDBuffer,compactBasis,blockModeBuffer,
+             compactBlockPartials,regionSupportRangeBuffer,regionSupportRowsBuffer});
+        need(std::memcmp(compactBlockPartials.contents,sparseBlockPartialBuffer.contents,
+                         sparseBlockPartialBuffer.length)==0,"compact Metal projected blocks differ in bits");
+        kernels.dispatchFine(kernels.addSparseRegionCorrection,
+            MTLSizeMake(basis.nodeCount*environmentCount,1u,1u),
+            {sparseBlockDispatchBuffer,indexBuffer,compactBasis,blockModeBuffer,
+             sparseCoefficientBuffer,sparseSolveValidBuffer,compactCorrection,nodeModeRangeBuffer,nodeModeSlotsBuffer});
+        need(std::memcmp(compactCorrection.contents,sparsePreconditionedBuffer.contents,
+                         sparsePreconditionedBuffer.length)==0,"compact Metal correction differs in bits");
+        std::memcpy(compactCorrection.contents,sparsePreconditioned.data(),
+                    sparsePreconditioned.size()*sizeof(nm_float4));
+        kernels.dispatchCompactICB(kernels.addSparseRegionCorrection,
+            MTLSizeMake((basis.nodeCount*environmentCount+255u)/256u,1u,1u),
+            {sparseBlockDispatchBuffer,indexBuffer,compactBasis,blockModeBuffer,
+             sparseCoefficientBuffer,sparseSolveValidBuffer,compactCorrection,nodeModeRangeBuffer,nodeModeSlotsBuffer});
+        need(std::memcmp(compactCorrection.contents,sparsePreconditionedBuffer.contents,
+                         sparsePreconditionedBuffer.length)==0,"compact ICB correction differs in bits");
+        kernels.coefficientLookupOverride=nil;
+        std::cout<<"compact_icb_correction=PASS bitwise=true residency=explicit\n";
+        std::cout<<"compact_coefficients_metal=PASS Bt_bits=true BDB_bits=true correction_bits=true environments=2 dense_mirror=absent\n";
     }
 
     // The compiled Human source carries regional modes only. Sensitive anchors

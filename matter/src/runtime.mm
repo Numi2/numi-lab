@@ -1939,8 +1939,9 @@ struct RegionalGraphSchwarzHostLayout {
         source.globalFEMNodeIndices.size() != source.basisNodeCount ||
         source.blockModeIndices.size() !=
             static_cast<std::uint64_t>(source.regionCount) * source.blockModeCount ||
-        static_cast<std::uint64_t>(source.modeCount) * source.basisNodeCount !=
-            source.basisValues.size() ||
+        (!source.sparseCoefficientEncoding &&
+         static_cast<std::uint64_t>(source.modeCount) * source.basisNodeCount !=
+            source.basisValues.size()) ||
         graph.layout.nodeCount != world.fem.topologyNodes.size() ||
         graph.layout.nodeCoverage.size() != graph.layout.nodeCount ||
         graph.sourceFreeMask.size() != graph.layout.nodeCount ||
@@ -1974,13 +1975,13 @@ struct RegionalGraphSchwarzHostLayout {
                 const std::uint32_t mode = source.blockModeIndices[
                     region * source.blockModeCount + localMode];
                 if (mode >= source.modeCount ||
-                    static_cast<std::uint64_t>(mode) * source.basisNodeCount + row >=
-                        source.basisValues.size()) {
+                    (!source.sparseCoefficientEncoding &&
+                     static_cast<std::uint64_t>(mode) * source.basisNodeCount + row >=
+                        source.basisValues.size())) {
                     error = "optic graph region mode map exceeds its validated basis storage";
                     return false;
                 }
-                const nm_float4 value = source.basisValues[
-                    static_cast<std::size_t>(mode) * source.basisNodeCount + row];
+                const nm_float4 value = humanPartitionedCoefficient(source,mode,row);
                 supported |= value.x != 0.0f || value.y != 0.0f || value.z != 0.0f;
             }
             if (!supported) continue;
@@ -2653,13 +2654,15 @@ struct RegionalGraphSchwarzHostLayout {
         return fail("Human partitioned coarse preconditioner source dimensions are invalid");
     const std::uint64_t expectedValues =
         static_cast<std::uint64_t>(source.modeCount) * source.basisNodeCount;
-    if (expectedValues != source.basisValues.size())
+    const auto sourceSupport=buildPartitionedReductionSparseSupport(source);
+    if (!sourceSupport.valid()) return fail(sourceSupport.error.c_str());
+    if (!source.sparseCoefficientEncoding && expectedValues != source.basisValues.size())
         return fail("Human partitioned coarse preconditioner basis storage has the wrong extent");
-    if (expectedValues >
+    if (!source.sparseCoefficientEncoding && (expectedValues >
             numi::matter::kHumanPartitionedBasisCoefficientByteBudget /
                 sizeof(nm_float4) ||
         !numi::matter::humanPartitionedBasisCoefficientExtentWithinBudget(
-            source.modeCount, source.basisNodeCount))
+            source.modeCount, source.basisNodeCount)))
         return fail("Human partitioned coarse basis exceeds its checked 384 MiB coefficient budget");
     std::vector<std::uint32_t> rowObject(source.basisNodeCount, NM_INVALID_INDEX);
     std::vector<std::uint32_t> rowsPerObject(world.objects.size(), 0u);
@@ -2720,25 +2723,18 @@ struct RegionalGraphSchwarzHostLayout {
             !std::isfinite(value.z) || value.w != 0.0f)
             return fail("Human partitioned coarse preconditioner basis contains a non-finite or packed-coordinate value");
     }
-    for (std::uint32_t region = 0u; region < source.regionCount; ++region) {
-        std::uint32_t owner = NM_INVALID_INDEX;
-        for (std::uint32_t row = 0u; row < source.basisNodeCount; ++row) {
-            bool supported = false;
-            for (std::uint32_t local = 0u; local < source.blockModeCount; ++local) {
-                const std::uint32_t mode =
-                    source.blockModeIndices[region * source.blockModeCount + local];
-                const nm_float4 value = source.basisValues[
-                    static_cast<std::size_t>(mode) * source.basisNodeCount + row];
-                supported |= value.x != 0.0f || value.y != 0.0f || value.z != 0.0f;
-            }
-            if (!supported) continue;
-            if (owner != NM_INVALID_INDEX && owner != rowObject[row])
+    for (std::uint32_t region=0;region<source.regionCount;++region) {
+        std::uint32_t owner=NM_INVALID_INDEX;
+        const auto range=sourceSupport.regionSupportRanges[region];
+        for (auto i=range.first;i<range.first+range.count;++i) {
+            const auto row=sourceSupport.regionSupportRows[i];
+            if (owner!=NM_INVALID_INDEX&&owner!=rowObject[row])
                 return fail("Human partitioned coarse preconditioner region crosses source-object ownership");
-            owner = rowObject[row];
+            owner=rowObject[row];
         }
-        if (owner == NM_INVALID_INDEX)
+        if (owner==NM_INVALID_INDEX)
             return fail("Human partitioned coarse preconditioner region has no source support");
-        regionOwners[region] = owner;
+        regionOwners[region]=owner;
     }
     if (source.opticOnly) {
         if (source.regionCount != 10u && source.regionCount != 20u)
@@ -2778,6 +2774,11 @@ struct RegionalGraphSchwarzHostLayout {
             std::find(rightSeen.begin(), rightSeen.end(), std::uint8_t{0u}) != rightSeen.end())
             return fail("optic-only Human basis must retain every matching left/right longitudinal region exactly once");
         const NMContinuumObjectGPU& skinObject = world.objects[source.objectIndex];
+        if (source.sparseCoefficientEncoding) {
+            for (std::uint32_t row=0;row<source.basisNodeCount;++row)
+                if (rowObject[row]==source.objectIndex&&sourceSupport.nodeModeRanges[row].count!=0u)
+                    return fail("compact optic-only source contains a nonzero skin coefficient");
+        } else {
         const std::string fineSkinError =
             numi::matter::validatePartitionedHybridFineOwnerRows(
                 std::span<const std::uint32_t>(source.globalFEMNodeIndices),
@@ -2786,6 +2787,7 @@ struct RegionalGraphSchwarzHostLayout {
                 source.basisNodeCount, source.modeCount, source.objectIndex,
                 skinObject.stateOffset, skinObject.stateCount);
         if (!fineSkinError.empty()) return fail(fineSkinError.c_str());
+        }
     }
     error.clear();
     return true;
@@ -4359,11 +4361,13 @@ struct Runtime::State {
     // Exact-zero sparse support worklists for the optional Human coarse
     // preconditioner. Dense buffers remain allocated as the reference path.
     bool femHumanPartitionedSparseSupportEnabled = false;
+    id<MTLBuffer> femHumanPartitionedCoefficientLookup = nil;
     std::uint32_t femHumanPartitionedSparseTileCount = 0u;
     // Optional exact cached-FEM off-diagonal contribution to selector-6's
     // regional block; default off and never changes the fine operator.
     bool femHumanPartitionedFEMTangentEnabled = false;
     bool femHumanPartitionedFEMTangentPairedProjectEnabled = false;
+    bool femHumanPartitionedFEMTangentFusedEnabled = false;
     NMPartitionedReductionFEMTangentDispatchGPU
         femHumanPartitionedFEMTangentDispatch{};
     NMPartitionedReductionProjectionDispatchGPU femHumanPartitionedProjectionDispatch{};
@@ -6649,6 +6653,25 @@ RuntimeDiagnostics Runtime::initialize(
         }
         const bool hybridBlockGSRequested = hybridBlockGSSetting != nullptr &&
             std::strcmp(hybridBlockGSSetting, "1") == 0;
+        const char* fusedTangentSetting=std::getenv(
+            "NM_FEM_HUMAN_PARTITIONED_FUSED_TANGENT");
+        if (fusedTangentSetting && std::strcmp(fusedTangentSetting,"0")!=0 &&
+            std::strcmp(fusedTangentSetting,"1")!=0) {
+            diagnostics.message="NM_FEM_HUMAN_PARTITIONED_FUSED_TANGENT must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool fusedTangentRequested=fusedTangentSetting &&
+            std::strcmp(fusedTangentSetting,"1")==0;
+        if (fusedTangentRequested && (!humanFEMTangentRequested || hybridBlockGSRequested)) {
+            diagnostics.message="streamed FEM tangent requires cached regional FEM tangent and excludes hybrid GS action consumers";
+            return diagnostics;
+        }
+        if (fusedTangentRequested &&
+            (!world.humanPartitionedPreconditioner.enabled ||
+             world.humanPartitionedPreconditioner.blockModeCount!=12u)) {
+            diagnostics.message="streamed regional FEM tangent requires the checked twelve-mode Human source";
+            return diagnostics;
+        }
         const char* humanHybridSetting =
             std::getenv("NM_FEM_HUMAN_HYBRID_COORDINATES");
         if (humanHybridSetting != nullptr &&
@@ -7502,6 +7525,7 @@ RuntimeDiagnostics Runtime::initialize(
                 world.mixedSolver.executionBudgets.z == 6u;
             candidate->femHumanPartitionedFEMTangentEnabled =
                 humanFEMTangentRequested;
+            candidate->femHumanPartitionedFEMTangentFusedEnabled=fusedTangentRequested;
             candidate->femHumanPartitionedObjectIndex = source.objectIndex;
             const std::uint32_t firstOwner =
                 world.fem.topologyNodes[source.globalFEMNodeIndices.front()].identity.y;
@@ -7545,8 +7569,7 @@ RuntimeDiagnostics Runtime::initialize(
                         for (std::uint32_t local = 0u; local < source.blockModeCount; ++local) {
                             const std::uint32_t mode = source.blockModeIndices[
                                 std::size_t(region) * source.blockModeCount + local];
-                            const nm_float4 value = source.basisValues[
-                                std::size_t(mode) * source.basisNodeCount + row];
+                            const nm_float4 value = humanPartitionedCoefficient(source,mode,row);
                             energy += double(value.x) * value.x +
                                 double(value.y) * value.y + double(value.z) * value.z;
                         }
@@ -8661,6 +8684,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_partitioned_reduction_fem_tangent_tiles",
             "nm_partitioned_reduction_fem_tangent_project_tiles",
             "nm_partitioned_reduction_fem_tangent_project_tiles_paired12",
+            "nm_partitioned_reduction_fem_tangent_fused_tiles12",
             "nm_partitioned_reduction_fem_tangent_add_partials",
             "nm_partitioned_reduction_hybrid_gs_correct_q_rhs",
             "nm_partitioned_reduction_hybrid_gs_add_fine_correction",
@@ -9570,7 +9594,6 @@ RuntimeDiagnostics Runtime::initialize(
             world.mixedSolver.executionBudgets.z == 6u &&
             candidate->femHumanPartitionedPreconditionerEnabled &&
             candidate->femHumanPartitionedPreconditionerApplyEnabled &&
-            candidate->femHuman6GraphSchwarzEnabled &&
             !candidate->femHumanHybridCoordinatesEnabled &&
             !candidate->femHumanHybridGlobalCoarseMultiplicativeEnabled &&
             !candidate->femHumanGlobalCoarseEnabled &&
@@ -9597,7 +9620,7 @@ RuntimeDiagnostics Runtime::initialize(
         if (candidate->fgmresPrefixPreconditionerICBRequested &&
             !prefixPreconditionerICBEligible) {
             diagnostics.message =
-                "prefix preconditioner ICB requires empty-field CGS2 and empty MPM; selector-6 partitioned mode additionally requires the supported non-hybrid graph-Schwarz path";
+                "prefix preconditioner ICB requires empty-field CGS2 and empty MPM; selector-6 partitioned mode additionally requires the checked non-hybrid sparse regional path";
             return diagnostics;
         }
         if(candidate->emptyMpmKrylovDomain)
@@ -9660,6 +9683,9 @@ RuntimeDiagnostics Runtime::initialize(
                 std::strncmp(name,
                     "nm_partitioned_reduction_fem_tangent_",
                     sizeof("nm_partitioned_reduction_fem_tangent_") - 1u) == 0)
+                continue;
+            if (!candidate->femHumanPartitionedFEMTangentFusedEnabled &&
+                std::strcmp(name,"nm_partitioned_reduction_fem_tangent_fused_tiles12")==0)
                 continue;
             if (!candidate->femHumanPartitionedFEMTangentPairedProjectEnabled &&
                 std::strcmp(name,
@@ -14997,11 +15023,7 @@ RuntimeDiagnostics Runtime::initialize(
         if (candidate->femHumanPartitionedPreconditionerEnabled) {
             const auto& source = world.humanPartitionedPreconditioner;
             const auto sparseSupport =
-                buildPartitionedReductionSparseSupport(
-                    std::span<const nm_float4>(source.basisValues),
-                    source.basisNodeCount, source.modeCount,
-                    std::span<const std::uint32_t>(source.blockModeIndices),
-                    source.regionCount, source.blockModeCount);
+                buildPartitionedReductionSparseSupport(source);
             const bool sparseSupportShapeValid = sparseSupport.valid() &&
                 sparseSupport.sparseTileCount != 0u &&
                 sparseSupport.regionSupportRanges.size() == source.regionCount &&
@@ -15083,17 +15105,13 @@ RuntimeDiagnostics Runtime::initialize(
                             sparseSupport.nodeModeSlots[range.first + a];
                         const std::uint32_t modeA =
                             source.blockModeIndices[packedA];
-                        const nm_float4 ba = source.basisValues[
-                            static_cast<std::size_t>(modeA) *
-                                source.basisNodeCount + row];
+                        const nm_float4 ba = humanPartitionedCoefficient(source,modeA,row);
                         for (std::uint32_t b = 0u; b < range.count; ++b) {
                             const std::uint32_t packedB =
                                 sparseSupport.nodeModeSlots[range.first + b];
                             const std::uint32_t modeB =
                                 source.blockModeIndices[packedB];
-                            const nm_float4 bb = source.basisValues[
-                                static_cast<std::size_t>(modeB) *
-                                    source.basisNodeCount + row];
+                            const nm_float4 bb = humanPartitionedCoefficient(source,modeB,row);
                             gram[static_cast<std::size_t>(modeA) *
                                 modeCount + modeB] +=
                                 static_cast<double>(ba.x) * bb.x +
@@ -15143,16 +15161,9 @@ RuntimeDiagnostics Runtime::initialize(
                     return diagnostics;
                 }
                 femTangentSupport =
-                    buildPartitionedReductionFEMTangentSupport(
-                        std::span<const nm_float4>(source.basisValues),
-                        std::span<const std::uint32_t>(
-                            source.globalFEMNodeIndices),
-                        source.basisNodeCount, source.modeCount,
-                        std::span<const std::uint32_t>(
-                            source.blockModeIndices),
-                        source.regionCount, source.blockModeCount,
-                        std::span<const NMTetrahedronGPU>(
-                            world.fem.tetrahedra),
+                    buildPartitionedReductionFEMTangentSupport(sparseSupport,
+                        source.globalFEMNodeIndices,source.basisNodeCount,
+                        source.regionCount,world.fem.tetrahedra,
                         candidate->femHumanPartitionedObjectIndex);
                 if (!femTangentSupport.valid() ||
                     femTangentSupport.regionTetrahedronRanges.size() !=
@@ -15315,7 +15326,7 @@ RuntimeDiagnostics Runtime::initialize(
                  !fitsOneBuffer(
                     femTangentSupport.tetrahedronBasisNodeRows.size(),
                     sizeof(std::uint32_t)) ||
-                 !fitsOneBuffer(tangentActionCount,
+                 !fitsOneBuffer(candidate->femHumanPartitionedFEMTangentFusedEnabled?1u:tangentActionCount,
                     sizeof(NMPartitionedReductionFEMTangentActionGPU)) ||
                  !fitsOneBuffer(tangentPartialCount, sizeof(float)) ||
                  (candidate->femHumanHybridBlockGSEnabled &&
@@ -15325,6 +15336,10 @@ RuntimeDiagnostics Runtime::initialize(
                         sizeof(NMPartitionedReductionHybridGSTermGPU)))))) {
                 diagnostics.message =
                     "Human partitioned FEM tangent/hybrid-GS support exceeds one Metal buffer limit";
+                return diagnostics;
+            }
+            if (source.sparseCoefficientEncoding&&!sparseSupportFits) {
+                diagnostics.message="compact Human basis requires valid bounded sparse worklists";
                 return diagnostics;
             }
             candidate->femHumanPartitionedSparseSupportEnabled =
@@ -15378,8 +15393,13 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->femHumanPartitionedFEMTangentActions =
                     privateScratch<NMPartitionedReductionFEMTangentActionGPU>(
                         candidate->device,
-                        static_cast<std::size_t>(tangentActionCount),
+                        static_cast<std::size_t>(candidate->femHumanPartitionedFEMTangentFusedEnabled?1u:tangentActionCount),
                         valid, candidate->residentBytes);
+                std::fprintf(stderr,"human_partitioned_tangent_storage fused=%u action_rows=%llu retained_action_bytes=%llu omitted_action_bytes=%llu\n",
+                    candidate->femHumanPartitionedFEMTangentFusedEnabled?1u:0u,
+                    static_cast<unsigned long long>(tangentActionCount),
+                    static_cast<unsigned long long>((candidate->femHumanPartitionedFEMTangentFusedEnabled?1u:tangentActionCount)*sizeof(NMPartitionedReductionFEMTangentActionGPU)),
+                    static_cast<unsigned long long>(candidate->femHumanPartitionedFEMTangentFusedEnabled?(tangentActionCount-1u)*sizeof(NMPartitionedReductionFEMTangentActionGPU):0u));
                 candidate->femHumanPartitionedFEMTangentPartials =
                     privateScratch<float>(candidate->device,
                         static_cast<std::size_t>(tangentPartialCount),
@@ -15414,8 +15434,8 @@ RuntimeDiagnostics Runtime::initialize(
                         sizeof(nm_float4) ||
                     source.modeCount < femGlobalModes ||
                     source.globalFEMNodeIndices.size() != source.basisNodeCount ||
-                    source.basisValues.size() !=
-                        std::size_t(source.modeCount) * source.basisNodeCount) {
+                    (!source.sparseCoefficientEncoding && source.basisValues.size() !=
+                        std::size_t(source.modeCount) * source.basisNodeCount)) {
                     diagnostics.message =
                         "selector-6 global coarse basis exceeds checked extents";
                     return diagnostics;
@@ -15459,8 +15479,7 @@ RuntimeDiagnostics Runtime::initialize(
                             if (node >= world.dispatch.femNodeCount ||
                                 world.fem.nodes[node].restAndFixed.w != 0.0f)
                                 continue;
-                            const nm_float4 value = source.basisValues[
-                                std::size_t(sourceMode) * source.basisNodeCount + row];
+                            const nm_float4 value = humanPartitionedCoefficient(source,sourceMode,row);
                             nm_float4& target = globalCoarseBasis[
                                 std::size_t(mode) * coarseVectorStride + node];
                             target.x += value.x;
@@ -15696,8 +15715,7 @@ RuntimeDiagnostics Runtime::initialize(
                             for (std::uint32_t q = 0u; q < source.modeCount; ++q) {
                                 const double coefficient = globalCoarseQCoordinates[
                                     std::size_t(mode) * source.modeCount + q];
-                                const nm_float4 b = source.basisValues[
-                                    std::size_t(q) * source.basisNodeCount + row];
+                                const nm_float4 b = humanPartitionedCoefficient(source,q,row);
                                 reconstructed[0] += coefficient * b.x;
                                 reconstructed[1] += coefficient * b.y;
                                 reconstructed[2] += coefficient * b.z;
@@ -15723,9 +15741,28 @@ RuntimeDiagnostics Runtime::initialize(
                     }
                 }
             }
+            const auto& coefficientValues=source.sparseCoefficientEncoding
+                ?source.sparseBasisValues:source.basisValues;
+            std::vector<std::uint32_t> coefficientLookup{0u,0u,0u,0u};
+            if (source.sparseCoefficientEncoding) {
+                coefficientLookup={2u,source.modeCount,source.blockModeCount,
+                    4u+source.modeCount+1u+source.regionCount+1u};
+                coefficientLookup.insert(coefficientLookup.end(),source.sparseModeValueOffsets.begin(),source.sparseModeValueOffsets.end());
+                coefficientLookup.insert(coefficientLookup.end(),source.sparseRegionSupportOffsets.begin(),source.sparseRegionSupportOffsets.end());
+                coefficientLookup.insert(coefficientLookup.end(),source.sparseRegionSupportRows.begin(),source.sparseRegionSupportRows.end());
+                // Version 2 adds the exact packed coefficient index for each
+                // immutable node/mode incidence slot; no per-step search.
+                coefficientLookup.insert(coefficientLookup.end(),
+                    source.sparseNodeModeValueIndices.begin(),source.sparseNodeModeValueIndices.end());
+            }
+            candidate->femHumanPartitionedCoefficientLookup=humanPartitionedUploads.one(
+                std::span<const std::uint32_t>(coefficientLookup),valid,candidate->residentBytes);
             candidate->femHumanPartitionedBasis = humanPartitionedUploads.one(
-                std::span<const nm_float4>(source.basisValues), valid,
+                std::span<const nm_float4>(coefficientValues), valid,
                 candidate->residentBytes);
+            std::fprintf(stderr,"human_partitioned_coefficients encoding=%s stored_values=%zu dense_capacity=%llu dense_mirror=0\n",
+                source.sparseCoefficientEncoding?"sparse":"dense",coefficientValues.size(),
+                static_cast<unsigned long long>(source.modeCount)*source.basisNodeCount);
             std::vector<float> unitBasisMass(
                 static_cast<std::size_t>(basisNodes), 1.0f);
             if (candidate->femHumanGlobalCoarseEnabled) {
@@ -15787,7 +15824,7 @@ RuntimeDiagnostics Runtime::initialize(
                     candidate->residentBytes);
             candidate->femHumanPartitionedBlockPartials =
                 privateScratch<float>(candidate->device,
-                    static_cast<std::size_t>(blockPartials), valid,
+                    static_cast<std::size_t>(sparseSupportFits?1u:blockPartials), valid,
                     candidate->residentBytes);
             if (sparseSupportFits) {
                 candidate->femHumanPartitionedSparseBlockPartials =
@@ -15809,7 +15846,7 @@ RuntimeDiagnostics Runtime::initialize(
                     candidate->residentBytes);
             candidate->femHumanPartitionedValidityPartials =
                 privateScratch<std::uint32_t>(candidate->device,
-                    static_cast<std::size_t>(validityPartials), valid,
+                    static_cast<std::size_t>(sparseSupportFits?1u:validityPartials), valid,
                     candidate->residentBytes);
             candidate->femHumanPartitionedRegionValid =
                 privateScratch<std::uint32_t>(candidate->device,
@@ -15825,7 +15862,7 @@ RuntimeDiagnostics Runtime::initialize(
                     candidate->residentBytes);
             candidate->femHumanPartitionedProjectionPartials =
                 privateScratch<float>(candidate->device,
-                    static_cast<std::size_t>(projectionPartials), valid,
+                    static_cast<std::size_t>(sparseSupportFits?1u:projectionPartials), valid,
                     candidate->residentBytes);
             candidate->femHumanPartitionedProjectedRHS =
                 privateScratch<float>(candidate->device,
@@ -16664,8 +16701,7 @@ RuntimeDiagnostics Runtime::initialize(
             for (std::uint32_t row = 0u; row < source.basisNodeCount; ++row) {
                 bool selected = false;
                 for (std::uint32_t mode = 0u; mode < source.modeCount; ++mode) {
-                    const nm_float4 value = source.basisValues[
-                        static_cast<std::size_t>(mode) * source.basisNodeCount + row];
+                    const nm_float4 value = humanPartitionedCoefficient(source,mode,row);
                     if (value.x != 0.0f || value.y != 0.0f || value.z != 0.0f) {
                         selected = true;
                         break;
@@ -21161,6 +21197,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                            length:sizeof(state.femHumanPartitionedBlockDispatch) atIndex:0u];
                 [encoder setBuffer:fineVector offset:0u atIndex:1u];
                 [encoder setBuffer:state.femHumanPartitionedBasis offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femHumanPartitionedCoefficientLookup offset:0u atIndex:29u];
                 [encoder setBuffer:state.femHumanPartitionedGlobalNodeIndices offset:0u atIndex:3u];
                 [encoder setBuffer:state.femHumanPartitionedUnitMass offset:0u atIndex:4u];
                 [encoder setBuffer:state.femHumanPartitionedSparseProjectionPartials offset:0u atIndex:5u];
@@ -21216,6 +21253,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                            length:sizeof(state.femHumanPartitionedBlockDispatch) atIndex:0u];
                 [encoder setBuffer:state.femHumanPartitionedGlobalNodeIndices offset:0u atIndex:1u];
                 [encoder setBuffer:state.femHumanPartitionedBasis offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femHumanPartitionedCoefficientLookup offset:0u atIndex:29u];
                 [encoder setBuffer:state.femHumanPartitionedBlockModeIndices offset:0u atIndex:3u];
                 [encoder setBuffer:state.femHumanPartitionedNodeModeRanges offset:0u atIndex:4u];
                 [encoder setBuffer:state.femHumanPartitionedNodeModeSlots offset:0u atIndex:5u];
@@ -37357,7 +37395,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     (!clearSkippedCacheWords(
                         state.femHumanPartitionedFEMTangentActions, 1u << 2u) ||
                      !clearSkippedCacheWords(
-                        state.femHumanPartitionedFEMTangentPartials, 1u << 3u)))
+                        state.femHumanPartitionedFEMTangentPartials,
+                        1u << (state.femHumanPartitionedFEMTangentFusedEnabled?2u:3u))))
                     return diagnostics;
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -37544,6 +37583,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:1u];
                     [encoder setBuffer:state.femHumanPartitionedBasis
                                  offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femHumanPartitionedCoefficientLookup offset:0u atIndex:29u];
                     [encoder setBuffer:state.femHumanPartitionedBlockModeIndices
                                  offset:0u atIndex:3u];
                     [encoder setBuffer:sparsePartitionedSupport
@@ -37600,6 +37640,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     } else {
                         [encoder setBuffer:state.femHumanPartitionedBasis
                                      offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femHumanPartitionedCoefficientLookup offset:0u atIndex:29u];
                         [encoder setBuffer:
                             state.femHumanPartitionedBlockModeIndices
                                      offset:0u atIndex:2u];
@@ -37638,7 +37679,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         tangentDispatch.blockModeCount;
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchFreshPreconditionerGrid(
-                        "nm_partitioned_reduction_fem_tangent_tiles",
+                        state.femHumanPartitionedFEMTangentFusedEnabled
+                            ? "nm_partitioned_reduction_fem_tangent_fused_tiles12"
+                            : "nm_partitioned_reduction_fem_tangent_tiles",
                         tangentDispatch.tileCount,
                         tangentDispatch.blockModeCount,
                         tangentRegionEnvironmentCount, 2u, [&] {
@@ -37672,14 +37715,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:10u];
                         [encoder setBuffer:state.femHumanPartitionedBasis
                                      offset:0u atIndex:11u];
+                        [encoder setBuffer:state.femHumanPartitionedCoefficientLookup offset:0u atIndex:29u];
                         [encoder setBuffer:
                             state.femHumanPartitionedBlockModeIndices
                                      offset:0u atIndex:12u];
                         [encoder setBuffer:
-                            state.femHumanPartitionedFEMTangentActions
+                            (state.femHumanPartitionedFEMTangentFusedEnabled
+                                ? state.femHumanPartitionedFEMTangentPartials
+                                : state.femHumanPartitionedFEMTangentActions)
                                      offset:0u atIndex:13u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    if (!state.femHumanPartitionedFEMTangentFusedEnabled) {
                     const bool pairedTangentProject =
                         state.femHumanPartitionedFEMTangentPairedProjectEnabled &&
                         tangentDispatch.blockModeCount == 12u;
@@ -37706,6 +37753,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:3u];
                         [encoder setBuffer:state.femHumanPartitionedBasis
                                      offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femHumanPartitionedCoefficientLookup offset:0u atIndex:29u];
                         [encoder setBuffer:
                             state.femHumanPartitionedBlockModeIndices
                                      offset:0u atIndex:5u];
@@ -37717,6 +37765,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:7u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
                     dispatchFreshPreconditionerThreads(
                         "nm_partitioned_reduction_fem_tangent_add_partials",
                         environments * tangentDispatch.regionCount *
@@ -40327,7 +40376,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 state.femHumanPartitionedPreconditionerEnabled &&
                 state.femHumanPartitionedPreconditionerApplyEnabled &&
                 state.femHumanPartitionedSparseSupportEnabled &&
-                state.femHuman6GraphSchwarzEnabled &&
                 !state.femHumanGlobalCoarseEnabled &&
                 !state.femHumanHybridBlockGSEnabled &&
                 !state.femHuman6SchurCondensedFGMRESEnabled &&
@@ -40602,6 +40650,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femHumanPartitionedSparseProjectionPartials,
                         state.femHumanPartitionedProjectedRHS,
                         state.femHumanPartitionedBasis,
+                        state.femHumanPartitionedCoefficientLookup,
                         state.femHumanPartitionedGlobalNodeIndices,
                         state.femHumanPartitionedUnitMass,
                         state.femHumanPartitionedBlockModeIndices,
@@ -42035,6 +42084,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:preconditionerInputOffset atIndex:1u];
                         [encoder setBuffer:state.femHumanPartitionedBasis
                                      offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femHumanPartitionedCoefficientLookup offset:0u atIndex:29u];
                         [encoder setBuffer:
                             state.femHumanPartitionedGlobalNodeIndices
                                      offset:0u atIndex:3u];
@@ -42266,6 +42316,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:1u];
                         [encoder setBuffer:state.femHumanPartitionedBasis
                                      offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femHumanPartitionedCoefficientLookup offset:0u atIndex:29u];
                         [encoder setBuffer:
                             state.femHumanPartitionedBlockModeIndices
                                      offset:0u atIndex:3u];
@@ -42460,6 +42511,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:4u];
                         [encoder setBuffer:state.femHumanPartitionedBasis
                                      offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femHumanPartitionedCoefficientLookup offset:0u atIndex:29u];
                         [encoder setBuffer:state.femHumanPartitionedProjectedRHS
                                      offset:0u atIndex:6u];
                         [encoder setBuffer:state.femRegionalGraphFactors
@@ -42531,6 +42583,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:4u];
                         [encoder setBuffer:state.femHumanPartitionedBasis
                                      offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femHumanPartitionedCoefficientLookup offset:0u atIndex:29u];
                         [encoder setBuffer:
                             state.femHumanPartitionedCoefficients
                                      offset:0u atIndex:6u];
@@ -43003,6 +43056,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             offset:offsetof(OperatorICBConstants, dispatch) atIndex:0u];
                         [cmd setKernelBuffer:scalars
                             offset:offsetof(OperatorICBConstants, layout) atIndex:30u];
+                        bind(cmd,29u,state.femHumanPartitionedCoefficientLookup);
                         return cmd;
                     };
                     const auto finish = [&](id<MTLIndirectComputeCommand> cmd,
@@ -43245,6 +43299,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             static_cast<NSUInteger>(environments) *
                                 state.femHumanPartitionedBasisNodeCount);
 
+                        // Regional projection is also valid without graph patches.
+                        // Omit exactly the two additive graph commands in that case.
+                        if (state.femHuman6GraphSchwarzEnabled) {
                         const char* graphSolveKernel =
                             state.femRegionalGraphSolve32ThreadgroupEnabled
                             ? state.femRegionalGraphSolve32PipelineName
@@ -43326,6 +43383,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         bind(graphCmd, 12u, state.femCandidate);
                         scalar(graphCmd, 13u, offsetof(OperatorICBConstants, graphModeStride));
                         finish(graphCmd, "nm_fgmres_graph_apply_patches", femNodeTotal);
+                        }
                     }
                     if (selector6VascularPreconditionerICBForCurrentSolve) {
                         auto vascularCmd = makeCommand(prefixGraph, prefixOrdinal,
@@ -43965,6 +44023,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femHumanPartitionedSparseProjectionPartials,
                         state.femHumanPartitionedProjectedRHS,
                         state.femHumanPartitionedBasis,
+                        state.femHumanPartitionedCoefficientLookup,
                         state.femHumanPartitionedGlobalNodeIndices,
                         state.femHumanPartitionedUnitMass,
                         state.femHumanPartitionedBlockModeIndices,
@@ -45060,6 +45119,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femHumanPartitionedSparseProjectionPartials,
                         state.femHumanPartitionedProjectedRHS,
                         state.femHumanPartitionedBasis,
+                        state.femHumanPartitionedCoefficientLookup,
                         state.femHumanPartitionedGlobalNodeIndices,
                         state.femHumanPartitionedUnitMass,
                         state.femHumanPartitionedBlockModeIndices,

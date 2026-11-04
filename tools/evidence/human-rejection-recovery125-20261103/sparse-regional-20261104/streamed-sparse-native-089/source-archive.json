@@ -1,0 +1,9 @@
+{
+  "canonical_archive": "../execution-source-final-097.tar.gz",
+  "canonical_sha256": "9dcf2e9d092617674f38cdb36774bfc0ce714386b3cf44bdbb09d27b9f1e9997",
+  "historical_overlay": "source-from-final.patch.gz",
+  "overlay_sha256": "2f9ff8eeb79a16e8428d69b4b0181a628f6549d46dc12f56b8642c66eefbdf5f",
+  "restored_source_files": 39,
+  "restore_test": "extract canonical archive, decompress and apply overlay; independently rehashed every source file against this trial build manifest",
+  "overlay_is_lossless_gzip": true
+}

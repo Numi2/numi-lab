@@ -23846,8 +23846,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             std::span<const std::uint32_t>(kWholeBodySkinMechanicalFaceIdentities),
                             explicitTopology ? &*explicitTopology : nullptr,
                             skinMaterialIndex,fatMaterialIndex,
-                            (partitionedReductionDiagnostic || partitionedPreconditionerRequested)),
+                            ((partitionedReductionDiagnostic || partitionedPreconditionerRequested) &&
+                             !registeredVolumeInstallRequested)),
                         "registered skin/fat anatomical reduction labels rejected: "+tissueError);
+                if(registeredVolumeInstallRequested &&
+                   (partitionedReductionDiagnostic || partitionedPreconditionerRequested))
+                    std::cout<<"preparatory_skin_basis=deferred_to_final_registered_volume"
+                        <<" ancestry_validation=unchanged physical_source=unchanged\n";
                 require(sourceLabels.registeredVertexCount==region.worldPoints.size()&&
                             sourceLabels.registeredFaceCount==region.faces.size()&&
                             sourceLabels.sourceTetrahedronCount==source.objects.back().tetrahedra.size(),
