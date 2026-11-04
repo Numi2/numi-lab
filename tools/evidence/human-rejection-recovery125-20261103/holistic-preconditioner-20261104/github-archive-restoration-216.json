@@ -1,0 +1,72 @@
+{
+  "verified_at_utc": "2026-11-04T10:46:40.331562+00:00",
+  "evidence_revision": "dd80bdde860e4f8eef7c333584ed94cdb9e41c5b",
+  "source_revision": "0526640f89f4bedf257a1533e98770e254739007",
+  "independent_github_archive_downloads": [
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/holistic-preconditioner-20261104/compact-native-traces.tar.gz",
+      "bytes": 3797041,
+      "sha256": "e3f531ad1fb292f5705ee8aad39924f5fc25372ac6310220e0a9c2e5112a3d44",
+      "equals_immutable_git_blob": true
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/holistic-preconditioner-20261104/source-deltas.tar.gz",
+      "bytes": 5320907,
+      "sha256": "73de0711f08e20f4f2b233395d95cd72383a7507267ece51fe535cf7a51d7206",
+      "equals_immutable_git_blob": true
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/execution-source-snapshots-170.tar.gz",
+      "bytes": 1974425,
+      "sha256": "d6a4ea49c51cef60438e99254f3b9f6eb09ce94cf391739d464ef9728dc7d3c9",
+      "equals_immutable_git_blob": true
+    }
+  ],
+  "compact_trace_members_verified": 140,
+  "source_delta_members_verified": 19,
+  "executed_source_pins_verified": 546,
+  "unique_resolved_sources": 59,
+  "github_source_blob_ids_verified": {
+    "apps/NumiHumanFEMOuterGroundAlignment.hpp": "d3cf640fd8fd6f5026c26863851897cd8fc35eb4",
+    "apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp": "e7d65e3ead64d13b1d94e0272ae3870c6269d442",
+    "apps/NumiHumanRestingCoupling.hpp": "83fc271b0a2738144def601574bc2e8961866db8",
+    "apps/NumiHumanSkinFatFixedCavityReconditioning.hpp": "93113cc9e5bebc73232f0f2e7c630f36d9550d60",
+    "apps/NumiHumanSkinFatFixedCavityReconditioningCheck.cpp": "e43e8928525ec808120b3de0000c5dd90de43be7",
+    "apps/NumiHumanSkinFatReductionLabels.hpp": "f07ae3138470eeac843ed45918607dc6e0678340",
+    "apps/compare_human_fem_endpoint_fidelity.py": "2d81a2f9b9b8f70eae103a4d91169e10cc2b16ba",
+    "apps/test_compare_human_fem_endpoint_fidelity.py": "fb988ab5a7b46fb9aa0e6d3228fe27ca0d43fd29",
+    "include/metalrobo/MetalArticulatedOperator.hpp": "aa46d3fb2a2a2aa630e50e2bac99e341d75d59bd",
+    "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp": "d25ba4b7eaae5397137fc60a6a85c685495e25c8",
+    "matter/include/numi/matter/partitioned_reduction_basis.hpp": "bc3ec8f8ceaaf700d8940dd0718b08deb7b3ed3d",
+    "matter/include/numi/matter/partitioned_reduction_fem_tangent.h": "dc1b07ac39f1650445f2dae6061d0d224f925616",
+    "matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp": "7b3f6966c404f349e3476c6fd627f1238527b922",
+    "matter/include/numi/matter/partitioned_reduction_sparse_support.hpp": "876e510bf713301ae49afa305afa2dbf6b1220e3",
+    "matter/include/numi/matter/shared.h": "9510d556ec4e3e7852a01b1de207016334939789",
+    "matter/src/metal/common.metalinc": "413503bc313c52292be8f9a5170aefc828f1aeff",
+    "matter/src/metal/contact.metalinc": "e0acd9104507908f578a8fb2f0a71ffe8d254081",
+    "matter/src/metal/fem.metalinc": "404c53bf2f27725eb816f70e04c3a020494c126d",
+    "matter/src/metal/fgmres.metalinc": "a8df32197efe0a40f152f27029ed323de2d3f23f",
+    "matter/src/metal/identification_scheduler.metalinc": "99a4e63b412912be7583e394d078519a10f8f1e6",
+    "matter/src/metal/mixed_fem.metalinc": "eae12c09f912bf3894fdda2cba648fcb7aa644b6",
+    "matter/src/metal/numi_human.metalinc": "48f46d59b0f1621148a55d3a19e2f72885520b62",
+    "matter/src/metal/partitioned_reduction_fem_tangent.metalinc": "b0c3d34cd1f058aeb156a5f39f86c87a00e418e2",
+    "matter/src/metal/partitioned_reduction_projection.metalinc": "079a8bb260183efd5158db799f329641c9886b50",
+    "matter/src/metal/vascular.metalinc": "c92c16be506e9ae4a9c2c843dc06d2e60cd417e7",
+    "matter/src/numi_human.mm": "9f572b55afbffdd0107e8e8a125fc7795b227d0c",
+    "matter/src/regional_graph_schwarz.hpp": "a39c78f3639c8baf0a6a7741d9e16ed42a87c070",
+    "matter/src/runtime.mm": "e7c7b2bd83c75ce19a80c3051589b63904821ce9",
+    "matter/tools/compiled_world_partitioned_reduction_check.cpp": "40eb13e43bb2cf5cb97b2b2b42bde5c58c943121",
+    "matter/tools/fem_material_frame_check.mm": "3e7dd8360d7ae23eda53a57a97767547ac4da521",
+    "matter/tools/fem_reference_check.mm": "69193a85e2385933e15bf4a732b6a4c6123b3d77",
+    "matter/tools/fgmres_true_residual_native_check.mm": "9ef275a5c0e461fcb6bcee4bc7181a82d7acfe62",
+    "matter/tools/partitioned_reduction_basis_check.cpp": "488ab8a3862d7673f2720d278cf123ea8ee99a80",
+    "matter/tools/partitioned_reduction_projection_gpu_check.mm": "bb8260f7f3f62fceb3f88e493ef10b65bd276592",
+    "matter/tools/regional_graph_schwarz_layout_check.cpp": "1b75b19e15cc99d48997d8749ec28c669c818db3",
+    "matter/tools/vascular_cavity_check.mm": "83811604dcae7ece04292fcf7e79d79ded65a9d8"
+  },
+  "github_source_tree_queries": 11,
+  "modified_source_full_byte_download_proof": "github-source-restoration-216.json",
+  "scope": "Compact traces and reconstructable execution sources are verified remotely. Large local native captures, endpoint dumps and registered-source diagnostics are hash-pinned, not all archived remotely.",
+  "native_processes_active": false,
+  "available_disk_bytes": 17082863616
+}
