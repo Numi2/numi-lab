@@ -11220,150 +11220,178 @@ void checkCompletedZeroOperatorAction(
         "numi_matter_metal::nm_fgmres_reduce_completed_zero_operator_tiles");
     auto prepare = pipeline(device, library,
         "numi_matter_metal::nm_fgmres_prepare_completed_zero_operator_action");
-    constexpr std::uint32_t nodes = 513u;
-    constexpr std::uint32_t tetrahedra = 770u;
-    constexpr std::uint32_t unknowns = 513u;
-    constexpr std::uint32_t tileCount = (unknowns + 255u) / 256u;
-    NMMatterDispatchGPU shape{};
-    shape.abiVersion = NM_MATTER_ABI_VERSION;
-    shape.environmentCount = 1u;
-    shape.femNodeCount = nodes;
-    shape.tetrahedronCount = tetrahedra;
-    NMFGMRESLayoutGPU layout{};
-    layout.unknownCount = unknowns;
-    layout.supportBase = 2u * nodes;
-    layout.vascularBase = 2u * nodes;
-    auto dispatchBuffer = makeBuffer(device,
-        std::vector<NMMatterDispatchGPU>{shape});
-    auto layoutBuffer = makeBuffer(device,
-        std::vector<NMFGMRESLayoutGPU>{layout});
-    auto source = makeBuffer(device,
-        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
-    auto destination = makeBuffer(device,
-        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
-    auto sourceStatus = makeBuffer(device,
-        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
-    auto diagnosticStatus = makeBuffer(device,
-        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
-    auto input = makeBuffer(device, std::vector<nm_float4>(
-        unknowns, nm_float4{}));
-    auto tiles = makeBuffer(device,
-        std::vector<std::uint32_t>(tileCount, 0xdeadbeefu));
-    constexpr nm_uint4 dispatchSentinel{91u, 92u, 93u, 94u};
-    auto nodeDispatch = makeBuffer(device, std::vector<nm_uint4>{dispatchSentinel});
-    auto elementDispatch = makeBuffer(device, std::vector<nm_uint4>{dispatchSentinel});
-    auto workCounters = makeBuffer(device, std::vector<std::uint32_t>(2u, 0u));
-    const std::uint32_t fullNodeGroups = (nodes + 255u) / 256u;
-    const std::uint32_t fullElementGroups = (tetrahedra + 255u) / 256u;
-    NMMatterStatusGPU healthy{};
-    healthy.code = NM_STATUS_SUCCESS;
-    healthy.environment = 0u;
-    NMMatterStatusGPU failed = healthy;
-    failed.code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
-    failed.objectIndex = 3u;
-    failed.failingIndex = 19u;
-    struct Scenario {
-        const char* name;
-        bool outerLatched;
-        NMMatterStatusGPU status;
-        std::uint32_t allowSkip;
-        std::uint32_t inputKind; // 0 exact zero, 1 finite nonzero, 2 NaN
-        bool expectSkip;
-        std::uint32_t recordWorkCounters;
-        std::uint32_t expectedChecks;
-        std::uint32_t expectedSkips;
-    };
-    const std::array<Scenario, 7> scenarios{{
-        {"latched-zero", true, healthy, 1u, 0u, true, 1u, 1u, 1u},
-        {"active-zero", false, healthy, 1u, 0u, false, 1u, 1u, 0u},
-        {"latched-nonzero", true, healthy, 1u, 1u, false, 1u, 1u, 0u},
-        {"latched-nan", true, healthy, 1u, 2u, false, 1u, 1u, 0u},
-        {"unhealthy-zero", true, failed, 1u, 0u, false, 1u, 1u, 0u},
-        {"opt-out-zero", true, healthy, 0u, 0u, false, 1u, 1u, 0u},
-        {"counter-disabled-zero", true, healthy, 1u, 0u, true, 0u, 0u, 0u}
-    }};
-    for (const auto& scenario : scenarios) {
-        NMFGMRESStateGPU solverState{};
-        solverState.diagnostics = {0.125f, 1.0f, 0.0f, 7.0f};
-        solverState.nonlinear = {2.0f, 3.0f, 4.0f,
-            scenario.outerLatched ? 1.0f : 0.0f};
-        std::memcpy([source contents], &solverState, sizeof(solverState));
-        std::memcpy([sourceStatus contents], &scenario.status,
-            sizeof(scenario.status));
-        std::vector<nm_float4> direction(unknowns, nm_float4{});
-        if (scenario.inputKind == 1u)
-            direction[300u] = nm_float4{0.25f, 0.0f, 0.0f, 0.0f};
-        else if (scenario.inputKind == 2u)
-            direction[512u] = nm_float4{
-                std::numeric_limits<float>::quiet_NaN(), 0.0f, 0.0f, 0.0f};
-        std::memcpy([input contents], direction.data(),
-            direction.size() * sizeof(nm_float4));
-        std::fill_n(static_cast<std::uint32_t*>([tiles contents]),
-            tileCount, 0xdeadbeefu);
-        std::memcpy([nodeDispatch contents], &dispatchSentinel,
-            sizeof(dispatchSentinel));
-        std::memcpy([elementDispatch contents], &dispatchSentinel,
-            sizeof(dispatchSentinel));
-        std::fill_n(static_cast<std::uint32_t*>([workCounters contents]),
-            2u, 0u);
+    for (const bool hybridLayout : {false, true}) {
+        constexpr std::uint32_t nodes = 513u;
+        constexpr std::uint32_t tetrahedra = 770u;
+        const std::uint32_t unknowns = hybridLayout ? 2u * nodes + 46u : 513u;
+        const std::uint32_t tileCount = (unknowns + 255u) / 256u;
+        NMMatterDispatchGPU shape{};
+        shape.abiVersion = NM_MATTER_ABI_VERSION;
+        shape.environmentCount = 1u;
+        shape.femNodeCount = nodes;
+        shape.tetrahedronCount = tetrahedra;
+        NMFGMRESLayoutGPU layout{};
+        layout.unknownCount = unknowns;
+        layout.reserved = hybridLayout ? 5u : 1u;
+        layout.vascularReserved = hybridLayout ? 2u : 0u;
+        layout.vascularUnknownCount = hybridLayout ? 46u : 0u;
+        layout.supportBase = 2u * nodes;
+        layout.vascularBase = 2u * nodes;
+        auto dispatchBuffer = makeBuffer(device,
+            std::vector<NMMatterDispatchGPU>{shape});
+        auto layoutBuffer = makeBuffer(device,
+            std::vector<NMFGMRESLayoutGPU>{layout});
+        auto source = makeBuffer(device,
+            std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+        auto destination = makeBuffer(device,
+            std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+        auto sourceStatus = makeBuffer(device,
+            std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+        auto diagnosticStatus = makeBuffer(device,
+            std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+        auto input = makeBuffer(device, std::vector<nm_float4>(
+            unknowns, nm_float4{}));
+        auto tiles = makeBuffer(device,
+            std::vector<std::uint32_t>(tileCount, 0xdeadbeefu));
+        constexpr nm_uint4 dispatchSentinel{91u, 92u, 93u, 94u};
+        auto nodeDispatch = makeBuffer(device, std::vector<nm_uint4>{dispatchSentinel});
+        auto elementDispatch = makeBuffer(device, std::vector<nm_uint4>{dispatchSentinel});
+        auto workCounters = makeBuffer(device, std::vector<std::uint32_t>(2u, 0u));
+        const std::uint32_t fullNodeGroups = (nodes + 255u) / 256u;
+        const std::uint32_t fullElementGroups = (tetrahedra + 255u) / 256u;
+        NMMatterStatusGPU healthy{};
+        healthy.code = NM_STATUS_SUCCESS;
+        healthy.environment = 0u;
+        NMMatterStatusGPU failed = healthy;
+        failed.code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+        failed.objectIndex = 3u;
+        failed.failingIndex = 19u;
+        struct Scenario {
+            const char* name;
+            bool outerLatched;
+            NMMatterStatusGPU status;
+            std::uint32_t allowSkip;
+            std::uint32_t inputKind; // 0 exact zero, 1 finite nonzero, 2 NaN
+            bool expectSkip;
+            std::uint32_t recordWorkCounters;
+            std::uint32_t expectedChecks;
+            std::uint32_t expectedSkips;
+        };
+        const std::array<Scenario, 14> scenarios{{
+            {"latched-zero", true, healthy, 1u, 0u, true, 1u, 1u, 1u},
+            {"active-zero", false, healthy, 1u, 0u, false, 1u, 1u, 0u},
+            {"latched-nonzero", true, healthy, 1u, 1u, false, 1u, 1u, 0u},
+            {"latched-nan", true, healthy, 1u, 2u, false, 1u, 1u, 0u},
+            {"unhealthy-zero", true, failed, 1u, 0u, false, 1u, 1u, 0u},
+            {"opt-out-zero", true, healthy, 0u, 0u, false, 1u, 1u, 0u},
+            {"counter-disabled-zero", true, healthy, 1u, 0u, true, 0u, 0u, 0u},
+            {"negative-zero", true, healthy, 1u, 3u, true, 1u, 1u, 1u},
+            {"subnormal-direction", true, healthy, 1u, 4u, false, 1u, 1u, 0u},
+            {"last-tail-lane", true, healthy, 1u, 5u, false, 1u, 1u, 0u},
+            {"infinite-direction", true, healthy, 1u, 6u, false, 1u, 1u, 0u},
+            {"negative-subnormal-direction", true, healthy, 1u, 7u, false, 1u, 1u, 0u},
+            {"nan-outer-latch", true, healthy, 1u, 8u, false, 1u, 1u, 0u},
+            {"infinite-outer-latch", true, healthy, 1u, 9u, false, 1u, 1u, 0u}
+        }};
+        for (const auto& scenario : scenarios) {
+            NMFGMRESStateGPU solverState{};
+            solverState.diagnostics = {0.125f, 1.0f, 0.0f, 7.0f};
+            solverState.nonlinear = {2.0f, 3.0f, 4.0f,
+                scenario.outerLatched ? 1.0f : 0.0f};
+            if (scenario.inputKind == 8u)
+                solverState.nonlinear.w = std::numeric_limits<float>::quiet_NaN();
+            else if (scenario.inputKind == 9u)
+                solverState.nonlinear.w = std::numeric_limits<float>::infinity();
+            std::memcpy([source contents], &solverState, sizeof(solverState));
+            std::memcpy([sourceStatus contents], &scenario.status,
+                sizeof(scenario.status));
+            std::vector<nm_float4> direction(unknowns, nm_float4{});
+            if (scenario.inputKind == 1u)
+                direction[300u] = nm_float4{0.25f, 0.0f, 0.0f, 0.0f};
+            else if (scenario.inputKind == 2u)
+                direction[512u] = nm_float4{
+                    std::numeric_limits<float>::quiet_NaN(), 0.0f, 0.0f, 0.0f};
+            if (scenario.inputKind == 3u)
+                direction.back() = nm_float4{-0.0f, -0.0f, -0.0f, -0.0f};
+            else if (scenario.inputKind == 4u)
+                direction.back().w = std::numeric_limits<float>::denorm_min();
+            else if (scenario.inputKind == 5u)
+                direction.back().w = 0.125f;
+            else if (scenario.inputKind == 6u)
+                direction.back().w = std::numeric_limits<float>::infinity();
+            else if (scenario.inputKind == 7u)
+                direction.back().w = -std::numeric_limits<float>::denorm_min();
+            std::memcpy([input contents], direction.data(),
+                direction.size() * sizeof(nm_float4));
+            std::fill_n(static_cast<std::uint32_t*>([tiles contents]),
+                tileCount, 0xdeadbeefu);
+            std::memcpy([nodeDispatch contents], &dispatchSentinel,
+                sizeof(dispatchSentinel));
+            std::memcpy([elementDispatch contents], &dispatchSentinel,
+                sizeof(dispatchSentinel));
+            std::fill_n(static_cast<std::uint32_t*>([workCounters contents]),
+                2u, 0u);
 
-        dispatch(device, queue, scan, {
-            {30u, layoutBuffer}, {1u, source}, {2u, sourceStatus},
-            {3u, input}, {4u, tiles}}, tileCount, 256u);
-        dispatch(device, queue, reduce, {
-            {1u, tiles},
-            {2u, makeBuffer(device,
-                std::vector<std::uint32_t>{tileCount})}}, 1u, 256u);
-        dispatch(device, queue, prepare, {
-            {0u, dispatchBuffer}, {30u, layoutBuffer},
-            {1u, source}, {2u, destination}, {3u, sourceStatus},
-            {4u, diagnosticStatus}, {5u, tiles}, {6u, nodeDispatch},
-            {7u, elementDispatch},
-            {8u, makeBuffer(device,
-                std::vector<std::uint32_t>{scenario.allowSkip})},
-            {9u, workCounters},
-            {10u, makeBuffer(device,
-                std::vector<std::uint32_t>{scenario.recordWorkCounters})}}, 1u, 1u);
+            dispatch(device, queue, scan, {
+                {30u, layoutBuffer}, {1u, source}, {2u, sourceStatus},
+                {3u, input}, {4u, tiles}}, tileCount, 256u);
+            dispatch(device, queue, reduce, {
+                {1u, tiles},
+                {2u, makeBuffer(device,
+                    std::vector<std::uint32_t>{tileCount})}}, 1u, 256u);
+            dispatch(device, queue, prepare, {
+                {0u, dispatchBuffer}, {30u, layoutBuffer},
+                {1u, source}, {2u, destination}, {3u, sourceStatus},
+                {4u, diagnosticStatus}, {5u, tiles}, {6u, nodeDispatch},
+                {7u, elementDispatch},
+                {8u, makeBuffer(device,
+                    std::vector<std::uint32_t>{scenario.allowSkip})},
+                {9u, workCounters},
+                {10u, makeBuffer(device,
+                    std::vector<std::uint32_t>{scenario.recordWorkCounters})}}, 1u, 1u);
 
-        NMFGMRESStateGPU expectedState = solverState;
-        expectedState.diagnostics.z = scenario.expectSkip ? 1.0f : 0.0f;
-        const auto actualState = readBuffer<NMFGMRESStateGPU>(
-            destination, 1u)[0];
-        require(std::memcmp(&actualState, &expectedState,
-                    sizeof(expectedState)) == 0,
-            std::string("zero-action latch mismatch: ") + scenario.name);
-        const auto copiedStatus = readBuffer<NMMatterStatusGPU>(
-            diagnosticStatus, 1u)[0];
-        require(std::memcmp(&copiedStatus, &scenario.status,
-                    sizeof(scenario.status)) == 0,
-            std::string("zero-action lost status witness: ") + scenario.name);
-        const nm_uint4 expectedNodes = scenario.expectSkip
-            ? nm_uint4{0u, 1u, 1u, 0u}
-            : nm_uint4{fullNodeGroups, 1u, 1u, 0u};
-        const nm_uint4 expectedElements = scenario.expectSkip
-            ? nm_uint4{0u, 1u, 1u, 0u}
-            : nm_uint4{fullElementGroups, 1u, 1u, 0u};
-        const auto actualNodes = readBuffer<nm_uint4>(nodeDispatch, 1u)[0];
-        const auto actualElements = readBuffer<nm_uint4>(elementDispatch, 1u)[0];
-        require(std::memcmp(&actualNodes, &expectedNodes,
-                    sizeof(expectedNodes)) == 0,
-            std::string("zero-action node fallback mismatch: ") + scenario.name);
-        require(std::memcmp(&actualElements, &expectedElements,
-                    sizeof(expectedElements)) == 0,
-            std::string("zero-action tet fallback mismatch: ") + scenario.name);
-        const auto productionState = readBuffer<NMFGMRESStateGPU>(
-            source, 1u)[0];
-        require(std::memcmp(&productionState, &solverState,
-                    sizeof(solverState)) == 0,
-            std::string("zero-action preparation mutated solver state: ") +
-                scenario.name);
-        const auto actualWork = readBuffer<std::uint32_t>(workCounters, 2u);
-        require(actualWork[0] == scenario.expectedChecks &&
-                actualWork[1] == scenario.expectedSkips,
-            std::string("zero-action work counter mismatch: ") +
-                scenario.name + " checks=" + std::to_string(actualWork[0]) +
-                " skips=" + std::to_string(actualWork[1]));
+            NMFGMRESStateGPU expectedState = solverState;
+            expectedState.diagnostics.z = scenario.expectSkip ? 1.0f : 0.0f;
+            const auto actualState = readBuffer<NMFGMRESStateGPU>(
+                destination, 1u)[0];
+            require(std::memcmp(&actualState, &expectedState,
+                        sizeof(expectedState)) == 0,
+                std::string("zero-action latch mismatch: ") + scenario.name);
+            const auto copiedStatus = readBuffer<NMMatterStatusGPU>(
+                diagnosticStatus, 1u)[0];
+            require(std::memcmp(&copiedStatus, &scenario.status,
+                        sizeof(scenario.status)) == 0,
+                std::string("zero-action lost status witness: ") + scenario.name);
+            const nm_uint4 expectedNodes = scenario.expectSkip
+                ? nm_uint4{0u, 1u, 1u, 0u}
+                : nm_uint4{fullNodeGroups, 1u, 1u, 0u};
+            const nm_uint4 expectedElements = scenario.expectSkip
+                ? nm_uint4{0u, 1u, 1u, 0u}
+                : nm_uint4{fullElementGroups, 1u, 1u, 0u};
+            const auto actualNodes = readBuffer<nm_uint4>(nodeDispatch, 1u)[0];
+            const auto actualElements = readBuffer<nm_uint4>(elementDispatch, 1u)[0];
+            require(std::memcmp(&actualNodes, &expectedNodes,
+                        sizeof(expectedNodes)) == 0,
+                std::string("zero-action node fallback mismatch: ") + scenario.name);
+            require(std::memcmp(&actualElements, &expectedElements,
+                        sizeof(expectedElements)) == 0,
+                std::string("zero-action tet fallback mismatch: ") + scenario.name);
+            const auto productionState = readBuffer<NMFGMRESStateGPU>(
+                source, 1u)[0];
+            require(std::memcmp(&productionState, &solverState,
+                        sizeof(solverState)) == 0,
+                std::string("zero-action preparation mutated solver state: ") +
+                    scenario.name);
+            const auto actualWork = readBuffer<std::uint32_t>(workCounters, 2u);
+            require(actualWork[0] == scenario.expectedChecks &&
+                    actualWork[1] == scenario.expectedSkips,
+                std::string("zero-action work counter mismatch: ") +
+                    scenario.name + " checks=" + std::to_string(actualWork[0]) +
+                    " skips=" + std::to_string(actualWork[1]));
+        }
+
     }
+    std::cout << "completed_zero_action_bit_proof=PASS layouts=ordinary,hybrid_physical scenarios=28 signed_zero=true subnormal=true tails=true state_unchanged=true\n";
 
     // A skipped A*0 remains a zero operator output, but certification still
     // computes r=b-Ax and publishes the same physical norm and residual vector.
@@ -11447,7 +11475,7 @@ void checkCompletedZeroOperatorAction(
         productionStatusBuffer, 1u)[0];
     require(finalStatus.code == NM_STATUS_SUCCESS,
         "healthy zero-action certificate changed production status");
-    std::cout << "completed_zero_operator_action=true cases=7 "
+    std::cout << "completed_zero_operator_action=true cases=28 "
                  "work_counter_checks=verified skipped_actions=verified "
                  "counter_opt_out=verified "
                  "mandatory_true_residual=preserved result=PASS\n";
@@ -18080,6 +18108,7 @@ int main(int argc, const char* argv[]) {
             checkCompactedHumanContactQueries(device,queue,library);
             checkHumanExactContactMotionCache(device,queue,library);
             checkCompletedContactGeometry(device,queue,library);
+            checkCompletedZeroOperatorAction(device, queue, library);
             checkTiledSchedulerObserve(device,queue,library);
             checkZeroStepGeometryReuse(device, queue, library);
             checkReferenceSurfaceGeometry(device,queue,library);

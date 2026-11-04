@@ -34900,10 +34900,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.fgmresLayout.unknownCount ==
                         canonicalMechanicalRows +
                         state.fgmresLayout.vascularUnknownCount;
+                // Hybrid always certifies P^T(b-A*Pq) with the full
+                // current physical action. The scan below observes the LIFTED
+                // physical direction, after q/transport padding is cleared.
+                // Thus a bitwise-zero proof establishes A*0=0 in either
+                // coordinate domain; residual measurement remains mandatory.
+                const bool mandatoryCertificate =
+                    state.femHumanHybridCoordinatesEnabled ||
+                    (femTrueResidualCertificationRequested &&
+                     state.femFullCoupledTrueResidualEnabled);
                 const bool supportedLayout = femTrueResidualEnabled &&
-                    femTrueResidualCertificationRequested &&
-                    state.femFullCoupledTrueResidualEnabled &&
-                    !state.femHumanHybridCoordinatesEnabled &&
+                    mandatoryCertificate &&
                     !state.femHuman6SchurCondensedFGMRESEnabled &&
                     !state.requiresCoupledCandidate && !state.hasAdaptive &&
                     !state.hasMutableFEMTopology &&
@@ -34948,7 +34955,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     canonicalVascularOnlyTail && allSimpleFEMObjects;
                 if (!supportedLayout) {
                     diagnostics.message =
-                        "completed zero-action skip requires the checked single-environment full Human FEM/vascular certificate layout with no rigid/support or owner tails";
+                        "completed zero-action skip requires the checked single-environment full or projected FEM/vascular certificate layout with no rigid/support or owner tails";
                     ownership->preDynamicsOpen = false;
                     if (encoder != nil) { [encoder endEncoding]; encoder = nil; }
                     return diagnostics;

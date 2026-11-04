@@ -9084,6 +9084,7 @@ kernel void nm_fgmres_scan_completed_zero_operator_tiles(
     const uint base = tile * 256u;
     if (base >= layout.unknownCount) return;
     if (!environmentHealthy(statuses, 0u) ||
+        !isfinite(sourceStates[0].nonlinear.w) ||
         sourceStates[0].nonlinear.w <= 0.5f) {
         if (lane == 0u) tileAnyNonzero[tile] = 1u;
         return;
@@ -9093,10 +9094,15 @@ kernel void nm_fgmres_scan_completed_zero_operator_tiles(
         atomic_store_explicit(&groupAnyNonzero, 0u, memory_order_relaxed);
     threadgroup_barrier(mem_flags::mem_threadgroup);
     const uint global = base + lane;
-    if (global < layout.unknownCount &&
-        !all(operatorInput[global] == float4(0.0f))) {
-        atomic_fetch_or_explicit(&groupAnyNonzero, 1u,
-                                 memory_order_relaxed);
+    if (global < layout.unknownCount) {
+        // Exact zero is a storage-bit property. Floating comparison can flush
+        // a subnormal direction to zero; NaNs/Infs and every nonzero magnitude
+        // must instead retain the complete current operator action.
+        const uint4 magnitude = as_type<uint4>(operatorInput[global]) &
+            uint4(0x7fffffffu);
+        if (any(magnitude != uint4(0u)))
+            atomic_fetch_or_explicit(&groupAnyNonzero, 1u,
+                                     memory_order_relaxed);
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (lane == 0u)
@@ -9143,7 +9149,8 @@ kernel void nm_fgmres_prepare_completed_zero_operator_action(
     const bool healthy = environmentHealthy(statuses, environment);
     NMFGMRESStateGPU value = source[environment];
     const bool skip = allowSkip != 0u && dispatch.environmentCount == 1u &&
-        healthy && value.nonlinear.w > 0.5f && anyNonzero[0] == 0u;
+        healthy && isfinite(value.nonlinear.w) &&
+        value.nonlinear.w > 0.5f && anyNonzero[0] == 0u;
     if (recordWorkCounters != 0u && dispatch.environmentCount == 1u) {
         atomic_fetch_add_explicit(workCounters + 0u, 1u, memory_order_relaxed);
         if (skip)
