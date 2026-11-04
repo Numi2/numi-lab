@@ -1,0 +1,25 @@
+[
+  {
+    "case": "source rejects advanced trajectory",
+    "returncode": 1,
+    "output": "metalrobo_bodyparts3d_visual_probe: source inspection requires time-zero initial body frames\n",
+    "wall_s": 0.34111700000357814
+  },
+  {
+    "case": "source rejects accepted-pack substitution",
+    "returncode": 1,
+    "output": "metalrobo_bodyparts3d_visual_probe: receipt does not match the requested source or accepted visual pack\n",
+    "wall_s": 0.40586883400101215
+  },
+  {
+    "case": "mutually exclusive skin and anatomy",
+    "returncode": 1,
+    "output": "metalrobo_bodyparts3d_visual_probe: Skin and anatomy inspection modes are mutually exclusive\n",
+    "wall_s": 0.24813649998395704
+  },
+  {
+    "case": "inspection requires matching receipt",
+    "returncode": 1,
+    "output": "metalrobo_bodyparts3d_visual_probe: Human inspection requires a matching source or accepted receipt\n"
+  }
+]

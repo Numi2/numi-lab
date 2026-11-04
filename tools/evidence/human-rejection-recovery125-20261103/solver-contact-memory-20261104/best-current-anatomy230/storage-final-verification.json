@@ -1,0 +1,27 @@
+{
+  "host": "ssh numi",
+  "measured_at_utc": "2026-11-04T14:45:59.042725+00:00",
+  "status": "TARGET_REACHED",
+  "free_bytes": 32877535232,
+  "target_free_bytes": 32212254720,
+  "free_before_bytes": 13833928704,
+  "archive_batches": 29,
+  "archive_bytes": 11310135575,
+  "retired_paths": 1788,
+  "all_87_batch_assets_present": true,
+  "independent_download_and_canonical_file_restore": "passed in each batch verification receipt",
+  "full_alias_restore_example": {
+    "exit_code": 0,
+    "stdout": "{\"status\": \"PASS\", \"restored_paths\": 118, \"canonical_members\": 108, \"destination\": \"/Users/numi/storage-cleanup-20261104-verified-cold-evidence/full-restore-test/restored\", \"manifest_sha256\": \"421b9ec3907671aa09d25d021abe51eb25954d788a0f168819cdcb58a72cb826\", \"archive_sha256\": \"4b718f0aaa445978bb7d9e280e5fbfd5d9766b38337074c9d3d1ef9922089b90\", \"all_content_modes_mtimes_verified\": true}\n",
+    "stderr": ""
+  },
+  "current_scene_input_reverification": {
+    "pinned_input_paths": 108,
+    "unique_files_hashed": 107,
+    "unique_bytes": 5535465102,
+    "failures": [],
+    "wall_s": 3.4911854999954812
+  },
+  "background_archive_jobs_remaining": false,
+  "release_url": "https://github.com/Numi2/macmini-evidence-archive/releases/tag/numi-20261104-cold-human-evidence"
+}

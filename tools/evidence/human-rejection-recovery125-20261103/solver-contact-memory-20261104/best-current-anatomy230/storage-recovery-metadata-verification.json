@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "independent_download_metadata_matches": {
+    "RESTORE.py": true,
+    "RESTORE.md": true,
+    "full-restore-test.json": true,
+    "final-verification.json": true,
+    "summary.json": true
+  },
+  "release": "https://github.com/Numi2/macmini-evidence-archive/releases/tag/numi-20261104-cold-human-evidence"
+}

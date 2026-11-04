@@ -14,6 +14,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <stdexcept>
 #include <set>
 #include <string>
@@ -146,6 +147,10 @@ PackFraming packFraming(
         // must use those transforms, rather than mixing owner-local vertices
         // with the world-space skin and contact bed.
         for (const auto& instance : pack.instances) {
+            // Frame visible anatomy, rather than the larger support bed or
+            // layers deliberately hidden by the inspection selection.
+            if (!(instance.binding.w & MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR) ||
+                instance.identity.x == 51999u) continue;
             if (instance.binding.z != MR_VISUAL_BINDING_WORLD)
                 throw std::runtime_error("--supine-view unresolved binding kind="+std::to_string(instance.binding.z)+" owner="+std::to_string(instance.binding.y)+" semantic="+std::to_string(instance.identity.x)+" stable="+std::to_string(instance.identity.w));
             for (std::uint32_t j = 0; j < instance.geometry.y; ++j) {
@@ -177,7 +182,7 @@ PackFraming packFraming(
         maximum.z - minimum.z,
     });
     const float verticalExtent = maximum.z - minimum.z;
-    const float distance = focusLowerThird
+    const float distance = supineView ? std::max(0.95f * extent, 0.30f) : focusLowerThird
         ? std::max(0.65f * verticalExtent, 0.30f)
         : (fillFrame
             ? std::max(0.95f * verticalExtent, 0.30f)
@@ -325,7 +330,7 @@ int main(int argc, char** argv) {
     @autoreleasepool {
         try {
             if (argc < 3) {
-                std::cerr << "usage: metalrobo_bodyparts3d_visual_probe PACK.mrvpack OUTPUT_DIRECTORY [--dimension <128..4096>] [--tight-frame] [--fill-frame] [--focus-lower-third] [--source-semantic-coverage] [--supine-view] [--accepted-receipt PATH] [--human-resting-skin]\n";
+                std::cerr << "usage: metalrobo_bodyparts3d_visual_probe PACK.mrvpack OUTPUT_DIRECTORY [--dimension <128..4096>] [--tight-frame] [--fill-frame] [--focus-lower-third] [--source-semantic-coverage] [--supine-view] [--accepted-receipt PATH | --source-receipt PATH] [--human-resting-skin | --human-resting-anatomy]\n";
                 return 2;
             }
             std::uint32_t dimension = 512u;
@@ -335,18 +340,27 @@ int main(int argc, char** argv) {
             bool sourceSemanticCoverage = false;
             bool supineView = false;
             bool humanRestingSkin = false;
+            bool humanRestingAnatomy = false;
+            bool sourceReceiptMode = false;
             std::filesystem::path acceptedReceipt;
+            std::filesystem::path derivedPackPath;
             for (int argument = 3; argument < argc; ++argument) {
                 const std::string option{argv[argument]};
+                if (option == "--human-resting-anatomy") {
+                    if (humanRestingAnatomy) throw std::runtime_error("--human-resting-anatomy may only be provided once");
+                    humanRestingAnatomy = true;
+                    continue;
+                }
                 if (option == "--human-resting-skin") {
                     if (humanRestingSkin)
                         throw std::runtime_error("--human-resting-skin may only be provided once");
                     humanRestingSkin = true;
                     continue;
                 }
-                if (option == "--accepted-receipt") {
+                if (option == "--accepted-receipt" || option == "--source-receipt") {
+                    sourceReceiptMode = option == "--source-receipt";
                     if (!acceptedReceipt.empty() || ++argument >= argc)
-                        throw std::runtime_error("--accepted-receipt requires exactly one receipt path");
+                        throw std::runtime_error("exactly one --accepted-receipt or --source-receipt path is required");
                     acceptedReceipt = argv[argument];
                     continue;
                 }
@@ -383,7 +397,7 @@ int main(int argc, char** argv) {
                     continue;
                 }
                 if (option != "--dimension" || ++argument >= argc) {
-                    throw std::runtime_error("expected --dimension <128..4096>, --tight-frame, --fill-frame, --focus-lower-third, --source-semantic-coverage, --supine-view, --accepted-receipt PATH, or --human-resting-skin");
+                    throw std::runtime_error("expected --dimension <128..4096>, --tight-frame, --fill-frame, --focus-lower-third, --source-semantic-coverage, --supine-view, --accepted-receipt PATH, --source-receipt PATH, --human-resting-skin, or --human-resting-anatomy");
                 }
                 const std::string dimensionText{argv[argument]};
                 std::size_t parsed = 0u;
@@ -400,8 +414,10 @@ int main(int argc, char** argv) {
             if (!metalrobo::readVisualAssetPack(packPath, pack, &reason)) {
                 throw std::runtime_error("could not read visual pack: " + reason);
             }
-            if (humanRestingSkin && acceptedReceipt.empty())
-                throw std::runtime_error("--human-resting-skin requires --accepted-receipt");
+            if (humanRestingSkin && humanRestingAnatomy)
+                throw std::runtime_error("Skin and anatomy inspection modes are mutually exclusive");
+            if ((humanRestingSkin || humanRestingAnatomy) && acceptedReceipt.empty())
+                throw std::runtime_error("Human inspection requires a matching source or accepted receipt");
             if (!acceptedReceipt.empty()) {
                 NSError* error = nil;
                 NSData* data = [NSData dataWithContentsOfFile:
@@ -410,26 +426,56 @@ int main(int argc, char** argv) {
                 if (![decoded isKindOfClass:[NSDictionary class]])
                     throw std::runtime_error("accepted receipt is not a JSON object");
                 NSDictionary* receipt = decoded;
+                NSString* expectedHash = receipt[sourceReceiptMode ? @"base_pack_content_hash" : @"pack_content_hash"];
                 if (metalrobo::computeVisualAssetPackContentHash(pack) != pack.contentHash ||
-                    ![receipt[@"physical_endpoint"] isEqual:@"accepted"] ||
-                    ![receipt[@"surface_audit_endpoint"] isEqual:@"passed"] ||
-                    ![receipt[@"pack_content_hash"] isEqual:
-                        [NSString stringWithUTF8String:pack.contentHash.c_str()]])
-                    throw std::runtime_error("accepted receipt does not certify this visual pack");
+                    ![expectedHash isEqual:[NSString stringWithUTF8String:pack.contentHash.c_str()]] ||
+                    (!sourceReceiptMode && (![receipt[@"physical_endpoint"] isEqual:@"accepted"] ||
+                        ![receipt[@"surface_audit_endpoint"] isEqual:@"passed"])))
+                    throw std::runtime_error("receipt does not match the requested source or accepted visual pack");
+                id registrationValue = receipt[@"initial_anatomical_registration"];
+                if (sourceReceiptMode && ![registrationValue isKindOfClass:[NSDictionary class]])
+                    throw std::runtime_error("source receipt lacks initial anatomical registration");
+                NSDictionary* registration = sourceReceiptMode ? registrationValue : nil;
+                // The zero-time snapshot records all native body frames, including
+                // intermediate bones absent from the source's 86 owner subset.
+                // Source rendering never borrows poses from an advanced trajectory.
+                if (sourceReceiptMode && ([receipt[@"accepted_step"] unsignedLongLongValue] != 0 ||
+                    [receipt[@"accepted_time_s"] doubleValue] != 0.0))
+                    throw std::runtime_error("source inspection requires time-zero initial body frames");
                 NSArray* poses = receipt[@"accepted_body_poses"];
                 if (![poses isKindOfClass:[NSArray class]] ||
                     poses.count != [receipt[@"accepted_body_pose_count"] unsignedIntegerValue])
-                    throw std::runtime_error("accepted receipt pose count differs");
+                    throw std::runtime_error("receipt pose count differs");
+                std::map<unsigned, NSDictionary*> poseByBody;
+                for (id value in poses) {
+                    if (![value isKindOfClass:[NSDictionary class]] || !value[@"body_index"])
+                        throw std::runtime_error("receipt body pose is not an indexed object");
+                    NSDictionary* body = value;
+                    if (!poseByBody.emplace([body[@"body_index"] unsignedIntValue], body).second)
+                        throw std::runtime_error("receipt contains duplicate body poses");
+                }
+                if (sourceReceiptMode) {
+                    NSArray* initialOwners = registration[@"body_poses"];
+                    if (![initialOwners isKindOfClass:[NSArray class]] || initialOwners.count == 0)
+                        throw std::runtime_error("source registration has no body owners");
+                    for (id value in initialOwners) {
+                        if (![value isKindOfClass:[NSDictionary class]])
+                            throw std::runtime_error("source registration body is not an object");
+                        NSDictionary* body = value;
+                        const auto found = poseByBody.find([body[@"body_index"] unsignedIntValue]);
+                        if (found == poseByBody.end() ||
+                            ![body[@"position_m"] isEqual:found->second[@"position_m"]] ||
+                            ![body[@"quaternion_xyzw"] isEqual:found->second[@"quaternion_xyzw"]])
+                            throw std::runtime_error("source registration and time-zero body frames differ");
+                    }
+                }
                 std::size_t frozen = 0;
                 for (auto& instance : pack.instances) {
                     if (instance.binding.z == MR_VISUAL_BINDING_WORLD) continue;
-                    if (instance.binding.z != MR_VISUAL_BINDING_ARTICULATED_LINK ||
-                        instance.binding.y >= poses.count)
-                        throw std::runtime_error("accepted receipt cannot resolve this instance binding");
-                    id bodyValue = poses[instance.binding.y];
-                    if (![bodyValue isKindOfClass:[NSDictionary class]])
-                        throw std::runtime_error("accepted receipt body pose is not an object");
-                    NSDictionary* body = bodyValue;
+                    const auto found = poseByBody.find(instance.binding.y);
+                    if (instance.binding.z != MR_VISUAL_BINDING_ARTICULATED_LINK || found == poseByBody.end())
+                        throw std::runtime_error("receipt cannot resolve instance body " + std::to_string(instance.binding.y));
+                    NSDictionary* body = found->second;
                     NSArray* position = body[@"position_m"];
                     NSArray* orientation = body[@"quaternion_xyzw"];
                     if (![position isKindOfClass:[NSArray class]] ||
@@ -475,14 +521,35 @@ int main(int argc, char** argv) {
                     }
                     pack.preprocessingProvenance += "/resting_skin_inspection_visibility_only";
                 }
+                if (humanRestingAnatomy) {
+                    std::size_t hidden = 0;
+                    for (auto& instance : pack.instances) {
+                        const auto stable = instance.identity.w;
+                        const bool ocularPresentation = stable == kNumiHumanRightScleraWindowStableID ||
+                            stable == kNumiHumanLeftScleraWindowStableID ||
+                            stable == kNumiHumanRightPosteriorLensBackingStableID ||
+                            stable == kNumiHumanLeftPosteriorLensBackingStableID;
+                        if (instance.identity.x == 51007u || ocularPresentation) {
+                            instance.binding.w = 0u;
+                            ++hidden;
+                        }
+                    }
+                    pack.preprocessingProvenance += "/skin_fat_hidden_for_anatomy_inspection";
+                    std::cout << "anatomy_inspection_hidden_instances=" << hidden
+                              << " geometry_changed=false physical_cut=false\n";
+                }
                 std::filesystem::create_directories(outputDirectory);
-                pack.preprocessingProvenance += "/accepted_receipt_instance_pose_replay";
+                pack.preprocessingProvenance += sourceReceiptMode
+                    ? "/source_initial_registration_pose" : "/accepted_receipt_instance_pose_replay";
                 pack.contentHash = metalrobo::computeVisualAssetPackContentHash(pack);
-                packPath = outputDirectory / (humanRestingSkin ? "accepted-skin-frozen.mrvpack" : "accepted-frozen.mrvpack");
+                packPath = outputDirectory / "preview-instance-poses.mrvpack";
+                if (std::filesystem::exists(packPath))
+                    throw std::runtime_error("refusing to overwrite an existing preview pack");
                 if (!metalrobo::writeVisualAssetPack(pack, packPath, &reason))
-                    throw std::runtime_error("could not retain accepted replay pack: " + reason);
-                std::cout << "accepted_receipt=" << acceptedReceipt << " frozen_instances=" << frozen
-                          << " accepted_time_s=" << [receipt[@"accepted_time_s"] doubleValue] << '\n';
+                    throw std::runtime_error("could not write derived preview pack: " + reason);
+                derivedPackPath = packPath;
+                std::cout << "pose_receipt=" << acceptedReceipt << " frozen_instances=" << frozen
+                          << " source_initial_registration=" << sourceReceiptMode << '\n';
             }
             std::set<std::uint32_t> sourceSemantics{8601u};
             if (sourceSemanticCoverage) {
@@ -608,6 +675,7 @@ int main(int argc, char** argv) {
                 std::cout << "source_semantic_coverage=" << sourceSemanticCoverage
                           << " supine_view=" << supineView
                           << " human_resting_skin=" << humanRestingSkin
+                          << " human_resting_anatomy=" << humanRestingAnatomy
                           << " eligible_source_ids=" << sourceSemantics.size() << ' ';
                 std::cout << "view=" << cameraDefinitions[camera].first
                           << " covered_pixels=" << covered
@@ -619,6 +687,10 @@ int main(int argc, char** argv) {
                       << " vertices=" << pack.vertices.size()
                       << " triangles=" << pack.indices.size() / 3u
                       << " static_source_preview=ok\n";
+            if (!derivedPackPath.empty()) {
+                std::filesystem::remove(derivedPackPath);
+                std::cout << "reproducible_preview_pack_removed=true\n";
+            }
             return 0;
         } catch (const std::exception& error) {
             std::cerr << "metalrobo_bodyparts3d_visual_probe: " << error.what() << '\n';

@@ -1,0 +1,76 @@
+{
+  "source_binary": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/metalrobo_bodyparts3d_visual_probe",
+    "sha256": "81ac8f9a7fd53d98e98e8021ad08743ab6daa8f98efcfd1fd62814166916b8f8"
+  },
+  "viewer_source_sha256": "e6b980068cfdf1f6db9e2c2298d0188df5be1ebffce991aab54325e3cbdc8dc3",
+  "native_physics_binary_unchanged": true,
+  "source_pack_sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+  "selected_model_lineage": {
+    "O": {
+      "asset": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/dominant-frame-registration-042/O-source.json",
+        "sha256": "cfb3afc84e6c2d56333906debdcfeaf3eb71515543769e80d62b12379e82e36d"
+      },
+      "typed_source": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-937-b5-backtracking-root/proposal/candidate-O-typed-current.npz",
+        "sha256": "10169962e298586d63794bf94515ecc3a9b1ce91e66cc60566a6919d7c856ac3"
+      },
+      "registered_vertices": 76193,
+      "source_vertex_count": 76669,
+      "source_face_count": 152341,
+      "exact_registered_to_source_coordinate_match": true
+    },
+    "I": {
+      "asset": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/dominant-frame-registration-042/I-source.json",
+        "sha256": "b31b93ddae371dd8486afc56392a2fffb19214674f2afb0113e25364613a6825"
+      },
+      "typed_source": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1009-point-update-1018-root/actual-001/candidate-I-point-updated.npz",
+        "sha256": "5557cbb88b46ea83d7977d60e1d362a10c48c290b77afb39b273efa29d32e323"
+      },
+      "registered_vertices": 118197,
+      "source_vertex_count": 125368,
+      "source_face_count": 236389,
+      "exact_registered_to_source_coordinate_match": true
+    },
+    "D": {
+      "asset": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/dominant-frame-registration-042/D-source.json",
+        "sha256": "3c336ffa9f22ff72da3e2b3362402fe6da6b645402494c56d0140d1bf49f2637"
+      },
+      "typed_source": {
+        "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-958-D014-root/proposal-003/candidate-D-typed-current.npz",
+        "sha256": "63cec05102fd2dc670d9220ec6472cd7d9ffa7085b4694719c605947086c7da9"
+      },
+      "registered_vertices": 103509,
+      "source_vertex_count": 120648,
+      "source_face_count": 207901,
+      "exact_registered_to_source_coordinate_match": true
+    }
+  },
+  "source_only_static_inspection": true,
+  "reference_body_frames": 157,
+  "initial_owner_frames_exact_match": 86,
+  "hidden_instances": 7,
+  "skin_fat_geometry_modified": false,
+  "physical_cut": false,
+  "accepted_replay_regression_passed": true,
+  "negative_checks_passed": 4,
+  "device": "Apple M6",
+  "renders": {
+    "supine_sagittal.png": {
+      "sha256": "9dc8501441f49342de4161d6412158e143e34b689a41487ce63ee0b3877651c5",
+      "bytes": 415997
+    },
+    "supine_oblique.png": {
+      "sha256": "5e5466c6ec1489773a68644a122a0eeaaff5ed61ca5614c3c965b59a8bd96cac",
+      "bytes": 432967
+    },
+    "supine_anterior.png": {
+      "sha256": "9edf997087f4d37bebada159f3feae4842675491b8e23be913e14d760b779a9e",
+      "bytes": 578453
+    }
+  }
+}

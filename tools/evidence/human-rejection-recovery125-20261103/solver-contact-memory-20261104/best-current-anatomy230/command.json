@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/metalrobo_bodyparts3d_visual_probe",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/install-motion/resting-human.mrvpack",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/best-current-anatomy-230/skinless",
+    "--dimension",
+    "1536",
+    "--source-semantic-coverage",
+    "--supine-view",
+    "--source-receipt",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/install-motion/accepted-geometry/step-0.receipt.json",
+    "--human-resting-anatomy"
+  ],
+  "selection": "Latest installed working anatomy lineage 1020 -> current433 -> physical1061 -> dominant-frame042. Source assembly rendered directly, independent of physical acceptance.",
+  "source_pack": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/install-motion/resting-human.mrvpack",
+  "physical_state_advanced": false
+}
