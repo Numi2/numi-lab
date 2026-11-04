@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import gzip
 import json
 import math
 import os
@@ -92,8 +93,15 @@ def _vector(fields: dict[str, str], prefix: str, unit: str,
                  for axis in FORCE_COMPONENTS)  # type: ignore[return-value]
 
 
+def _open_capture(path: Path):
+    # Existing retained endpoint logs are compressed after restoration hashing.
+    # Stream them in place; never expand an800MiB routine log onto disk.
+    return (gzip.open(path, "rt", encoding="utf-8", errors="strict")
+            if path.suffix == ".gz" else path.open(errors="strict"))
+
+
 def _capture_lines(path: Path):
-    with path.open(errors="strict") as source:
+    with _open_capture(path) as source:
         for line in source:
             yield line.rstrip("\r\n")
 
@@ -105,7 +113,7 @@ def parse_capture(path: Path) -> dict[str, Any]:
     # parsing records, so malformed or truncated captures fail identically.
     begin_line = None
     complete = False
-    with path.open(errors="strict") as source:
+    with _open_capture(path) as source:
         for line in source:
             if begin_line is None:
                 begin_line = _payload(line, BEGIN_MARKER)

@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import gzip
 import math
 from pathlib import Path
 import tempfile
@@ -175,6 +176,42 @@ class EndpointFidelityTests(unittest.TestCase):
                     "endpoint captures must be streamed")):
                 capture = module.parse_capture(path)
             self.assertIsNotNone(capture)
+
+    def test_retained_gzip_capture_matches_plain_and_preserves_gates(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as temp:
+            plain = Path(temp) / "endpoint.log"
+            packed = Path(temp) / "endpoint.log.gz"
+            plain.write_text(make_log())
+            with gzip.open(packed, "wt") as out:
+                out.write(make_log())
+            with patch.object(Path, "read_text", side_effect=AssertionError(
+                    "retained endpoint captures must be streamed")):
+                a, b = module.parse_capture(plain), module.parse_capture(packed)
+                report = module.compare(plain, packed)
+            for key in ("path", "sha256"):
+                a.pop(key)
+                b.pop(key)
+            self.assertEqual(a, b)
+            self.assertTrue(report["gates"]["measured_channel_fidelity_pass"])
+            with gzip.open(packed, "wt") as out:
+                out.write(make_log(reaction=10.2))
+            self.assertEqual(module.compare(plain, packed)["force_fidelity"]["gate"], "fail")
+            with gzip.open(packed, "wt") as out:
+                out.write(make_log().replace(module.END_MARKER, ""))
+            with self.assertRaisesRegex(module.ComparisonError, "incomplete"):
+                module.parse_capture(packed)
+
+    def test_corrupt_gzip_capture_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            packed = Path(temp) / "endpoint.log.gz"
+            with gzip.open(packed, "wt") as out:
+                out.write(make_log())
+            data = bytearray(packed.read_bytes())
+            data[-5] ^= 1
+            packed.write_bytes(data)
+            with self.assertRaises((gzip.BadGzipFile, EOFError)):
+                module.parse_capture(packed)
 
     def test_identical_endpoint_passes(self):
         report = self.compare_logs(make_log(), make_log())
