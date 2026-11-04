@@ -135,7 +135,7 @@ difference was 2.81938 N against a 2.60512 N reference magnitude (108.22%).
 The aggregate anchor history differed by only 0.739%; this did not reveal
 the local tissue failure. Trial 269 combined the composite preconditioner
 and cooperative tangent mode 2, so this result does not isolate the
-preconditioner. Direct mode-1 composite trial 273 is the isolation test.
+preconditioner. Direct mode-1 composite trial 273 isolates the preconditioner and fails with the same 124.29% skin/fat strain and 108.22% bulk force discrepancy. It remains disabled; the 15% one-pair timing gain is not qualified.
 Ten compact traces and the endpoint render payload of 267/269 match,
 but those outputs do not establish full FEM force/strain equivalence.
 
@@ -226,6 +226,48 @@ The failed 269 endpoint and 269-272 compact/source/configuration evidence
 are retained in human-tissue-qualification-269-272.tar.zst on the same
 GitHub release. An independent download restored and verified all 103
 members, hashes, modes and exact modification times before the older
-failed 269 plain stdout was retired. Source inputs and the current
-270/271/272 endpoints remain local. See the manifest and verification
+failed 269 plain stdout was retired. Source inputs remain local. The older 270/271/273 endpoint stdout is now in the independently restored 147-member archive; the newest exact endpoint is 276. See the manifest and verification
 receipt; no failed evidence was discarded.
+
+## Lossless immutable contact storage (build 46)
+
+The static body-contact tables expand one source surface over many rigid
+body banks. Their logical order and complete collision queries remain
+unchanged. Private storage now factors repeated source templates and
+body/range seeds, reconstructing the original 64-byte sample and 32-byte
+range exactly on the GPU. CPU initialization round-trips all rows before
+installing the immutable buffers. No sample is quantized, culled or
+reassigned; no geometric or force state changes.
+
+The opt-in setting NM_HUMAN_COMPACT_IMMUTABLE_CONTACTS=1 requires aliased
+primary/solver/grouped layouts, multi-master triangle contacts, no implicit
+spring rows, checked offsets and a real storage reduction. Unsupported
+layouts fail explicit admission. Public assets and replay ABIs remain
+unchanged. Logical counts survive release of redundant host upload spans.
+
+Actual scene 276 contains 15,453,677 rows, 180,197 unique source templates
+and 595 seeds. Sample/range storage decreases from 1,483,552,992 to
+135,219,184 bytes: 1,348,333,808 bytes (1.256 GiB) identified saving.
+The accepted-step Metal allocation is 8,367,013,888 bytes, versus
+9,715,335,168 for reference 272. This allocation delta is not an additional
+saving to add to the identified table reduction.
+
+All 32 roots accept with unchanged 144 active solves, 2,304 columns and 62
+budget exhaustions. All ten compact traces and all 1,798,453 endpoint node
+and tetrahedron records are byte-identical to 272, with endpoint SHA-256
+cc6eb0edd0b5ed60a24fc911f11e6965bde10a237151f59bb48e6e872f17d23b.
+The complete 2,670,289-check FGMRES suite passes, including CPU/GPU exact
+decoding, signed zero, invalid indexes, corrupt records and empty/capacity
+cases. The complete material/frame/rollback check also passes.
+
+Body time is 235.947012 s, versus 233.315623 s for 272: this single
+comparison is approximately 1.1% slower. Inclusive execution is 426.876769 s,
+but startup differs between trials and this is not a demonstrated
+end-to-end speedup. Body rate is 0.00000211912x. The measured result is a
+lossless memory reduction, not 0.1x performance or sustained physiology.
+
+Trial 274 stopped during configuration because direct-edge assembly
+requires the assembled-operator option. Corrected trial 275 was stopped
+by the unchanged 12 GiB disk guard during initialization; it has no valid
+performance or acceptance result. The pretrial target was raised to 16 GiB to accommodate initial output and swap growth. After trial 276 proved a 1.35 GB GPU storage reduction, the packed-contact interior trial uses a 14 GiB pretrial threshold while retaining the unchanged 12 GiB disk and 3 GiB swap-growth stop guards. Both trials remain retained. The 147-member recovery archive was independently
+downloaded, fully restored and hash/metadata checked before local retirement.

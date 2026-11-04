@@ -1,0 +1,38 @@
+{
+  "method": "verified identical APFS clones with preserved paths and metadata",
+  "free_before": 17523429376,
+  "operations": [
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/compact-tangent-ordinary-272/install-motion/diagnostics/tissue-mass-reference.txt",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "mtime_ns": 1793639912817380996
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-regional-mode1-fidelity-273/install-motion/diagnostics/tissue-mass-reference.txt",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "mtime_ns": 1793639912817380996
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/direct-csr-fidelity-274/install-motion/diagnostics/tissue-mass-reference.txt",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "mtime_ns": 1793639912817380996
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/assembled-direct-fidelity-275/install-motion/diagnostics/tissue-mass-reference.txt",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "mtime_ns": 1793639912817380996
+    }
+  ],
+  "free_after": 17325117440,
+  "recovered_bytes": -198311936,
+  "status": "completed_four_verified_mass_reference_clones",
+  "unmodified_nonmatching_snapshot": "/Users/numi/Work/human-integrated-gaps-20261104/assembled-direct-fidelity-275/install-motion/resting-human.mrvpack"
+}

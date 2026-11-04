@@ -1,0 +1,12 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 426.87676906585693,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/compact-immutable-contacts-276/install-motion.plan.json",
+  "plan_sha256": "ca9a6af40301d6b1346148800b37473f5f4076b05129cdbd7ea3a3a5661ebf14",
+  "stdout_sha256": "e5c4d422f8ecbd4a7624ffe40cc79efecf37bc151eb0cb8d8bc2e367e9098cbe",
+  "stderr_sha256": "6835fb9a5359cf2b269b076a9a0fc990d5d3ac6f2c9798c111c441cdb81b31b4",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

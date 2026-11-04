@@ -13,6 +13,7 @@
 #include "metalrobo/compensated_translation_gpu.h"
 #include "numi/matter/matter.hpp"
 #include "../src/tangent_owner_worklist.hpp"
+#include "../src/compact_human_contact_rows.hpp"
 
 #include <cmath>
 #include <algorithm>
@@ -18691,6 +18692,73 @@ void checkFEMAlignedBarrier(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MT
 }
 
 
+
+void checkCompactImmutableHumanContactRows(id<MTLDevice> device,
+    id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    using namespace numi::matter::detail;
+    CompactHumanContactRows packed;
+    require(!packCompactHumanContactRows({}, {}, packed),"empty compact contact source accepted");
+    constexpr std::uint32_t count=1027u;
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> samples(count);
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> ranges(count);
+    for(std::uint32_t i=0u;i<count;++i) {
+        std::array<std::uint32_t,16> words{};
+        const auto node=(i/7u)%13u,body=i%7u;
+        words[0]=node;words[1]=body;words[2]=3u;words[3]=0u;
+        for(std::uint32_t k=4u;k<16u;++k)
+            words[k]=0x3f800000u+((k%4u==3u)?node:body)*64u+k;
+        // Preserve signed zero too, without normalizing source fields.
+        if(node==0u)words[15]=0x80000000u;
+        std::memcpy(&samples[i],words.data(),64u);
+        std::array<std::uint32_t,8> rw{body*11u,11u,0x3c23d70au,3u,0u,0u,0u,0u};
+        std::memcpy(&ranges[i],rw.data(),32u);
+    }
+    require(!packCompactHumanContactRows(samples,
+        std::span<const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>(ranges).first(1u),packed),
+        "mismatched compact contact source accepted");
+    require(packCompactHumanContactRows(samples,ranges,packed),"compact contact pack failed");
+    require(packed.rows==count&&packed.templates==13u&&packed.seeds==7u,
+        "contact template/seed ownership differs");
+    require(packed.bytes.size()<samples.size()*96u,"contact fixture did not reduce storage");
+    for(std::uint32_t i=0;i<count;++i) {
+        NMNumiHumanFEMBodyContactSampleGPU sample{};
+        NMNumiHumanFEMBodyContactNeighborhoodRangeGPU range{};
+        require(decodeCompactHumanContactRow(packed.bytes,i,sample,range),
+            "valid compact contact row rejected");
+        require(std::memcmp(&sample,&samples[i],64u)==0&&
+            std::memcmp(&range,&ranges[i],32u)==0,"CPU contact reconstruction changed bits");
+    }
+    NMNumiHumanFEMBodyContactSampleGPU sample{};
+    NMNumiHumanFEMBodyContactNeighborhoodRangeGPU range{};
+    require(!decodeCompactHumanContactRow(packed.bytes,count,sample,range),
+        "out-of-range compact contact row accepted");
+    const auto verify=pipeline(device,library,
+        "numi_matter_metal::nm_numi_human_verify_compact_contact_rows");
+    const auto sampleBuffer=makeBuffer(device,samples), rangeBuffer=makeBuffer(device,ranges);
+    const auto countBuffer=makeBuffer(device,std::vector<std::uint32_t>{count});
+    const auto failures=makeBuffer(device,std::vector<std::uint32_t>(count,0xffffffffu));
+    const auto run=[&](const std::vector<std::byte>& storage,bool bad) {
+        const auto buffer=makeBuffer(device,storage);
+        dispatch(device,queue,verify,{{0u,buffer},{1u,sampleBuffer},{2u,rangeBuffer},
+            {3u,failures},{4u,countBuffer}},(count+31u)/32u,32u);
+        const auto result=readBuffer<std::uint32_t>(failures,count);
+        for(std::uint32_t i=0;i<count;++i)
+            require(bad?(i==0u?result[i]!=0u:result[i]==0u):result[i]==0u,
+                "GPU compact contact reconstruction/invalid-index isolation failed");
+    };
+    run(packed.bytes,false);
+    auto corrupt=packed.bytes;
+    const std::uint32_t invalid=0xffffffffu;
+    std::memcpy(corrupt.data()+32u,&invalid,4u);
+    require(!decodeCompactHumanContactRow(corrupt,0u,sample,range),
+        "invalid template lookup accepted");
+    run(corrupt,true);
+    corrupt=packed.bytes;
+    std::memcpy(corrupt.data()+20u,&invalid,4u);
+    require(!decodeCompactHumanContactRow(corrupt,0u,sample,range),
+        "overflowed compact table offset accepted");
+}
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -19484,6 +19552,7 @@ int main(int argc, const char* argv[]) {
 
             require(argc==1||(argc==2&&std::string(argv[1])=="--refined-coupon"),"usage: true-residual check [--refined-coupon]");
             if(argc==2){checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,20682u);checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,32768u);}
+            checkCompactImmutableHumanContactRows(device,queue,library);
             checkTangentOwnerWorklist();
             checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,4096u);
             checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,8192u);

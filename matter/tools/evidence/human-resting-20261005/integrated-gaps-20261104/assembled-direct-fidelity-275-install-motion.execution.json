@@ -1,0 +1,12 @@
+{
+  "exit_code": -15,
+  "elapsed_s": 190.68896889686584,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/assembled-direct-fidelity-275/install-motion.plan.json",
+  "plan_sha256": "12c91e4da8f607afd1951efc0f756ab0df84af74e69f51b2e1bf3da64402b271",
+  "stdout_sha256": "e40b9e1251873ca52cf57337bee7fba77c7e88f3532c66bfe0a4cb1c6e53193f",
+  "stderr_sha256": "4d1f2b00bf8fe6a70613ee27966f58f1d13dd22b7b0b9014f2ad9f312eb05205",
+  "physical_admission": false,
+  "resource_stop_reason": "disk_below_12GiB",
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

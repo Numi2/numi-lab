@@ -1,0 +1,23 @@
+{
+  "status": "PASS_INDEPENDENT_DOWNLOAD_ALL_MEMBERS_AND_RESTORE",
+  "archive_sha256": "4a98cc7d7590bad1ed847af05a041c6219b59f3a05629a840c8aaaaebac3d636",
+  "manifest_sha256": "fb2c82ebffffeac247f475bd7acda24a5700c9140fdd9b610b2c25b7d896d19e",
+  "members": 147,
+  "restore": {
+    "status": "PASS",
+    "restored_paths": 147,
+    "canonical_members": 147,
+    "destination": "/Users/numi/Work/human-integrated-gaps-20261104/fidelity-endpoints-270-275-recovery/verified-restore",
+    "manifest_sha256": "fb2c82ebffffeac247f475bd7acda24a5700c9140fdd9b610b2c25b7d896d19e",
+    "archive_sha256": "4a98cc7d7590bad1ed847af05a041c6219b59f3a05629a840c8aaaaebac3d636",
+    "all_content_modes_mtimes_verified": true
+  },
+  "retired_paths": [
+    "/Users/numi/Work/human-integrated-gaps-20261104/compact-tangent-owners-271/install-motion.stdout.log",
+    "/Users/numi/Work/human-integrated-gaps-20261104/regional-fidelity-reference-270/install-motion.stdout.log",
+    "/Users/numi/Work/human-integrated-gaps-20261104/thin-regional-mode1-fidelity-273/install-motion.stdout.log"
+  ],
+  "free_before_retirement": 11186266112,
+  "free_after_retirement": 17873547264,
+  "local_archive_retired_after_independent_restore": "/Users/numi/Work/human-integrated-gaps-20261104/fidelity-endpoints-270-275-recovery/human-fidelity-endpoints-270-275.tar.zst"
+}

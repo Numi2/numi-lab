@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 175.49502801895142,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/direct-csr-fidelity-274/install-motion.plan.json",
+  "plan_sha256": "4074cc09afd9a016d18ce9bbd8e632400918c923e37eefeb0c790091d84c7ad5",
+  "stdout_sha256": "6019b3c182880e68459f3bf521f2dfee9bcec2753fccf8cfba1a9e8813ad0e73",
+  "stderr_sha256": "45e7d42386e2c2e541d72d220d29ba08c62dc84bfda43328b05a50289db92d29",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

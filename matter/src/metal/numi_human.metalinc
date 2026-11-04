@@ -6,6 +6,53 @@ namespace numi_matter_metal {
 
 namespace {
 
+// Lossless immutable sample/range storage. Public source records keep ABI 17.
+constant uint kHumanCompactContactMagic=0x4e484331u;
+inline bool humanCompactContactRow(device const uint* h,uint row,
+    thread uint2& ids) {
+    const ulong mapEnd=32ul+8ul*h[0];
+    const ulong templateEnd=ulong(h[5])+64ul*h[1];
+    const ulong seedEnd=ulong(h[6])+96ul*h[2];
+    if(h[3]!=kHumanCompactContactMagic||h[0]==0u||h[1]==0u||h[2]==0u||
+       row>=h[0]||h[4]!=32u||(h[5]&15u)||(h[6]&15u)||
+       mapEnd>h[5]||templateEnd>h[6]||seedEnd!=h[7])return false;
+    ids=uint2(h[8u+2u*row],h[9u+2u*row]);
+    return ids.x<h[1]&&ids.y<h[2];
+}
+inline NMNumiHumanFEMBodyContactSampleGPU humanContactSample(
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples,uint row) {
+    if(samples[0].reserved0!=kHumanCompactContactMagic)return samples[row];
+    const auto h=reinterpret_cast<device const uint*>(samples);
+    uint2 ids;
+    NMNumiHumanFEMBodyContactSampleGPU invalid{};
+    invalid.slaveNode=NM_INVALID_INDEX;invalid.bodyIndex=NM_INVALID_INDEX;
+    invalid.reserved0=NM_INVALID_INDEX;
+    if(!humanCompactContactRow(h,row,ids))return invalid;
+    const auto bytes=reinterpret_cast<device const uchar*>(samples);
+    const auto templates=reinterpret_cast<device const NMNumiHumanFEMBodyContactSampleGPU*>(
+        bytes+h[5]);
+    const auto seed=reinterpret_cast<device const NMNumiHumanFEMBodyContactSampleGPU*>(
+        bytes+h[6]+96ul*ids.y);
+    NMNumiHumanFEMBodyContactSampleGPU value=templates[ids.x];
+    value.bodyIndex=seed->bodyIndex;
+    value.bodyLocalPointAndArea.xyz=seed->bodyLocalPointAndArea.xyz;
+    value.bodyLocalNormalAndReferenceSeparation.xyz=seed->bodyLocalNormalAndReferenceSeparation.xyz;
+    value.stiffnessAndNormalStrainPerPressure.xyz=seed->stiffnessAndNormalStrainPerPressure.xyz;
+    return value;
+}
+inline NMNumiHumanFEMBodyContactNeighborhoodRangeGPU humanContactRange(
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,uint row) {
+    if(ranges[0].reserved0!=kHumanCompactContactMagic)return ranges[row];
+    const auto h=reinterpret_cast<device const uint*>(ranges);
+    uint2 ids;
+    NMNumiHumanFEMBodyContactNeighborhoodRangeGPU invalid{};
+    invalid.reserved0=NM_INVALID_INDEX;
+    if(!humanCompactContactRow(h,row,ids))return invalid;
+    const auto bytes=reinterpret_cast<device const uchar*>(ranges);
+    const auto value=reinterpret_cast<device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*>(
+        bytes+h[6]+96ul*ids.y+64ul);
+    return *value;
+}
 inline bool finite4(const float4 value) { return all(isfinite(value)); }
 
 inline float3 humanQuaternionRotate(const float4 quaternion, const float3 value) {
@@ -875,7 +922,7 @@ inline bool humanFEMBodyContactStateForSample(
             contactTangent, tangentialSlip);
     if (sampleIndex >= dispatch.femBodyContactSampleCount) return false;
     const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU range =
-        ranges[sampleIndex];
+        humanContactRange(ranges,sampleIndex);
     const bool legacyRange=range.reserved0==NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_LEGACY;
     const bool guardedRange=range.reserved0==NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_MOTION_ENVELOPE;
     const bool staticBVHRange=
@@ -1453,7 +1500,7 @@ kernel void nm_numi_human_validate_fem_body_contact_samples(
         sampleValid[global] = 0u;
         return;
     }
-    const NMNumiHumanFEMBodyContactSampleGPU sample = samples[sampleIndex];
+    const NMNumiHumanFEMBodyContactSampleGPU sample = humanContactSample(samples,sampleIndex);
     bool valid = dispatch.femNodeCount > 0u &&
         dispatch.bodyPoseStride > 0u &&
         sample.slaveNode < dispatch.femNodeCount &&
@@ -1529,14 +1576,14 @@ inline bool humanBodyContactCertifiedZeroRow(
         d.femBodyContactCandidateTriangleCount==0u) return false;
     const uint env=global/d.femBodyContactSampleCount;
     const uint i=global-env*d.femBodyContactSampleCount;
-    const auto sample=samples[i];
+    const auto sample=humanContactSample(samples,i);
     if (sample.slaveNode>=d.femNodeCount || !validBody(sample.bodyIndex,d) ||
         sample.flags!=(NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
             NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT) ||
         sample.reserved0!=0u || !finite4(sample.bodyLocalPointAndArea) ||
         !finite4(sample.bodyLocalNormalAndReferenceSeparation) ||
         !finite4(sample.stiffnessAndNormalStrainPerPressure)) return false;
-    const auto range=ranges[i];
+    const auto range=humanContactRange(ranges,i);
     if (range.reserved0!=NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_STATIC_CLOSED_ORIENTED_BVH ||
         range.triangleCount==0u || range.firstTriangle>NM_INVALID_INDEX-range.triangleCount ||
         any(range.restPointAndMotionRadius!=float4(0.0f)) ||
@@ -1610,7 +1657,7 @@ kernel void nm_numi_human_classify_contact_queries(
     uint pending=0u;
     if (global<total) {
         const uint env=global/d.femBodyContactSampleCount;
-        const auto sample=samples[global%d.femBodyContactSampleCount];
+        const auto sample=humanContactSample(samples,global%d.femBodyContactSampleCount);
         const bool reuse=d.abiVersion==NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
             sample.slaveNode<d.femNodeCount && validBody(sample.bodyIndex,d) &&
             motionFlags[env*d.femNodeCount+sample.slaveNode]==3u &&
@@ -1715,7 +1762,7 @@ kernel void nm_numi_human_validate_fem_body_contact_samples_cached_impl(
         sampleValid[global] = 0u;
         return;
     }
-    const NMNumiHumanFEMBodyContactSampleGPU sample = samples[sampleIndex];
+    const NMNumiHumanFEMBodyContactSampleGPU sample = humanContactSample(samples,sampleIndex);
     bool valid = dispatch.femNodeCount > 0u &&
         dispatch.bodyPoseStride > 0u &&
         sample.slaveNode < dispatch.femNodeCount &&
@@ -2483,7 +2530,7 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads(
     if (global >= total || dispatch.femBodyContactSampleCount == 0u) return;
     const uint environment = global / dispatch.femBodyContactSampleCount;
     const uint index = global - environment * dispatch.femBodyContactSampleCount;
-    const NMNumiHumanFEMBodyContactSampleGPU sample = samples[index];
+    const NMNumiHumanFEMBodyContactSampleGPU sample = humanContactSample(samples,index);
     const uint node = sample.slaveNode;
     if (node >= dispatch.femNodeCount || !validBody(sample.bodyIndex, dispatch)) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
@@ -2543,12 +2590,12 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads_grouped(
     if (span == 0u || span > dispatch.femBodyContactSampleCount-head) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
     const uint poseBase = environment * dispatch.bodyPoseStride;
-    const uint node = samples[head].slaveNode;
+    const uint node = humanContactSample(samples,head).slaveNode;
     if (node >= dispatch.femNodeCount) return;
     float3 nodeForce = float3(0.0f);
     for (uint local = 0u; local < span; ++local) {
         const uint index = head + local;
-        const NMNumiHumanFEMBodyContactSampleGPU sample = samples[index];
+        const NMNumiHumanFEMBodyContactSampleGPU sample = humanContactSample(samples,index);
         if (sample.slaveNode != node || !validBody(sample.bodyIndex, dispatch))
             return;
         float3 slavePoint;
@@ -2594,7 +2641,7 @@ kernel void nm_numi_human_fem_body_contact_row_cache(
     rowCache[global]=float4(NAN);
     if(dispatch.abiVersion!=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION) return;
     const uint environment=global/count,row=global%count;
-    const NMNumiHumanFEMBodyContactSampleGPU sample=samples[row];
+    const NMNumiHumanFEMBodyContactSampleGPU sample=humanContactSample(samples,row);
     if(sample.slaveNode>=dispatch.femNodeCount || !validBody(sample.bodyIndex,dispatch)) return;
     float3 slavePoint,bodyPoint,normal;float closure,area,slip;float3x3 tangent;
     if(!humanFEMBodyContactStateForSample(row,dispatch,sample,ranges,triangles,bvh,
@@ -2633,12 +2680,12 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads_grouped_cached(
     const uint span = groupCounts[head];
     if (span == 0u || span > dispatch.femBodyContactSampleCount-head) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
-    const uint node = samples[head].slaveNode;
+    const uint node = humanContactSample(samples,head).slaveNode;
     if (node >= dispatch.femNodeCount) return;
     float3 nodeForce = float3(0.0f);
     for (uint local = 0u; local < span; ++local) {
         const uint index = head + local;
-        const NMNumiHumanFEMBodyContactSampleGPU sample = samples[index];
+        const NMNumiHumanFEMBodyContactSampleGPU sample = humanContactSample(samples,index);
         if (sample.slaveNode != node || !validBody(sample.bodyIndex, dispatch))
             return;
         const float4 cached=rowCache[environment*dispatch.femBodyContactSampleCount+index];
@@ -2676,7 +2723,7 @@ kernel void nm_numi_human_assemble_fem_body_contact_wrenches(
     float3 force = float3(0.0f);
     float3 torque = float3(0.0f);
     for (uint index = 0u; index < dispatch.femBodyContactSampleCount; ++index) {
-        const NMNumiHumanFEMBodyContactSampleGPU sample = samples[index];
+        const NMNumiHumanFEMBodyContactSampleGPU sample = humanContactSample(samples,index);
         if (sample.bodyIndex != bodyIndex ||
             sample.slaveNode >= dispatch.femNodeCount) continue;
         float3 slavePoint;
@@ -2744,7 +2791,7 @@ kernel void nm_numi_human_fem_body_contact_wrench_partial(
     if(lane<tile.y) {
         const uint row=rowIndices[tile.x+lane];
         const NMNumiHumanFEMBodyContactSampleGPU sample=row<dispatch.femBodyContactSampleCount
-            ?samples[row]:NMNumiHumanFEMBodyContactSampleGPU{};
+            ?humanContactSample(samples,row):NMNumiHumanFEMBodyContactSampleGPU{};
         if(row>=dispatch.femBodyContactSampleCount || sample.slaveNode>=dispatch.femNodeCount ||
             sample.bodyIndex!=dispatch.articulationFirstBody+tile.z || !validBody(sample.bodyIndex,dispatch)) {
             value.force=float4(NAN);value.torque=float4(NAN);
@@ -2793,7 +2840,7 @@ kernel void nm_numi_human_fem_body_contact_wrench_partial_cached(
     if(lane<tile.y) {
         const uint row=rowIndices[tile.x+lane];
         const NMNumiHumanFEMBodyContactSampleGPU sample=row<dispatch.femBodyContactSampleCount
-            ?samples[row]:NMNumiHumanFEMBodyContactSampleGPU{};
+            ?humanContactSample(samples,row):NMNumiHumanFEMBodyContactSampleGPU{};
         if(row>=dispatch.femBodyContactSampleCount || sample.slaveNode>=dispatch.femNodeCount ||
             sample.bodyIndex!=dispatch.articulationFirstBody+tile.z || !validBody(sample.bodyIndex,dispatch)) {
             value.force=float4(NAN);value.torque=float4(NAN);
@@ -2965,7 +3012,7 @@ kernel void nm_numi_human_audit_fem_body_contact(
     float maximumNormalStrain = 0.0f;
     float maximumClosure = 0.0f;
     for (uint index = 0u; index < dispatch.femBodyContactSampleCount; ++index) {
-        const NMNumiHumanFEMBodyContactSampleGPU sample = samples[index];
+        const NMNumiHumanFEMBodyContactSampleGPU sample = humanContactSample(samples,index);
         if (sample.slaveNode >= dispatch.femNodeCount ||
             !validBody(sample.bodyIndex, dispatch)) {
             audits[environment].forceResidualAndL1 = float4(NAN);
@@ -3107,7 +3154,7 @@ inline NMNumiHumanArticularContactAuditGPU humanFEMBodyContactAuditRange(
     float maximumNormalStrain = 0.0f;
     float maximumClosure = 0.0f;
     for (uint index = firstSample; index < firstSample + sampleCount; ++index) {
-        const NMNumiHumanFEMBodyContactSampleGPU sample = samples[index];
+        const NMNumiHumanFEMBodyContactSampleGPU sample = humanContactSample(samples,index);
         if (sample.slaveNode >= dispatch.femNodeCount ||
             !validBody(sample.bodyIndex, dispatch)) {
             return invalid;
@@ -4403,5 +4450,27 @@ kernel void nm_numi_human_apply_fem_anchor_reactions_sparse(
         dispatch.generalizedForceOffset + dof;
     generalizedForces[forceIndex] += correction;
 }
+
+kernel void nm_numi_human_verify_compact_contact_rows(
+    device const NMNumiHumanFEMBodyContactSampleGPU* packed [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges [[buffer(2)]],
+    device uint* failures [[buffer(3)]],
+    constant uint& count [[buffer(4)]],
+    uint row [[thread_position_in_grid]]) {
+    if(row>=count)return;
+    const auto sample=humanContactSample(packed,row);
+    const auto range=humanContactRange(
+        reinterpret_cast<device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*>(packed),row);
+    const auto a=reinterpret_cast<thread const uint*>(&sample);
+    const auto b=reinterpret_cast<device const uint*>(samples+row);
+    const auto c=reinterpret_cast<thread const uint*>(&range);
+    const auto d=reinterpret_cast<device const uint*>(ranges+row);
+    uint failed=0u;
+    for(uint i=0u;i<16u;++i)failed|=a[i]!=b[i]?1u:0u;
+    for(uint i=0u;i<8u;++i)failed|=c[i]!=d[i]?2u:0u;
+    failures[row]=failed;
+}
+
 
 } // namespace numi_matter_metal

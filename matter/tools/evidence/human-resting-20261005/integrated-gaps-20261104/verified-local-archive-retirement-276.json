@@ -1,0 +1,9 @@
+{
+  "path": "/Users/numi/Work/human-integrated-gaps-20261104/tissue-qualification-269-recovery/human-tissue-qualification-269-272.tar.zst",
+  "bytes": 201458102,
+  "sha256": "aa62e4ec57dad7fd304c86c810e1ca784de199af5d17cb620a653d9e9e131d43",
+  "prior_independent_restore_verification": "/Users/numi/Work/human-integrated-gaps-20261104/tissue-qualification-269-recovery/human-tissue-qualification-269-272-verification.json",
+  "remote_asset": "https://github.com/Numi2/macmini-evidence-archive/releases/download/numi-20261104-cold-human-evidence/human-tissue-qualification-269-272.tar.zst",
+  "free_before": 15478247424,
+  "free_after": 15679700992
+}

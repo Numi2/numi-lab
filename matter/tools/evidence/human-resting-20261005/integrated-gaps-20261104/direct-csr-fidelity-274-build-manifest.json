@@ -1,0 +1,45 @@
+{
+  "source_head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "dirty_source": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/direct-csr-fidelity-274/execution-source.patch",
+    "sha256": "5597aa80386e5149ceca84b5646ffdf1cf1ea68a9dff538a32c3807d1eff14fd",
+    "bytes": 2304660
+  },
+  "native_binary": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "sha256": "6f25cc739d382b24b0e01db1b1d701ee04f08b0b231ada358a29173f550f983f",
+    "bytes": 10556192
+  },
+  "runtime_dependencies": {
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+      "sha256": "e5e49d632ab8ed7dafa548f4909eda53c5b3e2e9aeffe43b11e592c6049d63ca",
+      "bytes": 10498016
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "sha256": "0c789f53209a4f657748861574d399e6636d8051f627b2e051847144019fa8ae",
+      "bytes": 31427685
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib",
+      "sha256": "880f60be6eb17b6af781665c6016c6d050da069685fcf1e8e2cafda0fc2115c8",
+      "bytes": 560736
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar",
+      "sha256": "1913f1ea6930a2012d87543b7939acca65a8d07f049b278b5d220a658d6f05d2",
+      "bytes": 690457904
+    }
+  },
+  "build_log": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/build-45.log",
+    "sha256": "415dffb93dc6d8a4f73f3525abbc0b82399e16c38f8260471f121f9d6011295b",
+    "bytes": 7806
+  },
+  "native_check": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/check-full-fgmres-45.log",
+    "sha256": "86db712811d2a0f804950960739ac747b204f702d68db63762b76c18797bb27c",
+    "bytes": 16987
+  }
+}

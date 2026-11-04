@@ -1,0 +1,432 @@
+{
+  "reference_directory": "/Users/numi/Work/human-integrated-gaps-20261104/compact-tangent-ordinary-272",
+  "candidate_directory": "/Users/numi/Work/human-integrated-gaps-20261104/compact-immutable-contacts-276",
+  "endpoint_reference": {
+    "sha256": "cc6eb0edd0b5ed60a24fc911f11e6965bde10a237151f59bb48e6e872f17d23b",
+    "counts": {
+      "nodes": 318974,
+      "tets": 1479479
+    },
+    "body": "resting_integrated_body=completed simulated_s=0.00050000002374872565 wall_s=233.315622709 real_time_factor=2.1430199055823383e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending",
+    "file_sha256": "ad3450b28682664971ffa659b9e2e5318abc58ad091dd8410b858d57fec90fe5"
+  },
+  "endpoint_candidate": {
+    "sha256": "cc6eb0edd0b5ed60a24fc911f11e6965bde10a237151f59bb48e6e872f17d23b",
+    "counts": {
+      "nodes": 318974,
+      "tets": 1479479
+    },
+    "body": "resting_integrated_body=completed simulated_s=0.00050000002374872565 wall_s=235.947012167 real_time_factor=2.1191199632349346e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending",
+    "file_sha256": "e5c4d422f8ecbd4a7624ffe40cc79efecf37bc151eb0cb8d8bc2e367e9098cbe"
+  },
+  "endpoint_bitwise_equal": true,
+  "compact_csv": {
+    "resting-body-motion-partition.csv": {
+      "reference_sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b",
+      "candidate_sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b",
+      "bitwise_equal": true
+    },
+    "resting-com-momentum-diagnostic.csv": {
+      "reference_sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e",
+      "candidate_sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e",
+      "bitwise_equal": true
+    },
+    "resting-com-q-index-map.csv": {
+      "reference_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "candidate_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bitwise_equal": true
+    },
+    "resting-com-q-integration.csv": {
+      "reference_sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a",
+      "candidate_sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a",
+      "bitwise_equal": true
+    },
+    "resting-com-q-support-slip.csv": {
+      "reference_sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "candidate_sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bitwise_equal": true
+    },
+    "resting-com-support-impulses.csv": {
+      "reference_sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "candidate_sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bitwise_equal": true
+    },
+    "resting-coupled.csv": {
+      "reference_sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148",
+      "candidate_sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148",
+      "bitwise_equal": true
+    },
+    "resting-support-point-motion.csv": {
+      "reference_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "candidate_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bitwise_equal": true
+    },
+    "resting-support-selected-skin-witness.csv": {
+      "reference_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "candidate_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bitwise_equal": true
+    },
+    "resting-surface-audit.csv": {
+      "reference_sha256": "8317708df3c614dce9edf181bdad5f86bbd89d9600fe3b3c86fd9610086e2606",
+      "candidate_sha256": "8317708df3c614dce9edf181bdad5f86bbd89d9600fe3b3c86fd9610086e2606",
+      "bitwise_equal": true
+    }
+  },
+  "root_count": 32,
+  "active_work": {
+    "cycles_with_work": 144,
+    "used_columns_sum": 2304,
+    "budget_exhausted_solves": 62
+  },
+  "storage": [
+    {
+      "rows": "15453677",
+      "templates": "180197",
+      "seeds": "595",
+      "raw_bytes": "1483552992",
+      "packed_bytes": "135219184",
+      "exact_roundtrip": "1",
+      "rows_removed": "0"
+    }
+  ],
+  "memory": [
+    {
+      "phase": "before_fractional_p1_support",
+      "available": "1",
+      "resident_bytes": "3078881280",
+      "footprint_bytes": "2149338064",
+      "metal_allocated_bytes": "0",
+      "recommended_working_set_bytes": "0"
+    },
+    {
+      "phase": "after_fractional_p1_merge_release",
+      "available": "1",
+      "resident_bytes": "3404365824",
+      "footprint_bytes": "2474953944",
+      "metal_allocated_bytes": "0",
+      "recommended_working_set_bytes": "0"
+    },
+    {
+      "phase": "after_fractional_carrier_load",
+      "available": "1",
+      "resident_bytes": "3413229568",
+      "footprint_bytes": "2483817712",
+      "metal_allocated_bytes": "0",
+      "recommended_working_set_bytes": "0"
+    },
+    {
+      "phase": "after_fractional_mass_mapping",
+      "available": "1",
+      "resident_bytes": "7538262016",
+      "footprint_bytes": "6085859976",
+      "metal_allocated_bytes": "0",
+      "recommended_working_set_bytes": "0"
+    },
+    {
+      "phase": "registered_skin_fat_import_complete",
+      "available": "1",
+      "resident_bytes": "8057536512",
+      "footprint_bytes": "4211956984",
+      "metal_allocated_bytes": "0",
+      "recommended_working_set_bytes": "0"
+    },
+    {
+      "phase": "registered_skin_fat_import_scratch_released",
+      "available": "1",
+      "resident_bytes": "6686474240",
+      "footprint_bytes": "2837420224",
+      "metal_allocated_bytes": "0",
+      "recommended_working_set_bytes": "0"
+    },
+    {
+      "phase": "passive_tissue_compile_begin",
+      "available": "1",
+      "resident_bytes": "6686588928",
+      "footprint_bytes": "2837469376",
+      "metal_allocated_bytes": "0",
+      "recommended_working_set_bytes": "0"
+    },
+    {
+      "phase": "passive_tissue_compile_complete",
+      "available": "1",
+      "resident_bytes": "7612170240",
+      "footprint_bytes": "3763411736",
+      "metal_allocated_bytes": "0",
+      "recommended_working_set_bytes": "0"
+    },
+    {
+      "phase": "shared_tissue_authoring_released",
+      "available": "1",
+      "resident_bytes": "7431471104",
+      "footprint_bytes": "6495511648",
+      "metal_allocated_bytes": "0",
+      "recommended_working_set_bytes": "0"
+    },
+    {
+      "phase": "shared_runtime_initialized",
+      "available": "1",
+      "resident_bytes": "6308118528",
+      "footprint_bytes": "8581114200",
+      "metal_allocated_bytes": "5161009152",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_1",
+      "available": "1",
+      "resident_bytes": "791740416",
+      "footprint_bytes": "11059274344",
+      "metal_allocated_bytes": "8261500928",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_2",
+      "available": "1",
+      "resident_bytes": "892633088",
+      "footprint_bytes": "12293169792",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_3",
+      "available": "1",
+      "resident_bytes": "892829696",
+      "footprint_bytes": "12293235328",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_4",
+      "available": "1",
+      "resident_bytes": "892977152",
+      "footprint_bytes": "12293153408",
+      "metal_allocated_bytes": "8296480768",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_5",
+      "available": "1",
+      "resident_bytes": "892977152",
+      "footprint_bytes": "12293153408",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_6",
+      "available": "1",
+      "resident_bytes": "892977152",
+      "footprint_bytes": "12293153408",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_7",
+      "available": "1",
+      "resident_bytes": "892977152",
+      "footprint_bytes": "12293153408",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_8",
+      "available": "1",
+      "resident_bytes": "892977152",
+      "footprint_bytes": "12293153408",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_9",
+      "available": "1",
+      "resident_bytes": "893091840",
+      "footprint_bytes": "12293169816",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_10",
+      "available": "1",
+      "resident_bytes": "893091840",
+      "footprint_bytes": "12293153408",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_11",
+      "available": "1",
+      "resident_bytes": "893091840",
+      "footprint_bytes": "12293153408",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_12",
+      "available": "1",
+      "resident_bytes": "893091840",
+      "footprint_bytes": "12293153408",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_13",
+      "available": "1",
+      "resident_bytes": "903086080",
+      "footprint_bytes": "12278473344",
+      "metal_allocated_bytes": "8418263040",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_14",
+      "available": "1",
+      "resident_bytes": "893403136",
+      "footprint_bytes": "12293317296",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_15",
+      "available": "1",
+      "resident_bytes": "893403136",
+      "footprint_bytes": "12293284480",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_16",
+      "available": "1",
+      "resident_bytes": "893419520",
+      "footprint_bytes": "12293284480",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_17",
+      "available": "1",
+      "resident_bytes": "893419520",
+      "footprint_bytes": "12293284480",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_18",
+      "available": "1",
+      "resident_bytes": "893419520",
+      "footprint_bytes": "12293284480",
+      "metal_allocated_bytes": "8306475008",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_19",
+      "available": "1",
+      "resident_bytes": "893419520",
+      "footprint_bytes": "12293284480",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_20",
+      "available": "1",
+      "resident_bytes": "893419520",
+      "footprint_bytes": "12293284480",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_21",
+      "available": "1",
+      "resident_bytes": "893419520",
+      "footprint_bytes": "12293284480",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_22",
+      "available": "1",
+      "resident_bytes": "893419520",
+      "footprint_bytes": "12293284480",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_23",
+      "available": "1",
+      "resident_bytes": "893419520",
+      "footprint_bytes": "12293284480",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_24",
+      "available": "1",
+      "resident_bytes": "903380992",
+      "footprint_bytes": "12293284480",
+      "metal_allocated_bytes": "8418263040",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_25",
+      "available": "1",
+      "resident_bytes": "933298176",
+      "footprint_bytes": "12234564224",
+      "metal_allocated_bytes": "8402927616",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_26",
+      "available": "1",
+      "resident_bytes": "943259648",
+      "footprint_bytes": "12293333704",
+      "metal_allocated_bytes": "8418263040",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_27",
+      "available": "1",
+      "resident_bytes": "943292416",
+      "footprint_bytes": "12293284480",
+      "metal_allocated_bytes": "8418263040",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_28",
+      "available": "1",
+      "resident_bytes": "938311680",
+      "footprint_bytes": "12293300888",
+      "metal_allocated_bytes": "8418263040",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_29",
+      "available": "1",
+      "resident_bytes": "962134016",
+      "footprint_bytes": "12138537600",
+      "metal_allocated_bytes": "8413282304",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_30",
+      "available": "1",
+      "resident_bytes": "908148736",
+      "footprint_bytes": "12293661312",
+      "metal_allocated_bytes": "8418263040",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_31",
+      "available": "1",
+      "resident_bytes": "938115072",
+      "footprint_bytes": "12293661312",
+      "metal_allocated_bytes": "8382414848",
+      "recommended_working_set_bytes": "12713115648"
+    },
+    {
+      "phase": "accepted_step_32",
+      "available": "1",
+      "resident_bytes": "918192128",
+      "footprint_bytes": "12293661312",
+      "metal_allocated_bytes": "8367013888",
+      "recommended_working_set_bytes": "12713115648"
+    }
+  ],
+  "scope": "32-root release transient, 0.5 ms; no settled-rest or sustained physiology qualification",
+  "pass_exact_state": true
+}

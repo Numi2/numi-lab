@@ -1,0 +1,12 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 446.9149761199951,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-regional-mode1-fidelity-273/install-motion.plan.json",
+  "plan_sha256": "a82965ff88a2e06a591c97f3185d263775ba9abfbc74da114bf73949091791c6",
+  "stdout_sha256": "a57a8c682914fbd1e87a46741e015616e5f5293f86091c47990769ead19d5255",
+  "stderr_sha256": "1ee3ee9d954f170f46ab8946cd4c51608e2a576661c175a730014a534fbebeab",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

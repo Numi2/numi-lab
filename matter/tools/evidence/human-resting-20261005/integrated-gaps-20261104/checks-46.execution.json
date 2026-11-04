@@ -1,0 +1,19 @@
+[
+  {
+    "argv": [
+      "./build-native/matter/numi-matter-fgmres-true-residual-native-check"
+    ],
+    "log": "check-full-fgmres-46.log",
+    "exit_code": 0,
+    "elapsed_s": 3.6357688903808594
+  },
+  {
+    "argv": [
+      "./build-native/matter/numi-matter-fem-material-frame-check",
+      "matter/materials/rodero2021_ventricular_guccione_passive.nmatter"
+    ],
+    "log": "material-check-46.log",
+    "exit_code": 0,
+    "elapsed_s": 148.3826277256012
+  }
+]

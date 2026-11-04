@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/compare_human_fem_endpoint_fidelity.py",
+    "/Users/numi/Work/human-integrated-gaps-20261104/regional-fidelity-reference-270/install-motion.stdout.log",
+    "/Users/numi/Work/human-integrated-gaps-20261104/thin-regional-mode1-fidelity-273/install-motion.stdout.log"
+  ],
+  "exit_code": 2,
+  "elapsed_s": 60.419780254364014,
+  "peak_child_rss_bytes": 5967101952,
+  "scope": "full FEM endpoint; direct mode-1 composite isolation"
+}
