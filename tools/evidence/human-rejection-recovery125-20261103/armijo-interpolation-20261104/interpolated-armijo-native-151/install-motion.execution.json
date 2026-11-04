@@ -1,0 +1,12 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 551.4940280914307,
+  "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/interpolated-armijo-native-151/install-motion.plan.json",
+  "plan_sha256": "ec60c0d9cf98fae7feb456e28cbad936d58fbc86aa89bd790cca91f8370d1f81",
+  "stdout_sha256": "68246ec2f7d3d1334f86cd00c06d36eda5bc9aa1150f0e238053892c30472f01",
+  "stderr_sha256": "a861a907d934ad155f54816ce2db3d71523933ccb3c873ded2dfededaa6836d8",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

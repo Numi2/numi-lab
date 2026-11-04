@@ -862,7 +862,7 @@ void checkSelector6PrefixICB(
     std::cout << "selector6_prefix_icb=true commands=6 columns=2 "
                  "iteration_refresh=true converged_range=empty direct_parity=bitwise "
                  "result=PASS\n";
-    if(!includeGraph) std::cout<<"selector6_regional_only_compact_icb=PASS active_and_completed_parity=true graph_commands=absent\\n";
+    if(!includeGraph) std::cout<<"selector6_regional_only_compact_icb=PASS active_and_completed_parity=true graph_commands=absent\n";
 
 }
 
@@ -17157,6 +17157,51 @@ void checkReferenceContactPlaneCertificate(
 }
 
 
+void checkContactArmijoInterpolation(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    const float nan=std::numeric_limits<float>::quiet_NaN();
+    std::vector<nm_float4> input;
+    for(float curvature:{1.0f,1.0e2f,1.0e4f,1.0e6f})
+        for(float scale:{1.0f,1.0e-15f})
+            input.push_back({curvature*scale,0.0f,-scale,1.0f});
+    input.push_back({nan,0,-1,1});
+    input.push_back({1,0,0,1});
+    input.push_back({-1,0,-1,1});
+    const unsigned count=unsigned(input.size());
+    auto out=makeBuffer(device,std::vector<nm_float4>(count+1,{-7,-7,-7,-7}));
+    dispatch(device,queue,pipeline(device,library,"numi_matter_metal::nm_contact_armijo_interpolation_check"),{
+        {0u,makeBuffer(device,input)},{1u,out},
+        {2u,makeBuffer(device,std::vector<unsigned>{count})}},1u,32u);
+    const auto result=readBuffer<nm_float4>(out,count+1);
+    for(unsigned i=0;i<count;++i) {
+        const auto v=input[i];const double delta=double(v.x)+v.y;
+        const double linear=double(v.w)*v.z;
+        double fraction=0.5;
+        if(v.z<0&&std::isfinite(delta)&&linear<0&&std::isfinite(linear)) {
+            const double denominator=1-delta/linear;
+            if(denominator>0&&std::isfinite(denominator))
+                fraction=std::clamp(0.5/denominator,0.1,0.5);
+        }
+        require(std::isfinite(result[i].x)&&
+            std::abs(result[i].x-v.w*fraction)<2.0e-7,"Armijo interpolation Float64 reference");
+        require(result[i].x>=0.1f*v.w&&result[i].x<=0.5f*v.w,
+            "Armijo proposal escaped safeguarded decreasing interval");
+        if(std::isfinite(v.x)&&v.x>0) {
+            require(result[i].y>0,"stiff quadratic did not find a certified step in eight evaluations");
+            const double alpha=result[i].y;
+            const double energyDelta=-alpha+0.5*double(v.x)*alpha*alpha;
+            require(energyDelta<=-1.0e-4*alpha+1.0e-12,"quadratic Armijo was bypassed");
+        }
+    }
+    bool dyadicAccepted=false;
+    for(unsigned j=0;j<8;++j) {
+        const double alpha=std::exp2(-double(j));
+        dyadicAccepted=dyadicAccepted||(-alpha+0.5*1.0e6*alpha*alpha<=-1.0e-4*alpha);
+    }
+    require(!dyadicAccepted,"stiff regression no longer distinguishes fixed dyadic search");
+    require(result[count].x==-7&&result[count].y==-7,"Armijo interpolation output canary");
+    std::cout<<"contact_armijo_interpolation=true Float64_reference=true fixed_evaluation_budget=8 stiff_quadratic=true invalid_data_halving=true canary=true cases="<<count<<" PASS\n";
+}
+
 void checkFEMAlignedBarrier(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     std::vector<nm_float4> input,parameters;
     for(float width:{2.0e-9f,2.0e-5f,0.02f})for(float fraction:{1.0e-6f,5.0e-5f,2.0e-4f,0.01f,0.1f,0.4f,0.8f,0.99f,1.0f,1.2f}) {
@@ -17298,6 +17343,9 @@ int main(int argc, const char* argv[]) {
                 checkTiledMixedCertificateDomains(device,queue,library);
                 std::cout<<"PASS tiled mixed certificate "<<checks<<" checks\n";
                 return 0;
+            }
+            if(argc==2&&std::string(argv[1])=="--contact-armijo-interpolation-only") {
+                checkContactArmijoInterpolation(device,queue,library);return 0;
             }
             if(argc==2&&std::string(argv[1])=="--fem-aligned-barrier-only") {
                 checkFEMAlignedBarrier(device,queue,library);return 0;
@@ -18041,6 +18089,7 @@ int main(int argc, const char* argv[]) {
             checkReferenceContactArithmeticFrame(device, queue, library);
             checkCompensatedContactEnergyContinuity(device,queue,library);
             checkLeftRowEquilibration(device,queue,library);
+            checkContactArmijoInterpolation(device,queue,library);
             checkFEMAlignedBarrier(device,queue,library);
             checkReferenceSelfContactWidth(device,queue,library);
             checkResolvedMollifierCurvature(device,queue,library);

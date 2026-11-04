@@ -1,0 +1,1 @@
+contact_armijo_interpolation=true Float64_reference=true fixed_evaluation_budget=8 stiff_quadratic=true invalid_data_halving=true canary=true cases=11 PASS

@@ -468,6 +468,40 @@ inline float4 ipcBarrierResponse(
     );
 }
 
+// Safeguarded quadratic interpolation proposes a smaller step; the existing
+// exact endpoint energy, CCD and final certificates still decide acceptance.
+// Normalize by alpha*slope rather than squaring a possibly tiny step.
+inline float contactInterpolatedArmijoAlpha(MRCompensatedScalar energyDelta,
+    float slope,float alpha) {
+    if(!(alpha>0.0f)||!isfinite(alpha))return 0.0f;
+    const float fallback=0.5f*alpha,linear=alpha*slope;
+    const float delta=energyDelta.high+energyDelta.low;
+    if(!(slope<0.0f)||!isfinite(linear)||!(linear<0.0f)||
+       !isfinite(delta))return fallback;
+    const float denominator=1.0f-delta/linear;
+    if(!(denominator>0.0f)||!isfinite(denominator))return fallback;
+    const float fraction=0.5f/denominator;
+    if(!isfinite(fraction))return fallback;
+    return alpha*clamp(fraction,0.1f,0.5f);
+}
+kernel void nm_contact_armijo_interpolation_check(
+    device const float4* input [[buffer(0)]],
+    device float4* output [[buffer(1)]],
+    constant uint& count [[buffer(2)]],uint i [[thread_position_in_grid]]) {
+    if(i>=count)return;
+    const auto v=input[i];
+    const float next=contactInterpolatedArmijoAlpha({v.x,v.y},v.z,v.w);
+    // An independent manufactured stiff quadratic exercises the production
+    // proposal under the unchanged 8-evaluation Armijo acceptance rule.
+    const float curvature=v.x,slope=-1.0f;float alpha=1.0f,accepted=0.0f;
+    for(uint trial=0u;trial<8u;++trial) {
+        const float delta=slope*alpha+0.5f*curvature*alpha*alpha;
+        if(isfinite(delta)&&delta<=1.0e-4f*alpha*slope){accepted=alpha;break;}
+        alpha=contactInterpolatedArmijoAlpha({delta,0.0f},slope,alpha);
+    }
+    output[i]=float4(next,accepted,0.0f,0.0f);
+}
+
 // Offset only the numerical geometry boundary, retaining the existing FEM
 // IPC law down to the positive boundary. Metadata keeps the world activation width.
 inline float4 nmFEMClearanceAlignedResponseAtGap(float gap,float thickness,
@@ -14705,8 +14739,10 @@ inline void nmContactLimitDeformableLineSearch(
                 const uint lineSearchSteps = min(
                     solver.nonlinearIterations.w,
                     NM_MIXED_LINE_SEARCH_MAX_STEPS);
+                float nextTrialAlpha=startAlpha;
                 for (uint trial = 0u; trial < lineSearchSteps; ++trial) {
-                    const float alpha = startAlpha * exp2(-float(trial));
+                    const float alpha=nextTrialAlpha;
+                    nextTrialAlpha=0.5f*alpha;
                     float3 trialNodePosition[6];
                     MRCompensatedPositionGPU trialNodeExpansion[6];
                     for (uint local = 0u; local < 6u; ++local) {
@@ -14957,6 +14993,10 @@ inline void nmContactLimitDeformableLineSearch(
                         armijoAlpha = alpha;
                         break;
                     }
+                    if(referenceModeContact&&finiteTrial)
+                        nextTrialAlpha=contactInterpolatedArmijoAlpha(
+                            contactCompensatedSubtract(trialEnergyWords,currentEnergyWords),
+                            directionalDerivative,alpha);
                     if (captureThisTrial)
                         trialTraceRecords[trialTraceIndex].outcome.y = !finiteTrial ? 5u : 6u;
                 }
